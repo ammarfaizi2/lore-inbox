@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264379AbTCYWPa>; Tue, 25 Mar 2003 17:15:30 -0500
+	id <S264410AbTCYWSx>; Tue, 25 Mar 2003 17:18:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264373AbTCYWOO>; Tue, 25 Mar 2003 17:14:14 -0500
-Received: from colossus.systems.pipex.net ([62.241.160.73]:47256 "HELO
-	colossus.systems.pipex.net") by vger.kernel.org with SMTP
-	id <S264343AbTCYWNO>; Tue, 25 Mar 2003 17:13:14 -0500
-From: shaheed <srhaque@iee.org>
-To: Joe Rayhawk <bung@omgwallhack.org>, Adam Belay <ambx1@neo.rr.com>
-Subject: Re: [PROBLEM] SB16 fails to compile: ISA PNP issues
-Date: Tue, 25 Mar 2003 22:21:59 +0000
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <200303091038.00948.srhaque@iee.org>
-In-Reply-To: <200303091038.00948.srhaque@iee.org>
+	id <S264406AbTCYWR7>; Tue, 25 Mar 2003 17:17:59 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:42938 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S264399AbTCYWRu>;
+	Tue, 25 Mar 2003 17:17:50 -0500
+Date: Tue, 25 Mar 2003 15:31:24 -0600 (CST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@localhost.localdomain>
+To: Ben Collins <bcollins@debian.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] increase BUS_ID_SIZE to 20
+In-Reply-To: <20030318030045.GA367@phunnypharm.org>
+Message-ID: <Pine.LNX.4.33.0303251529140.999-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303252221.59910.srhaque@iee.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe,
 
-Adam Belay (cc'd) has a compiled-but-not-tested fix for this, and several 
-other cards: sadly the hardware with my SB16 died before I could do the 
-testing.
+On Mon, 17 Mar 2003, Ben Collins wrote:
 
-Your offer of testing is probably *just* what he needs...
+> I've tried to figure a way around this without adding back a lot of
+> overhead, but I can't.
+> 
+> The reasoning, is the ieee1394 node's onyl way of a real unique
+> identifier is the EUI (the 64bit GUID). It's represented as a 16 digit
+> hex. However, each node additionally ca have unit directories.
 
+> Please consider applying this patch.
+
+Alright, you win. I'll add it to my tree.
+
+
+	-pat
 

@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266249AbUHBEGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266246AbUHBERp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266249AbUHBEGa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 00:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUHBEGa
+	id S266246AbUHBERp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 00:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUHBERp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 00:06:30 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:17291 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266249AbUHBEG2 (ORCPT
+	Mon, 2 Aug 2004 00:17:45 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37333 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266246AbUHBER1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 00:06:28 -0400
-Date: Mon, 2 Aug 2004 15:02:32 +1000
+	Mon, 2 Aug 2004 00:17:27 -0400
+Date: Mon, 2 Aug 2004 15:13:36 +1000
 From: Nathan Scott <nathans@sgi.com>
-To: Callan Tham <callan.tham@securecirt.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Possible XFS Corruption
-Message-ID: <20040802050232.GB21646@frodo>
-References: <1091418545.6750.12.camel@taz.lan.securecirt.com>
+To: Stormy Waters <stormy420waters@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.4.26 XFS file space reporting bug
+Message-ID: <20040802051336.GC21646@frodo>
+References: <20040730224245.56872.qmail@web61207.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091418545.6750.12.camel@taz.lan.securecirt.com>
+In-Reply-To: <20040730224245.56872.qmail@web61207.mail.yahoo.com>
 User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 11:49:05AM +0800, Callan Tham wrote:
-> Hi list,
+On Fri, Jul 30, 2004 at 03:42:45PM -0700, Stormy Waters wrote:
+> Hi people,
 > 
-> I'm running a Gentoo-patched 2.6.7 kernel, and am experiencing possible
-> XFS corruption on one of my partitions. I've included a sample of the
+> I think I found a bug in the 2.4.26 kernel,  I have a
 
-Is it reproducible with an unpatched kernel.org kernel?
+I suspect this may be pilot error...
 
-thanks.
+> logical partition (see below) that is partitioned for
+> 20 gig's.  when i use df it reports it as 278MB. 
+> Which is not even close to 20gb.  This Machine is
+
+Did you run mkfs.xfs on this device right after it was
+partitioned?  mkfs.xfs is only going to use as much as
+the block layer says it can, so if the kernels in-core
+partition table was out of whack, mkfs will be told an
+out-of-date device size.
+
+If this may be the case, try rebooting and then see if
+mkfs.xfs sees the updated device size.  Also xfs_info /
+"mkfs.xfs -fN" output would be useful here, along with
+the contents of /proc/partitions.
+
+cheers.
 
 -- 
 Nathan

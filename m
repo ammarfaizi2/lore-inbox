@@ -1,59 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313634AbSDPIfM>; Tue, 16 Apr 2002 04:35:12 -0400
+	id <S313638AbSDPImp>; Tue, 16 Apr 2002 04:42:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313635AbSDPIfL>; Tue, 16 Apr 2002 04:35:11 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:17159 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313634AbSDPIfL>; Tue, 16 Apr 2002 04:35:11 -0400
-Message-ID: <3CBBD3AC.2080301@evision-ventures.com>
-Date: Tue, 16 Apr 2002 09:33:00 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
+	id <S313639AbSDPImo>; Tue, 16 Apr 2002 04:42:44 -0400
+Received: from wiproecmx2.wipro.com ([164.164.31.6]:48543 "EHLO
+	wiproecmx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S313637AbSDPImn>; Tue, 16 Apr 2002 04:42:43 -0400
+From: "BALBIR SINGH" <balbir.singh@wipro.com>
+To: "William Lee Irwin III" <wli@holomorphy.com>,
+        "Olaf Fraczyk" <olaf@navi.pl>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Why HZ on i386 is 100 ?
+Date: Tue, 16 Apr 2002 13:48:56 +0530
+Message-ID: <AAEGIMDAKGCBHLBAACGBEEONCEAA.balbir.singh@wipro.com>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <3CBBCD31.4090105@evision-ventures.com> <20020416103001.A32435@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_NextPartTM-000-088d43fa-5105-11d6-a942-00b0d0d06be8"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20020416081453.GP21206@holomorphy.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> On Tue, Apr 16, 2002 at 09:05:21AM +0200, Martin Dalecki wrote:
-> 
->>Tue Apr 16 01:02:47 CEST 2002 ide-clean-36
->>
->>- Consolidate ide_choose_drive() and choose_drive() in to one function.
->>
->>- Remove sector data byteswpapping support. Byte-swapping the data is supported
->>   on the file-system level where applicable.  Byte-swapped interfaces are
->>   supported on a lower level anyway. And finally it was used inconsistently.
-> 
-> 
-> Are you sure about this? I think file systems support LE/BE, but not
-> byteswapping because of IDE being LE on a BE system.
 
-I'm sure about this. For the following reasons:
+This is a multi-part message in MIME format.
 
-1. The removed functionality affected only sector data transfers.
+------=_NextPartTM-000-088d43fa-5105-11d6-a942-00b0d0d06be8
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 
-2. The following code for interfaces with byte swapped BUS setups
-    still remains intact:
+I remember seeing somewhere unix system VII used to have HZ set to 60
+for the machines built in the 70's. I wonder if todays pentium iiis and ivs
+should still use HZ of 100, though their internal clock is in GHz. 
 
-#if defined(CONFIG_ATARI) || defined(CONFIG_Q40)
-	if (MACH_IS_ATARI || MACH_IS_Q40) {
-		/* Atari has a byte-swapped IDE interface */
-		insw_swapw(IDE_DATA_REG, buffer, bytecount / 2);
-		return;
-	}
-#endif
+I think somethings in the kernel may be tuned for the value of HZ, these
+things would be arch specific.
 
-And indeed as you show - there was confusion about this issue
-throughout the whole driver, since the taskfile_in(out)
-functions where basically just the byteswapped variants and
-where not uses consistently.
+Increasing the HZ on your system should change the scheduling behaviour,
+it could lead to more aggresive scheduling and could affect the
+behaviour of the VM subsystem if scheduling happens more frequently. I am
+just guessing, I do not know.
 
+Changing though trivial would require a good look at all the code that
+uses HZ.
+
+Comments,
+Balbir
+
+|-----Original Message-----
+|From: linux-kernel-owner@vger.kernel.org
+|[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of William Lee
+|Irwin III
+|Sent: Tuesday, April 16, 2002 1:45 PM
+|To: Olaf Fraczyk
+|Cc: linux-kernel@vger.kernel.org
+|Subject: Re: Why HZ on i386 is 100 ?
+|
+|
+|On Tue, Apr 16, 2002 at 09:47:48AM +0200, Olaf Fraczyk wrote:
+|> Hi,
+|> I would like to know why exactly this value was choosen.
+|> Is it safe to change it to eg. 1024? Will it break anything?
+|> What else should I change to get it working:
+|> CLOCKS_PER_SEC?
+|> Please CC me.
+|> Regards,
+|> Olaf Fraczyk
+|
+|I tried a few times running with HZ == 1024 for some testing (or I guess
+|just to see what happened). I didn't see any problems, even without the
+|obscure CLOCKS_PER_SEC ELF business.
+|
+|
+|Cheers,
+|Bill
+|-
+|To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+|the body of a message to majordomo@vger.kernel.org
+|More majordomo info at  http://vger.kernel.org/majordomo-info.html
+|Please read the FAQ at  http://www.tux.org/lkml/
+
+------=_NextPartTM-000-088d43fa-5105-11d6-a942-00b0d0d06be8
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+**************************Disclaimer************************************
+      
+
+
+Information contained in this E-MAIL being proprietary to Wipro Limited
+is 'privileged' and 'confidential' and intended for use only by the
+individual or entity to which it is addressed. You are notified that any
+use, copying or dissemination of the information contained in the E-MAIL
+in any manner whatsoever is strictly prohibited.
+
+
+
+ ********************************************************************
+
+------=_NextPartTM-000-088d43fa-5105-11d6-a942-00b0d0d06be8--

@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbTEIILH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:11:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbTEIILH
+	id S262356AbTEIILX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbTEIILX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:11:07 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:23008 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262354AbTEIILG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:11:06 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 May 2003 04:11:23 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:38120 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S262356AbTEIILV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:11:21 -0400
+Date: Fri, 9 May 2003 10:24:01 +0200
+From: norbert_wolff@t-online.de (Norbert Wolff)
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Bogus Warning in ppp_generic.c
+Message-Id: <20030509102401.3534d179.norbert_wolff@t-online.de>
+X-Mailer: Sylpheed version 0.8.11
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16059.25987.491110.330487@gargle.gargle.HOWL>
-Date: Fri, 9 May 2003 10:23:31 +0200
-From: mikpe@csd.uu.se
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't work due to /dev/rtc issues
-In-Reply-To: <20030509042659.GS8978@holomorphy.com>
-References: <3EBAD63C.4070808@nortelnetworks.com>
-	<20030509001339.GQ8978@holomorphy.com>
-	<Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com>
-	<20030509003825.GR8978@holomorphy.com>
-	<Pine.LNX.4.53.0305082052160.21290@chaos>
-	<3EBB25FD.7060809@nortelnetworks.com>
-	<20030509042659.GS8978@holomorphy.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III writes:
- > On Thu, 8 May 2003, William Lee Irwin III wrote:
- > >>>>> Why would you want to use an interrupt? Just count jiffies in sched.c
- > 
- > On Thu, May 08, 2003 at 11:52:29PM -0400, Chris Friesen wrote:
- > > I'm trying to get a feel for the maximum time from an interrupt coming in 
- > > until the userspace handler gets notified.  On intel you can program the 
- > > hardware to generate interupts through /dev/rtc.  The powerpc doesn't seem 
- > > to support this.
- > > Jiffies are not accurate enough, I am expecting max latencies in the 1-2 ms 
- > > range.
- > > Unfortunately no.  USB/Firewire/Ethernet on the desktop, ethernet/serial 
- > > for compactPCI.
- > > I want to find an additional programmable interrupt source.  It bites that 
- > > cheap PCs have this, and the powerpc doesn't.
- > 
- > Try the timebase instead.
+Hi !
 
-On all Moto PPCs I've checked, the time-base runs at 1/4 the bus clock
-rather than at the core clock like we're used to on x86.
+If devfs is not configured, devfs_mk_cdev returns 0.
+The ppp_generic-Driver reports a bogus Warning in this case.
+Fix below.
 
-I believe many PPCs allow you to program one of the performance counters
-to count core clocks. Be advised though that many Moto PPCs in the 750-7410
-range have an errata that prevents using performance counter interrupts,
-so you'd have to run the counter in non-interrupting mode.
+Regards,
 
-This isn't available to user-space (yet), so you'd also have to hack
-the kernel to use this facility.
+	Norbert	
+
+
+--- ppp_generic.c.orig	2003-05-09 09:16:56.%N +0200
++++ ppp_generic.c	2003-05-09 10:09:19.%N +0200
+@@ -784,10 +784,13 @@ int __init ppp_init(void)
+ 
+ 	printk(KERN_INFO "PPP generic driver version " PPP_VERSION "\n");
+ 	err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);
++
++#ifdef CONFIG_DEVFS_FS
+ 	if (!err) {
+ 		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
+ 				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
+ 	}
++#endif
+ 
+ 	if (!err)
+ 		printk(KERN_ERR "failed to register PPP device (%d)\n", err);
+
+
+--
+ Norbert Wolff
+ OpenPGP-Key:
+   http://pgp.mit.edu:11371/pks/lookup?op=get&search=0xF13BD6F6

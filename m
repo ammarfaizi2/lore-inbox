@@ -1,45 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264723AbUGSXc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264701AbUGSXru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264723AbUGSXc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 19:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264826AbUGSXc7
+	id S264701AbUGSXru (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 19:47:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUGSXru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 19:32:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4739 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264723AbUGSXc4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 19:32:56 -0400
-Date: Mon, 19 Jul 2004 19:32:14 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@devserv.devel.redhat.com
-To: Meelis Roos <mroos@linux.ee>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: TEA crypto in 2.4: undefined MODULE_ALIAS
-In-Reply-To: <Pine.GSO.4.44.0407191253370.14892-100000@math.ut.ee>
-Message-ID: <Pine.LNX.4.58.0407191931390.1972@devserv.devel.redhat.com>
-References: <Pine.GSO.4.44.0407191253370.14892-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Jul 2004 19:47:50 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:59116 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S264701AbUGSXrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 19:47:49 -0400
+Date: Mon, 19 Jul 2004 16:47:45 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ben <ben@easynews.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel cache question
+Message-ID: <20040719234745.GA5442@taniwha.stupidest.org>
+References: <1090248720.8296.2.camel@solaris.skunkware.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1090248720.8296.2.camel@solaris.skunkware.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jul 2004, Meelis Roos wrote:
+On Mon, Jul 19, 2004 at 07:52:00AM -0700, Ben wrote:
 
-> I am trying to compile 2.4.27-BK on PPC and activated TEA crypto option
-> as a module. I get this compile error:
-> 
-> gcc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -I/home/mroos/compile/linux-2.4/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -DMODULE -DMODVERSIONS -include /home/mroos/compile/linux-2.4/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=tea  -c -o tea.o tea.c
-> tea.c:242: error: parse error before string constant
-> tea.c:242: warning: type defaults to `int' in declaration of `MODULE_ALIAS'
-> tea.c:242: warning: function declaration isn't a prototype
-> tea.c:242: warning: data definition has no type or storage class
-> 
+> Really lame question, but is there a way to control the maximum
+> amount of memory the kernel can use for caching?
 
-Probably remove the line from the 2.4 version.
+no, not really
 
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+  --cw

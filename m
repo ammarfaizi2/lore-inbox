@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267775AbUHRVPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267735AbUHRVIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267775AbUHRVPm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 17:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267746AbUHRVI5
+	id S267735AbUHRVIk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 17:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267760AbUHRVIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 17:08:57 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:64049 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267758AbUHRVEX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 17:04:23 -0400
-Date: Thu, 19 Aug 2004 01:04:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: kbuild: Fix parallel build
-Message-ID: <20040818230435.GB23495@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040818230252.GA23495@mars.ravnborg.org>
+	Wed, 18 Aug 2004 17:08:39 -0400
+Received: from holomorphy.com ([207.189.100.168]:29113 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267748AbUHRVFG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 17:05:06 -0400
+Date: Wed, 18 Aug 2004 14:05:03 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: pj@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: Does io_remap_page_range() take 5 or 6 args?
+Message-ID: <20040818210503.GG11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"David S. Miller" <davem@redhat.com>, pj@sgi.com,
+	linux-kernel@vger.kernel.org
+References: <20040818133348.7e319e0e.pj@sgi.com> <20040818205338.GF11200@holomorphy.com> <20040818135638.4326ca02.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040818230252.GA23495@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040818135638.4326ca02.davem@redhat.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/08/17 22:35:04+02:00 sam@mars.ravnborg.org 
-#   kbuild: Fix parallel build in a distclean'ed tree
-#   
-#   Fixes the following error:
-#   make: *** No rule to make target `.tmp_kallsyms2.S', needed by `.tmp_kallsyms2.o'.
-#   
-#   Problem is that make does not know it have to visit scripts before it can use $(KALLSYMS)
-#   $(KALLSYMS) is a dependency to .tmp_kallsyms% but make suddenly complains about
-#   .tmp_kallsyms2 for some reasons.
-#   
-#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-# 
-# Makefile
-#   2004/08/17 22:34:48+02:00 sam@mars.ravnborg.org +3 -0
-#   Needs to tell make that $(KALLSYMS) is only build after visiting scripts
-# 
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	2004-08-19 01:04:26 +02:00
-+++ b/Makefile	2004-08-19 01:04:26 +02:00
-@@ -600,6 +600,9 @@
- .tmp_vmlinux3: $(vmlinux-objs) .tmp_kallsyms2.o arch/$(ARCH)/kernel/vmlinux.lds FORCE
- 	$(call if_changed_rule,vmlinux__)
- 
-+# Needs to visit scripts/ before $(KALLSYMS) can be used.
-+$(KALLSYMS): scripts ;
-+
- endif
- 
- # Finally the vmlinux rule
+On Wed, 18 Aug 2004 13:53:38 -0700 William Lee Irwin III wrote:
+>> Once it's decided how many it really takes, I'll fix up sparc32 as-needed.
+
+On Wed, Aug 18, 2004 at 01:56:38PM -0700, David S. Miller wrote:
+> (sorry for the emply reply previously)
+> It needs 6 unless we start passing in a 64-bit value to io_remap_page_range()
+> for the 'offset' parameter.
+> Physical I/O addresses are 36-bits or so on sparc32 systems, which is
+> why we need to pass in "offset" and "space".
+
+We should pass 64-bit values to remap_page_range() also, then. Or
+perhaps passing pfn's to both suffices, as it all has to be page
+aligned anyway.
+
+
+-- wli

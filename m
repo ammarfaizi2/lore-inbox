@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268792AbTBZPzB>; Wed, 26 Feb 2003 10:55:01 -0500
+	id <S268793AbTBZPy6>; Wed, 26 Feb 2003 10:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268786AbTBZPzB>; Wed, 26 Feb 2003 10:55:01 -0500
-Received: from mx01.uni-tuebingen.de ([134.2.3.11]:31675 "EHLO
-	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S268792AbTBZPx6>; Wed, 26 Feb 2003 10:53:58 -0500
-X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
- wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: jt@hpl.hp.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Invalid compilation without -fno-strict-aliasing
-References: <200302261538.h1QFcAiF004085@eeyore.valparaiso.cl>
-From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
-Date: 26 Feb 2003 17:04:05 +0100
-In-Reply-To: <200302261538.h1QFcAiF004085@eeyore.valparaiso.cl>
-Message-ID: <873cmbghai.fsf@student.uni-tuebingen.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
+	id <S268786AbTBZPy6>; Wed, 26 Feb 2003 10:54:58 -0500
+Received: from daimi.au.dk ([130.225.16.1]:27068 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S268793AbTBZPyH>;
+	Wed, 26 Feb 2003 10:54:07 -0500
+Message-ID: <3E5CE580.5ABA105E@daimi.au.dk>
+Date: Wed, 26 Feb 2003 17:04:16 +0100
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-AntiVirus: checked by AntiVir Milter 1.0.0.8; AVE 6.18.0.2; VDF 6.18.0.9
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Panic in i810
+References: <3E595ED3.5D86FE45@daimi.au.dk> <3E5CB684.5A26BCA6@daimi.au.dk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> writes:
-
-> Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
-> > 	if((stream + event_len) < ends) {
-> > 		iwe->len = event_len;
-> > 		memcpy(stream, (char *) iwe, event_len);
-> > 		stream += event_len;
-> > 	}
-> > 	return stream;
-> > }
+Kasper Dupont wrote:
 > 
-> The compiler is free to assume char *stream and struct iw_event *iwe
-> point to separate areas of memory, due to strict aliasing.
+> Kasper Dupont wrote:
+> >
+> > I have a reproducable kernel panic with different 2.4.x kernels.
+> > I'm using XFree86-4.2.0-8 with a i810 onboard chipset. Sometimes
+> > when I log off X the kernel panics. This can be reproduced by
+> > loging in on a VC as root and typing:
+> >
+> > while [ ! -f /tmp/stopit ] ; do
+> > killall gdmlogin || killall gdm ; sleep 7 ; deallocvt
+> > done
+> 
+> I made a patch, that at least prevents the system from panicing.
 
-The relevant paragraph of the C99 standard is:
-
-An object shall have its stored value accessed only by an lvalue
-expression that has one of the following types:
-
--- a type compatible with the effective type of the object,
--- a qualified version of a type compatible with the effective type of
-   the object,
--- a type that is the signed or unsigned type corresponding to the
-   effective type of the object,
--- a type that is the signed or unsigned type corresponding to a
-   qualified version of the effective type of the object,
--- an aggregate or union type that includes one of the aforementioned
-   types among its members (including, recursively, a member of a
-   subaggregate or contained union), or
--- a character type.
-
-I can't really spot any lvalue here that might violate this rule.  It
-would be nice if somebody could report a bug with a testcase.
+I said that too early. It did survive my stress testing. But shortly
+thereafter on logout I got an endless stream of NULL pointer errors
+from the i810_dma_service IRQ handler.
 
 -- 
-	Falk
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

@@ -1,55 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265483AbUEZLXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264192AbUEZLZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265483AbUEZLXS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 07:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265484AbUEZLXS
+	id S264192AbUEZLZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 07:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265486AbUEZLZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 07:23:18 -0400
-Received: from zero.aec.at ([193.170.194.10]:58885 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S265483AbUEZLXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 07:23:17 -0400
-To: Andrew Morton <akpm@osdl.org>
-cc: akiyama.nobuyuk@jp.fujitsu.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI trigger switch support for debugging
-References: <1ZjWz-sq-11@gated-at.bofh.it> <1Zk6a-z2-3@gated-at.bofh.it>
-	<1ZVyO-63D-25@gated-at.bofh.it> <1ZVIq-69O-3@gated-at.bofh.it>
-	<1ZWuM-6Nz-1@gated-at.bofh.it> <1ZWEt-6Uw-1@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 26 May 2004 13:23:12 +0200
-In-Reply-To: <1ZWEt-6Uw-1@gated-at.bofh.it> (Andrew Morton's message of
- "Wed, 26 May 2004 04:50:05 +0200")
-Message-ID: <m3smdn4elb.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Wed, 26 May 2004 07:25:44 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:24911 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264192AbUEZLZb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 07:25:31 -0400
+Message-ID: <40B47EA3.2060800@yahoo.com.au>
+Date: Wed, 26 May 2004 21:25:23 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Martin Olsson <mnemo@minimum.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all?
+References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <200405260934.i4Q9YblP000762@81-2-122-30.bradfords.org.uk> <40B467DA.4070600@yahoo.com.au> <20040526101001.GA13426@citd.de> <40B47546.5050602@minimum.se>
+In-Reply-To: <40B47546.5050602@minimum.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Martin Olsson wrote:
+> Hi Linux-gurus,
+> 
+> I agree with Anthony Disante, maybe not all users want swapping. I have 
+> myself felt very annoying with swapping lately but I've not yet tried to 
+> disable it.
+> 
+> In school I've studied the swapping concept from a theoretical point
+> of view, and I fully understand the fact that swapping, if used 
+> properly, can both increase performance and provide a safe way to get 
+> out of a bad situation when the box runs out of memory. The problem is 
+> that in reality this does not work, not on Linux nor on Windows 2000 
+> which I use at home. Unfortunately I cannot provide a specific reason 
+> why it does not work, I'm very much a end-user/desktop-user, I'm not a 
+> kernel hacker (yet). But I see two things that needs improvement atm:
+> 
 
-> AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com> wrote:
->>
->> Sorry, I resend document and patch.
->
-> Great, thanks.  Updates to Documentation/kernel-parameters.txt and
-> Documentation/filesystems/proc.txt would be nice.
->
->
-> If the machine locks up with interrupts enabled we can use sysrq-T and
-> sysrq-P.  If it locks up with interrupts disabled the NMI watchdog will
-> automatically produce the same info as your patch.  So what advantage does
-> the patch add?
+You don't need to provide a specific reason, a report would be
+valuable too.
 
-His patch will still work e.g. if the interrupt locks are messed up.
-Then the keyboard interrupt will not work anymore, but NMI will.
-Arguably a bit obscure, but could happen.
+> A) when I do large data processing operations the computer is always 
+> very very slow afterwards
+> 
 
-The bigger advantage I see from the patch (and why i like it) is 
-that distributions often disable sysrq by default for security
-reasons. This is not really needed for this NMI oopser, since you
-can assume that someone with access to the NMI switch can crash the
-machine at will.
+Time how long the large data processing operations take, then turn
+swap off and time them again.
 
--Andi
+> B) if I have X Mb of RAM then there should not be imho a single swap 
+> read/write until the whole of my X Mb RAM is completely stuffed, is this 
+> so today?
+> 
 
+Yes, Linux doesn't start swapping or reclaiming at all until your
+RAM is full.
+
+> ---
+> 
+> Also, imagine that I disable swap today and start a large data 
+> processing operation. During this operation I try to start a new 
+> process, here ideally the program should not OOM but instead the memory 
+> allocated for the data processing operation should be decreased. Is this 
+> possible using today's technology? Can be divide memory into two sorts, 
+> one for processes (here to stay memory) and another sort for batch 
+> operations (where the amount of memory does not really matter but less 
+> memory means less performance). I see the problem with "taking memory 
+> back" though, I guess its impossible.
+> 
+
+File backed data will be able to be reclaimed, yes.

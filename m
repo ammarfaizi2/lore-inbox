@@ -1,56 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129289AbQLSFpy>; Tue, 19 Dec 2000 00:45:54 -0500
+	id <S129391AbQLSFrf>; Tue, 19 Dec 2000 00:47:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129391AbQLSFpp>; Tue, 19 Dec 2000 00:45:45 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:38616 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S129289AbQLSFpc>; Tue, 19 Dec 2000 00:45:32 -0500
-Date: Mon, 18 Dec 2000 21:15:04 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: linux-2.4.0-test13pre3/arch/i386/math-emu/fpu_system.h compilation error
-Message-ID: <20001218211504.A22646@baldur.yggdrasil.com>
+	id <S129543AbQLSFrZ>; Tue, 19 Dec 2000 00:47:25 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:2820 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129391AbQLSFrT>; Tue, 19 Dec 2000 00:47:19 -0500
+Date: Mon, 18 Dec 2000 23:16:47 -0600
+To: richard offer <offer@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linus's include file strategy redux
+Message-ID: <20001218231647.A980@cadcamlab.org>
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <91bnoc$vij$2@enterprise.cistron.net> <20001215155741.B4830@ping.be> <01cf01c066ab$036fc030$890216ac@ottawa.loran.com> <91gr99$bs81o$1@fido.engr.sgi.com> <10012180904.ZM26544@sgi.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <10012180904.ZM26544@sgi.com>; from offer@sgi.com on Mon, Dec 18, 2000 at 09:04:58AM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+[richard offer]
+> Or userland libraries/applications that need to bypass libc and make
+> direct kernel calls because libc hasn't yet implemented those new
+> kernel calls.
 
-	In linux-2.4.0-test13pre3 (or maybe pre1 or pre2),
-mm_struct->segments became mm_struct->context.segmnets.  This change
-adjusts linux-2.4.0-test13pre3/arch/i386/math-emu/fpu_system.h accordingly
-so that i386 math emulation will compile again.
+Nah, it's still error-prone because it's too hard to guarantee that the
+user compiling your program has up-to-date kernel headers in a location
+you can find.  Too many things can go wrong.
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+So just '#include <asm/unistd.h>' -- the libc version -- then have your
+own header for those few things you consider "too new to be in libc":
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=diffs
+  /* my_unistd.h */
+  /* [not sure if all the __{arch}__ defines are right] */
+  #include <asm/unistd.h>	/* from libc, not from kernel */
+  #ifndef __NR_pivot_root
+  # ifdef __alpha__
+  #  define __NR_pivot_root 374
+  # endif
+  # if defined(__i386__) || defined(__s390__) || defined(__superh__)
+  #  define __NR_pivot_root 217
+  # endif
+  # ifdef __mips__
+  #  define __NR_pivot_root (__NR_Linux + 216)
+  # endif
+  # ifdef __hppa__
+  #  define __NR_pivot_root (__NR_Linux + 67)
+  # endif
+  # ifdef __sparc__
+  #  define __NR_pivot_root 146
+  # endif
+  #endif
+  #ifndef __NR_pivot_root
+  # error Your architecture is not known to support pivot_root(2)
+  #endif
+  _syscall2(int,pivot_root,char *,new,char *,old)
 
---- linux-2.4.0-test13-pre3/arch/i386/math-emu/fpu_system.h	Mon Dec 11 13:34:33 2000
-+++ linux/arch/i386/math-emu/fpu_system.h	Mon Dec 18 21:10:35 2000
-@@ -20,7 +20,7 @@
-    of the stack frame of math_emulate() */
- #define SETUP_DATA_AREA(arg)	FPU_info = (struct info *) &arg
- 
--#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)current->mm->segments)[(s) >> 3])
-+#define LDT_DESCRIPTOR(s)	(((struct desc_struct *)current->mm->context.segments)[(s) >> 3])
- #define SEG_D_SIZE(x)		((x).b & (3 << 21))
- #define SEG_G_BIT(x)		((x).b & (1 << 23))
- #define SEG_GRANULARITY(x)	(((x).b & (1 << 23)) ? 4096 : 1)
+Yes it's clumsy but it's guaranteed to be where you expect it.  (And
+it's not nearly as clumsy if you don't feel the need to support all
+architectures.)
 
---IS0zKkzwUGydFO0o--
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

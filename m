@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbTFFLx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 07:53:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTFFLx4
+	id S261196AbTFFMAH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 08:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbTFFMAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 07:53:56 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:8950 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S261249AbTFFLxz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 07:53:55 -0400
-Subject: ide-disk and standby on shutdown
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Organization: 
-Message-Id: <1054901240.765.77.camel@gaston>
+	Fri, 6 Jun 2003 08:00:07 -0400
+Received: from med-gwia-02a.med.umich.edu ([141.214.93.150]:31785 "EHLO
+	mail-02.med.umich.edu") by vger.kernel.org with ESMTP
+	id S261196AbTFFMAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 08:00:06 -0400
+Message-Id: <see04d33.063@mail-02.med.umich.edu>
+X-Mailer: Novell GroupWise Internet Agent 6.0.2
+Date: Fri, 06 Jun 2003 08:13:21 -0400
+From: "Nicholas Berry" <nikberry@med.umich.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5] Non-blocking write can block
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 Jun 2003 14:07:20 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bart, Alan !
 
-Ì noticed the reboot/shutdown notifier that is in 2.4 to standby the
-disk is gone from 2.5. Is that done via other means or just missing ?
+>>> "Richard B. Johnson" <root@chaos.analogic.com> 06/05/03 03:15PM
+>>>
+>On Thu, 5 Jun 2003, Mike Fedyk wrote:
 
-I added to my latest version of the blk PM stuff a request type for
-REQ_PM_SHUTDOWN in addition to REQ_PM_SUSPEND & REQ_PM_RESUME to match
-more closely the semantics of struct device, which means i can very
-easily implement that standby-on-shutdown with proper locking & queue
-issues in IDE using the exact same meacnism as suspend.
+> On Wed, Jun 04, 2003 at 05:19:05PM -0700, Davide Libenzi wrote:
+> > Besides the stupid name O_REALLYNONBLOCK, it really should be
+different
+> > from both O_NONBLOCK and O_NDELAY. Currently in Linux they both map
+to the
+> > same value, so you really need a new value to not break binary
+compatibility.
+>
+> Hmm, wouldn't that be source and binary compatability?  If an app
+used
+> O_NDELAY and O_NONBLOCK interchangably, then a change to O_NDELAY
+would
+> break source compatability too.
+>
+> Also, what do other UNIX OSes do?  Do they have seperate semantics
+for
+> O_NONBLOCK and O_NDELAY?  If so, then it would probably be better to
+change
+> O_NDELAY to be similar and add another feature at the same time as
+reducing
+> platform specific codeing in userspace.
+> -
 
-What do you think ?
+>My Sun thinks that O_NDELAY = 0x04 and O_NONBLOCK = 0x80, FWIW.
 
-Ben.
+AIX 4.3.3 O_NDELAY = 0x8000 and O_NONBLOCK = 0x04 FWTW.
+
+Nik
+
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+>Why is the government concerned about the lunatic fringe? Think about
+it.
 

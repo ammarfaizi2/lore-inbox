@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268908AbTGTWnE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 18:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268909AbTGTWnE
+	id S268876AbTGTWkO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 18:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268893AbTGTWkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 18:43:04 -0400
-Received: from mpdir2.jmu.edu ([134.126.12.41]:11593 "EHLO mpdir2.jmu.edu")
-	by vger.kernel.org with ESMTP id S268908AbTGTWnA (ORCPT
+	Sun, 20 Jul 2003 18:40:14 -0400
+Received: from pat.uio.no ([129.240.130.16]:8149 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268876AbTGTWkK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 18:43:00 -0400
-Message-ID: <3F1B1E77.2020205@jmu.edu>
-Date: Sun, 20 Jul 2003 18:57:59 -0400
-From: "William M. Quarles" <quarlewm@jmu.edu>
-Organization: James Madison University
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Sun, 20 Jul 2003 18:40:10 -0400
+To: Alex Riesen <fork0@users.sf.net>
+Cc: nfs@lists.sourceforge.net, Neil Brown <neilb@cse.unsw.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1+bk: NFS client-side freezes
+References: <20030719202253.GA1716@steel.home>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 21 Jul 2003 00:54:54 +0200
+In-Reply-To: <20030719202253.GA1716@steel.home>
+Message-ID: <shsu19gn70h.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4 CPU Arch issues
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-In the 2.4 kernel, is it possible for you to separate the Pentium II and 
-Pentium Pro as confiugration options, as you have done for the 2.6 
-kernel, or is it too late in the development for that?
+Please duplicate with the standard kernel.
 
-Thanks,
--- 
-William M. Quarles
-
-quarlewm@jmu.edu
-wquarles@bucknell.edu
-walrus@bellsouth.net
-
+Cheers,
+  Trond

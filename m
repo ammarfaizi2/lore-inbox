@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132831AbRADFwo>; Thu, 4 Jan 2001 00:52:44 -0500
+	id <S129348AbRADGEh>; Thu, 4 Jan 2001 01:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132895AbRADFwe>; Thu, 4 Jan 2001 00:52:34 -0500
-Received: from smarty.smart.net ([207.176.80.102]:26426 "EHLO smarty.smart.net")
-	by vger.kernel.org with ESMTP id <S132831AbRADFwS>;
-	Thu, 4 Jan 2001 00:52:18 -0500
-From: Rick Hohensee <humbubba@smarty.smart.net>
-Message-Id: <200101040552.AAA24643@smarty.smart.net>
-Subject: Here's a nickel, kid.
+	id <S129413AbRADGE1>; Thu, 4 Jan 2001 01:04:27 -0500
+Received: from [202.106.187.156] ([202.106.187.156]:48396 "HELO sina.com")
+	by vger.kernel.org with SMTP id <S129348AbRADGER>;
+	Thu, 4 Jan 2001 01:04:17 -0500
+Date: Thu, 4 Jan 2001 14:02:56 +0800
+From: hugang <linuxbest@sina.com>
 To: linux-kernel@vger.kernel.org
-Date: Thu, 4 Jan 101 00:52:13 -0500 (EST)
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+Subject: Abort x86 assemble code
+Message-Id: <20010104140256.4ce9f12b.linuxbest@sina.com>
+X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.4.0-prerelease; i686)
+Organization: soul
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Go write yourself a real OS.
+Hello all
+	
+	I have following code ,and I can not understand the mark line,who can tell me.thanks.
+--------------------------------------------------------------
+00000eb8 movb   (%ebx),%al      <<IMPORTANT 1-4>>
+00000eba incl   %ebx
+00000ebb movl   %edi,%ecx
+00000ebd shrl   $0x8,%ecx
+00000ec0 movl   %edi,%edx
+00000ec2 xorb   %dl,%al
+00000ec4 movzbl %al,%eax
+00000ec7 xorl   0x400dec(,%eax,4),%ecx					????<-----------------What it to do.
+00000ece movl   %ecx,%edi
+00000ed0 movl   %esi,%eax               <-- jmp here
+00000ed2 decl   %esi
+00000ed3 orl    %eax,%eax
+00000ed5 jne    00000eb8
+00000ed7 movl   %edi,0x406894           <- 1-4 see here
+00000edd popl   %esi
+00000ede popl   %edi
+00000edf popl   %ebx
 
-45k text OS design sketch. Forth meets UNIX meets AmigaDos meets INTERCAL
-meets a Teletype Model 37.
+________________________________________________________________
+thanks .
 
-ftp://linux01.gwdg.de/pub/cLIeNUX/interim/design
-
-Rick Hohensee
-Forth, unix, cLIeNUX, and worse.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

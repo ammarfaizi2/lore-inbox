@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129184AbRA2Ul4>; Mon, 29 Jan 2001 15:41:56 -0500
+	id <S129143AbRA2Up0>; Mon, 29 Jan 2001 15:45:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129745AbRA2Ulq>; Mon, 29 Jan 2001 15:41:46 -0500
-Received: from [63.109.146.2] ([63.109.146.2]:42232 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S129184AbRA2Ulj>;
-	Mon, 29 Jan 2001 15:41:39 -0500
-Message-ID: <4461B4112BDB2A4FB5635DE1995874320223F3@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Keith Owens'" <kaos@ocs.com.au>, Matthew Pitts <mpitts@suite224.net>
-Cc: Jacob Anawalt <anawaltaj@qwest.net>, linux-kernel@vger.kernel.org
-Subject: RE: Knowing what options a kernel was compiled with 
-Date: Mon, 29 Jan 2001 12:41:31 -0800
+	id <S129274AbRA2UpR>; Mon, 29 Jan 2001 15:45:17 -0500
+Received: from tungsten.btinternet.com ([194.73.73.81]:49132 "EHLO
+	tungsten.btinternet.com") by vger.kernel.org with ESMTP
+	id <S129172AbRA2UpK>; Mon, 29 Jan 2001 15:45:10 -0500
+Date: Mon, 29 Jan 2001 20:44:55 +0000 (GMT)
+From: <davej@suse.de>
+X-X-Sender: <davej@athlon.local>
+To: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+cc: John Levon <moz@compsoc.man.ac.uk>, Timur Tabi <ttabi@interactivesi.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
+Message-ID: <Pine.LNX.4.31.0101292041390.22513-100000@athlon.local>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Should someone submit a patch to copy the .config to a standard location as
-part of "make install" or "make modules_install"? If included in the
-official sources, that good example would encourage the distribution
-maintainers do the same. 
+On Mon, 29 Jan 2001, David D.W. Downey wrote:
 
-Torrey Hoffman
+> Simply put, with all bitterness and finger pointing aside, WHERE do we
+> find information on various kernel functions, their general usage (as in
+> the WHY, not only the HOW) and reasonings on why not to use some
+> vs. others.
 
+/usr/src/linux/Documentation
 
->-----Original Message-----
->From: Keith Owens [mailto:kaos@ocs.com.au]
->[...]
->I know that some distributions ship .config but not all do.  A long way
->down on my TODO list is "submit a requirement to FHS that .config,
->System.map and other kernel related text files must be shipped in
->directory <foo>". 
->[...]
+> Me personally, I'd be happy with a list of all the finctions in the linux
+> kernel, a brief description of their usage and a singl elink on where to
+> find more info about that particular function.
+
+make pdfdocs
+acroread Documentation/DocBook/kernel-api.pdf
+
+(Check out the other .pdf's in that dir too)
+
+You may also make sgmldocs/psdocs/htmldocs
+
+regards,
+
+Davej.
+
+-- 
+| Dave Jones.        http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

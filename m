@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290639AbSBGR2h>; Thu, 7 Feb 2002 12:28:37 -0500
+	id <S290643AbSBGR3r>; Thu, 7 Feb 2002 12:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290615AbSBGR1Z>; Thu, 7 Feb 2002 12:27:25 -0500
-Received: from zero.tech9.net ([209.61.188.187]:41230 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290490AbSBGR1N>;
-	Thu, 7 Feb 2002 12:27:13 -0500
-Subject: [PATCH] 2.5: bluetooth compile fix
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: viro@math.psu.edu, greg@kroah.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 07 Feb 2002 12:27:09 -0500
-Message-Id: <1013102830.9535.14.camel@phantasy>
+	id <S290615AbSBGR3a>; Thu, 7 Feb 2002 12:29:30 -0500
+Received: from ns.suse.de ([213.95.15.193]:57349 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290490AbSBGR24>;
+	Thu, 7 Feb 2002 12:28:56 -0500
+Date: Thu, 7 Feb 2002 18:28:53 +0100
+From: Dave Jones <davej@suse.de>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andre Hedrick <andre@linuxdiskcert.org>,
+        Russell King <rmk@arm.linux.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: driverfs support for motherboard devices
+Message-ID: <20020207182853.M22451@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Patrick Mochel <mochel@osdl.org>, Pavel Machek <pavel@suse.cz>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Andre Hedrick <andre@linuxdiskcert.org>,
+	Russell King <rmk@arm.linux.org.uk>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020207142333.A22451@suse.de> <Pine.LNX.4.33.0202070922460.25114-100000@segfault.osdlab.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0202070922460.25114-100000@segfault.osdlab.org>; from mochel@osdl.org on Thu, Feb 07, 2002 at 09:26:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Thu, Feb 07, 2002 at 09:26:01AM -0800, Patrick Mochel wrote:
 
-The llseek cleanup contained a typo in bluetooth/hci_vhci.c that
-prevents compile.  Thankfully it seems to be the only of this type.
+ > Hey, speaking of PnPBios, is there a spec somewhere?
 
-Patch against 2.5.4-pre2.  Please, apply.
+ I was hunting for it yesterday for someone else who asked me,
+ but I didn't turn up a pdf. The only copy I seem to have is
+ in dead-tree format (Mindshare PCI book).
 
-	Robert Love
+ > Speaking of specs, does anyone know of some sort of list of specs of 
+ > things kernel related - platforms, hardware and firmware? sandpile.org is 
+ > good for most x86 things, though they are merely document names. 
 
-diff -urN linux-2.5.4-pre2/drivers/bluetooth/hci_vhci.c linux/drivers/bluetooth/hci_vhci.c
---- linux-2.5.4-pre2/drivers/bluetooth/hci_vhci.c	Thu Feb  7 12:04:48 2002
-+++ linux/drivers/bluetooth/hci_vhci.c	Thu Feb  7 12:24:00 2002
-@@ -291,7 +291,7 @@
- 
- static struct file_operations hci_vhci_fops = {
- 	owner:	THIS_MODULE,	
--	llseek:	no_lseek,
-+	llseek:	no_llseek,
- 	read:	hci_vhci_chr_read,
- 	write:	hci_vhci_chr_write,
- 	poll:	hci_vhci_chr_poll,
+ Jeff Garzik has gathered some stuff together at 
+ http://gkernel.sourceforge.net/specs/
 
+ Other stuff is kind of... 'well dispersed'
 
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

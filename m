@@ -1,39 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVAGBNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVAGBWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVAGBNR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 20:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVAGBLI
+	id S261265AbVAGBWN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 20:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVAGBWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 20:11:08 -0500
-Received: from mail.dif.dk ([193.138.115.101]:53951 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261226AbVAGBGs (ORCPT
+	Thu, 6 Jan 2005 20:22:07 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53913 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261270AbVAGBVu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 20:06:48 -0500
-Date: Fri, 7 Jan 2005 02:18:11 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][0/4] let's kill verify_area
-Message-ID: <Pine.LNX.4.61.0501070212560.3430@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 Jan 2005 20:21:50 -0500
+Date: Thu, 6 Jan 2005 17:26:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][0/4] let's kill verify_area
+Message-Id: <20050106172624.7cc2a142.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0501070212560.3430@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0501070212560.3430@dragon.hygekrogen.localhost>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jesper Juhl <juhl-lkml@dif.dk> wrote:
+>
+> verify_area() if just a wrapper for access_ok() (or similar function or 
+> dummy function) for all arch's.
 
-verify_area() if just a wrapper for access_ok() (or similar function or 
-dummy function) for all arch's. I say it's time we just get rid of it as 
-it no longer serves any purpose and it's easy to convert to access_ok. 
-Converting all users may take some time, so initially deprecate it (which 
-will get the janitors attention as well as maintainers and ordinary users) 
-and then when all users of the function are converted we can kill it and 
-all comments related to it.
-
-The following patches deprecate the function for all arch's and then do a 
-few initial conversions just to get things moving.
-
-Comments are welcome.
-
-
--- 
-Jesper Juhl
+This sounds more like "let's kill Andrew".  I count 489 instances in the
+tree.  Please don't expect this activity to take top priority ;)

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129899AbRB0XPI>; Tue, 27 Feb 2001 18:15:08 -0500
+	id <S129915AbRB0XQz>; Tue, 27 Feb 2001 18:16:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129900AbRB0XO4>; Tue, 27 Feb 2001 18:14:56 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:27268 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129899AbRB0XOk>; Tue, 27 Feb 2001 18:14:40 -0500
-Date: Tue, 27 Feb 2001 18:13:22 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Peter.Havens@Level3.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Promise Ultra100 IDE PDC20265 chip problem
-In-Reply-To: <7599F001C7F8D4118AAD0008C791997403E947@N0239IDC1.oss.level3.com>
-Message-ID: <Pine.LNX.3.95.1010227181041.23089A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129910AbRB0XQq>; Tue, 27 Feb 2001 18:16:46 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:25093 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129900AbRB0XQg>;
+	Tue, 27 Feb 2001 18:16:36 -0500
+Date: Wed, 28 Feb 2001 00:16:23 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Tim Waugh <twaugh@redhat.com>
+Cc: Don Dugger <ddugger@willie.n0ano.com>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: binfmt_script and ^M
+Message-ID: <20010228001623.A11350@pcep-jamie.cern.ch>
+In-Reply-To: <27525795B28BD311B28D00500481B7601F0F2D@ftrs1.intranet.ftr.nl> <20010227143823.A25058@cistron.nl> <20010227202059.C11060@pcep-jamie.cern.ch> <20010227125948.A26290@willie.n0ano.com> <20010227213613.Q13721@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010227213613.Q13721@redhat.com>; from twaugh@redhat.com on Tue, Feb 27, 2001 at 09:36:13PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Feb 2001 Peter.Havens@Level3.com wrote:
-
+Tim Waugh wrote:
+> > Isn't `perl' overkill?  Why not just:
+> > 
+> > 	tr -d '\r'
 > 
-> (I am not subscribed to this list, if it is in fact a list. Please CC any
-> replies to me directly - Thanks)
-> 
+> while read line; do echo ${line%?}; done
 
-If you are, in fact, I suggest you contact RedHat.
+And those can be convert a set of files as "fromdos *.c" can they?
 
-> hde: dma_intr: error=0x10 { SectorIdNotFound }, LBAsect=32885055, sector=0
-                              ----------------
-This is something that windows has been hiding from you.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+:-)
+-- Jamie

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261831AbSJZCgO>; Fri, 25 Oct 2002 22:36:14 -0400
+	id <S261834AbSJZCns>; Fri, 25 Oct 2002 22:43:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261834AbSJZCgN>; Fri, 25 Oct 2002 22:36:13 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:56071 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S261831AbSJZCgN>; Fri, 25 Oct 2002 22:36:13 -0400
-Message-ID: <3DBA0110.9020206@namesys.com>
-Date: Sat, 26 Oct 2002 06:42:24 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
+	id <S261836AbSJZCns>; Fri, 25 Oct 2002 22:43:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36318 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S261834AbSJZCns>; Fri, 25 Oct 2002 22:43:48 -0400
+Date: Sat, 26 Oct 2002 04:50:01 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: John Levon <levon@movementarian.org>, Keith Owens <kaos@ocs.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Minimum modutils version
+In-Reply-To: <20020930202619.GA31858@compsoc.man.ac.uk>
+Message-ID: <Pine.NEB.4.44.0210260447071.14144-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: landley@trommello.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: The return of the return of crunch time (2.5 merge candidate
- list 1.6)
-References: <200210251557.55202.landley@trommello.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+On Mon, 30 Sep 2002, John Levon wrote:
 
->Reiser4 is probably in this category as well, since Reiser3 went into
->the 2.4 stable series and Reiser4 claims to be a seperate filesystem
->(like EXT2 and EXT3).  Add in the fact that Hans Reiser still hasn't
->produced a patch yet, and the decision's pretty easy.  (If you disagree,
->yell out now...)
->
-We will probably release a "very beta" not intended for inclusion on the 
-27th, and ship a patch for inclusion on Halloween before midnight in 
-some time zone.  
+> Documentation/Changes claims modutils 2.4.2 is still acceptable. However
+> it seems at least 2.4.10 is needed for EXPORT_SYMBOL_GPL. What should
+> Changes be changed to ?
 
-In the version we will ship on Sunday, reads are only 50% faster than 
-ext2/3 for reading the linux kernel source tree.  We have an old kernel 
-in which reads are 105% faster when reading one copy of the linux kernel 
-tree.  The delay until Halloween is so that we can figure out why reads 
-were faster in the old kernel, and hopefully make them 105% faster in 
-the newest version of the code.
+Sounds reasonable.
 
-Not sure you want to ship a 3.0 without it.  It is 50-150% faster than 
-V3, which makes it a significant competitive advantage.  I forget how 
-much faster writes are, something well over 100% faster, and the newest 
-version is faster yet.
+Keith:
+What's your opinion on the following patch for 2.4 (and a similar one for
+2.5)?
 
-How do I put it.  I'm the last straggler coming back from the hunt, and 
-I've got what looks like it might be a wooly mammoth on my shoulders, 
-and my tribesmen are complaining that I'm late for dinner.  How about 
-helping me by cutting down a tree for the roasting spit instead?  Think 
-thoughts of the poor hungry Microsoft tribe eating NTFS.
 
-Think thoughts of Microsoft suits going into some corporate board room 
-explaining that Windows is worth paying for because of the value add, 
-and some guy in sandals in the back suggests that the company could 
-replace all its 15k rpm SCSI hard drives with 5400rpm IDE drives, and 
-Linux would still be much faster than using NTFS.
+--- linux-2.4.19/Documentation/Changes.old	2002-10-26 04:44:26.000000000 +0200
++++ linux-2.4.19/Documentation/Changes	2002-10-26 04:45:06.000000000 +0200
+@@ -52,7 +52,7 @@
+ o  Gnu make               3.77                    # make --version
+ o  binutils               2.9.1.0.25              # ld -v
+ o  util-linux             2.10o                   # fdformat --version
+-o  modutils               2.4.2                   # insmod -V
++o  modutils               2.4.10                  # insmod -V
+ o  e2fsprogs              1.25                    # tune2fs
+ o  jfsutils               1.0.12                  # fsck.jfs -V
+ o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
 
-Think thoughts of Microsoft's OFS catching up to ext2 at long last 
-(surely it will, with all the money they have spent to hire people), and 
-then discovering Windows still offers negative value add filesystem 
-performance-wise.
+> regards
+> john
 
-Oh, and it has features too, not just performance....
+cu
+Adrian
 
-Hans
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+
 

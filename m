@@ -1,85 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbUCZAni (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 19:43:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbUCZAgO
+	id S263893AbUCZAq5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 19:46:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbUCZAoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 19:36:14 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:50078 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S263876AbUCZAS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 19:18:26 -0500
-Subject: Re: Binary-only firmware covered by the GPL?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Adrian Bunk <bunk@fs.tum.de>, 239952@bugs.debian.org,
-       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-In-Reply-To: <40635DD9.8090809@pobox.com>
-References: <E1B6Izr-0002Ai-00@r063144.stusta.swh.mhn.de>
-	 <20040325082949.GA3376@gondor.apana.org.au>
-	 <20040325220803.GZ16746@fs.tum.de>  <40635DD9.8090809@pobox.com>
-Content-Type: text/plain
-Message-Id: <1080260235.3643.103.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.2) 
-Date: Fri, 26 Mar 2004 00:17:15 +0000
+	Thu, 25 Mar 2004 19:44:25 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:40205 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S263891AbUCZAlh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 19:41:37 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <debian-devel@lists.debian.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+Subject: RE: Binary-only firmware covered by the GPL?
+Date: Thu, 25 Mar 2004 16:41:23 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKCEEOLEAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2096
+In-Reply-To: <20040325225423.GT9248@cheney.cx>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 25 Mar 2004 16:19:48 -0800
+	(not processed: message from valid local sender)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+Reply-To: davids@webmaster.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-03-25 at 17:31 -0500, Jeff Garzik wrote:
-> Firmware is a program that executes on another processor, so no linking 
-> is taking place at all.  It is analagous to shipping a binary-only 
-> program in your initrd, IMO.
 
-You seem to be thinking of this:
+> On Thu, Mar 25, 2004 at 11:08:03PM +0100, Adrian Bunk wrote:
+> > There's another issue with these files:
+> >
+> <--  snip  -->
+> >
+> > The GPL says that you must give someone receiving a binary the source
+> > code, and it says:
+> >   The source code for a work means the preferred form of the work for
+> >   making modifications to it.
+> >
+> >
+> > This is perhaps a bit besides the main firmware discussion and IANAL,
+> > but is this file really covered by the GPL?
 
-  These requirements apply to the modified work as a whole.  If
-  identifiable sections of that work are not derived from the Program,
-  and can be reasonably considered independent and separate works in
-  themselves, then this License, and its terms, do not apply to those
-  sections... 
+> IMHO code that can be compiled would probably be the preferred form
+> of the work.
 
-But you seem to ignore the fact that the sentence ends thus:
+	You are seriously arguing that the obfuscated binary of the firmware is the
+preferred form of the firmware for the purpose of making modifications to
+it?!
 
-        ...WHEN YOU DISTRIBUTE THEM AS SEPARATE WORKS.
+> The source to the firmware in many cases and probably even
+> this one is very unlikely to be able to be compiled under Linux at all.
 
-And indeed that the subsequent sentence reads as follows:
+	What does it matter what it compiles under? The GPL is not Linux-specific.
 
-                                                        But when you
-  distribute the same sections as part of a whole which is a work based
-  on the Program, the distribution of the whole must be on the terms of
-  this License, whose permissions for other licensees extend to the
-  entire whole, and thus to each and every part regardless of who wrote
-  it.
+> Also, unless the driver is written by the company producing the hardware
+> itself even the author will likely not have the source code to the
+> firmware and will only have a binary form (think reverse engineering).
 
-You also seem to be ignoring the next paragraph where it mentions
-COLLECTIVE works:
+	If you don't have the preferred form of something for the purpose of making
+modifications to it, then you can't give that to people, so you *CAN'T* GPL
+it. If you making an executable that derives from a GPL'd product and, for
+example, lose the source code, you MAY NOT distribute the executable. You
+must have the preferred form for the purpose of making modifications or you
+are not able to GPL.
 
-  Thus, it is not the intent of this section to claim rights or contest
-  your rights to work written entirely by you; rather, the intent is to
-  exercise the right to control the distribution of derivative OR
-  COLLECTIVE WORKS based on the Program.
+> IMHO a driver for a piece of hardware does not include the software that
+> the hardware itself is running, just the software that the primary CPU
+> itself is running. YMMV.
 
-------
+	But it does. This file contains the software that the hardware itself is
+running. That's its sole purpose. Please tell me how you make modifications
+to this file.
 
-The firmware blob in question can be reasonably considered to be an
-independent and separate work in itself. The GPL doesn't apply to it
-when it is distributed as a SEPARATE work. But when you distribute it as
-part of a whole which is a work based on other parts of the kernel, by
-including it in the kernel source in such a manner, the distribution of
-the whole must be on the terms of the GPL, whose permissions for other
-licensees extend to the entire whole, and thus to each and every part.
-
-It's not the intent of the GPL to claim rights to firmware written
-independently for such hardware; rather, the intent is to exercise the
-right to control the distribution of _COLLECTIVE_ works based on the
-indisputably GPL'd parts of the kernel.
-
--- 
-dwmw2
-
+	DS
 

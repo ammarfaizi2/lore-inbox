@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265714AbRGFBwS>; Thu, 5 Jul 2001 21:52:18 -0400
+	id <S265766AbRGFB42>; Thu, 5 Jul 2001 21:56:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265729AbRGFBwI>; Thu, 5 Jul 2001 21:52:08 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26898 "HELO
+	id <S265754AbRGFB4I>; Thu, 5 Jul 2001 21:56:08 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:35090 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S265714AbRGFBvz>; Thu, 5 Jul 2001 21:51:55 -0400
-Date: Thu, 5 Jul 2001 22:51:22 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        phillips@bonn-fries.net (Daniel Phillips),
-        davidel@xmailserver.org (Davide Libenzi), linux-kernel@vger.kernel.org
-Subject: Re: linux/macros.h(new) and linux/list.h(mod) ...
-Message-ID: <20010705225121.B866@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	phillips@bonn-fries.net (Daniel Phillips),
-	davidel@xmailserver.org (Davide Libenzi),
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E15II3b-0003T8-00@the-village.bc.nu> <9756.994374535@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <9756.994374535@redhat.com>; from dwmw2@infradead.org on Fri, Jul 06, 2001 at 12:08:55AM +0100
-X-Url: http://advogato.org/person/acme
+	id <S265729AbRGFB4B>; Thu, 5 Jul 2001 21:56:01 -0400
+Date: Thu, 5 Jul 2001 21:23:43 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: David Whysong <dwhysong@physics.ucsb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __alloc_pages: 4-order allocation failed
+In-Reply-To: <Pine.LNX.4.30.0107051730330.13297-100000@sal.physics.ucsb.edu>
+Message-ID: <Pine.LNX.4.21.0107052120460.1030-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Jul 06, 2001 at 12:08:55AM +0100, David Woodhouse escreveu:
+
+
+On Thu, 5 Jul 2001, David Whysong wrote:
+
+> Jes Sorensen (jes@sunsite.dk) wrote:
 > 
-> #define min(a,b) __magic_minfoo(a,b, __var##__LINE__, __var2##__LINE__)
+> >You ran out of memory, ie. there were no more free blocks of 16
+> >consecutive pages available in the system. This is what happens on a
+> >system with little memory or which is loaded with memory intensive
+> >applications.
 > 
-> #define __magic_minfoo(A,B,C,D) \
-> 	({ typeof(A) C = (A); typeof(B) D = (B); C>D?D:C; })
+> I'm seeing the same thing here on a machine with 256 MB RAM and 1.5
+> gigabytes of swap. There is no chance I am using anywhere near that
+> much virtual memory.
 > 
-> void main(void)
-> {
-> 	int __var11=5, __var211=7;
-> 
-> 	printf("min(%d,%d) = %d (should be 11: %d)\n", __var11, __var211, min(__var11, __var211), __LINE__);
-> }
+> Something is wrong with the MM in 2.4.6-pre9.
 
-Have you looked at the preprocessor output?
+David, 
 
-[acme@brinquedo /tmp]$ gcc -E a.c -o -   # or 'cpp < a.c'
-# 1 "a.c"
-void main(void)
-{
-        int __var11=5, __var211=7;
+The messages are "harmless". The SCSI layer is trying to allocate big
+chunks of memory (for the scattergather tables IIRC) just as an
+optimization. 
 
-        printf("min(%d,%d) = %d (should be 11: %d)\n", __var11, __var211,
-+ ({ typeof(  __var11  )   __var__LINE__  = (  __var11  ); typeof(
-__var211  )   __var2__LINE__  = (   __var211  );   __var__LINE__ >
-__var2__LINE__ ?  __var2__LINE__ :  __var__LINE__ ; })  , 11);
-}
+If its not possible to allocate big chunks, the SCSI code will use lower
+order allocations. (smaller chunks) 
 
-I didn't found a way to generate unique variable names using __LINE__
-
-- Arnaldo

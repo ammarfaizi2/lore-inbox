@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262397AbSJ2WMx>; Tue, 29 Oct 2002 17:12:53 -0500
+	id <S262380AbSJ2WIs>; Tue, 29 Oct 2002 17:08:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262402AbSJ2WMx>; Tue, 29 Oct 2002 17:12:53 -0500
-Received: from packet.digeo.com ([12.110.80.53]:3756 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262397AbSJ2WMw>;
-	Tue, 29 Oct 2002 17:12:52 -0500
-Message-ID: <3DBF0958.F887DD69@digeo.com>
-Date: Tue, 29 Oct 2002 14:19:04 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matt Reppert <arashi@arashi.yi.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: poll-related "scheduling while atomic", 2.5.44-mm6
-References: <20021029153719.4ebc4486.arashi@arashi.yi.org>
+	id <S262387AbSJ2WIs>; Tue, 29 Oct 2002 17:08:48 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:61453 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262380AbSJ2WIr>;
+	Tue, 29 Oct 2002 17:08:47 -0500
+Date: Tue, 29 Oct 2002 14:12:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Marco Roeland <marco.roeland@xs4all.nl>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: Linux 2.5.44-ac3
+Message-ID: <20021029221234.GA29085@kroah.com>
+References: <200210251019.g9PAJ8V14406@devserv.devel.redhat.com> <20021025125514.GA30278@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Oct 2002 22:19:04.0386 (UTC) FILETIME=[30B7A220:01C27F99]
+Content-Disposition: inline
+In-Reply-To: <20021025125514.GA30278@localhost>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Reppert wrote:
+On Fri, Oct 25, 2002 at 02:55:14PM +0200, Marco Roeland wrote:
 > 
-> So my guess is somewhere between -mm5 and -mm6 we
-> screwed up the atomicity count.
+> > Linux 2.5.44-ac2
+> > o	Rip out lots of the left over pcibios_ stuff	(Greg Kroah-Hartmann)
+> 
+> Since -ac2 there's a pcibios_read_config_dword left in drivers/pcmcia/cist.c
+> preventing (CardBus) PCMCIA to compile.
+> 
+> The following makes it compile again, whether it _works_ I've absolutely no
+> idea, lacking amongst others any kernel knowledge or even a cardbus card.
+> Compiles for me (TM) ;-)
 
-Mine too.  I'll check it out, thanks.
+Here's a working patch (well, works for me (tm)) for this problem:
 
-Do you have preemption enabled?
+thanks,
+
+greg k-h
+
+
+diff -Nru a/drivers/pcmcia/cistpl.c b/drivers/pcmcia/cistpl.c
+--- a/drivers/pcmcia/cistpl.c	Wed Oct 30 13:59:29 2002
++++ b/drivers/pcmcia/cistpl.c	Wed Oct 30 13:59:29 2002
+@@ -429,7 +429,10 @@
+ #ifdef CONFIG_CARDBUS
+     if (s->state & SOCKET_CARDBUS) {
+ 	u_int ptr;
+-	pcibios_read_config_dword(s->cap.cb_dev->subordinate->number, 0, 0x28, &ptr);
++	struct pci_dev *dev = pci_find_slot (s->cap.cb_dev->subordinate->number, 0);
++	if (!dev)
++	    return CS_BAD_HANDLE;
++	pci_read_config_dword(dev, 0x28, &ptr);
+ 	tuple->CISOffset = ptr & ~7;
+ 	SPACE(tuple->Flags) = (ptr & 7);
+     } else

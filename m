@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312885AbSDULDf>; Sun, 21 Apr 2002 07:03:35 -0400
+	id <S311403AbSDULAJ>; Sun, 21 Apr 2002 07:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313138AbSDULDe>; Sun, 21 Apr 2002 07:03:34 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:57395 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312885AbSDULDd>; Sun, 21 Apr 2002 07:03:33 -0400
-Subject: [bk2.5 patchlet] Update URL for NBD.
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Sun, 21 Apr 2002 12:03:32 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312410AbSDULAI>; Sun, 21 Apr 2002 07:00:08 -0400
+Received: from rogersmta-1.gci.net ([208.138.130.86]:18822 "EHLO
+	mail.rogershsa.com") by vger.kernel.org with ESMTP
+	id <S311403AbSDULAI>; Sun, 21 Apr 2002 07:00:08 -0400
+Message-ID: <007001c1e923$b07cf170$0a0aa8c0@ws0>
+From: "Dennis Stout" <crazyman@rogershsa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: keybaord nacks on 80386
+Date: Sun, 21 Apr 2002 03:00:03 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16zF80-0003LF-00@storm.christs.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cantab.net>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+I have an AMD 80386DX40 on an unknown motherboard (it's sodlered to it :P)
+and it never used to do this, but recently showed this in dmesg.
 
-Please apply below patch updating the URL in the NBD documentation to point
-to the project home page on sourceforge.
+keyboard: Too many NACKs -- noisy kbd cable?
+keyboard: Too many NACKs -- noisy kbd cable?
 
-Best regards,
+I don't know exactly how long ago this started, since I was troublshooting
+other problems (resolved, it was a routing + dns issue)  when I found it.
 
-	Anton
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+The thing is, I don't have a keybaord plugged in.  How can I have a noisy
+keybaord cable if I don't have one?
 
---- nbd25.patch ---
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.557   -> 1.558  
-#	Documentation/nbd.txt	1.1     -> 1.2    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/21	aia21@cantab.net	1.558
-# Update NBD URL in documentation.
-# --------------------------------------------
-#
-diff -Nru a/Documentation/nbd.txt b/Documentation/nbd.txt
---- a/Documentation/nbd.txt	Sun Apr 21 12:01:09 2002
-+++ b/Documentation/nbd.txt	Sun Apr 21 12:01:09 2002
-@@ -54,4 +54,4 @@
-   ...                 in case of read operation with no error,
-                       this is immediately followed len bytes of data
- 
--   For more information, look at http://atrey.karlin.mff.cuni.cz/~pavel.
-+   For more information, look at http://nbd.sf.net/.
+It still routes internet services just fine, and it's only other glitch is
+hte clock has been 30 years and a few months off ever since I turned it into
+a router :)  Time is off too..  I haven't been worried enough about it to
+change it tho.
+
+Dennis Stout
+
+

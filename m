@@ -1,117 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131842AbQLVHjY>; Fri, 22 Dec 2000 02:39:24 -0500
+	id <S131221AbQLVH7H>; Fri, 22 Dec 2000 02:59:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131851AbQLVHjE>; Fri, 22 Dec 2000 02:39:04 -0500
-Received: from monza.monza.org ([209.102.105.34]:8202 "EHLO monza.monza.org")
-	by vger.kernel.org with ESMTP id <S131842AbQLVHi5>;
-	Fri, 22 Dec 2000 02:38:57 -0500
-Date: Thu, 21 Dec 2000 23:08:19 -0800
-From: Tim Wright <timw@splhi.com>
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-Cc: "Robert B. Easter" <reaster@comptechnews.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: recommended gcc compiler version
-Message-ID: <20001221230819.A1678@scutter.internal.splhi.com>
-Reply-To: timw@splhi.com
-Mail-Followup-To: "Matthew D. Pitts" <mpitts@suite224.net>,
-	"Robert B. Easter" <reaster@comptechnews.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <0012212320430F.02217@comptechnews> <001901c06bdf$1d6c74e0$3b42b0d1@pittscomp.com>
-Mime-Version: 1.0
+	id <S131851AbQLVH65>; Fri, 22 Dec 2000 02:58:57 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:33163 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131221AbQLVH6r>; Fri, 22 Dec 2000 02:58:47 -0500
+Message-ID: <3A4303AC.C635F671@uow.edu.au>
+Date: Fri, 22 Dec 2000 18:33:00 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: Linux 2.2.19pre2
+In-Reply-To: <E147MkJ-00036t-00@the-village.bc.nu>, <E147MkJ-00036t-00@the-village.bc.nu>; <20001220142858.A7381@athlon.random> <3A40C8CB.D063E337@uow.edu.au>, <3A40C8CB.D063E337@uow.edu.au>; <20001220162456.G7381@athlon.random> <3A41DDB3.7E38AC7@uow.edu.au>,
+		<3A41DDB3.7E38AC7@uow.edu.au>; from andrewm@uow.edu.au on Thu, Dec 21, 2000 at 09:38:43PM +1100 <20001221161952.B20843@athlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <001901c06bdf$1d6c74e0$3b42b0d1@pittscomp.com>; from mpitts@suite224.net on Fri, Dec 22, 2000 at 01:19:07AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sorry but this is incorrect.
-The recommended compiler version is not longer the same for the 2.2 and 2.4
-kernels.
->From Documentation/Changes in 2.4 (test12):
-"The recommended compiler for the kernel is egcs 1.1.2 (gcc 2.91.66), and it
-should be used when you need absolute stability. You may use gcc 2.95.2
-instead if you wish, although it may cause problems. Later versions of gcc
-have not received much testing for Linux kernel compilation, and there are
-almost certainly bugs (mainly, but not exclusively, in the kernel) that
-will need to be fixed in order to use these compilers. In any case, using
-pgcc instead of egcs or plain gcc is just asking for trouble.
- 
-Note that gcc 2.7.2.3 is no longer a supported kernel compiler. The kernel
-no longer works around bugs in gcc 2.7.2.3 and, in fact, will refuse to
-be compiled with it."
-
-For 2.2.18:
-"   Note that the latest compilers (pgcc, gcc 2.95) may do Bad
-Things while compiling your kernel, particularly if absurd
-optimizations (like -O9) are used.  Caveat emptor. In general, however,
-gcc-2.7.2.3 and egcs 1.1.2 are known to be stable on x86, while gcc 2.95 and
-others have not been as thoroughly tested yet."
-
-So....
-egcs-1.1.2 is good for either, 2.7.2 is OK for 2.2, bad for 2.4. 2.95.2 and
-later are risky. RedHat just released a bugfixed "2.96" which is an unknown
-quantity AFAIK. Anybody brave enough to try it should probably post their
-results.
-
-No compiler is bug-free. In general, you will get the most reliable results
-when you use what most everybody else is using, 'cos that's how the bugs get
-fixed. YMMV :-)
-
-Regards,
-
-Tim
-
-On Fri, Dec 22, 2000 at 01:19:07AM -0500, Matthew D. Pitts wrote:
->     Robert,
-> gcc 2.7.2.3 is the safest, but egcs 1.1.2 will work. any kernels built with
-> gcc 2.95.x work but can be buggy.
+Andrea Arcangeli wrote:
 > 
-> Matthew Pitts
-> mpitts@suite224.net
+> > > Other thing about your patch, adding TASK_EXCLUSIVE to
+> > > wake_up/wake_up_interruptible is useless.
+> >
+> > This enables wake_up_all().
 > 
-> ----- Original Message -----
-> From: Robert B. Easter <reaster@comptechnews.com>
-> To: <linux-kernel@vger.kernel.org>
-> Sent: Thursday, December 21, 2000 11:20 PM
-> Subject: recommended gcc compiler version
-> 
-> 
-> > This is a newbie question, but what are the recommended gcc compiler
-> versions
-> > for compiling,
-> >
-> > Linux 2.2.18?
-> >
-> > Linux 2.4.0?
-> >
-> >
-> > I'd rather use the recommended version than not and have difficult bugs.
-> >
-> > Thanks.  If there is a FAQ, kindy direct me to it, or, if this info isn't
-> in
-> > there specificly, perhaps a FAQ maintainer can add this stuff.
-> >
-> > --
-> > -------- Robert B. Easter  reaster@comptechnews.com ---------
-> > - CompTechNews Message Board   http://www.comptechnews.com/ -
-> > - CompTechServ Tech Services   http://www.comptechserv.com/ -
-> > ---------- http://www.comptechnews.com/~reaster/ ------------
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> It is useless as it is in 2.2.19pre2: there's no wake_up_all in 2.2.19pre2.
 
--- 
-Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
-IBM Linux Technology Center, Beaverton, Oregon
-"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+#define wake_up_all(x) __wake_up((x),TASK_UNINTERRUPTIBLE | TASK_INTERRUPTIBLE)
+
+> > Anyway, this is all just noise.
+> >
+> > The key question is: which of the following do we want?
+> >
+> > a) A simple, specific accept()-accelerator, and 2.2 remains without
+> >    an exclusive wq API or
+> 
+> To make the accellerator we need a minimal wake-one support. So a) doesn't
+> make sense to me.
+
+It makes heaps of sense.  We've introduced into 2.2 an API
+which has the same appearance as one in 2.4, but which is
+subtly broken wrt the 2.4 one.
+
+I suggest you change the names to something other than
+add_waitqueue_exclusive() and TASK_EXCLUSIVE, add a
+cautionary comment and then go ahead with your patch.
+
+Except for this bit, which looks slightly fatal:
+
+	/*
+         * We can drop the read-lock early if this
+         * is the only/last process.
+         */
+        if (next == head) {
+                 read_unlock(&waitqueue_lock);
+                 wake_up_process(p);
+                 goto out;
+        }
+
+Once the waitqueue_lock has been dropped, the task at `p'
+is free to remove itself from the waitqueue and exit.  This
+CPU can then try to wake up a non-existent task, no?
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

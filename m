@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263468AbSJGVu1>; Mon, 7 Oct 2002 17:50:27 -0400
+	id <S263432AbSJGVaH>; Mon, 7 Oct 2002 17:30:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263469AbSJGVu1>; Mon, 7 Oct 2002 17:50:27 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:21381 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S263468AbSJGVu0>; Mon, 7 Oct 2002 17:50:26 -0400
-Date: Mon, 7 Oct 2002 16:56:03 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Alastair Stevens <alastair@altruxsolutions.co.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Compile failure with 2.5.41 in serial/core.o
-In-Reply-To: <1034024024.1962.15.camel@dolphin.entropy.net>
-Message-ID: <Pine.LNX.4.44.0210071654250.14294-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263433AbSJGVaG>; Mon, 7 Oct 2002 17:30:06 -0400
+Received: from oracle.uk.clara.net ([195.8.69.94]:61969 "EHLO
+	oracle.uk.clara.net") by vger.kernel.org with ESMTP
+	id <S263432AbSJGV36>; Mon, 7 Oct 2002 17:29:58 -0400
+To: linux-kernel@vger.kernel.org
+From: Jonathan Hudson <jonathan@daria.co.uk>
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+X-no-productlinks: yes
+Subject: USB Hub failure in 2.5.40/2.5.41
+X-Newsgroups: fa.linux.kernel
+Content-Type: text/plain; charset=iso-8859-15
+NNTP-Posting-Host: daria.co.uk
+Message-ID: <817.3da1fdfd.b21a0@trespassersw.daria.co.uk>
+Date: Mon, 07 Oct 2002 21:34:53 GMT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Oct 2002, Alastair Stevens wrote:
+I'm unable to access any USB devices on a 4 port USB hub in 2.5; it
+works fine in 2.4.
 
-> Here's the error when doing "make modules" from a clean build. The "make
-> bzImage" works fine:
-> 
->   gcc -Wp,-MD,drivers/serial/.core.o.d -D__KERNEL__ -Iinclude -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
-> -march=athlon  -Iarch/i386/mach-generic -nostdinc -iwithprefix include
-> -DMODULE -include include/linux/modversions.h   -DKBUILD_BASENAME=core  
-> -c -o drivers/serial/core.o drivers/serial/core.c
-> drivers/serial/core.c:2456: parse error before
-> `this_object_must_be_defined_as_export_objs_in_the_Makefile'
+Initially /proc/bus/usb/devices will list all devices, including those
+(printer,scanner,camera) on the hub as well as the directly connected
+USB mouse.
 
-Hmmh, I cannot reproduce this, nor do I see how this would happen -
-Does your drivers/serial/Makefile have the line
+A simple program to open the scanner device gives:
 
-	export-objs     := core.o 8250.o suncore.o
+ Unable to open scanner device: No such device
 
-?
+Unplugging/Plugging the hub or its devices gives a load of log
+messages like:
 
-If you can reproduce this, could you mail me your .config?
+drivers/usb/core/hub.c: usb_hub_port_status(00:07.2-1) failed (err = -110)
+drivers/usb/core/hub.c: new USB device 00:07.2-1.3, assigned address 6
+drivers/usb/image/scanner.c: probe_scanner: User specified USB scanner -- Vendor:Product - 4b8:110
+drivers/usb/core/hub.c: usb_hub_port_status(00:07.2-1) failed (err = -110)
+drivers/usb/core/hub.c: usb_hub_port_status(00:07.2-1) failed (err = -110)
+drivers/usb/core/hub.c: usb_hub_port_status(00:07.2-1) failed (err = -110)
+drivers/usb/core/hub.c: usb_hub_port_status(00:07.2-1) failed (err = -110)
 
---Kai
-
+Is this a known problem ? Further info on request. Back to 2.4, where
+it all works.
 

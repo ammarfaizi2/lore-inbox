@@ -1,66 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268156AbUBRV3G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 16:29:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268146AbUBRV3G
+	id S267156AbUBSAGs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 19:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267158AbUBSAGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 16:29:06 -0500
-Received: from adsl-67-65-232-1.dsl.lgvwtx.swbell.net ([67.65.232.1]:35588
-	"HELO rooker.dyndns.org") by vger.kernel.org with SMTP
-	id S268156AbUBRV27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 16:28:59 -0500
-Message-ID: <000c01c3f666$234298d0$6600a8c0@pixl>
-From: "Peter Maas" <peter@goquest.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Intel vs AMD x86-64
-Date: Wed, 18 Feb 2004 15:28:23 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Wed, 18 Feb 2004 19:06:48 -0500
+Received: from mail1-106.ewetel.de ([212.6.122.106]:51400 "EHLO
+	mail1.ewetel.de") by vger.kernel.org with ESMTP id S267156AbUBSAGr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 19:06:47 -0500
+To: tridge@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <1qJsF-6Be-45@gated-at.bofh.it>
+References: <1q4Si-658-5@gated-at.bofh.it> <1q7no-8ss-7@gated-at.bofh.it> <1qfb7-7s5-19@gated-at.bofh.it> <1qmPm-6Gl-11@gated-at.bofh.it> <1qpWI-1Sa-1@gated-at.bofh.it> <1qqpO-2lx-3@gated-at.bofh.it> <1qqzv-2tr-3@gated-at.bofh.it> <1qqJc-2A2-5@gated-at.bofh.it> <1qHAR-2Wm-49@gated-at.bofh.it> <1qIwr-5GB-11@gated-at.bofh.it> <1qIwr-5GB-9@gated-at.bofh.it> <1qIQ1-5WR-27@gated-at.bofh.it> <1qIZt-6b9-11@gated-at.bofh.it> <1qJsF-6Be-45@gated-at.bofh.it>
+Date: Thu, 19 Feb 2004 01:06:35 +0100
+Message-Id: <E1Atbi7-0004tf-O7@localhost>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hit send too soon...
+On Thu, 19 Feb 2004 00:40:21 +0100, you wrote in linux.kernel:
 
-INTEL HAS PUT up a 354 page PDF which describes software developing for the
-64 bit extensions that will appear in the Nocona and Prescott processors.
+> Because a large number of file operations are on filenames that don't
+> exist. I have to *prove* they don't exist. That includes:
 
+Evil question: do you need to be case-preserving? 'Cause if not, you
+could simply squash all incoming filenames from case-insensitive clients
+to some canonical form (say, all lower-case) and use that.
 
-> http://www.theinquirer.net/?article=14222
->
-> ____________________________________________________________________
->
-> Ok,
-> now that Intel has finally come clean about their x86-64 implementation
-> (see
->
->
-http://www.intel.com/technology/64bitextensions/index.htm?iid=techtrends+spotlight_64bit
->
-> for full details), can somebody write up a list of differences? I know
-> there are people who have had access to the Intel docs for a while now,
-> and obviously Intel is too frigging proud to list the differences
-> explicitly.
->
-> >From what I can tell from a quick look, it looks like it is basically
-just
-> the 3DNow vs SSE3 thing, but I assume there are other details too. Can
-> people who have been involved with this make a quick list for the rest of
-> us who only got to see the final details today?
->
-> (And I assume there's somebody with a few patches pending..)
->
-> Thanks,
-> Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@xxxxxxxxxxxxxxx
-> More majordomo info at http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at http://www.tux.org/lkml/
->
-
+-- 
+Ciao,
+Pascal

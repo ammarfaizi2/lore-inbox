@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268399AbUJDRuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268372AbUJDRwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268399AbUJDRuO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 13:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268379AbUJDRuO
+	id S268372AbUJDRwi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 13:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268379AbUJDRwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 13:50:14 -0400
-Received: from NEUROSIS.MIT.EDU ([18.95.3.133]:36483 "EHLO neurosis.jim.sh")
-	by vger.kernel.org with ESMTP id S268365AbUJDRuJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 13:50:09 -0400
-Date: Mon, 4 Oct 2004 13:50:03 -0400
-From: Jim Paris <jim@jtan.com>
-To: William Knop <wknop@andrew.cmu.edu>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: libata badness
-Message-ID: <20041004175003.GA10814@jim.sh>
-References: <Pine.LNX.4.60-041.0410040656001.2350@unix48.andrew.cmu.edu> <41617AA0.9020809@pobox.com> <Pine.LNX.4.60-041.0410041323160.9105@unix43.andrew.cmu.edu>
+	Mon, 4 Oct 2004 13:52:37 -0400
+Received: from pat.uio.no ([129.240.130.16]:43764 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S268372AbUJDRuu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 13:50:50 -0400
+Subject: Re: [PATCH] lockd
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Steve Dickson <SteveD@redhat.com>
+Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <41617958.2020406@RedHat.com>
+References: <41617958.2020406@RedHat.com>
+Content-Type: text/plain; charset=iso-8859-1
+Message-Id: <1096912231.22446.60.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60-041.0410041323160.9105@unix43.andrew.cmu.edu>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 04 Oct 2004 19:50:31 +0200
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just got another oops while trying to cp from my md/raid5 array (2 of 3 
-> sata drives) to another sata drive on the same controller. This time, 
-> though, it said there's a bug in timer.c, line 405, and that the 
-> stack's garbage. I'm thinking it has nothing to do with timer.c, and 
-> something in md or libata is chomping all over the kernel.
+På må , 04/10/2004 klokka 18:24, skreiv Steve Dickson:
 
-Or else something else on your system is bad.  Like your CPU or RAM.
-Run memtest for a while.
+> Hey Neil,
 
--jim
+Hey! This is the client side NLM code... 8-)
+
+>  	clear_thread_flag(TIF_SIGPENDING);
+> -	interruptible_sleep_on_timeout(&lockd_exit, HZ);
+> -	if (nlmsvc_pid) {
+> +	set_current_state(TASK_UNINTERRUPTIBLE);
+
+Nope. Those clearly are not the same.
+
+Note that you probably also want to move the call to
+set_current_state(TASK_INTERRUPTIBLE) inside the loop. In that case you
+can also remove the call to set_current_state(TASK_RUNNING) ('cos
+schedule_timeout() will do that for you).
+
+Also, why aren't you using the more standard DECLARE_WAITQUEUE(__wait)?
+
+Cheers,
+  Trond
+

@@ -1,97 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbUJ3PWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbUJ3P1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbUJ3PWw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 11:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUJ3PVb
+	id S261207AbUJ3P1R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 11:27:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbUJ3P0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 11:21:31 -0400
-Received: from mail02.syd.optusnet.com.au ([211.29.132.183]:935 "EHLO
-	mail02.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261208AbUJ3OkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 10:40:19 -0400
-Message-ID: <4183A7C4.8050204@kolivas.org>
-Date: Sun, 31 Oct 2004 00:40:04 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Sat, 30 Oct 2004 11:26:24 -0400
+Received: from mid-1.inet.it ([213.92.5.18]:46021 "EHLO mid-1.inet.it")
+	by vger.kernel.org with ESMTP id S261229AbUJ3OpY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 10:45:24 -0400
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
+Date: Sat, 30 Oct 2004 16:44:33 +0200
+User-Agent: KMail/1.7.1
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
+       Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>
+References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <200410272012.44361.dtor_core@ameritech.net> <20041029205505.GB30638@kroah.com>
+In-Reply-To: <20041029205505.GB30638@kroah.com>
 MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Peter Williams <pwil3058@bigpond.net.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Alexander Nyberg <alexn@dsv.su.se>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: [PATCH][plugsched 18/28] Remove private proc entry
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig67E58F68F40A26F3F55B9E88"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200410301644.33997.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig67E58F68F40A26F3F55B9E88
-Content-Type: multipart/mixed;
- boundary="------------020608000701000000070507"
-
-This is a multi-part message in MIME format.
---------------020608000701000000070507
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Remove private proc entry
+Alle 22:55, venerdì 29 ottobre 2004, Greg KH ha scritto:
 
 
---------------020608000701000000070507
-Content-Type: text/x-patch;
- name="remove_specific_proc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="remove_specific_proc.diff"
+>
+> So we can change things, little things like this can help everyone out,
+> even if I'm going to get a ton of nvidia user hate mail directed to me
+> after the next kernel comes out...
+>
+> Remember, binary kernel modules are a leach on our community.
 
-sleep_avg is no longer a meaningful value being non linear and scheduler
-dependant. Remove it from proc.
+I'm one of the users biten by this change, and I can undestand your reason; 
+anyway from my standpoint the situation is that a change that has no 
+technical motivation (at least to my knowledge) is going to remove an 
+interface that until now was available, and prevents me to use my card with 
+new kernels; this is too similar to some closed souce companies behaviour. No 
+big deal, I can live with that, but if this is the right way to handle that 
+interface, why this is enforced only now and not from the very first time? 
+Granted that you have all the rights to do that, may I ask if this is not in 
+contrast with is stated in this post? 
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0110.2/0369.html
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
-
-Index: linux-2.6.10-rc1-mm1/fs/proc/array.c
-===================================================================
---- linux-2.6.10-rc1-mm1.orig/fs/proc/array.c	2004-10-27 22:40:25.587597899 +1000
-+++ linux-2.6.10-rc1-mm1/fs/proc/array.c	2004-10-28 00:01:01.722069447 +1000
-@@ -162,7 +162,6 @@ static inline char * task_state(struct t
- 	read_lock(&tasklist_lock);
- 	buffer += sprintf(buffer,
- 		"State:\t%s\n"
--		"SleepAVG:\t%lu%%\n"
- 		"Tgid:\t%d\n"
- 		"Pid:\t%d\n"
- 		"PPid:\t%d\n"
-@@ -170,7 +169,6 @@ static inline char * task_state(struct t
- 		"Uid:\t%d\t%d\t%d\t%d\n"
- 		"Gid:\t%d\t%d\t%d\t%d\n",
- 		get_task_state(p),
--		(p->sleep_avg/1024)*100/(1020000000/1024),
- 	       	p->tgid,
- 		p->pid, p->pid ? p->group_leader->real_parent->tgid : 0,
- 		p->pid && p->ptrace ? p->parent->pid : 0,
+I understand all your motivation,and I agree with most of them, but I'm asking 
+if this is the right way to handle this GPL issue...
 
 
---------------020608000701000000070507--
-
---------------enig67E58F68F40A26F3F55B9E88
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBg6fEZUg7+tp6mRURAr/hAJ4tTK2cQcDhn5d4jdb5a6vLwbqiOgCeOyxh
-Xa3WZhRfgCb2B24T9GYVlmE=
-=6P8P
------END PGP SIGNATURE-----
-
---------------enig67E58F68F40A26F3F55B9E88--
+-- 
+Fabio Coatti       http://members.ferrara.linux.it/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

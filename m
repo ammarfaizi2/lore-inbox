@@ -1,86 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271929AbRHVFUE>; Wed, 22 Aug 2001 01:20:04 -0400
+	id <S271928AbRHVFHV>; Wed, 22 Aug 2001 01:07:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271933AbRHVFTz>; Wed, 22 Aug 2001 01:19:55 -0400
-Received: from sweetums.bluetronic.net ([24.162.254.3]:60342 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S271930AbRHVFTs>; Wed, 22 Aug 2001 01:19:48 -0400
-Date: Wed, 22 Aug 2001 01:19:58 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <E15ZLor-0000cl-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.33.0108220031190.6389-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271929AbRHVFHL>; Wed, 22 Aug 2001 01:07:11 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:417 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S271928AbRHVFG4>; Wed, 22 Aug 2001 01:06:56 -0400
+Date: Tue, 21 Aug 2001 23:07:06 -0600
+Message-Id: <200108220507.f7M576q25412@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Taylor Carpenter <taylorcc@codecafe.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops when accessing /dev/fd0 (kernel 2.4.7 and devfsd 1.3.11)
+In-Reply-To: <20010821223042.A30478@pioneer.oftheInter.net>
+In-Reply-To: <20010816222811.A1672@pioneer.oftheInter.net>
+	<200108170419.f7H4J7c20693@vindaloo.ras.ucalgary.ca>
+	<20010821223042.A30478@pioneer.oftheInter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Alan Cox wrote:
-> * 2. Redistribution in binary form must reproduce the above copyright
-> *    notice, this list of conditions and the following disclaimer in the
-> *    documentation and/or other materials provided with the distribution.
->
->Which is a problem because the kernel is GPL, that isnt GPL compatible
->and until this was pointed out nobody has been going to print their blurb
->in all the manuals - because after all it says GPL.
+Taylor Carpenter writes:
+> 
+> On Thu, Aug 16, 2001 at 10:19:07PM -0600, Richard Gooch wrote:
+> > If you think the problem may be devfs-related, a good test is to try
+> > again with CONFIG_DEVFS_FS=n.
+> 
+> I tried kernel 2.4.8 and also had an oops.  An earlier kernel w/out devfs did
+> not cause an oops.  I plan on making a non-devfs 2.4.8 kernel to see if the
+> oops does not happen.
+> 
+> > However, I run devfs, and I don't see this problem.
+> 
+> I do not know if the devfs info, in the oops (ksymoops output) data below
+> indicates a problem w/devfs or not.  Maybe you can tell?
 
-The kernel source counts as "other materials".
+Well, the following line suggests a devfs interaction (provided you
+are sure that you used the correct System.map:
+> Trace; c015469b <devfs_unregister_blkdev+12eb/1960>
 
->> Other than it's age, I see *zero* reason to remove it from the tree.
->
->Well let me quote from it again
-...
->or in simple terms "might lose all your data"
+Are you unloading the floppy driver at some point? Or using module
+autoloading?
 
-Gee.  And how many installation have been running that firmware for how
-many years without problems?  As I said before, other than it's age, there's
-no reason to simply delete it.
+> After watching what happens during the boot process I started turning off
+> things that might be touching the floppy device (at boot), such as autofs.
+> What finally stopped the Oops was to comment out the floppy entry in
+> /etc/fstab:
+> 
+> 	/dev/fd0 /floppy auto defaults,user,noauto 0 0
 
->Doesnt work in modules. See previous twice repeated discussion.
+Interesting. What happens if you use /dev/floppy/0 instead of /dev/fd0
+in the /etc/fstab? Still an Oops?
 
-We aren't talking about a module when it's compiled into the kernel.  In
-the case(s) of modules, there are many ways to provide data (such as
-firmware) without the aforementioned bloat everyone wants to bitch about.
-And I'd like to point out the people screaming about bloat do not have
-the hardware for which this driver is required and thusly will *never*
-lose the coveted 128K for it's firmware.  There are areas of "bloat" with
-far further reach than this.  Go get a few thousand signatures from actual
-Qlogic FC owners running linux oking your destablization of the driver and
-I'll leave this alone.  Otherwise, either delete the driver entirely or
-put the firmware for which the driver is designed and proven stable by the
-test of time back in the tree.
+> I can then load the floppy module after boot, and successfully access the
+> floppy device w/o any problems.  The oops happened when the mountall script
+> (Debian testing) was running:
+> 
+> 	mount -avt nonfs,noproc,nosmbfs
+> 
+> Devfsd is started way before mountall is ran so I do not know why it is
+> causing problems.
 
-This is the 2.4 "stable" kernel tree.  One would assume people work towards
-*increasing* it's stability by fixing its flaws, not wildly deleting shit
-and (possibly) randomly breaking things. (But I digress.  I'm treading into
-the abyss of source/configuration management of which the kernel tree has
-none.)
+Strange. I tried the following sequence, without problems:
+# devfsd /dev
+# mount /floppy
+# ls -lF /dev/floppy
 
->As Matthew has noted, we have a source of newer firmware, and because the
->sparc's have this annoying firmware problem it is going to be appropriate
->to add build in firmware as a config option (probably set with def_bool on
->sparc..)
+where /etc/fstab has:
+/dev/floppy/0  /floppy  ext2  defaults,noauto,user  0 0
 
-As I recall, the Qlogic ISP driver has had a similar option for years.
-(Maybe not to prevent compilation but certainly to prevent loading it.)
+I have nothing in my /etc/devfsd.conf which refers to the floppy. In
+addition, I don't have any LOOKUP entries. I did this with 2.4.9 with
+devfs-patch-v188.
 
->At the time a) I didnt realise the sparc setup was so anal, and b) I didnt
->know about the firmware update.
+Could you please try reproducing the problem with the setup and
+sequence I used?
 
-So basically, you had no fucking clue what kind of instability you were about
-to introduce into the current "stable" line of kernels, but did it anyway
-simply because of the wording (and your interpretation thereof) of the license
-on a firmware "data" file.  Wording that has been unchanged since the day
-the file was entered into the tree.  If there were objections, questions,
-or other concerns, they should have been raised then and not months or years
-later.  And there should have been at least some discussion before removing
-the file and seeing who notices. (If I missed this discussion, then I
-apologize.)
+				Regards,
 
---Ricky
-
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

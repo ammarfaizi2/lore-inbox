@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265855AbTFSRWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 13:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265857AbTFSRWJ
+	id S265858AbTFSRXf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 13:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265859AbTFSRXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 13:22:09 -0400
-Received: from are.twiddle.net ([64.81.246.98]:24988 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S265855AbTFSRWH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 13:22:07 -0400
-Date: Thu, 19 Jun 2003 10:35:47 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: davidm@hpl.hp.com
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@digital.com>,
-       "David S. Miller" <davem@redhat.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: force_successful_syscall_return() buggy?
-Message-ID: <20030619173547.GA9514@twiddle.net>
-Mail-Followup-To: davidm@hpl.hp.com,
-	"Aneesh Kumar K.V" <aneesh.kumar@digital.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <fa.it5uct2.s4s8om@ifi.uio.no> <fa.gvpfoqi.ngk8p2@ifi.uio.no> <3EEEBB1F.70609@digital.com> <16111.25976.768140.306522@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16111.25976.768140.306522@napali.hpl.hp.com>
-User-Agent: Mutt/1.4i
+	Thu, 19 Jun 2003 13:23:35 -0400
+Received: from [65.244.37.61] ([65.244.37.61]:55726 "EHLO
+	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
+	id S265858AbTFSRXc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 13:23:32 -0400
+Message-ID: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com>
+From: "Downing, Thomas" <Thomas.Downing@ipc.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Troll Tech [was RE: Sco vs. IBM]
+Date: Thu, 19 Jun 2003 13:37:28 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 12:01:12PM -0700, David Mosberger wrote:
->   Aneesh> I was facing a simillar problem with ptrace on Alpha (ptrace
->   Aneesh> on alpha expect the pt_regs at current + 2*PAGE_SIZE for
->   Aneesh> 2.4. kernel ) w.r.t www.openssi.org project. What i found
->   Aneesh> was that even after we return to user space subsequent
->   Aneesh> syscalls are not putting pt_regs at that offset. I guess
->   Aneesh> while entering the kernel kernel stack pointer always point
->   Aneesh> to value stored in thread_struct.ksp ?
+I'm no authority, but IMHO
+ 
+> In article <20030619141443.GR29247@fs.tum.de>,
+> Adrian Bunk  <bunk@fs.tum.de> wrote:
+> >There's no license reason today why there are two big 
+> desktop projects 
+> >(GNOME and KDE).
 > 
-> If a platform doesn't start with an empty kernel stack on entry from
-> user-space, that platform will be wasting (precious) stack space and
-> ptrace() most likely won't work reliably.  Personally, I'd consider
-> such behavior a bug...
+> There is. If you want to develop a commercial application under
+> KDE you need to pay TrollTech for the Qt license. Basically
+> TrollTech controls all commercial KDE applications.
 
-So would I.  It's now fixed.
+No, you don't, IFF you distribute the source code.  Doesn't make
+a lot of sense though.  So consider, a for-profit company licenses
+QT for a proprietary app.  They send bug fixes/enhancements to QT
+to TrollTech.  If these migrate to Free QT, you're ahead of the game.
+If they don't, what did you lose?
+ 
+> Which makes no sense. You're not at the mercy of Linus or the
+> kernel developers, neither at that of the KDE developers, but
+> TrollTech controls the KDE desktop wrt commercial apps.
 
+No, they don't.  KDE uses the GPL for QT.  If I build a commercial
+app using KDE, it is GPL.  If I build a commercial app not using
+KDE, but using commercial QT, that has no effect on the KDE desktop.
+ 
+> What if TrollTech decides to only license (or sell) Qt
+> to, say, Microsoft? What does that mean for, say, the Kompany ?
 
-r~
+They can't.  They released the code under GPL.  They can stop maintaining
+that code, and continue on a proprietary track.  If they did, what
+did you lose?
+
+In summary, QT -> GPL, GNOME - GPL, what about _that_ makes one or
+the other inherently preferable or better?
+
+P.S. for once I am in complete agreement with larry m. ;-)

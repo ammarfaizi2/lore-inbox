@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbTIEJoD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 05:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTIEJoD
+	id S262373AbTIEKGP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 06:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbTIEKGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 05:44:03 -0400
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:11922 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP id S262319AbTIEJoA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 05:44:00 -0400
-Subject: Re: corruption with A7A266+200GB disk?
-To: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-Date: Fri, 5 Sep 2003 10:43:57 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <1062596153.19059.42.camel@dhcp23.swansea.linux.org.uk> from "Alan Cox" at Sep 03, 2003 02:35:54 PM
-X-Mailer: ELM [version 2.5 PL0]
-MIME-Version: 1.0
+	Fri, 5 Sep 2003 06:06:15 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:640 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262373AbTIEKGO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 06:06:14 -0400
+Date: Fri, 5 Sep 2003 12:06:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Ed Sweetman <ed.sweetman@wmich.edu>,
+       Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: [RFC] extents support for EXT3
+Message-ID: <20030905100607.GA220@elf.ucw.cz>
+References: <m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu> <m3isogpgna.fsf@bzzz.home.net> <3F4F923F.9070207@wmich.edu> <m3ad9snxo6.fsf@bzzz.home.net> <3F4FAFA2.4080202@wmich.edu> <20030829213940.GC3846@matchmail.com> <3F4FD2BE.1020505@wmich.edu> <20030829231726.GE3846@matchmail.com> <m18yp9r2uq.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E19vD8H-00079E-00@cent1.lancs.ac.uk>
-From: Steve Bennett <steveb@unix.lancs.ac.uk>
+Content-Disposition: inline
+In-Reply-To: <m18yp9r2uq.fsf@ebiederm.dsl.xmission.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ALi does support LBA48 in PIO mode. Right now the choice is 
-> DMA and 137Gb or no DMA and 200Gb, ideally it should be DMA
-> and fall back to PIO for the top 70Gb, but not yet a while.
+Hi!
 
-OK, having actually read what dmesg says (instead of making assumptions),
-I see:
-    hda: max request size: 128KiB
-    hda: cannot use LBA48 - full capacity 390721968 sectors (200049 MB)
-    hda: 268435456 sectors (137438 MB) w/8192KiB Cache, CHS=16709/255/63, UDMA(100)
-     hda: hda1 hda2 hda3 hda4
+> > > you get no real slowdown as far as rough benchmarks are concerned, 
+> > > perhaps with a microbenchmark you would see one and also, doesn't it 
+> > > take up more space to save the extent info and such? Either way, all of 
+> > > it's real benefits occur on large files.
+> > 
+> > IIRC, if your blocks are contiguous, you can save as soon as soon as the
+> > file size goes above one block (witout extents, the first 12 blocks are
+> > pointed to by what?  I forget... :-/ )
+> 
+> They are pointed to directly from the inode.
+> 
+> In light of other concerns how reasonable is a switch to e2fsck that
+> will remove extents so people can downgrade filesystems?
 
-and fdisk reports:
-   # /sbin/fdisk -l
+It is going to be non-trivial: downgrading filesystem will likely need
+free space. And now: what happens when there's no free space?
 
-   Disk /dev/hda: 137.4 GB, 137438953472 bytes
-   255 heads, 63 sectors/track, 16709 cylinders
-   Units = cylinders of 16065 * 512 = 8225280 bytes
-
-      Device Boot    Start       End    Blocks   Id  System
-   /dev/hda1   *         1        13    104391   83  Linux
-   /dev/hda2            14      1057   8385930   83  Linux
-   /dev/hda3          1058      1188   1052257+  82  Linux swap
-   /dev/hda4          1189      6169  40009882+  83  Linux
-
-So the disk is being correctly downgraded to a non-lba48-compatible size.
-In which case, why is the disk getting trashed?
-
-Maybe there's a fault on the disk itself? I'll find a system that does lba48
-and try it there...
-
-Steve.
-
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263055AbTEMAnZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 20:43:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTEMAnZ
+	id S263056AbTEMAuI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 20:50:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263062AbTEMAuI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 20:43:25 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:17912 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263055AbTEMAnY (ORCPT
+	Mon, 12 May 2003 20:50:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:31925 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263056AbTEMAuH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 20:43:24 -0400
-Message-ID: <3EC04261.6020206@us.ibm.com>
-Date: Mon, 12 May 2003 17:54:57 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, James <jamesclv@us.ibm.com>
-Subject: Re: [PATCH] linux-2.5.69_clear-smi-fix_A1
-References: <1052785802.4169.12.camel@w-jstultz2.beaverton.ibm.com>
+	Mon, 12 May 2003 20:50:07 -0400
+Date: Mon, 12 May 2003 18:02:42 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Chris Friesen'" <cfriesen@nortelnetworks.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn' t work due to /dev/rtc issues
+Message-ID: <20030513010242.GO8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+	'Chris Friesen' <cfriesen@nortelnetworks.com>,
+	'Linux Kernel Mailing List' <linux-kernel@vger.kernel.org>
+References: <A46BBDB345A7D5118EC90002A5072C780CCB042C@orsmsx116.jf.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780CCB042C@orsmsx116.jf.intel.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> All, 
-> 	I've been having problems with ACPI on a box here in our lab. Some of
-> our more recent hardware requires that SMIs are routed through the
-> IOAPIC, thus when we clear_IO_APIC() at boot time, we clear the BIOS
-> initialized SMI pin. This basically clobbers the SMI so we can then
-> never make the transition into ACPI mode. 
-> 
-> This patch simply reads the apic entry in clear_IO_APIC to make sure the
-> delivery_mode isn't dest_SMI. If it is, we leave the apic entry alone
-> and return.
-> 
-> With this patch, the box boots and SMIs function properly.
+From: William Lee Irwin III [mailto:wli@holomorphy.com]
+>> This is ridiculous. Just make sure you're not sharing interrupts and
+>> count cycles starting at the ISR instead of wakeup and tag events
+>> properly if you truly believe that to be your metric. You, as the
+>> kernel, are notified whenever the interrupts occur and can just look
+>> at the time of day and cycle counts.
 
-So, without the patch, what happens?  Does the thing just completely
-freeze when it tries to turn ACPI on?  Does the machine _require_ that
-you use ACPI?
+On Mon, May 12, 2003 at 05:20:39PM -0700, Perez-Gonzalez, Inaky wrote:
+> Well, I am only suggesting a way to _FORCE_ interrupts to happen
+> at a certain rate controllable by _SOMEBODY_, not as the system
+> gets them. Chris was concerned about not having a way to 
+> _GENERATE_ interrupts at a certain rate.
+> What you are suggesting is the other part of the picture, how to
+> measure the latency and AFAICS, it is not part of the problem of
+> generating the interrupts.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+It also seems somewhat pointless to measure it under artificial
+conditions. Interrupts happen often anyway and you probably want to
+measure the effects of real drivers and kernel subsystems on the time
+it takes for the blocked task to resume in userspace for real loads.
+By the time you've done up custom drivers and interrupt load generators
+you've completely divorced whatever you're measuring from whatever will
+affect runtime in the field.
 
+-- wli

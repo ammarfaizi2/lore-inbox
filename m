@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262874AbUEJWv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbUEJWzo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUEJWv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 18:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262766AbUEJWtj
+	id S263019AbUEJWzo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 18:55:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263020AbUEJWx5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 18:49:39 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:11793 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262810AbUEJWsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 18:48:20 -0400
-Date: Mon, 10 May 2004 23:48:19 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040510234819.A8743@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040510024506.1a9023b6.akpm@osdl.org> <20040510223755.A7773@infradead.org> <20040510150203.3257ccac.akpm@osdl.org> <20040510230558.A8159@infradead.org> <20040510151554.49965f1d.akpm@osdl.org> <20040510232038.A8331@infradead.org> <20040510154706.6291e264.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040510154706.6291e264.akpm@osdl.org>; from akpm@osdl.org on Mon, May 10, 2004 at 03:47:06PM -0700
+	Mon, 10 May 2004 18:53:57 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:49812 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262961AbUEJWxA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 18:53:00 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 10 May 2004 15:52:58 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: John McCutchan <ttb@tentacle.dhs.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
+In-Reply-To: <1084228900.28903.2.camel@vertex>
+Message-ID: <Pine.LNX.4.58.0405101548230.1156@bigblue.dev.mdolabs.com>
+References: <1084152941.22837.21.camel@vertex>  <20040510021141.GA10760@taniwha.stupidest.org>
+  <1084227460.28663.8.camel@vertex>  <Pine.LNX.4.58.0405101521280.1156@bigblue.dev.mdolabs.com>
+ <1084228900.28903.2.camel@vertex>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 03:47:06PM -0700, Andrew Morton wrote:
-> > So yeah, although it's a hack too it's
-> > much much better than the junk that just went into Linus tree.
+On Mon, 10 May 2004, John McCutchan wrote:
+
+> On Mon, 2004-05-10 at 18:31, Davide Libenzi wrote:
+> > On Mon, 10 May 2004, John McCutchan wrote:
+> > 
+> > > > 3) dnotify cannot easily watch changes for a directory hierarchy
+> > > 
+> > > People don't seem to really care about this one. Alexander Larsson has
+> > > said he doesn't care about it. It might be nice to add in the future.
+> > 
+> > Please excuse my ignorance, but who is Alexander Larsson? A dnotify 
+> > replacement that does not have the ability to watch for a hierarchy is 
+> > pretty much useless. Or do you want to drop thousands of single watches to 
+> > accomplish that?
 > 
-> Untrue.  With the system-wide thing unprivileged local users can
-> trivially DoS the database.
+> Alexander Larsson is the maintainer of nautilus, gnome-vfs and I think
+> the dnotify patch for fam. He made a post to l-k a month or two ago
+> about why he doesn't care about it. I do plan on adding this feature in
+> the near future though.
 
-Well, that's your problem if you oracle.  At least we don't get magic
-groups.
+GUIs have different requirements. They display a finite number of views on 
+directories, so for them it is fine to not have hierarchy watching 
+capabilities. A sane dnotify API should have the ability to watch hierarchies.
+And it should not even be that much hard to do, since you can just 
+backtrace the the point where the change happened to see if there are 
+watchers on the parent directories.
 
-> > Why btw do we have a staging tree if such sensitive patches go into
-> > mainline without proper review after just one day?
-> 
-> It was discussed on lkml, then later was dicussed extensively off-list
-> and I lost track of how long it had been in -mm.  Sorry.
 
-Umm, the two patches appeared in -mm yesterday..
 
-> > When did shm segments come into the play?  I know we bolted hugetlb
-> > support onto the back of the already horrible sysv shm interface, but
-> > if people want additional interfaces ontop of that they should use
-> > the proper mmap api.
-> 
-> Rewriting Oracle isn't a practical alternative.
+- Davide
 
-So we can rewrite the kernel but oracle can be fixed?  I mean they
-have thousands of programmers and can't fix they Database to use a sane
-API?  I'd even fix it up for them in an hour or two if they gave me the
-sources..

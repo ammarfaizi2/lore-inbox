@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264961AbTFQU5I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 16:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264965AbTFQU5I
+	id S264973AbTFQVBT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 17:01:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbTFQVBT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 16:57:08 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:469 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264961AbTFQU45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 16:56:57 -0400
-Date: Tue, 17 Jun 2003 23:10:44 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-net@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] net/wireless: make two frequency_list static
-Message-ID: <20030617211044.GF29247@fs.tum.de>
+	Tue, 17 Jun 2003 17:01:19 -0400
+Received: from main.gmane.org ([80.91.224.249]:17900 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264971AbTFQVBP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 17:01:15 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.5.71 compile error on alpha
+Date: 17 Jun 2003 23:20:51 +0200
+Message-ID: <yw1xptlcs8ng.fsf@zaphod.guide>
+References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de> <yw1xk7bk36hw.fsf@zaphod.guide> <20030617202221.GH6353@lug-owl.de> <3EEF7B20.5030208@g-house.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5 kernels up to 2.5.72 fail to compile with the following error:
+Christian Kujau <evil@g-house.de> writes:
 
-<--  snip  -->
+> >>That's typical for the slower Avantis.  Is your's something like 100 MHz?
+> > Well, that's mainly a question of compiler version and the quantity
+> > of
+> > modules you attempt to build...
+> 
+> it's both :-)
+> 
+> lila:~# cat /proc/cpuinfo
+> cpu			: Alpha
+> cpu model		: EV45
+> cpu variation		: 7
+> cpu revision		: 0
+> cpu serial number	:
+> system type		: Avanti
+> system variation	: 0
+> system revision		: 0
+> system serial number	:
+> cycle frequency [Hz]	: 232018561
+> timer frequency [Hz]	: 1024.00
+> page size [bytes]	: 8192
+> phys. address bits	: 34
+> max. addr. space #	: 63
+> BogoMIPS		: 458.36
+> kernel unaligned acc	: 32 (pc=fffffc0000478394,va=fffffc0002dbf176)
 
-...
-  LD      
-drivers/net/wireless/built-in.o
-drivers/net/wireless/atmel.o(.rodata+0x1a0): 
-multiple definition of `frequency_list'
-drivers/net/wireless/airo.o(.rodata+0x0): first defined here
-make[3]: *** [drivers/net/wireless/built-in.o] Error 1
+That's not good.  Do you know what is causing it.
 
-<--  snip  -->
+> user unaligned acc	: 0 (pc=0,va=0)
+> platform string		: AlphaStation 255/233
 
+I use one of those for a firewall/router.
 
-the patch below makes both frequency_list static.
-
-I've tested the compilation with 2.5.72.
-
-cu
-Adrian
+> cpus detected		: 1
 
 
---- linux-2.5.70-mm6/drivers/net/wireless/airo.c.old	2003-06-08 17:24:35.000000000 +0200
-+++ linux-2.5.70-mm6/drivers/net/wireless/airo.c	2003-06-08 17:24:56.000000000 +0200
-@@ -889,7 +889,7 @@
- 
- #ifdef WIRELESS_EXT
- // Frequency list (map channels to frequencies)
--const long frequency_list[] = { 2412, 2417, 2422, 2427, 2432, 2437, 2442,
-+static const long frequency_list[] = { 2412, 2417, 2422, 2427, 2432, 2437, 2442,
- 				2447, 2452, 2457, 2462, 2467, 2472, 2484 };
- 
- // A few details needed for WEP (Wireless Equivalent Privacy)
---- linux-2.5.70-mm6/drivers/net/wireless/atmel.c.old	2003-06-08 17:23:55.000000000 +0200
-+++ linux-2.5.70-mm6/drivers/net/wireless/atmel.c	2003-06-08 17:24:21.000000000 +0200
-@@ -1903,7 +1903,7 @@
- 	return 0;
- }
- 
--const long frequency_list[] = { 2412, 2417, 2422, 2427, 2432, 2437, 2442,
-+static const long frequency_list[] = { 2412, 2417, 2422, 2427, 2432, 2437, 2442,
- 				2447, 2452, 2457, 2462, 2467, 2472, 2484 };
- 
- static int atmel_set_freq(struct net_device *dev,
+-- 
+Måns Rullgård
+mru@users.sf.net
+

@@ -1,54 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUHUG33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268854AbUHUG6N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268153AbUHUG33 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 02:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUHUG33
+	id S268854AbUHUG6N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 02:58:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268867AbUHUG6N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 02:29:29 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:41711 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S268153AbUHUG31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 02:29:27 -0400
-From: mita akinobu <amgta@yacht.ocn.ne.jp>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Re: [PATCH] shows Active/Inactive on per-node meminfo
-Date: Sat, 21 Aug 2004 15:29:37 +0900
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Matthew Dobson <colpatch@us.ibm.com>
-References: <200408210302.25053.amgta@yacht.ocn.ne.jp> <200408201448.22566.jbarnes@engr.sgi.com>
-In-Reply-To: <200408201448.22566.jbarnes@engr.sgi.com>
+	Sat, 21 Aug 2004 02:58:13 -0400
+Received: from s2.ukfsn.org ([217.158.120.143]:51419 "EHLO mail.ukfsn.org")
+	by vger.kernel.org with ESMTP id S268854AbUHUG6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 02:58:07 -0400
+Message-ID: <4126F27B.9010107@dgreaves.com>
+Date: Sat, 21 Aug 2004 07:58:03 +0100
+From: David Greaves <david@dgreaves.com>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       fsteiner-mail@bio.ifi.lmu.de, kernel@wildsau.enemy.org,
+       diablod3@gmail.com, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408041233.i74CX93f009939@wildsau.enemy.org> <4124BA10.6060602@bio.ifi.lmu.de> <1092925942.28353.5.camel@localhost.localdomain> <200408191800.56581.bzolnier@elka.pw.edu.pl> <4124D042.nail85A1E3BQ6@burner> <1092938348.28370.19.camel@localhost.localdomain> <4125FFA2.nail8LD61HFT4@burner> <101FDDA2-F2F5-11D8-8DEC-000393ACC76E@mac.com>
+In-Reply-To: <101FDDA2-F2F5-11D8-8DEC-000393ACC76E@mac.com>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408211529.37839.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 21 August 2004 03:48, Jesse Barnes wrote:
-> Just FYI, loops like this are going to be very slow on a large machine.
-> Iterating over every node in the system involves a TLB miss on every
-> iteration along with an offnode reference and possibly cacheline demotion.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-get_zone_counts() is used by max_sane_readahead(), and
-max_sane_readahead() is often called in filemap_nopage().
+Kyle Moffett wrote:
 
-If iterating over every node is going to be very slow, the following change
-would have a little bit of improvement on a large machine?
+|
+| Security issue:
+|     Anybody with read access to certain block devices (Like CD-RW
 
+~                    ^^^^
 
---- linux-2.6.8.1-mm3/mm/readahead.c.orig	2004-08-21 15:18:08.924273720 +0900
-+++ linux-2.6.8.1-mm3/mm/readahead.c	2004-08-21 15:22:31.123413392 +0900
-@@ -572,6 +572,6 @@ unsigned long max_sane_readahead(unsigne
- 	unsigned long inactive;
- 	unsigned long free;
- 
--	get_zone_counts(&active, &inactive, &free);
-+	__get_zone_counts(&active, &inactive, &free, NODE_DATA(numa_node_id()));
- 	return min(nr, (inactive + free) / 2);
- }
+| drives.) could reflash the firmware or otherwise turn the drive into a
+| rather expensive doorstop.
+|
+| Chosen solution for 2.6.8.1:
+|     Only allow certain known-safe commands, anything else needs
+| root privileges, specifically CAP_SYS_RAWIO or CAP_SYS_ADMIN,
 
+~    ^^^^^^^^
 
+|  (Seems sane, and follows with the general design of the  rest of the
+| kernel).
+
+Can someone explain why it isn't anyone with _write_ access to the device?
+Surely it's better to drop a user into a group or setgid a program?
+
+If I have write access to a device then I can wipe it's media anyway.
+Is there something I'm missing?
+
+| Personally, I'd rather have a setuid executable on my system than
+| allow anybody in the cdwriters group to reflash my CDROM drive.
+
+OK, you keep the users out of the group and make the progaram setgid
+cdwriters.
+Then if someone makes a mess of the set[gu]id code you lose your
+cdwriter (which would be gone anyway) and not your whole system.
+
+Why force the program to escalate to root?
+
+David
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBJvJ78LvjTle4P1gRAgFSAJ92lFbuqHqibMlotNi0jXln10SrhgCePBlS
+a4xebwkvjNxVV7L9eoLB7cI=
+=bswe
+-----END PGP SIGNATURE-----
 

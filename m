@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbTHaPMU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 11:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbTHaPMU
+	id S261369AbTHaPVG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 11:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbTHaPVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 11:12:20 -0400
-Received: from mail.gmx.de ([213.165.64.20]:23502 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262482AbTHaPMS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 11:12:18 -0400
-From: Felix Seeger <felix.seeger@gmx.de>
-To: Nikita Danilov <Nikita@Namesys.COM>
-Subject: Re: Reiser4 snapshot problems
-Date: Sun, 31 Aug 2003 17:12:17 +0200
-User-Agent: KMail/1.5.9
-References: <4834.1062157986@www16.gmx.net> <16207.18144.463818.473825@laputa.namesys.com>
-In-Reply-To: <16207.18144.463818.473825@laputa.namesys.com>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 31 Aug 2003 11:21:06 -0400
+Received: from web40505.mail.yahoo.com ([66.218.78.122]:53275 "HELO
+	web40505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261369AbTHaPVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 11:21:04 -0400
+Message-ID: <20030831152103.65679.qmail@web40505.mail.yahoo.com>
+Date: Sun, 31 Aug 2003 08:21:03 -0700 (PDT)
+From: ETO <by_eto@yahoo.com>
+Subject: make: *** [menuconfig] Error 1
+To: mec@shout.net, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200308311712.17536.felix.seeger@gmx.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 August 2003 14:28, Nikita Danilov wrote:
-> Felix Seeger writes:
->  > Hi
->  >
->  > I am trying out Reiser4 snapshot from August 26th.
->  > I've putted my kde cvs sources on the new partition and compile from
->  > reiser4 now.
->  >
->  > After some time processes hang when accessing this disk. I cannot do
->  > anything on it but I also don't get any errormessage.
->
-> If there anything in /var/log/messages, or wherever your kernel log is
-> stored?
+Linux Kernel v2.4.22-1mdkcustom Configuration
+ 
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-Ok, after playing around with umount and kill I finally got some error 
-messages. Don't know if they are important:
+ Q> scripts/Menuconfig: line 832: MCmenu76: command not found
 
- reiser4[ktxnmgrd:run(28206)]: commit_current_atom (fs/reiser4/txnmgr.c:1010)
-[nikita-3176]:
-WARNING: Flushing like mad: 16384
- reiser4[ktxnmgrd:run(28206)]: commit_current_atom (fs/reiser4/txnmgr.c:1010)
-[nikita-3176]:
-WARNING: Flushing like mad: 32768
- reiser4[ktxnmgrd:run(28206)]: commit_current_atom (fs/reiser4/txnmgr.c:1010)
-[nikita-3176]:
-WARNING: Flushing like mad: 65536
- reiser4[ktxnmgrd:run(28206)]: commit_current_atom (fs/reiser4/txnmgr.c:1010)
-[nikita-3176]:
-WARNING: Flushing like mad: 131072
- reiser4[ktxnmgrd:run(28206)]: commit_current_atom (fs/reiser4/txnmgr.c:1010)
-[nikita-3176]:
-WARNING: Flushing like mad: 262144
- reiser4[ktxnmgrd:run(28206)]: commit_current_atom (fs/reiser4/txnmgr.c:1010)
-[nikita-3176]:
-WARNING: Flushing like mad: 524288
- reiser4[ktxnmgrd:run(28206)]: commit_current_atom (fs/reiser4/txnmgr.c:1010)
-[nikita-3176]:
-WARNING: Flushing like mad: 1048576
-...
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
 
->  > Umount, bash autocomletion and things like that don't work. Normal df
->  > and mount are working btw.
->
-> Nikita.
-Felix
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+
+make: *** [menuconfig] Error 1
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

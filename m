@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbTICAPj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 20:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTICAPj
+	id S261253AbTICAUR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 20:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbTICAUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 20:15:39 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16547 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261284AbTICAPi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 20:15:38 -0400
-Date: Tue, 2 Sep 2003 17:04:48 -0700
-From: Greg KH <greg@kroah.com>
-To: John Stoffel <stoffel@lucent.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test4-mm4 - USD disconnect oops
-Message-ID: <20030903000448.GA21173@kroah.com>
-References: <16210.44543.579049.520185@gargle.gargle.HOWL> <20030901065928.GB22647@kroah.com> <16213.12008.527588.874265@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16213.12008.527588.874265@gargle.gargle.HOWL>
-User-Agent: Mutt/1.4.1i
+	Tue, 2 Sep 2003 20:20:17 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:23510 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S261253AbTICAUN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 20:20:13 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Andre Hedrick" <andre@linux-ide.org>,
+       "James Clark" <jimwclark@ntlworld.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Driver Model
+Date: Tue, 2 Sep 2003 17:20:10 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAENJGCAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.10.10309021555410.8229-100000@master.linux-ide.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 07:59:36PM -0400, John Stoffel wrote:
-> >>>>> "Greg" == Greg KH <greg@kroah.com> writes:
-> 
-> >> Here's the backtrace, my .config is at the end.  It's a PIII Xeon 2 x
-> >> 550mhz, Dell Precision 610 motherboard/system, 768mb of RAM.  The only
-> >> USB devices are the controllers and the CompactFlash reader, which
-> >> works great under 2.4.  
-> 
-> Greg> Does this happen on 2.6.0-test4?  (no -mm).
-> 
-> Well, I can now use the usb-storage device under 2.6.0-test4 without
-> any problems, but I just did a quick test.  So there's something in
-> -mm4 which is messing me and usb in general up.  I've made the
-> following changes though, so I should go back and check:
-> 
-> - upgrade to module-init-tools-0.9.13
-> - upgrade to hotplug-2003_08_05-1
-> 	     hotplug-base-2003_08_05-1
-> 
-> I'll see if I can figure out what changed in the -mm4 patch to cause
-> this problem.  Could it be the kobject patch Akpm posted?  It looks
-> like the oops I've gotten.
 
-Try adding that patch and see if it helps.  It sure can't hurt as it
-fixes a real bug in the -mm tree :)
+	I agree with you, except for the one place where you've contradicted
+yourself:
 
-Thanks for testing 2.6.0-test4.
+> If you are an embedded space widget.  Apply thumb to nose and wiggle
+> fingers.  Provided you ship the source code you modify in the kernel, and
+> I do mean all of it, use the short cut to clobber the issues in module.h.
+> When they scream and complain about, this violates intent, ask them are
+> they issuing a restriction on the usage of the GPL kernel?  If they do not
+> permit one to use it under GPL them the kernel itself is in violation.
 
-greg k-h
+	In other words, you cannot release something under the GPL and
+simultaneously restrict its use.
+
+> Now back to "tainting", if the politics were such to cause all modules
+> which are not GPL to be rejected then the game is over.  Because the
+> kernel does not reject loading, it by default approves of closed source
+> binary modules.  One could use the means of taint-testing to accept or
+> reject, regardless of the original intent.  Many have and will make the
+> argument the kernel has the ability to reject closed source and it choose
+> to accept.
+
+	So no, the kernel does not have the ability to reject closed source. That
+would be an additional restriction upon use that the GPL does not allow you
+to impose.
+
+	DS
+
+

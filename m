@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUHYPgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264903AbUHYPmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267869AbUHYPgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 11:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268025AbUHYPgn
+	id S264903AbUHYPmw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 11:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHYPmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 11:36:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4829 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267869AbUHYPgm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 11:36:42 -0400
-Date: Wed, 25 Aug 2004 16:36:40 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Martin Mares <mj@ucw.cz>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-Message-ID: <20040825153640.GF16196@parcelfarce.linux.theplanet.co.uk>
-References: <20040814221010.GA18592@ucw.cz> <20040818181310.12047.qmail@web14927.mail.yahoo.com>
+	Wed, 25 Aug 2004 11:42:51 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:14759 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264903AbUHYPms (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 11:42:48 -0400
+Date: Wed, 25 Aug 2004 08:42:37 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
+Message-ID: <20040825154237.GA19447@cup.hp.com>
+References: <412AD123.8050605@jp.fujitsu.com> <Pine.LNX.4.58.0408232231070.17766@ppc970.osdl.org> <1093417267.2170.47.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040818181310.12047.qmail@web14927.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1093417267.2170.47.camel@gaston>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 11:13:10AM -0700, Jon Smirl wrote:
-> I haven't received any comments on pci-sysfs-rom-17.patch. Is everyone
-> asleep or is it ready to be pushed upstream? I'm still not sure that
-> anyone has tried it on a ppc machine.
+On Wed, Aug 25, 2004 at 05:01:08PM +1000, Benjamin Herrenschmidt wrote:
+...
+> Most drivers already have such a low level lock though, so we may end
+> up replacing it with a bridge-based lock... but depending on the architecture,
+> that would end up sync'ing lots of drivers on the same lock, which may not
+> be good especially if we have no checking to do... 
 
-I'm now working on something that could use the ROM mapping facility.
-However, I know that I only need the first 64k of the ROM.  Would it
-be reasonable to check the value passed in to pci_map_rom() in *size
-and only automatically set it if it's 0?
+multiple drivers acquiring the same bridge lock? ugh.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Which bridge sees an error may be a parent (or child) of the PCI bridge
+we are monitoring. I suspect we will have to live with multiple
+devices being impacted by errors on a bus and the error recovery
+notify/resyncronize with all impacted devices.
+
+Does anyone expect to recover from devices attempting unmapped DMA?
+Ie an IOMMU which services multiple PCI busses getting a bad DMA address
+will cause the next MMIO read by any of the (grandchildren) PCI devices to 
+see an error (MCA on IA64). I'm asking only to determine if this is
+outside the scope of what the PCI error recovery is trying to support.
+
+> I don't know what is the best thing to do here... The arch is the one to
+> know what is the granularity of the error management (per slot ? per segment
+> or per domain ?) and so to know what kind of lock is needed...
+
+Yeah...I guess my comments are along the same vein.
+
+grant

@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbTKCQz5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 11:55:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTKCQz5
+	id S262108AbTKCRCT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 12:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTKCRCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 11:55:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21145 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262118AbTKCQzy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 11:55:54 -0500
-Date: Mon, 3 Nov 2003 08:55:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Konstantin Boldyshev <konst@linuxassembly.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <marcelo.tosatti@cyclades.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: Re: minix fs corruption fix for 2.4
-In-Reply-To: <Pine.LNX.4.43L.0311031557480.1077-200000@alpha.linuxassembly.org>
-Message-ID: <Pine.LNX.4.44.0311030851430.20373-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 3 Nov 2003 12:02:19 -0500
+Received: from D71c0.d.pppool.de ([80.184.113.192]:55206 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S262108AbTKCRCM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 12:02:12 -0500
+Subject: Re: Re:No backlight control on PowerBook G4
+From: Daniel Egger <degger@fhm.edu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Dustin Lang <dalang@cs.ubc.ca>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1067820334.692.38.camel@gaston>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
+	 <1067820334.692.38.camel@gaston>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GtyAFjv2d0hoQhhhJqgK"
+Message-Id: <1067878624.7695.15.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 03 Nov 2003 17:57:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 3 Nov 2003, Konstantin Boldyshev wrote:
-> 
-> Enclosed is a simple patch to fix corruption of minix filesystem
-> when deleting character and block device nodes (special files).
-> From what I've found out the bug was introduced somehwere in 2.3
-> and is present in all 2.4 versions, and I guess also goes into 2.6.
+--=-GtyAFjv2d0hoQhhhJqgK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Oops, yes.
+Am Mon, den 03.11.2003 schrieb Benjamin Herrenschmidt um 01:45:
 
-The problem is that block and character devices put not a block number but 
-a _device_ number in the place where other files put their block 
-allocations.
+> You can't expect a machine just released a couple of weeks ago by
+> Apple to be fully supported by linux, do you ? :)
 
-Your patch is wrong, though - you shouldn't test for APPEND and IMMUTABLE 
-here. That should be done at higher layers. 
+<duckmode>not?</duckmode> ;)
 
-I'd also prefer to do the test the other way around: test for CHRDEV and 
-BLKDEV in inode.c the same way the other functions do. Something like the 
-appended..
+> If it's a new Mobility 9600 machine, then I expect my 2.6 tree
+> (bk://ppc.bkbits.net/linuxppc-2.5-benh or rsync from source.mvista.com)
+> to work, though the actual backlight "scale" may not be fully correct
+> yet.
 
-Al, can you verify? I think this crept in when you did the block lookup 
-cleanups. I also worry whether anybody else got the bug?
+Interesting, will try. I've a whole bunch of more pressing problems with
+my new baby, though. X is completely broken, no matter which X modelines
+I configure I get nothing but sizzle on the screen, it seems that the
+mode setup for the LVDS with the 9600 Mobility is bork.
 
-		Linus
+The clock scaling of the CPU also doesn't work; interestingly at 867 MHz
+it's not much faster the my old Ti PB 500 in dnetc RC-5 though the
+overall system has a lot faster design.
 
-===== fs/minix/inode.c 1.38 vs edited =====
---- 1.38/fs/minix/inode.c	Fri Sep  5 04:31:53 2003
-+++ edited/fs/minix/inode.c	Mon Nov  3 08:51:01 2003
-@@ -547,6 +547,8 @@
-  */
- void minix_truncate(struct inode * inode)
- {
-+	if (S_ISCHR(inode->i_mode) || S_ISBLK(inode->i_mode))
-+		return;
- 	if (INODE_VERSION(inode) == MINIX_V1)
- 		V1_minix_truncate(inode);
- 	else
+Also I cannot boot it automatically from network because holding down N
+at bootup will not pick up a DHCP address, so I have to type quite a bit
+in OF. :(
+
+If you need any info about the system I'd be glad to help you out.
+
+--=20
+Servus,
+       Daniel
+
+--=-GtyAFjv2d0hoQhhhJqgK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/pojgchlzsq9KoIYRAlsMAKDT6udRx0HudvqxV7PUgvuXf3p/+QCfbCud
+HaF4bRGB1azqliIXzpA/1xw=
+=uxPj
+-----END PGP SIGNATURE-----
+
+--=-GtyAFjv2d0hoQhhhJqgK--
 

@@ -1,59 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266709AbUBGJsy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 04:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266710AbUBGJsy
+	id S266855AbUBGJ6M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 04:58:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUBGJ6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 04:48:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43935 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266709AbUBGJsw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 04:48:52 -0500
-Date: Sat, 7 Feb 2004 09:48:47 +0000
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>
-Cc: thockin@sun.com, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       viro@math.psu.edu
-Subject: Re: PATCH - raise max_anon limit
-Message-ID: <20040207094846.GZ21151@parcelfarce.linux.theplanet.co.uk>
-References: <20040206221545.GD9155@sun.com> <20040207005505.784307b8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040207005505.784307b8.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 7 Feb 2004 04:58:11 -0500
+Received: from www.trustcorps.com ([213.165.226.2]:58628 "EHLO raq1.nitrex.net")
+	by vger.kernel.org with ESMTP id S266855AbUBGJ6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 04:58:07 -0500
+Message-ID: <4024B618.2070202@hcunix.net>
+Date: Sat, 07 Feb 2004 09:55:36 +0000
+From: the grugq <grugq@hcunix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hans Reiser <reiser@namesys.com>
+CC: Jamie Lokier <jamie@shareable.org>, Valdis.Kletnieks@vt.edu,
+       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
+References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <200402040320.i143KCaD005184@turing-police.cc.vt.edu> <20040207002010.GF12503@mail.shareable.org> <40243C24.8080309@namesys.com> <40243F97.3040005@hcunix.net> <40247A63.1030200@namesys.com>
+In-Reply-To: <40247A63.1030200@namesys.com>
+X-Enigmail-Version: 0.82.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 07, 2004 at 12:55:05AM -0800, Andrew Morton wrote:
-> Tim Hockin <thockin@sun.com> wrote:
-> >
-> > Attached is a patch to raise the limit of anonymous block devices.  The
-> >  sysctl allows the admin to set the order of pages allocated for the unnamed
-> >  bitmap from 1 page to the full MINORBITS limit.
-> 
-> It would be better to lose the sysctl and do it all dynamically.
-> 
-> Options are:
-> 
-> a) realloc the bitmap when it fills up
-> 
->    Simple, a bit crufty, doesn't release memory.
-> 
-> b) lib/radix-tree.c
-> 
->    Each entry in the radix tree can be a bitmap (radix-tree.c should
->    have been defined to store unsigned longs, not void*'s.  Oh well), so
->    you get good space utilisation, but finding a new entry will take ten or
->    so lines of code.
-> 
-> c) lib/idr.c
-> 
->    Worst space utilisation, but simplest code.
+Sure, but to a large extent it depends on your threat model. If you say 
+"an extremely well funded government entity wants to examine your hard 
+drive" then they will have access to insane technologies like electron 
+microscopes. This makes any software solution to secure deletion 
+practically impossible (if we trust the literature).
 
-d) grab a couple of pages and be done with that.  That gives us 64Kbits.
+If, on the other hand, we have a threat model of, say, the police, then 
+things are very different. In the UK, there is a law which requires you 
+to turn over your encryption keys when the court demands them. The 
+police have a tactic for extracting keys which involves physical 
+violence and intimidation. These are very effective against encryption. 
+However, the police do not have access to hardware based analysis 
+technologies, they are just too expensive. So, while they can recover 
+something that has been encrypted, they can't recover something that has 
+been securely deleted. (Not without begging the .gov to perform a 
+hardware analysis, something which would be quite unlikely in the normal 
+course of events).
 
-e) grab max(1/8000 of entire memory, 128Kb).  That will guarantee that
-we run out of memory or minors before we fill the bitmap.
+The majority of forensic analysis is performed with software tools on a 
+bit image of the hard drive. If this bit image doesn't contain the data, 
+the software tools won't see it, and the forensic analysis will fail. I 
+would suggest adding secure deletion, because it does provide a pretty 
+good level of protection. It is not a 100% solution, but neither is 
+encryption. The two in combination are complementary technologies.
 
-PS: psu.edu address is still valid, but I rarely read that mailbox...
+
+peace,
+
+--gq
+
+
+Hans Reiser wrote:
+> There is an extensive literature on how you can recover deleted files 
+> from media that has been erased a dozen times, but breaking encryption 
+> is harder.  It is more secure to not put the data on disk unencrypted at 
+> all is my point.....
+> 
+> Hans
+> 
+> the grugq wrote:
+> 
+>> Well, I think secure deletion should be an option for everyone. Using 
+>> encryption is a data hiding technique, you prevent people for 
+>> detemining what sort of data is being stored there. Now, admittedly I 
+>> dont know at what level the reiser4 encryption appears, but I would 
+>> think its safer to have complete erasure when a file deleted 
+>> regardless of how well protected its contents were.
+>>
+>> just a thought.
+>>
+> 
+> 

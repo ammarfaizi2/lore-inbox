@@ -1,68 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268745AbTCCTsF>; Mon, 3 Mar 2003 14:48:05 -0500
+	id <S268664AbTCCTp5>; Mon, 3 Mar 2003 14:45:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268746AbTCCTsE>; Mon, 3 Mar 2003 14:48:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:33806 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268745AbTCCTsB>; Mon, 3 Mar 2003 14:48:01 -0500
-Date: Mon, 3 Mar 2003 19:58:25 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Matt Porter <porter@cox.net>
-Cc: linux-kernel@vger.kernel.org, Dave Miller <davem@redhat.com>
-Subject: Re: *dma_sync_single API change to support non-coherent cpus
-Message-ID: <20030303195825.C17997@flint.arm.linux.org.uk>
-Mail-Followup-To: Matt Porter <porter@cox.net>,
-	linux-kernel@vger.kernel.org, Dave Miller <davem@redhat.com>
-References: <20030303111848.A31278@home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030303111848.A31278@home.com>; from porter@cox.net on Mon, Mar 03, 2003 at 11:18:48AM -0700
+	id <S268742AbTCCTp5>; Mon, 3 Mar 2003 14:45:57 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:34062 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S268664AbTCCTpy>;
+	Mon, 3 Mar 2003 14:45:54 -0500
+Message-ID: <3E63B356.6000801@xss.co.at>
+Date: Mon, 03 Mar 2003 20:56:06 +0100
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH][2.4.21-pre5]: make xconfig fails on drivers/net/Config.in
+X-Enigmail-Version: 0.73.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090403020402010505040102"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 11:18:48AM -0700, Matt Porter wrote:
-> On non cache coherent processors, it is necessary to perform
-> cache operations on the virtual address associated with the
-> buffer to ensure consistency.  There is one problem, however,
-> the current API does not provide the virtual address for the
-> buffer.  It only provides the bus address in the dma_addr_t.
-> On arm and mips, this is dealt with by simply doing bus_to_virt().
-> However, bus_to_virt() isn't valid for all addresses that could
-> have been passed into *map_single().
+This is a multi-part message in MIME format.
+--------------090403020402010505040102
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I find myself thinking, in passing, why we don't have these
-architectures define something like the following in architecture
-specific code:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	struct dma_addr {
-		unsigned long cpu;
-		unsigned long bus;
-		unsigned long size;
-	};
+Hi!
 
-	#define dma_bus_addr(x)	((x).bus)
-	#define dma_cpu_addr(x)	((x).cpu)
+As the subject says: "make xconfig" complains about an
+"unknown command" in drivers/net/Config.in
 
-and have:
+root@install:/usr/src/linux-2.4.21-pre5 {506} $ make xconfig
+rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts kconfig.tk
+make[1]: Entering directory `/usr/src/linux-2.4.21-pre5-ac1/scripts'
+cat header.tk >> ./kconfig.tk
+./tkparse < ../arch/i386/config.in >> kconfig.tk
+drivers/net/Config.in: 188: unknown command
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.4.21-pre5-ac1/scripts'
+make: *** [xconfig] Error 2
 
-	dma_map_single(dev, &dma_addr, addr, size);
+It turns out, "make xconfig" doesn't know the token "define_mbool",
+used in this file. "make menuconfig" works without complaints...
 
-	dma_sync_single(dev, &dma_addr);
+The attached patch makes it work even with "make xconfig"
+(changes "define_mbool" to "define_bool"), though I don't
+know if this maintains the intended behaviour. Please check.
 
-Architectures which only need the CPU address can place only that in
-their structure definition, and make dma_map_single and friends no-ops.
-I feel that this would get rid of all the shouting DMA_* macros found
-in various pci.h header files.
+- - andreas
 
-This may be something considering for 2.7 though.
+- --
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-DaveM, as the author of the original PCI DMA API, any comments on this
-(probably ill-thoughtout) idea?
+iD8DBQE+Y7MfxJmyeGcXPhERAu5HAJ9LrCFw7VSxE63YDTICNEkcrnJWLQCdFtiF
+BmO0DBhqFT+HVr0Da1Eq9EQ=
+=clCd
+-----END PGP SIGNATURE-----
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--------------090403020402010505040102
+Content-Type: text/plain;
+ name="Config.in.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Config.in.diff"
+
+--- linux-2.4.21-pre5/drivers/net/Config.in.orig	Mon Mar  3 20:26:07 2003
++++ linux-2.4.21-pre5/drivers/net/Config.in	Mon Mar  3 20:26:23 2003
+@@ -185,7 +185,7 @@
+       dep_tristate '    Davicom DM910x/DM980x support' CONFIG_DM9102 $CONFIG_PCI
+       dep_tristate '    EtherExpressPro/100 support (eepro100, original Becker driver)' CONFIG_EEPRO100 $CONFIG_PCI
+       if [ "$CONFIG_VISWS" = "y" ]; then
+-         define_mbool CONFIG_EEPRO100_PIO y
++         define_bool CONFIG_EEPRO100_PIO y
+       else
+          dep_mbool '      Use PIO instead of MMIO' CONFIG_EEPRO100_PIO $CONFIG_EEPRO100
+       fi  
+
+--------------090403020402010505040102--
 

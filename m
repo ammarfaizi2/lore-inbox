@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130499AbQJaUtt>; Tue, 31 Oct 2000 15:49:49 -0500
+	id <S130512AbQJaUvJ>; Tue, 31 Oct 2000 15:51:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130512AbQJaUtk>; Tue, 31 Oct 2000 15:49:40 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:47932 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S130499AbQJaUt0>; Tue, 31 Oct 2000 15:49:26 -0500
-Date: Tue, 31 Oct 2000 14:48:53 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200010312048.OAA244641@tomcat.admin.navo.hpc.mil>
-To: alan@lxorguk.ukuu.org.uk, baettig@scs.ch (Reto Baettig)
+	id <S130525AbQJaUu7>; Tue, 31 Oct 2000 15:50:59 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:43395 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S130512AbQJaUun>;
+	Tue, 31 Oct 2000 15:50:43 -0500
+Message-ID: <39FEE9A4.3959CFF8@scs.ch>
+Date: Tue, 31 Oct 2000 07:47:48 -0800
+From: Reto Baettig <baettig@scs.ch>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: "Jeff V. Merkey" <jmerkey@timpanogas.org>, linux-kernel@vger.kernel.org
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <E13qi9t-0008E9-00@the-village.bc.nu>
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jmerkey@timpanogas.org (Jeff V. Merkey), linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+In-Reply-To: <Pine.LNX.4.21.0010311835420.1190-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+Rik van Riel wrote:
+> Ummm, last I looked Linux held the Specweb99 record;
+> by a wide margin...
 
-> 
-> > And what if I'd like to use the network for something different than
-> > html?
-> 
-> Read the tux source. Then come back and ask sensible questions
+...does that remove any memory copies???
 
-Also pay attention to the security aspects of a true "zero copy" TCP stack.
-It means that SOMETIMES a user buffer will recieve data that is destined
-for a different process.
+To be best does not mean that there's no place for improvment.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+Can anybody please help me and tell me where to start understanding what
+tux does?
 
-Any opinions expressed are solely my own.
+www.tux.org does not seem to be the right place :-(
+
+I don't want to make linux bad or stand on anybodys toes. I'd just like
+to improve linux like everybody else and I do not know every single
+peace of source code floating around the world by heart ;-)
+
+Reto
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

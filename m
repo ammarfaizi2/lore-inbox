@@ -1,85 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264886AbTBXHmB>; Mon, 24 Feb 2003 02:42:01 -0500
+	id <S261523AbTBXHiC>; Mon, 24 Feb 2003 02:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264907AbTBXHmB>; Mon, 24 Feb 2003 02:42:01 -0500
-Received: from ns.cinet.co.jp ([61.197.228.218]:13071 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S264886AbTBXHmA>;
-	Mon, 24 Feb 2003 02:42:00 -0500
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A343@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "'Christoph Hellwig '" <hch@infradead.org>
-Cc: "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (16/21) SCSI
-Date: Mon, 24 Feb 2003 16:52:10 +0900
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+	id <S261624AbTBXHiC>; Mon, 24 Feb 2003 02:38:02 -0500
+Received: from wsip68-15-8-100.sd.sd.cox.net ([68.15.8.100]:10115 "EHLO
+	gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id <S261523AbTBXHiB>; Mon, 24 Feb 2003 02:38:01 -0500
+Date: Sun, 23 Feb 2003 23:44:47 -0800
+To: Larry McVoy <lm@work.bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Bill Davidsen <davidsen@tmr.com>, Ben Greear <greearb@candelatech.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030224074447.GA4664@gnuppy.monkey.org>
+References: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com> <33350000.1046043468@[10.10.2.4]> <20030224045717.GC4215@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030224045717.GC4215@work.bitmover.com>
+User-Agent: Mutt/1.5.3i
+From: Bill Huey (Hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------Original Message-----
-From: Christoph Hellwig
-To: Osamu Tomita
-Cc: Linux Kernel Mailing List; Alan Cox; Christoph Hellwig
-Sent: 2003/02/23 19:52
-Subject: Re: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (16/21) SCSI
+On Sun, Feb 23, 2003 at 08:57:17PM -0800, Larry McVoy wrote:
+> Dig through the mail logs and you'll see that I was completely against the
+> preemption patch.  I think it is a bad idea, if you want real time, use
+> rt/linux, it solves the problem right.
 
->> +int pc98_bios_param(struct block_device *bdev, int *ip)
->> +{
->> +  /* Note: This function is called from fs/partitions/nec98.c too. */
->> +  /* So we creat 'sdp' from 'bdev' here. */
->> +  struct scsi_disk *sdkp = scsi_disk(bdev->bd_disk);
-> 
-> this is still not good - you shouldn't expose struct scsi_disk outside
-> sd.c.  Please change the pc98_bios_param() prototype to that of the
-> bios_param entry point (direct passing of capacity).
-This is solved by using ioctl_by_bdev() in your suggestion. Thanks.
+And large unbounded operation on data structures. DOS, a single tasking
+operating system is fast running a single thread of execution too, it just
+happens to also be completely useless.
 
-> Can you explain what this first_real_host() stuff is for - we need some
-> way to handle this better.
-PC98 BIOS create geometry table on boottime orderd by SCSI ID.
-We read that to get geometry. If ide-scsi exist we mis-read table.
+Whether folks like it or not, embedded RT is the future of Linux much more
+so than any single NUMA machine that's sold or can be sold by IBM, SGI and
+any other vendor of that type.
 
-.
-.
-(Snipped, but I'll fix them. Thanks.)
-.
-.
+bill
 
-
->> +	BIOS_PARAM_OVERRIDE(sdp, bdev, sdkp->capacity, diskinfo);
->> +
-> 
-> the way this is done is ugly.  I'm still not sure how this is done
-> best.  When do you need the pc98 geometry exactly?  i.e. can it happen
-> with one of the existing linux scsi drivers?
-We need BIOS geometry exactly to create a partion on linux (by fdisk or
-GNU/parted). BIOS uses C/H/S access on boottime according to partition
-table. If BIOS geometry is not exact, fail to boot from the partition.
-I recived the report about this problem from people using advansys driver
-without PC98 patch.
-
->> +#if defined(CONFIG_SCSI_PC980155) ||
-defined(CONFIG_SCSI_PC980155_MODULE)
->> +#include "pc980155regs.h"
->> +#else /* !CONFIG_SCSI_PC980155 */
->>  
->>  static inline uchar read_wd33c93(const wd33c93_regs regs, uchar
-reg_num)
->>  {
->> @@ -203,6 +206,7 @@
->>     *regs.SCMD = cmd;
->>     mb();
->>  }
->> +#endif /* CONFIG_SCSI_PC980155 */
-> 
-> The wd33c93 changes are ugly as hell, but that's not your fault.  I'll
-> try to rework it to abstract out the different implementations better.
-> Could you perform some testing for me if I send you updated versions?
-Yes, of course.
-
-Thanks,
-Osamu Tomita

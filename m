@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318866AbSG0XdE>; Sat, 27 Jul 2002 19:33:04 -0400
+	id <S318858AbSG0XrM>; Sat, 27 Jul 2002 19:47:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318867AbSG0XdE>; Sat, 27 Jul 2002 19:33:04 -0400
-Received: from dsl-213-023-021-146.arcor-ip.net ([213.23.21.146]:55936 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318866AbSG0XdE>;
-	Sat, 27 Jul 2002 19:33:04 -0400
+	id <S318861AbSG0XrM>; Sat, 27 Jul 2002 19:47:12 -0400
+Received: from dsl-213-023-021-146.arcor-ip.net ([213.23.21.146]:64384 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318858AbSG0XrL>;
+	Sat, 27 Jul 2002 19:47:11 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Daniel Phillips <phillips@arcor.de>
-To: "Buddy Lumpkin" <b.lumpkin@attbi.com>,
-       "Rik van Riel" <riel@conectiva.com.br>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: About the need of a swap area
-Date: Sun, 28 Jul 2002 01:36:36 +0200
+To: Russell King <rmk@arm.linux.org.uk>, jbradford@dial.pipex.com
+Subject: Re: Linux Weekly News dying - any help?
+Date: Sun, 28 Jul 2002 01:51:27 +0200
 X-Mailer: KMail [version 1.3.2]
-Cc: "Austin Gonyou" <austin@digitalroadkill.net>,
-       <vda@port.imtp.ilyichevsk.odessa.ua>,
-       "Ville Herva" <vherva@niksula.hut.fi>, "DervishD" <raul@pleyades.net>,
-       "Linux-kernel" <linux-kernel@vger.kernel.org>
-References: <FJEIKLCALBJLPMEOOMECEEPICPAA.b.lumpkin@attbi.com>
-In-Reply-To: <FJEIKLCALBJLPMEOOMECEEPICPAA.b.lumpkin@attbi.com>
+Cc: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org
+References: <20020726092846.GA3542@outpost.ds9a.nl> <200207261007.g6QA7U8A001655@darkstar.example.net> <20020726112209.C19802@flint.arm.linux.org.uk>
+In-Reply-To: <20020726112209.C19802@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Yb6z-0001TO-00@starship>
+Message-Id: <E17YbLM-0001ac-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 28 July 2002 00:49, Buddy Lumpkin wrote:
-> They implemented a new system that still tends to give preference to
-> filesystem pages called a cyclical page cache. I haven't seen any
-> whitepapers on how it works though.
+On Friday 26 July 2002 12:22, Russell King wrote:
+> On Fri, Jul 26, 2002 at 11:07:30AM +0100, jbradford@dial.pipex.com wrote:
+> > If somebody buys up the domain, I'll hapily spare some time to contribute
+> > to it. Just drop me an E-Mail.
+> 
+> I'm sure someone has a server with some space available to host the site.
 
-This is fairly informative:
-
-   http://www.princeton.edu/~unix/Solaris/troubleshoot/ram.html
+Jon points out that salaries are the problem.  There seems to be a shortfall
+of $150,000, or perhaps a little more, in that department.
 
 -- 
 Daniel

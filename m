@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264972AbUD2V1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264859AbUD2VYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264972AbUD2V1V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264853AbUD2VYi
+	id S264859AbUD2VYC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:24:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264860AbUD2VVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 17:24:38 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:62848 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S264870AbUD2VYG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 17:24:06 -0400
-Date: Thu, 29 Apr 2004 16:19:30 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Alex Williamson <alex.williamson@hp.com>
-Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>, akpm@osdl.org,
-       linux-ia64 <linux-ia64@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/3] efivars driver update and move
-Message-ID: <20040429211930.GC15106@lists.us.dell.com>
-References: <D36CE1FCEFD3524B81CA12C6FE5BCAB002FFEAB3@fmsmsx406.fm.intel.com> <1083268253.8416.100.camel@localhost>
+	Thu, 29 Apr 2004 17:21:19 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54502 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264980AbUD2VSR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 17:18:17 -0400
+Date: Thu, 29 Apr 2004 14:19:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: vonbrand@inf.utfsm.cl, nickpiggin@yahoo.com.au, jgarzik@pobox.com,
+       brettspamacct@fastclick.com, linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+Message-Id: <20040429141947.1ff81104.akpm@osdl.org>
+In-Reply-To: <20040429133613.791f9f9b.pj@sgi.com>
+References: <40904A84.2030307@yahoo.com.au>
+	<200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>
+	<20040429133613.791f9f9b.pj@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="96YOpH+ONegL0A3E"
-Content-Disposition: inline
-In-Reply-To: <1083268253.8416.100.camel@localhost>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul Jackson <pj@sgi.com> wrote:
+>
+> > How on earth is the kernel supposed to know that for this one particular
+> > job you don't care if it takes 3 hours instead of 10 minutes,
+> 
+> I'd pay ten bucks (yeah, I'm a cheapskate) for an option that I could
+> twiddle that would mark my nightly updatedb and backup jobs as ones to
+> use reduced memory footprint (both for file caching and backing user
+> virtual address space), even if it took much longer.
+> 
+> So, rather than protest in mock outrage that it's impossible for the
+> kernel to know this, instead answer the question as stated in all
+> seriousness ... well ... how _could_ the kernel know, and what _could_
+> the kernel do if it knew.  What mechanism(s) would be needed so that
+> the kernel could restrict a jobs memory usage?
 
---96YOpH+ONegL0A3E
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Two things:
 
-On Thu, Apr 29, 2004 at 01:50:54PM -0600, Alex Williamson wrote:
-> # stat BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c\ /
->   File: `BootOrder-8be4df61-93ca-11d2-aa0d-00e098032b8c /'
+a) a knob to say "only reclaim pagecache".  We have that now.
 
-FWIW, my Intel Tiger2-based system doesn't have the space at the end...
+b) a knob to say "reclaim vfs caches harder".  That's simply a matter of boosting
+   the return value from shrink_dcache_memory() and perhaps shrink_icache_memory().
 
->         *(short_name + strlen(short_name)) =3D '-';
->         efi_guid_unparse(vendor_guid, short_name + strlen(short_name));
->         *(short_name + strlen(short_name)) =3D ' ';
-
-even though looking at this I would have expected it to...
-
-Can you remove that last line and see what it does?  Best as I can
-tell, it isn't necessary or desired.
-
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
---96YOpH+ONegL0A3E
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFAkXFiIavu95Lw/AkRAuLhAJ9EMcgAuxZ+OMgqf5f2bMt1FHYBjACfRsJd
-AUHRI8EORk+Utka3OFnP2uM=
-=Q3HN
------END PGP SIGNATURE-----
-
---96YOpH+ONegL0A3E--
+It's not quite what you're after, but it's close.

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263486AbUBKALL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 19:11:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbUBKALL
+	id S263561AbUBKAOk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 19:14:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUBKAOk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 19:11:11 -0500
-Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:13473 "HELO
-	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263486AbUBKALK convert rfc822-to-8bit (ORCPT
+	Tue, 10 Feb 2004 19:14:40 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:51884 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S263539AbUBKAOi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 19:11:10 -0500
-From: Murilo Pontes <murilo_pontes@yahoo.com.br>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [patch] Re: psmouse.c, throwing 3 bytes away
-Date: Tue, 10 Feb 2004 21:11:13 +0000
-User-Agent: KMail/1.6
-References: <200402041820.39742.wnelsonjr@comcast.net> <200402070911.42569.murilo_pontes@yahoo.com.br> <20040209004812.GA18512@ucw.cz>
-In-Reply-To: <20040209004812.GA18512@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 10 Feb 2004 19:14:38 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402102111.13931.murilo_pontes@yahoo.com.br>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16425.29675.430856.444153@napali.hpl.hp.com>
+Date: Tue, 10 Feb 2004 16:14:35 -0800
+To: Sebastian Henschel <linux@kodeaffe.de>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] URL addition tuxmobil.org
+In-Reply-To: <20040210121351.GA19769@fuchi>
+References: <20040210121351.GA19769@fuchi>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, 
-I tested by 12hours, everything is ok :)
-But I want test more few days
+>>>>> On Tue, 10 Feb 2004 13:13:51 +0100, Sebastian Henschel <linux@kodeaffe.de> said:
 
+  Sebastian> hi there...  attached is a cosmetic patch for
+  Sebastian> arch/ia64/Kconfig which introduces the URL of
+  Sebastian> tuxmobil.org as an alternative to linux-on-laptops.com.
 
-Em Seg 09 Fev 2004 00:48, você escreveu:
-> On Sat, Feb 07, 2004 at 09:11:42AM +0000, Murilo Pontes wrote:
-> 
-> > Problem still occurs :-(
-> 
-> And here is a fix. Damn stupid mistake I made.
-> 
+I'd be much more interested in a patch which consolidated the various
+platforms to all use kernel/power/Kconfig so this info doesn't have to
+be replicated half a dozen times.
+
+	--david

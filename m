@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbUDLHYI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 03:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbUDLHYH
+	id S261252AbUDLH2N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 03:28:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUDLH2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 03:24:07 -0400
-Received: from [203.197.196.2] ([203.197.196.2]:60091 "EHLO mail2.iitk.ac.in")
-	by vger.kernel.org with ESMTP id S261170AbUDLHX7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 03:23:59 -0400
-Date: Mon, 12 Apr 2004 12:54:17 +0530 (IST)
-From: "K.Anantha Kiran" <ananth@cse.iitk.ac.in>
-To: linux-kernel@vger.kernel.org
-cc: linux-net@vger.kernel.org, <linux-c-programming@vger.kernel.org>
-Subject: Can i use dev_queue_xmit()
-In-Reply-To: <Pine.LNX.4.44.0404121223250.5450-100000@csews104.cse.iitk.ac.in>
-Message-ID: <Pine.LNX.4.44.0404121246040.5450-100000@csews104.cse.iitk.ac.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 12 Apr 2004 03:28:13 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11539 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261252AbUDLH2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 03:28:08 -0400
+Date: Mon, 12 Apr 2004 08:28:01 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ivica Ico Bukvic <ico@fuse.net>
+Cc: daniel.ritz@gmx.ch, "'Tim Blechmann'" <TimBlechmann@gmx.net>,
+       "'Thomas Charbonnel'" <thomas@undata.org>, ccheney@debian.org,
+       linux-pcmcia@lists.infradead.org, alsa-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- FIXED!
+Message-ID: <20040412082801.A3972@flint.arm.linux.org.uk>
+Mail-Followup-To: Ivica Ico Bukvic <ico@fuse.net>, daniel.ritz@gmx.ch,
+	'Tim Blechmann' <TimBlechmann@gmx.net>,
+	'Thomas Charbonnel' <thomas@undata.org>, ccheney@debian.org,
+	linux-pcmcia@lists.infradead.org, alsa-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <200404120145.22679.daniel.ritz@gmx.ch> <20040412013949.NJOP1634.smtp3.fuse.net@64BitBadass>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040412013949.NJOP1634.smtp3.fuse.net@64BitBadass>; from ico@fuse.net on Sun, Apr 11, 2004 at 09:39:43PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
- 
- 	We are printing the return value of dev_queue_xmit() and we 
- confirm that this will be NET_XMIT_DROP for dropped pkts.
- 
- 	in *dev_queue_xmit()* function , there is a call to  *enqueue()* 
- which is function pointer pointing to, /net/sched/sch_generic.c 
- pfifo_fast_enqueue() function. In this if the length of queue is greater 
- that the txqueuelen( a parameter of NIC ) then the packet is not queued 
- and DROPPED.
-  
- static int pfifo_fast_enqueue(struct sk_buff *skb, struct Qdisc* qdisc)
-     {
- 	
- 		struct sk_buff_head *list;
-    
-             list = ((struct sk_buff_head*)qdisc->data) +
-                    prio2band[skb->priority&TC_PRIO_MAX];
-    
-             if (list->qlen <= qdisc->dev->tx_queue_len) {
-                     __skb_queue_tail(list, skb);
-                     qdisc->q.qlen++;
-                     return 0;
-             }
-             qdisc->stats.drops++;
-             kfree_skb(skb);
-             return NET_XMIT_DROP;
-    }
- 
- 	We have tested this by printing the values of list->qlen and 
- checking for different values of txqueuelen ( def-100 upto 100000). still 
- the packets are being dropped after some time when the condition fails. 
- and this is continuing until the whole queue is empty, after this it is 
- again resuming to Xmit properly, this phenomenon is repeated.Actually we 
-sending 10 lakh pkts at 500 Mbps speed.  
- 
- 	The problem is that " is there any flag that tell the queue is 
- full and once it is full it will not take any pkts in and drops all 
- till the queue is empty". If so can u plz suggest a solution to this 
- problem.
- 
- 
- thanks,
- Ananth.
+On Sun, Apr 11, 2004 at 09:39:43PM -0400, Ivica Ico Bukvic wrote:
+> Hi all! Great news! I managed to fix the issue in Linux. As I suspected it
+> was the same problem like in Windows after suspend as the distortion was
+> similar.
 
+Don't think the problem is 100% solved just yet - there's still work
+to do.
+
+You haven't said which kernel version you're using to test this out
+on; 2.6.5 contains some fixes for the CB1410 in these areas, and it
+would be useful to know if these are working.
+
+So, as per my previous mail and at risk of sounding like a stuck
+record^wCD, which kernel version are you using for this test?
+
+Have you also tried only changing a limited subset of these
+registers?  The reason this is important is that just immitating
+the working scenario out right doesn't really tell us very much.
+
+You should be able to tweak these while the card is playing, so
+you could try setting them all to the "working" state, play back
+the audio, and then try undoing each change individually.
+
+> 2) PREFERRED: hdsp driver needs to adjust the cardbus controller latency
+
+No.  Drivers should not fiddle with other parts of the system they
+don't own, and the HDSP driver does not own the cardbus controller.
+I suspect that the CB1410 quirk needs to force the latency timer at
+startup.
+
+> 3) FOR FURTHER INVESTIGATION: Does linux hdsp driver force the f0 value upon
+> the 0x81 register or is it that in Linux one simply cannot select d0 value
+> for whatever reason
+
+I suspect it may be caused by using a byte access to a longword-sized
+register.  0x81 is supposed to be accessed via:
+
+setpci -s a.0 0x80.l
+
+which of course means its bits 8 to 15.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTEOAj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 20:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263280AbTEOAj1
+	id S263328AbTEOApe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 20:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263338AbTEOApe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 20:39:27 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:51727 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S263279AbTEOAjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 20:39:24 -0400
-Date: Thu, 15 May 2003 10:51:57 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Andrew Morton <akpm@digeo.com>
-cc: Ken Ashcraft <kash@stanford.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [CHECKER] Passing wrong size to memcpy/memset
-In-Reply-To: <20030514173351.32c3a4c8.akpm@digeo.com>
-Message-ID: <Mutt.LNX.4.44.0305151050220.11738-100000@excalibur.intercode.com.au>
+	Wed, 14 May 2003 20:45:34 -0400
+Received: from 12-234-34-139.client.attbi.com ([12.234.34.139]:62709 "EHLO
+	heavens.murgatroid.com") by vger.kernel.org with ESMTP
+	id S263328AbTEOApa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 20:45:30 -0400
+From: "Christopher Hoover" <ch@murgatroid.com>
+To: "'Linus Torvalds'" <torvalds@transmeta.com>,
+       "'Ulrich Drepper'" <drepper@redhat.com>
+Cc: "'Dave Jones'" <davej@codemonkey.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] 2.5.68 FUTEX support should be optional
+Date: Wed, 14 May 2003 17:58:11 -0700
+Organization: Murgatroid.Com
+Message-ID: <002201c31a7d$0f3f32a0$175e040f@bergamot>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <Pine.LNX.4.44.0305141246180.27329-100000@home.transmeta.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003, Andrew Morton wrote:
 
-> Ken Ashcraft <kash@stanford.edu> wrote:
-> >
-> > I'm with the Stanford Metacompilation research group and I wrote a checker
-> > that looks for places where people use 'sizeof(ptr)' instead of
-> > 'sizeof(*ptr)' as the length argument to memcpy/memset. 
-> 
-> Well they all look like genuine bugs.  It could be that some code is just
-> performing overly-paranoid memsets.
-> 
-> I shall submit the below lot unless squeaked at.
+> I don't see the point in dropping futexes except
+> perhaps in a very controlled embedded environment,
+> but if that is the case,  then a PC config 
+> should just force it to "y" and not even ask the user. 
 
-No squeaks from me.
-
-Ken, would you please try and Cc: maintainers for future reports?
+We could do this (et al) under CONFIG_TINY, if you would prefer.
 
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+> We absolutely do NOT want the situation where
+> a program will not work just because the user forgot
+> some config option that mostly isn't needed.
+
+This a specious argument.  There are many ways one can configure a
+kernel that will make it fail to boot or run user space properly.
+There's no getting around knowing what it is your configuring in and
+out.
+
+Note that I set the default to Y.  I also agree that I could have been
+more verbose in the help string.
+
+> And futexes _are_ going to be needed. Any sane high-performance
+threading 
+> implementation _will_ use them. No ifs, buts or maybe's.
+
+All big machines, sure.  All small machines, it depends.  All the (user)
+world is not glibc.
+
+-ch
 

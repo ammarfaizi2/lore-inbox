@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313039AbSC0QEo>; Wed, 27 Mar 2002 11:04:44 -0500
+	id <S313041AbSC0QGE>; Wed, 27 Mar 2002 11:06:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313040AbSC0QEY>; Wed, 27 Mar 2002 11:04:24 -0500
-Received: from relay2.uni-heidelberg.de ([129.206.210.211]:19631 "EHLO
-	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S313039AbSC0QEQ>; Wed, 27 Mar 2002 11:04:16 -0500
-Message-Id: <200203271604.g2RG46M11084@fubini.pci.uni-heidelberg.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Adam Johansson <macadam@madsci.se>
-Subject: Re: time jumps
-Date: Wed, 27 Mar 2002 17:04:05 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0203271633080.16292-100000@macadam.madscilab.com>
+	id <S313040AbSC0QFy>; Wed, 27 Mar 2002 11:05:54 -0500
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:49799 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313041AbSC0QFs>; Wed, 27 Mar 2002 11:05:48 -0500
+Date: Wed, 27 Mar 2002 17:55:03 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
+In-Reply-To: <Pine.GSO.3.96.1020327161054.8602D-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.44.0203271754040.8973-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> The same thing happened to me on an Athlon 600 on a KM133 chipset.
-> I ran a vanilla 2.4.18 and after upgrading to 2.4.19 the problem never
-> occured again.
->
-> Hope it helps for you to!
->
-> Cheers!
-> /Adam @ MadSci.se
->
+On Wed, 27 Mar 2002, Maciej W. Rozycki wrote:
 
+>  You can't use a vector that is in the range assigned to I/O APIC
+> interrupts (i.e.  0x31 - 0xee).  Otherwise you'll get an overlap when the
+> vector gets assigned to an ordinary IRQ line.  Also you probably want a
+> high-priority interrupt as the condition is serious, if not critical --
+> system failures, such as bus exceptions, machine check faults, parity
+> errors, power failures, etc. demand a high priority service. 
 
-Hello Adam,
+Would f0 be ok? But i see its assigned for "future linux use"
 
-thank you very much for your help. Though I  don't like using pre-kernels 
-I'll make an exception on this time.
+Thanks,
+	Zwane
 
-Thanks again,
+-- 
+http://function.linuxpower.ca
+		
 
-Bernd

@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261224AbSKBOsO>; Sat, 2 Nov 2002 09:48:14 -0500
+	id <S261228AbSKBOsu>; Sat, 2 Nov 2002 09:48:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261228AbSKBOsO>; Sat, 2 Nov 2002 09:48:14 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:24844 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S261224AbSKBOsN>;
-	Sat, 2 Nov 2002 09:48:13 -0500
-Date: Sat, 2 Nov 2002 15:54:31 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>
+	id <S261258AbSKBOsu>; Sat, 2 Nov 2002 09:48:50 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:57299 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261228AbSKBOsl>;
+	Sat, 2 Nov 2002 09:48:41 -0500
+Date: Sat, 2 Nov 2002 15:54:51 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Thomas Molina <tmolina@cox.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM REPORT 2.4.20-rc1: sundance.c
-Message-Id: <20021102155431.7a01ed55.skraw@ithnet.com>
-In-Reply-To: <3DC19ACA.9030906@pobox.com>
-References: <20021031173834.4514603a.skraw@ithnet.com>
-	<3DC19ACA.9030906@pobox.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: ide-cd still borken for me in 2.5.45
+Message-ID: <20021102145451.GA1820@suse.de>
+References: <20021102091811.GD31088@suse.de> <Pine.LNX.4.44.0211020847550.876-100000@dad.molina>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211020847550.876-100000@dad.molina>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Oct 2002 16:04:10 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+On Sat, Nov 02 2002, Thomas Molina wrote:
+> On Sat, 2 Nov 2002, Jens Axboe wrote:
+> 
+> > > Well that was quick.  2.5.42 works correctly.  The problems begin with 
+> > > 2.5.43.
+> > 
+> > Ok, so Linus broke it :-)
+> > 
+> > Please boot with this patch, it looks like a command length screwup.
+> 
+> Your patch produced:
+> 
+> hdc: starting 5a, len = 24
 
-> Stephan von Krawczynski wrote:
-> 
-> >Hello all,
-> >
-> >I'd like to point out that (at least) the network driver sundance.c has
-> >weird flaws when trying to use more than MAX_UNITS (8) cards at the same
-> >time. Since
-> >
-> 
-> Smileys nonwithstanding, you need to include far more information
-> 
-> Please define "weird flaws"... explicitly.
+ok looks fine, now please try (on top of the other one):
 
-I am experiencing dropped packets as sundance RX side when simple nfs copying
-takes places. These are at a rate of about 1-2% of RX packets. I call it
-"weird" because I cannot see a definitive problem location in the driver
-source. fact stays one simple copy drops packets, something I never saw in the
-same setup (same cabling, same mainboard) with tulip cards.
-I know that this is a hell of a "bug-report", but I really want to point out
-only a strange difference between tulip-setup and sundance-setup.
+--- /opt/kernel/linux-2.5.45/drivers/ide/ide-cd.c	2002-11-01 11:31:53.000000000 +0100
++++ drivers/ide/ide-cd.c	2002-11-02 15:54:16.000000000 +0100
+@@ -906,7 +906,7 @@
+ 	ide_set_handler(drive, handler, rq->timeout, cdrom_timer_expiry);
+ 
+ 	/* Send the command to the device. */
+-	HWIF(drive)->atapi_output_bytes(drive, rq->cmd, sizeof(rq->cmd));
++	HWIF(drive)->atapi_output_bytes(drive, rq->cmd, 12);
+ 
+ 	/* Start the DMA if need be */
+ 	if (info->dma)
+
 -- 
-Regards,
-Stephan
+Jens Axboe
+

@@ -1,849 +1,452 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265961AbSKFSf4>; Wed, 6 Nov 2002 13:35:56 -0500
+	id <S265881AbSKFSU2>; Wed, 6 Nov 2002 13:20:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265963AbSKFSf4>; Wed, 6 Nov 2002 13:35:56 -0500
-Received: from precia.cinet.co.jp ([210.166.75.133]:46976 "EHLO
+	id <S265887AbSKFSU2>; Wed, 6 Nov 2002 13:20:28 -0500
+Received: from precia.cinet.co.jp ([210.166.75.133]:43648 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S265961AbSKFSf3>; Wed, 6 Nov 2002 13:35:29 -0500
-Message-ID: <3DC96278.E7F82315@cinet.co.jp>
-Date: Thu, 07 Nov 2002 03:42:00 +0900
+	id <S265881AbSKFSUI>; Wed, 6 Nov 2002 13:20:08 -0500
+Message-ID: <3DC95EE1.FCFBB40F@cinet.co.jp>
+Date: Thu, 07 Nov 2002 03:26:41 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.45-pc98smp i686)
 X-Accept-Language: ja, en
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCHSET 12/17] support PC-9800 against 2.5.45-ac1 (parport)
+Subject: [PATCHSET 9/17] support PC-9800 against 2.5.45-ac1 (core#2)
 References: <3DC94C7B.79DE5EBC@cinet.co.jp>
 Content-Type: multipart/mixed;
- boundary="------------AFD9DF04F53B1B1383848BBA"
+ boundary="------------901179DF249E02B59C309EBC"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------AFD9DF04F53B1B1383848BBA
+--------------901179DF249E02B59C309EBC
 Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 
-This patch adds support for stardard parallel port for PC-9800.
+This patch includes include/asm-i386/* files.
 
 diffstat:
- drivers/char/Kconfig         |   21 +
- drivers/char/lp_old98.c      |  577 +++++++++++++++++++++++++++++++++++++++++++  drivers/parport/parport_pc.c |   68 ++++-
- include/linux/parport_pc.h   |   10 
- 4 files changed, 671 insertions(+), 5 deletions(-)
+ include/asm-i386/dma.h         |    7 +
+ include/asm-i386/io.h          |    6 +
+ include/asm-i386/irq.h         |    4 
+ include/asm-i386/pc9800.h      |   27 ++++
+ include/asm-i386/pc9800_dma.h  |  238 +++++++++++++++++++++++++++++++++++++++++  include/asm-i386/pgtable.h     |    4 
+ include/asm-i386/scatterlist.h |    6 +
+ include/asm-i386/timex.h       |    4 
+ 8 files changed, 296 insertions(+)
 
 -- 
 Osamu Tomita
---------------AFD9DF04F53B1B1383848BBA
+--------------901179DF249E02B59C309EBC
 Content-Type: text/plain; charset=iso-2022-jp;
- name="parport.patch"
+ name="include-asm.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="parport.patch"
+ filename="include-asm.patch"
 
-diff -urN linux/drivers/parport/parport_pc.c linux98/drivers/parport/parport_pc.c
---- linux/drivers/parport/parport_pc.c	Sat Oct 19 13:01:52 2002
-+++ linux98/drivers/parport/parport_pc.c	Sat Oct 26 17:01:09 2002
-@@ -85,6 +85,8 @@
- #define DPRINTK(stuff...)
+diff -urN linux/include/asm-i386/dma.h linux98/include/asm-i386/dma.h
+--- linux/include/asm-i386/dma.h	Sat Jul 21 04:52:59 2001
++++ linux98/include/asm-i386/dma.h	Fri Aug 17 22:15:06 2001
+@@ -10,6 +10,9 @@
+ 
+ #include <linux/config.h>
+ #include <linux/spinlock.h>	/* And spinlocks */
++#ifdef CONFIG_PC9800
++#include <asm/pc9800_dma.h>
++#else /* !CONFIG_PC9800 */
+ #include <asm/io.h>		/* need byte IO */
+ #include <linux/delay.h>
+ 
+@@ -72,8 +75,10 @@
+ 
+ #define MAX_DMA_CHANNELS	8
+ 
++#ifndef CONFIG_PC9800
+ /* The maximum address that we can perform a DMA transfer to on this platform */
+ #define MAX_DMA_ADDRESS      (PAGE_OFFSET+0x1000000)
++#endif
+ 
+ /* 8237 DMA controllers */
+ #define IO_DMA1_BASE	0x00	/* 8 bit slave DMA, channels 0..3 */
+@@ -295,4 +300,6 @@
+ #define isa_dma_bridge_buggy 	(0)
  #endif
  
-+/* Indicates PC-9800 architecture  No:0 Yes:1 */
-+extern int pc98;
- 
- #define NR_SUPERIOS 3
- static struct superio_struct {	/* For Super-IO chips autodetection */
-@@ -332,7 +334,10 @@
- 
- unsigned char parport_pc_read_status(struct parport *p)
- {
--	return inb (STATUS (p));
-+	if (pc98 && p->base == 0x40)
-+		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
-+	else
-+		return inb (STATUS (p));
- }
- 
- void parport_pc_disable_irq(struct parport *p)
-@@ -1644,6 +1649,8 @@
- {
- 	unsigned char r, w;
- 
-+	if (pc98 && pb->base == 0x40)
-+		return PARPORT_MODE_PCSPP;
- 	/*
- 	 * first clear an eventually pending EPP timeout 
- 	 * I (sailer@ife.ee.ethz.ch) have an SMSC chipset
-@@ -1777,6 +1784,9 @@
- {
- 	int ok = 0;
-   
-+	if (pc98 && pb->base == 0x40)
-+		return 0;  /* never support */
-+
- 	clear_epp_timeout(pb);
- 
- 	/* try to tri-state the buffer */
-@@ -1908,6 +1918,9 @@
- 			config & 0x80 ? "Level" : "Pulses");
- 
- 		configb = inb (CONFIGB (pb));
-+		if (pc98 && (CONFIGB(pb) == 0x14d) && ((configb & 0x38) == 0x30))
-+			configb = (configb & ~0x38) | 0x28; /* IRQ 14 */
-+
- 		printk (KERN_DEBUG "0x%lx: ECP port cfgA=0x%02x cfgB=0x%02x\n",
- 			pb->base, config, configb);
- 		printk (KERN_DEBUG "0x%lx: ECP settings irq=", pb->base);
-@@ -2048,6 +2061,9 @@
- 	ECR_WRITE (pb, ECR_CNF << 5); /* Configuration MODE */
- 
- 	intrLine = (inb (CONFIGB (pb)) >> 3) & 0x07;
-+	if (pc98 && (CONFIGB(pb) == 0x14d) && (intrLine == 6))
-+		intrLine = 5; /* IRQ 14 */
-+
- 	irq = lookup[intrLine];
- 
- 	ECR_WRITE (pb, oecr);
-@@ -2212,7 +2228,14 @@
- 	struct parport tmp;
- 	struct parport *p = &tmp;
- 	int probedirq = PARPORT_IRQ_NONE;
--	if (check_region(base, 3)) return NULL;
-+	if (pc98 && base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			if (check_region(base + i, 1)) return NULL;
-+	} else {
-+		if (check_region(base, 3)) return NULL;
-+	}
-+
- 	priv = kmalloc (sizeof (struct parport_pc_private), GFP_KERNEL);
- 	if (!priv) {
- 		printk (KERN_DEBUG "parport (0x%lx): no memory!\n", base);
-@@ -2245,7 +2268,7 @@
- 	if (base_hi && !check_region(base_hi,3))
- 		parport_ECR_present(p);
- 
--	if (base != 0x3bc) {
-+	if (!pc98 && base != 0x3bc) {
- 		if (!check_region(base+0x3, 5)) {
- 			if (!parport_EPP_supported(p))
- 				parport_ECPEPP_supported(p);
-@@ -2343,7 +2366,12 @@
- 		printk(KERN_INFO "%s: irq %d detected\n", p->name, probedirq);
- 	parport_proc_register(p);
- 
--	request_region (p->base, 3, p->name);
-+	if (pc98 && p->base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			request_region(p->base + i, 1, p->name);
-+	} else
-+		request_region (p->base, 3, p->name);
- 	if (p->size > 3)
- 		request_region (p->base + 3, p->size - 3, p->name);
- 	if (p->modes & PARPORT_MODE_ECP)
-@@ -2413,7 +2441,13 @@
- 		free_dma(p->dma);
- 	if (p->irq != PARPORT_IRQ_NONE)
- 		free_irq(p->irq, p);
--	release_region(p->base, 3);
-+	if (pc98 && p->base == 0x40) {
-+		int i;
-+		for (i = 0; i < 8; i += 2)
-+			release_region(p->base + i, 1);
-+	} else
-+		release_region(p->base, 3);
-+
- 	if (p->size > 3)
- 		release_region(p->base + 3, p->size - 3);
- 	if (p->modes & PARPORT_MODE_ECP)
-@@ -2994,6 +3028,30 @@
- {
- 	int count = 0;
- 
-+	if (pc98) {
-+		/* Set default resource settings for old style parport */
-+		int	base = 0x40;
-+		int	base_hi = 0;
-+		int	irq = PARPORT_IRQ_NONE;
-+		int	dma = PARPORT_DMA_NONE;
-+
-+		/* Check PC9800 old style parport */
-+		outb(inb(0x149) & ~0x10, 0x149); /* disable IEEE1284 */
-+		if (!(inb(0x149) & 0x10)) {  /* IEEE1284 disabled ? */
-+			outb(inb(0x149) | 0x10, 0x149); /* enable IEEE1284 */
-+			if (inb(0x149) & 0x10) {  /* IEEE1284 enabled ? */
-+				/* Set default settings for IEEE1284 parport */
-+				base = 0x140;
-+				base_hi = 0x14c;
-+				irq = 14;
-+				/* dma = PARPORT_DMA_NONE; */
-+			}
-+		}
-+
-+		if (parport_pc_probe_port(base, base_hi, irq, dma, NULL))
-+			count++;
-+	}
-+
- 	if (parport_pc_probe_port(0x3bc, 0x7bc, autoirq, autodma, NULL))
- 		count++;
- 	if (parport_pc_probe_port(0x378, 0x778, autoirq, autodma, NULL))
-diff -urN linux/include/linux/parport_pc.h linux98/include/linux/parport_pc.h
---- linux/include/linux/parport_pc.h	Tue Jun 12 11:15:27 2001
-+++ linux98/include/linux/parport_pc.h	Sun Aug 19 14:13:09 2001
-@@ -119,6 +119,11 @@
- #endif
- 	ctr = (ctr & ~mask) ^ val;
- 	ctr &= priv->ctr_writable; /* only write writable bits. */
-+#ifdef CONFIG_PC9800
-+	if (p->base == 0x40 && ((priv->ctr) ^ ctr) & 0x01)
-+		outb(0x0e | ((ctr & 0x01) ^ 0x01), 0x46);
-+	else
 +#endif /* CONFIG_PC9800 */
- 	outb (ctr, CONTROL (p));
- 	priv->ctr = ctr;	/* Update soft copy */
- 	return ctr;
-@@ -191,6 +196,11 @@
- 
- extern __inline__ unsigned char parport_pc_read_status(struct parport *p)
- {
-+#ifdef CONFIG_PC9800
-+	if (p->base == 0x40)
-+		return ((inb(0x42) & 0x04) << 5) | PARPORT_STATUS_ERROR;
-+	else
-+#endif /* CONFIG_PC9800 */
- 	return inb(STATUS(p));
- }
- 
-diff -urN linux/drivers/char/Kconfig linux98/drivers/char/Kconfig
---- linux/drivers/char/Kconfig	Thu Oct 31 13:23:11 2002
-+++ linux98/drivers/char/Kconfig	Thu Oct 31 19:17:02 2002
-@@ -574,6 +574,17 @@
- 	  console. This driver allows each pSeries partition to have a console
- 	  which is accessed via the HMC.
- 
-+config PC9800_OLDLP
-+	tristate "NEC PC-9800 old-style printer port support"
-+	depends on PC9800 && !PARPORT
-+	---help---
-+	  If you intend to attach a printer to the parallel port of NEC PC-9801
-+	  /PC-9821 with OLD compatibility mode, Say Y.
 +
-+config PC9800_OLDLP_CONSOLE
-+	bool "Support for console on line printer"
-+	depends on PC9800_OLDLP
-+
- source "drivers/i2c/Kconfig"
+ #endif /* _ASM_DMA_H */
+diff -urN linux/include/asm-i386/io.h linux98/include/asm-i386/io.h
+--- linux/include/asm-i386/io.h	Sat Oct 12 13:22:45 2002
++++ linux98/include/asm-i386/io.h	Sat Oct 12 19:25:19 2002
+@@ -27,6 +27,8 @@
+  *		Linus
+  */
  
- 
-@@ -1053,6 +1064,7 @@
- 
- config RTC
- 	tristate "Enhanced Real Time Clock Support"
-+	depends on !PC9800
- 	---help---
- 	  If you say Y here and create a character special file /dev/rtc with
- 	  major number 10 and minor number 135 using mknod ("man mknod"), you
-@@ -1111,6 +1123,15 @@
- 	bool "EFI Real Time Clock Services"
- 	depends on IA64
- 
-+config RTC98
-+	tristate "NEC PC-9800 Real Time Clock Support"
-+	depends on PC9800
-+	default y
-+	---help---
-+	  If you say Y here and create a character special file /dev/rtc with
-+	  major number 10 and minor number 135 using mknod ("man mknod"), you
-+	  will get access to the real time clock (or hardware clock) built
-+
- config H8
- 	bool "Tadpole ANA H8 Support (OBSOLETE)"
- 	depends on OBSOLETE && ALPHA_BOOK1
-diff -urN linux/drivers/char/lp_old98.c linux98/drivers/char/lp_old98.c
---- linux/drivers/char/lp_old98.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/char/lp_old98.c	Sat Oct 26 17:13:23 2002
-@@ -0,0 +1,577 @@
-+/*
-+ *	linux/drivers/char/lp_old98.c
-+ *
-+ * printer port driver for ancient PC-9800s with no bidirectional port support
-+ *
-+ * Copyright (C)  1998,99  Kousuke Takai <tak@kmc.kyoto-u.ac.jp>,
-+ *			   Kyoto University Microcomputer Club
-+ *
-+ * This driver is based on and has compatibility with `lp.c',
-+ * generic PC printer port driver.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
 +#include <linux/config.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/major.h>
-+#include <linux/sched.h>
-+#include <linux/malloc.h>
-+#include <linux/ioport.h>
-+#include <linux/fcntl.h>
-+#include <linux/delay.h>
-+#include <linux/console.h>
-+#include <linux/version.h>
 +
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+#include <asm/system.h>
-+
-+#if !defined(CONFIG_PC9800) && !defined(CONFIG_PC98)
-+#error This driver works only for NEC PC-9800 series
-+#endif
-+
-+#if LINUX_VERSION_CODE < 0x20200
-+# define LP_STATS
-+#endif
-+
-+#if LINUX_VERSION_CODE >= 0x2030b
-+# define CONFIG_RESOURCE98
-+#endif
-+
-+#include <linux/lp.h>
-+
-+/*
-+ *  I/O port numbers
-+ */
-+#define	LP_PORT_DATA	0x40
-+#define	LP_PORT_STATUS	(LP_PORT_DATA+2)
-+#define	LP_PORT_STROBE	(LP_PORT_DATA+4)
-+#define LP_PORT_CONTROL	(LP_PORT_DATA+6)
-+
-+#define	LP_PORT_H98MODE	0x0448
-+#define	LP_PORT_EXTMODE	0x0149
-+
-+/*
-+ *  bit mask for I/O
-+ */
-+#define	LP_MASK_nBUSY	(1 << 2)
-+#define	LP_MASK_nSTROBE	(1 << 7)
-+
-+#define LP_CONTROL_ASSERT_STROBE	(0x0e)
-+#define LP_CONTROL_NEGATE_STROBE	(0x0f)
-+
-+/*
-+ *  Acceptable maximum value for non-privileged user for LPCHARS ioctl.
-+ */
-+#define LP_CHARS_NOPRIV_MAX	65535
-+
-+#define	DC1	'\x11'
-+#define	DC3	'\x13'
-+
-+/* PC-9800s have at least and at most one old-style printer port. */
-+static struct lp_struct lp = {
-+	/* Following `TAG: INITIALIZER' notations are GNU CC extension. */
-+	flags:	LP_EXIST | LP_ABORTOPEN,
-+	chars:	LP_INIT_CHAR,
-+	time:	LP_INIT_TIME,
-+	wait:	LP_INIT_WAIT,
-+};
-+
-+static	int	dc1_check	= 1000;
-+
-+#undef LP_OLD98_DEBUG
-+
-+#ifndef __udelay_val
-+# define __udelay_val current_cpu_data.loops_per_sec
-+#endif
-+
-+static inline void nanodelay(unsigned long nanosecs)	/* Evil ? */
-+{
-+	if( nanosecs ) {
-+		nanosecs *= (unsigned long)((1ULL << 40) / 1000000000ULL);
-+		__asm__("mul%L2 %2"
-+			: "=d"(nanosecs) : "a"(nanosecs), "g"(__udelay_val));
-+		__delay(nanosecs >> 8);
-+	}
-+}
-+
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+static struct console lp_old98_console;		/* defined later */
-+static __typeof__(lp_old98_console.flags) saved_console_flags;
-+#endif
-+
-+static DECLARE_WAIT_QUEUE_HEAD (lp_old98_waitq);
-+
-+static void lp_old98_timer_function(unsigned long data);
-+
-+static void lp_old98_timer_function(unsigned long data)
-+{
-+	if (inb(LP_PORT_STATUS) & LP_MASK_nBUSY)
-+		wake_up_interruptible(&lp_old98_waitq);
-+	else {
-+		struct timer_list *t = (struct timer_list *) data;
-+
-+		t->expires = jiffies + 1;
-+		add_timer(t);
-+	}
-+}
-+
-+static inline int
-+lp_old98_wait_ready(void)
-+{
-+	struct timer_list timer;
-+
-+	init_timer(&timer);
-+	timer.function = lp_old98_timer_function;
-+	timer.expires = jiffies + 1;
-+	timer.data = (unsigned long) &timer;
-+	add_timer(&timer);
-+	interruptible_sleep_on(&lp_old98_waitq);
-+	del_timer(&timer);
-+	return signal_pending(current);
-+}
-+
-+static inline int lp_old98_char(char lpchar)
-+{
-+	unsigned long count = 0;
-+#ifdef LP_STATS
-+	int tmp;
-+#endif
-+
-+	while( !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY) ) {
-+		count++;
-+		if (count >= lp.chars)
-+			return 0;
-+	}
-+
-+	outb(lpchar, LP_PORT_DATA);
-+
-+#ifdef LP_STATS
-+	/*
-+	 *  Update lp statsistics here (and between next two outb()'s).
-+	 *  Time to compute it is part of storobe delay.
-+	 */
-+	if( count > lp.stats.maxwait ) {
-+#ifdef LP_OLD98_DEBUG
-+		printk(KERN_DEBUG "lp_old98: success after %d counts.\n",
-+		       count);
-+#endif
-+		lp.stats.maxwait = count;
-+	}
-+	count *= 256;
-+	tmp = count - lp.stats.meanwait;
-+	if( tmp < 0 )
-+		tmp = -tmp;
-+#endif
-+	nanodelay(lp.wait);
-+    
-+	/* negate PSTB# (activate strobe)	*/
-+	outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+
-+#ifdef LP_STATS
-+	lp.stats.meanwait = (255 * lp.stats.meanwait + count + 128) / 256;
-+	lp.stats.mdev = (127 * lp.stats.mdev + tmp + 64) / 128;
-+	lp.stats.chars++;
-+#endif
-+
-+	nanodelay(lp.wait);
-+
-+	/* assert PSTB# (deactivate strobe)	*/
-+	outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+
-+	return 1;
-+}
-+
-+#if LINUX_VERSION_CODE < 0x20200
-+static long lp_old98_write(struct inode * inode, struct file * file,
-+			   const char * buf, unsigned long count)
+  /*
+   *  Bit simplified and optimized by Jan Hubicka
+   *  Support of BIGMEM added by Gerhard Wichert, Siemens AG, July 1999.
+@@ -288,7 +290,11 @@
+ #ifdef SLOW_IO_BY_JUMPING
+ #define __SLOW_DOWN_IO "jmp 1f; 1: jmp 1f; 1:"
+ #else
++#ifndef CONFIG_PC9800
+ #define __SLOW_DOWN_IO "outb %%al,$0x80;"
 +#else
-+static ssize_t lp_old98_write(struct file * file,
-+			      const char * buf, size_t count,
-+			      loff_t *dummy)
-+#endif    
-+{
-+	unsigned long total_bytes_written = 0;
++#define __SLOW_DOWN_IO "outb %%al,$0x5f;"
++#endif
+ #endif
+ 
+ static inline void slow_down_io(void) {
+diff -urN linux/include/asm-i386/irq.h linux98/include/asm-i386/irq.h
+--- linux/include/asm-i386/irq.h	Sat Sep 21 00:20:16 2002
++++ linux98/include/asm-i386/irq.h	Sat Sep 21 07:17:56 2002
+@@ -17,7 +17,11 @@
+ 
+ static __inline__ int irq_cannonicalize(int irq)
+ {
++#ifndef CONFIG_PC9800
+ 	return ((irq == 2) ? 9 : irq);
++#else
++	return ((irq == 7) ? 11 : irq);
++#endif
+ }
+ 
+ extern void disable_irq(unsigned int);
+diff -urN linux/include/asm-i386/pc9800.h linux98/include/asm-i386/pc9800.h
+--- linux/include/asm-i386/pc9800.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/pc9800.h	Fri Aug 17 21:50:18 2001
+@@ -0,0 +1,27 @@
++/*
++ *  PC-9800 machine types.
++ *
++ *  Copyright (C) 1999	TAKAI Kosuke <tak@kmc.kyoto-u.ac.jp>
++ *			(Linux/98 Project)
++ */
 +
-+	if (!access_ok(VERIFY_READ, buf, count))
-+		return -EFAULT;
++#ifndef _ASM_PC9800_H_
++#define _ASM_PC9800_H_
 +
-+#ifdef LP_STATS
-+	if( jiffies - lp.lastcall > lp.time )
-+		lp.runchars = 0;
-+	lp.lastcall = jiffies;
++#include <asm/pc9800_sca.h>
++#include <asm/types.h>
++
++#define __PC9800SCA(type, pa)	(*(type *) phys_to_virt(pa))
++#define __PC9800SCA_TEST_BIT(pa, n)	\
++	((__PC9800SCA(u8, pa) & (1U << (n))) != 0)
++
++#define PC9800_HIGHRESO_P()	__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 3)
++#define PC9800_8MHz_P()		__PC9800SCA_TEST_BIT(PC9800SCA_BIOS_FLAG, 7)
++
++				/* 0x2198 is 98 21 on memory... */
++#define PC9800_9821_P()		(__PC9800SCA(u16, PC9821SCA_ROM_ID) == 0x2198)
++
++/* Note PC9821_...() are valid only when PC9800_9821_P() was true. */
++#define PC9821_IDEIF_DOUBLE_P()	__PC9800SCA_TEST_BIT(PC9821SCA_ROM_FLAG4, 4)
++
++#endif
+diff -urN linux/include/asm-i386/pc9800_dma.h linux98/include/asm-i386/pc9800_dma.h
+--- linux/include/asm-i386/pc9800_dma.h	Thu Jan  1 09:00:00 1970
++++ linux98/include/asm-i386/pc9800_dma.h	Fri Aug 17 22:15:01 2001
+@@ -0,0 +1,238 @@
++/* $Id: dma.h,v 1.7 1992/12/14 00:29:34 root Exp root $
++ * linux/include/asm/dma.h: Defines for using and allocating dma channels.
++ * Written by Hennus Bergman, 1992.
++ * High DMA channel support & info by Hannu Savolainen
++ * and John Boyd, Nov. 1992.
++ */
++
++#ifndef _ASM_PC9800_DMA_H
++#define _ASM_PC9800_DMA_H
++
++#include <linux/config.h>
++#include <asm/io.h>		/* need byte IO */
++#include <linux/delay.h>
++
++
++#ifdef HAVE_REALLY_SLOW_DMA_CONTROLLER
++#define dma_outb	outb_p
++#else
++#define dma_outb	outb
 +#endif
 +
-+	do {
-+		unsigned long bytes_written = 0;
-+		unsigned long copy_size
-+			= (count < LP_BUFFER_SIZE ? count : LP_BUFFER_SIZE);
-+
-+		if (__copy_from_user(lp.lp_buffer, buf, copy_size))
-+			return -EFAULT;
-+
-+		while( bytes_written < copy_size ) {
-+			if( lp_old98_char(lp.lp_buffer[bytes_written]) )
-+				bytes_written++;
-+			else {
-+#ifdef LP_STATS
-+				int rc = lp.runchars + bytes_written;
-+
-+				if( rc > lp.stats.maxrun )
-+					lp.stats.maxrun = rc;
-+
-+				lp.stats.sleeps++;
-+#endif
-+#ifdef LP_OLD98_DEBUG
-+				printk(KERN_DEBUG
-+				       "lp_old98: sleeping at %d characters"
-+				       " for %d jiffies\n",
-+				       lp.runchars, lp.time);
-+				lp.runchars = 0;
-+#endif
-+				if (lp_old98_wait_ready())
-+					return ((total_bytes_written
-+						 + bytes_written)
-+						? : -EINTR);
-+			}
-+		}
-+		total_bytes_written += bytes_written;
-+		buf += bytes_written;
-+#ifdef LP_STATS
-+		lp.runchars += bytes_written;
-+#endif
-+		count -= bytes_written;
-+	} while( count > 0 );
-+
-+	return total_bytes_written;
-+}
-+
-+static long long lp_old98_llseek(struct file * file,
-+				long long offset, int whence)
-+{
-+	return -ESPIPE;	/* cannot seek like pipe */
-+}
-+
-+static int lp_old98_open(struct inode * inode, struct file * file)
-+{
-+	if( MINOR(inode->i_rdev) != 0 )
-+		return -ENXIO;
-+	if( lp.flags & LP_BUSY )
-+		return -EBUSY;
-+
-+	if ((lp.lp_buffer = kmalloc(LP_BUFFER_SIZE, GFP_KERNEL)) == NULL)
-+		return -ENOMEM;
-+
-+	if (dc1_check && (lp.flags & LP_ABORTOPEN)
-+	    && !(file->f_flags & O_NONBLOCK) ) {
-+		/*
-+		 *  Check whether printer is on-line.
-+		 *  PC-9800's old style port have only BUSY# as status input,
-+		 *  so that it is impossible to distinguish that the printer is
-+		 *  ready and that the printer is off-line or not connected
-+		 *  (in both case BUSY# is in the same state). So:
-+		 *
-+		 *    (1) output DC1 (0x11) to printer port and do strobe.
-+		 *    (2) watch BUSY# line for a while. If BUSY# is pulled
-+		 *	  down, the printer will be ready. Otherwise,
-+		 *	  it will be off-line (or not connected, or power-off,
-+		 *	   ...).
-+		 *
-+		 *  The source of this procedure:
-+		 *	Terumasa KODAKA, Kazufumi SHIMIZU, Yu HAYAMI:
-+		 *		`PC-9801 Super Technique', Ascii, 1992.
-+		 */
-+		int count;
-+		unsigned long eflags;
-+
-+		save_flags(eflags);
-+		cli();		/* interrupts while check is fairly bad */
-+
-+		if (!lp_old98_char(DC1)) {
-+			restore_flags(eflags);
-+			return -EBUSY;
-+		}
-+		count = (unsigned int)dc1_check > 10000 ? 10000 : dc1_check;
-+		while( inb(LP_PORT_STATUS) & LP_MASK_nBUSY )
-+			if( --count == 0 ) {
-+				restore_flags(eflags);
-+				return -ENODEV;
-+			}
-+		restore_flags(eflags);
-+	}
-+
-+	lp.flags |= LP_BUSY;
-+
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	saved_console_flags = lp_old98_console.flags;
-+	lp_old98_console.flags &= ~CON_ENABLED;
-+#endif
-+
-+	MOD_INC_USE_COUNT;
-+	return 0;
-+}
-+
-+static int lp_old98_release(struct inode * inode, struct file * file)
-+{
-+	kfree(lp.lp_buffer);
-+	lp.lp_buffer = NULL;
-+	lp.flags &= ~LP_BUSY;
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	lp_old98_console.flags = saved_console_flags;
-+#endif
-+	MOD_DEC_USE_COUNT;
-+	return 0;
-+}
-+
-+static int lp_old98_init_device(void)
-+{
-+	unsigned char data;
-+
-+	if( (data = inb(LP_PORT_EXTMODE)) != 0xFF && (data & 0x10) ) {
-+		printk(KERN_INFO
-+		       "lp_old98: shutting down extended parallel port mode...\n");
-+		outb(data & ~0x10, LP_PORT_EXTMODE);
-+	}
-+#ifdef	PC98_HW_H98
-+	if( (pc98_hw_flags & PC98_HW_H98)
-+	    && ((data = inb(LP_PORT_H98MODE)) & 0x01) ) {
-+		printk(KERN_INFO
-+		       "lp_old98: shutting down H98 full centronics mode...\n");
-+		outb(data & ~0x01, LP_PORT_H98MODE);
-+	}
-+#endif
-+	return 0;
-+}
++#define dma_inb		inb
 +
 +/*
-+ *  Many use of `put_user' macro enlarge code size...
++ * NOTES about DMA transfers:
++ *
++ *  controller 1: channels 0-3, byte operations, ports 00-1F
++ *  controller 2: channels 4-7, word operations, ports C0-DF
++ *
++ *  - ALL registers are 8 bits only, regardless of transfer size
++ *  - channel 4 is not used - cascades 1 into 2.
++ *  - channels 0-3 are byte - addresses/counts are for physical bytes
++ *  - channels 5-7 are word - addresses/counts are for physical words
++ *  - transfers must not cross physical 64K (0-3) or 128K (5-7) boundaries
++ *  - transfer count loaded to registers is 1 less than actual count
++ *  - controller 2 offsets are all even (2x offsets for controller 1)
++ *  - page registers for 5-7 don't use data bit 0, represent 128K pages
++ *  - page registers for 0-3 use bit 0, represent 64K pages
++ *
++ * DMA transfers are limited to the lower 16MB of _physical_ memory.  
++ * Note that addresses loaded into registers must be _physical_ addresses,
++ * not logical addresses (which may differ if paging is active).
++ *
++ *  Address mapping for channels 0-3:
++ *
++ *   A23 ... A16 A15 ... A8  A7 ... A0    (Physical addresses)
++ *    |  ...  |   |  ... |   |  ... |
++ *    |  ...  |   |  ... |   |  ... |
++ *    |  ...  |   |  ... |   |  ... |
++ *   P7  ...  P0  A7 ... A0  A7 ... A0   
++ * |    Page    | Addr MSB | Addr LSB |   (DMA registers)
++ *
++ *  Address mapping for channels 5-7:
++ *
++ *   A23 ... A17 A16 A15 ... A9 A8 A7 ... A1 A0    (Physical addresses)
++ *    |  ...  |   \   \   ... \  \  \  ... \  \
++ *    |  ...  |    \   \   ... \  \  \  ... \  (not used)
++ *    |  ...  |     \   \   ... \  \  \  ... \
++ *   P7  ...  P1 (0) A7 A6  ... A0 A7 A6 ... A0   
++ * |      Page      |  Addr MSB   |  Addr LSB  |   (DMA registers)
++ *
++ * Again, channels 5-7 transfer _physical_ words (16 bits), so addresses
++ * and counts _must_ be word-aligned (the lowest address bit is _ignored_ at
++ * the hardware level, so odd-byte transfers aren't possible).
++ *
++ * Transfer count (_not # bytes_) is limited to 64K, represented as actual
++ * count - 1 : 64K => 0xFFFF, 1 => 0x0000.  Thus, count is always 1 or more,
++ * and up to 128K bytes may be transferred on channels 5-7 in one operation. 
++ *
 + */
-+static /* not inline */ int lp_old98_put_user(int val, int *addr)
++
++#define MAX_DMA_CHANNELS	4
++
++/* The maximum address that we can perform a DMA transfer to on this platform */
++#define MAX_DMA_ADDRESS      (~0UL)
++
++/* 8237 DMA controllers */
++#define IO_DMA_BASE		0x01
++
++/* DMA controller registers */
++#define DMA_CMD_REG			((IO_DMA_BASE)+0x10) /* command register (w) */
++#define DMA_STAT_REG		((IO_DMA_BASE)+0x10) /* status register (r) */
++#define DMA_REQ_REG			((IO_DMA_BASE)+0x12) /* request register (w) */
++#define DMA_MASK_REG		((IO_DMA_BASE)+0x14) /* single-channel mask (w) */
++#define DMA_MODE_REG		((IO_DMA_BASE)+0x16) /* mode register (w) */
++#define DMA_CLEAR_FF_REG	((IO_DMA_BASE)+0x18) /* clear pointer flip-flop (w) */
++#define DMA_TEMP_REG		((IO_DMA_BASE)+0x1A) /* Temporary Register (r) */
++#define DMA_RESET_REG		((IO_DMA_BASE)+0x1A) /* Master Clear (w) */
++#define DMA_CLR_MASK_REG	((IO_DMA_BASE)+0x1C) /* Clear Mask */
++#define DMA_MASK_ALL_REG	((IO_DMA_BASE)+0x1E) /* all-channels mask (w) */
++
++#define DMA_PAGE_0			0x27	/* DMA page registers */
++#define DMA_PAGE_1			0x21
++#define DMA_PAGE_2			0x23
++#define DMA_PAGE_3			0x25
++
++#define DMA_Ex_PAGE_0		0xe05	/* DMA Extended page reg base */
++#define DMA_Ex_PAGE_1		0xe07
++#define DMA_Ex_PAGE_2		0xe09
++#define DMA_Ex_PAGE_3		0xe0b
++
++#define DMA_MODE_READ	0x44	/* I/O to memory, no autoinit, increment, single mode */
++#define DMA_MODE_WRITE	0x48	/* memory to I/O, no autoinit, increment, single mode */
++#define DMA_AUTOINIT	0x10
++
++extern spinlock_t  dma_spin_lock;
++
++static __inline__ unsigned long claim_dma_lock(void)
 +{
-+	return put_user(val, addr);
++	unsigned long flags;
++	spin_lock_irqsave(&dma_spin_lock, flags);
++	return flags;
 +}
 +
-+static int lp_old98_ioctl(struct inode *inode, struct file *file,
-+			  unsigned int command, unsigned long arg)
++static __inline__ void release_dma_lock(unsigned long flags)
 +{
-+	int retval = 0;
-+
-+	switch ( command ) {
-+	case LPTIME:
-+		lp.time = arg * HZ/100;
-+		break;
-+	case LPCHAR:
-+		lp.chars = arg;
-+		break;
-+	case LPABORT:
-+		if( arg )
-+			lp.flags |= LP_ABORT;
-+		else
-+			lp.flags &= ~LP_ABORT;
-+		break;
-+	case LPABORTOPEN:
-+		if( arg )
-+			lp.flags |= LP_ABORTOPEN;
-+		else
-+			lp.flags &= ~LP_ABORTOPEN;
-+		break;
-+	case LPCAREFUL:
-+		/* do nothing */
-+		break;
-+	case LPWAIT:
-+		lp.wait = arg;
-+		break;
-+	case LPGETIRQ:
-+		retval = lp_old98_put_user(0, (int *)arg);
-+		break;
-+	case LPGETSTATUS:
-+		/*
-+		 * convert PC-9800's status to IBM PC's one, so that tunelp(8)
-+		 * works in the same way on this driver.
-+		 */
-+		retval = lp_old98_put_user((inb(LP_PORT_STATUS)
-+					    & LP_MASK_nBUSY)
-+					   ? (LP_PBUSY | LP_PERRORP)
-+					   : LP_PERRORP,
-+					   (int *)arg);
-+		break;
-+	case LPRESET:
-+		retval = lp_old98_init_device();
-+		break;
-+#ifdef LP_STATS
-+	case LPGETSTATS:
-+		if( copy_to_user((struct lp_stats *)arg, &lp.stats,
-+				 sizeof(struct lp_stats)) )
-+			retval = -EFAULT;
-+		else if (suser())
-+			memset(&lp.stats, 0, sizeof(struct lp_stats));
-+		break;
-+#endif
-+	case LPGETFLAGS:
-+		retval = lp_old98_put_user(lp.flags, (int *)arg);
-+		break;
-+	case LPSETIRQ: 
-+	default:
-+		retval = -EINVAL;
-+	}
-+	return retval;
++	spin_unlock_irqrestore(&dma_spin_lock, flags);
 +}
 +
-+static struct file_operations lp_old98_fops = {
-+	owner:	THIS_MODULE,
-+	llseek:	lp_old98_llseek,
-+	read:	NULL,
-+	write:	lp_old98_write,
-+	ioctl:	lp_old98_ioctl,
-+	open:	lp_old98_open,
-+	release:lp_old98_release,
-+};
-+
-+/*
-+ *  Support for console on lp_old98
++/* enable/disable a specific DMA channel */
++static __inline__ void enable_dma(unsigned int dmanr)
++{
++	dma_outb(dmanr,  DMA_MASK_REG);
++}
++
++static __inline__ void disable_dma(unsigned int dmanr)
++{
++	dma_outb(dmanr | 4,  DMA_MASK_REG);
++}
++
++/* Clear the 'DMA Pointer Flip Flop'.
++ * Write 0 for LSB/MSB, 1 for MSB/LSB access.
++ * Use this once to initialize the FF to a known state.
++ * After that, keep track of it. :-)
++ * --- In order to do that, the DMA routines below should ---
++ * --- only be used while holding the DMA lock ! ---
 + */
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+
-+static inline void io_delay(void)
++static __inline__ void clear_dma_ff(unsigned int dmanr)
 +{
-+	unsigned char dummy;	/* actually not output */
-+
-+	asm volatile ("out%B0 %0,%1" : "=a"(dummy) : "N"(0x5f));
++	dma_outb(0,  DMA_CLEAR_FF_REG);
 +}
 +
-+static void lp_old98_console_write(struct console *console,
-+				    const char *s, unsigned int count)
++/* set mode (above) for a specific DMA channel */
++static __inline__ void set_dma_mode(unsigned int dmanr, char mode)
 +{
-+	int i;
-+	static unsigned int timeout_run = 0;
++	dma_outb(mode | dmanr,  DMA_MODE_REG);
++}
 +
-+	while (count) {
-+		/* wait approx 1.2 seconds */
-+		for (i = 2000000;
-+		     !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY);
-+		     io_delay())
-+			if (!--i) {
-+				if (++timeout_run >= 10)
-+					/* disable forever... */
-+					console->flags &= ~CON_ENABLED;
-+				return;
-+			}
++/* Set only the page register bits of the transfer address.
++ * This is used for successive transfers when we know the contents of
++ * the lower 16 bits of the DMA current address register, but a 64k boundary
++ * may have been crossed.
++ */
++static __inline__ void set_dma_page(unsigned int dmanr, unsigned int pagenr)
++{
++	unsigned char low=pagenr&0xff;
++	unsigned char hi=pagenr>>8;
 +
-+		timeout_run = 0;
-+
-+		if (*s == '\n') {
-+			outb('\r', LP_PORT_DATA);
-+			io_delay();
-+			io_delay();
-+			outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+			io_delay();
-+			io_delay();
-+			outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+			io_delay();
-+			io_delay();
-+			for (i = 1000000;
-+			     !(inb(LP_PORT_STATUS) & LP_MASK_nBUSY);
-+			     io_delay())
-+				if (!--i)
-+					return;
-+		}
-+
-+		outb(*s++, LP_PORT_DATA);
-+		io_delay();
-+		io_delay();
-+		outb(LP_CONTROL_ASSERT_STROBE, LP_PORT_CONTROL);
-+		io_delay();
-+		io_delay();
-+		outb(LP_CONTROL_NEGATE_STROBE, LP_PORT_CONTROL);
-+		io_delay();
-+		io_delay();
-+
-+		--count;
++	switch(dmanr) {
++		case 0:
++			dma_outb(low, DMA_PAGE_0);
++			dma_outb(hi, DMA_Ex_PAGE_0);
++			break;
++		case 1:
++			dma_outb(low, DMA_PAGE_1);
++			dma_outb(hi, DMA_Ex_PAGE_1);
++			break;
++		case 2:
++			dma_outb(low, DMA_PAGE_2);
++			dma_outb(hi, DMA_Ex_PAGE_2);
++			break;
++		case 3:
++			dma_outb(low, DMA_PAGE_3);
++			dma_outb(hi, DMA_Ex_PAGE_3);
++			break;
 +	}
 +}
 +
-+static kdev_t lp_old98_console_device(struct console *console)
++/* Set transfer address & page bits for specific DMA channel.
++ * Assumes dma flipflop is clear.
++ */
++static __inline__ void set_dma_addr(unsigned int dmanr, unsigned int a)
 +{
-+	return MKDEV(LP_MAJOR, 0);
++	set_dma_page(dmanr, a>>16);
++	dma_outb( a & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
++	dma_outb( (a>>8) & 0xff, ((dmanr&3)<<2) + IO_DMA_BASE );
 +}
 +
-+static struct console lp_old98_console = {
-+	name:	"lp_old98",
-+	write:	lp_old98_console_write,
-+	device:	lp_old98_console_device,
-+	flags:	CON_PRINTBUFFER,
-+	index:	-1,
-+};
 +
-+#endif	/* console on lp_old98 */
-+
-+#ifdef MODULE
-+#define lp_old98_init init_module
-+#endif
-+
-+int __init lp_old98_init(void)
++/* Set transfer size (max 64k for DMA1..3, 128k for DMA5..7) for
++ * a specific DMA channel.
++ * You must ensure the parameters are valid.
++ * NOTE: from a manual: "the number of transfers is one more
++ * than the initial word count"! This is taken into account.
++ * Assumes dma flip-flop is clear.
++ * NOTE 2: "count" represents _bytes_ and must be even for channels 5-7.
++ */
++static __inline__ void set_dma_count(unsigned int dmanr, unsigned int count)
 +{
-+	if (check_region(LP_PORT_DATA, 1) || check_region(LP_PORT_STATUS, 1)
-+	    || check_region(LP_PORT_STROBE, 1)
-+#ifdef	PC98_HW_H98
-+	    || ((pc98_hw_flags & PC98_HW_H98)
-+		&& check_region(LP_PORT_H98MODE, 1))
-+#endif
-+	    || check_region(LP_PORT_EXTMODE, 1)) {
-+		printk(KERN_ERR
-+		       "lp_old98: I/O ports already occupied, giving up.\n");
-+		return -EBUSY;
-+	}
-+	if (register_chrdev(LP_MAJOR, "lp", &lp_old98_fops)) {
-+		printk(KERN_ERR "lp_old98: unable to get major %d\n",
-+		       LP_MAJOR);
-+		return -EBUSY;
-+	}
-+
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	register_console(&lp_old98_console);
-+	printk(KERN_INFO "lp_old98: console ready\n");
-+#endif
-+
-+	request_region(LP_PORT_DATA,   1, "lp_old98");
-+	request_region(LP_PORT_STATUS, 1, "lp_old98");
-+	request_region(LP_PORT_STROBE, 1, "lp_old98");
-+
-+	/*
-+	 * rest are not needed by this driver,
-+	 * but for locking out other printer drivers...
-+	 */
-+#ifdef	PC98_HW_H98
-+	if( pc98_hw_flags & PC98_HW_H98 )
-+		request_region(LP_PORT_H98MODE, 1, "lp_old98");
-+#endif
-+	request_region(LP_PORT_EXTMODE, 1, "lp_old98");
-+	lp_old98_init_device();
-+
-+	return 0;
++	count--;
++	dma_outb( count & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
++	dma_outb( (count>>8) & 0xff, ((dmanr&3)<<2) + 2 + IO_DMA_BASE );
 +}
 +
-+#ifdef MODULE
-+void cleanup_module(void)
-+{
-+#ifdef CONFIG_PC9800_OLDLP_CONSOLE
-+	unregister_console(&lp_old98_console);
-+#endif
-+	unregister_chrdev(LP_MAJOR, "lp");
 +
-+	release_region(LP_PORT_DATA,   1);
-+	release_region(LP_PORT_STATUS, 1);
-+	release_region(LP_PORT_STROBE, 1);
-+#ifdef	PC98_HW_H98
-+	if( pc98_hw_flags & PC98_HW_H98 )
-+		release_region(LP_PORT_H98MODE, 1);
-+#endif
-+	release_region(LP_PORT_EXTMODE, 1);
++/* Get DMA residue count. After a DMA transfer, this
++ * should return zero. Reading this while a DMA transfer is
++ * still in progress will return unpredictable results.
++ * If called before the channel has been used, it may return 1.
++ * Otherwise, it returns the number of _bytes_ left to transfer.
++ *
++ * Assumes DMA flip-flop is clear.
++ */
++static __inline__ int get_dma_residue(unsigned int dmanr)
++{
++	/* using short to get 16-bit wrap around */
++	unsigned short count;
++
++	count = 1 + dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE);
++	count += dma_inb(((dmanr&3)<<2) + 2 + IO_DMA_BASE) << 8;
++	
++	return count;
 +}
 +
-+MODULE_PARM(dc1_check, "1i");
-+MODULE_AUTHOR("Kousuke Takai <tak@kmc.kyoto-u.ac.jp>");
 +
++/* These are in kernel/dma.c: */
++extern int request_dma(unsigned int dmanr, const char * device_id);	/* reserve a DMA channel */
++extern void free_dma(unsigned int dmanr);	/* release it again */
++
++/* From PCI */
++
++#ifdef CONFIG_PCI
++extern int isa_dma_bridge_buggy;
++#else
++#define isa_dma_bridge_buggy 	(0)
 +#endif
++
++#endif /* _ASM_PC9800_DMA_H */
+diff -urN linux/include/asm-i386/pgtable.h linux98/include/asm-i386/pgtable.h
+--- linux/include/asm-i386/pgtable.h	Mon Apr 15 04:18:55 2002
++++ linux98/include/asm-i386/pgtable.h	Wed Apr 17 10:37:22 2002
+@@ -58,7 +58,11 @@
+ #endif
+ #endif
+ 
++#ifndef CONFIG_PC9800
+ #define __beep() asm("movb $0x3,%al; outb %al,$0x61")
++#else
++#define __beep() asm("movb $0x6,%al; outb %al,$0x37")
++#endif
+ 
+ #define PMD_SIZE	(1UL << PMD_SHIFT)
+ #define PMD_MASK	(~(PMD_SIZE-1))
+diff -urN linux/include/asm-i386/scatterlist.h linux98/include/asm-i386/scatterlist.h
+--- linux/include/asm-i386/scatterlist.h	Mon Apr 15 04:18:52 2002
++++ linux98/include/asm-i386/scatterlist.h	Wed Apr 17 10:37:22 2002
+@@ -1,6 +1,8 @@
+ #ifndef _I386_SCATTERLIST_H
+ #define _I386_SCATTERLIST_H
+ 
++#include <linux/config.h>
++
+ struct scatterlist {
+     struct page		*page;
+     unsigned int	offset;
+@@ -8,6 +10,10 @@
+     unsigned int	length;
+ };
+ 
++#ifdef CONFIG_PC9800
++#define ISA_DMA_THRESHOLD (0xffffffff)
++#else
+ #define ISA_DMA_THRESHOLD (0x00ffffff)
++#endif
+ 
+ #endif /* !(_I386_SCATTERLIST_H) */
+diff -urN linux/include/asm-i386/timex.h linux98/include/asm-i386/timex.h
+--- linux/include/asm-i386/timex.h	Thu Feb 14 18:09:15 2002
++++ linux98/include/asm-i386/timex.h	Thu Feb 14 23:58:57 2002
+@@ -9,11 +9,15 @@
+ #include <linux/config.h>
+ #include <asm/msr.h>
+ 
++#ifdef CONFIG_PC9800
++   extern int CLOCK_TICK_RATE;
++#else
+ #ifdef CONFIG_MELAN
+ #  define CLOCK_TICK_RATE 1189200 /* AMD Elan has different frequency! */
+ #else
+ #  define CLOCK_TICK_RATE 1193180 /* Underlying HZ */
+ #endif
++#endif
+ 
+ #define CLOCK_TICK_FACTOR	20	/* Factor of both 1000000 and CLOCK_TICK_RATE */
+ #define FINETUNE ((((((long)LATCH * HZ - CLOCK_TICK_RATE) << SHIFT_HZ) * \
 
---------------AFD9DF04F53B1B1383848BBA--
+--------------901179DF249E02B59C309EBC--
 

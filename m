@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbUADRTU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 12:19:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265785AbUADRTU
+	id S265711AbUADROh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 12:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbUADROe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 12:19:20 -0500
-Received: from vsmtp2.tin.it ([212.216.176.222]:34810 "EHLO vsmtp2alice.tin.it")
-	by vger.kernel.org with ESMTP id S265766AbUADRTS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 12:19:18 -0500
-Subject: Re: 2.4.23 oops
-From: Cristiano De Michele <demichel@na.infn.it>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040104143555.GF3728@alpha.home.local>
-References: <1073223226.1695.10.camel@cripat.acasa-tr.it>
-	 <20040104143555.GF3728@alpha.home.local>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Department of Physics
-Message-Id: <1073236750.2327.2.camel@cripat.acasa-tr.it>
+	Sun, 4 Jan 2004 12:14:34 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:39348 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S265711AbUADROd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 12:14:33 -0500
+Date: Sun, 4 Jan 2004 18:14:10 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Rob Love <rml@ximian.com>
+Cc: Dave Jones <davej@redhat.com>, Mikael Pettersson <mikpe@csd.uu.se>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Pentium M config option for 2.6
+Message-ID: <20040104171410.GF24913@louise.pinerecords.com>
+References: <200401041227.i04CReNI004912@harpo.it.uu.se> <1073228608.2717.39.camel@fur> <20040104162516.GB31585@redhat.com> <1073233988.5225.9.camel@fur> <20040104165028.GC31585@redhat.com> <1073235682.5225.12.camel@fur>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 04 Jan 2004 18:19:11 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073235682.5225.12.camel@fur>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok you were right it was the RAM, disabling the bank interleave and
-increasing the CAS latency in the BIOS settings it seems
-that now my system is pretty stable (using memtest86)
+On Jan-04 2004, Sun, 12:01 -0500
+Rob Love <rml@ximian.com> wrote:
 
-thx for your help
-bye bye Cristiano
+> On Sun, 2004-01-04 at 11:50, Dave Jones wrote:
+> 
+> > FWIW, I agree with it too on the grounds that its non obvious the optimal
+> > setting is CONFIG_MPENTIUMIII. This seems cleaner IMO than changing the
+> > helptext to read...
+> > 
+> >  "Pentium II"
+> >  "Pentium III / Pentium 4M"
+> >  "Pentium 4"
+> 
+> Oh, very much agreed.  Giving it a separate configure option also opens
+> the door for easily adding an march=pentiumm whenever the gcc folks get
+> around to adding that.
 
-On Sun, 2004-01-04 at 15:35, Willy Tarreau wrote:
-> Hi !
-> 
-> On Sun, Jan 04, 2004 at 02:33:46PM +0100, Cristiano De Michele wrote:
-> 
-> > Jan  3 04:39:42 cripat kernel: EFLAGS: 00010016
-> > Jan  3 04:39:42 cripat kernel: eax: 616d7157   ebx: 6d6e6f72   ecx:
-> > c8a5c000   edx: 73694400
-> 
-> This is weird, eax, ebx and edx contain portions of text :
->   eax="Wqma"
->   ebx="ronm"
->   edx="siD\0"
-> 
-> Perhaps it's pure coincidence, but it may also be a part of a URL or
-> temporary file name. Could you run memtest86 on you system to check
-> that you don't have RAM defects ?
-> 
-> Willy
+Yes.  That was the door I was aiming to open. <g>
+
 -- 
-  Cristiano De Michele,
-  Department of Physics,
-  University "Federico II" of Naples
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132887AbRDENHA>; Thu, 5 Apr 2001 09:07:00 -0400
+	id <S132890AbRDENIu>; Thu, 5 Apr 2001 09:08:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132888AbRDENGu>; Thu, 5 Apr 2001 09:06:50 -0400
-Received: from mailimailo.univ-rennes1.fr ([129.20.131.1]:19870 "EHLO
-	mailimailo.univ-rennes1.fr") by vger.kernel.org with ESMTP
-	id <S132887AbRDENGk>; Thu, 5 Apr 2001 09:06:40 -0400
-Date: Thu, 5 Apr 2001 16:36:16 +0200 (CEST)
-From: Thomas Speck <Thomas.Speck@univ-rennes1.fr>
-To: mmcclell@bigfoot.com
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: ov511 problem
-In-Reply-To: <20010405133051.A16246@miggy.org>
-Message-ID: <Pine.LNX.4.21.0104051625170.8028-100000@pc-astro.spm.univ-rennes1.fr>
+	id <S132891AbRDENIk>; Thu, 5 Apr 2001 09:08:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:63887 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132890AbRDENIe> convert rfc822-to-8bit;
+	Thu, 5 Apr 2001 09:08:34 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <15052.28178.701561.756926@pizda.ninka.net>
+Date: Thu, 5 Apr 2001 06:07:30 -0700 (PDT)
+To: =?ISO-8859-1?Q?Sarda=F1ons@pizda.ninka.net,
+        ?= Eliel <Eliel.Sardanons@philips.edu.ar>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: asm/unistd.h
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER>
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA0284170@MAINSERVER>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi
+Sardañons@pizda.ninka.net, Eliel writes:
+ > I'm taking a look at the linux code and I don't understand how do you
+ > programm...mmm (?) may be i'm a stupid why in include/asm/unistd.h in some
+ > macros you use this:
 
-I am trying to get working a Spacec@m 300 (USB) by Trust. I tried this
-under 2.2.18 and 2.4.3. In order to get the camera detected I can use the
-usb-uhci or uhci module (the result is the same). The camera gets detected
-(some OV7610 gets probed - I don't know if this is the correct one) and
-after loading the ov511 module I get the picture of the camera displayed
-with xawt-3.38 (resolution 640x480 - the camera is able to this). 
-The problem I am running into is that the framerate is extremely slow
-(maybe 3 fps), however, from the specifications it should work with 30
-fps. My system is a Pentium II with 300 Mhz. Some Miro TV card with a
-BT848 chip works fine with the bttv driver. 
-Do you have any idea ? 
-If you need more info, just let me know. I am also willing to do some
-tests...
+Two reasons:
 
---
-Thomas
+1) Empty statements give a warning from the compiler so
+   this is why you see "#define FOO do { } while(0)"
+2) It gives you a basic block in which to declare local
+   variables.
 
+Later,
+David S. Miller
+davem@redhat.com

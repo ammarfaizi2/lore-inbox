@@ -1,44 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132806AbRC2SPy>; Thu, 29 Mar 2001 13:15:54 -0500
+	id <S132803AbRC2SKo>; Thu, 29 Mar 2001 13:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132815AbRC2SPo>; Thu, 29 Mar 2001 13:15:44 -0500
-Received: from mailhost.aurora-linux.com ([212.81.103.10]:54789 "HELO
-	mailhost.aurora-linux.com") by vger.kernel.org with SMTP
-	id <S132806AbRC2SPh>; Thu, 29 Mar 2001 13:15:37 -0500
-Date: Thu, 29 Mar 2001 20:20:32 +0000 (UTC)
-From: Xavier Ordoquy <xordoquy@aurora-linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bug in the file attributes ?
-Message-ID: <Pine.LNX.4.21.0103292011480.20805-100000@ilaws.aurora-linux.net>
+	id <S132806AbRC2SKe>; Thu, 29 Mar 2001 13:10:34 -0500
+Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:27525 "EHLO
+	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S132803AbRC2SKW>; Thu, 29 Mar 2001 13:10:22 -0500
+Date: Thu, 29 Mar 2001 10:09:32 -0800 (PST)
+From: Wayne Whitney <whitney@math.berkeley.edu>
+Reply-To: <whitney@math.berkeley.edu>
+To: LKML <linux-kernel@vger.kernel.org>
+cc: <toddroy@softhome.net>, Juan Quintela <quintela@mandrakesoft.com>
+Subject: Re: 2.4.3-p8 pci_fixup_vt8363 + ASUS A7V "Optimal" = IDE disk
+ corruption
+In-Reply-To: <m2puf0hft9.fsf@trasno.mitica>
+Message-ID: <Pine.LNX.4.30.0103290931330.12531-100000@mf1.private>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 29 Mar 2001, Juan Quintela wrote:
 
-Hi,
+> Hi I have the same motherboard and BIOS version.  I was having
+> filesystem corruption.  There is a bugfix (from Arjan van der Ven) in
+> the ac tree (around ac20 I think), could you test the last ac patch
+> and test if the filesystem corruption persist??
 
-I just made a manipulation that disturbs me. So I'm asking whether it's a
-bug or a features.
+I took a look at 2.4.2-ac28; rather than test the kernel itself, I used
+setpci to duplicate what the fixup function does.  The upshot is that
+2.4.2-ac28 does not cause any corruption with the ASUS A7V 1007 "Optimal".
+Its pci_fixup_vt8363 function has a subset of the tests from 2.4.3-pre8,
+namely it omits:
 
-user> su
-root> echo "test" > test
-root> ls -l
--rw-r--r--   1 root     root            5 Mar 29 19:14 test
-root> exit
-user> rm test
-rm: remove write-protected file `test'? y
-user> ls test
-ls: test: No such file or directory
+	pci_read_config_byte(d, 0x54, &tmp);
+	if(tmp & (1)) {
+		printk("PCI: Fast Write to Read turnaround disabled\n");
+		pci_write_config_byte(d, 0x54, tmp & ~(1));
+	}
+	pci_read_config_byte(d, 0x70, &tmp);
+	if(tmp & (1<<2)) {
+		printk("PCI: Disabled Master Read Caching\n");
+		pci_write_config_byte(d, 0x70, tmp & ~(1<<2));
+	}
 
-This is in the user home directory.
-Since the file is read only for the user, it should not be able to remove
-it. Moreover, the user can't write to test.
-So I think this is a bug.
+This second test was part of the 2.4.3-pre8 pci_fixup_vt8363 subset from
+my previous email which causes corruption on the ASUS A7V 1007 for both
+Optimal and Normal settings.  I verified that if I add it back in, I do
+get corruption with ASUS A7V 1007 "Optimal".  By omitting it, I guess
+2.4.2-ac28 avoids the corruption of 2.4.3-pre8.
 
----
- Xavier Ordoquy, Aurora-linux
- If NT is the answer, you didn't understand the question.
+Perhaps 2.4.3-pre9 should adopt the pci_fixup_vt8363 from 2.4.2-ac28?
+Below is a patch.
+
+Cheers,
+Wayne
+
+--- linux-2.4.3-pre8/arch/i386/kernel/pci-pc.c	Wed Mar 28 22:56:04 2001
++++ linux-2.4.2-ac28/arch/i386/kernel/pci-pc.c	Wed Mar 28 22:51:00 2001
+@@ -968,23 +971,13 @@
+ 		printk("PCI: Bus master Pipeline request disabled\n");
+ 		pci_write_config_byte(d, 0x54, tmp & ~(1<<2));
+ 	}
+-	pci_read_config_byte(d, 0x54, &tmp);
+-	if(tmp & (1)) {
+-		printk("PCI: Fast Write to Read turnaround disabled\n");
+-		pci_write_config_byte(d, 0x54, tmp & ~(1));
+-	}
+ 	pci_read_config_byte(d, 0x70, &tmp);
+ 	if(tmp & (1<<3)) {
+ 		printk("PCI: Disabled enhanced CPU to PCI writes\n");
+ 		pci_write_config_byte(d, 0x70, tmp & ~(1<<3));
+ 	}
+-	pci_read_config_byte(d, 0x70, &tmp);
+-	if(tmp & (1<<2)) {
+-		printk("PCI: Disabled Master Read Caching\n");
+-		pci_write_config_byte(d, 0x70, tmp & ~(1<<2));
+-	}
+ 	pci_read_config_byte(d, 0x71, &tmp);
+-	if ((tmp & (1<<3))==0) {
++	if((tmp & (1<<3)) == 0) {
+ 		printk("PCI: Bursting cornercase bug worked around\n");
+ 		pci_write_config_byte(d, 0x71, tmp | (1<<3));
+ 	}
 

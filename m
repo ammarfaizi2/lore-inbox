@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262655AbSJBWBo>; Wed, 2 Oct 2002 18:01:44 -0400
+	id <S262643AbSJBWWN>; Wed, 2 Oct 2002 18:22:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262656AbSJBWBo>; Wed, 2 Oct 2002 18:01:44 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:28888 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262655AbSJBWBn>;
-	Wed, 2 Oct 2002 18:01:43 -0400
-Date: Wed, 02 Oct 2002 15:02:56 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andreas Dilger <adilger@clusterfs.com>, Dave Hansen <haveblue@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH]  4KB stack + irq stack for x86
-Message-ID: <388830000.1033596176@flay>
-In-Reply-To: <20021002215649.GY3000@clusterfs.com>
-References: <3D9B62AC.30607@us.ibm.com> <20021002215649.GY3000@clusterfs.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S262648AbSJBWWM>; Wed, 2 Oct 2002 18:22:12 -0400
+Received: from waste.org ([209.173.204.2]:46475 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S262643AbSJBWWM>;
+	Wed, 2 Oct 2002 18:22:12 -0400
+Date: Wed, 2 Oct 2002 17:26:38 -0500
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: lk maintainers
+Message-ID: <20021002222638.GD21969@waste.org>
+References: <Pine.LNX.4.10.10210011021160.3976-100000@master.linux-ide.org> <200210022011.g92KBIp31857@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <200210022011.g92KBIp31857@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm a little bit worried about this patch.  Have you tried something
-> like NFS-over-ext3-over-LVM-over-MD or so, which can have a deep stack?
+On Wed, Oct 02, 2002 at 11:05:12PM -0200, Denis Vlasenko wrote:
+> 
+> As to Martin's one, I prefer updating entries based on entry owner's
+> comments.
 
-No, I don't think we're that twisted. 
-But feel free ... and have fun getting LVM to work first ;-)
+Martin resigned, his IDE changes were reverted. Given the headache and
+abuse he went through, I doubt he wants to be bothered about IDE
+anymore even to update his entry. Please, just update the entry to
+reflect reality so bug reports get to where they need to and let's
+move on.
 
-IMHO, bugfixing arcane corner-case bloat issues can come later, if all normal
-configs work.
-
-M.
-
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262042AbRFDWbb>; Mon, 4 Jun 2001 18:31:31 -0400
+	id <S262445AbRFDWwk>; Mon, 4 Jun 2001 18:52:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262164AbRFDWbV>; Mon, 4 Jun 2001 18:31:21 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:7835 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S262042AbRFDWbL>; Mon, 4 Jun 2001 18:31:11 -0400
-Message-ID: <3B1C0EAD.B0C83157@oracle.com>
-Date: Mon, 04 Jun 2001 15:41:49 -0700
-From: Radhakrishnan Manga <Radhakrishnan.Manga@oracle.com>
-Reply-To: Radhakrishnan.Manga@oracle.com
-X-Mailer: Mozilla 4.72 [en] (WinNT; I)
+	id <S262663AbRFDWwa>; Mon, 4 Jun 2001 18:52:30 -0400
+Received: from cuda.sx.nec.com ([207.253.213.164]:52487 "HELO cuda.sx.nec.com")
+	by vger.kernel.org with SMTP id <S262445AbRFDWwZ>;
+	Mon, 4 Jun 2001 18:52:25 -0400
+Message-ID: <3B1C0EE9.9F8F58A4@ludusdesign.com>
+Date: Mon, 04 Jun 2001 18:42:49 -0400
+From: Pierre Phaneuf <pp@ludusdesign.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: vmstat help
+Subject: Re: disk-based fds in select/poll
+In-Reply-To: <E157277-000603-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I am using the vmstat that came along with the SuSE 7.0 distribution.
-I have problem interpretting the data reported by vmstat. The vmstat
-document reads that the block information reported is always in terms of
-1K blocks. Just to findout the validity of  the data reported by vmstat,
-I carried out the a small copy test.  Here is the configuration I have
+Alan Cox wrote:
 
-1) I have two file systems which are created with 4096 block size
-2) These two file systems are on two different disks. (but both are
-sitting on same scsi controller)
-3) I am trying to copy a 4GB file from one disk to another using the
-simple "cp" command.
-4) I am capturing vmstat with 30 sec interval. I stop the vmstat after
-cp is done
-5) The copy takes anywhere between 7 to 10 minutes.
+> > I am thinking that a read() (or sendfile()) that would block because the
+> > pages aren't in core should instead post a request for the pages to be
+> > loaded (some kind of readahead mecanism?) and return immediately (maybe
+> > having given some data that *was* in core). A subsequent read() could
+> 
+> reads posts a readahead anyway so streaming reads tend not to block much
 
-On vmstat report has bi and bo's ranging form 700 to 4000.
+Ok, so while knowing about select "lying" about readability of a file
+fd, if I would stick a file fd in my select-based loop anyway, but would
+only try to read a bit at a time (say, 4K or 8K) would trigger
+readahead, yet finish quickly enough that I can get back to processing
+other fds in my select loop?
 
-Just to get the total blocks read, I multiple the value reported in bi
-column with 30 (as 30 sec was my sampling interval) and sum them all. To
-my surprise, they add up only to around (1 GB).
+Wouldn't that cause too many syscalls to be done? Or if this is actually
+the way to go without an actual thread, how should I go determining an
+optimal block size?
 
-  What is wrong here, the documentation or my intepretation of vmstat
-output.
+Was there anything new on the bind_event/get_events API idea that Linus
+proposed a while ago? That one had got me foaming at the mouth... :-)
 
-
-
+-- 
+Pierre Phaneuf

@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272145AbTHDTHb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272152AbTHDTHb
+	id S272162AbTHDTYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272163AbTHDTYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:07:31 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:14355 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S272145AbTHDTHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:07:30 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] O11int for interactivity
-Date: Mon, 4 Aug 2003 21:06:51 +0200
-User-Agent: KMail/1.5.3
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <200307301038.49869.kernel@kolivas.org> <20030802225513.GE32488@holomorphy.com> <200308030119.47474.m.c.p@wolk-project.de>
-In-Reply-To: <200308030119.47474.m.c.p@wolk-project.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Aug 2003 15:24:46 -0400
+Received: from almesberger.net ([63.105.73.239]:20485 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S272162AbTHDTYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:24:44 -0400
+Date: Mon, 4 Aug 2003 16:24:33 -0300
+From: Werner Almesberger <werner@almesberger.net>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Nivedita Singhvi <niv@us.ibm.com>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: TOE brain dump
+Message-ID: <20030804162433.L5798@almesberger.net>
+References: <20030802140444.E5798@almesberger.net> <3F2BF5C7.90400@us.ibm.com> <3F2C0C44.6020002@pobox.com> <20030802184901.G5798@almesberger.net> <m1fzkiwnru.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308042106.51676.m.c.p@wolk-project.de>
+In-Reply-To: <m1fzkiwnru.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Aug 03, 2003 at 01:21:09PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 03 August 2003 01:19, Marc-Christian Petersen wrote:
+Eric W. Biederman wrote:
+> The optimized for low latency cases seem to have a strong
+> market in clusters.
 
-Hi William,
+Clusters have captive, no, _desperate_ customers ;-) And it
+seems that people are just as happy putting MPI as their
+transport on top of all those link-layer technologies.
 
-> > I actually wanted it from a kernel that behaved pathologically so I can
-> > tell what issue it is.
-> aah, ic. OK. Compiling 2.6.0-test2 mainline now.
-sorry, I compiled it but during the compilation I had to go. Had some private 
-problems :-( ... It will take some time (within this week) to get all these 
-numbers.
+> There is one place in low latency communications that I can think
+> of where TCP/IP is not the proper solution.  For low latency
+> communication the checksum is at the wrong end of the packet.
 
-Sorry for the delay.
+That's one of the few things ATM's AAL5 got right. But in the end,
+I think it doesn't really matter. At 1 Gbps, an MTU-sized packet
+flies by within 13 us. At 10 Gbps, it's only 1.3 us. At that point,
+you may well treat it as an atomic unit.
 
-ciao, Marc
+> On that score it is worth noting that the next generation of
+> peripheral busses (Hypertransport, PCI Express, etc) are all switched.
 
+And it's about time for that :-)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

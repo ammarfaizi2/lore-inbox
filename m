@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVAaPcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVAaPsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVAaPcD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 10:32:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVAaPcD
+	id S261239AbVAaPsB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 10:48:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVAaPsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 10:32:03 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:29192 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261237AbVAaPb7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 10:31:59 -0500
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10: SPARC64 mapped figure goes unsignedly negative...
-References: <87sm4izw3u.fsf@amaterasu.srvr.nix>
-	<Pine.LNX.4.61.0501311256580.5368@goblin.wat.veritas.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: it's not slow --- it's stately.
-Date: Mon, 31 Jan 2005 15:30:54 +0000
-In-Reply-To: <Pine.LNX.4.61.0501311256580.5368@goblin.wat.veritas.com> (Hugh
- Dickins's message of "Mon, 31 Jan 2005 13:04:55 +0000 (GMT)")
-Message-ID: <87sm4hwr81.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jan 2005 10:48:01 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:1002 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261239AbVAaPr4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 10:47:56 -0500
+Date: Mon, 31 Jan 2005 19:07:39 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, Adrian Bunk <bunk@stusta.de>,
+       Greg Kroah-Hartman <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] connector.c: make notify_lock static
+Message-ID: <20050131190739.11048162@zanzibar.2ka.mipt.ru>
+In-Reply-To: <d120d50005013107005a8c39b1@mail.gmail.com>
+References: <20050131124119.GE18316@stusta.de>
+	<d120d50005013107005a8c39b1@mail.gmail.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 31 Jan 2005, Hugh Dickins suggested tentatively:
-> On Sun, 30 Jan 2005, Nix wrote:
->> /proc/meminfo on my UltraSPARC IIi:
->> Mapped:       18446744073687883208 kB
->> 
->> (This kernel is compiled with GCC-3.4.3, which might be relevant.)
+On Mon, 31 Jan 2005 10:00:51 -0500
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+> On Mon, 31 Jan 2005 13:41:19 +0100, Adrian Bunk <bunk@stusta.de> wrote:
+> > notify_lock isn't a good name for a global lock.
+> > But since it's not used outside of the file, it can be made static.
+> > 
+> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> > --- linux-2.6.11-rc2-mm2-full/drivers/connector/connector.c.old 2005-01-31 13:09:14.000000000 +0100
+> > +++ linux-2.6.11-rc2-mm2-full/drivers/connector/connector.c     2005-01-31 13:09:28.000000000 +0100
+> > @@ -41,7 +41,7 @@
+> > module_param(cn_idx, uint, 0);
+> > module_param(cn_val, uint, 0);
+> > 
+> > -spinlock_t notify_lock = SPIN_LOCK_UNLOCKED;
+> > +static spinlock_t notify_lock = SPIN_LOCK_UNLOCKED;
+> > static LIST_HEAD(notify_list);
+> > 
+> > static struct cn_dev cdev;
+> > 
 > 
-> Indeed: sparc64 gcc-3.4 seems to be having trouble with that
-> since 2.6.9: we've been persuing it offlist, I'll factor you in.
+> Isn't this supposed to be "static DEFINE_SPINLOCK(notify_lock);" nowadays?
 
-Excellent; thank you!
+That's not a problem, I will cook up a patch and send it through Greg.
+Thank you.
 
-(2.6.10 seems to *run* perfectly well on that box, for what it's worth;
-unless this is a symptom of some underlying dark and terrible failure,
-it looks like a not-very-important cosmetic bug.)
+> -- 
+> Dmitry
 
--- 
-`Blish is clearly in love with language. Unfortunately,
- language dislikes him intensely.' --- Russ Allbery
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265982AbTAJVGP>; Fri, 10 Jan 2003 16:06:15 -0500
+	id <S266064AbTAJVLh>; Fri, 10 Jan 2003 16:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265995AbTAJVGP>; Fri, 10 Jan 2003 16:06:15 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:28383 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S265982AbTAJVGO>; Fri, 10 Jan 2003 16:06:14 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A847137F5F@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Ole J. Hagen" <olehag_2001@yahoo.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel 2.5.55 failed to boot with ACPI support 
-Date: Fri, 10 Jan 2003 13:10:30 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S266100AbTAJVLh>; Fri, 10 Jan 2003 16:11:37 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:2952 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266064AbTAJVLg>; Fri, 10 Jan 2003 16:11:36 -0500
+Date: Fri, 10 Jan 2003 22:20:18 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Derek Atkins <warlord@MIT.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linus BK tree crashes with PANIC: INIT: segmentation violation
+Message-ID: <20030110212018.GM10062@louise.pinerecords.com>
+References: <sjmlm1t5489.fsf@kikki.mit.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <sjmlm1t5489.fsf@kikki.mit.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Ole J. Hagen [mailto:olehag_2001@yahoo.no] 
-> I just wanted to inform that kernel-2.5.55 failes to boot 
-> when ACPI support is 
-> compiled in the kernel. 
+> [warlord@MIT.EDU]
 > 
-> I have following configuration; Dell Optiplex GX-240, Pentium 
-> 4 (1.5 GHz), ATI 
-> RAGE 128.
+> PANIC: INIT: segmentation violation at 0x804a08c (code)! sleeping for 30 seconds!
 
-How exactly does it fail?
+I'm seeing the same problem with vanilla 2.5.56 booting in vmware
+workstation 3.2.0.
 
--- Andy
+-- 
+Tomas Szepe <szepe@pinerecords.com>

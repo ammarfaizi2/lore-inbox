@@ -1,85 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132581AbRDHSQi>; Sun, 8 Apr 2001 14:16:38 -0400
+	id <S132578AbRDHSPQ>; Sun, 8 Apr 2001 14:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132583AbRDHSQ2>; Sun, 8 Apr 2001 14:16:28 -0400
-Received: from colorfullife.com ([216.156.138.34]:22800 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132581AbRDHSQP>;
-	Sun, 8 Apr 2001 14:16:15 -0400
-Message-ID: <003801c0c058$15978340$5517fea9@local>
-From: "Manfred Spraul" <manfred@colorfullife.com>
-To: <kuznet@ms2.inr.ac.ru>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200104081758.VAA15670@ms2.inr.ac.ru>
-Subject: Re: softirq buggy [Re: Serial port latency]
-Date: Sun, 8 Apr 2001 20:16:49 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S132581AbRDHSPG>; Sun, 8 Apr 2001 14:15:06 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:27144 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S132578AbRDHSPE>; Sun, 8 Apr 2001 14:15:04 -0400
+Date: Sun, 8 Apr 2001 22:11:23 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        James Simmons <jsimmons@linux-fbdev.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: fbcon slowness [was NTP on 2.4.2?]
+Message-ID: <20010408221123.A22893@jurassic.park.msu.ru>
+In-Reply-To: <20010406140920.A4866@jurassic.park.msu.ru> <Pine.GSO.3.96.1010406190813.15958H-100000@delta.ds2.pg.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.3.96.1010406190813.15958H-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Apr 06, 2001 at 07:13:21PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: <kuznet@ms2.inr.ac.ru>
-To: "Manfred Spraul" <manfred@colorfullife.com>
-Cc: <linux-kernel@vger.redhat.com>
-Sent: Sunday, April 08, 2001 7:58 PM
-Subject: Re: softirq buggy [Re: Serial port latency]
+On Fri, Apr 06, 2001 at 07:13:21PM +0200, Maciej W. Rozycki wrote:
+>  You do.  PCI-space registers are volatile and they may change depending
+> on what was written (or read) previously.  A memory barrier before a PCI
+> read will ensure you get a value that is relevant to previous code
+> actions.  Without a barrier you may get pretty anything, depending on
+> which of previous writes managed to complete before. 
 
+Of course. I meant that if you are reading, for example, some status register
+in a loop waiting for "ready bit" set, the memory barrier won't help you
+to notice this event any faster. Actually you'll notice that *later*, as
+"mb" is expensive.
 
-> Hello!
->
-> > But with a huge overhead. I'd prefer to call it directly from within
-the
-> > idle functions, the overhead of schedule is IMHO too high.
->
->
-> + if (current->need_resched) {
-> + return 0;
-> ^^^^^^^^
-> + }
-> + if (softirq_active(smp_processor_id()) &
-softirq_mask(smp_processor_id())) {
-> + do_softirq();
-> + return 0;
-> ^^^^^^^^^
-> You return one value in both casesand I decided it means "schedule".
-8)
-> Apparently you meaned return 1 in the first case. 8)
->
-No, the code is correct. 0 means "don't stop the cpu".
-The pm_idle function pointer will return to cpu_idle()
-(arch/i386/kernel/process.c), and that function contains another
+Well, here is some info on ev6 IO write buffers - they are a bit different
+than ev4/ev5 ones.
+Merging rules:
+ - byte/word stores aren't allowed to merge into a write buffer;
+ - different size stores (32- and 64-bit) aren't allowed to merge;
+ - addresses must be in ascending order and non-overlapping,
+   but not necessarily consecutive.
+The I/O register merge window close (ie write-buffer flushing) occurs after
+ - mb and wmb instructions;
+ - IO-space load instruction (!);
+ - after 1024 cycles if there were no IO-space stores.
+Store requests are sent offchip in program order (!).
 
-    while(!current->need_resched)
-        idle();
+All this explains, in particular, why XFree86-4.0 worked on ev6 without
+memory barriers of any kind, while it crashed badly on ev4/ev5.
 
-loop ;-)
-
-> But in this case it becomes wrong. do_softirq() can raise need_reshed
-> and moreover irqs arrive during it. Order of check should be
-different.
->
-Yes, I'll correct that.
-
->
-> BTW what's about overhead... I suspect it is _lower_ in the case
-> of schedule(). In the case of networking at least, when softirq
-> most likely wakes some socket.
->
-I'm not sure - what if the computer is just a router?
-But OTHO: the cpu is idle, so it doesn't matter at all if the idle cpu
-spends it's time within schedule() or within safe_hlt(), I'll change my
-patch.
-
-I have another question:
-I added cpu_is_idle() into <linux/interrupt.h>. Is that acceptable, or
-is there a better header file for such a function?
-
---
-    Manfred
-
+Ivan.

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbRE0TQR>; Sun, 27 May 2001 15:16:17 -0400
+	id <S261576AbRE0TQh>; Sun, 27 May 2001 15:16:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261576AbRE0TQH>; Sun, 27 May 2001 15:16:07 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:43914 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261561AbRE0TPy>;
-	Sun, 27 May 2001 15:15:54 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S261577AbRE0TQ1>; Sun, 27 May 2001 15:16:27 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:34502 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S261576AbRE0TQU>;
+	Sun, 27 May 2001 15:16:20 -0400
+Message-ID: <3B115279.CE436CEA@alsa-project.org>
+Date: Sun, 27 May 2001 21:16:09 +0200
+From: Abramo Bagnara <abramo@alsa-project.org>
+Organization: Opera Unica
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i586)
+X-Accept-Language: it, en
 MIME-Version: 1.0
+To: Adrian Bunk <bunk@fs.tum.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Inconsistent "#ifdef __KERNEL__" on different architectures
+In-Reply-To: <Pine.NEB.4.33.0105271903050.4227-100000@mimas.fachschaften.tu-muenchen.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15121.21054.657593.830199@pizda.ninka.net>
-Date: Sun, 27 May 2001 12:15:10 -0700 (PDT)
-To: <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: [patch] softirq-2.4.5-B0
-In-Reply-To: <Pine.LNX.4.33.0105271020310.1667-200000@localhost.localdomain>
-In-Reply-To: <15120.16986.610478.279574@pizda.ninka.net>
-	<Pine.LNX.4.33.0105271020310.1667-200000@localhost.localdomain>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk wrote:
+> 
+> Hi,
+> 
+> while looking for the reason of a build failure of the ALSA libraries on
+> ARM [1] I discovered the following strange thing:
+> 
+> On some architectures a function is inside an "#ifdef __KERNEL__" in the
+> header file and on others not. Is there a reason for this or is this
+> inconsistency simply a bug?
 
-Ingo Molnar writes:
- > the bug/misbehavior causing bad latencies turned out to be the following:
- > if a hardirq triggers a softirq, but syscall-level code on the same CPU
- > disabled local bhs via local_bh_disable(), then we 'miss' the execution of
- > the softirq, until the next IRQ. (or next direct call to do_softirq()).
+This is a bug on some architectures, I've personally fixed this on PPC
+sending a patch to Cort Dougan. It has been included in 2.4.5.
 
-Hooray, some sanity in this thread finally :-)
+I'd like you send a patch to maintainers (or perhaps to Alan).
 
-Yes, this makes perfect sense, this is indeed what can happen.
+-- 
+Abramo Bagnara                       mailto:abramo@alsa-project.org
 
- > the attached softirq-2.4.5-B0 patch fixes this problem by calling
- > do_softirq()  from local_bh_enable() [if the bh count is 0, to avoid
- > recursion].
+Opera Unica                          Phone: +39.546.656023
+Via Emilia Interna, 140
+48014 Castel Bolognese (RA) - Italy
 
-Yikes!  I do not like this fix.
-
-I'd rather local_bh_enable() not become a more heavy primitive.
-
-I know, in one respect it makes sense because it parallels how
-hardware interrupts work, but not this thing is a function call
-instead of a counter bump :-(
-
-Any other ideas how to zap this?
-
-Later,
-David S. Miller
-davem@redhat.com
-
+ALSA project               http://www.alsa-project.org
+It sounds good!

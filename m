@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261970AbREPOuK>; Wed, 16 May 2001 10:50:10 -0400
+	id <S261972AbREPO5k>; Wed, 16 May 2001 10:57:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbREPOuA>; Wed, 16 May 2001 10:50:00 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:54692 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S261970AbREPOts>; Wed, 16 May 2001 10:49:48 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rootfs (part 1)
-In-Reply-To: <Pine.GSO.4.21.0105160756210.24199-100000@weyl.math.psu.edu>
-Organisation: SAP LinuxLab
-Date: 16 May 2001 16:43:37 +0200
-In-Reply-To: <Pine.GSO.4.21.0105160756210.24199-100000@weyl.math.psu.edu>
-Message-ID: <m3wv7h5p7q.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
+	id <S261974AbREPO5a>; Wed, 16 May 2001 10:57:30 -0400
+Received: from olsinka.site.cas.cz ([147.231.11.16]:40076 "EHLO
+	twilight.suse.cz") by vger.kernel.org with ESMTP id <S261972AbREPO5T>;
+	Wed, 16 May 2001 10:57:19 -0400
+Date: Wed, 16 May 2001 16:57:08 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010516165708.B2782@suse.cz>
+In-Reply-To: <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com>, <Pine.LNX.4.21.0105151309460.2470-100000@penguin.transmeta.com> <p05100330b7277e2beea6@[207.213.214.37]> <3B01E670.E96A2865@uow.edu.au> <p0510033db727cdc4a244@[207.213.214.37]> <20010516100204.A1537@suse.cz> <p05100344b728409e9e36@[207.213.214.37]>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <p05100344b728409e9e36@[207.213.214.37]>; from jlundell@pobox.com on Wed, May 16, 2001 at 07:37:45AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+On Wed, May 16, 2001 at 07:37:45AM -0700, Jonathan Lundell wrote:
+> At 10:02 AM +0200 2001-05-16, Vojtech Pavlik wrote:
+> >  > It's also  true that some buses simply don't yield up physical
+> >>  locations (ISA springs to mind,
+> >
+> >ISA is quite fine, you can use the i/o space as physical locations.
+> 
+> I meant physical not as in physical-vs-virtual addresses (all ISA 
+> addresses, memory or IO, are physical in this sense, by the time they 
+> get to the bus). Rather, I meant that you can't determine which slot 
+> a given device is plugged into. If you have two NICs in two ISA 
+> slots, there's no way to distinguish between the slots. In practice, 
+> you'd have to experiment or remove a card and check the jumpering or 
+> some such.
 
-On Wed, 16 May 2001, Alexander Viro wrote:
-> 	One point that might be better done differently - since we
-> need ramfs for boot I've just made fs/Config.in declare CONFIG_RAMFS
-> as define_bool CONFIG_RAMFS y. If ramfs grows (e.g. gets resource
-> limits patches from -ac) we might be better off doing a minimal
-> variant permanently in kernel (calling it rootfs) and making
-> ramfs use rootfs methods. It's completely separate issue, so I've
-> done it the simplest way for the time being.
+Yes. But I meant that while this indeed is not possible, still the i/o
+port address can be used instead of the slot number, because it at least
+is physically jumpered and must be unique.
 
-Why do you use ramfs? Most of it is duplicated in tmpfs and ramfs is a
-minimal _example_ fs. There was some agreement that this should stay
-so.
-
-Look into mm/shmem.c and look how little is added by CONFIG_TMPFS and
-how much is duplicated from ramfs
-
-If we really think the added swap vector per file in tmpfs is a major
-overhead we should add the nonswapping functions there.
-
-Greetings
-		Christoph
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs

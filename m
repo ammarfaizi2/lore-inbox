@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264668AbSKDNeg>; Mon, 4 Nov 2002 08:34:36 -0500
+	id <S264641AbSKDNbf>; Mon, 4 Nov 2002 08:31:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264669AbSKDNef>; Mon, 4 Nov 2002 08:34:35 -0500
-Received: from holomorphy.com ([66.224.33.161]:1172 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S264668AbSKDNef>;
-	Mon, 4 Nov 2002 08:34:35 -0500
-Date: Mon, 4 Nov 2002 05:39:17 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Ralf Baechle <ralf@uni-koblenz.de>, Rusty Russell <rusty@rustcorp.com.au>,
-       torvalds@transmeta.com, trivial@rustcorp.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: linux/bug.h and asm/bug.h
-Message-ID: <20021104133917.GC16347@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ralf Baechle <ralf@uni-koblenz.de>,
-	Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-	trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-References: <20021104022350.DB97A2C0C0@lists.samba.org> <20021104134148.B19377@bacchus.dhis.org> <20021104125115.A15953@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021104125115.A15953@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S264649AbSKDNbe>; Mon, 4 Nov 2002 08:31:34 -0500
+Received: from hermes.domdv.de ([193.102.202.1]:44809 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S264641AbSKDNbd>;
+	Mon, 4 Nov 2002 08:31:33 -0500
+Message-ID: <3DC67810.9010704@domdv.de>
+Date: Mon, 04 Nov 2002 14:37:20 +0100
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.20rc1 compile fix for t128.c
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070508090505080007010908"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 12:51:15PM +0000, Russell King wrote:
-> I'm a little peeved since everyone's likes this from Rusty, but ignored
-> exactly the same thing from me.  Sigh, life is cruel some times.
-> Message-Id: E18289f-0007tm-00@flint.arm.linux.org.uk
-> Subject: [PATCH] 2.5.43-bug
-> Date: Thu, 17 Oct 2002 11:45:27 +0100
+This is a multi-part message in MIME format.
+--------------070508090505080007010908
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Sorry about that, I didn't notice it then. I was distracted by other
-things around 2.5.43 ...
+The attached patch fixes a section type conflict error.
+-- 
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
 
+--------------070508090505080007010908
+Content-Type: text/plain;
+ name="t128.c.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="t128.c.diff"
 
-Bill
+--- ./drivers/scsi/t128.c.orig	2002-11-04 14:21:30.000000000 +0100
++++ ./drivers/scsi/t128.c	2002-11-04 14:21:47.000000000 +0100
+@@ -145,7 +145,7 @@
+ static const struct signature {
+ 	const char *string;
+ 	int offset;
+-} signatures[] __initdata = {
++} signatures[] = {
+ 	{"TSROM: SCSI BIOS, Version 1.12", 0x36},
+ };
+ 
+
+--------------070508090505080007010908--
+

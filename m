@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264151AbUDGTLz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 15:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264148AbUDGTLz
+	id S264161AbUDGTQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 15:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264162AbUDGTQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 15:11:55 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:48912 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S264155AbUDGTLn convert rfc822-to-8bit (ORCPT
+	Wed, 7 Apr 2004 15:16:24 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:1785 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264161AbUDGTQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 15:11:43 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6529.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: cciss updates for 2.6.6xxx [1/2]
-Date: Wed, 7 Apr 2004 14:11:39 -0500
-Message-ID: <D4CFB69C345C394284E4B78B876C1CF105BC2012@cceexc23.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: cciss updates for 2.6.6xxx [1/2]
-Thread-Index: AcQcviPYvhHWQTZ2Qpu32UBHWjansgAFZfHA
-From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <alpm@odsl.org>, <axboe@suse.de>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Apr 2004 19:11:40.0498 (UTC) FILETIME=[281EFB20:01C41CD4]
+	Wed, 7 Apr 2004 15:16:23 -0400
+Subject: Re: cp fails in this symlink case, kernel 2.4.25, reiserfs + ext2
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Martin Rode <martin.rode@zeroscale.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1081359310.1212.537.camel@marge.pf-berlin.de>
+References: <1081359310.1212.537.camel@marge.pf-berlin.de>
+Content-Type: text/plain
+Message-Id: <1081365374.11164.24.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 07 Apr 2004 14:16:15 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I like the idea of capping max commands based on the number of arrays. One problem is that we can add or remove a logical drive during runtime. How would Linux handle us reshuffling the max commands for each queue?
+On Wed, 2004-04-07 at 12:35, Martin Rode wrote:
+> 5) cp fails
+> apu:/home/martin/tmp/bug# (cd alpha/beta; cp ../latest/myfile .)
+> cp: cannot stat `../latest/myfile': No such file or directory
 
-mikem
+When you cd to alpha/beta, your current directory is really
+.../tmp/bug/beta.  Your shell may remember that you got there through
+the symlink in alpha, but cp will follow .., which is really bug.
 
------Original Message-----
-From: Jeff Garzik [mailto:jgarzik@pobox.com]
-Sent: Wednesday, April 07, 2004 11:34 AM
-To: Miller, Mike (OS Dev)
-Cc: alpm@odsl.org; axboe@suse.de; linux-kernel@vger.kernel.org
-Subject: Re: cciss updates for 2.6.6xxx [1/2]
-
-
-Miller, Mike (OS Dev) wrote:
-> Yep, you're right. I just regurgitated the same code. I'll pull my head out and try again :(
-
-
-The easiest thing to do may be to take your patch #1, and then add code 
-to clamp the per-queue outstanding-command (tag) depth to
-	1024 / n_arrays_found
-
-at initialization time.  Or perhaps s/n_arrays_found/max_arrays_per_hba/
-
-I bet that's just a few additional lines of code, and should work...
-
-Regards,
-
-	Jeff
-
-
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286646AbRLVCuH>; Fri, 21 Dec 2001 21:50:07 -0500
+	id <S286638AbRLVCn4>; Fri, 21 Dec 2001 21:43:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286647AbRLVCt4>; Fri, 21 Dec 2001 21:49:56 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:8089 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S286646AbRLVCtm>;
-	Fri, 21 Dec 2001 21:49:42 -0500
-Date: Fri, 21 Dec 2001 18:49:01 -0800 (PST)
-Message-Id: <20011221.184901.66657527.davem@redhat.com>
-To: seandarcy@hotmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 build fails at network.o
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <F236jsdO0S5MVdnE0bN0000a020@hotmail.com>
-In-Reply-To: <F236jsdO0S5MVdnE0bN0000a020@hotmail.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S286640AbRLVCnr>; Fri, 21 Dec 2001 21:43:47 -0500
+Received: from f236.law8.hotmail.com ([216.33.241.236]:21266 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S286638AbRLVCn1>;
+	Fri, 21 Dec 2001 21:43:27 -0500
+X-Originating-IP: [24.45.107.83]
+From: "se d" <seandarcy@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17 build fails at network.o
+Date: Fri, 21 Dec 2001 21:43:21 -0500
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+Message-ID: <F236jsdO0S5MVdnE0bN0000a020@hotmail.com>
+X-OriginalArrivalTime: 22 Dec 2001 02:43:21.0705 (UTC) FILETIME=[6B887D90:01C18A92]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This should fix it:
+I'm trying to build 2.4.17. It fails as follows:
 
---- net/sunrpc/sched.c.~1~	Fri Oct 12 18:47:31 2001
-+++ net/sunrpc/sched.c	Fri Dec 21 18:48:09 2001
-@@ -21,6 +21,7 @@
- #include <linux/spinlock.h>
- 
- #include <linux/sunrpc/clnt.h>
-+#include <linux/sunrpc/xprt.h>
- 
- #ifdef RPC_DEBUG
- #define RPCDBG_FACILITY		RPCDBG_SCHED
+
+make[1]: Leaving directory `/opt/kernel/linux-2.4.17/arch/i386/lib'
+ld -m elf_i386 -T /opt/kernel/linux-2.4.17/arch/i386/vmlinux.lds -e stext 
+arch/i386/kernel/head.o arch/i386/kernel/init_tas
+k.o init/main.o init/version.o \
+	--start-group \
+	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o 
+ipc/ipc.o \
+	 drivers/char/char.o drivers/block/block.o drivers/misc/misc.o 
+drivers/net/net.o drivers/media/media.o drivers/char
+/agp/agp.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o 
+drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/d
+river.o drivers/pnp/pnp.o drivers/video/video.o drivers/md/mddev.o \
+	net/network.o \
+	/opt/kernel/linux-2.4.17/arch/i386/lib/lib.a 
+/opt/kernel/linux-2.4.17/lib/lib.a /opt/kernel/linux-2.4.17/arch/i386/
+lib/lib.a \
+	--end-group \
+	-o vmlinux
+net/network.o: In function `__rpc_schedule':
+net/network.o(.text+0x49a0d): undefined reference to `rpciod_tcp_dispatcher'
+make: *** [vmlinux] Error 1
+
+
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
+

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261928AbTCaXts>; Mon, 31 Mar 2003 18:49:48 -0500
+	id <S261937AbTCaXrh>; Mon, 31 Mar 2003 18:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261941AbTCaXts>; Mon, 31 Mar 2003 18:49:48 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:62954 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S261928AbTCaXtq>;
-	Mon, 31 Mar 2003 18:49:46 -0500
-To: linux-kernel@vger.kernel.org
-References: <7C078C66B7752B438B88E11E5E20E72E0EF78D@GENERAL.farsite.co.uk>
-Subject: Generic HDLC update for 2.4.21-pre6, 2.4.21pre5-ac3, 2.5.66
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 01 Apr 2003 02:00:41 +0200
-Message-ID: <m3istzf5na.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	id <S261941AbTCaXrh>; Mon, 31 Mar 2003 18:47:37 -0500
+Received: from inet-mail2.oracle.com ([148.87.2.202]:12938 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S261937AbTCaXrf>; Mon, 31 Mar 2003 18:47:35 -0500
+Date: Mon, 31 Mar 2003 15:55:44 -0800
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 64-bit kdev_t - just for playing
+Message-ID: <20030331235544.GS32000@ca-server1.us.oracle.com>
+References: <200303311541.50200.pbadari@us.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303311541.50200.pbadari@us.ibm.com>
+X-Burt-Line: Trees are cool.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Mar 31, 2003 at 03:41:50PM -0800, Badari Pulavarty wrote:
+> I have been playing with supporting 4000 disks on IA32 machines.
+> There are bunch of issues we need to resolve before we could
+> do that.
 
-Kevin Curtis <kevin.curtis@farsite.co.uk> writes:
+	That's the conversation I'm trying to kickstart.
 
-> Hi Marcelo,
-> 	what about the Generic HDLC patch?   Please please please can we
-> have it in 2.4.21?  I am sure others would like to see it there too.
+> I am using scsi_debug to simulate 4000 disks. (Ofcourse, I had
+> to hack "sd" to support more than 256 disks). Anyway, I noticed
+> that I lost almost 350MB of my lowmem, when I simulated 4000 disks.
+> We are working on most of these. But there are userlevel issues
+> to be resolved. Here is the list ...
 
-I've put the updated HDLC patch (against 2.4.21pre6) in:
-ftp://ftp.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.4.21pre6.patch.gz
+	Wow, this is cool.  Thanks for telling me about this.
 
-against 2.4.21-pre5-ac3:
-ftp://ftp.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.4.21pre5-ac3.patch.gz
+> I have not done any IO on these yet. When I mount all of these and do
+> IO on them, we might see new issues. So with all these, I will be doubtful
+> if we can ever reach 16k disks on IA32.
 
-against 2.5.66 (this is, of course, a little different):
-ftp://ftp.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.5.66.patch.gz
+	We're going to have to find a way.  IA32 is going to be around
+for long enough, I think.  Easily 8k disks, as soon as the folks who are
+doing 4k disks today want to multipath.
 
-Tested on all hardware I've access to (C101 and N2) on 2.4 and 2.5 kernels.
+Joel
 
-No much changes from previous release (the one in Alan's 2.4 tree): my (low
-level) drivers have now smaller TX packet rings to decrease TX latency for
-high priority packets (LMI etc), and there is only one RAM-sizing routine
-for both cards (as well as for drivers not included in the official tree).
-
-The code has been cleaned a bit.
-kmalloc(GFP_KERNEL) in interrupt context has been fixed.
-Some __init etc fixes.
-No ABI/API changes.
-
-Marcelo, please apply to 2.4.21-pre6,
-Alan, please apply to 2.4.21-pre5-ac3,
-Linus, please apply to 2.5.66.
-
-Thanks.
 -- 
-Krzysztof Halasa
-Network Administrator
+
+Life's Little Instruction Book #226
+
+	"When someone hugs you, let them be the first to let go."
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

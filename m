@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316600AbSGBEEv>; Tue, 2 Jul 2002 00:04:51 -0400
+	id <S316606AbSGBEKq>; Tue, 2 Jul 2002 00:10:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316606AbSGBEEu>; Tue, 2 Jul 2002 00:04:50 -0400
-Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:26581 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S316600AbSGBEEu>;
-	Tue, 2 Jul 2002 00:04:50 -0400
-Date: Tue, 2 Jul 2002 01:11:56 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RE2: [OKS] Module removal
-Message-ID: <20020702011156.E2295@almesberger.net>
-References: <20020702001152.D2295@almesberger.net> <31775.1025581336@kao2.melbourne.sgi.com>
+	id <S316604AbSGBEKp>; Tue, 2 Jul 2002 00:10:45 -0400
+Received: from starcraft.mweb.co.za ([196.2.45.78]:63914 "EHLO
+	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S316606AbSGBEKo>; Tue, 2 Jul 2002 00:10:44 -0400
+Subject: Re: EXT3 errors
+From: Bongani <bonganilinux@mweb.co.za>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D20CBD7.BC184F53@zip.com.au>
+References: <1025551456.1587.2.camel@localhost.localdomain> 
+	<3D20CBD7.BC184F53@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8-1mdk 
+Date: 02 Jul 2002 06:15:40 +0200
+Message-Id: <1025583346.3267.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <31775.1025581336@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Jul 02, 2002 at 01:42:16PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> Incrementing the use count at registration time is no good, it stops
-> the module being unloaded.  Operations are deregistered at rmmod time.
-> Setting the use count at registration prevents rmmod from removing the
-> module, so you cannot deregister the operations.  Catch 22.
+On Mon, 2002-07-01 at 23:38, Andrew Morton wrote:
+> Bongani wrote:
+> > 
+> > Hi
+> > 
+> > Does anyone what cause's these message. I have a 41M messages file
+> > because of the.
+> > 
+> > Jul  1 04:02:14 localhost kernel: EXT3-fs error (device ide0(3,70)):
+> > ext3_new_block: Allocating block in system zone - block = 32802
+> 
+> Your filesystem is wrecked.  Did you get some I/O errors?
+ 
+I found these from the day before
 
-But those references go through the module exit function, which
-acts like an implicit reference counter. So as long as
+Jun 30 12:31:00 localhost kernel: hdb: dma_intr: status=0x51 {DriveReady
+SeekComplete Error }
+Jun 30 12:31:00 localhost kernel: hdb: dma_intr: error=0x84
+{DriveStatusError BadCRC }
 
- - module exit de-registers all of them (if it doesn't, we're
-   screwed anyhow), and
- - the registry itself isn't racy (if it is, this is likely to
-   surface in other circumstances too, e.g. if a driver destroys
-   internal state immediately after de-registration)
 
-they should be safe, shouldn't they ?
+> 
+> You need to unmount it, run `e2fsck -f' and fix it up.
+>
 
-- Werner
+I have done that already
 
-P.S. mail.ocs.com.au thinks I'm a spammer :-(
+Thank you
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://icapeople.epfl.ch/almesber/_____________________________________/
+

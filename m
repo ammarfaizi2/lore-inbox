@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbTEDVKr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 17:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTEDVKr
+	id S261741AbTEDVK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 17:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbTEDVK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 17:10:47 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58843 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261743AbTEDVKl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 17:10:41 -0400
-Date: Sun, 04 May 2003 13:15:58 -0700 (PDT)
-Message-Id: <20030504.131558.27788112.davem@redhat.com>
-To: hch@lst.de
-Cc: trond.myklebust@fys.uio.no, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030504230010.A12753@lst.de>
-References: <16053.25445.434038.90945@charged.uio.no>
-	<1052075166.27465.12.camel@rth.ninka.net>
-	<20030504230010.A12753@lst.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Sun, 4 May 2003 17:10:29 -0400
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:13319 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id S261741AbTEDVK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 17:10:28 -0400
+Date: Sun, 4 May 2003 16:22:56 -0500
+From: Art Haas <ahaas@airmail.net>
+To: linux-kernel@vger.kernel.org
+Subject: Latest GCC-3.3 is much quieter about sign/unsigned comparisons
+Message-ID: <20030504212256.GE24907@debian>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@lst.de>
-   Date: Sun, 4 May 2003 23:00:11 +0200
-   
-   Oh well, what about something like the following?
- ...   
-   +	 */
-   +	if (!try_module_get(THIS_MODULE))
-   +		return -EBUSY;
+Hi.
 
-Ahem... Why don't we just do this right? :-)
+This change ...
 
-By this I mean provide some real registry thing in the
-main kernel image that we can use to do try_module_get()
-outside of the sunrpc module?
+2003-05-02  Zack Weinberg  <zack@codesourcery.com>
 
-The other option is the make more progress in the area of
-two-stage module unload, and allowing cleanup() to return
-whether the module is unloadable or not.  This is being
-discussed on netdev so that we have some way to make ipv6
-modules work sanely (instead of putting try_module_get() in
-every other line, that simply isn't acceptable).
+	PR c/10604
+	* c-opts.c (c_common_decode_option <OPT_Wall>): Set
+	warn_sign_compare for C++ only.
+	* doc/invoke.texi: Clarify documentation of -Wsign-compare.
 
-The situation in rxrpc looks worse btw...
+... has eliminated all the warnings that GCC-3.3 by default printed
+with regards to signed/unsigned comparisons. A build of today's BK
+with this compiler is much quieter than those previously done
+with the 3.3 snapshots.
+
+Art Haas
+-- 
+To announce that there must be no criticism of the President, or that we
+are to stand by the President, right or wrong, is not only unpatriotic
+and servile, but is morally treasonable to the American public.
+ -- Theodore Roosevelt, Kansas City Star, 1918

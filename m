@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280986AbRKLUnJ>; Mon, 12 Nov 2001 15:43:09 -0500
+	id <S280991AbRKLUpt>; Mon, 12 Nov 2001 15:45:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280988AbRKLUm5>; Mon, 12 Nov 2001 15:42:57 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:50960 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S280982AbRKLUmO>; Mon, 12 Nov 2001 15:42:14 -0500
-Message-ID: <3BF03402.87D44589@zip.com.au>
-Date: Mon, 12 Nov 2001 12:41:38 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Steve Lord <lord@sgi.com>
-CC: Ben Israel <ben@genesis-one.com>, linux-kernel@vger.kernel.org
-Subject: Re: File System Performance
-In-Reply-To: <3BF02702.34C21E75@zip.com.au>,
-		<00b201c16b81$9d7aaba0$5101a8c0@pbc.adelphia.net>
-		<3BEFF9D1.3CC01AB3@zip.com.au>
-		<00da01c16ba2$96aeda00$5101a8c0@pbc.adelphia.net> 
-		<3BF02702.34C21E75@zip.com.au> <1005595583.13307.5.camel@jen.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii
+	id <S280992AbRKLUpg>; Mon, 12 Nov 2001 15:45:36 -0500
+Received: from zero.tech9.net ([209.61.188.187]:46866 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S280991AbRKLUpD>;
+	Mon, 12 Nov 2001 15:45:03 -0500
+Subject: Re: 2.4.15-pre4 compile problem
+From: Robert Love <rml@tech9.net>
+To: slomosnail@gmx.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011112203335Z280980-17408+13686@vger.kernel.org>
+In-Reply-To: <200111121939.fACJdX309798@danapple.com> 
+	<20011112203335Z280980-17408+13686@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.11.08.57 (Preview Release)
+Date: 12 Nov 2001 15:45:05 -0500
+Message-Id: <1005597905.814.0.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Lord wrote:
-> 
-> ...
-> This all works OK when the filesystem is not bursting at the seams,
-> and when there is some correspondence between logical block numbers
-> in the filesystem and physical drives underneath. I believe that once
-> you get into complex filesystems using raid devices and smart caching
-> drives it gets very hard for the filesystem to predict anything
-> about latency of access for two blocks which it things are next
-> to each other in the filesystem.
-> 
+On Mon, 2001-11-12 at 15:34, Slo Mo Snail wrote:
+> I have exactly the same problem...
+> Strange, that nobody else has reported it, yet ;)
+> I use gcc-2.95.3 and binutils 2.11.92.0.7 on a LFS
+> I'll send you my .config but I don't think it's a config-specific problem
 
-Well, file systems have for all time made efforts to write things
-out contiguously.  If an IO system were to come along and deoptimise
-that case it'd be pretty broken?
-  
-> ...
-> 
-> There is a lot of difference between doing a raw read of data from
-> the device, and copying a large directory tree. The raw read is
-> purely sequential, the tree copy is basically random access since
-> the kernel is being asked to read and then write a lot of small
-> chunks of disk space.
+The patch below will solve the problem ...
 
-hum. Yes.  Copying a tree from and to the same disk won't
-achieve disk bandwidth.  If they're different disks then
-ext2+Orlov will actually get there.
+diff -u linux-2.4.15-pre4/include/asm-i386/processor.h linux/include/asm-i386/processor.h 
+--- linux-2.4.15-pre4/include/asm-i386/processor.h	Mon Nov 12 15:17:47 2001+++ linux/include/asm-i386/processor.h	Mon Nov 12 15:40:32 2001
+@@ -76,7 +76,7 @@
+ extern struct cpuinfo_x86 cpu_data[];
+ #define current_cpu_data cpu_data[smp_processor_id()]
+ #else
+-#define cpu_data &boot_cpu_data
++#define cpu_data (&boot_cpu_data)
+ #define current_cpu_data boot_cpu_data
+ #endif
+ 
+	Robert Love
 
-We in fact do extremely well on IDE with Orlov for this workload,
-even though we're not doing inter-inode readahead.  This will be because
-the disk is doing the readhead for us.   It's going to be highly dependent
-upon the disk cache size, readahead cache partitioning algorithm, etc.
-
-BTW, I've been trying to hunt down a suitable file system aging tool.
-We're not very happy with Keith Smith's workload because the directory
-infomation was lost (he was purely studying FFS algorithmic differences
-- the load isn't 100% suitable for testing other filesystems / algorithms).  Constantin Loizides' tools are proving to be rather complex to compile,
-drive and understand.  Does the XFS team have anything like this in the
-kitbag?
-
--

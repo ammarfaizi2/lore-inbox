@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318904AbSHMB5G>; Mon, 12 Aug 2002 21:57:06 -0400
+	id <S318908AbSHMCN0>; Mon, 12 Aug 2002 22:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318905AbSHMB5G>; Mon, 12 Aug 2002 21:57:06 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:1765 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S318904AbSHMB5F>;
-	Mon, 12 Aug 2002 21:57:05 -0400
-Date: Mon, 12 Aug 2002 19:00:34 -0700
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Jeff Garzik <jgarzik@mandrakesoft.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: [PATCH 2.4] : ir240_usb_fix_greg.diff
-Message-ID: <20020813020034.GA21029@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S318911AbSHMCN0>; Mon, 12 Aug 2002 22:13:26 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:32783 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S318908AbSHMCN0>;
+	Mon, 12 Aug 2002 22:13:26 -0400
+Date: Tue, 13 Aug 2002 03:17:10 +0100 (IST)
+From: Mel <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.20-pre2
+In-Reply-To: <Pine.LNX.4.44.0208121943150.3382-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.44.0208130314410.1171-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Mon, 12 Aug 2002, Marcelo Tosatti wrote:
 
-	You probably saw this one comming from multiple source. If
-not, there it is.
-	Greg : next time, please try to compile. I don't ask any
-testing, because I know you can't do that, but there is little excuses
-for compilation errors. Yeah, it may add a few seconds to your kernel
-compile time.
+> Here goes -pre2.
+>
 
-	Jean
+I am sending you five patches, all documentation and comments related.
+I've posted them to the lkml list already so I won't repost. For
+interested parties, they are at http://www.csn.ul.ie/~mel/projects/vm/ and
+all against 2.4.20pre2
 
+-- 
+Mel Gorman
+MSc Student, University of Limerick
+http://www.csn.ul.ie/~mel
 
-diff -u -p linux/drivers/net/irda/irda-usb.d8.c linux/drivers/net/irda/irda-usb.c
---- linux/drivers/net/irda/irda-usb.d8.c	Mon Aug 12 18:36:29 2002
-+++ linux/drivers/net/irda/irda-usb.c	Mon Aug 12 18:39:44 2002
-@@ -248,7 +248,7 @@ static void irda_usb_change_speed_xbofs(
- {
- 	unsigned long flags;
- 	__u8 *frame;
--	struct urb *urb;
-+	struct urb *purb;
- 	int ret;
- 
- 	IRDA_DEBUG(2, __FUNCTION__ "(), speed=%d, xbofs=%d\n",

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274960AbTHAWQs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 18:16:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274962AbTHAWQs
+	id S274967AbTHAWSI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 18:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274965AbTHAWSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 18:16:48 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:36362 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S274960AbTHAWQb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 18:16:31 -0400
-Date: Sat, 2 Aug 2003 00:16:27 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1/2: keyboard funnies in textmode
-Message-ID: <20030801221627.GA3397@win.tue.nl>
-References: <1059747945.2809.2.camel@paragon.slim> <20030801145223.GA3308@win.tue.nl> <1059752011.2691.13.camel@paragon.slim> <20030801163759.GA3343@win.tue.nl> <1059760564.3404.9.camel@paragon.slim>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059760564.3404.9.camel@paragon.slim>
-User-Agent: Mutt/1.3.25i
+	Fri, 1 Aug 2003 18:18:03 -0400
+Received: from law11-oe34.law11.hotmail.com ([64.4.16.91]:8461 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S274962AbTHAWQ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 18:16:59 -0400
+X-Originating-IP: [165.98.111.210]
+X-Originating-Email: [bmeneses_beltran@hotmail.com]
+From: "Viaris" <bmeneses_beltran@hotmail.com>
+To: "Sam Ravnborg" <sam@ravnborg.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <Law11-OE70LwHc9ny7B0000e8d4@hotmail.com> <20030801211300.GA15146@mars.ravnborg.org>
+Subject: Re: problems compiling kernel 2.5.75
+Date: Fri, 1 Aug 2003 16:16:57 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <Law11-OE34oyNgDSSyu0000e9f6@hotmail.com>
+X-OriginalArrivalTime: 01 Aug 2003 22:16:58.0625 (UTC) FILETIME=[9FC50710:01C3587A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 01, 2003 at 07:56:04PM +0200, Jurgen Kramer wrote:
+Ok,  I comliled again, I put the bzImage in /boot, generate the image with
+mkintrd, now when I enter with the new kernel, I have this message: kernel
+Panic: No init found , Try passing init= option to kernel.
 
-> PC 2.4 showkey:
-> keycode  43 release
-> keycode  43 press
-> 
-> PC 2.6 showkey:
-> keycode  84 press
-> keycode  84 release
+How can I do it?
 
-Funny indeed.
+Thanks
 
-The USB standards define USB code 49 for the US \| key,
-USB code 50 for the non-US \| key (French mu, etc),
-and USB code 137 for the Japanese Yen |.
-So, you should get one of these.
+----- Original Message -----
+From: "Sam Ravnborg" <sam@ravnborg.org>
+To: "Viaris" <bmeneses_beltran@hotmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Friday, August 01, 2003 3:13 PM
+Subject: Re: problems compiling kernel 2.5.75
 
-This USB code is translated to a Linux keycode in
-usb_kbd_keycode[] in usbkbd.c.
-The three possible translations are 43, 84, 183.
 
-Maybe you can check for yourself (e.g. with a printk in usbkbd.c)
-that you really get different USB codes from that keyboard under
-2.4 and 2.6?
-
-Maybe the code one gets depends on the initialization of the keyboard.
-
+> On Fri, Aug 01, 2003 at 02:51:32PM -0600, Viaris wrote:
+> > Hi all, I ma compiling kernel version 2.5.75, but I have the folloienw
+> > error:
+> >
+> > drivers/built-in.o(.text+0x1d41e): In function `pc_close':
+> > : undefined reference to `save_flags'
+> Try to disbale SMP (do you need it)?
+>
+> Sam
+>

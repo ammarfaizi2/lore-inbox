@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271574AbRHUGxd>; Tue, 21 Aug 2001 02:53:33 -0400
+	id <S271577AbRHUGzN>; Tue, 21 Aug 2001 02:55:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271578AbRHUGxW>; Tue, 21 Aug 2001 02:53:22 -0400
-Received: from rj.SGI.COM ([204.94.215.100]:4559 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S271574AbRHUGxL>;
-	Tue, 21 Aug 2001 02:53:11 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Richard Henderson <rth@twiddle.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] /proc/ksyms change for IA64 
-In-Reply-To: Your message of "Sat, 18 Aug 2001 18:27:56 MST."
-             <20010818182756.A29533@twiddle.net> 
+	id <S271578AbRHUGzD>; Tue, 21 Aug 2001 02:55:03 -0400
+Received: from albatross-ext.wise.edt.ericsson.se ([194.237.142.116]:53501
+	"EHLO albatross-ext.wise.edt.ericsson.se") by vger.kernel.org
+	with ESMTP id <S271577AbRHUGy5>; Tue, 21 Aug 2001 02:54:57 -0400
+Date: Tue, 21 Aug 2001 08:55:02 +0200
+From: Istvan Varadi <istvan.varadi@eth.ericsson.se>
+To: linux-kernel@vger.kernel.org, mnalis-umsdos@voyager.hr
+Cc: torvalds@transmeta.com
+Subject: [PATCH] umsdos, kernel 2.4.9
+Message-ID: <20010821085501.A10721@duna48.eth.ericsson.se>
+Reply-To: ivaradi@freemail.c3.hu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 21 Aug 2001 16:53:20 +1000
-Message-ID: <31011.998376800@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Aug 2001 18:27:56 -0700, 
-Richard Henderson <rth@twiddle.net> wrote:
->On Thu, Aug 02, 2001 at 01:22:40PM +1000, Keith Owens wrote:
->> Using BFD is the only way I can handle all
->> the relocation types, especially in cross compile mode.
->
->What the hell?  You've got everything you need right there in 
->the obj subdirectory.  Please don't bring libbfd back to life
->in modutils.
+Hello,
 
-Cross compile mode.  Nothing in modutils works unless it is running on
-the machine it was compiled for.  As more modutil functions get pushed
-back into kbuild time, this is getting to be a problem.  I could do all
-my own code for endianess and size differences between host and target,
-but why bother when bfd already does it for me?
+I noticed, that sometimes the EMD file (--linux-.---) does not contain
+the full name of the files in the directores, which results in file
+not found errors. It happens, e.g. when extracting the HTML version of
+the PHP manual (http://www.php.net/manual/en/manual.tar.gz).
 
+The problem occurs when a directory entry crosses a page boundary.
+The contents of the second page are copied from the wrong starting
+address. The patch below solves this problem.
+
+Istvan
+
+diff -ruN linux-2.4.9.orig/fs/umsdos/emd.c linux-2.4.9/fs/umsdos/emd.c
+--- linux-2.4.9.orig/fs/umsdos/emd.c	Sun Aug 19 10:31:51 2001
++++ linux-2.4.9/fs/umsdos/emd.c	Sun Aug 19 10:43:15 2001
+@@ -259,10 +259,10 @@
+ 		p->ctime = cpu_to_le32(entry->ctime);
+ 		p->rdev = cpu_to_le16(entry->rdev);
+ 		p->mode = cpu_to_le16(entry->mode);
+-		memcpy(p->name,entry->name,
++		memcpy(p->spare,entry->spare,
+ 			(char *)(page_address(page) + PAGE_CACHE_SIZE) - p->spare);
+ 		memcpy(page_address(page2),
+-				entry->spare+PAGE_CACHE_SIZE-offs,
++				((char*)entry)+PAGE_CACHE_SIZE-offs,
+ 				offs+info->recsize-PAGE_CACHE_SIZE);
+ 		ret = mapping->a_ops->commit_write(NULL,page2,0,
+ 					offs+info->recsize-PAGE_CACHE_SIZE);

@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbTEIDaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 23:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbTEIDaZ
+	id S262283AbTEIDgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 23:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbTEIDgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 23:30:25 -0400
-Received: from filesrv1.system-techniques.com ([199.33.245.55]:3456 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S262282AbTEIDaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 23:30:24 -0400
-Date: Thu, 8 May 2003 23:43:02 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Driver ordering from boot: or lilo.conf 
-In-Reply-To: <Pine.LNX.4.55L.0305082213420.9139@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.55.0305082336120.306@filesrv1.baby-dragons.com>
-References: <Pine.LNX.4.55L.0305082213420.9139@freak.distro.conectiva>
+	Thu, 8 May 2003 23:36:25 -0400
+Received: from clavin.cs.tamu.edu ([128.194.130.106]:27863 "EHLO cs.tamu.edu")
+	by vger.kernel.org with ESMTP id S262283AbTEIDgY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 23:36:24 -0400
+Date: Thu, 8 May 2003 22:49:01 -0500 (CDT)
+From: Xinwen Fu <xinwenfu@cs.tamu.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: linksys workgroup switch works like a hub
+Message-ID: <Pine.GSO.4.44.0305082240450.16315-100000@unix.cs.tamu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello All ,  I am having a difficulty with the dpt_120 driver &
-	the sym2-53c8xx driver .  I have just placed a Adaptec 2010s raid
-	controller in my system & it now wants to take device 0800 away
-	from the sym2 driver at boot time .  ALL drivers are statically
-	built into the kernel .  Is there a way at either of the methods
-	stated in the subjec to get the order back so that I have my real
-	root file system back on 0800 ?  Tia ,  JimL
--- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+It is really weird!
+
+Host_10.1--->10.254_router_1.254--->Linksys 5-port workgroup switch-->Host1.1
+                                       |               |
+                                       |               |
+                                       v               v
+                                    Host_1.10        Host_1.5
+
+Host_10.1 sends 1000 packets/s (pps) to Host_1.10. Host_1.10 receives the
+packets. But Host_1.5 receives the packets too, while Host_1.1 does not
+(by tcpdump -i any).
+
+	What is the possible reason?
+
+	Thanks!
+Xinwen Fu
+
+

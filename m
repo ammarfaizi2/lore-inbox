@@ -1,81 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262289AbSKHTef>; Fri, 8 Nov 2002 14:34:35 -0500
+	id <S262266AbSKHTbC>; Fri, 8 Nov 2002 14:31:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262298AbSKHTef>; Fri, 8 Nov 2002 14:34:35 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:14464 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262289AbSKHTee>; Fri, 8 Nov 2002 14:34:34 -0500
-Date: Fri, 8 Nov 2002 14:41:36 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Douglas Gilbert <dougg@torque.net>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
-In-Reply-To: <Pine.LNX.4.33L2.0211081118250.32726-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.3.95.1021108143738.1000A-100000@chaos.analogic.com>
+	id <S262276AbSKHTbC>; Fri, 8 Nov 2002 14:31:02 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48652 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262266AbSKHTbB>; Fri, 8 Nov 2002 14:31:01 -0500
+Message-ID: <3DCC126F.6020507@zytor.com>
+Date: Fri, 08 Nov 2002 11:37:19 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Evms-announce] EVMS announcement
+References: <02110516191004.07074@boiler>	<20021106001607.GJ27832@marowsky-bree.de>	<103	 6590957.9803.24.camel@irongate.swansea.linux.org.uk>	<aqbv2d$tvd$1@cesium.transmeta.com>	<1036617718.9781.73.camel@irongate.swansea.linux.org.uk> 	<3DC9909A.6040905@zytor.com> <1036778770.16651.70.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Nov 2002, Randy.Dunlap wrote:
+Alan Cox wrote:
+> On Wed, 2002-11-06 at 21:58, H. Peter Anvin wrote:
+> 
+>>>ataraid is just driving dumb ide controllers in the way bios raid does
+>>
+>>I guess I meant it as a more general question than those specific devices.
+>
+> Our current software MD driver doesn't support doing that in hardware.
+> It has the neccessary infrastructure to consider using hardware xor
+> engines but I doubt its every actually more efficient to do so on low
+> end devices. 
 
-> On Sat, 9 Nov 2002, Douglas Gilbert wrote:
-> 
-> | In lk 2.5.46-bk3 the expression in the subject line
-> | fails to write into "i" and returns 0. Drop the minus
-> | sign and it works.
-> 
-> Here's an unobstrusive patch to correct that.
-> Please apply.
-> 
-> -- 
-> ~Randy
-> 
-> 
-> 
-> --- ./lib/vsprintf.c%signed	Mon Nov  4 14:30:49 2002
-> +++ ./lib/vsprintf.c	Fri Nov  8 11:20:03 2002
-> @@ -517,6 +517,7 @@
->  {
->  	const char *str = buf;
->  	char *next;
-> +	char *dig;
->  	int num = 0;
->  	int qualifier;
->  	int base;
-> @@ -638,12 +639,13 @@
->  		while (isspace(*str))
->  			str++;
-> 
-> -		if (!*str
-> -                    || (base == 16 && !isxdigit(*str))
-> -                    || (base == 10 && !isdigit(*str))
-> -                    || (base == 8 && (!isdigit(*str) || *str > '7'))
-> -                    || (base == 0 && !isdigit(*str)))
-> -			break;
-> +		dig = (*str == '-') ? (str + 1) : str;
-> +		if (!*dig
-> +                    || (base == 16 && !isxdigit(*dig))
-> +                    || (base == 10 && !isdigit(*dig))
-> +                    || (base == 8 && (!isdigit(*dig) || *dig > '7'))
-> +                    || (base == 0 && !isdigit(*dig)))
-> +				break;
-> 
->  		switch(qualifier) {
->  		case 'h':
-> 
-> -
+Probably not.  The only case where I can imagine it helps is when you
+get to push less data across the bus.
 
-I was thinking that if anybody ever had to change any of this
-stuff, it might be a good idea to do the indirection only once?
-All those "splats" over and over again are costly.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
+	-hpa
 

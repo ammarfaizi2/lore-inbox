@@ -1,39 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbSJLUJV>; Sat, 12 Oct 2002 16:09:21 -0400
+	id <S261344AbSJLUOo>; Sat, 12 Oct 2002 16:14:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261344AbSJLUJV>; Sat, 12 Oct 2002 16:09:21 -0400
-Received: from are.twiddle.net ([64.81.246.98]:31919 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S261342AbSJLUJU>;
-	Sat, 12 Oct 2002 16:09:20 -0400
-Date: Sat, 12 Oct 2002 13:15:01 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: anton@samba.org, wli@holomorphy.com, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [lart] /bin/ps output
-Message-ID: <20021012131501.C25740@twiddle.net>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>, anton@samba.org,
-	wli@holomorphy.com, haveblue@us.ibm.com,
-	linux-kernel@vger.kernel.org
-References: <20021012035141.GC7050@krispykreme> <20021012035958.GD10722@holomorphy.com> <20021012040959.GE7050@krispykreme> <20021011.235329.116353173.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021011.235329.116353173.davem@redhat.com>; from davem@redhat.com on Fri, Oct 11, 2002 at 11:53:29PM -0700
+	id <S261345AbSJLUOo>; Sat, 12 Oct 2002 16:14:44 -0400
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:5944 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S261344AbSJLUOn>;
+	Sat, 12 Oct 2002 16:14:43 -0400
+From: <Hell.Surfers@cwctv.net>
+To: babydr@baby-dragons.com, linux-kernel@vger.kernel.org
+Date: Sat, 12 Oct 2002 21:19:52 +0100
+Subject: RE:OT: DVD-* owners be warned .  Please see inside .
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1034453992948"
+Message-ID: <029282918200ca2DTVMAIL2@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 11, 2002 at 11:53:29PM -0700, David S. Miller wrote:
-> In fact, thinking about this some more, we should make the ".per_cpu"
-> bits emit a table entry instead of some dummy object which takes up
-> space.  The table entry would be in the special .per_cpu
-> section still but be just a size value.
 
-That's more complicated.  Using the linker to help out with
-layout is definitely helpful.  If you want to omit the per-cpu
-area from the kernel image, then arrange for it to be .bss.
+--1034453992948
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+just thought you could burn unencrypted ones, I do miss the point though.
+
+Cheers, Dean.
+
+On Thu, 10 Oct 2002 12:02:54 -0400 (EDT) "Mr. James W. Laferriere" <babydr@baby-dragons.com> wrote:
+
+--1034453992948
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Received: from filesrv1.baby-dragons.com ([199.33.245.254]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Thu, 10 Oct 2002 17:01:24 +0100
+Received: from localhost (babydr@localhost)
+	by filesrv1.baby-dragons.com (8.11.4/8.11.4) with ESMTP id g9AG2sP07085;
+	Thu, 10 Oct 2002 12:02:54 -0400
+Date: Thu, 10 Oct 2002 12:02:54 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Hell.Surfers@cwctv.net
+cc: linux-kernel@vger.kernel.org
+Subject: RE:OT: DVD-* owners be warned .  Please see inside .
+In-Reply-To: <022ca3927150aa2DTVMAIL8@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44.0210101148410.6947-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44.0210101148412.6947@filesrv1.baby-dragons.com>
+Return-Path: babydr@baby-dragons.com
 
 
-r~
+	Hello Dean ,  Thank you for the other pointer (vob) .  But did you
+	read that pdf ?  There is a differance between de-/code &
+	physically differant laser technology being put to use .  The
+	Panasonic DVR-S201 uses a differant laser frequency .  So they
+	(may?) have taken this one more step .  Twyl ,  JimL
+
+On Thu, 10 Oct 2002 Hell.Surfers@cwctv.net wrote:
+> oh no! now people will have to use decss and vob, what a hardship. [8)]
+> Cheers, Dean.
+> On 	Thu, 10 Oct 2002 09:57:38 -0400 (EDT) 	"Mr. James W. Laferriere"
+> <babydr@baby-dragons.com> wrote:
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
+
+--1034453992948--
+
+

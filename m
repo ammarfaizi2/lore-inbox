@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275320AbTHGNHl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 09:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275314AbTHGNHk
+	id S275335AbTHGNUh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 09:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275336AbTHGNUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 09:07:40 -0400
-Received: from main.gmane.org ([80.91.224.249]:49584 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S275320AbTHGNHj (ORCPT
+	Thu, 7 Aug 2003 09:20:37 -0400
+Received: from au.padl.com ([203.13.32.1]:46602 "EHLO au.padl.com")
+	by vger.kernel.org with ESMTP id S275335AbTHGNUc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 09:07:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Loading Pentium III microcode under Linux - catch 22!
-Date: Thu, 07 Aug 2003 15:04:28 +0200
-Message-ID: <yw1xn0elty8z.fsf@users.sourceforge.net>
-References: <20030807122850.99548.qmail@web40611.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:13wcYJBMtCXvqoCCmTv0is5LA5I=
+	Thu, 7 Aug 2003 09:20:32 -0400
+From: Luke Howard <lukeh@PADL.COM>
+Message-Id: <200308071320.XAA79071@au.padl.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Organization: PADL Software Pty Ltd
+To: Mathias.Froehlich@web.de
+Subject: Re: NPTL v userland v LT (RH9+custom kernel problem)
+Cc: linux-kernel@vger.kernel.org, fcusack@fcusack.com
+Reply-To: lukeh@PADL.COM
+Date: Thu, 7 Aug 2003 23:20:21 +1000
+Versions: dmail (bsd44) 2.4c/makemail 2.9d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Rankin <rankincj@yahoo.com> writes:
 
-> I have an i840 motherboard with a pair of 933 MHz PIII
-> Coppermine CPUs, and I use your microcode driver to
-> load the latest Intel microcode into my CPUs. This is
-> very important because these CPUs are buggy without
-> their microcode, and I would prefer to have the BIOS
-> load it except that this would prevent me from booting
-> into memtest. I have tried this before - memtest
-> crashes with an "Unexpected Interrupt" error after a
-> few minutes. (No i840 workarounds enabled?) Since I
-> suspect that DOS would do the same thing and I would
-> boot into DOS to flash firmware, I have decided that
-> crashes like this would be a Bad Thing.
+Integrating this patch is on my todo list.
 
-If the microcode in the CPUs is buggy, they are faulty and you should
-demand to get them replaced at no cost.
+-- Luke
 
-> In an ideal world, I would like Linux to load the
-> microcode *before* the kernel boots, which begs the
-> question of "How?". Can you suggest anything, please?
-> I remember talk of boot-time RAM disks, and wondered
-> if the microcode could be placed on one of these
-> somehow? Or would that be ruled out immediately by the
-> microcode's non-GPL nature?
-
-I guess it would be possible to compile the microcode into the kernel
-and have some code in arch/i386/* load it as early as possible.  As
-long as you don't distribute the compiled kernel you should be fine
-wrt licensing.
-
--- 
-Måns Rullgård
-mru@users.sf.net
+>From: Mathias =?utf-8?q?Fr=C3=B6hlich?= <Mathias.Froehlich@web.de>
+>Subject: Re: NPTL v userland v LT (RH9+custom kernel problem)
+>To: linux-kernel@vger.kernel.org
+>Cc: fcusack@fcusack.com, Luke Howard <lukeh@padl.com>
+>Date: Thu, 7 Aug 2003 15:06:04 +0200
+>
+>
+>Hi,
+>
+>I think you can try out the nss_ldap rpm at
+>
+>http://na.uni-tuebingen.de/~frohlich/nss_ldap/
+>
+>It is built on RedHat 9.
+>The main target of this rpm is to eliminate the recursive entrance bug of 
+>nss_ldap if the ldap host is not resolved before entering the ldap nss 
+>modules gethostbyname. But there is also some threading cleanup included.
+>
+>I don't know what the real reason of the reported problem is, but it does not 
+>occur since the time i use my patched nss_ldap module.
+>I use both kinds of kernels with redhat 9 vanilla kernel.org and redhat 
+>modified ones.
+>
+> Hope this helps
+>
+>    Mathias FrÃ¶hlich
+>
+>-- 
+>Mathias FrÃ¶hlich, email: Mathias.Froehlich@web.de
+>
+>
 

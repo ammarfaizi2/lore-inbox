@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267849AbTAHTaa>; Wed, 8 Jan 2003 14:30:30 -0500
+	id <S267853AbTAHTdT>; Wed, 8 Jan 2003 14:33:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267850AbTAHTaa>; Wed, 8 Jan 2003 14:30:30 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14094
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267849AbTAHTa3>; Wed, 8 Jan 2003 14:30:29 -0500
-Date: Wed, 8 Jan 2003 11:37:20 -0800 (PST)
-From: Andre Hedrick <andre@pyxtechnologies.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-In-Reply-To: <20030108174827.A28042@ucw.cz>
-Message-ID: <Pine.LNX.4.10.10301081136150.31168-100000@master.linux-ide.org>
+	id <S267854AbTAHTdT>; Wed, 8 Jan 2003 14:33:19 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4738 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S267853AbTAHTdS>; Wed, 8 Jan 2003 14:33:18 -0500
+Date: Wed, 8 Jan 2003 14:44:42 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: tenth post about PCI code, need help
+In-Reply-To: <avhtlu$qr9$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.3.95.1030108143728.31888A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Vojtech Pavlik wrote:
+On 8 Jan 2003, H. Peter Anvin wrote:
 
-> On Tue, Jan 07, 2003 at 02:45:51PM -0800, Andre Hedrick wrote:
-> 
-> > > Andre Hedrick wrote:
-> > > 
-> > > > Please continue to think of TCP checksums as valid for a data transport,
-> > > > you data will be gone soon enough.
-> > > > 
-> > > > Initiator == Controller
-> > > > Target == Disk
-> > > > iSCSI == cable or ribbon
-> > > > 
-> > > > Please turn off the CRC on your disk drive and see if you still have data.
-> > > 
-> > > This maybe works as PR, but otherwise it's crap.
+> Followup to:  <Pine.LNX.3.95.1030108132812.28791A-100000@chaos.analogic.com>
+> By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+> In newsgroup: linux.dev.kernel
 > > 
-> > So, please turn off the CRC's in your onboard storage today and see how
-> > long it lasts.
+> > The problem is that he's discovered something that's not supposed
+> > to be in the code. Only 32-bit accesses are supposed to be made to
+> > the PCI controller ports. He has discovered that somebody has made
+> > some 8-bit accesses that will not become configuration 'transactions'
+> > because they are not 32 bits.
+> > 
 > 
-> 1) Bad comparison.
+> Right.  That's what the code is checking for.
 > 
-> 2) It'd last very very long, because I never get a CRC error anyway.
+> 	-hpa
 
-So turn them off so it never checks, nevermind :-)
+Somebody is very lucky the designer of the bus interface state-machine
+let him get away with it. This is a borderline "insane instruction" that
+could, on some (future?) machine, require a power-off to recover. This is
+NotGood(tm). It's like testing a fuse by shorting out a circuit. If it
+works, the circuit no longer works. If I doesn't, the circuit no longer
+works. Some things should not be tested.
 
---ah
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
 

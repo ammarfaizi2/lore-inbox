@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311614AbSDDU7x>; Thu, 4 Apr 2002 15:59:53 -0500
+	id <S311664AbSDDVBX>; Thu, 4 Apr 2002 16:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311615AbSDDU7n>; Thu, 4 Apr 2002 15:59:43 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:59369 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S311614AbSDDU7f>; Thu, 4 Apr 2002 15:59:35 -0500
-Date: Thu, 4 Apr 2002 22:57:56 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-In-Reply-To: <Pine.LNX.3.95.1020404095833.16825A-100000@chaos.analogic.com>
-Message-ID: <Pine.NEB.4.44.0204042244130.7845-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S311647AbSDDVBP>; Thu, 4 Apr 2002 16:01:15 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36367 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S311618AbSDDVBB>; Thu, 4 Apr 2002 16:01:01 -0500
+Date: Thu, 4 Apr 2002 16:56:22 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Sapan J . Bhatia" <lists@corewars.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] POLL_OUT in ttys, misc bug fix
+In-Reply-To: <20020327032408.A7073@corewars.org>
+Message-ID: <Pine.LNX.4.21.0204041655430.10117-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Apr 2002, Richard B. Johnson wrote:
 
->...
-> I am amazed with the number of "lawyers" we have here. Maybe it's
-> just some semantics or property of translation, but it is not
-> illegal to violate a license.
->
-> The term "illegal" historically refers to laws. Laws are rules
-> enacted by governments.
->
-> A license is permission, granted by a property owner, usually
-> but not always, setting forth the conditions of use.
->...
+Sapan, 
 
-IANAL but my one-and-a-half-years-old copy of German copyright law says
-(very shortened):
+Have you actually tested the SIGIO POLL_OUT changes with an userspace app?
 
-<--  snip  -->
+Thanks
 
-Zu den geschuetzten Werken ... gehoeren insbesondere:
-- ... Computerprogramme
-...
-Wer in anderen als den gesetzlich zugelassenen Faellen ohne Einwilligung
-eines Berechtigten ein Werk oder eine Bearbeitung oder Umgestaltung eines
-Werkes vervielfaeltigt, verbreitet oder oeffentlich wiedergibt, wird mit
-Freiheitsstrafe bis zu drei Jahren oder mit Geldstrafe bestraft.
-...
-Handelt der Taeter ... gewerbsmaessig, so ist die Strafe Freiheitsstrafe
-bis zu fuenf Jahre oder Geldstrafe.
-...
+On Wed, 27 Mar 2002, Sapan J . Bhatia wrote:
 
-<--  snip  -->
-
-A _very rough_ summary (I don't think I can really translate this legal
-text correctly - there are perhaps people on this list who can make a
-real translation) is:
-
-If you copy a computer program in a case where it's not permitted by law
-without the permission of the copyright holder the penalty is a fine or up
-to three years prison. If you do this commercially the penalty is a fine
-or up to five years prison.
-
-> Cheers,
-> Dick Johnson
-
-cu
-Adrian
-
+> Hello,
+> 
+> While fixing a flow control bug that truncated output to a terminal in
+> User Mode Linux, I noticed that the tty drivers only send POLL_IN on new
+> data being available but not POLL_OUT when the device is ready for new
+> data.
+> 
+> This patch fixes the bug in the line discipline and the pty driver.
+> 
+> Also, there's another minor bug in n_tty.c where write_chan returns
+> on a (retvalue < 0) unconditionally. This is a problem, since the type of
+> IO (BLOCKING / NON_BLOCKING) is stored in the tty, and if the console driver
+> returns a -EAGAIN (eg. in UML on getting an EAGAIN from the host kernel), 
+> write_chan returns even in the case of a blocking write, which is wrong
+> since the process doesn't expect it.
+> 
+> Regards,
+> Sapan
+> 
+> 
 

@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVAZOEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVAZOGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbVAZOEH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 09:04:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVAZOEH
+	id S262302AbVAZOGX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 09:06:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVAZOGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 09:04:07 -0500
-Received: from rproxy.gmail.com ([64.233.170.199]:22810 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262303AbVAZODb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 09:03:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=uruaREUAWwzAfNvmADvIjryTyTCqlVvAeYBfFqzw8qQX68GZEP5bqJrhlVTNR0rsKY427mdVNbnIFukCDsMWjPhPehjB1ofQr4HcpcvluY65dqspgcmubH1jqpvkfcqjXS0NyhHu3hqfs+vIuA2quvqSt2fUj9q26hwhkhRLSf4=
-Message-ID: <3f250c7105012606031652961d@mail.gmail.com>
-Date: Wed, 26 Jan 2005 10:03:28 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: User space out of memory approach
-Cc: tglx@linutronix.de, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050126004901.GD7587@dualathlon.random>
+	Wed, 26 Jan 2005 09:06:23 -0500
+Received: from speedy.student.utwente.nl ([130.89.163.131]:24963 "EHLO
+	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
+	id S262302AbVAZOFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 09:05:33 -0500
+Date: Wed, 26 Jan 2005 15:05:09 +0100
+From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: Greg KH <greg@kroah.com>, Aurelien Jarno <aurelien@aurel32.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2] I2C: lm80 driver improvement (From Aurelien)
+Message-ID: <20050126140509.GB23182@speedy.student.utwente.nl>
+Mail-Followup-To: Shawn Starr <shawn.starr@rogers.com>,
+	Greg KH <greg@kroah.com>, Aurelien Jarno <aurelien@aurel32.net>,
+	linux-kernel@vger.kernel.org
+References: <200501260249.23583.shawn.starr@rogers.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <20050111083837.GE26799@dualathlon.random>
-	 <3f250c71050121132713a145e3@mail.gmail.com>
-	 <3f250c7105012113455e986ca8@mail.gmail.com>
-	 <20050122033219.GG11112@dualathlon.random>
-	 <3f250c7105012513136ae2587e@mail.gmail.com>
-	 <1106689179.4538.22.camel@tglx.tec.linutronix.de>
-	 <3f250c71050125161175234ef9@mail.gmail.com>
-	 <20050126004901.GD7587@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501260249.23583.shawn.starr@rogers.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+On Wed, Jan 26, 2005 at 02:49:23AM -0500, Shawn Starr wrote:
+>  static inline unsigned char FAN_TO_REG(unsigned rpm, unsigned div)
+>  {
+> - if (rpm == 0)
+> + if (rpm <= 0)
+The rpm parameter is unsigned so this change is useless. The rest makes sense
+to me.
 
-On Wed, 26 Jan 2005 01:49:01 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
-> On Tue, Jan 25, 2005 at 08:11:19PM -0400, Mauricio Lin wrote:
-> > Sometimes the first application to be killed is XFree. AFAIK the
-> 
-> This makes more sense now. You need somebody trapping sigterm in order
-> to lockup and X sure traps it to recover the text console.
-> 
-> Can you replace this:
-> 
->         if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO)) {
->                 force_sig(SIGTERM, p);
->         } else {
->                 force_sig(SIGKILL, p);
->         }
-> 
-> with this?
+BTW, can anyone tell me why the uints in this parameter list are declared as
+'unsigned' and not as 'unsigned int'?
 
-OK, let me test it. If I get some news, I will let you know.
-
-> 
->         force_sig(SIGKILL, p);
-> 
-> in mm/oom_kill.c.
-
-BR,
-
-Mauricio Lin.
+    Sytse

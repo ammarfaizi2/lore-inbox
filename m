@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUHCFxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUHCGFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265044AbUHCFxz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 01:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265048AbUHCFxy
+	id S265051AbUHCGFf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 02:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265053AbUHCGFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 01:53:54 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:53737 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265044AbUHCFxw (ORCPT
+	Tue, 3 Aug 2004 02:05:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:46314 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265051AbUHCGFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 01:53:52 -0400
-Date: Tue, 3 Aug 2004 07:53:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Zinx Verituse <zinx@epicsol.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd problems
-Message-ID: <20040803055337.GA23504@suse.de>
-References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de> <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de> <1091490870.1649.23.camel@localhost.localdomain>
+	Tue, 3 Aug 2004 02:05:32 -0400
+Date: Mon, 2 Aug 2004 23:03:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux.nics@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: ixgb boolean typo ?
+Message-Id: <20040802230307.6a26dac0.akpm@osdl.org>
+In-Reply-To: <20040803005536.GA12571@redhat.com>
+References: <20040803005536.GA12571@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091490870.1649.23.camel@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 03 2004, Alan Cox wrote:
-> On Sad, 2004-07-31 at 21:00, Jens Axboe wrote:
-> > If you want it to work that way, you have the have a pass-through filter
-> > in the kernel knowing what commands are out there (including vendor
-> > specific ones). That's just too ugly and not really doable or
-> > maintainable, sorry.
+Dave Jones <davej@redhat.com> wrote:
+>
+> Is this perhaps what was meant to be here ?
 > 
-> I disagree providing you turn it the other way around. The majority of
-> scsi commands have to be protected because you can destroy the drive
-> with some of them or bypass the I/O layers. (Eg using SG_IO to do writes
-> to raw disk to bypass auditing layers)
+>  		Dave
 > 
-> So you need CAP_SYS_RAWIO for most commands. You can easily build a list
-> of sane commands for a given media type that are harmless and it fits
-> the kernel role of a gatekeeper to do that.
+>  --- 1/drivers/net/ixgb/ixgb_main.c~	2004-08-03 01:18:00.000000000 +0100
+>  +++ 2/drivers/net/ixgb/ixgb_main.c	2004-08-03 01:53:46.653695768 +0100
+>  @@ -1615,7 +1615,7 @@
+>   	}
+>   #else
+>   	for (i = 0; i < IXGB_MAX_INTR; i++)
+>  -		if (!ixgb_clean_rx_irq(adapter) & !ixgb_clean_tx_irq(adapter))
+>  +		if (!ixgb_clean_rx_irq(adapter) && !ixgb_clean_tx_irq(adapter))
+>   			break;
+>   	/* if RAIDC:EN == 1 and ICR:RXDMT0 == 1, we need to
+>   	 * set IMS:RXDMT0 to 1 to restart the RBD timer (POLL)
 
-So that's where we vehemently disagree - it fits the kernel role, if you
-allow it to control policy all of a sudden. And it's not easy, unless
-you do it per specific device (not just type, make and model).
+Both versions will do the same thing, inefficiently: keep going until both
+functions return false.  And keep pointlessly calling a functions which is
+returning FALSE all the time.
 
-> Providing the 'allowed' function is driver level and we also honour
-> read/write properly for that case (so it doesnt bypass block I/O
-> restrictions and fail the least suprise test) then it seems quite
-> doable.
-> 
-> For such I/O you'd then do
-> 
-> 	if(capable(CAP_SYS_RAWIO) || driver->allowed(driver, blah, cmdblock))
-> 
-> If the allowed function filters positively "unknown is not allowed" and
-> the default allowed function is simply "no" it works.
+I think this would be better:
 
-Until there's a new valid command for some device, in which case you
-have to update your kernel?
-
-> We'd end up with a list of allowed commands for all sorts of operations
-> that don't threaten the machine while blocking vendor specific wonders
-> and also cases where users can do stuff like firmware erase.
-
-Sorry, I think this model is totally bogus and I'd absolutely refuse to
-merge any such beast into the block layer sg code.
-
--- 
-Jens Axboe
+--- 25/drivers/net/ixgb/ixgb_main.c~igxb-speedup	2004-08-02 23:01:04.810311392 -0700
++++ 25-akpm/drivers/net/ixgb/ixgb_main.c	2004-08-02 23:02:18.475112640 -0700
+@@ -1615,8 +1615,12 @@ static irqreturn_t ixgb_intr(int irq, vo
+ 	}
+ #else
+ 	for (i = 0; i < IXGB_MAX_INTR; i++)
+-		if (!ixgb_clean_rx_irq(adapter) & !ixgb_clean_tx_irq(adapter))
++		if (ixgb_clean_rx_irq(adapter) == FALSE)
+ 			break;
++	for (i = 0; i < IXGB_MAX_INTR; i++)
++		if (ixgb_clean_tx_irq(adapter) == FALSE)
++			break;
++
+ 	/* if RAIDC:EN == 1 and ICR:RXDMT0 == 1, we need to
+ 	 * set IMS:RXDMT0 to 1 to restart the RBD timer (POLL)
+ 	 */
+_
 

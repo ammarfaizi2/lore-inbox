@@ -1,139 +1,333 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S130199AbQJWSx3>; Mon, 23 Oct 2000 14:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129896AbQJWSxT>; Mon, 23 Oct 2000 14:53:19 -0400
-Received: from f90.law4.hotmail.com ([216.33.149.90]:56839 "EHLO hotmail.com") by vger.kernel.org with ESMTP id <S129600AbQJWSxJ>; Mon, 23 Oct 2000 14:53:09 -0400
-X-Originating-IP: [143.183.152.17]
-From: "Lyle Coder" <x_coder@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: dank@alumni.caltech.edu
-Date: Mon, 23 Oct 2000 18:37:14 GMT
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F9029R5JuhXtwJffTW200002b3a@hotmail.com>
-X-OriginalArrivalTime: 23 Oct 2000 18:37:14.0545 (UTC) FILETIME=[43671210:01C03D20]
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129969AbQJXXFY>; Tue, 24 Oct 2000 19:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129877AbQJXXFO>; Tue, 24 Oct 2000 19:05:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22922 "EHLO pizda.ninka.net") by vger.kernel.org with ESMTP id <S129033AbQJXXFF>; Tue, 24 Oct 2000 19:05:05 -0400
+Date: Tue, 24 Oct 2000 15:35:27 -0700
+Message-Id: <200010242235.PAA16923@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: dmaas@dcine.com
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <009701c03e0c$c942c5e0$0701a8c0@morph> (dmaas@dcine.com)
+Subject: Re: LMbench 2.4.0-test10pre-SMP vs. 2.2.18pre-SMP
+References: <Pine.LNX.4.21.0010232338440.1762-100000@ferret.lmh.ox.ac.uk> <39F4B779.21EF8767@mandrakesoft.com> <8t4gfg$1gi$1@penguin.transmeta.com> <009701c03e0c$c942c5e0$0701a8c0@morph>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-If you have a similar machine (in terms machine configuration) for both your 
-solaris and linux machines... could you tell us what the difference in total 
-time for 100 and 10000 was?  i.e... dont compare solaris with 100 
-descripters vs solaris with 10000 descriptors, but rather
-Linux 100 descripters Vs. Solaris 100 descriptors  AND
-Linux 10000 descriptors Vs. Solaris 10000 descriptors.
+   From: "Dan Maas" <dmaas@dcine.com>
+   Date: 	Tue, 24 Oct 2000 18:50:20 -0400
 
-That would be useful informatio... I think.
+   Now, Dave Miller's kiobuf pipes may change the picture somewhat...
 
-Thanks
-Lyle
+Yep.  And here they are for folks who haven't seen them:
 
-Re: Linux's implementation of poll() not scalable?
-
-[ Small treatize on "scalability" included. People obviously do not
-  understand what "scalability" really means. ]
-
-In article <39F28A86.1D07DBFF@alumni.caltech.edu>,
-Dan Kegel  <dank@alumni.caltech.edu> wrote:
->I ran a benchmark to see how long a call to poll() takes
->as you increase the number of idle fd's it has to wade through.
->I used socketpair() to generate the fd's.
->
->Under Solaris 7, when the number of idle sockets was increased from 100 to 
->10000, the time to check for active sockets with poll() increased by a 
->factor of only 6.5.  That's a sublinear increase in time, pretty spiffy.
-
-Yeah. It's pretty spiffy.
-
-Basically, poll() is _fundamentally_ a O(n) interface. There is no way
-to avoid it - you have an array, and there simply is _no_ known
-algorithm to scan an array in faster than O(n) time. Sorry.
-
-(Yeah, you could parallellize it.  I know, I know.  Put one CPU on each
-entry, and you can get it down to O(1).  Somehow I doubt Solaris does
-that.  In fact, I'll bet you a dollar that it doesn't).
-
-So what does this mean?
-
-Either
-
-(a) Solaris has solved the faster-than-light problem, and Sun engineers
-     should get a Nobel price in physics or something.
-
-(b) Solaris "scales" by being optimized for 10000 entries, and not
-     speeding up sufficiently for a small number of entries.
-
-You make the call.
-
-Basically, for poll(), perfect scalability is that poll() scales by a
-factor of 100 when you go from 100 to 10000 entries. Anybody who does
-NOT scale by a factor of 100 is not scaling right - and claiming that
-6.5 is a "good" scale factor only shows that you've bought into
-marketing hype.
-
-In short, a 6.5 scale factor STINKS. The only thing it means is that
-Solaris is slow as hell on the 100 descriptor case.
-
->Under Linux 2.2.14 [or 2.4.0-test1-pre4], when the number of idle sockets 
->was increased from  100 to 10000, the time to check for active sockets with 
->poll() increased by a factor of 493 [or 300, respectively].
-
-So, what you're showing is that Linux actually is _closer_ to the
-perfect scaling (Linux is off by a factor of 5, while Solaris is off by
-a factor of 15 from the perfect scaling line, and scales down really
-badly).
-
-Now, that factor of 5 (or 3, for 2.4.0) is still bad.  I'd love to see
-Linux scale perfectly (which in this case means that 10000 fd's should
-take exactly 100 times as long to poll() as 100 entries take).  But I
-suspect that there are a few things going on, one of the main ones
-probably being that the kernel data working set for 100 entries fits in
-the cache or something like that.
-
->Please, somebody point out my mistake.  Linux can't be this bad!
-
-I suspect we could improve Linux in this area, but I hope that I pointed
-out the most fundamental mistake you did, which was thinking that
-"scalability" equals "speed".  It doesn't.
-
-Scalability really means that the effort to handle a problem grows
-reasonably with the hardness of the problem. And _deviations_ from that
-are indications of something being wrong.
-
-Some people think that super-linear improvements in scalability are
-signs of "goodness".  They aren't.  For example, the classical reason
-for super-linear SMP improvement (with number of CPU's) that people get
-so excited about really means that something is wrong on the low end.
-Often the "wrongness" is lack of cache - some problems will scale better
-than perfectly simply because with multiple CPU's you have more cache.
-
-The "wrongess" is often also selecting the wrong algorithm: something
-that "scales well" by just being horribly slow for the small case, and
-being "less bad" for the big cases.
-
-In the end, the notion of "scalability" is meaningless. The only
-meaningful thing is how quickly something happens for the load you have.
-That's something called "performance", and unlike "scalability", it
-actually has real-life meaning.
-
-Under Linux, I'm personally more worried about the performance of X etc,
-and small poll()'s are actually common. So I would argue that the
-Solaris scalability is going the wrong way. But as performance really
-depends on the load, and maybe that 10000 entry load is what you
-consider "real life", you are of course free to disagree (and you'd be
-equally right ;)
-
-Linus
-
+diff -ur ../vger3-001018/linux/fs/pipe.c linux/fs/pipe.c
+--- ../vger3-001018/linux/fs/pipe.c	Sat Oct 14 18:38:24 2000
++++ linux/fs/pipe.c	Wed Oct 18 18:23:01 2000
+@@ -8,6 +8,8 @@
+ #include <linux/file.h>
+ #include <linux/poll.h>
+ #include <linux/malloc.h>
++#include <linux/iobuf.h>
++#include <linux/highmem.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ 
+@@ -22,6 +24,18 @@
+  * -- Julian Bradfield 1999-06-07.
+  */
+ 
++#define PIPE_UMAP(inode)	((inode).i_pipe->umap)
++#define PIPE_UMAPOFF(inode)	((inode).i_pipe->umap_offset)
++#define PIPE_UMAPLEN(inode)	((inode).i_pipe->umap_length)
++
++#define PIPE_UMAP_EMPTY(inode)	\
++	((PIPE_UMAP(inode) == NULL) || \
++	 (PIPE_UMAPOFF(inode) >= PIPE_UMAPLEN(inode)))
++
++#define PIPE_EMPTY(inode)	\
++	((PIPE_LEN(inode) == 0) && PIPE_UMAP_EMPTY(inode))
++
++
+ /* Drop the inode semaphore and wait for a pipe event, atomically */
+ void pipe_wait(struct inode * inode)
+ {
+@@ -36,6 +50,65 @@
+ }
+ 
+ static ssize_t
++pipe_copy_from_kiobuf(char *buf, size_t count, struct kiobuf *kio, int kio_offset)
++{
++	struct page **cur_page;
++	unsigned long cur_offset, remains_this_page;
++	char *cur_buf;
++	int kio_remains;
++
++	kio_remains = kio->length;
++	cur_page = kio->maplist;
++	cur_offset = kio->offset;
++	while (kio_offset > 0 && kio_remains > 0) {
++		remains_this_page = PAGE_SIZE - cur_offset;
++		if (kio_offset < remains_this_page) {
++			cur_offset += kio_offset;
++			kio_remains -= kio_offset;
++			break;
++		}
++		kio_offset -= remains_this_page;
++		kio_remains -= remains_this_page;
++		cur_offset = 0;
++		cur_page++;
++	}
++
++	cur_buf = buf;
++	while (kio_remains > 0) {
++		unsigned long kvaddr;
++		int err;
++
++		remains_this_page = PAGE_SIZE - cur_offset;
++		if (remains_this_page > count)
++			remains_this_page = count;
++		if (remains_this_page > kio_remains)
++			remains_this_page = kio_remains;
++
++		kvaddr = kmap(*cur_page);
++		err = copy_to_user(cur_buf, (void *)(kvaddr + cur_offset),
++				   remains_this_page);
++		kunmap(*cur_page);
++
++		if (err)
++			return -EFAULT;
++
++		cur_buf += remains_this_page;
++		count -= remains_this_page;
++		if (count <= 0)
++			break;
++
++		kio_remains -= remains_this_page;
++		if (kio_remains <= 0)
++			break;
++
++		cur_offset = 0;
++		cur_page++;
++	}
++
++	return cur_buf - buf;
++}
++
++static ssize_t
+ pipe_read(struct file *filp, char *buf, size_t count, loff_t *ppos)
+ {
+ 	struct inode *inode = filp->f_dentry->d_inode;
+@@ -84,29 +157,44 @@
+ 
+ 	/* Read what data is available.  */
+ 	ret = -EFAULT;
+-	while (count > 0 && (size = PIPE_LEN(*inode))) {
+-		char *pipebuf = PIPE_BASE(*inode) + PIPE_START(*inode);
+-		ssize_t chars = PIPE_MAX_RCHUNK(*inode);
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-Please read the FAQ at http://www.tux.org/lkml/
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
-
-Share information about yourself, create your own public profile at 
-http://profiles.msn.com.
-
+-		if (chars > count)
+-			chars = count;
+-		if (chars > size)
+-			chars = size;
++	if (PIPE_UMAP(*inode)) {
++		ssize_t chars;
+ 
+-		if (copy_to_user(buf, pipebuf, chars))
++		chars = pipe_copy_from_kiobuf(buf, count,
++					      PIPE_UMAP(*inode),
++					      PIPE_UMAPOFF(*inode));
++		if (chars < 0)
+ 			goto out;
+ 
+ 		read += chars;
+-		PIPE_START(*inode) += chars;
+-		PIPE_START(*inode) &= (PIPE_SIZE - 1);
+-		PIPE_LEN(*inode) -= chars;
+ 		count -= chars;
+ 		buf += chars;
+-	}
++		PIPE_UMAPOFF(*inode) += chars;
++	} else {
++		while (count > 0 && (size = PIPE_LEN(*inode))) {
++			char *pipebuf = PIPE_BASE(*inode) + PIPE_START(*inode);
++			ssize_t chars = PIPE_MAX_RCHUNK(*inode);
+ 
+-	/* Cache behaviour optimization */
+-	if (!PIPE_LEN(*inode))
+-		PIPE_START(*inode) = 0;
++			if (chars > count)
++				chars = count;
++			if (chars > size)
++				chars = size;
++
++			if (copy_to_user(buf, pipebuf, chars))
++				goto out;
++
++			read += chars;
++			PIPE_START(*inode) += chars;
++			PIPE_START(*inode) &= (PIPE_SIZE - 1);
++			PIPE_LEN(*inode) -= chars;
++			count -= chars;
++			buf += chars;
++		}
++
++		/* Cache behaviour optimization */
++		if (!PIPE_LEN(*inode))
++			PIPE_START(*inode) = 0;
++	}
+ 
+ 	if (count && PIPE_WAITING_WRITERS(*inode) && !(filp->f_flags & O_NONBLOCK)) {
+ 		/*
+@@ -156,16 +244,20 @@
+ 	if (!PIPE_READERS(*inode))
+ 		goto sigpipe;
+ 
+-	/* If count <= PIPE_BUF, we have to make it atomic.  */
+-	free = (count <= PIPE_BUF ? count : 1);
++	/* If count <= PIPE_BUF, we have to make it atomic.
++	 * PIPE_BUF is not used more, pipe is atomic for blocking
++	 * IO up to KIO_MAX_ATOMIC_BYTES and for non-blocking
++	 * up to PAGE_SIZE.
++	 */
++	free = (count <= PIPE_SIZE ? count : PIPE_SIZE);
+ 
+ 	/* Wait, or check for, available space.  */
+ 	if (filp->f_flags & O_NONBLOCK) {
+ 		ret = -EAGAIN;
+-		if (PIPE_FREE(*inode) < free)
++		if (PIPE_FREE(*inode) < free || PIPE_UMAP(*inode))
+ 			goto out;
+ 	} else {
+-		while (PIPE_FREE(*inode) < free) {
++		while (PIPE_FREE(*inode) < free || PIPE_UMAP(*inode)) {
+ 			PIPE_WAITING_WRITERS(*inode)++;
+ 			pipe_wait(inode);
+ 			PIPE_WAITING_WRITERS(*inode)--;
+@@ -180,11 +272,69 @@
+ 
+ 	/* Copy into available space.  */
+ 	ret = -EFAULT;
+-	while (count > 0) {
++	if (count >= PAGE_SIZE &&
++	    !(filp->f_flags & O_NONBLOCK)) {
++		struct kiobuf *kio;
++		int err, do_sigpipe;;
++
++		/* Bulk, non-blocking, sole writer, use kio. */
++		err = alloc_kiovec(1, &kio);
++		if (err)
++			goto kio_abort;
++
++		do_sigpipe = 0;
++		PIPE_UMAP(*inode) = kio;
++		while (count > 0) {
++			unsigned long iosize = count;
++
++			if (iosize > KIO_MAX_ATOMIC_BYTES)
++				iosize = KIO_MAX_ATOMIC_BYTES;
++
++			/* Since we only use atomic sized transfers, the
++			 * only possible error here is EFAULT.
++			 */
++			err = map_user_kiobuf(WRITE, kio, (unsigned long)buf, iosize);
++			if (err)
++				break;
++
++			PIPE_UMAPOFF(*inode) = 0;
++			PIPE_UMAPLEN(*inode) = iosize;
++
++			do {
++				wake_up_interruptible_sync(PIPE_WAIT(*inode));
++				PIPE_WAITING_WRITERS(*inode)++;
++				pipe_wait(inode);
++				PIPE_WAITING_WRITERS(*inode)--;
++				if (signal_pending(current)) {
++					unmap_kiobuf(kio);
++					goto kio_break;
++				}
++				if (!PIPE_READERS(*inode)) {
++					unmap_kiobuf(kio);
++					do_sigpipe = 1;
++					goto kio_break;
++				}
++			} while (!PIPE_UMAP_EMPTY(*inode));
++
++			unmap_kiobuf(kio);
++			count -= iosize;
++			written += iosize;
++			buf += iosize;
++		}
++	kio_break:
++		free_kiovec(1, &kio);
++		PIPE_UMAP(*inode) = NULL;
++		
++		if (do_sigpipe)
++			goto sigpipe;
++	} else while (count > 0) {
+ 		int space;
+-		char *pipebuf = PIPE_BASE(*inode) + PIPE_END(*inode);
+-		ssize_t chars = PIPE_MAX_WCHUNK(*inode);
++		char *pipebuf;
++		ssize_t chars;
+ 
++kio_abort:
++		pipebuf = PIPE_BASE(*inode) + PIPE_END(*inode);
++		chars = PIPE_MAX_WCHUNK(*inode);
+ 		if ((space = PIPE_FREE(*inode)) != 0) {
+ 			if (chars > count)
+ 				chars = count;
+@@ -285,8 +435,11 @@
+ 	poll_wait(filp, PIPE_WAIT(*inode), wait);
+ 
+ 	/* Reading only -- no need for acquiring the semaphore.  */
+-	mask = POLLIN | POLLRDNORM;
+-	if (PIPE_EMPTY(*inode))
++ 	/* Is this not racy occasionally? */
++ 	mask = 0;
++ 	if (!PIPE_EMPTY(*inode))
++ 		mask = POLLIN | POLLRDNORM;
++ 	else if (!PIPE_UMAP(*inode))
+ 		mask = POLLOUT | POLLWRNORM;
+ 	if (!PIPE_WRITERS(*inode) && filp->f_version != PIPE_WCOUNTER(*inode))
+ 		mask |= POLLHUP;
+@@ -309,6 +462,8 @@
+ 		struct pipe_inode_info *info = inode->i_pipe;
+ 		inode->i_pipe = NULL;
+ 		free_page((unsigned long) info->base);
++		if (info->umap != NULL)
++			BUG();
+ 		kfree(info);
+ 	} else {
+ 		wake_up_interruptible(PIPE_WAIT(*inode));
+@@ -457,6 +612,7 @@
+ 	PIPE_READERS(*inode) = PIPE_WRITERS(*inode) = 0;
+ 	PIPE_WAITING_READERS(*inode) = PIPE_WAITING_WRITERS(*inode) = 0;
+ 	PIPE_RCOUNTER(*inode) = PIPE_WCOUNTER(*inode) = 1;
++	PIPE_UMAP(*inode) = NULL;
+ 
+ 	return inode;
+ fail_page:
+diff -ur ../vger3-001018/linux/include/linux/pipe_fs_i.h linux/include/linux/pipe_fs_i.h
+--- ../vger3-001018/linux/include/linux/pipe_fs_i.h	Fri May 26 21:31:37 2000
++++ linux/include/linux/pipe_fs_i.h	Wed Oct 18 18:16:59 2000
+@@ -4,6 +4,9 @@
+ #define PIPEFS_MAGIC 0x50495045
+ struct pipe_inode_info {
+ 	wait_queue_head_t wait;
++	void *umap;
++	int umap_length;
++	int umap_offset;
+ 	char *base;
+ 	unsigned int start;
+ 	unsigned int readers;
+@@ -30,7 +33,6 @@
+ #define PIPE_RCOUNTER(inode)	((inode).i_pipe->r_counter)
+ #define PIPE_WCOUNTER(inode)	((inode).i_pipe->w_counter)
+ 
+-#define PIPE_EMPTY(inode)	(PIPE_LEN(inode) == 0)
+ #define PIPE_FULL(inode)	(PIPE_LEN(inode) == PIPE_SIZE)
+ #define PIPE_FREE(inode)	(PIPE_SIZE - PIPE_LEN(inode))
+ #define PIPE_END(inode)	((PIPE_START(inode) + PIPE_LEN(inode)) & (PIPE_SIZE-1))
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

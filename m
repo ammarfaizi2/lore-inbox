@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274900AbRIXTUe>; Mon, 24 Sep 2001 15:20:34 -0400
+	id <S274904AbRIXT0R>; Mon, 24 Sep 2001 15:26:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274901AbRIXTUY>; Mon, 24 Sep 2001 15:20:24 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64100 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S274900AbRIXTUI>; Mon, 24 Sep 2001 15:20:08 -0400
-To: Dan Kegel <dank@kegel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Gordon Oliver <gordo@pincoya.com>
-Subject: Re: [PATCH] /dev/epoll update ...
-In-Reply-To: <3BAEB39B.DE7932CF@kegel.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 24 Sep 2001 13:11:25 -0600
-In-Reply-To: <3BAEB39B.DE7932CF@kegel.com>
-Message-ID: <m1g09c76aq.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S274905AbRIXT0F>; Mon, 24 Sep 2001 15:26:05 -0400
+Received: from smtp3.libero.it ([193.70.192.53]:18169 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S274904AbRIXTZv> convert rfc822-to-8bit;
+	Mon, 24 Sep 2001 15:25:51 -0400
+Subject: Tritech ???
+From: "[A]ndy80" <andy80@ptlug.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.14.99+cvs.2001.09.22.08.08 (Preview Release)
+Date: 24 Sep 2001 21:34:12 +0200
+Message-Id: <1001360061.1047.11.camel@piccoli>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel <dank@kegel.com> writes:
+Hello, this is my kernel configuration about SOUND:
 
-> As Davide points out in his reply, /dev/epoll is an exact clone of
-> the O_SETSIG/O_SETOWN/O_ASYNC realtime signal way of getting readiness
-> change events, but using a memory-mapped buffer instead of signal delivery
-> (and obeying an interest mask).  Unlike /dev/poll, it only provides
-> information about *changes* in readiness.
 
-Right.  But it does one additional thing that the rtsig method doesn't
-it collapses multiple readiness *changes* into a single readiness change.
-This allows the kernel to keep a fixed size buffer so you never need
-to fallback to poll as you need to with the rtsig approach.
+#
+Sound                                                                         #                                                                               CONFIG_SOUND=y                                                                  
+# CONFIG_SOUND_BT878 is not
+set                                                       
 
-> I think there is still some confusion out there because of the name
-> Davide chose; /dev/epoll is so close to /dev/poll that it lulls many
-> people (myself included) into thinking it's a very similar thing.  It ain't.
-> (I really have to fix my c10k page to reflect that correctly...)
+CONFIG_SOUND_EMU10K1=y             
 
-Hmm.  /dev/epoll could and possibly should remove the readiness event 
-if the fd becomes unready before someone gets to reading the
-/dev/epoll buffer.  This is a natural extension of collapsing events.
+I ONLY enable EMU10K1 but, during boot I see:
 
-But even with that it would still only give you the state as of the
-last state change.  And it you have the state already it expects user
-space to remember the state and not the kernel.  Which is both
-different from /dev/poll and more efficient.
 
-If the goal is to minimize system calls letting user space assume the
-state is initially not ready.  And forcing a state query when
-the fd is added should help.   I cannot think of a case where having
-the kernel do the query would be necessary though.
+Creative EMU10K1 PCI Audio Driver, version 0.15, 20:31:39 Sep 24 2001
+PCI: Found IRQ 10 for device 00:11.0
+emu10k1: EMU10K1 rev 6 model 0x8027 found, IO at 0xe000-0xe01f, IRQ 10
+ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR?????)
 
-If the goal is simply to provide a highly scalable event interface.
-The current /dev/epoll sounds very good.  Though I'm not at all
-thrilled with the user space interface.  As far as I can tell the case
-of a fd becoming not ready is unlikely enough that it probably doesn't
-need to be handled.
+why does kernel load that module?
 
-Eric
+
+
+
+-- 
+   ~            Piccoli Software
+  ° °	http://www.piccolisoftware.cjb.net
+  /V\      piccolisoftware@pegacity.it
+ // \\
+/(   )\  [A]ndy80 on #bluvertigo e #pistoia
+ ^`~'^  andy80@ptlug.org - http://www.ptlug.org
+
+GPG Key: http://www.ptlug.org/andy80_key.asc
 

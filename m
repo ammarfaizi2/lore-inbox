@@ -1,163 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbUKCOnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbUKCOsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261282AbUKCOnj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 09:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUKCOnj
+	id S261608AbUKCOsr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 09:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUKCOsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 09:43:39 -0500
-Received: from cantor.suse.de ([195.135.220.2]:22449 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261282AbUKCOnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 09:43:32 -0500
-Date: Wed, 3 Nov 2004 15:40:06 +0100
-From: Andi Kleen <ak@suse.de>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: ak@suse.de, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Subject: Re: dmi_scan on x86_64
-Message-ID: <20041103144006.GE24195@wotan.suse.de>
-References: <20041103124642.GD18867@wotan.suse.de> <oW5plZBL.1099487525.5944720.khali@gcu.info>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <oW5plZBL.1099487525.5944720.khali@gcu.info>
+	Wed, 3 Nov 2004 09:48:47 -0500
+Received: from alog0386.analogic.com ([208.224.222.162]:7040 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261608AbUKCOsm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 09:48:42 -0500
+Date: Wed, 3 Nov 2004 09:48:20 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: "H. Wiese" <7.e.Q@syncro-community.de>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IP Layer on VME-Bus
+In-Reply-To: <33093.192.35.17.30.1099489553.squirrel@config.hostunreachable.de>
+Message-ID: <Pine.LNX.4.61.0411030920180.12549@chaos.analogic.com>
+References: <33093.192.35.17.30.1099489553.squirrel@config.hostunreachable.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 02:12:07PM +0100, Jean Delvare wrote:
-> 
-> Hi Andi,
-> 
-> > > Any reason why dmi_scan is availble on the i386 arch and not on the
-> > > x86_64 arch? I would have a need for the latter (for run-time
-> > > identification purposes, not boot-time blacklisting).
-> >
-> > So far nothing needed it, so I didn't add it.  For what do you need it?
-> 
-> I am in the process of adding SMBus multiplexing support for the Tyan
-> S4882 motherboard, as seen on this thread:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109863982018999&w=2
+On Wed, 3 Nov 2004, H. Wiese wrote:
 
-Here's a patch for testing.
+> Hello,
+>
+> we develop a driver which enables us to use an ip layer on top of the vme-bus
+> technology. Now we got some problems with coding the driver. We already have
+> an old version of this driver (called "dpn") which works well but has no use
+> for us anymore since we upgraded our system from kernel 2.2.14 to 2.6.7. So
+> now we have to create a new driver.
+>
+> The old driver established the ip layer by accessing the dual port ram of
+> the VME bus, which is based on a Tundra Universe II Chipset. This enables
+> us to transfer data, ping etc. between active VME-modules using the
+> VME-bus. Very useful.
+>
+> Well, the problem we will surely run into is: will the driver work as fine as
+> the old one if we only recreate the initialization functions working with the
+> new kernel function set (e.g. wait_event_interruptible instead of
+> interruptible_sleep_on etc.), copy the essential functions from the old
+> driver
+> to the new one and alter them a little to work with the new kernel functions?
+> Or is there anything else to put an eye on?
+>
+>
+> Thankx a lot
+>
+> kind regards
+> Hendrik
 
--Andi
+I had a lot of 2.4.x drivers I had to convert to 2.6.x. It is
+possible to re-do the source code so that the two drivers will
+compile and run on both versions. There have been several
+important changes, but it's not too hard.
 
+If your old driver is in good shape, I'd suggest you just
+try to compile it using:
 
-Index: linux/arch/x86_64/kernel/setup.c
-===================================================================
---- linux.orig/arch/x86_64/kernel/setup.c	2004-11-03 15:21:16.%N +0100
-+++ linux/arch/x86_64/kernel/setup.c	2004-11-03 15:21:16.%N +0100
-@@ -40,6 +40,7 @@
- #include <linux/acpi.h>
- #include <linux/kallsyms.h>
- #include <linux/edd.h>
-+#include <linux/dmi.h>
- #include <asm/mtrr.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
-@@ -1120,3 +1121,12 @@
- 	.stop =	c_stop,
- 	.show =	show_cpuinfo,
- };
-+
-+/* We don't need DMI early, so call it later after bootmem when
-+   ioremap works. */
-+static __init void call_dmi(void) 
-+{ 
-+	dmi_scan_machine();	
-+}
-+core_initcall(call_dmi);
-+ 
-\ No newline at end of file
-Index: linux/arch/x86_64/kernel/Makefile
-===================================================================
---- linux.orig/arch/x86_64/kernel/Makefile	2004-11-03 15:21:16.%N +0100
-+++ linux/arch/x86_64/kernel/Makefile	2004-11-03 15:21:16.%N +0100
-@@ -6,7 +6,7 @@
- EXTRA_AFLAGS	:= -traditional
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o \
- 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_x86_64.o \
--		x8664_ksyms.o i387.o syscall.o vsyscall.o \
-+		x8664_ksyms.o i387.o syscall.o vsyscall.o dmi_scan.o \
- 		setup64.o bootflag.o e820.o reboot.o warmreboot.o quirks.o
- 
- obj-$(CONFIG_X86_MCE)         += mce.o
-@@ -41,3 +41,4 @@
- microcode-$(subst m,y,$(CONFIG_MICROCODE))  += ../../i386/kernel/microcode.o
- intel_cacheinfo-y		+= ../../i386/kernel/cpu/intel_cacheinfo.o
- quirks-y			+= ../../i386/kernel/quirks.o
-+dmi_scan-y			+= ../../i386/kernel/dmi_scan.o
-Index: linux/arch/i386/kernel/dmi_scan.c
-===================================================================
---- linux.orig/arch/i386/kernel/dmi_scan.c	2004-10-19 01:55:01.%N +0200
-+++ linux/arch/i386/kernel/dmi_scan.c	2004-11-03 15:28:49.%N +0100
-@@ -11,6 +11,12 @@
- #include <linux/dmi.h>
- #include <linux/bootmem.h>
- 
-+#ifdef CONFIG_X86_64
-+#define bt_ioremap ioremap
-+#define bt_iounmap(a,b) iounmap(a)
-+#define alloc_bootmem(a) kmalloc(a, GFP_ATOMIC)
-+#endif
-+
- 
- int es7000_plat = 0;
- 
-@@ -162,6 +168,9 @@
- #define NO_MATCH	{ DMI_NONE, NULL}
- #define MATCH		DMI_MATCH
- 
-+/* Before you add x86-64 specific entries here move this to a sepatate file. */
-+#ifndef CONFIG_X86_64 
-+
- /*
-  * Toshiba keyboard likes to repeat keys when they are not repeated.
-  */
-@@ -251,6 +260,8 @@
- }  
- #endif
- 
-+#endif
-+
- /*
-  *	Process the DMI blacklists
-  */
-@@ -263,6 +274,8 @@
-  
- static __initdata struct dmi_blacklist dmi_blacklist[]={
- 
-+#ifndef CONFIG_X86_64
-+
- 	{ broken_toshiba_keyboard, "Toshiba Satellite 4030cdt", { /* Keyboard generates spurious repeats */
- 			MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
- 			NO_MATCH, NO_MATCH, NO_MATCH
-@@ -441,6 +454,8 @@
- 
- #endif
- 
-+#endif
-+
- 	{ NULL, }
- };
- 
-Index: linux/include/linux/dmi.h
-===================================================================
---- linux.orig/include/linux/dmi.h	2004-08-15 19:45:50.%N +0200
-+++ linux/include/linux/dmi.h	2004-11-03 15:21:16.%N +0100
-@@ -32,7 +32,7 @@
- 
- #define DMI_MATCH(a,b)	{ a, b }
- 
--#if defined(CONFIG_X86) && !defined(CONFIG_X86_64)
-+#if defined(CONFIG_X86)
- 
- extern int dmi_check_system(struct dmi_system_id *list);
- extern char * dmi_get_system_info(int field);
-@@ -44,4 +44,6 @@
- 
- #endif
- 
-+extern void dmi_scan_machine(void);
-+
- #endif	/* __DMI_H__ */
+LD = ld
+VER := $(shell uname -r)
+TOP = /usr/src/linux-$(VER)/include
+INC = -I$(TOP) -I/usr/src/linux-$(VER)/include/asm/mach-default
+DEF = -D__KERNEL__ -DMODULE -DCONFIG_SMP
+OPT = -fomit-frame-pointer -pipe -nostartfiles -Wstrict-prototypes \
+       -fno-strict-aliasing
+CC = gcc -Wall -O2 -I. $(INC) $(DEF) $(OPT)
+
+... for the Makefile $(CC). This will not get you a module type
+of module.ko, that's another step that uses the new kernel build
+procedure (takes 60 seconds to modify your Makefile to do the
+build).  The important thing it to get everything to compile
+first. Any code that uses "#include <myfile.h>" where myfile
+is in the local directory, needs to be changed to "myfile.h"
+because the kernel build procedure doesn't propagate -I. for
+include search paths.
+
+Note the additional search path, above....
+
+When you encounter an error, check with the new drivers in
+the kernel to see what the new parameters are.
+
+(1) ISR now takes a return value.
+(2) mmap() is slightly different, requires additional parameter.
+(3) MOD_INC/MOD_DEC  macros go away.
+(4) Some PCI stuff, slightly different, need to check some return values
+     even when it's implicit.
+(5) struct file_operations has new member(s) first is 'owner',
+     use macro THIS_MODULE.
+(6) Kernel daemon start code is slightly different, daemonize() takes
+     parameters and does most everything.
+(7) Timer-queues slightly different, macros provided (easier).
+(N) A few other kinks. I would guess that if the previous module
+     was written properly, it would take less than an hour to
+     update it.
+
+FYI, I also used the Tundra chip for some VXI stuff. It
+requires you to select an area in memory with no RAM for its
+address area so its not very straight-forward. If your
+previous stuff worked okay, you won't have problems with
+the new kernels because they, too, allow you to hard-code
+address-space that the kernel isn't using. You need to
+make sure that there is such address-space available, i.e.,
+you can't use 4 gigs (or more) of RAM!
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

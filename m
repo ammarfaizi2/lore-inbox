@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130035AbRBUA1A>; Tue, 20 Feb 2001 19:27:00 -0500
+	id <S131215AbRBUA1u>; Tue, 20 Feb 2001 19:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131113AbRBUA0u>; Tue, 20 Feb 2001 19:26:50 -0500
-Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:56589 "HELO
-	sh0n.net") by vger.kernel.org with SMTP id <S130035AbRBUA0k>;
-	Tue, 20 Feb 2001 19:26:40 -0500
-Message-ID: <3A930B2D.A522CC95@sh0n.net>
-Date: Tue, 20 Feb 2001 19:26:22 -0500
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net - http://www.sh0n.net/spstarr
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i586)
-X-Accept-Language: en
+	id <S129677AbRBUA1l>; Tue, 20 Feb 2001 19:27:41 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34311 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131167AbRBUA10>; Tue, 20 Feb 2001 19:27:26 -0500
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Wed, 21 Feb 2001 00:30:05 +0000 (GMT)
+Cc: phillips@innominate.de (Daniel Phillips), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10102201618520.31530-100000@penguin.transmeta.com> from "Linus Torvalds" at Feb 20, 2001 04:22:48 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: lkm <linux-kernel@vger.kernel.org>
-Subject: [VERY OT]...but funny - No flames :)
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14VNAU-00014j-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ALL YOUR LINUX ARE BELONG TO US ;-)
+> probably a bad idea to use it, because in theory at least the VFS layer
+> might decide to switch the hash function around. I'm more interested in
+> hearing whether it's a good hash, and maybe we could improve the VFS hash
+> enough that there's no reason to use anything else..
 
-*snicker*
-
-Shawn.
+Reiserfs seems to have done a lot of work on this and be using tea, which is
+also nice as tea is non trivial to abuse as a user to create pessimal file
+searches intentionally
 

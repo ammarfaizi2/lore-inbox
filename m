@@ -1,68 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310430AbSCPQmN>; Sat, 16 Mar 2002 11:42:13 -0500
+	id <S310436AbSCPQwe>; Sat, 16 Mar 2002 11:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310431AbSCPQmD>; Sat, 16 Mar 2002 11:42:03 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25099 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310430AbSCPQlw>;
-	Sat, 16 Mar 2002 11:41:52 -0500
-Message-ID: <3C9375B7.3070808@mandrakesoft.com>
-Date: Sat, 16 Mar 2002 11:41:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: James Bottomley <James.Bottomley@SteelEye.com>,
+	id <S310435AbSCPQwY>; Sat, 16 Mar 2002 11:52:24 -0500
+Received: from bitmover.com ([192.132.92.2]:6020 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S310433AbSCPQwO>;
+	Sat, 16 Mar 2002 11:52:14 -0500
+Date: Sat, 16 Mar 2002 08:52:13 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Larry McVoy <lm@bitmover.com>,
+        James Bottomley <James.Bottomley@SteelEye.com>,
         linux-kernel@vger.kernel.org
 Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
-In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20020316085213.B10086@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Larry McVoy <lm@bitmover.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C9375B7.3070808@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Mar 16, 2002 at 11:41:27AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+On Sat, Mar 16, 2002 at 11:41:27AM -0500, Jeff Garzik wrote:
+> I started with Linus's linux-2.4 repo and so did Marcelo.  We 
+> independently checked in 2.4.recent patches (including proper renametool 
+> use), which included the ia64 and mips merges, which added a ton of 
+> files.  
 
->On Sat, Mar 16, 2002 at 11:28:46AM -0500, Jeff Garzik wrote:
->
->>>Well, I tried this, but it just gave me a slew of initial rename conflicts.  
->>>
->>This is normal, you just need to accept the remote changes for all those 
->>new/renamed files.  BitKeeper doesn't support doing this automatically 
->>for all files, so I had to highlight the expected BitKeeper response in 
->>another window, and then click <paste> on my mouse around 300 times... 
->>(~300 new files)
->>
->
->Yuck.  So you knew without any doubt what it was that you wanted?  How?
->If this is a common case, I can add an option to the resolver, but it
->strikes me that there must be some other problem here.  What are those
->300 files?
->
+OK, so there is the root cause.  It's time to talk about duplicate changes.
+You know how Linus hates bad csets in the history and doesn't want them
+there?  Well, I hate duplicate csets and don't want them there.  There are
+lots of reasons.  One reason is that it means revtool is a lot less useful
+for debugging.  If you are trying to track down the change which caused a
+bug but it is obscured by a duplicate patch, you just got hosed.  Another
+reason is file creates.  Suppose you and Marcelo both created a file called
+"foo".  You pull, there is a file conflict, you remove one of the two files.
+It isn't actually removed, it's just moved to BitKeeper/deleted.  Time passes
+and you or someone else is fixing bugs in a pre-merged copy of the tree and
+you are updating "foo".  You later pull that bugfix into the merged tree
+and the bugfix happily is applied to the *deleted* copy of the file, since
+the changes follow the "inode", not the pathname.  Bummer, you are now
+scratching your head wondering where your bugfix went.
 
-I started with Linus's linux-2.4 repo and so did Marcelo.  We 
-independently checked in 2.4.recent patches (including proper renametool 
-use), which included the ia64 and mips merges, which added a ton of 
-files.  When you do a 'bk pull' from Marcelo's linux-2.4 into my old 
-marcelo-2.4 repo, you have to individually tell BitKeeper that you 
-really do want to trust Marcelo's copy over my own, for each of the ~300 
-new files that were added between Linus's linux-2.4 repo creation and 2 
-days ago.  So I highlighted "rl\ny\n" in another window, and wore out my 
-middle mouse button...  Renames could have been handled similarly, but 
-there were few renames, so I just typed "r\ny\n" manually maybe 10 or 20 
-times.
+There are things we can do in BK to deal with this, but they are not easy
+and are going to take several months, is my guess.  I'd like to see if you
+can work around this by avoiding duplicate patches.  If you can, do so, 
+you will save yourself lots of grief.
 
-One could argue that a "rla" or "lla" command would be useful when 
-resolving a conflict between two new files, telling BitKeeper to accept 
-remote (or local) additions in this case _and_ all succeeding cases.
+If you get into a duplicate patch situation, you are far better off to 
+pick one tree or the other tree as the official tree, and cherrypick
+the changes that the unofficial tree has and place them in the official
+tree.  Then toss the unofficial tree.  I can make you a "bk portpatch"
+command which does this, we have that already, it needs a bit of updating
+to catch the comments.
 
-One could also argue that BitKeeper needs to be twacked on the head 
-because it is not detecting that the file-creates and file-renames are 
-100% the same, content-wise.
-
-    Jeff
-
-
-
-
+You really want to listen to this, I'm trying to head you off from screwing
+up the history.  If you get 300 renames like this, it's almost always a 
+duplicate patch scenario.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278518AbRJPEIf>; Tue, 16 Oct 2001 00:08:35 -0400
+	id <S278086AbRJPEJQ>; Tue, 16 Oct 2001 00:09:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278086AbRJPEIZ>; Tue, 16 Oct 2001 00:08:25 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6564 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278518AbRJPEIN>;
-	Tue, 16 Oct 2001 00:08:13 -0400
-Date: Tue, 16 Oct 2001 00:08:44 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] large /proc/mounts and friends
-In-Reply-To: <Pine.LNX.4.33.0110152053080.8668-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0110160005220.11608-100000@weyl.math.psu.edu>
+	id <S278519AbRJPEJF>; Tue, 16 Oct 2001 00:09:05 -0400
+Received: from airtrout.tregar.com ([209.73.238.93]:4618 "HELO
+	airtrout.tregar.com") by vger.kernel.org with SMTP
+	id <S278086AbRJPEIt>; Tue, 16 Oct 2001 00:08:49 -0400
+Date: Mon, 15 Oct 2001 23:58:03 -0400 (EDT)
+From: Sam Tregar <sam@tregar.com>
+X-X-Sender: <sam@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: APM suspend broken in 2.4.12
+Message-ID: <Pine.LNX.4.33.0110152349350.10534-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all.  I just upgraded from 2.4.9 to 2.4.12.  I chose the same kernel
+APM options in 2.4.12 as I had in 2.4.9 - CONFIG_APM, CONFIG_APM_DO_ENABLE
+and CONFIG_APM_CPU_IDLE.  When I try to suspend using my laptop's suspend
+key nothing happens.  Trying "apm --suspend" results in "apm: Resource
+temporarily unavailable".  Standby still works.
 
+Searching through the archives I see that this problem has been reported
+for 2.4.10.  The conversation seemed to die off after it was posited that
+some non-APM driver was vetoing the suspend.  The suspects mentioned were
+the keyboard driver or something called "A20".  Has anyone done any
+further investigation?  Any suggestions as to how I might go about
+tracking this down?
 
-On Mon, 15 Oct 2001, Linus Torvalds wrote:
+Thanks!
+-sam
 
-> Ok, I'll re-read your patch with this in mind. But it sounds like I'm
-> going to approve of it with this background...
-
-Two points:
-	a) seq_offs() and seq_unroll() are gone - they were rudiments of
-earlier code;  not used and not needed in the variant I've sent.
-	b) I've missed the check for pread() attempts.  Fixed.
-
-PS: latency sucks...
 

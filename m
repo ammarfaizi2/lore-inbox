@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129208AbQJ3OH2>; Mon, 30 Oct 2000 09:07:28 -0500
+	id <S129430AbQJ3OIs>; Mon, 30 Oct 2000 09:08:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129430AbQJ3OHS>; Mon, 30 Oct 2000 09:07:18 -0500
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:35381 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S129208AbQJ3OHN>; Mon, 30 Oct 2000 09:07:13 -0500
-Date: Mon, 30 Oct 2000 08:06:19 -0600 (CST)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200010301406.IAA224051@tomcat.admin.navo.hpc.mil>
-To: pollard@cats-chateau.net, Stephen Harris <sweh@spuddy.mew.co.uk>,
-        vonbrand@sleipnir.valparaiso.cl (Horst von Brand)
-Subject: Re: syslog() blocks on glibc 2.1.3 with kernel 2.2.x
-In-Reply-To: <00102910423100.15754@tabby>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S129470AbQJ3OIi>; Mon, 30 Oct 2000 09:08:38 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:64524 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129430AbQJ3OIT>;
+	Mon, 30 Oct 2000 09:08:19 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux_developer@hotmail.com (Linux Kernel Developer),
+        linux-kernel@vger.kernel.org
+Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17 
+In-Reply-To: Your message of "Mon, 30 Oct 2000 14:02:38 -0000."
+             <E13qFWK-0006uI-00@the-village.bc.nu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 31 Oct 2000 01:08:13 +1100
+Message-ID: <4793.972914893@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+On Mon, 30 Oct 2000 14:02:38 +0000 (GMT), 
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> As part of the 2.5 kbuild redesign, symbol versions will be completely
+>> redone.  One of the things on my todo list is to detect this mismatch.
+>> There are some problems in doing that which I may or may not be able to
+>> overcome, but if the field names are different between C and C++ then I
+>> can never detect this mismatch correctly.
+>
+>The symbol generation code never sees the C++ names, never will and never can.
+>I still don't see any problem.
 
-Jesse Pollard <pollard@cats-chateau.net>:
-> On Sun, 29 Oct 2000, Stephen Harris wrote:
-> >Horst von Brand wrote:
-> >
-> >> > > If you send SIGSTOP to syslogd on a Red Hat 6.2 system (glibc 2.1.3,
-> >> > > kernel 2.2.x), within a few minutes you will find your entire machine
-> >> > > grinds to a halt.  For example, nobody can log in.
-> >> 
-> >> Great! Yet another way in which root can get the rope to shoot herself in
-> >> the foot. Anything _really_ new?
-> >
-> >OK, let's go a step further - what if syslog dies or breaks in some way
-> >shape or form so that the syslog() function blocks...?
-> >
-> >My worry is the one that was originally raised but ignored:  syslog() should
-> >not BLOCK regardless of whether it's local or remote.  syslog is not a
-> >reliable mechanism and many programs have been written assuming they can
-> >fire off syslog() calls without worry.
-> 
-> It was NOT ignored. If syslogd dies, then the system SHOULD stop, after a
-> few seconds (depending on the log rate...).
-> 
-> I do believe that restarting syslog should be possible... Perhaps syslog
-> should be started by inetd at the very beginning. Then it could be restarted
-> after an exit/abort.
-> 
-> This can STILL fail if the syslog.conf is completely invalid - but then the
-> system SHOULD be stopped pending the investigation of why the file has been
-> corrupted, or syslogd falls back on a default configuration (record everything
-> in the syslog file).
+2.4 symbol generation code never sees the C++ names, 2.5 code might.
+To detect a mismatch between kernel headers and the module version
+file, I have to generate the checksum for the consumer of the symbol
+(C++) as well as the generator of the symbol (C) and compare them.
 
-As was pointed out in a separate E-mail: I ment to say "init" instead of
-"inetd", since inetd can generate syslog messages...
+There are issues involving partially defined structures which might
+make this impossible to do, although I have some ideas on that front.
+But if kernel code uses C names and module code uses C++ names there
+will always be a spurious mismatch.  That would prevent symbol versions
+from picking up some user errors.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,89 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbULAUnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbULAVBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbULAUnd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 15:43:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbULAUnd
+	id S261449AbULAVBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 16:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbULAVBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 15:43:33 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:10905 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261443AbULAUnQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 15:43:16 -0500
-Subject: Re: Suspend 2 merge
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Pavel Machek <pavel@suse.cz>
-Cc: Stefan Seyfried <seife@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
-In-Reply-To: <20041201100854.GA1015@elf.ucw.cz>
-References: <20041125192016.GA1302@elf.ucw.cz>
-	 <1101422088.27250.93.camel@desktop.cunninghams>
-	 <20041125232200.GG2711@elf.ucw.cz>
-	 <1101426416.27250.147.camel@desktop.cunninghams> <41AAED32.2010703@suse.de>
-	 <1101766833.4343.425.camel@desktop.cunninghams> <41AC6480.6020002@suse.de>
-	 <1101849416.5715.13.camel@desktop.cunninghams>
-	 <20041130222027.GE1361@elf.ucw.cz>
-	 <1101893275.5073.0.camel@desktop.cunninghams>
-	 <20041201100854.GA1015@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1101933562.5073.3.camel@desktop.cunninghams>
+	Wed, 1 Dec 2004 16:01:04 -0500
+Received: from main.gmane.org ([80.91.229.2]:31130 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261449AbULAVBB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 16:01:01 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [WISHLIST] IBM HD Shock detection in Linux
+Date: Wed, 1 Dec 2004 20:51:49 +0000 (UTC)
+Message-ID: <loom.20041201T214939-556@post.gmane.org>
+References: <200412011331.06813.shawn.starr@rogers.com> <1101926579.18170.48.camel@krustophenia.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 02 Dec 2004 07:39:22 +1100
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 80.171.20.22 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041114 Firefox/1.0)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Lee Revell <rlrevell <at> joe-job.com> writes:
 
-On Wed, 2004-12-01 at 21:08, Pavel Machek wrote:
-> Hi!
 > 
-> > > > > >>Putting only the absolutely necessary things into the kernel (the same
-> > > > > >>is true for the interactive resume thing - if someone wants interactive
-> > > > > >>startup at a failing resume, he has to use an initrd, i don't see a
-> > > > > >>problem with that) will probably increase the acceptance a bit :-)
-> > > > > > 
-> > > > > > That's fine if your initrd is properly configured and you're willing to
-> > > > > 
-> > > > > This is something distributions have to take care of.
-> > > > 
-> > > > No; it's something the users will have to take care of. Distro makers
-> > > > might make the process more automated, but in the end it's the user's
-> > > > problem if it doesn't work.
-> > > 
-> > > Actually, no, its not like that. 
-> > > 
-> > > User will click icon in KDE, and if it does not suspend & resume
-> > > properly, distribution has problem to fix. And yes, it works well in
-> > > SUSE9.2.
-> > 
-> > I didn't know you had support for initramfs and initrd configurations
-> > already. You are making progress.
+> On Wed, 2004-12-01 at 13:31 -0500, Shawn Starr wrote:
+> > While I have seen this feature in XP, It would be nice to have such 
+> > functionality in Linux. Does anyone know if this is being worked on 
+> > somewhere?
 > 
-> Well, no, not that one.
-> 
-> OTOH for SUSE9.2 these things basically can not happen. (There's no
-> wrong kernel you can click on ;-) -- either you boot normally, then
-> there's just one kernel to boot, or you boot failsafe, and then you
-> want to kill signatures etc.) 
+> What is it?  What does it do?  How does it work?  Got a link?
 
-And it's impossible for you to accidentally select the failsafe?
+It's a motion detector on the motherboard.
 
-Anyway, even if it is impossible, you're still only talking about one
-particular set of circumstances; that's not necessarily the case for
-everyone else, not should it necessarily be.
+Here is an IBM whitepaper:
+  ftp://ftp.software.ibm.com/pc/pccbbs/mobiles_pdf/aps2mst.pdf
 
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
+Kay
 

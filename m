@@ -1,87 +1,90 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316088AbSFDCFB>; Mon, 3 Jun 2002 22:05:01 -0400
+	id <S316089AbSFDCPz>; Mon, 3 Jun 2002 22:15:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316089AbSFDCFA>; Mon, 3 Jun 2002 22:05:00 -0400
-Received: from ausxc10.us.dell.com ([143.166.98.229]:55819 "EHLO
-	ausxc10.us.dell.com") by vger.kernel.org with ESMTP
-	id <S316088AbSFDCFA>; Mon, 3 Jun 2002 22:05:00 -0400
-Message-ID: <9A2D9C0E5A442340BABEBE55D81BEBDB0120518A@AUSXMPS313.aus.amer.dell.com>
-From: Matt_Domsch@Dell.com
-To: matti.aarnio@zmailer.org
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: please kindly get back to me
-Date: Mon, 3 Jun 2002 21:04:53 -0500 
+	id <S316092AbSFDCPz>; Mon, 3 Jun 2002 22:15:55 -0400
+Received: from mail118.mail.bellsouth.net ([205.152.58.58]:4595 "EHLO
+	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S316089AbSFDCPy>; Mon, 3 Jun 2002 22:15:54 -0400
+Message-ID: <3CFC22CE.93DAF5D8@bellsouth.net>
+Date: Mon, 03 Jun 2002 22:15:42 -0400
+From: Albert Cranford <ac9410@bellsouth.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@zip.com.au>
+Subject: Andrew fix it: ethernet tulip misdetected starting 2.5.20
+In-Reply-To: <3CFC0D15.9F03AD36@bellsouth.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2002-06-03 at 20:23, Matti Aarnio wrote:
-> I think there are several free codes of this kind 
-> available, but my time
-> has been chronically over-subscribed to do radical things 
-> like taking this kind of codes into use.
-
-I've been using SpamAssassin on lists.us.dell.com for a couple months now.
-It's pretty effective, but of course not perfect - maybe one a month gets
-through, though I'm dealing with less traffic than vger.  I'm not actually
-filtering linux-kernel-digest or -daily-digest, except to verify that the
-mail actually was sent from vger and not some spammer.  With procmail
-recipies, it works quite well.  Because I'm using mailman, it's a
-multi-stage thing.  Procmail does the heavy lifting, and mailman sticks
-suspected spam in the moderator queue.
-
-/etc/aliases has:
-linux-poweredge:         "|procmail -m /etc/procmailrcs/spamfilter post
-linux-poweredge"
-
-/etc/procmailrcs/spamfilter has:
-# drop known spam senders in our killfile
-:0
-* ? formail -x"From" -x"From:" -x"Sender:" -x"X-Envelope-Sender:" | egrep
--is -f
- /home/mailman/SPAMMERS
-/dev/null
-
-:0fw
-| spamc
-
-# This avoids having to moderate completely obvious spam.
-# Send obvious spam to /var/spool/mail/caught-spam
-# Eventually we'll just send it to /dev/null instead.
-:0
-* ? formail -x"X-Spam-Status:" | sed -e 's/hits=//g' | \
-    awk '{if ($2 < 10) exit 1}'
-caught-spam
-
-:0
-|/home/mailman/mail/wrapper $1 $2
-
-
-Messages that match known spammers are dropped.
-Messages with scores < 5 are considered not spam.
-Messages with scores 5-10 are caught by Mailman filters and dropped into
-moderator queue
-Messages with scores > 10 are stored in caught-spam, could be /dev/null - it
-hasn't missed yet.
-Mailman then has its own list of things to catch for moderation, and I've
-mimic'd vger's filters too.
-
-Successful messages give automatic whitelist points to the author, which
-cuts down on false positives from people who post regularly.  In all I'm
-quite pleased.  A useful addition would be automatic updates of rules as
-they get added to CVS, but SpamAssassin isn't mature enough to allow such
-quiet yet.
-
+Andrew Morton already fixed it in pci device matching fix
 Thanks,
-Matt
+Albert
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102315156003503&w=2
+Albert Cranford wrote:
+> 
+> 2.5.19 works while 2.5.20 has mostly correct lspci output (PME- instead of PME+)
+> but the wrong driver gets detected and fails loading.
+> Similar to 3c509 vs 3c590 from Anton.
+> Anyone have any ideas in troubleshooting this?
+> Config:
+> CONFIG_NET_TULIP=y
+> # CONFIG_DE2104X is not set
+> CONFIG_TULIP=m
+> # CONFIG_TULIP_MWI is not set
+> # CONFIG_TULIP_MMIO is not set
+> # CONFIG_DE4X5 is not set
+> 
+>               linux-2.5.19
+> dmesg
+> Linux Tulip driver version 1.1.13 (May 11, 2002)
+> PCI: Found IRQ 11 for device 00:0b.0
+> eth0: ADMtek Comet rev 17 at 0xe800, 00:03:6D:16:4E:39, IRQ 11.
+> 
+> lspci -vv
+> 00:0b.0 Ethernet controller: Bridgecom, Inc: Unknown device 0985 (rev 11)
+>         Subsystem: Bridgecom, Inc: Unknown device 0574
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 255 min, 255 max, 32 set, cache line size 08
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: I/O ports at e800 [size=256]
+>         Region 1: Memory at e3001000 (32-bit, non-prefetchable) [size=1K]
+>         Expansion ROM at <unassigned> [disabled] [size=128K]
+>         Capabilities: [c0] Power Management version 2
+>                 Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME+
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME+
+> 
+> ------------------
+>              linux-2.5.20
+> dmesg
+> Linux Tulip driver version 1.1.13 (May 11, 2002)
+> PCI: Found IRQ 11 for device 00:0b.0
+> tulip0:  MII transceiver #1 config 1000 status 786d advertising 01e1.
+> eth0: Digital DS21140 Tulip rev 17 at 0xe800, EEPROM not present, 00:4C:69:6E:75:79, IRQ 11.
+> 
+> lspci -vv
+> 00:0b.0 Ethernet controller: Bridgecom, Inc: Unknown device 0985 (rev 11)
+>         Subsystem: Bridgecom, Inc: Unknown device 0574
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 255 min, 255 max, 32 set, cache line size 08
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: I/O ports at e800 [size=256]
+>         Region 1: Memory at e3001000 (32-bit, non-prefetchable) [size=1K]
+>         Expansion ROM at <unassigned> [disabled] [size=128K]
+>         Capabilities: [c0] Power Management version 2
+>                 Flags: PMEClk- AuxPwr- DSI- D1+ D2+ PME+
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> --
+> Albert Cranford Deerfield Beach FL USA
+> ac9410@bellsouth.net
 
 -- 
-Matt Domsch
-Sr. Software Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-#1 US Linux Server provider for 2001! (IDC Mar 2002)
+Albert Cranford Deerfield Beach FL USA
+ac9410@bellsouth.net

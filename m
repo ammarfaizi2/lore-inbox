@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278449AbRJOVdl>; Mon, 15 Oct 2001 17:33:41 -0400
+	id <S278313AbRJOVgB>; Mon, 15 Oct 2001 17:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278448AbRJOVdV>; Mon, 15 Oct 2001 17:33:21 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30214 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S278446AbRJOVdK>; Mon, 15 Oct 2001 17:33:10 -0400
-Subject: Re: SMP processor rework help needed
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Mon, 15 Oct 2001 22:39:34 +0100 (BST)
-Cc: ebiederm@xmission.com (Eric W. Biederman), linux-kernel@vger.kernel.org
-In-Reply-To: <3BCB19E0.64322276@colorfullife.com> from "Manfred Spraul" at Oct 15, 2001 07:16:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278368AbRJOVfv>; Mon, 15 Oct 2001 17:35:51 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55819 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S278438AbRJOVfe>; Mon, 15 Oct 2001 17:35:34 -0400
+Date: Mon, 15 Oct 2001 17:30:14 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: nick@snowman.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
+In-Reply-To: <Pine.LNX.4.21.0110111522290.1104-100000@ns>
+Message-ID: <Pine.LNX.3.96.1011015172850.21274C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15tFSQ-0003SY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Huh?
-> 
-> 24547202.pdf: (i.e. volume 3 of the ia32 SDM)
-> <<<<<<<<
-> The APIC ID register is loaded at power up by sampling configuration
-> data that is driven onto pins of the processor. For the Pentium 4 and P6
-> family processors, pins A11# and A12# and pins BR0# through BR3# are
-> sampled; for the Pentium processor, pins BE0# through BE3# are sampled.
-> <<<<<<
+On Thu, 11 Oct 2001 nick@snowman.net wrote:
 
-Dual Pentium at least has a mode where the boot processor is decided by a
-boot time resolution - its valuable for HA uses.  I'm not sure if it affects
-the APIC ident
+> Erm, ???  Try www.crucial.com.  It's not quite as cheap as pc133, but it's
+> real close.  Where are you buying?
+
+TC computers. They have the cheap memory, but the motherboard specs ask
+for "registered." I'll take a look at crucial with that in mind.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

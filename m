@@ -1,79 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262910AbTJNSm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 14:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbTJNSm3
+	id S262747AbTJNScv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 14:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbTJNScv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 14:42:29 -0400
-Received: from mail3.iserv.net ([204.177.184.153]:65217 "EHLO mail3.iserv.net")
-	by vger.kernel.org with ESMTP id S262906AbTJNSmU (ORCPT
+	Tue, 14 Oct 2003 14:32:51 -0400
+Received: from [62.12.146.226] ([62.12.146.226]:46610 "EHLO server6.fpw.ch")
+	by vger.kernel.org with ESMTP id S262747AbTJNScp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 14:42:20 -0400
-Message-ID: <3F8C438B.9040802@didntduck.org>
-Date: Tue, 14 Oct 2003 14:42:19 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Lattner <sabre@nondot.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [x86] Access off the bottom of stack causes a segfault?
-References: <Pine.LNX.4.44.0310141320020.3869-100000@nondot.org>
-In-Reply-To: <Pine.LNX.4.44.0310141320020.3869-100000@nondot.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 14 Oct 2003 14:32:45 -0400
+Subject: 2.6.0-test7 on Asus M3N, PCMCIA problem
+From: Alexey Goldin <ab_goldin@swissmail.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1066156364.13247.15.camel@hobbit>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 14 Oct 2003 11:32:44 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Lattner wrote:
+Tried the latest new and shining 2.6.0-test7 on my new and shining
+carbonlinux.com Asus M3N. Mostly works Ok,except for a few small
+problems. The most annoying is PCMCIA: it does not work.
 
->My compiler is generating accesses off the bottom of the stack (address
->below %esp).  Is there some funny kernel interaction that I should be
->aware of with this?  I'm periodically getting segfaults.
->
->Example:
->
->int main() {
->   int test[4000];
->...
->   return 0;
->}
->
->Generated code:
->        .intel_syntax
->...
->main:
->        mov DWORD PTR [%ESP - 16004], %EBP    # Save EBP to stack
->        mov %EBP, %ESP                        # Set up EBP
->        sub %ESP, 16004                       # Finally adjust ESP
->        lea %EAX, DWORD PTR [%EBP - 16000]    # Get the address of the array
->...
->        mov %EAX, 0                           # Setup return value
->        mov %ESP, %EBP                        # restore ESP
->        mov %EBP, DWORD PTR [%ESP - 16004]    # Restore EBP from stack
->        ret
->
->This seems like perfectly valid X86 code (though unconventional), but it
->is causing segfaults pretty consistently (on the first instruction).
->Does the linux kernel assume that page faults will be above the stack
->pointer if the stack needs to be expanded?
->
->Thanks,
->
->-Chris
->
->  
->
- From arch/i386/mm/fault.c:
-                /*
-                 * accessing the stack below %esp is always a bug.
-                 * The "+ 32" is there due to some instructions (like
-                 * pusha) doing post-decrement on the stack and that
-                 * doesn't show up until later..
-                 */
-                if (address + 32 < regs->esp)
-                        goto bad_area;
+Here is a snip from dmesg +- few lines:
 
---
-                Brian Gerst
+--------------------------------------------------------
+Freeing unused kernel memory: 136k freed
+Adding 1959888k swap on /dev/hda1.  Priority:-1 extents:1
+EXT3 FS on hda2, internal journal
+Linux Kernel Card Services
+  options:  [pci] [cardbus] [pm]
+Yenta: CardBus bridge found at 0000:01:05.0 [1043:1744]
+warning: process `update' used the obsolete bdflush system call
+Fix your initscripts?
+Yenta: ISA IRQ list 0000, PCI irq5
+Socket status: 5fc5ccc7
+PCMCIA: socket f7c9b82c: time out after reset.
+PCMCIA: socket f7c9b82c: *** DANGER *** unable to remove socket power
+drivers/usb/core/usb.c: registered new driver usbfs
+drivers/usb/core/usb.c: registered new driver hub
+drivers/usb/core/usb.c: registered new driver hid
+drivers/usb/input/hid-core.c: v2.0:USB HID core driver
+---------------------------------------------------------
+
+A snip from /proc/config.gz:
+# CONFIG_PCI_LEGACY_PROC is not set
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_SCx200 is not set
+CONFIG_HOTPLUG=y
+                                                                                
+#
+# PCMCIA/CardBus support
+#
+CONFIG_PCMCIA=m
+CONFIG_YENTA=m
+CONFIG_CARDBUS=y
+CONFIG_I82092=m
+# CONFIG_I82365 is not set
+# CONFIG_TCIC is not set
+CONFIG_PCMCIA_PROBE=y
+                                                                                
+#
+# PCI Hotplug Support
+#
+# CONFIG_HOTPLUG_PCI is not set
+                                                                                
+#
+# Executable file formats
+#
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_MISC=y
+----------------------------------------------
+
+The same problem was present in 2.6.0-test6. This is debian testing,
+vanilla source from kernel.org. ACPI is enabled. Please tell me where to
+dig deeper for a problem. Thank you!
+                                                                                
+
+2.4.21 hangs keyboard for few second each time ACPI detects that CPU
+temperature gets close to 55C trip point, in 2.4.22 keyboard does not 
+work in X if Synaptic touchpad is activated. PCMCIA works fine in 2.4.21
+and 2.4.22.  pcmcia-cs tools version is  3.2.2-1.3.
+
+
+
+P.S. I am not subscribed to the list, but it is not necessary to CC: me
+--- I will continue browsing archives.
+
+P.P.S. New xconfig is really cool.
+
+-- 
+Alexey Goldin <ab_goldin@swissmail.org>
 

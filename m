@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbTICOCv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 10:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbTICOCv
+	id S262235AbTICOFa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 10:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbTICOFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 10:02:51 -0400
-Received: from ivoti.terra.com.br ([200.176.3.20]:2483 "EHLO
-	ivoti.terra.com.br") by vger.kernel.org with ESMTP id S262079AbTICOCu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 10:02:50 -0400
-Message-ID: <3F55F4DD.9070301@terra.com.br>
-Date: Wed, 03 Sep 2003 11:04:13 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: pekkas@netcore.fi, davem@redhat.com, yoshfuji@linux-ipv6.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: [PATCH] Kill unneeded linux/version.h include in net/ipv6
-Content-Type: multipart/mixed;
- boundary="------------020308040205020607070106"
+	Wed, 3 Sep 2003 10:05:30 -0400
+Received: from covert.black-ring.iadfw.net ([209.196.123.142]:13581 "EHLO
+	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
+	id S262235AbTICOF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 10:05:26 -0400
+Date: Wed, 3 Sep 2003 09:05:21 -0500
+From: Art Haas <ahaas@airmail.net>
+To: linux-kernel@vger.kernel.org
+Subject: svn updating of linux-2.4 kernel failing
+Message-ID: <20030903140521.GC12483@artsapartment.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020308040205020607070106
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi.
 
-	Hi,
+I'd downloaded the 2.4 kernel with svn and built it yesterday. Now I'm
+trying to update it and I'm getting this ...
 
-	Patch against 2.6-test4.
+$ svn update
+svn: No such file or directory
+svn: svn_io_copy_file: error copying
+'arch/ia64/scripts/.svn/text-base/check-gas-for-hint.S.svn-base' to
+'arch/ia64/scripts/.svn/tmp/text-base/check-gas-for-hint.S.svn-base.tmp'
+$
 
-	Removes an unneeded linux/version.h include from af_inet6..
+Is anyone else seeing this?
 
-	Please consider applying.
+Art Haas
+-- 
+Man once surrendering his reason, has no remaining guard against absurdities
+the most monstrous, and like a ship without rudder, is the sport of every wind.
 
-	Cheers,
-
-Felipe
-
---------------020308040205020607070106
-Content-Type: text/plain;
- name="ipv6-checkversion.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipv6-checkversion.patch"
-
---- linux-2.6.0-test4/net/ipv6/af_inet6.c	Fri Aug 22 20:56:34 2003
-+++ linux-2.6.0-test4-fwd/net/ipv6/af_inet6.c	Wed Sep  3 10:58:48 2003
-@@ -40,7 +40,6 @@
- #include <linux/proc_fs.h>
- #include <linux/stat.h>
- #include <linux/init.h>
--#include <linux/version.h>
- 
- #include <linux/inet.h>
- #include <linux/netdevice.h>
-
---------------020308040205020607070106--
-
+-Thomas Jefferson to James Smith, 1822

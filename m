@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267616AbSLFG1e>; Fri, 6 Dec 2002 01:27:34 -0500
+	id <S267610AbSLFGXo>; Fri, 6 Dec 2002 01:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267617AbSLFG1e>; Fri, 6 Dec 2002 01:27:34 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:24704 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S267616AbSLFG1d> convert rfc822-to-8bit; Fri, 6 Dec 2002 01:27:33 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [BUG]2.4.19-ck7
-Date: Fri, 6 Dec 2002 17:37:32 +1100
-User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	id <S267612AbSLFGXo>; Fri, 6 Dec 2002 01:23:44 -0500
+Received: from otter.mbay.net ([206.55.237.2]:15114 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S267610AbSLFGXn> convert rfc822-to-8bit;
+	Fri, 6 Dec 2002 01:23:43 -0500
+From: John Alvord <jalvo@mbay.net>
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Shane Helms'" <shanehelms@eircom.net>,
+       "'Ed Vance'" <EdV@macrolink.com>, "'jeff millar'" <wa1hco@adelphia.net>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: is KERNEL developement finished, yet ???
+Date: Thu, 05 Dec 2002 22:30:53 -0800
+Message-ID: <7ug0vuc6cof9fjohs8as79vvjk5m0p4h4i@4ax.com>
+References: <1039111796.19636.27.camel@irongate.swansea.linux.org.uk> <001201c29cee$d9680e60$228a3841@joe>
+In-Reply-To: <001201c29cee$d9680e60$228a3841@joe>
+X-Mailer: Forte Agent 1.92/32.570
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200212061737.36906.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 6 Dec 2002 00:15:15 -0600, "Joseph D. Wagner"
+<wagnerjd@prodigy.net> wrote:
 
+>>> I don't know of any mistakes per say, but if I had
+>>> to do it over again, there's about a thousands things
+>>> I'd do differently (preference in design choices, not
+>>> mistakes) especially not to cling so religiously to
+>>> POSIX compliance.
+>
+>> And then you'd have no applications.
+>
+>I AM NOT AN IDIOT! DON'T YOU THINK I KNOW THAT?
+>
+>It's MY PREFERENCE in operating system design choices.  I don't have to make
+>it compatible with anyone else's.
+>
+>Joseph Wagner
 
-I've gone back and looked at ck7 (was a little while ago). -ck doesnt directly 
-alter skbuff.c but may be responsible for calling it in an interrupt. I'm 
-sorry I can't enlighten you as to why it's happening and offer a fix as I 
-don't really know what the problem is.
+Indeed... go forth and prosper... but not perhaps on the linux-kernel
+list where polishing the particular jewel "Linux" is in progress.
 
-The fact that it's happening now regularly and not previously is unusual if 
-the kernel itself is responsible unless some pattern in your usage has 
-changed. Perhaps seeing if the problem repeats on a vanilla or alternate 
-kernel may be helpful (-ck is rather different from vanilla).
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE98EWvF6dfvkL3i1gRAnDbAJwN5YR8X1P/YR7XQLKAg+q1orm2SQCcDf+A
-i3iLphPRc5au7WsXBci+npA=
-=JMES
------END PGP SIGNATURE-----
+john alvord

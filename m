@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVCEM4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVCENEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbVCEM4o (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 07:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbVCEM4o
+	id S261251AbVCENEY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 08:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVCENEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 07:56:44 -0500
-Received: from mail48-s.fg.online.no ([148.122.161.48]:35733 "EHLO
-	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
-	id S262536AbVCEM42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 07:56:28 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-References: <873bxfoq7g.fsf@quasar.esben-stien.name>
-	<87zmylaenr.fsf@quasar.esben-stien.name>
-	<20050204195410.GA5279@ucw.cz> <1108105875.5676.3.camel@localhost>
-	<87vf8uee2q.fsf@quasar.esben-stien.name>
-	<1108440859.26172.1.camel@localhost>
-	<87psz1fv8c.fsf@quasar.esben-stien.name>
-	<1108537815.32143.12.camel@localhost>
-From: Esben Stien <b0ef@esben-stien.name>
-X-Home-Page: http://www.esben-stien.name
-Date: Sat, 05 Mar 2005 13:56:11 +0100
-In-Reply-To: <1108537815.32143.12.camel@localhost> (Jeremy Nickurak's
- message of "Wed, 16 Feb 2005 00:10:15 -0700")
-Message-ID: <87y8d2l09g.fsf@quasar.esben-stien.name>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 5 Mar 2005 08:04:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28691 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261251AbVCENER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 08:04:17 -0500
+Date: Sat, 5 Mar 2005 14:04:16 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Kai Germaschewski <kai.germaschewski@unh.edu>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Vincent Vanackere <vincent.vanackere@gmail.com>, keenanpepper@gmail.com,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
+Message-ID: <20050305130416.GA6373@stusta.de>
+References: <20050304202842.GH3327@stusta.de> <Pine.LNX.4.44.0503050004120.20007-100000@chaos.sr.unh.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0503050004120.20007-100000@chaos.sr.unh.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Nickurak <atrus@rifetech.com> writes:
+On Sat, Mar 05, 2005 at 12:09:29AM -0500, Kai Germaschewski wrote:
+> On Fri, 4 Mar 2005, Adrian Bunk wrote:
+> 
+> > > [...] So ld looks into the lib .a archive, determines that none of 
+> > > the symbols in that object file are needed to resolve a reference and 
+> > > drops the entire .o file.
+> 
+> > Silly question:
+> > What's the advantage of lib-y compared to obj-y?
+> 
+> Basically exactly what I quoted above -- unused object files don't get
+> linked into the kernel image and don't take up (wasted) space. On the
+> other hand, files in obj-y get linked into the kernel unconditionally.
 
-> A custom rule in /etc/udev/rules.d/00_logitech.rules:
+And this can break as soon as the "unused" object files contains 
+EXPORT_SYMBOL's.
 
-Nice.
+Is it really worth it doing it in this non-intuitive way?
+I'd prefer an explicite dependency on a variable if you want to 
+compile library functions conditionally.
 
-> Just like programs interpret buttons 4 and 5 as vertical scrolling,
-> they interpret 6 and 7 as the horizontal scrollers. GTK, mozilla,
-> galeon, and firefox all go by this principal
+> --Kai
 
-Hmm, where is this defined in firefox?. It would be logical to assume that the side buttons for going back and forth would be 6/7 as the 
-
-> (Mozilla/galeon/firefox use the horizontal scroll for
-> backward/foreward by default. You can change this by setting
-> mousewheel.horizscroll.withnokey.action = 0
-> mousewheel.horizscroll.withnokey.numlines = 1
-> mousewheel.horizscroll.withnokey.sysnumlines = true
-
-Hmm, mk, nice, I'll try that when evdev works properly. 
-
-Now I see I got the same problem as you. I get two buttons pressed
-when using the tilt wheel. Check my other reply for xev output.
-
-The issue is also present in linux-2.6.11
+cu
+Adrian
 
 -- 
-Esben Stien is b0ef@esben-stien.name
-http://www.esben-stien.name
-irc://irc.esben-stien.name/%23contact
-[sip|iax]:b0ef@esben-stien.name
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

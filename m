@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312128AbSCQW5b>; Sun, 17 Mar 2002 17:57:31 -0500
+	id <S312133AbSCQW7L>; Sun, 17 Mar 2002 17:59:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312130AbSCQW5V>; Sun, 17 Mar 2002 17:57:21 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:65167 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S312128AbSCQW5J>; Sun, 17 Mar 2002 17:57:09 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 17 Mar 2002 15:01:38 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-In-Reply-To: <a72mif$941$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0203171453050.7378-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312130AbSCQW7B>; Sun, 17 Mar 2002 17:59:01 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:14865 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S312133AbSCQW6t>; Sun, 17 Mar 2002 17:58:49 -0500
+Date: Sun, 17 Mar 2002 23:58:38 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCSI-Problem with AM53C974
+Message-ID: <20020317225838.GA11721@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200203171439.g2HEdwX00738@orion.steiner.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200203171439.g2HEdwX00738@orion.steiner.local>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Mar 2002, Linus Torvalds wrote:
+On Sun, 17 Mar 2002, Marion Steiner wrote:
 
-> In article <Pine.LNX.4.44L.0203171021090.2181-100000@imladris.surriel.com>,
-> Rik van Riel  <riel@conectiva.com.br> wrote:
-> >
-> >In other words, large pages should be a "special hack" for
-> >special applications, like Oracle and maybe some scientific
-> >calculations ?
->
-> Yes, I think so.
->
-> That said, a 64kB page would be useful for generic use.
->
-> >Grabbing some bitflags in generic datastructures shouldn't
-> >be an issue since free bits are available.
->
-> I had large-page-support working in the VM a long time ago, back when I
-> did the original VM portability rewrite.  I actually exposed the kernel
-> large pages to the VM, and it worked fine - I didn't even need a new
-> bit, since the code just used the "large page" bit in the page table
-> directly.
->
-> But it wasn't ever exposed to user space, and in the end I just made the
-> kenel mapping just not visible to the VM and simplified the x86
-> pmd_xxx() macros.  The approach definitely worked, though.
+> There is a problem with the AM53C974 Scsi-driver (Revision 0.5, 
+> kernel 2.4.x) and the DawiControl DC-2974.
+> 
+> Mar 17 14:13:01 orion kernel: scsi : aborting command due to timeout : pid
+> 123, scsi1, channel 0, id 0, lun 0 Inquiry 00 0
+> Mar 17 14:13:03 orion kernel: SCSI host 1 abort (pid 123) timed out -
+> resetting
+> Mar 17 14:13:03 orion kernel: SCSI bus is being reset for host 1 channel 0.
 
-Couldn't we choose the page size depending on the map size ?
-If we start mixing page sizes, what about kernel code that assumes PAGE_SIZE ?
-
-
-
-- Davide
-
-
+Command timeouts rather look like bus termination problem, plug loose or
+something like that. Does the problem still occur with all cables
+unplugged from the DC-2974? Does the problem occur with the DC-2974 in
+a different computer?

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144399AbRA1Wal>; Sun, 28 Jan 2001 17:30:41 -0500
+	id <S144272AbRA1WjC>; Sun, 28 Jan 2001 17:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144398AbRA1Wab>; Sun, 28 Jan 2001 17:30:31 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:61198 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S144272AbRA1WaP>;
-	Sun, 28 Jan 2001 17:30:15 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
+	id <S144345AbRA1Wix>; Sun, 28 Jan 2001 17:38:53 -0500
+Received: from theirongiant.zip.net.au ([61.8.0.198]:16645 "EHLO
+	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S144272AbRA1Wis>; Sun, 28 Jan 2001 17:38:48 -0500
+Date: Mon, 29 Jan 2001 09:38:54 +1100
+From: CaT <cat@zip.com.au>
 To: linux-kernel@vger.kernel.org
-Cc: "Sergey Kubushin" <ksi@cyberbills.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Peter Kaczuba <pepe@pool.informatik.rwth-aachen.de>, tytso@mit.edu
-Subject: Ram disk problems in 2.4.0ac12 
-In-Reply-To: Your message of "Fri, 26 Jan 2001 17:46:12 -0800."
-             <Pine.LNX.4.31ksi3.0101261742080.598-100000@nomad.cyberbills.com> 
+Subject: raiserfs, 2.4.1preX and nfs
+Message-ID: <20010129093854.C373@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 29 Jan 2001 09:29:56 +1100
-Message-ID: <9495.980720996@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Jan 2001 17:46:12 -0800 (PST), 
-"Sergey Kubushin" <ksi@cyberbills.com> wrote:
->Modules still don't load:
->
->=== Cut ===
->ide-mod.o: Can't handle sections of type 32131
->ide-probe-mod.o: Can't handle sections of type 256950710
->ide-disk.o: Can't handle sections of type 688840897
->ext2.o: Can't handle sections of type 69429248
->=== Cut ===
+I'm tempted to use raiserfs on a 45gig raid partition because I don't
+want to grow old and die before it finishes fscking. The main hassle
+is that that partition will be NFSed out and in the past there have
+been mutterings of rfs hacing hassles with nfs. Have these been sorted?
+Is there anything else I'd need to know about? A journalled fs would
+be way nice to have and I need to make a decision between ext2 and rfs
+asap.
 
-modutils has been ruled out as the cause of this problem.  The objects
-are valid but when they are loaded they come up as corrupt.  Modules
-work fine for me on 2.4.0-ac12, when they are loaded from disk.  Both
-people reporting this bug are using initrd so the obvious culprit is
-the ram disk code.
+any help would be greatly appreciated.
+
+-- 
+CaT (cat@zip.com.au)		*** Jenna has joined the channel.
+				<cat> speaking of mental giants..
+				<Jenna> me, a giant, bullshit
+				<Jenna> And i'm not mental
+					- An IRC session, 20/12/2000
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

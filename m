@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUJIU1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267376AbUJIUan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267361AbUJIU1w (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 16:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267380AbUJIU0x
+	id S267376AbUJIUan (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 16:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267378AbUJIU2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 16:26:53 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:23962 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267361AbUJIUZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 16:25:13 -0400
-Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Lee Revell <rlrevell@joe-job.com>
-To: Robert Love <rml@novell.com>
-Cc: stefan.eletzhofer@eletztrick.de,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1097353225.9973.7.camel@lucy>
-References: <41677E4D.1030403@mvista.com> <416822B7.5050206@opersys.com>
-	 <1097346628.1428.11.camel@krustophenia.net>
-	 <20041009212614.GA25441@tier.local>
-	 <1097350227.1428.41.camel@krustophenia.net>
-	 <20041009213817.GB25441@tier.local>
-	 <1097351221.1428.46.camel@krustophenia.net>  <1097353225.9973.7.camel@lucy>
-Content-Type: text/plain
-Message-Id: <1097353512.1428.64.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 09 Oct 2004 16:25:13 -0400
-Content-Transfer-Encoding: 7bit
+	Sat, 9 Oct 2004 16:28:04 -0400
+Received: from mail.joq.us ([67.65.12.105]:19098 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S267374AbUJIU1s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Oct 2004 16:27:48 -0400
+To: Chris Wright <chrisw@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+References: <1097269108.1442.53.camel@krustophenia.net>
+	<20041008144539.K2357@build.pdx.osdl.net>
+	<1097272140.1442.75.camel@krustophenia.net>
+	<20041008145252.M2357@build.pdx.osdl.net>
+	<1097273105.1442.78.camel@krustophenia.net>
+	<20041008151911.Q2357@build.pdx.osdl.net>
+	<20041008152430.R2357@build.pdx.osdl.net>
+	<87zn2wbt7c.fsf@sulphur.joq.us>
+	<20041008221635.V2357@build.pdx.osdl.net>
+	<87is9jc1eb.fsf@sulphur.joq.us>
+	<20041009121141.X2357@build.pdx.osdl.net>
+From: "Jack O'Quin" <joq@io.com>
+Date: 09 Oct 2004 15:27:24 -0500
+In-Reply-To: <20041009121141.X2357@build.pdx.osdl.net>
+Message-ID: <878yafbpsj.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-09 at 16:20, Robert Love wrote:
-> On Sat, 2004-10-09 at 15:47 -0400, Lee Revell wrote:
-> 
-> > Yes.  The upper bound on the response time of an RT task is a function
-> > of the longest non-preemptible code path in the kernel.  Currently this
-> > is the processing of a single packet by netif_receive_skb.
-> > 
-> > AIUI hard realtime is about bounded response times.  How does this not
-> > qualify?
-> 
-> I am actually in agreement with you, favoring this soft real-time
-> approach, but this is not bounded response time or determinism.  There
-> are no guarantees, no measurements conducted with all possible inputs,
-> sizes, errors, and so on.  This soft real-time approach gives great
-> average case--but the worst case is only a measurement on a specific
-> machine in a specific workload.
+> * Jack O'Quin (joq@io.com) wrote:
+> > This adds a test against current->egid in addition to the explicit
+> > check of current->gid.  I don't see any problem with that.  AFAICT,
+> > the current->gid check is still useful.
 
-I did not mean to say that VP approach alone can do hard realtime, that
-was just an example.  But, when combined the MontaVista approach of
-turning all but ~20 spinlocks into mutexes, it seems like the amount of
-non-preemptible code is small enough that you could analyze it all and
-start to make hard RT guarantees.
+Chris Wright <chrisw@osdl.org> writes:
+> The egid makes a setgid-audio program be meaningful as well.
 
-Lee
-
+That works already, because we test the e_gid from the bprm structure,
+right?  Is that redundant?
+-- 
+  joq

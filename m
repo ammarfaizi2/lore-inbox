@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264139AbRFHRaD>; Fri, 8 Jun 2001 13:30:03 -0400
+	id <S264252AbRFHRfY>; Fri, 8 Jun 2001 13:35:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264252AbRFHR3x>; Fri, 8 Jun 2001 13:29:53 -0400
-Received: from Scotty-EUnet.AT.EU.net ([193.83.12.34]:55936 "EHLO
-	www.scotty.co.at") by vger.kernel.org with ESMTP id <S264139AbRFHR3q>;
-	Fri, 8 Jun 2001 13:29:46 -0400
-Date: Fri, 8 Jun 2001 19:29:36 +0200 (CEST)
-From: Friedrich Lobenstock <fl@fl.priv.at>
-X-X-Sender: <fl@www.scotty.co.at>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: ftape and kernel 2.4 problem
-In-Reply-To: <E158OoP-0002qk-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106081909370.9390-100000@www.scotty.co.at>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264259AbRFHRfO>; Fri, 8 Jun 2001 13:35:14 -0400
+Received: from ibis.worldnet.net ([195.3.3.14]:54795 "EHLO ibis.worldnet.net")
+	by vger.kernel.org with ESMTP id <S264252AbRFHRfH>;
+	Fri, 8 Jun 2001 13:35:07 -0400
+User-Agent: Microsoft-Outlook-Express-Macintosh-Edition/5.02.2022
+Date: Fri, 08 Jun 2001 19:33:14 +0200
+Subject: Re: temperature standard - global config option?
+From: Chris Boot <bootc@worldnet.fr>
+To: "Michael H. Warfield" <mhw@wittsend.com>,
+        mirabilos {Thorsten Glaser} <isch@ecce.homeip.net>
+CC: "L. K." <lk@aniela.eu.org>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-ID: <B746D8FA.F994%bootc@worldnet.fr>
+In-Reply-To: <20010607212138.B29121@alcove.wittsend.com>
+Mime-version: 1.0
+Content-type: text/plain; charset="US-ASCII"
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Jun 2001, Alan Cox wrote:
+Hi,
 
-> If you are actually using ftape you are I suspect the most
-> qualified volunteer for doing something about it I've seen for two
-> years 8)
+> Then you must have blown your quantum finals.  Royally.  ESPECIALLY
+> after that statement about "temperature is nothing but the movement of
+> pieces of materie".  Not even close, once you get into the quant.
+> 
+> Mathematically and quantum mechanically, negative absolute
+> temperatures do exist.  In quantum mechanics, temperature is expressed as
+> probability populations in various quantum states.
 
-Hi Alan!
+Excuse me, but I don't think that we can get computer temperature sensors as
+we know them to measure temperatures of matter in quantum states.  Even if,
+one day, we built a usable quantum computer which might need temperature
+measurements, I doubt that the Linux kernel would run on it without being
+totally rewritten.
 
-Sure, but what I wanted to know are there some documents that describe
-the changes between 2.2 and 2.4? And how would you accept patches?
-
-For sure I could only make it work - maybe with help by Steven
-Walter - and then provide a patch for the whole thing. I know you and
-Linus only want small patches. I think this will only relate to the
-ftape drive, so I ask would the aformentioned big patch do? Or how'd
-we split it up?
-
-Maybe you could take a quick look at the latest state of the
-driver (dont forget to count the small patch of Steven Walter)
-and tell me what you think about the whole thing.
-
- http://www.instmath.rwth-aachen.de/~heine/ftape/getting.html
-
+Anyhow, I like the discussion.  I love anything to do with quantum physics!
 
 -- 
-MfG / Regards
-Friedrich Lobenstock
+Chris Boot
+bootc@worldnet.fr
 
+#define QUESTION ((2b) || (!2b))
 

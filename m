@@ -1,46 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbTFGAHq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 20:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbTFGAHq
+	id S262400AbTFGALv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 20:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbTFGALv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 20:07:46 -0400
-Received: from almesberger.net ([63.105.73.239]:43786 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262386AbTFGAHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 20:07:45 -0400
-Date: Fri, 6 Jun 2003 21:20:26 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: chas williams <chas@cmf.nrl.navy.mil>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
-Message-ID: <20030606212026.I3232@almesberger.net>
-References: <20030606125416.C3232@almesberger.net> <200306062354.h56NsWsG002919@ginger.cmf.nrl.navy.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306062354.h56NsWsG002919@ginger.cmf.nrl.navy.mil>; from chas@cmf.nrl.navy.mil on Fri, Jun 06, 2003 at 07:52:42PM -0400
+	Fri, 6 Jun 2003 20:11:51 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:17420 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S262400AbTFGALt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 20:11:49 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Linus Torvalds" <torvalds@transmeta.com>,
+       "Albert Cahalan" <albert@users.sourceforge.net>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, <davem@redhat.com>,
+       <bcollins@debian.org>, <wli@holomorphy.com>, <tom_gall@vnet.ibm.com>,
+       <anton@samba.org>
+Subject: RE: /proc/bus/pci
+Date: Fri, 6 Jun 2003 17:25:00 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGEELACOAA.rwhite@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <Pine.LNX.4.44.0306050847410.9939-100000@home.transmeta.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chas williams wrote:
-> converted to a net device.  this keeps me from needing to
-> replicate the net device code (particularly the sysfs
-> stuff -- or so i hope).   netdevices already have a handy
-> register/unregister that works (and will keep working).
-> why would i want to duplicate the net device work?
+My Humble Opinion:
 
-Sure, particularly sysfs as "the next big thing" is a good reason
-to align data structures and general semantics with the rest of
-the stack.
+"hose0" -> bad, I know I didn't have a clue where it came from
 
-The only thing that worries me in all this is Dave's request to
-make device destruction asynchronous, because of the complexity
-this is likely to add, for, IMHO, little or no gain.
+"domain0" -> obscure but mathematical 8-), probably hard to teach what with
+the name used all over heck
 
-- Werner
+"phb0" -> "eh what is phb?"  "primary host bridge"...
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+"bridge0" -> not bad, is it platform agnostic? (e.g. is the connection
+called a bridge on non- Intel/AMD/PS platforms?)  don't know...  but if it
+is... good
+
+Note:  There are no "good" synonyms for "Domain"  (from M-W.com:)
+
+"field, bailiwick, champaign, demesne, dominion, province, sphere, terrain,
+territory, walk"
+
+So, my heard groans for another "domain" in the computer, and I like the way
+bridge reads
+
+"devices/bridge0/bus2/dev11/fn0/whatever"
+
+but regardless (going back to pc-isms) that puts things like the pci-agp
+"bridge" and such into the namespace if one were to be especially
+conformant, which may or may not be a good thing.
+
+Rob.
+
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Linus Torvalds
+Sent: Thursday, June 05, 2003 8:52 AM
+To: Albert Cahalan
+Cc: linux-kernel; davem@redhat.com; bcollins@debian.org;
+wli@holomorphy.com; tom_gall@vnet.ibm.com; anton@samba.org
+Subject: Re: /proc/bus/pci
+
+
+
+On Thu, 5 Jun 2003, Albert Cahalan wrote:
+>
+> Some of the IBMers use "phb" instead of "hose" or "domain".
+
+Gods, did they run out of vowels in _that_ part of IBM too?
+
+Where do they go? Is there somebody at IBM that hoards vowels, and will
+one day hold the rest of the world hostage? "Mwahahahaa! If you don't buy
+support from IBM, you can never use the letter 'A' again! Whahahahhhaah!".
+
+I can see it now.
+
+
+What the _f*ck_ is wrong with just calling it "PCI domain". It's a fine
+word, and yes, "domain" is used commonly in computer language, but that's
+a _good_ thing. Everybody immediately understands what it is about.
+
+There is no goodness to acronyms where you have to be some "insider" to
+know what the hell it means. That "hose" thing has the same problem: I
+don't know about anybody else, but to me a "hose" is a logn narrow conduit
+for water, and a "PCI hose" doesn't much make sense to me.
+
+A "phb" just makes me go "Whaa?"
+
+		Linus
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

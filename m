@@ -1,73 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318078AbSGMDP0>; Fri, 12 Jul 2002 23:15:26 -0400
+	id <S318085AbSGMDRs>; Fri, 12 Jul 2002 23:17:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318083AbSGMDPZ>; Fri, 12 Jul 2002 23:15:25 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:58764 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S318078AbSGMDPY>;
-	Fri, 12 Jul 2002 23:15:24 -0400
-Date: Fri, 12 Jul 2002 20:16:02 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Compile warning in fs/partitions/check.c
-In-Reply-To: <Pine.LNX.4.44.0207121640180.3421-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.LNX.4.33.0207122003330.961-100000@geena.pdx.osdl.net>
+	id <S318086AbSGMDRr>; Fri, 12 Jul 2002 23:17:47 -0400
+Received: from dsl-213-023-043-071.arcor-ip.net ([213.23.43.71]:9187 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318085AbSGMDRo>;
+	Fri, 12 Jul 2002 23:17:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Oliver Xymoron <oxymoron@waste.org>
+Subject: Re: spinlock assertion macros
+Date: Sat, 13 Jul 2002 05:21:16 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Dave Jones <davej@suse.de>, Jesse Barnes <jbarnes@sgi.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207121533590.15441-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.44.0207121533590.15441-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17TDTB-0002hg-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 12 Jul 2002, Thunder from the hill wrote:
-
-> Hi,
+On Friday 12 July 2002 22:41, Oliver Xymoron wrote:
+> On Fri, 12 Jul 2002, Daniel Phillips wrote:
+> > On Friday 12 July 2002 14:07, Dave Jones wrote:
+> > > Something I've been meaning to hack up for a while is some spinlock
+> > > debugging code that adds a FUNCTION_SLEEPS() to (ta-da) functions that
+> > > may sleep.
+> >
+> > Yesss.  May I suggest simply SLEEPS()?  (Chances are, we know it's a
+> > function.)
+> >
+> > > This macro then checks whether we're currently holding any
+> > > locks, and if so printk's the names of locks held, and where they were taken.
+> >
+> > And then oopes?
+> >
+> > > When I came up with the idea[1] I envisioned some linked-lists frobbing,
+> > > but in more recent times, we can now check the preempt_count for a
+> > > quick-n-dirty implementation (without the additional info of which locks
+> > > we hold, lock-taker, etc).
+> >
+> > Spin_lock just has to store the address/location of the lock in a
+> > per-cpu vector, and the assert prints that out when it oopses.  Such
+> > bugs won't live too long under those conditions.
 > 
-> Compiling fs/partitions/check.c, I get a couple of warnings of "pointer to 
-> integer of different size":
-> 
-> 
-> kdev is a kdev_t here, driverfs_dev is a struct device.
-> 
-> 	kdev.value=(int)driverfs_dev->driver_data;
-> 
-> Is it okay to replace this with
-> 
-> 	kdev.value=(unsigned short)driverfs_dev->driver_data;
-> 
-> to make the warnings go away?
+> Store it in the task struct, and store a pointer to the previous (outer
+> lock) in that lock, then you've got a linked list of locks per task - very
+> useful.
 
-This code definitely shouldn't rely on the format of the kdev_t structure. 
-It looks like it should be something like:
+Yes, thanks, I was in fact feeling a little guilty about proposing that
+non-nested solution, even if it would in practice point you at the
+correct culprit most of the time.
 
--	kdev.value=(int)driverfs_dev->driver_data;
--	return off ? 0 : sprintf (page, "%x\n",kdev.value);
-+	kdev = val_to_kdev((int)driverfs_dev->driver_data);
-+	return off ? 0 : sprintf (page, "%x\n",kdev_val(kdev));
+So in schedule() we check the task struct field and oops if it's non-null.
+In other words, one instance of SLEEPS goes in shedule() and others are
+sprinkled around the kernel as executable documentation.
 
-> Also, struct driver_file_entry->show gets initialized here:
+> You'll need a helper function - current() is hard to get at from
+> spinlock.h due to tangled dependencies.
+
+What is the problem?  It looks like (struct thread_info *) can be forward
+declared, and hence current_thread_info and get_current can be defined
+early.  Maybe I didn't sniff at enough architectures.
+
+Anyway, if there are nasty dependencies then they are probably similar
+to the ones I unravelled with my early-page patch, which allows struct
+page to be declared right at the start of mm.h instead of way later,
+below a lot of things that want to reference it.
+
+> As I mentioned before, it can also
+> be very handy to stash the address of the code that took the lock in the
+> lock itself.
+
+And since the stack is chained through the locks, that just works.
+ 
+> > Any idea how one might implement NEVER_SLEEPS()?  Maybe as:
+> >
+> >    NEVER_ [code goes here] _SLEEPS
+> >
+> > which inc/dec the preeempt count, triggering a BUG in schedule().
 > 
-> 	show: partition_device_kdev_read,
-> 
-> show being (ssize_t *)(struct device *driverfs_dev, char *page, size_t 
-> 		       count, loff_t off);
-> but expecting (ssize_t *)(void *, char *page, size_t count, loff_t off);
+> NEVER_SLEEPS will only trigger on the rare events that blow up anyway,
+> while the MAY_SLEEP version catches _potential_ problems even when the
+> fatal sleep doesn't happen.
 
-First off, you might want to specify that you are using a specific patch. 
-The change of the first parameter of the show() and store() callbacks was 
-in a patch I posted last week. As of a few seconds ago, it hadn't been 
-merged into Linus' kernel.org tree. 
+Yes, that one's already been rejected as largely pointless.
 
-Second, the definition of the callbacks should change, and there should be
-an appropriate cast in the function. I have patches for all the users of
-those callbacks, but I'm waiting until I finally resolve the refcounting
-issues and post and updated patch to post those. FWIW, the pointer passed
-to those callbacks is guaranteed to be a struct device, so the warning is, 
-for now, harmless. 
-
-Finally, if you have driverfs questions/problems/concerns, please copy me 
-(and not Richard). :)
-
-	-pat
-
+-- 
+Daniel

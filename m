@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbVBDVwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbVBDVwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbVBDVwf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 16:52:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266454AbVBDVt1
+	id S264917AbVBDVwh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 16:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266452AbVBDVtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 16:49:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:10907 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266406AbVBDVho (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 16:37:44 -0500
-Date: Fri, 4 Feb 2005 13:37:26 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, zaitcev@redhat.com,
-       linux-usb-devel@lists.sourceforge.net,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: 2.6: USB disk unusable level of data corruption
-Message-ID: <20050204133726.7ba8944f@localhost.localdomain>
-In-Reply-To: <1107519382.1703.7.camel@localhost.localdomain>
-References: <1107519382.1703.7.camel@localhost.localdomain>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Feb 2005 16:49:04 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:2186 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S264704AbVBDVby
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 16:31:54 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data corruption
+Date: Fri, 4 Feb 2005 13:31:36 -0800
+User-Agent: KMail/1.7.1
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+References: <Pine.LNX.4.44L0.0502041539350.674-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0502041539350.674-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502041331.37042.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 04 Feb 2005 23:16:22 +1100, Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Friday 04 February 2005 12:55 pm, Alan Stern wrote:
+> 
+> The most likely explanation seems to be hardware problems.  Particularly
+> for high-speed USB devices, 2.6 drives the hardware much closer to the
+> limit than 2.4 or Windows (to judge by the problem reports we've seen).  
 
-> [...] I have since then had multiple
-> ext3 and ext2 errors: 2.6.8, 2.6.9, 2.6.10 and 2.6.11-rc3 all exhibit
-> the problem within an hour of stress (untarring a fresh kernel tree, cp
-> -al'ing to apply patches repeatedly, my normal workload).
+Agreed ... though limiting usb-storage I/O requests to 64 KB does tend to
+mask that difference.  Some network adapters get better throughput than
+Windows, too.  URB queueing does the trick ... not really usable on 2.4
+kernels, but the costs on 2.6 seem substantially lower than on Windows.
 
-> I realize "ub" exists, but it doesn't seem to want to deal with a disk
-> device.
 
-In case your EHCI disconnects devices under load, ub won't help.
-You probably heard my claims that ub helps against certain memory
-pressure related lockups and against problems in the SCSI stack,
-which my even be true. Jury is still out on those and your case
-seems different anyway. Please work with David Brownell on the EHCI
-issues. I applied a few patches of his to the 2.4 which made a difference
-in similar circumstances.
+> One case came up just a couple of days ago, in which this sort of data
+> corruption was definitively traced to a known erratum in the peripheral's
+> USB interface.  (The controller chip was an old revision which has been
+> supplanted, but who knows what sort of hardware lurks in the hearts of
+> commercial drives?)
 
-Good luck,
--- Pete
+If you're thinking of that net2280 issue, that erratum was specific
+to full speed modes, and never appeared at high speed.  Also, that chip
+wouldn't be used in mass market IDE adapters.  (Too pricey compared to
+the custom chips that have no need for a CPU or PCI.)
+
+But the point is good:  it's easy for hardware to have bugs there.
+
+- Dave
+
+
+

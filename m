@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263616AbTIHVb7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 17:31:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTIHVb7
+	id S263572AbTIHV1U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 17:27:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbTIHV1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 17:31:59 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39184
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S263616AbTIHVb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 17:31:57 -0400
-Date: Mon, 8 Sep 2003 14:32:12 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
+	Mon, 8 Sep 2003 17:27:20 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:4482
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263572AbTIHV1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 17:27:19 -0400
+Date: Mon, 8 Sep 2003 17:27:10 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
 To: Greg KH <greg@kroah.com>
-Cc: Jamie Lokier <jamie@shareable.org>, David Brownell <david-b@pacbell.net>,
-       Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>,
-       Linux usb mailing list 
-	<linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: USB modem no longer detected in -test4
-Message-ID: <20030908213212.GA17441@matchmail.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	Jamie Lokier <jamie@shareable.org>,
-	David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>,
-	Linux usb mailing list <linux-usb-devel@lists.sourceforge.net>
-References: <20030903191701.GA2798@elf.ucw.cz> <20030903223936.GA7418@kroah.com> <20030903224412.GA6822@atrey.karlin.mff.cuni.cz> <20030903233602.GA1416@kroah.com> <20030904212417.GF31590@mail.jlokier.co.uk> <3F57C951.8030606@pacbell.net> <20030906160200.GA10723@mail.jlokier.co.uk> <20030906174418.GA22620@kroah.com> <20030908062028.GJ19041@matchmail.com> <20030908160631.GC10969@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030908160631.GC10969@kroah.com>
-User-Agent: Mutt/1.5.4i
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.6][CFT] rmmod floppy kills box fixes + default_device_remove
+In-Reply-To: <20030908155048.GA10879@kroah.com>
+Message-ID: <Pine.LNX.4.53.0309081722270.14426@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.53.0309072228470.14426@montezuma.fsmlabs.com>
+ <20030908155048.GA10879@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08, 2003 at 09:06:31AM -0700, Greg KH wrote:
-> On Sun, Sep 07, 2003 at 11:20:28PM -0700, Mike Fedyk wrote:
-> > On Sat, Sep 06, 2003 at 10:44:18AM -0700, Greg KH wrote:
-> > > On Sat, Sep 06, 2003 at 05:02:00PM +0100, Jamie Lokier wrote:
-> > > > 
-> > > > So many other things don't work automatically for me in 2.6 that one
-> > > > little echo for cdc_acm is a little thing.  Besides, hotplug doesn't
-> > > > work either - something about the arguments to /sbin/hotplug has
-> > > > changed since 2.4 and I am in no rush to install a new version.
-> > > 
-> > > Sorry, but if you want hotplug to work in 2.6, you will have to install
-> > > a new version due to some changes to the network arguments, and due to a
-> > > bug in the older versions of the scripts.
-> > 
-> > What release date should the hotplug scripts be?  I still have that hotplug
-> > related oops that I told you about a while ago...
-> 
-> Try the latest :)
-> 
-> But that oops should have nothing to do with the scripts, that's a
-> kernel oops that I could never duplicate :(
+On Mon, 8 Sep 2003, Greg KH wrote:
 
-Are the kksymoops reports parsable by the userspace ksymoops?  Whenever I
-run the 2.6 kernel resolved oops through the user space ksymoops, it points
-to a different part of the kernel, leading me to suspect that i shouldn't be
-doing that.
+> Ick, no, I do not want to see this function get added, sorry.
 
-Is that right?  Also I use modules a lot, will that affect this?
+Well i was expecting that.
 
-I'd like to get this fixed.  Any instructions / patches would be helpful.
+> What happens if someone grabs the struct device reference by opening a
+> sysfs file and then you unload the module?  Yeah, not nice.  Please do
+
+Doesn't this all get taken care of by the platform_device_unregister?
+
+> _not_ create "empty" release() functions, unless you _really_ know what
+> you are doing (and providing a "default" one like this is just ripe for
+> abuse, that warning message in the kernel is there for a reason.)
+
+I know it's begging for abuse, but i don't want to sprinkle empty 
+release() functions everywhere, e.g. looking at the floppy driver, i'm 
+not quite sure what i'm supposed to do with a release() function there, 
+the struct platform_device_struct is statically allocated. Basically i'd 
+like a pointer as to what to do with these release() functions..
+
+Thanks,
+	Zwane

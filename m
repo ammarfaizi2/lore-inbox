@@ -1,95 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262900AbREVXwL>; Tue, 22 May 2001 19:52:11 -0400
+	id <S262898AbREVXwl>; Tue, 22 May 2001 19:52:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262899AbREVXvw>; Tue, 22 May 2001 19:51:52 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:60923 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262898AbREVXvm>;
-	Tue, 22 May 2001 19:51:42 -0400
-Date: Tue, 22 May 2001 19:51:39 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <Pine.LNX.4.21.0105221521330.4332-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105221909001.17373-100000@weyl.math.psu.edu>
+	id <S262901AbREVXwb>; Tue, 22 May 2001 19:52:31 -0400
+Received: from tpau.muc.eurocyber.net ([195.143.108.12]:49937 "EHLO
+	tpau.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S262898AbREVXwX>; Tue, 22 May 2001 19:52:23 -0400
+Message-ID: <3B0AFB50.11996EC5@teraport.de>
+Date: Wed, 23 May 2001 01:50:40 +0200
+From: Martin Knoblauch <martin.knoblauch@teraport.de>
+Organization: Teraport GmbH
+X-Mailer: Mozilla 4.6 [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: ttel5535@artax.karlin.mff.cuni.cz
+CC: "H. Peter Anvin" <hpa@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Output of L1,L2 and L3 cache sizes to /proc/cpuinfo
+In-Reply-To: <Pine.LNX.4.21.0105230032440.31122-100000@artax.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 22 May 2001, Linus Torvalds wrote:
- 
-> I would much prefer a union of pointers over a pointer to a union.
+Tomas Telensky wrote:
 > 
-> So I'd much rather have the inode have a
+> On 21 May 2001, H. Peter Anvin wrote:
 > 
-> 	union {
-> 		struct block_device *block;
-> 		struct char_device *char;
-		struct pipe_inode_info *pipe;
-and possibly
-		struct socket *socket;
-> 	} dev;
-
-> 	struct block_dev *bdget(struct inode *);
-> 	struct char_dev *cdget(struct inode *);
+> > Followup to:  <3B090C81.53F163C3@TeraPort.de>
+> > By author:    "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+> > In newsgroup: linux.dev.kernel
+> > >
+> > > Hi,
+> > >
+> > >  while trying to enhance a small hardware inventory script, I found that
+> > > cpuinfo is missing the details of L1, L2 and L3 size, although they may
+> > > be available at boot time. One could of cource grep them from "dmesg"
+> > > output, but that may scroll away on long lived systems.
+> > >
+> >
+> > Any particular reason this needs to be done in the kernel, as opposed
 > 
->    which populate the "inode->dev" union pointer, which in turn is _only_
->    a cache of the lookup. Right now we do this purely based on "dev_t",
->    and I think that is bogus. We should never pass a "dev_t" around
->    without an inode, I think.
+> It is already done in kernel, because it's displaying :)
+> So, once evaluated, why not to give it to /proc/cpuinfo. I think it makes
+> sense and gives it things in order.
+> 
 
-I doubt it. First of all, then we'd better make i_rdev dev_t. Right now
-we have it kdev_t and it makes absolutely no sense that way. If we
-only use it for stat() (when we convert it to dev_t) and for keeping the
-information between mknod/read_inode and open() - why bother converting it
-to anything? Currently it's used by drivers to identify the device.
-->dev.{block,char} is perfectly fine for that and gives more information
-without extra lookups, etc. And that's it - nothing else cares for
-->i_rdev. What you suggest is reusing it so that we had a way to get
-the right ->dev.{block,char} when we open. Fine, but there's no reason
-to tie it to kdev_t (or to have kdev_t, for that matter).
+ That came to my mind as an pro argument also. The work is already done
+in setup.c, so why not expose it at the same place where the other stuff
+is. After all, it is just a more detailed output of the already
+available "cache size" line.
 
-The real thing is inode->dev. Notice that for devfs (and per-device
-filesystems) we can set it upon inode creation, since they _know_ it
-from the very beginning and there is absolutely no reason to do any
-hash lookups. Moreover, in these cases we may have no meaningful device
-number at all.
-
->    And we should not depend on the "inode->dev.xxxx" pointer being valid all
->    the time, as there is absolutely zero point in initializing the pointer
->    every time the inode is read just because somebody does a "ls -l /dev".
->    Thus the "cache" part above.
-
-OK, but see comments above.
-
->  - NO reason to try to make "struct block_dev" and "struct char_dev" look
->    similar. They will have some commonality for lookup purposes (that
->    issue is similar, as Andries points out), and maybe that commonality
->    can be separated out into a sub-structure or something. But apart from
->    that, they have absolutely nothing to do with each other, and I'd
->    rather not have them have even a _superficial_ connection.
-
-Aye.
-
->    Block devices will have the "request queue" pointer, and the size and
->    partitioning information. Character devices currently would not have
-
-Do we really want a separate queue for each partition? I'd rather have
-disk_struct created when driver sees the disk and list of partitions
-(possibly represented by struct block_device) anchored in disk_struct
-and populated by grok_partitions().
-
-Then disk_struct would keep the queue _and_ ll_rw_block could do all
-remapping, so that driver itself wouldn't know anything about the
-partitioning.
-
-I have a half-baked patch for that (circa last Spring) and Ben LaHaise got
-suckere^W^Whad kindly volunteered to try porting it to current tree...
-
-								Al
-
-
+Martin
+PS: At least, I am not being ignored :-) No need for me to complain...

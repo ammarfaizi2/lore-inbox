@@ -1,81 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbTDMTsL (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 15:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTDMTsK (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 15:48:10 -0400
-Received: from golf.rb.xcalibre.co.uk ([217.8.240.16]:51463 "EHLO
-	golf.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S261715AbTDMTsJ (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 15:48:09 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair Strachan <alistair@devzero.co.uk>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-mm2
-Date: Sun, 13 Apr 2003 20:59:11 +0100
-User-Agent: KMail/1.5.9
+	id S261808AbTDMTuJ (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 15:50:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbTDMTuJ (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 15:50:09 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:13907 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261808AbTDMTuI (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 15:50:08 -0400
+Message-ID: <3E99C001.7030209@myrealbox.com>
+Date: Sun, 13 Apr 2003 12:52:33 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.67: ppa driver & preempt == oops
+References: <fa.e0puan3.1f34a3p@ifi.uio.no> <fa.h6rb9ej.ml8qhn@ifi.uio.no>
+In-Reply-To: <fa.h6rb9ej.ml8qhn@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200304132059.11503.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joshua Kwan wrote:
-
-[snip]
+Andrew Morton wrote:
+> Gert Vervoort <gert.vervoort@hccnet.nl> wrote:
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address
-> 00000040
->  printing eip:
-> c0223cf4
-> *pde = 00000000
-> Oops: 0002 [#1]
-> CPU:    0
-> EIP:    0060:[<c0223cf4>]    Not tainted VLI
-> EFLAGS: 00010282
-> EIP is at devclass_add_driver+0x34/0x8a
-> eax: 00000040   ebx: fffffff8   ecx: fffffff0   edx: ffff0001
-> esi: 00000040   edi: 00000000   ebp: c03af298   esp: c1297f50
-> ds: 0007b   es: 007b   ss: 0068
-> Process swapper: (pid: 1, threadinfo=c1296000 task=c1294080)
-> Stack: c03af500 c03af2b4 c03ae7c4 00000000 c03ae780 c0223620 c03af298
-> c03af280
->        00000001 00000000 00000000 c0223a72 c03af298 c0223a72 c03af048
->        fffffffc 00000034 c026d15d c03af298 c01afc02 c03af048 c0402ebe
->        c03af020 0000003c
-> Call Trace:
->  [<c0223620>] bus_add_driver+0x82/0xd2
->  [<c0223a72>] driver_register+0x38/0x3c
->  [<c0223a72>] driver_register+0x38/0x3c
->  [<c026d15d>] usb_register+0x73/0xae
->  [<c01afc02>] pci_register_driver+0x47/0x57
->  [<c0402ebe>] uhci_hcd_init+0xd9/0x137
->  [<c0402f2b>] hid_init+0xf/0x21
->  [<c03ec6e0>] do_initcalls+0x28/0x94
->  [<c0129ce8>] init_workqueues+0xf/0x27
->  [<c0105099>] init+0x36/0x195
->  [<c0105063>] init+0x0/0x195
->  [<c0106ffd>] kernel_thread_helper+0x5/0xb
+>>ppa: Version 2.07 (for Linux 2.4.x)
+>>ppa: Found device at ID 6, Attempting to use EPP 16 bit
+>>ppa: Communication established with ID 6 using EPP 16 bit
+>>scsi0 : Iomega VPI0 (ppa) interface
+>>bad: scheduling while atomic!
 > 
-> Code: 24 0c 89 6c 24 10 89 74 24 08 8b 6c 24 18 31 ff 8b 45 08 89 04 
-24 e8
-> f7 02 00 00 85 c0 89 c3 74 4a 8d 70 48 ba 01 00 ff ff 98 f0 <0f> c1 10 
-85
-> d2 0f 85 f 03 00 00 89 2c 24 e8 c0 fe ff ff 85 c0
->  <0>Kernel panic: Attempted to kill init!
 > 
-> This doesn't happen with 2.5.67{-bk4}. I looked at the USB changes for
-> 2.5.67-mm2 and they are just about the same as in -bk4. I didn't look
-> at every line, though.
+> This patch should make the warnings go away.
+> 
+> I've been sitting on it for a while, waiting for someone to tell me if the
+> ppa driver actually works.  Perhaps that person is you?
 
-I get the same thing on an mm2 boot. Are you certain it isn't a -bk4 
-bug? kobject, bus_add_driver and friends have all been touched by greg 
-in bk, and I can't see anything immediately obvious in the new -mm 
-patches (-mm1 works fine).
+I've responded to your questions more than once but evidently you
+haven't seen or been able to parse my responses.
 
-I'll try with just the linus drop now.
+To recap:  I see a non-fatal kernel-oops and modprobe segfaults after
+successfully loading the ppa module.  Once the ppa module is loaded the
+ppa driver actually does work with 2.5.x for at least x>50 (I haven't 
+tried x<50).
 
-Cheers,
-Alistair.
+I am using preemptable kernel and devfs and I do NOT see any of the
+warnings that Geert is seeing.  The only problems I see with Linus's
+2.5.x kernels is the segfault by modprobe, not with the function of
+ppa itself.
+
+What definitely confused me for a long time is that the -ac series
+doesn't work with devfs+ppa because the scsi ppa device never
+shows up in /dev -- but I think that has nothing to do with Geert's
+problem or with your question either, just an aside to explain why
+my previous posts may have been confusing the issue.
+
+BTW, the parallel Zip drive is the only SCSI device I have.  Would
+my kernel config file be of any use to you?
 

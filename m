@@ -1,56 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262566AbTK1QKf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 11:10:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbTK1QKf
+	id S262558AbTK1QJT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 11:09:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbTK1QJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 11:10:35 -0500
-Received: from gprs148-17.eurotel.cz ([160.218.148.17]:22656 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262566AbTK1QK3 (ORCPT
+	Fri, 28 Nov 2003 11:09:19 -0500
+Received: from mail6.bluewin.ch ([195.186.4.229]:53701 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262558AbTK1QJR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 11:10:29 -0500
-Date: Fri, 28 Nov 2003 17:10:30 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Damien Sandras <dsandras@seconix.com>
-Cc: ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [ACPI] If your ACPI-enabled machine does clean shutdown randomly...
-Message-ID: <20031128161030.GC303@elf.ucw.cz>
-References: <20031128145249.GA563@elf.ucw.cz> <1070035371.1055.13.camel@golgoth01>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 28 Nov 2003 11:09:17 -0500
+From: Raffaele Sandrini <rasa@gmx.ch>
+Subject: System clock and speedstepping
+Date: Fri, 28 Nov 2003 17:09:08 +0100
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1070035371.1055.13.camel@golgoth01>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200311261943.38002.rasa@gmx.ch>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi
 
-> > ...then you probably need this one. (One notebook I have here
-> > certainly needs it).
-> > 
-> > It seems that acpi likes to report completely bogus value from time to
-> > time...
-> > 
-> 
-> The problem with that patch is that it is filling the logs, but it is
-> certainly better than shutting the machine down without warning. I had
-> that problem and it took me a few minutes to figure out that it was
-> ACPI.
+I'm running here a dell inspirion 5150 with a P4 with Kernel 2.6.0-t9.
+My problem is: If the laptop is running on bateries and the system is not idle 
+the system clock (i dont think the hardware clock too) runns min twice as 
+fast as it should (if not 4 times as fast as it should).
 
-I'm not pushing this patch for inclusion, only its second part.
+I first recognized it when i ran KDE (and we all know that KDE is not known 
+for 
+beeing tight on recources :) ) that the clock runs too fast when running from  
+bateries.
 
-> However, I didn't have that problem with kernel 2.6.0 test 9, it
-> appeared with 2.6.0 test 10 and test 11. I have mailed the list to see
-> if there was no patch I could reverse to determine where the problem
-> was, but I got no reaction, so I guess I will have to live with it ;)
+Perhapps some words about my system. Without manually changing the CPU freq 
+the system runs on AC const. 3 GHZ. On battries 1.6 GHZ const (i dont know if 
+its 
+really const on batteries i assume that there is a kind of hardware 
+stepping).
 
-I have this on rather strange hw, so my tests do not count :-(.
+I tried many kernel options RTC and HPET. The result was the same every time: 
+When im running on bats in the console doing nothing the clock runs correct. 
+If i execute this simple programm:
+main () {
+	while(1) {}
+}
+then the clock runns too fast.
 
-								Pavel
+I am able to step my CPU via the software interface CPUFREQ of the kernel (via 
+the P4 clockmod driver). After some playing around i recognized that if i set 
+the CPU freq to a very low value (e.g 100 MHZ) i get this msg on the console:
+<msg>
+Losing too many ticks!
+TSC cannot be used as a timesource. (Are you running with SpeedStep?)
+Falling back to a sane timesource.
+</msg>
+The funny thing is: After this msg the clock is running correct. I can set my 
+CPU freq to what i want and load my system as much i want with a corect 
+clock.
 
+I don't know what "sane timesource" and "TSC" is. I also dont know where 
+exaclty the problem is. I solved for the moment with an init script which 
+checks if the laptop is running on bats and if so its stepping the system 
+down for a sec and up again to force the above error to come. I know that 
+this is a VERY dirty solution but i see know other way around this for the 
+moment :(.
+
+I tried to explain the problem as good as i can... I thought this should be 
+postet here as this is surly a kernel issue. If you need more info ill try to 
+provide these.
+
+cheers,
+Raffaele 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Raffaele Sandrini <rasa@gmx.ch>
+

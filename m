@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262577AbUCJLO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 06:14:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbUCJLO0
+	id S262112AbUCJLTW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 06:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUCJLTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 06:14:26 -0500
-Received: from [218.22.21.1] ([218.22.21.1]:60716 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S262577AbUCJLOY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 06:14:24 -0500
-Date: Wed, 10 Mar 2004 19:11:25 +0800
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fadvise invalidating range fix
-Message-ID: <20040310111125.GA11128@mail.ustc.edu.cn>
-References: <20040308130754.GA5204@mail.ustc.edu.cn> <20040308120322.118a640b.akpm@osdl.org>
-Mime-Version: 1.0
+	Wed, 10 Mar 2004 06:19:21 -0500
+Received: from web10901.mail.yahoo.com ([216.136.131.37]:47 "HELO
+	web10901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262112AbUCJLTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 06:19:20 -0500
+Message-ID: <20040310111919.83754.qmail@web10901.mail.yahoo.com>
+Date: Wed, 10 Mar 2004 03:19:19 -0800 (PST)
+From: Ashwin Rao <ashwin_s_rao@yahoo.com>
+Subject: inconsistent do_gettimeofday for copy_page
+To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040308120322.118a640b.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: WU Fengguang <wfg@mail.ustc.edu.cn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 08, 2004 at 12:03:22PM -0800, Andrew Morton wrote:
-> WU Fengguang <wfg@mail.ustc.edu.cn> wrote:
-> >
-> >
-> >  - When 'offset' and/or 'offset+len' do no align to page boundary,
-> >  we must
-> >    decide whether to abandon the partial page at the beginning/end
-> >    of the range.
-> >    My patch assumes that the application is scanning forward,
-> >    which is the most common case.
-> >    So 'end_index' is set to the page just before the ending partial
-> >    page.
->
-> If you're going to preserve the partial page at `end' (which seems
-> reasonable) then you should also preserve the partial page at `start',
-> don't
-> you agree?
->
-> -     start_index = offset >> PAGE_CACHE_SHIFT;
-> +     start_index = (offset + PAGE_CACHE_SIZE - 1) >>
-> PAGE_CACHE_SHIFT;
->
-I gave it a rethink today, and yes, we should preserve the starting
-partial page as well. Doing so helps reducing unnecessary disk I/O for
-any access pattern, and the kernel will behave more consistent and robust.
+For calculating the time required to copy_page i tried
+the do_gettimeofday for 1000 pages in a loop. But as
+the number of pages changes the time required varies
+non-linearly.
+I also tried reading xtime and using monotonic_clock
+but they didnt help either. For do_gettimeof day for a
+single invocation of copy_page on a pentium 4 gave me
+10 microsecs but when invoked for a 1000 pages the
+time required was 750ns per page.
+Is there some way of finding out the exact time
+required for copying a page.
 
-The only negative effect is, some useless pages are left to be freed at some
-later time by the page replacement routines, and the cost of which is acceptable.
+Ashwin
 
-regards, Wu Fengguang
+__________________________________
+Do you Yahoo!?
+Yahoo! Search - Find what you’re looking for faster
+http://search.yahoo.com

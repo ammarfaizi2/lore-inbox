@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129691AbRBJJKI>; Sat, 10 Feb 2001 04:10:08 -0500
+	id <S130911AbRBJJma>; Sat, 10 Feb 2001 04:42:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130579AbRBJJJ6>; Sat, 10 Feb 2001 04:09:58 -0500
-Received: from colorfullife.com ([216.156.138.34]:32772 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129691AbRBJJJp>;
-	Sat, 10 Feb 2001 04:09:45 -0500
-Message-ID: <3A850555.488DE444@colorfullife.com>
-Date: Sat, 10 Feb 2001 10:09:41 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [beta patch] SSE copy_page() / clear_page()
-In-Reply-To: <3A846C84.109F1D7D@colorfullife.com> <961rkk$fgm$1@penguin.transmeta.com> <3A847729.2C868879@redhat.com>
+	id <S130954AbRBJJmU>; Sat, 10 Feb 2001 04:42:20 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:2308 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130911AbRBJJl7>;
+	Sat, 10 Feb 2001 04:41:59 -0500
+Message-ID: <20010209201243.D16776@bug.ucw.cz>
+Date: Fri, 9 Feb 2001 20:12:43 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alex Belits <abelits@phobos.illtel.denver.co.us>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Serial device with very large buffer
+In-Reply-To: <Pine.LNX.4.10.10101312301110.1478-100000@mercury> <E14OTPp-0005MY-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <E14OTPp-0005MY-00@the-village.bc.nu>; from Alan Cox on Thu, Feb 01, 2001 at 11:45:23PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+Hi!
+
+> >   I also propose to increase the size of flip buffer to 640 bytes (so the
+> > flipping won't occur every time in the middle of the full buffer), however
+> > I understand that it's a rather drastic change for such a simple goal, and
+> > not everyone will agree that it's worth the trouble:
 > 
-> > I have this strong suspicion that your kernel will lock up in a bad way
-> > of you have somebody do something like divide by zero without actually
-> > touching a single FP instruction after the divide (so that the error has
-> > happened, but has not yet been raised as an exception).
-> 
-> Or much worse, let the kernel mix-and-match SSE and MMX optimized routines
-> without doing full saves of the FPU on SSE routines, which leads to FPU saves
-> in MMX routines with kernel data in the SSE registers, which then shows up
-> when the app touches those SSE registers and you get use space corruption.  My
-> code to handle this type of situation was *very* complex, and I don't think I
-> ever got it quite perfectly right without simply imposing a rule that the
-> kernel could never use both SSE and MMX instructions on the same CPU.
->
+> Going to a 1K flip buffer would make sense IMHO for high speed devices too
 
-I don't see that problem:
-* sse_{copy,clear}_page() restore the sse registers before returning.
-* the fpu saves into current->thread.i387.f{,x}save never happen from
-interrupts.
-
-How can kernel sse values end up in user space? I'm sure I overlook
-something, but what?
-
---
-	Manfred
+Actually bigger flipbufs are needed for highspeed serials and
+irda. Tytso received patch to make flipbuf size settable by the
+driver. (Setting it to 1K is not easy, you need to change allocation
+mechanism of buffers.)
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

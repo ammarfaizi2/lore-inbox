@@ -1,59 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290702AbSAYPJR>; Fri, 25 Jan 2002 10:09:17 -0500
+	id <S290704AbSAYPVs>; Fri, 25 Jan 2002 10:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290707AbSAYPJI>; Fri, 25 Jan 2002 10:09:08 -0500
-Received: from chmls20.mediaone.net ([24.147.1.156]:5531 "EHLO
-	chmls20.mediaone.net") by vger.kernel.org with ESMTP
-	id <S290704AbSAYPJB>; Fri, 25 Jan 2002 10:09:01 -0500
-From: "Guillaume Boissiere" <boissiere@mediaone.net>
-To: "Mark Peloquin" <peloquin@us.ibm.com>
-Date: Fri, 25 Jan 2002 10:07:55 -0500
-MIME-Version: 1.0
-Subject: RE:[STATUS 2.5] January 23, 2002
-CC: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Message-ID: <3C512E7B.15766.6BF573F@localhost>
-In-Reply-To: <OF9937BE98.A50CD639-ON85256B4C.004F938A@raleigh.ibm.com>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S290706AbSAYPVj>; Fri, 25 Jan 2002 10:21:39 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:46952 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S290704AbSAYPVZ>; Fri, 25 Jan 2002 10:21:25 -0500
+Date: Fri, 25 Jan 2002 10:21:14 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Werner Almesberger <wa@almesberger.net>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: booleans and the kernel
+Message-ID: <20020125102114.T10157@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <200201242141.g0OLfjL06681@home.ashavan.org.> <Pine.LNX.4.44.0201241545120.2839-100000@waste.org> <a2q1d8$vuj$1@cesium.transmeta.com> <20020125160750.A18035@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020125160750.A18035@almesberger.net>; from wa@almesberger.net on Fri, Jan 25, 2002 at 04:07:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Mark,
-
-Thanks for the note!  It turns out on this one I had been pretty inspired
-and had already changed EVMS' status last night   :-)
-You can see the latest update at:
-
-http://kernelnewbies.org/status/
-
-But I'm usually not that up to date, this is the exception that confirms 
-the rule, so please keep me in the loop as you get closer to final 
-release!  EVMS is a great project!
-
-Cheers,
-
--- Guillaume
-
-
-On 25 Jan 2002 at 8:41, Mark Peloquin wrote:
-
-> Guillaume,
+On Fri, Jan 25, 2002 at 04:07:50PM +0100, Werner Almesberger wrote:
+> H. Peter Anvin wrote:
+> > c) The ability to cast to bool and get an unambiguous true or false:
+> > 
+> >      b = (bool)a;
+> > 
+> >    This replaces the idiomatic but occationally confusing
+> > 
+> >      b = !!a;
 > 
-> EVMS update:
+> Careful, though. This example
 > 
-> > o Alpha      EVMS (Enterprise Volume Management System)      (EVMS team)
+> #include <stdbool.h>
+> #include <stdio.h>
 > 
-> o Beta        EVMS (Enterprise Volume Management System)      (EVMS team)
+> int main(void)
+> {
+>     int foo;
 > 
-> EVMS is now in beta. Patches have been submitted for 2.5.X, and will
-> continue
-> to be submitted as changes occur in 2.5.X that affect EVMS.
+>     foo = (bool) 4;
+>     printf("%d\n",foo);
+>     return 0;
+> }
 > 
-> Thanks.
-> Mark Peloquin
-> http://www.sf.net/projects/evms
-> 
+> e.g. compiled with gcc "2.96" (RH 7.1, 2.96-85), yields 4.
 
+Yeah, _Bool builtin type was added to gcc 2000-11-13, ie. after 2.96-RH was
+branched. It yields 1 in gcc 3.0 or 3.1 CVS though.
+
+	Jakub

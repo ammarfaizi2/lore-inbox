@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUKSCsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbUKSCsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUKSCsq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 21:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUKSCs1
+	id S261218AbUKSCsr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 21:48:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbUKSCsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 21:48:27 -0500
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:58712 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261244AbUKSCkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 21:40:17 -0500
-Message-ID: <419D5D05.4020707@yahoo.com.au>
-Date: Fri, 19 Nov 2004 13:40:05 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Thu, 18 Nov 2004 21:48:12 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:4571 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261234AbUKSCji (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 21:39:38 -0500
+Message-ID: <419D5CE6.8030503@google.com>
+Date: Thu, 18 Nov 2004 18:39:34 -0800
+From: Edward Falk <efalk@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040324
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.6.10-rc2] fix __flush_tlb*() preemption bug on CONFIG_PREEMPT
-References: <20041118124656.GA4256@elte.hu> <Pine.LNX.4.58.0411180742290.2222@ppc970.osdl.org> <20041118194619.GA23483@elte.hu> <Pine.LNX.4.58.0411181056550.2222@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411181056550.2222@ppc970.osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: IDE ioctl documentation & a new ioctl
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hi all; let me introduce myself:  I'm the guy that does IDE sustaining 
+for Google.
 
-> But yes, it may well make perfect sense to say "we have to hold the page 
-> table spinlock in order to flush the tlb". Is that actually true right 
-> now?
-> 
+I'm getting ready to sit down and document the IDE ioctls.  Probably 
+Documentation/hdio.txt or something like that.  Before I start though, 
+is anybody already doing this?
 
-Can we try not to ratify a rule like that? :)
+And while I'm on the subject, we're getting ready to write a new hdio 
+ioctl, an extension of HDIO_DRIVE_CMD.  The intent here is to be 
+slightly more general-purpose than HDIO_DRIVE_CMD, with an eye to 
+supporting the full set of SMART functionality.  Current plan is to have 
+the user pass a struct containing a pointer to the argument list, a 
+pointer to the data buffer, and a data buffer length value.  Consider 
+this a design document; any comments and/or feature requests?
 
-We're somewhat closeish to being able to entirely remove the ptl, so
-it might just get awkward if people think they can rely on that rule.
-
-Of course, _if_ holding the ptl is the nicest way to do things in the
-mainline kernel then yeah OK I can't argue with that... but if at all
-possible... pretty please?
-
-Thanks,
-Nick
+	-ed falk
+	efalk@google.com

@@ -1,162 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131196AbRCKGAb>; Sun, 11 Mar 2001 01:00:31 -0500
+	id <S131171AbRCKGcq>; Sun, 11 Mar 2001 01:32:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131208AbRCKGAW>; Sun, 11 Mar 2001 01:00:22 -0500
-Received: from d172.as5200.mesatop.com ([208.164.122.172]:24203 "HELO
-	localhost.localdomain") by vger.kernel.org with SMTP
-	id <S131196AbRCKGAM>; Sun, 11 Mar 2001 01:00:12 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-Date: Sat, 10 Mar 2001 23:03:19 -0700
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: List of recent (2.4.0 to 2.4.2-ac18) CONFIG options needing Configure.help text.
-MIME-Version: 1.0
-Message-Id: <01031023031904.08110@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S131273AbRCKGcg>; Sun, 11 Mar 2001 01:32:36 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:48906 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131171AbRCKGcU>; Sun, 11 Mar 2001 01:32:20 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Sun, 11 Mar 2001 17:26:29 +1100
+To: Jonathan Lahr <lahr@sequent.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel lock contention and scalability
+Message-ID: <20010311172629.D1951@linuxcare.com>
+In-Reply-To: <20010215104656.A6856@w-lahr.des.sequent.com> <20010305113807.A3917@linuxcare.com> <20010306144552.G6451@w-lahr.des.sequent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010306144552.G6451@w-lahr.des.sequent.com>; from lahr@sequent.com on Tue, Mar 06, 2001 at 02:45:52PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-With the 2.4.0 kernel, there were 476 CONFIG options which had
-no help entry in Configure.help.  With 2.4.2-ac18, this number is now 547,
-which has been kept this low with 54 options getting Configure.help text.  
+Hi,
+ 
+> Thanks for looking into postgresql/pgbench related locking.  Yes, 
+> apparently postgresql uses a synchronization scheme that uses select()
+> to effect delays for backing off while attempting to acquire a lock.
+> However, it seems to me that runqueue lock contention was not entirely due 
+> to postgresql code, since it was largely alleviated by the multiqueue 
+> scheduler patch.
 
-The bottom line is that since 2.4.0, there are 125 new CONFIG options with 
-no Configure.help text. One obvious point: there are some options which don't 
-need Configure.help text, but if you're responsible for that option, I'm sure you'll 
-be aware of which of your options are in that category.
+Im not saying that the multiqueue scheduler patch isn't needed, just that
+this test case is caused by a bug in postgres. We shouldn't run around
+fixing symptoms - dropping the contention in the runqueue lock might not
+change the overall performance of the benchmark, on the other hand
+fixing the spinlocks in postgres probably will.
 
-If you see any of _your_ options in the list below, please consider making
-a patch for Configure.help for your CONFIG option.  Or, you can send me
-the information and I'll make the patch.
-Steven
+On the other hand, if postgres still pounds on the runqueue lock after
+the bug has been fixed then we need to look at the multiqueue patch.
 
-CONFIG_3270
-CONFIG_3270_CONSOLE
-CONFIG_8xx_CONS_SMC2
-CONFIG_ADVANTECH_WDT
-CONFIG_BLK_DEV_MPC8xx_IDE
-CONFIG_BLK_DEV_Q40IDE
-CONFIG_BLK_DEV_XPRAM
-CONFIG_COBALT_28
-CONFIG_COBALT_MICRO_SERVER
-CONFIG_DEBUG_PORT0
-CONFIG_DEBUG_PORT1
-CONFIG_DEBUG_PORT2
-CONFIG_DEBUG_PORT3
-CONFIG_DEBUG_PORT_NULL
-CONFIG_DN_SERIAL
-CONFIG_ETRAX100LX
-CONFIG_ETRAX100LX_V2
-CONFIG_ETRAX_90000000_LEDS
-CONFIG_ETRAX_AXISFLASHMAP
-CONFIG_ETRAX_ETHERNET
-CONFIG_ETRAX_FLASH_BUSWIDTH
-CONFIG_ETRAX_FLASH_LENGTH
-CONFIG_ETRAX_GPIO
-CONFIG_ETRAX_I2C
-CONFIG_ETRAX_I2C_USES_PB_NOT_PB_I2C
-CONFIG_ETRAX_IDE
-CONFIG_ETRAX_IDE_CSE1_16_RESET
-CONFIG_ETRAX_IDE_G27_RESET
-CONFIG_ETRAX_IDE_PB7_RESET
-CONFIG_ETRAX_LED1G
-CONFIG_ETRAX_LED1R
-CONFIG_ETRAX_LED2G
-CONFIG_ETRAX_LED2R
-CONFIG_ETRAX_LED3G
-CONFIG_ETRAX_LED3R
-CONFIG_ETRAX_NO_LEDS
-CONFIG_ETRAX_PA_BUTTON_BITMASK
-CONFIG_ETRAX_PA_LEDS
-CONFIG_ETRAX_PB_LEDS
-CONFIG_ETRAX_SER0_CD_ON_PB_BIT
-CONFIG_ETRAX_SER0_DSR_ON_PB_BIT
-CONFIG_ETRAX_SER0_DTR_ON_PB_BIT
-CONFIG_ETRAX_SER0_DTR_RI_DSR_CD_ON_PB
-CONFIG_ETRAX_SER0_RI_ON_PB_BIT
-CONFIG_ETRAX_SER1_CD_ON_PB_BIT
-CONFIG_ETRAX_SER1_DSR_ON_PB_BIT
-CONFIG_ETRAX_SER1_DTR_ON_PB_BIT
-CONFIG_ETRAX_SER1_DTR_RI_DSR_CD_ON_PB
-CONFIG_ETRAX_SER1_RI_ON_PB_BIT
-CONFIG_ETRAX_SER2_CD_ON_PA_BIT
-CONFIG_ETRAX_SER2_DSR_ON_PA_BIT
-CONFIG_ETRAX_SER2_DTR_ON_PA_BIT
-CONFIG_ETRAX_SER2_DTR_RI_DSR_CD_ON_PA
-CONFIG_ETRAX_SER2_RI_ON_PA_BIT
-CONFIG_ETRAX_SERIAL
-CONFIG_ETRAX_SERIAL_PORT1
-CONFIG_ETRAX_SERIAL_PORT2
-CONFIG_ETRAX_SERIAL_PORT3
-CONFIG_ETRAX_SYNCHRONOUS_SERIAL
-CONFIG_ETRAX_SYNCHRONOUS_SERIAL0_DMA
-CONFIG_ETRAX_SYNCHRONOUS_SERIAL1_DMA
-CONFIG_ETRAX_SYNCHRONOUS_SERIAL_PORT0
-CONFIG_ETRAX_SYNCHRONOUS_SERIAL_PORT1
-CONFIG_ETRAX_USB_HOST
-CONFIG_ETRAX_USB_HOST_PORT1
-CONFIG_ETRAX_USB_HOST_PORT2
-CONFIG_ETRAX_WATCHDOG
-CONFIG_FB_ATY_CT
-CONFIG_FB_ATY_GX
-CONFIG_FB_RADEON
-CONFIG_FB_SIS_300
-CONFIG_FB_SIS_315
-CONFIG_FB_STI
-CONFIG_FPS850L
-CONFIG_HD64465_PCMCIA
-CONFIG_HISAX_ELSA_CS
-CONFIG_HISAX_SEDLBAUER_CS
-CONFIG_IDE_DELAY
-CONFIG_IRQ_ALL_CPUS
-CONFIG_IVMS8
-CONFIG_JULIETTE
-CONFIG_KCORE
-CONFIG_KERNEL_IFCONFIG
-CONFIG_LVM_PROC_FS
-CONFIG_MCYRIXIII
-CONFIG_MIPS_RTC
-CONFIG_MPENTIUMIII
-CONFIG_NLS_CODEPAGE_1251
-CONFIG_NLS_ISO8859_13
-CONFIG_NLS_KOI8_U
-CONFIG_PA_CHANGEABLE_BITS
-CONFIG_PA_CHANGEABLE_DIR
-CONFIG_PB_CHANGEABLE_BITS
-CONFIG_PB_CHANGEABLE_DIR
-CONFIG_PROCESS_DEBUG
-CONFIG_PROFILE
-CONFIG_PROFILE_SHIFT
-CONFIG_RESCUE_SER0
-CONFIG_RESCUE_SER1
-CONFIG_RESCUE_SER2
-CONFIG_RESCUE_SER3
-CONFIG_RS485
-CONFIG_RS485_DISABLE_RECEIVER
-CONFIG_RS485_ON_PA
-CONFIG_RS485_ON_PA_BIT
-CONFIG_S390_SUPPORT
-CONFIG_S390_TAPE
-CONFIG_S390_TAPE_3480
-CONFIG_S390_TAPE_3490
-CONFIG_S390_TAPE_BLOCK
-CONFIG_S390_TAPE_CHAR
-CONFIG_SCC3_ENET
-CONFIG_SDRAM
-CONFIG_SM850
-CONFIG_SOUND_MAESTRO3
-CONFIG_SOUND_YMFPCI_LEGACY
-CONFIG_SPD823TS
-CONFIG_SVINTO_SIM
-CONFIG_TMSISA
-CONFIG_TQM823L
-CONFIG_TQM850L
-CONFIG_TQM855L
-CONFIG_USB_HP5300
-CONFIG_USE_MDIO
-CONFIG_USE_SERIAL_CONSOLE
+Cheers,
+Anton

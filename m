@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbUKKPM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbUKKPOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbUKKPM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 10:12:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUKKPJw
+	id S262264AbUKKPOj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 10:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUKKPMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 10:09:52 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:32211 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262246AbUKKPHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 10:07:00 -0500
-Subject: Re: 2.4.26 IDE driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Siddhesh Bhadkamkar <siddheish@hotmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <BAY2-F311s7nlT2NqFJ0002718f@hotmail.com>
-References: <BAY2-F311s7nlT2NqFJ0002718f@hotmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1100181833.22256.10.camel@localhost.localdomain>
+	Thu, 11 Nov 2004 10:12:40 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:57479 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262246AbUKKPKa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 10:10:30 -0500
+Date: Thu, 11 Nov 2004 17:12:35 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Gunther Persoons <gunther_persoons@spymac.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
+Message-ID: <20041111161235.GA26582@elte.hu>
+References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <41938D60.4070802@spymac.com> <20041111160819.GA26184@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 11 Nov 2004 14:03:54 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041111160819.GA26184@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-11-11 at 14:56, Siddhesh Bhadkamkar wrote:
-> this driver will expose only a part of the disk to file system by reporting 
-> the disk capacity as say real_capacity/4. remaining disk will be hidden from 
-> the file system. in write operation driver will try to write the same data 
-> in all 4 parts of the same disk for redundancy. in read it will hope to find 
-> atleast one copy properly written.
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> * Gunther Persoons <gunther_persoons@spymac.com> wrote:
 > 
-> we are using kernel version 2.4.26. what approach do you think would be 
-> appropriate?
+> > Got 2 times a hard lock up with this one. Happened while i was typing
+> > something and downloading both after 15-20 minutes.
+> 
+> .config?
 
-The md driver will do most of this for you, but in truth drives are not
-laid out physically and generally go wrong all at once or rapidly
-develop errors all over the disk.
+just in case you are using UP-IOAPIC, could you enable CONFIG_SMP (even
+if you are running an UP box) and see whether the lockup goes away? 
+Which was the last -RT kernel that you tried that didnt lock up in this
+fashion?
 
-As a learning exercise then I'd probably start with the md driver
-
+	Ingo

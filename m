@@ -1,112 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264527AbUAOD2g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 22:28:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264598AbUAOD2g
+	id S266405AbUAODgk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 22:36:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266389AbUAODgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 22:28:36 -0500
-Received: from gw.mgpenguin.net ([150.101.216.218]:43999 "EHLO
-	mail.mgpenguin.net") by vger.kernel.org with ESMTP id S264527AbUAOD2d
+	Wed, 14 Jan 2004 22:36:40 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:32250 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S266443AbUAODgi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 22:28:33 -0500
-Message-Id: <5.1.0.14.2.20040115140515.00af1318@mail.mgpenguin.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 15 Jan 2004 14:28:39 +1100
-To: greg KH <greg@kroah.com>
-From: Kieran Morrissey <linux@mgpenguin.net>
-Subject: [PATCH] 2.6.1: Update PCI Name database, fix gen-devlist.c for
-  long device names.
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; x-avg-checked=avg-ok-1D05283B; boundary="=======235370B7======="
+	Wed, 14 Jan 2004 22:36:38 -0500
+Message-ID: <40060ABC.6080208@mvista.com>
+Date: Wed, 14 Jan 2004 19:36:28 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Nick Piggin <piggin@cyberone.com.au>, Guillaume Foliard <guifo@wanadoo.fr>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Scheduler degradation since 2.5.66
+References: <200312142048.51579.guifo@wanadoo.fr> <3FDD205A.6040807@cyberone.com.au> <3FDD35F9.7090709@cyberone.com.au> <3FDE5449.60507@mvista.com> <4005E24C.2030807@tmr.com>
+In-Reply-To: <4005E24C.2030807@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=======235370B7=======
-Content-Type: text/plain; x-avg-checked=avg-ok-1D05283B; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 8bit
+Bill Davidsen wrote:
+> George Anzinger wrote:
+> 
+>> We get the request at some time t between tick tt and tt+1 to sleep 
+>> for N ticks.
+>> We round this up to the next higher tick count convert to jiffies 
+>> dropping any fraction and then add 1.  So that should be 2 right?  
+>> This is added to NOW which, in the test code, is pretty well pined to 
+>> the last tick plus processing time.  So why do you see 3?
+>>
+>> What is missing here is that the request was for 1.000000 ms and a 
+>> tick is really 0.999849 ms.  So the request is for a bit more than a 
+>> tick which we are obligated to round up to 2 ticks.  Then adding the 1 
+>> tick guard we get the 3 you are seeing.  Now if you actually look at 
+>> that elapsed time you should see it at about 2.999547 ms and ranging 
+>> down to 1.999698 ms.
+> 
+> 
+> Clearly the rounding between what you want and the resolution of the 
+> hardware tick is never going to be perfect if there is a non-integer 
+> ratio between the values. If this is a real concern, you can play with 
+> the algorithm and/or go to a faster clock. Or both.
+> 
+> You might also be much happier simply setting target times 2ms apart, 
+> and sleeping for target-NOW ns. That allows for the processing time.
+> 
+> If the kernel had a better idea of when the next tick would be instead 
+> of assuming counting from NOW instead of "last tick" you could probably 
+> do better, 
 
-Hi all and sundry..
+But then you have a better resolution.  For this, see the high-res-timers patch 
+in my signature, which will get you much closer, but still plays by the standard 
+rules.
 
-Although /proc/pci and by extension the name database is allegedly legacy 
-and therefore deprecated, some (including myself) still use it for things 
-such as phpSysInfo, and the still-widespread usage of it is obvious in the 
-regularity of slight patches to pci.ids. So, this is an all-inclusive patch 
-to bring things up to date:
+but I'm not suggesting that overhead be added to the ticks
+> code in case someone needs a better nanosleep. I don't know how well 
+> that would work in the SMP case in any event. Sort of
+>   wait_ticks = 1 + int((NOW + delay - time_since_last_tick)/ns_per_tick)
+> or
+>   wait_ticks =
+>     int((NOW-delay - time_since_tick + ns_per_tick - 1)/ns_per_tick)
+> 
+> I think there's too much caution about going over, but without playing 
+> with the code I'm just dropping ideas.
 
-* Updates pci.ids with a snapshot from http://pciids.sourceforge.net/ as at 
-14 Jan 04.
-* Fixes gen-devlist.c to truncate long device names rather than reject the 
-whole database
-   (previously the latest databases had some devices that were too long and 
-caused a kernel with the latest db to fail to compile)
+The "caution" is around the standard that says "thou shalt never wake early" or 
+words to that effect.
 
-I've included the (minor) changes to gen-devlist.c in this email if anyone 
-cares to discuss them, but since the pci database changes aren't really 
-that worthy of discussion on the list and the patch is 83kb, THE COMPLETE 
-PATCH has been posted on the web:
-
-http://digital.mgpenguin.net/linux/patch-2.6.1.pci-db/patch.2.6.1.pci-db.diff
-
-or http://digital.mgpenguin.net/linux/ for bzipped versions if you're that 
-way inclined..
-
-Cheers,
-
-	Kieran Morrissey
-
-
-diff -urN -X dontdiff a/drivers/pci/gen-devlist.c b/drivers/pci/gen-devlist.c
---- a/drivers/pci/gen-devlist.c	2003-12-18 13:58:49.000000000 +1100
-+++ b/drivers/pci/gen-devlist.c	2004-01-15 13:30:54.929783941 +1100
-@@ -10,9 +10,10 @@
-  #define MAX_NAME_SIZE 79
-
-  static void
--pq(FILE *f, const char *c)
-+pq(FILE *f, const char *c, int len)
-  {
--	while (*c) {
-+	int i = 1;
-+	while (*c && i != len) {
-  		if (*c == '"')
-  			fprintf(f, "\\\"");
-  		else {
-@@ -23,6 +24,7 @@
-  			}
-  		}
-  		c++;
-+		i++;
-  	}
-  }
-
-@@ -72,13 +74,13 @@
-  						if (bra && bra > c && bra[-1] == ' ')
-  							bra[-1] = 0;
-  						if (vendor_len + strlen(c) + 1 > MAX_NAME_SIZE) {
--							fprintf(stderr, "Line %d: Device name too long\n", lino);
-+							fprintf(stderr, "Line %d: Device name too long. Name truncated.\n", 
-lino);
-  							fprintf(stderr, "%s\n", c);
--							return 1;
-+							/*return 1;*/
-  						}
-  					}
-  					fprintf(devf, "\tDEVICE(%s,%s,\"", vend, line+1);
--					pq(devf, c);
-+					pq(devf, c, MAX_NAME_SIZE - vendor_len - 1);
-  					fputs("\")\n", devf);
-  				} else goto err;
-  				break;
-@@ -107,7 +109,7 @@
-  				return 1;
-  			}
-  			fprintf(devf, "VENDOR(%s,\"", vend);
--			pq(devf, c);
-+			pq(devf, c, 0);
-  			fputs("\")\n", devf);
-  			mode = 1;
-  		} else {
-
---=======235370B7=======--
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268167AbUHTO6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268173AbUHTPAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268167AbUHTO6S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 10:58:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHTO6S
+	id S268173AbUHTPAR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 11:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUHTO6a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 10:58:18 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40393 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268167AbUHTOyF (ORCPT
+	Fri, 20 Aug 2004 10:58:30 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:48339 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268155AbUHTO5z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 10:54:05 -0400
-Date: Fri, 20 Aug 2004 10:53:55 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>,
-       "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-In-Reply-To: <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
-Message-ID: <Xine.LNX.4.44.0408201052160.22200-100000@dhcp83-76.boston.redhat.com>
+	Fri, 20 Aug 2004 10:57:55 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] add scheduler domains for ia64
+Date: Fri, 20 Aug 2004 10:57:30 -0400
+User-Agent: KMail/1.6.2
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, hawkes@sgi.com, mingo@elte.hu
+References: <200408131108.40502.jbarnes@engr.sgi.com> <200408192222.35512.jbarnes@engr.sgi.com> <20040819232855.5d919155.akpm@osdl.org>
+In-Reply-To: <20040819232855.5d919155.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408201057.30813.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Aug 2004, Kaigai Kohei wrote:
+On Friday, August 20, 2004 2:28 am, Andrew Morton wrote:
+> Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+> > Yep, it's been working ok so far.  There's still more we can do, but this
+> > is a good start I think.  Andrew, this version applies on top of
+> > 2.6.8.1-mm2 but overwrites most of the earlier node-span patch by moving
+> > bits from arch/ia64 to kernel/sched.c, so let me know if you want the
+> > patch in a different format.
+>
+> Is OK.  I wiggled it into the logical place so we'll end up with a sane
+> patch series.
+>
+> Watch the warnings please...
+>
+>
+>
+> kernel/sched.c:3732: warning: `sched_domain_node_span' defined but not used
 
-> The attached patches against to 2.6.8.1 kernel improve the performance
-> and the scalability of SELinux by RCU-approach.
+Oops, sorry about that!  I meant to test with CONFIG_NUMA=n but fell asleep.  
+I'll be more careful in the future.
 
-
->                  --- 4CPU ---  --- 8CPU ---  --- 16CPU ---  --- 32CPU ---
-> 2.6.8.1(disable)    8.0158[s]     8.0183[s]      8.0146[s]      8.0037[s]
->                  (2.08/ 6.07)   (1.86/6.31)   (0.78/ 7.33)    (2.03/5.94)
-> 2.6.8.1(enable)    78.0957[s]   319.0451[s]   1322.0313[s]      too long 
->                  (2.47/76.48) (2.47/316.96)  (2.43/1319.8)     (---/---) 
-> 2.6.8.1.rwlock     20.0100[s]    49.0390[s]     90.0200[s]    177.0533[s]
->                  (2.57/17.52)  (2.45/46.93)   (2.37/87.78)   (2.41/175.1)
-> 2.6.8.1.rcu        11.0464[s]    11.0205[s]     11.0372[s]     11.0496[s]
->                   (2.64/8.82)   (2.21/8.98)   (2.67/ 8.68)    (2.51/8.95)
-> -------------------------------------------------------------------------
-
-Do you have figures for 1 and 2 CPU?
-
-Also, can you run some more benchmarks, e.g. lmbench, unixbench, dbench 
-etc?
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+Jesse

@@ -1,81 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129982AbQKPOSY>; Thu, 16 Nov 2000 09:18:24 -0500
+	id <S130529AbQKPOVF>; Thu, 16 Nov 2000 09:21:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130335AbQKPOSO>; Thu, 16 Nov 2000 09:18:14 -0500
-Received: from sisley.ri.silicomp.fr ([62.160.165.44]:44301 "EHLO
-	sisley.ri.silicomp.fr") by vger.kernel.org with ESMTP
-	id <S129982AbQKPOSH>; Thu, 16 Nov 2000 09:18:07 -0500
-Date: Thu, 16 Nov 2000 14:47:35 +0100 (CET)
-From: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-To: torvalds@transmeta.com, viro@math.psu.edu, linux-kernel@vger.kernel.org
-cc: Eric Paire <paire@ri.silicomp.fr>,
-        Jean-Marc Saffroy <saffroy@ri.silicomp.fr>
-Subject: [BUG] Inconsistent behaviour of rmdir
-Message-ID: <Pine.LNX.4.21.0011161400290.24271-100000@sisley.ri.silicomp.fr>
+	id <S130335AbQKPOUy>; Thu, 16 Nov 2000 09:20:54 -0500
+Received: from dfmail.f-secure.com ([194.252.6.39]:60425 "HELO
+	dfmail.f-secure.com") by vger.kernel.org with SMTP
+	id <S130529AbQKPOUh>; Thu, 16 Nov 2000 09:20:37 -0500
+Date: Thu, 16 Nov 2000 16:01:07 +0100 (MET)
+From: Szabolcs Szakacsits <szaka@f-secure.com>
+To: <pavel-velo@bug.ucw.cz>
+cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, Linus Torvalds <torvalds@transmeta.com>,
+        Ingo Molnar <mingo@elte.hu>
+Subject: RE: KPATCH] Reserve VM for root (was: Re: Looking for better VM)
+In-Reply-To: <200011142012.VAA00150@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.30.0011161513480.20626-100000@fs129-190.f-secure.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
+On Wed, 1 Jan 1997 pavel-velo@bug.ucw.cz wrote:
 
-It looks like the rmdir syscall behaves strangely in 2.4 kernels :
+>    >main() { while(1) if (fork()) malloc(1); }
+>    >With the patch below I could ssh to the host and killall the offending
+>    >processes. To enable reserving VM space for root do
+> what about main() { while(1) system("ftp localhost &"); }
+> This. or so,ething similar should allow you to kill your machine
+> even with your patch from normal user account
 
-saffroy@sisley:~> uname -a
-Linux sisley 2.2.14-5.0smp #1 SMP Tue Mar 7 21:01:40 EST 2000 i686 unknown
-saffroy@sisley:/tmp> mkdir foo
-saffroy@sisley:/tmp> rmdir foo/.
-saffroy@sisley:/tmp> mkdir foo
-saffroy@sisley:/tmp> cd foo/
-saffroy@sisley:/tmp/foo> rmdir .
-saffroy@sisley:/tmp/foo> cd ..
-saffroy@sisley:/tmp> 
+This or something similar didn't kill the box [I've tried all local
+DoS from Packetstorm that I could find]. Please send a working
+example. Of course probably it's possible to trigger root owned
+processes to eat memory eagerly by user apps but that's a problem in
+the process design running as root and not a kernel issue.
 
-[root@picasso /tmp]# uname -a
-Linux picasso 2.4.0-test10 #1 SMP Thu Nov 9 14:30:23 GMT+2 2000 i586 unknown
-[root@picasso /tmp]# mkdir foo
-[root@picasso /tmp]# rmdir foo/.
-rmdir: foo/.: Device or resource busy
-[root@picasso /tmp]# rmdir foo/ 
-[root@picasso /tmp]# mkdir foo
-[root@picasso /tmp]# cd foo
-[root@picasso foo]# rmdir .
-rmdir: .: Device or resource busy
-[root@picasso foo]# rmdir ../foo/
-[root@picasso foo]#
+Note, I'm not discussing "local user can kill the box without limits",
+I say Linux "deadlocks" [it starts its own autonom life and usually
+your only chance is to hit the reset button] when there is continuous
+VM pressure by user applications. If you think fork() kills the box
+then ulimit the maximum number of user processes (ulimit -u). This is
+a different issue and a bad design in the scheduler (see e.g. Tru64
+for a better one).
 
-As you see, it looks like the rmdir fails simply because the dir name ends
-with a dot !! This is confirmed by sys_rmdir in fs/namei.c, around line
-1384 :
+BTW, I have a new version of the patch with that Linux behaves much
+better from root's point of view when the memory is more significantly
+overcommited. I'll post it if I have time [and there is interest].
 
-        switch(nd.last_type) {
-                case LAST_DOTDOT:
-                        error = -ENOTEMPTY;
-                        goto exit1;
-                case LAST_ROOT: case LAST_DOT:
-                        error = -EBUSY;
-                        goto exit1;
-        }
-
-Should we rip off the offending "case LAST_DOT" ? Or do we need a smarter
-patch ? Is it really a problem that a process has its current directory
-deleted ? How about the root ?
-
-The man page for rmdir(2) should be updated as well, the current one
-states :
-       EBUSY  pathname is the current working directory  or  root
-              directory of some process.
-
-Maybe rmdir should return EBUSY only when trying to remove a mount point ?
-
-
-Regards,
-
--- 
-Jean-Marc Saffroy - Research Engineer - Silicomp Research Institute
-mailto:jms@migrantprogrammer.com
+	Szaka
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

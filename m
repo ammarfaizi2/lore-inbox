@@ -1,85 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272248AbTG3U2e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 16:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272232AbTG3U2e
+	id S272235AbTG3Uao (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 16:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272236AbTG3Uao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 16:28:34 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:25533 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S272248AbTG3U2X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 16:28:23 -0400
-Date: Wed, 30 Jul 2003 22:28:22 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: TSCs are a no-no on i386
-Message-ID: <20030730202822.GG1873@lug-owl.de>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-References: <20030730135623.GA1873@lug-owl.de> <20030730181006.GB21734@fs.tum.de> <20030730183033.GA970@matchmail.com> <20030730184529.GE21734@fs.tum.de>
+	Wed, 30 Jul 2003 16:30:44 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:58891 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S272235AbTG3Uan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 16:30:43 -0400
+Date: Wed, 30 Jul 2003 22:07:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mika Liljeberg <mika.liljeberg@welho.com>
+Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test-ac3] ACPI + sensors => health chip flatlines
+Message-ID: <20030730200743.GI2601@openzaurus.ucw.cz>
+References: <1059508734.16839.18.camel@hades>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Jch8HTrQBXCJArxs"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030730184529.GE21734@fs.tum.de>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <1059508734.16839.18.camel@hades>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---Jch8HTrQBXCJArxs
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> acpi_power-0377 [25] acpi_power_transition : Error transitioning device [FAN] to D0
+> acpi_bus-0256 [24] acpi_bus_set_power    : Error transitioning device [FAN] to D0
+> acpi_thermal-0611 [23] acpi_thermal_active   : Unable to turn cooling device [c1be7d34] 'on'
+> 
+> Everything under /sys/devices/legacy/i2c-1/1-0290 is frozen to the same
+> values, none of the sensors are being updated. 
+> 
+> Not quite sure what is going on but it looks like an ACPI thermal trip
+> routine might be messing up the W83627HF sensor driver.
 
-On Wed, 2003-07-30 20:45:29 +0200, Adrian Bunk <bunk@fs.tum.de>
-wrote in message <20030730184529.GE21734@fs.tum.de>:
-> On Wed, Jul 30, 2003 at 11:30:33AM -0700, Mike Fedyk wrote:
-> > On Wed, Jul 30, 2003 at 08:10:06PM +0200, Adrian Bunk wrote:
-> > > On Wed, Jul 30, 2003 at 03:56:23PM +0200, Jan-Benedict Glaw wrote:
-> > > > Please apply. Worst to say, even Debian seems to start using i486+
-> > > > features (ie. libstdc++5 is SIGILLed on Am386 because there's no
-> > > > "lock" insn available)...
-> > >=20
-> > > Shouldn't the 486 emulation in the latest 386 kernel images in Debian
-> > > unstable take care of this?
-> >=20
-> > What emulation?
->=20
-> 486 emulation
-> CONFIG_CPU_EMU486
->   When used on a 386, Linux can emulate 3 instructions from the 486 set.
->   This allows user space programs compiled for 486 to run on a 386
->   without crashing with a SIGILL. As any emulation, performance will be
->  very low, but since these instruction are not often used, this might
->   not hurt.  The emulated instructions are:
->      - bswap (does the same as htonl())
->      - cmpxchg (used in multi-threading, mutex locking)
->      - xadd (rarely used)
+It probably is :-(. Either use acpi or w8xxxxHF, but not both.
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-libstdc++ (and it's main user, apt-get) break at a LOCK insn.
-
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
-
---Jch8HTrQBXCJArxs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/KCpmHb1edYOZ4bsRAvZrAJ902D003r4XaYnjqDm0+7ZMzhLSFACeLskI
-/3kSR5dPFGqPoFvyzEVhWkw=
-=qDbR
------END PGP SIGNATURE-----
-
---Jch8HTrQBXCJArxs--

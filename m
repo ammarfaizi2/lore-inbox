@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbUKSGcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbUKSGnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbUKSGcp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 01:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbUKSGcp
+	id S261274AbUKSGnL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 01:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUKSGnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 01:32:45 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:59796
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261267AbUKSGcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 01:32:42 -0500
-Date: Thu, 18 Nov 2004 22:16:56 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, anton@samba.org
-Subject: Re: Six archs are missing atomic_inc_return()
-Message-Id: <20041118221656.7ae6ef6f.davem@davemloft.net>
-In-Reply-To: <20041118204836.09d2d738.akpm@osdl.org>
-References: <200411180148_MC3-1-8EE2-A85D@compuserve.com>
-	<20041118204836.09d2d738.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
+	Fri, 19 Nov 2004 01:43:11 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:164 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S261272AbUKSGnG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 01:43:06 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [2.6 patch] IA64 irq.c: remove CONFIG_X86 code
+Date: Thu, 18 Nov 2004 22:42:01 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F026C5938@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6 patch] IA64 irq.c: remove CONFIG_X86 code
+Thread-Index: AcTN17fRYooRuNh5R/KwI/26f6Y1BQAKmFzQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Adrian Bunk" <bunk@stusta.de>, <davidm@hpl.hp.com>
+Cc: <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 19 Nov 2004 06:42:02.0598 (UTC) FILETIME=[E08F9860:01C4CE02]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Nov 2004 20:48:36 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+>I don't see how this code could ever be used.
+>
+>Am I correct or did I miss something?
+>
+>
+>diffstat output:
+> arch/ia64/kernel/irq.c |   33 ---------------------------------
+> 1 files changed, 33 deletions(-)
 
-> Chuck Ebbert <76306.1226@compuserve.com> wrote:
-> >
-> >  Six archs do not have the atomic_inc_return() macro as of 2.6.10-rc2:
-> > 
-> >    cris
-> >    h8300
-> >    m32r
-> >    ppc
-> >    ppc64
-> >    s390
-> 
-> All of these architectures implement atomic_add_return().  So they all need
-> 
-> 	#define atomic_inc_return(v)	atomic_add_return(1, v)
-> 
-> added to their atomic.h.
-> 
-> Wanna send a patch?
+Thanks to a helpful hint from Christoph earlier this week I put
+together a patch that throws away over 900 lines from the ia64
+irq.c
 
-Come again?  They all seem to have it in current 2.6.x BK as far
-as I can tell.
+http://marc.theaimsgroup.com/?l=linux-ia64&m=110072859114157&w=2
 
-davem@nuts:/disk1/BK/sparc-2.6$ egrep atomic_inc_return include/asm-cris/atomic.h include/asm-h8300/atomic.h include/asm-m32r/atomic.h include/asm-ppc/atomic.h include/asm-ppc64/atomic.h include/asm-s390/atomic.h 
-include/asm-cris/atomic.h:extern __inline__ int atomic_inc_return(volatile atomic_t *v)
-include/asm-h8300/atomic.h:static __inline__ int atomic_inc_return(atomic_t *v)
-include/asm-h8300/atomic.h:#define atomic_inc(v) atomic_inc_return(v)
-include/asm-h8300/atomic.h:#define atomic_inc_and_test(v) (atomic_inc_return(v) == 0)
-include/asm-m32r/atomic.h: * atomic_inc_return - increment atomic variable and return it
-include/asm-m32r/atomic.h:static inline int atomic_inc_return(atomic_t *v)
-include/asm-m32r/atomic.h:		"# atomic_inc_return		\n\t"
-include/asm-m32r/atomic.h:#define atomic_inc(v) ((void)atomic_inc_return(v))
-include/asm-m32r/atomic.h:#define atomic_inc_and_test(v) (atomic_inc_return(v) == 0)
-include/asm-ppc/atomic.h:static __inline__ int atomic_inc_return(atomic_t *v)
-include/asm-ppc/atomic.h:"1:	lwarx	%0,0,%1		# atomic_inc_return\n\
-include/asm-ppc/atomic.h:#define atomic_inc_and_test(v) (atomic_inc_return(v) == 0)
-include/asm-ppc64/atomic.h:static __inline__ int atomic_inc_return(atomic_t *v)
-include/asm-ppc64/atomic.h:"1:	lwarx	%0,0,%1		# atomic_inc_return\n\
-include/asm-ppc64/atomic.h:#define atomic_inc_and_test(v) (atomic_inc_return(v) == 0)
-include/asm-s390/atomic.h:static __inline__ int atomic_inc_return(volatile atomic_t * v)
+It's queued up in an internal tree waiting for 2.6.11 to open.
+
+Some parts of your patch may still be needed.
+
+-Tony

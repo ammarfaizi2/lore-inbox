@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbUCPObB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:31:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbUCPO36
+	id S262029AbUCPPzR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 10:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262028AbUCPPzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:29:58 -0500
-Received: from styx.suse.cz ([82.208.2.94]:3458 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S261952AbUCPOTt convert rfc822-to-8bit
+	Tue, 16 Mar 2004 10:55:16 -0500
+Received: from smtp.actcom.co.il ([192.114.47.13]:28128 "EHLO
+	smtp1.actcom.co.il") by vger.kernel.org with ESMTP id S263156AbUCPPxe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:19:49 -0500
-Content-Transfer-Encoding: 7BIT
-Message-Id: <10794467781493@twilight.ucw.cz>
-Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH 35/44] HID quirk (badpad) for Chic gamepad
-X-Mailer: gregkh_patchbomb_levon_offspring
-To: torvalds@osdl.org, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+	Tue, 16 Mar 2004 10:53:34 -0500
+Date: Tue, 16 Mar 2004 17:46:11 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scheduler: Process priority fed back to parent?
+Message-ID: <20040316154611.GA31510@mulix.org>
+References: <40571A62.8050204@techsource.com>
 Mime-Version: 1.0
-Date: Tue, 16 Mar 2004 15:19:38 +0100
-In-Reply-To: <1079446778395@twilight.ucw.cz>
-From: Vojtech Pavlik <vojtech@suse.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Content-Disposition: inline
+In-Reply-To: <40571A62.8050204@techsource.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can pull this changeset from:
-	bk://kernel.bkbits.net/vojtech/input
 
-===================================================================
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-ChangeSet@1.1608.78.9, 2004-03-08 13:16:03+01:00, vojtech@suse.cz
-  input: Add a Chic gamepad into badpad quirk list.
+On Tue, Mar 16, 2004 at 10:16:50AM -0500, Timothy Miller wrote:
+
+> This way, after gcc has run a few times, it'll be flagged as a CPU-bound=
+=20
+> process and every time it's run after that point, it is always run at an=
+=20
+> appropriate priority.  Similarly, the first time xmms is run, its=20
+> interactivity estimate won't be right, but after it's determined to be=20
+> interactive, then the next time the program is launched, it STARTS with=
+=20
+> an appropriate priority:  no ramp-up time.
+
+This is something that I've thought of doing in the past. The reason I
+didn't pursue it further is that it's impossible to get it right for
+all cases, and it attacks the problem in the wrong place. The kernel
+shouldn't need to guess(timate) what the process is going to do. The
+userspace programmer, who knows what his process is going to do,
+should tell the kernel.=20
+
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
 
- hid-core.c |    4 ++++
- 1 files changed, 4 insertions(+)
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-===================================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
---- a/drivers/usb/input/hid-core.c	Tue Mar 16 13:17:56 2004
-+++ b/drivers/usb/input/hid-core.c	Tue Mar 16 13:17:56 2004
-@@ -1390,6 +1390,9 @@
- #define USB_VENDOR_ID_NEC		0x073e
- #define USB_DEVICE_ID_NEC_USB_GAME_PAD	0x0301
- 
-+#define USB_VENDOR_ID_CHIC		0x05fe
-+#define USB_DEVICE_ID_CHIC_GAMEPAD	0x0014
-+
- struct hid_blacklist {
- 	__u16 idVendor;
- 	__u16 idProduct;
-@@ -1449,6 +1452,7 @@
- 	{ USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE, HID_QUIRK_2WHEEL_MOUSE_HACK_EXTRA },
- 
- 	{ USB_VENDOR_ID_ALPS, USB_DEVICE_ID_IBM_GAMEPAD, HID_QUIRK_BADPAD },
-+	{ USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
+iD8DBQFAVyFDKRs727/VN8sRAkihAJ4lSal7HhpKproA5N7UXqzmR8pOlwCfTlr+
+FJHwhoaQERk+x5aqzatbJTI=
+=zpno
+-----END PGP SIGNATURE-----
 
+--gBBFr7Ir9EOA20Yy--

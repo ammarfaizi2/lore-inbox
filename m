@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319334AbSHVM0A>; Thu, 22 Aug 2002 08:26:00 -0400
+	id <S319330AbSHVMYI>; Thu, 22 Aug 2002 08:24:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319336AbSHVM0A>; Thu, 22 Aug 2002 08:26:00 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:5059 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S319334AbSHVMZ7>;
-	Thu, 22 Aug 2002 08:25:59 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: Yoann Vandoorselaere <yoann@prelude-ids.org>,
-       <cpufreq@lists.arm.linux.org.uk>, <cpufreq@www.linux.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]: fix 32bits integer overflow in loops_per_jiffy
- calculation
-Date: Thu, 22 Aug 2002 16:31:15 +0200
-Message-Id: <20020822143115.15323@192.168.4.1>
-In-Reply-To: <3D64D51C.9040603@iram.es>
-References: <3D64D51C.9040603@iram.es>
-X-Mailer: CTM PowerMail 3.1.2 carbon <http://www.ctmdev.com>
+	id <S319332AbSHVMYI>; Thu, 22 Aug 2002 08:24:08 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:14098 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S319330AbSHVMYH>; Thu, 22 Aug 2002 08:24:07 -0400
+Date: Thu, 22 Aug 2002 09:27:36 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Thunder from the hill <thunder@lightweight.ods.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bernd Eckenfels <ecki-news2002-08@lina.inka.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 and full ipv6 - will it happen?
+In-Reply-To: <Pine.LNX.4.44.0208220009110.3234-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.LNX.4.44L.0208220926360.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Well, first on sane archs which have an easily accessible, fixed
->frequency time counter, loops_per_jiffy should never have existed :-)
+On Thu, 22 Aug 2002, Thunder from the hill wrote:
+> On 21 Aug 2002, Alan Cox wrote:
+> > So IPv6 neither helps nor hinders
 >
->Second, putting this code there means that one day somebody will
->inevitably try to use it outside of its domain of operation (like it
->happened for div64 a few months ago when I pointed out that it would not
->work for divisors above 65535 or so).
+> Well, it's not too easy any more to say "I am the Alan Cox client. Send me
+> naked children." If you were ever hit by that or similar, you'd certainly
+> think differently, once you've seen that these "tools" for IPv4 are
+> mainstream, while the tools for IPv6 are rather rare, and the fake packets
+> got discarded anyway. If they're unlikely to be discarded -- I can't
+> agree. They just were.
 
-Well... it's clearly located inside kernel/cpufreq.c, so there is
-little risk, though it may be worth a big bold comment
+Filtering is a question of proper ingress/egress setup by
+the ISPs.  This is fairly common in the ipv4 world, but
+not yet common enough.
 
->Finally, I agree that we should not import libgcc, but for example on
->PPC32 the double lengths shifts (__ashrdi3, __ashldi3, and __lshsldi3)
->are implemented somewhere, and the assembly implementation (directly
->taken from some appendix in PPC documentation, I just slightly twisted
->__ashrdi3 to make it branchless AFAIR) is actually way faster than the
->one in libgcc ;-), and less than half the size.
->
->  Adding a few subroutines that implement a subset of libgcc's
->functionality is necessary for most archs (which functions are needed is
->arch, and sometimes compiler's, dependent).
->
->In this case a generic scaling function, while not a standard libgcc/C
->library feature has potentially more applications than this simple 
->cpufreq approximation. But I don't see very much the need for scaling a 
->long (64 bit on 64 bit archs) value, 32 bit would be sufficient.
+The ipv6 world hasn't yet started _route filtering_, let
+alone ingress/egress filtering ;)
 
-Well... if you can write one, go on then ;) In my case, I'm happy
-with Yoann implementation for cpufreq right now. Though I agree that
-could ultimately be moved to arch code.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Ben.
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289186AbSAOQ6e>; Tue, 15 Jan 2002 11:58:34 -0500
+	id <S289188AbSAORCO>; Tue, 15 Jan 2002 12:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289188AbSAOQ6Y>; Tue, 15 Jan 2002 11:58:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:39844 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289186AbSAOQ6M>;
-	Tue, 15 Jan 2002 11:58:12 -0500
-Date: Tue, 15 Jan 2002 08:56:38 -0800 (PST)
-Message-Id: <20020115.085638.110975446.davem@redhat.com>
-To: adam@yggdrasil.com
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.2/drivers/net/sungem.c uses nonexistant devexit_p
- macro
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200201151654.IAA13233@baldur.yggdrasil.com>
-In-Reply-To: <200201151654.IAA13233@baldur.yggdrasil.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S289530AbSAORCF>; Tue, 15 Jan 2002 12:02:05 -0500
+Received: from www.it-optics.com ([194.7.220.135]:65037 "HELO
+	lme.it-optics.com") by vger.kernel.org with SMTP id <S289242AbSAORBv>;
+	Tue, 15 Jan 2002 12:01:51 -0500
+To: linux-kernel@vger.kernel.org
+Subject: IDE-TAPE : having problem with atapi tape backup
+Message-ID: <1011114244.3c4461045e289@mail.it-optics.com>
+Date: Tue, 15 Jan 2002 18:04:04 +0100 (CET)
+From: Michel APPLAINCOURT <michel.applaincourt@it-optics.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.4
+X-Originating-IP: 172.16.3.103
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Adam J. Richter" <adam@yggdrasil.com>
-   Date: Tue, 15 Jan 2002 08:54:46 -0800
+Hi,
 
-   	linux-2.5.2/drivers/net/sungem.c uses devexit_p, which is not
-   currently in 2.5.2.  I understand the purpose of devexit_p and I have
-   kludged around it for myself.  I am just bringing it to your attention
-   so you can figure out whether to remove the devexit_p reference, have
-   a workaround for kernels that lack it, or add devexit_p to Linus's tree.
-   
-It'll be fixed in 2.5.3, my tree had a whole bunch of 2.4.x stuff in
-it which I decided to wipe out because of conflicts like this.
+I know this question has been asked several times but I could not find an answer
+:
 
+I hav a Seagate Travan 20GB Atapi IDE tape, installed on a 2.2.16-22 Linux
+(Redhat 6.2 version)
+I had no problem accessing my backup as /dev/ht0, but since a little time (I
+guess since the archive has got a certain minimum size), error messages showed
+up on the console like :
+
+ide-tape : ht0 : I/O error , pc = 10 , key = 0 , asc = 0 , ascq = 2 
+couldn't write a filemark
+
+I had some problems with files and wanted to get them back from archive, and I
+cannot access to them, because I get error
+
+[root@ulysse backup]# ./restore.sh
+    Level-0 Backup Fri Jan 11 01:10:00 CET 2002
+    Lecture de `Level-0 Backup Fri Jan 11 01:10:00 CET 2002'
+    tar: Fin prématurée (EOF) rencontrée dans l'archive.
+    tar: Erreur non récupérable: fin de l'exécution immédiate
+    [root@ulysse backup]#
+
+telling me i had a EOF too early in the file...
+
+what can i do?
+Is it ide-tape that has problem?
+
+Thanks...
+ 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    Michel  APPLAINCOURT     | E-mail : michel.applaincourt@it-optics.com
+      Managing Director      | Phone  : +32 65 321573
+        IT-OPTICS s.a        | Fax    : +32 65 321574
+ 
+           [The boy that you love is the man that you fear]
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

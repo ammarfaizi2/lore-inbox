@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275224AbRKVJ6Q>; Thu, 22 Nov 2001 04:58:16 -0500
+	id <S273622AbRKVJv4>; Thu, 22 Nov 2001 04:51:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRKVJ6G>; Thu, 22 Nov 2001 04:58:06 -0500
-Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:48565
-	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
-	id <S275224AbRKVJ5z>; Thu, 22 Nov 2001 04:57:55 -0500
-Message-ID: <3BFD0BB3.2000000@debian.org>
-Date: Thu, 22 Nov 2001 15:29:07 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: en-us
+	id <S275126AbRKVJvq>; Thu, 22 Nov 2001 04:51:46 -0500
+Received: from mout04.kundenserver.de ([195.20.224.89]:28437 "EHLO
+	mout04.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S273622AbRKVJvg> convert rfc822-to-8bit; Thu, 22 Nov 2001 04:51:36 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: "H. Peter Anvin" <hpa@zytor.com>, war <war@starband.net>
+Subject: Re: Swap vs No Swap.
+Date: Thu, 22 Nov 2001 10:50:45 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <3BFC8D81.E25238D1@starband.net> <3BFC8DE8.7040202@zytor.com>
+In-Reply-To: <3BFC8DE8.7040202@zytor.com>
 MIME-Version: 1.0
-To: ncw@axis.demon.co.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Asm style
-In-Reply-To: <fa.derh1nv.1h0ai0b@ifi.uio.no> <fa.njuqm5v.100c5ak@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <E166qVo-0001Bv-00@mrvdom03.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ncw@axis.demon.co.uk wrote:
-> Giacomo Catenazzi wrote:
->> 
->> not ANSI C. The trailing \ is understood only in marco definitions
->> (and outside strings)
->> 
-> gcc begs to differ
-> 
-> /* z.c */
-> #include <stdio.h>
-> 
-> int main(void)
-> {
->     printf("This is a string\n\
-> with continuation characters\n");
->     return 0;
-> }
-> 
-> $ gcc -Wall -pedantic -ansi z.c -o z
-> [silence]
-> 
-> Remove the \ and you get
-> 
-> z.c:5: warning: string constant runs past end of line
-> z.c: In function `main':
-> z.c:5: warning: ANSI C forbids newline in string constant
-> 
+> > Yeah, but when the disk starts swapping the system slows down to a halt.
+> No, when the disk starts *THRASHING* the system slows down to a halt.
+> If you are thrashing with swap you would be thrashing much worse without
+> swap.
 
-gcc should warn in both case (when calling it with -pedantic -ansi).
-But forget my comment:
-Talking about ANSI C for asm construct doen't make much sense.
+Not neccessarily. 
+Your swap early swap often paradigma works fine...as long as the swap 
+partition resides on an standalone harddisk without a data partition.
 
-If gcc people will maintain (in long future) the syntax of
-trailing \ + NL, I agree to use it into kernel.
+But imagine the situation that you have a higher band width streaming 
+application - e.g. viewing a video file.  On the same hard disc there is a 
+swap partition. Cache is getting bigger and bigger until kernel starts to 
+swap.
+Now the swapping algorithm writes on the harddisc. That troubles the  hard 
+disc elevation mechanism, so  that higher bandwidth readings starve, due to 
+head movements away from the data partitions towards the swap partition.
 
-	giacomo
+greetings
 
-
+Christian Bornträger

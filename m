@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbRGBBpv>; Sun, 1 Jul 2001 21:45:51 -0400
+	id <S262655AbRGBCDd>; Sun, 1 Jul 2001 22:03:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262655AbRGBBpl>; Sun, 1 Jul 2001 21:45:41 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:10423 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S261651AbRGBBph>; Sun, 1 Jul 2001 21:45:37 -0400
-Date: Sun, 1 Jul 2001 18:48:12 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: William T Wilson <fluffy@snurgle.org>
-cc: Ben Ford <ben@kalifornia.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Uncle Sam Wants YOU!
-In-Reply-To: <Pine.LNX.4.21.0107012107010.3665-100000@benatar.snurgle.org>
-Message-ID: <Pine.LNX.4.33.0107011824130.28715-100000@twin.uoregon.edu>
+	id <S263400AbRGBCDX>; Sun, 1 Jul 2001 22:03:23 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43025 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S262655AbRGBCDF>;
+	Sun, 1 Jul 2001 22:03:05 -0400
+Date: Sun, 1 Jul 2001 23:02:58 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: Removal of PG_marker scheme from 2.4.6-pre
+In-Reply-To: <Pine.LNX.4.21.0106301628570.3394-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33L.0107012301460.19985-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Jul 2001, William T Wilson wrote:
+On Sat, 30 Jun 2001, Marcelo Tosatti wrote:
 
-> On Sun, 1 Jul 2001, Ben Ford wrote:
-> My understanding is that astronauts going up on the shuttle take turns
-> bringing a laptop computer so they have actual computing power available
-> to them.
+> In pre7:
+>
+> "me: undo page_launder() LRU changes, they have nasty side effects"
+>
+> Can you be more verbose about this ?
 
-actually the mission related laptops are thinkpads running win95...
+I think this was fixed by the GFP_BUFFER vs. GFP_CAN_FS + GFP_CAN_IO
+thing and Linus accidentally backed out the wrong code ;)
 
-http://www.spaceref.com/news/viewnews.html?id=213
+cheers,
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-the ISS also has some running solaris x86...
+http://www.surriel.com/		http://distro.conectiva.com/
 
-all sorts of other computers have flow as parts of payloads...
-
->  The shuttle computer is not adequate for many tasks because it
-> is something like 30 years old, but that's what they use because it is
-> certified.  So somebody has to bring along a non-certified system in their
-> "personal effects" allowance to get real work done :}
-
-avionics packages onboard the suttle have been significantly updated,
-since first flight(understatement). atlantis was the first to fly with the
-glass cockpit sometime in early 2000.
-
-joelja
-
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

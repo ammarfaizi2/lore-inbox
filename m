@@ -1,162 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVADWvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVADWXD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVADWvD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 17:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVADWuU
+	id S262382AbVADWXD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 17:23:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVADWWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 17:50:20 -0500
-Received: from dfw-gate4.raytheon.com ([199.46.199.233]:35224 "EHLO
-	dfw-gate4.raytheon.com") by vger.kernel.org with ESMTP
-	id S262417AbVADWr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 17:47:58 -0500
-Subject: Re: 2.6.10-mm1: ALSA ac97 compile error with CONFIG_PM=n
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, alsa-devel@alsa-project.org,
-       Adrian Bunk <bunk@stusta.de>, lkml <linux-kernel@vger.kernel.org>,
-       perex@suse.cz, Takashi Iwai <tiwai@suse.de>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF5A3BD386.A1A4C579-ON86256F7F.00688E0E@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Tue, 4 Jan 2005 13:25:40 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 01/04/2005 01:25:50 PM
-MIME-Version: 1.0
-Content-type: multipart/mixed; 
-	Boundary="0__=09BBE5ECDFFB089E8f9e8a93df938690918c09BBE5ECDFFB089E"
+	Tue, 4 Jan 2005 17:22:02 -0500
+Received: from fw.osdl.org ([65.172.181.6]:4746 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262123AbVADWVN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 17:21:13 -0500
+Date: Tue, 4 Jan 2005 14:21:11 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Nikita Danilov <nikita@clusterfs.com>, torvalds@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] remove duplicated patch fragment
+Message-ID: <20050104142111.F469@build.pdx.osdl.net>
+References: <200501040611.j046BHoq005158@hera.kernel.org> <m14qhxmkw4.fsf@clusterfs.com> <20050104172614.GB12861@apps.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-SPAM: 0.00
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050104172614.GB12861@apps.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jan 04, 2005 at 06:26:14PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0__=09BBE5ECDFFB089E8f9e8a93df938690918c09BBE5ECDFFB089E
-Content-type: text/plain; charset=US-ASCII
+* Andries Brouwer (Andries.Brouwer@cwi.nl) wrote:
+> Yes - sorry. The first of these two semi-identical fragments
+> is from Alan and appeared in patch-2.6.9, two weeks after
+> the patch under discussion was made. So, the second half
+> can be dropped. Below a patch.
 
-A follow up on this patch. This fixed my build / module load problem when
-using CONFIG_PM=N on my system. The audio worked OK (except as noted
-below). Do you want Andrew Morton to pick this up (or will you incorporate
-the fix into another ALSA patch)?
+Yes, can this please be applied? ;-)
 
-I did have some other minor problems during my testing but I have seen
-these before. Perhaps one of the ALSA developers could comment on the
-correct / incorrect behavior of the audio system. The testing is done on a
-Fedora Core 2 system with the 2.6.10-mm1 kernel (with the patch below). Let
-me know if you need more information on the system configuration, and
-.config.
+Acked-by: Chris Wright <chrisw@osdl.org>
 
-[1] After system start up & log in, I do the sequence:
-  su -
-  (password entered)
-  system-config-soundcard
-  Simple mixer control 'PCM',0
-    Capabilities: pvolume pswitch pswitch-joined
-    Playback channels: Front Left - Front Right
-    Limits: Playback 0 - 31
-    Front Left: Playback 23 [74%] [on]
-    Front Right: Playback 23 [74%] [on]
-  sox: Can't open output file '/dev/dsp': Device or resource busy
-
-At this point, I get the window asking if I heard the sound (I did not). If
-I repeat the test after waiting a short period, it eventually succeeds.
-
-I get basically the same error message from latencytest when it says...
-  ERROR: open /dev/dsp: Device or resource busy
-[even after I had a successful play of the test sound in
-system-config-soundcard]
-
-I realize this may be some KDE or GNOME background application hogging the
-sound output, but it is extremely annoying since I never had this problem
-with the 2.4 kernels I have used. Is that the likely cause or would
-something else cause this problem?
-
-[2] When running latencytest (from
-http://www.gardena.net/benno/linux/audio/) the sound is not consistent
-(like it was on 2.4 with OSS) and occasionally I hear "rapid playback"
-where the repeating audio pattern is much faster than it should be. In
-addition, the charts generated by latencytest show at least two different
-patterns:
-  a. The time between write() calls to the audio interface varies from
-roughly 1.16 msec to 2.0 msec. If you add code to dump out the durations
-you can see it is a sawtooth pattern, some periods it returns too quickly
-and some periods it returns too slowly.
-  b. The time between write() calls is roughly 1.2 msec. I believe this
-behavior occurs at the same time the audio pattern repeats too quickly.
-In all cases, the between write() calls should be 1.45 msec (the length of
-the audio fragment) as I measured on a consistent basis with 2.4 kernels. I
-can somewhat understand the behavior of (a) if the driver is queueing up
-audio fragments in the write() call. I do not necessarily agree that the
-audio driver should do that but I can understand why it may do that. The
-behavior of (b) sounds broken to me.
-
-Let me know if you want to see a copy of the charts - I should be able to
-email (or post on an ftp site temporarily) to individuals who want to view
-them [and compare with the 2.4 results].
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
-
-                                                                                                                                       
-                      Mark H Johnson                                                                                                   
-                                               To:      Adrian Bunk <bunk@stusta.de>                                                   
-                      01/04/2005 11:01         cc:      Mark_H_Johnson@RAYTHEON.COM, Andrew Morton <akpm@osdl.org>, lkml               
-                      AM                       <linux-kernel@vger.kernel.org>, perex@suse.cz, Takashi Iwai <tiwai@suse.de>,            
-                                               alsa-devel@alsa-project.org                                                             
-                                               Subject: Re: 2.6.10-mm1: ALSA ac97 compile error with CONFIG_PM=n(Document link: Mark   
-                                               the Maniac)                                                                             
-                                                                                                                                       
-
-
-
->That's not the problem, since function and definition are in the same
->module.
->
->You didn't send your .config, but looking at the code it seems
->CONFIG_PM=n was the culprit.
-Yes. CONFIG_PM=N in my .config.
-
->As a workaround, it should work after enabling the following option:
->  Power management options (ACPI, APM)
->    Power Management support
-Hmm. I don't want to do that for my real time testing. I turned that off
-to eliminate a class of possible latencies.
-
->This is only a workaround, I've Cc'ed the ALSA maintainers for a real
->fix.
-
-How about the attached patch instead (which moves the #ifdef CONFIG_PM
-and snd_ac97_suspend after the two functions I am having problems with).
-Apparently the use of snd_ac97_restore_status and snd_ac97_restore_iec958
-is in ac97_patch.c as well as in the power management code. I have not
-run the code yet a quick build didn't find any problems with it. I have
-a full build / test coming later today.
-
-  --Mark
-
-PS: On the other message you sent related to [add|del]_mtd_partitions
-applies with the 2nd hunk failing (that code not present) but the first
-hunk makes the build problem I had go away. Thanks.
-
---0__=09BBE5ECDFFB089E8f9e8a93df938690918c09BBE5ECDFFB089E
-Content-type: application/octet-stream; 
-	name="ac97-fix-nopm.patch"
-Content-Disposition: attachment; filename="ac97-fix-nopm.patch"
-Content-transfer-encoding: base64
-
-LS0tIGtlcm5lbC0yLjYuMTBtbTEvc291bmQvcGNpL2FjOTcvYWM5N19jb2RlYy5jLm9yaWcJMjAw
-NS0wMS0wNCAwNzo0MDoyNy4wMDAwMDAwMDAgLTA2MDAKKysrIGtlcm5lbC0yLjYuMTBtbTEvc291
-bmQvcGNpL2FjOTcvYWM5N19jb2RlYy5jCTIwMDUtMDEtMDQgMTA6NDg6MjEuMDAwMDAwMDAwIC0w
-NjAwCkBAIC0yMjAxLDE4ICsyMjAxLDYgQEAKIH0KIAogCi0jaWZkZWYgQ09ORklHX1BNCi0vKioK
-LSAqIHNuZF9hYzk3X3N1c3BlbmQgLSBHZW5lcmFsIHN1c3BlbmQgZnVuY3Rpb24gZm9yIEFDOTcg
-Y29kZWMKLSAqIEBhYzk3OiB0aGUgYWM5NyBpbnN0YW5jZQotICoKLSAqIFN1c3BlbmRzIHRoZSBj
-b2RlYywgcG93ZXIgZG93biB0aGUgY2hpcC4KLSAqLwotdm9pZCBzbmRfYWM5N19zdXNwZW5kKGFj
-OTdfdCAqYWM5NykKLXsKLQlzbmRfYWM5N19wb3dlcmRvd24oYWM5Nyk7Ci19Ci0KIC8qCiAgKiBy
-ZXN0b3JlIGFjOTcgc3RhdHVzCiAgKi8KQEAgLTIyNTMsNiArMjI0MSwxOCBAQAogCX0KIH0KIAor
-I2lmZGVmIENPTkZJR19QTQorLyoqCisgKiBzbmRfYWM5N19zdXNwZW5kIC0gR2VuZXJhbCBzdXNw
-ZW5kIGZ1bmN0aW9uIGZvciBBQzk3IGNvZGVjCisgKiBAYWM5NzogdGhlIGFjOTcgaW5zdGFuY2UK
-KyAqCisgKiBTdXNwZW5kcyB0aGUgY29kZWMsIHBvd2VyIGRvd24gdGhlIGNoaXAuCisgKi8KK3Zv
-aWQgc25kX2FjOTdfc3VzcGVuZChhYzk3X3QgKmFjOTcpCit7CisJc25kX2FjOTdfcG93ZXJkb3du
-KGFjOTcpOworfQorCiAvKioKICAqIHNuZF9hYzk3X3Jlc3VtZSAtIEdlbmVyYWwgcmVzdW1lIGZ1
-bmN0aW9uIGZvciBBQzk3IGNvZGVjCiAgKiBAYWM5NzogdGhlIGFjOTcgaW5zdGFuY2UK
-
---0__=09BBE5ECDFFB089E8f9e8a93df938690918c09BBE5ECDFFB089E--
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

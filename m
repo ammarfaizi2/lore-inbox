@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274131AbRIXS3t>; Mon, 24 Sep 2001 14:29:49 -0400
+	id <S274145AbRIXSkM>; Mon, 24 Sep 2001 14:40:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274143AbRIXS33>; Mon, 24 Sep 2001 14:29:29 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:19217 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S274131AbRIXS3W>; Mon, 24 Sep 2001 14:29:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Alexander Viro <viro@math.psu.edu>
-Subject: Re: Linux VM design
-Date: Mon, 24 Sep 2001 20:37:17 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com> <20010922105332Z16449-2757+1233@humbolt.nl.linux.org> <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <6514162334.20010924123631@port.imtp.ilyichevsk.odessa.ua>
+	id <S274146AbRIXSkA>; Mon, 24 Sep 2001 14:40:00 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60516 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S274145AbRIXSju>; Mon, 24 Sep 2001 14:39:50 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: matthias.andree@stud.uni-dortmund.de (Matthias Andree),
+        linux-kernel@vger.kernel.org (Linux-Kernel mailing list),
+        mingo@redhat.com
+Subject: Re: 2.4.10-pre15 -> final breaks IOAPIC on UP?
+In-Reply-To: <E15lWVi-0002eV-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 24 Sep 2001 12:30:56 -0600
+In-Reply-To: <E15lWVi-0002eV-00@the-village.bc.nu>
+Message-ID: <m1ofo07867.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010924182948Z16175-2757+1593@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 24, 2001 11:36 am, VDA wrote:
-> Daniel Phillips <phillips@bonn-fries.net> wrote:
-> DP> The arguments in support of aging over LRU that I'm aware of are:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+
+> > So, I believe that any IOAPIC related change between 2.4.10-pre15 and
+> > 2.4.10-final breaks my X11 here.
 > 
-> DP>   - incrementing an age is more efficient than resetting several LRU 
-> DP>     list links
-> DP>   - also captures some frequency-of-use information
-> 
-> Of what use this info can be? If one page is accessed 100 times/second
-> and other one once in 10 seconds, they both have to stay in RAM.
-> VM should take 'time since last access' into account whan deciding
-> which page to swap out, not how often it was referenced.
+> Uniprocessor IO-APIC only works for some machines. It also subtly changes
+> IRQ delivery timing properties which may be worth checking too
 
-You might want to have a look at this:
+All athlon motherboards with the via686 southbridge and an AMD northbridge
+should fail according to the AMD errata.  This may also happen with a via
+northbridge.  The AMD apic bus is subtely different from the intel apic
+bus in implementation.
 
-   http://archi.snu.ac.kr/jhkim/seminar/96-004.ps
-   (lrfu algorithm)
-
-To tell the truth, I don't really see why the frequency information is all
-that useful either.  Rik suggested it's good for streaming IO but we already 
-have effective means of dealing with that that don't rely on any frequency 
-information.
-
-So the list of reasons why aging is good is looking really short.
-
---
-Daniel
+Eric

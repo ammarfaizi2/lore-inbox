@@ -1,36 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbVCGHWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVCGH0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbVCGHWh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 02:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVCGHWg
+	id S261675AbVCGH0W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 02:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVCGHZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 02:22:36 -0500
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:9331 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261664AbVCGHMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 02:12:37 -0500
-Message-ID: <422BFEC6.70305@yahoo.com>
-Date: Sun, 06 Mar 2005 23:12:06 -0800
+	Mon, 7 Mar 2005 02:25:48 -0500
+Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:30626 "HELO
+	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261675AbVCGHTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 02:19:37 -0500
+Message-ID: <422C0067.50300@yahoo.com>
+Date: Sun, 06 Mar 2005 23:19:03 -0800
 From: Alex Aizman <itn780@yahoo.com>
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b) Gecko/20050217
 MIME-Version: 1.0
 To: linux-scsi@vger.kernel.org
 CC: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE 2/6] Open-iSCSI High-Performance Initiator for Linux
+Subject: [ANNOUNCE 6/6] Open-iSCSI High-Performance Initiator for Linux
 Content-Type: multipart/mixed;
- boundary="------------060600050104050201080706"
+ boundary="------------030902070907030505050006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------060600050104050201080706
+--------------030902070907030505050006
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-          Common header files:
-          - iscsi_ifev.h (user/kernel events).
-          - iscsi_if.h (iSCSI open interface over netlink);
-          - iscsi_proto.h (RFC3720 #defines and types);
+          Documentation/scsi/iscsi.txt
 
           Signed-off-by: Alex Aizman <itn780@yahoo.com>
           Signed-off-by: Dmitry Yusupov <dmitry_yus@yahoo.com>
@@ -43,835 +40,296 @@ Content-Transfer-Encoding: 7bit
 
 
 
---------------060600050104050201080706
+--------------030902070907030505050006
 Content-Type: text/plain;
- name="open-iscsi-headers.patch"
+ name="open-iscsi-doc.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="open-iscsi-headers.patch"
+ filename="open-iscsi-doc.patch"
 
-diff -Nru linux-2.6.11.orig/include/scsi/iscsi_ifev.h linux-2.6.11.dima/include/scsi/iscsi_ifev.h
---- linux-2.6.11.orig/include/scsi/iscsi_ifev.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.11.dima/include/scsi/iscsi_ifev.h	2005-03-04 17:50:11.138413681 -0800
-@@ -0,0 +1,105 @@
-+/*
-+ * iSCSI Kernel/User Interface Events
-+ *
-+ * Copyright (C) 2005 Dmitry Yusupov, Alex Aizman
-+ * maintained by open-iscsi@googlegroups.com
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published
-+ * by the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * See the file COPYING included with this distribution for more details.
-+ */
-+
-+#ifndef ISCSI_IFEV_H
-+#define ISCSI_IFEV_H
-+
-+typedef enum iscsi_uevent_e {
-+	ISCSI_UEVENT_UNKNOWN		= 0,
-+
-+	/* down events */
-+	ISCSI_UEVENT_CREATE_SESSION	= UEVENT_BASE + 1,
-+	ISCSI_UEVENT_DESTROY_SESSION	= UEVENT_BASE + 2,
-+	ISCSI_UEVENT_CREATE_CNX		= UEVENT_BASE + 3,
-+	ISCSI_UEVENT_DESTROY_CNX	= UEVENT_BASE + 4,
-+	ISCSI_UEVENT_BIND_CNX		= UEVENT_BASE + 5,
-+	ISCSI_UEVENT_SET_PARAM		= UEVENT_BASE + 6,
-+	ISCSI_UEVENT_START_CNX		= UEVENT_BASE + 7,
-+	ISCSI_UEVENT_STOP_CNX		= UEVENT_BASE + 8,
-+	ISCSI_UEVENT_SEND_PDU		= UEVENT_BASE + 9,
-+
-+	/* up events */
-+	ISCSI_KEVENT_RECV_PDU		= KEVENT_BASE + 1,
-+	ISCSI_KEVENT_CNX_ERROR		= KEVENT_BASE + 2,
-+} iscsi_uevent_e;
-+
-+struct iscsi_uevent {
-+	uint32_t type; /* k/u events type */
-+	uint32_t transport_id;
-+
-+	union {
-+		/* messages u -> k */
-+		struct msg_create_session {
-+			uint64_t	session_handle;
-+			uint32_t	initial_cmdsn;
-+		} c_session;
-+		struct msg_destroy_session {
-+			uint64_t	session_handle;
-+		} d_session;
-+		struct msg_create_cnx {
-+			uint64_t	session_handle;
-+			uint64_t	cnx_handle;
-+			uint32_t	cid;
-+		} c_cnx;
-+		struct msg_bind_cnx {
-+			uint64_t	session_handle;
-+			uint64_t	cnx_handle;
-+			uint32_t	transport_fd;
-+			uint32_t	is_leading;
-+		} b_cnx;
-+		struct msg_destroy_cnx {
-+			uint64_t	cnx_handle;
-+		} d_cnx;
-+		struct msg_send_pdu {
-+			uint32_t	hdr_size;
-+			uint32_t	data_size;
-+			uint64_t	cnx_handle;
-+		} send_pdu;
-+		struct msg_set_param {
-+			uint64_t	cnx_handle;
-+			uint32_t	param; /* iscsi_param_e */
-+			uint32_t	value;
-+		} set_param;
-+		struct msg_start_cnx {
-+			uint64_t	cnx_handle;
-+		} start_cnx;
-+		struct msg_stop_cnx {
-+			uint64_t	cnx_handle;
-+		} stop_cnx;
-+	} u;
-+	union {
-+		/* messages k -> u */
-+		uint64_t		handle;
-+		int			retcode;
-+		struct msg_create_session_ret {
-+			uint64_t	handle;
-+			uint32_t	sid;
-+		} c_session_ret;
-+		struct msg_recv_req {
-+			uint64_t	recv_handle;
-+			uint64_t	cnx_handle;
-+		} recv_req;
-+		struct msg_cnx_error {
-+			uint64_t	cnx_handle;
-+			uint32_t	error; /* iscsi_err_e */
-+		} cnxerror;
-+	} r;
-+};
-+
-+#endif /* ISCSI_IFEV_H */
-diff -Nru linux-2.6.11.orig/include/scsi/iscsi_if.h linux-2.6.11.dima/include/scsi/iscsi_if.h
---- linux-2.6.11.orig/include/scsi/iscsi_if.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.11.dima/include/scsi/iscsi_if.h	2005-03-04 17:50:11.137413797 -0800
-@@ -0,0 +1,140 @@
-+/*
-+ * iSCSI User/Kernel Interface
-+ *
-+ * Copyright (C) 2005 Dmitry Yusupov, Alex Aizman
-+ * maintained by open-iscsi@googlegroups.com
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published
-+ * by the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * See the file COPYING included with this distribution for more details.
-+ */
-+
-+#ifndef ISCSI_IF_H
-+#define ISCSI_IF_H
-+
-+#include <scsi/iscsi_proto.h>
-+
-+#define ISCSI_TRANSPORT_NAME_MAXLEN	64
-+#define ISCSI_TRANSPORT_MAX		16
-+#define UEVENT_BASE			10
-+#define KEVENT_BASE			100
-+#define ISCSI_ERR_BASE			1000
-+
-+/*
-+ * Common error codes
-+ */
-+typedef enum {
-+	ISCSI_OK			= 0,
-+
-+	ISCSI_ERR_BAD_TARGET		= ISCSI_ERR_BASE + 1,
-+	ISCSI_ERR_DATASN		= ISCSI_ERR_BASE + 2,
-+	ISCSI_ERR_DATA_OFFSET		= ISCSI_ERR_BASE + 3,
-+	ISCSI_ERR_MAX_CMDSN		= ISCSI_ERR_BASE + 4,
-+	ISCSI_ERR_EXP_CMDSN		= ISCSI_ERR_BASE + 5,
-+	ISCSI_ERR_BAD_OPCODE		= ISCSI_ERR_BASE + 6,
-+	ISCSI_ERR_DATALEN		= ISCSI_ERR_BASE + 7,
-+	ISCSI_ERR_AHSLEN		= ISCSI_ERR_BASE + 8,
-+	ISCSI_ERR_PROTO			= ISCSI_ERR_BASE + 9,
-+	ISCSI_ERR_LUN			= ISCSI_ERR_BASE + 10,
-+	ISCSI_ERR_BAD_ITT		= ISCSI_ERR_BASE + 11,
-+	ISCSI_ERR_CNX_FAILED		= ISCSI_ERR_BASE + 12,
-+	ISCSI_ERR_R2TSN			= ISCSI_ERR_BASE + 13,
-+	ISCSI_ERR_SNX_FAILED		= ISCSI_ERR_BASE + 14,
-+	ISCSI_ERR_HDR_DGST		= ISCSI_ERR_BASE + 15,
-+	ISCSI_ERR_DATA_DGST		= ISCSI_ERR_BASE + 16,
-+} iscsi_err_e;
-+
-+/*
-+ * iSCSI Parameters (RFC3720)
-+ */
-+typedef enum {
-+	ISCSI_PARAM_MAX_RECV_DLENGTH	= 0,
-+	ISCSI_PARAM_MAX_XMIT_DLENGTH	= 1,
-+	ISCSI_PARAM_HDRDGST_EN		= 2,
-+	ISCSI_PARAM_DATADGST_EN		= 3,
-+	ISCSI_PARAM_INITIAL_R2T_EN	= 4,
-+	ISCSI_PARAM_MAX_R2T		= 5,
-+	ISCSI_PARAM_IMM_DATA_EN		= 6,
-+	ISCSI_PARAM_FIRST_BURST		= 7,
-+	ISCSI_PARAM_MAX_BURST		= 8,
-+	ISCSI_PARAM_PDU_INORDER_EN	= 9,
-+	ISCSI_PARAM_DATASEQ_INORDER_EN	= 10,
-+	ISCSI_PARAM_ERL			= 11,
-+	ISCSI_PARAM_IFMARKER_EN		= 12,
-+	ISCSI_PARAM_OFMARKER_EN		= 13,
-+} iscsi_param_e;
-+
-+typedef uint64_t iscsi_snx_h;		/* iSCSI Data-Path session handle */
-+typedef uint64_t iscsi_cnx_h;		/* iSCSI Data-Path connection handle */
-+
-+#define iscsi_ptr(_handle) ((void*)(unsigned long)_handle)
-+#define iscsi_handle(_ptr) ((uint64_t)(unsigned long)_ptr)
-+
-+/*
-+ * These flags presents iSCSI Data-Path capabilities.
-+ */
-+#define CAP_RECOVERY_L0		0x1
-+#define CAP_RECOVERY_L1		0x2
-+#define CAP_RECOVERY_L2		0x4
-+#define CAP_MULTI_R2T		0x8
-+#define CAP_HDRDGST		0x10
-+#define CAP_DATADGST		0x20
-+#define CAP_MULTI_CNX		0x40
-+#define CAP_TEXT_NEGO		0x80
-+
-+/**
-+ * struct iscsi_transport - down calls
-+ *
-+ * @name: transport name
-+ * @caps: iSCSI Data-Path capabilities
-+ * @create_snx: create new iSCSI session object
-+ * @destroy_snx: destroy existing iSCSI session object
-+ * @create_cnx: create new iSCSI connection
-+ * @bind_cnx: associate this connection with existing iSCSI session and
-+ *            specified transport descriptor
-+ * @destroy_cnx: destroy inactive iSCSI connection
-+ * @set_param: set iSCSI Data-Path operational parameter
-+ * @start_cnx: set connection to be operational
-+ * @stop_cnx: suspend connection
-+ * @send_pdu: send iSCSI PDU, Login, Logout, NOP-Out, Reject, Text.
-+ *
-+ * API provided by generic iSCSI Data Path module
-+ */
-+struct iscsi_transport {
-+	char            *name;
-+	unsigned int    caps;
-+	unsigned int    max_cnx;
-+	iscsi_snx_h (*create_session) (iscsi_snx_h cp_snx,
-+			uint32_t initial_cmdsn, uint32_t *sid);
-+	void (*destroy_session) (iscsi_snx_h dp_snx);
-+	iscsi_cnx_h (*create_cnx) (iscsi_snx_h dp_snx, iscsi_cnx_h cp_cnx,
-+			uint32_t cid);
-+	int (*bind_cnx) (iscsi_snx_h dp_snx, iscsi_cnx_h dp_cnx,
-+			uint32_t transport_fd, int is_leading);
-+	int (*start_cnx) (iscsi_cnx_h dp_cnx);
-+	void (*stop_cnx) (iscsi_cnx_h dp_cnx);
-+	void (*destroy_cnx) (iscsi_cnx_h dp_cnx);
-+	int (*set_param) (iscsi_cnx_h dp_cnx, iscsi_param_e param,
-+			  uint32_t value);
-+	int (*send_pdu) (iscsi_cnx_h dp_cnx, struct iscsi_hdr *hdr,
-+			 char *data, uint32_t data_size);
-+};
-+
-+/*
-+ * up calls
-+ */
-+int iscsi_register_transport(struct iscsi_transport *ops, int id);
-+void iscsi_unregister_transport(int id);
-+int iscsi_control_recv_pdu(iscsi_cnx_h cp_cnx, struct iscsi_hdr *hdr,
-+				char *data, uint32_t data_size);
-+void iscsi_control_cnx_error(iscsi_cnx_h cp_cnx, iscsi_err_e error);
-+
-+#endif
-diff -Nru linux-2.6.11.orig/include/scsi/iscsi_proto.h linux-2.6.11.dima/include/scsi/iscsi_proto.h
---- linux-2.6.11.orig/include/scsi/iscsi_proto.h	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.11.dima/include/scsi/iscsi_proto.h	2005-03-04 17:50:11.139413565 -0800
-@@ -0,0 +1,565 @@
-+/*
-+ * RFC 3720 (iSCSI) protocol data types
-+ *
-+ * Copyright (C) 2005 Dmitry Yusupov, Alex Aizman
-+ * maintained by open-iscsi@googlegroups.com
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published
-+ * by the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * See the file COPYING included with this distribution for more details.
-+ */
-+
-+#ifndef ISCSI_PROTO_H
-+#define ISCSI_PROTO_H
-+
-+#define ISCSI_VERSION_STR	"0.1.0"
-+#define ISCSI_DATE_STR		"17-Jan-2005"
-+#define ISCSI_DRAFT20_VERSION	0x00
-+
-+/* default iSCSI listen port for incoming connections */
-+#define ISCSI_LISTEN_PORT	3260
-+
-+/* Padding word length */
-+#define PAD_WORD_LEN		4
-+
-+/*
-+ * useful common(control and data pathes) macro
-+ */
-+#define ntoh24(p) (((p)[0] << 16) | ((p)[1] << 8) | ((p)[2]))
-+#define hton24(p, v) { \
-+        p[0] = (((v) >> 16) & 0xFF); \
-+        p[1] = (((v) >> 8) & 0xFF); \
-+        p[2] = ((v) & 0xFF); \
-+}
-+#define zero_data(p) {p[0]=0;p[1]=0;p[2]=0;}
-+
-+/*
-+ * iSCSI Template Message Header
-+ */
-+struct iscsi_hdr {
-+	uint8_t		opcode;
-+	uint8_t		flags;		/* Final bit */
-+	uint8_t		rsvd2[2];
-+	uint8_t		hlength;	/* AHSs total length */
-+	uint8_t		dlength[3];	/* Data length */
-+	uint8_t		lun[8];
-+	uint32_t	itt;		/* Initiator Task Tag */
-+	uint32_t	ttt;		/* Target Task Tag */
-+	uint32_t	statsn;
-+	uint32_t	exp_statsn;
-+	uint8_t		other[16];
-+};
-+
-+/************************* RFC 3720 Begin *****************************/
-+
-+#define ISCSI_RESERVED_TAG		0xffffffff
-+
-+/* Opcode encoding bits */
-+#define ISCSI_OP_RETRY			0x80
-+#define ISCSI_OP_IMMEDIATE		0x40
-+#define ISCSI_OPCODE_MASK		0x3F
-+
-+/* Initiator Opcode values */
-+#define ISCSI_OP_NOOP_OUT		0x00
-+#define ISCSI_OP_SCSI_CMD		0x01
-+#define ISCSI_OP_SCSI_TMFUNC		0x02
-+#define ISCSI_OP_LOGIN			0x03
-+#define ISCSI_OP_TEXT			0x04
-+#define ISCSI_OP_SCSI_DATA_OUT		0x05
-+#define ISCSI_OP_LOGOUT			0x06
-+#define ISCSI_OP_SNACK			0x10
-+
-+/* Target Opcode values */
-+#define ISCSI_OP_NOOP_IN		0x20
-+#define ISCSI_OP_SCSI_CMD_RSP		0x21
-+#define ISCSI_OP_SCSI_TMFUNC_RSP	0x22
-+#define ISCSI_OP_LOGIN_RSP		0x23
-+#define ISCSI_OP_TEXT_RSP		0x24
-+#define ISCSI_OP_SCSI_DATA_IN		0x25
-+#define ISCSI_OP_LOGOUT_RSP		0x26
-+#define ISCSI_OP_R2T			0x31
-+#define ISCSI_OP_ASYNC_EVENT		0x32
-+#define ISCSI_OP_REJECT			0x3f
-+
-+/* SCSI Command Header */
-+struct iscsi_cmd {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2;
-+	uint8_t cmdrn;
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t lun[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t data_length;
-+	uint32_t cmdsn;
-+	uint32_t exp_statsn;
-+	uint8_t cdb[16];	/* SCSI Command Block */
-+	/* Additional Data (Command Dependent) */
-+};
-+
-+/* Command PDU flags */
-+#define ISCSI_FLAG_CMD_FINAL		0x80
-+#define ISCSI_FLAG_CMD_READ		0x40
-+#define ISCSI_FLAG_CMD_WRITE		0x20
-+#define ISCSI_FLAG_CMD_ATTR_MASK	0x07	/* 3 bits */
-+
-+/* SCSI Command Attribute values */
-+#define ISCSI_ATTR_UNTAGGED		0
-+#define ISCSI_ATTR_SIMPLE		1
-+#define ISCSI_ATTR_ORDERED		2
-+#define ISCSI_ATTR_HEAD_OF_QUEUE	3
-+#define ISCSI_ATTR_ACA			4
-+
-+/* SCSI Response Header */
-+struct iscsi_cmd_rsp {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t response;
-+	uint8_t cmd_status;
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t rsvd[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t rsvd1;
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint32_t exp_datasn;
-+	uint32_t residual_count;
-+	uint32_t bi_residual_count;
-+	/* Response or Sense Data (optional) */
-+};
-+
-+/* Command Response PDU flags */
-+#define ISCSI_FLAG_CMD_BIDI_OVERFLOW	0x10
-+#define ISCSI_FLAG_CMD_BIDI_UNDERFLOW	0x08
-+#define ISCSI_FLAG_CMD_OVERFLOW		0x04
-+#define ISCSI_FLAG_CMD_UNDERFLOW	0x02
-+
-+/* iSCSI Status values. Valid if Rsp Selector bit is not set */
-+#define ISCSI_STATUS_CMD_COMPLETED	0
-+#define ISCSI_STATUS_TARGET_FAILURE	1
-+#define ISCSI_STATUS_SUBSYS_FAILURE	2
-+
-+/* Asynchronous Event Header */
-+struct iscsi_async {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2[2];
-+	uint8_t rsvd3;
-+	uint8_t dlength[3];
-+	uint8_t lun[8];
-+	uint8_t rsvd4[8];
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint8_t async_event;
-+	uint8_t async_vcode;
-+	uint16_t param1;
-+	uint16_t param2;
-+	uint16_t param3;
-+	uint8_t rsvd5[4];
-+};
-+
-+/* iSCSI Event Codes */
-+#define ISCSI_ASYNC_MSG_SCSI_EVENT			0
-+#define ISCSI_ASYNC_MSG_REQUEST_LOGOUT			1
-+#define ISCSI_ASYNC_MSG_DROPPING_CONNECTION		2
-+#define ISCSI_ASYNC_MSG_DROPPING_ALL_CONNECTIONS	3
-+#define ISCSI_ASYNC_MSG_PARAM_NEGOTIATION		4
-+#define ISCSI_ASYNC_MSG_VENDOR_SPECIFIC			255
-+
-+/* NOP-Out Message */
-+struct iscsi_nopout {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint16_t rsvd2;
-+	uint8_t rsvd3;
-+	uint8_t dlength[3];
-+	uint8_t lun[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t ttt;	/* Target Transfer Tag */
-+	uint32_t cmdsn;
-+	uint32_t exp_statsn;
-+	uint8_t rsvd4[16];
-+};
-+
-+/* NOP-In Message */
-+struct iscsi_nopin {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint16_t rsvd2;
-+	uint8_t rsvd3;
-+	uint8_t dlength[3];
-+	uint8_t lun[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t ttt;	/* Target Transfer Tag */
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint8_t rsvd4[12];
-+};
-+
-+/* SCSI Task Management Message Header */
-+struct iscsi_tm {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd1[2];
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t lun[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t rtt;	/* Reference Task Tag */
-+	uint32_t cmdsn;
-+	uint32_t exp_statsn;
-+	uint32_t refcmdsn;
-+	uint32_t exp_datasn;
-+	uint8_t rsvd2[8];
-+};
-+
-+#define ISCSI_FLAG_TASK_MGMT_FUNCTION_MASK	0x7F
-+
-+/* Function values */
-+#define ISCSI_TM_FUNC_ABORT_TASK		1
-+#define ISCSI_TM_FUNC_ABORT_TASK_SET		2
-+#define ISCSI_TM_FUNC_CLEAR_ACA			3
-+#define ISCSI_TM_FUNC_CLEAR_TASK_SET		4
-+#define ISCSI_TM_FUNC_LOGICAL_UNIT_RESET	5
-+#define ISCSI_TM_FUNC_TARGET_WARM_RESET		6
-+#define ISCSI_TM_FUNC_TARGET_COLD_RESET		7
-+#define ISCSI_TM_FUNC_TASK_REASSIGN		8
-+
-+/* SCSI Task Management Response Header */
-+struct iscsi_tm_rsp {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t response;	/* see Response values below */
-+	uint8_t qualifier;
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t rsvd2[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t rtt;	/* Reference Task Tag */
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint8_t rsvd3[12];
-+};
-+
-+/* Response values */
-+#define SCSI_TCP_TM_RESP_COMPLETE	0x00
-+#define SCSI_TCP_TM_RESP_NO_TASK	0x01
-+#define SCSI_TCP_TM_RESP_NO_LUN		0x02
-+#define SCSI_TCP_TM_RESP_TASK_ALLEGIANT	0x03
-+#define SCSI_TCP_TM_RESP_NO_FAILOVER	0x04
-+#define SCSI_TCP_TM_RESP_NOT_SUPPORTED	0x05
-+#define SCSI_TCP_TM_RESP_AUTH_FAILED	0x06
-+#define SCSI_TCP_TM_RESP_REJECTED	0xff
-+
-+/* Ready To Transfer Header */
-+struct iscsi_r2t_rsp {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2[2];
-+	uint8_t	hlength;
-+	uint8_t	dlength[3];
-+	uint8_t lun[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t ttt;	/* Target Transfer Tag */
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint32_t r2tsn;
-+	uint32_t data_offset;
-+	uint32_t data_length;
-+};
-+
-+/* SCSI Data Hdr */
-+struct iscsi_data {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2[2];
-+	uint8_t rsvd3;
-+	uint8_t dlength[3];
-+	uint8_t lun[8];
-+	uint32_t itt;
-+	uint32_t ttt;
-+	uint32_t rsvd4;
-+	uint32_t exp_statsn;
-+	uint32_t rsvd5;
-+	uint32_t datasn;
-+	uint32_t offset;
-+	uint32_t rsvd6;
-+	/* Payload */
-+};
-+
-+/* SCSI Data Response Hdr */
-+struct iscsi_data_rsp {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2;
-+	uint8_t cmd_status;
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t lun[8];
-+	uint32_t itt;
-+	uint32_t ttt;
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint32_t datasn;
-+	uint32_t offset;
-+	uint32_t residual_count;
-+};
-+
-+/* Data Response PDU flags */
-+#define ISCSI_FLAG_DATA_ACK		0x40
-+#define ISCSI_FLAG_DATA_OVERFLOW	0x04
-+#define ISCSI_FLAG_DATA_UNDERFLOW	0x02
-+#define ISCSI_FLAG_DATA_STATUS		0x01
-+
-+/* Text Header */
-+struct iscsi_text {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2[2];
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t rsvd4[8];
-+	uint32_t itt;
-+	uint32_t ttt;
-+	uint32_t cmdsn;
-+	uint32_t exp_statsn;
-+	uint8_t rsvd5[16];
-+	/* Text - key=value pairs */
-+};
-+
-+#define ISCSI_FLAG_TEXT_CONTINUE	0x40
-+
-+/* Text Response Header */
-+struct iscsi_text_rsp {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2[2];
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t rsvd4[8];
-+	uint32_t itt;
-+	uint32_t ttt;
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint8_t rsvd5[12];
-+	/* Text Response - key:value pairs */
-+};
-+
-+/* Login Header */
-+struct iscsi_login {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t max_version;	/* Max. version supported */
-+	uint8_t min_version;	/* Min. version supported */
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t isid[6];	/* Initiator Session ID */
-+	uint16_t tsih;	/* Target Session Handle */
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint16_t cid;
-+	uint16_t rsvd3;
-+	uint32_t cmdsn;
-+	uint32_t exp_statsn;
-+	uint8_t rsvd5[16];
-+};
-+
-+/* Login PDU flags */
-+#define ISCSI_FLAG_LOGIN_TRANSIT		0x80
-+#define ISCSI_FLAG_LOGIN_CONTINUE		0x40
-+#define ISCSI_FLAG_LOGIN_CURRENT_STAGE_MASK	0x0C	/* 2 bits */
-+#define ISCSI_FLAG_LOGIN_NEXT_STAGE_MASK	0x03	/* 2 bits */
-+
-+#define ISCSI_LOGIN_CURRENT_STAGE(flags) \
-+	((flags & ISCSI_FLAG_LOGIN_CURRENT_STAGE_MASK) >> 2)
-+#define ISCSI_LOGIN_NEXT_STAGE(flags) \
-+	(flags & ISCSI_FLAG_LOGIN_NEXT_STAGE_MASK)
-+
-+/* Login Response Header */
-+struct iscsi_login_rsp {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t max_version;	/* Max. version supported */
-+	uint8_t active_version;	/* Active version */
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t isid[6];	/* Initiator Session ID */
-+	uint16_t tsih;	/* Target Session Handle */
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t rsvd3;
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint8_t status_class;	/* see Login RSP ststus classes below */
-+	uint8_t status_detail;	/* see Login RSP Status details below */
-+	uint8_t rsvd4[10];
-+};
-+
-+/* Login stage (phase) codes for CSG, NSG */
-+#define ISCSI_INITIAL_LOGIN_STAGE		-1
-+#define ISCSI_SECURITY_NEGOTIATION_STAGE	0
-+#define ISCSI_OP_PARMS_NEGOTIATION_STAGE	1
-+#define ISCSI_FULL_FEATURE_PHASE		3
-+
-+/* Login Status response classes */
-+#define ISCSI_STATUS_CLS_SUCCESS		0x00
-+#define ISCSI_STATUS_CLS_REDIRECT		0x01
-+#define ISCSI_STATUS_CLS_INITIATOR_ERR		0x02
-+#define ISCSI_STATUS_CLS_TARGET_ERR		0x03
-+
-+/* Login Status response detail codes */
-+/* Class-0 (Success) */
-+#define ISCSI_LOGIN_STATUS_ACCEPT		0x00
-+
-+/* Class-1 (Redirection) */
-+#define ISCSI_LOGIN_STATUS_TGT_MOVED_TEMP	0x01
-+#define ISCSI_LOGIN_STATUS_TGT_MOVED_PERM	0x02
-+
-+/* Class-2 (Initiator Error) */
-+#define ISCSI_LOGIN_STATUS_INIT_ERR		0x00
-+#define ISCSI_LOGIN_STATUS_AUTH_FAILED		0x01
-+#define ISCSI_LOGIN_STATUS_TGT_FORBIDDEN	0x02
-+#define ISCSI_LOGIN_STATUS_TGT_NOT_FOUND	0x03
-+#define ISCSI_LOGIN_STATUS_TGT_REMOVED		0x04
-+#define ISCSI_LOGIN_STATUS_NO_VERSION		0x05
-+#define ISCSI_LOGIN_STATUS_ISID_ERROR		0x06
-+#define ISCSI_LOGIN_STATUS_MISSING_FIELDS	0x07
-+#define ISCSI_LOGIN_STATUS_CONN_ADD_FAILED	0x08
-+#define ISCSI_LOGIN_STATUS_NO_SESSION_TYPE	0x09
-+#define ISCSI_LOGIN_STATUS_NO_SESSION		0x0a
-+#define ISCSI_LOGIN_STATUS_INVALID_REQUEST	0x0b
-+
-+/* Class-3 (Target Error) */
-+#define ISCSI_LOGIN_STATUS_TARGET_ERROR		0x00
-+#define ISCSI_LOGIN_STATUS_SVC_UNAVAILABLE	0x01
-+#define ISCSI_LOGIN_STATUS_NO_RESOURCES		0x02
-+
-+/* Logout Header */
-+struct iscsi_logout {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd1[2];
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t rsvd2[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint16_t cid;
-+	uint8_t rsvd3[2];
-+	uint32_t cmdsn;
-+	uint32_t exp_statsn;
-+	uint8_t rsvd4[16];
-+};
-+
-+/* Logout PDU flags */
-+#define ISCSI_FLAG_LOGOUT_REASON_MASK	0x7F
-+
-+/* logout reason_code values */
-+
-+#define ISCSI_LOGOUT_REASON_CLOSE_SESSION	0
-+#define ISCSI_LOGOUT_REASON_CLOSE_CONNECTION	1
-+#define ISCSI_LOGOUT_REASON_RECOVERY		2
-+#define ISCSI_LOGOUT_REASON_AEN_REQUEST		3
-+
-+/* Logout Response Header */
-+struct iscsi_logout_rsp {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t response;	/* see Logout response values below */
-+	uint8_t rsvd2;
-+	uint8_t hlength;
-+	uint8_t dlength[3];
-+	uint8_t rsvd3[8];
-+	uint32_t itt;	/* Initiator Task Tag */
-+	uint32_t rsvd4;
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint32_t rsvd5;
-+	uint16_t t2wait;
-+	uint16_t t2retain;
-+	uint32_t rsvd6;
-+};
-+
-+/* logout response status values */
-+
-+#define ISCSI_LOGOUT_SUCCESS			0
-+#define ISCSI_LOGOUT_CID_NOT_FOUND		1
-+#define ISCSI_LOGOUT_RECOVERY_UNSUPPORTED	2
-+#define ISCSI_LOGOUT_CLEANUP_FAILED		3
-+
-+/* SNACK Header */
-+struct iscsi_snack {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t rsvd2[14];
-+	uint32_t itt;
-+	uint32_t begrun;
-+	uint32_t runlength;
-+	uint32_t exp_statsn;
-+	uint32_t rsvd3;
-+	uint32_t exp_datasn;
-+	uint8_t rsvd6[8];
-+};
-+
-+/* SNACK PDU flags */
-+#define ISCSI_FLAG_SNACK_TYPE_MASK	0x0F	/* 4 bits */
-+
-+/* Reject Message Header */
-+struct iscsi_reject {
-+	uint8_t opcode;
-+	uint8_t flags;
-+	uint8_t reason;
-+	uint8_t rsvd2;
-+	uint8_t rsvd3;
-+	uint8_t dlength[3];
-+	uint8_t rsvd4[16];
-+	uint32_t statsn;
-+	uint32_t exp_cmdsn;
-+	uint32_t max_cmdsn;
-+	uint32_t datasn;
-+	uint8_t rsvd5[8];
-+	/* Text - Rejected hdr */
-+};
-+
-+/* Reason for Reject */
-+#define CMD_BEFORE_LOGIN	1
-+#define DATA_DIGEST_ERROR	2
-+#define DATA_SNACK_REJECT	3
-+#define ISCSI_PROTOCOL_ERROR	4
-+#define CMD_NOT_SUPPORTED	5
-+#define IMM_CMD_REJECT		6
-+#define TASK_IN_PROGRESS	7
-+#define INVALID_SNACK		8
-+#define BOOKMARK_REJECTED	9
-+#define BOOKMARK_NO_RESOURCES	10
-+#define NEGOTIATION_RESET	11
-+
-+/* Max. number of Key=Value pairs in a text message */
-+#define MAX_KEY_VALUE_PAIRS	8192
-+
-+/* maximum length for text keys/values */
-+#define KEY_MAXLEN		64
-+#define VALUE_MAXLEN		255
-+#define TARGET_NAME_MAXLEN	VALUE_MAXLEN
-+
-+#define DEFAULT_MAX_RECV_DATA_SEGMENT_LENGTH	8192
-+
-+/************************* RFC 3720 End *****************************/
-+
-+#endif /* ISCSI_PROTO_H */
+diff -Nru linux-2.6.11.orig/Documentation/scsi/iscsi.txt linux-2.6.11.dima/Documentation/scsi/iscsi.txt
+--- linux-2.6.11.orig/Documentation/scsi/iscsi.txt	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.11.dima/Documentation/scsi/iscsi.txt	2005-03-04 17:50:11.145412869 -0800
+@@ -0,0 +1,279 @@
++=================================================================
++
++                Linux* Open-iSCSI
++
++=================================================================
++
++                                                March 04, 2005
++
++Contents
++========
++
++- 1. In This Release
++- 2. Introduction
++- 3. Installation
++- 4. Open-iSCSI daemon
++- 5. Open-iSCSI Configuration Utility
++- 6. Configuration
++- 7. Getting Started
++- 8. TBD
++- Appendix A. SendTargets snapshot.
++
++
++
++1. In This Release
++==================
++
++This file describes the Linux* Open-iSCSI Initiator.
++
++The latest development release is available at:
++http://www.open-iscsi.org
++
++For questions, comments, contributions send e-mail to:
++open-iscsi@googlegroups.com 
++
++    1.1. Features
++    
++    - highly optimized and very small-footprint data path;
++    - multiple outstanding R2Ts;
++    - persistent configuration database;
++    - SendTargets discovery;
++    - CHAP;
++    - PDU header Digest;
++    - multiple sessions;
++    - multi-connection sessions.
++    
++    For the most recent list of features please refer to:
++    http://www.open-iscsi.org/cgi-bin/wiki.pl/Roadmap
++
++    
++
++2. Introduction
++===============
++
++Open-iSCSI project is a high-performance, transport independent,
++multi-platform implementation of RFC3720 iSCSI.
++
++Open-iSCSI is partitioned into user and kernel parts.
++
++The kernel portion of Open-iSCSI is a from-scratch code
++licensed under GPL. The kernel part implements iSCSI data path
++(that is, iSCSI Read and iSCSI Write), and consists of two
++loadable modules: iscsi_if.ko and iscsi_tcp.ko.
++
++User space contains the entire control plane: configuration
++manager, iSCSI Discovery, Login and Logout processing,
++connection-level error processing, Nop-In and Nop-Out handling,
++and (in the future:) Text processing, iSNS, SLP, Radius, etc.
++
++The user space Open-iSCSI consists of a daemon process called
++iscsid, and a management utility iscsiadm.
++
++
++3. Installation
++===============
++
++You need to enable "Cryptographic API" under "Cryptographic options" 
++in the kernel config. You also need to enable "CRC32c CRC algorithm" if
++you use header or data digests. They are the kernel options,
++CONFIG_CRYPTO and CONFIG_CRYPTO_CRC32C, respectively.
++
++
++4. Open-iSCSI daemon
++====================
++
++The daemon implements control path of iSCSI protocol, plus some management
++facilities. For example, the daemon could be configured to automatically 
++re-start discovery at startup, based on the contents of persistent 
++iSCSI database (see next section).
++
++For help, run:
++
++	./iscsid --help
++
++Usage: iscsid [OPTION]
++
++  -c, --config=[path]     Execute in the config file (/etc/iscsid.conf).
++  -f, --foreground        run iscsid in the foreground
++  -d, --debug debuglevel  print debugging information
++  -u, --uid=uid           run as uid, default is current user
++  -g, --gid=gid           run as gid, default is current user group
++  -h, --help              display this help and exit
++  -v, --version           display version and exit
++
++
++
++5. Open-iSCSI Configuration Utility
++===================================
++
++Open-iSCSI persistent configuration is implemented as a DBM database
++available on all Linux installations.
++
++The database contains two tables:
++
++- Discovery table (discovery.db);
++- Node table (node.db).
++
++The regular place for iSCSI database files: /var/db/iscsi/*.db
++
++The iscsiadm utility is a command-line tool to manage (update, delete,
++insert, query) the persistent database.
++
++The utility presents set of operations that a user can perform 
++on iSCSI nodes, sessions, connections, and discovery records.
++
++Note that some of the iSCSI Node and iSCSI Discovery operations 
++do not require iSCSI daemon (iscsid) loaded.
++
++For help, run:
++
++	./iscsiadm --help
++
++Usage: iscsiadm [OPTION]
++
++  -m, --mode <op>         specify operational mode op = <discovery|node>
++  -m discovery --type=[type] --portal=[ip:port] --login
++                          perform [type] discovery for target portal with
++                          ip-address [ip] and port [port]. Initiate Login for
++                          each discovered target if --login is specified
++  -m discovery            display all discovery records from internal
++                          persistent discovery database
++  -m discovery --record=[id] --login
++                          perform discovery based on record [id] in database
++  -m discovery --record=[id] --op=[op] [--name=[name] --value=[value]]
++                          perform specific DB operation [op] for specific
++                          discovery record with [id]. It could be one of:
++                          [new], [delete], [update] or [show]. In case of
++                          [update], you have to provide [name] and [value]
++                          you wish to update
++  -m node                 display all discovered nodes from internal
++                          persistent discovery database
++  -m node --record=[id] [--login|--logout]
++  -m node --record=[id] --op=[op] [--name=[name] --value=[value]]
++                          perform specific DB operation [op] for specific
++                          node with record [id]. It could be one of:
++                          [new], [delete], [update] or [show]. In case of
++                          [update], you have to provide [name] and [value]
++                          you wish to update
++  -m session              display all active sessions and connections
++  -m session --record=[id[:cid]] [--logout]
++                          perform operation for specific session with
++                          record [id] or display statistics if no operation
++                          specified. Operation will affect one connection
++                          only if [:cid] is specified
++  -d, --debug debuglevel  print debugging information
++  -V, --version           display version and exit
++  -h, --help              display this help and exit
++
++
++    Usage Examples:
++
++    1) SendTargets iSCSI Discovery:
++
++	    ./iscsiadm -m discovery --type sendtargets --portal 192.168.1.1:3260
++
++    2) iSCSI Login:
++
++	    ./iscsiadm -m node --record 0f23e4 --login
++
++    3) iSCSI Logout:
++
++	    ./iscsiadm -m node --record 0f23e4 --logout
++
++    4) Changing iSCSI parameter:
++
++	    ./iscsiadm -m node --record 0f23e4 --op update \
++		    -n node.cnx[0].iscsi.MaxRecvDataSegmentLength -v 65536
++
++    5) Adding custom iSCSI Node:
++
++	    ./iscsiadm -m node --op new --portal 192.168.0.1:3260
++	    new iSCSI node record added: [0a45f8]
++
++    6) Removing iSCSI Node:
++
++	    ./iscsiadm -m node --op delete --record 0a45f8
++
++    7) Display iSCSI Node configuration:
++
++	    ./iscsiadm -m node --record 0a45f8
++
++	or
++
++	    ./iscsiadm -m node --op show --record 0a45f8
++
++
++6. Configuration
++================
++
++The default configuration file is /etc/iscsid.conf. This file contains
++only configuration that could be overwritten by iSCSI Discovery,
++or manualy updated via iscsiadm utility.
++
++See the man page and the example file for the current syntax.
++(no man page yet...)
++
++
++7. Getting Started
++==================
++
++Right now there is no installation script. Just load the module with
++command:
++
++	insmod iscsi_if.ko
++	insmod iscsi_tcp.ko
++
++after that start iSCSI daemon process:
++
++	./iscsid
++
++or alternatively, start it with debug enabled and with output
++redirected to the current console:
++
++	./iscsid -d8 -f &
++
++and use configuration utility to add/remove/update Discovery records,
++iSCSI Node records or monitor active iSCSI sessions:
++
++	./iscsiadm
++
++
++To login:
++
++	    ./iscsiadm -m node --record <node rec> --login
++
++where <node rec> is the record of a discovered or manually
++added iSCSI Target Node (for iscsiadm usage examples see
++previous sections).
++
++
++8. TBD
++======
++
++To be completed:
++
++    - Kernel tracing and Troubleshooting
++    - Immediate and not-so-immediate plans
++    - Useful scripts
++    - White paper on Open-iSCSI design
++
++
++Appendix A. SendTargets iSCSI Discovery session snapshot.
++=========================================================
++
++-bash-2.05b# ./iscsiadm -m discovery -tst -p 10.16.16.223:3260
++[02f611] 10.16.16.223:3260,1 iqn.2002-07.com.ttechnologies.target.a
++[01acd1] 17.1.1.223:3260,1 iqn.2002-07.com.ttechnologies.target.a
++-bash-2.05b#
++-bash-2.05b# ./iscsiadm -m node
++[02f611] 10.16.16.223:3260,1 iqn.2002-07.com.ttechnologies.target.a
++[01acd1] 17.1.1.223:3260,1 iqn.2002-07.com.ttechnologies.target.a
++-bash-2.05b#
++-bash-2.05b# ./iscsiadm -m discovery -tst -p 10.16.16.227:3260
++[02fb91] 10.16.16.227:3260,1 iqn.2001-04.com.example:storage.disk2.sys1.xyz
++-bash-2.05b#
++-bash-2.05b# ./iscsiadm -m node
++[02f611] 10.16.16.223:3260,1 iqn.2002-07.com.ttechnologies.target.a
++[02fb91] 10.16.16.227:3260,1 iqn.2001-04.com.example:storage.disk2.sys1.xyz
++[01acd1] 17.1.1.223:3260,1 iqn.2002-07.com.ttechnologies.target.a
++
 
 
 
@@ -882,4 +340,4 @@ diff -Nru linux-2.6.11.orig/include/scsi/iscsi_proto.h linux-2.6.11.dima/include
 
 
 
---------------060600050104050201080706--
+--------------030902070907030505050006--

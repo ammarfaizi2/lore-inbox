@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263381AbSJFKxn>; Sun, 6 Oct 2002 06:53:43 -0400
+	id <S263379AbSJFLAk>; Sun, 6 Oct 2002 07:00:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263383AbSJFKxn>; Sun, 6 Oct 2002 06:53:43 -0400
-Received: from brev.stud.ntnu.no ([129.241.56.70]:3301 "EHLO brev.stud.ntnu.no")
-	by vger.kernel.org with ESMTP id <S263381AbSJFKxm>;
-	Sun, 6 Oct 2002 06:53:42 -0400
-Date: Sun, 6 Oct 2002 12:59:17 +0200
-From: Thomas =?iso-8859-1?Q?Lang=E5s?= <tlan@stud.ntnu.no>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: Unable to kill processes in D-state
-Message-ID: <20021006105917.GB13046@stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
-References: <20021005090705.GA18475@stud.ntnu.no> <1033841462.1247.3716.camel@phantasy> <20021005182740.GC16200@vagabond> <20021005235614.GC25827@stud.ntnu.no> <20021006021802.GA31878@pegasys.ws> <1033871869.1247.4397.camel@phantasy> <20021006024902.GB31878@pegasys.ws>
+	id <S263378AbSJFLAk>; Sun, 6 Oct 2002 07:00:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:5517 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263379AbSJFLAj>;
+	Sun, 6 Oct 2002 07:00:39 -0400
+Date: Sun, 06 Oct 2002 03:59:34 -0700 (PDT)
+Message-Id: <20021006.035934.106436540.davem@redhat.com>
+To: mingo@elte.hu
+Cc: alan@lxorguk.ukuu.org.uk, lm@bitmover.com, drepper@redhat.com,
+       bcollins@debian.org, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0210061229320.3729-100000@localhost.localdomain>
+References: <1033861827.4441.31.camel@irongate.swansea.linux.org.uk>
+	<Pine.LNX.4.44.0210061229320.3729-100000@localhost.localdomain>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021006024902.GB31878@pegasys.ws>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jw schultz:
-> I stand corrected.  The load average reported will reflect
-> them.  The D-state processes, however, will have nearly zero
-> effect on the system performance, yes?  So in this case the
-> load average reported is simply an infated number.
+   From: Ingo Molnar <mingo@elte.hu>
+   Date: Sun, 6 Oct 2002 13:04:39 +0200 (CEST)
+   
+   i'm also a bit worried about the legal status of commit messages posted
+   via bkbits. Are they GPL-ed automatically, can we just take them and put
+   them into a free-BK type server? We already have one precedent of a
+   business entity abusing a free OS project and then suing it (and winning
+   the suit), hindering the free OS's development for years.
 
-They won't have any effect on the system, but the load number is
-insane (we have a 2 CPU intel-boks with a load number of 480)
-and there's like 200-300 (or more) processes hanging in D-state
-with they're FD's and stuff. There _really_ should be a way
-to remove all theese processes, Solaris does this nicely.
+Larry has stated many times over that he doesn't own our bits.
 
--- 
-Thomas
+That is why once you extract content from the repository into some
+other form (a patch with the change logs prepended, for example) he
+doesn't care what you do with it.
+
+He even said this twice today.

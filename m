@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261443AbSJMQwP>; Sun, 13 Oct 2002 12:52:15 -0400
+	id <S261549AbSJMQ6Z>; Sun, 13 Oct 2002 12:58:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261542AbSJMQwP>; Sun, 13 Oct 2002 12:52:15 -0400
-Received: from www.txcdc.com ([65.67.58.21]:9911 "HELO escalade.vistahp.com")
-	by vger.kernel.org with SMTP id <S261443AbSJMQwO>;
-	Sun, 13 Oct 2002 12:52:14 -0400
-Message-ID: <20021013170630.29597.qmail@escalade.vistahp.com>
-References: <F87rkrlMjzmfv2NkkSD000144a9@hotmail.com>
-            <3DA969F0.1060109@metaparadigm.com>
-            <20021013144926.B16668@infradead.org>
-            <3DA98E48.9000001@metaparadigm.com>
-            <20021013163551.A18184@infradead.org>
-            <20021013161151.29293.qmail@escalade.vistahp.com>
-            <1034526363.2989.6.camel@localhost.localdomain>
-In-Reply-To: <1034526363.2989.6.camel@localhost.localdomain> 
-From: "Brian Jackson" <brian-kernel-list@mdrx.com>
-To: linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-Subject: Re: Linux v2.5.42
-Date: Sun, 13 Oct 2002 12:06:30 -0500
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+	id <S261550AbSJMQ6Z>; Sun, 13 Oct 2002 12:58:25 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:58257 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261549AbSJMQ6Z>;
+	Sun, 13 Oct 2002 12:58:25 -0400
+Message-ID: <3DA9A796.4070600@colorfullife.com>
+Date: Sun, 13 Oct 2002 19:04:22 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] 2.5.42: remove capable(CAP_SYS_RAWIO) check from
+ open_kmem
+References: <3DA985E6.6090302@colorfullife.com>	<87adliuyp6.fsf@goat.bogus.local> <3DA99A8B.5050102@colorfullife.com> <873crauw1m.fsf@goat.bogus.local>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven writes: 
-
-> On Sun, 2002-10-13 at 18:11, Brian Jackson wrote: 
+Olaf Dietsche wrote:
 > 
->> p.s. Maybe you could keep your replies to constructive criticism, instead of 
->> just dogging EVMS. Some people actually do want linux to improve. 
+> Now, I have to run this process as root, regardless of filesystem
+> permissions. So, if I trust this particular process with full
+> privileges now, there's no problem in reducing its power a little bit.
 > 
-> In case you missed is: EVMS is not the only way you can do volume
-> management in 2.5... and Christoph is pointing out valid design flaws
-> (and serious code bugs) in EVMS. Code bugs you can fix after merge;
-> design flaws should at least be discussed before merging in my opinion. 
-> 
+What about writing a small wrapper application that drops all priveleges 
+except CAP_RAWIO, switches to user to the user you want, then execs the 
+target application that needs to access /dev/kmem?
 
-Yes I do realize that, but I think EVMS offers more in the long run than any 
-of the others. I don't mean to speak ill of Christoph(he has done some very 
-good work in the past, and I think he is very talented), In fact, I thought 
-he handled the problems with EVMS very well at first(pointing out problems, 
-etc.), but then as the thread went on you could tell he was just taking it 
-more and more personally(for whatever reasons), and we all know that doesn't 
-help getting things done, especially not with a deadline looming. I don't 
-know as much as I should about all of this considering I am opening my mouth 
-on the subject, but it seems that something needs to be done soon one way or 
-another. 
+Or store the capabilities in the filesystem, but I don't know which 
+filesystem supports that.
 
- --Brian 
+--
+	Manfred
 

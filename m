@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271095AbRHTGQw>; Mon, 20 Aug 2001 02:16:52 -0400
+	id <S271106AbRHTGQw>; Mon, 20 Aug 2001 02:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271093AbRHTGQc>; Mon, 20 Aug 2001 02:16:32 -0400
-Received: from [194.102.102.3] ([194.102.102.3]:4612 "EHLO ns1.Aniela.EU.ORG")
-	by vger.kernel.org with ESMTP id <S271092AbRHTGQW>;
-	Mon, 20 Aug 2001 02:16:22 -0400
-Date: Mon, 20 Aug 2001 09:16:18 +0300 (EEST)
-From: <lk@Aniela.EU.ORG>
-To: tristan <fattymikefx@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: installing Linux over a network
-In-Reply-To: <20010820012137.8E169501DB@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0108200915040.1016-100000@ns1.Aniela.EU.ORG>
+	id <S271095AbRHTGQc>; Mon, 20 Aug 2001 02:16:32 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:50986 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S271093AbRHTGQa>; Mon, 20 Aug 2001 02:16:30 -0400
+To: Paul <set@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 [I] just run xdos
+In-Reply-To: <Pine.LNX.4.33.0108191600580.10914-100000@boston.corp.fedex.com>
+	<m166bjokre.fsf@frodo.biederman.org>
+	<20010819214322.D1315@squish.home.loc>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2001 00:09:27 -0600
+In-Reply-To: <20010819214322.D1315@squish.home.loc>
+Message-ID: <m1snenmfe0.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you use slackware, you can install it over nfs. you will need another
-machine connectted to your machine which exports the directory where
-you're slackware packages are.
+Paul <set@pobox.com> writes:
 
-On Sun, 19 Aug 2001, tristan wrote:
+> 	Dear Eric;
+> 
+> 	No, the program isnt setuid, nor run by root, and no
+> ports specified in the config. Let me know if there is anything
+> further I can do.
 
-> I havent been able to find a way of installing
-> Linux slackware or red hat with out using 90 or more
-> floppies, and i have no cd rom on my 386. Is there
-> a way to install Linux over a network on such an old machine.
-> It currently has windows 3.1 and DOS running. And
-> has one 60 mb hard drive and one 120 mb hard drive.
-> I have found a small easy to install minix 386 that goes over
-> DOS so I may just use that to start off, in order to install
-> a very old linux kernel .01 or .02
->
-> Tristan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+O.k.  Then it is most definentily not dosemu, but a kernel or an X bug.
+Running dosemu as just dos so it runs in a terminal window will rule
+out X.
 
+If you can rule out X stracing dosemu might be of some help.   The
+challenge now is to track down what dosemu is doing that is triggering
+the problem. 
+
+As an interrupt handler is where the oops is occuring.  Finding an
+immediate cause and effect could be tricky.
+
+Eric

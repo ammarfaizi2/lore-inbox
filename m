@@ -1,93 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbUBZP5C (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 10:57:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbUBZP5C
+	id S262805AbUBZP7n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 10:59:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbUBZP7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 10:57:02 -0500
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:19700 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S262548AbUBZP4y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 10:56:54 -0500
-Subject: Re: Implement new system call in 2.6
-From: Kristian Soerensen <ks@cs.auc.dk>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, umbrella@cs.auc.dk
-In-Reply-To: <20040225101419.5f058573.rddunlap@osdl.org>
-References: <Pine.LNX.4.56.0402250933001.648@homer.cs.auc.dk>
-	 <20040225101419.5f058573.rddunlap@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <1077811002.2787.2.camel@helene.cs.auc.dk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 26 Feb 2004 16:56:42 +0100
-Content-Transfer-Encoding: 8bit
+	Thu, 26 Feb 2004 10:59:43 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:61964 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S262805AbUBZP6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 10:58:35 -0500
+Message-ID: <403E1A11.5050704@techsource.com>
+Date: Thu, 26 Feb 2004 11:08:49 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Peter Williams <peterw@aurema.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au> <403D3E47.4080501@techsource.com> <403D576A.6030900@aurema.com>
+In-Reply-To: <403D576A.6030900@aurema.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again!
 
-Thanks for your rapid answers! We finally got it working now ;-)
 
-Cheers, KS.
+Peter Williams wrote:
+> Timothy Miller wrote:
+>  > <snip>
+> 
+>> In fact, that may be the only "flaw" in your design.  It sounds like 
+>> your scheduler does an excellent job at fairness with very low 
+>> overhead.  The only problem with it is that it doesn't determine 
+>> priority dynamically.
+> 
+> 
+> This (i.e. automatic renicing of specified programs) is a good idea but 
+> is not really a function that should be undertaken by the scheduler 
+> itself.  Two possible solutions spring to mind:
+> 
+> 1. modify the do_execve() in fs/exec.c to renice tasks when they execute 
+> specified binaries
 
-On Wed, 2004-02-25 at 19:14, Randy.Dunlap wrote:
-> On Wed, 25 Feb 2004 11:07:41 +0100 (CET) Kristian Sørensen wrote:
+We don't want user-space programs to have control over priority.  This 
+is DoS waiting to happen.
+
+> 2. have a user space daemon poll running tasks periodically and renice 
+> them if they are running specified binaries
+
+This is much too specific.  Again, if the USER has control over this 
+list, then it's potential DoS.  And if the user adds a program which 
+should qualify but which is not in the list, the program will not get 
+its deserved boost.
+
+And a sysadmin is not going to want to update 200 lab computers just so 
+one user can get their program to run properly.
+
 > 
-> | Hi all!
-> | 
-> | How do I invoke a newly created system call in the 2.6.3 kernel from
-> | userspace?
-> | 
-> | The call is added it arch/i386/kernel/entry.S and include/asm/unistd.h
-> | and the call is implemented in a security module called Umbrella(*).
-> | 
-> | The kernel compiles and boots nicely.
-> | 
-> | The main problem is now to compile a userspace program that invokes this
-> | call. The guide for implementing the systemcall at
-> | http://fossil.wpi.edu/docs/howto_add_systemcall.html
-> | has been followed, which yields the following userspace program:
-> | 
-> | // test.h
-> | #include "/home/snc/linux-2.6.3-umbrella/include/linux/unistd.h"
-> | _syscall1(int, umbrella_scr, int, arg1);
-> | 
-> | // test.c
-> | #include "test.h"
-> | main() {
-> |   int test = umbrella_scr(1);
-> |   printf ("%i\n", test);
-> | }
-> | 
-> | When compiling:
-> | 
-> | gcc -I/home/snc/linux-2.6.3/include test.c
-> | 
-> | /tmp/ccYYs1zB.o(.text+0x20): In function `umbrella_scr':
-> | : undefined reference to `errno'
-> | collect2: ld returned 1 exit status
-> | 
-> | 
-> | It seems like a little stupid error :-( Does some of you have a solution?
-> | 
-> Hm, it builds for me with no errors.
-> I'm using gcc version 3.2.  Maybe it's a tools issue.
-> 
-> | 
-> | (*) Umbrella is a security project for securing handheld devices. Umbrella
-> | for implements a combination of process based mandatory access control
-> | (MAC) and authentication of files. This is implemented on top of the Linux
-> | Security Modules framework. The MAC scheme is enforced by a set of
-> | restrictions for each process.
-> | More information on http://umbrella.sf.net
-> 
-> 
-> --
-> ~Randy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Both of these solutions have their advantages and disadvantages, are 
+> (obviously) complicated than I've made them sound and would require a 
+> great deal of care to be taken during their implementation.  However, I 
+> think that they are both doable.  My personal preference would be for 
+> the in kernel solution on the grounds of efficiency.
+
+They are doable, but they are not a general solution.
 

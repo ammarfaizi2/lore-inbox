@@ -1,47 +1,188 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUDHNxE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 09:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbUDHNxD
+	id S261421AbUDHNwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 09:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUDHNwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 09:53:03 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:34753 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261764AbUDHNw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 09:52:56 -0400
-Subject: Re: [parisc-linux] rmap: parisc __flush_dcache_page
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       parisc-linux@parisc-linux.org
-In-Reply-To: <Pine.LNX.4.44.0404081422380.7010-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0404081422380.7010-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 08 Apr 2004 08:52:50 -0500
-Message-Id: <1081432370.2105.77.camel@mulgrave>
+	Thu, 8 Apr 2004 09:52:35 -0400
+Received: from vapor.arctrix.com ([66.220.1.99]:38663 "HELO vapor.arctrix.com")
+	by vger.kernel.org with SMTP id S261421AbUDHNwY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 09:52:24 -0400
+Date: Thu, 8 Apr 2004 09:52:23 -0400
+From: Neil Schemenauer <nas@arctrix.com>
+To: linux-kernel@vger.kernel.org
+Subject: capwrap: granting capabilities without fs support
+Message-ID: <20040408135223.GA15870@mems-exchange.org>
 Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-08 at 08:41, Hugh Dickins wrote:
-> Something to notice about that parisc __flush_dcache_page I sent you:
-> there's no locking around searching the tree for vmas; there was never
-> any locking around searching the list for vmas.  arm is similar, but
-> at least has no CONFIG_SMP, just a preemption issue.  Any ideas?
 
-I don't think you sent it to the parisc list?
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I'm afraid we've just been pretty heavily updating flush_dcache_page
-recently to fill a number of holes in the implementation.
+It seems people are once again wondering how to make use of
+capabilities in Linux.  This module enables the use of Linux
+capabilities on filesystems that do not support them.
 
-As far as list traversal goes...we don't require the list to freeze:
-acidentally flushing dead vmas would be harmless and added ones wouldn't
-need flushing, so all we need would probably be a safe traversal and a
-reference to prevent the vma being deallocated.
+To grant capabilities to an executable, a small wrapper file is
+created that includes the path to an executable followed a
+capability set written in hexadecimal.  When this file is executed
+by the kernel, the executable is granted the specified capabilities.
+The wrapper file must be owned by root and have the SUID bit set.
 
-James
+For example, to grant the CAP_NET_RAW (bit 13) capability to ping:
+
+    # chmod -s /bin/ping
+    # mv /bin/ping /bin/ping_real
+    # echo '&/bin/ping_real 2000' > /bin/ping
+    # chmod +xs /bin/ping
+
+Another example is to grant the CAP_NET_BIND_SERVICE (bit 10) to
+Apache:
+
+    # echo '&/usr/sbin/apache 400' > httpd
+    # chmod +xs httpd
+
+The module is very small.  Perhaps it could be considered for
+inclusion in the standard kernel.  I can work on a patch if people
+are interested.
+
+  Neil 
+
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="binfmt_capwrap.c"
+
+/*
+ *  linux/fs/binfmt_capwrap.c
+ *
+ *  Copyright (C) 2002  Neil Schemenauer
+ */
+
+#include <linux/module.h>
+#include <linux/string.h>
+#include <linux/kernel.h>
+#include <linux/stat.h>
+#include <linux/slab.h>
+#include <linux/binfmts.h>
+#include <linux/init.h>
+#include <linux/file.h>
+#include <linux/smp_lock.h>
+#include <linux/mount.h>
+#include <linux/fs.h>
 
 
+static int parse_cap(char **cp, unsigned int *cap)
+{
+	char *tok, *endp;
+	int n;
+	if ((tok = strsep(cp, " \t")) == NULL)
+		return 0;
+	n = simple_strtol(tok, &endp, 16);
+	if (*endp != '\0')
+		return 0;
+	*cap = n;
+	return 1;
+}
+
+static void grant_capabilities(struct linux_binprm *bprm, unsigned int caps)
+{
+	/* This may have to be more complicated if the kernel
+	 * representation of capabilities changes.  Right now it's trivial.
+	 */
+	bprm->cap_effective |= caps;
+	bprm->cap_permitted |= caps;
+}
+
+static int load_capwrap(struct linux_binprm *bprm, struct pt_regs *regs)
+{
+        struct inode * inode = bprm->file->f_dentry->d_inode;
+	int mode = inode->i_mode;
+	char exec_name[BINPRM_BUF_SIZE];
+	char *cp, *tok;
+	unsigned int caps = 0;
+	struct file *file;
+	int retval;
+
+	/* must have magic */
+	if ((bprm->buf[0] != '&'))
+		return -ENOEXEC;
+
+	/* must be owned by root */
+	if (inode->i_uid != 0)
+		return -ENOEXEC;
+
+	/* must be SUID */
+	if ((bprm->file->f_vfsmnt->mnt_flags & MNT_NOSUID) ||
+			!(mode & S_ISUID))
+		return -ENOEXEC;
+
+	/*
+	 * Okay, parse the wrapper.
+	 */
+
+	allow_write_access(bprm->file);
+	fput(bprm->file);
+	bprm->file = NULL;
+
+	/* terminate first line */
+	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
+	if ((cp = strchr(bprm->buf, '\n')) == NULL)
+		cp = bprm->buf+BINPRM_BUF_SIZE-1;
+	*cp = '\0';
+
+	/* name */
+	cp = bprm->buf+1;
+	if ((tok = strsep(&cp, " \t")) == NULL)
+		return -ENOEXEC;
+	strcpy(exec_name, tok);
+
+	/* capabilities to add */
+	if (!parse_cap(&cp, &caps))
+		return -ENOEXEC;
+
+	/*
+	 * Restart the process with real executable's dentry.
+	 */
+	file = open_exec(exec_name);
+	if (IS_ERR(file))
+		return PTR_ERR(file);
+
+	bprm->file = file;
+	retval = prepare_binprm(bprm);
+	if (retval < 0)
+		return retval;
+
+	grant_capabilities(bprm, caps);
+	printk(KERN_DEBUG "capwrap: granted %s %x effective now %x\n",
+			exec_name, caps, bprm->cap_effective);
+
+	return search_binary_handler(bprm, regs);
+}
+
+struct linux_binfmt capwrap_format = {
+	.module		= THIS_MODULE,
+	.load_binary	= load_capwrap,
+};
+
+static int __init init_capwrap_binfmt(void)
+{
+	return register_binfmt(&capwrap_format);
+}
+
+static void __exit exit_capwrap_binfmt(void)
+{
+	unregister_binfmt(&capwrap_format);
+}
+
+module_init(init_capwrap_binfmt)
+module_exit(exit_capwrap_binfmt)
+MODULE_LICENSE("GPL");
+
+--a8Wt8u1KmwUX3Y2C--

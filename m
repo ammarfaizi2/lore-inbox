@@ -1,72 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278818AbRJaBOb>; Tue, 30 Oct 2001 20:14:31 -0500
+	id <S278815AbRJaBPU>; Tue, 30 Oct 2001 20:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278815AbRJaBOQ>; Tue, 30 Oct 2001 20:14:16 -0500
-Received: from jalon.able.es ([212.97.163.2]:11499 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S278818AbRJaBNs>;
-	Tue, 30 Oct 2001 20:13:48 -0500
-Date: Wed, 31 Oct 2001 00:18:46 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: cdrecord from ext3
-Message-ID: <20011031001846.A1840@werewolf.able.es>
+	id <S278832AbRJaBPQ>; Tue, 30 Oct 2001 20:15:16 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9206
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S278815AbRJaBOs>; Tue, 30 Oct 2001 20:14:48 -0500
+Date: Tue, 30 Oct 2001 17:15:19 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "P.Agenbag" <internet@mweb.co.za>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 and reiserfs / patches
+Message-ID: <20011030171519.G490@mikef-linux.matchmail.com>
+Mail-Followup-To: "P.Agenbag" <internet@mweb.co.za>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3BDEF62B.5050600@mweb.co.za>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.2.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3BDEF62B.5050600@mweb.co.za>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Oct 30, 2001 at 08:49:15PM +0200, P.Agenbag wrote:
+> Hmm, very stupid question...
+> Firstly, thanks to all the responses helping me to get the 
+> (EXPERIMENTAL) out of the way...
+> Now, is reiserfs the same as ext3? if not, what's the diff/best?
+>
 
-I have found a strange problem using cdrecord from an ext3 partition.
-When burning a cd image (about 500Mb), with cdrecord -v to see some info,
-after about 150Mb the percentage of fifo filled begins to drop, until the
-burning fails. I though it was related to some buffer/cache issue, but
-then I just copied the image to an ext2 partition (so the cache still
-filled more, just reaching my ram size), and burnt perfect from the
-ext2 partition.
+That is a religous question here for some people.  There are several
+different opinions.  Some say they use abcFS for this feature, and others
+say that that feature has already been though of and passed over for a
+better solution...
 
-So it looks like ext3 can not give a sustained read rate (not so much,
-burning was at 8x). Fifo from ext2 never dropped below 99%.
+> Also, concerning the patches
+> 
+> I only once attempted to patch a kernel and it came out a beeeeeg 
+> messup. I'm not very sure about the procedure, I always untar my new 
+> kernel in /opt and then rename the linux folder to the version number ( 
+> sometimes have 4 or 5 kernels, so need to distinguish...)
 
-Is this a bug or the answer is just 'never toast from a journaled fs' ?
+I tend to rename the directory with a descriptive name of which patches are
+applied.
 
-Kernel: 2.4.13-ac5+bproc, controller is an Adaptec
+$ ls /usr/src/lk2.4
+2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
 
-Controller:
-Adaptec AIC7xxx driver version: 6.2.4
-aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
+Also, I modify the toplevel makefile file to reflect which patches are
+applied.  This way, each kernel has its' own set of modules too, which can
+be important because some patches will make ther modules incompatible.
 
-Drives:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: IBM      Model: DDYS-T09170N     Rev: S96H
-  Type:   Direct-Access                    ANSI SCSI revision: 03
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: IBM      Model: DCAS-34330W      Rev: S65A
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 00 Lun: 00
-  Vendor: CREATIVE Model: CD5230E          Rev: 1.01
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-Host: scsi1 Channel: 00 Id: 01 Lun: 00
-  Vendor: YAMAHA   Model: CRW8424E         Rev: 1.0j
-  Type:   CD-ROM                           ANSI SCSI revision: 02
+$ head 2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap/Makefile
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 13
+EXTRAVERSION = freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
 
-Settings:
-Channel A Target 0 Negotiation Settings
-        User: 80.000MB/s transfers (40.000MHz, offset 255, 16bit)
-        Goal: 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
-        Curr: 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
-		(ext2)
-Channel A Target 1 Negotiation Settings
-        User: 80.000MB/s transfers (40.000MHz, offset 255, 16bit)
-        Goal: 40.000MB/s transfers (20.000MHz, offset 15, 16bit)
-        Curr: 40.000MB/s transfers (20.000MHz, offset 15, 16bit)
-		(ext3)
+$ ls /lib/modules/
+2.2.20pre10_raid-2219A1_ext3-007a_eide-05042001
+2.4.10-ac10-smp-preempt
+2.4.10-ac11+smp+preempt+vm_hogstop
+2.4.12-ac3+netdev_ramdom+preempt+vm_hogstop2
+2.4.12-ac3+netdev_ramdom+preempt+vm_hogstop2+account-rand-cleanup
+2.4.12-ac5+acct-entropy+preempt+netdev-ramdom+vm-free-swapcache
+2.4.13freeswan-1.91+ac5+preempt+netdev_random+vm_freeswap
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.13-ac5-beo #1 SMP Tue Oct 30 00:10:00 CET 2001 i686
+> Lets say I have a  /opt/247 kernel source , how exactly would I patch it 
+> and with which of the patches? Do you patch the 247 kernel with the 247 
+> patch, or do you patch it with a higher version, and if so, how many 
+> "steps" can you go higher?
+> 
+
+If you have 2.4.0 you patch it with the 2.4.1-patch.  You can keep going
+with 2.4.2, 2.4.3, etc.  As long as you have the next consecutive patch you
+can go forever.
+
+If you wanted to, you could patch all the way from 2.0.0 up to 2.4.13 with
+enough steps.  Though, you'd probably kill your hard drive... ;)
+
+> Sorry for the ignorance, but hey, atleast i'm willing to learn!
+> Thanks
+
+Questions like these are why we have www.kernelnewbies.org, and the kernel
+faq which is listed at the bottom of this and every message.
+
+Mike

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263420AbTJ0SdR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 13:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbTJ0SdR
+	id S263462AbTJ0Ssw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 13:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTJ0Ssw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 13:33:17 -0500
-Received: from zero.aec.at ([193.170.194.10]:24074 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S263420AbTJ0SdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 13:33:16 -0500
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FEATURE REQUEST: Specific Processor Optimizations on x86
- Architecture
-From: Andi Kleen <ak@muc.de>
-Date: Mon, 27 Oct 2003 19:33:01 +0100
-In-Reply-To: <LhtX.bs.13@gated-at.bofh.it> ("J.A. Magallon"'s message of
- "Mon, 27 Oct 2003 16:30:21 +0100")
-Message-ID: <m3k76qsf8i.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <JB3R.23s.23@gated-at.bofh.it> <JWKQ.7nS.15@gated-at.bofh.it>
-	<LhtX.bs.15@gated-at.bofh.it> <LhtX.bs.13@gated-at.bofh.it>
+	Mon, 27 Oct 2003 13:48:52 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:38116 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S263462AbTJ0Ssv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 13:48:51 -0500
+Message-ID: <3F9D6891.5040300@namesys.com>
+Date: Mon, 27 Oct 2003 21:48:49 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Mudama, Eric" <eric_mudama@Maxtor.com>
+CC: "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Subject: Re: Blockbusting news, results get worse
+References: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com>
+In-Reply-To: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> writes:
+Mudama, Eric wrote:
 
-> Patch inlined. Credits should go to Zwane Mwaikambo <zwane@linux.realnet.co.sz>.
-> It adds the corresponding flags for PII) and P4, and in case thei are defined,
-> the *fence insn are used.
 >
-> Included is also one other patch by Zwane, which states that smp_call_function
-> needs mb() instead of wmb().
+> or put it under heavy write workload and remove
+>power.
 >
-> I use them regularly, so they look safe. Are they really better ? At least they
-> do not touch any register, like the trick used till now.
+Can you tell us more about what really happens to disk drives when the 
+power is cut while a block is being written?  We engage in a lot of 
+uninformed speculation, and it would be nice if someone who really knows 
+told us....
 
-The current code also does not touch any register. It has a gcc memory
-barrier, which is costly, but needed.
+Do drives have enough capacitance under normal conditions to finish 
+writing the block?  Does ECC on the drive detect that the block was bad 
+and so we don't need to detect it in the FS?
 
-The wmb() change is not needed, unless you have an oostore CPU
-(x86 has ordered writes by default). It probably does not hurt
-neither though (I do it the same way on x86-64), but also doesn't 
-change anything.
+-- 
+Hans
 
-I think overall the patch is a very bad idea because it adds weird CPU
-dependencies to the image again for very little again If you really
-want to do this use alternative() and runtime patching. But it's
-probably not worth the effort - don't do it until you can demonstrate
-a difference in any benchmark.
 
--Andi

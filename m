@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUEXGd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264061AbUEXGgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264045AbUEXGd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 02:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264061AbUEXGd7
+	id S264061AbUEXGgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 02:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264066AbUEXGgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 02:33:59 -0400
-Received: from tag.witbe.net ([81.88.96.48]:6161 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S264045AbUEXGd5 (ORCPT
+	Mon, 24 May 2004 02:36:09 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:23184 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264061AbUEXGgF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 02:33:57 -0400
-Message-Id: <200405240633.i4O6Xu621252@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: "'Phy Prabab'" <phyprabab@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Help understanding slow down
-Date: Mon, 24 May 2004 08:33:49 +0200
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20040524005751.62303.qmail@web90006.mail.scd.yahoo.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-Index: AcRBKkN+knp0sTx/QzOxjxYLepHYZgALoQqQ
+	Mon, 24 May 2004 02:36:05 -0400
+Date: Mon, 24 May 2004 10:37:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: rmk+lkml@arm.linux.org.uk, davidel@xmailserver.org
+Subject: Re: scheduler: IRQs disabled over context switches
+Message-ID: <20040524083715.GA24967@elte.hu>
+References: <20040523174359.A21153@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040523174359.A21153@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
 
-> 2.6.7-p1:
-> 24.86user 51.77system 2:58.87elapsed 42%CPU
-> (0avgtext+0avgdata 0maxresident)k
-> 0inputs+0outputs (13major+7591686minor)pagefaults
-> 0swaps
+* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+
+> The 2.6.6 scheduler disables IRQs across context switches, which is
+> bad news for IRQ latency on ARM - to the point where 16550A FIFO UARTs
+> to overrun.
 > 
-> 2.4.21:
-> 28.68user 34.98system 1:12.34elapsed 87%CPU
-> (0avgtext+0avgdata 0maxresident)k
-> 0inputs+0outputs (5691267major+1130523minor)pagefaults
-> 0swaps
-> 
-> 
-> Both runs on the same machine with the same process
-> (making headers).
-> 
-> Could someone give me some pointers/directions on
-> where to look.
+> I'm considering defining prepare_arch_switch & co as follows on ARM,
+> so that we release IRQs over the call to context_switch().
 
-Any reason why there is such a difference in the pagefaults
-numbers between 2.4.x and 2.6.x ????
-Could it explain a part of the time differences ?
+> The question is... why are we keeping IRQs disabled over
+> context_switch() in the first case?  Looking at the code, the only
+> thing which is touched outside of the two tasks is rq->prev_mm.  Since
+> runqueues are CPU- specific and we're holding at least one spinlock, I
+> think the above is preempt safe and SMP safe.
 
-Paul
+historically x86 context-switching has been pretty fragile when done
+with irqs enabled. (x86 has tons of legacy baggage, segments, etc.) It's
+also slightly faster to do the context-switch in one atomic swoop. On
+x86 we do this portion in like 1 usec so it's not a latency issue.
 
+if on ARM context-switching latency gives you UART problems then you can
+enables irqs via ARM-specific version of prepare_arch_switch() &
+finish_arch_switch().
 
+	Ingo

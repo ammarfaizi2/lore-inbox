@@ -1,79 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284679AbRLEUdQ>; Wed, 5 Dec 2001 15:33:16 -0500
+	id <S284681AbRLEUfG>; Wed, 5 Dec 2001 15:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284682AbRLEUdG>; Wed, 5 Dec 2001 15:33:06 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:61706 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S284679AbRLEUc5>; Wed, 5 Dec 2001 15:32:57 -0500
-Date: Wed, 5 Dec 2001 21:32:53 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: PS/2 port on USB Keyboard
-Message-ID: <20011205213253.A6506@suse.cz>
-In-Reply-To: <20011205210420.A1581@wolverine.lohacker.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011205210420.A1581@wolverine.lohacker.net>; from emmanuele.bassi@iol.it on Wed, Dec 05, 2001 at 09:04:20PM +0100
+	id <S284676AbRLEUe5>; Wed, 5 Dec 2001 15:34:57 -0500
+Received: from postfix2-2.free.fr ([213.228.0.140]:30660 "HELO
+	postfix2-2.free.fr") by vger.kernel.org with SMTP
+	id <S284681AbRLEUeq> convert rfc822-to-8bit; Wed, 5 Dec 2001 15:34:46 -0500
+Date: Wed, 5 Dec 2001 18:38:33 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16: running *really* short on DMA buffers
+In-Reply-To: <3C0E6E77.A5365331@web-systems.net>
+Message-ID: <20011205182528.D1831-100000@gerard>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 09:04:20PM +0100, Emmanuele Bassi wrote:
-> Hi everyone,
-> 
-> I have an USB Keyboard from BTC[1], with an onboard PS/2 mouse port.
-> When I use one of the mouse' buttons, the kernel complaints (with
-> a .warn):
-> 
-> keyboard.c: can't emulate rawmode for keycode 27[2-4]
-> 
-> The keycode depends on which mouse button I press (272 for the left,
-> 273 for the right and 274 for the middle one). While I'm using the mouse
-> under X11, this warning goes straight into the logs, but while I'm
-> under the console, this warning scramble up everything. A possible
-> workaround is to disable every kernel.warn directed (via syslog) to the
-> console, but, for obvious reasons, I'd like to keep this as a "last
-> resort" option.
-> 
-> While looking inside the source code for the Keyboard HID driver, I've
-> noticed that only the Mac driver enables mouse button emulation. Since
-> I'm no kernel hacker, my question is: could someone work on a possible
-> patch?
 
-Comment the message out in drivers/input/keybdev.c ...
 
-> 
-> TIA & best regards,
->  Emmanuele.
-> 
-> +++
-> 
-> wolverine:~# cat /proc/bus/usb/devices
-> T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
-> B:  Alloc=217/900 us (24%), #Int=  2, #Iso=  0
-> D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-> P:  Vendor=0000 ProdID=0000 Rev= 0.00
-> S:  Product=USB UHCI-alt Root Hub
-> S:  SerialNumber=6400
-> C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-> I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-> E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
-> T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
-> D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-> P:  Vendor=046e ProdID=6782 Rev=21.10
-> S:  Manufacturer=BTC
-> S:  Product=USB Keyboard and Mouse
-> 
-> wolverine:~# usbmodules --device /proc/bus/usb/001/002
-> hid
-> 
-> 
-> -- 
-> Emmanuele Bassi (Zefram)               [ http://digilander.iol.it/ebassi ]
-> GnuPG Key fingerprint = 4DD0 C90D 4070 F071 5738  08BD 8ECC DB8F A432 0FF4
+On Wed, 5 Dec 2001, Heinz-Ado Arnolds wrote:
 
--- 
-Vojtech Pavlik
-SuSE Labs
+> Hi all,
+>
+> I get the message "kernel: Warning - running *really* short on DMA
+> buffers" frequently with medium to heavy disk i/o (running several
+> tar and/or moving huge directories).
+>
+> Can anybody give me some hints what the reason for this might be
+> and how to avoid this condition.
+
+The reason is certainly not driver allocations (either sym53c8xx version 1
+or 2), since it performs all allocations of its internal data structures
+directly from the page pool. OTOH, the Symbios PCI devices are quite able
+to DMA the whole 32 bit physical address range.
+
+So, they are the allocations internal to the scsi layer that may well
+exhaust the ISA DMA pool. This pool is divided into 512 bytes chunks.
+Under heavy reordering of IOs, it can get very fragmented and much memory
+being wasted as a result.
+
+An immediate solution might be to hack the scsi code for it to allocate
+more memory.
+
+> Do you need more information (I'm using only SCSI disks attached
+> to a Symbios controller: <875> rev 0x26 on pci bus 0 device 11 func
+> tion 0 irq 15)? I even can't find this error string in the kernel
+> sources.
+
+The error string in well known since years, so you shouldn't have missed
+it from sources. :-)
+
+  Gérard.
+

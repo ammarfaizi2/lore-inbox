@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUAHOKi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 09:10:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264925AbUAHOKg
+	id S264473AbUAHOGP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 09:06:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUAHOGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 09:10:36 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:58374 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S264917AbUAHOKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 09:10:30 -0500
-Date: Thu, 8 Jan 2004 17:10:06 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Richard Henderson <rth@twiddle.net>
-Subject: [patch 2.6] Relocation overflow with modules on Alpha
-Message-ID: <20040108171006.A9562@jurassic.park.msu.ru>
-References: <yw1xy8sn2nry.fsf@ford.guide>
+	Thu, 8 Jan 2004 09:06:15 -0500
+Received: from f7.mail.ru ([194.67.57.37]:33297 "EHLO f7.mail.ru")
+	by vger.kernel.org with ESMTP id S264473AbUAHOGO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 09:06:14 -0500
+From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+To: =?koi8-r?Q?=22?=Greg KH=?koi8-r?Q?=22=20?= <greg@kroah.com>
+Cc: =?koi8-r?Q?=22?=Linus Torvalds=?koi8-r?Q?=22=20?= 
+	<torvalds@osdl.org>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <yw1xy8sn2nry.fsf@ford.guide>; from mru@kth.se on Mon, Jan 05, 2004 at 02:21:37AM +0100
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [212.248.25.26]
+Date: Thu, 08 Jan 2004 17:06:12 +0300
+In-Reply-To: <20040107195032.GB823@kroah.com>
+Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	  <arvidjaar@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1Aeanc-000OLT-00.arvidjaar-mail-ru@f7.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 02:21:37AM +0100, Måns Rullgård wrote:
-> I compiled Linux 2.6.0 for Alpha, and it mostly works, except the
-> somewhat large modules.  They fail to load with the message
-> "Relocation overflow vs section 17", or some other section number.
+> 
+> > NOTE! We do have an alternative: if we were to just make block device 
+> > nodes support "readdir" and "lookup", you could just do
+> > 
+> > 	open("/dev/sda/1" ...)
+> > 
+> > and it magically works right. I've wanted to do this for a long time, but 
+> > every time I suggest allowing it, people scream.
+> 
+> Hm, that would be nice.  I don't remember seeing it being proposed
+> before, what are the main complaints people have with this?
+>
 
-This failure happens with GPRELHIGH relocation, which is *signed*
-short, but relocation overflow check in module.c doesn't take into
-account the sign extension.
-Appended patch should help.
+this has been in Linux long enough and was called "devfs". Apparently
+somebody decided this was evil and removed it. I too am interested
+what exatcly was wrong with this design (not implementation)?
 
-Ivan.
+Unfortunately the problem is worse than just that.
 
---- 2.6/arch/alpha/kernel/module.c	Wed May 28 01:05:20 2003
-+++ linux/arch/alpha/kernel/module.c	Mon Aug 11 23:23:02 2003
-@@ -259,7 +259,7 @@ apply_relocate_add(Elf64_Shdr *sechdrs, 
- 			*(u64 *)location = value;
- 			break;
- 		case R_ALPHA_GPRELHIGH:
--			value = (value - gp + 0x8000) >> 16;
-+			value = (long)(value - gp + 0x8000) >> 16;
- 			if ((short) value != value)
- 				goto reloc_overflow;
- 			*(u16 *)location = value;
+The main reason to use udev is to have persistent names for devices.
+Currently my USB may be sda1 and next time I stick it in may be sdb1;
+so I'd like to call it /dev/usb0 and use it.
+
+But in this case we do not have even this possibility of revalidating
+media on access to /dev/sda/1 because not only do not we have
+/dev/usb0 as yet - we do not even know what it possibly points at.
+
+Assuming - oh, horror - that we do use devfs, we have LOOKUP event,
+so we can call naming agent for /dev/usb0 - and we can tell it that
+usb0 refers to SCSI device on first port of my USB hub (you usually
+plug it in the same slot do not you?) It can find out that there
+is already block device for it and simply initiate rescan of
+partition. Magically making sda/1 appear and linking usb0 to it.
+
+Without some kind of LOOKUP event apparently the only possibility
+is polling :(
+
+regards
+
+-andrey

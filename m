@@ -1,49 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316535AbSHHHf0>; Thu, 8 Aug 2002 03:35:26 -0400
+	id <S316204AbSHHHcU>; Thu, 8 Aug 2002 03:32:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316538AbSHHHf0>; Thu, 8 Aug 2002 03:35:26 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:30901 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S316535AbSHHHfZ>;
-	Thu, 8 Aug 2002 03:35:25 -0400
-Date: Thu, 8 Aug 2002 09:37:56 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: martin@dalecki.de
-Cc: Andries.Brouwer@cwi.nl, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [bug, 2.5.29, (not IDE)] partition table (not) corruption?
-In-Reply-To: <3D521E07.8070908@evision.ag>
-Message-ID: <Pine.LNX.4.44.0208080935170.31228-100000@localhost.localdomain>
+	id <S316535AbSHHHcU>; Thu, 8 Aug 2002 03:32:20 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:6410 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S316204AbSHHHcT>;
+	Thu, 8 Aug 2002 03:32:19 -0400
+Message-ID: <3D521E07.8070908@evision.ag>
+Date: Thu, 08 Aug 2002 09:30:15 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Andries.Brouwer@cwi.nl, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [bug, 2.5.29, (not IDE)] partition table (not) corruption?
+References: <Pine.LNX.4.44.0208072309320.5699-100000@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 8 Aug 2002, Marcin Dalecki wrote:
-
-> >>LILO without "linear" or "lba32" is inherently broken: it will talk CHS
-> >>at boot time to the BIOS and hence needs a geometry and install time,
-> >>and nobody knows the geometry required. So, if LILO doesnt break, this
-> >>is pure coincidence.
-> > 
-> > 
-> > well, lilo without linear worked for like years on this box ...
+Uz.ytkownik Ingo Molnar napisa?:
+> On Wed, 7 Aug 2002 Andries.Brouwer@cwi.nl wrote:
 > 
-> You have to take in to account that by creating a new kernel image
-> you are storing it sometimes after a long long time at perhaps maybe
-> another block group far away.  This is becouse ext2 suddenly may feel
-> like doing so...And surprisingly you have to teach lilo about the new
-> far away sectors becouse basic C/H/S addressing can't reach them
-> anylonger. Been there seen that frequently enough.
+> 
+>>LILO without "linear" or "lba32" is inherently broken: it will talk CHS
+>>at boot time to the BIOS and hence needs a geometry and install time,
+>>and nobody knows the geometry required. So, if LILO doesnt break, this
+>>is pure coincidence.
+> 
+> 
+> well, lilo without linear worked for like years on this box ...
 
-this particular testbox has seen *thousands* of development kernels of all
-sizes, and i often have filled up the complete /boot partition. It is very
-unlikely that this harmless (and not too big) 2.5.29 kernel would have
-been the first one to trigger a 'wrong' CHS combination. Especially since
-2.4 kernels with exactly the *same* bzImage (and same lilo) work just
-fine.
+You have to take in to account that by creating a new kernel image
+you are storing it sometimes after a long long time at perhaps maybe
+another block group far away.  This is becouse ext2 suddenly may feel
+like doing so...And surprisingly you have to teach lilo about the new
+far away sectors becouse basic C/H/S addressing can't reach them
+anylonger. Been there seen that frequently enough.
 
-	Ingo
+It would be maybe informative if you could actually provide the
+first sector address used by the inode corresponding to vmlinuz.
+At least this way one could resolve the issue definitively.
+
+>>And you talk about corruption, and I am surprised again. Have you
+>>verified that there really was a difference? Or do you only suspect
+>>corruption because LILO has problem? (In that case I can assure you that
+>>there was no corruption.)
+> 
+> 
+> you are right, there was no corruption most likely. And the IDE subsystem
+> is most definitely innocent.
+
+I have told you :-).
+
+BTW.> Please don't consider RH lilo "fairly standard" it *is* messing
+with the geometry issues, since in esp. limbo.
 

@@ -1,61 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbSKVTlL>; Fri, 22 Nov 2002 14:41:11 -0500
+	id <S262380AbSKVTry>; Fri, 22 Nov 2002 14:47:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265255AbSKVTlL>; Fri, 22 Nov 2002 14:41:11 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54289 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265247AbSKVTlK>; Fri, 22 Nov 2002 14:41:10 -0500
-Date: Fri, 22 Nov 2002 11:47:27 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: LKML <linux-kernel@vger.kernel.org>, <anton@samba.org>,
-       "David S. Miller" <davem@redhat.com>, <ak@muc.de>
+	id <S265243AbSKVTry>; Fri, 22 Nov 2002 14:47:54 -0500
+Received: from bitmover.com ([192.132.92.2]:48306 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262380AbSKVTrx>;
+	Fri, 22 Nov 2002 14:47:53 -0500
+Date: Fri, 22 Nov 2002 11:54:54 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+       "David S. Miller" <davem@redhat.com>, ak@muc.de
 Subject: Re: [PATCH] Beginnings of conpat 32 code cleanups
-In-Reply-To: <20021122162312.32ff4bd3.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.44.0211221141070.1440-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20021122115454.A481@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+	"David S. Miller" <davem@redhat.com>, ak@muc.de
+References: <20021122162312.32ff4bd3.sfr@canb.auug.org.au> <Pine.LNX.4.44.0211221141070.1440-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211221141070.1440-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Nov 22, 2002 at 11:47:27AM -0800
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Make your compat stuff use u32/s32/u64 directly, instead of making up ugly 
+> new types that make no sense.
 
-On Fri, 22 Nov 2002, Stephen Rothwell wrote:
-> 
-> This patch merely adds include/asm-generic/compat32.h which is the header
-> information that is common to all the 32 bit compatibility code across all
-> the architectures (except parisc as I don't pretend to understand that
-> :-)).
+IMHO, the thing that the early Unix systems did wrong was to not have 
+u8, u16, u32, etc as basic ctypes in sys/types.h.  And C should have 
+had a way to fake it if they weren't native.
 
-What kind of strange _crap_ is this?
+Anyone who has ported a networking stack or worked on driver knows exactly
+what I'm talking about.
 
-	+typedef unsigned int           __kernel_size_t32;
-	+typedef int                    __kernel_ssize_t32;
-	+typedef int                    __kernel_time_t32;
-	+typedef int                    __kernel_clock_t32;
-	+typedef int                    __kernel_pid_t32;
-	+typedef unsigned int           __kernel_ino_t32;
-	+typedef int                    __kernel_daddr_t32;
-	+typedef int                    __kernel_off_t32;
-	+typedef unsigned int           __kernel_caddr_t32;
-	+typedef long                   __kernel_loff_t32;
+And while I'm whining, 
 
-You're doing a compat layer, and then you're using various undefined types 
-that can be random sizes, and calling them xxx_t32.
+	assert(strlen(any typedef) < 8));
 
-For christ sake, somebody is on drugs here.
-
-If they are called "xxx_t32", then that means that you _know_ the size 
-already statically, and you should use "u32" or "s32" which are shorter 
-and clearer anyway. You should sure as hell not use some random C type 
-that can be different depending on compiler options etc, and then calling 
-it a "compat" library.
-
-Quite frankly, I don't see the point of this AT ALL. You're introducing 
-new types that cannot be sanely used directly anyway. What's the point?
-
-Make your compat stuff use u32/s32/u64 directly, instead of making up ugly 
-new types that make no sense.
-
-		Linus
-
+I like my stack variable declarations to line up.  I despise some_long_name_t
+typedefs with a passion.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272557AbTG1BHa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 21:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272554AbTG1ADm
+	id S272548AbTG1BRm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 21:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272472AbTG1ADe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:03:42 -0400
+	Sun, 27 Jul 2003 20:03:34 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272737AbTG0W6p (ORCPT
+	by vger.kernel.org with ESMTP id S272739AbTG0W6q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 18:58:45 -0400
-Date: Sun, 27 Jul 2003 21:15:47 +0100
+	Sun, 27 Jul 2003 18:58:46 -0400
+Date: Sun, 27 Jul 2003 21:26:59 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272015.h6RKFl9f029725@hraefn.swansea.linux.org.uk>
+Message-Id: <200307272026.h6RKQxmr029834@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: switch escaped 8859-1 symbols inthe kernel to ascii
+Subject: PATCH: fix section conflict and typo in ALSA isa
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Otherwise this plays hell with logging on non old US systems)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/usb/serial/visor.c linux-2.6.0-test2-ac1/drivers/usb/serial/visor.c
---- linux-2.6.0-test2/drivers/usb/serial/visor.c	2003-07-27 19:56:28.000000000 +0100
-+++ linux-2.6.0-test2-ac1/drivers/usb/serial/visor.c	2003-07-27 20:32:35.000000000 +0100
-@@ -169,7 +169,7 @@
-  */
- #define DRIVER_VERSION "v2.1"
- #define DRIVER_AUTHOR "Greg Kroah-Hartman <greg@kroah.com>"
--#define DRIVER_DESC "USB HandSpring Visor, Palm m50x, Sony Clié driver"
-+#define DRIVER_DESC "USB HandSpring Visor, Palm m50x, Sony Clie driver"
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/sound/isa/sb/emu8000.c linux-2.6.0-test2-ac1/sound/isa/sb/emu8000.c
+--- linux-2.6.0-test2/sound/isa/sb/emu8000.c	2003-07-10 21:07:39.000000000 +0100
++++ linux-2.6.0-test2-ac1/sound/isa/sb/emu8000.c	2003-07-15 18:01:30.000000000 +0100
+@@ -659,7 +659,7 @@
+ {
+ 	soundfont_chorus_fx_t rec;
+ 	if (mode < SNDRV_EMU8000_CHORUS_PREDEFINED || mode >= SNDRV_EMU8000_CHORUS_NUMBERS) {
+-		snd_printk(KERN_WARNING "illegal chorus mode %d for uploading\n", mode);
++		snd_printk(KERN_WARNING "invalid chorus mode %d for uploading\n", mode);
+ 		return -EINVAL;
+ 	}
+ 	if (len < (long)sizeof(rec) || copy_from_user(&rec, buf, sizeof(rec)))
+@@ -787,7 +787,7 @@
+ 	soundfont_reverb_fx_t rec;
  
- /* function prototypes for a handspring visor */
- static int  visor_open		(struct usb_serial_port *port, struct file *filp);
-@@ -275,7 +275,7 @@
- /* All of the device info needed for the Handspring Visor, and Palm 4.0 devices */
- static struct usb_serial_device_type handspring_device = {
- 	.owner =		THIS_MODULE,
--	.name =			"Handspring Visor / Treo / Palm 4.0 / Clié 4.x",
-+	.name =			"Handspring Visor / Treo / Palm 4.0 / Clie 4.x",
- 	.short_name =		"visor",
- 	.id_table =		id_table,
- 	.num_interrupt_in =	NUM_DONT_CARE,
-@@ -303,7 +303,7 @@
- /* device info for the Sony Clie OS version 3.5 */
- static struct usb_serial_device_type clie_3_5_device = {
- 	.owner =		THIS_MODULE,
--	.name =			"Sony Clié 3.5",
-+	.name =			"Sony Clie 3.5",
- 	.short_name =		"clie_3.5",
- 	.id_table =		clie_id_3_5_table,
- 	.num_interrupt_in =	0,
+ 	if (mode < SNDRV_EMU8000_REVERB_PREDEFINED || mode >= SNDRV_EMU8000_REVERB_NUMBERS) {
+-		snd_printk(KERN_WARNING "illegal reverb mode %d for uploading\n", mode);
++		snd_printk(KERN_WARNING "invalid reverb mode %d for uploading\n", mode);
+ 		return -EINVAL;
+ 	}
+ 	if (len < (long)sizeof(rec) || copy_from_user(&rec, buf, sizeof(rec)))
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/sound/isa/sscape.c linux-2.6.0-test2-ac1/sound/isa/sscape.c
+--- linux-2.6.0-test2/sound/isa/sscape.c	2003-07-10 21:05:23.000000000 +0100
++++ linux-2.6.0-test2-ac1/sound/isa/sscape.c	2003-07-23 16:39:21.000000000 +0100
+@@ -809,7 +809,7 @@
+  */
+ static unsigned __devinit get_irq_config(int irq)
+ {
+-	static const int valid_irq[] __devinitdata = { 9, 5, 7, 10 };
++	const int valid_irq[] __devinitdata = { 9, 5, 7, 10 };
+ 	unsigned cfg;
+ 
+ 	for (cfg = 0; cfg < ARRAY_SIZE(valid_irq); ++cfg) {

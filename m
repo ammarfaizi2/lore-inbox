@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129920AbQKFTKC>; Mon, 6 Nov 2000 14:10:02 -0500
+	id <S129513AbQKFTLM>; Mon, 6 Nov 2000 14:11:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbQKFTJx>; Mon, 6 Nov 2000 14:09:53 -0500
-Received: from waste.org ([209.173.204.2]:22372 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S129920AbQKFTJh>;
-	Mon, 6 Nov 2000 14:09:37 -0500
-Date: Mon, 6 Nov 2000 13:09:19 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: David Woodhouse <dwmw2@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Keith Owens <kaos@ocs.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <3A06FA73.948357F6@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10011061305040.30477-100000@waste.org>
+	id <S129572AbQKFTLC>; Mon, 6 Nov 2000 14:11:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:20753 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129513AbQKFTKv>; Mon, 6 Nov 2000 14:10:51 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: setup.S: A20 enable sequence (once again)
+Date: 6 Nov 2000 11:10:32 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8u6vn8$70i$1@cesium.transmeta.com>
+In-Reply-To: <00110618083400.11022@rob>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, Jeff Garzik wrote:
-
-> Oliver Xymoron wrote:
-> > 
-> > On Mon, 6 Nov 2000, David Woodhouse wrote:
-> > 
-> > > The point here is that although I've put up with just keeping the sound
-> > > driver loaded for the last few years, permanently taking up a large amount
-> > > of DMA memory, the inter_module_xxx stuff that Keith is proposing would
-> > > give us a simple way of storing the data which we want to store.
-> > ...
-> > > Being able to do it completely in userspace would be neater, though.
-> > 
-> > I think there are a bunch of other devices that need stuff from userspace
-> > before they fully init, namely the ones that load proprietary firmware
-> > images. Will an approach like that work here?
+Followup to:  <00110618083400.11022@rob>
+By author:    Robert Kaiser <rob@sysgo.de>
+In newsgroup: linux.dev.kernel
+>
+> Hi all,
 > 
-> Some devices have a firmware.h that is compiled into the driver.  A few
-> sound devices use a function that loads a firmware file from userspace,
-> given a filename.  The comment in drivers/sound/sound_firmware.c says
-> that this is a poor method, and that the recommended method for
-> uploading firmware to a device is via ioctl.
+> a while ago, I posted a request here to add the "fast A20" enable
+> sequence to setup.S in order to enable booting Linux on boards that
+> don't have a keyboard controller. I was happy to see that this has
+> been added into 2.4.0-test10 already. However, on some embedded
+> boards, booting 2.4.0-test10 does work, but it takes several minutes
+> which the board spends in complete silence (it took me almost a day
+> to realize that I only had to wait long enough for the system to
+> boot ...)
+> 
+> The reason for this is that the A20 enable sequence in setup.S is still
+> accessing the (in my case not existing) keyboard controller. It times out
+> eventually, but the timeout takes *very* long, especially on a slowish
+> embedded 386EX@25MHz.
+> 
+> The attached patch fixes this by doing "fast A20" enable first and
+> then checking if A20 already is enabled. If it is, the keyboard
+> controller sequence is skipped. This works for me, so, could people
+> please have a look at this.
+> 
 
-Ioctl (or alternate device for plan9 groupies) is fine. My point is final
-initialization of the device is obviously delayed until the firmware is
-loaded. Adopting a similar strategy for initializing mixers (possibly
-falling back to initializing with zero levels) minimizes the window
-between resetting a device and having sane mixer settings.
+This doesn't really work.  Neither the fast A20 gate nor the KBC is
+guaranteed to have immediate effect (on most systems they won't.)
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+What's worse, once you have done an "out" to the KBC you need to
+finish the sequence.  I need to think about this for a bit.
 
+(Arguably, what you're doing is running on completely nonstandard
+hardware, which may need a CONFIG_ option.  However, if we can avoid
+it I guess it's better.)
+
+	-hpa
+
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

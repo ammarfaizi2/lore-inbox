@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbQLaOV3>; Sun, 31 Dec 2000 09:21:29 -0500
+	id <S129401AbQLaPL5>; Sun, 31 Dec 2000 10:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLaOVT>; Sun, 31 Dec 2000 09:21:19 -0500
-Received: from firebox-ext.surrey.redhat.com ([194.201.25.236]:3316 "EHLO
-	meme.surrey.redhat.com") by vger.kernel.org with ESMTP
-	id <S129324AbQLaOVM>; Sun, 31 Dec 2000 09:21:12 -0500
-Date: Sun, 31 Dec 2000 13:49:41 +0000
-From: Tim Waugh <twaugh@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: PCI serial card
-Message-ID: <20001231134941.C30393@redhat.com>
+	id <S129588AbQLaPLq>; Sun, 31 Dec 2000 10:11:46 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:11786 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129401AbQLaPLl>; Sun, 31 Dec 2000 10:11:41 -0500
+Date: Sun, 31 Dec 2000 15:38:49 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Roman Zippel <zippel@fh-brandenburg.de>,
+        "Eric W. Biederman" <ebiederman@uswest.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Generic deferred file writing
+Message-ID: <20001231153849.B17728@athlon.random>
+In-Reply-To: <Pine.GSO.4.10.10012310241300.8887-100000@zeus.fh-brandenburg.de> <Pine.LNX.4.10.10012301816410.1743-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="PuGuTyElPB9bOcsM"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012301816410.1743-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Dec 30, 2000 at 06:28:39PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 30, 2000 at 06:28:39PM -0800, Linus Torvalds wrote:
+> There are only two real advantages to deferred writing:
+> 
+>  - not having to do get_block() at all for temp-files, as we never have to
+>    do the allocation if we end up removing the file.
+> 
+>    NOTE NOTE NOTE! The overhead for trying to get ENOSPC and quota errors
+>    right is quite possibly big enough that this advantage is possibly very
+>    questionable.  It's very possible that people could speed things up
+>    using this approach, but I also suspect that it is equally (if not
+>    more) possible to speed things up by just making sure that the
+>    low-level FS has a fast get_block().
 
---PuGuTyElPB9bOcsM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+get_block for large files can be improved using extents, but how can we
+implement a fast get_block without restructuring the on-disk format of the
+filesystem? (in turn using another filesystem instead of ext2?)
 
-I've got a PCI serial card here that I'm not sure how to add support
-for.  It's resource map is like this:
+get_block needs to walk all level of inode metadata indirection if they
+exists. It has to map the logical page from its (inode) address space to the
+physical blocks. If those indirection blocks aren't in cache it has to block
+to read them. It doesn't matter how it is actually implemented in core. And
+then later as you say those allocated blocks could never get written because
+the file may be deleted in the meantime.
 
-Product name   | Ven.ID | Dev.ID |[Base+10]|[Base+14]|[Base+18]|[Base+20]|
----------------+--------+--------+---------+---------+---------+---------+
-VScom PCI-400L |  14D2  |  8040  |         | Uart #1 | Uart #2 | Uart 3,4|
-VScom PCI-800L |  14D2  |  8080  |         | Uart #1 | Uart #2 | Uart 3-8|
+With allocate on flush we can run the slow get_block in parallel
+asynchronously using a kernel daemon after the page flushtime timeout
+triggers. It looks nicer to me. The in-core overhead of the reserved
+blocks for delayed allocation should be not relevant at all (and it also
+should not need the big kernel lock making the whole write path big lock
+free).
 
-(UARTs 3 onwards are spaced 8 bytes apart.) In other words, two of the
-400L's ports would be encoded like this:
-
-{ PCI_VENDOR_..., PCI_DEVICE_..., PCI_ANY_ID, PCI_ANY_ID,
-  SPCI_FL_BASE_1 | SPCI_FL_BASE_TABLE, 2, 921600 },
-
-but the other two would be described by:
-
-{ PCI_VENDOR_..., PCI_DEVICE_..., PCI_ANY_ID, PCI_ANY_ID,
-  SPCI_FL_BASE_3, 2, 921600 },
-
-and I can't seem to find a way of supporting both lots at once.
-Similarly, for the 800L I can only support up to six of the eight
-ports at once.
-
-Is there a trick I can use, or doesn't this kind of thing work yet?
-(I'm looking at 2.4 for this.)
-
-Tim.
-*/
-
---PuGuTyElPB9bOcsM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Tzl1ONXnILZ4yVIRAlOEAJ9E++d8Wy2mF+8q1qoR7O8FFa0Q4QCfXQmb
-8fGp14nntyrWmQX4D3Qj5E8=
-=hGNx
------END PGP SIGNATURE-----
-
---PuGuTyElPB9bOcsM--
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

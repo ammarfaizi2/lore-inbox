@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267369AbSKPVas>; Sat, 16 Nov 2002 16:30:48 -0500
+	id <S267373AbSKPVkY>; Sat, 16 Nov 2002 16:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267370AbSKPVar>; Sat, 16 Nov 2002 16:30:47 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:9994 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S267369AbSKPVar>; Sat, 16 Nov 2002 16:30:47 -0500
-Date: Sat, 16 Nov 2002 19:37:32 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: john slee <indigoid@higherplane.net>, Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why can't Johnny compile?
-Message-ID: <20021116213732.GO24641@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	john slee <indigoid@higherplane.net>, Dan Kegel <dank@kegel.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DD5D93F.8070505@kegel.com> <3DD5DC77.2010406@pobox.com> <20021116151102.GI19015@higherplane.net> <3DD6B2C5.3010303@pobox.com>
-Mime-Version: 1.0
+	id <S267378AbSKPVkY>; Sat, 16 Nov 2002 16:40:24 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:7622 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267373AbSKPVkW>; Sat, 16 Nov 2002 16:40:22 -0500
+Date: Sat, 16 Nov 2002 13:44:19 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <551278547.1037454258@[10.10.2.3]>
+In-Reply-To: <20021116214140.GP24641@conectiva.com.br>
+References: <20021116214140.GP24641@conectiva.com.br>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3DD6B2C5.3010303@pobox.com>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sat, Nov 16, 2002 at 04:04:05PM -0500, Jeff Garzik escreveu:
-> john slee wrote:
-> >#error or #warning) to tag things as known broken.  currently people use
-> >#error during compile, but i'd like to see it show up in menuconfig
-> >somehow.
- 
-> I respectfully disagree...  I think if these sort of FIXMEs show up in 
-> menuconfig, you're not only cluttering up menuconfig, you also moving 
-> past the level of programmer to the sysadmin/power-user level.  That 
-> seems like it would generate more bug reports than useful work.
- 
-> About the only thing WRT menuconfig I would be ok with is commenting out 
-> majorly broken drivers until they are fixed...
+>> Very bad idea. People using unusual hardware do not want to keep
+>> re-submitting a bug report. I know when I submit a report I expect 
+>> that it will remain until the problem is fixed. I do not like to 
+>> receive multiple
+> 
+> Oh well, there is _no_ guarantee that it will be fixed, sometimes 
+> there is no  maintainer at all and the ticket will stay there forever 
+> lost in the noise...
+> And if anybody is interested in fixing the driver or even looking to 
+> see if somebody submitted a ticket he/she can just search for all 
+> tickets, even the ones closed because nobody is did any activity in 
+> a perior of one month (or any other timeout period).
+> 
+> Its not like the ticket will vanish from the database.
 
-We have OBSOLETE, EXPERIMENTAL, why not BROKEN? 8)
+One thing we've done before in other bug-tracking systems was to create
+a "STALE" state (or something similar) for this type of bug. So it 
+wouldn't get closed (I have seen this done as a closing resolution, but
+I think that's a bad idea), but it wouldn't be in the default searches
+either ... you could just select it if you wanted it ... does that sound
+sane? (obviously we don't need this yet, but might be a good plan
+longer-term).
 
-It would appear as "BROKEN waiting for someone to fixme"
+M.
 
-- Arnaldo

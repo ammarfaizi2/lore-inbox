@@ -1,45 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266868AbTAGLSL>; Tue, 7 Jan 2003 06:18:11 -0500
+	id <S267027AbTAGLVz>; Tue, 7 Jan 2003 06:21:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267027AbTAGLSL>; Tue, 7 Jan 2003 06:18:11 -0500
-Received: from [195.20.32.236] ([195.20.32.236]:7617 "HELO euro.verza.com")
-	by vger.kernel.org with SMTP id <S266868AbTAGLSK>;
-	Tue, 7 Jan 2003 06:18:10 -0500
-Date: Tue, 7 Jan 2003 12:21:42 +0100
-From: Alexander Kellett <lypanov@kde.org>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-Message-ID: <20030107112142.GA19755@groucho.verza.com>
-Mail-Followup-To: "Henning P. Schmiedehausen" <hps@intermeta.de>,
-	linux-kernel@vger.kernel.org
-References: <200301041809.KAA06893@adam.yggdrasil.com> <1041900676.20298.15.camel@sbarn.net> <ave8a5$tst$1@forge.intermeta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267044AbTAGLVy>; Tue, 7 Jan 2003 06:21:54 -0500
+Received: from ns.indranet.co.nz ([210.54.239.210]:44740 "EHLO
+	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
+	id <S267027AbTAGLVx>; Tue, 7 Jan 2003 06:21:53 -0500
+Date: Wed, 08 Jan 2003 00:24:24 +1300
+From: Andrew McGregor <andrew@indranet.co.nz>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+Message-ID: <2340000.1041938664@localhost.localdomain>
+In-Reply-To: <20030107042045.GA10045@waste.org>
+References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org>
+ <3E19B401.7A9E47D5@linux-m68k.org>
+ <17360000.1041899978@localhost.localdomain>
+ <20030107042045.GA10045@waste.org>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <ave8a5$tst$1@forge.intermeta.de>
-User-Agent: Mutt/1.4i
-X-Disclaimer: My opinions do not necessarily represent those of my employer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 09:57:25AM +0000, Henning P. Schmiedehausen wrote:
-> Install Linux for your grandma, show her how to use it and then don't
-> answer her phone calls for about two weeks. Rinse. Repeat with
-> Windows. You will be surprised about the outcome. Rinse. Repeat with a
-> non-english speaker and a localized version of Linux / Windows. You
-> will be surprised even more. BTDTGTT.
+No no, that's a 1% chance that one packet in the terabyte is broken.
 
-Rather than "moaning", if do you have such good ideas
-for improving distributions could you not simply contribute,
-to the Debian desktop project for example?
+But actually, it's not that hard to construct a peturbation to the packet 
+that will beat both the ethernet and TCP checksums (I gave an example that 
+beats TCP before).  That kind of change is not likely for random bit 
+errors, but is quite likely to occur in just slightly marginal hardware. 
+Partial packet duplication or byte reordering on the highly ordered data 
+patterns you find in filesystem metadata could be really bad.
 
-I agree, the distributions are not quite ready yet, 
-but a few good ideas and emails a week may actually 
-make the difference.  
+Like I say, debugging one crypto protocol I've seen this happen for real. 
+Twice in about 10000 packets, on an otherwise apparently perfectly fine 
+LAN.  I suspect bad cabling, and changed it, but it's hard to tell that 
+anything has changed.  That shows that my 1% is probably quite conservative 
+for that particular link.
 
-Alex
+Internet protocols (changing to IETF hat now) are supposed to work on the 
+global internet, and that means iSCSI has to be engineered to work on the 
+worst links imaginable, because sometime, somewhere, someone's data is 
+going to cross a really broken backup link that they have no way of knowing 
+has just come on.  Possibly it's wireless, where packet corruption due to 
+undetected collisions happens quite frequently.
 
---
-One of the hundreds of KDE contributors
+Andre routinely tests it with the IBM team in Israel, with his end in 
+California.
+
+Andrew
+
+--On Monday, January 06, 2003 22:20:46 -0600 Oliver Xymoron 
+<oxymoron@waste.org> wrote:
+
+> On Tue, Jan 07, 2003 at 01:39:38PM +1300, Andrew McGregor wrote:
+>> Hmm.  The problem here is that there is a nontrivial probability that a
+>> packet can pass both ethernet and TCP checksums and still not be right,
+>> given the gigantic volumes of data that iSCSI is intended to be used
+>> with.  Back up a 100 terabyte array and it's more than 1%, back of the
+>> envelope.
+>
+> What was the underlying error rate and distribution you assumed? I
+> figure if it were high enough to get to your 1%, you'd have such high
+> retry rates (and resulting throughput loss) that the operator would
+> notice his LAN was broken weeks before said transfer completed.
+>
+> --
+>  "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+>
+>
+
+

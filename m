@@ -1,79 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276708AbRKHTFi>; Thu, 8 Nov 2001 14:05:38 -0500
+	id <S277629AbRKHTWS>; Thu, 8 Nov 2001 14:22:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277533AbRKHTF2>; Thu, 8 Nov 2001 14:05:28 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:25606 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S276708AbRKHTFK>;
-	Thu, 8 Nov 2001 14:05:10 -0500
-Date: Thu, 8 Nov 2001 11:13:30 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
-In-Reply-To: <Pine.LNX.4.33.0111082028430.20248-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.40.0111081056490.1501-100000@blue1.dev.mcafeelabs.com>
+	id <S277687AbRKHTWI>; Thu, 8 Nov 2001 14:22:08 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:2763 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S277629AbRKHTVu>; Thu, 8 Nov 2001 14:21:50 -0500
+Date: Thu, 8 Nov 2001 20:21:44 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: "D'Angelo Salvatore" <dangelo.sasaman@tiscalinet.it>
+cc: linux <linux-kernel@vger.kernel.org>
+Subject: Re: dependencies problems on loop back device (linux 2.4.14)
+In-Reply-To: <3BEB1C43.40002@tiscalinet.it>
+Message-ID: <Pine.NEB.4.40.0111082019560.8179-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Nov 2001, Ingo Molnar wrote:
+On Thu, 8 Nov 2001, D'Angelo Salvatore wrote:
 
+> Hi all,
 >
-> On Thu, 8 Nov 2001, Davide Libenzi wrote:
+> I was trying to compile the kernel 2.4.14 and I had the following error
+> message during the installation of the loopback device module
 >
-> > It sets the time ( in jiffies ) at which the process won't have any
-> > more scheduling advantage.
+> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{}
+> pcmcia
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.14; fi
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.14/kernel/drivers/block/loop.o
+> depmod:     deactivate_page
 >
-> (sorry, it indeed makes sense, since sched_jtime is on the order of
-> jiffies.)
->
-> > > and your patch adds a scheduling advantage to processes with more cache
-> > > footprint, which is the completely opposite of what we want.
-> >
-> > It is exactly what we want indeed :
->
-> if this is what is done by your patch, then we do not want to do this.
-> My patch does not give an advantage of CPU-intensive processes over that
-> of eg. 'vi'.
+> can someone help me?
+>...
 
-If A & B are CPU hog processes and E is the editor ( low level keventd )
-you do want to avoid priority inversion between A and B when E kicks in.
-Really IO bound tasks accumulates dynamic priority inside the recalc loop
-and this is sufficent to win over this kind of "advantage" given to CPU
-hog tasks.
-My approach make also more "expensive" the preemption goodness to move
-tasks between CPUs.
-I'll take a closer look at your patch anyway.
+This is a known bug.
 
+The following patch fixes the problem:
 
-> Perhaps i'm misreading your patch, it's full of branches that
-
-"full of braches" == 2 if + 1 conditional-assign
-
-> does not make the meaning very clear, cpu_jtime and sched_jtime are not
-> explained. Is sched_jtime the timestamp of the last schedule of this
-> process? And is cpu_jtime the number of jiffies spent on this CPU?
-
-sched_jtime = last schedule time in jiffies
-cpu_jtime   = wall time after which the task will have 0 dynamic priority increase
-
-> Is cpu_jtime cleared if we switch to another CPU?
-
-It's missing of the published patch.
-The one that i'm testing has that + a lower dynamic priority increase :
-
-weight += (p->cpu_jtime - jiffies) >> 1;
-
-I'm just testing results about this.
+--- linux-2.4.14-broken/drivers/block/loop.c	Thu Oct 25 13:58:34 2001
++++ linux-2.4.14/drivers/block/loop.c	Mon Nov  5 17:06:08 2001
+@@ -207,7 +207,6 @@
+ 		index++;
+ 		pos += size;
+ 		UnlockPage(page);
+-		deactivate_page(page);
+ 		page_cache_release(page);
+ 	}
+ 	return 0;
+@@ -218,7 +217,6 @@
+ 	kunmap(page);
+ unlock:
+ 	UnlockPage(page);
+-	deactivate_page(page);
+ 	page_cache_release(page);
+ fail:
+ 	return -1;
 
 
+cu
+Adrian
 
+-- 
 
-- Davide
+Get my GPG key: finger bunk@debian.org | gpg --import
 
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 

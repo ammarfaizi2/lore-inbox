@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUI1MrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267686AbUI1NCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267678AbUI1MrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 08:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbUI1MrN
+	id S267686AbUI1NCT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 09:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUI1NCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 08:47:13 -0400
-Received: from dialpool3-53.dial.tijd.com ([62.112.12.53]:18821 "EHLO
-	precious.kicks-ass.org") by vger.kernel.org with ESMTP
-	id S267678AbUI1MrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 08:47:10 -0400
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.9-rc2] ALSA nm256 driver causes system lockup
-Date: Tue, 28 Sep 2004 14:47:17 +0200
-User-Agent: KMail/1.7
+	Tue, 28 Sep 2004 09:02:18 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:62736 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267701AbUI1NCR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 09:02:17 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Norbert van Nobelen <Norbert@edusupport.nl>
+Subject: Re: [OT] Microsoft claim 267% better peak performance than linux?
+Date: Tue, 28 Sep 2004 16:04:13 +0000
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org
+References: <20040928075545.GA3298@cenedra.walrond.org> <200409281524.25187.vda@port.imtp.ilyichevsk.odessa.ua> <1096374908.21271.38.camel@linux.local>
+In-Reply-To: <1096374908.21271.38.camel@linux.local>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409281447.17537.lkml@kcore.org>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200409281604.13227.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+On Tuesday 28 September 2004 12:35, Norbert van Nobelen wrote:
+> The document shows some interesting points though:
+> - They describe what they did to make redhat/apache perform better
 
-I'm trying to configure a laptop (Dell Latitude CXs) with 2.6.9-rc2. All runs 
-well, except the ALSA nm256 driver for the Neomagic Audio chip. Loading this 
-driver results in an immediate and complete system lockup....
+Yeah, like running 2.4.9 kernel... why not 2.0.0 kernel? ;)
 
-I've tried appending "vaio_hack=1" on the kernel command line, but that didn't 
-really do anything.
+Also, see page 33:
 
-ALSA is compiled as modules.
+Operating System                  Key Exchange Algorithm       Message Digest
+Windows Server 2003               RSA RC4 (128-bit)            MD5
+Red Hat Linux Advanced Server 2.1 Diffie-Helman 3DES (168-bit) SHA1
+Red Hat Linux 8.0 Professional    Diffie-Helman 3DES (168-bit) SHA1
 
-Any pointers?
+and:
 
-Thanks.
+...
+Set HKLM\System\CurrentControlSet\Control\FileSystem\NtfsDisableLastAccess to 1.
+(but conveniently forgot to mount Linux partitions noatime)
 -- 
-You're ugly and your mother dresses you funny.
+vda

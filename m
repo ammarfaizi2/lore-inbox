@@ -1,468 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268710AbTCCSq3>; Mon, 3 Mar 2003 13:46:29 -0500
+	id <S268719AbTCCTCp>; Mon, 3 Mar 2003 14:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268714AbTCCSp3>; Mon, 3 Mar 2003 13:45:29 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:18683 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S268710AbTCCSob>; Mon, 3 Mar 2003 13:44:31 -0500
-Subject: Re: [2.5.63 PATCH][RESUBMIT] Sysfs based watchdog infrastructure
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1046716982.2671.8.camel@vmhack>
-References: <1046716982.2671.8.camel@vmhack>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Mar 2003 10:52:41 -0800
-Message-Id: <1046717563.2671.14.camel@vmhack>
+	id <S268720AbTCCTCg>; Mon, 3 Mar 2003 14:02:36 -0500
+Received: from packet.digeo.com ([12.110.80.53]:33520 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268719AbTCCTB5>;
+	Mon, 3 Mar 2003 14:01:57 -0500
+Date: Mon, 3 Mar 2003 11:08:34 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: rwhron@earthlink.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.63-mjb2 (scalability / NUMA patchset)
+Message-Id: <20030303110834.031e6d98.akpm@digeo.com>
+In-Reply-To: <20030303131955.GA4655@rushmore>
+References: <20030303131955.GA4655@rushmore>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Mar 2003 19:12:17.0936 (UTC) FILETIME=[CEC9D100:01C2E1B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a new watchdog driver for the ZT55XX line of CompactPCI single
-board computers that utilizes the watchdog infrastructure.
+rwhron@earthlink.net wrote:
+>
+> > Pleeeeeeze remember to specify basic things such as the machine,
+> > amount of memory and especially the filesystem type in use.
+> 
+> >> on uniprocessor K6/2 475 Mhz with 384 MB ram
+> and two IDE drives on ext2.
 
-    --rustyl
+Ah, thanks.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1132  -> 1.1133 
-#	drivers/char/watchdog/Kconfig	1.8     -> 1.9    
-#	drivers/char/watchdog/Makefile	1.8     -> 1.9    
-#	               (new)	        -> 1.1     drivers/char/watchdog/ztwd.c
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/02/28	rusty@penguin.co.intel.com	1.1133
-# Adding the ztwd watchdog timer
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/watchdog/Kconfig b/drivers/char/watchdog/Kconfig
---- a/drivers/char/watchdog/Kconfig	Fri Feb 28 20:10:03 2003
-+++ b/drivers/char/watchdog/Kconfig	Fri Feb 28 20:10:03 2003
-@@ -377,4 +377,18 @@
- 	  The module is called cpu5wdt.o.  If you want to compile it as a
- 	  module, say M here and read <file:Documentation/modules.txt>.
- 
-+config ZT55XX_WDT
-+	tristate "ZT55XX Single Board Computer Watchdog"
-+	depends on WATCHDOG
-+	help
-+          This is a driver for the hardware watchdog on the ZT55XX line 
-+          of CompactPCI single board computers originally sold by Ziatech,
-+          and then Intel, and then Performance Technologies.
-+
-+	  This driver is also available as a module ( = code which can be
-+	  inserted in and removed from the running kernel whenever you want).
-+	  If you want to compile it as a module, say M here and read
-+	  Documentation/modules.txt. The module will be called
-+	  ztwd.ko
-+
- endmenu
-diff -Nru a/drivers/char/watchdog/Makefile b/drivers/char/watchdog/Makefile
---- a/drivers/char/watchdog/Makefile	Fri Feb 28 20:10:03 2003
-+++ b/drivers/char/watchdog/Makefile	Fri Feb 28 20:10:03 2003
-@@ -33,3 +33,4 @@
- obj-$(CONFIG_WAFER_WDT) += wafer5823wdt.o
- obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
- obj-$(CONFIG_AMD7XX_TCO) += amd7xx_tco.o
-+obj-$(CONFIG_ZT55XX_WDT) += ztwd.o
-diff -Nru a/drivers/char/watchdog/ztwd.c b/drivers/char/watchdog/ztwd.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/char/watchdog/ztwd.c	Fri Feb 28 20:10:03 2003
-@@ -0,0 +1,390 @@
-+/*
-+ * ztwd.c
-+ *
-+ * Intel/Ziatech ZT55xx watchdog driver
-+ *
-+ * Copyright (C) 2003 Rusty Lynch <rusty@linux.co.intel.com>
-+ * 
-+ * Based on original work from SOMA Networks. Original copyright:
-+ * Copyright 2001-2003 SOMA Networks, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation; either version 2 of the License, or (at your
-+ * option) any later version.
-+ *
-+ * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
-+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL 
-+ * THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Contributors:
-+ * Scott Murray <scottm@somanetworks.com>
-+ * Rusty Lynch <rusty@linux.co.intel.com>
-+ *
-+ * Send feedback to <rusty@linux.co.intel.com>
-+ */
-+
-+/*
-+ * This driver implements the IO controlled watchdog device found
-+ * on the ZT55XX line of single board computers. 
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/init.h>
-+#include <linux/kobject.h>
-+#include <linux/ioport.h>
-+#include <linux/device.h>
-+#include <linux/watchdog.h>
-+#include <asm/io.h>
-+
-+#ifdef DEBUG
-+#define dbg(format, arg...)				\
-+		 printk (KERN_DEBUG "%s: " format "\n",	\
-+			 __FUNCTION__, ## arg);
-+#define trace(format, arg...)				 \
-+                 printk(KERN_INFO "%s(" format ")\n",    \
-+		        __FUNCTION__ , ## arg);
-+#else
-+#define trace(format, arg...) do { } while (0)
-+#define dbg(format, arg...) do { } while (0)
-+#endif
-+
-+#define err(format, arg...) \
-+                printk(KERN_ERR "%s: " format "\n", \
-+		       __FUNCTION__ , ## arg)
-+#define info(format, arg...) \
-+                printk(KERN_INFO "%s: " format "\n", \
-+		       __FUNCTION__ , ## arg)
-+#define warn(format, arg...) \
-+                printk(KERN_WARNING "%s: " format "\n", \
-+		       __FUNCTION__ , ## arg)
-+
-+#define WD_CTL_REG	       0x79
-+
-+#define WD_TERMINALCOUNT_MASK  0x07
-+#define WD_STAGE1_ACTION_MASK  0x08
-+#define WD_STAGE1_ENABLE_MASK  0x10
-+#define WD_STAGE2_ENABLE_MASK  0x20
-+#define WD_STAGE2_MONITOR_MASK 0x40
-+#define WD_STAGE1_MONITOR_MASK 0x80
-+
-+#define WD_TC_250MS	       0x00
-+#define WD_TC_500MS	       0x01
-+#define WD_TC_1S	       0x02
-+#define WD_TC_8S	       0x03
-+#define WD_TC_32S	       0x04
-+#define WD_TC_64S	       0x05
-+#define WD_TC_128S	       0x06
-+#define WD_TC_256S	       0x07
-+
-+#define DEFAULT_TIMEOUT          64  /* seconds */
-+
-+static int nowayout = 0;
-+static int bootstatus = 0;
-+static int status = 0;
-+static int pretimeout = 0;
-+
-+static int ztwd_start(struct watchdog_driver *d)
-+{
-+    	uint8_t value;
-+
-+	trace("%s", d->driver.name);
-+	value = inb(WD_CTL_REG);
-+	if (pretimeout)
-+		value |= WD_STAGE1_ENABLE_MASK;
-+	value |= WD_STAGE2_ENABLE_MASK;
-+	outb(value, WD_CTL_REG);
-+	return 0;
-+}
-+
-+static int ztwd_stop(struct watchdog_driver *d)
-+{
-+    	uint8_t value;
-+
-+	trace("%s", d->driver.name);
-+	if (nowayout) {
-+		warn("Nowayout flag is set.  Request to stop timer denied!");
-+		return -1;
-+	}
-+
-+	value = inb(WD_CTL_REG);
-+	value &= ~WD_STAGE1_ENABLE_MASK;
-+	value &= ~WD_STAGE2_ENABLE_MASK;
-+	outb(value, WD_CTL_REG);
-+	return 0;
-+}
-+
-+static int ztwd_keepalive(struct watchdog_driver *d) 
-+{
-+	trace("%s", d->driver.name);
-+	inb(WD_CTL_REG);
-+	status |= WDIOF_KEEPALIVEPING;
-+	return 0;
-+}
-+
-+static int ztwd_get_status(struct watchdog_driver *d, int *s) 
-+{
-+	uint8_t value;
-+
-+	trace("%s, %p", d->driver.name, s);
-+	*s = status;
-+	value = inb(WD_CTL_REG);
-+	if (value & WD_STAGE1_MONITOR_MASK || value & WD_STAGE2_MONITOR_MASK)
-+		*s |= WDIOF_CARDRESET;
-+	return 0;
-+}
-+
-+static int ztwd_get_bootstatus(struct watchdog_driver *d, int *bs) 
-+{
-+	trace("%s, %p", d->driver.name, bs);
-+	*bs = bootstatus;
-+	return 0;
-+}
-+
-+static int ztwd_get_timeout(struct watchdog_driver *d, int *timeout)
-+{
-+	uint8_t value;
-+
-+	trace("%s, %p", d->driver.name, timeout);
-+	if (!timeout) {
-+		dbg("recieved a null timeout pointer!");
-+		return -1;
-+	}
-+
-+	value = inb(WD_CTL_REG);
-+	switch (value & WD_TERMINALCOUNT_MASK) {
-+	default:
-+		dbg("unexpected value in terminal count");
-+		return -EFAULT;
-+	case WD_TC_250MS:
-+	case WD_TC_500MS:
-+	case WD_TC_1S:
-+		*timeout = 1;
-+		break;
-+	case WD_TC_8S:
-+		*timeout = 8;
-+		break;
-+	case WD_TC_32S:
-+		*timeout = 32;
-+		break;
-+	case WD_TC_64S:
-+		*timeout = 64;
-+		break;
-+	case WD_TC_128S:
-+		*timeout = 128;
-+		break;
-+	case WD_TC_256S:
-+		*timeout = 256;		
-+	}
-+	status |= WDIOF_SETTIMEOUT;
-+	return 0;
-+}
-+
-+static int ztwd_set_timeout(struct watchdog_driver *d, int timeout)
-+{
-+    	uint8_t value;
-+
-+	trace("%p, %i", d->driver.name, timeout);
-+	if (timeout < 0) {
-+	    	dbg("invalid time specifed"); 
-+	    	return 1;
-+	}
-+
-+	if (timeout == 0) {
-+		ztwd_stop(d);
-+		return 0;
-+	}
-+	if (timeout == 1)
-+		timeout = WD_TC_1S;
-+	else if (timeout <= 8)
-+		timeout = WD_TC_8S;
-+	else if (timeout <= 32)
-+	    	timeout = WD_TC_32S;
-+	else if (timeout <= 64)
-+	    	timeout = WD_TC_64S;
-+	else if (timeout <= 128)
-+	    	timeout = WD_TC_128S;
-+	else if (timeout <= 256)
-+	    	timeout = WD_TC_256S;
-+	else
-+	    	timeout = WD_TC_256S;
-+	
-+	value = inb(WD_CTL_REG);
-+	value &= ~WD_TC_256S;
-+	value |= timeout;
-+	dbg("timeout value set to %X", value);
-+	outb (value, WD_CTL_REG);
-+	return 0;
-+}
-+
-+static int ztwd_get_options(struct watchdog_driver *d, int *c)
-+{
-+	trace("%s, %p", d->driver.name, c);
-+	*c = WDIOS_DISABLECARD|WDIOS_ENABLECARD;
-+	return 0;
-+}
-+
-+static int ztwd_get_nowayout(struct watchdog_driver *d, int *n)
-+{
-+	trace("%s, %p", d->driver.name, n);
-+	*n = nowayout;
-+	return 0;
-+}
-+
-+static int ztwd_set_nowayout(struct watchdog_driver *d, int n)
-+{
-+	trace("%s, %i", d->driver.name, n);
-+	nowayout = n;
-+	return 0;
-+}
-+
-+static struct watchdog_ops ztwd_ops = {
-+	.start                 = ztwd_start,
-+	.stop                  = ztwd_stop,
-+	.keepalive             = ztwd_keepalive,
-+	.get_timeout           = ztwd_get_timeout,
-+	.set_timeout           = ztwd_set_timeout,
-+	.get_nowayout          = ztwd_get_nowayout,
-+	.set_nowayout          = ztwd_set_nowayout,
-+	.get_options           = ztwd_get_options,
-+	.get_bootstatus        = ztwd_get_bootstatus,
-+	.get_status            = ztwd_get_status,
-+	/* get/set_temppanic not implemented */
-+	/* get_firmware_version not implemented */
-+};
-+
-+static struct watchdog_driver ztwd_driver = {
-+	.ops = &ztwd_ops,
-+	.driver = {
-+		.name		= "ztwd",
-+		.bus		= &system_bus_type,
-+		.devclass       = &watchdog_devclass,
-+	}
-+};
-+
-+/* 
-+ * ZT55XX specific controls 
-+ */
-+
-+/* enabling the pretimeout (stage 1 timeout) will cause either a */
-+/* NMI or INIT to happen when the stage 1 timer expires */
-+static ssize_t pretimeout_enable_show(struct device_driver * d, char * buf)
-+{
-+	trace("%s, %p", d->name, buf);
-+	return sprintf(buf, "%i\n",pretimeout);
-+}
-+static ssize_t pretimeout_enable_store(struct device_driver *d,
-+				       const char * buf, 
-+				       size_t count)
-+{
-+	trace("%s, %p, %i", d->name, buf, count);
-+	if (sscanf(buf,"%i",&pretimeout) != 1)
-+		return -EINVAL;
-+
-+	return count;
-+}
-+DRIVER_ATTR(pretimeout_enable,0644,pretimeout_enable_show,
-+	    pretimeout_enable_store);
-+
-+/* 1 = NMI; 0 = INIT */
-+static ssize_t pretimeout_action_show(struct device_driver * d, char * buf)
-+{
-+	uint8_t value;
-+	
-+	trace("%s, %p", d->name, buf);
-+	value = inb(WD_CTL_REG);
-+	return sprintf(buf, "%i\n",value&WD_STAGE1_ACTION_MASK?1:0);
-+}
-+static ssize_t pretimeout_action_store(struct device_driver *d,
-+				       const char * buf, 
-+				       size_t count)
-+{
-+	int tmp;
-+	uint8_t value;
-+
-+	trace("%s, %p, %i", d->name, buf, count);
-+	if (sscanf(buf,"%i",&tmp) != 1)
-+		return -EINVAL;
-+
-+	value = inb(WD_CTL_REG);
-+	if (tmp)
-+		value |= WD_STAGE1_ACTION_MASK;
-+	else
-+		value &= ~WD_STAGE1_ACTION_MASK;
-+	outb(value, WD_CTL_REG);
-+	return count;
-+}
-+DRIVER_ATTR(pretimeout_action,0644,pretimeout_action_show,
-+	    pretimeout_action_store);
-+
-+static int __init ztwd_init(void)
-+{
-+	int ret = 0;
-+    	uint8_t value;
-+
-+	trace();
-+	if (!request_region(WD_CTL_REG, 1, "ZT55XX Watchdog")) {
-+		err("Unable to reserve io region 0x%2x", WD_CTL_REG);
-+		return -EBUSY;
-+	}
-+
-+	/* determine if the watchdog was previously tripped */
-+	value = inb(WD_CTL_REG);	
-+	if (value & WD_STAGE2_MONITOR_MASK) {
-+		dbg("previous stage 2 watchdog timeout detected");
-+		bootstatus = WDIOF_CARDRESET;
-+
-+		/* clear the stage 1 & 2 monitor flags */
-+		value &= 0x3F;
-+		outb(value, WD_CTL_REG);
-+	}	
-+
-+	/* set the timeout before we give anyone */
-+	/* a chance to start the watchdog device ticking */
-+	if (ztwd_set_timeout(&ztwd_driver, DEFAULT_TIMEOUT))
-+		return -EFAULT;
-+
-+	ret = watchdog_driver_register(&ztwd_driver);
-+	if (ret) {
-+		err("failed to register watchdog device");
-+		return -ENODEV;
-+	}
-+
-+	/* create zt55xx specific sysfs control files */
-+	driver_create_file(&ztwd_driver.driver, 
-+			   &driver_attr_pretimeout_enable);
-+	driver_create_file(&ztwd_driver.driver, 
-+			   &driver_attr_pretimeout_action);
-+	return 0;
-+}
-+
-+static void __exit ztwd_exit(void)
-+{
-+	trace();
-+
-+	/* remove zt55xx specific sysfs control files */
-+	driver_remove_file(&ztwd_driver.driver, 
-+			   &driver_attr_pretimeout_enable);
-+	driver_remove_file(&ztwd_driver.driver, 
-+			   &driver_attr_pretimeout_action);
-+
-+	release_region(WD_CTL_REG, 1);
-+	watchdog_driver_unregister(&ztwd_driver);
-+}
-+
-+module_init(ztwd_init);
-+module_exit(ztwd_exit);
-+MODULE_LICENSE("GPL");
+> Could it be a disk driver issue?  Maybe 2.4 has some IDE
+> enhancements that aren't in 2.5 yet.
+
+Well I tested the AIM7 dbase workload yesterday on 256MB IDE.  2.4 and 2.5
+have the same throughput, down to a fraction of one percent.  The entire
+working set appeared to be around 200MB so there was no reading from disk at
+all.  Just 25 minutes of trickling out very slow O_SYNC writes.  The thing is
+dominated by disk seek time.
+
+> Here is AIM7 dbase on quad Xeon with 3.75 GB ram over ext2:
+> 
+> AIM7 dbase workload
+> kernel                   Tasks   Jobs/Min         Real    CPU  
+> 2.5.62-mm2               32     555.9            342.0   155.2 
+> 2.4.21-pre4aa1           32     554.4            342.8   142.3 
+> 2.4.21-pre4aa3           32     551.9            344.4   149.6 
+> 2.4.21-pre4-ac3          32     473.8            401.2   147.7 
+> 2.5.62                   32     473.6            401.3   148.2 
+> 2.5.63-mjb2              32     472.5            402.3   161.5 
+> 2.5.63                   32     471.6            403.1   153.1 
+> 2.2.24-rc3               32     431.9            440.1   165.7 
+> 
+> 2.5.62-mm2 has the feral driver.  aa has the QLogic 6.x driver.
+
+Well if there is any difference in drive caching policy then one would expect
+to see large differences.  Using writeback caching in the disk (which is
+considered cheating) would speed things up.  But I'd be surprised if
+2.5-vs-2.4 IDE affected the drive's caching policy.
+
+> Those two kernels rule AIM7 dbase and fserver on quad Xeon with
+> QLA2200.  I tested earlier 2.5 and aa with/without the newer
+> QLogic drivers.  It was _the_most_important_ factor for AIM7
+> dbase and fserver.  Perhaps AIM7 dbase and fserver really suck.
+> They seem rather impervious to other improvements in the kernel.
+
+Yes, they do.
+
+> > Care to share your aim7 database methodology with me?
+> 
+> AIM7 dbase takes a mixture of AIM9 micro activities and runs 
+> them in proportion to what it's developers found a circa 1996 
+> database running.  
+
+AIM7 dbase would probably be more interesting if it created a larger working
+set.
 

@@ -1,227 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262842AbVCPWvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVCPWxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262842AbVCPWvc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 17:51:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVCPWvc
+	id S262845AbVCPWxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 17:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262843AbVCPWxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 17:51:32 -0500
-Received: from rproxy.gmail.com ([64.233.170.198]:60912 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262842AbVCPWu7 (ORCPT
+	Wed, 16 Mar 2005 17:53:13 -0500
+Received: from mail.dif.dk ([193.138.115.101]:17792 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262846AbVCPWwg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 17:50:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=j0oRvJY4RTgVihXkiwDt2kwvBkvaHKgW4coEUYHowNaIf+DEVRuOCwp37AaBATXpHsKIQIjyfkRKjOb7NQao8RJCP+EyargaBBuOgs4iyixKAoSTsY+Zz+SEnOKDN1dJlmOPp5QJAOoF6CsgiQyV8z2++EJTVR/imHr0/qbU7/0=
-Message-ID: <9e473391050316145040de514a@mail.gmail.com>
-Date: Wed, 16 Mar 2005 17:50:58 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Olaf Hering <olh@suse.de>
-Subject: Re: [PATCH] fbdev: Allow core fb to be built as a module
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050316223259.GA18001@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <200503101904.j2AJ4Yaj019164@hera.kernel.org>
-	 <20050316223259.GA18001@suse.de>
+	Wed, 16 Mar 2005 17:52:36 -0500
+Date: Wed, 16 Mar 2005 23:54:05 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Eric Youngdale <eric@andante.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH][1/2] isofs: kfree handles NULL pointers fine (rock.c)
+Message-ID: <Pine.LNX.4.62.0503162340440.2558@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is already fixed the patch just hasn't made it in yet.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+kfree() has no trouble being handed a NULL pointer, so checking for one 
+before calling it is redundant. This patch removes the redundant checks in 
+fs/isofs/rock.c
 
-Fix link error for PPC-based drivers that also use functions in macmodes.c.
 
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Kconfig    |   16 ++++++++++++++++
-Makefile   |    9 +++++----
-macmodes.c |    9 ++++++---
-3 files changed, 27 insertions(+), 7 deletions(-)
+diff -up linux-2.6.11-mm4-orig/fs/isofs/rock.c linux-2.6.11-mm4/fs/isofs/rock.c
+--- linux-2.6.11-mm4-orig/fs/isofs/rock.c	2005-03-02 08:38:10.000000000 +0100
++++ linux-2.6.11-mm4/fs/isofs/rock.c	2005-03-16 23:36:30.000000000 +0100
+@@ -62,7 +62,7 @@
+ }                                     
+ 
+ #define MAYBE_CONTINUE(LABEL,DEV) \
+-  {if (buffer) { kfree(buffer); buffer = NULL; } \
++  {kfree(buffer); buffer = NULL; \
+   if (cont_extent){ \
+     int block, offset, offset1; \
+     struct buffer_head * pbh; \
+@@ -145,7 +145,7 @@ int get_rock_ridge_filename(struct iso_d
+ 	retnamlen += rr->len - 5;
+ 	break;
+       case SIG('R','E'):
+-	if (buffer) kfree(buffer);
++	kfree(buffer);
+ 	return -1;
+       default:
+ 	break;
+@@ -153,10 +153,10 @@ int get_rock_ridge_filename(struct iso_d
+     }
+   }
+   MAYBE_CONTINUE(repeat,inode);
+-  if (buffer) kfree(buffer);
++  kfree(buffer);
+   return retnamlen; /* If 0, this file did not have a NM field */
+  out:
+-  if(buffer) kfree(buffer);
++  kfree(buffer);
+   return 0;
+ }
+ 
+@@ -355,7 +355,7 @@ parse_rock_ridge_inode_internal(struct i
+   }
+   MAYBE_CONTINUE(repeat,inode);
+  out:
+-  if(buffer) kfree(buffer);
++  kfree(buffer);
+   return 0;
+ }
+ 
+@@ -517,8 +517,7 @@ static int rock_ridge_symlink_readpage(s
+ 		}
+ 	}
+ 	MAYBE_CONTINUE(repeat, inode);
+-	if (buffer)
+-		kfree(buffer);
++	kfree(buffer);
+ 
+ 	if (rpnt == link)
+ 		goto fail;
+@@ -532,8 +531,7 @@ static int rock_ridge_symlink_readpage(s
+ 
+ 	/* error exit from macro */
+       out:
+-	if (buffer)
+-		kfree(buffer);
++	kfree(buffer);
+ 	goto fail;
+       out_noread:
+ 	printk("unable to read i-node block");
 
-diff -Nru a/drivers/video/Kconfig b/drivers/video/Kconfig
---- a/drivers/video/Kconfig     2005-03-05 07:56:36 +08:00
-+++ b/drivers/video/Kconfig     2005-03-14 06:50:28 +08:00
-@@ -74,6 +74,11 @@
-         This is used by drivers that don't provide their own (accelerated)
-         version.
 
-+config FB_MACMODES
-+       tristate
-+       depends on FB
-+       default n
-+
-config FB_MODE_HELPERS
-        bool "Enable Video Mode Handling Helpers"
-        depends on FB
-@@ -323,6 +328,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES
-       help
-         Say Y if you want support with Open Firmware for your graphics
-         board.
-@@ -334,6 +340,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES
-       help
-         This driver supports a frame buffer for the graphics adapter in the
-         Power Macintosh 7300 and others.
-@@ -345,6 +352,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES
-       help
-         This driver supports a frame buffer for the "platinum" graphics
-         adapter in some Power Macintoshes.
-@@ -356,6 +364,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES
-       help
-         This driver supports a frame buffer for the "valkyrie" graphics
-         adapter in some Power Macintoshes.
-@@ -384,6 +393,7 @@
-       depends on (FB = y) && PCI
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES if PPC
-       help
-         The IMS Twin Turbo is a PCI-based frame buffer card bundled with
-         many Macintosh and compatible computers.
-@@ -436,6 +446,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES
-
-#      bool '  Apple DAFB display support' CONFIG_FB_DAFB
-config FB_HP300
-@@ -753,6 +764,7 @@
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-       select FB_TILEBLITTING
-+       select FB_MACMODES if PPC_PMAC
-       ---help---
-         Say Y here if you have a Matrox Millennium, Matrox Millennium II,
-         Matrox Mystique, Matrox Mystique 220, Matrox Productiva G100, Matrox
-@@ -892,6 +904,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES if PPC
-       help
-         Choose this option if you want to use an ATI Radeon graphics card as
-         a framebuffer device.  There are both PCI and AGP versions.  You
-@@ -909,6 +922,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES if PPC_OF
-       help
-         Choose this option if you want to use an ATI Radeon graphics card as
-         a framebuffer device.  There are both PCI and AGP versions.  You
-@@ -947,6 +961,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES if PPC_PMAC
-       help
-         This driver supports graphics boards with the ATI Rage128 chips.
-         Say Y if you have such a graphics board and read
-@@ -962,6 +977,7 @@
-       select FB_CFB_COPYAREA
-       select FB_CFB_IMAGEBLIT
-       select FB_SOFT_CURSOR
-+       select FB_MACMODES if PPC
-       help
-         This driver supports graphics boards with the ATI Mach64 chips.
-         Say Y if you have such a graphics board.
-diff -Nru a/drivers/video/Makefile b/drivers/video/Makefile
---- a/drivers/video/Makefile    2005-03-12 23:22:36 +08:00
-+++ b/drivers/video/Makefile    2005-03-14 06:55:07 +08:00
-@@ -16,6 +16,7 @@
-obj-$(CONFIG_FB_CFB_COPYAREA)  += cfbcopyarea.o
-obj-$(CONFIG_FB_CFB_IMAGEBLIT) += cfbimgblt.o
-obj-$(CONFIG_FB_SOFT_CURSOR)   += softcursor.o
-+obj-$(CONFIG_FB_MACMODES)      += macmodes.o
-
-# Hardware specific drivers go first
-obj-$(CONFIG_FB_RETINAZ3)         += retz3fb.o
-@@ -41,9 +42,9 @@
-obj-$(CONFIG_FB_NEOMAGIC)         += neofb.o vgastate.o
-obj-$(CONFIG_FB_VIRGE)            += virgefb.o
-obj-$(CONFIG_FB_3DFX)             += tdfxfb.o
--obj-$(CONFIG_FB_CONTROL)          += controlfb.o macmodes.o
--obj-$(CONFIG_FB_PLATINUM)         += platinumfb.o macmodes.o
--obj-$(CONFIG_FB_VALKYRIE)         += valkyriefb.o macmodes.o
-+obj-$(CONFIG_FB_CONTROL)          += controlfb.o
-+obj-$(CONFIG_FB_PLATINUM)         += platinumfb.o
-+obj-$(CONFIG_FB_VALKYRIE)         += valkyriefb.o
-obj-$(CONFIG_FB_CT65550)          += chipsfb.o
-obj-$(CONFIG_FB_IMSTT)            += imsttfb.o
-obj-$(CONFIG_FB_S3TRIO)           += S3triofb.o
-@@ -61,7 +62,7 @@
-obj-$(CONFIG_FB_SGIVW)            += sgivwfb.o
-obj-$(CONFIG_FB_ACORN)            += acornfb.o
-obj-$(CONFIG_FB_ATARI)            += atafb.o
--obj-$(CONFIG_FB_MAC)              += macfb.o macmodes.o
-+obj-$(CONFIG_FB_MAC)              += macfb.o
-obj-$(CONFIG_FB_HGA)              += hgafb.o
-obj-$(CONFIG_FB_IGA)              += igafb.o
-obj-$(CONFIG_FB_APOLLO)           += dnfb.o
-diff -Nru a/drivers/video/macmodes.c b/drivers/video/macmodes.c
---- a/drivers/video/macmodes.c  2005-03-12 23:23:12 +08:00
-+++ b/drivers/video/macmodes.c  2005-03-14 06:50:30 +08:00
-@@ -19,6 +19,7 @@
-#include <linux/errno.h>
-#include <linux/fb.h>
-#include <linux/string.h>
-+#include <linux/module.h>
-
-#include "macmodes.h"
-
-@@ -281,7 +282,7 @@
-    var->vmode = mode->vmode;
-    return 0;
-}
--
-+EXPORT_SYMBOL(mac_vmode_to_var);
-
-/**
- *     mac_var_to_vmode - convert var structure to MacOS vmode/cmode pair
-@@ -326,7 +327,7 @@
-    }
-    return -EINVAL;
-}
--
-+EXPORT_SYMBOL(mac_var_to_vmode);
-
-/**
- *     mac_map_monitor_sense - Convert monitor sense to vmode
-@@ -348,7 +349,7 @@
-           break;
-    return map->vmode;
-}
--
-+EXPORT_SYMBOL(mac_map_monitor_sense);
-
-/**
- *     mac_find_mode - find a video mode
-@@ -384,3 +385,5 @@
-    return fb_find_mode(var, info, mode_option, db, dbsize,
-                       &mac_modedb[DEFAULT_MODEDB_INDEX], default_bpp);
-}
-+EXPORT_SYMBOL(mac_find_mode);
-+

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131191AbRDJSRf>; Tue, 10 Apr 2001 14:17:35 -0400
+	id <S131324AbRDJSYs>; Tue, 10 Apr 2001 14:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131347AbRDJSRT>; Tue, 10 Apr 2001 14:17:19 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17415 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131191AbRDJSRJ>; Tue, 10 Apr 2001 14:17:09 -0400
-Subject: Re: No 100 HZ timer !
-To: lk@tantalophile.demon.co.uk (Jamie Lokier)
-Date: Tue, 10 Apr 2001 19:17:23 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka),
-        ds@schleef.org (David Schleef), mbs@mc.com (Mark Salisbury),
-        jdike@karaya.com (Jeff Dike), schwidefsky@de.ibm.com,
+	id <S131346AbRDJSYi>; Tue, 10 Apr 2001 14:24:38 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:27914 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S131324AbRDJSYX>;
+	Tue, 10 Apr 2001 14:24:23 -0400
+Date: Tue, 10 Apr 2001 20:24:16 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
+        David Schleef <ds@schleef.org>, Mark Salisbury <mbs@mc.com>,
+        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
         linux-kernel@vger.kernel.org
-In-Reply-To: <20010410193521.A21133@pcep-jamie.cern.ch> from "Jamie Lokier" at Apr 10, 2001 07:35:21 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: No 100 HZ timer !
+Message-ID: <20010410202416.A21512@pcep-jamie.cern.ch>
+In-Reply-To: <20010410193521.A21133@pcep-jamie.cern.ch> <E14n2hi-0004ma-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14n2hi-0004ma-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E14n2hi-0004ma-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 07:17:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This is an X issue. I was talking with Jim Gettys about what is needed to
-> > get the relevant existing X extensions for this working
+Alan Cox wrote:
+> > > This is an X issue. I was talking with Jim Gettys about what is needed to
+> > > get the relevant existing X extensions for this working
+> > 
+> > Last time I looked at XF86DGA (years ago), it seemed to have the right
+> > hooks in place.  Just a matter of server implementation.  My
+> > recollection is dusty though.
 > 
-> Last time I looked at XF86DGA (years ago), it seemed to have the right
-> hooks in place.  Just a matter of server implementation.  My
-> recollection is dusty though.
+> There is also a timing extension for synchronizing events to happenings. The
+> stopper is the kernel interface for the vblank handling since the irq must
+> be handled and cleared in kernel context before we return to X. We now think
+> we know how to handle that cleanly
 
-There is also a timing extension for synchronizing events to happenings. The
-stopper is the kernel interface for the vblank handling since the irq must
-be handled and cleared in kernel context before we return to X. We now think
-we know how to handle that cleanly
+Except for cards which don't generate an irq on vsync but do let you see
+how the raster is proceeding.  (I vaguely recall these).  For which a
+PLL and, wait for it.... high resolution timer is needed.
 
-Alan
+Perhaps that's a 1990s problem that doesn't need a 2000s solution though :-)
 
+-- Jamie

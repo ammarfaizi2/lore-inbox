@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVCaAsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVCaAwm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262514AbVCaAsh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 19:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbVCaAsh
+	id S262673AbVCaAwm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 19:52:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbVCaAwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 19:48:37 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:52176 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262514AbVCaAsY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 19:48:24 -0500
-Date: Thu, 31 Mar 2005 10:42:58 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: David Malone <dwmalone@maths.tcd.ie>, linux-xfs@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Directory link count wrapping on Linux/XFS/i386?
-Message-ID: <20050331004258.GF867@frodo>
-References: <200503302043.aa27223@salmon.maths.tcd.ie> <20050330200601.GG1753@schnapps.adilger.int>
+	Wed, 30 Mar 2005 19:52:41 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7379 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262675AbVCaAvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 19:51:12 -0500
+Subject: Re: 2.6.11, USB: High latency?
+From: Lee Revell <rlrevell@joe-job.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: kus Kusche Klaus <kus@keba.com>, stern@rowland.harvard.edu,
+       linux-usb-users@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200503301457.35464.david-b@pacbell.net>
+References: <200503301457.35464.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 19:51:05 -0500
+Message-Id: <1112230265.19975.21.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050330200601.GG1753@schnapps.adilger.int>
-User-Agent: Mutt/1.5.3i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 30, 2005 at 01:06:01PM -0700, Andreas Dilger wrote:
-> On Mar 30, 2005  20:43 +0100, David Malone wrote:
-> > It seems that internally xfs uses a 32 bit field for the link count,
-> > and the stat64 syscalls use a 32 bit field. These fields are copied
-> > via the vattr structure in xfs_vnode.h, which uses a nlink_t for
-> > the link count. However, in the kernel, I think this field is
-> > actually of type __kernel_nlink_t which seems to be 16 bits on many
-> > platforms.
+[cc list restored]
 
-Yes, use of nlink_t looks wrong there, thanks.  Theres one/two other
-uses of it in XFS as well, I'll audit those.
+On Wed, 2005-03-30 at 14:57 -0800, David Brownell wrote:
+> Quoth rlevell@joe-job.com:
+> > I think this is connected to a problem people have been reporting on the
+> > Linux audio lists.  With some USB chipsets, USB audio interfaces just
+> > don't work.  There are dropouts even at very high latencies.  
+> 
+> Well, I'd not yet expect USB audio to work over EHCI quite yet,
+> though one of the patches Greg just posted should help some of
+> the issues with full speed iso through USB 2.0 hubs.  (At least
+> for OUT transfers as to speakers.)
+> 
 
-> The correct fix, used for reiserfs (and a patch for ext3 also) is to
-> set i_nlink = 1 in case the filesystem count has wrapped.  When nlink==1
-> the fts/find code no longer optimizes subdirectory traversal and checks
-> each entries filetype to see if it should recurse.
+This is the exact configuration of one of the users who reported the
+problem on LAU.  Got a pointer to the patch?  And what's the issue with
+IN transfers?
 
-Ah, I see - the INC_DIR_INODE_NLINK/DEC_DIR_INODE_NLINK macros, right.
-I'll look into that too, thanks.
+> You might consider reporting such issues on the Linux-USB list.
+> It's been ages since anyone reported such a bug with the OHCI
+> or UHCI drivers ... probably why folk have assumed there are
+> no problems there.
+> 
 
-cheers.
+OK, good to know.
 
--- 
-Nathan
+> 
+> Something to consider specifically with audio.  That uses the
+> isochronous transfer mode, reserving USB bandwidth.  But I've
+> certainly seen systems with PCI busses that are severely clogged,
+> so that the USB controllers have a hard time accessing main
+> memory.  Even a perfectly functional USB stack will have a hard
+> time with such hardware!
+
+Unlikely because it works under Windows.  We're not all that far behind
+however; USB audio on that OS did not really work until XP SP1.  Also,
+if that were a widespread problem we would be seeing problems with PCI
+devices too.
+
+Also please fix the threading in your email client.
+
+Lee
+

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292669AbSBURk0>; Thu, 21 Feb 2002 12:40:26 -0500
+	id <S292674AbSBURmS>; Thu, 21 Feb 2002 12:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292672AbSBURkV>; Thu, 21 Feb 2002 12:40:21 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:15364 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S292669AbSBURkH>; Thu, 21 Feb 2002 12:40:07 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: linux kernel config converter
-Date: 21 Feb 2002 15:22:08 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrna7a450.amh.kraxel@bytesex.org>
-In-Reply-To: <E16duzn-0007E0-00@the-village.bc.nu> <3C750D8A.435317E4@mandrakesoft.com>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1014304928 10962 127.0.0.1 (21 Feb 2002 15:22:08 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S292673AbSBURmK>; Thu, 21 Feb 2002 12:42:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50695 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292675AbSBURlK>; Thu, 21 Feb 2002 12:41:10 -0500
+Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Thu, 21 Feb 2002 17:50:30 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <3C752F41.4050303@evision-ventures.com> from "Martin Dalecki" at Feb 21, 2002 06:32:49 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16dxMU-0007eZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->  Alan Cox wrote:
-> > You can do that with CML1 or his code. The problem is that you need to
-> > go back through checking with the user because
->  
->  I think I am stumbling over semantics... I know you can turn on needed
->  stuff when you say "I want CONFIG_USB_HID",
->  but "I want this feature, turn on everything I need" sounded to me more
->  like autoconfigurator-type stuff, which is guessing at best.
+> In esp using a CardBus ide adapter will give you after first
+> plug: /dev/hdc, after second plug /dev/hde and so on... on 2.4.17.
 
-To stick with that example:  CML1 knows (and tools could use that) that
-CONFIG_USB_HID needs CONFIG_INPUT.  But CML1 doesn't know that you also
-need at a host controller driver (CONFIG_USB_UHCI for example).  And
-even if the config tool would know, it still wouldn't be able to pick
-the correct one ...
+Just tried that - its working for me in 2.4.18pre - do you know what
+triggers that ?
 
-  Gerd
+> I'm just rying to clarify the code-flow before stuff like the above
+> can be cleaned up.
 
--- 
-#define	ENOCLUE 125 /* userland programmer induced race condition */
+The problem is if you keep cleaning up stuff which was there ready to
+merge new stuff, then its impossible to merge new stuff. At the moment
+there are two many cooks involved in that code. It all needs to go via one
+person and in an ordered way - even if it isnt Andre since Linus and Andre
+aren't the most compatible people 8)

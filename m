@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbUL3WHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbUL3WN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbUL3WHl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 17:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbUL3WHl
+	id S261730AbUL3WN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 17:13:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUL3WN7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 17:07:41 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:63319 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261728AbUL3WH0 (ORCPT
+	Thu, 30 Dec 2004 17:13:59 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:27049 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261730AbUL3WN5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 17:07:26 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=GEZFbgIc4keamTbtKuKLz2SKxjOTqM+Rz4Ua9cZXGAnu7DLMn3DjnzUB96dCEdRO60OtxnOYvw6sWZj/8fumyupCWF9+ugDm4F8XIhu5jEJHDbNzdj66HT2Wlzlv//lF2bJoY5MlZS9rwIzTCjU9qcVQ8W0kM8ZPTRGtNVqrYHs=
-Message-ID: <297f4e01041230140630691359@mail.gmail.com>
-Date: Thu, 30 Dec 2004 23:06:19 +0100
-From: Ikke <ikke.lkml@gmail.com>
-Reply-To: Ikke <ikke.lkml@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.10-bk3 seems to break CIFS
+	Thu, 30 Dec 2004 17:13:57 -0500
+Date: Thu, 30 Dec 2004 23:13:56 +0100
+From: bert hubert <ahu@ds9a.nl>
+To: selvakumar nagendran <kernelselva@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Finding whether a process blocked while executing a syscall
+Message-ID: <20041230221356.GB15202@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	selvakumar nagendran <kernelselva@yahoo.com>,
+	linux-kernel@vger.kernel.org
+References: <20041230045236.19022.qmail@web60606.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041230045236.19022.qmail@web60606.mail.yahoo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When compiling a 2.6.10-bk3 based kernel (with some more patches, none
-of them touching CIFS or ipv6 AFAIK), CIFS fails to build due to some
-ipv6 error, although I haven't got IPv6 selected in my configuration.
+On Wed, Dec 29, 2004 at 08:52:36PM -0800, selvakumar nagendran wrote:
 
-Error message:
-gcc -Wp,-MD,fs/cifs/.connect.o.d -nostdinc -iwithprefix include
--D__KERNEL__ -Iinclude  -Wall -Wstrict-prototypes -Wno-trigraphs
--fno-strict-aliasing -fno-common -O2     -fomit-frame-pointer -pipe
--msoft-float -mpreferred-stack-boundary=2 -fno-unit-at-a-time
--march=i686 -mtune=pentium4 -Iinclude/asm-i386/mach-default
--Wdeclaration-after-statement   -DMODULE -DKBUILD_BASENAME=connect
--DKBUILD_MODNAME=cifs -c -o fs/cifs/connect.o fs/cifs/connect.c
-In file included from fs/cifs/connect.c:27:
-include/linux/ipv6.h: In function `inet6_sk':
-include/linux/ipv6.h:278: error: structure has no member named `pinet6'
-make[2]: *** [fs/cifs/connect.o] Error 1
-make[1]: *** [fs/cifs] Error 2
-make: *** [fs] Error 2
+>     A process can be blocked while executing a syscall
+> in the light of some resources needed. Now, I want to
+> find out whether a process has been blocked while
+> executing a particular syscall or it has finished it
+> successfully? If it was blocked I want to perform some
+> operation on it. Can anyone help me regarding this?
 
+This question is fraught with difficulty. For one thing, many many system
+calls will block for a short time, which you would probably not describe as
+'blocked', even though this was true for a few milliseconds.
 
-Using GCC 3.4.3, Gentoo system.
+You did not entirely specify why you want to do this, there may be better
+solutions to your problem.
 
-When looking at the -bk3 diff [1] the pinet6 field seems to be removed.
+bert
 
-
-I did not try to revert this patch and compile it, will try later.
-
-
-Regards, Ikke
-
-
-[1] http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fsnapshots%2Fpatch-2.6.10-bk3.bz2;z=481
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

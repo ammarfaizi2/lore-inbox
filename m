@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbTKBRxy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 12:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbTKBRxx
+	id S261771AbTKBSM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 13:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbTKBSM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 12:53:53 -0500
-Received: from hal-4.inet.it ([213.92.5.23]:21398 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id S261763AbTKBRxw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 12:53:52 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
+	Sun, 2 Nov 2003 13:12:26 -0500
+Received: from gn78-101.ma.emulex.com ([138.239.78.101]:47043 "EHLO
+	wintermute.ma.emulex.com") by vger.kernel.org with ESMTP
+	id S261771AbTKBSMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 13:12:25 -0500
+Date: Sun, 2 Nov 2003 13:12:24 -0500
+From: Jamie Wellnitz <Jamie.Wellnitz@emulex.com>
 To: linux-kernel@vger.kernel.org
-Subject: test9 and bluetooth
-Date: Sun, 2 Nov 2003 18:53:47 +0100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Subject: virt_to_page/pci_map_page vs. pci_map_single
+Message-ID: <20031102181224.GD2149@ma.emulex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311021853.47300.cova@ferrara.linux.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bluetooth USB crashses
+I see code similar to the following in a few drivers (qlogicfc,
+sym53c8xx, acenic does something similar):
 
-I'm playing with a Bluetooth USB dongle (D-LINK DBT 120) and it works quite 
-well,  but when I unplug the dongle the system freeezes immediately. I've 
-tried to unplug other USB devices as scanner or printer but without crashes.
+page = virt_to_page(buffer);
+offset = ((unsigned long)buffer & ~PAGE_MASK);
+busaddr = pci_map_page(pci_dev, page, offset, len, direction);
 
-System: PIV 2.8 Abit IC7-G MB;
-2.6.0-test9 #3 SMP
-Relevant Modules:
-bnep
-l2cap
-bluetooth
-uhci_hcd
-ehci_hcd
-hci_usb
-rfcomm
+How is this preferable to:
 
-I'm not using devfs but udev/sysfs.
+pci_map_single( pci_dev, buffer, len, direction);
 
-I get no informations/messages in logs.
-I'm using the same dogle and usb devices on a 2.4.21 kernel (on a different 
-HW) and I can remove the dongle without any problem.
+?
 
-If more informations or tries are needed just let me know.
+pci_map_single can't handle highmem pages (because they don't have a
+kernel virtual address) but doesn't virt_to_page suffer from the same
+limitation?  Is there some benefit on architectures that don't have
+highmem?
 
--- 
-Fabio Coatti       http://www.ferrara.linux.it/members/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
-
+Thanks,
+Jamie Wellnitz
+Jamie.Wellnitz@emulex.com

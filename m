@@ -1,57 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbTLQRNm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 12:13:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264469AbTLQRNm
+	id S264485AbTLQR2A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 12:28:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTLQR2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 12:13:42 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4109 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264455AbTLQRNl
+	Wed, 17 Dec 2003 12:28:00 -0500
+Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:21898 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S264485AbTLQR16
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 12:13:41 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: raid0 slower than devices it is assembled of?
-Date: 17 Dec 2003 17:02:09 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <brq26h$6ei$1@gatekeeper.tmr.com>
-References: <Pine.LNX.4.58.0312161304390.1599@home.osdl.org> <1071657159.2155.76.camel@abyss.local>
-X-Trace: gatekeeper.tmr.com 1071680529 6610 192.168.12.62 (17 Dec 2003 17:02:09 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Wed, 17 Dec 2003 12:27:58 -0500
+Subject: scsi_id segfault with udev-009
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Fa+eAiN8DkV+y1XvrDxh"
+Message-Id: <1071682198.5067.17.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 17 Dec 2003 19:29:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1071657159.2155.76.camel@abyss.local>,
-Peter Zaitsev  <peter@mysql.com> wrote:
 
-| One more issue with smaller stripes both for RAID5 and RAID0 (at least
-| for DBMS workloads) is - you normally want multi-block IO (ie fetching
-| many sequentially located pages) to be close in cost to reading single
-| page, which is true for single hard drive. However with small stripe
-| size you will hit many of underlying devices  putting excessive not
-| necessary load. 
+--=-Fa+eAiN8DkV+y1XvrDxh
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-All this depends on what you're trying to optimize and the speed of the
-drives. I spent several years running on software raid and got to look
-harder than I wanted at the tuning.
+Hi
 
-If the read size is large enough for transfer time to matter, not hidden
-in the latency, adjusting the stripe size so that you use many drives is
-a win. You want to avoid having a user i/o generate more than one i/o
-per drive if you can, which can lead to large stripe sizes.
+Getting this with scsi_id and udev-009:
 
-Also, the read to write ratio is important. RAID-5 does poorly with
-write, since the CRC needs to be recalculated and written each time. On
-read, unless you are in fallback mode, you just read the data and the
-performance is similar to RAID-0.
+--
+Starting program:
+/space/var/tmp/portage/udev-009/work/udev-009/extras/scsi_id/scsi_id -p
+0x80 -s /block/sdb
+=20
+Program received signal SIGSEGV, Segmentation fault.
+0x080499c5 in sysfs_get_attr (dev=3D0x80d2d68, attr=3D0x80b559c "dev") at
+scsi_id.h:45
+45              return
+sysfs_get_value_from_attributes(dev->directory->attributes,
+(gdb) k
+Kill the program being debugged? (y or n) y
+(gdb) run -p 0x83 -s /block/sdb
+Starting program:
+/space/var/tmp/portage/udev-009/work/udev-009/extras/scsi_id/scsi_id -p
+0x83 -s /block/sdb
+=20
+Program received signal SIGSEGV, Segmentation fault.
+0x080499c5 in sysfs_get_attr (dev=3D0x80d2d68, attr=3D0x80b559c "dev") at
+scsi_id.h:45
+45              return
+sysfs_get_value_from_attributes(dev->directory->attributes,
+(gdb) q
+--
 
-If you have (a) a high read to write load, and (b) a very heavy read
-load, then RAID-1 works better, possibly with more than two copies of
-the data to reduce head motion contention.
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+I cannot see why to be honest.
+
+
+Thanks,
+
+--=20
+
+Martin Schlemmer
+Gentoo Linux Developer, Desktop/System Team Developer
+Cape Town, South Africa
+
+
+
+--=-Fa+eAiN8DkV+y1XvrDxh
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/4JKWqburzKaJYLYRAqGYAJwMisn6kVTXvPprmLZmh8tiYk0jBQCcCrWO
+GACixJqZ/avPZ8ELBJvL7vo=
+=zrBv
+-----END PGP SIGNATURE-----
+
+--=-Fa+eAiN8DkV+y1XvrDxh--
+

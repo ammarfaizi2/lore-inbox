@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261364AbTAaPLq>; Fri, 31 Jan 2003 10:11:46 -0500
+	id <S261371AbTAaPTN>; Fri, 31 Jan 2003 10:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbTAaPLq>; Fri, 31 Jan 2003 10:11:46 -0500
-Received: from relay01.valueweb.net ([216.219.253.235]:49597 "EHLO
-	relay01.valueweb.net") by vger.kernel.org with ESMTP
-	id <S261364AbTAaPLp>; Fri, 31 Jan 2003 10:11:45 -0500
-From: "Scott Robert Ladd" <scott@coyotegulch.com>
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.5.59 morse code panics
-Date: Fri, 31 Jan 2003 10:21:06 -0500
-Message-ID: <FKEAJLBKJCGBDJJIPJLJKEBBEIAA.scott@coyotegulch.com>
+	id <S261375AbTAaPTN>; Fri, 31 Jan 2003 10:19:13 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:41736 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S261371AbTAaPTM>;
+	Fri, 31 Jan 2003 10:19:12 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301311527.h0VFRZrf001543@darkstar.example.net>
+Subject: Re: [PATCH] 2.5.59 morse code panics
+To: davej@codemonkey.org.uk (Dave Jones)
+Date: Fri, 31 Jan 2003 15:27:34 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, szepe@pinerecords.com,
+       linux-kernel@vger.kernel.org, arodland@noln.com
+In-Reply-To: <20030131151224.GB15332@codemonkey.org.uk> from "Dave Jones" at Jan 31, 2003 03:12:24 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20030131132221.GA12834@codemonkey.org.uk>
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
->> Actually the Soundblaster idea might not be so funny as it originally
->> sounds, (pun intended :-) ), because if you've got another machine
->> nearby, with a microphone, you could actually turn up the volume, and
->> de-code the morse on the other box.
+>  > A lot of newer laptops do not have serial ports.
+> 
+> so use something sensible like a crashdump to floppy.
 
-And Dave Jones replied:
-> Or you could put down the crackpipe and run a serial console between
-> the two boxes. Or even netconsole would make more sense
-> (and be a lot more reliable).
+A lot of newer laptops do not have floppy drives :-)
 
-Oh, come now, Dave; be nice! This is fun stuff.
+Seriously, though, I agree that morse isn't the most ideal way to get
+data out of a crashed system.
 
-A voice synthesizer would be even better than morse code.
+>  > While morse code may
+>  > be a little silly the general purpose hook  it needs to be done 
+>  > cleanly is considerably more useful
+> 
+> sure. things like lkcd,netconsole etc could all use that
+> infrastructure.   The beyond-silly bit was the 'other machine
+> to decode morse' argument.
 
-"I'm sorry Dave. I can't boot."
+Depends on how good your morse is, I suppose, I wouldn't really want
+to decode a oops from morse by ear.
 
-Think Hal 9000, from 2001/2010! The kernel could detect a sound card at
-boot, and then tell us what broke. Very 22nd century, if you ask me.
+>  > The exact method that a crashed machine, in a rack, in a datacentre,
+>  > miles away from me, contacts me to let me know something is wrong
+>  > doesn't matter, but if a member of the datacentre staff can get a
+>  > detailed message to me, so much the better than just having the box
+>  > rebooted.  On the other hand, I don't actually want to have to listen
+>  > to ten minutes of morse code over the phone when another box could do
+>  > it for me.
+> 
+> That must be a pretty quiet datacentre. And what happens when more than
+> one box starts beeping ?
 
-If sound is broken or nonexistent, we could fall back to Morse! Or electric
-shocks via a serial connection! The possibilities are endless.
+OK, point taken, that *was* a beyond-silly suggestion :-)
 
-...Scott (Who thinks people here are much too serious sometimes)
-
+John.

@@ -1,322 +1,229 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVANWFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbVANWKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbVANWFF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 17:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVANWFD
+	id S262186AbVANWKh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 17:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVANWKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 17:05:03 -0500
-Received: from mail.belent.com ([207.96.133.20]:54923 "EHLO mail.belent.com")
-	by vger.kernel.org with ESMTP id S262164AbVANWCR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 17:02:17 -0500
-Message-ID: <41E8418B.3030704@belent.com>
-Date: Fri, 14 Jan 2005 17:02:51 -0500
-From: Gabriel Tataranu <tgabi@belent.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 14 Jan 2005 17:10:37 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:19885 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S262186AbVANWJT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 17:09:19 -0500
+Date: Sat, 15 Jan 2005 01:31:03 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 To: linux-kernel@vger.kernel.org
-Subject: Severe performance problems with kernel 2.6.10
-Content-Type: multipart/mixed;
- boundary="------------080903070209040704010003"
+Cc: Michal Ludvig <michal@logix.cz>, Fruhwirth Clemens <clemens@endorphin.org>,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       cryptoapi@lists.logix.cz, "David S. Miller" <davem@davemloft.net>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Fw: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers
+ at a time
+Message-ID: <20050115013103.05698f1a@zanzibar.2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080903070209040704010003
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Size was too big for mail lists, sorry.
+Splitted to several messages.
 
-Attached is the filled template describing the problem as in REPORTING-BUGS.
-For more details please e-mail directly.
+Begin forwarded message:
 
-  Thank you,
-
-Gabriel
-
---------------080903070209040704010003
-Content-Type: text/plain;
- name="kernel-2.6.10-report"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kernel-2.6.10-report"
+Date: Fri, 14 Jan 2005 23:43:56 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Michal Ludvig <michal@logix.cz>
+Cc: Fruhwirth Clemens <clemens@endorphin.org>, Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers at a time
 
 
-[1.] One line summary of the problem:    
-Severe performance loss with kernel 2.6.10
-[2.] Full description of the problem/report:
-It looks like 2.6.10 suffers from severe performance issues at least on 
-Pentium 4 CPU. The system is sluggish and compilation of kernel takes more 
-than 5 times longer than 2.6.9.
-[3.] Keywords (i.e., modules, networking, kernel):
-kernel, performance
-[4.] Kernel version (from /proc/version):
-Linux version 2.6.9 (root@stor) (gcc version 3.3.4) #1 Fri Jan 14 14:18:38 
-EST 2005
-[5.] Output of Oops.. message (if applicable) with symbolic information 
-     resolved (see Documentation/oops-tracing.txt)
-[6.] A small shell script or example program which triggers the
-     problem (if possible)
-cd /usr/src/linx-2.6.10; time make
-[7.] Environment
-Standard PC; Slackware linux 10.0; 2.6.9 kernel.
-[7.1.] Software (add the output of the ver_linux script here)
-Linux stor 2.6.9 #1 Fri Jan 14 14:18:38 EST 2005 i686 unknown unknown 
-GNU/Linux
+On Fri, 14 Jan 2005 17:40:39 +0100 (CET)
+Michal Ludvig <michal@logix.cz> wrote:
 
-Gnu C                  3.3.4
-Gnu make               3.80
-binutils               2.15.90.0.3
-util-linux             2.12a
-mount                  2.12a
-module-init-tools      3.0
-e2fsprogs              1.35
-jfsutils               1.1.6
-reiserfsprogs          3.6.17
-reiser4progs           line
-xfsprogs               2.6.13
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Linux C++ Library      5.0.6
-Procps                 3.2.1
-Net-tools              1.60
-Kbd                    81:
-Sh-utils               5.2.1
-Modules Loaded         8139too
-[7.2.] Processor information (from /proc/cpuinfo):
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) Pentium(R) 4 CPU 2.80GHz
-stepping        : 5
-cpu MHz         : 2800.867
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr 
-pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid xtpr
-bogomips        : 5537.79
+> On Fri, 14 Jan 2005, Fruhwirth Clemens wrote:
+> 
+> > On Fri, 2005-01-14 at 14:10 +0100, Michal Ludvig wrote:
+> > 
+> > > This patch extends crypto/cipher.c for offloading the whole chaining modes
+> > > to e.g. hardware crypto accelerators. It is much faster to let the 
+> > > hardware do all the chaining if it can do so.
+> > 
+> > Is there any connection to Evgeniy Polyakov's acrypto work? It appears,
+> > that there are two project for one objective. Would be nice to see both
+> > parties pulling on one string.
+> 
+> These projects do not compete at all. Evgeniy's work is a complete 
+> replacement for current cryptoapi and brings the asynchronous 
+> operations at the first place. My patches are simple and straightforward 
+> extensions to current cryptoapi that enable offloading the chaining to 
+> hardware where possible.
 
-[7.3.] Module information (from /proc/modules):
-8139too 17408 0 - Live 0xf8884000
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-0000-001f : dma1
-0020-0021 : pic1
-0040-0043 : timer0
-0050-0053 : timer1
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : libata
-0376-0376 : ide1
-03c0-03df : vga+
-03f8-03ff : serial
-0400-041f : 0000:00:1f.3
-0480-04bf : 0000:00:1f.0
-0800-087f : 0000:00:1f.0
-0cf8-0cff : PCI conf1
-d800-d8ff : 0000:01:0d.0
-  d800-d8ff : 8139too
-df90-df9f : 0000:01:0a.0
-dfa8-dfaf : 0000:01:0a.0
-dfe0-dfe3 : 0000:01:0a.0
-dfe4-dfe7 : 0000:01:0a.0
-dff0-dff7 : 0000:01:0a.0
-ef00-ef1f : 0000:00:1d.0
-  ef00-ef1f : uhci_hcd
-eff0-eff7 : 0000:00:02.0
-fc00-fc0f : 0000:00:1f.2
-  fc00-fc0f : libata
+Actualy acrypto genetically allows to use such hardware acceleration.
+I do not call it a feature but a logical consequence from design.
+When hardware has access to the queue of requests it can do anything
+it wants to properly complete it's sessions. 
+For example use hardware accelerated block chaining encryption...
 
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-3fe2ffff : System RAM
-  00100000-0029400d : Kernel code
-  0029400e-0031537f : Kernel data
-3fe30000-3fe3ffff : ACPI Tables
-3fe40000-3feeffff : ACPI Non-volatile Storage
-3fef0000-3fefffff : reserved
-f0000000-f7ffffff : 0000:00:02.0
-fe5ff800-fe5ff8ff : 0000:01:0d.0
-  fe5ff800-fe5ff8ff : 8139too
-fe5ffc00-fe5ffdff : 0000:01:0a.0
-fe77bc00-fe77bfff : 0000:00:1d.7
-  fe77bc00-fe77bfff : ehci_hcd
-fe780000-fe7fffff : 0000:00:02.0
-fe800000-febfffff : 0000:00:00.0
-ffb80000-ffffffff : reserved
+Probably it is time to show the work.
 
-[7.5.] PCI information ('lspci -vvv' as root)
-00:00.0 Host bridge: Intel Corp. 82865G/PE/P DRAM Controller/Host-Hub 
-Interface (rev 02)
-        Subsystem: Asustek Computer, Inc. P4P800 Mainboard
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Region 0: Memory at fe800000 (32-bit, prefetchable) [size=4M]
-        Capabilities: [e4] #09 [1106]
+Attached files:
+bd archive - simple in-mamory block device used for test. I currently work 
+	on creating modular loop device replacement based on bd, which could allow
+	network block device to be removed(btw, it is broken at least in 2.6.9)
+	and also allow acrypto module to be used with various tweakable ciphers.
+	I hope that system will provide more flexible control over dataflow
+	than loop device currently does.
+	I recomend following  interesting reading about tweaking ciphers: 
+	http://clemens.endorphin.org/cryptography
 
-00:02.0 VGA compatible controller: Intel Corp. 82865G Integrated Graphics 
-Device (rev 02) (prog-if 00 [VGA])
-        Subsystem: Asustek Computer, Inc.: Unknown device 2572
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 10
-        Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
-        Region 1: Memory at fe780000 (32-bit, non-prefetchable) 
-[size=512K]
-        Region 2: I/O ports at eff0 [size=8]
-        Capabilities: [d0] Power Management version 1
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+acrypto archive - asynchronous crypto layer, the latest(third) reincarnation(announce below).
+	It also has asynchronous and synchronous test crypto providers and test crypto
+	consumer module.
 
-00:1d.0 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB UHCI #1 
-(rev 02) (prog-if 00 [UHCI])
-        Subsystem: Asustek Computer, Inc.: Unknown device 24d0
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 10
-        Region 4: I/O ports at ef00 [size=32]
+hifn archive - driver for HIFN 7955/7956 (7956 was not run on Clemens' setup,
+	hopefully patches sent to him fixed that).
+	This is work in progress and currently works only on low load 
+	(about one session per 10 msec).
 
-00:1d.7 USB Controller: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI 
-Controller (rev 02) (prog-if 20 [EHCI])
-        Subsystem: Asustek Computer, Inc.: Unknown device 24d0
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin D routed to IRQ 5
-        Region 0: Memory at fe77bc00 (32-bit, non-prefetchable) [size=1K]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA 
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-        Capabilities: [58] #0a [20a0]
+via-padlock - patch to enable xcrypt instructions on various VIA CPUs (for example Nehemiah family).
+	It is totally Michal's work, I've just ported it to acrypto.
+	Not tested.
 
-00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface to PCI 
-Bridge (rev c2) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: fe400000-fe5fffff
-        Prefetchable memory behind bridge: fff00000-000fffff
-        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+fcrypt - driver for CE-InfoSys FastCrypt PCI card equipped with a SuperCrypt CE99C003B chip that 
+	can offload DES and 3DES encryption from the CPU.
+	It is totally Michal's work too, I've just ported it to acrypto.
+	Not tested.
 
-00:1f.0 ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Bridge (rev 
-02)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
+fcrypt and via-padlock can be found at Michal's Ludvig page: http://www.logix.cz
 
-00:1f.2 IDE interface: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage 
-Controller (rev 02) (prog-if 8a [Master SecP PriP])
-        Subsystem: Intel Corp. 82801EB (ICH5) Serial ATA 150 Storage 
-Controller
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at <unassigned>
-        Region 1: I/O ports at <unassigned>
-        Region 2: I/O ports at <unassigned>
-        Region 3: I/O ports at <unassigned>
-        Region 4: I/O ports at fc00 [size=16]
-
-00:1f.3 SMBus: Intel Corp. 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 
-02)
-        Subsystem: Asustek Computer, Inc.: Unknown device 24d0
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin B routed to IRQ 10
-        Region 4: I/O ports at 0400 [size=32]
-
-01:0a.0 RAID bus controller: CMD Technology Inc Silicon Image SiI 3112 
-SATARaid Controller (rev 02)
-        Subsystem: CMD Technology Inc: Unknown device 6112
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64, cache line size 04
-        Interrupt: pin A routed to IRQ 11
-        Region 0: I/O ports at dff0 [size=8]
-        Region 1: I/O ports at dfe4 [size=4]
-        Region 2: I/O ports at dfa8 [size=8]
-        Region 3: I/O ports at dfe0 [size=4]
-        Region 4: I/O ports at df90 [size=16]
-        Region 5: Memory at fe5ffc00 (32-bit, non-prefetchable) [size=512]
-        Expansion ROM at fe500000 [disabled] [size=512K]
-        Capabilities: [60] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-01:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
-RTL-8139/8139C/8139C+ (rev 10)
-        Subsystem: Asustek Computer, Inc.: Unknown device 80b3
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64 (8000ns min, 16000ns max)
-        Interrupt: pin A routed to IRQ 5
-        Region 0: I/O ports at d800 [size=256]
-        Region 1: Memory at fe5ff800 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [50] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
-PME(D0-,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Btw, I've made several changes in acrypto for proper multi scatterlist processing,
+so above drivers will not compile clearly, but I suspect noone will apply it today,
+so it is currently for examination, 
+I will fix them all after finish relaxing after vocations.
 
 
-[7.6.] SCSI information (from /proc/scsi/scsi)
+I've added disk write emulation into async and sync crypto providers, and what do we see:
+actual disk write speed is about 46 kb/msec, encryption speed is about 68 kb/msec. 
+Encryption of one byte takes ~0.014 usec, disk writing thus will take ~0.014/46*68 = 0.019 usec.
+With such delay I've gotten following numbers on 4-way system:
+scaled to 4 processors async_provider: 800 Mb in 12.6376 sec.
+scaled to 1 processor async_provider: 800 Mb in 12.1828 sec.
+sync_provider: 800 Mb in 13.5662 sec.
+Actually the former two tests with async_provider show 
+the same values in average when running several times. 
 
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: ATA      Model: ST3300831AS      Rev: 3.01
-  Type:   Direct-Access                    ANSI SCSI revision: 05
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-  Vendor: ATA      Model: ST3300831AS      Rev: 3.01
-  Type:   Direct-Access                    ANSI SCSI revision: 05
+Thus about 10% even on one CPU(strange).
+
+I posted several times acrypto with userspace support(both direct vma/page 
+access and ioctl based one) to netdev@oss.sgi.com, but probably due 
+to message size(only acrypto patch is about 120K) it was not appeared there.
+
+Please test and comment.
+
+Here is an annonce:
+
+ Acrypto - asynchronous crypto layer for linux kernel 2.6
+
+I'm pleased to announce asynchronous crypto layer for Linux kernel 2.6.
+It supports following features:
+- multiple asynchronous crypto device queues
+- crypto session routing
+- crypto session binding
+- modular load balancing
+- crypto session batching genetically implemented by design
+- crypto session priority
+- different kinds of crypto operation(RNG, asymmetrical crypto, HMAC and any other)
+
+Some design notes:
+acrypto has one main crypto session queue(double linked list, probably it should 
+be done like crypto_route or sk_buff queue), into which each newly allocated session 
+is inserted and this is a place where load balancing searches it's food. When new 
+session is being prepared for insertion it calls load balancer's ->find_device() method, 
+which should return suitable device(current simple_lb load balancer returns device with 
+the lowest load(device has the least number of session in it's queue)) if it exists. 
+After crypto_device being returned acrypto creates new crypto routing entry which points 
+to returned device and adds it to crypto session routing queue. Crypto session is being
+ inserted into device's queue according to it's priority and it is crypto device driver 
+that should process it's session list according to session's priority.
+
+All insertion and deletion are guarded by appropriate locks, but session_list traversing 
+is not guarded in crypto_lb_thread() since session can be removed _only_ from that 
+function by design, so if crypto device (atomically) marks session as completed and 
+not being processed and use list_for_each_safe() for traversing it's queue all should be OK.
+
+Each crypto load balancer must implement 2 methods:
+->rehash() and ->find_device() which will be called from any context and under spinlock.
+->rehash() method should be called to remix crypto sessions in device's queues, 
+for example if driver decides that it's device is broken it marks itself as broken 
+and load balancer(or scheduler if you like) should remove all sessions from this 
+queue to some other devices. If session can not be completed scheduler must mark 
+it as broken and complete it(by calling first broke_session() and then complete_session() 
+and stop_process_session()). Consumer must check if operation was successful
+(and therefore session is not broken).
+->find_device() method should return appropriate crypto device.
+
+For crypto session to be successfully allocated crypto consumer must provide two structures - 
+struct crypto_session_initializer (hmm, why only one z?) and struct crypto_data. 
+struct crypto_session_initializer contains data needed to find appropriate device, like 
+type of operation, mode of operation, some flags(for example SESSION_BINDED, which means 
+that session must be bound to specified in bdev field crypto device, it is useful for TCPA/TPM), 
+session priority and callback which will be called after all routing for given session are finished.
+struct crypto_data contains scatterlists for src, dst, key and iv. It also has void *priv 
+field and it's size which is allocated and may be used by any crypto agent(for example VIA 
+PadLock driver uses it to store aes_ctx field, crypto_session can use this field to store 
+some pointers needed in ->callback()).
+Actually callback will be called from queue_work, but I suppose it is better to not assume 
+calling context.
+->callback() will be called after all crypto routing for given session are done with the 
+same parameters as were provided in initialisation time(if session has only one routing 
+callback will be called with original parameters, but if it has several routes callback 
+will be called with parameters from the latest processed one). I believe crypto callback 
+should not know about crypto sessions, routings, device and so on, proper restriction is 
+always a good idea.
+
+Crypto routing.
+This feature allows the same session to be processed by several devices/algorithms. 
+For example if you need to encrypt data and then sign it in TPM device you can create 
+one route to encryption device and then route it to TPM device. (Note: this feature 
+must be discussed since there is no time slice after session allocation, only in 
+crypto_device->data_ready() method and there are locking issues in ->callback() method).
+
+Crypto device.
+It can be either software emulator or hardware accelerator chip(like HIFN 79*/83* or 
+Via PadLock ACE/RNG, or even TPM device like each IBM ThinkPad or some HP laptops have 
+(gentle hint: _they_ even have a _windows_ software for them, HP gimme specs :) )). 
+It can be registered with asynchronous crypto layer and must provide some data for it:
+->data_ready() method - it is called each time new session is added to device's queue.
+Array of struct crypto_capability and it's amount - struct crypto_capability describes 
+each operation given device can handle, and has a maximum session queue length parameter. 
+Note: this structure can [be extended to] include "rate" parameter to show absolute speed 
+of given operation in some units, which therefore can be used by scheduler(load balancer) 
+for proper device selection. Actually queue length can somehow reflects device's "speed".
+
+Acrypto has full userspace support through ioctl and direct process' vmas and pages access. 
+It is done using ioctl() with 2 copyings from+to userspace data.
+Session processing contains of 3 major parts:
+1. Session creation. CRYPTO_SESSION_ALLOC ioctl.
+User must provide special structure which has src, dst, key and iv data sizes and crypto 
+initializer(crypto operation, mode, type and priority).
+2. Data filling. User must call several CRYPTO_FILL_DATA ioctls.
+Each one requires data size and data type(structure crypto_user_data) and data itself.
+3. Finish. User must call CRYPTO_SESSION_ADD ioctl with pointer to the are whre crypting 
+result must be stored.
+The latter ioctl will sleep while session is being processed.
+
+Second userspace communication mechanism is based on direct access to the process' vmas 
+and pages from acrypto, pointers are transferred using special kernel connector structure.
+Obviously it can not be used with the most hardware and sizes more than one page, but 
+I like the idea itself.
+
+Some discussion can be found at http://marc.theaimsgroup.com/?l=linux-netdev&m=109903101312733&w=2
 
 
-[7.7.] Other information that might be relevant to the problem
-       (please look in /proc and include all information that you
-       think to be relevant):
-[X.] Other notes, patches, fixes, workarounds:
+	Evgeniy Polyakov
 
+Only failure makes us experts. -- Theo de Raadt
 
---------------080903070209040704010003--

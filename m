@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261361AbTCGFrm>; Fri, 7 Mar 2003 00:47:42 -0500
+	id <S261374AbTCGFuX>; Fri, 7 Mar 2003 00:50:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261369AbTCGFrl>; Fri, 7 Mar 2003 00:47:41 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:18314 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261361AbTCGFrl>;
-	Fri, 7 Mar 2003 00:47:41 -0500
-Date: Fri, 7 Mar 2003 06:57:58 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303060936301.7206-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0303070653050.2873-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261378AbTCGFuX>; Fri, 7 Mar 2003 00:50:23 -0500
+Received: from packet.digeo.com ([12.110.80.53]:51843 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261374AbTCGFuW>;
+	Fri, 7 Mar 2003 00:50:22 -0500
+Date: Thu, 6 Mar 2003 22:00:53 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: vandrove@vc.cvut.cz, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vm_area_struct slab corruption
+Message-Id: <20030306220053.1d757ed6.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0303070454320.1938-100000@localhost.localdomain>
+References: <20030306145223.67d571b1.akpm@digeo.com>
+	<Pine.LNX.4.44.0303070454320.1938-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Mar 2003 06:00:49.0880 (UTC) FILETIME=[E75A8580:01C2E46E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> If adding an extra arg, then the extra arg to add would be what Alan
+> did in 2.4-ac, int acct to control whether it does the VM_ACCOUNTing.
+> I resisted adding that (changing odd distant drivers), and I may have
+> been wrong to do so.
 
-On Thu, 6 Mar 2003, Linus Torvalds wrote:
+This looks pretty simple?  Is it not just a matter of propagating that flag
+down to unmap_region()?  I don't see where drivers and such are involved?
 
-> The multi-second "freezes" are the thing that bothered me, and those
-> were definitely due to the fact that X was competing as a
-> _non_interactive member against other non-interactive members, causing
-> it to still get 10% of the CPU, but only every few seconds. So you'd get
-> a very bursty behaviour with very visible pauses.
-
-this is only part of what happens in the 'X freeze' case. A CPU hog
-competing against another CPU hog can never result in a multi-second
-freeze, unless the system is hopelessly overloaded.
-
-What happens is that the CPU-hog estimation is off for compile jobs, and
-that _they_ end up being partly interactive, and starve X which does
-happen to fall into the CPU-hog category briefly. The 10-15 seconds
-timeout is the starvation limit kicking in.
-
-so the correct approach is both to make X more interactive (your patch),
-_and_ to make the compilation jobs less interactive (my patch). This is
-that explains why Andrew saw roughly similar interactivity with you and my
-patch applied separately, but the best result was when the combo patch was
-applied. Agreed?
-
-	Ingo
 

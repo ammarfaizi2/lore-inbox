@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279943AbRJ3MRF>; Tue, 30 Oct 2001 07:17:05 -0500
+	id <S279945AbRJ3MRY>; Tue, 30 Oct 2001 07:17:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279941AbRJ3MQy>; Tue, 30 Oct 2001 07:16:54 -0500
-Received: from ns.viventus.no ([195.18.200.139]:63749 "EHLO viventus.no")
-	by vger.kernel.org with ESMTP id <S279938AbRJ3MQr>;
-	Tue, 30 Oct 2001 07:16:47 -0500
-Date: Tue, 30 Oct 2001 13:20:05 +0100 (CET)
-From: Rafael Martinez <rafael@opoint.com>
-X-X-Sender: <rafaelma@gauss.viewpoint.no>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Johan <jo_ni@telia.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Still having problems with eepro100
-In-Reply-To: <E15yXi6-0006Hd-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0110301309090.22220-100000@gauss.viewpoint.no>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279941AbRJ3MRF>; Tue, 30 Oct 2001 07:17:05 -0500
+Received: from alpham.uni-mb.si ([164.8.1.101]:27152 "EHLO alpham.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S279942AbRJ3MQ6>;
+	Tue, 30 Oct 2001 07:16:58 -0500
+Date: Tue, 30 Oct 2001 12:35:11 +0100
+From: Igor Mozetic <igor.mozetic@uni-mb.si>
+Subject: Re: SMP machine with 2GB ram hangs without any clue
+To: WvanBommel@jasongeo.com, linux-kernel@vger.kernel.org
+Message-id: <3BDE906F.2C3B54DE@uni-mb.si>
+Organization: CAMTP
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, Alan Cox wrote:
-
-> > I have been trying all new kernels + the ac patches but nothing
-> > seems to work. The fun thing is that I only gets this problem
-> > when I am running XFree, is this just a weird coincidence?
+> 2x 1Ghz PIII fitted on a serverworks chipset, and 2GB ram.
+> Video Card is an Geforce MX-400 twinview setup (no agp, several Geforce cards tried)
+> Network is an intergrated intel ether express (eepro100 driver)
 >
-> Possibly not.
->
-> I have one problem box where you have to disable the kernel ACPI stuff but
-> the XFree case is a new one to me
+> None of the combinations would give a stable system (that is hanging the kernel afther 1/2 - 60 minutes)
+> The system would crash so badly that even ping responsed stayed out. (No numlock either)
 
-I have the same problem with this card and I do not use XFree at all in
-my servers
+I have a similar problem - see recent thread "Any stable 2.4 kernel?"
+I received some useful suggestions:
+1) For real stability, consider using 2.2
+2) I'm better off then you since my machine stays up for days/weeks.
+I had the best luck with 2.4.3 so far (weeks of uptime).
+However, when it locks up not even power-off button works.
+I have to unplug the power.
+3) Default eepro100 driver can be problematic, and some comercial 
+distros use Intel's driver. I don't know if it can cause such hard 
+lockups (anybody comment, please?) but it seems like the next candidate
+to consider (after mboard and highmem).
 
-linux-2.4.10-ac12 / 2.4.9 / 2.4.3
-eepro100: wait_for_cmd_done timeout!
-
-Rafael Martinez
-
-
+-Igor Mozetic

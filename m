@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264913AbUEVIRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264914AbUEVIYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264913AbUEVIRN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 04:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUEVIRN
+	id S264914AbUEVIYe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 04:24:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbUEVIYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 04:17:13 -0400
-Received: from zero.aec.at ([193.170.194.10]:7173 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264916AbUEVIRI (ORCPT
+	Sat, 22 May 2004 04:24:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32726 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264914AbUEVIYc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 04:17:08 -0400
-To: Corin Langosch <corinl@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: dual opteron problems, tyan 2870 board
-References: <1Yuhl-2nK-15@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 22 May 2004 10:17:05 +0200
-In-Reply-To: <1Yuhl-2nK-15@gated-at.bofh.it> (Corin Langosch's message of
- "Sat, 22 May 2004 04:20:11 +0200")
-Message-ID: <m3ekpcq3jy.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 22 May 2004 04:24:32 -0400
+Subject: Re: [PATCH] ext3 barrier bits
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jens Axboe <axboe@suse.de>, Chris Mason <mason@suse.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040522011139.01a7da10.akpm@osdl.org>
+References: <20040521093207.GA1952@suse.de>
+	 <20040521023807.0de63c7a.akpm@osdl.org> <20040521100234.GK1952@suse.de>
+	 <20040521235044.6160cccb.akpm@osdl.org> <20040522073540.GO1952@suse.de>
+	 <20040522011139.01a7da10.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GX4eE1tot+VHsSoaQcIg"
+Organization: Red Hat UK
+Message-Id: <1085214261.2781.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 22 May 2004 10:24:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corin Langosch <corinl@gmx.de> writes:
 
-> i just bought a new 2x244 opteron,tyan tiger k8s 2870,
-> 4gb registered ecc ram system. no addional cards
-> inserted, only one IDE and one SATA device.
+--=-GX4eE1tot+VHsSoaQcIg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-[...]
 
-Sounds like hardware problems on your board. It is unlikely that
-any kernel can fix them.
+> - Does the kernel tell you if your disk doesn't supoprt barriers?  ie:
+>   how does the user know if it's working or not?
 
-e.g. run memtest86 over night to check the memory and probably
-something is wrong with your second CPU too.
+... and how do you know your disk isn't lying and ignoring the barriers?
 
-I would talk to whoever sold you the kit.
+"Storage is a Lie" -- Andre
 
--Andi
+
+--=-GX4eE1tot+VHsSoaQcIg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBArw41xULwo51rQBIRAsDGAKCqAYD/Wf3LNy1DGNbh2iM8ucXkcgCfZFAn
+XM4IGtojoqeHIxOeyqHg4oU=
+=5VY9
+-----END PGP SIGNATURE-----
+
+--=-GX4eE1tot+VHsSoaQcIg--
 

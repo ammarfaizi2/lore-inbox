@@ -1,326 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUFCJ5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbUFCKET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUFCJ5a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 05:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUFCJ5a
+	id S262351AbUFCKET (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 06:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUFCKET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 05:57:30 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:39869 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262114AbUFCJ5T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 05:57:19 -0400
-content-class: urn:content-classes:message
+	Thu, 3 Jun 2004 06:04:19 -0400
+Received: from ozlabs.org ([203.10.76.45]:25236 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262351AbUFCKEN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 06:04:13 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] One possible bugfix for CLOCK_REALTIME timer.
-Date: Thu, 3 Jun 2004 17:56:46 +0800
-Message-ID: <37FBBA5F3A361C41AB7CE44558C3448E04561419@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] One possible bugfix for CLOCK_REALTIME timer.
-Thread-Index: AcRI7e+WXFVVIe9jSHKwtDOqLykLeAAYYucg
-From: "Hu, Boris" <boris.hu@intel.com>
-To: "George Anzinger" <george@mvista.com>
-Cc: <drepper@redhat.com>, "Li, Adam" <adam.li@intel.com>,
-       <linux-kernel@vger.kernel.org>, "Hu, Boris" <boris.hu@intel.com>
-X-OriginalArrivalTime: 03 Jun 2004 09:56:46.0377 (UTC) FILETIME=[14D30990:01C44951]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16574.63493.462869.55935@cargo.ozlabs.ibm.com>
+Date: Thu, 3 Jun 2004 20:05:57 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
+       trini@kernel.crashing.org
+Subject: [PATCH][PPC32] Add _raw_write_trylock
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your detailed comments. :)
+I tried compiling a PPC32 kernel with PREEMPT + SMP and it failed
+because we didn't have a _raw_write_trylock.  This patch adds
+_raw_write_trylock, moves the exports of _raw_*lock from
+arch/ppc/kernel/ppc_ksyms.c to arch/ppc/lib/locks.c, and makes
+__spin_trylock static since it is only used in locks.c.
 
-> 
-> Hu, Boris wrote:
-> >  <<posix-abs_timer-bugfix.diff>> George,
-> >
-> > There is one bug of CLOCK_REALTIME timer reported by Adam at
-> > http://sources.redhat.com/ml/libc-alpha/2004-05/msg00177.html.
-> >
-> > Here is one possible bugfix and it is against linux-2.6.6. All
-> > TIMER_ABSTIME cloks will be collected in k_clock struct and updated
-in
-> > sys_clock_settime. Could you review it? Thanks.
-> 
-> Thanks for the poke :).   Could you make the following changes:
-> 
-> First, put the list in the posix timer structure (k_itimer), not in
-> timer_list.
->   This means one more dereference when doing things, but it does not
-push
-> into
-> the timer_list structure which is mostly used for other things.
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Done. 
+Please apply.
 
-> 
-> Second, I don't see the timer being removed from the list (should
-happen
-> when
-> ever it is inactive).  Timers that repeat should be out of the list
-while
-> waiting for the signal to be picked up and put back in when add_timer
-is
-> again
-> called.
+Paul.
 
-I tried to add the removed codes to set_timer_inactive() but it would
-trigger a strange oops. I am still investigating on it. Is there any
-recommending places except set_timer_inactive()?
-
-> 
-> Also, you should test to see if the clock is one that can be set prior
-to
-> putting the timer in the abs timer list.  We must not correct timers
-on
-> CLOCK_MONOTONIC.
-
-
-Done.
-
-> 
-> Now, for the correction.  Sys_clock_settime() is the wrong place for
-this
-> as the
-> clock can also be set a number of other ways.  The right place is in
-> clock_was_set(), which is called if time is set in any of the several
-ways.
-> The
-> next thing is to determine how far the clock was moved.  I think the
-best
-> way to
-> do this is to keep a copy of the wall_to_monotonic var in a private
-> location.
-> This should be set to be exactly wall_to_monotonic when the system is
-> booted (in
-> the same function you are setting up the clock lists) and at the end
-of
-> clock_was_set().  When clock_was_set() is called the difference
-between
-> this
-> value and wall_to_monotonic is exactly how far the clock was moved.
-(Be
-> careful
-> on the sign of this movement.)
-> 
-
-Done.
-
-> Finally, be careful about races.  Timers can expire while
-clock_was_set()
-> is
-> running.  The removal code should take the timer lock as well as the
-> abs_time
-> list lock (at least I think this would be wise, but I could be wrong
-here).
-> 
-
-IMHO, we need not take the timer locks. We del_timer() first and if the
-timer has expired, we simply removed it from the abs_timer_list which is
-protected by abs_timer_lock. 
-
-> And a minor issue, the community seems to prefer the C comment style
-to
-> the C++
-> style of comments...
-> 
-
-Done.
-
-> Thanks for your effort in this matter.
-> 
-> George
-> >
-> >
-> > diff -urN -X rt.ia32/base/dontdiff
-> > linux-2.6.6/include/linux/posix-timers.h
-> > linux-2.6.6.dev/include/linux/posix-timers.h
-> > --- linux-2.6.6/include/linux/posix-timers.h	2004-05-10
-> > 10:32:29.000000000 +0800
-> > +++ linux-2.6.6.dev/include/linux/posix-timers.h	2004-06-02
-> > 10:30:57.000000000 +0800
-> > @@ -1,9 +1,14 @@
-> >  #ifndef _linux_POSIX_TIMERS_H
-> >  #define _linux_POSIX_TIMERS_H
-> >
-> > +#include <linux/list.h>
-> > +#include <linux/spinlock.h>
-> > +
-> >  struct k_clock {
-> >  	int res;		/* in nano seconds */
-> > -	int (*clock_set) (struct timespec * tp);
-> > +        struct list_head abs_timer_list;
-> > +        spinlock_t abs_timer_lock;
-> > +        int (*clock_set) (struct timespec * tp);
-> >  	int (*clock_get) (struct timespec * tp);
-> >  	int (*nsleep) (int flags,
-> >  		       struct timespec * new_setting,
-> > diff -urN -X rt.ia32/base/dontdiff linux-2.6.6/include/linux/timer.h
-> > linux-2.6.6.dev/include/linux/timer.h
-> > --- linux-2.6.6/include/linux/timer.h	2004-05-10
-10:32:54.000000000
-> > +0800
-> > +++ linux-2.6.6.dev/include/linux/timer.h	2004-06-02
-> > 19:16:08.000000000 +0800
-> > @@ -9,6 +9,7 @@
-> >
-> >  struct timer_list {
-> >  	struct list_head entry;
-> > +	struct list_head abs_timer_entry;
-> >  	unsigned long expires;
-> >
-> >  	spinlock_t lock;
-> > diff -urN -X rt.ia32/base/dontdiff linux-2.6.6/kernel/posix-timers.c
-> > linux-2.6.6.dev/kernel/posix-timers.c
-> > --- linux-2.6.6/kernel/posix-timers.c	2004-05-10
-10:32:37.000000000
-> > +0800
-> > +++ linux-2.6.6.dev/kernel/posix-timers.c	2004-06-02
-> > 19:12:31.000000000 +0800
-> > @@ -7,6 +7,9 @@
-> >   *
-> >   *			     Copyright (C) 2002 2003 by MontaVista
-> > Software.
-> >   *
-> > + * 2004-06-01  Fix CLOCK_REALTIME clock/timer TIMER_ABSTIME bug.
-> > + *                           Copyright (C) 2004 Boris Hu
-> > + *
-> >   * This program is free software; you can redistribute it and/or
-modify
-> >   * it under the terms of the GNU General Public License as
-published by
-> >   * the Free Software Foundation; either version 2 of the License,
-or
-> > (at
-> > @@ -200,7 +203,9 @@
-> >   */
-> >  static __init int init_posix_timers(void)
-> >  {
-> > -	struct k_clock clock_realtime = {.res = CLOCK_REALTIME_RES };
-> > +	struct k_clock clock_realtime = {.res = CLOCK_REALTIME_RES,
-> > +                .abs_timer_lock = SPIN_LOCK_UNLOCKED
-> >
-> > +        };
-> >  	struct k_clock clock_monotonic = {.res = CLOCK_REALTIME_RES,
-> >  		.clock_get = do_posix_clock_monotonic_gettime,
-> >  		.clock_set = do_posix_clock_monotonic_settime
-> > @@ -388,6 +393,7 @@
-> >  		return;
-> >  	}
-> >  	posix_clocks[clock_id] = *new_clock;
-> > +        INIT_LIST_HEAD(&posix_clocks[clock_id].abs_timer_list);
-> >  }
-> >
-> >  static struct k_itimer * alloc_posix_timer(void)
-> > @@ -843,8 +849,15 @@
-> >  	if (((timr->it_sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE))
-> > {
-> >  		if (timr->it_timer.expires == jiffies)
-> >  			timer_notify_task(timr);
-> > -		else
-> > +		else {
-> >  			add_timer(&timr->it_timer);
-> > +                        if (flags & TIMER_ABSTIME) {
-> > +                                spin_lock(&clock->abs_timer_lock);
-> > +
-> > list_add_tail(&(timr->it_timer.abs_timer_entry),
-> > +
-> > &(clock->abs_timer_list));
-> > +
-spin_unlock(&clock->abs_timer_lock);
-> > +                        }
-> > +                }
-> >  	}
-> >  	return 0;
-> >  }
-> > @@ -1085,16 +1098,61 @@
-> >  sys_clock_settime(clockid_t which_clock, const struct timespec
-__user
-> > *tp)
-> >  {
-> >  	struct timespec new_tp;
-> > +        struct timespec before, now;
-> > +        struct k_clock *clock;
-> > +        long ret;
-> > +        struct timer_list *timer, *tmp;
-> > +        struct timespec delta;
-> > +        u64 exp = 0;
-> >
-> > -	if ((unsigned) which_clock >= MAX_CLOCKS ||
-> > +        if ((unsigned) which_clock >= MAX_CLOCKS ||
-> >  					!posix_clocks[which_clock].res)
-> >  		return -EINVAL;
-> > -	if (copy_from_user(&new_tp, tp, sizeof (*tp)))
-> > +
-> > +        clock = &posix_clocks[which_clock];
-> > +
-> > +        if (copy_from_user(&new_tp, tp, sizeof (*tp)))
-> >  		return -EFAULT;
-> >  	if (posix_clocks[which_clock].clock_set)
-> >  		return posix_clocks[which_clock].clock_set(&new_tp);
-> >
-> > -	return do_sys_settimeofday(&new_tp, NULL);
-> > +        do_posix_gettime(clock, &before);
-> > +
-> > +	ret = do_sys_settimeofday(&new_tp, NULL);
-> > +
-> > +        /*
-> > +         * Check if there exist TIMER_ABSTIME timers to update.
-> > +         */
-> > +        if (which_clock != CLOCK_REALTIME ||
-> > +            list_empty(&clock->abs_timer_list))
-> > +                return ret;
-> > +
-> > +        do_posix_gettime(clock, &now);
-> > +        delta.tv_sec = before.tv_sec - now.tv_sec;
-> > +        delta.tv_nsec = before.tv_nsec - now.tv_nsec;
-> > +        while (delta.tv_nsec >= NSEC_PER_SEC) {
-> > +                delta.tv_sec ++;
-> > +                delta.tv_nsec -= NSEC_PER_SEC;
-> > +        }
-> > +        while (delta.tv_nsec < 0) {
-> > +                delta.tv_sec --;
-> > +                delta.tv_nsec += NSEC_PER_SEC;
-> > +        }
-> > +
-> > +        tstojiffie(&delta, clock->res, &exp);
-> > +
-> > +        spin_lock(&(clock->abs_timer_lock));
-> > +        list_for_each_entry_safe(timer, tmp,
-> > +                                 &clock->abs_timer_list,
-> > +                                 abs_timer_entry) {
-> > +                if (timer && del_timer(timer)) { //the timer has
-not
-> > run
-> > +                        timer->expires += exp;
-> > +                        add_timer(timer);
-> > +                } else
-> > +                        list_del(&timer->abs_timer_entry);
-> > +        }
-> > +        spin_unlock(&(clock->abs_timer_lock));
-> > +        return ret;
-> >  }
-> >
-> >  asmlinkage long
-> >
-> > Good Luck !
-> > Boris Hu (Hu Jiangtao)
-> > Intel China Software Center
-> > 86-021-5257-4545#1277
-> > iNET: 8-752-1277
-> > ************************************
-> > There are my thoughts, not my employer's.
-> > ************************************
-> > "gpg --recv-keys --keyserver wwwkeys.pgp.net 0FD7685F"
-> > {0FD7685F:CFD6 6F5C A2CB 7881 725B  CEA0 956F 9F14 0FD7 685F}
-> >
-> >
-> 
-> --
-> George Anzinger   george@mvista.com
-> High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-> Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
-
+diff -urN linux-2.5/arch/ppc/kernel/ppc_ksyms.c pmac-2.5/arch/ppc/kernel/ppc_ksyms.c
+--- linux-2.5/arch/ppc/kernel/ppc_ksyms.c	2004-05-30 11:50:25.000000000 +1000
++++ pmac-2.5/arch/ppc/kernel/ppc_ksyms.c	2004-06-03 19:50:57.433970416 +1000
+@@ -200,15 +200,6 @@
+ EXPORT_SYMBOL(giveup_altivec);
+ #endif /* CONFIG_ALTIVEC */
+ #ifdef CONFIG_SMP
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-EXPORT_SYMBOL(_raw_spin_lock);
+-EXPORT_SYMBOL(_raw_spin_unlock);
+-EXPORT_SYMBOL(_raw_spin_trylock);
+-EXPORT_SYMBOL(_raw_read_lock);
+-EXPORT_SYMBOL(_raw_read_unlock);
+-EXPORT_SYMBOL(_raw_write_lock);
+-EXPORT_SYMBOL(_raw_write_unlock);
+-#endif
+ EXPORT_SYMBOL(smp_call_function);
+ EXPORT_SYMBOL(smp_hw_index);
+ EXPORT_SYMBOL(synchronize_irq);
+diff -urN linux-2.5/arch/ppc/lib/locks.c pmac-2.5/arch/ppc/lib/locks.c
+--- linux-2.5/arch/ppc/lib/locks.c	2003-09-27 19:46:43.000000000 +1000
++++ pmac-2.5/arch/ppc/lib/locks.c	2004-06-03 19:51:32.593950352 +1000
+@@ -22,7 +22,7 @@
+  * since they may inhibit forward progress by other CPUs in getting
+  * a lock.
+  */
+-unsigned long __spin_trylock(volatile unsigned long *lock)
++static inline unsigned long __spin_trylock(volatile unsigned long *lock)
+ {
+ 	unsigned long ret;
+ 
+@@ -62,6 +62,7 @@
+ 	lock->owner_pc = (unsigned long)__builtin_return_address(0);
+ 	lock->owner_cpu = cpu;
+ }
++EXPORT_SYMBOL(_raw_spin_lock);
+ 
+ int _raw_spin_trylock(spinlock_t *lock)
+ {
+@@ -71,6 +72,7 @@
+ 	lock->owner_pc = (unsigned long)__builtin_return_address(0);
+ 	return 1;
+ }
++EXPORT_SYMBOL(_raw_spin_trylock);
+ 
+ void _raw_spin_unlock(spinlock_t *lp)
+ {
+@@ -86,6 +88,7 @@
+ 	wmb();
+ 	lp->lock = 0;
+ }
++EXPORT_SYMBOL(_raw_spin_unlock);
+ 
+ 
+ /*
+@@ -119,6 +122,7 @@
+ 	}
+ 	wmb();
+ }
++EXPORT_SYMBOL(_raw_read_lock);
+ 
+ void _raw_read_unlock(rwlock_t *rw)
+ {
+@@ -129,6 +133,7 @@
+ 	wmb();
+ 	atomic_dec((atomic_t *) &(rw)->lock);
+ }
++EXPORT_SYMBOL(_raw_read_unlock);
+ 
+ void _raw_write_lock(rwlock_t *rw)
+ {
+@@ -169,6 +174,22 @@
+ 	}
+ 	wmb();
+ }
++EXPORT_SYMBOL(_raw_write_lock);
++
++int _raw_write_trylock(rwlock_t *rw)
++{
++	if (test_and_set_bit(31, &(rw)->lock)) /* someone has a write lock */
++		return 0;
++
++	if ((rw)->lock & ~(1<<31)) {	/* someone has a read lock */
++		/* clear our write lock and wait for reads to go away */
++		clear_bit(31,&(rw)->lock);
++		return 0;
++	}
++	wmb();
++	return 1;
++}
++EXPORT_SYMBOL(_raw_write_trylock);
+ 
+ void _raw_write_unlock(rwlock_t *rw)
+ {
+@@ -179,5 +200,6 @@
+ 	wmb();
+ 	clear_bit(31,&(rw)->lock);
+ }
++EXPORT_SYMBOL(_raw_write_unlock);
+ 
+ #endif
+diff -urN linux-2.5/include/asm-ppc/spinlock.h pmac-2.5/include/asm-ppc/spinlock.h
+--- linux-2.5/include/asm-ppc/spinlock.h	2004-05-11 07:53:05.000000000 +1000
++++ pmac-2.5/include/asm-ppc/spinlock.h	2004-06-03 13:04:33.000000000 +1000
+@@ -65,7 +65,6 @@
+ extern void _raw_spin_lock(spinlock_t *lock);
+ extern void _raw_spin_unlock(spinlock_t *lock);
+ extern int _raw_spin_trylock(spinlock_t *lock);
+-extern unsigned long __spin_trylock(volatile unsigned long *lock);
+ 
+ #endif
+ 
+@@ -136,6 +135,26 @@
+ 	: "cr0", "memory");
+ }
+ 
++static __inline__ int _raw_write_trylock(rwlock_t *rw)
++{
++	unsigned int tmp;
++
++	__asm__ __volatile__(
++"2:	lwarx	%0,0,%1\n\	# write_trylock\n\
++	cmpwi	0,%0,0\n\
++	bne-	1f\n"
++	PPC405_ERR77(0,%1)
++"	stwcx.	%2,0,%1\n\
++	bne-	2b\n\
++	isync\n\
++1:"
++	: "=&r"(tmp)
++	: "r"(&rw->lock), "r"(-1)
++	: "cr0", "memory");
++
++	return tmp == 0;
++}
++
+ static __inline__ void _raw_write_lock(rwlock_t *rw)
+ {
+ 	unsigned int tmp;
+@@ -169,6 +188,7 @@
+ extern void _raw_read_unlock(rwlock_t *rw);
+ extern void _raw_write_lock(rwlock_t *rw);
+ extern void _raw_write_unlock(rwlock_t *rw);
++extern int _raw_write_trylock(rwlock_t *rw);
+ 
+ #endif
+ 

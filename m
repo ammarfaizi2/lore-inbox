@@ -1,105 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135257AbRAHRjw>; Mon, 8 Jan 2001 12:39:52 -0500
+	id <S130511AbRAHRpC>; Mon, 8 Jan 2001 12:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135797AbRAHRjm>; Mon, 8 Jan 2001 12:39:42 -0500
-Received: from user-141-246.jakinternet.co.uk ([212.187.141.246]:24302 "HELO
-	aslak.demon.co.uk") by vger.kernel.org with SMTP id <S135669AbRAHRje>;
-	Mon, 8 Jan 2001 12:39:34 -0500
-Date: Mon, 8 Jan 2001 18:36:51 +0000 (GMT)
-From: Lawrence Manning <lawrence@aslak.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Oops in 2.2.18
-Message-ID: <Pine.LNX.4.21.0101081829370.1079-100000@lappy>
+	id <S131086AbRAHRow>; Mon, 8 Jan 2001 12:44:52 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:55537 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S130511AbRAHRoe>; Mon, 8 Jan 2001 12:44:34 -0500
+Date: Mon, 8 Jan 2001 15:44:11 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <93bl8k$sb3$1@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0101081518530.21675-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hardware is a Intel 440LX, with IDE disks, 96meg of memory, voodoo 2
-graphics etc.  Nothing remarkable.
+On 7 Jan 2001, Linus Torvalds wrote:
 
-For about 3 days now, it has been oopsing at least once a day.  Each time
-the machine eventually locks up in X.  The kernel is a standard 2.2.18
-linus kernel with Alsa drivers (version 0.5.10) for the onboard soundcard,
-a yamaha opl3-sa2.
+> That doesn't resolve the "2.4.x behaves badly" thing, though.
+> 
+> I've seen that one myself, and it seems to be simply due to the
+> fact that we're usually so good at gettign memory from
+> page_launder() that we never bother to try to swap stuff out.
+> And when we _do_ start swapping stuff out it just moves to the
+> dirty list, and page_launder() will take care of it.
+> 
+> So far so good. The problem appears to be that we don't swap
+> stuff out smoothly: we start doing the VM scanning, but when we
+> get enough dirty pages, we'll let it be, and go back to
+> page_launder() again. Which means that we don't walk theough the
+> whole VM space, we just do some "spot cleaning".
 
-I can supply a kernel config if needed.  Some sample oopses follow.  
-Could replies be cc:d to me as I'm not on the list.
+You are right in that we need to refill the inactive list
+before calling page_launder(), but we'll also need a few
+other modifications:
 
-Cheers,
+1. adopt the latest FreeBSD tactic in page_launder()
+	- mark dirty pages we see but don't flush
+	- in the first loop, flush up to maxlaunder of the
+	  already seen dirty pages
+	- in the second loop, flush as many pages as we
+	  need to refill the free&inactive_clean list
 
-Lawrence
+2. go back to having a _static_ free target, at
+   max(freepages.high, SUM(zone->pages_high) ... this
+   means free_shortage() will never be very big
 
-kernel: Unable to handle kernel NULL pointer dereference at virtual
-address 00000013
-kernel: current->tss.cr3 = 024fb000, %cr3 = 024fb000
-kernel: *pde = 00000000
-kernel: Oops: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[elf_core_dump+128/3204]
-kernel: EFLAGS: 00010286
-kernel: eax: 3d090000   ebx: c42cffff   ecx: ffffffff   edx: c0aa6803
-kernel: esi: ffffffff   edi: 0000000b   ebp: c24dc000   esp: c24ddc74
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process xfplay (pid: 5186, process nr: 107, stackpage=c24dd000)
-kernel: Stack: 0000000b c24ddfc4 c42c3c60 3d090000 08048000 c5e2b3e0
-40000000 c24ddee8
-kernel:        00000000 c01297be 464c457f 00010101 00000000 ffffffff
-00030003 00000001
-kernel:        00001990 00000034 464c457f 00010101 c24dc000 00000000
-00030003 00000001
-kernel: Call Trace: [read_exec+194/316] [wake_up_process+58/68]
-[kfree_skbmem+50/64] [__kfree_skb+161/168] [tcp_clean_rtx_queue+259/300]
-[tcp_data_queue+212/776] [sock_def_readable+39/44]
-kernel:        [tcp_data+239/256] [tcp_send_delayed_ack+57/92]
-[tcp_rcv_established+1452/1496] [wake_up_process+58/68]
-[wake_up_process+58/68] [kfree_skbmem+50/64] [__kfree_skb+161/168]
-[tcp_clean_rtx_queue+259/300]
-kernel:        [tcp_data_queue+212/776] [sock_def_readable+39/44]
-[tcp_data+239/256] [tcp_send_delayed_ack+57/92]
-[tcp_rcv_established+1452/1496] [setup_sigcontext+234/308]
-[setup_frame+222/436] [send_sig_info+364/680]
-kernel:        [kill_something_info+224/236] [do_signal+426/620]
-[sys_sigreturn+170/208] [signal_return+20/24]
-kernel: Code: 66 8b 5e 14 f6 c3 07 74 35 f6 c7 40 75 30 f7 c3 02 03 00 00
+3. keep track of how many pages we need to free in
+   page_launder() and substract one from the target
+   when we submit a page for IO ... no need to flush
+   20MB of dirty pages when we only need 1MB pages
+   cleaned
 
-kernel: Unable to handle kernel NULL pointer dereference at virtual
-address 00000007
-kernel: current->tss.cr3 = 00101000, %cr3 = 00101000
-kernel: *pde = 00000000
-kernel: Oops: 0000
-kernel: CPU:    0
-kernel: EIP:    0010:[exit_mmap+86/264]
-kernel: EFLAGS: 00010286
-kernel: eax: ffffffff   ebx: c42c2f20   ecx: ffffffff   edx: c3980dc0
-kernel: esi: ffffffff   edi: c3980dc0   ebp: 00000000   esp: c24ddbac
-kernel: ds: 0018   es: 0018   ss: 0018
-kernel: Process xfplay (pid: 5186, process nr: 107, stackpage=c24dd000)
-kernel: Stack: 00000013 ffffffff ffffffff c0111bef c3980dc0 c3980dc0
-c3980dc0 c011649f
-kernel:        c3980dc0 c24ddc38 c24dc000 00000013 ffffffff c0108e73
-c24dc000 c0108e78
-kernel:        0000000b c24ddc38 c01e5e36 c01e786e 00000000 00000000
-c010e0f0 c01e786e
-kernel: Call Trace: [mmput+27/52] [do_exit+179/620] [die+51/56]
-[die_if_no_fixup+0/64] [error_table+2646/9632] [error_table+9358/9632]
-[do_page_fault+708/944]
-kernel:        [error_table+9358/9632] [error_code+45/52]
-[elf_core_dump+128/3204] [read_exec+194/316] [wake_up_process+58/68]
-[kfree_skbmem+50/64] [__kfree_skb+161/168] [tcp_clean_rtx_queue+259/300]
-kernel:        [tcp_data_queue+212/776] [sock_def_readable+39/44]
-[tcp_data+239/256] [tcp_send_delayed_ack+57/92]
-[tcp_rcv_established+1452/1496] [wake_up_process+58/68]
-[wake_up_process+58/68] [kfree_skbmem+50/64]
-kernel:        [__kfree_skb+161/168] [tcp_clean_rtx_queue+259/300]
-[tcp_data_queue+212/776] [sock_def_readable+39/44] [tcp_data+239/256]
-[tcp_send_delayed_ack+57/92] [tcp_rcv_established+1452/1496]
-[setup_sigcontext+234/308]
-kernel:        [setup_frame+222/436] [send_sig_info+364/680]
-[kill_something_info+224/236] [do_signal+426/620] [sys_sigreturn+170/208]
-[signal_return+20/24]
-kernel: Code: 8b 50 08 85 d2 74 0b 55 56 53 ff d2 83 c4 0c 8b 43 28 8b 40
+I have these things in my local tree and it seems to smooth
+out the load quite well for a very large haskell run and for
+the fillmem program from Juan Quintela's memtest suite.
+
+When combined with your idea of refilling the freelist _first_,
+we should be able to get the VM quite a bit smoother under loads
+with lots of dirty pages.
+
+I will work on this while travelling to and being in Australia.
+Expect a clean patch to fix this problem once the 2.4 bugfix-only
+period is over.
+
+Other people on this list are invited to apply the VM patches from
+my home page and give them a good beating. I want to be able to
+submit a well-tested, known-good patch to Linus once 2.4 is out of
+the bugfix-only period...
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 
 -

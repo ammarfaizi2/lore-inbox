@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312487AbSCYS3S>; Mon, 25 Mar 2002 13:29:18 -0500
+	id <S312488AbSCYSbI>; Mon, 25 Mar 2002 13:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312491AbSCYS3I>; Mon, 25 Mar 2002 13:29:08 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:56741 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S312493AbSCYS24>; Mon, 25 Mar 2002 13:28:56 -0500
-Message-ID: <3C9F69F4.3010908@vnet.ibm.com>
-Date: Mon, 25 Mar 2002 12:18:28 -0600
-From: Todd Inglett <tinglett@vnet.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010914
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "J.D. Hood" <jdthood@yahoo.co.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: proc_file_read() hack?
-In-Reply-To: <20020323114004.92117.qmail@web10307.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312490AbSCYSa6>; Mon, 25 Mar 2002 13:30:58 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:43278 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S312488AbSCYSaw>;
+	Mon, 25 Mar 2002 13:30:52 -0500
+Date: Mon, 25 Mar 2002 10:30:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan-Marek Glogowski <glogow@stud.fbi.fh-darmstadt.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Microsoft Natural KeyB not recogniced as a HID device
+Message-ID: <20020325183011.GA29011@kroah.com>
+In-Reply-To: <Pine.LNX.4.30.0203251825130.29093-600000@stud.fbi.fh-darmstadt.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 25 Feb 2002 16:24:10 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.D. Hood wrote:
-
-> I posted a patch which includes the following comment:
+On Mon, Mar 25, 2002 at 06:57:59PM +0100, Jan-Marek Glogowski wrote:
+> Hi
 > 
-> +			/*
-> +			 * How to be a proc read function
-> +			 * ------------------------------
-[...]
+> I have a problem with my Microsoft Natural USB Keyboard.
+> 
+> Since I moved from kernel 2.4.18-rc2-ac1 to 2.4.19-pre3-ac6 the keybord
+> isn't recogniced as a HID device anymore and I just get an error message,
+> when I reconnect it. The usb driver finds the integrated hub but not the
+> keyboard itself.
 
+Can you try the patches at:
+	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101684196109355
+and also:
+	http://marc.theaimsgroup.com/?l=linux-usb-devel&m=101684207509482
 
-How about applying my trivial patch and then adding this to your nice 
-comment?
+And let us know if they help you out?
 
-3) Set *start = an address outside the buffer.
-    Put the data of the requested offset at *start.
-    Return the number of bytes of data placed there.
-    If this number is greater than zero and you
-    didn't signal eof and the reader is prepared to
-    take more data you will be called again with the
-    requested offset advanced by the number ob tyes
-    absorbed.
+If not, try renaming 'usbmodules' on your box to something else (like
+'usbmodules.orig' and seeing if that solves your problem?
 
-The code should still work with the other cases now that the hack is 
-fixed.  Of course, rather than add 3), it would be better to re-word 2) 
-(e.g. "Set *start = address of the buffer which may or may not be in the 
-given buffer.).
+thanks,
 
-There are cases where the data is available and need not be copied.  My 
-code got simpler when I got rid of the need to copy my data around.
-
--todd
-
-
-
-
+greg k-h

@@ -1,427 +1,258 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263506AbTJWIpT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 04:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263515AbTJWIpT
+	id S263255AbTJWJC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 05:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTJWJC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 04:45:19 -0400
-Received: from stud4.tuwien.ac.at ([193.170.75.21]:19651 "EHLO
-	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP id S263506AbTJWIo4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 04:44:56 -0400
-From: Roland Lezuo <roland.lezuo@chello.at>
+	Thu, 23 Oct 2003 05:02:59 -0400
+Received: from pclinux-ccalmb.lut.ac.uk ([131.231.83.157]:63374 "EHLO
+	pclinux-ccalmb.lut.ac.uk") by vger.kernel.org with ESMTP
+	id S263255AbTJWJCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 05:02:51 -0400
+Date: Thu, 23 Oct 2003 10:03:07 +0100
+From: a.l.m.buxey@lboro.ac.uk
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test8 mad clock rate drifts and sleeping function ...
-Date: Thu, 23 Oct 2003 10:44:37 +0200
-User-Agent: KMail/1.5.4
-X-MSMail-Priority: High
-Reply-By: Sat, 18 Oct 2003 08:00:00 +0100
-X-message-flag: Outlook says: It is not clever to use me! I'm full of bugs and everyone can hack me!
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+Subject: BUG in 2.6.0-test8
+Message-ID: <20031023090307.GA26026@lboro.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310231044.46668.roland.lezuo@chello.at>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+hi,
 
-Hello,
+i dont know what caused this...its just in my 'dmesg' output from lastnight.
 
-I expirience enormous clock rates dirft since using 2.6.0-test8 (upgrade from 
-2.4) I can even hear it when xmms is playing a song it suddenlty speed up to 
-200% of normal speed, then normal speed for a while, then too slow for a 
-while...
-And after just 12h of running system time was wrong by 12h, but I'm not 
-absoluty sure about this (time is not running away while writing this).
+this system is a fairly busy server system (yes...yes..i know ;-) )
 
-I also see this sleeping function called from invalid context at... messages
+heres the 'cut here' bug output in the dmesg.
 
-
-Thanks,
-Roland Lezuo (please CC me)
-
-
-dmesg output:
-
-Linux version 2.6.0-test8 (root@academia) (gcc version 3.2.2) #1 Tue Oct 21 
-13:40:55 CEST 2003
-Video mode to be used for restore is ffff
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001fff0000 (usable)
- BIOS-e820: 000000001fff0000 - 000000001fff8000 (ACPI data)
- BIOS-e820: 000000001fff8000 - 0000000020000000 (ACPI NVS)
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-511MB LOWMEM available.
-found SMP MP-table at 000fb940
-hm, page 000fb000 reserved twice.
-hm, page 000fc000 reserved twice.
-hm, page 000f6000 reserved twice.
-hm, page 000f7000 reserved twice.
-On node 0 totalpages: 131056
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 126960 pages, LIFO batch:16
-  HighMem zone: 0 pages, LIFO batch:1
-DMI 2.3 present.
-ACPI: RSDP (v000 AMI                                       ) @ 0x000fa8e0
-ACPI: RSDT (v001 AMIINT VIA_K7   0x00000010 MSFT 0x00000097) @ 0x1fff0000
-ACPI: FADT (v001 AMIINT VIA_K7   0x00000011 MSFT 0x00000097) @ 0x1fff0030
-ACPI: MADT (v001 AMIINT VIA_K7   0x00000009 MSFT 0x00000097) @ 0x1fff00c0
-ACPI: DSDT (v001    VIA   VIA_K7 0x00001000 MSFT 0x0100000d) @ 0x00000000
-ACPI: Local APIC address 0xfee00000
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Processor #0 6:6 APIC version 16
-ACPI: IOAPIC (id[0x02] address[0xfec00000] global_irq_base[0x0])
-IOAPIC[0]: Assigned apic_id 2
-IOAPIC[0]: apic_id 2, version 3, address 0xfec00000, IRQ 0-23
-ACPI: INT_SRC_OVR (bus[0] irq[0x0] global_irq[0x2] polarity[0x0] trigger[0x0])
-ACPI: INT_SRC_OVR (bus[0] irq[0x9] global_irq[0x9] polarity[0x3] trigger[0x3])
-Enabling APIC mode:  Flat.  Using 1 I/O APICs
-Using ACPI (MADT) for SMP configuration information
-Building zonelist for node : 0
-Kernel command line: hdc=ide-scsi
-ide_setup: hdc=ide-scsi
-Initializing CPU#0
-PID hash table entries: 2048 (order 11: 16384 bytes)
-Detected 1737.957 MHz processor.
-Console: colour VGA+ 80x25
-Debug: sleeping function called from invalid context at 
-include/asm/semaphore.h:119
-in_atomic():1, irqs_disabled():1
+------------[ cut here ]------------
+kernel BUG at kernel/exit.c:758!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c011f4c9>]    Not tainted
+EFLAGS: 00010292
+EIP is at do_exit+0x289/0x340
+eax: 00000000   ebx: f7ffeac0   ecx: ffffffff   edx: d6414000
+esi: 00000000   edi: d5cbe120   ebp: 00000001   esp: d6415eb8
+ds: 007b   es: 007b   ss: 0068
+Process sh (pid: 13465, threadinfo=d6414000 task=d5cbe120)
+Stack: d5cbe120 d0193480 d5cbe120 d5cbe6e4 d6414000 00000001 00000001 d6414000 
+       c011f66b 00000001 d6414000 d6414000 c01285ff 00000001 d5cbe6e4 d6415f24 
+       d6414000 d5cbe6e4 d6415fc4 d5cbe6e4 d6414000 d6415f24 c0109293 d6415f24 
 Call Trace:
- [<c0120150>] __might_sleep+0xa0/0xd0
- [<c0122dea>] acquire_console_sem+0x3a/0x60
- [<c012303e>] register_console+0x9e/0x1d0
- [<c02c1090>] vgacon_save_screen+0x0/0x90
- [<c03f6e37>] con_init+0x1f7/0x250
- [<c0105000>] _stext+0x0/0x60
- [<c03f6202>] console_init+0x32/0x40
- [<c03e26bb>] start_kernel+0xbb/0x160
- [<c03e24c0>] unknown_bootoption+0x0/0x100
+ [<c011f66b>] do_group_exit+0x7b/0xc0
+ [<c01285ff>] get_signal_to_deliver+0x1ef/0x380
+ [<c0109293>] do_signal+0xd3/0x110
+ [<c01299d9>] sys_rt_sigaction+0xf9/0x120
+ [<c0109329>] do_notify_resume+0x59/0x5c
+ [<c0109506>] work_notifysig+0x13/0x15
 
-Memory: 514820k/524224k available (2245k kernel code, 8656k reserved, 692k 
-data, 328k init, 0k highmem)
-Debug: sleeping function called from invalid context at mm/slab.c:1857
-in_atomic():1, irqs_disabled():0
-Call Trace:
- [<c0120150>] __might_sleep+0xa0/0xd0
- [<c0142d35>] kmem_cache_alloc+0x65/0x70
- [<c0105000>] _stext+0x0/0x60
- [<c0141e64>] kmem_cache_create+0x74/0x4c0
- [<c03ee1e2>] mem_init+0x1b2/0x210
- [<c0105000>] _stext+0x0/0x60
- [<c03f085e>] kmem_cache_init+0x11e/0x2c0
- [<c03e26cb>] start_kernel+0xcb/0x160
- [<c03e24c0>] unknown_bootoption+0x0/0x100
-
-Calibrating delay loop... 3416.06 BogoMIPS
-Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-CPU:     After generic identify, caps: 0383fbff c1c3fbff 00000000 00000000
-CPU:     After vendor identify, caps: 0383fbff c1c3fbff 00000000 00000000
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-CPU:     After all inits, caps: 0383fbff c1c3fbff 00000000 00000020
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU: AMD Athlon(tm) XP 2100+ stepping 02
-Enabling fast FPU save and restore... done.
-Enabling unmasked SIMD FPU exception support... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000080
-ESR value after enabling vector: 00000000
-ENABLING IO-APIC IRQs
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 2-23 not 
-connected.
-..TIMER: vector=0x31 pin1=2 pin2=-1
-number of MP IRQ sources: 15.
-number of IO-APIC #2 registers: 24.
-testing the IO APIC.......................
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.......    : Delivery Type: 0
-.......    : LTS          : 0
-.... register #01: 00178003
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0003
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
- 00 000 00  1    0    0   0   0    0    0    00
- 01 001 01  0    0    0   0   0    1    1    39
- 02 001 01  0    0    0   0   0    1    1    31
- 03 001 01  0    0    0   0   0    1    1    41
- 04 001 01  0    0    0   0   0    1    1    49
- 05 001 01  0    0    0   0   0    1    1    51
- 06 001 01  0    0    0   0   0    1    1    59
- 07 001 01  0    0    0   0   0    1    1    61
- 08 001 01  0    0    0   0   0    1    1    69
- 09 001 01  1    1    0   1   0    1    1    71
- 0a 001 01  0    0    0   0   0    1    1    79
- 0b 001 01  0    0    0   0   0    1    1    81
- 0c 001 01  0    0    0   0   0    1    1    89
- 0d 001 01  0    0    0   0   0    1    1    91
- 0e 001 01  0    0    0   0   0    1    1    99
- 0f 001 01  0    0    0   0   0    1    1    A1
- 10 000 00  1    0    0   0   0    0    0    00
- 11 000 00  1    0    0   0   0    0    0    00
- 12 000 00  1    0    0   0   0    0    0    00
- 13 000 00  1    0    0   0   0    0    0    00
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-IRQ5 -> 0:5
-IRQ6 -> 0:6
-IRQ7 -> 0:7
-IRQ8 -> 0:8
-IRQ9 -> 0:9
-IRQ10 -> 0:10
-IRQ11 -> 0:11
-IRQ12 -> 0:12
-IRQ13 -> 0:13
-IRQ14 -> 0:14
-IRQ15 -> 0:15
-.................................... done.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 1737.0024 MHz.
-..... host bus clock speed is 267.0234 MHz.
-NET: Registered protocol family 16
-PCI: PCI BIOS revision 2.10 entry at 0xfdaf1, last bus=1
-PCI: Using configuration type 1
-mtrr: v2.0 (20020519)
-ACPI: Subsystem revision 20031002
-IOAPIC[0]: Set PCI routing entry (2-9 -> 0x71 -> IRQ 9 Mode:1 Active:1)
-ACPI: Interpreter enabled
-ACPI: Using IOAPIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (00:00)
-PCI: Probing PCI hardware (bus 00)
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: Power Resource [URP1] (off)
-ACPI: Power Resource [URP2] (off)
-ACPI: Power Resource [FDDP] (off)
-ACPI: Power Resource [LPTP] (off)
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-Linux Plug and Play Support v0.97 (c) Adam Belay
-SCSI subsystem initialized
-IOAPIC[0]: Set PCI routing entry (2-16 -> 0xa9 -> IRQ 16 Mode:1 Active:1)
-00:00:01[A] -> 2-16 -> IRQ 16
-IOAPIC[0]: Set PCI routing entry (2-17 -> 0xb1 -> IRQ 17 Mode:1 Active:1)
-00:00:01[B] -> 2-17 -> IRQ 17
-IOAPIC[0]: Set PCI routing entry (2-22 -> 0xb9 -> IRQ 22 Mode:1 Active:1)
-00:00:11[C] -> 2-22 -> IRQ 22
-IOAPIC[0]: Set PCI routing entry (2-21 -> 0xc1 -> IRQ 21 Mode:1 Active:1)
-00:00:11[D] -> 2-21 -> IRQ 21
-Pin 2-16 already programmed
-Pin 2-17 already programmed
-IOAPIC[0]: Set PCI routing entry (2-18 -> 0xc9 -> IRQ 18 Mode:1 Active:1)
-00:00:05[C] -> 2-18 -> IRQ 18
-IOAPIC[0]: Set PCI routing entry (2-19 -> 0xd1 -> IRQ 19 Mode:1 Active:1)
-00:00:05[D] -> 2-19 -> IRQ 19
-Pin 2-17 already programmed
-Pin 2-18 already programmed
-Pin 2-19 already programmed
-Pin 2-16 already programmed
-Pin 2-18 already programmed
-Pin 2-19 already programmed
-Pin 2-16 already programmed
-Pin 2-17 already programmed
-Pin 2-19 already programmed
-Pin 2-16 already programmed
-Pin 2-17 already programmed
-Pin 2-18 already programmed
-Pin 2-17 already programmed
-Pin 2-18 already programmed
-Pin 2-19 already programmed
-Pin 2-16 already programmed
-Pin 2-18 already programmed
-Pin 2-19 already programmed
-Pin 2-16 already programmed
-Pin 2-17 already programmed
-Pin 2-21 already programmed
-Pin 2-21 already programmed
-Pin 2-21 already programmed
-Pin 2-21 already programmed
-IOAPIC[0]: Set PCI routing entry (2-23 -> 0xd9 -> IRQ 23 Mode:1 Active:1)
-00:00:12[A] -> 2-23 -> IRQ 23
-ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 - using IRQ 255
-PCI: Using ACPI for IRQ routing
-PCI: if you experience problems, try using option 'pci=noacpi' or even 
-'acpi=off'
-Machine check exception polling timer started.
-IA-32 Microcode Update Driver: v1.13 <tigran@veritas.com>
-devfs: v1.22 (20021013) Richard Gooch (rgooch@atnf.csiro.au)
-devfs: boot_options: 0x1
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-udf: registering filesystem
-Initializing Cryptographic API
-PCI: Via IRQ fixup for 0000:00:10.2, from 10 to 5
-PCI: Via IRQ fixup for 0000:00:10.1, from 11 to 5
-PCI: Via IRQ fixup for 0000:00:10.0, from 11 to 5
-ACPI: Power Button (FF) [PWRF]
-ACPI: Sleep Button (CM) [SLPB]
-ACPI: Processor [CPU1] (supports C1, 16 throttling states)
-pty: 256 Unix98 ptys configured
-request_module: failed /sbin/modprobe -- parport_lowlevel. error = -16
-lp: driver loaded but no devices found
-Real Time Clock Driver v1.12
-Non-volatile memory driver v1.2
-Linux agpgart interface v0.100 (c) Dave Jones
-agpgart: Detected VIA KT266/KY266x/KT333 chipset
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: AGP aperture is 128M @ 0xe0000000
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,EPP]
-parport0: irq 7 detected
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-parport0: cpp_daisy: aa5500ff(38)
-parport0: assign_addrs: aa5500ff(38)
-lp0: using parport0 (polling).
-Using anticipatory io scheduler
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-PPP generic driver version 2.4.2
-8139too Fast Ethernet driver 0.9.26
-eth0: RealTek RTL8139 at 0xe0807f00, 00:e0:7d:a1:42:13, IRQ 18
-eth0:  Identified 8139 chip type 'RTL-8139C'
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: IDE controller at PCI slot 0000:00:11.1
-ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 - using IRQ 255
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-hda: IC35L120AVV207-0, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: PLEXTOR CD-R PX-W4012A, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 1024KiB
-hda: 241254720 sectors (123522 MB) w/1821KiB Cache, CHS=16383/255/63, 
-UDMA(100)
- /dev/ide/host0/bus0/target0/lun0: p1 p2 p3 p4
-mice: PS/2 mouse device common for all mice
-input: ImExPS/2 Logitech Explorer Mouse on isa0060/serio1
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: AT Translated Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-NET: Registered protocol family 2
-IP: routing cache hash table of 4096 buckets, 32Kbytes
-TCP: Hash tables configured (established 32768 bind 65536)
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-ACPI: (supports S0 S1 S4 S5)
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Mounted devfs on /dev
-Freeing unused kernel memory: 328k freed
-Adding 979956k swap on /dev/hda2.  Priority:-1 extents:1
-EXT3 FS on hda4, internal journal
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: PLEXTOR   Model: CD-R   PX-W4012A  Rev: 1.04
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-sr0: scsi3-mmc drive: 40x/40x writer cd/rw xa/form2 cdda tray
-Uniform CD-ROM driver Revision: 3.12
-Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
-Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 5
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs warning: maximal mount count reached, running e2fsck is recommended
-EXT3 FS on hda3, internal journal
-EXT3-fs: mounted filesystem with ordered data mode.
-drivers/usb/core/usb.c: registered new driver usbfs
-drivers/usb/core/usb.c: registered new driver hub
-via82xx: Assuming DXS channels with 48k fixed sample rate.
-         Please try dxs_support=1 option and report if it works on your 
-machine.
-PCI: Setting latency timer of device 0000:00:11.5 to 64
-eth0: link up, 10Mbps, half-duplex, lpa 0x0000
-ip_tables: (C) 2000-2002 Netfilter core team
-ip_conntrack version 2.1 (4095 buckets, 32760 max) - 300 bytes per conntrack
-Debug: sleeping function called from invalid context at 
-include/asm/uaccess.h:473
-in_atomic():0, irqs_disabled():1
-Call Trace:
- [<c0120150>] __might_sleep+0xa0/0xd0
- [<c010d40a>] save_v86_state+0x6a/0x200
- [<c010a49e>] work_notifysig_v86+0x6/0x14
- [<c010a44b>] syscall_call+0x7/0xb
-
-Debug: sleeping function called from invalid context at 
-include/asm/uaccess.h:473
-in_atomic():0, irqs_disabled():1
-Call Trace:
- [<c0120150>] __might_sleep+0xa0/0xd0
- [<c010d40a>] save_v86_state+0x6a/0x200
- [<c010ca67>] do_IRQ+0x117/0x160
- [<c010a49e>] work_notifysig_v86+0x6/0x14
- [<c010a44b>] syscall_call+0x7/0xb
+Code: 0f 0b f6 02 d4 c0 28 c0 eb 0d 90 90 90 90 90 90 90 90 90 90 
+ <6>note: sh[13465] exited with preempt_count 1
 
 
-lsmod:
 
-Module                  Size  Used by
-ipt_MASQUERADE          2752  1
-iptable_nat            20004  2 ipt_MASQUERADE
-ip_conntrack           27680  2 ipt_MASQUERADE,iptable_nat
-ip_tables              16336  2 ipt_MASQUERADE,iptable_nat
-ppp_async               9728  1
-snd_via82xx            17600  3
-snd_ac97_codec         52420  1 snd_via82xx
-snd_mpu401_uart         6016  1 snd_via82xx
-snd_rawmidi            20928  1 snd_mpu401_uart
-snd_pcm_oss            48772  1
-snd_pcm                87552  3 snd_via82xx,snd_pcm_oss
-snd_page_alloc          9220  2 snd_via82xx,snd_pcm
-snd_mixer_oss          17344  1 snd_pcm_oss
-snd_seq_oss            32576  0
-snd_seq_midi_event      6272  1 snd_seq_oss
-snd_seq                53360  4 snd_seq_oss,snd_seq_midi_event
-snd_timer              22144  2 snd_pcm,snd_seq
-snd_seq_device          6724  3 snd_rawmidi,snd_seq_oss,snd_seq
-snd                    44420  15 
-snd_via82xx,snd_ac97_codec,snd_mpu401_uart,snd_rawmidi,snd_pcm_oss,snd_pcm,snd_mixer_oss,snd_seq_oss,snd_seq_midi_event,snd_seq,snd_timer,snd_seq_device
-soundcore               7040  2 snd
-usbcore                97812  1
-ide_scsi               12288  0
+heres the ver_linux output
 
-- -- 
-PGP Key ID: 0xFCC9ED1E
-http://members.chello.at/roland.lezuo/ <- l337 zup4 h4x0r 4nd c0d3r h0meb4se
-root@server:/ >mount -t inetfs /dev/inet /mnt/tmp
-root@server:/ >rm -rf /mnt/tmp
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Linux systemX 2.6.0-test8 #2 Wed Oct 22 22:08:55 BST 2003 i686 i686 i386 GNU/Linux
+ 
+Gnu C                  3.2
+Gnu make               3.79.1
+util-linux             2.11r
+mount                  2.11r
+module-init-tools      0.9.14
+e2fsprogs              1.27
+jfsutils               1.0.17
+reiserfsprogs          3.6.2
+pcmcia-cs              3.1.31
+quota-tools            3.06.
+PPP                    2.4.1
+isdn4k-utils           3.1pre4
+nfs-utils              1.0.1
+Linux C Library        2.2.93
+Dynamic linker (ldd)   2.2.93
+Procps                 2.0.7
+Net-tools              1.60
+Kbd                    1.06
+Sh-utils               2.0.12
+Modules Loaded         dummy eepro100 mii iptable_filter ip_tables
 
-iD8DBQE/l5T95qlVDPzJ7R4RAuUZAJ4nHJyLzjdD4H2N3JlDXK5sQweZYwCfabqw
-CLT4bt8hdDMvrJf9SLdmB1U=
-=qORH
------END PGP SIGNATURE-----
+
+/proc/cpu
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III CPU family      1400MHz
+stepping        : 1
+cpu MHz         : 1403.203
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse
+bogomips        : 2785.28
+
+/proc/modules
+dummy 1764 - - Live 0xf88b4000
+eepro100 26252 - - Live 0xf88be000
+mii 4928 - - Live 0xf88b1000
+iptable_filter 2464 - - Live 0xf88a4000
+ip_tables 16432 - - Live 0xf88a8000
+
+
+/proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0376-0376 : ide1
+03c0-03df : vga+
+03f6-03f6 : ide0
+0cf8-0cff : PCI conf1
+9800-983f : 0000:00:0d.0
+  9800-983f : eepro100
+a000-afff : PCI Bus #01
+  a800-a87f : 0000:01:00.0
+d400-d4ff : 0000:00:01.1
+d800-d80f : 0000:00:00.1
+  d800-d807 : ide0
+  d808-d80f : ide1
+
+/proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000cc000-000cd7ff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-3fdfbfff : System RAM
+  00100000-0027e814 : Kernel code
+  0027e815-002ef8bf : Kernel data
+3fdfc000-3fdfefff : ACPI Tables
+3fdff000-3fdfffff : ACPI Non-volatile Storage
+e4800000-e48fffff : 0000:00:0d.0
+e5000000-e5000fff : 0000:00:0d.0
+  e5000000-e5000fff : eepro100
+e5800000-e5ffffff : PCI Bus #01
+  e5800000-e581ffff : 0000:01:00.0
+e6800000-e6800fff : 0000:00:01.3
+e7000000-e7000fff : 0000:00:01.2
+e7800000-e7800fff : 0000:00:01.1
+e8000000-ebffffff : 0000:00:00.0
+f0000000-feafffff : PCI Bus #01
+  f0000000-f7ffffff : 0000:01:00.0
+fff80000-ffffffff : reserved
+
+
+and finally, the pci list
+
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 630 Host (rev 30)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 32
+        Region 0: Memory at e8000000 (32-bit, non-prefetchable) [size=64M]
+        Capabilities: [c0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2,x4
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0) (prog-if 80 [Master])
+        Subsystem: Asustek Computer, Inc.: Unknown device 80e1
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 16
+        Region 4: I/O ports at d800 [size=16]
+
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+00:01.1 Ethernet controller: Silicon Integrated Systems [SiS] SiS900 10/100 Ethernet (rev 84)
+        Subsystem: Asustek Computer, Inc.: Unknown device 80e1
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (13000ns min, 2750ns max)
+        Interrupt: pin C routed to IRQ 10
+        Region 0: I/O ports at d400 [size=256]
+        Region 1: Memory at e7800000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=160mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00:01.2 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07) (prog-if 10 [OHCI])
+        Subsystem: Unknown device 0039:7001
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (20000ns max), cache line size 08
+        Interrupt: pin D routed to IRQ 5
+        Region 0: Memory at e7000000 (32-bit, non-prefetchable) [size=4K]
+
+00:01.3 USB Controller: Silicon Integrated Systems [SiS] 7001 (rev 07) (prog-if 10 [OHCI])
+        Subsystem: Unknown device 0039:7000
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (20000ns max), cache line size 08
+        Interrupt: pin D routed to IRQ 5
+        Region 0: Memory at e6800000 (32-bit, non-prefetchable) [size=4K]
+
+00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 0000a000-0000afff
+        Memory behind bridge: e5800000-e5ffffff
+        Prefetchable memory behind bridge: f0000000-feafffff
+        BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+00:0d.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+        Subsystem: Intel Corp. EtherExpress PRO/100 S Desktop Adapter
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min, 14000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e5000000 (32-bit, non-prefetchable) [size=4K]
+        Region 1: I/O ports at 9800 [size=64]
+        Region 2: Memory at e4800000 (32-bit, non-prefetchable) [size=1M]
+        Expansion ROM at <unassigned> [disabled] [size=1M]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] SiS630 GUI Accelerator+3D (rev 21) (prog-if 00 [VGA])
+        Subsystem: Asustek Computer, Inc.: Unknown device 80e1
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 11
+        BIST result: 00
+        Region 0: Memory at f0000000 (32-bit, prefetchable) [size=128M]
+        Region 1: Memory at e5800000 (32-bit, non-prefetchable) [size=128K]
+        Region 2: I/O ports at a800 [size=128]
+        Capabilities: [40] Power Management version 1
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [50] AGP version 2.0
+                Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2,x4
+                Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+
+
+hope this helps!!
+
+Alan
 

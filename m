@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289836AbSBOPAj>; Fri, 15 Feb 2002 10:00:39 -0500
+	id <S289832AbSBOPEJ>; Fri, 15 Feb 2002 10:04:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289834AbSBOPA3>; Fri, 15 Feb 2002 10:00:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41481 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289832AbSBOPAO>;
-	Fri, 15 Feb 2002 10:00:14 -0500
-Message-ID: <3C6D227C.B8D4F2BB@mandrakesoft.com>
-Date: Fri, 15 Feb 2002 10:00:12 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: elsner@zrz.TU-Berlin.DE
+	id <S289855AbSBOPD7>; Fri, 15 Feb 2002 10:03:59 -0500
+Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:27910 "HELO
+	fancypants.trellisinc.com") by vger.kernel.org with SMTP
+	id <S289832AbSBOPDq>; Fri, 15 Feb 2002 10:03:46 -0500
+Date: Fri, 15 Feb 2002 10:03:42 -0500
+From: Jason Lunz <j@trellisinc.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
-In-Reply-To: <E16bhwo-0007GZ-00@bronto.zrz.TU-Berlin.DE> <3C6D07B9.596AD49E@mandrakesoft.com> <20020215153604.A29642@stud.ntnu.no> <3C6D1F21.E0034BEE@mandrakesoft.com> <20020215155528.A30717@stud.ntnu.no>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <20020215150342.GA4347@trellisinc.com>
+In-Reply-To: <E16bhwo-0007GZ-00@bronto.zrz.TU-Berlin.DE> <3C6D07B9.596AD49E@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C6D07B9.596AD49E@mandrakesoft.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Langås wrote:
-> 
-> Jeff Garzik:
-> > It's coming along slowly at the moment... I haven't had time to mess
-> > with it for a few months, and I not DaveM was originally supposed to be
-> > filling in the rx/tx dma stuff, and h/w init.  DaveM jumped in recently
-> > and played a bit with the h/w init stage.
-> 
-> Is it possible for others to get axs to the work you guys have already done?
+In mlist.linux-kernel, you wrote:
+> Cuz the driver is a piece of crap, and BroadCom isn't interested in
+> working with the open source community to fix up the issues.
 
-Everything is checked into vger cvs
+Can you elaborate? What are the issues? I've found the broadcomm driver
+to be more robust than the in-kernel one for acenic cards. With acenic,
+I've had a null-pointer deref on SMP and other lockups where I wasn't
+lucky enough to get an oops.
+
+Also, broadcomm-driven cards can be put in a bridge. An acenic/bridge
+combination will crash the kernel hard when tcp traverses the bridge.
+
+> DaveM and I should have something eventually, which will make the
+> RH-shipped driver irrelevant.
+
+that would be oh-so-nice. Do you need cards to play with? I've got a
+couple of 3com broadcomm-chipset cards I prabably won't be needing.
 
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+Jason Lunz		Trellis Network Security
+j@trellisinc.com	http://www.trellisinc.com/

@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265060AbUEKXsM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265070AbUEKXvq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUEKXsM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:48:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265072AbUEKXrx
+	id S265070AbUEKXvq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 19:51:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265068AbUEKXsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:47:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26792 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265062AbUEKXqm (ORCPT
+	Tue, 11 May 2004 19:48:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34984 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263173AbUEKXro (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:46:42 -0400
-Date: Tue, 11 May 2004 16:46:40 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] remove empty build of capability.o
-Message-ID: <20040511164640.O21045@build.pdx.osdl.net>
+	Tue, 11 May 2004 19:47:44 -0400
+Date: Tue, 11 May 2004 16:50:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: davidsen@tmr.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+Message-Id: <20040511165013.08ef86cd.akpm@osdl.org>
+In-Reply-To: <200405120127.33391.bzolnier@elka.pw.edu.pl>
+References: <Pine.LNX.3.96.1040511121328.16430C-100000@gatekeeper.tmr.com>
+	<200405120127.33391.bzolnier@elka.pw.edu.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The build includes capability.c when CONFIG_SECURITY=n, yet the whole file
-is ifdef'd out.  Remove unnecessary build step as well as superfluous ifdefs.
+Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+>
+> There was some evidence from AKPM (and Arjan AFAIR).
+> [ BTW wasn't the corruption only seen with nvidia module? ]
+> I think we can prevent it by adding something ala 4kstack flag
+> to the module.
 
---- linus-2.5/security/capability.c~ifdef	2004-05-11 14:55:19.000000000 -0700
-+++ linus-2.5/security/capability.c	2004-05-11 15:00:28.000000000 -0700
-@@ -23,9 +23,6 @@
- #include <linux/netlink.h>
- #include <linux/ptrace.h>
- 
--#ifdef CONFIG_SECURITY
--
--
- static struct security_operations capability_ops = {
- 	.ptrace =			cap_ptrace,
- 	.capget =			cap_capget,
-@@ -99,5 +96,3 @@
- 
- MODULE_DESCRIPTION("Standard Linux Capabilities Security Module");
- MODULE_LICENSE("GPL");
--
--#endif	/* CONFIG_SECURITY */
---- linus-2.5/security/Makefile~ifdef	2004-05-11 14:58:06.000000000 -0700
-+++ linus-2.5/security/Makefile	2004-05-11 14:58:16.000000000 -0700
-@@ -6,7 +6,7 @@
- 
- # if we don't select a security model, use the default capabilities
- ifneq ($(CONFIG_SECURITY),y)
--obj-y		+= commoncap.o capability.o
-+obj-y		+= commoncap.o
- endif
- 
- # Object file lists
+"4KSTACKS" already is present in the module version string.
+
+And RHL is shipping now with 4k stacks, so presumably any disasters
+are relatively uncommon...

@@ -1,70 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261420AbTCGHYq>; Fri, 7 Mar 2003 02:24:46 -0500
+	id <S261401AbTCGHVK>; Fri, 7 Mar 2003 02:21:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261421AbTCGHYq>; Fri, 7 Mar 2003 02:24:46 -0500
-Received: from packet.digeo.com ([12.110.80.53]:30085 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261420AbTCGHYo>;
-	Fri, 7 Mar 2003 02:24:44 -0500
-Date: Thu, 6 Mar 2003 23:35:17 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops: 2.5.64 check_obj_poison for 'size-64'
-Message-Id: <20030306233517.68c922f9.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>
-	<20030306222328.14b5929c.akpm@digeo.com>
-	<Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S261402AbTCGHVK>; Fri, 7 Mar 2003 02:21:10 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:12221 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S261401AbTCGHVI> convert rfc822-to-8bit; Fri, 7 Mar 2003 02:21:08 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2003 07:35:13.0031 (UTC) FILETIME=[16DAC970:01C2E47C]
+Content-Transfer-Encoding: 7BIT
+Subject: [BENCHMARK] 2.5.64 performance on LMbench
+Date: Fri, 7 Mar 2003 13:01:24 +0530
+Message-ID: <94F20261551DC141B6B559DC4910867223AAEB@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] 2.5.64 performance on LMbench
+Thread-Index: AcLke45PopZD1YV0RDuyrPEMHVFBig==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 07 Mar 2003 07:31:26.0189 (UTC) FILETIME=[8FA571D0:01C2E47B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
->
-> On Thu, 6 Mar 2003, Andrew Morton wrote:
-> 
-> > Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
-> > >
-> > > This just popped up on my screen, seems to have been triggered by sar/cron 
-> > > (i'll probably have to reboot the box soon)
-> > > 
-> > > slab error in check_poison_obj(): cache `size-64': object was modified after freeing
-> > > Call Trace:
-> > >  [<c0142226>] check_poison_obj+0x66/0x70
-> > >  [<c0143b92>] kmalloc+0xd2/0x180
-> > >  [<c0166078>] pipe_new+0x28/0xd0
-> > >  [<c0166153>] get_pipe_inode+0x23/0xb0
-> > >  [<c0166212>] do_pipe+0x32/0x1e0
-> > >  [<c0111ed3>] sys_pipe+0x13/0x60
-> > >  [<c010ad9b>] syscall_call+0x7/0xb
-> > 
-> > Don't know.  If you're using anticipatory scheduler in 2.5.63-mmfoo this
-> > will happen. 64-mm1 is OK.
-> 
-> Nope simply 2.5.64-unwashed. I don't know how to twiddle the advanced 
-> knobs
+Performance is not varying much since 2.5.56. Again there is no considerable performance variation for 2.5.64
 
-OK.  -mm has a more sophisticated use-after-free detector.  It might be
-worth dropping that in there, see if we can get more info.
+                 L M B E N C H  2 . 0   S U M M A R Y
+                 ------------------------------------
+		 (Alpha software, do not distribute)
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm1/broken-out/use-after-free-check.patch
+Basic system parameters
+----------------------------------------------------
+Host                 OS Description              Mhz
+                                                    
+--------- ------------- ----------------------- ----
+benchtest  Linux 2.5.64       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.64       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.64       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.64       i686-pc-linux-gnu  790
+benchtest  Linux 2.5.64       i686-pc-linux-gnu  790
 
-> > show_interrupts() is walking the per-irq action chain without locking it.
-> > Any concurrent add/remove activity will explode.
-> > 
-> > Do you want to hunt down all the show_interrupts() instances and pop a
-> > spin_lock_irq(desc->lock) around them?
-> 
-> Sure thing.
+Processor, Processes - times in microseconds - smaller is better
+----------------------------------------------------------------
+Host                 OS  Mhz null null      open selct sig  sig  fork exec sh  
+                             call  I/O stat clos TCP   inst hndl proc proc proc
+--------- ------------- ---- ---- ---- ---- ---- ----- ---- ---- ---- ---- ----
+benchtest  Linux 2.5.64  790 0.44 0.83 7.44 8.89    34 1.24 3.92  276 1277 6581
+benchtest  Linux 2.5.64  790 0.44 0.81 7.20 8.65    35 1.26 3.92  285 1300 6621
+benchtest  Linux 2.5.64  790 0.44 0.84 7.39 8.89    36 1.24 3.92  314 1292 6711
+benchtest  Linux 2.5.64  790 0.44 0.81 7.26 8.66    35 1.24 3.92  320 1294 6608
+benchtest  Linux 2.5.64  790 0.44 0.81 6.99 8.70    33 1.23 3.92  299 1289 6617
 
-OK, thanks.
+Context switching - times in microseconds - smaller is better
+-------------------------------------------------------------
+Host                 OS 2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
+                        ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
+--------- ------------- ----- ------ ------ ------ ------ ------- -------
+benchtest  Linux 2.5.64 1.420 4.8700     16     15    176      37     177
+benchtest  Linux 2.5.64 1.400 4.8100     14     11    180      44     180
+benchtest  Linux 2.5.64 1.450 5.2400     40     19    175      41     180
+benchtest  Linux 2.5.64 1.440 4.9200     14     16    181      38     180
+benchtest  Linux 2.5.64 1.380 4.9000     14 8.9200    180      44     180
 
-All the arch/*/kernel/irq.c implementations are distressingly similar. 
-Andrey Panin did a bunch of work a while back to start consolidating the
-common code but it didn't quite get finished off.  Guess we just have to grit
-our teeth for now.
+*Local* Communication latencies in microseconds - smaller is better
+-------------------------------------------------------------------
+Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
+                        ctxsw       UNIX         UDP         TCP conn
+--------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
+benchtest  Linux 2.5.64 1.420 7.662   13    25    46    32    58 3.1M
+benchtest  Linux 2.5.64 1.400 8.260   13    25    46    32    58 3.1M
+benchtest  Linux 2.5.64 1.450 8.382   13    25    46    31    58 3.1M
+benchtest  Linux 2.5.64 1.440 8.355   14    25    46    32    58 3.1M
+benchtest  Linux 2.5.64 1.380 8.215   13    25    46    32    58 3.1M
+
+File & VM system latencies in microseconds - smaller is better
+--------------------------------------------------------------
+Host                 OS   0K File      10K File      Mmap    Prot    Page	
+                        Create Delete Create Delete  Latency Fault   Fault 
+--------- ------------- ------ ------ ------ ------  ------- -----   ----- 
+benchtest  Linux 2.5.64     91     31    343     82      605 0.662 4.00000
+benchtest  Linux 2.5.64     91     31    329     83      598 0.668 4.00000
+benchtest  Linux 2.5.64     91     31    331     83      610 0.661 4.00000
+benchtest  Linux 2.5.64     91     31    345     83      609 0.661 4.00000
+benchtest  Linux 2.5.64     91     31    336     84      615 0.664 4.00000
+
+*Local* Communication bandwidths in MB/s - bigger is better
+-----------------------------------------------------------
+Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
+                             UNIX      reread reread (libc) (hand) read write
+--------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
+benchtest  Linux 2.5.64  577  436   47    297    356    124    113  355   170
+benchtest  Linux 2.5.64  519  184   52    293    353    123    112  352   169
+benchtest  Linux 2.5.64  585  556   55    288    353    123    112  352   169
+benchtest  Linux 2.5.64  581  602   52    296    351    123    112  352   169
+benchtest  Linux 2.5.64  410  451   52    290    352    123    112  352   169
+
+Memory latencies in nanoseconds - smaller is better
+    (WARNING - may not be correct, check graphs)
+---------------------------------------------------
+Host                 OS   Mhz  L1 $   L2 $    Main mem    Guesses
+--------- -------------  ---- ----- ------    --------    -------
+benchtest  Linux 2.5.64   790 3.798 8.8820    175
+benchtest  Linux 2.5.64   790 3.797 8.8820    176
+benchtest  Linux 2.5.64   790 3.798     55    176
+benchtest  Linux 2.5.64   790 3.808 8.8720    176
+benchtest  Linux 2.5.64   790 3.798 8.8810    176
+
+Aniruddha Marathe
+WIPRO Technologies, India

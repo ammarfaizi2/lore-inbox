@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269532AbRHCSAo>; Fri, 3 Aug 2001 14:00:44 -0400
+	id <S269541AbRHCSIy>; Fri, 3 Aug 2001 14:08:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269527AbRHCSAf>; Fri, 3 Aug 2001 14:00:35 -0400
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:20585 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S269532AbRHCSAT>; Fri, 3 Aug 2001 14:00:19 -0400
-Message-ID: <3B6AE67A.9060709@blue-labs.org>
-Date: Fri, 03 Aug 2001 13:59:22 -0400
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010725
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: "Jeffrey W. Baker" <jwbaker@acm.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
+	id <S269527AbRHCSIj>; Fri, 3 Aug 2001 14:08:39 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:22008 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269535AbRHCSIc>;
+	Fri, 3 Aug 2001 14:08:32 -0400
+Date: Fri, 3 Aug 2001 14:08:41 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
         linux-kernel@vger.kernel.org
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <Pine.LNX.4.33L.0108021728130.5582-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
+In-Reply-To: <01080315090600.01827@starship>
+Message-ID: <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If it is that badly broken, isn't that sufficient criteria to justify 
-the patch?
 
-Yes, I have experienced this frustration many times myself.
 
-David
+On Fri, 3 Aug 2001, Daniel Phillips wrote:
 
-Rik van Riel wrote:
+> Are you saying that there may not be a ".." some of the time?  Or just 
+> that it may spontaneously be relinked?  If it does spontaneously change 
+> it doesn't matter, you have still made sure there is access by at least 
+> one path.
+> 
+> The trouble with doing this in userland is, the locked chain of dcache 
+> entries isn't there.
 
->On Thu, 2 Aug 2001, Rik van Riel wrote:
->
->>On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
->>
->>>I'm about the zillionth person to complain about this problem on
->>>this list.  It is completely unacceptable to say that I can't
->>>use the memory on my machines because the kernel is too hungry
->>>for cache.
->>>
->>Fully agreed. The problem is that getting a solution which
->>works in a multizoned VM isn't all that easy, otherwise we
->>would have fixed it ages ago ...
->>
->
->Well, actually there are a few known solutions to this
->problem, but they are not really an option for the 2.4
->series since they require large code changes...
->
-
+There is no _locked_ chain. And if you want to grab the locks on all
+ancestors - think again. It means sorting the inodes by address _and_
+relocking if any of them had been moved while you were locking the
+previous ones. I absolutely refuse to add such crap to the tree and I
+seriously suspect that Linus and Alan will do the same.
 

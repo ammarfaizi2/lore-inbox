@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279885AbRKFSIG>; Tue, 6 Nov 2001 13:08:06 -0500
+	id <S279912AbRKFSIG>; Tue, 6 Nov 2001 13:08:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279893AbRKFSH4>; Tue, 6 Nov 2001 13:07:56 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9227 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279885AbRKFSHr>; Tue, 6 Nov 2001 13:07:47 -0500
-Subject: Re: Using %cr2 to reference "current"
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 6 Nov 2001 18:14:54 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111060949370.2194-100000@penguin.transmeta.com> from "Linus Torvalds" at Nov 06, 2001 09:59:00 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S279885AbRKFSH4>; Tue, 6 Nov 2001 13:07:56 -0500
+Received: from mustard.heime.net ([194.234.65.222]:1961 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S279884AbRKFSHo>; Tue, 6 Nov 2001 13:07:44 -0500
+Date: Tue, 6 Nov 2001 19:07:42 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: caching? filecopy()?
+Message-ID: <Pine.LNX.4.30.0111061907000.24831-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E161AkQ-0001Fp-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> "get_current" interrupt safe (ie switching tasks is totally atomic, as
-> it's the one single "movl ..,%esp" instruction that does the real switch
-> as far as the kernel is concerned).
-> 
-> It does require using an order-2 allocation, which the current VM will
-> allow anyway, but which is obviously nastier than an order-1.
+hi all
 
-I've seen boxes dead in the water from 8K NFS (ie 16K order-2 allocations),
-let alone the huge memory hit. Michael's rtlinux approach looks even more
-interesting and I may have to play with that (using the TSS to ident the
-cpu)
+One small question about Tux...
 
-Our memory bloat is already pretty gross in 2.4 without adding 16K task
-stacks to the oversided struct page, bootmem and excess double linked lists.
+How does tux/linux cache web queries served with filecopy()? Are they
+cached at all? Are they sent directly through PCI from disk to NIC? Am I a
+complete idiot?
 
-I also need to try sticking a pointer to the task struct at the top of the
-stack and loading that - since that should be a cache line that isnt being
-shared around or swapped between processors
+I'm just trying to find memory requirements for a tux-only web server
+
+thanks
+---
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+
+

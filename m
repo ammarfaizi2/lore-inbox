@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287966AbSABUzp>; Wed, 2 Jan 2002 15:55:45 -0500
+	id <S287979AbSABU7y>; Wed, 2 Jan 2002 15:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287985AbSABUzf>; Wed, 2 Jan 2002 15:55:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43021 "EHLO
+	id <S287978AbSABU7t>; Wed, 2 Jan 2002 15:59:49 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47373 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286999AbSABUyQ>; Wed, 2 Jan 2002 15:54:16 -0500
-Subject: Re: SCSI host numbers?
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Wed, 2 Jan 2002 21:01:57 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), nahshon@actcom.co.il,
+	id <S287979AbSABU7a>; Wed, 2 Jan 2002 15:59:30 -0500
+Subject: Re: system.map
+To: timothy.covell@ashavan.org
+Date: Wed, 2 Jan 2002 21:10:01 +0000 (GMT)
+Cc: tmh@nothing-on.tv (Tony Hoyle), adriankok2000@yahoo.com.hk (adrian kok),
         linux-kernel@vger.kernel.org
-In-Reply-To: <200201021931.g02JV1R27294@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Jan 02, 2002 12:31:01 PM
+In-Reply-To: <200201022049.g02KndSr022117@svr3.applink.net> from "Timothy Covell" at Jan 02, 2002 02:45:57 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16LsWL-0005Rg-00@the-village.bc.nu>
+Message-Id: <E16Lse9-0005W9-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Comments? Got a suggestion for which file the generic function should
-> go into? I figure on stripping the leading "devfs_" part of the
-> function names.
+> So, I guess that RedHat 7.2 must be an insane distribution:
+> 
+> make install
+> + exec /sbin/installkernel 2.4.17 bzImage 
+> /home/kernel/linux-2.4.17/System.map ''
+> /etc/lilo.conf: No such file or directory
+> make[1]: *** [install] Error 1
 
-Sounds sensible to me. I guess it belongs in lib/ somewhere ?
+Thats a bug. Please report it to https://bugzilla.redhat.com/bugzilla if its
+not already there

@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132978AbRDKURB>; Wed, 11 Apr 2001 16:17:01 -0400
+	id <S132986AbRDKUXl>; Wed, 11 Apr 2001 16:23:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132983AbRDKUQv>; Wed, 11 Apr 2001 16:16:51 -0400
-Received: from ns.suse.de ([213.95.15.193]:65030 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S132978AbRDKUQi>;
-	Wed, 11 Apr 2001 16:16:38 -0400
-Date: Wed, 11 Apr 2001 22:16:36 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Christoph Hellwig <hch@caldera.de>
-Cc: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>
-Subject: Re: CML2 1.0.0 release announcement
-In-Reply-To: <200104112004.WAA30164@ns.caldera.de>
-Message-ID: <Pine.LNX.4.30.0104112212310.29627-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132989AbRDKUXV>; Wed, 11 Apr 2001 16:23:21 -0400
+Received: from schiele.swm.uni-mannheim.de ([134.155.20.124]:54659 "EHLO
+	schiele.swm.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S132986AbRDKUXO>; Wed, 11 Apr 2001 16:23:14 -0400
+Date: Wed, 11 Apr 2001 22:22:50 +0200
+From: Robert Schiele <rschiele@uni-mannheim.de>
+To: Daniel.Stutz@astaro.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where is NR_TASKS gone in 2.4?
+Message-ID: <20010411222250.A10215@schiele.local>
+In-Reply-To: <20010409172419.H430@mukmin.astaro.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010409172419.H430@mukmin.astaro.de>; from dstutz@astaro.de on Mon, Apr 09, 2001 at 05:24:19PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Apr 2001, Christoph Hellwig wrote:
 
-> > CML2 takes around 15 seconds before I get that far.
-> > This is on an Athlon 800 w/512MB. I dread to think how this
-> > responds on a 486.
->
-> If you look for something _even_ faster try mconfig.  For everyone who is
-> interested, I've put my latests half-way stable version is on ftp.  It's at
->   ftp.openlinux.org:/pub/people/hch/mconfig/mconfig-0.19-pre1.tar.gz
-> Props for all the hard work go to Michael Elizabeth Chastain!
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is the first I've heard of mconfig. (I don't track the kbuild list)
-Does it solve all the problems that Eric's solution proposes?
-It's certainly fast (CML1 menuconfig speed at least).
+On Mon, Apr 09, 2001 at 05:24:19PM -0700, Daniel Stutz wrote:
+> How can i get the max. number of tasks in kernel 2.4?
+>=20
+> In 2.2 there was a macro NR_TASKS
 
-regards,
+2.4 has no hardcoded limit on the number of processes. So NR_TASKS is
+not necessary any longer.
+But you can read the current value of max threads from
+/proc/sys/kernel/threads-max.
 
-Dave.
+Robert
 
+--=20
+Robert Schiele			mailto:rschiele@uni-mannheim.de
+Tel./Fax: +49-621-10059		http://webrum.uni-mannheim.de/math/rschiele/
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iQEVAwUBOtS9GcQAnns5HcHpAQER1Af/fO3BYSI+jG3m4JCMvZhLte1gTjBqR4vq
+SafLjnpdvFRVIZYb1usGGr7Bye1UgYeSVYt6KIMHaP5bFcejukQbW8wQIng4Op+K
+MIEO16DD44nM91hFDvYMxj+CvmKzP+LdB2TD2VAtNqJYc/d4NPD20lF0JmlhIwHN
+mUwIkgmoGgXZtk36vLUIGUe+3jRTk2HIsybi6cBO3qIIDbvAPlb+4x/2nL1ZF7Yp
+ELg7JLyYmLq5TbqTHA45HKyBh5UHnq/RLQP/1Mv4ktW1vClTo5usAVhZIeGdo09Z
+Txg0OW+QhNwqsmQafAWoNqdpsO2YaqRWskiK1iQRwwvKBIkc6oNw6Q==
+=DBgg
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--

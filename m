@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVCCOPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVCCOT6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVCCOPy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 09:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVCCOPy
+	id S261754AbVCCOT6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 09:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVCCOT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 09:15:54 -0500
-Received: from mail.autoweb.net ([198.172.237.26]:53010 "EHLO mail.autoweb.net")
-	by vger.kernel.org with ESMTP id S261728AbVCCOPu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 09:15:50 -0500
-Date: Thu, 3 Mar 2005 09:15:42 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: Matthew Frost <artusemrys@sbcglobal.net>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303141542.GG7828@mythryan2.michonline.com>
-Mail-Followup-To: Matthew Frost <artusemrys@sbcglobal.net>,
-	Willy Tarreau <willy@w.ods.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050302231231.GA30106@alpha.home.local> <20050303085918.92037.qmail@web21324.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050303085918.92037.qmail@web21324.mail.yahoo.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 3 Mar 2005 09:19:57 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:15793 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261754AbVCCOTz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 09:19:55 -0500
+Message-ID: <42271D12.90408@tiscali.de>
+Date: Thu, 03 Mar 2005 15:20:02 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: pci_find_class obsolete
+References: <Pine.LNX.4.61.0503031436490.22266@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0503031436490.22266@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 12:59:18AM -0800, Matthew Frost wrote:
-> 
-> OT, 3.0.0 is an even-numbered release, therefore stable.  So what do you
-> call the odd-numbered unstable series that produces it?  ;)
+Jan Engelhardt wrote:
 
-3.-1.x
+>Hello list,
+>
+>
+>after switching to 2.6.11-rc5-bk2 (from 2.6.9-rc2), I found that the nvidia 
+>module (1.0-4996, old, I know) does not compile anymore, because it
+>requires pci_find_class():
+>
+>nv.c:
+>static int
+>nvos_probe_devices(void)
+>{
+>    ...
+>    struct pci_dev *dev;
+>    ...
+>    dev = pci_find_class(PCI_CLASS_DISPLAY_VGA << 8, dev);
+>    ...
+>}
+>
+>What function would I need to use, now that pci_find_class is gone?
+>
+>
+>Jan Engelhardt
+>  
+>
+Hi!
+you have to use pci_get_class (). But have a look at the patches for 
+6111 on my webiste:
 
-:)
+http://unixforge.org/~matthias-christian-ott/index.php?entry=entry050303-082233
 
-
--- 
-
-Ryan Anderson
-  sometimes Pug Majere
+Matthias-Christian Ott

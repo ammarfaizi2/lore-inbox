@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289050AbSAIWQV>; Wed, 9 Jan 2002 17:16:21 -0500
+	id <S289053AbSAIWQV>; Wed, 9 Jan 2002 17:16:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSAIWQN>; Wed, 9 Jan 2002 17:16:13 -0500
-Received: from taifun.devconsult.de ([212.15.193.29]:15365 "EHLO
-	taifun.devconsult.de") by vger.kernel.org with ESMTP
-	id <S289049AbSAIWPa>; Wed, 9 Jan 2002 17:15:30 -0500
-Date: Wed, 9 Jan 2002 23:15:28 +0100
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: Greg KH <greg@kroah.com>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-Message-ID: <20020109231528.B25786@devcon.net>
-Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-	Greg KH <greg@kroah.com>,
-	Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-	felix-dietlibc@fefe.de, linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109103716.026a0b20@pop.cus.cam.ac.uk> <5.1.0.14.2.20020109213221.02dd5f80@pop.cus.cam.ac.uk> <20020109214022.GE21963@kroah.com> <5.1.0.14.2.20020109215335.02cfc780@pop.cus.cam.ac.uk>
-Mime-Version: 1.0
+	id <S289049AbSAIWQQ>; Wed, 9 Jan 2002 17:16:16 -0500
+Received: from inet-mail4.oracle.com ([148.87.2.204]:33173 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S289050AbSAIWP4>; Wed, 9 Jan 2002 17:15:56 -0500
+Message-ID: <3C3CC176.83F49A74@oracle.com>
+Date: Wed, 09 Jan 2002 23:17:26 +0100
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steve Lord <lord@sgi.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 umount oops in 2.5.2-pre10
+In-Reply-To: <1010601760.29727.138.camel@jen.americas.sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <5.1.0.14.2.20020109215335.02cfc780@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Wed, Jan 09, 2002 at 09:55:34PM +0000
-Organization: dev/consulting GmbH
-X-NCC-RegID: de.devcon
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 09:55:34PM +0000, Anton Altaparmakov wrote:
+Steve Lord wrote:
 > 
-> I would think that is a good idea but I am not sure that is what is planned 
-> / will happen. Keeping it outside would have the advantage that a newer 
-> partition recognizer (or whatever other code) can be applied to any 
-> existing kernel version (that supports initramfs).
+> It looks like ext3 does not work if you do not use an external
+> journal device - the journal_bdev field is not initialized and
+> ext3_put_super goes belly up:
 
-This could be done anyway: just replace the initramfs image built by 
-the kernel build with anotherone built from another source tree. It
-would be helpful though if the tools were distributed both standalone
-and included into the kernel tree.
+I have seen the umount oops -but- not 100% of the time. No time
+ to copy the oops text since my laptop powers off, and as the
+ issue occurred two times out of five or six, I haven't yet had
+ a very strong need to hunt this further, confident someone more
+ clueful than me (possibly the vast majority of l-k :) would do
+ very soon. It looks like it happened. Heh. As always.
 
-Andreas
--- 
-       Andreas Ferber - dev/consulting GmbH - Bielefeld, FRG
-     ---------------------------------------------------------
-         +49 521 1365800 - af@devcon.net - www.devcon.net
+> At the very least it needs this:
+
+[snipped patch]
+
+OK, going to the usual patch/build/reboot/test sequence now.
+
+Will let you know in 2 days at most. Thanks !
+
+--alessandro
+
+ "this machine will, will not communicate
+   these thoughts and the strain I am under
+  be a world child, form a circle before we all go under"
+                         (Radiohead, "Street Spirit [fade out]")

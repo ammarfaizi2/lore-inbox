@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265094AbTBGNdv>; Fri, 7 Feb 2003 08:33:51 -0500
+	id <S265081AbTBGNcM>; Fri, 7 Feb 2003 08:32:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265099AbTBGNdv>; Fri, 7 Feb 2003 08:33:51 -0500
-Received: from DaVinci.coe.neu.edu ([129.10.32.95]:35775 "EHLO
-	DaVinci.coe.neu.edu") by vger.kernel.org with ESMTP
-	id <S265094AbTBGNdu>; Fri, 7 Feb 2003 08:33:50 -0500
-Date: Fri, 7 Feb 2003 08:43:26 -0500 (EST)
-From: Mauricio Martinez <mauricio@coe.neu.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.20 drivers/cdrom/cdu31a.c
-Message-ID: <Pine.GSO.4.33.0302070833310.15863-100000@Amps.coe.neu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265058AbTBGNcM>; Fri, 7 Feb 2003 08:32:12 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:3491
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264962AbTBGNcK>; Fri, 7 Feb 2003 08:32:10 -0500
+Subject: Re: [PATCH 2.5] fix megaraid driver compile error
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Mark Haverkamp <markh@osdl.org>,
+       Steven Cole <elenstev@mesatop.com>, linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0302061519360.14478-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302061519360.14478-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044628785.14350.9.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 07 Feb 2003 14:39:46 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2003-02-06 at 23:22, Linus Torvalds wrote:
+> On 6 Feb 2003, David Woodhouse wrote:
+> > 
+> > Cut and paste from xterm should work fine. Cut and paste from
+> > gnome-terminal, OTOH, will often corrupt it for you.
+> 
+> I think xterm does the same thing. I certainly refuse to use inferior 
+> clones (I don't understand why people even _bother_ with things like 
+> gnome-terminal, since it can't even do proper vt100 sequences), and I 
+> definitely get tab->space conversion between two xterms.
 
-This patch fixes the kernel oops while trying to read a data CD. Thanks to
-Brian Gerst and Faik Uygur for your suggestions.
+gnome-terminal should be an exact copy of the xterm codes without the
+tek graphics extensions. Roughly speaking thats vt220. If you know of
+any it gets wrong please file a bug report.
 
-It looks like the variable nblocks must be <= 4 so the read ahead buffer
-size is not exceeded (which is the cause of the oops). Changing its value
-doesn't seem to be the right way, but it makes the device work properly.
+It should also be preserving tabs (WORKKSFORME 8)). People with 
+replicable cases where it doesn't should stick them in gnome bugzilla.
+https://bugzilla.gnome.org. Konsole should also have the same properties
+as xterm with regard to these features.
 
-Feedback of any sort welcome.
+Alan
 
-
---- linux-2.4.20/drivers/cdrom/cdu31a.c.orig	Thu Nov 28 15:53:12 2002
-+++ linux-2.4.20/drivers/cdrom/cdu31a.c	Thu Feb  6 20:49:44 2003
-@@ -1361,7 +1361,9 @@
- 	res_reg[0] = 0;
- 	res_reg[1] = 0;
- 	*res_size = 0;
--	bytesleft = nblocks * 512;
-+	/* Make sure that bytesleft doesn't exceed the buffer size */
-+	if (nblocks > 4) nblocks = 4;
-+	bytesleft = nblocks * 512;
- 	offset = 0;
-
- 	/* If the data in the read-ahead does not match the block offset,
-@@ -1384,9 +1386,9 @@
- 			       readahead_buffer + (2048 -
- 						   readahead_dataleft),
- 			       readahead_dataleft);
--			readahead_dataleft = 0;
- 			bytesleft -= readahead_dataleft;
- 			offset += readahead_dataleft;
-+			readahead_dataleft = 0;
- 		} else {
- 			/* The readahead will fill the whole buffer, get the data
- 			   and return. */
 

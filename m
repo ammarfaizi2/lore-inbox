@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282180AbRKWQaO>; Fri, 23 Nov 2001 11:30:14 -0500
+	id <S282183AbRKWQiO>; Fri, 23 Nov 2001 11:38:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282182AbRKWQaH>; Fri, 23 Nov 2001 11:30:07 -0500
-Received: from auucp0.ams.ops.eu.uu.net ([195.129.70.39]:55259 "EHLO
-	auucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
-	id <S282180AbRKWQ35>; Fri, 23 Nov 2001 11:29:57 -0500
-Date: Fri, 23 Nov 2001 16:51:04 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: rpjday <rpjday@mindspring.com>
-cc: Stefan Smietanowski <stesmi@stesmi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: is 2.4.15 really available at www.kernel.org?
-In-Reply-To: <Pine.LNX.4.33.0111230829280.8671-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0111231650190.23291-100000@schoen3.schoen.nl>
+	id <S282186AbRKWQiH>; Fri, 23 Nov 2001 11:38:07 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:57860 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S282183AbRKWQhy>;
+	Fri, 23 Nov 2001 11:37:54 -0500
+Date: Fri, 23 Nov 2001 17:37:48 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Norm Dressler <ndressler@dinmar.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Sparc64 Compiles OK, but won't boot new kernel
+In-Reply-To: <002101c17430$d94b2f80$3828a8c0@ndrlaptop>
+Message-ID: <Pine.LNX.4.33.0111231736510.998-100000@Expansa.sns.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+You did not enable LVM support, did you?
+if you did enable, with 2.4.15, yyopu will see the bug i wrote about.
 
-Is it possible that the _temporary_ file is on another filesystem which
-is low in space?
-
-Kees
+I had similar problems like you, I simply compiled as a module all I
+could, and I solved.
 
 
-On Fri, 23 Nov 2001, rpjday wrote:
+On Fri, 23 Nov 2001, Norm Dressler wrote:
 
-> On Fri, 23 Nov 2001, Stefan Smietanowski wrote:
+> Hi,
 >
-> > Just to be on the safe side,m you're not out of disk space are you ? :))
-> >
+> I have been able to successfully compile the 2.4.14 and 2.4.15 kernels
+> for Sparc64 but each gives me an error on boot-up:
 >
-> not even close -- still 2.5 G to go under /home.
+> Image to large for Destination  (twice)
 >
-> rday
+> It then kicks me back to the silo prompt.  My kernel is trimmed back
+> quite a bit and there isn't a lot there.
+>
+> It's not a compressed kernel -- should it be?  How do I do that since
+> the bzImage make is missing from the Sparc64 makefiles?
+>
+> I am using Redhat 6.2 on an Enterprise 4000, 4 Ultrasparc-II CPU's and
+> 2Gb of Ram.
+>
+> Any suggestions??
+>
+> Norm
 >
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

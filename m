@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269119AbRHRXAB>; Sat, 18 Aug 2001 19:00:01 -0400
+	id <S269318AbRHRXJz>; Sat, 18 Aug 2001 19:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269326AbRHRW7v>; Sat, 18 Aug 2001 18:59:51 -0400
-Received: from web10402.mail.yahoo.com ([216.136.130.94]:49927 "HELO
-	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S269318AbRHRW7g>; Sat, 18 Aug 2001 18:59:36 -0400
-Message-ID: <20010818225951.37294.qmail@web10402.mail.yahoo.com>
-Date: Sun, 19 Aug 2001 08:59:51 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: Performance and VM improved in 2.4.8-ac7
-To: kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S269395AbRHRXJp>; Sat, 18 Aug 2001 19:09:45 -0400
+Received: from mailc.telia.com ([194.22.190.4]:46844 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S269391AbRHRXJh>;
+	Sat, 18 Aug 2001 19:09:37 -0400
+Date: Sun, 19 Aug 2001 01:08:21 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.xx won't recompile.
+Message-ID: <20010819010821.A614@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <01081812570001.09229@bits.linuxball> <001901c12810$97ef3a70$020a0a0a@totalmef> <3B7EB162.5070207@nothing-on.tv> <01081817401000.01028@bits.linuxball> <010d01c12839$29751370$020a0a0a@totalmef>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <010d01c12839$29751370$020a0a0a@totalmef>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, it is in my machine 400Mhz Celeron Medocino 128Mb
-RAM and only 72Mb swap.
+Magnus Naeslund(f) <mag@fbab.net> wrote:
 
-Lastime I try running several big apps 
+> Maybe youre using egcs ?
+> I think that compiler is "old" from a 2.4.x (x>=6) point of view?
 
-- compiling Mozilla 
-- Star Office with several swd document opened
-- Netscape comunicator 477
-- 3 rxvt and mc running ; several windows of xpdf to
-view some document
--after finisshing compling mozilla, start it 
-use mozilla to browse
+andre@sledgehammer:~$ grep 'egcs' devel/kernel/linux/Documentation/Changes
+The recommended compiler for the kernel is egcs 1.1.2 (gcc 2.91.66), and it
+<snip>
+-- 
 
-No slow down at all
-swap usages: around 56Mb
-
-And it does free swap properly
-
-Good job
-
-Cheers,
-
-
-
-
-
-
-=====
-S.KIEU
-
-_____________________________________________________________________________
-http://shopping.yahoo.com.au - Father's Day Shopping
-- Find the perfect gift for your Dad for Father's Day
+André Dahlqvist <andre.dahlqvist@telia.com>

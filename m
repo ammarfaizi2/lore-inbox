@@ -1,53 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264863AbSJVSeb>; Tue, 22 Oct 2002 14:34:31 -0400
+	id <S264867AbSJVSgv>; Tue, 22 Oct 2002 14:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264861AbSJVSeb>; Tue, 22 Oct 2002 14:34:31 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:16125 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S264863AbSJVSe3>;
-	Tue, 22 Oct 2002 14:34:29 -0400
-Date: Tue, 22 Oct 2002 20:40:34 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: linux-kernel@vger.kernel.org, hch@infradead.org, marcelo@conectiva.com.br
-Subject: Re: 2.4.20-pre11 /proc/partitions read
-Message-ID: <20021022184034.GA26585@win.tue.nl>
-References: <20021022161957.N26402@fi.muni.cz>
-Mime-Version: 1.0
+	id <S264868AbSJVSgv>; Tue, 22 Oct 2002 14:36:51 -0400
+Received: from cse.ogi.edu ([129.95.20.2]:33246 "EHLO church.cse.ogi.edu")
+	by vger.kernel.org with ESMTP id <S264867AbSJVSgt>;
+	Tue, 22 Oct 2002 14:36:49 -0400
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>
+Subject: Re: epoll (was Re: [PATCH] async poll for 2.5)
+References: <20021018185528.GC13876@mark.mielke.cc>
+	<Pine.LNX.4.44.0210181209510.1537-100000@blue1.dev.mcafeelabs.com>
+	<20021019065624.GA17553@mark.mielke.cc>
+	<xu4y98utnn7.fsf@brittany.cse.ogi.edu>
+	<20021022172244.GA1314@mark.mielke.cc>
+From: "Charles 'Buck' Krasic" <krasic@acm.org>
+Date: 22 Oct 2002 11:42:17 -0700
+In-Reply-To: <20021022172244.GA1314@mark.mielke.cc>
+Message-ID: <xu48z0ql3hy.fsf@brittany.cse.ogi.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021022161957.N26402@fi.muni.cz>
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 04:19:57PM +0200, Jan Kasprzak wrote:
 
-> 	I.e. if you read the /proc/partitions in single read() call,
-> it gets read OK. However, if you read() with smaller-sized blocks,
-> you get the truncated contents.
+I don't think the big picture is that complicated.   
 
-Having statistics in /proc/partitions leads to such problems.
-Make sure you do not ask for them.
+epoll is useful for programs that use the old nonblocking socket API.
+It improves performance significantly for a case where poll() and
+select() are deficient (large numbers of slow or idle connections).
 
---- Documentation/Configure.help~       Mon Oct 14 01:12:13 2002
-+++ Documentation/Configure.help        Tue Oct 22 20:30:39 2002
-@@ -561,6 +561,8 @@
- 
-   This is required for the full functionality of sar(8) and interesting
-   if you want to do performance tuning, by tweaking the elevator, e.g.
-+  On the other hand, it will cause random and mysterious failures for
-+  fdisk, mount and other programs reading /proc/partitions.
- 
-   If unsure, say N.
+There are a number of people, including myself, who already use epoll.
+At least some of us don't think it is too complicated.  I claim most
+of the complication is in the nonblocking socket API, in which case
+the complexity falls under the category of "the devil you know...".
 
+The old nonblocking socket API (and hence epoll) does nothing for file
+IO, and it just doesn't make sense relative to file IO.  (EAGAIN,
+POLLIN, POLLOUT, etc. aren't terribly useful signals from a disk
+device).
 
-(this is about CONFIG_BLK_STATS).
+So, its a great thing that the new AIO API is forthcoming.
 
-Andries
+So maybe epoll's moment of utility is only transient.  It should have
+been in the kernel a long time ago.  Is it too late now that AIO is
+imminent?  
 
+-- Buck
 
-[I still do not understand how hch can want to add this cruft to
-/proc/partitions, and how marcelo can accept it.
-If some vendor made this mistake, why force it on the rest of
-the world? It is bad for RedHat users, and worse for all others.]
+Mark Mielke <mark@mark.mielke.cc> writes:
+
+> On Sat, Oct 19, 2002 at 09:10:52AM -0700, Charles 'Buck' Krasic wrote:
+> > Mark Mielke <mark@mark.mielke.cc> writes:
+> > > They still represent an excessive complicated model that attempts to
+> > > implement /dev/epoll the same way that one would implement poll()/select().
+> > epoll is about fixing one aspect of an otherwise well established api.
+> > That is, fixing the scalability of poll()/select() for applications
+> > based on non-blocking sockets.
+> 
+> epoll is not a poll()/select() enhancement (unless it is used in
+> conjuction with poll()/select()). It is a poll()/select()
+> replacement.
+> 
+> Meaning... purposefully creating an API that is designed the way one
+> would design a poll()/select() loop is purposefully limiting the benefits
+> of /dev/epoll.
+> 
+> It's like inventing a power drill to replace the common screw driver,
+> but rather than plugging the power drill in, manually turning the
+> drill as if it was a socket wrench for the drill bit.
+> 
+> I find it an excercise in self defeat... except that /dev/epoll used the
+> same way one would use poll()/select() happens to perform better even
+> when it is crippled.
+> 
+> mark
+> 
+> -- 
+> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+> 
+>   One ring to rule them all, one ring to find them, one ring to bring them all
+>                        and in the darkness bind them...
+> 
+>                            http://mark.mielke.cc/

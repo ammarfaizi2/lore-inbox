@@ -1,314 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbTH2WqR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 18:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTH2WqR
+	id S261682AbTH2XFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 19:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbTH2XFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 18:46:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37037 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261336AbTH2WqC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 18:46:02 -0400
-Date: Fri, 29 Aug 2003 15:29:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       matthew.e.tolentino@intel.com
-Subject: Re: [UPDATED PATCH] EFI support for ia32 kernels
-Message-Id: <20030829152939.2692ef14.akpm@osdl.org>
-In-Reply-To: <200308292019.h7TKJ6FK000649@snoqualmie.dp.intel.com>
-References: <200308292019.h7TKJ6FK000649@snoqualmie.dp.intel.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 29 Aug 2003 19:05:25 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30476
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S261682AbTH2XFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 19:05:20 -0400
+Date: Fri, 29 Aug 2003 16:05:21 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030829230521.GD3846@matchmail.com>
+Mail-Followup-To: Larry McVoy <lm@bitmover.com>,
+	Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <20030829154101.GB16319@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030829154101.GB16319@work.bitmover.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Tolentino <metolent@snoqualmie.dp.intel.com> wrote:
->
-> 
-> Attached is an updated patch against 2.6.0-test4 that enables Extensible Firmware
-> Interface (EFI) awareness in ia32 Linux kernels.
+On Fri, Aug 29, 2003 at 08:41:01AM -0700, Larry McVoy wrote:
 
-Just for my edification: why does EFI exist?  
+> ====== sparc.bitmover.com ======
+> Test separation: 8192 bytes: FAIL - cache not coherent
 
-  "The EFI specification defines a new model for the interface between
-   operating systems and platform firmware.  The interface consists of data
-   tables that contain platform-related information, plus boot and runtime
-   service calls that are available to the operating system and its loader.
-    Together, these provide a standard environment for booting an operating
-   system and running pre-boot applications.
+> VM page alias coherency test: minimum fast spacing: 16384 (2 pages)
+> 0.29user 0.02system 0:00.31elapsed 99%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (107major+36minor)pagefaults 0swaps
+> Linux sparc.bitmover.com 2.2.18 #2 Thu Dec 21 18:53:16 PST 2000 sparc64 unknown
+> cpu		: TI UltraSparc IIi
+> fpu		: UltraSparc IIi integrated FPU
+> promlib		: Version 3 Revision 11
+> prom		: 3.11.12
+> type		: sun4u
+> ncpus probed	: 1
+> ncpus active	: 1
+> BogoMips	: 539.03
+> MMU Type	: Spitfire
 
-  "The EFI specification is primarily intended for the next generation
-   of IA-32 and Itanium Architecture-based computers, and is an outgrowth
-   of the "Intel Boot Initiative" (IBI) program that began in 1998."
-
-It sounds like it's filling in some gaps in ACPI?  What is its relationship to ACPI?
-
-
-Well, having now learnt that this is in fact not electronic fuel injection,
-let me give some feedback from the point of view of an experienced kernel
-developer who wants to understand it - exactly the target audience for
-those who wish to develop maintainable code, yes?
-
-Mainly I am reduced to picking over trivia...  Excuse me while I ask some
-dumb questions as well.
-
-
-> diff -urN linux-2.6.0-test4/arch/i386/kernel/acpi/boot.c linux-2.6.0-test4-efi/arch/i386/kernel/acpi/boot.c
-> --- linux-2.6.0-test4/arch/i386/kernel/acpi/boot.c	2003-08-22 16:59:02.000000000 -0700
-> +++ linux-2.6.0-test4-efi/arch/i386/kernel/acpi/boot.c	2003-08-28 16:05:49.000000000 -0700
-> @@ -26,6 +26,7 @@
->  #include <linux/init.h>
->  #include <linux/config.h>
->  #include <linux/acpi.h>
-> +#include <linux/efi.h>
->  #include <asm/pgalloc.h>
->  #include <asm/io_apic.h>
->  #include <asm/apic.h>
-> @@ -274,7 +275,14 @@
->  acpi_find_rsdp (void)
->  {
->  	unsigned long		rsdp_phys = 0;
-> -
-> +	extern int 		efi_enabled;
-> +
-
-pleeeze never declare things in .c files.  Put this declaration into efi.h
-so the same declaration is visible to the users as well as the definition.
-
-> +static int efi_pte = 0;
-> +static unsigned long efi_temp_page_table[1024]
-> +    __attribute__ ((aligned(4096))) __initdata ;
-
-We have two early ioremap-style functions already.  Are they not suitable
-for accessing the EFI tables?
-
-> +extern pgd_t swapper_pg_dir[1024];
-
-This should be in a header.
-
-> +efi_status_t 
-> +phys_efi_get_time(efi_time_t *tm, efi_time_cap_t *tc)
-> +{
-> +	efi_status_t status = EFI_NOT_FOUND;
-
-Need not be initialised.
-
-> +void efi_gettimeofday(struct timespec *tv)
-> +{
-> +	efi_time_t tm;
-> +
-> +	memset(tv, 0, sizeof(tv));
-
-buglet: sizeof(*tv)
-
-> +/*
-> + * Walks the EFI memory map and calls CALLBACK once for each EFI
-> + * memory descriptor that has memory that is available for kernel use.
-> + */
-> +void efi_memmap_walk(efi_freemem_callback_t callback, void *arg)
-> +{
-> +	int prev_valid = 0;
-> +	struct range {
-> +		unsigned long start;
-> +		unsigned long end;
-> +	} prev, curr;
-> +	efi_memory_desc_t *md;
-> +	unsigned long start, end;
-> +	int i;
-> +
-> +	for (i = 0; i < memmap.nr_map; i++) {
-> +		md = &memmap.map[i];
-> +
-> +		if (md->num_pages == 0)	/* no pages means nothing to do... */
-> +			continue;
-> +		if (is_available_memory(md)) {
-> +			curr.start = md->phys_addr;
-> +			curr.end = curr.start + 
-> +					(md->num_pages << EFI_PAGE_SHIFT);
-> +
-> +			if (!prev_valid) {
-> +				prev = curr;
-> +				prev_valid = 1;
-> +			} else {
-> +				if (curr.start < prev.start)
-> +					printk(PFX "Unordered memory map\n");
-> +				if (prev.end == curr.start)
-> +					prev.end = curr.end;
-> +				else {
-> +					start =
-> +					    (unsigned long) (PAGE_ALIGN(prev.start));
-> +					end = (unsigned long) (prev.end & PAGE_MASK);
-> +					if ((end > start)
-> +					    && (*callback) (start, end, arg) < 0)
-> +						return;
-> +					prev = curr;
-> +				}
-> +			}
-> +		} else
-> +			continue;
-> +	}
-
-The final `continue' here isn't needed.  Would be neater to do
-
-	if (!is_available_memory(md))
-		continue;
-	curr.start = md->phys_addr;
-	curr.end = curr.start + (md->num_pages << EFI_PAGE_SHIFT);
-	...
-
-> +
-> +/*
-> + * mem_start is a physical address.
-> + */
-> +unsigned long __init 
-> +efi_setup_temp_page_table(unsigned long mem_start, unsigned long size)
-> +{
-
-Again, there's an awful lot of pagetable bashing here.  We do need to work
-out whether it is all really needed, or whether there are consolidation
-opportunities with existing code.
-
-Could you please describe this code's requirements?
-
-> +
-> +void __init efi_enter_virtual_mode(void)
-> +{
-> +	int i;
-> +	efi_memory_desc_t *md;
-> +	efi_status_t status;
-> +
-> +	memmap.map = ioremap((unsigned long) memmap.phys_map, EFI_MEMMAP_SIZE);
-
-Now what is this function doing?  I guess the reader should be familiar
-with the EFI spec, but some decriptive roadmap-style commentary over key
-data structures such as `struct efi_memory_map' would make this code much
-more approachable by occasional readers.
-
-> --- linux-2.6.0-test4/arch/i386/kernel/Makefile	2003-08-22 16:52:57.000000000 -0700
-> +++ linux-2.6.0-test4-efi/arch/i386/kernel/Makefile	2003-08-28 16:05:49.000000000 -0700
-> @@ -7,7 +7,7 @@
->  obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
->  		ptrace.o i8259.o ioport.o ldt.o setup.o time.o sys_i386.o \
->  		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
-> -		doublefault.o
-> +		doublefault.o efi.o efi_stub.o
-
-Doesn't this mean we're linking all the EFI code even if CONFIG_ACPI_EFI=n?
-
->  #ifdef CONFIG_BLK_DEV_INITRD
-> -	if (LOADER_TYPE && INITRD_START) {
-> -		if (INITRD_START + INITRD_SIZE <= (max_low_pfn << PAGE_SHIFT)) {
-> -			reserve_bootmem(INITRD_START, INITRD_SIZE);
-> -			initrd_start =
-> -				INITRD_START ? INITRD_START + PAGE_OFFSET : 0;
-> -			initrd_end = initrd_start+INITRD_SIZE;
-> -		}
-> -		else {
-> -			printk(KERN_ERR "initrd extends beyond end of memory "
-> -			    "(0x%08lx > 0x%08lx)\ndisabling initrd\n",
-> -			    INITRD_START + INITRD_SIZE,
-> -			    max_low_pfn << PAGE_SHIFT);
-> -			initrd_start = 0;
-> +	if (efi_enabled) {
-> +		if (efi_boot_params.initrd_start) {
-> +			if (efi_boot_params.initrd_start + efi_boot_params.initrd_size <= (max_low_pfn << PAGE_SHIFT)) {
-> +				reserve_bootmem(efi_boot_params.initrd_start, efi_boot_params.initrd_size);
-> +				initrd_start = efi_boot_params.initrd_start + PAGE_OFFSET;
-> +				initrd_end = initrd_start + efi_boot_params.initrd_size;
-> +			} else {
-> +				printk(KERN_ERR "initrd extends beyond end of memory! "
-> +						"(0x%08lx > 0x%08lx)\n disabling initrd\n",
-> +						efi_boot_params.initrd_start + efi_boot_params.initrd_size,
-> +						max_low_pfn << PAGE_SHIFT);
-> +				initrd_start = 0;
-> +			}
-> +		}
-
-What is the relationship between EFI and initrd?
-
-> @@ -817,11 +912,26 @@
->  			 *  so we try it repeatedly and let the resource manager
->  			 *  test it.
->  			 */
-> -			request_resource(res, &code_resource);
-> -			request_resource(res, &data_resource);
-> +			request_resource(res, code_resource);
-> +			request_resource(res, data_resource);
-
-hm, request_resource() can fail...
-
-> +/*
-> + * This is called before the RT mappings are in place, so we
-> + * need to be able to get the time in physical mode.
-> + */
-> +unsigned long efi_get_time(void)
-
-What is an "RT mapping"?
-
->  config ACPI_EFI
-> -	bool
-> -	depends on ACPI
-> -	depends on IA64
-> +	bool "Obtain RSDP from EFI Configuration Table"
-> +	depends on IA64 && (!IA64_HP_SIM || IA64_SGI_SN) || X86 && ACPI
-> +	help
-> +	   On EFI Systems the RSDP pointer is passed to the kernel via
-> +	   the EFI Configuration Table.  On Itanium systems this is 
-> +	   standard and required.  For IA-32, systems that have
-> +	   EFI firmware should leave this enabled.  Platforms with 
-> +	   traditional legacy BIOS should disable this option.
-
-Poor users ;)
-
-Vendors will ship kernels with CONFIG_ACPI_EFI=y.  I assume those kernels
-will work OK on machines which have legacy BIOSes?
-
-> +struct ia32_boot_params {
-> +	unsigned long size;
-> +	unsigned long command_line;
-> +	efi_system_table_t *efi_sys_tbl;
-> +	efi_memory_desc_t *efi_mem_map;
-> +	unsigned long efi_mem_map_size;
-> +	unsigned long efi_mem_desc_size;	
-> +	unsigned long efi_mem_desc_version;
-> +	unsigned long initrd_start;
-> +	unsigned long initrd_size;
-> +	unsigned long loader_start;	
-> +	unsigned long loader_size;
-> +	unsigned long kernel_start;
-> +	unsigned long kenrel_size;
-> +	unsigned long num_cols;
-> +	unsigned long num_rows;
-> +	unsigned long orig_x;
-> +	unsigned long orig_y;
-> +};
-
-Interesting.  What's all this, and how does the user interact with it?
-
-> diff -urN linux-2.6.0-test4/include/linux/efi.h linux-2.6.0-test4-efi/include/linux/efi.h
-> --- linux-2.6.0-test4/include/linux/efi.h	2003-08-22 17:00:39.000000000 -0700
-> +++ linux-2.6.0-test4-efi/include/linux/efi.h	2003-08-28 16:49:01.000000000 -0700
-> @@ -16,6 +16,8 @@
->  #include <linux/time.h>
->  #include <linux/types.h>
->  #include <linux/proc_fs.h>
-> +#include <linux/rtc.h>
-> +#include <linux/ioport.h>
->  
->  #include <asm/page.h>
->  #include <asm/system.h>
-> @@ -96,6 +98,9 @@
->  	u64 virt_addr;
->  	u64 num_pages;
->  	u64 attribute;
-> +#if defined (__i386__)
-> +	u64 pad1;
-> +#endif
->  } efi_memory_desc_t;
-
-Obscure things like this rather need a comment.
-
-Thanks.
+Does this mean that userspace has to take into consideration that the isn't
+coherent for adjacent small memory accesses on sparc?  What could happen if
+it doesn't, or does it need to at all?

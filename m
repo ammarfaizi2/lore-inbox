@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbTIRLl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 07:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbTIRLl1
+	id S261161AbTIRLfU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 07:35:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbTIRLfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 07:41:27 -0400
-Received: from users.linvision.com ([62.58.92.114]:38830 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S261196AbTIRLlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 07:41:24 -0400
-Date: Thu, 18 Sep 2003 13:39:03 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jens Axboe <axboe@suse.de>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       neilb@cse.unsw.edu.au,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-ID: <20030918133903.A14355@bitwizard.nl>
-References: <20030916102113.0f00d7e9.skraw@ithnet.com> <Pine.LNX.4.44.0309161009460.1636-100000@logos.cnet> <20030916153658.3081af6c.skraw@ithnet.com> <1063722973.10037.65.camel@dhcp23.swansea.linux.org.uk> <20030917084102.A19276@bitwizard.nl> <20030917102629.GL906@suse.de> <20030917191929.GC9125@openzaurus.ucw.cz>
+	Thu, 18 Sep 2003 07:35:20 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62953 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261161AbTIRLfM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 07:35:12 -0400
+Date: Wed, 17 Sep 2003 16:11:11 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: acpi-devel@lists.sourceforge.net,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: Vaio doesn't poweroff with 2.4.22
+Message-ID: <20030917141110.GA9125@openzaurus.ucw.cz>
+References: <20030917103135.GL1205@elf.ucw.cz> <Pine.GSO.4.21.0309171445150.3677-100000@vervain.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030917191929.GC9125@openzaurus.ucw.cz>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+In-Reply-To: <Pine.GSO.4.21.0309171445150.3677-100000@vervain.sonytel.be>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17, 2003 at 09:19:29PM +0200, Pavel Machek wrote:
-> Heh, old ide disk in PIO mode should allow that 6GB machine
-> to perform better...
-> At least you don't loose packets during PIO reads...
+Hi!
 
-As long as you tune it 
-	hdparm -i1 /dev/hdX
-
-Roger. 
+> > And was that acpi or apm? If it was acpi you saw a little miracle.
 > 
+> ACPI.
+> 
+> BTW, I just started to see other weird things that may be related to ACPI, but
+> aren't related to Linux (machine powers down 1 second after power up, etc.),
+> but now it's fine again (running 2.4.21).
 
+I have seen similar crazy stuff (like hard crash with power LED going
+both green *and* red on OS boot (any OS, even w98) after poweron.
+Only cure was to unplug it and remove battery. Seeing crash
+where 4-sec-power no longer worked was pretty common...
+
+ACPI tends to provoke rather weird hw problems.
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+

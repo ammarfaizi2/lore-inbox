@@ -1,135 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVBBDzK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVBBDz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbVBBDzK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 22:55:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVBBDw2
+	id S262236AbVBBDz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 22:55:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbVBBDEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 22:52:28 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:61394 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262255AbVBBDvA (ORCPT
+	Tue, 1 Feb 2005 22:04:08 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:20106 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262236AbVBBCyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 22:51:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=SKJks5BRN3g487SVyPc+SGZbekPosJpkWnN2QouBOc9c5OQICTBK3bC4T/Et1aa3IdB77THT3/VX5w5dChEN9x6KW1E+3VPcf+bFJUr3ZS6ny59BA1kNXQgc2wZN4iOvOYB5pIri+srIN4qquZtv30YuDiHEV4IY+WV96X4m18s=
-Message-ID: <9871ee5f0502011950757d6803@mail.gmail.com>
-Date: Tue, 1 Feb 2005 22:50:55 -0500
-From: Timothy Miller <theosib@gmail.com>
-Reply-To: Timothy Miller <theosib@gmail.com>
-To: Lincoln Dale <ltd@cisco.com>
-Subject: Re: ALSA HELP: Crackling and popping noises with via82xx
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20050202134106.041be8f8@171.71.163.14>
+	Tue, 1 Feb 2005 21:54:52 -0500
+Date: Wed, 2 Feb 2005 11:54:48 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH 2.6.11-rc2 11/29] ide: add ide_drive_t.sleeping
+Message-ID: <20050202025448.GL621@htj.dyndns.org>
+References: <20050202024017.GA621@htj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9871ee5f05020118343effed7@mail.gmail.com>
-	 <5.1.0.14.2.20050202134106.041be8f8@171.71.163.14>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050202024017.GA621@htj.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 02 Feb 2005 13:55:23 +1100, Lincoln Dale <ltd@cisco.com> wrote:
-> At 01:34 PM 2/02/2005, Timothy Miller wrote:
-> >I've mentioned this problem before.  It seemed to go away around the
-> >2.6.8 timeframe, but when I started using 2.6.9, it came back.   I'm
-> >using 2.6.10, and it's still happening.
+> 11_ide_drive_sleeping_fix.patch
 > 
-> almost identical system here, other than i'm using an ASUS A7V600
-> motherboard but otherwise have identical chipset, graphics card.
-> (although the ASUS board has a rev60 version of the sound driver).
+> 	ide_drive_t.sleeping field added.  0 in sleep field used to
+> 	indicate inactive sleeping but because 0 is a valid jiffy
+> 	value, though slim, there's a chance that something can go
+> 	weird.  And while at it, explicit jiffy comparisons are
+> 	converted to use time_{after|before} macros.
 
-Thanks for responding.  I may have neglected to mention that I'm not
-subscribed, in case anyone else wants to respond.
 
-> 
-> no problems with audio crackling at all, using 2.6.10 and 2.6.1-rc2-mm2
-> with audio compiled into the kernel (not using modules for OSS/ALSA).
-> 
-> perhaps the interrupt is shared with some other device?
-> perhaps your speakers are dying?
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-Definitely not.  I can use this same box for days on end in Windows,
-and everything works great (well, sound anyway).  I boot Linux and it
-makes noises.
 
-> 
-> this is my mythtv box so i'd certainly notice if the audio was bung.
-> 
-> [root@spam root]# uname -a
-> Linux spam 2.6.10ltd1 #1 Sun Jan 30 21:06:01 EST 2005 i686 athlon i386
-> GNU/Linux
-> 
-> [root@spam root]# lspci
-> 00:00.0 Host bridge: VIA Technologies, Inc. VT8377 [KT400/KT600 AGP] Host 
-> Bridge (rev 80)
-> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8237 PCI Bridge
-> 00:0a.0 Multimedia video controller: Brooktree Corporation Bt878 Video
-> Capture (rev 11)
-> 00:0a.1 Multimedia controller: Brooktree Corporation Bt878 Audio Capture
-> (rev 11)
-> 00:0e.0 Multimedia video controller: Conexant Winfast TV2000 XP (rev 05)
-> 00:0e.2 Multimedia controller: Conexant: Unknown device 8802 (rev 05)
-> 00:0f.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID
-> Controller (rev 80)
-> 00:0f.1 IDE interface: VIA Technologies, Inc.
-> VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-> 00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-> Controller (rev 81)
-> 00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-> Controller (rev 81)
-> 00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 
-> Controller (rev 81)
-> 00:10.3 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1
-> Controller (rev 81)
-> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
-> 00:11.0 ISA bridge: VIA Technologies, Inc. VT8237 ISA bridge [K8T800 South]
-> 00:11.5 Multimedia audio controller: VIA Technologies, Inc. 
-> VT8233/A/8235/8237 AC97 Audio Controller (rev 60)
-> 00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
-> 00:13.0 Multimedia video controller: Brooktree Corporation Bt848 Video
-> Capture (rev 12)
-> 01:00.0 VGA compatible controller: ATI Technologies Inc RV280 [Radeon 9200
-> SE] (rev 01)
-> 01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon 9200 SE]
-> (Secondary) (rev 01)
-> 
-> [root@spam root]# cat /proc/interrupts
->             CPU0
->    0:  160440190    IO-APIC-edge  timer
->    1:       6157    IO-APIC-edge  i8042
->    7:     118047    IO-APIC-edge  parport0
->    9:          0   IO-APIC-level  acpi
->   12:     165567    IO-APIC-edge  i8042
->   14:     403308    IO-APIC-edge  ide0
->   15:    1685009    IO-APIC-edge  ide1
->   16:   59442009   IO-APIC-level  bttv0, bt878
->   17:          0   IO-APIC-level  cx88[0], cx88[0]
->   18:          3   IO-APIC-level  bttv1
->   21:         37   IO-APIC-level  ehci_hcd, uhci_hcd, uhci_hcd, uhci_hcd,
-> uhci_hcd
->   22:      48672   IO-APIC-level  VIA8237
->   23:     139365   IO-APIC-level  eth0
-> 
-> cheers,
-> 
-> lincoln.
-> 
-
-Here's my /proc/interrupts:
-
-           CPU0
-  0:    9862457    IO-APIC-edge  timer
-  1:      17739    IO-APIC-edge  i8042
-  7:          0    IO-APIC-edge  parport0
-  9:          0   IO-APIC-level  acpi
- 12:     259939    IO-APIC-edge  i8042
- 14:          7    IO-APIC-edge  ide0
- 15:         22    IO-APIC-edge  ide1
-169:     369851   IO-APIC-level  radeon@pci:0000:01:00.0
-177:      51422   IO-APIC-level  3w-xxxx, eth0
-193:       3165   IO-APIC-level  VIA8233
-NMI:          0
-LOC:    9862333
-ERR:          0
-MIS:          0
+Index: linux-ide-export/drivers/ide/ide-io.c
+===================================================================
+--- linux-ide-export.orig/drivers/ide/ide-io.c	2005-02-02 10:28:03.340503581 +0900
++++ linux-ide-export/drivers/ide/ide-io.c	2005-02-02 10:28:04.260354336 +0900
+@@ -933,6 +933,7 @@ void ide_stall_queue (ide_drive_t *drive
+ 	if (timeout > WAIT_WORSTCASE)
+ 		timeout = WAIT_WORSTCASE;
+ 	drive->sleep = timeout + jiffies;
++	drive->sleeping = 1;
+ }
+ 
+ EXPORT_SYMBOL(ide_stall_queue);
+@@ -972,18 +973,18 @@ repeat:	
+ 	}
+ 
+ 	do {
+-		if ((!drive->sleep || time_after_eq(jiffies, drive->sleep))
++		if ((!drive->sleeping || time_after_eq(jiffies, drive->sleep))
+ 		    && !elv_queue_empty(drive->queue)) {
+ 			if (!best
+-			 || (drive->sleep && (!best->sleep || 0 < (signed long)(best->sleep - drive->sleep)))
+-			 || (!best->sleep && 0 < (signed long)(WAKEUP(best) - WAKEUP(drive))))
++			 || (drive->sleeping && (!best->sleeping || time_before(drive->sleep, best->sleep)))
++			 || (!best->sleeping && time_before(WAKEUP(drive), WAKEUP(best))))
+ 			{
+ 				if (!blk_queue_plugged(drive->queue))
+ 					best = drive;
+ 			}
+ 		}
+ 	} while ((drive = drive->next) != hwgroup->drive);
+-	if (best && best->nice1 && !best->sleep && best != hwgroup->drive && best->service_time > WAIT_MIN_SLEEP) {
++	if (best && best->nice1 && !best->sleeping && best != hwgroup->drive && best->service_time > WAIT_MIN_SLEEP) {
+ 		long t = (signed long)(WAKEUP(best) - jiffies);
+ 		if (t >= WAIT_MIN_SLEEP) {
+ 		/*
+@@ -992,10 +993,9 @@ repeat:	
+ 		 */
+ 			drive = best->next;
+ 			do {
+-				if (!drive->sleep
+-				/* FIXME: use time_before */
+-				 && 0 < (signed long)(WAKEUP(drive) - (jiffies - best->service_time))
+-				 && 0 < (signed long)((jiffies + t) - WAKEUP(drive)))
++				if (!drive->sleeping
++				 && time_before(jiffies - best->service_time, WAKEUP(drive))
++				 && time_before(WAKEUP(drive), jiffies + t))
+ 				{
+ 					ide_stall_queue(best, min_t(long, t, 10 * WAIT_MIN_SLEEP));
+ 					goto repeat;
+@@ -1058,14 +1058,17 @@ static void ide_do_request (ide_hwgroup_
+ 		hwgroup->busy = 1;
+ 		drive = choose_drive(hwgroup);
+ 		if (drive == NULL) {
+-			unsigned long sleep = 0;
++			int sleeping = 0;
++			unsigned long sleep = 0; /* shut up, gcc */
+ 			hwgroup->rq = NULL;
+ 			drive = hwgroup->drive;
+ 			do {
+-				if (drive->sleep && (!sleep || 0 < (signed long)(sleep - drive->sleep)))
++				if (drive->sleeping && (!sleeping || time_before(drive->sleep, sleep))) {
++					sleeping = 1;
+ 					sleep = drive->sleep;
++				}
+ 			} while ((drive = drive->next) != hwgroup->drive);
+-			if (sleep) {
++			if (sleeping) {
+ 		/*
+ 		 * Take a short snooze, and then wake up this hwgroup again.
+ 		 * This gives other hwgroups on the same a chance to
+@@ -1105,7 +1108,7 @@ static void ide_do_request (ide_hwgroup_
+ 		}
+ 		hwgroup->hwif = hwif;
+ 		hwgroup->drive = drive;
+-		drive->sleep = 0;
++		drive->sleeping = 0;
+ 		drive->service_start = jiffies;
+ 
+ 		if (blk_queue_plugged(drive->queue)) {
+Index: linux-ide-export/include/linux/ide.h
+===================================================================
+--- linux-ide-export.orig/include/linux/ide.h	2005-02-02 10:27:15.687234943 +0900
++++ linux-ide-export/include/linux/ide.h	2005-02-02 10:28:04.261354174 +0900
+@@ -721,6 +721,7 @@ typedef struct ide_drive_s {
+ 					 *  3=64-bit
+ 					 */
+ 	unsigned scsi		: 1;	/* 0=default, 1=ide-scsi emulation */
++	unsigned sleeping	: 1;	/* 1=sleeping & sleep field valid */
+ 
+         u8	quirk_list;	/* considered quirky, set for a specific host */
+         u8	init_speed;	/* transfer rate set at boot */

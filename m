@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281576AbRKMKaI>; Tue, 13 Nov 2001 05:30:08 -0500
+	id <S281592AbRKMKk6>; Tue, 13 Nov 2001 05:40:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281583AbRKMK35>; Tue, 13 Nov 2001 05:29:57 -0500
-Received: from mail128.mail.bellsouth.net ([205.152.58.88]:1751 "EHLO
-	imf28bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281578AbRKMK3o>; Tue, 13 Nov 2001 05:29:44 -0500
-Message-ID: <3BF0F603.925167E3@mandrakesoft.com>
-Date: Tue, 13 Nov 2001 05:29:23 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S281595AbRKMKki>; Tue, 13 Nov 2001 05:40:38 -0500
+Received: from auucp0.ams.ops.eu.uu.net ([195.129.70.39]:22460 "EHLO
+	auucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
+	id <S281591AbRKMKkT>; Tue, 13 Nov 2001 05:40:19 -0500
+Date: Tue, 13 Nov 2001 11:38:32 +0100 (CET)
+From: kees <kees@schoen.nl>
+To: J Sloan <jjs@pobox.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: report: tun device
+In-Reply-To: <3BF0EE24.7661D843@pobox.com>
+Message-ID: <Pine.LNX.4.33.0111131138001.16924-100000@schoen3.schoen.nl>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPLONLY kernel symbols???
-In-Reply-To: <E163aNp-0000cm-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > If and when I step down as maintainer (if I do so, I'll publically
-> > pass the baton to the new maintainer), the new maintainer can indent
-> > to their preference. Until that time, *I'm* the maintainer, and *I*
-> > need to be able to read the code efficiently. It's the part of the
-> > kernel I spend the most time in, after all.
-> 
-> I wasnt aware mtrr.c had an active maintainer.
+Hi
 
-According to changelog nothing substantive since March 1999.
+No I downloaded 2.4.14 and applied patch-2.4.15.pre3
 
+Kees
 
-> > "He who writes the code gets to choose".
-> 
-> How about he who has to decipher the whole mess to add things...
+On Tue, 13 Nov 2001, J Sloan wrote:
 
-At least one person actually Lindent's mtrr.c, modifies, tests, and then
-backports changes into un-Lindent'd mtrr.c.  Ug.
-
-	Jeff
-
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+> kees wrote:
+>
+> > Hi
+> >
+> > I have build 2.4.15pre3 but stil can't use /dev/net/tun (vtund).
+> >
+> >
+> > Nov 13 08:38:29 schoen3 vtund[16676]: Can't allocate tun device. File
+>
+> Did you upgrade from a pre-2.4.6 kernel?
+>
+> mirai.cx: /home/jjs
+> (tty/dev/pts/2): bash: 1003 > uname -a
+> Linux mirai.cx 2.4.15-pre4 #2 Mon Nov 12 22:55:11 PST 2001 i686 GenuineIntel
+> mirai.cx: /home/jjs
+> (tty/dev/pts/2): bash: 1002 > ifconfig tun0
+> tun0      Link encap:Point-to-Point Protocol
+>           inet addr:192.168.111.254  P-t-P:192.168.111.253
+> Mask:255.255.255.255
+>           UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1450  Metric:1
+>           RX packets:17 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:10
+>
+>
 

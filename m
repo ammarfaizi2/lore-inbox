@@ -1,105 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263741AbUCYXsh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 18:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUCYXsh
+	id S263670AbUCYXr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 18:47:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbUCYXr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 18:48:37 -0500
-Received: from server2.netdiscount.de ([217.13.198.2]:8329 "EHLO
-	server2.netdiscount.de") by vger.kernel.org with ESMTP
-	id S263741AbUCYXsR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 18:48:17 -0500
-Date: Fri, 26 Mar 2004 00:48:04 +0100
-From: Christian Leber <christian@leber.de>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with remap_page_range/mmap
-Message-ID: <20040325234804.GA29507@core.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 25 Mar 2004 18:47:57 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:62735 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP id S263670AbUCYXrr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 18:47:47 -0500
+Date: Thu, 25 Mar 2004 16:46:51 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+cc: Kevin Corry <kevcorry@us.ibm.com>, Neil Brown <neilb@cse.unsw.edu.au>,
+       linux-raid@vger.kernel.org
+Subject: Re: "Enhanced" MD code avaible for review
+Message-ID: <1035780000.1080258411@aslan.btc.adaptec.com>
+In-Reply-To: <40632994.7080504@pobox.com>
+References: <760890000.1079727553@aslan.btc.adaptec.com> <16480.61927.863086.637055@notabene.cse.unsw.edu.au> <40624235.30108@pobox.com> <200403251200.35199.kevcorry@us.ibm.com> <40632804.1020101@pobox.com> <40632994.7080504@pobox.com>
+X-Mailer: Mulberry/3.1.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-Accept-Language: de en
-X-Location: Europe, Germany, Mannheim
-X-Operating-System: Debian GNU/Linux (sid)
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> Jeff Garzik wrote:
+> 
+> Just so there is no confusion...  the "failing over...in userland" thing I
+> mention is _only_ during discovery of the root disk.
 
-I have a problem with mmaping memory to userspace.
+None of the solutions being talked about perform "failing over" in
+userland.  The RAID transforms which perform this operation are kernel
+resident in DM, MD, and EMD.  Perhaps you are talking about spare
+activation and rebuild?
 
-It´s very simple:
+> Similar code would need to go into the bootloader, for controllers that do
+> not present the entire RAID array as a faked BIOS INT drive.
 
-addr = __get_free_pages(GFP_KERNEL,0);
-int atoll_fops_mmap(struct file *filp, struct vm_area_struct *vma)
-{
-        vma->vm_flags |= VM_SHM | VM_LOCKED | VM_IO;
-	
-	if(remap_page_range_A(vma,
-		vma->vm_start, addr, 4096,
-		vma->vm_page_prot)) {
-			printk("remapping send space failed\n");
-			return -ENXIO;
-	}
-        *(unsigned long *)addr = 0x23;
-        printk("mmap finished, first bytes: %lx\n",*(unsigned long *)addr);
-	return 0;
-}
-int atoll_fops_release(struct inode *inode,struct file *filp)
-{
-	printk("release, first bytes: %lx\n",*(unsigned long *)addr);
-	return 0;
-}
+None of the solutions presented here are attempting to make RAID
+transforms operate from the boot loader environment without BIOS
+support.  I see this as a completely tangental problem to what is
+being discussed.
 
-complete code is here:
-http://debian.christian-leber.de/mmap_problem/atollinit.txt
-or as tar
-http://debian.christian-leber.de/mmap_problem.tar.bz2
+--
+Justin
 
-The stupid little testprogramm:
- ptr=mmap(NULL,4096,PROT_READ|PROT_WRITE,MAP_SHARED,fdopen,0);
- if(ptr==-1) printf("ERROR\n");
- *(ptr) = 0x42;
- printf("%lx\n",*(ptr));
-
-
-This works as expected with 2.6.3 on IA64
-Testprogramm gives out "42"
-and in the kernel log:
-mmap finished, first bytes: 23
-release, first bytes: 42
-
-
-Now it gets odd:
-On a Dual PIII; another one; dual xeon; another one; and a P3 laptop
-
-The testprogramm gives out "ffffffff"
-In the kernel log:
-mmap finished, first bytes: 23
-release, first bytes: 23
-
-So never anything is written to memory.
-(it also doesn´t depend on the kernel, i tried several
-versions/configurations)
-
-
-On a Duron (also tried with exact the same kernel from one of the
-systems above), the Testprogramm gives correct output, but the kernel
-log says:
-mmap finished, first bytes: 23
-release, first bytes: 23
-
-So also nothing is actually written to the memory.
-
-
-Is that a bug (can´t imagine) or do I do a really stupid error?
-
-
-
-Christian Leber
-
--- 
-  "Omnis enim res, quae dando non deficit, dum habetur et non datur,
-   nondum habetur, quomodo habenda est."       (Aurelius Augustinus)
-  Translation: <http://gnuhh.org/work/fsf-europe/augustinus.html>

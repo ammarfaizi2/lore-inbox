@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272336AbRHXW3e>; Fri, 24 Aug 2001 18:29:34 -0400
+	id <S271611AbRHXWmg>; Fri, 24 Aug 2001 18:42:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272341AbRHXW3Y>; Fri, 24 Aug 2001 18:29:24 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:57608 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S272336AbRHXW3P>; Fri, 24 Aug 2001 18:29:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Nicolas Pitre <nico@cam.org>
-Subject: Re: What version of the kernel fixes these VM issues?
-Date: Sat, 25 Aug 2001 00:35:59 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Anwar P <anwarp@mail.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0108241610560.25240-100000@xanadu.home>
-In-Reply-To: <Pine.LNX.4.33.0108241610560.25240-100000@xanadu.home>
+	id <S271613AbRHXWm1>; Fri, 24 Aug 2001 18:42:27 -0400
+Received: from web10908.mail.yahoo.com ([216.136.131.44]:13062 "HELO
+	web10908.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S271611AbRHXWmQ>; Fri, 24 Aug 2001 18:42:16 -0400
+Message-ID: <20010824224232.52238.qmail@web10908.mail.yahoo.com>
+Date: Fri, 24 Aug 2001 15:42:32 -0700 (PDT)
+From: Brad Chapman <kakadu_croc@yahoo.com>
+Subject: [IDEA+RFC] Possible solution for min()/max() war
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010824222924Z16116-32383+1243@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 24, 2001 10:12 pm, Nicolas Pitre wrote:
-> On Fri, 24 Aug 2001, Daniel Phillips wrote:
-> 
-> > On August 24, 2001 08:14 pm, Nicolas Pitre wrote:
-> > > I have a totally different setup but I can reproduce the same behavior on
-> > > the system I have here:
-> > >
-> > > ARM board with 32 MB RAM, no flash, NFS root.
-> > > The kernel is based on 2.4.8-ac9 plus some small VM fixes from -ac10.
-> > >
-> > > My test consist in compiling gcc 3.0 while some MP3s are continously playing
-> > > in the background.  The gcc build goes pretty far along until both the mp3
-> > > player and the gcc build completely jam.
-> >
-> > Which sound system, and which sound card driver?
-> 
-> The driver is for the UDA1341 on a SA1110 chip written by myself.  It is
-> fully OSS compliant, no ALSA.
+Everyone,
 
-Your system should be able to handle that easily.  Do you have some meminfo
-output to look at?  What about 2.4.9?
+	At the risk of igniting another long-drawn-out flamewar over the
+min()/max() macros, I have an idea.
 
---
-Daniel
+	There is a section in the config dialogs labeled "Kernel hacking."
+Under it there is the SysRQ option. Why don't we put an entry under that
+dialog and label it "Use new min()/max() macros" and make it a y/n field.
+Then we can add dozens of warnings to the help dialog about it, and allow
+the user/hacker to select the macro they want.
 
+	In any code which uses the macros, you can simply do this:
+
+#include <linux/config.h>
+....
+#ifdef CONFIG_USE_NEW_MINMAX
+	minimum = min(int, number[0], number[1]);
+#else
+	minimum = min(number[0], number[1]);
+#endif
+
+	This way, some hackers can use the two-arg min()/max() inside an #ifdef block,
+other hackers can use the three-arg min()/max() inside an #ifdef block, 
+and people who don't care can select either.
+
+	Comments, flames, suggestions, anyone? If the output is good, I'll
+publish a patch which will add the Config.in option and default it to
+CONFIG_USE_NEW_MINMAX=y, since that was the decree of the Great Penguin Overlord ;)
+
+Brad
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+Current e-mail: kakadu@adelphia.net
+Alternate e-mail: kakadu@netscape.net
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

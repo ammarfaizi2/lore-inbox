@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274070AbRI0XMN>; Thu, 27 Sep 2001 19:12:13 -0400
+	id <S274076AbRI0XOD>; Thu, 27 Sep 2001 19:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274072AbRI0XME>; Thu, 27 Sep 2001 19:12:04 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:9110 "EHLO
-	opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S274070AbRI0XL4>; Thu, 27 Sep 2001 19:11:56 -0400
-Date: Thu, 27 Sep 2001 16:11:58 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac16
-Message-ID: <20010927161158.E23005@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20010927120353.M13535@cpe-24-221-152-185.az.sprintbbd.net> <E15mkEu-0005QS-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15mkEu-0005QS-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.22i
+	id <S274075AbRI0XNx>; Thu, 27 Sep 2001 19:13:53 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:63182 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S274072AbRI0XNh>;
+	Thu, 27 Sep 2001 19:13:37 -0400
+Date: Fri, 28 Sep 2001 01:13:50 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200109272313.BAA16620@harpo.it.uu.se>
+To: bgerst@didntduck.org
+Subject: Re: [PATCH] Cleanup f00f bug code
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 28, 2001 at 12:06:44AM +0100, Alan Cox wrote:
-> > > 2.4.9-ac16
-> > [snip]
-> > > o	Add initial pieces for EXPORT_SYMBOL_GPL	(me)
-> > > 	| kernel symbols for GPL only use
-> > 
-> > What's the idea behind this?  Are we now going to restrict certain parts of
-> > the kernel to interacting with GPL-only modules?
-> 
-> Imagine you have a shared library of code that makes writing some kind of
-> driver easier, and you don't see why it should be available to non GPL
-> driver modules. 
+On Wed, 26 Sep 2001 21:52:09 -0400, Brian Gerst wrote:
 
-I can see that.  Now would there be any restrictions on this?  Ie could a
-whole subsystem only export symbols for GPL-only use?
+>This patch changes the f00f bug workaround code to use a fixed mapping
+>instead of touching the page tables directly.  It also removes the
+>assumption that only 686's don't have the bug.  It has been tested for
+>normal operation of the relocated IDT, but I don't have a processor with
+>the bug to do a real test.  Could someone with such a processor please
+>verify that the workaround still works?
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+It doesn't. 2.4.9-ac16 + your patch booted ok on my P5MMX, and the
+kernel printed that it applied the F0 0F workaround, but executing
+F0 0F C7 C8 in user-space caused an instant lockup.
+
+/Mikael

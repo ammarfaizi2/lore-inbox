@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288709AbSAICBs>; Tue, 8 Jan 2002 21:01:48 -0500
+	id <S288717AbSAICOD>; Tue, 8 Jan 2002 21:14:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288711AbSAICBi>; Tue, 8 Jan 2002 21:01:38 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:57352 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288709AbSAICBW>; Tue, 8 Jan 2002 21:01:22 -0500
-Message-ID: <3C3BA330.729B06FE@zip.com.au>
-Date: Tue, 08 Jan 2002 17:56:00 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adam McKenna <adam-dated-1010972538.f82778@flounder.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Filesystem creation problems with 2.4.17
-In-Reply-To: <20020109014216.GB4511@flounder.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288718AbSAICNx>; Tue, 8 Jan 2002 21:13:53 -0500
+Received: from nile.gnat.com ([205.232.38.5]:22769 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S288717AbSAICNn>;
+	Tue, 8 Jan 2002 21:13:43 -0500
+From: dewar@gnat.com
+To: dewar@gnat.com, mrs@windriver.com, paulus@samba.org
+Subject: Re: [PATCH] C undefined behavior fix
+Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+        velco@fadata.bg
+Message-Id: <20020109021343.26DD2F2FFB@nile.gnat.com>
+Date: Tue,  8 Jan 2002 21:13:43 -0500 (EST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam McKenna wrote:
-> 
-> I'm having some problems creating a large filesystem on linux kernels
-> 2.4.17.  I am using Debian Potato with Adrian Bunk's updates for
-> running 2.4.  The filesystem is approx. 260GB and is on an AMI MegaRAID
-> RAID-5 stripe.
-> 
-> ...
-> write(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768)
-> = -1 EFBIG (File too large)
-> --- SIGXFSZ (File size limit exceeded) ---
-> +++ killed by SIGXFSZ +++
+<<and we load each one into our app, and place c1, c2 and c3 immediately
+next to each other, and then run foo1, then foo2, then foo3, and then
+check the side effects, c1, c2 and c3, I would claim we _must_ get
+write 1 c1, write 2 c2, write 3 c3, and at the end, c1, c2 c3 should
+be 1,2,3.  I find it obvious.
+>>
 
-Kernel bug.  Apply this patch:
+Yes, of course! No one disagrees. I am talking about *LOADS* not stores,
+your example is 100% irrelevant to my point, since it does stores.
 
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre2aa1/00_blkdev-ulimit-1
+If you think I was talking about stores (look back in the thread, you
+will see that is your misconception), then no WONDER you are puzzled
+by what you *thought* I said :-)
 
-Or run mke2fs from a fresh root login (not via `su')
-or fiddle with ulimit to set it unlimited.
+<<In part, it is because gcc has adopted this model of independent
+translation units, that makes it a hard requirement in the case above,
+for the accesses to be byte based.  Because if it had not, gcc would
+not be able to implement the intended required semantics of each of
+the units.  The requirements of the standard forced this because of
+the implementation choice.
+>>
 
--
+All this is true, but totally irrelevant to the point I was making, which
+was about loads, not stores.
+
+>>Welcome to the world of programming.
+
+If you feel that I need a welcome to the world of programming (in which
+I have lived for 38 years, producing several million lines of delivered
+commercial code), then it is likely you are misunderstanding what I
+am saying :-)
+
+Robert

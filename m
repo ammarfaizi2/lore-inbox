@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268776AbUJKKyy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268779AbUJKLFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268776AbUJKKyy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 06:54:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268775AbUJKKyy
+	id S268779AbUJKLFT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268781AbUJKLFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 06:54:54 -0400
-Received: from gate.crashing.org ([63.228.1.57]:29629 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268776AbUJKKyv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 06:54:51 -0400
-Subject: Re: Totally broken PCI PM calls
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>
-In-Reply-To: <20041011101824.GC26677@atrey.karlin.mff.cuni.cz>
-References: <1097455528.25489.9.camel@gaston>
-	 <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org>
-	 <16746.299.189583.506818@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.58.0410102115410.3897@ppc970.osdl.org>
-	 <20041011101824.GC26677@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Message-Id: <1097492066.3241.1.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 11 Oct 2004 20:54:26 +1000
+	Mon, 11 Oct 2004 07:05:19 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:62143 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268779AbUJKLFN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 07:05:13 -0400
+Message-ID: <416A68E5.6080608@drzeus.cx>
+Date: Mon, 11 Oct 2004 13:05:09 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040919)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: MMC performance
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-11 at 20:18, Pavel Machek wrote:
-> Hi!
-> 
-> > > Maybe the real problem is that we are trying to use the device suspend
-> > > functions for suspend-to-disk, when we don't really want to change the
-> > > device's power state at all.
-> > 
-> > An acceptable solution is certainly to instead of passing down "go to D3",
-> > just not do anything at all. HOWEVER, I doubt that is actually all that 
-> > good a solution either: devices quite possibly do want to save state 
-> > and/or set wake-on-events. 
-> 
-> And DMA needs to be stopped, or it is "bye bye data" situation.
+I've added SGIO support to my driver now hoping that it would resolve 
+the piss-poor performance I've been getting. Didn't do much difference 
+though.
 
-This is true for pretty much any PM state
+Read operations are fairly fast. It queues 8kB at a time. A bit small 
+perhaps, but still decent.
 
-> Does sparse now have typechecking on enums? Solution that was in -mm
-> was basically "put enums there so drivers can't be confused" + "signal
-> global state out-of-band in global variable". It was not too nice, but
-> it certainly was working.
-> 								Pavel
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Writing, however, only sends a single sector at a time. The queue 
+process eats up half of the CPU time on my machine during a write. And 
+since MMC cards have to clear a whole bunch of sectors before a write 
+shouldn't you send as many sectors as possible to them?
 
+Since I don't have another controller to compare with I don't really 
+know if the problem is in my code, the MMC layer, the block layer or the 
+filesystem.
+
+I'm going to dig around a bit more but some pointers are welcome. At 
+least which layer I should be looking at.
+
+Rgds
+Pierre

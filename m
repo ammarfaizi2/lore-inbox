@@ -1,70 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbUDKNZh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 09:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUDKNZh
+	id S262365AbUDKO0U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 10:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbUDKO0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 09:25:37 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20232 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262339AbUDKNZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 09:25:35 -0400
-Date: Sun, 11 Apr 2004 14:25:27 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ivica Ico Bukvic <ico@fuse.net>
-Cc: daniel.ritz@gmx.ch, "'Thomas Charbonnel'" <thomas@undata.org>,
-       ccheney@debian.org, linux-pcmcia@lists.infradead.org,
-       alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       "'Tim Blechmann'" <TimBlechmann@gmx.net>
-Subject: Re: [linux-audio-user] snd-hdsp+cardbus+M6807 notebook=distortion -- First good news
-Message-ID: <20040411142527.A29837@flint.arm.linux.org.uk>
-Mail-Followup-To: Ivica Ico Bukvic <ico@fuse.net>, daniel.ritz@gmx.ch,
-	'Thomas Charbonnel' <thomas@undata.org>, ccheney@debian.org,
-	linux-pcmcia@lists.infradead.org, alsa-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org,
-	'Tim Blechmann' <TimBlechmann@gmx.net>
-References: <200404100347.56786.daniel.ritz@gmx.ch> <20040410033032.XOVD8029.smtp1.fuse.net@64BitBadass>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040410033032.XOVD8029.smtp1.fuse.net@64BitBadass>; from ico@fuse.net on Fri, Apr 09, 2004 at 11:30:31PM -0400
+	Sun, 11 Apr 2004 10:26:20 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:21845 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262365AbUDKO0O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 10:26:14 -0400
+Date: Sun, 11 Apr 2004 15:26:10 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] rmap 6 swap_unplug page
+In-Reply-To: <Pine.LNX.4.44.0404111520210.1923-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0404111524240.1923-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Note: I've dropped one of the mailing lists from the CC line because
-they appear to have zero interest in my messages.)
+rmap 6 swap_unplug page
 
-On Fri, Apr 09, 2004 at 11:30:31PM -0400, Ivica Ico Bukvic wrote:
-> I am aware that this burst stuff should be enabled on the 2.6 kernel,
-> however I am still getting bad results.
+Good example of "swapper_space considered harmful": swap_unplug_io_fn
+was originally designed for calling via swapper_space.backing_dev_info;
+but that way it loses track of which device is to be unplugged, so had
+to unplug all swap devices.  But now sync_page tests SwapCache anyway,
+can call swap_unplug_io_fn with page, which leads direct to the device.
 
-Are you saying that you have tried the 2.6.5 kernel?
+Reverted -mc4's CONFIG_SWAP=n fix, just add another NOTHING for it.
+Reverted -mc3's editorial adjustments to swap_backing_dev_info and
+swapper_space initializations: they document the few fields which are
+actually used now, as comment above them says (sound of slapped wrist).
 
-> The 06 to 04 may be the critical element as even when I have everything
-> properly running in Win32, when I alter this number the distortion returns
+ include/linux/swap.h |    5 ++---
+ mm/filemap.c         |    2 +-
+ mm/nommu.c           |    5 -----
+ mm/swap_state.c      |    4 ++--
+ mm/swapfile.c        |   23 +++++++++++++++--------
+ 5 files changed, 20 insertions(+), 19 deletions(-)
 
-$ setpci -s a.0 0xc9.b
+--- rmap4/include/linux/swap.h	2004-04-11 07:19:24.105429504 +0100
++++ rmap5/include/linux/swap.h	2004-04-11 10:38:07.223816856 +0100
+@@ -181,8 +181,6 @@ extern int vm_swappiness;
+ extern int shmem_unuse(swp_entry_t entry, struct page *page);
+ #endif /* CONFIG_MMU */
+ 
+-extern void swap_unplug_io_fn(struct backing_dev_info *);
+-
+ #ifdef CONFIG_SWAP
+ /* linux/mm/page_io.c */
+ extern int swap_readpage(struct file *, struct page *);
+@@ -218,7 +216,7 @@ extern sector_t map_swap_page(struct swa
+ extern struct swap_info_struct *get_swap_info_struct(unsigned);
+ extern int can_share_swap_page(struct page *);
+ extern int remove_exclusive_swap_page(struct page *);
+-struct backing_dev_info;
++extern void swap_unplug_io_fn(struct page *);
+ 
+ extern struct swap_list_t swap_list;
+ extern spinlock_t swaplock;
+@@ -252,6 +250,7 @@ extern spinlock_t swaplock;
+ #define move_from_swap_cache(p, i, m)		1
+ #define __delete_from_swap_cache(p)		/*NOTHING*/
+ #define delete_from_swap_cache(p)		/*NOTHING*/
++#define swap_unplug_io_fn(p)			/*NOTHING*/
+ 
+ static inline int remove_exclusive_swap_page(struct page *p)
+ {
+--- rmap4/mm/filemap.c	2004-04-11 07:19:24.796324472 +0100
++++ rmap5/mm/filemap.c	2004-04-11 10:38:07.226816400 +0100
+@@ -127,7 +127,7 @@ static inline int sync_page(struct page 
+ 		if (mapping->a_ops && mapping->a_ops->sync_page)
+ 			return mapping->a_ops->sync_page(page);
+ 	} else if (PageSwapCache(page)) {
+-		swap_unplug_io_fn(NULL);
++		swap_unplug_io_fn(page);
+ 	}
+ 	return 0;
+ }
+--- rmap4/mm/nommu.c	2004-04-11 07:19:24.866313832 +0100
++++ rmap5/mm/nommu.c	2004-04-11 10:38:07.227816248 +0100
+@@ -18,7 +18,6 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/blkdev.h>
+-#include <linux/backing-dev.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+@@ -572,7 +571,3 @@ unsigned long get_unmapped_area(struct f
+ void pte_chain_init(void)
+ {
+ }
+-
+-void swap_unplug_io_fn(struct backing_dev_info *)
+-{
+-}
+--- rmap4/mm/swap_state.c	2004-04-11 07:19:25.004292856 +0100
++++ rmap5/mm/swap_state.c	2004-04-11 10:38:07.228816096 +0100
+@@ -25,13 +25,13 @@ static struct address_space_operations s
+ };
+ 
+ static struct backing_dev_info swap_backing_dev_info = {
+-	.memory_backed	= 1,	/* Does not contribute to dirty memory */
+-	.unplug_io_fn	= swap_unplug_io_fn,
++	.state		= 0,	/* uncongested */
+ };
+ 
+ struct address_space swapper_space = {
+ 	.page_tree	= RADIX_TREE_INIT(GFP_ATOMIC),
+ 	.tree_lock	= SPIN_LOCK_UNLOCKED,
++	.nrpages	= 0,	/* total_swapcache_pages */
+ 	.a_ops		= &swap_aops,
+ 	.backing_dev_info = &swap_backing_dev_info,
+ };
+--- rmap4/mm/swapfile.c	2004-04-11 07:19:24.975297264 +0100
++++ rmap5/mm/swapfile.c	2004-04-11 10:38:07.231815640 +0100
+@@ -86,19 +86,26 @@ static void remove_swap_bdev(struct bloc
+ 	BUG();
+ }
+ 
+-void swap_unplug_io_fn(struct backing_dev_info *unused_bdi)
++/*
++ * Unlike a standard unplug_io_fn, swap_unplug_io_fn is never called
++ * through swap's backing_dev_info (which is only used by shrink_list),
++ * but directly from sync_page when PageSwapCache: and takes the page
++ * as argument, so that it can find the right device from swp_entry_t.
++ */
++void swap_unplug_io_fn(struct page *page)
+ {
+-	int i;
++	swp_entry_t entry;
+ 
+ 	down(&swap_bdevs_sem);
+-	for (i = 0; i < MAX_SWAPFILES; i++) {
+-		struct block_device *bdev = swap_bdevs[i];
++	entry.val = page->private;
++	if (PageSwapCache(page)) {
++		struct block_device *bdev = swap_bdevs[swp_type(entry)];
+ 		struct backing_dev_info *bdi;
+ 
+-		if (bdev == NULL)
+-			break;
+-		bdi = bdev->bd_inode->i_mapping->backing_dev_info;
+-		(*bdi->unplug_io_fn)(bdi);
++		if (bdev) {
++			bdi = bdev->bd_inode->i_mapping->backing_dev_info;
++			(*bdi->unplug_io_fn)(bdi);
++		}
+ 	}
+ 	up(&swap_bdevs_sem);
+ }
 
-will display the value of this register under Linux, and:
-
-$ setpci -s a.0 0xc9.b=value
-
-will set it to the desired value.  However, check that a.0 is the
-cardbus bridge first by using:
-
-$ lspci
-
-> If I do figure out the problem in Linux and find out that a particular
-> register is the issue, how can I make my linux box adjust this register at
-> boot-time (a simple hack-like script in a form of a service comes to mind
-> but I was hoping to perhaps see a more universal solution if possible)?
-
-The correct solution is to put a quirk into the kernels yenta driver,
-but we'd need the results from your testing first.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

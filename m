@@ -1,68 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262972AbUC2PhT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 10:37:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262974AbUC2PhT
+	id S262974AbUC2P54 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 10:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbUC2P5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 10:37:19 -0500
-Received: from [62.248.102.66] ([62.248.102.66]:51146 "HELO
-	eposta.kablonet.com.tr") by vger.kernel.org with SMTP
-	id S262972AbUC2PhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 10:37:17 -0500
-From: "Siseci" <siseci@postmark.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.6.x mount /dev/ram0 problem. 
-Date: Mon, 29 Mar 2004 18:34:01 +0300
-Message-ID: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
+	Mon, 29 Mar 2004 10:57:55 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:60035 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262974AbUC2P5y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 10:57:54 -0500
+Date: Mon, 29 Mar 2004 10:59:52 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Siseci <siseci@postmark.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x mount /dev/ram0 problem. 
+In-Reply-To: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
+Message-ID: <Pine.LNX.4.53.0403291055450.16539@chaos>
+References: <BMEEKPMJDEAFABBKPBBNMELBCBAA.siseci@postmark.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-9"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Mar 2004, Siseci wrote:
 
-Hi.
-I have a problem about ramdisk.
-Kernel version: 2.6.3 and 2.6.4
+>
+> Hi.
+> I have a problem about ramdisk.
+> Kernel version: 2.6.3 and 2.6.4
+>
+[SNIPPED...]
 
-root@fen:~# dd if=/dev/zero of=/dev/ram0 bs=1024 count=2048
-2048+0 records in
-2048+0 records out
-root@fen:~# mke2fs /dev/ram0
-mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-Filesystem label=
-....
+Verify that /dev/ram0 is not still mounted on /initrd.
+I noticed that the stuff that uses initrd and pivot-root
+for booting, works 'strangely' compared to the past. You
+may find that /initrd remained mounted when you initialized
+its virtual device, confusing the issue.
 
-root@fen:~# mount /dev/ram0 /mnt
-root@fen:~# ls -al /mnt
-total 17
-drwxr-xr-x   3 root     root         1024 Mar 29 20:28 ./
-drwxr-xr-x  22 root     root         4096 Dec 16 02:28 ../
-drwxr-xr-x   2 root     root        12288 Mar 29 20:28 lost+found/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-root@fen:/mnt# echo test > /mnt/test
-root@fen:/mnt# ls -al /mnt
-total 18
-drwxr-xr-x   3 root     root         1024 Mar 29 20:29 ./
-drwxr-xr-x  22 root     root         4096 Dec 16 02:28 ../
-drwxr-xr-x   2 root     root        12288 Mar 29 20:28 lost+found/
--rw-r--r--   1 root     root            5 Mar 29 20:29 test
-root@fen:~# umount /mnt
-root@fen:~# mount /dev/ram0 /mnt
-root@fen:~# ls -al /mnt
-total 17
-drwxr-xr-x   3 root     root         1024 Mar 29 20:28 ./
-drwxr-xr-x  22 root     root         4096 Dec 16 02:28 ../
-drwxr-xr-x   2 root     root        12288 Mar 29 20:28 lost+found/
-
-My test file does not appear on /mnt.
-This was working with 2.4 kernels
-i think the problem is related with 2.6 kernels
-What is the problem?
 

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276231AbRJHSYk>; Mon, 8 Oct 2001 14:24:40 -0400
+	id <S276877AbRJHS0A>; Mon, 8 Oct 2001 14:26:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276972AbRJHSYc>; Mon, 8 Oct 2001 14:24:32 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:3844 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S276231AbRJHSY1>; Mon, 8 Oct 2001 14:24:27 -0400
-Message-ID: <3BC1EF61.9ECD3273@zip.com.au>
-Date: Mon, 08 Oct 2001 11:24:33 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-ac7 i686)
-X-Accept-Language: en
+	id <S276929AbRJHSZw>; Mon, 8 Oct 2001 14:25:52 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18960 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S277060AbRJHSZn>; Mon, 8 Oct 2001 14:25:43 -0400
+Subject: Re: Whining about NUMA. :)  [Was whining about 2.5...]
+To: Martin.Bligh@us.ibm.com
+Date: Mon, 8 Oct 2001 19:31:04 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), landley@trommello.org,
+        riel@conectiva.com.br (Rik van Riel), linux-kernel@vger.kernel.org
+In-Reply-To: <1812679136.1002540059@mbligh.des.sequent.com> from "Martin J. Bligh" at Oct 08, 2001 11:20:59 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: Helge Hafting <helgehaf@idb.hist.no>, Mike Fedyk <mfedyk@matchmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: low-latency patches
-In-Reply-To: <20011006010519.A749@draal.physics.wisc.edu> <3BBEA8CF.D2A4BAA8@zip.com.au> <20011006150024.C2625@mikef-linux.matchmail.com> <3BC1A062.6E953751@idb.hist.no> <3BC1E53E.2A67202A@mvista.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15qfBA-0001Rt-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-george anzinger wrote:
-> 
-> Well, no, but do we want to improve as kernel writers, or just stay
-> "hackers"?  If low latency was a concern the same way lack of dead locks
-> and avoiding OOPs is today, don't you think we would be better coders?
-> As for me, I want to shoot for the higher goal.  Even if I miss, I will
-> still have accomplished more than if I had shot for the mundane.
+> The worst possible case I can conceive (in the future architectures 
+> that I know of)  is 4 different levels. I don't think the number of access
+> speed levels is ever related to the number of processors ?
+> (users of other NUMA architectures feel free to slap me at this point).
 
-Right.  It needs to be a conscious, planned decision:  "from now on,
-holding a lock for more than 500 usecs is a bug".
+The classzone code seems to deal in combinations of memory zones, not in
+specific zones. It lacks docs and the comments seem at best bogus and
+from the old code so I may be wrong.  So its relative weightings for
+each combination of memory we might want to consider for each case
 
-So someone, be it Linus, "the community" or my Mum needs to decide
-that this is a feature which the kernel will henceforth support.
+Andrea ?
 
-It's a new feature - it should be treated as such.
-
-
--
+Alan

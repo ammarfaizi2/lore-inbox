@@ -1,36 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292131AbSBAXSm>; Fri, 1 Feb 2002 18:18:42 -0500
+	id <S292137AbSBAX1x>; Fri, 1 Feb 2002 18:27:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292132AbSBAXSW>; Fri, 1 Feb 2002 18:18:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:524 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292131AbSBAXST>; Fri, 1 Feb 2002 18:18:19 -0500
-Subject: Re: [evms-devel] [linux-lvm] [ANNOUNCE] LVM reimplementation ready for beta testing
-To: corryk@us.ibm.com (Kevin Corry)
-Date: Fri, 1 Feb 2002 23:30:16 +0000 (GMT)
-Cc: thornber@fib011235813.fsnet.co.uk (Joe Thornber), linux-lvm@sistina.com,
-        evms-devel@lists.sourceforge.net, Jim@mcdee.net (Jim McDonald),
-        adilger@turbolabs.com (Andreas Dilger), linux-kernel@vger.kernel.org
-In-Reply-To: <02020115304301.00650@boiler> from "Kevin Corry" at Feb 01, 2002 03:59:06 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Wn8K-0006Rf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S292136AbSBAX1d>; Fri, 1 Feb 2002 18:27:33 -0500
+Received: from adsl-63-197-0-76.dsl.snfc21.pacbell.net ([63.197.0.76]:17167
+	"HELO www.pmonta.com") by vger.kernel.org with SMTP
+	id <S292135AbSBAX1Y>; Fri, 1 Feb 2002 18:27:24 -0500
+From: Peter Monta <pmonta@pmonta.com>
+To: hpa@zytor.com
+Cc: garzik@havoc.gtf.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3C5B1CBB.6080802@zytor.com> (hpa@zytor.com)
+Subject: Re: Continuing /dev/random problems with 2.4
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201202334.72F921C5@www.pmonta.com> <20020201153346.B2497@havoc.gtf.org> <20020201205605.ED5111C5@www.pmonta.com> <3C5B1CBB.6080802@zytor.com>
+Message-Id: <20020201232723.12F3E1C5@www.pmonta.com>
+Date: Fri,  1 Feb 2002 15:27:23 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> As I'm trying to envision it, the EVMS runtime would become a "volume 
-> recognition" framework (see tanget below). Every current EVMS plugin would 
+> The point with the tests that have been mentioned is to derive such a
+> conservative estimate, and to raise a red flag if the output suddenly
+> becomes predictable.
 
-Volume recognition is definitely a user space area. There are a huge array
-of things you want to do in some environments that you cannot do from
-kernel space
-
-Simple example: We have mount by label, imagine trying to extend that in
-kernel space to automatically do LDAP queries to find a remote handle to
-the volume and NFS mount it. It's easy in user space.
-
-Alan
+Ah, I see; I was misled by the "truly random" remark, sorry.  So a reasonable
+sanity test for a block of audio samples might be a standard deviation
+greater than a few LSB; this will catch constant or close-to-constant
+output.

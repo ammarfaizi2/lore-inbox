@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRADF2l>; Thu, 4 Jan 2001 00:28:41 -0500
+	id <S129436AbRADFaL>; Thu, 4 Jan 2001 00:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132754AbRADF2c>; Thu, 4 Jan 2001 00:28:32 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:55062 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129324AbRADF2U>; Thu, 4 Jan 2001 00:28:20 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Frank Davis <fdavis112@juno.com>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-prerelease-ac5 : 'make dep' error 
-In-Reply-To: Your message of "Wed, 03 Jan 2001 23:51:31 CDT."
-             <20010103.235132.-322857.2.fdavis112@juno.com> 
-Mime-Version: 1.0
+	id <S132868AbRADFaB>; Thu, 4 Jan 2001 00:30:01 -0500
+Received: from web2303.mail.yahoo.com ([128.11.68.66]:22031 "HELO
+	web2303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129436AbRADF3t>; Thu, 4 Jan 2001 00:29:49 -0500
+Message-ID: <20010104052948.12042.qmail@web2303.mail.yahoo.com>
+Date: Wed, 3 Jan 2001 21:29:48 -0800 (PST)
+From: Asang K Dani <asang@yahoo.com>
+Subject: generic_file_write code segment in 2.2.18
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 04 Jan 2001 16:28:12 +1100
-Message-ID: <22515.978586092@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Jan 2001 23:51:31 -0500, 
-Frank Davis <fdavis112@juno.com> wrote:
->Hello,
->       I received the following make dep error while compiling
->prerelease-ac5 .
->make -C acpi fastdep
->make[4]: Entering directory `/usr/src/linux/drivers/acpi'
->/usr/src/linux/Rules.make:224: *** Recursive variable `CFLAGS' references
->itself (eventually).  Stop.
+hi everyone,
+   I was trying to understand following piece of code in
+'generic_file_read' (mm/filemap.c) for 2.2.18 kernel. The code
+segment
+is as follows:
 
-Which version of make are you running, make --version?
+----------------------------------------------------------------
+		dest = (char *) page_address(page) + offset;
+		if (dest != buf) { /* See comment in
+                                      update_vm_cache_cond. */
+			bytes -= copy_from_user(dest, buf, bytes);
+			flush_dcache_page(page_address(page));
+		}
+		status = -EFAULT;
+		if (bytes)
+			status = inode->i_op->updatepage(file, page,                      
+                      offset, bytes, sync);
 
+ unlock:
+		/* Mark it unlocked again and drop the page.. */
+		clear_bit(PG_locked, &page->flags);
+		wake_up(&page->wait);
+		page_cache_release(page);
+
+		if (status < 0)
+			break;
+
+		written += status;
+		count -= status;
+		pos += status;
+		buf += status;
+----------------------------------------------------------------
+copy_from_user returns the number of bytes copied from userspace
+to 'dest'. In case it succeeds, 'bytes' will be set to 0 after the
+call. However, 'status' is set to -EFAULT. So wouldn't it break
+out of the while loop (prematurely)?
+
+Please post/CC your comments to me if this is not of general interest
+to the list and is too silly to be answered there.
+
+regards,
+Asang Dani
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Photos - Share your holiday photos online!
+http://photos.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUDWXug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbUDWX5c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261779AbUDWXug (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 19:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbUDWXug
+	id S261787AbUDWX5c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 19:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUDWX5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 19:50:36 -0400
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:7677 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S261779AbUDWXub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 19:50:31 -0400
-Date: Fri, 23 Apr 2004 16:50:28 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Arthur Othieno <a.othieno@bluewin.ch>, Andrew Morton <akpm@osdl.org>
+	Fri, 23 Apr 2004 19:57:32 -0400
+Received: from ns.suse.de ([195.135.220.2]:20173 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261787AbUDWX5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 19:57:31 -0400
+Date: Sat, 24 Apr 2004 01:55:21 +0200
+From: Olaf Dabrunz <od@suse.de>
+To: Jim Houston <jim.houston@comcast.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6] include/asm-ppc/dma-mapping.h: dma_unmap_page()
-Message-ID: <20040423235028.GM13455@smtp.west.cox.net>
-References: <20040110032915.GW18208@waste.org> <20040109193753.3c158b3b.akpm@osdl.org> <20040114161306.GA16950@stop.crashing.org> <20040423191429.GA14356@mars>
+Subject: kernel trace (with KDB)
+Message-ID: <20040423235521.GA19942@suse.de>
+Mail-Followup-To: Jim Houston <jim.houston@comcast.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20040423191429.GA14356@mars>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Playing catchup ]
+Hello,
 
-On Fri, Apr 23, 2004 at 09:14:29PM +0200, Arthur Othieno wrote:
+you once submitted a patch implementing a "kernel trace mechanism for
+KDB". Do you have a current version of this patch for 2.6 kernels?
 
-> Hi,
-> 
-> Duplicate definition of dma_unmap_single() should actually be
-> dma_unmap_page().
-> 
-> Against 2.6.6-rc2. Thanks.
-> 
-> 
->  dma-mapping.h |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> 
-> --- a/include/asm-ppc/dma-mapping.h	2004-04-11 14:05:45.000000000 +0200
-> +++ b/include/asm-ppc/dma-mapping.h	2004-04-22 18:06:53.000000000 +0200
-> @@ -77,7 +77,7 @@ dma_map_page(struct device *dev, struct 
->  }
->  
->  /* We do nothing. */
-> -#define dma_unmap_single(dev, addr, size, dir)	do { } while (0)
-> +#define dma_unmap_page(dev, addr, size, dir)	do { } while (0)
->  
->  static inline int
->  dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
+Will function call tracing ever be integrated into KDB?
 
-If this hasn't made it in already, it would appear to be correct and
-should go in.
+Regards,
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Olaf Dabrunz (od/odabrunz), SUSE Linux AG, Nürnberg
+

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261731AbTCZQCS>; Wed, 26 Mar 2003 11:02:18 -0500
+	id <S261758AbTCZQLs>; Wed, 26 Mar 2003 11:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261745AbTCZQCS>; Wed, 26 Mar 2003 11:02:18 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:54771 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261731AbTCZQCR>;
-	Wed, 26 Mar 2003 11:02:17 -0500
-Message-ID: <3E81D183.6040708@mvista.com>
-Date: Wed, 26 Mar 2003 08:12:51 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S261759AbTCZQLs>; Wed, 26 Mar 2003 11:11:48 -0500
+Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:26844 "EHLO
+	d12lmsgate-4.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S261758AbTCZQLr>; Wed, 26 Mar 2003 11:11:47 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] s390 update (1/9): s390 arch fixes.
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF80FD93D6.AA8C5DBA-ONC1256CF5.00589668@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Wed, 26 Mar 2003 17:20:39 +0100
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 26/03/2003 17:22:10
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Fionn Behrens <fionn@unix-ag.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>
-Subject: Re: System time warping around real time problem - please help
-References: <1048609931.1601.49.camel@rtfm>	 <Pine.LNX.4.53.0303251152080.29361@chaos> <1048627013.2348.39.camel@rtfm>	 <3E80D4CC.4000202@mvista.com>  <1048632934.1355.12.camel@rtfm>	 <1048637613.29944.17.camel@irongate.swansea.linux.org.uk>	 <3E811055.5040202@mvista.com> <1048689492.31839.13.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1048689492.31839.13.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Wed, 2003-03-26 at 02:28, george anzinger wrote:
-> 
->>Stands for Time Stamp Counter.  It is a special cpu register that 
->>basically counts cpu cycles.  Some times (incorrectly me thinks) it is 
->>affected by power management code which slows the cpu by changing the 
->>cpu frequency.
-> 
-> 
-> Not incorrectly. It counts cpu clocks, its designed for profiling and
-> the like. There is no guarantee in any Intel MP standard that the clocks
-> are synched up.
 
+> It looks you do exactly the same changes to both s390 and s390x.  A
+closer
+> look at the arch directories shows that about 95% of the code is exactly
+> the same.  Can you remove the s390x dir and abstract out the few
+differences
+> into a config option?
 
-> 
-I seem to recall a different notion of correctness from Andy Grover... 
-  but memory may deceive :(
+s390 and s390x are similar at the first glance. But if you look in detail
+you will notice that there are a lot of small differences. A simple diff
+of the files that are present in both arch folger gives a patch of 5600
+lines. Compare this to the 11500 lines these files have in total. So the
+code is definitly NOT 95% the same. Further the arch folder is not the
+only place to look for s390 files. You need to consider include/asm
+as well. Overall it is not an easy task. You have a point though that it
+would be very nice to have common files for all s390/s390x files, not just
+for the device drivers. If I have lots of time someday I probably will
+try it but for now it way too much effort.
 
+blue skies,
+   Martin
 
-As for sync, I would think it is a mother board issue.
-
-But as you say, Intel should put in a usable counter.  The HPET seems 
-like it has the capabilities, however, I suspect that it is a slow 
-read.  Any idea how many cycles it takes to do a memory mapped I/O access?
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314697AbSD1XLB>; Sun, 28 Apr 2002 19:11:01 -0400
+	id <S314705AbSD1Xxr>; Sun, 28 Apr 2002 19:53:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314700AbSD1XLB>; Sun, 28 Apr 2002 19:11:01 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:32423 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S314697AbSD1XLA>;
-	Sun, 28 Apr 2002 19:11:00 -0400
-Date: Mon, 29 Apr 2002 09:07:07 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Santiago Garcia Mantinan <manty@manty.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcnet32 on 2.4.18 doesn't init on IBM rs/6000 B50 (powerpc)
-Message-ID: <20020428230707.GG17500@krispykreme>
-In-Reply-To: <20020425220402.GA3654@man.beta.es> <20020425221519.GA13245@krispykreme> <20020428153253.GA2924@man.beta.es>
+	id <S314706AbSD1Xxq>; Sun, 28 Apr 2002 19:53:46 -0400
+Received: from p0001.as-l042.contactel.cz ([194.108.237.1]:8064 "EHLO
+	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S314705AbSD1Xxp>;
+	Sun, 28 Apr 2002 19:53:45 -0400
+Date: Mon, 29 Apr 2002 01:51:34 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Cc: Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: ext2 free blocks count corrupted (was Re: Linux 2.5.10-dj1)
+Message-ID: <20020428235134.GE31810@ppc.vc.cvut.cz>
+In-Reply-To: <20020427030823.GA21608@suse.de> <200204271313.g3RDD4024060@smtp1.wanadoo.nl> <20020427155116.I14743@suse.de> <200204281145.g3SBjJJ20178@smtp2.wanadoo.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -20,32 +20,169 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> It fixes indeed the problem on the init of the card, but I have made a
-> deeper diagnosis of the problem and there are things left.
+On Sun, Apr 28, 2002 at 01:45:38PM +0200, Rudmer van Dijk wrote:
+> On Saturday 27 April 2002 15:51, Dave Jones wrote:
+> > On Sat, Apr 27, 2002 at 02:51:21PM +0200, Rudmer van Dijk wrote:
+> >  > The system also hangs after fscking my root partition (fsck completed
+> >  > without errors)
+> >  > After my harddisks went to sleep I switched the system off and after
+> >  > booting the kernel (2.4.19-pre7) panics (and the caps- and scroll-lock
+> >  > leds are blinking) as it can not mount the root fs due to the following
+> >  > errors: EXT2-fs error (device ide0(3,1)): ext2_check_descriptors: Block
+> >  > bitmap for group 0 not in group (block 0)!
+> >  > EXT2-fs: group descriptors corrupted!
+> >
+> > This is somewhat disturbing. I'll look over the VFS changes, but I'm not
+> > aware of anything added specifically to my tree that could cause this,
+> > so it may be either an ext2 issue in mainline, or one of the drivers.
+> 
+> It happens after fsck (1.27) examined the root partition (hda1) finished and 
+> the bootscripts executed the next command (fsck hdc1)
+> with exactly the same fsck on 2.4.19-pre7 everything is fine (after repairing 
+> the damage done in 2.5.10-dj1)
 
-Good, at least one bug is fixed :)
+I had up-2.5.8 at home few minutes ago, and I decided to build new kernel,
+and copy new debian packages from transport disk (6GB IDE) to main disk
+(80GB IDE, both on onboard Promise), like I do every week when I come home. 
+During kernel build (on 80GB) & debian tree copy (from 6GB->80GB) I was 
+rewarded with
 
-> I have even got it to work with 2.4.18 without any patch. The problems
-> appear just when you do a netboot of the machine, if you just boot from the
-> disk 2.4.18 does ok. But if you boot from the net you get the problem with
-> detection on 2.4.18 which is solved on 2.4.19 pres, but also you get another
-> problem with the card, and it is that communication doesn't work like it
-> should, this problem is not corrected on 2.4.19preX as of pre7 at least.
+EXT2-fs error (device ide2(33,5)): ext2_new_block: Free blocks count corrupted for block group 19
+Remounting filesystem read-only
 
-Can you send me the version of OF you are using? You should be able to get
-it off the bootup splash screen or by doing lsprop /proc/device-tree/openprom.
-Do you get any errors in dmesg when the card stuffs up?
+and fsck (without reboot) said:
 
-> This problems as I said before are caused when booting from the net and not
-> when the machine is booted from disk. It looks like the card is left on a
-> bad state by the openfirmware, in fact I've seen openfirmware fail several
-> times to retrieve big kernel files (more than 1 MB) and afterwards even fail
-> to do a bootp request, so I think that the card is left on a bad state that
-> drives as to things like this one:
+ppc:/usr/src/linus/linux-2.5.10# fsck /
+fsck 1.27 (8-Mar-2002)
+e2fsck 1.27 (8-Mar-2002)
+/dev/hde5 contains a file system with errors, check forced.
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+Block bitmap differences:  -(655354--655355) -655357
+Fix<y>? yes
 
-One thing to watch out for with the RS/6000 OF is that it wont reply
-to ARP messages during a TFTP load. If you are trying to load a
-big image you need to arp -s <hostname> <hw_addr>.
+Free blocks count wrong for group #19 (0, counted=3).
+Fix<y>? yes
 
-Anton
+
+/dev/hde5: ***** FILE SYSTEM WAS MODIFIED *****
+/dev/hde5: 392606/1954560 files (4.7% non-contiguous), 3463664/3905795 blocks
+
+
+File copied at crash was /mirrors/debian/.../libforms0.89_0.89-12.tar.gz,
+and debugfs says about this inode (note that blocks above do not
+belong to that file, they probably belonged to the kernel compilation...)
+(also file was copied completely (and matches original), but timestamp
+was not set):
+
+Inode: 311820   Type: regular    Mode:  0600   Flags: 0x0   Generation:
+3430397368
+User:     0   Group:     0   Size: 9546288
+File ACL: 0    Directory ACL: 0
+Links: 1   Blockcount: 18680
+Fragment:  Address: 0    Number: 0    Size: 0
+ctime: 0x3ccc78d7 -- Mon Apr 29 00:33:59 2002
+atime: 0x3ccc7d6c -- Mon Apr 29 00:53:32 2002
+mtime: 0x3ccc78d7 -- Mon Apr 29 00:33:59 2002
+BLOCKS:
+(0-1):633762-633763, (2-7):633779-633784, (8-11):633789-633792,
+(IND):633814, (12-14):633815-633817, (15-28):633825-633838,
+(29-35):633934-633940, (36-48):634025-634037, (49-58):634057-634066,
+(59-66):634090-634097, (67-75):634099-634107, (76-84):634121-634129,
+(85-95):634507-634517, (96-103):634633-634640, (104-112):634642-634650,
+(113-115):634662-634664, (116-117):635079-635080,
+(118-125):635337-635344, (126):635397, (127-137):635473-635483,
+(138-142):635507-635511, (143-152):635593-635602, (153):635604,
+(154-167):635625-635638, (168-175):635675-635682,
+(176-184):635684-635692, (185-195):635705-635715,
+(196-200):635756-635760, (201-213):635786-635798,
+(214-220):636002-636008, (221-225):636031-636035,
+(226-232):636118-636124, (233-242):636130-636139,
+(243-255):636153-636165, (256-257):636186-636187,
+(258-268):636201-636211, (269-270):636255-636256,
+(271-277):636269-636275, (278-281):636313-636316,
+(282-291):636349-636358, (292-298):636369-636375,
+(299-305):636417-636423, (306):636485, (307-316):636505-636514,
+(317-324):636530-636537, (325-331):636821-636827,
+(332-342):636857-636867, (343-345):636877-636879, (346):636898,
+(347-348):636920-636921, (349):636931, (350):636942, (351):636951,
+(352-362):636969-636979, (363-374):637033-637044,
+(375-380):637743-637748, (381-394):637857-637870, (395):638019,
+(396-409):638025-638038, (410-414):638282-638286, (415):638307,
+(416-428):638313-638325, (429-436):638361-638368,
+(437-443):638409-638415, (444-451):638449-638456,
+(452-460):638458-638466, (461-469):638468-638476,
+(470-479):638492-638501, (480-487):638526-638533,
+(488-500):638545-638557, (501-510):638572-638581,
+(511-517):638601-638607, (518-523):638805-638810,
+(524-534):639489-639499, (535-544):639593-639602,
+(545-554):639604-639613, (555-564):639653-639662,
+(565-573):639665-639673, (574-582):639937-639945,
+(583-592):640019-640028, (593-602):640041-640050,
+(603-612):640052-640061, (613-622):640075-640084,
+(623-632):640133-640142, (633-642):640157-640166,
+(643-644):640204-640205, (645-654):640234-640243,
+(655-657):640253-640255, (658-668):640291-640301,
+(669-676):640323-640330, (677-685):640355-640363,
+(686-695):640365-640374, (696-703):640417-640424,
+(704-712):640427-640435, (713-722):640458-640467,
+(723-732):640469-640478, (733-734):640510-640511,
+(735-742):640514-640521, (743-751):640523-640531,
+(752-761):640555-640564, (762-771):640580-640589, (772):641341,
+(773-778):641921-641926, (779-791):642393-642405,
+(792-804):642410-642422, (805-815):642425-642435,
+(816-826):642497-642507, (827-835):642510-642518, (836):642529,
+(837):642680, (838-845):642738-642745, (846-850):643020-643024,
+(851-858):643059-643066, (859-867):643068-643076,
+(868-876):643078-643086, (877-886):643105-643114,
+(887-895):643242-643250, (896):643297, (897-903):643305-643311,
+(904-913):643314-643323,
+(914-916):643335-643337, (917-928):643345-643356,
+(929-933):643404-643408, (934-942):643430-643438,
+(943-951):643502-643510, (952-961):643524-643533,
+(962-970):643537-643545, (971-980):643548-643557,
+(981-990):643570-643579, (991-1000):643581-643590,
+(1001-1008):643604-643611, (1009-1017):643613-643621,
+(1018-1025):643637-643644, (1026-1034):643646-643654, (1035):643666,
+(DIND):643667, (IND):643668, (1036-1042):643669-643675,
+(1043-1052):643677-643686, (1053-1060):643700-643707,
+(1061-1069):643709-643717, (1070-1080):643739-643749,
+(1081-1089):643773-643781, (1090-1099):643805-643814,
+(1100-1110):643834-643844, (1111-1121):643866-643876,
+(1122-1132):643890-643900, (1133):643926, (1134-1144):643946-643956,
+(1145):643958, (1146-1156):644068-644078, (1157-1164):644093-644100,
+(1165-1173):644102-644110, (1174-1183):644122-644131,
+(1184-1193):644133-644142, (1194-1206):644170-644182,
+(1207-1215):644197-644205, (1216-1222):644209-644215, (1223):644217,
+(1224-1230):644447-644453, (1231-1240):644465-644474,
+(1241-1250):644476-644485, (1251-1255):646748-646752,
+(1256-1258):647744-647746, (1259-1260):648398-648399,
+(1261-1263):648557-648559, (1264):649316, (1265-1268):649804-649807,
+(1269-1270):649977-649978, (1271-1274):649999-650002, (1275):651723,
+(1276):652274, (1277-1284):654547-654554, (1285-1293):654613-654621,
+(1294-1303):654635-654644, (1304-1313):654661-654670,
+(1314-1323):654684-654693, (1324-1333):654713-654722,
+(1334-1343):654724-654733, (1344-1353):654746-654755,
+(1354-1363):654769-654778, (1364-1373):654780-654789,
+(1374-1383):654805-654814, (1384-1392):654851-654859,
+(1393-1401):654861-654869, (1402-1411):654882-654891,
+(1412-1421):654893-654902, (1422-1428):654921-654927, (1429):654929,
+(1430-1431):655019-655020, (1432-1436):655060-655064,
+(1437-1449):655082-655094, (1450-1458):655105-655113,
+(1459-1467):655345-655353, (1468):655356, (1469-1470):655358-655359,
+(1471-1601):687867-687997, (1602-1693):688036-688127,
+(1694-1853):702937-703096, (1854-1856):703098-703100,
+(1857-1870):703102-703115, (1871-1872):703123-703124,
+(1873-1884):703126-703137, (1885-1889):703141-703145,
+(1890-1917):703185-703212, (1918-1941):703215-703238,
+(1942-1947):703240-703245, (1948-1978):703247-703277,
+(1979-2050):703388-703459, (2051-2059):703461-703469, (IND):703470,
+(2060-2210):703471-703621, (2211-2222):703624-703635,
+(2223-2291):703637-703705, (2292-2294):703707-703709,
+(2295-2298):703711-703714, (2299-2302):703716-703719,
+(2303-2304):703722-703723, (2305-2330):703725-703750
+TOTAL: 2335
+

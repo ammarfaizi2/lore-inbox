@@ -1,39 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261688AbSI0Kwy>; Fri, 27 Sep 2002 06:52:54 -0400
+	id <S261689AbSI0K67>; Fri, 27 Sep 2002 06:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261689AbSI0Kwy>; Fri, 27 Sep 2002 06:52:54 -0400
-Received: from 62-190-200-218.pdu.pipex.net ([62.190.200.218]:33540 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261688AbSI0Kwy>; Fri, 27 Sep 2002 06:52:54 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209271106.g8RB6PDg000759@darkstar.example.net>
-Subject: Re: Framebuffer still "EXPERIMENTAL"?
-To: pommnitz@yahoo.com (=?iso-8859-1?q?Joerg=20Pommnitz?=)
-Date: Fri, 27 Sep 2002 12:06:24 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020927070948.77241.qmail@web13307.mail.yahoo.com> from "=?iso-8859-1?q?Joerg=20Pommnitz?=" at Sep 27, 2002 09:09:48 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261690AbSI0K67>; Fri, 27 Sep 2002 06:58:59 -0400
+Received: from slarti.muc.de ([193.149.48.10]:22034 "HELO slarti.muc.de")
+	by vger.kernel.org with SMTP id <S261689AbSI0K66> convert rfc822-to-8bit;
+	Fri, 27 Sep 2002 06:58:58 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Stephan Maciej <stephan@maciej.muc.de>
+To: linux-kernel@vger.kernel.org
+Subject: Startup: "DMA disabled" on VIA vt82c686b IDE UDMA100, Kernel 2.5.38
+Date: Fri, 27 Sep 2002 03:13:20 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209270313.20670.stephan@maciej.muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello Listees,
-> yesterday I compiled 2.5.38 for the first time and noticed that the
-> framebuffer option is still marked "EXPERIMENTAL". Well, I know for sure
-> that I used the VESA-FB 3 years ago to get X running on a strange laptop
-> graphic chip, so it is at least that long available (actually I think it
-> got introduced for the Sparc port somewhen in 1995??). 
-> 
-> I think it's about time to promote the framebuffer code to a full fledged
-> kernel feature. Comments?
+Greetings,
 
-I've noticed a bug with it, but haven't had time to investigate more fully, infact it might not be a kernel bug, but I suspect that it is.  I don't usually use the framebuffer, (I prefer the standard text mode).
+I just managed to compile and boot a 2.5.38 kernel on my Sony Vaio Laptop. I 
+run the kernel for about half an hour now, XWindows, KDE working fine, even 
+my USB mouse is working --  but I can't use my touchpad in parallel... :-(
 
-On a standard Slackware 8.1 install, (kernel 2.4.18), on a machine with an ATI graphics card, and with the framebuffer enabled, if you type clear, then fill the screen with text so that it scrolls, (e.g. do a find /), the top four lines where the penguin used to be do not scroll, they just keep the text that is originally put there.  If you press shift-pageup, and then shift-pagedown, it fixes it.
+Nevertheless, great work so far. But I have found this in my startup dmesg:
 
-If anybody has got the time to look in to this, I'll post more details.
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 00:07.1
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
+    ide0: BM-DMA at 0x1c40-0x1c47, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x1c48-0x1c4f, BIOS settings: hdc:DMA, hdd:pio
+hda: HITACHI_DK23CA-20, ATA DISK drive
+hda: DMA disabled
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: QSI DVD-ROM SDR-081, ATAPI CD/DVD-ROM drive
+hdc: DMA disabled
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 39070080 sectors (20004 MB) w/2048KiB Cache, CHS=2432/255/63, UDMA(100)
+ hda: hda1 hda2 hda3
+hdc: ATAPI 61X DVD-ROM drive, 512kB Cache, UDMA(33)
 
-John.
+[ Ahem, well, my DVD ROM drive was supposed to be 24x CD/8x DVD, but that's 
+okay. ]
+
+/proc/ide/via says that my HD is running UDMA100 and my 61x ;-) DVD-ROM runs 
+UDMA33. As a hdparm -t -T tells me about 150Mb/sec throughput (buffered) and 
+20Mb/sec (disk) reads, I suppose BMDMA is really on.
+
+Why does this message appear then?
+
+Stephan
+
+-- 
+"That's interesting.  Can it be disabled?" -- someone on LKML, after being 
+told about the PIV hyperthreading features
+

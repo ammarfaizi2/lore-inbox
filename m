@@ -1,78 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318370AbSGRWyQ>; Thu, 18 Jul 2002 18:54:16 -0400
+	id <S318375AbSGRW5a>; Thu, 18 Jul 2002 18:57:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318375AbSGRWyQ>; Thu, 18 Jul 2002 18:54:16 -0400
-Received: from nextgeneration.speedroad.net ([195.139.232.50]:29579 "HELO
-	nextgeneration.speedroad.net") by vger.kernel.org with SMTP
-	id <S318370AbSGRWyP>; Thu, 18 Jul 2002 18:54:15 -0400
-Message-ID: <20020718225716.491.qmail@nextgeneration.speedroad.net>
-From: "Arnvid Karstad" <arnvid@karstad.org>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: kernel 2.4.18-rc1-ac6 - dmesg errors?!
-Date: Fri, 19 Jul 2002 00:57:16 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S318377AbSGRW5a>; Thu, 18 Jul 2002 18:57:30 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:61826 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S318375AbSGRW53>; Thu, 18 Jul 2002 18:57:29 -0400
+Date: Thu, 18 Jul 2002 19:04:02 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Yann Dirson <ydirson@altern.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       kaos@ocs.com.au
+Subject: Re: Generic modules documentation is outdated
+In-Reply-To: <20020718232535.GB8165@bylbo.nowhere.earth>
+Message-ID: <Pine.LNX.3.95.1020718190106.2233A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya, 
+On Fri, 19 Jul 2002, Yann Dirson wrote:
 
-Upgrade my laptop to use 2.4.18-rc1-ac6, and I noticed it had support for 
-more of my hardware. But it seems it also get's these "errors" in dmesg... 
+> On Thu, Jul 18, 2002 at 11:48:41PM +0100, Alan Cox wrote:
+> > On Thu, 2002-07-18 at 22:02, Yann Dirson wrote:
+> > > - I have installed no proprietary driver, all loaded drivers declare to be
+> > > "GPL" or "Dual BSD/GPL". 
+> > 
+> > Something you loaded was missing a MODULE_LICENSE tag - modern insmod
+> > will warn on this one
+> 
+> I wrote:
+> > I found a good candidate in the Apple HFS module
+> 
+> Hm, no, I found the real one (although HFS has the problem):
+> 
+> # modprobe ppp_deflate
+> Warning: loading /lib/modules/2.4.18+preempt/kernel/drivers/net/ppp_deflate.o will taint the kernel: non-GPL license - BSD without advertisement clause
+> 
+> I'm pretty sure the "BSD without advertisement clause" license should not
+> taint the kernel, should it ?
+> 
+> And even if there is an obscure license incompatibility, there is a problem
+> in that this module is in the stock kernels, and should then be advertised
+> as such (or maybe removed).
+> 
+> Regards,
+> -- 
+> Yann Dirson    <ydirson@altern.org> |    Why make M$-Bill richer & richer ?
+> Debian-related: <dirson@debian.org> |   Support Debian GNU/Linux:
+> Pro:    <yann.dirson@fr.alcove.com> |  Freedom, Power, Stability, Gratuity
+>      http://ydirson.free.fr/        | Check <http://www.debian.org/>
 
-1)  Prism2 - used to use the Wlan-NG drivers but since the rc/ac kernel has 
-this included I decided to test it 
-
-orinoco.c 0.11b (David Gibson <hermes@gibson.dropbear.id.au> and others)
-PCI: Found IRQ 9 for device 02:02.0
-PCI: Sharing IRQ 9 with 00:1d.2
-PCI: Sharing IRQ 9 with 00:1f.1
-Detected Orinoco/Prism2 PCI device at 02:02.0, mem:0xEC000000 to 0xEC000FFF 
- -> 0xe978e000, irq:9
-Reset 
-done........................................................................ 
-............................................................
-............................................................................ 
-...................................;
-Clear Reset
-pci_cor : reg = 0x0 - 8F4B - 8F19
-eth1: Station identity 001f:0006:0001:0003
-eth1: Looks like an Intersil firmware version 1.03
-eth1: Ad-hoc demo mode supported
-eth1: IEEE standard IBSS ad-hoc mode supported
-eth1: WEP supported, 104-bit key
-eth1: MAC address 00:20:E0:8A:FC:BE
-eth1: Station name "Prism  I"
-eth1: ready 
-
-I'm getting this message every now and then.. 
-
-Jul 19 00:50:04 mgr kernel: eth1: Undersized frame received (19 bytes)
-Jul 19 00:51:05 mgr last message repeated 2 times
-Jul 19 00:51:26 mgr kernel: eth1: Undersized frame received (12 bytes)
-Jul 19 00:51:36 mgr kernel: eth1: Undersized frame received (19 bytes) 
-
-The connection works, but these packages are a bit strange even tho ;) 
-
-The AP is an AiroNet AP 3400. 
-
-2) 2.4.18+* works great in console mode. 
-
-but when ever I get into X my logs get filled with :
-mtrr: no more MTRRs available
-mtrr: no more MTRRs available
-mtrr: no more MTRRs available
-mtrr: no more MTRRs available 
-
-Is there any way to battle this? 
+Of course, you can fix all this stuff by executing this ;^)
 
 
-On the brighter side of life.. 2.4.18-rc1-ac6 seems to be recognizing my 
-hardware better than the 2.4.18-vanilla kernel. Now my cpu is detected 
-correctly instead of being a 733MHZ.. 
 
-Best regards 
+#!/bin/bash
+# Temporarily fixes existing modules to contain the GPL symbol
+#
 
-Arnvid
+TMPF=/tmp/Abradabrca
+VER=`uname -r`
+
+cat >${TMPF}.c <<EOF
+#define __KERNEL__
+#define MODULE
+#include <linux/module.h>
+MODULE_LICENSE("GPL");
+EOF
+gcc -Wall -O2 -c -o ${TMPF}.o ${TMPF}.c
+for x in `find /lib/modules/${VER} -name "*.o"` ;
+    do echo $x ;
+    cp $x /tmp/x.o ;
+    ld -r /tmp/x.o ${TMPF}.o -o /tmp/y.o ;
+    cp /tmp/y.o $x ;
+ done
+echo "Fixed!"
+rm -f ${TMPF} /tmp/x.o /tmp/y.o
+
+Don't you love it when somebody undoes all this "lawyer" stuff!
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+                 Windows-2000/Professional isn't.
+

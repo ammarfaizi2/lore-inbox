@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbTIGV2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 17:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbTIGV2r
+	id S261562AbTIGVTz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 17:19:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTIGVTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 17:28:47 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:51093 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S261493AbTIGV2q
+	Sun, 7 Sep 2003 17:19:54 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:49817 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261562AbTIGVTi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 17:28:46 -0400
-Message-Id: <200309072128.h87LScJZ009118@post.webmailer.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-To: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
-       Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>
-Date: Sun, 07 Sep 2003 23:28:55 +0200
-References: <tbGb.75d.15@gated-at.bofh.it> <tbPO.7j9.5@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sun, 7 Sep 2003 17:19:38 -0400
+Message-ID: <3F5BA1B1.9F2158C2@free.fr>
+Date: Sun, 07 Sep 2003 23:22:57 +0200
+From: Jerome de Vivie <jerome.devivie@free.fr>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.21 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: segfault in ksymoops
+References: <32694.1062938650@ocs3.intra.ocs.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Schwab wrote:
-> Linus Torvalds <torvalds@osdl.org> writes:
->> Ie, change the (sizeof(x)) to something like
->>
->>      ({ x __dummy; sizeof(__dummy); })
->>
->> which should work with all compiler versions.
+Keith Owens wrote:
 > 
-> This won't work with array types, eg. in <linux/random.h>:
+> On Thu, 04 Sep 2003 23:24:24 +0200,
+> Jerome de Vivie <jerome.devivie@free.fr> wrote:
+> >> I have try ksymoops v2.4.9, v2.4.8 & v2.4.7 and each time i get a
+> >> segmentation fault. Here's the output: (the oops file is attached).
+> >#5  0x0804e3d1 in Oops_set_default_ta (me=0x82fd5c8 "./ksymoops",
+> >ibfd=0x83157f8, options=0xbffff8c0) at oops.c:89
+> >        procname = "Oops_set_default_ta"
+> >        bt = 0x736b2f2e <Address 0x736b2f2e out of bounds>
+> >        bai = (const struct bfd_arch_info *) 0x4008c9a0
+> >        t = 1
+> >        a = 1
 > 
-> #define RNDGETPOOL    _IOR( 'R', 0x02, int [2] )
+> oops.c::67, the call to bfd_get_target()
+>         bt = bfd_get_target(ibfd);      /* Bah, undocumented bfd function */
+> is returning garbage.  Ask the binutils people why this is so.
 
-How about changing (sizeof(x)) to (sizeof(x[1]))?
-It will result in "parse error before `['" when x is not
-a type or an array type.
+I have try the latest binutils 2.13.1 with no success.
 
-        Arnd <><
+With this version, thoses two lines in the Makefile seems to be mutaly
+exclusive:
+
+STATIC := -Wl,-Bstatic
+DYNAMIC := -Wl,-Bdynamic
+
+After installing binutils 2.9.5.0.22, it links and work.
+
+
+Thank you for your support: i've got my oops decoded :)
+
+regards,
+
+j.
+
+-- 
+Jérôme de Vivie

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317091AbSIIKQ3>; Mon, 9 Sep 2002 06:16:29 -0400
+	id <S316935AbSIIKlV>; Mon, 9 Sep 2002 06:41:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317096AbSIIKQ3>; Mon, 9 Sep 2002 06:16:29 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:49568 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S317091AbSIIKQ2>; Mon, 9 Sep 2002 06:16:28 -0400
-Message-ID: <3D7C761A.7090806@earthlink.net>
-Date: Mon, 09 Sep 2002 05:21:14 -0500
-From: Ashby <ironicface@earthlink.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win95; en-US; rv:1.0.0) Gecko/20020530
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Module idea
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317005AbSIIKlV>; Mon, 9 Sep 2002 06:41:21 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.18.111]:39943 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316935AbSIIKlU>; Mon, 9 Sep 2002 06:41:20 -0400
+Date: Mon, 9 Sep 2002 12:46:04 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
+Cc: venom@sns.it, ahu@ds9a.nl, linux-kernel@vger.kernel.org
+Subject: Re: side-by-side Re: BYTE Unix Benchmarks Version 3.6
+Message-ID: <20020909104604.GA26989@atrey.karlin.mff.cuni.cz>
+References: <20020908225645.21341.qmail@linuxmail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020908225645.21341.qmail@linuxmail.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I had an idea to potentially improve security, and I think it
-might be best implemented as a kernel module.
+> > > APM, and I pressed the shift key every few minutes,
+> > > therefore no powersafe.
+> > 
+> > That still means APM bios calls when idle, right?
+> 
+> Yes, you are rigth.
+> But again, with Byte Unix version 4.1 I got much
+> more intersting result with no "strange" numbers,
+> I tried that test few hours ago,.
+> I know I can disable APM from both the kernel and the BIOS but I'd
+> > > like to test the kernel I use in "daily" usage. What do you
+> > > think about it? Do you suggest me to use a different
+> > > configuration when I run the test?
 
-Since buffer problems are a common network (and other) security
-risk, why not create a Buffer Manager (similar to PAM, in the 
-authentication domain), to handle all buffer requests with the
-outside world?
+Disable power managment. What you are doing is test of power managment
+subsystem, I believe; that's okay but you did not label it as such.
 
-If the manager existed after the tcp/ip stack, and before any processes
-needing buffer input, then it could store the whole data as returned
-by the tcp/ip stack.
-
-When a process requests a buffer, it asks by (net) address, and includes 
-a buffer length. The buffer manager returns the appropriate amount of
-data to the process, and then clears the address. The buffer manager
-could also be set to log buffer overruns.
-
-Have a good day/evening,
-
-R. Ashby
-ironicface -at- earthlink -dot- net
-
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270115AbRHIRJY>; Thu, 9 Aug 2001 13:09:24 -0400
+	id <S270256AbRHIRQn>; Thu, 9 Aug 2001 13:16:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270233AbRHIRJO>; Thu, 9 Aug 2001 13:09:14 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:35577 "EHLO
-	dukat.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S270115AbRHIRJC>; Thu, 9 Aug 2001 13:09:02 -0400
-Date: Thu, 9 Aug 2001 17:22:46 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Christian Borntraeger <CBORNTRA@de.ibm.com>
-Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org, arjanv@redhat.com,
-        sct@redhat.com, trini@kernel.crashing.org,
-        Carsten Otte <COTTE@de.ibm.com>
-Subject: Re: Debugging help: BUG: Assertion failure with ext3-0.95 for 2.4.7
-Message-ID: <20010809172246.B20408@redhat.com>
-In-Reply-To: <OFA546F20C.78C10EBF-ONC1256AA3.0052D4C2@de.ibm.com>
-Mime-Version: 1.0
+	id <S270335AbRHIRQd>; Thu, 9 Aug 2001 13:16:33 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42344 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S270256AbRHIRQV>; Thu, 9 Aug 2001 13:16:21 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dws@dirksteinberg.de (Dirk W. Steinberg),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Swapping for diskless nodes
+In-Reply-To: <E15UrbB-0007T9-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 09 Aug 2001 11:09:37 -0600
+In-Reply-To: <E15UrbB-0007T9-00@the-village.bc.nu>
+Message-ID: <m1snf1tb1q.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OFA546F20C.78C10EBF-ONC1256AA3.0052D4C2@de.ibm.com>; from CBORNTRA@de.ibm.com on Thu, Aug 09, 2001 at 05:24:05PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-On Thu, Aug 09, 2001 at 05:24:05PM +0200, Christian Borntraeger wrote:
+> > the memory of a fast server could have much less latency that writing 
+> > that page out to a local old, slow IDE disk. Clusters could even have
+> > special high-bandwidth, low latency networks that could be used for
+> > remote paging.
+> > 
+> > In a perfect world, all nodes in a cluster would be able to dynamically 
+> > share a pool of "cluster swap" space, so any locally available swap that
+> > is not used could be utilized by other nodes in the cluster.
 > 
-> Hello ext3-developers,
+> That I think is a 2.5 problem. One thing that has been talked about several
+> times now is removing all the swap special case crap from the mm and making
+> swap a file system. That removes special cases and means anyone can write
+> or use custom, or multiple swap filesystems, in theory including things like
+> swap over a shared GFS pool
 > 
-> Just to summarize, I reported a kernel bug message with ext3 on S/390 in
-> transaction.c. I was able to reproduce it with a ext3 on LVM  and on MD.
-> Tom Rini reported a similar problem on PPC. (both big endian). I have sent
-> a backtrace and with jbd-debug set to 5 I was not able to reproduce the
-> problem until now.
+> But its not for 2.4, no way
 
-Thanks.  I think it's due to a missing endian-conversion in
-ext3_clear_blocks().  Could you try the patch below?
+I don't know about that.  We already can swap over just about everything 
+because we can swap over the loopback device.  So moving making the swapping
+code do the right thing is not that big of an allowance, nor that
+much of extra code so if 2.5 actually starts up I can see us doing that.
 
-Cheers,
- Stephen
-
-
-Index: fs/ext3/inode.c
-===================================================================
-RCS file: /cvsroot/gkernel/ext3/fs/ext3/inode.c,v
-retrieving revision 1.63
-diff -u -r1.63 inode.c
---- fs/ext3/inode.c	2001/07/30 12:46:12	1.63
-+++ fs/ext3/inode.c	2001/08/09 16:19:29
-@@ -1522,7 +1522,7 @@
- 	 * AKPM: turn on bforget in journal_forget()!!!
- 	 */
- 	for (p = first; p < last; p++) {
--		u32 nr = *p;
-+		u32 nr = le32_to_cpu(*p);
- 		if (nr) {
- 			struct buffer_head *bh;
- 
+Eric

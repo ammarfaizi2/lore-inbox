@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264762AbTF0UId (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 16:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbTF0UId
+	id S264766AbTF0UKT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 16:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264769AbTF0UKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 16:08:33 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:10222 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S264762AbTF0UI3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 16:08:29 -0400
-content-class: urn:content-classes:message
+	Fri, 27 Jun 2003 16:10:19 -0400
+Received: from arbi.Informatik.uni-oldenburg.de ([134.106.1.7]:51218 "EHLO
+	arbi.Informatik.Uni-Oldenburg.DE") by vger.kernel.org with ESMTP
+	id S264766AbTF0UKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 16:10:10 -0400
+Subject: PATCH 2.4.21 fix: kswapd can fail starting
+To: linux-kernel@vger.kernel.org
+Date: Fri, 27 Jun 2003 22:24:18 +0200 (MEST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: ipc semaphore optimization
-Date: Fri, 27 Jun 2003 13:22:42 -0700
-Message-ID: <41F331DBE1178346A6F30D7CF124B24B2A486F@fmsmsx409.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ipc semaphore optimization
-Thread-Index: AcM85FvEd7H0GQVWQyib2BHyWcUigAABRGvA
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Manfred Spraul" <manfred@colorfullife.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Jun 2003 20:22:43.0422 (UTC) FILETIME=[DD4ACFE0:01C33CE9]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E19Vzla-000CR0-00@grossglockner.Informatik.Uni-Oldenburg.DE>
+From: "Walter Harms" <Walter.Harms@Informatik.Uni-Oldenburg.DE>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Perhaps the O(1) scheduler is better at handling the thread switches 
-> than the old scheduler. Could you include an update of the comments
-into 
-> your patch?
+Hi list,
+when i was looking for non checked returns of kernel_thread() i noticed
+that vmscan.c never checks. This patch changes that. Note that
+kswapd_init() can fail. I have no idea what to do then perhaps somebody
+should take a look at that also ?
 
-Yes, our opinion align with your observation as well.  The O(1)
-scheduler
-handles the ctx much better.
+walter
 
-- Ken
+--- mm/vmscan.c.org     2003-06-25 21:49:45.000000000 +0200
++++ mm/vmscan.c 2003-06-25 21:45:39.000000000 +0200
+@@ -768,7 +768,8 @@
+ {
+        printk("Starting kswapd\n");
+        swap_setup();
+-       kernel_thread(kswapd, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
++       if (kernel_thread(kswapd, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL)<0)
++         return 1;
+        return 0;
+ }
+
+-- 

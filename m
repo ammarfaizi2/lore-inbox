@@ -1,178 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVCQDft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVCQDoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVCQDft (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 22:35:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVCQDfs
+	id S261808AbVCQDoS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 22:44:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262991AbVCQDoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 22:35:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:17628 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261806AbVCQDfY (ORCPT
+	Wed, 16 Mar 2005 22:44:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:23274 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261808AbVCQDoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 22:35:24 -0500
-Message-ID: <4238FADA.5090504@osdl.org>
-Date: Wed, 16 Mar 2005 19:34:50 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Wed, 16 Mar 2005 22:44:15 -0500
+Date: Wed, 16 Mar 2005 22:44:03 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Paul Mackerras <paulus@samba.org>
+cc: Jesse Barnes <jbarnes@engr.sgi.com>,
+       Keir Fraser <Keir.Fraser@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, kurt@garloff.de, Ian.Pratt@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [PATCH] Xen/i386 cleanups - AGP bus/phys cleanups
+In-Reply-To: <16952.53719.150647.638710@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.61.0503162243420.23084@chimarrao.boston.redhat.com>
+References: <E1DBX0o-0000sV-00@mta1.cl.cam.ac.uk> <16952.41973.751326.592933@cargo.ozlabs.ibm.com>
+ <200503161406.01788.jbarnes@engr.sgi.com> <Pine.LNX.4.61.0503161853380.23084@chimarrao.boston.redhat.com>
+ <16952.53719.150647.638710@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
-To: jayalk@intworks.biz
-CC: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.6.11.2 1/1] PCI Allow OutOfRange PIRQ table address
-References: <200503170124.j2H1O2Ar024405@intworks.biz>
-In-Reply-To: <200503170124.j2H1O2Ar024405@intworks.biz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jayalk@intworks.biz wrote:
-> Hi Greg, PCI folk,
+On Thu, 17 Mar 2005, Paul Mackerras wrote:
+
+> > Under Xen, however, the two are different - and the
+> > AGPGART really needs to have the physical address ;)
 > 
-> I updated this to change pirq_table_addr to a long, and to add a warning
-> msg if the PIRQ table wasn't found at the specified address, as per thread
-> with Matthew Wilcox. Let me know if it's okay. Thanks.
-> 
-> In our hardware situation, the BIOS is unable to store or generate it's PIRQ
-> table in the F0000h-100000h standard range. This patch adds a pci kernel
-> parameter, pirqaddr to allow the bootloader (or BIOS based loader) to inform
-> the kernel where the PIRQ table got stored. A beneficial side-effect is that,
-> if one's BIOS uses a static address each time for it's PIRQ table, then
-> pirqaddr can be used to avoid the $pirq search through that address block each
-> time at boot for normal PIRQ BIOSes.
-> 
-> Signed-off-by:	Jaya Kumar	<jayalk@intworks.biz>
-> 
-> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/common.c linux-2.6.11.2/arch/i386/pci/common.c
-> --- linux-2.6.11.2-vanilla/arch/i386/pci/common.c	2005-03-10 16:31:25.000000000 +0800
-> +++ linux-2.6.11.2/arch/i386/pci/common.c	2005-03-11 20:35:41.000000000 +0800
-> @@ -25,6 +25,7 @@ unsigned int pci_probe = PCI_PROBE_BIOS 
->  
->  int pci_routeirq;
->  int pcibios_last_bus = -1;
-> +unsigned long pirq_table_addr = 0;
-Don't need to init above (or below) to 0.
+> If Xen is letting the kernel program the GART, you just lost any
+> memory isolation between partitions you might have been trying to
+> enforce. :)
 
->  struct pci_bus *pci_root_bus = NULL;
->  struct pci_raw_ops *raw_pci_ops;
->  
-> @@ -188,6 +189,9 @@ char * __devinit  pcibios_setup(char *st
->  	} else if (!strcmp(str, "biosirq")) {
->  		pci_probe |= PCI_BIOS_IRQ_SCAN;
->  		return NULL;
-> +	} else if (!strncmp(str, "pirqaddr=", 9)) {
-> +		pirq_table_addr = simple_strtol(str+9, NULL, 0);
-Use simple_strtoul().
-
-> +		return NULL;
->  	}
->  #endif
->  #ifdef CONFIG_PCI_DIRECT
-> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/irq.c linux-2.6.11.2/arch/i386/pci/irq.c
-> --- linux-2.6.11.2-vanilla/arch/i386/pci/irq.c	2005-03-10 16:31:25.000000000 +0800
-> +++ linux-2.6.11.2/arch/i386/pci/irq.c	2005-03-11 20:40:28.000000000 +0800
-> @@ -58,6 +58,35 @@ struct irq_router_handler {
->  int (*pcibios_enable_irq)(struct pci_dev *dev) = NULL;
->  
->  /*
-> + *  Check passed address for the PCI IRQ Routing Table signature 
-> + *  and perform checksum verification.
-> + */
-> +
-> +static inline struct irq_routing_table * __init pirq_check_routing_table(u8 *addr)
-This doesn't need to be both inline and __init.
-
-> +{
-> +	struct irq_routing_table *rt;
-> +	int i;
-> +	u8 sum;
-> +
-> +	rt = (struct irq_routing_table *) addr;
-> +	if (rt->signature != PIRQ_SIGNATURE ||
-> +	    rt->version != PIRQ_VERSION ||
-> +	    rt->size % 16 ||
-> +	    rt->size < sizeof(struct irq_routing_table))
-> +		return NULL;
-> +	sum = 0;
-> +	for(i=0; i<rt->size; i++)
-Space after for:  "for ("
-Spaces around "<" would be nice for readability.
-
-> +		sum += addr[i];
-> +	if (!sum) {
-> +		DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
-> +		return rt;
-> +	}
-> +	return NULL;
-> +}
-> +
-> +
-> +
-> +/*
->   *  Search 0xf0000 -- 0xfffff for the PCI IRQ Routing Table.
->   */
->  
-> @@ -65,21 +94,17 @@ static struct irq_routing_table * __init
->  {
->  	u8 *addr;
->  	struct irq_routing_table *rt;
-> -	int i;
-> -	u8 sum;
->  
-> +	if (pirq_table_addr) {
-> +		rt = pirq_check_routing_table((u8 *) __va(pirq_table_addr));
-> +		if (rt) {
-> +			return rt;
-> +		}
-No braces when not needed for block of statements.
-
-> +		printk(KERN_WARNING "PCI: PIRQ table NOT found at pirqaddr\n"); 
-> +	}
->  	for(addr = (u8 *) __va(0xf0000); addr < (u8 *) __va(0x100000); addr += 16) {
-> -		rt = (struct irq_routing_table *) addr;
-> -		if (rt->signature != PIRQ_SIGNATURE ||
-> -		    rt->version != PIRQ_VERSION ||
-> -		    rt->size % 16 ||
-> -		    rt->size < sizeof(struct irq_routing_table))
-> -			continue;
-> -		sum = 0;
-> -		for(i=0; i<rt->size; i++)
-> -			sum += addr[i];
-> -		if (!sum) {
-> -			DBG("PCI: Interrupt Routing Table found at 0x%p\n", rt);
-> +		rt = pirq_check_routing_table(addr);
-> +		if (rt) {
->  			return rt;
->  		}
->  	}
-> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/arch/i386/pci/pci.h linux-2.6.11.2/arch/i386/pci/pci.h
-> --- linux-2.6.11.2-vanilla/arch/i386/pci/pci.h	2005-03-10 16:31:25.000000000 +0800
-> +++ linux-2.6.11.2/arch/i386/pci/pci.h	2005-03-11 20:35:55.000000000 +0800
-> @@ -27,6 +27,7 @@
->  #define PCI_ASSIGN_ALL_BUSSES	0x4000
->  
->  extern unsigned int pci_probe;
-> +extern unsigned long pirq_table_addr;
->  
->  /* pci-i386.c */
->  
-> diff -uprN -X dontdiff linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt linux-2.6.11.2/Documentation/kernel-parameters.txt
-> --- linux-2.6.11.2-vanilla/Documentation/kernel-parameters.txt	2005-03-10 16:31:44.000000000 +0800
-> +++ linux-2.6.11.2/Documentation/kernel-parameters.txt	2005-03-10 16:45:48.000000000 +0800
-> @@ -967,6 +967,10 @@ running once the system is up.
->  		irqmask=0xMMMM		[IA-32] Set a bit mask of IRQs allowed to be assigned
->  					automatically to PCI devices. You can make the kernel
->  					exclude IRQs of your ISA cards this way.
-> +		pirqaddr=0xAAAAA	[IA-32] Specify the physical address
-> +					of the PIRQ table (normally generated
-> +					by the BIOS) if it is outside the .  
-What is the trailing " .  " here? (above)
-
-> +					F0000h-100000h range.
->  		lastbus=N		[IA-32] Scan all buses till bus #N. Can be useful
->  					if the kernel is unable to find your secondary buses
->  					and you want to tell it explicitly which ones they are.
-> -
+All the device drivers live in domain 0, so Xen doesn't
+need its own set of device drivers.
 
 -- 
-~Randy
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263998AbTKOAzf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 19:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTKOAzf
+	id S264458AbTKOBBK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 20:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264470AbTKOBBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 19:55:35 -0500
-Received: from mail.bahnhof.se ([213.136.33.1]:41967 "EHLO smtp2.bahnhof.se")
-	by vger.kernel.org with ESMTP id S262575AbTKOAze (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 19:55:34 -0500
-Reply-To: <vm@netcity.ru>
-From: "Valentin" <vm@netcity.ru>
-Subject: Letter from Russia
-Date: Sat, 15 Nov 2003 08:56:27 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-Id: <20031115005513.326A8B8676@smtp2.bahnhof.se>
-To: undisclosed-recipients:;
+	Fri, 14 Nov 2003 20:01:10 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:33797
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S264458AbTKOBBF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 20:01:05 -0500
+Date: Fri, 14 Nov 2003 17:01:01 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: John Stoffel <stoffel@lucent.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test9-mm3
+Message-ID: <20031115010101.GA1331@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: John Stoffel <stoffel@lucent.com>,
+	Andrew Morton <akpm@osdl.org>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20031112233002.436f5d0c.akpm@osdl.org> <98290000.1068836914@flay> <20031114105947.641335f5.akpm@osdl.org> <20031114193249.GM2014@mis-mike-wstn.matchmail.com> <16309.14997.961879.421597@gargle.gargle.HOWL>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16309.14997.961879.421597@gargle.gargle.HOWL>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
- 
-I send you this letter from a library of our small city and I pray that this letter reached your address.
+On Fri, Nov 14, 2003 at 03:27:01PM -0500, John Stoffel wrote:
+> You don't want to grow N too aggresively, or base it on the memory of
+> the system, do you?  When you have a 20mb journal, maybe starting
+> writeout after 10mb is used makes sense, because you've only got 10
+> transaction slots open.  But when you have a 200mb journal, does it
+> make sense to start writeout when you only have 100 transaction slots
+> left?  
 
-My name is Valentin, I'm student and I live with my blind mother in Russia. I work very hard every day to be able take care of my mother, but my salary is very small because my studies are not finished. 
- 
-Due to the crisis our authorities recently stoped gas in our district. Now we cannot heat our home because we don't have gas anymore. I don't know what to do, because the winter is coming and the temperature outside will be minus 30 degrees Celsius. I'm afraid that the temperature inside our home can be lower than 0 degrees and we will not be able to survive.
- 
-Therefore I send you this desperate message with a prayer in my heart and I hope you can help us. If you have any old warm clothes, warm blankets, sleeping bag, electric heater or portable stove, high-calories food, vitamins, medicaments against cold, I will be very grateful to you if you could send it to our postal address which is: 
- 
-Valentin Mihailin,
-Ryleeva Street, 6-45,
-Kaluga. 248030,
-Russia. 
- 
-If you think that it would be better or easier for you to help with some money, please write me back and I will give you details for sending it safely if you agree. This way to help is very good because the necessities here are not very expensive.
- 
-I pray to hear from you soon. From all my heart I wish you Happiness, Love and Peace. 
+The minimum transaction size is one block (since ext3 is the only journaling
+FS to log entire blocks, instead of the specific logical changes made during
+the transaction), and your blocks are 1k, 2k, or 4k.
 
-God Bless You,
- 
-Valentin and my Mother Elena.
-Kaluga. Russia. 
+Though many times you'll have several blocks per transaction since each
+transaction can change bitmaps, directory blocks, and etc.
+
+> Since I don't know the internals of Ext3 at all, I'm probably
+> completely missing the idea here, but my gut feeling is that the
+> scaling we use in these cases shouldn't be linear at all, but more
+> likely inverse logyrythmic instead.  Basically, the larger we get with
+> a resource, the slower we grow our useage, or the smaller we grow the
+> absolute size of the writeout buffer(s).
+> 
+> Hmmm... this doesn't sound clear even to me.  But the idea I think I'm
+> trying to get at is that if we have X size of a journal, we want to
+> start writeout when we have X/2 available.  But when we have Y size of
+> a journal, where Y is X*10 (or larger), we don't want Y/2 as the
+> cutover point, we want something like  Y/10.  The idea is that we grow
+> the denominator here at a slow rate, since it will shrink the free
+> buffer percentage nicely, yet not let us get too close to a truly zero
+> sized buffer.
+
+Last I heard, ext3 will try to flush the journal with an async process and
+if that isn't able to keep up, once the journal hits 50% full, the system
+will write syncronously until the journal is empty (or was that until it was
+25% full or less, I forget...).
+
+AFAIK everyone agrees that this is not optimal, but nobody's taken the time
+to fix it yet either.
+
+Mike

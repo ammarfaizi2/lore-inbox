@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132852AbRDUTZp>; Sat, 21 Apr 2001 15:25:45 -0400
+	id <S132850AbRDUT1Z>; Sat, 21 Apr 2001 15:27:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132847AbRDUTZf>; Sat, 21 Apr 2001 15:25:35 -0400
-Received: from imap.digitalme.com ([193.97.97.75]:16263 "EHLO digitalme.com")
-	by vger.kernel.org with ESMTP id <S132846AbRDUTZZ>;
-	Sat, 21 Apr 2001 15:25:25 -0400
-Message-ID: <3AE1DE3F.5000101@bigfoot.com>
-Date: Sat, 21 Apr 2001 15:23:43 -0400
-From: "Trever L. Adams" <trever_Adams@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; rv:0.8.1+) Gecko/20010421
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Juri Haberland <juri@koschikode.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Crash: XFree86 4.0.3 and Kernel 4.0.3
-In-Reply-To: <20010421180845.18802.qmail@babel.spoiled.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132848AbRDUT1M>; Sat, 21 Apr 2001 15:27:12 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:37101 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S132846AbRDUT0t>; Sat, 21 Apr 2001 15:26:49 -0400
+Date: Sat, 21 Apr 2001 21:26:46 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Dan Aloni <karrde@callisto.yi.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@image.dk>
+Subject: Re: cdrom driver dependency problem (and a workaround patch)
+Message-ID: <20010421212645.W719@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20010421134412.O682@nightmaster.csn.tu-chemnitz.de> <Pine.LNX.4.32.0104212032310.28315-100000@callisto.yi.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.32.0104212032310.28315-100000@callisto.yi.org>; from karrde@callisto.yi.org on Sat, Apr 21, 2001 at 08:33:05PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juri Haberland wrote:
-
+On Sat, Apr 21, 2001 at 08:33:05PM +0300, Dan Aloni wrote:
+> On Sat, 21 Apr 2001, Ingo Oeser wrote:
+> > The link order is wrong. So why not changing the link order then?
 > 
-> Hi Trevor,
-> 
-> I have the same problem with almost the same combination (RH 7.0 instead of
-> RH 7.1). Did you compile the XFree server yourself and if so, did you
-> optimize it for i686? The reason why I'm asking is that I did that and
-> suspected the optimazions to cause the crashes.
-> 
-> Juri
-> 
-> 
+> I remember doing what the patch below does.
+> It didn't help.
+ 
+Hmm, maybe you had a typo?
 
-Juri, et al.
+> Did you try this patch?
 
-    I did some searches on google.  It seems that it is the combination 
-of kernel 2.4, glibc2.2.x, and possibly the i686 optimizations.  I found 
-my machine was alive from a network connection.  The problem is, I cant 
-get my keyboard back even with sysrq (syslog does show it changing into 
-XLATE mode... I thought alt-ctrl-r was raw?).  Of course the machine was 
-alive, but X was dead. xscreensaver and the screen save it ran along 
-with most of the desktop stuff was still running.
+Yes, just booted an SMP machine with 2.4.3-ac11 and this patch.
 
-  Anyway, I tried 'shutdown -r now'over the network. Didn't work.  I had 
-to do a hard reset.  So it seems the kernel may be slightly left in an 
-unknown or confused state.
+I booted remote, so it was some kind of dangerous, if it wouldn't
+work ;-)
 
-I did not compile it myself.  Using RedHat 7.1 standard.
+We also have SCSI enabled there. So it really works ;-)
 
-Since I saw this mentioned here recently, does gcc still think 686=cmov? 
-If so, Alan or someone else, does Athlon classic (slot 800 Mhz) support 
-cmov?
 
-Trever Adams
+Regards
 
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

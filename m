@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbULDVrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbULDVrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbULDVrM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 16:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbULDVrM
+	id S261172AbULDVrj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 16:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbULDVrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 16:47:12 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:20869 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261171AbULDVrK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 16:47:10 -0500
-Subject: Re: kernel development environment
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alessandro Amici <alexamici@fastwebnet.it>
-Cc: Miguel Angel Flores <maf@sombragris.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200412042237.48729.alexamici@fastwebnet.it>
-References: <41B1F97A.80803@sombragris.com>
-	 <200412042121.49274.alexamici@fastwebnet.it>
-	 <41B22381.10008@sombragris.com>
-	 <200412042237.48729.alexamici@fastwebnet.it>
-Content-Type: text/plain
-Date: Sat, 04 Dec 2004 16:47:08 -0500
-Message-Id: <1102196829.28776.46.camel@krustophenia.net>
+	Sat, 4 Dec 2004 16:47:39 -0500
+Received: from main.gmane.org ([80.91.229.2]:13201 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261172AbULDVrc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 16:47:32 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Subject: Re: Linux 2.6.10-rc3
+Date: Sat, 04 Dec 2004 16:47:45 -0500
+Message-ID: <cotb9g$jfc$1@sea.gmane.org>
+References: <Pine.LNX.4.58.0412031611460.22796@ppc970.osdl.org> <pan.2004.12.04.09.06.09.707940@nn7.de> <87oeha6lj1.fsf@sycorax.lbl.gov> <cosrt1$j67$1@sea.gmane.org> <87eki66jx8.fsf@sycorax.lbl.gov>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ool-4571c239.dyn.optonline.net
+User-Agent: KNode/0.8.90
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-12-04 at 22:37 +0100, Alessandro Amici wrote:
-> a decent mailer (Mozilla Mail should 
-> qualify :)
+Alex Romosan wrote:
 
-I hope you are kidding.
+> Ari Pollak <aripollak@gmail.com> writes:
+> 
+> i saw there were some changes to alsa cvs having to do with the new
+> pci device handling. i'll reconfigure the kernel with alsa as modules
+> and try alsa cvs to see if that makes any difference. thanks.
+> 
 
-In case you did not get the joke, Mozilla Mail is one of the WORST mail
-clients for handling kernel patches.  See the list archives.
+I have been using the following patch for a while with no problems:
 
-Use a mailer that does the Right Thing by default like Evolution.
 
-Lee
+--- linux/sound/pci/intel8x0.c 2004-12-04 16:37:11.000000000 -0500
++++ linux/sound/pci/intel8x0.c 2004-12-04 04:47:14.000000000 -0500
+@@ -2279,6 +2279,8 @@
+  for (i = 0; i < 3; i++)
+   if (chip->ac97[i])
+    snd_ac97_suspend(chip->ac97[i]);
++ pci_save_state(chip->pci);
++ pci_disable_device(chip->pci);
+  snd_power_change_state(card, SNDRV_CTL_POWER_D3hot);
+  return 0;
+ }
+@@ -2289,6 +2291,7 @@
+  int i;
+ 
+  pci_enable_device(chip->pci);
++ pci_restore_state(chip->pci);
+  pci_set_master(chip->pci);
+  snd_intel8x0_chip_init(chip, 0);
+ 
 

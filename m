@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314393AbSDTAwP>; Fri, 19 Apr 2002 20:52:15 -0400
+	id <S314396AbSDTAvt>; Fri, 19 Apr 2002 20:51:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314413AbSDTAwO>; Fri, 19 Apr 2002 20:52:14 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:43153 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S314393AbSDTAwM>;
-	Fri, 19 Apr 2002 20:52:12 -0400
-Date: Sat, 20 Apr 2002 10:50:11 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, hannal@us.ibm.com
-Subject: Re: 12 way dbench analysis: 2.5.9, dalloc and fastwalkdcache
-Message-ID: <20020420005011.GA21850@krispykreme>
-In-Reply-To: <20020418081843.GE4209@krispykreme> <3CBE8AAA.FD940076@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314413AbSDTAvr>; Fri, 19 Apr 2002 20:51:47 -0400
+Received: from [61.129.163.102] ([61.129.163.102]:16001 "EHLO
+	lcfep2.online.sh.cn") by vger.kernel.org with ESMTP
+	id <S314396AbSDTAvo>; Fri, 19 Apr 2002 20:51:44 -0400
+Message-ID: <001301c1e805$6bfe4130$c8f1a53d@willamuegz5kd1>
+From: "willam" <willam@online.sh.cn>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <F10qwZ2cFXvmBUCsQrU0000e2b7@hotmail.com> <1019211729.3619.9.camel@ADMIN>
+Subject: Re: /dev/zero
+Date: Sat, 20 Apr 2002 08:50:52 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> The code Anton tested was the removal of the buffer LRUs and
-> the buffer hashtable and the introduction of address_space-based
-> writeback.  That code is >this< close to being ready.  Still
-> chasing a couple of oddities.
+> On Fri, 2002-04-19 at 10:33, blesson paul wrote:
+> > Hi
+> > I need some more information about /dev/zero. I need to replace the
+device
+> > driver of /dev/zero(I do not know whether I can name the program
+controlling
+> > the /dev/zero as device driver). How to do the job. If I cannot replace
+the
+> > device driver of /dev/zero, how to create a new charecter device and
+load my
+> > device driver.
+> >
+Hi,you should read the <<Linux Device Drivers>>,it will surely do good to
+you.
 
-http://samba.org/~anton/linux/2.5.9/
 
-GOLD FOR AUSTRALIA!
-
-The latest results include updates to dallocbase-70-writeback and a
-per cpu page cache, both from Andrew.
-
-Anton

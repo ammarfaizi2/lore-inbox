@@ -1,185 +1,221 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273824AbRIREBb>; Tue, 18 Sep 2001 00:01:31 -0400
+	id <S273827AbRIREGL>; Tue, 18 Sep 2001 00:06:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273825AbRIREBW>; Tue, 18 Sep 2001 00:01:22 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:60113 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S273824AbRIREBI>; Tue, 18 Sep 2001 00:01:08 -0400
-Date: Tue, 18 Sep 2001 00:01:32 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.10-pre11
-Message-ID: <20010918000132.C885@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0109171608310.1108-100000@penguin.transmeta.com> <20010917211834.A31693@redhat.com> <20010918035055.J698@athlon.random> <20010917221653.B31693@redhat.com> <20010918052201.N698@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010918052201.N698@athlon.random>; from andrea@suse.de on Tue, Sep 18, 2001 at 05:22:01AM +0200
+	id <S273830AbRIREFw>; Tue, 18 Sep 2001 00:05:52 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:38602 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S273827AbRIREFo>; Tue, 18 Sep 2001 00:05:44 -0400
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Robert Love <rml@tech9.net>, Chris Mason <mason@suse.com>
+Subject: Re: Feedback on preemptible kernel patch
+Date: Tue, 18 Sep 2001 06:06:06 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <200109140302.f8E32LG13400@zero.tech9.net> <200109150444.f8F4iEG19063@zero.tech9.net> <1000530869.32365.21.camel@phantasy>
+In-Reply-To: <1000530869.32365.21.camel@phantasy>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_6EBUCA9ETT9KDWGHCWC8"
+Message-Id: <20010918040550Z273827-761+10122@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 18, 2001 at 05:22:01AM +0200, Andrea Arcangeli wrote:
-> try compiling 2.4.10pre10aa1 with egcs 1.1.2 before complaing about lack
-> of testing, the tests were run on 2.4.10pre10aa1, not on 2.4.10pre11
-> that didn't even existed at that time.
 
-If I spent the time testing every random kernel patch that comes across, then 
-I wouldn't have any time left to develop other useful things.  What I see is 
-that what was merged didn't deal with things sanely.
+--------------Boundary-00=_6EBUCA9ETT9KDWGHCWC8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-> So I'm not surprised by the fact you weren't horrified by the previous
-> VM that was looping forever in such a case.  unfortunately not everybody
-> out there (mainly simulations) knows how much memory they will alloc.
+Am Samstag, 15. September 2001 07:14 schrieb Robert Love:
+> On Sat, 2001-09-15 at 00:25, Dieter Nützel wrote:
+> > > > >  ReiserFS may be another problem.
+> > > >
+> > > > Can't wait for that.
+> >
+> > Most wanted, now.
+>
+> I am working on it, but I am unfamilar with it all.
+>
+> Are you seeing any specific problems, now?  With the latest preemption
+> patch on 2.4.10-pre9, do you crash? oops?
 
-Every single kernel since the dawn of 1.0 has died under OOM.  Optimizing for 
-it seems rather stupid when a well maintained box WON'T OOM.
+No, nothing with 2.4.10-pre9 + patch-rml-2.4.10-pre9-preempt-kernel-1 and 
+your MMX/3Dnow! fix.
 
-> > Then why wasn't it added to the generic code?
-> 
-> see above.
+2.4.10-pre10 + patch-rml-2.4.10-pre10-preempt-kernel-1 seems to be a winner!
 
-So merging crap is now acceptable?  Great, I'll write messy code from now on.
+See my results below.
 
-> > on their individual merit.  All or nothing is *not* the approach that should 
-> > be taken at present.  (Hint, stability is acheived gradually.)
-> 
-> You can find a very big split if you check into the 2.4.10pre10aa1/
-> directory in my ftp area, of course if you look at 2.4.10pre11 it is all
-> at once.
+> The only outstanding issue now is ReiserFS issues.
 
-Yes, all of the vm patches are in one big 3300 line patch, which is about the 
-same size as the entire aio patch which adds a new subsystem.
+Yes, but no crash or oops for me.
+"Only" some "stalls" during MPEG/Ogg-Vorbis playback (2-5 sec) :-(
 
-> For the vm changes properly splitting them it's quite a pain, mainly due
-> the way they're developed. For everything that is not a pain to keep
-> separated I try to do so.
+> > It seems to be that kswap put some additional "load" on the disk from
+> > time to time. Or is it the ReiserFS thing, again?
+>
+> I don't think its related to ReiserFS.
 
-Bull shit.  People do it every day because Linus dictates it so.  There is 
-nothing magical in you patch that can't be split up into human-readable 
-chunks.
+I think you are right.
 
-> > > again and you'll see, as said 2.2.19 does the same write throttling.
-> > 
-> > And it does so in a fashion which is completely broken.
-> 
-> Then send Alan the fix against 2.2.20pre10 if it's completly broken. I
-> never got a complain about it yet and I look forward to see your fix.
+> What sort of activity are you seeing?  How often?  How do you know its
+> kswapd?
 
-2.2 doesn't matter any more.  Any work I'm doing now is 2.4 based.
+I saw it with "top" at the first line (but only some few percent).
+It was during untarring some mid-sized archives (DRI) which took normally ~10 
+sec, but with kswap and 2.4.9-pre9+your patches ~30 sec. Even "sync" needed 
+some additional seconds.
 
-> 
-> > Then make it a seperate patch.  It shouldn't be part of the do-everything 
-> 
-> Please get real, it is a 3 thousand lines patch, if for every single
-> change like this (orthogonal with the rest) I should make 1 patch it
-> would take hours just to run the diffs. Not to tell if then I make a
-> controversial changes.
+Are there some reschedule/context switch (kernel lock release) statements 
+missing in ReiserFS?
 
-I am being real.  I don't expect single massive patches to ever be applied, 
-and am shocked I've even had to comment on this.
+Is this possible? Chris?
 
-> What kind of workload is applied during the measurement, and what
-> NULL/MEM/FILE_IO/PROCESS means? Is this benchmark available somewhere?
-> What fields are you looking at exactly? I can see some field going up
-> and low and I cannot evaluate those numbers very well without more info.
+> I am glad the patch fixed it, the final version of that is going into
+> the next preemption patch.  Stay tuned.
 
-Go do the work yourself.  If you can't be bothered to develop benchmarks that 
-simulate users on the vm subsystem, how can you claim your vm patches are 
-correct?
+I am very happy with patch-rml-2.4.10-pre10-preempt-kernel-1.
 
-> Except for the vm rewrite there was extensive testing. Probably not from
-> RedHat Inc if this is the point that you are making. And the vm rewrite
-> is so obviously better and much cleaner that I think this was a fine
-> integration. I'm pretty sure no stability problem can arise because of
-> the vm integration, if there could be problems as worse they could be
-> specific to slower performance in some workload which we can address
-> over the time without any pain. anyways as said dbench runs exactly
-> twice faster so it cannot be obviously wrong in terms of performance
-> either.
+> These results are pretty good.  Throughput seems down 2-3% in many
+> cases, although latency is greatly improved.  Look at those latency
+> changes!  From thousands of ms to hundreds of us in bonnie.  Wow.
 
-So the vm rewrite wasn't well tested, but it should be merged into a stable 
-kernel?  Please say it ain't so.
+So look at my latest numbers. This time preempt only, sorry.
+If you need 2.4.10-pre10 only, too please ask.
 
-> Linus merged everything without asking me and I think his move was very
-> good IMHO. Face it: users cannot live anymore with workloads slowing
-> down at every runs of benchmarks, with kswapd looping forever, with
-> swapout storms, with swap filled by unused swapcache etc... What I did
-> is the less intrusive change to the code that could at least address
-> those critical problems and I'm pretty sure it did, as worse as said we
-> may need some little tweak over the time but the new infrastructure
-> should be robust enough now.
+> Even if you don't care about latency (I'm not an audio person or
+> anything), these changes should be worth it.
 
-I want robust and not likely to corrupt my data randomly.  The latter is more 
-important to me and everyone else in the world, so I think you should play 
-by rules that enforce that.
+I do. Or better, one of my friend's father will do some digital video editing 
+with Linux:-)
+
+> > Deleting with ReiserFS and the preempt kernel is GREAT!
+>
+> Good. I/O latency should be great now, with little change in
+> throughput...
+
+It is.
+
+> > But I get some hiccup during noatun (mp3, ogg, etc. player for KDE-2.2)
+> > or plaympeg together with dbench (16, 32). ReiserFS needs some preemption
+> > fixes, too?
+>
+> You may still get some small hiccups ( < 1 second?) even with the
+> preemption patch, as kernel locks prevent preemption (the patch can't
+> guarentee low latency, just preemption outside of the locks).
+
+Sadly 2-5 seconds at the beginning of dbench and during bonnie++ block 
+operations (huge IO pressure, ~20% system, 3-5% user, 116308 kilobytes paged 
+out).
+
+> However, how bad was the hiccups with preemption disabled?  I have heard
+> reports where it is 3-5sec at times.
+
+Yes, nearly the same.
+
+> As the kernel becomes more scalable (finer-grain locking), preemption
+> will improve.  Past that, perhaps during 2.5, we can work on some other
+> things to improve preemption.
+
+Is this a ReiserFS only problem? Uninteruptable IO?
+
+> > I've attached two small compressed bonnie++ HTML files.
+>
+> These were neat, thanks.
+
+One more.
+
+> Thank you for your feedback and support.  Stay current with the kernel
+> and the preemption patches,
+
+I will.
+
+> and I will try to figure the ReiserFS crashes out.
+
+No crashes for me only the stalls.
+
+Regards,
+	Dieter
+
+2.4.10-pre10 + patch-rml-2.4.10-pre10-preempt-kernel-1
+
+dbench-1.1 32
+Throughput 26.2881 MB/sec (NB=32.8601 MB/sec  262.881 MBit/sec)
+14.320u 54.140s 2:41.70 42.3%   0+0k 0+0io 911pf+0w
+load: 2931
+Throughput 27.3814 MB/sec (NB=34.2267 MB/sec  273.814 MBit/sec)
+14.040u 55.920s 2:35.29 45.0%   0+0k 0+0io 911pf+0w
+load: 2955
+
+dbench 16
+Throughput 32.9183 MB/sec (NB=41.1479 MB/sec  329.183 MBit/sec)
+6.790u 26.580s 1:05.17 51.2%    0+0k 0+0io 511pf+0w
+
+dbench 8
+Throughput 34.8936 MB/sec (NB=43.617 MB/sec  348.936 MBit/sec)
+3.300u 12.760s 0:31.27 51.3%    0+0k 0+0io 311pf+0w
+
+dbench 4
+Throughput 38.3568 MB/sec (NB=47.946 MB/sec  383.568 MBit/sec)
+1.770u 6.160s 0:14.77 53.6%     0+0k 0+0io 211pf+0w
+SunWave1>sync
+
+dbench 2
+Throughput 53.3066 MB/sec (NB=66.6333 MB/sec  533.066 MBit/sec)
+0.940u 2.970s 0:05.95 65.7%     0+0k 0+0io 161pf+0w
+
+dbench 1
+Throughput 24.0354 MB/sec (NB=30.0442 MB/sec  240.354 MBit/sec)
+0.470u 1.460s 0:06.49 29.7%     0+0k 0+0io 136pf+0w
+Throughput 39.1102 MB/sec (NB=48.8878 MB/sec  391.102 MBit/sec)
+0.400u 1.530s 0:04.38 44.0%     0+0k 0+0io 136pf+0w
+Throughput 44.6889 MB/sec (NB=55.8611 MB/sec  446.889 MBit/sec)
+0.500u 1.430s 0:03.96 48.7%     0+0k 0+0io 136pf+0w
 
 
-> Ben, the true mess is the 2.4 VM before 2.4.10pre11. Period.
+Version 1.92a       ------Sequential Output------ --Sequential Input- 
+--Random-
+                    -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- 
+--Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec 
+%CP
+SunWave1      1248M   107  96 16513  21  9004   9   163  98 27844  18 256.9   
+3
+Latency               115ms    2872ms    1743ms     121ms   64671us    3273ms
+Version 1.92a       ------Sequential Create------ --------Random 
+Create--------
+SunWave1            -Create-- --Read--- -Delete-- -Create-- --Read--- 
+-Delete--
+              files  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec 
+%CP
+                 16  6029  69 +++++ +++ 13252  94  6762  82 +++++ +++ 11342  
+94
+Latency               338ms   16041us   16309us   24248us     367us   17045us
+load: 292
+--------------Boundary-00=_6EBUCA9ETT9KDWGHCWC8
+Content-Type: application/x-bzip2;
+  name="2.4.10-pre10.html.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="2.4.10-pre10.html.bz2"
 
-Sure.
+QlpoOTFBWSZTWbFIYjYAAXbfgHAQegv//z/v37A/7//6UAOr27lyCA6tsEkkIaaQ009TbU1PUbSe
+oaaADQ0A0eoAaDTUmJoyKeUBkZANMRgRk0yaYQBoYSJBBE1HtI9UHqeoNAGh4oYTR6EAAHNMjIZM
+ENGEwRpo0YgaZMjAAEEVEyAlN4ptTTTKZGQHqDQPUND1ADQZGK2MlQjAsMnnjqrje/cLTCSlBWDP
+naGOAt2ucAM/Wj3AgUAcs/RIecxgBIwUDnSTZ6B5hyWcFZqAjj5DyOxYSbULQHdR+KVpgAGYTtA8
+aZoEQgSAYhcAvcKZp3wvJ2Pqzkx7GBLIMkl2Mkkj0ZEsmC42DC6fpz59lMDXBPRv9nKlPXsiQHbP
+JZpYyM0Fo2Mlb4iRCWZkOJEAkASCAhFICg3IKFV00ATMVRMzwdFT20UvbSuV7ROx6mtYGselM65S
+FFinmVYkffKWSTi6x3UrbK510MLXFl3CvUHB9pBslw6SOqe7KNh4AYiR/0q6MK4pQB1QLiUdhEOe
+kFlor4I59G03cxRxV16yUpRrsga6p43333wB2wUAM5DOshQrtADac7bQLiaXHOS64LWDS2QQREDI
+ggbGDG0HOL5cqJMo0gxYcExWIndUAL3FtRCvGDGJCbCsFhScIJ1lIvGqwpUKSvOm18TEBrFtF8Tx
+SlRvFdFuG45R1IV8ISOllrGbwhJE2nhh0ZrSwxzv5gAw6rt4tv3AtDeucAJiuGoylQSjcVWb59QA
+qwTxBp7MIUkdGkuNCAVmyoJ0iByYlQq1b1pegGQqx4MMb4CBhUDKwvvgJZmz00pAALU6IIuU5hOD
+wCrKUAAwgqy52IjIFSDCG+aQoChIGJhqRrlveouMW4AOX7vcR6XbuDUdJ49woVBxGo1CUWwBDdQG
+P6Pc0Ch0P0XhsqMaiLBSB8esZ9RhUEoMPlkZKbQ2ohy5cZ37T5J+qwoKi+kOD7u3GNOFD4cKUodq
+3it+YcMjVqdFIuxdriHm03ziORTRcmnezAPG92YofDPUTTUcwmtmbZ1s2Xfr74bOMIy4mVwldFwx
+AOnLwjbL178iETPFv45oyoDKmHWIS1B3Ip3qaFk0l2rv46hjbY5u+YoTQdgONlicOYUJ129YThmO
+HTWUlEQyTQEjlTJHdfFFBf0J3XUYFYxYvWt27xmWUpokT4KHIoJicDXA/xdyRThQkLFIYjY=
 
-> If you
-> check the new code you'll see how much cleaner it is.
-
-Hardly.  You don't even define your basic terms.  WTF is a classzone?  A 
-comment somewhere would be nice.
-
-> Those locking changes are bugfixes. Try to growsdown on a file backed
-> vma with 2.4.9 using two threads and you'll run into troubles eventually
-> (see the thread on l-k).
-
-That isn't the one I'm talking about.  You changed the swapcache code.  That 
-code is fragile.  These changes aren't documented.
-
-> Just in case it wasn't obvious I do things gradually and in public,
-> check ftp.kernel.org. If something you're the one that doesn't care
-> about what I do in public.
-
-The vm rewrite was not posted in public, nor described in public.  It just 
-appeared and got merged.  Could you at least describe *ALL* of the changes?
-
-> I recall I also described you some of the O_DIRECT
-> stuff and blkdev pagecache work on Ottawa a few months ago. I get lots
-> of feedback and also bugfixes from many places, to mention one company
-> that cares about what I do in public there's IBM, they did auditing and
-> I got several O_DIRECT small fixes from them incrementally to my very
-> open patches. I think -aa I'm even more open than -ac since I keep all
-> the stuff separated so it's much easier to understand and pick the
-> interesting parts. I do my best effort to make every patch self
-> contained just for the purpose of making merging and auditing easier,
-> and it payed off so far. Furthmore it's not just in public but also in
-> production, for istsance all SuSE server users happily runs things like
-> O_DIRECT and blkdev in pagecache for several months now. The latter was
-> needed from a few I/O intensive applications using blkdevs as files and
-> needing heavy readhead for exploiting the full bandwith of many-ways
-> raid arrays for example. The only other way would been to basically
-> duplicate the readahead of filemap.c in block_dev.c, the hack was as
-> complex as the long term fix.
-
-And we agreed that this is 2.5 material.
-
-> > Not at the expense of stability.  Do it in 2.5, or do it gradually.
-> 
-> Ben, instead of writing complains could you grab 2.4.10pre11, put it on
-> your desktop while doing your daily work and let me know when you run
-> into stability troubles? I could have said the same thing of the ext2
-> directory metadata in pagecache, I grabbed it, put it on my desktop, it
-> never given me a problem so far so I didn't complained. And the directory
-> in pagecache wasn't fixing _any_ problem for the end user, here we're
-> instead fixing _real_life_ showstopper problems with mysql, postgres (I
-> wonder you care about postrgres these days?) and the other db not using
-> rawio+lvm, so this was kind of needed in 2.4 eventually anyways if not
-> today (I was flooded by bugreports of such kind, I'm sure you got them
-> too). So the earlier the better. I think users would been not happy to
-> wait until 2.6.
-
-I'm sorry, but I'm not going to run it right now since I have other 
-priorities.  I'm sure users will post their pass/fails over the next few 
-days, but until I see some evidence that it doesn't eat my data, I'll hold 
-back.
-
-		-ben
+--------------Boundary-00=_6EBUCA9ETT9KDWGHCWC8--

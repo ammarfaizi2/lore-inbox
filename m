@@ -1,86 +1,199 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130007AbQLUOsH>; Thu, 21 Dec 2000 09:48:07 -0500
+	id <S131127AbQLUOxj>; Thu, 21 Dec 2000 09:53:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130281AbQLUOrs>; Thu, 21 Dec 2000 09:47:48 -0500
-Received: from 24.68.117.103.on.wave.home.com ([24.68.117.103]:29569 "EHLO
-	cs865114-a.amp.dhs.org") by vger.kernel.org with ESMTP
-	id <S130139AbQLUOro>; Thu, 21 Dec 2000 09:47:44 -0500
-Message-ID: <3A4210EC.EE3BB5B1@home.com>
-Date: Thu, 21 Dec 2000 09:17:16 -0500
-From: Arthur Pedyczak <arthur-p@home.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Problems in 2.4.0-test12
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+	id <S131088AbQLUOx2>; Thu, 21 Dec 2000 09:53:28 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:55058 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130281AbQLUOxS>;
+	Thu, 21 Dec 2000 09:53:18 -0500
+Date: Thu, 21 Dec 2000 15:22:49 +0100
+From: "Dr. Werner Fink" <werner@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kurt Garloff <garloff@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        miquels@cistron.nl, Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: TIOCGDEV ioctl
+Message-ID: <20001221152249.A12011@boole.suse.de>
+Mail-Followup-To: "Dr. Werner Fink" <werner@suse.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kurt Garloff <garloff@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	miquels@cistron.nl, Linux kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20001216015537.G21372@garloff.suse.de> <Pine.LNX.4.10.10012151710040.1325-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10012151710040.1325-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 15, 2000 at 05:11:07PM -0800
+Organization: SuSE GmbH
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I had been running 2.4.0-test12 for 7 days. Worked great. Then the
-system just froze. No oopses,
-no log entries, no telneting to the box, no SysRq. Hard reboot. Some 12
-hrs. later I got the following Oops in xfs. At that time I was
-installing Corel Photopaint and the install was going through fonts. The
-oops is _NOT_ reproducible (after reboot installation went fine).
 
-ksymoops 2.3.4 on i686 2.4.0-test12.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.0-test12/ (default)
-     -m /usr/src/linux/System.map (specified)
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Dec 21 00:44:22 cs865114-a kernel: Unable to handle kernel paging
-request at virtual address 42e46ae0
-Dec 21 00:44:22 cs865114-a kernel: c01411cc
-Dec 21 00:44:22 cs865114-a kernel: *pde = 00000000
-Dec 21 00:44:22 cs865114-a kernel: Oops: 0000
-Dec 21 00:44:22 cs865114-a kernel: CPU:    0
-Dec 21 00:44:22 cs865114-a kernel: EIP:    0010:[find_inode+28/72]
-Dec 21 00:44:22 cs865114-a kernel: EFLAGS: 00010207
-Dec 21 00:44:22 cs865114-a kernel: eax: 00000000   ebx: 42e46ac0   ecx:
-0000001c   edx: 00000eee
-Dec 21 00:44:22 cs865114-a kernel: esi: 42e46ac0   edi: 00000000   ebp:
-000da680   esp: ce0f7e80
-Dec 21 00:44:22 cs865114-a kernel: ds: 0018   es: 0018   ss: 0018
-Dec 21 00:44:22 cs865114-a kernel: Process xfs (pid: 637,
-stackpage=ce0f7000)
-Dec 21 00:44:22 cs865114-a kernel: Stack: 000da680 cffc7770 000da680
-c1460600 c0141581 c1460600 000da680 cffc7770 
-Dec 21 00:44:23 cs865114-a kernel:        00000000 00000000 000da680
-ca80c260 ce066040 c3412f20 c014d14b c1460600 
-Dec 21 00:44:23 cs865114-a kernel:        000da680 00000000 00000000
-fffffff4 ca80c260 ce066040 c685a098 c013883a 
-Dec 21 00:44:23 cs865114-a kernel: Call Trace: [iget4+69/204]
-[ext2_lookup+95/140] [real_lookup+82/192] [path_walk+1381/1964]
-[sock_recvmsg+61/172] [<f28ebd75>] [open_namei+128/1388] 
-Dec 21 00:44:23 cs865114-a kernel: Code: 39 6e 20 75 ef 8b 44 24 14 39
-86 8c 00 00 00 75 e3 85 ff 74 
-Using defaults from ksymoops -t elf32-i386 -a i386
+On Fri, Dec 15, 2000 at 05:11:07PM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 16 Dec 2000, Kurt Garloff wrote:
+> > 
+> > The kernel provides this information -- sort of:
+> > It contains the TIOCTTYGSTRUCT syscall which returns a struct. Of course,
+> > it changes between different kernel archs and revisions, so using it is
+> > an ugly hack. Grab for TIOCTTYGSTRUCT_HACK in the bootlogd.c file of the
+> > sysvinit sources. Shudder!
+> 
+> Please instead do the same thing /dev/tty does, namely a sane interface
+> that shows it as a symlink in /proc (or even in /dev)
 
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   39 6e 20                  cmp    %ebp,0x20(%esi)
-Code;  00000003 Before first symbol
-   3:   75 ef                     jne    fffffff4 <_EIP+0xfffffff4>
-fffffff4 <END_OF_CODE+28608a55/????>
-Code;  00000005 Before first symbol
-   5:   8b 44 24 14               mov    0x14(%esp,1),%eax
-Code;  00000009 Before first symbol
-   9:   39 86 8c 00 00 00         cmp    %eax,0x8c(%esi)
-Code;  0000000f Before first symbol
-   f:   75 e3                     jne    fffffff4 <_EIP+0xfffffff4>
-fffffff4 <END_OF_CODE+28608a55/????>
-Code;  00000011 Before first symbol
-  11:   85 ff                     test   %edi,%edi
-Code;  00000013 Before first symbol
-  13:   74 00                     je     15 <_EIP+0x15> 00000015 Before
-first symbol
+Not a symlink but this is what is needed: if fd 0 of the current task is a
+tty then give the hash of the tty.  I'm using fd 0 because current->tty may
+not be set for spawned tasks of init.
+
+I've attached two patches, one for 2.4 and one for 2.2.  They're rather
+simple, therefore one may use this for setting a link.
+
+
+        Werner
+
+BTW: I'm missing a real replacement for my sys_revoke() patch done at the
+end of October.  Al Viro has wipe it out but never shows an alternative way
+of implementing such a beast.
+
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Description: linux-2.4-real-tty.patch
+Content-Disposition: attachment; filename="2.4real-tty.patch"
+
+--- fs/proc/proc_tty.c
++++ fs/proc/proc_tty.c	Thu Dec 21 15:16:08 2000
+@@ -9,6 +9,7 @@
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/sched.h>
++#include <linux/file.h>
+ #include <linux/proc_fs.h>
+ #include <linux/stat.h>
+ #include <linux/tty.h>
+@@ -22,6 +23,8 @@
+ 				 int count, int *eof, void *data);
+ static int tty_ldiscs_read_proc(char *page, char **start, off_t off,
+ 				int count, int *eof, void *data);
++static int real_tty_read_proc(char *page, char **start, off_t off,
++				int count, int *eof, void *data);
+ 
+ /*
+  * The /proc/tty directory inodes...
+@@ -128,7 +131,32 @@
+ }
+ 
+ /*
+- * Thsi function is called by register_tty_driver() to handle
++ * This is the handler for /proc/tty/tty
++ */
++static int real_tty_read_proc(char *page, char **start, off_t off,
++				int count, int *eof, void *data)
++{
++	struct	file * zero = fcheck(0); /* of current task */
++	struct	tty_struct * tty = NULL;
++	unsigned int dev = 0;
++	int	len = 0;
++	off_t	begin = 0;
++
++	if (zero)
++		tty = (struct tty_struct *)zero->private_data;
++	if (tty && tty->magic == TTY_MAGIC)
++		dev = kdev_t_to_nr(tty->device);
++
++	len += sprintf(page+len, "%u\n", dev);
++
++	if (off >= len+begin)
++		return 0;
++	*start = page + (off-begin);
++	return ((count < begin+len-off) ? count : begin+len-off);
++}
++
++/*
++ * This function is called by register_tty_driver() to handle
+  * registering the driver's /proc handler into /proc/tty/driver/<foo>
+  */
+ void proc_tty_register_driver(struct tty_driver *driver)
+@@ -178,4 +206,5 @@
+ 
+ 	create_proc_read_entry("tty/ldiscs", 0, 0, tty_ldiscs_read_proc,NULL);
+ 	create_proc_read_entry("tty/drivers", 0, 0, tty_drivers_read_proc,NULL);
++	create_proc_read_entry("tty/tty", 0, 0, real_tty_read_proc,NULL);
+ }
+
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Description: linux-2.2-real-tty.patch
+Content-Disposition: attachment; filename="2.2real-tty.patch"
+
+--- fs/proc/proc_tty.c
++++ fs/proc/proc_tty.c	Thu Dec 21 15:14:12 2000
+@@ -9,6 +9,7 @@
+ #include <linux/init.h>
+ #include <linux/errno.h>
+ #include <linux/sched.h>
++#include <linux/file.h>
+ #include <linux/proc_fs.h>
+ #include <linux/stat.h>
+ #include <linux/tty.h>
+@@ -22,6 +23,8 @@
+ 				 int count, int *eof, void *data);
+ static int tty_ldiscs_read_proc(char *page, char **start, off_t off,
+ 				int count, int *eof, void *data);
++static int real_tty_read_proc(char *page, char **start, off_t off,
++				 int count, int *eof, void *data);
+ 
+ /*
+  * The /proc/tty directory inodes...
+@@ -128,7 +131,32 @@
+ }
+ 
+ /*
+- * Thsi function is called by register_tty_driver() to handle
++ * This is the handler for /proc/tty/tty
++ */
++static int real_tty_read_proc(char *page, char **start, off_t off,
++				 int count, int *eof, void *data)
++{
++	struct	file * zero = fcheck_task(current, 0);
++	struct	tty_struct * tty = NULL;
++	unsigned int dev = 0;
++	int	len = 0;
++	off_t	begin = 0;
++
++	if (zero)
++		tty = (struct tty_struct *)zero->private_data;
++	if (tty && tty->magic == TTY_MAGIC)
++		dev = kdev_t_to_nr(tty->device);
++
++	len += sprintf(page+len, "%u\n", dev);
++
++	if (off >= len+begin)
++		return 0;
++	*start = page + (off-begin);
++	return ((count < begin+len-off) ? count : begin+len-off);
++}
++
++/*
++ * This function is called by register_tty_driver() to handle
+  * registering the driver's /proc handler into /proc/tty/driver/<foo>
+  */
+ void proc_tty_register_driver(struct tty_driver *driver)
+@@ -185,5 +213,7 @@
+ 
+ 	ent = create_proc_entry("tty/drivers", 0, 0);
+ 	ent->read_proc = tty_drivers_read_proc;
+-}
+ 
++	ent = create_proc_entry("tty/tty", 0, 0);
++	ent->read_proc = real_tty_read_proc;
++}
+
+--BXVAT5kNtrzKuDFl--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267792AbUJONqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUJOOOx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267792AbUJONqx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 09:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUJONpk
+	id S267921AbUJOOOx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 10:14:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267904AbUJOOOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 09:45:40 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:28167 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S267792AbUJONmv convert rfc822-to-8bit (ORCPT
+	Fri, 15 Oct 2004 10:14:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45265 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267777AbUJOOJ7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 09:42:51 -0400
-Date: Fri, 15 Oct 2004 13:48:27 +0000
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: Generic VESA framebuffer driver and Video card BOOT?
-To: Kendall Bennett <KendallB@scitechsoft.com>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       penguinppc-team@lists.penguinppc.org
-References: <416E6ADC.3007.294DF20D@localhost>
-In-Reply-To: <416E6ADC.3007.294DF20D@localhost> (from
-	KendallB@scitechsoft.com on Thu Oct 14 21:02:36 2004)
-X-Mailer: Balsa 2.2.4
-Message-Id: <1097848107l.20759l.0l@hh>
+	Fri, 15 Oct 2004 10:09:59 -0400
+Message-ID: <416FDA2C.1080007@redhat.com>
+Date: Fri, 15 Oct 2004 10:09:48 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Tasklet usage?
+References: <416FCD3E.8010605@drzeus.cx> <416FD177.1050404@redhat.com> <416FD4C0.3090403@drzeus.cx>
+In-Reply-To: <416FD4C0.3090403@drzeus.cx>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14-10-2004 21:02:36, Kendall Bennett wrote:
-> Hello All,
-[...]
-> So what we would like to find out is how much interest there might be
-> in
-> both an updated VESA framebuffer console driver as well as the code
-> for
-> the Video card BOOT process being contributed to the maintstream
-> kernel.
+Pierre Ossman wrote:
+> Neil Horman wrote:
+> 
+>> Pierre Ossman wrote:
+> 
+> 
+>>> * Can tasklets be preempted?
+>>
+>>
+>> A tasklet can get preempted by a hard interrupt, but tasklets run in 
+>> interrupt context, so don't do anything in a tasklet that can call 
+>> schedule.
+> 
+> 
+> Being preempted by hard interrupts is sort of the point of moving the 
+> stuff to a tasklet. Just as long as other tasklets and user space cannot 
+> preempt it.
+> 
+> Are there any concerns when it comes to locking and tasklets? I've tried 
+> finding kernel-locking-HOWTO referenced in kernel-docs.txt but the link 
+> is dead and I can't find a mirror.
+> 
+Locking in tasklets needs to be done the same way locking in interrupt 
+handlers is done.  The only caveat that I can think of is that in the 
+event that you are accessing data shared with code that runs outisde of 
+the tasklet, you probably need to use spin_lock_bh to disable softirqs 
+in the latter code.  In your environment, it would typically replace the 
+use of spin_lock_irq[save|restore].
 
-The BOOT stuff is very interesting.  Currently, both my videocards
-(in the same pc)
-have nice hw-specific framebuffer drivers, but they require that
-the card is initialized by the bios first and this only ever
-happens to one of the cards.  Xfree _can_ do the job, but way
-too late for setting up the framebuffer device.
+HTH
+Neil
 
-> If there is interest, we would start out by first contributing the
-> core
-> emulator and Video BOOT code, and then work on building a better VESA
-> framebuffer console driver.
-
-Having video BOOT would be great, and please make it independent
-of the framebuffer drivers.  I might want to try your vesa driver,
-but I might also want to use the hw-accelerated chip specific driver
-that happens to need an initialized video card.
-
-Helge Hafting
+> Rgds
+> Pierre
+> 
 
 
+-- 
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

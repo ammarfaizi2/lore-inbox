@@ -1,85 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263868AbTEFQBB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTEFQBB
+	id S263874AbTEFQBi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263876AbTEFQBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:01:01 -0400
-Received: from smtp6.dti.ne.jp ([202.216.228.41]:63123 "EHLO smtp6.dti.ne.jp")
-	by vger.kernel.org with ESMTP id S263868AbTEFQAx (ORCPT
+	Tue, 6 May 2003 12:01:37 -0400
+Received: from mail.gmx.net ([213.165.64.20]:11063 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263874AbTEFQBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:00:53 -0400
-Date: Wed, 07 May 2003 01:13:22 +0900
-From: Hiroshi Inoue <inoueh@uranus.dti.ne.jp>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20: scheduler issue: bad scheduling latency case
-X-Mailer-Plugin: AntiSpam for Becky!2 Ver.0.306
-X-Spam-TotalCounts: 8 Counts
-X-Spam-TotalRatios: 2 Percents
-Message-Id: <20030507005733.D343.INOUEH@uranus.dti.ne.jp>
+	Tue, 6 May 2003 12:01:35 -0400
+Message-ID: <3EB7DF43.20403@gmx.net>
+Date: Tue, 06 May 2003 18:13:55 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: alexander.riesen@synopsys.COM
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Fwd: allow rename to "--bind"-mounted filesystem
+References: <20030506100435.GH890@riesen-pc.gr05.synopsys.com> <20030506143026.GL10374@parcelfarce.linux.theplanet.co.uk> <20030506143459.GA25606@riesen-pc.gr05.synopsys.com> <20030506150219.GM10374@parcelfarce.linux.theplanet.co.uk> <20030506150921.GA25849@riesen-pc.gr05.synopsys.com>
+In-Reply-To: <20030506150921.GA25849@riesen-pc.gr05.synopsys.com>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alex Riesen wrote:
+> viro@parcelfarce.linux.theplanet.co.uk, Tue, May 06, 2003 17:02:19 +0200:
 
-I have found a case which may introduce bad scheduling latency up to
-10 msec (or 1/HZ sec) in task scheduler of kernel 2.4.20 at SMP machine.
+>>Binding a subtree creates a sandbox of sorts.  You can bind a bunch of
+>>subtrees of the same fs into namespace and have normal protection
+>>against rename and link between them.
+> 
+> sounds useful, even though i can't think of real example of such a use :)
 
-In schedule(), if other CPU in the system set "need_resched" flag
-of task struct within the section showed below in order to request 
-rescheduling, this reschedule request can be neglected.
+chroot? As Al said, you create a sandbox this way. Saved me more than
+once from stupid mistakes.
 
-
-		case TASK_RUNNING:;
-	}
-*****	prev->need_resched = 0;  ***************   // begin section 
-
-	/*
-	 * this is the scheduler proper:
-	 */
-
-(Omission)
-
-	/*
-	 * from this point on nothing can prevent us from
-	 * switching to the next task, save this fact in
-	 * sched_data.
-	 */
-*****	sched_data->curr = next;   *************  // end section
-	task_set_cpu(next, this_cpu);
-
-
-This case seems to be very rare, but it was observed that this occurred 
-several times while I compiled a Linux kernel in my environment (machine 
-with 2 logical CPUs by Hyper-Threading enabled processor). 
-
-A simple patch for this issue is attached.
-Does it make sense?
-
-
-
-diff -Nru linux-2.4.20-orig/kernel/sched.c linux-2.4.20/kernel/sched.c
---- linux-2.4.20-orig/kernel/sched.c	Fri Nov 29 08:53:15 2002
-+++ linux-2.4.20/kernel/sched.c	Fri Apr 11 16:04:34 2003
-@@ -625,6 +625,11 @@
- 		goto repeat_schedule;
- 	}
- 
-+	if (unlikely(prev->need_resched)) {
-+		prev->need_resched = 0;
-+		goto repeat_schedule;
-+	}
-+
- 	/*
- 	 * from this point on nothing can prevent us from
- 	 * switching to the next task, save this fact in
-
-
-
-Regards,
-Hiroshi Inoue <inoueh@uranus.dti.ne.jp>
+Carl-Daniel
 

@@ -1,59 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290438AbSAQUX3>; Thu, 17 Jan 2002 15:23:29 -0500
+	id <S290437AbSAQUWs>; Thu, 17 Jan 2002 15:22:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290439AbSAQUXT>; Thu, 17 Jan 2002 15:23:19 -0500
-Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:11653 "EHLO
-	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S290438AbSAQUXO>; Thu, 17 Jan 2002 15:23:14 -0500
-Date: Thu, 17 Jan 2002 15:22:53 -0500
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rik spreading bullshit about VM
-Message-ID: <20020117202253.GA3546@opeth.ath.cx>
-In-Reply-To: <200201171908.OAA02671@gatekeeper.tmr.com> <Pine.LNX.4.33L.0201171733280.32617-100000@imladris.surriel.com>
+	id <S290440AbSAQUWj>; Thu, 17 Jan 2002 15:22:39 -0500
+Received: from alcove.wittsend.com ([130.205.0.10]:749 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S290437AbSAQUW3>; Thu, 17 Jan 2002 15:22:29 -0500
+Date: Thu, 17 Jan 2002 15:22:26 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: lkml <linux-kernel@vger.kernel.org>, Tomasz Torcz <zdzichu@irc.pl>,
+        "Michael H. Warfield" <mhw@wittsend.com>,
+        Hans-Christian Armingeon <linux.johnny@gmx.net>
+Subject: Re: swapper [was OOPS on 2.4.17 ...]
+Message-ID: <20020117152226.A26267@alcove.wittsend.com>
+Mail-Followup-To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>,
+	lkml <linux-kernel@vger.kernel.org>, Tomasz Torcz <zdzichu@irc.pl>,
+	Hans-Christian Armingeon <linux.johnny@gmx.net>
+In-Reply-To: <20020117182758.GA736@irc.pl> <3C472B64.6000206@wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33L.0201171733280.32617-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.25i
-From: Dan Chen <crimsun@email.unc.edu>
+In-Reply-To: <3C472B64.6000206@wanadoo.fr>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 17, 2002 at 08:52:04PM +0100, Pierre Rousselet wrote:
+> Tomasz Torcz wrote:
+> > Process swapper (pid: 1, stackpage=c1199000)
 
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Michael H. Warfield wrote:
+> > Process swapper (pid: 0,stackpage=c022f000)
 
-Excellent, Rik!
+> Hans-Christian Armingeon wrote:
+> > Process swapper (pid: 1, stackpage=cfe8d00)
 
-I've posted a diff for rmap-11c against vanilla 2.4.18-pre4 at
-http://www.cs.unc.edu/~chenda/Other/2.4.18-pre4_to_rmap11c.diff
+> what is this swapper process involved in 2.4.17 oops ? could it be 
+> spawned when devfs thinks there is already a root fs mounted at boot 
+> time before mounting the root fs given to the boot loader ?
 
-On Thu, Jan 17, 2002 at 05:49:26PM -0200, Rik van Riel wrote:
-> >   Maybe we could deflect the pissing contest back to technical
-> > discussion now?
->=20
-> I've released rmap-11c today ;)
+	It's blowing chunks even without devfs.
 
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+	But you've pointed out something important.  This is a heavily
+upgraded RedHat 6.0 system and maybe there are some things which it
+is doing which is inappropriate for the 2.4 kernels.  I vaguely remember
+a problem a while back with swapping and the swapper daemon and some
+systems blowing chunks.  All my various RedHat systems (6.0, 6.1, 6.2,
+and 7.2) are all running kswapd.  No "swapper" process, per se.  And
+init always has "1".
 
---envbJBWh7q8WU6mo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	But even if some old application is doing something ill behaved,
+that's still a problem since applications should not be capable of causing
+such an oops.  So that makes two problems, one in user space and one in
+kernel space.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+	But...  I've disabled swap on the afflicted system (it's got
+enough memory that it damn well should have never swapped anyways).  We
+shall see what we shall see over the next couple of days.
 
-iD8DBQE8RzKdMwVVFhIHlU4RAkNlAJ9PShqsBbhTtWiwvBxHQoog58k86QCdF1g/
-kp/347gLwn0f4uoQeFdPpqQ=
-=+9x2
------END PGP SIGNATURE-----
+	Good point though...
 
---envbJBWh7q8WU6mo--
+> Pierre
+> -- 
+> ------------------------------------------------
+>  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+> ------------------------------------------------
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  /\/\|=mhw=|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!

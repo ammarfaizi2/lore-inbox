@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268678AbTGIWhM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 18:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268679AbTGIWhM
+	id S268676AbTGIWki (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 18:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268677AbTGIWkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 18:37:12 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:54194 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S268678AbTGIWhJ
+	Wed, 9 Jul 2003 18:40:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44166 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268676AbTGIWke
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 18:37:09 -0400
-Date: Thu, 10 Jul 2003 00:51:18 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Fix IDE initialization when we don't probe for interrupts.
-In-Reply-To: <Pine.LNX.4.44.0307091520570.16947-100000@home.osdl.org>
-Message-ID: <Pine.SOL.4.30.0307100037140.6581-100000@mion.elka.pw.edu.pl>
+	Wed, 9 Jul 2003 18:40:34 -0400
+Message-ID: <3F0C9D45.2020308@pobox.com>
+Date: Wed, 09 Jul 2003 18:55:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: trond.myklebust@fys.uio.no
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.22 Give us today our daily wart...
+References: <16140.37833.903329.594693@charged.uio.no>
+In-Reply-To: <16140.37833.903329.594693@charged.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chuckle.
 
-On Wed, 9 Jul 2003, Linus Torvalds wrote:
-
-> On Wed, 9 Jul 2003, Jeff Garzik wrote:
-> >
-> > I'm curious where interrupts are re-enabled, though?
->
-> The low-level drivers seem to do it at every IO. Don't ask me why. But it
-> gets done automatically by any code that does
->
-> 	hwif->OUTB(drive->ctl, IDE_CONTROL_REG);
->
-> which is pretty common (just grep for "IDE_CONTROL_REG" and you'll see
-> what I mean).
->
-> I note that I should have made this "disable irq" be dependent on
-> IDE_CONTROL_REG being non-zero. Although I don't see when that register
-> _can_ be zero, it would be a major bummer not to have access to the
-> control register.
->
-> (Obviously it must be zero for some architecture, though, or those
-> conditionals woulnd't make sense. Alan?  Bartlomiej? What kind of sick
-> pseudo-IDE controller doesn't have a control register?).
-
-Amiga X-Surf and Amiga Gayle with IDE doubler...
---
-Bartlomiej
-
-> 			Linus
+Looks good to me...
 

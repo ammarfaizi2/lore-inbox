@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313717AbSDPPrt>; Tue, 16 Apr 2002 11:47:49 -0400
+	id <S313724AbSDPPub>; Tue, 16 Apr 2002 11:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313716AbSDPPrr>; Tue, 16 Apr 2002 11:47:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61711 "EHLO
+	id <S313722AbSDPPu3>; Tue, 16 Apr 2002 11:50:29 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4112 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313717AbSDPPqs>; Tue, 16 Apr 2002 11:46:48 -0400
-Date: Tue, 16 Apr 2002 08:43:35 -0700 (PDT)
+	id <S313724AbSDPPtb>; Tue, 16 Apr 2002 11:49:31 -0400
+Date: Tue, 16 Apr 2002 08:46:31 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Vojtech Pavlik <vojtech@suse.cz>
 cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
         David Lang <david.lang@digitalinsight.com>,
-        Vojtech Pavlik <vojtech@suse.cz>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <200204161414.g3GEE5808527@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0204160837530.1167-100000@penguin.transmeta.com>
+In-Reply-To: <20020416172434.A1180@ucw.cz>
+Message-ID: <Pine.LNX.4.33.0204160844090.1167-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 16 Apr 2002, Richard Gooch wrote:
+On Tue, 16 Apr 2002, Vojtech Pavlik wrote:
 > 
-> This gratuitous removal of features in the guise of "cleanups" is why
-> you got flamed earlier this year. I thought you'd learned :-/
+> Note that the above commands are no help in case of plugging TIVO
+> drive into a PC. While they assure that all ext2 filesystems are LE on
+> the media and all sun disklabels are BE on the media, still if you plug
+> in a BE ext2 into the system (or a BE PC partition table), the kernel
+> won't understand them.
 
-Richard, have you looked at the IDE mess? That "feature" is a bug, the way 
-it was implemented - and considering that it's implementable at a 
-different level much more cleanly for the (few) people who actually need 
-it...
+Please use a the network block device, and teach the ndb deamon to just 
+byteswap each word.
 
-Also note that performance is likely to _increase_ by removing that stupid
-feature - using DMA to do the actual IO and them byteswapping in some
-higher level than the driver is likely to be a _lot_ faster than doing PIO
-(and byteswap in-place, resulting in random mmap corruption).
+Problem solved, WITHOUT keeping bugs in the IDE driver.
 
-Do you realize that because the current bswap writeback reverses the bytes 
-in place, you can actually seriously corrupt your filesystem by just being 
-unlucky in timing (ie a bswap on a dirty metadata block at the same time 
-another process accesses it)?
+Oh, and performance improved at the same time.
 
-It's a BUG guys, not a feature.
+What are you guys thinging about? There are two rules here:
+ - optimize for the common case
+ - keep the code clean.
+
+Both of them say that Martin is 100% right.
 
 		Linus
 

@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269404AbUJFQ5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269400AbUJFQ5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269404AbUJFQ5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 12:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269414AbUJFQxD
+	id S269400AbUJFQ5r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 12:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269401AbUJFQxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 12:53:03 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1236 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269404AbUJFQvC (ORCPT
+	Wed, 6 Oct 2004 12:53:33 -0400
+Received: from mail.optivus.com ([4.36.236.162]:50905 "EHLO pogo1.optivus.com")
+	by vger.kernel.org with ESMTP id S268838AbUJFQuk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 12:51:02 -0400
-Date: Wed, 6 Oct 2004 09:51:00 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stuart MacDonald <stuartm@connecttech.com>
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Proper use of daemonize()?
-Message-ID: <20041006095100.B2441@build.pdx.osdl.net>
-References: <030601c4abb7$af573770$294b82ce@stuartm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 6 Oct 2004 12:50:40 -0400
+From: Michael Baumann <baumann@optivus.com>
+Reply-To: baumann@optivus.com
+Organization: Optivus Technology, Inc.
+To: linux-kernel@vger.kernel.org
+Subject: Problem trying to implement mmap for device on 2.4
+Date: Wed, 6 Oct 2004 09:50:39 -0700
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <030601c4abb7$af573770$294b82ce@stuartm>; from stuartm@connecttech.com on Wed, Oct 06, 2004 at 11:18:07AM -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200410060950.39483.baumann@optivus.com>
+X-Greylist: Sender DNS name whitelisted, not delayed by milter-greylist-1.4 (pogo1.optivus.com [143.197.200.253]); Wed, 06 Oct 2004 09:50:39 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stuart MacDonald (stuartm@connecttech.com) wrote:
-> I've been looking at the kernel threads that use daemonize() and have
-> some questions about the proper use of this call:
+Sorry if this is too much of a noob question - do point me to the right place
+if you can.
+System: PPC on VME
+Attempting driver for 3rd party NVRAM board - it's meant to be used as
+a data-store/system-state recorder. Will be used by more than one
+processor in the system - each processor is to use a "chunk" of the RAM
+as it's scratch space. Or that's the plan.
 
-What kernel are you looking at?  Take a look at current 2.6 and you
-should find it much more uniform.
+Based on what I thought I understood from Rubini&Corbet 2nd Edition
+I created a simple module, that provided a mmap method - after reserving
+the region via request_mem_region.
 
-> 1: Some threads use the lock_kernel() calls around the daemonize()
-> call. Is this necessary? I thought the BKL was phasing out.
+mapping was done with a simple remap_page_range() 
 
-I don't see why it'd be necessary.
+In userland, the mmap system call is made, with MAP_FIXED
+and the kernel immediately fails the call with "cannot allocate memory" - 
+never even getting to my implementation of the mmap call. Apparently
+dying somewhere during "the good deal of work" Rubini talks about.
+If I don't use MAP_FIXED, things 'work', but I need that fixed location,
+I'm obviously trying to map the RAM into user space for access.
 
-> 2: Some threads do their setup (like changing the comm string, setting
-> the signal masks, etc) before daemonize(), some do it after. Is there
-> any benefit to a particular order of operations? I can't see one.
 
-Current daemonize api includes name.
+I'm assuming I'm missing something simple in the setup, somewhere.
+Any help/pointers/ even insults accepted - I'm in a tough spot here.
 
-> 3: Some threads set current->tty to NULL. Why would a thread *not* do
-> this?
-
-Current daemonize function does this.
-
-> 4: Some threads grab the sigmask_lock before manipulating their masks.
-> Is this necessary? If so, some threads have bugs. If not, why do some
-> threads bother?
-
-Yes it's required.
-
-> 5: Some threads do flush_signals() or recalc_sigpending() before
-> updating their blocked mask, some do it after. Does the order matter?
-> I suspect not.
-
-Current daemonize gets this right.
-
-> 6: MOD_INC_USE_COUNT should be used by all threads that could be in
-> drivers built as modules, correct?
-
-Not necessarily, modules can handle this in other ways (killing thread
-on unload, for example).
-
-> 7: If you're not spawning a permanent kernel thread (like kswapd frex)
-> is the any benefit to using reparent_to_init()? I can't see one.
-
-To give thread proper security credentials.
-
-thanks,
--chris
+ 
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--
+#include <std_disclaimer>
+Michael Baumann   9518974841
+Optivus Technology, Inc.

@@ -1,18 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129682AbQKVWh4>; Wed, 22 Nov 2000 17:37:56 -0500
+        id <S131428AbQKVWnt>; Wed, 22 Nov 2000 17:43:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131454AbQKVWhr>; Wed, 22 Nov 2000 17:37:47 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:33007 "EHLO
-        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-        id <S129682AbQKVWhh>; Wed, 22 Nov 2000 17:37:37 -0500
-Date: Wed, 22 Nov 2000 20:06:59 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
+        id <S131461AbQKVWnj>; Wed, 22 Nov 2000 17:43:39 -0500
+Received: from tahallah.claranet.co.uk ([212.126.138.206]:44046 "EHLO
+        tahallah.clara.co.uk") by vger.kernel.org with ESMTP
+        id <S131454AbQKVWnc>; Wed, 22 Nov 2000 17:43:32 -0500
+Date: Wed, 22 Nov 2000 22:13:18 +0000 (GMT)
+From: Alex Buell <alex.buell@tahallah.clara.co.uk>
+Reply-To: <alex.buell@tahallah.clara.co.uk>
 To: Miles Lane <miles@speakeasy.org>
-cc: linux-kernel@vger.kernel.org
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Alan Cox's e-mail address is hosed?
 In-Reply-To: <3A1CEBC9.8010109@speakeasy.org>
-Message-ID: <Pine.LNX.4.21.0011222005550.12459-100000@duckman.distro.conectiva>
+Message-ID: <Pine.LNX.4.30.0011222209040.24081-100000@tahallah.clara.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,24 +21,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Thu, 23 Nov 2000, Miles Lane wrote:
 
-> I attempted to reply to a message from Alan
-> and got the following response.
-
-> SMTP module(domain lxorguk.ukuu.org.uk) reports:
 >   host lightning.swansea.uk.linux.org says:
 >   550 rejected: administrative prohibition
 
-You're in ORBS. Fix your open relay and get out of ORBS ...
+I think this one needs to go into the FAQ!
 
-cheers,
+Q: When I send private e-mail to Alan Cox, it bounces. Why?
+A: Alan has blocked all incoming e-mail except from a list of addresses
+known to be good.  You'll need to post to the list to be seen by him.
 
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
+Cheers,
+Alex
+-- 
+Run away!
 
-http://www.conectiva.com/		http://www.surriel.com/
-
+http://www.tahallah.clara.co.uk
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbUBXT55 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 14:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUBXT55
+	id S262424AbUBXUBM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 15:01:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbUBXUBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 14:57:57 -0500
-Received: from mail.kroah.org ([65.200.24.183]:61144 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262421AbUBXT5z (ORCPT
+	Tue, 24 Feb 2004 15:01:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:3777 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262424AbUBXUBH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 14:57:55 -0500
-Date: Tue, 24 Feb 2004 11:57:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       marcelo.tosatti@cyclades.com, torvalds@osdl.org
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-Message-ID: <20040224195745.GA777@kroah.com>
-References: <F595A0622682C44DBBE0BBA91E56A5ED1C36C7@orsmsx410.jf.intel.com> <20040224194430.GB639@kroah.com> <20040224195018.A27219@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040224195018.A27219@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 24 Feb 2004 15:01:07 -0500
+Date: Tue, 24 Feb 2004 15:01:03 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Matt Mackall <mpm@selenic.com>
+cc: Christophe Saout <christophe@saout.de>,
+       Jean-Luc Cooke <jlcooke@certainkey.com>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, James Morris <jmorris@intercode.com.au>
+Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
+In-Reply-To: <20040224191142.GT3883@waste.org>
+Message-ID: <Xine.LNX.4.44.0402241457330.25785-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 07:50:18PM +0000, Christoph Hellwig wrote:
-> On Tue, Feb 24, 2004 at 11:44:30AM -0800, Greg KH wrote:
-> > Please make those changes and then post the patch here (not just a link,
-> > if it's too big, split it up into the logical pieces to fit.)  We can go
-> > from there.
+On Tue, 24 Feb 2004, Matt Mackall wrote:
+
+> Something like:
 > 
-> I don't understand why anyone is wasting time on this.  Without available
-> hardware drivers this huge midlayer is completely useless.
+>  /* calculate the size of a tfm so that users can manage their own
+>  copies */
+> 
+>  int crypto_alg_size(const char *name);
+> 
+>  /* copy a TFM to a user-managed buffer, possibly on stack, with proper
+>  internal reference counting and any other necessary magic, size checks
+>  against boneheaded buffer sizing */
+> 
+>  crypto_copy_tfm(char *dst, const struct crypto_tfm *src, int size);
 
-You mean this whole huge chunk of code doesn't have any hardware
-drivers?  What good is it then?
+Does it need to be copied from an existing tfm?  I think it would be 
+cleaner to provide just a way to initialize a tfm.
 
-greg k-h
+>  /* do all the necessary bookkeeping to release a user-managed TFM, use
+>  char pointer to avoid alloc/free mismatch */
+> 
+>  crypto_copy_cleanup_tfm(char *usertfm);
+> 
+
+This is doable.
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

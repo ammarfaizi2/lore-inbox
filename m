@@ -1,27 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317091AbSHOPMD>; Thu, 15 Aug 2002 11:12:03 -0400
+	id <S317101AbSHOPNh>; Thu, 15 Aug 2002 11:13:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317096AbSHOPMC>; Thu, 15 Aug 2002 11:12:02 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:2459 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S317091AbSHOPMC>;
-	Thu, 15 Aug 2002 11:12:02 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S317102AbSHOPNh>; Thu, 15 Aug 2002 11:13:37 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:22279 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S317101AbSHOPNg>;
+	Thu, 15 Aug 2002 11:13:36 -0400
+Date: Thu, 15 Aug 2002 08:17:28 -0700 (PDT)
+From: <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@osdlab.pdx.osdl.net>
+To: Rick Lindsley <ricklind@us.ibm.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: anybody porting 2.4.19 i/o stat patches to 2.5?
+In-Reply-To: <200208150124.g7F1Ob401335@eng4.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.33.0208150816160.28871-100000@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15707.50603.860391.251920@kim.it.uu.se>
-Date: Thu, 15 Aug 2002 17:15:55 +0200
-To: linux-kernel@vger.kernel.org
-CC: martin@dalecki.de
-Subject: 2.5.31 boot failure on pdc20267
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Booting 2.5.31 (non-bk) on hde5, a UDMA(66) Quantum Fireball
-on a PDC20267 add-on card, resulted in a complete hang as init
-came to its "mount -n -o remount,rw /" point. No visible messages
-or anything in the log.
+On Wed, 14 Aug 2002, Rick Lindsley wrote:
 
-2.5.29 worked ok on this box, as does 2.4 and 2.2+Andre's IDE code.
-ASUS P3B-F, 440BX UDMA(33) chipset, disks on a Promise Ultra100 card.
+| These patches allowed you to collect I/O information on a per-partition
+| basis, as well as removing the restriction about only monitoring the
+| first sixteen disks.  Is anybody working on porting this to 2.5?  If not,
+| I'll do it.
+|
+| These 2.4.19 patches did not, it appear, provide any means (through
+| /proc, for example, as in the original patches) of retrieving the
+| information even though code was added to collect it.  Any reason why not?
+
+I've started doing it, although I'm currently at LinuxWorld
+and won't have more time for it until next week.
+
+Don't know about the second part..
+
+-- 
+~Randy
+

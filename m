@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUJBAg3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUJBAhW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266879AbUJBAg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 20:36:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266888AbUJBAg3
+	id S266885AbUJBAhW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 20:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUJBAhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 20:36:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:25028 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266879AbUJBAg0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 20:36:26 -0400
-Subject: Re: 2.6.9-rc2-mm4 ps hang ?
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041001164938.3231482e.akpm@osdl.org>
-References: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041001120926.4d6f58d5.akpm@osdl.org>
-	 <1096666140.12861.82.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041001145536.182dada9.akpm@osdl.org>
-	 <1096672002.12861.84.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041001164938.3231482e.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096676949.12861.96.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Oct 2004 17:29:10 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 20:37:22 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:61651 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S266885AbUJBAhO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 20:37:14 -0400
+Message-ID: <32868.192.168.1.8.1096677269.squirrel@192.168.1.8>
+In-Reply-To: <1096675930.27818.74.camel@krustophenia.net>
+References: <1096675930.27818.74.camel@krustophenia.net>
+Date: Sat, 2 Oct 2004 01:34:29 +0100 (WEST)
+Subject: Re: [Alsa-devel] alsa-driver will not compile with kernel 
+     2.6.9-rc2-mm4-S7
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Ingo Molnar" <mingo@elte.hu>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 02 Oct 2004 00:37:12.0425 (UTC) FILETIME=[F52C4590:01C4A817]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 16:49, Andrew Morton wrote:
-> Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >
-> > Here is the full sysrq-t output.
-> 
-> What's this guy up to?
-> 
-> db2fmcd       D 0000000000000000     0 11032      1          1373 11031 (NOTLB)
-> 00000101b9b9bef8 0000000000000002 0000003700000037 00000101c13608a0 
->        000000010000009f 0000010199649250 0000010199649588 0000000000000000 
->        0000000000000206 ffffffff801353db 
-> Call Trace:<ffffffff801353db>{try_to_wake_up+971} <ffffffff80445570>{__down_write+128} 
->        <ffffffff80125e7f>{sys32_mmap+143} <ffffffff80124b01>{ia32_sysret+0} 
->        
-> 
-> Something is seriously screwed up if it's stuck in try_to_wake_up().  Tried
-> generating a few extra traces?
-> 
-> Then again, maybe we're missing an up_read() somewhere.  hrm, I'll check.
-> 
-Doesn't make any sense..
+Lee Revell wrote:
+> At first I thought my build was incorrect, but I reproduced this error
+> with a clean build and ALSA CVS from today:
+>
+>   CC [M]  /home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore/pcm_native.o
+> /home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3202:57: macro
+> "io_remap_page_range" requires 5 arguments, but only 4 given
+> /home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c: In function
+> `snd_pcm_lib_mmap_iomem':
+> /home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200: error:
+> `io_remap_page_range' undeclared (first use in this function)
+> /home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200: error: (Each
+> undeclared identifier is reported only once
+> /home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200: error: for
+> each function it appears in.)
+> make[3]: ***
+> [/home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore/pcm_native.o] Error 1
+> make[2]: *** [/home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore] Error 2
+> make[1]: *** [_module_/home/rlrevell/cvs/alsa/alsa-driver/kbuild] Error 2
+> make[1]: Leaving directory
+> `/home/rlrevell/kernel-source/linux-2.6.9-rc2-mm4-S7'
+> make: *** [compile] Error 2
+>
+> I am not sure if this is an ALSA issue or -mm4.  I suspect -mm4 because
+> -mm3-S6 worked.  The VP patch does not seem to be involved.
+>
+> Lee
+>
 
-According to my objdump
+Good grief! I'm having this too, and I was desperate thinking I was the
+only one, and ultimately offering the blame to gcc 3.4.1 which is what I'm
+test-driving now on my laptop (Mdk 10.1c).
 
-try_to_wake_up+971 ==> task_rq_unlock()
+Now I remember that -mm4 has some issue about remap_page_range kernel
+symbol being renamed to something else, which is breaking the build of
+outsider modules (i.e. not the ones bundled under the kernel source tree).
+Or so it seems.
 
-kernel/sched.c:580
-    265f:       48 8b 75 d0             mov   
-0xffffffffffffffd0(%rbp),%rsi
-    2663:       4c 89 ff                mov    %r15,%rdi
-    2666:       e8 00 00 00 00          callq  266b
-<try_to_wake_up+0x3cb>   
-
-
-    578 static inline void task_rq_unlock(spinlock_t *rql, unsigned long
-*flags)
-    579 {
-    580         spin_unlock_irqrestore(rql, *flags);
-    581 }
-
-Why would I be stuck in spin_unlock() ?
-
-Thanks,
-Badari
+Maybe someone on the lkml may have a clue and help here?
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
 

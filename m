@@ -1,79 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264034AbTIBSI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 14:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTIBSG5
+	id S261294AbTIBL5x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 07:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbTIBL5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 14:06:57 -0400
-Received: from ns.suse.de ([195.135.220.2]:9962 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263848AbTIBRwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 13:52:54 -0400
-Date: Tue, 2 Sep 2003 19:52:46 +0200
-From: Andi Kleen <ak@suse.de>
-To: Matthew Wilcox <willy@debian.org>
-Cc: willy@debian.org, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_64_BIT
-Message-Id: <20030902195246.7ba3515c.ak@suse.de>
-In-Reply-To: <20030902174436.GP13467@parcelfarce.linux.theplanet.co.uk>
-References: <20030902143424.GO13467@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
-	<p73wucrm6uo.fsf@oldwotan.suse.de>
-	<20030902174436.GP13467@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 2 Sep 2003 07:57:52 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:26762 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261294AbTIBL5k
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 07:57:40 -0400
+Date: Tue, 2 Sep 2003 12:57:31 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+Message-ID: <20030902115731.GA14354@mail.jlokier.co.uk>
+References: <20030829053510.GA12663@mail.jlokier.co.uk> <1062188787.4062.21.camel@elenuial.steamballoon.com> <20030901091524.A15370@flint.arm.linux.org.uk> <20030901101224.GB1638@mail.jlokier.co.uk> <20030901151710.A22682@flint.arm.linux.org.uk> <20030901165239.GB3556@mail.jlokier.co.uk> <20030901181148.C22682@flint.arm.linux.org.uk> <20030902053415.GA7619@mail.jlokier.co.uk> <20030902091553.A29984@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030902091553.A29984@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Sep 2003 18:44:36 +0100
-Matthew Wilcox <willy@debian.org> wrote:
-
-> On Tue, Sep 02, 2003 at 07:35:11PM +0200, Andi Kleen wrote:
-> > Matthew Wilcox <willy@debian.org> writes:
+Russell King wrote:
+> > > If you take a moment to think about what should be going on -
+> > > 
+> > > - first write gets translated to physical address, and the address with
+> > >   the data is placed in the write buffer.
+> > > - second write gets translated to the same physical address, and the
+> > >   address and data is placed into the write buffer such that we store
+> > >   the first write then the second write to the same physical memory.
+> > > - reading from the first mapping should return the second writes value
+> > >   no matter what.
 > > 
-> > > What do people think of CONFIG_64_BIT?  It saves us from using
-> > > !(IA64 || MIPS64 || PARISC64 || S390X || SPARC64 || X86_64) or
-> > 
-> > For Kconfigs it may make sense, but is there any Config rule that 
-> > checks for all 64bit archs (opposed to checking for specific archs)?
-> > I cannot thinkg of any.
+> > That is an incomplete explanation, because it should never be possible
+> > for reads to access data from the write buffer which isn't the most
+> > recent.
 > 
-> ... that was what the patch added.
+> Umm, that's what I said.
 
-It added a symbol that means that, but are there any users for it?
+You say that "reading from the first mapping _should_ return the
+second write value no matter what", but that there's a bug in the
+write buffer and it isn't doing that.
 
-Ok, I2O and ATM and WANPIPE maybe but I assume that both are getting fixed
-Still all those are non 64bit safe, so it may be better to have an 
-CONFIG_32BIT_ONLY or similar.
+I'm saying that the bug can't be that, because such a bug would affect
+normal applications.
 
--Andi
- 
+> > Don't some of the ARMs executed two instructions concurrently, like
+> > the original Pentium?
+> 
+> Nope - they're all single issue CPUs, and, if non-buggy, they guarantee
+> that stores never bypass loads.  (In a later architecture revision, this
+> is controllable.)
+>
+> Remember - ARM CPUs aren't a high spec desktop CPU.  They're an embedded
+> CPU where power consumption matters.  Superscalar/multiple issue/high
+> performance isn't viable in such many embedded environments.
+
+Fair enough.  I recall someone mentioning a dual issue ARM once upon a
+time, that's all.
+
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
-On Tue, 2 Sep 2003 18:44:36 +0100
-Matthew Wilcox <willy@debian.org> wrote:
-
-> On Tue, Sep 02, 2003 at 07:35:11PM +0200, Andi Kleen wrote:
-> > Matthew Wilcox <willy@debian.org> writes:
+Russell King wrote:
+> > > If you take a moment to think about what should be going on -
+> > > 
+> > > - first write gets translated to physical address, and the address with
+> > >   the data is placed in the write buffer.
+> > > - second write gets translated to the same physical address, and the
+> > >   address and data is placed into the write buffer such that we store
+> > >   the first write then the second write to the same physical memory.
+> > > - reading from the first mapping should return the second writes value
+> > >   no matter what.
 > > 
-> > > What do people think of CONFIG_64_BIT?  It saves us from using
-> > > !(IA64 || MIPS64 || PARISC64 || S390X || SPARC64 || X86_64) or
-> > 
-> > For Kconfigs it may make sense, but is there any Config rule that 
-> > checks for all 64bit archs (opposed to checking for specific archs)?
-> > I cannot thinkg of any.
+> > That is an incomplete explanation, because it should never be possible
+> > for reads to access data from the write buffer which isn't the most
+> > recent.
 > 
-> ... that was what the patch added.
+> Umm, that's what I said.
 
-It added a symbol that means that, but are there any users for it?
+You say that "reading from the first mapping _should_ return the
+second write value no matter what", but that there's a bug in the
+write buffer and it isn't doing that.
 
-Ok, I2O and ATM and WANPIPE maybe but I assume that both are getting fixed
-Still all those are non 64bit safe, so it may be better to have an 
-CONFIG_32BIT_ONLY or similar.
+I'm saying that the bug can't be that, because such a bug would affect
+normal applications.
 
--Andi
- 
+> > Don't some of the ARMs executed two instructions concurrently, like
+> > the original Pentium?
+> 
+> Nope - they're all single issue CPUs, and, if non-buggy, they guarantee
+> that stores never bypass loads.  (In a later architecture revision, this
+> is controllable.)
+>
+> Remember - ARM CPUs aren't a high spec desktop CPU.  They're an embedded
+> CPU where power consumption matters.  Superscalar/multiple issue/high
+> performance isn't viable in such many embedded environments.
+
+Fair enough.  I recall someone mentioning a dual issue ARM once upon a
+time, that's all.
+
+-- Jamie

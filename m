@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263946AbSITXMd>; Fri, 20 Sep 2002 19:12:33 -0400
+	id <S263986AbSITXWa>; Fri, 20 Sep 2002 19:22:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263951AbSITXMd>; Fri, 20 Sep 2002 19:12:33 -0400
-Received: from holomorphy.com ([66.224.33.161]:41354 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263946AbSITXMc>;
-	Fri, 20 Sep 2002 19:12:32 -0400
-Date: Fri, 20 Sep 2002 16:11:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: Re: 2.5.36-mm1 dbench 512 profiles
-Message-ID: <20020920231126.GN3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Maneesh Soni <maneesh@in.ibm.com>, Andrew Morton <akpm@digeo.com>,
-	linux-kernel@vger.kernel.org, viro@math.psu.edu
-References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com> <20020920000815.GC3530@holomorphy.com> <200209200747.g8K7la9B174532@northrelay01.pok.ibm.com> <20020920080628.GK3530@holomorphy.com> <20020920120358.GV28202@holomorphy.com> <68810000.1032557423@flay>
-Mime-Version: 1.0
+	id <S263988AbSITXWa>; Fri, 20 Sep 2002 19:22:30 -0400
+Received: from packet.digeo.com ([12.110.80.53]:9673 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S263986AbSITXW3>;
+	Fri, 20 Sep 2002 19:22:29 -0400
+Message-ID: <3D8BAEDC.ED943632@digeo.com>
+Date: Fri, 20 Sep 2002 16:27:24 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org, msinz@wgate.com
+Subject: Re: [PATCH] kernel 2.4.19 & 2.5.38 - coredump sysctl
+References: <3D8B87C7.7040106@wgate.com.suse.lists.linux.kernel> <3D8B8CAB.103C6CB8@digeo.com.suse.lists.linux.kernel> <3D8B934A.1060900@wgate.com.suse.lists.linux.kernel> <3D8B982A.2ABAA64C@digeo.com.suse.lists.linux.kernel> <p73bs6stfv8.fsf@oldwotan.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <68810000.1032557423@flay>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Sep 2002 23:27:29.0027 (UTC) FILETIME=[4929E530:01C260FD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> AFAICT, with one bottleneck out of the way, a new one merely arises to
->> take its place. Ugly. OTOH the qualitative difference is striking. The
->> interactive responsiveness of the machine, even when entirely unloaded,
->> is drastically improved, along with such nice things as init scripts
->> and kernel compiles also markedly faster. I suspect this is just the
->> wrong benchmark to show throughput benefits with.
+Andi Kleen wrote:
+> 
+> Andrew Morton <akpm@digeo.com> writes:
+> 
+> > True, but it's all more code and I don't believe that it adds
+> > much value.  It means that people need to run off and find
+> 
+> One useful feature of it would be that you can get core dumps for
+> each thread by including the pid (or tid later with newer threading libraries)
+> Currently threads when core dumping overwrite each others cores so you lose
+> the registers of all but one.
 
-On Fri, Sep 20, 2002 at 02:30:23PM -0700, Martin J. Bligh wrote:
-> Hmmm ... I think you need the NUMA aware scheduler ;-) 
-> On the plus side, that does look like RCU pretty much obliterated the dcache
-> problems ....
-
-This sounds like a likely solution to the expense of load_balance().
-Do you have a patch for it floating around?
-
-
-Thanks,
-Bill
+Oh sure, I agree that it's a useful feature.  But I don't agree that
+we need to allow users to specify how the final filename is pasted
+together.  Just give them host-uid-gid-comm.core.  ie: everything.

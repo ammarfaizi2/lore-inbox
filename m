@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTFEJuR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 05:50:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbTFEJuR
+	id S261968AbTFEKK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 06:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbTFEKK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 05:50:17 -0400
-Received: from ns0.eris.dera.gov.uk ([128.98.1.1]:15162 "HELO
-	ns0.eris.dera.gov.uk") by vger.kernel.org with SMTP id S261159AbTFEJuQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 05:50:16 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: Geller Sandor <wildy@petra.hos.u-szeged.hu>
-Subject: Re: Linux 2.4.21-rc7-ac1
-Date: Thu, 5 Jun 2003 10:57:46 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0306051117050.24047-100000@petra.hos.u-szeged.hu>
-In-Reply-To: <Pine.LNX.4.44.0306051117050.24047-100000@petra.hos.u-szeged.hu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200306051057.46382.m.watts@eris.qinetiq.com>
+	Thu, 5 Jun 2003 06:10:26 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46726
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261968AbTFEKKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 06:10:25 -0400
+Subject: Re: 2.4.21-rc7 AMD64 dpt_i2o fails compile
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Warren Togami <warren@togami.com>
+Cc: amd64-list@redhat.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1054799692.3699.77.camel@laptop>
+References: <1054789161.3699.67.camel@laptop>
+	 <20030605010841.A29837@devserv.devel.redhat.com>
+	 <1054799692.3699.77.camel@laptop>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054808477.15276.0.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Jun 2003 11:21:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> http://www.togami.com/~warren/archive/2003/dpt_failure.txt
+> 2.4.20-9.2 (GinGin64)
+> Build failure when dpt is enabled as a module.  This is probably why
+> this and many other kernel modules were not included in the GinGin64
+> preview release.
+> 
+> Unfortunately it fails compilation in the same place for 2.4.21-rc7. 
+> I'm testing 2.5.70-bk* next.
+> 
+> LKML, any existing patches for this dpt_i2o module AMD64 compilation
+> issue?  Please CC me because not currently subscribed to lkml.
 
-
-> On Thu, 5 Jun 2003, Mark Watts wrote:
-> > I wonder if you could confirm whether the usb-ohci module should be
-> > loaded automatically if I have the following line in modules.conf (this
-> > is with 2.4.21-rc6-ac2)
-> >
-> > probeall usb-interface usb-ohci
->
-> No. You have to modprobe 'usb-interface' somewhere in your rc scripts.
-> See the manpage for modules.conf
->
-> What distribution are you using?
-
-Mandrake 9.1
-
->
-> In debian, /etc/modules contains the modules, which are loaded at system
-> startup.
-
-I've never needed to put it into /etc/modules before, so maybe Mandrake does 
-it differently.
-
-I'll try that - thanks
-
-Mark.
-
-- -- 
-Mark Watts
-Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+3xQaBn4EFUVUIO0RAu5WAJ9FRh1szMYDBAa921t2caLoqE+mVQCfVkvG
-1Sx9/mWvGrTl+2Hu7MSB5S8=
-=OtZc
------END PGP SIGNATURE-----
+Fixing up dpt_i2o for the new DMA stuff is a major job. Fixing it for
+64bit cleanness even more so.
 

@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265389AbUANJpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265439AbUANJp3
+	id S265915AbUANKGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 05:06:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUANKGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:45:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40366 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265389AbUANJoh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:44:37 -0500
-Date: Wed, 14 Jan 2004 10:44:17 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: Andi Kleen <ak@muc.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       jh@suse.cz
-Subject: Re: [PATCH] Add CONFIG for -mregparm=3
-Message-ID: <20040114094417.GB12378@devserv.devel.redhat.com>
-References: <20040114090603.GA1935@averell> <1074072899.4981.4.camel@laptop.fenrus.com> <20040114093940.GC19652@colin2.muc.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9zSXsLTf0vkW971A"
+	Wed, 14 Jan 2004 05:06:08 -0500
+Received: from matrix.roma2.infn.it ([141.108.255.2]:8335 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id S265915AbUANKGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 05:06:00 -0500
+From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
+Reply-To: Emiliano.Gabrielli@roma2.infn.it
+Organization: INFN
+To: Valdis.Kletnieks@vt.edu
+Subject: Re: driver provenance in kernel
+Date: Wed, 14 Jan 2004 11:06:44 +0100
+User-Agent: KMail/1.5.4
+Cc: gentile <pierre.gentile@mpsa.com>, linux-kernel@vger.kernel.org
+References: <loom.20040113T133054-768@post.gmane.org> <200401131357.13179.AlberT@SuperAlberT.it> <200401132009.i0DK9gYr004955@turing-police.cc.vt.edu>
+In-Reply-To: <200401132009.i0DK9gYr004955@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <20040114093940.GC19652@colin2.muc.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200401141106.44956.gabrielli@roma2.infn.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 21:09, martedì 13 gennaio 2004, Valdis.Kletnieks@vt.edu wrote:
+> CONFIG_I8K=y
+>
+> and lsmod says what about i8k.ko then?
 
---9zSXsLTf0vkW971A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+oh.. no sure.. sorry I misunderstand your request :-)
 
+sorry
 
-On Wed, Jan 14, 2004 at 10:39:40AM +0100, Andi Kleen wrote:
-> On Wed, Jan 14, 2004 at 10:34:59AM +0100, Arjan van de Ven wrote:
-> > On Wed, 2004-01-14 at 10:06, Andi Kleen wrote:
-> >=20
-> > >=20
-> > > According to some gcc developers it should be safe to use in all
-> > > gccs that are still supports (2.95 and up)=20
-> >=20
-> > it is not safe for the kernel until the cardbus CardServices patches get
-> > merged (is in -mm), for the same reason CardServices() is broken on
-> > amd64.
->=20
-> Just mark them asmlinkage then.
->=20
-> I would be a shame to leave that much space saving on the table just
-> for an single misdesigned API than can be easily fixed.
+-- 
 
-Oh I rather just fix the API period... :)
-Patches exist and work excellent for me.
+Emiliano Gabrielli
 
---9zSXsLTf0vkW971A
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFABQ9wxULwo51rQBIRAvkTAJ9m1KSZBfrSoqL3hLykLfef6CyJhQCfSkMi
-OGqTes4PfMI1jf5xVUAVokw=
-=7Rf2
------END PGP SIGNATURE-----
-
---9zSXsLTf0vkW971A--

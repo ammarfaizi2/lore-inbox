@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264455AbTFEDEc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 23:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264456AbTFEDEc
+	id S264448AbTFEDNX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 23:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbTFEDNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 23:04:32 -0400
-Received: from dp.samba.org ([66.70.73.150]:19630 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264455AbTFEDEb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 23:04:31 -0400
-Date: Thu, 5 Jun 2003 13:17:31 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Maciej <maciej@killer-robot.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: orinoco_cs module removal problem
-Message-ID: <20030605031731.GE11914@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Maciej <maciej@killer-robot.net>, linux-kernel@vger.kernel.org
-References: <20030604175121.GA1709@apathy.black-flower>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030604175121.GA1709@apathy.black-flower>
-User-Agent: Mutt/1.5.4i
+	Wed, 4 Jun 2003 23:13:23 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:52228 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S264448AbTFEDNU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 23:13:20 -0400
+Date: Thu, 5 Jun 2003 13:25:58 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Patrick Mansfield <patmans@us.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, Stephen Hemminger <shemminger@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>,
+       <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: 2.5.70-bk+ broken networking
+In-Reply-To: <20030604184341.A10256@beaverton.ibm.com>
+Message-ID: <Mutt.LNX.4.44.0306051325110.335-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 04, 2003 at 12:51:21PM -0500, Maciej wrote:
-> I just switched from 2.5.68 to 2.5.70, and I'm having trouble removing
-> the orinoco_cs module on the fly. After bringing the interface down,
-> doing an "rmmod orinoco_cs" causes the rmmod process to lock up, and
-> subseqeunt invocations of lsmod and 'cat /proc/modules' to do the same.
-> I get a bunch of messages like the following in the kernel log:
-> 
-> "unregister_netdevice: waiting for eth2 to become free. Usage count = 1
-> 
-> However, eth2, the orinoco device, no longer exists (it's not listed
-> in /proc/net/dev).
+On Wed, 4 Jun 2003, Patrick Mansfield wrote:
 
-Yeah, that version of the driver is buggy.  I've already sent an
-update to Linus, which is in current BK.
+> [root@elm3b79 root]# ifup eth0
+> sender address length == 0
 
+This is a bug introduced by a coding style cleanup, fix below.
+
+
+- James
 -- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+James Morris
+<jmorris@intercode.com.au>
+
+--- bk.pending/net/core/iovec.c	2003-06-05 11:12:59.000000000 +1000
++++ bk.w1/net/core/iovec.c	2003-06-05 13:30:06.000000000 +1000
+@@ -47,10 +47,10 @@ int verify_iovec(struct msghdr *m, struc
+ 						  address);
+ 			if (err < 0)
+ 				return err;
+-			m->msg_name = address;
+-		} else
+-			m->msg_name = NULL;
+-	}
++		}
++		m->msg_name = address;
++	} else
++		m->msg_name = NULL;
+ 
+ 	size = m->msg_iovlen * sizeof(struct iovec);
+ 	if (copy_from_user(iov, m->msg_iov, size))
+

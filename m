@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266006AbUFOXQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266010AbUFOXZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266006AbUFOXQt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 19:16:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266010AbUFOXQt
+	id S266010AbUFOXZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 19:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266011AbUFOXZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 19:16:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:44477 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266006AbUFOXQr (ORCPT
+	Tue, 15 Jun 2004 19:25:55 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:5903 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S266010AbUFOXZy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 19:16:47 -0400
-Date: Tue, 15 Jun 2004 16:16:46 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, Mika Kukkonen <mika@osdl.org>
-Subject: [PATCH] security_sk_free void return fixup
-Message-ID: <20040615161646.S21045@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	Tue, 15 Jun 2004 19:25:54 -0400
+Message-ID: <1087333441.40cf6441277b5@vds.kolivas.org>
+Date: Wed, 16 Jun 2004 07:04:01 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Stairacse scheduler v6.E for 2.6.7-rc3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  CHECK   net/core/sock.c
-include/linux/security.h:2636:39: warning: return expression in void function
-  CC      net/core/sock.o
+Here is an updated version of the staircase scheduler. I've been trying to hold
+off for 2.6.7 final but this has not been announced yet. Here is a brief update
+summary.
 
-From: Mika Kukkonen <mika@osdl.org>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+http://ck.kolivas.org/patches/2.6/2.6.7-rc3/patch-2.6.7-rc3-s6.E
 
-===== include/linux/security.h 1.35 vs edited =====
---- 1.35/include/linux/security.h	2004-06-14 08:56:50 -07:00
-+++ edited/include/linux/security.h	2004-06-15 16:14:56 -07:00
-@@ -2633,7 +2633,7 @@
- 
- static inline void security_sk_free(struct sock *sk)
- {
--	return security_ops->sk_free_security(sk);
-+	security_ops->sk_free_security(sk);
- }
- #else	/* CONFIG_SECURITY_NETWORK */
- static inline int security_unix_stream_connect(struct socket * sock,
+
+Changes:
+
+A lot more code from the original scheduler not required by staircase has been
+removed (610 deletions, 223 additions).
+
+The "compute" mode now also includes cache trash minimisation by introducing
+delayed preemption. A task of higher priority will force a reschedule after a
+task has run a minimum of cache_decay_ticks. This increases the latency
+slightly but optimises cpu cache utilisation.
+
+The yield() implementation was fixed to ensure it yielded to all other tasks.
+
+Tiny cleanups elsewhere.
+
+
+Stability of this version has been confirmed in a number of different settings
+for days.
+
+Testing, comments welcome.
+Con
+

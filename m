@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbULVDtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261957AbULVEWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbULVDtA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 22:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbULVDtA
+	id S261957AbULVEWn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 23:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbULVEWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 22:49:00 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59285 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261952AbULVDsv
+	Tue, 21 Dec 2004 23:22:43 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:41413 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261957AbULVEWj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 22:48:51 -0500
-Message-ID: <41C8EE9A.9080707@pobox.com>
-Date: Tue, 21 Dec 2004 22:48:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: David Brownell <david-b@pacbell.net>, Greg Kroah-Hartman <greg@kroah.com>,
-       Linus Torvalds <torvalds@osdl.org>
+	Tue, 21 Dec 2004 23:22:39 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Jeff Garzik <jgarzik@pobox.com>
 Subject: Re: [PATCH] USB: fix Scheduling while atomic warning when resuming.
-References: <200412220103.iBM13wS0002158@hera.kernel.org>
-In-Reply-To: <200412220103.iBM13wS0002158@hera.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Date: Tue, 21 Dec 2004 20:22:52 -0800
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>
+References: <200412220103.iBM13wS0002158@hera.kernel.org> <41C8EE9A.9080707@pobox.com>
+In-Reply-To: <41C8EE9A.9080707@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412212022.52316.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List wrote:
-> ChangeSet 1.2215, 2004/12/21 16:25:03-08:00, greg@kroah.com
-> 
-> 	[PATCH] USB: fix Scheduling while atomic warning when resuming.
-> 	
-> 	This fixes a warning when resuming the USB EHCI host controller driver.
+On Tuesday 21 December 2004 7:48 pm, Jeff Garzik wrote:
+> If we are going for a minimalist -rc patch, why not drop the lock, 
+> sleep, then reacquire the lock?
 
-> diff -Nru a/drivers/usb/host/ehci-hub.c b/drivers/usb/host/ehci-hub.c
-> --- a/drivers/usb/host/ehci-hub.c	2004-12-21 17:04:09 -08:00
-> +++ b/drivers/usb/host/ehci-hub.c	2004-12-21 17:04:09 -08:00
-> @@ -122,7 +122,7 @@
->  		writel (temp, &ehci->regs->port_status [i]);
->  	}
->  	i = HCS_N_PORTS (ehci->hcs_params);
-> -	msleep (20);
-> +	mdelay (20);
->  	while (i--) {
->  		temp = readl (&ehci->regs->port_status [i]);
+If that lock were dropped, what would prevent other tasks from
+touching the hardware while it's sending RESUME signaling down
+the bus, and thereby mucking up the resume sequence?
 
+That 20+ msec is a protocol timer.  Normally we'd want khubd
+to handle such things, and then resume all the child devices,
+but that's not so readily done for root hubs or during calls
+from the pm core code.
 
-This is more than a little bit silly.
-
-The entire resume function holds spin_lock_irq() for far longer than a 
-timer tick.
-
-If we are going for a minimalist -rc patch, why not drop the lock, 
-sleep, then reacquire the lock?
-
-This strikes me as a bad change, make in haste for -rc, that will get 
-quickly forgotten (and left as-is) once 2.6.10 is released.
-
-	Jeff
-
+- Dave
 

@@ -1,63 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266796AbUHZAMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266854AbUHZAQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266796AbUHZAMh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 20:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266854AbUHZAMg
+	id S266854AbUHZAQs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 20:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266877AbUHZAQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 20:12:36 -0400
-Received: from mail.shareable.org ([81.29.64.88]:35269 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S266796AbUHZAMC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 20:12:02 -0400
-Date: Thu, 26 Aug 2004 01:11:52 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826001152.GB23423@mail.shareable.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org> <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Aug 2004 20:16:48 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:6800 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S266854AbUHZAQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 20:16:40 -0400
+Date: Wed, 25 Aug 2004 20:16:18 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: Using fs views to isolate untrusted processes: I need an assistant
+ architect in the USA for Phase I of a DARPA funded linux kernel project
+In-reply-to: <30958D95-F6ED-11D8-A7C9-000393ACC76E@mac.com>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Tim Hockin <thockin@hockin.org>, LKML <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@redhat.com>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>
+Message-id: <412D2BD2.2090408@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <410D96DC.1060405@namesys.com>
+ <Pine.LNX.4.44.0408251624540.5145-100000@chimarrao.boston.redhat.com>
+ <20040825205618.GA7992@hockin.org>
+ <30958D95-F6ED-11D8-A7C9-000393ACC76E@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message suggests a way to extend the VFS safe locking rules to
-include files-as-directories.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
-> Note that currently it's OK - we get "all non-directories are always locked
-> after all directories".  With filesystem that provides hybrid objects with
-> non-NULL ->link() it's not true and we are in deadlock country.  Before
-> we get anywhere near fs code.
+Kyle Moffett wrote:
+> On Aug 25, 2004, at 16:56, Tim Hockin wrote:
+>
+>> On Wed, Aug 25, 2004 at 04:25:24PM -0400, Rik van Riel wrote:
+>>
+>>>> You can think of this as chroot on steroids.
+>>>
+>>>
+>>> Sounds like what you want is pretty much the namespace stuff
+>>> that has been in the kernel since the early 2.4 days.
+>>>
+>>> No need to replicate VFS functionality inside the filesystem.
+>>
+>>
+>> When I was at Sun, we talked a lot about this.  Mike, does Sun have any
+>> iterest in this?
+>>
+>> We found a lot of shortcomings in implementing various namespace-ish
+>> things.
+>
+>
+> Here's a simple way to do what you want in userspace:
+> 1) Apply the kernel bind mount options fix (*)
+> 2) Run the following shell script
+>
+> cat <<'EOF' >fsviews.bash
+> #! /bin/bash
+> # First make the subdirectories
+> mkdir /fsviews_orig
+> mount -t tmpfs tmpfs /fsviews_rw
+> mkdir /fsviews_orig/dir1
+> mkdir /fsviews_orig/dir2
+> mkdir /fsviews_orig/old
+>
+> # Now make it read-only with a copy in /fsviews
+> mkdir /fsviews
+> mount --bind /fsviews_orig /fsviews
+>
+> # Put directories in /fsviews
+> mount --bind /somewhere/dir1 /fsviews/dir1
+> mount --bind -o ro /otherplace/dir2 /fsviews/dir2
+>
+> # Start the process in a new namespace
+> clone_prog bash <<'BACK_TO_OLD_NAMESPACE'
+>
+> mount -o ro,remount /fsviews_orig
+> pivot_root /fsviews /fsviews/old
+> umount -l /fsviews/old
+> /dir1/myscript &
+>
+> BACK_TO_OLD_NAMESPACE
+>
+> # Remove the extra dirs in this namespace
+> umount -l /fsviews
+> umount -l /fsviews_orig
+> rmdir /fsviews
+> rmdir /fsviews_orig
+>
+> EOF
+>
+> This assumes that clone_prog is a short C program that does a clone()
+> syscall
+> with the CLONE_NEWNS flag and executes a new process.
+>
+> Once this is done, "/dir2/script" is running in a _completely_ new
+> namespace
+> with a read-only root directory and two directories from other parts of
+> the vfs.
+>
+> (*) IIRC currently bind-mount rw/ro options are those of the underlying
+> mount,
+> the bind-mount options fix provides a separate set of options for each
+> bound
+> copy.  There is only one minimal security implication without said
+> patch, that
+> root can still 'mount -o rw,remount /' to get root writeable again, but
+> since it's
+> on tmpfs, that doesn't matter much.  You could also just take away some
+> capabilities, but otherwise except for the shared process tables this
+> acts very
+> much like a completely new, separate computer.  I've used this to
+> thoroughly
+> secure minimally trusted daemons before. :-D
+>
+> Cheers,
+> Kyle Moffett
 
-Is this a problem if we treat entering a file-as-directory as crossing
-a mount point (i.e. like auto-mounting)?
+This provides minimal protection if any: the user may remount any block
+devices on any given tree in his 'namespace' (in the sense of "that is
+what we call a mount-table in Linux").  *
 
-Simply doing a path walk would lock the file and then cross the mount
-point to a directory.
+If I understand what Hans is looking to get done, he's asking for
+someone to architect a system where any given process can be restricted
+to seeing/accessing a subset of the namespace (in the sense of "a tree
+of directories/files").  Eg: process Foo is allowed access to write to
+/etc/group, but _not_ allowed access to /etc/shadow, under any
+circumstances && Foo will be run as root.  Hell, maybe Foo is never able
+to even _see_ /etc/shadow (making it a true shadow file :).
 
-A way to ensure that preserves the lock order is to require that the
-metadata is in a different filesystem to its file (i.e. not crossing a
-bind mount to the same filesystem).
+Hans, correct me if I misunderstood.
 
-That has the side effect of preventing hard links between metadata
-files and non-metadata, which in my opinion is fine.
+[*] Somebody really should s/struct namespace/struct mounttable/g (or
+even mounttree) on the kernel sources.  'Namespace' isn't very
+descriptive and it leads to confusion :(
 
-Path walking will lock the file, and then lock the directory on a
-different filesystem.  Lock order is still safe, provided a strict
-order is maintained between the two filesystems.
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+http://www.sun.com
 
-The strict order is ensured by preventing bind mounts which create a
-path cycle containing a file->metadata edge.  One way to ensure that
-is to prevent mounts on the metadata filesystems, but the rule doesn't
-have to be that strict.  This condition only needs to be checked in
-the mount() syscall.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--- Jamie
+iD8DBQFBLSvRdQs4kOxk3/MRAnopAJ91xpTEqf1I/jaRdqbjbgfnNuPpugCfbkvz
+VeJUBr2UuagZ5UGMGC1nebw=
+=XuQT
+-----END PGP SIGNATURE-----

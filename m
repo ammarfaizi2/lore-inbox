@@ -1,55 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265864AbUAKNIR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 08:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUAKNIR
+	id S265877AbUAKNJV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 08:09:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265881AbUAKNJV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 08:08:17 -0500
-Received: from 119.80-202-31.nextgentel.com ([80.202.31.119]:27081 "EHLO
-	totto.homelinux.net") by vger.kernel.org with ESMTP id S265864AbUAKNIB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 08:08:01 -0500
-Message-ID: <40014AE6.3070106@idi.ntnu.no>
-Date: Sun, 11 Jan 2004 14:08:54 +0100
-From: Tor Arvid Lund <tor.arvid.lund@idi.ntnu.no>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Keyboard problem in 2.6.1
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Jan 2004 08:09:21 -0500
+Received: from debian4.unizh.ch ([130.60.73.144]:57046 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S265877AbUAKNJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 08:09:13 -0500
+Date: Sun, 11 Jan 2004 14:09:10 +0100
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6: can't get 3c575/PCMCIA working - other PCMCIA card work
+Message-ID: <20040111130910.GA5916@piper.madduck.net>
+Mail-Followup-To: martin f krafft <madduck@madduck.net>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040106111939.GA2046@piper.madduck.net> <20040111120053.C1931@flint.arm.linux.org.uk> <20040111123208.GA4766@piper.madduck.net> <20040111125404.E1931@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+Content-Disposition: inline
+In-Reply-To: <20040111125404.E1931@flint.arm.linux.org.uk>
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.0-piper i686
+X-Mailer: Mutt 1.5.4i (2003-03-19)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello. Upgrading from 2.6.0 to 2.6.1 gave me the problem that my 
-apostrophe/asterisk key didn't work (norwegian kbd layout, connected via 
-USB). That is, I press the key, and nothing happens. The showkey program 
-tells me this key has keycode 84.
 
-So I check the patch file, and find that in the file:
-   drivers/char/keyboard.c
-and the section:
-   static unsigned short x86_keycodes[256] =
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-the line:
-- 80, 81, 82, 83, 43, 85, 86, 87, 88,115,119,120,121,375,123, 90,
-                   ^^
-was changed to:
-+ 80, 81, 82, 83, 84, 93, 86, 87, 88, 94, 95, 85,259,375,260, 90,
-                   ^^
-Now, I am nowhere near a kernel hacker, but I thought I'd try and change 
-84 back to 43 (of course without any good reason other than "let's see 
-what happens"), and it seemed to work.
+also sprach Russell King <rmk+lkml@arm.linux.org.uk> [2004.01.11.1354 +0100=
+]:
+> Hope this helps to make things a little clearer.
 
-I don't know what this means, but I thought maybe that some of you who 
-actually _know_ a thing or two about the kernel could make something of 
-all of this...
+It does. Thanks. (It's very cool!)
 
-PS: please CC replies to <tor.arvid.lund at idi.ntnu.no>, as I am not 
-subscribed to the list
+> ... which seems to be exactly the same as my 3ccfe575bt card I have here.
+> I note though that the product description seems to be wrong (the PCI IDs
+> are identical.)  The card is most definitely "3CCFE575BT" and not "3c575".
 
-Regards,
-Tor Arvid
+Well, it does have a -D after the 3CCFE575BT (as read on the card
+itself)
+
+Anyhow, I will recompile 2.6.1 with 3c59x and then report.
+
+Thanks for your time!
+
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+"every day is long. 86400 doesn't fit in a short."
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAAUr2IgvIgzMMSnURAp8sAKCFDb2/xoBg5hTHEoL+uceg5egn0wCfXBwo
+KC2B/uapKfEFcnegMqotGcY=
+=gs/E
+-----END PGP SIGNATURE-----
+
+--mP3DRpeJDSE+ciuQ--

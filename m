@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262674AbSJBWmp>; Wed, 2 Oct 2002 18:42:45 -0400
+	id <S262659AbSJBWct>; Wed, 2 Oct 2002 18:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262675AbSJBWmp>; Wed, 2 Oct 2002 18:42:45 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:44542 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S262674AbSJBWmo>; Wed, 2 Oct 2002 18:42:44 -0400
-Date: Wed, 02 Oct 2002 17:48:01 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Paul Mackerras <paulus@samba.org>
-cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Snapshot of shared page tables
-Message-ID: <183710000.1033598881@baldur.austin.ibm.com>
-In-Reply-To: <15771.30104.815144.546550@argo.ozlabs.ibm.com>
-References: <45850000.1033570655@baldur.austin.ibm.com>
- <15771.30104.815144.546550@argo.ozlabs.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262661AbSJBWct>; Wed, 2 Oct 2002 18:32:49 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:20974 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262659AbSJBWcp>; Wed, 2 Oct 2002 18:32:45 -0400
+Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021002222958.GN1202@marowsky-bree.de>
+References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu>
+	<Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it>
+	<20021001154808.GD126@suse.de> <20021001184225.GC29788@marowsky-bree.de>
+	<1033520458.20284.46.camel@irongate.swansea.linux.org.uk>
+	<20021002042434.GA13971@think.thunk.org>
+	<1033565669.23682.10.camel@irongate.swansea.linux.org.uk>
+	<20021002145434.GA1202@marowsky-bree.de>
+	<1033578571.23758.32.camel@irongate.swansea.linux.org.uk> 
+	<20021002222958.GN1202@marowsky-bree.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Oct 2002 23:46:00 +0100
+Message-Id: <1033598760.25240.19.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-10-02 at 23:29, Lars Marowsky-Bree wrote:
+> Sounds like a good reason to do the cleanup immediately, then.
+> Deleting code, I can do that ;-)
 
---On Thursday, October 03, 2002 08:39:20 +1000 Paul Mackerras
-<paulus@samba.org> wrote:
-
-> Interesting.  I notice that you are using the _PAGE_RW bit in the
-> PMDs.  Are you relying on the hardware to do anything with that bit,
-> or is it only used by software?
-> 
-> (If you are relying on the hardware to do something different when
-> _PAGE_RW is clear in the PMD, then your approach isn't portable.)
-
-Yes, I am relying on the hardware.  I was under the impression that it was
-pretty much universal that making the pmd read-only would make the hardware
-treat all ptes under it as read-only.  This came out of a discussion on
-lkml last winter where this assertion was made.
-
-Do you know of a page table-based architecture that doesn't have and honor
-read-only protections at the pmd level?
-
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+Absolutely - taking the core EVMS(say the core code and the bits to do
+LVM1) and polishing them up to be good clean citizens without code
+duplication and other weirdness would be a superb start for EVMS as a
+merge candidate. The rest can follow a piece at a time once the core is
+right if EVMS is the right path
 

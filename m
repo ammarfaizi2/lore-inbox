@@ -1,128 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136710AbREHByj>; Mon, 7 May 2001 21:54:39 -0400
+	id <S136731AbREHB4U>; Mon, 7 May 2001 21:56:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136731AbREHByU>; Mon, 7 May 2001 21:54:20 -0400
-Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:31483 "EHLO
-	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
-	id <S136710AbREHByK>; Mon, 7 May 2001 21:54:10 -0400
-Message-ID: <3AF751B8.8AE5C6DC@ameritech.net>
-Date: Mon, 07 May 2001 20:54:00 -0500
-From: watermodem <aquamodem@ameritech.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Zack Brown <zbrown@tumblerings.org>
-CC: Phillipus Gunawan <mr_phillipus@yahoo.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Help: kernel-2.4.4 and iptables: Error?
-In-Reply-To: <Pine.LNX.3.96.1010507063343.8114I-100000@renegade>
+	id <S136737AbREHB4K>; Mon, 7 May 2001 21:56:10 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:50443 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S136731AbREHB4F>;
+	Mon, 7 May 2001 21:56:05 -0400
+Date: Mon, 7 May 2001 21:56:18 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 design philosophy heads-up
+Message-ID: <20010507215618.B21552@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010505192731.A2374@thyrsus.com> <E14wO7g-000240-00@the-village.bc.nu> <20010507105950.A771@opus.bloom.county> <20010507213140.I16535@thyrsus.com> <20010507184315.A2378@opus.bloom.county>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010507184315.A2378@opus.bloom.county>; from trini@kernel.crashing.org on Mon, May 07, 2001 at 06:43:15PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zack Brown wrote:
-> 
-> Can someone help this guy?
-> 
-> --
-> Zack Brown
-> 
-> On Mon, 7 May 2001, Phillipus Gunawan wrote:
-> 
-> > I'm having problem with iptables...
-> > I just upgrade my kernel from 2.2.16 to 2.4.3
-> > I also upgrade the iptables with: iptables-1.2.1a-1.i386.rpm
-> > After the installation finished, I try to test it with: iptables -L
-> > Here's what I've seen on my screen:
-> >
-> > modprobe: Can't locate module ip_tables
-> > iptables v1.2.1a: can't initialise iptables table 'filter': Module is wrong version
-> > Perhaps iptables or your kernel needs to be upgraded.
-> >
-> > I install the iptables-1.2.1a-1.i386.rpm first and then upgrade my kernel.
-> > The way I upgrade my kernel:
-> >
-> > make mrproper
-> > make dep bzImage
-> > make modules
-> > make modules_install
-> > cp .........
-> > cp....
-> >
-> > I've choose all option regarding iptables 'netfilter'
-> > My friend said I might built netfilter with the ipfwadm
-> > compatibility compiled in, which is mutually exclusive with iptables
-> > and ipchains support. I didn't build ipfwadm and all other modules I compiled as modules ('M' instead of 'Y')
-> >
-> > But I still can't understand, it still doesn't work...
-> >
-> > Could you please help me. I've tried everywhere asking this question, still, nobody can answer it
-> >
-> > Thank You.
-> > Best Regards,
-> >
-> >
-> > Phillipus.
-> >
+Tom Rini <trini@kernel.crashing.org>:
+> Only sort-of.  There are some cases where you can get away with that.  
+> Probably.  eg If you ask for PARPORT, on x86 that means yes to PARPORT_PC,
+> always (right?)
 
-I have it running fine in 2.4.3 driven off of an entry in one of the
-rc.d scripts. Try to complile it after your kernel and modules are
-built. (That is the way I did it).
-  Note: "{a}.{b}.{c}.{d}" represent specific devices behind your NAT
-gateway. 
+Yes.  So the right answer there isn't to use a derivation but to say:
 
+require X86 and PARPORT implies PARPORT_PC
+unless X86==n suppress PARPORT_PC
 
-Example entry:
-  start)
-        echo -n "Starting ADSL service: "
+which forces PARPORT_PC==y and makes the question invisible on X86 machines,
+but leaves the question visible on all others.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-        # Load up the PPP/ATM/ADSL Module, then "dial" in
-    [ -z "`/sbin/lsmod | /bin/grep idt77105`"] && \
-       /sbin/insmod idt77105
-
-        [ -z "`/sbin/lsmod | /bin/grep nicstar`" ] && \
-           /sbin/insmod nicstar
-
-        /usr/sbin/pppd call adsl_service_script
-
-        # Load up some of the IP Masquerade modules
-        /sbin/modprobe ip_nat_ftp
-        /sbin/modprobe ip_conntrack_ftp
-        # /sbin/modprobe ip_masq_irc
-        # /sbin/modprobe ip_masq_quake
-        # /sbin/modprobe ip_masq_raudio
-        # /sbin/modprobe ip_masq_user
-        # /sbin/modprobe ip_masq_vdolive
-
-        # Set up IP Masquerade forwarding policies,
-        # port forwarding policies & stealth policies
-        /sbin/modprobe ip_tables
-        /usr/local/sbin/iptables -t nat -A POSTROUTING -o ppp0 -j
-MASQUERADE
-         #an FTP tunnel
-        /usr/local/sbin/iptables -t nat -A PREROUTING \
-           -i ppp0 --protocol tcp --dport 4223 -j DNAT --to
-{a}.{b}.{c}.{d}:23
-        /usr/local/sbin/iptables -t nat -A PREROUTING \
-           -i ppp0 --protocol tcp --dport 4224 -j DNAT --to
-{a}.{b}.{c}.{d}:24
-        #needed for NORTEL VPN
-    /usr/local/sbin/iptables -t nat -A PREROUTING \
-       -i ppp0 --protocol tcp --dport 500 -j DNAT --to
-{a}.{b}.{c}.{e}:500
-   /usr/local/sbin/iptables -t nat -A PREROUTING \
-       -i ppp0 --protocol udp --dport 500 -j DNAT --to
-{a}.{b}.{c}.{e}:500
-        #kill any M$ networking
-        /usr/local/sbin/iptables -t filter -A INPUT \
-           -i ppp0 --protocol tcp --dport 137:139 -j DROP
-        /usr/local/sbin/iptables -t filter -A INPUT \
-           -i ppp0 --protocol udp --dport 137:139 -j DROP
- 
-        touch /var/lock/subsys/adsl
- 
-        echo_success ""
-        echo
-        ;;
+The real point of audits is to instill fear, not to extract revenue;
+the IRS aims at winning through intimidation and (thereby) getting
+maximum voluntary compliance
+	-- Paul Strassel, former IRS Headquarters Agent Wall St. Journal 1980

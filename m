@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291971AbSBNXeE>; Thu, 14 Feb 2002 18:34:04 -0500
+	id <S291983AbSBNXoJ>; Thu, 14 Feb 2002 18:44:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291979AbSBNXd4>; Thu, 14 Feb 2002 18:33:56 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:55312 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S291971AbSBNXdo>; Thu, 14 Feb 2002 18:33:44 -0500
-Message-ID: <3C6C4942.4050305@lexus.com>
-Date: Thu, 14 Feb 2002 15:33:22 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: john slee <indigoid@higherplane.net>
-CC: J Sloan <joe@tmsusa.com>, linux-kernel@vger.kernel.org
-Subject: Re: tux officially in kernel?
-In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net> <3C67F327.8010404@tmsusa.com> <20020213135841.GB4826@higherplane.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291987AbSBNXn7>; Thu, 14 Feb 2002 18:43:59 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:52919 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S291985AbSBNXnr>; Thu, 14 Feb 2002 18:43:47 -0500
+Date: Fri, 15 Feb 2002 00:31:51 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Nick Craig-Wood <ncw@axis.demon.co.uk>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+        netfilter-devel@lists.samba.org
+Subject: Re: 2.4.18-pre9: iptables screwed?
+Message-ID: <20020215003151.T28092@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	Nick Craig-Wood <ncw@axis.demon.co.uk>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org,
+	netfilter-devel@lists.samba.org
+In-Reply-To: <a3vjts$r7l$1@cesium.transmeta.com> <20020208094649.J26676@sunbeam.de.gnumonks.org> <20020214161225.A2867@axis.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20020214161225.A2867@axis.demon.co.uk>; from ncw@axis.demon.co.uk on Thu, Feb 14, 2002 at 04:12:25PM +0000
+X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
+X-Date: Today is Prickle-Prickle, the 44th day of Chaos in the YOLD 3168
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john slee wrote:
+On Thu, Feb 14, 2002 at 04:12:25PM +0000, Nick Craig-Wood wrote:
 
->On Mon, Feb 11, 2002 at 08:36:55AM -0800, J Sloan wrote:
->
->>If that's not part of the roadmap I'd be surprised,
->>since tux is so much more capable than the
->>khttpd which is currently part of the tree.
->>
->>Tux has clearly demonstrated it's performance
->>and low resource consumption.
->>
->
->it has also been demonstrated that equal performance can be had in
->userland (search archives for "X15")
->
-Well, I don't know about "equal" but many
-webservers have benefitted from the tux
-related kernel enhancements - yes I know
-about X15, I tested it out too...
+> > > sudo iptables-restore < /etc/sysconfig/iptables
+> > > iptables-restore: libiptc/libip4tc.c:384: do_check: Assertion
+> > > `h->info.valid_hooks == (1 << 0 | 1 << 3)' failed.
+> > > Abort (core dumped)
+> 
+> I've noticed this too.
+> 
+> Apologies if this info is too late but I didn't see a followup to
+> lkml.
 
-It's fast, but tux is faster.
+The redhat iptables package has debugging enabled, and the debugging
+code does not cope correctly with the new kernels.
 
->.  most of tux' improvements have
->been generalised and absorbed into the mainline kernel anyway.
->
-Granted -
+We didn't assume that anybody is running debugging-enabled old iptables
+versions on production systems, but I guess some unfortunate coincidence
+caused this within the redhat package :(
 
-So, just out of curioisity, why is khttpd in
-the kernel? If there were any web server
-in the mainline kernel I'd think it'd be tux -
+> Nick Craig-Wood
+> ncw@axis.demon.co.uk
 
-Best Regards,
-
-Joe
-
-
-
-
-
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
+V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)

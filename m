@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288757AbSAQOIb>; Thu, 17 Jan 2002 09:08:31 -0500
+	id <S288765AbSAQOHb>; Thu, 17 Jan 2002 09:07:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSAQOIW>; Thu, 17 Jan 2002 09:08:22 -0500
-Received: from trained-monkey.org ([209.217.122.11]:25101 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S288767AbSAQOHl>; Thu, 17 Jan 2002 09:07:41 -0500
-From: Jes Sorensen <jes@trained-monkey.org>
-MIME-Version: 1.0
+	id <S288767AbSAQOHW>; Thu, 17 Jan 2002 09:07:22 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:19592
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S288765AbSAQOHL>; Thu, 17 Jan 2002 09:07:11 -0500
+Date: Thu, 17 Jan 2002 08:50:56 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Calling EISA experts
+Message-ID: <20020117085056.B7299@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>, Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020117015456.A628@thyrsus.com> <20020117121723.B22171@suse.de> <3C46B718.26F52BD5@mandrakesoft.com> <20020117124849.F22171@suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15430.55969.201939.609401@trained-monkey.org>
-Date: Thu, 17 Jan 2002 09:07:29 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        marcelo@conectiva.com.br (Marcelo Tosatti)
-Subject: Re: [patch] VAIO irq assignment fix
-In-Reply-To: <E16RDMy-0003W6-00@the-village.bc.nu>
-In-Reply-To: <15430.55835.417188.484427@trained-monkey.org>
-	<E16RDMy-0003W6-00@the-village.bc.nu>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020117124849.F22171@suse.de>; from davej@suse.de on Thu, Jan 17, 2002 at 12:48:49PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+Dave Jones <davej@suse.de>:
+>  > >  Not afaik. I'm tempted to hack support for it into driverfs.
+>  > The EISA_bus global variable indicates presence...
+> 
+>  *nod*, though you can almost guarantee this isn't what Eric wants.
+>  I'm assuming he wants something a'la /proc/pci
 
-Alan> Surely pci_enable_device should do that anyway?
->>  The problem is that the interrupt is not set in the PIRQ table so if
->> we don't shoehorn it in, the interrupt source wont be found.
+Bingo.  I've got reliable /proc tests for ISAPNP, PCI, and MCA.  Previous 
+discussion indicates I can't get one for ISA classic.  An EISA test would,
+as ever, allow me to cut the number of questions about ancient dead 
+hardware that users have to see.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Alan> What happens if you use the current ACPI patch btw ?
-
-Nothing ;(
-
-The option that says 'use ACPI for interrupt routing' doesn't do
-anything yet.
-
-Jes
+The biggest hypocrites on gun control are those who live in upscale
+developments with armed security guards -- and who want to keep other
+people from having guns to defend themselves.  But what about
+lower-income people living in high-crime, inner city neighborhoods?
+Should such people be kept unarmed and helpless, so that limousine
+liberals can 'make a statement' by adding to the thousands of gun laws
+already on the books?"
+	--Thomas Sowell

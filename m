@@ -1,51 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135903AbRD0ET5>; Fri, 27 Apr 2001 00:19:57 -0400
+	id <S135910AbRD0Eb1>; Fri, 27 Apr 2001 00:31:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135910AbRD0ETr>; Fri, 27 Apr 2001 00:19:47 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:18190 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S135903AbRD0ETf>;
-	Fri, 27 Apr 2001 00:19:35 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15080.62346.34932.272251@argo.ozlabs.ibm.com.au>
-Date: Fri, 27 Apr 2001 14:20:26 +1000 (EST)
-To: William Ie <wie@CS.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
-Subject: Re: [CHECKER] security rules?
-In-Reply-To: <Pine.GSO.4.21.0104261426520.18211-100000@Xenon.Stanford.EDU>
-In-Reply-To: <200104130947.CAA21780@csl.Stanford.EDU>
-	<Pine.GSO.4.21.0104261426520.18211-100000@Xenon.Stanford.EDU>
-X-Mailer: VM 6.75 under Emacs 20.4.1
-Reply-To: paulus@samba.org
+	id <S135971AbRD0EbR>; Fri, 27 Apr 2001 00:31:17 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:58339 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S135910AbRD0EbI>; Fri, 27 Apr 2001 00:31:08 -0400
+Date: Thu, 26 Apr 2001 22:31:04 -0600
+Message-Id: <200104270431.f3R4V4630593@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] adding PCI bus information to SCSI layer
+In-Reply-To: <p05100313b70bb73ce962@[207.213.214.37]>
+In-Reply-To: <CDF99E351003D311A8B0009027457F140810E286@ausxmrr501.us.dell.com>
+	<200104242159.f3OLxoB07000@vindaloo.ras.ucalgary.ca>
+	<p05100313b70bb73ce962@[207.213.214.37]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Ie writes:
+Jonathan Lundell writes:
+> At 3:59 PM -0600 4/24/01, Richard Gooch wrote:
+> >The plan I have (which I hope to get started on soon, now that I'm
+> >back from travels), is to change /dev/scsi/host# from a directory into
+> >a symbolic link to a directory called: /dev/bus/pci0/slot1/function0.
+> >Thus, to access a partition via location, one would use the path:
+> >/dev/bus/pci0/slot1/function0/bus0/target1/lun2/part3.
+> 
+> A minor PCI terminology point: PCI buses are subdivided into
+> devices, not (necessarily) slots. So, for example, a multiple-device
+> PCI card (say, two SCSI controllers) might have a PCI bridge
+> creating a new bus, and two devices (not slots) on that bus. (It
+> could alternatively be implemented as a single device with two
+> functions, given a dual-interface chip, but not necessarily.)
+>
+> So a better name would be
+> /dev/bus/pci0/dev1/fcn0/bus0/tgt1/lun2/part3 (taking the liberty of
+> abbreviating some of the other names).
 
-> 4.linux/2.4.3/drivers/net/ppp_async.c:345:ppp_async_ioctl
-> case PPPIOCGFLAGS:
-> 		val = ap->flags | ap->rbits;
-> 		if (put_user(val, (int *) arg))
-> 			break;
-> 		err = 0;
-> 		break;
-> case PPPIOCSFLAGS:
-> 		if (get_user(val, (int *) arg))
-> 			break;
-> 		ap->flags = val & ~SC_RCV_BITS;
-> 		spin_lock_bh(&ap->recv_lock);
-> 		ap->rbits = val & SC_RCV_BITS;
-> 		spin_unlock_bh(&ap->recv_lock);
-> 		err = 0;
-> 		break;
-> seems to be getting and setting some flags without CAP_NET_ADMIN like in
-> ppp_synctty.c
+Sure. I haven't made a decision on the names yet. I was just sketching
+out the idea.
 
-It is OK because this is a channel ioctl routine called from
-ppp_generic.c as a result of an ioctl call on /dev/ppp, and it is not
-possible to open /dev/ppp unless you have CAP_NET_ADMIN.
+> How, if at all, would RAID devices, using more than one physical
+> device, or SCSI bus, or PCI card, fit into this naming scheme?
 
-Paul.
+Same as it does now. There's the underlying devices, and then the meta
+devices, which are under /dev/md.
+
+BTW: please fix your mailer to do linewrap at 72 characters. Your
+lines are hundreds of characters long, and that's hard to read.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

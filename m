@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbTAJTG5>; Fri, 10 Jan 2003 14:06:57 -0500
+	id <S265880AbTAJS20>; Fri, 10 Jan 2003 13:28:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267052AbTAJTAB>; Fri, 10 Jan 2003 14:00:01 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:6785 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S267049AbTAJS7j>; Fri, 10 Jan 2003 13:59:39 -0500
-Message-Id: <200301101908.h0AJ8BLK012214@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suggestion 
-In-Reply-To: Your message of "Fri, 10 Jan 2003 17:00:32 GMT."
-             <6382.1042218032@passion.cambridge.redhat.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200301101544.h0AFiBLK009357@turing-police.cc.vt.edu> <1042203152.954.7.camel@vihta> <15902.50901.407336.44434@harpo.it.uu.se>
-            <6382.1042218032@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-232508135P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Jan 2003 14:08:11 -0500
+	id <S265844AbTAJS1j>; Fri, 10 Jan 2003 13:27:39 -0500
+Received: from [193.158.237.250] ([193.158.237.250]:30344 "EHLO
+	mail.intergenia.de") by vger.kernel.org with ESMTP
+	id <S265800AbTAJS0d>; Fri, 10 Jan 2003 13:26:33 -0500
+Date: Fri, 10 Jan 2003 19:35:10 +0100
+Message-Id: <200301101835.h0AIZA704332@mail.intergenia.de>
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Subject: [PATCH] 2.5.55 fix etherleak in 8390.c [rescued]
+CC: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-232508135P
-Content-Type: text/plain; charset=us-ascii
+this is the fix which went in 2.4.21-pre3-ac2, rediffed against 2.5.55
 
-On Fri, 10 Jan 2003 17:00:32 GMT, David Woodhouse said:
-> Note that you can buy replacement non-nVidia graphics cards for the I8x00 
-> as spare parts fairly cheaply, and they're very easy to install.
+	Rudmer
 
-It's easier to get my employer to pay for my time to fix software issues
-with the laptop they paid for than it is to get them to shell out money
-for what they'd consider a hardware workaround.  And even at "fairly
-cheaply", I'm not going to buy it out of my own pocket.  It's a hell of
-a lot easier to simply skip ACPI till somebody (perhaps I) figure out how
-to fix it... ;)
+--- linux-2.5.55/drivers/net/8390.c.orig	2003-01-10 16:23:44.000000000 +0100
++++ linux-2.5.55/drivers/net/8390.c	2003-01-10 16:23:00.000000000 +0100
+@@ -270,6 +270,7 @@
+ 	struct ei_device *ei_local = (struct ei_device *) dev->priv;
+ 	int length, send_length, output_page;
+ 	unsigned long flags;
++	char scratch[ETH_ZLEN];
+ 
+ 	length = skb->len;
+ 
+@@ -341,7 +342,15 @@
+ 	 * trigger the send later, upon receiving a Tx done interrupt.
+ 	 */
+ 
+-	ei_block_output(dev, length, skb->data, output_page);
++	if (length == send_length)
++		ei_block_output(dev, length, skb->data, output_page);
++	else
++	{
++		memset(scratch, 0, ETH_ZLEN);
++		memcpy(scratch, skb->data, skb->len);
++		ei_block_output(dev, ETH_ZLEN, scratch, output_page);
++	}
++
+ 	if (! ei_local->txing) 
+ 	{
+ 		ei_local->txing = 1;
+@@ -373,7 +382,14 @@
+ 	 * reasonable hardware if you only use one Tx buffer.
+ 	 */
+ 
+-	ei_block_output(dev, length, skb->data, ei_local->tx_start_page);
++	if(length == send_length)
++		ei_block_output(dev, length, skb->data, ei_local->tx_start_page);
++	else
++	{
++		memset(scratch, 0, ETH_ZLEN);
++		memcpy(scratch, skb->data, skb->len);
++		ei_block_output(dev, ETH_ZLEN, scratch, ei_local->tx_start_page);
++	}
+ 	ei_local->txing = 1;
+ 	NS8390_trigger_send(dev, send_length, ei_local->tx_start_page);
+ 	dev->trans_start = jiffies;
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-
-
---==_Exmh_-232508135P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+HxobcC3lWbTT17ARAp6iAJsGxxecYjMyMF+n3e+3neNWvBpmnwCgkAOR
-QZR/iCKQx1WRFEvNcEi9wTM=
-=5P2I
------END PGP SIGNATURE-----
-
---==_Exmh_-232508135P--

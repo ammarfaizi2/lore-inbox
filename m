@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265689AbUATTta (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 14:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265694AbUATTt2
+	id S265694AbUATTtb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 14:49:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUATTtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 14:49:28 -0500
-Received: from main.gmane.org ([80.91.224.249]:5073 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265689AbUATTqs (ORCPT
+	Tue, 20 Jan 2004 14:49:12 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:53256 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265694AbUATTqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 14:46:48 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: ALSA vs. OSS
-Date: Tue, 20 Jan 2004 20:46:44 +0100
-Message-ID: <yw1xzncimmhn.fsf@ford.guide>
-References: <1074532714.16759.4.camel@midux> <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org>
- <20040120192401.GA5685@mcgroarty.net>
+	Tue, 20 Jan 2004 14:46:55 -0500
+Date: Tue, 20 Jan 2004 20:50:24 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kconfig: Improve warnings related to select
+Message-ID: <20040120195024.GA14417@mars.ravnborg.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:ypaWagBc2LzYHJTNaL7EVEAKOnQ=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian McGroarty <brian@mcgroarty.net> writes:
+Hi Andrew & Roman.
 
-> On Tue, Jan 20, 2004 at 03:48:54AM +1000, Steve Youngs wrote:
->> * Markus H?stbacka <midian@ihme.org> writes:
->> 
->>   > but ALSA didn't let me to open two sound sources (like XMMS and
->>   > Quake3) at the same time, so I guess it is not really done yet, or
->>   > is it?
->> 
->> Works for me.  Right now I've got 3 instances of mpg123 playing 3
->> different MP3s and XEmacs playing a big .wav file and an audio CD
->> playing.  It's a horrible jumbled mess of noise coming out of my
->> speakers, but it is working.
->
-> You probably have a Soundblaster Live or similar, which has multiple
-> hardware wave outputs.
->
-> OSS has software mixing. ALSA seems designed for people relying on
-> esd, aRts or similar multiplexing daemons.
+Use the official keyword 'select' when kconfig reports wrong usage.
+Be more specific when wrong usage is encountered.
 
-Don't you mean the other way around?
+Other warnings from kconfig could use same treatment, but kept this minimal for now.
 
-> It's possible to run a program via 'esddsp' or 'artsdsp' to reroute
-> /dev/dsp to the daemon, but the overhead isn't so nice, and the output
-> quality is often wanting.
+	Sam
 
-True.
-
--- 
-Måns Rullgård
-mru@kth.se
-
+===== scripts/kconfig/menu.c 1.11 vs edited =====
+--- 1.11/scripts/kconfig/menu.c	Wed Jun  4 23:55:02 2003
++++ edited/scripts/kconfig/menu.c	Tue Jan 20 20:33:12 2004
+@@ -275,10 +275,19 @@
+ 				break;
+ 			case P_SELECT:
+ 				sym2 = prop_get_symbol(prop);
+-				if ((sym->type != S_BOOLEAN && sym->type != S_TRISTATE) ||
+-				    (sym2->type != S_BOOLEAN && sym2->type != S_TRISTATE))
+-					fprintf(stderr, "%s:%d:warning: enable is only allowed with boolean and tristate symbols\n",
+-						prop->file->name, prop->lineno);
++				if (sym->type != S_BOOLEAN && sym->type != S_TRISTATE)
++					fprintf(stderr, "%s:%d:warning: config symbol '%s' uses select, "
++					                "but is not boolean or tristate\n",
++						prop->file->name, prop->lineno, sym->name);
++				else if (sym2->type == S_UNKNOWN)
++					fprintf(stderr, "%s:%d:warning: 'select' used by config symbol '%s' "
++							"refer to undefined symbol '%s'\n",
++						prop->file->name, prop->lineno, sym->name, sym2->name);
++				else if (sym2->type != S_BOOLEAN && sym2->type != S_TRISTATE)
++					fprintf(stderr, "%s:%d:warning: '%s' has wrong type."
++					                " 'select' only accept arguments of "
++					                "boolean and tristate type.\n",
++						prop->file->name, prop->lineno, sym2->name);
+ 				break;
+ 			case P_RANGE:
+ 				if (sym->type != S_INT && sym->type != S_HEX)

@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVAJGwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVAJHHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVAJGwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 01:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVAJGwW
+	id S262127AbVAJHHG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 02:07:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVAJHHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 01:52:22 -0500
-Received: from ngate.noida.hcltech.com ([202.54.110.230]:62939 "EHLO
-	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
-	id S262121AbVAJGwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 01:52:18 -0500
-Message-ID: <267988DEACEC5A4D86D5FCD780313FBB03500BDC@exch-03.noida.hcltech.com>
-From: "Bhupesh Kumar Pandey, Noida" <bhupeshp@noida.hcltech.com>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: RE: regarding hotpluggable devices adn linux kernel
-Date: Mon, 10 Jan 2005 12:19:21 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Mon, 10 Jan 2005 02:07:06 -0500
+Received: from mail.kroah.org ([69.55.234.183]:54243 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262127AbVAJHHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 02:07:01 -0500
+Date: Sun, 9 Jan 2005 23:04:38 -0800
+From: Greg KH <greg@kroah.com>
+To: "Bhupesh Kumar Pandey, Noida" <bhupeshp@noida.hcltech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: regarding hotpluggable devices adn linux kernel
+Message-ID: <20050110070438.GA13078@kroah.com>
+References: <267988DEACEC5A4D86D5FCD780313FBB03500BDC@exch-03.noida.hcltech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <267988DEACEC5A4D86D5FCD780313FBB03500BDC@exch-03.noida.hcltech.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Actually I want to know the how hotplugging works under 2.6 and what is the
-information flow and how a user can do this.
-Secondly is it support PnP of iSCSI disks? If yes then it has support in
-kernel or any patch is nedded? If no then what are the problems.
+On Mon, Jan 10, 2005 at 12:19:21PM +0530, Bhupesh Kumar Pandey, Noida wrote:
+>  
+> Actually I want to know the how hotplugging works under 2.6 and what is the
+> information flow and how a user can do this.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Thanks and Best Regards
-Bhupesh Kumar Pandey
+Hotplug what?  That's a _very_ general term.  Hotplug CPU?  Hotplug
+Memory?  Hotplug SCSI disk?  Hotplug USB device?  Hotplug keyboard?
+Hotplug PCI device?  Hotplug IEEE1394 device?  Hotplug PCMCIA device?
+The userspace /sbin/hotplug script?  The linux-hotplug script package?
+and so on...
 
+They all work differently, as they are all different things.
 
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Monday, January 10, 2005 12:09 PM
-To: Bhupesh Kumar Pandey, Noida
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: regarding hotpluggable devices adn linux kernel
+> Secondly is it support PnP of iSCSI disks? If yes then it has support in
+> kernel or any patch is nedded? If no then what are the problems.
 
-On Mon, Jan 10, 2005 at 11:06:45AM +0530, Bhupesh Kumar Pandey, Noida wrote:
-> Hello,
-> Recently I came across a good document "Hotpluggable devices and the 
-> linux kernel" by you (Greg Kroah-Hartman).
-> This document is based on linux kernel 2.4 series. Is there any same 
-> document which descibe the working of kernel 2.6 series.
-
-It works the same, only better :)
-
-Specifically what are you curious about?  Have you read the
-linux-hotplug.sf.net documentation?
-
-thanks,
+I do not know anything about iSCSI, sorry.  Try asking on the linux-scsi
+mailing list.
 
 greg k-h

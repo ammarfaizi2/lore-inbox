@@ -1,149 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264797AbSL0HHn>; Fri, 27 Dec 2002 02:07:43 -0500
+	id <S264814AbSL0HN1>; Fri, 27 Dec 2002 02:13:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264806AbSL0HHn>; Fri, 27 Dec 2002 02:07:43 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:28353 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S264797AbSL0HHl>; Fri, 27 Dec 2002 02:07:41 -0500
-Message-ID: <957BD1C2BF3CD411B6C500A0C944CA2601AA1373@pdsmsx32.pd.intel.com>
-From: "Zhuang, Louis" <louis.zhuang@intel.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] add /proc/ksyms against 2.5.53
-Date: Fri, 27 Dec 2002 15:13:46 +0800
+	id <S264818AbSL0HN0>; Fri, 27 Dec 2002 02:13:26 -0500
+Received: from web13208.mail.yahoo.com ([216.136.174.193]:13835 "HELO
+	web13208.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264814AbSL0HNZ>; Fri, 27 Dec 2002 02:13:25 -0500
+Message-ID: <20021227072142.26177.qmail@web13208.mail.yahoo.com>
+Date: Thu, 26 Dec 2002 23:21:42 -0800 (PST)
+From: Anomalous Force <anomalous_force@yahoo.com>
+Subject: Re: holy grail
+To: wa@almesberger.net
+Cc: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20021227010338.A1406@almesberger.net>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd like to see what's in kernel, so add ksyms back into kernel.
-Unfortunately Rusty's module tools depends on this file to judge whether
-current kernel is new implementation,  a dirty solution is emptying
-try_old_version() function in backwards_compat.c
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	v2.5.53 -> 1.953  
-#	 fs/proc/proc_misc.c	1.60    -> 1.61   
-#	     kernel/module.c	1.32    -> 1.34   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/12/23	torvalds@home.transmeta.com	1.951
-# Linux v2.5.53
-# --------------------------------------------
-# 02/12/27	louis@hawk.sh.intel.com	1.952
-# add /proc/ksyms
-# --------------------------------------------
-# 02/12/27	louis@hawk.sh.intel.com	1.953
-# module.c:
-#   clean code
-# --------------------------------------------
-#
-diff -Nru a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
---- a/fs/proc/proc_misc.c	Fri Dec 27 15:08:53 2002
-+++ b/fs/proc/proc_misc.c	Fri Dec 27 15:08:53 2002
-@@ -297,6 +297,19 @@
- 	.llseek		= seq_lseek,
- 	.release	= seq_release,
- };
-+
-+extern struct seq_operations ksyms_op;
-+static int ksyms_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open(file, &ksyms_op);
-+}
-+static struct file_operations proc_ksyms_operations = {
-+	.open		= ksyms_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
-+
- #endif
- 
- extern struct seq_operations slabinfo_op;
-@@ -595,6 +608,7 @@
- 	create_seq_entry("vmstat",S_IRUGO, &proc_vmstat_file_operations);
- #ifdef CONFIG_MODULES
- 	create_seq_entry("modules", 0, &proc_modules_operations);
-+	create_seq_entry("ksyms", 0, &proc_ksyms_operations);
- #endif
- 	proc_root_kcore = create_proc_entry("kcore", S_IRUSR, NULL);
- 	if (proc_root_kcore) {
-diff -Nru a/kernel/module.c b/kernel/module.c
---- a/kernel/module.c	Fri Dec 27 15:08:53 2002
-+++ b/kernel/module.c	Fri Dec 27 15:08:53 2002
-@@ -1402,6 +1402,48 @@
- 	print_unload_info(m, mod);
- 	return 0;
- }
-+
-+static void *s_start(struct seq_file *m, loff_t *pos)
-+{
-+	struct list_head *i;
-+	loff_t n = 0;
-+
-+	list_for_each(i, &symbols) {
-+		if (n++ == *pos)
-+			break;
-+	}
-+	if (i == &symbols)
-+		return NULL;
-+	return i;
-+}
-+
-+static void *s_next(struct seq_file *m, void *p, loff_t *pos)
-+{
-+	struct list_head *i = p;
-+	(*pos)++;
-+	if (i->next == &symbols)
-+		return NULL;
-+	return i->next;
-+}
-+
-+static void s_stop(struct seq_file *m, void *p)
-+{
-+}
-+
-+static int s_show(struct seq_file *m, void *p)
-+{
-+	struct kernel_symbol_group *sg 
-+		= list_entry(p, struct kernel_symbol_group, list);
-+	int i;
-+
-+	for (i=0; i < sg->num_syms; i++) {
-+		const struct kernel_symbol *sym = &sg->syms[i];
-+		seq_printf(m, "%08lx %s\n",
-+			   sym->value, sym->name);
-+	}
-+	return 0;
-+}
-+
- struct seq_operations modules_op = {
- 	.start	= m_start,
- 	.next	= m_next,
-@@ -1409,6 +1451,13 @@
- 	.show	= m_show
- };
- 
-+struct seq_operations ksyms_op = {
-+	.start	= s_start,
-+	.next	= s_next,
-+	.stop	= s_stop,
-+	.show	= s_show
-+};
-+	
- /* Obsolete lvalue for broken code which asks about usage */
- int module_dummy_usage = 1;
- EXPORT_SYMBOL(module_dummy_usage);
+--- Werner Almesberger <wa@almesberger.net> wrote:
+
+[snip]
+
+> An older or newer kernel would have different data structures, and
+> possibly even data structures which are arranged in a different way
+> (e.g. a hash becomes some kind of tree, etc.). So you'd need some
+> translation mechanism that "upgrades" or "downgrades" all kernel
+> data, including all pointers and offsets that may be sitting
+> around somewhere. Good luck :-)
+
+what if the new kernel asked the old kernel to hand over the data in
+a form that was understood universally beginning at some kernel
+version X (earliest supported kernel in other words). the data
+would not have to remain in the optimized form that it would reside
+in while under normal operations. it could be serialized as such into
+a form that simply contains its content and context. im thinking of
+something along the lines of a data packet (tcp/ip comes to mind)
+that contains data about its data. a structure similar to that, which
+conveys information describing the data its contains. any mechanisms
+the newer kernel may institute would get set to a default state
+similar to booting just that portion of the kernel.
+
+> 
+> Your best bet would be to use a system that already implements some
+> form of checkpointing or process migration, and use this to
+> preserve user space state across kexec reboots. openMosix may be
+
+[snip]
+
+preserving user state would not be so much the problem as would
+the various internal kernel data structures (vm stuff, dcache, etc.)
+the issue here is to freeze the system state, sys calls, irqs, and
+all, and restart the same state where it left off after the switch.
+the kernel would not need to boot, as an initial boot has already
+been done by the previous kernel.
+
+yes, it would be extremely difficult. but, as with all fields of
+endevour, a holy grail is only such because it is. the question
+remains, is this do-able? perhaps not now, or in two years, but
+what about five? say, kernel 3.x.x or even 4.x.x?
 
 
-Yours truly,
-Louis Zhuang
-------------------------------
-I'm only myself, not others
+=====
+Main Entry: anom·a·lous 
+1 : inconsistent with or deviating from what is usual, normal, or expected: IRREGULAR, UNUSUAL
+2 (a) : of uncertain nature or classification (b) : marked by incongruity or contradiction : PARADOXICAL
+synonym see IRREGULAR
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

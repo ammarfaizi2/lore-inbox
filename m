@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318169AbSHZRwP>; Mon, 26 Aug 2002 13:52:15 -0400
+	id <S318173AbSHZSB3>; Mon, 26 Aug 2002 14:01:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318170AbSHZRwP>; Mon, 26 Aug 2002 13:52:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42757 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318169AbSHZRwO>; Mon, 26 Aug 2002 13:52:14 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: MM patches against 2.5.31
-Date: Mon, 26 Aug 2002 17:58:41 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <akdq8h$fqn$1@penguin.transmeta.com>
-References: <3D644C70.6D100EA5@zip.com.au> <20020822112806.28099.qmail@thales.mathematik.uni-ulm.de> <3D6989F7.9ED1948A@zip.com.au>
-X-Trace: palladium.transmeta.com 1030384576 26743 127.0.0.1 (26 Aug 2002 17:56:16 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 26 Aug 2002 17:56:16 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S318175AbSHZSB3>; Mon, 26 Aug 2002 14:01:29 -0400
+Received: from dsl-213-023-020-192.arcor-ip.net ([213.23.20.192]:2490 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318173AbSHZSB3>;
+	Mon, 26 Aug 2002 14:01:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Frederic Roussel <frederic.roussel@efi.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: TUX2 fiulesystem
+Date: Mon, 26 Aug 2002 20:08:09 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <D9F6B9DABA4CAE4B92850252C52383AB062C7A21@ex-eng-corp>
+In-Reply-To: <D9F6B9DABA4CAE4B92850252C52383AB062C7A21@ex-eng-corp>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17jOHa-0002Xd-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3D6989F7.9ED1948A@zip.com.au>,
-Andrew Morton  <akpm@zip.com.au> wrote:
->
->What I'm inclined to do there is to change __page_cache_release()
->to not attempt to free the page at all.  Just let it sit on the
->LRU until page reclaim encounters it.  With the anon-free-via-pagevec
->patch, very, very, very few pages actually get their final release in
->__page_cache_release() - zero on uniprocessor, I expect.
+On Monday 26 August 2002 19:40, Frederic Roussel wrote:
+> Mr Daniel Phillips started the TUX2 filesystem project some time ago.
+> The links to `tux2' are either dead or quite old.
+> 
+> Does any kernel developer know about the status of that project ?
+> 
+> Maybe yourself, Daniel, care to comment ?
 
-If you do this, then I would personally suggest a conceptually different
-approach: make the LRU list count towards the page count.  That will
-_automatically_ result in what you describe - if a page is on the LRU
-list, then "freeing" it will always just decrement the count, and the
-_real_ free comes from walking the LRU list and considering count==1 to
-be trivially freeable. 
+It's well down my list of priorities because of uncertainties due to
+the U.S. patent system.
 
-That way you don't have to have separate functions for releasing
-different kinds of pages (we've seen how nasty that was from a
-maintainance standpoint already with the "put_page vs
-page_cache_release" thing). 
+Does anybody want to know if patent chill exists, and is it hurting
+open source?  The answer is yes.
 
-Ehh?
-
-		Linus
-
+-- 
+Daniel

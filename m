@@ -1,36 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131578AbRBNLcM>; Wed, 14 Feb 2001 06:32:12 -0500
+	id <S131912AbRBNLeM>; Wed, 14 Feb 2001 06:34:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131917AbRBNLcC>; Wed, 14 Feb 2001 06:32:02 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:1064 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131578AbRBNLbx>; Wed, 14 Feb 2001 06:31:53 -0500
-Date: Wed, 14 Feb 2001 05:31:47 -0600 (CST)
-From: Philipp Rumpf <prumpf@mandrakesoft.mandrakesoft.com>
-To: Tim Waugh <twaugh@redhat.com>
-cc: Andrew Morton <andrewm@uow.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.2-pre3: parport_pc init_module bug
-In-Reply-To: <20010214111700.X9459@redhat.com>
-Message-ID: <Pine.LNX.3.96.1010214052651.12746B-100000@mandrakesoft.mandrakesoft.com>
+	id <S131986AbRBNLeC>; Wed, 14 Feb 2001 06:34:02 -0500
+Received: from dire.bris.ac.uk ([137.222.10.60]:50932 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S131957AbRBNLdw>;
+	Wed, 14 Feb 2001 06:33:52 -0500
+From: "ASN Stevens, Computing Service" <Alastair.Stevens@bristol.ac.uk>
+Date: Wed, 14 Feb 2001 11:32:38 +0000
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1-ac12 compile failure on sparc64
+Message-ID: <EXECMAIL.1010214113238.Y@velifer.bris.ac.uk>
+X-Mailer: Execmail for Win32 Version 5.0.1 Build (55)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001, Tim Waugh wrote:
-> + * pci_find_subsys - begin or continue searching for a PCI device by vendor/subvendor/device/subdevice id
-> + * @vendor: PCI vendor id to match, or %PCI_ANY_ID to match all vendor ids
-> + * @device: PCI device id to match, or %PCI_ANY_ID to match all vendor ids
+Hi - I am having compilation troubles on my sparc64 workstation (standard 
+Ultra 5 machine), which is currently running stock 2.4.1 on Red Hat 6.2 quite 
+happily.
 
-"match all device ids", surely ?
+I have tried upgrading to -ac10 and now -ac12, but both fail during 
+compilation (using gcc-2.91.66-sparc) at the same point, in what appears to 
+be the sparc32 syscall conversion code:
 
-> + * @ss_device: PCI subsystem device id to match, or %PCI_ANY_ID to match all vendor ids
+----------------------------------------------------------
+sparc64-linux-gcc -D__ASSEMBLY__ -D__KERNEL__ -I/usr/src/linux/include 
+-m64 -mcpu=ultrasparc -Wa,--undeclared-regs -ansi -c sys32.S -o sys32.o
 
-ditto.
+sparc64-linux-gcc -D__KERNEL__ -I/usr/src/linux/include 
+-Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -m64 
+-pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 
+-fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs
+-c -o sys_sparc32.o sys_sparc32.c
 
-(the pci_find_device documentation has "all vendor ids" as well)
+sys_sparc32.c: In function `sys32_quotactl':
+sys_sparc32.c:907: storage size of `d' isn't known
+sys_sparc32.c:907: warning: unused variable `d'
+sys_sparc32.c: In function `sys32_nfsservctl':
+sys_sparc32.c:3791: warning: implicit declaration of function `sys_ni_syscall'
 
+make[1]: *** [sys_sparc32.o] Error 1
+make[1]: Leaving directory `/usr/src/linux/arch/sparc64/kernel'
+make: *** [_dir_arch/sparc64/kernel] Error 2
+----------------------------------------------------------
+
+I have tried it 3 times now, with clean source trees, so there's clearly a 
+problem somewhere. Please be gentle - I'm not a coder, and this is my first 
+post to the kernel list :)
+
+Regards
+Alastair
+
+___________________________________________________________
+Alastair Stevens
+Network Support Officer, Information Services
+Room 1.26, Computer Centre
+University of Bristol
+...........................................................
+Internal 7850    Direct 0117 928 7850    www.cse.bris.ac.uk
 

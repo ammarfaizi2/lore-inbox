@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbUJYVNO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbUJYVRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbUJYVNO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:13:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUJYVJn
+	id S261963AbUJYVRO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbUJYVJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:09:43 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:33232 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262010AbUJYVAJ
+	Mon, 25 Oct 2004 17:09:20 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:58634 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262022AbUJYVA4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:00:09 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Mon, 25 Oct 2004 22:53:07 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: bttv hang problem on 2.6.8
-Message-ID: <20041025205306.GA3127@bytesex>
-References: <20041025150349.GA22915@xi.wantstofly.org> <20041025151841.GA10042@bytesex> <20041025160145.GA23760@xi.wantstofly.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025160145.GA23760@xi.wantstofly.org>
-User-Agent: Mutt/1.5.6i
+	Mon, 25 Oct 2004 17:00:56 -0400
+Date: Mon, 25 Oct 2004 22:00:48 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Corey Minyard <minyard@acm.org>, linux-kernel@vger.kernel.org
+Subject: Re: Race betwen the NMI handler and the RTC clock in practially all
+ kernels II
+In-Reply-To: <20041025204144.GA27518@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58L.0410252157440.10974@blysk.ds.pg.gda.pl>
+References: <417D2305.3020209@acm.org.suse.lists.linux.kernel>
+ <p73u0sik2fa.fsf@verdi.suse.de> <Pine.LNX.4.58L.0410252054370.24374@blysk.ds.pg.gda.pl>
+ <20041025201758.GG9142@wotan.suse.de> <20041025204144.GA27518@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 06:01:45PM +0200, Lennert Buytenhek wrote:
-> On Mon, Oct 25, 2004 at 05:18:41PM +0200, Gerd Knorr wrote:
-> 
-> > > When there is a background thread doing VIDIOCSYNC in a loop, issuing
-> > > VIDIOCSPICT in the current thread on the same file descriptor causes
-> > > it to go into uninterruptable sleep and hang.  This is on kernel 2.6.8
-> > > using the bttv driver, and appears easily reproducible.
-> > 
-> > Don't do that.  bttv serializes ioctls with a lock.  Well, not all of
-> > them, but the ones which change the state of the filehandle, and both
-> > VIDIOCSYNC + VIDIOCSPICT fall into that group.  You simply can't run
-> > them in parallel on the same filehandle.
-> 
-> OK, even though it worked fine on 2.4 I'll buy that, but it still
-> shouldn't result in an unkillable process, should it?
+On Mon, 25 Oct 2004, Andi Kleen wrote:
 
-Does it?  That wasn't clear.  One of the two threads (the one waiting
-for the lock, probably the one doing VIDIOCSPICT) might be unkillable.
-Try killing the other thread as well, that should work.  If it doesn't
-I'd like to get stack traces for the deadlock case (sysrq-t).
+> So it's impossible to check the old value. The original code is the only
+> way to do this (if it's even needed, Intel also doesn't say anything
+> about this bit being a flip-flop). Only possible change would be to 
+> write an alternative index.
 
-  Gerd
+ You can't read the old value, but you can have a shadow variable written
+every time the real index is written.  Since NMIs are not preemptible and
+this is a simple producer-consumer access, no mutex around accesses to the
+variable is needed.
 
--- 
-#define printk(args...) fprintf(stderr, ## args)
+  Maciej

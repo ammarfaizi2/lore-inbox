@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUITDbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUITDik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUITDbA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 23:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUITDbA
+	id S265970AbUITDik (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 23:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUITDik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 23:31:00 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:63930 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S265909AbUITDa7 (ORCPT
+	Sun, 19 Sep 2004 23:38:40 -0400
+Received: from gate.crashing.org ([63.228.1.57]:46781 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265970AbUITDii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 23:30:59 -0400
-Message-Id: <200409200010.i8K0AMte031651@localhost.localdomain>
-To: plt@taylorassociate.com
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: Message from plt@taylorassociate.com 
-   of "Sun, 19 Sep 2004 05:29:28 MST." <1095596968.414d7ba88efc1@webmail.taylorassociate.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Sun, 19 Sep 2004 20:10:22 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sun, 19 Sep 2004 23:38:38 -0400
+Subject: Re: [BUG] ub.c badness in current bk
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040919202126.1073925b@lembas.zaitcev.lan>
+References: <mailman.1095300780.10032.linux-kernel2news@redhat.com>
+	 <20040917002935.77620d1d@lembas.zaitcev.lan>
+	 <1095414394.13531.77.camel@gaston>
+	 <20040917090448.32ff763c@lembas.zaitcev.lan>
+	 <1095469463.3574.2.camel@gaston> <1095473325.3574.4.camel@gaston>
+	 <20040919202126.1073925b@lembas.zaitcev.lan>
+Content-Type: text/plain
+Message-Id: <1095651446.31131.48.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 20 Sep 2004 13:37:27 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-plt@taylorassociate.com said:
+On Mon, 2004-09-20 at 13:21, Pete Zaitcev wrote:
 
-> Question: Are you guys going to work on please cleaning up some of the
-> errors in the code so we can get please get a more clean compile?
+> How about this deal. I'll add a clearly marked workaround like the
+> appended patch, and then ask you to try again when a proper spin-up gets
+> implemented?
 
-First of all, nobody here _ows_you anything. If you want it fixed, fix it
-and send in a patch.
+Ok, I'll give it a try, but you don't need to call it "benh's key" :) I
+think everybody at kernel summit got one of those no ? :)
 
-> drivers/mtd/nftlmount.c:44: warning: unused variable `oob'
+Ben.
 
-Sometimes this is due to variables used for _other_ architectures (or
-configurations). You have to chek it is really _never_ used before axing
-it.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Note that the patch is against -mm where the REQUEST SENSE is set correctly.
+> I strongly suggest you to use ub from -mm. Linus' tree is behind.
+> 
+> Also, I might have screwed something along the way, so if it fails, please
+> send me dmesg and the contents of /sys/..../diag.
+
+I will later today or tomorrow, thanks !
+
+Ben.
+
+

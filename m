@@ -1,220 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273927AbRIXOwR>; Mon, 24 Sep 2001 10:52:17 -0400
+	id <S273929AbRIXPFL>; Mon, 24 Sep 2001 11:05:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273928AbRIXOwI>; Mon, 24 Sep 2001 10:52:08 -0400
-Received: from mx3.arach.net.au ([203.30.44.5]:29413 "HELO
-	mandible.arach.net.au") by vger.kernel.org with SMTP
-	id <S273927AbRIXOwA>; Mon, 24 Sep 2001 10:52:00 -0400
-X-Qmail-Scanner-Mail-From: kuib-kl@ljbc.wa.edu.au via mandible.arach.net.au
-X-Qmail-Scanner: 1.01 (Clean. Processed in 0.260928 secs)
-Message-ID: <B0005839606@gollum.logi.net.au>
-From: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: Fwd: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-Date: Mon, 24 Sep 2001 22:54:10 +0800
-X-Mailer: KMail [version 1.3]
-Cc: reiserfs-list@namesys.com
+	id <S273931AbRIXPFB>; Mon, 24 Sep 2001 11:05:01 -0400
+Received: from pD957B3C7.dip.t-dialin.net ([217.87.179.199]:1030 "EHLO
+	enigma.deepspace.net") by vger.kernel.org with ESMTP
+	id <S273929AbRIXPEu>; Mon, 24 Sep 2001 11:04:50 -0400
+Message-Id: <200109241505.RAA12224@enigma.deepspace.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Wolly <wwolly@gmx.net>
+To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: Huge disk performance degradation STILL IN 2.4.10
+Date: Mon, 24 Sep 2001 17:05:13 +0200
+X-Mailer: KMail [version 1.2.1]
+In-Reply-To: <200109211723.TAA00638@enigma.deepspace.net> <200109232319.BAA02449@enigma.deepspace.net> <2100580000.1001289300@tiny>
+In-Reply-To: <2100580000.1001289300@tiny>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_AE96Y9V4DEWF27WNIAOZ"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 24 September 2001 01:55, Chris Mason wrote:
+> On Monday, September 24, 2001 01:19:18 AM +0200 Wolly <wwolly@gmx.net>
+> wrote:
+> > Hi kernel hackers,
+> >
+> > As soon as 2.4.10 was out, I got the patch and tested it again.
+> > The problem is still there and did not get better at all.
+>
+> Could you please mount the FS with -o notail and try again?  I think your
+> test is hitting a worst case in the 2.4.x reiserfs tail code.
+>
+Okay, I plugged some old hd into my computer and formatted one half with 
+ext2, the other half with reiserfs. 
+It seems to be definitely a reiserfs issue because I cannot trigger the 
+performance loss (permament hd head positioning) with ext2. However, 
+passing -o notail when mounting does not help. (-o notail is accepted and 
+`bash# mount' displays `/dev/hdxy on /mnt type reiserfs (rw,notail)')
 
---------------Boundary-00=_AE96Y9V4DEWF27WNIAOZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Could you reproduce this? Did you even try?
+And why does this not show up on kernels <=2.4.6 and shows up 
+with linux>=2.4.9 (2.4.7, 2.4.8: unknown)?
 
-
-> Thanks to everyone who has helped me so far, and I look forward to further
-> comments and assistance,
-> Beau Kuiper
-> kuib-kl@ljbc.wa.edu.au
-
-And I should attach the patch :-) Sorry about that
-
-Beau Kuiper
-kuib-kl@ljbc.wa.edu.au
-
-
---------------Boundary-00=_AE96Y9V4DEWF27WNIAOZ
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="kupdated-patch"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: attachment; filename="kupdated-patch"
-
---- v2.4.10/linux/fs/buffer.c	Mon Sep 24 14:04:05 2001
-+++ linux/fs/buffer.c	Mon Sep 24 14:00:14 2001
-@@ -359,7 +359,7 @@
- 	lock_kernel();
- 	sync_inodes(dev);
- 	DQUOT_SYNC(dev);
--	sync_supers(dev);
-+	sync_supers(dev, 0);
- 	unlock_kernel();
-
- 	return sync_buffers(dev, 1);
-@@ -2753,7 +2753,7 @@
- {
- 	lock_kernel();
- 	sync_unlocked_inodes();
--	sync_supers(0);
-+	sync_supers(0, 1);
- 	unlock_kernel();
-
- 	for (;;) {
---- v2.4.10/linux/fs/super.c	Mon Sep 24 14:04:07 2001
-+++ linux/fs/super.c	Mon Sep 24 13:40:45 2001
-@@ -688,13 +688,32 @@
- 			sb->s_op->write_super(sb);
- 	unlock_super(sb);
- }
--
-+
-+/* This is used for kupdated super-block updating
-+ * it trys to use the specific super update function,
-+ * and if it fails, falls back to using write_super
-+ */
-+
-+static inline void update_super(struct super_block *sb)
-+{
-+	lock_super(sb);
-+	if (sb->s_root && sb->s_dirt)
-+		if (sb->s_op)
-+		{
-+			if (sb->s_op->write_super_kupdated)
-+				sb->s_op->write_super_kupdated(sb);
-+			else if (sb->s_op->write_super)
-+				sb->s_op->write_super(sb);
-+		}
-+	unlock_super(sb);
-+}
-+
- /*
-  * Note: check the dirty flag before waiting, so we don't
-  * hold up the sync while mounting a device. (The newly
-  * mounted device won't need syncing.)
-  */
--void sync_supers(kdev_t dev)
-+void sync_supers(kdev_t dev, int kupdated)
- {
- 	struct super_block * sb;
-
-@@ -708,18 +727,34 @@
- 		return;
- 	}
- restart:
-+	// since reiserfs does not garrentee super is not dirty (journal may
-+	// be dirty still with kupdated), have to do this the hard way
- 	spin_lock(&sb_lock);
- 	sb = sb_entry(super_blocks.next);
- 	while (sb != sb_entry(&super_blocks))
--		if (sb->s_dirt) {
-+		if (sb->s_dirt && !(sb->s_flushed)) {
- 			sb->s_count++;
-+			sb->s_flushed = 1;
- 			spin_unlock(&sb_lock);
- 			down_read(&sb->s_umount);
--			write_super(sb);
-+			if (kupdated)
-+				update_super(sb);
-+			else
-+				write_super(sb);
- 			drop_super(sb);
- 			goto restart;
- 		} else
- 			sb = sb_entry(sb->s_list.next);
-+
-+	// now unflush all supers
-+
-+	sb = sb_entry(super_blocks.next);
-+	while (sb != sb_entry(&super_blocks))
-+	{
-+		sb->s_flushed = 0;
-+		sb = sb_entry(sb->s_list.next);
-+	}
-+
- 	spin_unlock(&sb_lock);
- }
-
-@@ -805,6 +840,7 @@
- 		sema_init(&s->s_dquot.dqio_sem, 1);
- 		sema_init(&s->s_dquot.dqoff_sem, 1);
- 		s->s_maxbytes = MAX_NON_LFS;
-+		s->s_flushed = 0;
- 	}
- 	return s;
- }
---- v2.4.10/linux/include/linux/fs.h	Mon Sep 24 14:04:10 2001
-+++ linux/include/linux/fs.h	Mon Sep 24 13:01:34 2001
-@@ -689,6 +689,7 @@
- 	unsigned long		s_blocksize;
- 	unsigned char		s_blocksize_bits;
- 	unsigned char		s_dirt;
-+	unsigned char		s_flushed;
- 	unsigned long long	s_maxbytes;	/* Max file size */
- 	struct file_system_type	*s_type;
- 	struct super_operations	*s_op;
-@@ -859,6 +860,7 @@
- 	void (*delete_inode) (struct inode *);
- 	void (*put_super) (struct super_block *);
- 	void (*write_super) (struct super_block *);
-+	void (*write_super_kupdated) (struct super_block *);
- 	void (*write_super_lockfs) (struct super_block *);
- 	void (*unlockfs) (struct super_block *);
- 	int (*statfs) (struct super_block *, struct statfs *);
-@@ -1198,7 +1200,7 @@
- extern int inode_has_buffers(struct inode *);
- extern void filemap_fdatasync(struct address_space *);
- extern void filemap_fdatawait(struct address_space *);
--extern void sync_supers(kdev_t);
-+extern void sync_supers(kdev_t, int);
- extern int bmap(struct inode *, int);
- extern int notify_change(struct dentry *, struct iattr *);
- extern int permission(struct inode *, int);
---- v2.4.10/linux/fs/reiserfs/super.c	Mon Sep 24 14:04:07 2001
-+++ linux/fs/reiserfs/super.c	Mon Sep 24 13:08:05 2001
-@@ -32,18 +31,28 @@
- // at the ext2 code and comparing. It's subfunctions contain no code
- // used as a template unless they are so labeled.
- //
--void reiserfs_write_super (struct super_block * s)
-+void reiserfs_write_super_ex (struct super_block * s, int immediate)
- {
-
-   int dirty = 0 ;
-   lock_kernel() ;
-   if (!(s->s_flags & MS_RDONLY)) {
--    dirty = flush_old_commits(s, 1) ;
-+    dirty = flush_old_commits(s, immediate) ;
-   }
-   s->s_dirt = dirty;
-   unlock_kernel() ;
- }
-
-+void reiserfs_write_super_kupdated (struct super_block * s)
-+{
-+	reiserfs_write_super_ex(s, 0);
-+}
-+
-+void reiserfs_write_super (struct super_block * s)
-+{
-+	reiserfs_write_super_ex(s, 1);
-+}
-+
- //
- // a portion of this function, particularly the VFS interface portion,
- // was derived from minix or ext2's analog and evolved as the
-@@ -125,6 +134,7 @@
-   dirty_inode: reiserfs_dirty_inode,
-   delete_inode: reiserfs_delete_inode,
-   put_super: reiserfs_put_super,
-+  write_super_kupdated: reiserfs_write_super_kupdated,
-   write_super: reiserfs_write_super,
-   write_super_lockfs: reiserfs_write_super_lockfs,
-   unlockfs: reiserfs_unlockfs,
-
---------------Boundary-00=_AE96Y9V4DEWF27WNIAOZ--
+-Wolly

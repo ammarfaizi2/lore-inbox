@@ -1,103 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRCKWrW>; Sun, 11 Mar 2001 17:47:22 -0500
+	id <S129250AbRCKWzn>; Sun, 11 Mar 2001 17:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129249AbRCKWrL>; Sun, 11 Mar 2001 17:47:11 -0500
-Received: from ppp-97-248-an04u-dada6.iunet.it ([151.35.97.248]:27652 "HELO
-	home.bogus") by vger.kernel.org with SMTP id <S129242AbRCKWrI>;
-	Sun, 11 Mar 2001 17:47:08 -0500
-Message-ID: <XFMail.20010312011030.davidel@xmailserver.org>
+	id <S129257AbRCKWzd>; Sun, 11 Mar 2001 17:55:33 -0500
+Received: from ppp-97-248-an04u-dada6.iunet.it ([151.35.97.248]:30212 "HELO
+	home.bogus") by vger.kernel.org with SMTP id <S129250AbRCKWzQ>;
+	Sun, 11 Mar 2001 17:55:16 -0500
+Message-ID: <XFMail.20010312011836.davidel@xmailserver.org>
 X-Mailer: XFMail 1.4.4 on Linux
 X-Priority: 3 (Normal)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-In-Reply-To: <20010312005448.A5439@linuxcare.com>
-Date: Mon, 12 Mar 2001 01:10:30 +0100 (CET)
+In-Reply-To: <Pine.LNX.4.30.0103111038420.9486-100000@batman.zarzycki.org>
+Date: Mon, 12 Mar 2001 01:18:36 +0100 (CET)
 From: Davide Libenzi <davidel@xmailserver.org>
-To: Anton Blanchard <anton@linuxcare.com.au>
+To: Dave Zarzycki <dave@zarzycki.org>
 Subject: Re: sys_sched_yield fast path
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+        Anton Blanchard <anton@linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 11-Mar-2001 Anton Blanchard wrote:
->  
->> This is the linux thread spinlock acquire :
->> 
->> 
->> static void __pthread_acquire(int * spinlock)
->> {
->>   int cnt = 0;
->>   struct timespec tm;
->> 
->>   while (testandset(spinlock)) {
->>     if (cnt < MAX_SPIN_COUNT) {
->>       sched_yield();
->>       cnt++;
->>     } else {
->>       tm.tv_sec = 0;
->>       tm.tv_nsec = SPIN_SLEEP_DURATION;
->>       nanosleep(&tm, NULL);
->>       cnt = 0;
->>     }
->>   }
->> }
->> 
->> 
->> Yes, it calls sched_yield() but this is not a std wait for mutex but for
->> spinlocks that are hold a very short time.  Real wait are implemented using
->> signals.  More, with the new implementation of sys_sched_yield() the task
->> release all its time quantum so, even in a case where a task repeatedly
->> calls
->> sched_yield() the call rate is not so high if there is at least one process
->> to spin.  And if there isn't one task with goodness() > 0, nobody cares
->> about
->> sched_yield() performance.
+On 11-Mar-2001 Dave Zarzycki wrote:
+> On Mon, 12 Mar 2001, Anton Blanchard wrote:
 > 
-> The problem I found with sched_yield is that things break down with high
-> levels of contention. If you have 3 processes and one has a lock then
-> the other two can ping pong doing sched_yield() until their priority drops
-> below the process with the lock. eg in a run I just did then where 2
-> has the lock:
+>> Perhaps we need something like sched_yield that takes off some of
+>> tsk->counter so the task with the spinlock will run earlier.
 > 
-> 1
-> 0
-> 1
-> 0
-> 1
-> 0
-> 1
-> 0
-> 1
-> 0
-> 1
-> 0
-> 1
-> 0
-> 1
-> 0
-> 1
-> 0
-> 2
+> Personally speaking, I wish sched_yield() API was like so:
 > 
-> Perhaps we need something like sched_yield that takes off some of 
-> tsk->counter so the task with the spinlock will run earlier.
+> int sched_yield(pid_t pid);
 
-2.4.x has changed the scheduler behaviour so that the task that call
-sched_yield() is not rescheduled by the incoming schedule().
-A flag is set ( under certain conditions in SMP ) and the goodness()
-calculation assign the lower value to the exiting task ( this flag is cleared
-in schedule_tail() ).
-This could give the task owning the lock the opportunity to complete the locked
-code.
-But yes, if the locked code is rescheduled for some reason ( timeslice or I/O )
-the yielding task will run again.
-But this is a software design problem, not a sched_yield() one coz, if the time
-path between lock ans unlock can be high the use of sched_yield() is not the
-best way to wait.
-Wait queue or user space equivalences are a better choice to do this.
+Yes, You could do an API like this but it's not the mean of sched_yield().
+
+
+> This would allow the thread wanting to acquire the spinlock to yield
+> specifically to the thread holding the lock (assuming the pid of the lock
+> holder was stored in the spinlock...) In fact, the the original lock owner
+> could in theory yield back to the threading wanting to acquire the lock.
+
+Everything happens inside a spinlock should be very fast otherwise the use of a
+spinlock should be avoided.
 
 
 

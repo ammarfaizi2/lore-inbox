@@ -1,68 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280583AbRKJSqZ>; Sat, 10 Nov 2001 13:46:25 -0500
+	id <S280605AbRKJTIT>; Sat, 10 Nov 2001 14:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280585AbRKJSqP>; Sat, 10 Nov 2001 13:46:15 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:1668 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S280583AbRKJSqM>;
-	Sat, 10 Nov 2001 13:46:12 -0500
-Message-ID: <3BED75E8.F87460A9@pobox.com>
-Date: Sat, 10 Nov 2001 10:46:00 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Networking: repeatable oops in 2.4.15-pre2
-In-Reply-To: <Pine.LNX.4.33.0111101148250.20176-100000@sphinx.mythic-beasts.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280604AbRKJTIJ>; Sat, 10 Nov 2001 14:08:09 -0500
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:31448 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S280603AbRKJTIA> convert rfc822-to-8bit; Sat, 10 Nov 2001 14:08:00 -0500
+Message-Id: <5.1.0.14.2.20011110190718.033ad060@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 10 Nov 2001 19:08:02 +0000
+To: linux-kernel@vger.kernel.org
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: ANN: Linux-NTFS 1.4.0 released
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Kirkwood wrote:
+This is to announce release of Linux-NTFS user space support tools 1.4.0.
 
-> On Fri, 9 Nov 2001, J Sloan wrote:
->
-> > I have been running the 2.4.15-pre kernels and
-> > have found an interesting oops. I can reproduce
-> > it immediately, and reliably, just by issuing an ssh
-> > command (as a normal user).
->
-> I'm seeing the same thing on my gateway,
+Most important changes:
 
-Good to know it's not just me!
+mkntfs now support creation of NTFS floppies and the root directory on 
+volumes with cluster sizes > 4kiB are now created correctly.
+
+ntfsfix now supports Windows XP (NTFS 3.1) volumes.
+
+Linux-NTFS packages (your choice of source tar.gz or rpm, binary i386.rpm 
+and devel rpm) can be downloaded from the Linux-NTFS home page at:
+
+         http://linux-ntfs.sf.net/
+
+Or if you prefer CVS access, look at the project home page on Sourceforge 
+for details how to access the CVS server:
+
+         http://sourceforge.net/cvs/?group_id=13956
+
+ChangeLog:
+
+1.4.0: Major fix in mkntfs, small update to ntfsfix, and other updates.
+
+- Update ntfsfix to support Windows XP NTFS volumes (NTFS 3.1).
+- Update layout.h with more information.
+- (Re)enable shared libraries.
+- Changes to mkntfs:
+         - Correct handling of directories on volumes with cluster sizes 
+above 4096 bytes.
+         - Lower minimum size of NTFS partitions to 1MiB, scaling down the 
+logfile size as necessary.
+         - Support a wider range of input parameters. Now should have all 
+valid combinations covered.
+         - Update man page.
+         - Implement better determination of device size.
+         - Various bug fixes.
+
+1.2.2: Small fix in mkntfs and minor updates.
+- Small fix in mkntfs for small volumes with non-standard sector sizes, 
+where the default values would result in a sector size smaller than the 
+sector size and mkntfs would refuse to run because of this. The man page 
+was updated accordingly.
+- Minor updates/clarifications to include/layout.h.
+
+1.2.1: Added ntfsfix man page and minor cleanup.
+- David Martínez Moreno <david.martinez@rediris.es> donated a man page for 
+ntfsfix as well as spelling mistake fixes all over the place.
+
+1.2.0: Important bug fixes to mkntfs.
+- Bug fixes for cluster sizes > 4kb involving corrections to mft mirror 
+size and contents, mft data attribute position and mft bitmap 
+size.     Some of those were nasty so this is a major improvement.
+
+For older changes, see the ChangeLog file in the release or in CVS.
+
+Best regards,
+
+         Anton
 
 
-> I am back to 2.4.10 for now.
-
-2.4.14 runs fine here, much faster than 2.4.10
-
-> My setup:
->
-> K6-200 w/64 MB RAM
-> Debian Woody
-> a 3c905B and an RTL-8139
-
-Excellent, that rules out CPU specifics, distro
-specifics, and ethernet adapter specifics -
-
-> using iptables and transparent proxying (no masq).
-
-Aha, we are both using iptables - (I am using nat)
-
-Rusty, I hope you are reading this.
-
-> >  <0>Kernel panic: Aiee, killing interrupt handler!
->
-> I haven't decoded the oops, but I'm certainly seeing this
-> line.
-
-Good info, thanks for your input.
-
-cu
-
-jjs
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

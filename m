@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262834AbTC0EMr>; Wed, 26 Mar 2003 23:12:47 -0500
+	id <S262856AbTC0EPf>; Wed, 26 Mar 2003 23:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262866AbTC0EMr>; Wed, 26 Mar 2003 23:12:47 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:2791 "EHLO
-	hotmale.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S262834AbTC0EMq>; Wed, 26 Mar 2003 23:12:46 -0500
-Message-ID: <3E827CDA.8030904@blue-labs.org>
-Date: Wed, 26 Mar 2003 23:23:54 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030320
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.66 buglet
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bmilter: Processing completed, Bmilter version 0.1.1 build 917; timestamp 2003-03-27 04:23:59, message serial number 842136
+	id <S262859AbTC0EPf>; Wed, 26 Mar 2003 23:15:35 -0500
+Received: from dp.samba.org ([66.70.73.150]:30147 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S262856AbTC0EPe>;
+	Wed, 26 Mar 2003 23:15:34 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Module typo fixup
+Date: Thu, 27 Mar 2003 15:26:26 +1100
+Message-Id: <20030327042648.AEC902C054@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<boot dmesg snip>
-devfs_register(cpu/microcode): illegal mode: 8180
-</snip>
+Please apply after those last three (sent a slightly dated patch #2).
 
-# ls /dev/cpu
-# grep -i microcode /boot/2.5.66/.config
-CONFIG_MICROCODE=y
-
-Not sure how it breaks between .64 where it worked and .66 where it 
-doesn't.  The code where it's registered doesn't appear to have changed. 
-arch/i386/kernel/microcode.c, line 137.
-
-david
-
-
+--- working-2.5.66-bk2-extable-list/kernel/module.c.~1~	2003-03-27 15:24:21.000000000 +1100
++++ working-2.5.66-bk2-extable-list/kernel/module.c	2003-03-27 15:24:55.000000000 +1100
+@@ -1249,7 +1249,7 @@
+ 		goto cleanup;
+ 
+ 	/* Set up EXPORTed & EXPORT_GPLed symbols (section 0 is 0 length) */
+-	mod->num_syms = sechdrs[exportindex].sh_size / sizeof(*mod->syms);
++	mod->num_ksyms = sechdrs[exportindex].sh_size / sizeof(*mod->syms);
+ 	mod->syms = (void *)sechdrs[exportindex].sh_addr;
+ 	if (crcindex)
+ 		mod->crcs = (void *)sechdrs[crcindex].sh_addr;
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

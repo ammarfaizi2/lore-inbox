@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268894AbTCDAYT>; Mon, 3 Mar 2003 19:24:19 -0500
+	id <S268921AbTCDAaK>; Mon, 3 Mar 2003 19:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268898AbTCDAYT>; Mon, 3 Mar 2003 19:24:19 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19974 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268894AbTCDAYR>;
-	Mon, 3 Mar 2003 19:24:17 -0500
-Message-ID: <3E63F495.5070005@pobox.com>
-Date: Mon, 03 Mar 2003 19:34:29 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S268923AbTCDAaK>; Mon, 3 Mar 2003 19:30:10 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:55313 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268921AbTCDAaI>;
+	Mon, 3 Mar 2003 19:30:08 -0500
+Date: Mon, 3 Mar 2003 16:31:20 -0800
+From: Greg KH <greg@kroah.com>
 To: Matt Domsch <Matt_Domsch@Dell.com>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, mochel@osdl.org
+Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
 Subject: Re: Displaying/modifying PCI device id tables via sysfs
-References: <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
+Message-ID: <20030304003120.GB19721@kroah.com>
+References: <20030303182553.GG16741@kroah.com> <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Domsch wrote:
-> Adding IDs to drivers at runtime is definitely a stop-gap measure, and 
-> only works when drivers don't need other changes, but it solves an 
-> important subset of the problem space.
+On Mon, Mar 03, 2003 at 02:56:23PM -0600, Matt Domsch wrote:
+> > > 2) Add new IDs at runtime and have the drivers probe for the new IDs.
+> > 
+> > Ick, no.  If a driver really wants to have a user provide new ids on the
+> > fly, they usually provide a module paramater to do this.
+> 
+> Yes, I've done this kind of thing too with aacraid.  I was hoping to 
+> generalize the process and build upon the ID table already present.
 
+Ok, you and Alan have convinced me :)
 
-Agreed on both points -- it's a stopgap measure, and also one that 
-happens solve quite a few cases in the field.
+I'd like to see what your patch looks like to add this kind of support.
 
-Field-replacement of PCI id tables is a todo item for a while now :)
+thanks,
 
-However, anything beyond PCI id table replacement requires code changes 
-and recompilation, and that can be handled by existing patch submission 
-procedures...
-
-	Jeff
-
-
-
+greg k-h

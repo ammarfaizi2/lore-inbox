@@ -1,80 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUCRAvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 19:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbUCRAvG
+	id S261355AbUCRA6O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 19:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262257AbUCRA6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 19:51:06 -0500
-Received: from mx3out.umbc.edu ([130.85.25.12]:33487 "EHLO mx3out.umbc.edu")
-	by vger.kernel.org with ESMTP id S262256AbUCRAvB (ORCPT
+	Wed, 17 Mar 2004 19:58:14 -0500
+Received: from 220-244-186-86-qld.tpgi.com.au ([220.244.186.86]:22317 "EHLO
+	dawn") by vger.kernel.org with ESMTP id S261355AbUCRA6M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 19:51:01 -0500
-Date: Wed, 17 Mar 2004 19:50:59 -0500 (EST)
-From: "Mustafa C. Kuscu" <Mustafa.Kuscu@umbc.edu>
-X-X-Sender: kuscu1@linux2.gl.umbc.edu
-To: linux-kernel@vger.kernel.org
-Subject: irq assignment issue: TI 1410 + Serverworks 
-Message-ID: <Pine.LNX.4.58L6.0403171932480.22647@linux2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AvMilter-Key: 1079571360:a4b1696093e29b7f83bd471ec48ca134
-X-Avmilter: Message Skipped, too small
-X-Processed-By: MilterMonkey Version 0.9 -- http://www.membrain.com/miltermonkey
+	Wed, 17 Mar 2004 19:58:12 -0500
+Subject: Re: RadeonFB
+From: Oystein Haare <lkml-account@mazdaracing.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0403172215240.19415-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0403172215240.19415-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Message-Id: <1079571417.12324.8.camel@dawn>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 18 Mar 2004 10:56:57 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+Yes. The following is from 2.6.1:
 
-Problem: A "Texas Instruments 1410" PCI-PCMCIA bridge is not being
-assigned any IRQ.
-Chipset: Serverworks
-Kernel: 2.4.20-30 (RH9-update), 2.4.25 (vanilla) -- neither assigns an IRQ
-Box: 2 Dell Poweredge 600SC
+radeonfb_pci_register BEGIN
+radeonfb: ref_clk=2700, ref_div=12, xclk=22000 from BIOS
+radeonfb: probed DDR SGRAM 65536k videoram
+radeonfb: panel ID string: LCD                     
+radeonfb: detected DFP panel size from BIOS: 1280x800
+radeonfb: ATI Radeon M9 Lf DDR SGRAM 64 MB
+radeonfb: DVI port LCD monitor connected
+radeonfb: CRT port no monitor connected
+radeonfb_pci_register END
 
-[root@client1 root]# lspci
-00:00.0 Host bridge: ServerWorks: Unknown device 0017 (rev 32)
-00:00.1 Host bridge: ServerWorks: Unknown device 0017
-00:02.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet
-Controller (rev 02)
-00:07.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus
-Controller (rev 01)
-00:08.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0e.0 IDE interface: ServerWorks: Unknown device 0217 (rev a0)
-00:0f.0 Host bridge: ServerWorks: Unknown device 0203 (rev a0)
-00:0f.1 IDE interface: ServerWorks: Unknown device 0213 (rev a0)
-00:0f.2 USB Controller: ServerWorks: Unknown device 0221 (rev 05)
-00:0f.3 ISA bridge: ServerWorks: Unknown device 0227
+If I understand correctly, radeonfb has gotten a rewrite some time after
+2.6.1... (In the kernel configuration you have an option to choose
+"Radeon (old driver)" in 2.6.4), so there might be a bug in the panel
+size detection stuff in the new driver?
 
 
-Another (almost) identical box without the TI bridge shows the following:
-
-[root@engr-84-251 root]# lspci
-00:00.0 Host bridge: ServerWorks GCNB-LE Host Bridge (rev 32)
-00:00.1 Host bridge: ServerWorks GCNB-LE Host Bridge
-00:02.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet
-Controller (rev 02)
-00:07.0 Ethernet controller: Netgear GA630 (rev 01)
-00:08.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27)
-00:0e.0 IDE interface: ServerWorks: Unknown device 0217 (rev a0)
-00:0f.0 Host bridge: ServerWorks CSB6 South Bridge (rev a0)
-00:0f.1 IDE interface: ServerWorks CSB6 RAID/IDE Controller (rev a0)
-00:0f.2 USB Controller: ServerWorks CSB6 OHCI USB Controller (rev 05)
-00:0f.3 ISA bridge: ServerWorks GCLE-2 Host Bridge
-
-
-So far, I have tried
-  - kernels: 2.4.20 (redhat's latest) & 2.4.25
-  - kernel options: pci=biosirq apic=off
-
-The BIOS setup does *not* allow me to assign IRQ to the TI bridge. In the
-setup screen, only the USB controller and the integrated ethernet
-controller IRQs can be assigned.
-
-Any suggestions?
-
-Thanks,
-
-     Mustafa C. Kuscu
-     Computer Science and Electrical Engineering
-     University of Maryland, Baltimore County
+On Thu, 2004-03-18 at 08:17, James Simmons wrote:
+> Is there any different in the dmesg output between each kernel version?
+> 
+> 
+> On Tue, 16 Mar 2004, Oystein Haare wrote:
+> 
+> > Hi!
+> > 
+> > I'm having some problems with radeon framebuffer and the newer kernels.
+> > I have a HP/Compaq nx7010 laptop computer, that is supposed to have a
+> > Radeon 9200 graphics board.
+> > 
+> > Now.. in 2.6.1, it seems to work ok. But in 2.6.4 it just flickers alot.
+> > Are there anyone else than me experiencing this problem? 
+> > 
+> > This is what it outputs:
+> > 
+> > radeonfb: Found Intel x86 BIOS ROM Image
+> > radeonfb: Retreived PLL infos from BIOS
+> > radeonfb: Reference=27.00 MHz (RefDiv=12) Memory=250.00 Mhz,
+> > System=220.00 MHz
+> > Non-DDC laptop panel detected
+> > radeonfb: Monitor 1 type LCD found
+> > radeonfb: Monitor 2 type no found
+> > radeonfb: panel ID string: Samsung LTN150P1-L02    
+> > radeonfb: detected LVDS panel size from BIOS: 1400x1050
+> > radeondb: BIOS provided dividers will be used
+> > radeonfb: Assuming panel size 1400x1050
+> > radeonfb: Power Management enabled for Mobility chipsets
+> > radeonfb: ATI Radeon Lf  DDR SGRAM 64 MB
+> > 
+> > Could the flickering have something to do with the fact that the lcd
+> > panel on my laptop can only do 1280x800 resolution? Or doesn't the
+> > 1400x1050 have anything to do with resolution at all?
+> > 
+> > PS: Please CC replies to me as I am not on the list.
+> > 
+> > thanks 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> 
 

@@ -1,62 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbUC3Vhr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 16:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbUC3Vhr
+	id S261369AbUC3Vmu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 16:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbUC3Vmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 16:37:47 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:40396
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261357AbUC3Vho (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 16:37:44 -0500
-Date: Tue, 30 Mar 2004 23:37:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: kuznet@ms2.inr.ac.ru, dipankar@in.ibm.com, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, Robert.Olsson@data.slu.se, paulmck@us.ibm.com,
-       akpm@osdl.org
-Subject: Re: route cache DoS testing and softirqs
-Message-ID: <20040330213742.GL3808@dualathlon.random>
-References: <20040329222926.GF3808@dualathlon.random> <200403302005.AAA00466@yakov.inr.ac.ru> <20040330211450.GI3808@dualathlon.random> <20040330133000.098761e2.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040330133000.098761e2.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 30 Mar 2004 16:42:49 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:8126 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S261369AbUC3VmF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 16:42:05 -0500
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Date: Tue, 30 Mar 2004 13:40:23 -0800
+Message-ID: <7F740D512C7C1046AB53446D3720017301226482@scsmsx402.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
+Thread-Index: AcQSRuLJRmOAInKpT2GffMxlCepNxAAM6y/gAQgP0yA=
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>, <piggin@cyberone.com.au>
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <kernel@kolivas.org>,
+       <rusty@rustcorp.com.au>, <ricklind@us.ibm.com>, <anton@samba.org>,
+       <lse-tech@lists.sourceforge.net>, <mbligh@aracnet.com>,
+       "Andi Kleen" <ak@suse.de>
+X-OriginalArrivalTime: 30 Mar 2004 21:40:24.0326 (UTC) FILETIME=[9BD51260:01C4169F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 01:30:00PM -0800, David S. Miller wrote:
-> On Tue, 30 Mar 2004 23:14:50 +0200
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> 
-> > > There are no hardirqs in the case under investigation, remember?
-> > 
-> > no hardirqs? there must be tons of hardirqs if ksoftirqd never runs.
-> 
-> NAPI should be kicking in for this workload, and I know for a fact it is
-> for Robert's case.  There should only be a few thousand hard irqs per
-> second.
-> 
-> Until the RX ring is depleted the device's hardirqs will not be re-
-> enabled.
+The problem we observed was that the performance was lower with a large
+number of threads (># of CPUs, such as 2x) with SPECjbb. With fewer
+threads, the sched-domain scheduler performed slightly better. What we
+found was that the sched-domain changes balance_interval (between
+min_interaval and max_interval) reflecting success/failure of load
+balancing, whereas the base scheduler does not. That value determines
+how often we do inter and intra node baloancing, and we see the same
+performance if we use the same hard code value as the base scheduler
+does. 
 
-then Dipankar is reproducing with a workload that is completely
-different. I've only seen the emails from Dipankar so I couldn't know it
-was a NAPI load.
+Nick,
+That algorithm sounds reasonable to me, but how did you pick up
+min_interval and max_interval, especially for NUMA? 
 
-He posted these numbers:
+Jun
 
-	softirq_count, ksoftirqd_count and other_softirq_count shows -
-	
-	CPU 0 : 638240  554     637686
-	CPU 1 : 102316  1       102315
-	CPU 2 : 675696  557     675139
-	CPU 3 : 102305  0       102305
-
-that means nothing runs in ksoftirqd for Dipankar, so he cannot be using
-NAPI.
-
-Either that or I'm misreading his numbers, or his stats results are wrong.
+>-----Original Message-----
+>From: lse-tech-admin@lists.sourceforge.net [mailto:lse-tech-
+>admin@lists.sourceforge.net] On Behalf Of Nakajima, Jun
+>Sent: Thursday, March 25, 2004 7:15 AM
+>To: Andi Kleen; Ingo Molnar
+>Cc: piggin@cyberone.com.au; linux-kernel@vger.kernel.org;
+akpm@osdl.org;
+>kernel@kolivas.org; rusty@rustcorp.com.au; ricklind@us.ibm.com;
+>anton@samba.org; lse-tech@lists.sourceforge.net; mbligh@aracnet.com
+>Subject: RE: [Lse-tech] [patch] sched-domain cleanups,
+sched-2.6.5-rc2-mm2-
+>A3
+>
+>We have found some performance regressions (e.g. SPECjbb) with the
+>scheduler on a large IA-64 NUMA machine, and we are debugging it. On
+SMP
+>machines, we haven't seen performance regressions.
+>
+>Jun
+>
+>>-----Original Message-----
+>>From: Andi Kleen [mailto:ak@suse.de]
+>>Sent: Wednesday, March 24, 2004 8:56 PM
+>>To: Ingo Molnar
+>>Cc: piggin@cyberone.com.au; linux-kernel@vger.kernel.org;
+>akpm@osdl.org;
+>>kernel@kolivas.org; rusty@rustcorp.com.au; Nakajima, Jun;
+>>ricklind@us.ibm.com; anton@samba.org; lse-tech@lists.sourceforge.net;
+>>mbligh@aracnet.com
+>>Subject: Re: [Lse-tech] [patch] sched-domain cleanups,
+>sched-2.6.5-rc2-mm2-
+>>A3
+>>
+>>On Thu, 25 Mar 2004 09:28:09 +0100
+>>Ingo Molnar <mingo@elte.hu> wrote:
+>>
+>>> i've reviewed the sched-domains balancing patches for upstream
+>inclusion
+>>> and they look mostly fine.
+>>
+>>The main problem it has is that it performs quite badly on Opteron
+NUMA
+>>e.g. in the OpenMP STREAM test (much worse than the normal scheduler)
+>>
+>>-Andi
+>
+>
+>-------------------------------------------------------
+>This SF.Net email is sponsored by: IBM Linux Tutorials
+>Free Linux tutorial presented by Daniel Robbins, President and CEO of
+>GenToo technologies. Learn everything from fundamentals to system
+>administration.http://ads.osdn.com/?ad_id70&alloc_id638&op=ick
+>_______________________________________________
+>Lse-tech mailing list
+>Lse-tech@lists.sourceforge.net
+>https://lists.sourceforge.net/lists/listinfo/lse-tech

@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312711AbSCVP00>; Fri, 22 Mar 2002 10:26:26 -0500
+	id <S312712AbSCVP2g>; Fri, 22 Mar 2002 10:28:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312712AbSCVP0R>; Fri, 22 Mar 2002 10:26:17 -0500
-Received: from new-coyote.egenera.com ([208.51.147.230]:4834 "HELO
-	coyote.egenera.com") by vger.kernel.org with SMTP
-	id <S312711AbSCVP0M>; Fri, 22 Mar 2002 10:26:12 -0500
-Message-ID: <3C9B4CA7.5BD03CCB@egenera.com>
-Date: Fri, 22 Mar 2002 10:24:23 -0500
-From: "Philip R. Auld" <prauld@egenera.com>
-Organization: Egenera Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Little, John" <JOHN.LITTLE@okdhs.org>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: fork() DoS?
-In-Reply-To: <E7B0663E34409F45B77EFDB62AE0E4D2022360BD@s99mail02.okdhs.org>
-Content-Type: text/plain; charset=us-ascii
+	id <S312716AbSCVP21>; Fri, 22 Mar 2002 10:28:27 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:44417 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S312712AbSCVP2X>; Fri, 22 Mar 2002 10:28:23 -0500
+Subject: [PATCH] 2.5.7-dj1, add 3 help texts to arch/mips/Config.help
+From: Steven Cole <elenstev@mesatop.com>
+To: Ralf Baechle <ralf@gnu.org>, Dave Jones <davej@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 22 Mar 2002 08:25:36 -0700
+Message-Id: <1016810736.2266.44.camel@spc.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Little, John" wrote:
-> 
-> I'm really not a programmer, just learning, but was able to bring the system
-> to it's knees.  This is a redhat 7.2 kernel.  Is there anyway of preventing
-> this?
+This patch adds three help texts to arch/mips/Config.help.
+The texts were obtained from ESR's v2.97 Configure.help.
 
-Use resource limits on users and don't run fork bombs as root :)
+Steven
 
-> 
-> #include <unistd.h>
-> 
-> void do_fork()
-> {
->    pid_t p;
-> 
->    p = fork();
->    do_fork();
-> }
-> 
-> void main()
-> {
->    for(;;)
->       do_fork();
-> }
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 
--- 
-Philip R. Auld, Ph.D.                  Technical Staff 
-Egenera Corp.                        pauld@egenera.com
-165 Forest St., Marlboro, MA 01752       (508)786-9444
+--- linux-2.5.7-dj1/arch/mips/Config.help.orig	Fri Mar 22 08:13:57 2002
++++ linux-2.5.7-dj1/arch/mips/Config.help	Fri Mar 22 08:17:12 2002
+@@ -809,6 +809,24 @@
+   either a NEC Vr5432 or QED RM5231. Say Y here if you wish to build
+   a kernel for this platform.
+ 
++CONFIG_IT8172_REVC
++  Say Y here to support the older, Revision C version of the Integrated
++  Technology Express, Inc. ITE8172 SBC.  Vendor page at
++  <http://www.ite.com.tw/ia/brief_it8172bsp.htm>; picture of the
++  board at <http://www.mvista.com/allies/semiconductor/ite.html>.
++
++CONFIG_IT8172_SCR0
++  Say Y here to support smart-card reader 0 (SCR0) on the Integrated
++  Technology Express, Inc. ITE8172 SBC.  Vendor page at
++  <http://www.ite.com.tw/ia/brief_it8172bsp.htm>; picture of the
++  board at <http://www.mvista.com/allies/semiconductor/ite.html>.
++
++CONFIG_IT8172_SCR1
++  Say Y here to support smart-card reader 1 (SCR1) on the Integrated
++  Technology Express, Inc. ITE8172 SBC.  Vendor page at
++  <http://www.ite.com.tw/ia/brief_it8172bsp.htm>; picture of the
++  board at <http://www.mvista.com/allies/semiconductor/ite.html>.
++
+ CONFIG_MIPS_IVR
+   This is an evaluation board built by Globespan to showcase thir
+   iVR (Internet Video Recorder) design. It utilizes a QED RM5231
+
+

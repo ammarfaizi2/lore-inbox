@@ -1,92 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAYU1d>; Thu, 25 Jan 2001 15:27:33 -0500
+	id <S129235AbRAYU3D>; Thu, 25 Jan 2001 15:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131811AbRAYU1Y>; Thu, 25 Jan 2001 15:27:24 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:50266
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S130934AbRAYU1J>; Thu, 25 Jan 2001 15:27:09 -0500
-Date: Thu, 25 Jan 2001 21:26:55 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.rutgers.edu
-Subject: [PATCH] make drivers/scsi/sym53c8xx.c check request_region's return code (241p9)]
-Message-ID: <20010125212655.D603@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S135925AbRAYU2x>; Thu, 25 Jan 2001 15:28:53 -0500
+Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:519 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S131811AbRAYU2h>; Thu, 25 Jan 2001 15:28:37 -0500
+Date: Thu, 25 Jan 2001 12:28:19 -0800
+Message-Id: <200101252028.f0PKSJR02124@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org, andrewm@uow.EDU.AU (Andrew Morton)
+Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
+In-Reply-To: <200101251929.WAA10001@ms2.inr.ac.ru>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, 25 Jan 2001 22:29:14 +0300 (MSK), kuznet@ms2.inr.ac.ru wrote:
+> Hello!
+> 
+>> no problems.  I simply mounted an NFS server with rsize=wsize=8192
+>> and read a few files - I assume this is sufficient?
+> 
+> This is orthogonal.
+> 
+> Only TCP uses this and you need not to do something special
+> to test it. Any TCP connection going through 3c tests it.
 
-I apparently forgot to cc the lists on this one. Replies should be cc'ed
-to groudier@club-internet.fr also.
+Well, yes and no. It's not quite orthogonal, because normally TCP
+will never transmit fragmented packets, and it's precisely fragmented
+packets that make the interesting case with a card that supports
+hardware TCP/UDP checksums.
 
-Thanks.
+If the packets are not fragmented, then the card can just verify the
+checksums and be done with it. However, with fragments, all it can
+do is report a partial checksum to the driver and let the driver
+(or the stack) combine those partial checksums into one complete
+checksum once all fragments have arrived. At least that's what the
+Starfire card does, maybe the 3com is different. :-)
 
------ Forwarded message from Rasmus Andersen <rasmus@jaquet.dk> -----
+Are we even bothering with the partial checksums at this point, or
+are we falling back to CPU checksumming if the packet is fragmented?
 
-Date: Tue, 23 Jan 2001 23:37:14 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: groudier@club-internet.fr
-Subject: [PATCH] make drivers/scsi/sym53c8xx.c check request_region's return code (241p9)
-User-Agent: Mutt/1.2.4i
+And, on a related note: what's involved in making a driver
+zerocopy-aware? I haven't looked too closely to the current patch,
+but I was thinking of playing with the starfire driver, since I
+have all the chipset docs..
 
-Hi.
-
-The following patch makes drivers/scsi/sym53c8xx.c check the return
-code of request_region. It applies cleanly against ac10 and 241p9.
-
-Please comment.
-
-
-
---- linux-ac10-clean/drivers/scsi/sym53c8xx.c	Mon Jan  1 19:23:21 2001
-+++ linux-ac10/drivers/scsi/sym53c8xx.c	Sun Jan 21 21:40:54 2001
-@@ -5817,7 +5817,11 @@
- 	*/
- 
- 	if (device->slot.io_port) {
--		request_region(device->slot.io_port, np->base_ws, NAME53C8XX);
-+		if (!request_region(device->slot.io_port, np->base_ws, 
-+				    NAME53C8XX)) {
-+			printk(KERN_ERR "Cannot mmap IO range.\n");
-+			goto attach_error;
-+		}
- 		np->base_io = device->slot.io_port;
- 	}
-
---- linux-ac10-clean/drivers/scsi/sym53c8xx_comm.h	Mon Oct 16 21:56:50 2000
-+++ linux-ac10/drivers/scsi/sym53c8xx_comm.h	Mon Jan 22 21:56:46 2001
-@@ -1799,7 +1799,8 @@
- 	**    Get access to chip IO registers
- 	*/
- #ifdef NCR_IOMAPPED
--	request_region(devp->slot.io_port, 128, NAME53C8XX);
-+	if (!request_region(devp->slot.io_port, 128, NAME53C8XX))
-+		return;
- 	devp->slot.base_io = devp->slot.io_port;
- #else
- 	devp->slot.reg = (struct ncr_reg *) remap_pci_mem(devp->slot.base, 128);
-
+Thanks,
+Ion
 
 -- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-It isn't pollution that's harming the environment. It's the impurities in
-our air and water that are doing it.  -Former U.S. Vice-President Dan
-Quayle
-
------ End forwarded message -----
-
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
-
-Freedom of the press is limited to those who own one.
-                                 - A.J. Liebling 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282833AbRK0HdE>; Tue, 27 Nov 2001 02:33:04 -0500
+	id <S282835AbRK0Hjz>; Tue, 27 Nov 2001 02:39:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282060AbRK0Hcy>; Tue, 27 Nov 2001 02:32:54 -0500
-Received: from ns.suse.de ([213.95.15.193]:1041 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S282835AbRK0Hcn>;
-	Tue, 27 Nov 2001 02:32:43 -0500
-To: Joe Korty <l-k@mindspring.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-In-Reply-To: <1006832357.1385.3.camel@icbm.suse.lists.linux.kernel> <5.0.2.1.2.20011127020817.009ed3d0@pop.mindspring.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 27 Nov 2001 08:32:42 +0100
-In-Reply-To: Joe Korty's message of "27 Nov 2001 08:16:04 +0100"
-Message-ID: <p73lmgssm79.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S282839AbRK0Hjp>; Tue, 27 Nov 2001 02:39:45 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:59389 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282841AbRK0Hje>;
+	Tue, 27 Nov 2001 02:39:34 -0500
+Date: Tue, 27 Nov 2001 00:38:43 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Martin Eriksson <nitrax@giron.wox.org>,
+        Steve Brueggeman <xioborg@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+Message-ID: <20011127003843.Z730@lynx.no>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
+	Martin Eriksson <nitrax@giron.wox.org>,
+	Steve Brueggeman <xioborg@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011126170631.O730@lynx.no> <Pine.LNX.4.10.10111261614190.9508-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.10.10111261614190.9508-100000@master.linux-ide.org>; from andre@linux-ide.org on Mon, Nov 26, 2001 at 04:16:12PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Korty <l-k@mindspring.com> writes:
+On Nov 26, 2001  16:16 -0800, Andre Hedrick wrote:
+> On Mon, 26 Nov 2001, Andreas Dilger wrote:
+> > What happens if you have a slightly bad power supply?  Does it immediately
+> > go read only all the time?  It would definitely need to be able to
+> > recover operations as soon as the power was "normal" again, even if this
+> > caused basically "sync" I/O to the disk.  Maybe it would be able to
+> > report this to the user via SMART, I don't know.
 > 
-> I have not yet seen the patch, but one nice feature that a system call 
-> interface
-> could provide is the ability to *atomically* change the cpu affinities of 
-> sets of
-> processes
+> ATA/SCSI SMART is already DONE!
+> 
+> To bad most people have not noticed.
 
-Could you quickly explain an use case where it makes a difference if 
-CPU affinity settings for multiple processes are done atomically or not ? 
+Oh, I know SMART is implemented, although I haven't actually seen/used a
+tool which takes advantage of it (do you have such a thing?).  It would
+be nice if there were messages appearing in my syslog (just like the
+AIX days) which said "there were 10 temporary read errors at block M on
+drive X yesterday" and "1 permanent write error at block M, block remapped
+on drive X yesterday", so I would know _before_ my drive craps out
+after all of the remapping table is full, or the temporary read errors
+become permanent.  (I have a special interest in that because my laptop
+hard drive sounds like a jet engine at times... ;-).
 
-The only way to make CPU affinity settings of processes really atomically 
-without a "consolidation window" is to
-do them before the process starts up. This is easy when they're inherited --
-just set them for the parent before starting the other processes. This 
-works with any interface; proc based or not as long as it inherits.
+What I was originally suggesting is that it have a field which can report
+to the user that "there were 800 sync/reset operations because of power
+drops that were later found not to be power failures".  That is what
+I was suggesting SMART report in this case (actual power failures are
+not interesting).  Note also, that this is purely hypothetical, based
+on only a vague understanding on what actually happens when the drive
+thinks it is losing power, and only ever having seen the hex output
+of /proc/ide/hda/smart_{values,thresholds}.
 
--Andi
+Being able to get a number back from the hard drive that it is performing
+poorly (i.e. synchronous I/O + lots of resets) because of a bad power supply
+is exactly what SMART was designed to do - predictive failure analysis.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,244 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVBQDSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262203AbVBQDvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbVBQDSm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 22:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbVBQDSm
+	id S262203AbVBQDvr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 22:51:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVBQDvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 22:18:42 -0500
-Received: from mail.renesas.com ([202.234.163.13]:62378 "EHLO
-	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262200AbVBQDSV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 22:18:21 -0500
-Date: Thu, 17 Feb 2005 12:18:09 +0900 (JST)
-Message-Id: <20050217.121809.1044957935.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.11-rc4] m32r: build fix for SMP kernel
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.16 (Corporate Culture)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Feb 2005 22:51:46 -0500
+Received: from it4systems-kln-gw.de.clara.net ([212.6.222.118]:29919 "EHLO
+	frankbuss.de") by vger.kernel.org with ESMTP id S262203AbVBQDvh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 22:51:37 -0500
+From: "Frank Buss" <fb@frank-buss.de>
+To: <linux-kernel@vger.kernel.org>
+Cc: <david-b@pacbell.net>
+Subject: RE: SL811 problem on mach-pxa
+Date: Thu, 17 Feb 2005 04:51:34 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-reply-to: <20050214190301.769C75B8A5@frankbuss.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Thread-Index: AcUSx87lYxEcl86VRaq372C/cIGYJwB2aO2A
+Message-Id: <20050217035136.462465B80B@frankbuss.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Now the driver is working, at least on my platform. Currently I'm using
+version 2.6.11-rc1 as my base, but the diff output is only this:
 
-Here is a patch to fix compile errors of 2.6.11-rc4 for the m32r SMP kernel.
-I think this patch should be included in 2.6.11.
-Please apply.
+--- linux-2.6.11-rc1.orig/drivers/usb/host/sl811-hcd.c  Wed Jan 12 05:00:38
+2005
++++ linux-2.6.11-rc4.orig/drivers/usb/host/sl811-hcd.c  Sun Feb 13 04:05:51
+2005
+@@ -1042,7 +1042,7 @@
 
-	* include/asm-m32r/spinlock.h:
-	- Add read_can_lock() and write_can_lock() to fix build errors for SMP.
-	- Rename 'lock' to 'slock'. (cf. Changesets 1.1966.85.1)
+        usb_put_dev(ep->udev);
+        kfree(ep);
+-       hep->hcpriv = 0;
++       hep->hcpriv = NULL;
+ }
 
-	* arch/m32r/kernel/smp.c:
-	- Rename 'lock' to 'slock'. (cf. Changesets 1.1966.85.1)
-
-Thank you.
-
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
-
- arch/m32r/kernel/smp.c      |    2 -
- include/asm-m32r/spinlock.h |   68 ++++++++++++++++++++++----------------------
- 2 files changed, 36 insertions(+), 34 deletions(-)
+ static int
 
 
-diff -ruNp a/arch/m32r/kernel/smp.c b/arch/m32r/kernel/smp.c
---- a/arch/m32r/kernel/smp.c	2005-02-16 20:57:19.000000000 +0900
-+++ b/arch/m32r/kernel/smp.c	2005-02-16 21:19:35.000000000 +0900
-@@ -953,7 +953,7 @@ unsigned long send_IPI_mask_phys(cpumask
- 		"ldi	r4, #1			\n\t"
- 		"st	r4, @%2			\n\t"
- 		: "=&r"(ipicr_val)
--		: "r"(flags), "r"(&ipilock->lock), "r"(ipicr_addr),
-+		: "r"(flags), "r"(&ipilock->slock), "r"(ipicr_addr),
- 		  "r"(mask), "r"(try), "r"(my_physid_mask)
- 		: "memory", "r4"
- #ifdef CONFIG_CHIP_M32700_TS1
-diff -ruNp a/include/asm-m32r/spinlock.h b/include/asm-m32r/spinlock.h
---- a/include/asm-m32r/spinlock.h	2005-02-16 20:58:08.000000000 +0900
-+++ b/include/asm-m32r/spinlock.h	2005-02-16 21:19:35.000000000 +0900
-@@ -20,23 +20,13 @@ extern int printk(const char * fmt, ...)
- #define RW_LOCK_BIAS		 0x01000000
- #define RW_LOCK_BIAS_STR	"0x01000000"
- 
--/* It seems that people are forgetting to
-- * initialize their spinlocks properly, tsk tsk.
-- * Remember to turn this off in 2.4. -ben
-- */
--#if defined(CONFIG_DEBUG_SPINLOCK)
--#define SPINLOCK_DEBUG	1
--#else
--#define SPINLOCK_DEBUG	0
--#endif
--
- /*
-  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+Below is the patch. Comments are included for the changed parts. I don't
+know, if Outlook preserves tabs, so you can download the patch here:
+
+http://www.frank-buss.de/tmp/sl811-hcd.c-patch.txt
+
+and the whole changed file:
+
+http://www.frank-buss.de/tmp/sl811-hcd.c
+
+There is still an important error: When a device is plugged, then opened and
+then unplugged while open, it looks like the process freezes, which opened
+the device (I've tried "cat /dev/input/mice" and I can't break it after
+unplugged). After plugging the device again, it is not recognized any more.
+When the device is not open or after closing the device, unlugging and
+plugging again is no problem.
+
+
+--- linux-2.6.11-rc1.orig/drivers/usb/host/sl811-hcd.c	Wed Jan 12 05:00:38
+2005
++++ linux-2.6.11-rc1/drivers/usb/host/sl811-hcd.c	Thu Feb 17 04:37:55
+2005
+@@ -83,8 +83,9 @@
   */
+ #define	DISABLE_ISO
  
- typedef struct {
--	volatile int lock;
--#if SPINLOCK_DEBUG
-+	volatile int slock;
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	unsigned magic;
+-// #define	QUIRK2
+-#define	QUIRK3
++/* with other QUIRK combinations it crashes */
++#define	QUIRK2
++//#define	QUIRK3
+ 
+ static const char hcd_name[] = "sl811-hcd";
+ 
+@@ -831,8 +832,11 @@
  #endif
- #ifdef CONFIG_PREEMPT
-@@ -46,7 +36,7 @@ typedef struct {
  
- #define SPINLOCK_MAGIC	0xdead4ead
+ 	/* avoid all allocations within spinlocks */
+-	if (!hep->hcpriv)
++	if (!hep->hcpriv) {
+ 		ep = kcalloc(1, sizeof *ep, mem_flags);
++		/* set hep, otherwise sl811h_ep	*start(struct sl811 *sl811,
+u8 bank) crashes */
++		ep->hep = hep;
++	}
  
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- #define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
- #else
- #define SPINLOCK_MAGIC_INIT	/* */
-@@ -63,7 +53,7 @@ typedef struct {
-  * We make no fairness assumptions. They have a cost.
-  */
+ 	spin_lock_irqsave(&sl811->lock, flags);
  
--#define spin_is_locked(x)	(*(volatile int *)(&(x)->lock) <= 0)
-+#define spin_is_locked(x)	(*(volatile int *)(&(x)->slock) <= 0)
- #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
- #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
- 
-@@ -80,11 +70,11 @@ static inline int _raw_spin_trylock(spin
- 	unsigned long tmp1, tmp2;
- 
- 	/*
--	 * lock->lock :  =1 : unlock
--	 *            : <=0 : lock
-+	 * lock->slock :  =1 : unlock
-+	 *             : <=0 : lock
- 	 * {
--	 *   oldval = lock->lock; <--+ need atomic operation
--	 *   lock->lock = 0;      <--+
-+	 *   oldval = lock->slock; <--+ need atomic operation
-+	 *   lock->slock = 0;      <--+
- 	 * }
- 	 */
- 	__asm__ __volatile__ (
-@@ -97,7 +87,7 @@ static inline int _raw_spin_trylock(spin
- 		"unlock	%1, @%3;		\n\t"
- 		"mvtc	%2, psw;		\n\t"
- 		: "=&r" (oldval), "=&r" (tmp1), "=&r" (tmp2)
--		: "r" (&lock->lock)
-+		: "r" (&lock->slock)
- 		: "memory"
- #ifdef CONFIG_CHIP_M32700_TS1
- 		, "r6"
-@@ -111,22 +101,22 @@ static inline void _raw_spin_lock(spinlo
- {
- 	unsigned long tmp0, tmp1;
- 
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	__label__ here;
- here:
- 	if (lock->magic != SPINLOCK_MAGIC) {
--		printk("eip: %p\n", &&here);
-+		printk("pc: %p\n", &&here);
- 		BUG();
+@@ -952,7 +956,11 @@
+ 		retval = 0;
+ 		goto fail;
  	}
- #endif
- 	/*
--	 * lock->lock :  =1 : unlock
--	 *            : <=0 : lock
-+	 * lock->slock :  =1 : unlock
-+	 *             : <=0 : lock
- 	 *
- 	 * for ( ; ; ) {
--	 *   lock->lock -= 1;  <-- need atomic operation
--	 *   if (lock->lock == 0) break;
--	 *   for ( ; lock->lock <= 0 ; );
-+	 *   lock->slock -= 1;  <-- need atomic operation
-+	 *   if (lock->slock == 0) break;
-+	 *   for ( ; lock->slock <= 0 ; );
- 	 * }
- 	 */
- 	__asm__ __volatile__ (
-@@ -149,7 +139,7 @@ here:
- 		"bra	2b;			\n\t"
- 		LOCK_SECTION_END
- 		: "=&r" (tmp0), "=&r" (tmp1)
--		: "r" (&lock->lock)
-+		: "r" (&lock->slock)
- 		: "memory"
- #ifdef CONFIG_CHIP_M32700_TS1
- 		, "r6"
-@@ -159,12 +149,12 @@ here:
+-	urb->hcpriv = hep;
++	
++	/* when uncommented, causes this error on mouse open: 
++		drivers/usb/input/usbmouse.c: can't resubmit intr,
+sl811-hcd-1/input0, status -22
++		urb->hcpriv = hep;  */
++	
+ 	spin_unlock(&urb->lock);
  
- static inline void _raw_spin_unlock(spinlock_t *lock)
- {
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	BUG_ON(lock->magic != SPINLOCK_MAGIC);
- 	BUG_ON(!spin_is_locked(lock));
- #endif
- 	mb();
--	lock->lock = 1;
-+	lock->slock = 1;
+ 	start_transfer(sl811);
+@@ -1037,6 +1045,9 @@
+ 	/* assume we'd just wait for the irq */
+ 	if (!list_empty(&hep->urb_list))
+ 		msleep(3);
++
++	/* this error occurs, when the device is connected, opened and then
+disconnected;
++	   after this warning, the process freezes */
+ 	if (!list_empty(&hep->urb_list))
+ 		WARN("ep %p not empty?\n", ep);
+ 
+@@ -1580,6 +1591,14 @@
+ 	if (sl811->board && sl811->board->power)
+ 		hub_set_power_budget(udev, sl811->board->power * 2);
+ 
++	// enable power and interupts	
++	port_power(sl811, 1);
++
++	/* reset USB (without this the devices were not detected at boot,
+only after plugging) */
++	sl811_write(sl811, SL11H_CTLREG1, 0x08);
++	mdelay(20);
++	sl811_write(sl811, SL11H_CTLREG1, 0);
++
+ 	return 0;
  }
  
- /*
-@@ -179,7 +169,7 @@ static inline void _raw_spin_unlock(spin
-  */
- typedef struct {
- 	volatile int lock;
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	unsigned magic;
- #endif
- #ifdef CONFIG_PREEMPT
-@@ -189,7 +179,7 @@ typedef struct {
+@@ -1639,11 +1658,11 @@
+ 	free_irq(hcd->irq, hcd);
  
- #define RWLOCK_MAGIC	0xdeaf1eed
+ 	iounmap(sl811->data_reg);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	release_mem_region(res->start, 1);
  
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- #define RWLOCK_MAGIC_INIT	, RWLOCK_MAGIC
- #else
- #define RWLOCK_MAGIC_INIT	/* */
-@@ -199,6 +189,18 @@ typedef struct {
+ 	iounmap(sl811->addr_reg);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
+ 	release_mem_region(res->start, 1);
  
- #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ 	usb_put_hcd(hcd);
+@@ -1674,8 +1693,28 @@
+ 	if (pdev->num_resources < 3)
+ 		return -ENODEV;
  
-+/**
-+ * read_can_lock - would read_trylock() succeed?
-+ * @lock: the rwlock in question.
-+ */
-+#define read_can_lock(x) ((int)(x)->lock > 0)
+-	addr = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	data = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++	/* IORESOURCE_IO, because I think it is IO access. The following
++		resources in the platform description file works:
++		static struct resource usb_resources[] = {
++			[0] = {
++				.start	= YOUR_PLATFORM_USB_PHYS,
++				.end	= YOUR_PLATFORM_USB_PHYS + 256
++				.flags	= IORESOURCE_IO,
++			},
++			[1] = {
++				.start	= YOUR_PLATFORM_USB_PHYS + 0x010000,
++				.end	= YOUR_PLATFORM_USB_PHYS + 0x010000
++ 256
++				.flags	= IORESOURCE_MEM,
++			},
++			[2] = {
++				.start	= USB_IRQ,
++				.end	= USB_IRQ,
++				.flags	= IORESOURCE_IRQ,
++			},
++		};*/
 +
-+/**
-+ * write_can_lock - would write_trylock() succeed?
-+ * @lock: the rwlock in question.
-+ */
-+#define write_can_lock(x) ((x)->lock == RW_LOCK_BIAS)
-+
- /*
-  * On x86, we implement read-write locks as a 32-bit counter
-  * with the high bit (sign) being the "contended" bit.
-@@ -214,7 +216,7 @@ static inline void _raw_read_lock(rwlock
- {
- 	unsigned long tmp0, tmp1;
- 
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	BUG_ON(rw->magic != RWLOCK_MAGIC);
- #endif
- 	/*
-@@ -268,7 +270,7 @@ static inline void _raw_write_lock(rwloc
- {
- 	unsigned long tmp0, tmp1, tmp2;
- 
--#if SPINLOCK_DEBUG
-+#ifdef CONFIG_DEBUG_SPINLOCK
- 	BUG_ON(rw->magic != RWLOCK_MAGIC);
- #endif
- 	/*
++	addr = platform_get_resource(pdev, IORESOURCE_IO, 0);
++	data = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (!addr || !data || irq < 0)
+ 		return -ENODEV;
+@@ -1700,7 +1739,7 @@
+ 		retval = -EBUSY;
+ 		goto err3;
+ 	}
+-	data_reg = ioremap(data->start, resource_len(addr));
++	data_reg = ioremap(data->start, resource_len(data));
+ 	if (data_reg == NULL) {
+ 		retval = -ENOMEM;
+ 		goto err4;
+@@ -1728,7 +1767,6 @@
+ 	sl811->timer.data = (unsigned long) sl811;
+ 	sl811->addr_reg = addr_reg;
+ 	sl811->data_reg = data_reg;
+-
+ 	spin_lock_irq(&sl811->lock);
+ 	port_power(sl811, 0);
+ 	spin_unlock_irq(&sl811->lock);
 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+
+
+
+
+-- 
+Frank Buﬂ, fb@frank-buss.de
+http://www.frank-buss.de, http://www.it4-systems.de
+

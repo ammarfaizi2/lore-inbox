@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316247AbSEQOkn>; Fri, 17 May 2002 10:40:43 -0400
+	id <S316251AbSEQOon>; Fri, 17 May 2002 10:44:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316250AbSEQOjw>; Fri, 17 May 2002 10:39:52 -0400
-Received: from 209-6-202-152.c3-0.nwt-ubr1.sbo-nwt.ma.cable.rcn.com ([209.6.202.152]:58866
-	"EHLO chezrutt.dyndns.org") by vger.kernel.org with ESMTP
-	id <S316247AbSEQOjm>; Fri, 17 May 2002 10:39:42 -0400
-From: John Ruttenberg <rutt@chezrutt.com>
+	id <S316254AbSEQOom>; Fri, 17 May 2002 10:44:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27921 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316251AbSEQOoj>;
+	Fri, 17 May 2002 10:44:39 -0400
+Message-ID: <3CE516E4.4000500@mandrakesoft.com>
+Date: Fri, 17 May 2002 10:42:44 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "David S. Miller" <davem@redhat.com>
+CC: ink@jurassic.park.msu.ru, andrew.grover@intel.com, mochel@osdl.org,
+        Greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: pci segments/domains
+In-Reply-To: <3CE512A7.70202@mandrakesoft.com>	<20020517.071633.67125480.davem@redhat.com>	<3CE514B6.6070302@mandrakesoft.com> <20020517.072625.29433758.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15589.5673.460356.221529@localhost.localdomain>
-Date: Fri, 17 May 2002 10:39:37 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell Inspiron i8100 with 2 batteries
-In-Reply-To: <E178j9U-0006fz-00@the-village.bc.nu>
-X-Mailer: VM 6.96 under Emacs 20.7.1
-Reply-to: rutt@chezrutt.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought I'd try to figure out that there were two batteries and divide by 2
-or something like that.  Perhaps the bios of this notebook is just broken,
-though.
+David S. Miller wrote:
 
-Alan Cox:
-> > of the batteries is less than 50% (according to the bios), then /proc/apm
-> > shows the battery power level X 2.  If the combined charge of the batteries is
-> > greater than 50%, then /proc/apm shows:
-> > 
-> >     1.16 1.2 0x03 0x01 0xff 0x10 -1% -1 ?
-> > 
-> > I think this is because the bogus calculation it would make would result in a
-> > percentage > 100.
-> > 
-> > I took a quick look at arch/i386/kernel/apm.c but it wasn't obvious what to
-> > do.
-> 
-> The data basically comes from the BIOS as is
+>   From: Jeff Garzik <jgarzik@mandrakesoft.com>
+>   Date: Fri, 17 May 2002 10:33:26 -0400
+>
+>   My main want is cosmetic -- call a spade a spade, so to speak. 
+>    s/sysdata/pci_domain/  But doing so opens the door to increased 
+>   flexibility.  Later steps can add common members needed by pci-to-pci 
+>   IOMMU tricks which are common to most platforms.
+>
+>Since the name really doesn't matter let's call it struct pci_controller
+>since that is what Alpha and Sparc use already :-)
+>
+
+
+Makes sense, sure :)  I just want to get rid of the untyped sysdata in 
+favor of a struct with a defined type (arch-defined... but named and 
+defined nonetheless).
+
+    Jeff
 
 
 

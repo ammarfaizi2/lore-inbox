@@ -1,67 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbTL1SJg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 13:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTL1SJg
+	id S261872AbTL1SRw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 13:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTL1SRw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 13:09:36 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:21710 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261928AbTL1SJe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 13:09:34 -0500
-Date: Sun, 28 Dec 2003 16:04:03 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Anders Torger <torger@ludd.luth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Finding a user space alternative to the (removed) OOM killer
-In-Reply-To: <200312222235.42228.torger@ludd.luth.se>
-Message-ID: <Pine.LNX.4.58L.0312281602450.15034@logos.cnet>
-References: <200312222235.42228.torger@ludd.luth.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Sun, 28 Dec 2003 13:17:52 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:53480 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261872AbTL1SRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 13:17:44 -0500
+Date: Sun, 28 Dec 2003 13:03:41 -0500
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] O_DIRECTORY|O_CREAT handling
+Message-ID: <20031228180341.GA1134@pimlott.net>
+Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
+	Ulrich Drepper <drepper@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+References: <3FE56A97.3060901@redhat.com> <20031221105110.GA1323@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031221105110.GA1323@alpha.home.local>
+User-Agent: Mutt/1.3.28i
+From: Andrew Pimlott <andrew@pimlott.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 21, 2003 at 11:51:10AM +0100, Willy Tarreau wrote:
+>   base_dir="/tmp/tmpdir"; 
+>   do {
+>      rnd=random();
+>      sprintf(dir, "%s%d", base_dir, rnd);
+>   } while (!mkdir(dir, 0700);
+>   /* now I'm guaranteed that I'm the first to get this dir, */
+>   /* and only my UID can work in it */
+>   chdir(dir);
+>   
+> So the only race would be someone working with the same UID (or root) removing
+> the directory and replacing it with another one (or a symlink or anything)
+> between mkdir() and chdir().
 
+If /tmp isn't sticky, anyone can do this.  I think this is the
+scenario Ulrich was referring to.
 
-On Mon, 22 Dec 2003, Anders Torger wrote:
-
-> It has come to my attention that the OOM killer has been removed. I used it
-> actively in my software in a hackish fashion, in the following way:
->
-> I have implemented a reverb processor using convolution running on a compact
-> linux platform, using no swap memory. In the setup process, there is a
-> benchmarking algorithm that finds out through a series of test runs how short
-> I/O delay (cpu limited) and how long reverb tails (memory limited) the
-> computer can handle. The ugly (or elegant) hack here was to set the convolver
-> process to user nobody and a nicer priority when it allocates its convolution
-> buffers (can be more than hundred megabytes), which then will get it killed
-> by the OOM killer if it runs out of memory, which is detected and treated by
-> supporting code as it ran out of memory. All memory is touched by memset and
-> an temporary dummy buffer of 10 megabytes is allocated last, touched and then
-> released to verify that there is a bit of spare memory left.
->
-> This solution proved to work well on the embedded system. In some rare
-> occasions with a larger amount of processes, the OOM killer could kill the
-> wrong process despite the leads, but that happened seldom enough so I did not
-> care about making a better solution.
->
-> Until now that is. Without the OOM killer, the hack does not work at all, so I
-> need some new method. One idea is to verify at each malloc call that there is
-> enough memory left in the system in order to service it and if not, return
-> NULL. If the system has swap, the system would be defined to be out of memory
-> if any of the allocated memory has to be put to swap disk (the convolver is
-> realtime and thus needs realtime access to memory).
->
-> The problem is to implement the function (user space please) that returns how
-> many more bytes one can safely allocate without forcing anything to a swap or
-> running the system out of memory. Perhaps it is possible to use /proc/meminfo
-> to implement this?
-
-2.4.24-pre1 readds the OOM killer as a configurable option.
-
-2.4.24-pre1 with CONFIG_OOM_KILLER=y will work for you.
-
+Andrew

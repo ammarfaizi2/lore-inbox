@@ -1,95 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbTJJL5a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 07:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbTJJL53
+	id S261592AbTJJMNi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 08:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTJJMNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 07:57:29 -0400
-Received: from 209-123-183-81.site5.com ([209.123.183.81]:47806 "EHLO
-	suna.site5.com") by vger.kernel.org with ESMTP id S261660AbTJJL5K
+	Fri, 10 Oct 2003 08:13:38 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:55168 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261592AbTJJMNh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 07:57:10 -0400
-Message-ID: <3F86C17A.8060209@4-sms.com>
-Date: Fri, 10 Oct 2003 17:26:02 +0300
-From: SMS WebMaster <sms@4-sms.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030819
-X-Accept-Language: en
+	Fri, 10 Oct 2003 08:13:37 -0400
+Date: Fri, 10 Oct 2003 08:14:32 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: Pascal Schmidt <der.eremit@email.de>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
+In-Reply-To: <20031007104926.GA1659@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.53.0310100808360.2936@chaos>
+References: <DIre.Cy.15@gated-at.bofh.it> <DIre.Cy.17@gated-at.bofh.it>
+ <DIre.Cy.19@gated-at.bofh.it> <DIre.Cy.13@gated-at.bofh.it>
+ <DIAQ.2Hh.5@gated-at.bofh.it> <E1A6aWv-0000rJ-00@neptune.local>
+ <Pine.LNX.4.53.0310061605001.733@chaos> <20031007104926.GA1659@openzaurus.ucw.cz>
 MIME-Version: 1.0
-To: "list, linux-kernel" <linux-kernel@vger.kernel.org>,
-       linux-config@vger.kernel.org, linux-userfs@vger.kernel.org
-Subject: mount: / mounted already or bad option
-X-Enigmail-Version: 0.76.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - suna.site5.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - 4-sms.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi
-I have Gentoo linux in my PC
-I just installed the kernel 2.4.22 and compile it and install it (using 
-genkernel command)
-Right now if I reboot my PC with my new kernel I got :
-mount: / mounted already or bad option
-and the system stop and ask me to type the root password
-and when I login with the root and type
-mount -o remount,rw /
+On Tue, 7 Oct 2003, Pavel Machek wrote:
 
-I got the same message
-mount: / mounted already or bad option
+> Hi!
+>
+> > A company makes a new device that could run under Linux.
+> > This device uses some standard gate-arrays. Because of
+> > this, some gate-array bits need to be loaded upon startup.
+> >
+> > The company knows that if the competition learns that a
+> > gate-array was used, instead of an ASIC, the competition
+> > could clone the whole device in a few weeks, thereby
+> > stealing a few million dollars of development effort.
+>
+>
+> Since when is creating compatible hw called stealing?!
 
-but if I write
-mount -o remount,rw /dev/hda4  /
-then the root filesystem if remounted as read/write
+When the "compatible" device is a copy.
 
-Anyway the stupid thing is that if I boot with my old kernel I don't get 
-this problem !!!
-Any Help
+> If this was such a big problem, nothing prevents you
+> from putting ROM with those magic bits... How much is
+> that? _5?
 
-My /etc/fstab :
+Yes it does. Market pressure. The ROM may cost US$0.50.
+During the lifetime of the product, that may mean over
+a million dollars in lost profit. And, if you were a
+stockholder, you would not like that. Or, if you
+were an employee who lost his job because the company
+couldn't quite make up the cost of your salary. Every
+dime saved in the production cost of a high-volume product
+means several jobs saved.
 
-/dev/hda2               /boot           ext2            noauto,noatime 
-        1 1
-/dev/hda4               /               reiserfs 
-defaults,noatime,notail,iocharset=utf8          0 0
-/dev/hda3               none            swap            sw 
-        0 0
-/dev/hda1       /mnt/win        ntfs 
-auto,ro,umask=000,iocharset=utf0 0
-/dev/cdroms/cdrom0      /mnt/cdrom      iso9660 
-noauto,ro,umask=000,iocharset=utf8      0 0
-/dev/fd0        /mnt/floppy     vfat 
-noauto,defaults,umask=000,iocharset=utf8        0 0
-none                    /proc           proc            defaults 
-        0 0
-none                    /dev/shm        tmpfs           defaults 
-        0 0
+> --
+> 				Pavel
+> Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+>
 
-My /etc/lilo.conf :
-image = /boot/kernel-2.4.22
-         root = /dev/hda4
-         label = Gentoo
-         initrd=/boot/initrd-2.4.22
-         append="root=/dev/hda4 init=/linuxrc hdc=ide-scsi"
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-image = /boot/kernel-2.4.20-gentoo-r5
-         root = /dev/hda4
-         #root = /devices/discs/disc0/part3
-         label = Old-Gentoo
-         initrd=/boot/initrd-2.4.20-gentoo-r5
-         #read-only # read-only for checking
-         append="root=/dev/hda4 init=/linuxrc hdc=ide-scsi"
- 
-
-
--- 
-http://www.4-SMS.Com
-http://eShop.4-SMS.Com
-http://Mozilla.4-SMS.Com
--*- If Linux doesn't have the solution, you have the wrong problem -*-
 

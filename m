@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264642AbSJTUeF>; Sun, 20 Oct 2002 16:34:05 -0400
+	id <S261509AbSJTUrj>; Sun, 20 Oct 2002 16:47:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264643AbSJTUeE>; Sun, 20 Oct 2002 16:34:04 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:45238 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S264642AbSJTUeE>;
-	Sun, 20 Oct 2002 16:34:04 -0400
-Date: Sun, 20 Oct 2002 22:36:22 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200210202036.WAA25188@harpo.it.uu.se>
-To: sam@ravnborg.org
-Subject: Re: [PATCH] 2.5.44 mrproper removes editor backup files
-Cc: kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
+	id <S261781AbSJTUrj>; Sun, 20 Oct 2002 16:47:39 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:2176 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S261509AbSJTUri>;
+	Sun, 20 Oct 2002 16:47:38 -0400
+Date: Sun, 20 Oct 2002 15:53:08 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Mike Anderson <andmike@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi segfaults under 2.5.44
+In-Reply-To: <20021020181825.GA3915@beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44.0210201541340.860-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002 20:27:18 +0200, Sam Ravnborg wrote:
-> On Sun, Oct 20, 2002 at 08:01:54PM +0200, Mikael Pettersson wrote:
-> > Contrary to years of history and several explicit comments in
-> > Makefile that mrproper != distclean, 2.5.44 merged the two
-> > which causes mrproper to incorrectly remove editor backup files.
+On Sun, 20 Oct 2002, Mike Anderson wrote:
+
+> Thomas,
+> 	It looks like sg.c was missed in the update from put_device to
+> 	device_unregister.
 > 
-> Why do you need three levels of cleaning?
-> In other words what is it that make clean failed to clean in your case.
+> I have only compile tested the patch below, but it should fix the
+> problem. I will have a chance to run later on today.
 
-I only use mrproper myself. Always have. Over the years I've seen
-too many build failures for others caused by insufficient cleaning
-to really trust plain clean.
+OK, well that was interesting.  Your patch cleared up my problem with sg.  
+Now I have a new ide-scsi failure mode.  I'm pounding on this one because 
+whatever magic was supposed to happen with ide-cd didn't.  I've documented 
+it in a separate message.
 
-> I know that we always used to say: make mrproper can cure everything.
-> But make clean starts to get the power of make mrproper.
+I can now insert and remove ide-scsi modules (sr_mod, sg, scsi_mod, cdrom, 
+ide-scsi).  However, when I then insert the ide-scsi modules a second 
+time, it sees my disks at a different device!  I have a CDROM at ide1 
+primary, and a CDRW at ide1 secondary.  ide-scsi normally sees them as 
+/dev/scd0 and /dev/scd1, respectively.  After the modules are reinserted I 
+get them reversed.  ide1 primary is now seen at /dev/scd1 and ide1 
+secondary is seen at /dev/scd0.  Furthermore, this happens each time I 
+repeat the cycle.  On the next cycle they are back to ide1 primary at 
+/dev/scd0.  In other words, they alternate, depending on how many 
+remove/insert cycles I go through.
 
-> It makes sense to kill one of them, but make help needs an update though.
-> You could argue if distclean=mrproper or mrproper=clean.
+If I simply insert the modules and leave them, thing act normally.  
+However, once I remove them I get a segfault and system hang at reboot.
 
-Changing the behaviour of mrproper is like $EDITOR suddenly changing its
-core key bindings. Users accustomed to those bindings won't be happy.
-
-If, for whatever reason, clean becomes as powerful as mrproper, just
-set mrproper == clean. Or remove clean but keep mrproper :-)
-
-/Mikael

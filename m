@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbUKQQnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbUKQR3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbUKQQnL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 11:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbUKQQku
+	id S262446AbUKQR3S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUKQR15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 11:40:50 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:62180 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262404AbUKQQjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 11:39:32 -0500
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-	 <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
-	 <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-	 <84144f0204111602136a9bbded@mail.gmail.com>
-	 <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
-	 <20041116120226.A27354@pauline.vellum.cz>
-	 <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
+	Wed, 17 Nov 2004 12:27:57 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:25298 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262404AbUKQRX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 12:23:57 -0500
+Message-ID: <419B8921.4060804@nortelnetworks.com>
+Date: Wed, 17 Nov 2004 11:23:45 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] prefer TSC over PM Timer
+References: <Pine.LNX.4.61.0411151531590.22091@twinlark.arctic.org> <1100705099.420.32.camel@localhost.localdomain>
+In-Reply-To: <1100705099.420.32.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1100705768.419.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 17 Nov 2004 15:36:10 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-11-16 at 14:01, Miklos Szeredi wrote:
-> > "fuse/version" you have in /proc while it belongs to /proc
-> > "fuse/dev"     you have in /proc while it belongs to /dev
-> 
-> Well, 'Documentation/devices.txt' says:
-> 
->   THE DEVICE REGISTRY IS OFFICIALLY FROZEN FOR LINUS TORVALDS' KERNEL
->   TREE.  At Linus' request, no more allocations will be made official
->   for Linus' kernel tree; the 3 June 2001 version of this list is the
->   official final version of this registry.
+Alan Cox wrote:
 
-This is just to keep Linus happy, every vendor on the planet ignores it
-and co-operates with LANANA so that we have a single unified cross
-vendor namespace and numbering scheme. The numbering matters a lot less
-now with udev but the naming is critical to all the poor app and config
-tool authors.
+> Is gettimeofday supposed to return the right value or be fast ?
 
-So LANANA is authoritative except for Linus computer 8)
+C. All of the above.  :)
 
-
+Chris

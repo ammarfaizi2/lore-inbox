@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbUDAWmv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 17:42:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263131AbUDAWmv
+	id S263137AbUDAWqm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 17:46:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbUDAWqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 17:42:51 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:24841 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262536AbUDAWmt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 17:42:49 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: disable-cap-mlock
-Date: Fri, 2 Apr 2004 00:43:13 +0200
-User-Agent: KMail/1.6.1
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>, kenneth.w.chen@intel.com
-References: <20040401135920.GF18585@dualathlon.random> <20040401115252.7cdb9d6f.akpm@osdl.org> <20040401223619.GB18585@dualathlon.random>
-In-Reply-To: <20040401223619.GB18585@dualathlon.random>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
+	Thu, 1 Apr 2004 17:46:42 -0500
+Received: from mirapoint2.TIS.CWRU.Edu ([129.22.104.47]:36907 "EHLO
+	mirapoint2.tis.cwru.edu") by vger.kernel.org with ESMTP
+	id S263137AbUDAWqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 17:46:40 -0500
+To: Joe Buck <Joe.Buck@synopsys.COM>
+Cc: Andi Kleen <ak@suse.de>,
+       Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>, gcc@gcc.gnu.org,
+       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
+In-Reply-To: <20040401143908.B4619@synopsys.com> (Joe Buck's message of
+ "Thu, 1 Apr 2004 14:39:08 -0800")
+References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de>
+	<20040401220957.5f4f9ad2.ak@suse.de>
+	<20040401203923.GA32177@nevyn.them.org>
+	<20040401143908.B4619@synopsys.com>
+From: prj@po.cwru.edu (Paul Jarc)
+Organization: What did you have in mind?  A short, blunt, human pyramid?
+Mail-Copies-To: nobody
+Mail-Followup-To: Joe Buck <Joe.Buck@synopsys.COM>, Andi Kleen <ak@suse.de>,
+ Ulrich Weigand <weigand@i1.informatik.uni-erlangen.de>, gcc@gcc.gnu.org, 
+ linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Date: Thu, 01 Apr 2004 17:44:59 -0500
+Message-ID: <m3ad1vjp1a.fsf@multivac.cwru.edu>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200404020043.13725@WOLK>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 April 2004 00:36, Andrea Arcangeli wrote:
+Joe Buck <Joe.Buck@synopsys.COM> wrote:
+> Case 2: make falsely thinks that the .c is younger than the .o.  It
+> recompiles the .c file, even though it didn't have to.  Harmless.
 
-Hey Andrea,
+The OP explained how this can be harmful in the case of parallel
+builds - the .o file is not updated atomically, so while one part of
+the build is (unnecessarily) updating it, another part will fail to
+find it.
 
-> > Could you please refresh-n-send the RLIMIT_MEMLOCK patch?
 
-> I asked it to Rik too but he redirected me at some rpm, but luckily
-> Marc-Christian extracted it and he posted it on l-k some week ago, so
-> you can just check l-k (From: Marc-Christian) and you'll find it. It's
-> against 2.4 however. Problem is that it's absolutely useless for the
-> problem I had to solve, or I would be using it already instead.
-
-hehe. Well. I have this flying around on my hard disk. 
-
-root@codeman:[/usr/src/patches/distribution] # du -skh .
-1702M    .
-
-almost every interesting distribution kernels are located there in extracted 
-form :)
-
-It's actually this one: 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=107980096115231&w=2
-
-(won't post the patch again to save lkml space ;)
-
-ciao, Marc
+paul

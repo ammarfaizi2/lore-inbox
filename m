@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265112AbUF1S01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265118AbUF1S1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265112AbUF1S01 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 14:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbUF1S01
+	id S265118AbUF1S1H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 14:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265114AbUF1S07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 14:26:27 -0400
-Received: from galileo.bork.org ([66.11.174.156]:177 "HELO galileo.bork.org")
-	by vger.kernel.org with SMTP id S265112AbUF1S00 (ORCPT
+	Mon, 28 Jun 2004 14:26:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16261 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265117AbUF1S0k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 14:26:26 -0400
-Date: Mon, 28 Jun 2004 14:26:40 -0400
-From: Martin Hicks <mort@wildopensource.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Anton Blanchard <anton@samba.org>, Ingo Oeser <ioe-lkml@rameria.de>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] __alloc_bootmem_node should not panic when it fails
-Message-ID: <20040628182640.GP19652@localhost>
-References: <20040627052747.GG23589@krispykreme> <200406270827.28310.ioe-lkml@rameria.de> <20040627222803.GH23589@krispykreme> <20040628062912.GA4391@taniwha.stupidest.org>
+	Mon, 28 Jun 2004 14:26:40 -0400
+Date: Mon, 28 Jun 2004 11:25:10 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: kiocb->private is too large for kiocb's on-stack
+Message-Id: <20040628112510.509d08f7.davem@redhat.com>
+In-Reply-To: <20040628082016.GP21066@holomorphy.com>
+References: <20040628080801.GO21066@holomorphy.com>
+	<20040628011232.43acd3b8.akpm@osdl.org>
+	<20040628082016.GP21066@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040628062912.GA4391@taniwha.stupidest.org>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 Jun 2004 01:20:16 -0700
+William Lee Irwin III <wli@holomorphy.com> wrote:
 
-
-On Sun, Jun 27, 2004 at 11:29:12PM -0700, Chris Wedgwood wrote:
-> On Mon, Jun 28, 2004 at 08:28:03AM +1000, Anton Blanchard wrote:
+> On Mon, Jun 28, 2004 at 01:12:32AM -0700, Andrew Morton wrote:
+> > That's so much better than what we had before it ain't funny.
+> > Was this runtime tested?
 > 
-> > Unfortunately nodes without memory is relatively common on ppc64,
-> > and I believe x86-64. From a ppc64 perspective Im fine with best
-> > effort, perhaps someone from the heavily NUMA camp (ia64?) could
-> > comment.
+> Yes. Oracle exercises this, and it survives OAST.
 > 
-> Does anyone make ia64 NUMA hardware where you can have memory-less
-> nodes?
+> I'll write a dedicated userspace testcase for the aio operations and
+> follow up with that.
 
-Altix SN2 can have memoryless nodes
+This all looks fine to me.  Andrew, would you like me to push this
+patch along or did you already plan to take care of it.
 
-mh
-
--- 
-Martin Hicks                Wild Open Source Inc.
-mort@wildopensource.com     613-266-2296
+Nice work William.

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131228AbQKRClC>; Fri, 17 Nov 2000 21:41:02 -0500
+	id <S131219AbQKRCpC>; Fri, 17 Nov 2000 21:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131219AbQKRCkw>; Fri, 17 Nov 2000 21:40:52 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:59657 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131228AbQKRCkm>; Fri, 17 Nov 2000 21:40:42 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: VGA PCI IO port reservations
-Date: 17 Nov 2000 18:10:13 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v4oe5$vbl$1@cesium.transmeta.com>
-In-Reply-To: <200011172002.UAA01918@raistlin.arm.linux.org.uk> <Pine.LNX.3.95.1001117150349.23529A-100000@chaos.analogic.com> <20001117202009.B2472@zalem.puupuu.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+	id <S131341AbQKRCox>; Fri, 17 Nov 2000 21:44:53 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:62369 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S131219AbQKRCog>; Fri, 17 Nov 2000 21:44:36 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 17 Nov 2000 18:14:24 -0800
+Message-Id: <200011180214.SAA06997@adam.yggdrasil.com>
+To: jgarzik@mandrakesoft.com
+Subject: Re: sunhme.c patch for new PCI interface (UNTESTED)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org, willy@meta-x.org,
+        wtarreau@yahoo.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20001117202009.B2472@zalem.puupuu.org>
-By author:    Olivier Galibert <galibert@pobox.com>
-In newsgroup: linux.dev.kernel
-> 
-> What guarantees you that:
-> 1- No device will respond 0xffff for an address it decodes
-> 2- No device will crap up on you simply because you've read one
-> particular address
-> 
-> If any of these if true for any device out there (I think I have one
-> in my computer that does the 1/ part in some cases), your code is
-> unsafe.
-> 
+I wrote:
+>[...] the cost of incorrectly
+>using __initdata when __devinitdata was correct is that the user's
+>KERNEL WILL CRASH when the notebook is inserted or removed from such a
+>docking station, even when the kernel is built with CONFIG_HOTPLUG.
 
-It is.  There are plenty of devices for which an arbitrary IN is an
-irrecoverable state transition.
+	 My statement above, without some missing qualification, is wrong.
+I should have qualified this statement more carefully.  (I'm sure the
+flames are already in the mail about this.)  The kernel will crash in
+any case if the relevant driver does not support hot plugging.and the
+notebook is being removed with the PCI driver still loaded.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+	For drivers that do not support hot plugging, we could use
+__initdata instead of __devinitdata, since they will crash in any
+case.  However, violating the instructions in Documentation/pci.txt
+("The ID table array should be marked __devinitdata") in this way
+will provoke a slew of driver bugs as the over one hundred remaining
+PCI drivers are converted to the new PCI interface and some authors
+overlook the need to change the MODULE_DEVICE_TABLE storage class.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

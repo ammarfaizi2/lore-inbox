@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262611AbRFLOEw>; Tue, 12 Jun 2001 10:04:52 -0400
+	id <S264475AbRFLOKW>; Tue, 12 Jun 2001 10:10:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262614AbRFLOEm>; Tue, 12 Jun 2001 10:04:42 -0400
-Received: from foobar.isg.de ([62.96.243.63]:27152 "HELO mail.isg.de")
-	by vger.kernel.org with SMTP id <S262611AbRFLOE2>;
-	Tue, 12 Jun 2001 10:04:28 -0400
-Message-ID: <3B262158.29EFC01A@isg.de>
-Date: Tue, 12 Jun 2001 16:04:08 +0200
-From: Peter Niemayer <niemayer.viag@isg.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: unused shared memory is written into core dump - bug or feature?
+	id <S264498AbRFLOKM>; Tue, 12 Jun 2001 10:10:12 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:18803
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S264475AbRFLOJ7>; Tue, 12 Jun 2001 10:09:59 -0400
+Date: Tue, 12 Jun 2001 16:09:32 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: Jeremy Sanders <jss@ast.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, rsync-bugs@samba.org
+Subject: Re: rsync hangs on RedHat 2.4.2 or stock 2.4.4
+Message-ID: <20010612160931.E27591@jaquet.dk>
+In-Reply-To: <Pine.LNX.4.33.0106121417130.10732-100000@xpc1.ast.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0106121417130.10732-100000@xpc1.ast.cam.ac.uk>; from jss@ast.cam.ac.uk on Tue, Jun 12, 2001 at 02:59:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+On Tue, Jun 12, 2001 at 02:59:12PM +0100, Jeremy Sanders wrote:
+> I'm getting numerous rsync (v2.4.6) problems under Linux 2.4.2 (RedHat
+> 7.1) or stock 2.4.4 on several machines. rsync often hangs copying files
+> from NFS or local disks to local disks. Strangely the problem is fixed by
+> stracing one of the three rsync threads!
+> 
+[...]
+> Has anyone else encountered this problem? Is it a kernel problem or an
+> rsync problem?
 
-I just noticed that when I attach some SYSV shared memory segments
-to my process and then that process dies from a SIGSEGV that _all_
-the shared memory is dumped into the core file, even if it was never
-used and therefore didn't show up in any of the memory statistics.
+I encountered this exact problem some time ago. Some discussion
+but in the end the problem was blamed on rsync and nothing came
+of it. I'll post an URL to the thread later on when I have the
+time to dig it out.
 
-One may say: "Oh, that's just a feature". But for some reason, this
-is a small catastrophy:
+I could swear that during early 240-testX this was not a problem,
+but when I finally made a report about it and tried to go back
+through earlier kernels, I could not reproduce. Also, this is
+not reproducable under 2.2.X (for me, at least).
 
-I try to share some memory between the child processes of an application.
-At the time when the child processes are fork()ed, it is not known how
-much shared memory will be needed later. No other processes should see
-that memory.
-
-I searched through the literature how this could be done, but alas,
-the recommended methods such as mmap()ing "/dev/zero" with MAP_SHARED
-or using MAP_ANON are not implemented in Linux as they are within
-other Unices, and so using "ftruncate" to expand the shared memory
-region doesn't work either.
-
-So the only work-around I found was to attach the very maximum of
-what is to be used as shared memory using the SYSV shared memory
-functions, and allocating/using subsets of this memory later on
-the "logical" level.
-
-This of course means that any "parent" process starts by attaching
-~512MB of shared memory, but since they are not mapped at that time,
-there's no undue performance or memory/swap consumption.
-
-But if one of the programs crashes (and you know, this is nothing
-you can be sure to never happen :-), it stymies the whole system,
-as the kernel first seems to map all the 512MB, then dumps them
-into the core file.
-
-Please tell me there is either a way to keep the kernel from dumping
-these unused pages (but generate the much appreciated core-dump anyway)
-or there is some better method to share memory with one's child processes
-(not with the whole universe)  in a way that allows either the child or
-the parent to extend the amount of shared memory... 
-
-Thanks for any hints in advance,
-
-Peter Niemayer
-
-PS: Please CC me if you reply - thanks!
+Regards,
+  Rasmus

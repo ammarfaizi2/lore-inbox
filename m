@@ -1,96 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUIWQ0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUIWQ3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUIWQ0b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUIWQ0b
+	id S267721AbUIWQ3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUIWQ3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:26:31 -0400
-Received: from smtp1.netcabo.pt ([212.113.174.28]:38697 "EHLO smtp.netcabo.pt")
-	by vger.kernel.org with ESMTP id S266485AbUIWQZa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:25:30 -0400
-Message-ID: <35929.195.245.190.93.1095956611.squirrel@195.245.190.93>
-Date: Thu, 23 Sep 2004 17:23:31 +0100 (WEST)
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
+	Thu, 23 Sep 2004 12:29:12 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:6529 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S266345AbUIWQ1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:27:03 -0400
+Date: Fri, 24 Sep 2004 01:23:01 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: len.brown@intel.com, acpi-devel@lists.sourceforge.net,
+       lhns-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, tokunaga.keiich@jp.fujitsu.com
+Subject: [PATCH][0/4] NUMA node handling support for ACPI container driver
+Message-Id: <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
+In-Reply-To: <20040920094719.H14208@unix-os.sc.intel.com>
+References: <20040920092520.A14208@unix-os.sc.intel.com>
+	<20040920094719.H14208@unix-os.sc.intel.com>
+Organization: FUJITSU LIMITED
+X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.3.0; Win32)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-References: <20040908082050.GA680@elte.hu>   
-    <1094683020.1362.219.camel@krustophenia.net>   
-    <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>   
-    <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu>   
-    <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>   
-    <20040923122838.GA9252@elte.hu>   
-    <24137.195.245.190.93.1095946528.squirrel@195.245.190.93>   
-    <20040923134000.GA15455@elte.hu>
-In-Reply-To: <20040923134000.GA15455@elte.hu>
-X-OriginalArrivalTime: 23 Sep 2004 16:25:28.0774 (UTC) FILETIME=[F0526660:01C4A189]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> yeah, please re-download the -S4 patch, i fixed this meanwhile.
->
+On Mon, 20 Sep 2004 09:47:19 -0700, Keshavamurthy Anil S wrote:
+> Changes from previous release:
+> 1) Typo fix- ACPI004 to ACPI0004
+> 2) Added depends on EXPERIMENTAL in Kconfig file
+> 
+> ---
+> Name:container_drv.patch
+> Status: Tested on 2.6.9-rc1
+> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+> Depends:	
+> Version: applies on 2.6.9-rc1
+> Description:
+> This is the very early version on the Container driver which supports
+> hotplug notifications on ACPI0004, PNP0A05 and PNP0A06 devices.
+> 	Changes from previous release:
+> 	1) Mergerd the typo fix patch which changes "ACPI004" to "ACPI0004"
+> ---
 
-Yes, now it builds fine on my laptop.
+I have made a patchset to add 'NUMA node handling support' to
+your patchset.  If a container that is identical to NUMA node is
+hotplugged, this handles NUMA related stuffs.  For instance,
+creating/deleting sysfs directories and files of node, data structures,
+and etc...
 
-However, after a couple of reboots, there appears to be some verbose
-messages regarding PCI something, but the my main complaint is the USB
-subsystem which is failing miserably now.
+  - numa_hp_base.patch
+  - numa_hp_ia64.patch
+  - acpi_numa_hp.patch
+  - container_for_numa.patch
 
-I guess these are the relevant log messages excerpt:
+Status: Tested on 2.6.9-rc2 including your patchset posted earlier.
 
-[...]
-Mounted devfs on /dev
-Freeing unused kernel memory: 160k freed
-IRQ#8 thread started up.
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-ACPI: PCI Interrupt Link [LNK8] enabled at IRQ 10
-ACPI: PCI interrupt 0000:00:02.0[A] -> GSI 10 (level, low) -> IRQ 10
-ohci_hcd 0000:00:02.0: OHCI Host Controller
-requesting new irq thread for IRQ10...
-ohci_hcd 0000:00:02.0: irq 10, pci mem 0xd4000000
-ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 1
-ohci_hcd 0000:00:02.0: init err (00002edf 0000)
-ohci_hcd 0000:00:02.0: can't start
-ohci_hcd 0000:00:02.0: init error -75
-ohci_hcd 0000:00:02.0: remove, state 0
-ohci_hcd 0000:00:02.0: USB bus 1 deregistered
-ohci_hcd: probe of 0000:00:02.0 failed with error -75
-ACPI: PCI Interrupt Link [LNK4] enabled at IRQ 10
-ACPI: PCI interrupt 0000:00:0f.0[A] -> GSI 10 (level, low) -> IRQ 10
-ohci_hcd 0000:00:0f.0: OHCI Host Controller
-ohci_hcd 0000:00:0f.0: irq 10, pci mem 0xd4009000
-ohci_hcd 0000:00:0f.0: new USB bus registered, assigned bus number 1
-ohci_hcd 0000:00:0f.0: init err (00002edf 0000)
-ohci_hcd 0000:00:0f.0: can't start
-ohci_hcd 0000:00:0f.0: init error -75
-ohci_hcd 0000:00:0f.0: remove, state 0
-ohci_hcd 0000:00:0f.0: USB bus 1 deregistered
-ohci_hcd: probe of 0000:00:0f.0 failed with error -75
-[...]
-
-Probably this isn't strictly related to VP, but surely it was introduced
-by mm1 and mm2. Can't tell for sure. And please don't count as hardware
-failure as it suffices to go back to 2.6.9-rc1 to get USB back to normal
-;)
-
-Any thoughts?
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-
-
-
-
+Thanks,
+Keiichiro Tokunaga

@@ -1,82 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276641AbRJKRsr>; Thu, 11 Oct 2001 13:48:47 -0400
+	id <S276642AbRJKRyH>; Thu, 11 Oct 2001 13:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276628AbRJKRsi>; Thu, 11 Oct 2001 13:48:38 -0400
-Received: from eispost12.serverdienst.de ([212.168.16.111]:48906 "EHLO imail")
-	by vger.kernel.org with ESMTP id <S276641AbRJKRs1>;
-	Thu, 11 Oct 2001 13:48:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Robert Szentmihalyi <robert.szentmihalyi@entracom.de>
-To: Juan Quintela <quintela@mandrakesoft.com>
-Subject: Re: APM on a HP Omnibook XE3
-Date: Thu, 11 Oct 2001 19:48:20 +0200
-X-Mailer: KMail [version 1.3]
-Cc: Chmouel Boudjnah <chmouel@mandrakesoft.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200108301443355.SM00167@there> <200110101943880.SM00161@there> <m2het7jpgg.fsf@anano.mitica>
-In-Reply-To: <m2het7jpgg.fsf@anano.mitica>
+	id <S276633AbRJKRx6>; Thu, 11 Oct 2001 13:53:58 -0400
+Received: from suphys.physics.usyd.edu.au ([129.78.129.1]:20701 "EHLO
+	suphys.physics.usyd.edu.au") by vger.kernel.org with ESMTP
+	id <S276642AbRJKRxt>; Thu, 11 Oct 2001 13:53:49 -0400
+Date: Fri, 12 Oct 2001 03:52:59 +1000 (EST)
+From: Tim Connors <tcon@Physics.usyd.edu.au>
+To: jkp@riker.nailed.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Which kernel (Linus or ac)?
+In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org>
+Message-ID: <Pine.SOL.3.96.1011012034648.5285B-100000@suphys.physics.usyd.edu.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200110111955537.SM00161@there>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 10. Oktober 2001 20:54 schrieb Juan Quintela:
-> >>>>> "robert" == Robert Szentmihalyi
-> >>>>> <robert.szentmihalyi@entracom.de> writes:
-> >> >
-> >> > For me Fn+F12 works.
->
-> robert> unfortunately not for me....
->
-> You need to have a partition created with the recovery CD, it
-> don't work if you create it with normal fdisk (and it will
-> destroy your data in the disk, do a backup first).
+On Thu, 11 Oct 2001 jkp@riker.nailed.org wrote:
 
-I have created the hibernation partition with lphdisk and it works 
-under Windows 2000, so I guess there's nothing wrong with it.
+> I'm presently running 2.4.8 on a machine. The VM on this is not terribly
+> good (swaps a lot with seemlingly plenty of physical memory).
+> I'm considering going to an -ac kernel, but I need recent iptables. Is the
+> iptables code up to date in -ac?
 
->
-> z>> > apm -s & apm -S fails.
->
-> >> works only if you have a suspend-on-disk partition.
->
-> robert> I have created one with lphdisk and it works under
-> Win2k...
->
-> robert> The HP support people say the new omnibook BIOS is not
-> APM robert> compilant any more.
->
-> I have the omnibook lastest BIOS as end of July, it will work
-> only with Fn+F12.  I don't remind the version, can check when
-> rebooting.
+Seems to be, how recent do you want? I am using it, anyways....
 
-Mine reports:
-PhoenixBIOS 4.0 Release 6.0
-HP OMNIBOOK XE3 BIOS Revision GC.M1.63
+> Also, which -ac do people recommend? I've beent trying to follow lkm, but
+> I'm somewhat confused at this point.
 
-Could you check yours?
-I'd be really interested... 
+-ac is much better than -linus for me.
 
->
-> robert> ACPI only...
->
-> robert> Suspend-to-disk with API is not yet supported and I can't
-> use robert> software suspend because of reiserfs
->
-> robert> I guess I have to wait for proper hibernation support
-> with ACPI....
->
-> I am also waiting for it, as I can not suspend to RAM, but
-> suspend to disk is working nicely here (what is an advantage
-> while waiting).
->
-> Later, Juan.
+I am using 2.4.9-ac18. It is mostly good, the occasion swapping when I
+leave mozilla or xemacs alone for a little while, but mostly good. Much
+better than ever since 2.4.~5 though!
 
-so long,
- Robert
+Used 2.4.10-ac1 for a while, but seems worse than 2.4.9-ac1[678].
+
+Looking at the changelog and comments on the list and /. though - very
+very promising with 2.4.10-ac11 with the new VM changes. I will compile
+that one tonight and try it out when I next reboot (finally having a
+decent kernel has given me some uptime I don't want to destroy though ;)
+
+> The box:
+> 
+> P200MMX 64MB
+> 
+> It's used as a firewall and a ssh login/through server for external connections.
+
+2.4.9-ac* should be good for such a box - looks like you don't put much
+demand on it (although the RAM is a little small....)
+
 -- 
-Where do you want to be tomorrow?
+TimC -- http://www.physics.usyd.edu.au/~tcon/
 
-Entracom. Building Linux systems.
-http://www.entracom.de
+"I give up," said Pierre de Fermat's friend. "How DO you keep a
+mathematician busy for 350 years?"
+

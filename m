@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbTKLQBS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 11:01:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbTKLQBS
+	id S262110AbTKLPwi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 10:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbTKLPwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 11:01:18 -0500
-Received: from mail.kroah.org ([65.200.24.183]:37833 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262111AbTKLQBR (ORCPT
+	Wed, 12 Nov 2003 10:52:38 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51596 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262110AbTKLPwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 11:01:17 -0500
-Date: Wed, 12 Nov 2003 08:00:15 -0800
-From: Greg KH <greg@kroah.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Patrick Mochel <mochel@osdl.org>,
-       Christian Borntraeger <CBORNTRA@de.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Subject: Re: [RFC 0/5] Backing Store for sysfs (Overhauled)
-Message-ID: <20031112160015.GA28684@kroah.com>
-References: <20031112122344.GD14580@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031112122344.GD14580@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 12 Nov 2003 10:52:37 -0500
+Date: Wed, 12 Nov 2003 07:52:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+cc: "David S. Miller" <davem@redhat.com>,
+       <viro@parcelfarce.linux.theplanet.co.uk>, <dancraig@internode.on.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test9-bk16 ALi M5229 kernel boot error
+In-Reply-To: <20031112180642.A1064@jurassic.park.msu.ru>
+Message-ID: <Pine.LNX.4.44.0311120749520.3288-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 12, 2003 at 05:53:44PM +0530, Maneesh Soni wrote:
+
+On Wed, 12 Nov 2003, Ivan Kokshaysky wrote:
 > 
-> The concept is still the same that in this prototype also we create dentry and 
-> inode on the fly when they are first looked up. This is done for both leaf or 
-> non-leaf dentries. The generic nature of sysfs_dirent makes it easy to do for 
-> both leaf or non-leaf dentries. 
+> I'm not sure there was any logic at all, given extremely misleading
+> comments in the original code. That "south-bridge's enable bit" stands
+> for "enable input pins for 80-conductor cable detection" according
+> to my (rather sparse) docs, and I don't understand why the hell it has
+> anything to do with a northbridge.
 
-What happens once a dentry and inode is created?  Is there any way for
-them to be forced out, or do they stay around in memory forever?
+The thing is, those "enable input pins" are actually GPIO's, and some 
+boards don't use them as cable detect enables..
 
-thanks,
+The whole thing should probably be done as a PCI quirk. Anyway, I'll
+change my patch to be the absolute minimal one, ie just adding the
+!isa_dev test instead of removing the old confused logic. I'm pretty 
+certain that we shouldn't touch those GPIO's at all, but since some boards 
+probably _do_ want them enabled, let's go for the minimal "avoid oops" 
+approach.
 
-greg k-h
+		Linus
+

@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267187AbSLQWM1>; Tue, 17 Dec 2002 17:12:27 -0500
+	id <S267180AbSLQWQ2>; Tue, 17 Dec 2002 17:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267188AbSLQWM1>; Tue, 17 Dec 2002 17:12:27 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:32262 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id <S267187AbSLQWM0>;
-	Tue, 17 Dec 2002 17:12:26 -0500
-Date: Tue, 17 Dec 2002 23:20:11 +0100
-From: romieu@fr.zoreil.com
-To: Colin Paul Adams <colin@colina.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Alcatel speedtouch USB driver and SMP.
-Message-ID: <20021217232010.A19613@electric-eye.fr.zoreil.com>
-References: <m3n0n7hi52.fsf@colina.demon.co.uk> <20021215075913.GB2180@kroah.com> <m3hedfhd5l.fsf@colina.demon.co.uk> <20021216051300.GB12884@kroah.com> <m3adj6gwus.fsf@colina.demon.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <m3adj6gwus.fsf@colina.demon.co.uk>; from colin@colina.demon.co.uk on Mon, Dec 16, 2002 at 09:02:35AM +0000
-X-Organisation: Marie's fan club - III
+	id <S267182AbSLQWQ2>; Tue, 17 Dec 2002 17:16:28 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:965 "EHLO caduceus.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S267180AbSLQWQ1>;
+	Tue, 17 Dec 2002 17:16:27 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A5B6@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Kai Germaschewski'" <kai@tp1.ruhr-uni-bochum.de>
+Cc: "'Ducrot Bruno'" <poup@poupinou.org>, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@suse.cz>, acpi-devel@lists.sourceforge.net
+Subject: RE: [PATCH] S4bios for 2.5.52.
+Date: Tue, 17 Dec 2002 14:24:23 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Colin Paul Adams <colin@colina.demon.co.uk> :
-[...]
-> So, is anyone using it on SMP?
+> From: Kai Germaschewski [mailto:kai@tp1.ruhr-uni-bochum.de] 
+> > I still am not clear on why we would want s4bios in 2.5.x, 
+> since we have S4.
+> > Like you said, S4bios is easier to implement, but since 
+> Pavel has done much
+> > of the heavy lifting required for S4 proper, I don't see the need.
+> 
+> Let me counter this, I have to admit that I didn't try the 
+> patch yet, but
+> my laptop does S4 BIOS, and I'd definitely prefer that to 
+> swsusp, since
+> it's much faster and also I somewhat have more faith into S4 BIOS than
+> swsusp (as in: after resuming, it'll most likely either work 
+> or crash, but
+> not cause any weird kinds of corruption). Since it does not 
+> need not much
+> more to support it than S3, I don't see why you wouldn't want to give
+> users the option?
 
-drivers/usb/misc/speedtouch.c::udsl_atm_ioctl() calls put_user() and
-atm ioctls are issued with spinlock held (see net/atm/common.c::atm_ioctl()).
+Ok that's reasonable.
 
---
-Ueimor
+My belief is that S4bios is a stopgap measure until S4 gets better. That
+said, I think you are right - it should go in for now, and then at some
+point in the future someone will say, "S4bios?? who needs *that* anymore??"
+and it will get pulled out. ;-)
+
+So I'll look to merge it, unless someone upstream beats me to it.
+
+Regards -- Andy

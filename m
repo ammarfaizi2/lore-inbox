@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276118AbRJaXwn>; Wed, 31 Oct 2001 18:52:43 -0500
+	id <S276094AbRJaXye>; Wed, 31 Oct 2001 18:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276132AbRJaXwe>; Wed, 31 Oct 2001 18:52:34 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:14598
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S276135AbRJaXwZ>; Wed, 31 Oct 2001 18:52:25 -0500
-Message-Id: <5.1.0.14.2.20011031184117.00b0da30@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 31 Oct 2001 18:49:58 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: Local APIC option (CONFIG_X86_UP_APIC) locks up Inspiron
-  8100
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E15ysre-0003FD-00@the-village.bc.nu>
-In-Reply-To: <5.1.0.14.2.20011030235723.022818d8@whisper.qrpff.net>
+	id <S276132AbRJaXy1>; Wed, 31 Oct 2001 18:54:27 -0500
+Received: from bitmover.com ([192.132.92.2]:11726 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S276094AbRJaXyK>;
+	Wed, 31 Oct 2001 18:54:10 -0500
+Date: Wed, 31 Oct 2001 15:54:47 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Cort Dougan <cort@fsmlabs.com>, Craig Milo Rogers <rogers@ISI.EDU>,
+        Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+        Timur Tabi <ttabi@interactivesi.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Module Licensing?
+Message-ID: <20011031155447.R1506@work.bitmover.com>
+Mail-Followup-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	Cort Dougan <cort@fsmlabs.com>, Craig Milo Rogers <rogers@ISI.EDU>,
+	Larry McVoy <lm@bitmover.com>, Rik van Riel <riel@conectiva.com.br>,
+	Timur Tabi <ttabi@interactivesi.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011031092228.J1506@work.bitmover.com> <4986.1004558101@ISI.EDU> <20011031144244.R607@ftsoj.fsmlabs.com> <20011031234707.A9542@kushida.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011031234707.A9542@kushida.jlokier.co.uk>; from lk@tantalophile.demon.co.uk on Wed, Oct 31, 2001 at 11:47:07PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:44 AM 10/31/2001 +0000, Alan Cox wrote:
-> > One other thing: how would the kernel react to the "SpeedStep" feature of
-> > changing the CPU speed while things are still running?
->
->Depends on the laptop. Speedstop is not documented by intel so either it
->works because the APM bios did the right thing, or it doesn't work because
->it didn't. The only kernel issue is delay loops. We calibrate them at boot
->and assume the base clock is constant. In practice this isnt showing up as
->a real problem, although we do need to switch to the ACPI timers on later
->laptops
+On Wed, Oct 31, 2001 at 11:47:07PM +0000, Jamie Lokier wrote:
+> But if you take that strict interpretation, you have _no_ right to copy
+> or distribute the object module anyway, except as granted by the license
+> on the accompanying source code.
 
-Yeah, that's what I'm concerned with -- the delay loops. I don't know what 
-they're used for, so I don't know what the CPU speed change would affect. 
-Mine would switch between 1.0GHz (996MHz according to /proc/cpuinfo) and 
-733MHz (730MHz). That's a difference of 36% - a timer calibrated to wait 1s 
-at 733MHz would only wait for 0.733s at 1GHz, and .3s can be quite 
-important in the computing world.
-
-And, of course, since the BIOS can't handle APCI, using an APCI timer 
-wouldn't help much, would it?
-
-
---
-Stevie-O
-
-Real programmers use dd if=/dev/mouse of=a.out and move their mice around.
-
+Right you are, but this is trivial to circumvent if you are trying to ship
+a binary driver.  The binary doesn't have GPLed code, you are shipping two
+things which are not combined when they were shipped, the end user combines
+them when running them.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

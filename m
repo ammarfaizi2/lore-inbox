@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264282AbTEOWja (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 18:39:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264279AbTEOWja
+	id S263936AbTEOWoS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 18:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTEOWoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 18:39:30 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:45318 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264276AbTEOWj3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 18:39:29 -0400
-Subject: Re: [patch] NCR5380.c fix
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andries.Brouwer@cwi.nl
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, torvalds@transmeta.com
-In-Reply-To: <UTC200305152245.h4FMjAj26766.aeb@smtp.cwi.nl>
-References: <UTC200305152245.h4FMjAj26766.aeb@smtp.cwi.nl>
-Content-Type: text/plain
+	Thu, 15 May 2003 18:44:18 -0400
+Received: from codon.com ([209.63.105.132]:31157 "HELO codon.com")
+	by vger.kernel.org with SMTP id S263936AbTEOWoS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 18:44:18 -0400
+Message-ID: <013601c31b35$75309280$88693fd1@WEASEL>
+From: "Fred Garvin" <fgarvin@codon.com>
+To: <linux-kernel@vger.kernel.org>
+References: <20030515224910.GA8375@skymoo.dyndns.org>
+Subject: Re: [PATCH] Fix vesafb with large memory, this time properly
+Date: Thu, 15 May 2003 16:58:09 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 15 May 2003 17:52:06 -0500
-Message-Id: <1053039127.3998.23.camel@mulgrave>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-15 at 17:45, Andries.Brouwer@cwi.nl wrote:
-> -					else if (cmd->SCp.Status != GOOD)
-> +					else if (status_byte(cmd->SCp.Status) != GOOD)
+> Thanks for apply my previous patch, but Geert Uytterhoeven noticed the
+> following problem with it
+>
+> > video_size must be in bytes, hence it must be
+> >
+> > video_size = screen_info.lfb_width*screen_info.lfb_height*video_bpp/8;
+>
+> The attached patch, against 2.4.21-rc2, fixes this
 
-Well...if we're doing it this way, any reason not to use the newly
-minted SAM_STAT_GOOD and SAM_STAT_CHECK_CONDITION?
+  Thanks for fixing this.
 
-James
-
+Fred
 

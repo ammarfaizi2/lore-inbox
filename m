@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbTGFPvf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 11:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTGFPve
+	id S262464AbTGFQCY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 12:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbTGFQCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 11:51:34 -0400
-Received: from [65.248.106.250] ([65.248.106.250]:29903 "EHLO brianandsara.net")
-	by vger.kernel.org with ESMTP id S262409AbTGFPvd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 11:51:33 -0400
-From: Brian Jackson <brian@brianandsara.net>
-Organization: brianandsara.net
-To: gigag@bezeqint.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Patch for 3.5/0.5 address space split
-Date: Sun, 6 Jul 2003 11:07:28 -0500
-User-Agent: KMail/1.5.2
-References: <3927aea9.9f3cdaec.8177f00@mas3.bezeqint.net>
-In-Reply-To: <3927aea9.9f3cdaec.8177f00@mas3.bezeqint.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Jul 2003 12:02:23 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:41688 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262464AbTGFQCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 12:02:22 -0400
+Date: Sun, 6 Jul 2003 18:16:54 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Subject: top stack users for 2.5.74
+Message-ID: <20030706161654.GA25901@wohnheim.fh-wedel.de>
+References: <20030625163322.GB1770@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200307061107.28106.brian@brianandsara.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030625163322.GB1770@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would try to use the whole aa patchset, I'm using the 3.5/0.5 split on one 
-of the servers at work and it handles it fine with the whole aa patchset.
+44 functions for 2.5.67
+45 functions for 2.5.68
+41 functions for 2.5.69
+36 functions for 2.5.70
+32 functions for 2.5.71
+29 functions for 2.5.73
+32 functions for 2.5.74
 
---Brian Jackson
+Basically unchanged.  In 2.5.73, most functions lost a few bytes and a
+couple dropped below the 1k limit, this time most functions gained a
+few bytes.  sha512_transform and arlan_sysctl_info both improved a
+great deal, but others filled the gaps.
 
-On Sunday 06 July 2003 11:00 am, gigag@bezeqint.net wrote:
-> >As far as I remember I saw some places in the code which
-> >should be fixed before split 1/3 can be used. Split 0.5/3.5 can be
-> >not-working if you are using PAE-enabled kernel (in some places
-> >pgds are copied directly - i.e. 1GB granularity is used).
->
-> Right. I've seen a mention on this all over the Net.
->
-> Anyway, I'm not using PAE since I have only 4GB of real memory.
-> Also, I'm using a patch obtained at
-> http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2
-> .4.20pre5aa1/00_3.5G-address-space-5
->
-> I need this split to be able to fully utilize the memory for my
-> application, which I hope will work. Are you working on the patch
-> for 2.4 or 2.5 kernel?
->
-> Could anybody suggest a configuration what is working?
->
-> Thanks
-> Giga
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+0xc02318b6 presto_get_fileid:                            sub    $0x119c,%esp
+0xc0230076 presto_copy_kml_tail:                         sub    $0x1028,%esp
+0xc0935a08 ide_unregister:                               sub    $0x96c,%esp
+0xc0e8c413 snd_emu10k1_fx8010_ioctl:                     sub    $0x830,%esp
+0xc0880616 w9966_v4l_read:                               sub    $0x828,%esp
+0xc0e1cfab snd_cmipci_ac3_silence:                       sub    $0x7c0,%esp
+0xc0e1c9f6 snd_cmipci_ac3_copy:                          sub    $0x7b8,%esp
+0xc0105650 huft_build:                                   sub    $0x59c,%esp
+0xc01073d0 huft_build:                                   sub    $0x59c,%esp
+0xc02e4396 dohash:                                       sub    $0x594,%esp
+0xc0108256 inflate_dynamic:                              sub    $0x554,%esp
+0xc01064a6 inflate_dynamic:                              sub    $0x538,%esp
+0xc0226096 presto_ioctl:                                 sub    $0x504,%esp
+0xc0e866ba snd_emu10k1_add_controls:                     sub    $0x4dc,%esp
+0xc0eae4d6 snd_trident_mixer:                            sub    $0x4c0,%esp
+0xc0106307 inflate_fixed:                                sub    $0x4ac,%esp
+0xc01080b7 inflate_fixed:                                sub    $0x4ac,%esp
+0xc094ca11 ide_config:                                   sub    $0x4a8,%esp
+0xc05e9f7c parport_config:                               sub    $0x490,%esp
+0xc0c6ffb3 ixj_config:                                   sub    $0x484,%esp
+0xc0ba9ae0 isd200_action:                                sub    $0x454,%esp
+0xc109a21e gss_pipe_downcall:                            sub    $0x44c,%esp
+0xc03c1a68 ciGetLeafPrefixKey:                           sub    $0x428,%esp
+0xc0468c73 befs_error:                                   sub    $0x418,%esp
+0xc0468ce3 befs_warning:                                 sub    $0x418,%esp
+0xc0468d53 befs_debug:                                   sub    $0x418,%esp
+0xc07dbde6 wv_hw_reset:                                  sub    $0x418,%esp
+0xc16e0915 root_nfs_name:                                sub    $0x414,%esp
+0xc0c93a12 bt3c_config:                                  sub    $0x410,%esp
+0xc0c97b32 btuart_config:                                sub    $0x410,%esp
+0xc0c91fef dtl1_config:                                  sub    $0x408,%esp
+0xc0c95e06 bluecard_config:                              sub    $0x408,%esp
+
+Jörn
 
 -- 
-OpenGFS -- http://opengfs.sourceforge.net
-Home -- http://www.brianandsara.net
-
+Victory in war is not repetitious.
+-- Sun Tzu

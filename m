@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317896AbSFSOv4>; Wed, 19 Jun 2002 10:51:56 -0400
+	id <S317898AbSFSOxb>; Wed, 19 Jun 2002 10:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317898AbSFSOv4>; Wed, 19 Jun 2002 10:51:56 -0400
-Received: from pcp748332pcs.manass01.va.comcast.net ([68.49.120.123]:51915
-	"EHLO pcp748332pcs.manass01.va.comcast.net") by vger.kernel.org
-	with ESMTP id <S317896AbSFSOvy>; Wed, 19 Jun 2002 10:51:54 -0400
-Date: Wed, 19 Jun 2002 10:51:50 -0400
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.23 tqueue patches
-Message-ID: <20020619145150.GA4872@bittwiddlers.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-X-Delivery-Agent: TMDA/0.56
-Reply-To: Matthew Harrell 
-	  <mharrell-dated-1024930311.21b73e@bittwiddlers.com>
+	id <S317899AbSFSOxa>; Wed, 19 Jun 2002 10:53:30 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:4641 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S317898AbSFSOx3>; Wed, 19 Jun 2002 10:53:29 -0400
+Message-ID: <61DB42B180EAB34E9D28346C11535A783A79A2@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'o.pitzeier@uptime.at'" <o.pitzeier@uptime.at>,
+       linux-kernel@vger.kernel.org
+Subject: RE: New Build problem in sched.c in 2.5.23 on an Alpha
+Date: Wed, 19 Jun 2002 09:53:18 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> sched.c: In function `schedule':
+> sched.c:822: warning: implicit declaration of function
+> `prepare_arch_schedule'
+> sched.c:879: warning: implicit declaration of function
+> `prepare_arch_switch'
+> sched.c:883: warning: implicit declaration of function
+> `finish_arch_switch'
+> sched.c:886: warning: implicit declaration of function
+> `finish_arch_schedule'
+> make[1]: *** [sched.o] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.5.23/kernel'
+> make: *** [kernel] Error 2
 
+What Arch are you on?  Alpha?
 
-Just patches where tqueue.h was missing
+Search the archive, you'll see that some of these are from Ingo's scheduler
+changes.
 
--- 
-  Matthew Harrell                          I don't suffer from insanity - 
-  Bit Twiddlers, Inc.                       I enjoy every minute of it.
-  mharrell@bittwiddlers.com     
-
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tqueue.patch"
-
---- linux/fs/smbfs/sock.c-ori	Wed Jun 19 09:52:33 2002
-+++ linux/fs/smbfs/sock.c	Wed Jun 19 09:52:53 2002
-@@ -18,6 +18,7 @@
- #include <linux/mm.h>
- #include <linux/netdevice.h>
- #include <linux/smp_lock.h>
-+#include <linux/tqueue.h>
- #include <net/scm.h>
- #include <net/ip.h>
- 
---- linux/drivers/pcmcia/i82365.c.ori	Wed Jun 19 10:23:07 2002
-+++ linux/drivers/pcmcia/i82365.c	Wed Jun 19 10:21:58 2002
-@@ -46,6 +46,7 @@
- #include <linux/ioport.h>
- #include <linux/delay.h>
- #include <linux/proc_fs.h>
-+#include <linux/tqueue.h>
- #include <asm/irq.h>
- #include <asm/io.h>
- #include <asm/bitops.h>
---- linux/drivers/usb/net/usbnet.c.ori	Wed Jun 19 10:27:35 2002
-+++ linux/drivers/usb/net/usbnet.c	Wed Jun 19 10:27:50 2002
-@@ -116,6 +116,7 @@
- #include <linux/etherdevice.h>
- #include <linux/random.h>
- #include <linux/ethtool.h>
-+#include <linux/tqueue.h>
- #include <asm/uaccess.h>
- #include <asm/unaligned.h>
- 
---- linux/net/irda/ircomm/ircomm_param.c.ori	Wed Jun 19 10:44:51 2002
-+++ linux/net/irda/ircomm/ircomm_param.c	Wed Jun 19 10:46:38 2002
-@@ -29,6 +29,7 @@
-  ********************************************************************/
- 
- #include <linux/sched.h>
-+#include <linux/tqueue.h>
- #include <linux/interrupt.h>
- 
- #include <net/irda/irda.h>
-
---BOKacYhQ+x31HxR3--
+B.

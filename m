@@ -1,51 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267579AbRGNGD3>; Sat, 14 Jul 2001 02:03:29 -0400
+	id <S267578AbRGNF6i>; Sat, 14 Jul 2001 01:58:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267580AbRGNGDT>; Sat, 14 Jul 2001 02:03:19 -0400
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:37550 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S267579AbRGNGDG>; Sat, 14 Jul 2001 02:03:06 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Chuck Winters" <cwinters@atl.lmco.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Number of File descriptors
-Date: Fri, 13 Jul 2001 23:03:07 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMMEMGCHAA.davids@webmaster.com>
+	id <S267579AbRGNF63>; Sat, 14 Jul 2001 01:58:29 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:65014 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S267578AbRGNF6O>;
+	Sat, 14 Jul 2001 01:58:14 -0400
+Date: Sat, 14 Jul 2001 01:58:15 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Kai Henningsen <kaih@khms.westfalen.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about ext2
+In-Reply-To: <84l4sXb1w-B@khms.westfalen.de>
+Message-ID: <Pine.GSO.4.21.0107140151420.19749-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010713095934.A6100@atl.lmco.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Hello All,
-> 	My interest has been peaked by a recent email.  At one
-> point, I heard two people speaking
-> about how some database guy wanted to have 2000 open files(or
-> something crazy like that).
-> They said that he must be crazy because the kernel does a
-> sequential search through the open
-> file descriptors.  Anyway, I read a posting an a mail list that
-> someone wanted select to
-> select on 3000 files.  Alright, the question(Finally!):
-> 		To have select() select on 3000 file descriptors,
-> they must be open.  That's 3000 open
-> 		files.  Will select be ultra slow trying to select
-> on 3000 file descriptors?  Also,
-> 		what is the clarification on the kernel doing a
-> sequential search through the open
-> 		file descriptors?
 
-	Using 'select' on 3,000 file descriptors is not a problem. I have used
-'poll' on 12,000 file descriptors with no problems at all. Performance is
-not exactly stellar (you can use threads to improve it) but it's quite good.
+On 13 Jul 2001, Kai Henningsen wrote:
 
-	DS
+> viro@math.psu.edu (Alexander Viro)  wrote on 13.07.01 in <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>:
+> 
+> > The only really obscure part is dropping an extra reference if victim is
+> > a directory - then we know that we are cannibalizing the last external
+> > link to it and the only link that remains is victim's ".". We don't want
+> > it to prevent victim's removal, so we drive i_nlink of victim to zero.
+> 
+> Does this stuff work right with those cases which do linkcount=1 either  
+> because the fs doesn't have a link count, or because the real link count  
+> has grown too large?
+
+It doesn't. If fs doesn't have link count you are very likely to need
+other ways to deal with rename() anyway (e.g. you are pretty likely to
+have part of metadata stored in directory entry). If you are playing
+with "set i_nlink to 1 if it's too large" (which works only for directories,
+BTW) - change according to your encoding scheme for link count.
 

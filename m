@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbUAIPFW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 10:05:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbUAIPFW
+	id S261892AbUAIO4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 09:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbUAIO4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 10:05:22 -0500
-Received: from [68.114.43.143] ([68.114.43.143]:18644 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S261967AbUAIPFP (ORCPT
+	Fri, 9 Jan 2004 09:56:22 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:56275 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S261877AbUAIOzt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 10:05:15 -0500
-Date: Fri, 9 Jan 2004 10:05:12 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: What SCSI in the IBM?
-Message-ID: <20040109150512.GF24295@rdlg.net>
-Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+	Fri, 9 Jan 2004 09:55:49 -0500
+Date: Fri, 9 Jan 2004 06:57:18 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: akpm@osdl.org, joe.korty@ccur.com, linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-Id: <20040109065718.364789dd.pj@sgi.com>
+In-Reply-To: <16381.57040.576175.977969@cargo.ozlabs.ibm.com>
+References: <20040107165607.GA11483@rudolph.ccur.com>
+	<20040107113207.3aab64f5.akpm@osdl.org>
+	<20040108051111.4ae36b58.pj@sgi.com>
+	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3oCie2+XPXTnK5a5"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paul M, replying to Paul J:
+> > If this request proceeds as expected, I will follow up with a patch to
+> > lib/mask.c that will likely make use of the cpu_to_le32() and
+> > le32_to_cpu() macros in byteorder.h to swap bytes in the u32 words being
+> > displayed and parsed.
+> 
+> That would be the wrong approach IMHO.
 
---3oCie2+XPXTnK5a5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok - I agree that this would be wrong for 64 bit sparc and ppc, for
+these architectures use native big endian byte order within cpumasks,
+not little endian.
 
+Indeed, I take it that this applies not just to cpumasks, but to any
+mask-like operand that bitops such as ffs() are applied to.
 
+I also need to examine the 32 bit big endian architectures, to see
+whether their cpumasks, and other bitop operands, are big or little
+endian.  If they are big endian (native order) then my mask printing and
+scanning code should always presume native byte order, and only has to
+special case the order of two u32 words within a u64 long on 64 bit big
+endian architectures.  If they are little endian, then I'll also need to
+make use of the cpu_to_le32() and le32_to_cpu() macros in byteorder.h to
+swap bytes in the u32 words being displayed and parsed (but _not_ for
+sparc64 or ppc).
 
-The network cards in this IBM came up great once I found the right port.
-Now though I'm trying to find what SCSI driver to use.  lspci reports
-"Symbios Logic unknown device (Formerly NCR)" but if I do a modprobe on=20
-all 3 drivers as well as the one ncr driver no go.  All of them report
-no such device except the sym53c416 which says unresolved symbol:
-
-isapnp-find-dev.
-
-Thoughts?
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---3oCie2+XPXTnK5a5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQE//sMo8+1vMONE2jsRAnOfAKDIQx/VPOiZjlFgrfX3CdFNw7WW3ACeKteW
-tWPoAWxeHEOXjgL1XR2QWdA=
-=ctaZ
------END PGP SIGNATURE-----
-
---3oCie2+XPXTnK5a5--
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

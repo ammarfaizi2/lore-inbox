@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130449AbRCIHxz>; Fri, 9 Mar 2001 02:53:55 -0500
+	id <S130451AbRCIIQQ>; Fri, 9 Mar 2001 03:16:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbRCIHxp>; Fri, 9 Mar 2001 02:53:45 -0500
-Received: from kerberos.suse.cz ([195.47.106.10]:33029 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130449AbRCIHxe>;
-	Fri, 9 Mar 2001 02:53:34 -0500
-Date: Fri, 9 Mar 2001 08:53:03 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Daniela Engert <dani@ngrt.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.2ac12 (vt82c686 info)
-Message-ID: <20010309085303.A690@suse.cz>
-In-Reply-To: <20010308195107.A8509@suse.cz> <20010309072110.DB1C73E75@mail.medav.de>
+	id <S130450AbRCIIQG>; Fri, 9 Mar 2001 03:16:06 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:37144 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S130452AbRCIIP4>; Fri, 9 Mar 2001 03:15:56 -0500
+Date: Fri, 9 Mar 2001 02:15:23 -0600
+From: Philipp Rumpf <prumpf@mandrakesoft.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] documentation mm.h + swap.h
+Message-ID: <20010309021523.A13408@mandrakesoft.mandrakesoft.com>
+In-Reply-To: <Pine.LNX.4.33.0103081807260.1314-100000@duckman.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010309072110.DB1C73E75@mail.medav.de>; from dani@ngrt.de on Fri, Mar 09, 2001 at 08:25:43AM +0100
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <Pine.LNX.4.33.0103081807260.1314-100000@duckman.distro.conectiva>; from Rik van Riel on Thu, Mar 08, 2001 at 06:10:16PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 09, 2001 at 08:25:43AM +0100, Daniela Engert wrote:
+On Thu, Mar 08, 2001 at 06:10:16PM -0300, Rik van Riel wrote:
+> --- linux-2.4.2-doc/include/linux/mm.h.orig	Wed Mar  7 15:36:32 2001
+> +++ linux-2.4.2-doc/include/linux/mm.h	Thu Mar  8 09:54:22 2001
+> @@ -39,32 +39,37 @@
+>   * library, the executable area etc).
+>   */
+>  struct vm_area_struct {
+> -	struct mm_struct * vm_mm;	/* VM area parameters */
+> -	unsigned long vm_start;
+> -	unsigned long vm_end;
+> +	struct mm_struct * vm_mm;	/* The address space we belong to. */
+> +	unsigned long vm_start;		/* Our start address within vm_mm. */
+> +	unsigned long vm_end;		/* Our end address within vm_mm. */
 
-> >They're about the same - only Alan didn't like the PCI speed measurement
-> >code that's new in the 4.x series, so I added all the other changes to
-> >the 3.20 driver, and 3.21 was born.
-> 
-> I do understand Alan's objections against this speed measurement code
-> very well. I have similar code built into other (non-Linux) drivers,
-> and according to the many user reports that I got the measurement
-> results should be taken with a grain of salt. It is working perfectly
-> in most cases, but it may fail from time to time. There is a hidden
-> assumption in this type of measurement which the device that you run
-> the test against has to fulfill. If it doesn't (and it is not required
-> to do to be conforming to the ATA spec), the measurement results (PCI
-> bus clock) are bogus (typically way too high).
+it might be a good idea to point out that this is the address of the byte
+after the last one covered by the vma, not the address of the last byte.
 
-Actually I don't think my method can ever result in a measurement higher
-than real PCI clock, but can result in a lower one (if the device
-deasserts IORDY even on a speed slower than PIO_0), which is also a
-problem. Anyway, on fast machines the accuracy of the current algorithm
-is +- .01 MHz.
+(are there any architectures where we allow a vma at the end of memory ?  Is
+the mm/ code handling ->vm_end = 0 correctly ?)
 
-Once tested a little more, the measurement will probably go in, however
-with an option for the user to override it with a command line
-parameter.
+>  /*
+> + * Each physical page in the system has a struct page associated with
+> + * it to keep track of whatever it is we are using the page for at the
+> + * moment. Note that we have no way to track which tasks are using
+> + * a page.
+> + *
 
-Btw, if it isn't a secret - what other drivers are those and what is the
-exact method you used ... ?
+Each page of "real" RAM.  In particular I think MMIO pages still don't have
+a struct page.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>   * Try to keep the most commonly accessed fields in single cache lines
+>   * here (16 bytes or greater).  This ordering should be particularly
+>   * beneficial on 32-bit processors.
+>   *
+>   * The first line is data used in page cache lookup, the second line
+>   * is used for linear searches (eg. clock algorithm scans).
+> + *
+> + * TODO: make this structure smaller, it could be as small as 32 bytes.
+
+Or make it cover large pages, which might be even more of a win ..

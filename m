@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282234AbRKWTof>; Fri, 23 Nov 2001 14:44:35 -0500
+	id <S282330AbRKWTqG>; Fri, 23 Nov 2001 14:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282217AbRKWTo1>; Fri, 23 Nov 2001 14:44:27 -0500
-Received: from ns.xdr.com ([209.48.37.1]:13463 "EHLO xdr.com")
-	by vger.kernel.org with ESMTP id <S282215AbRKWToH>;
-	Fri, 23 Nov 2001 14:44:07 -0500
-Date: Fri, 23 Nov 2001 11:44:11 -0800
-From: Dave Ashley (linux mailing list) <linux@xdr.com>
-Message-Id: <200111231944.fANJiBX30625@xdr.com>
-To: linux-kernel@vger.kernel.org
-Subject: bd_t structure + net configuration
+	id <S282294AbRKWTpq>; Fri, 23 Nov 2001 14:45:46 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26121 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S282223AbRKWTpS> convert rfc822-to-8bit; Fri, 23 Nov 2001 14:45:18 -0500
+Date: Fri, 23 Nov 2001 16:27:48 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Martin Eriksson <nitrax@giron.wox.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: IDE is still crap.. or something
+In-Reply-To: <012101c17452$9ac11550$0201a8c0@HOMER>
+Message-ID: <Pine.LNX.4.21.0111231627020.11090-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on bringing up linux in an embedded environment, and the box
-is diskless and uses bootp to get its kernel + ramdisk. It uses ppcboot
-to get that information. We've modified ppcboot to pass more information
-to linux in the bd_t (board info) structure, specifically
-ip address
-netmask
-default gateway
-dns server
-hostname
 
-The question is how to get linux to use this information? I couldn't find
-anything in the kernel source to do that. I had a temporary solution where
-linux invokes dhcpcd to get the information again, but the problem there is
-there are 2 dhcp servers on our network and the ip addresses assigned didn't
-match between the bootp stage and the dhcp stage later. And there is an
-efficiency problem--since the information is already in the box at the bootp
-time, why bother with dhcp later?
+Any previous kernel gave you good performance ? 
 
-I was surprised to find no built in mechanism to configure networking from
-the boardinfo information.
+On Fri, 23 Nov 2001, Martin Eriksson wrote:
 
-Anyway what I ended up doing was modifying fs/proc/proc_misc.c to add a
-file /proc/boardinfo, which has the information visible. Then during booting,
-when networking would be initialized, I examine that file to know how to
-set everything up.
+> Well, just wanted to tell you that 2.4.15 still slows down to a crawl when
+> copying a 500MB file between two hard drives (running ext3). I have tried
+> any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14 IDE
+> patch (after fixing the rejects) but no go.
+> 
+> Even iptables is affected, because it takes forever to surf the internet
+> from my behind-linux-firewall windows computer.
+> 
+> I'm right now trying to apply the preemptive-kernel patch to 2.4.15 but it
+> had some strange rejects so it will be exciting to see if it works. I get
+> good response from the -ac kernel series though.
+> 
+> _____________________________________________________
+> |  Martin Eriksson <nitrax@giron.wox.org>
+> |  MSc CSE student, department of Computing Science
+> |  Umeå University, Sweden
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-What I did was have the /proc/boardinfo file appear like an sh script, so
-when cat'd it looks like this:
-ifconfig eth0 192.168.0.20 netmask 255.255.255.0
-route add default gw 192.168.0.75
-echo nameserver 192.168.0.76 > /etc/resolv.conf
-hostname box1102
-
-(The numbers here are just examples, they change depending on the bootp
-information).
-
-I modified one of the startup scripts to configure networking:
-cat /proc/boardinfo > /tmp/bi
-sh /tmp/bi
-rm /tmp/bi
-
-The only information used from the bd_t structure was the mac address of
-the ethernet card, originally. The bd_t structure appears as the global
-__res pointer.
-
-I'm wondering if there is a prefered way of doing this? Also why does it
-seem like setting up networking from the bd_t structure hasn't been done
-before?
-
-Thoughts? Comments? Anything welcome.
-
--Dave

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbUCDGlF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Mar 2004 01:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbUCDGlF
+	id S261482AbUCDGuk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Mar 2004 01:50:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbUCDGuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Mar 2004 01:41:05 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:29842 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261480AbUCDGlB (ORCPT
+	Thu, 4 Mar 2004 01:50:40 -0500
+Received: from komp197.tera.com.pl ([81.21.195.197]:31363 "EHLO wrota.net")
+	by vger.kernel.org with ESMTP id S261482AbUCDGuj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Mar 2004 01:41:01 -0500
-Date: Thu, 4 Mar 2004 12:10:49 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.3-mm4-rcu_ll SMP memory leak ?
-Message-ID: <20040304064048.GA4155@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <1078378468.22198.10.camel@twins>
+	Thu, 4 Mar 2004 01:50:39 -0500
+Date: Thu, 4 Mar 2004 07:50:38 +0100
+From: Daniel Fenert <daniel@fenert.net>
+To: linux-kernel@vger.kernel.org
+Subject: Is there some bug in ext3 in 2.4.25?
+Message-ID: <20040304065038.GV31185@fenert.net>
+Mail-Followup-To: Daniel Fenert <daniel@fenert.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1078378468.22198.10.camel@twins>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4.2i
+Organization: Co by tu =?iso-8859-2?B?d3Bpc2HmPyBNb78=?=
+	=?iso-8859-2?Q?e?= daniellek.z.domu ? ;)
+X-Operating-System: Linux 2.4.24
+X-Wyslij-mi-SMSa: Lepiej nie...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter,
+Message from syslogd@lazy at Thu Mar  4 08:31:58 2004 ...
+lazy kernel: Assertion failure in __journal_drop_transaction() at
+checkpoint.c:587: "transaction->t_ilist == NULL"
 
-On Thu, Mar 04, 2004 at 06:34:28AM +0100, Peter Zijlstra wrote:
-> I'm running said kernel, and after 5 days I've noticed that all my
-> memory is gone. Even if I quit every possible application there is
-> still 600MB+ gone, not in buffers/cache but just used, and no app to
-> show for it.
-> 
-> I append my current uname,top and lsmod output (while writing this mail)
-> and as one can see I'm lucky if the RES column adds up to 150m.
-> 
-> is there some way to see how much memory the kernel uses for its
-> internal structures and then maybe pinpoint the leak?
-> 
-> Kind regards,
-> 
-> Peter Zijlstra
-> 
-> 
-> 
-> Linux ####### 2.6.3-mm4-rcu_ll #1 SMP Fri Feb 27 09:32:12 CET 2004 i686
-> AMD Athlon(tm) Processor AuthenticAMD GNU/Linux
+Networking still works, I've tried to login, but no luck here.
+I've got one ssh console opened, and tried to reboot, but nothing happend, it
+looks like it lost connection with hda :(
+Where should I look for reason?
+Machine as faaar away, and it's second or third time it hangs mysteriously,
+the only difference is that this time I've got some console output.
 
-
-What is 2.6.3-mm4-rcu_ll ? AFAIK, there is no such tree.
-Is it vanilla 2.6.3-mm4 or it has some other patches in it ? If
-it has other patches, what are those ? Pointers ? Code ?
-
-Dipankar
+-- 
+Daniel Fenert                 --==> daniel@fenert.net <==--
+==-P o w e r e d--b y--S l a c k w a r e-=-ICQ #37739641-==
+=======- http://daniel.fenert.net/ -=======< +48604628083 >

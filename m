@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268916AbRIEJfj>; Wed, 5 Sep 2001 05:35:39 -0400
+	id <S270165AbRIEJl2>; Wed, 5 Sep 2001 05:41:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270165AbRIEJf2>; Wed, 5 Sep 2001 05:35:28 -0400
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:21256 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S268916AbRIEJfY>; Wed, 5 Sep 2001 05:35:24 -0400
-Date: Wed, 5 Sep 2001 10:35:40 +0100
-From: Bob Dunlop <Bob.Dunlop@farsite.co.uk>
-To: Kenneth Michael Ashcraft <kash@stanford.edu>
-Cc: linux-kernel@vger.kernel.org, mc@cs.stanford.edu, torvalds@transmeta.com
-Subject: Re: [CHECKER] security errors for 2.4.9 and 2.4.9-ac7 (FIX 1 of 112)
-Message-ID: <20010905103540.A30856@farsite.co.uk>
-In-Reply-To: <Pine.GSO.4.31.0109041405210.15852-100000@saga18.Stanford.EDU>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.31.0109041405210.15852-100000@saga18.Stanford.EDU>; from kash@stanford.edu on Wed, Sep 05, 2001 at 07:27:53AM +0100
+	id <S270199AbRIEJlU>; Wed, 5 Sep 2001 05:41:20 -0400
+Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:10689
+	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
+	id <S270165AbRIEJlK>; Wed, 5 Sep 2001 05:41:10 -0400
+Date: Wed, 5 Sep 2001 02:41:31 -0700 (PDT)
+From: Justin Guyett <justin@soze.net>
+X-X-Sender: <tyme@kobayashi.soze.net>
+To: David Schwartz <davids@webmaster.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.9-ac6
+In-Reply-To: <NOEJJDACGOHCKNCOGFOMMEBMDLAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.33.0109050209460.17769-100000@kobayashi.soze.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 5 Sep 2001, David Schwartz wrote:
 
-On Wed, Sep  5,  Kenneth Michael Ashcraft wrote:
-> Hi All,
-> 
-> I've extended the security checker (makes sure that user lengths are
-> bounds checked) quite a bit since my last report on July 13.  The checker
-> makes sure that bounds checks are present before a user length is:
-...
-> ---------------------------------------------------------
-> [BUG] this one looks nasty.  not only copy a large amount but copy it wherever (gem)
-> /home/kash/linux/2.4.9/drivers/net/wan/farsync.c:1214:fst_ioctl: ERROR:RANGE:1203:1214: Using user length "size" as argument to "copy_from_user" [type=LOCAL] [state = need_ub] set by 'copy_from_user':1203 [distance=12]
+> 	Sure, they have the legal right to ask for the source, but they might or
+> might not do so and might or might not make the source available to the
+> reporter.
 
-I'd agree it's nasty.  Don't you just love overflow math.
+If the reporters don't ask for the code, why should anyone help them solve
+their problem by buying the module themselves and then requesting source
+themselves?  Sure, it might happen, but I wouldn't expect it.
 
-Fortunatly the fix is straight forward:
+GPL *REQUIRES* the vendor make source available, it is not a "might or
+might not" situation.  No scheme is perfect.  Of course even if your
+kernel isn't tainted, if you're using a binary module that's GPL'd but the
+company won't release source, it might as well be tained, but that's
+an obvious case that really has no relevance here.
+
+> 	I think, perhaps, the logic should be that a module shouldn't taint the
+> kernel if:
+>
+> 	1) The user built the module from source on that machine, OR
+>
+> 	2) The module source is freely available without restriction
+>
+> 	But maybe I'm still not understanding what tainting is supposed to mean.
+> Note that both '1' and '2' are orthogonal to whether the module is GPL'd or
+> not.
+
+It means nobody can help you because nobody outside the company that
+produces the module has the source code.  1 is not necessarily valid
+because bugs are present in code regardless of what architecture they're
+run on, and regardless of whether the bug manifests itself.  It's
+certainly more difficult to debug when the bug only shows up on other
+people's systems, but such debugging isn't usually impossible.  The bigger
+hurdle would be understanding the module well enough to spot problems even
+if they did happen on your machine.
+
+> 	'2' would require a copyrighted tag, so that legal action could be taken
+
+GPL or GPL-compatible licenses are some of the few that have the necessary
+qualities to allow debugging in a community.  You seem to be agreeing
+somewhat, although the restriction of having to have bought the binary
+isn't a problem in this case, so 2 is overly restrictive.
+
+> 	I think it's worth the effort to get this right to avoid sending the
+> message that if you use anything that's not GPL'd, the Linux community won't
+> help you. (Not that that's really what's happening, but it may look that
+> way.)
+
+Absolutely.  Perhaps GPL-compatible licenses are not the only ones that
+allow community debugging.  That's why the license is hopefully listed by
+the module.  There's no force that will prevent someone from helping
+someone else debug a module because the license matched "X", if that
+someone can legally get the code and distribute patches.
+
+The point isn't to be fascist, it's to point out that it's not usually
+productive for people to go chasing down bugs that could be in code that
+nobody has access to, either to notice or to fix the problem.  Again,
+nothing's stopping someone from trying to debug a problem on a "tainted"
+system.  Nobody's proposing a new kernel license that prohibits debugging
+of a "tainted" kernel.
 
 
---- linux/drivers/net/wan/farsync.c.orig	Sun Aug 12 18:38:48 2001
-+++ linux/drivers/net/wan/farsync.c	Wed Sep  5 09:52:33 2001
-@@ -1200,7 +1200,8 @@
-                 /* Sanity check the parameters. We don't support partial writes
-                  * when going over the top
-                  */
--                if ( wrthdr.size + wrthdr.offset > FST_MEMSIZE )
-+                if ( wrthdr.size > FST_MEMSIZE || wrthdr.offset > FST_MEMSIZE
-+                                || wrthdr.size + wrthdr.offset > FST_MEMSIZE )
-                 {
-                         return -ENXIO;
-                 }
+justin
 
-
-
--- 
-        Bob Dunlop
-        FarSite Communications Ltd.
-        http://www.farsite.co.uk/

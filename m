@@ -1,59 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266154AbUFUIUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266161AbUFUIXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266154AbUFUIUX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 04:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266155AbUFUIUX
+	id S266161AbUFUIXx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 04:23:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbUFUIXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 04:20:23 -0400
-Received: from smtp1.cwidc.net ([154.33.63.111]:60885 "EHLO smtp1.cwidc.net")
-	by vger.kernel.org with ESMTP id S266154AbUFUIUV (ORCPT
+	Mon, 21 Jun 2004 04:23:52 -0400
+Received: from mail.gmx.net ([213.165.64.20]:15779 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266161AbUFUIW5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 04:20:21 -0400
-Message-ID: <40D69A3F.8060501@tequila.co.jp>
-Date: Mon, 21 Jun 2004 17:20:15 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       norberto+linux-kernel@bensa.ath.cx, jgarzik@pobox.com
-Subject: Re: 2.6.7-bk way too fast
-References: <40D64DF7.5040601@pobox.com> <200406210018.04883.lkml@lpbproductions.com> <20040621001612.176bf8e1.akpm@osdl.org> <200406210115.46159.lkml@lpbproductions.com>
-In-Reply-To: <200406210115.46159.lkml@lpbproductions.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 04:22:57 -0400
+X-Authenticated: #12437197
+Date: Mon, 21 Jun 2004 11:24:30 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing NULL check in drivers/char/n_tty.c
+Message-ID: <20040621082430.GA11566@callisto.yi.org>
+Reply-To: Dan Aloni <da-x@colinux.org>
+References: <20040621063845.GA6379@callisto.yi.org> <20040620235824.5407bc4c.akpm@osdl.org> <20040621073644.GA10781@callisto.yi.org> <20040621003944.48f4b4be.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040621003944.48f4b4be.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Jun 21, 2004 at 12:39:44AM -0700, Andrew Morton wrote:
+> Dan Aloni <da-x@gmx.net> wrote:
+> >
+> > On Sun, Jun 20, 2004 at 11:58:24PM -0700, Andrew Morton wrote:
+> > > Dan Aloni <da-x@gmx.net> wrote:
+> > > >
+> > > > The rest of the kernel treats tty->driver->chars_in_buffer as a possible
+> > > >  NULL. This patch changes normal_poll() to be consistent with the rest of
+> > > >  the code.
+> > > 
+> > > It would be better to change the rest of the kernel - remove the tests.
+> > > 
+> > > If any driver fails to implement ->chars_in_buffer() then we get a nice
+> > > oops which tells us that driver needs a stub handler.
+> > 
+> > Are you sure that it won't affect the logic in tty_wait_until_sent() 
+> > drastically? It acts quite differently when ->chars_in_buffer == NULL.
+> 
+> I did a quick grep and it appears that all drivers have set ->chars_in_buffer().
+> 
+> I suspect there are no drivers which fail to set chars_in_buffer. 
+> Otherwise normal_poll() would have been oopsing in 2.4, 2.5 and 2.6?
 
-Matt H. wrote:
-| I tried from a fresh  2.6.7-mm1 tree  with your patch ( I had to fix
-up the
-| 2nd half of your patch by hand since  it wouldve rejected ).  The results
-| were the same though.
+Right. Perhaps this should be applied:
 
-same for me. I just recomed from scratch and with ACPI debug on.
+Signed-off-by: Dan Aloni <da-x@colinux.org>
 
-I also will check the "vanilla 2.6.7" kernel (is compiling right now).
-but those ACPI changes are only in the mm tree as I can see
+--- linux-2.6.7/drivers/char/n_hdlc.c
++++ linux-2.6.7/drivers/char/n_hdlc.c
+@@ -760,8 +760,7 @@
+ 
+ 	case TIOCOUTQ:
+ 		/* get the pending tx byte count in the driver */
+-		count = tty->driver->chars_in_buffer ?
+-				tty->driver->chars_in_buffer(tty) : 0;
++		count = tty->driver->chars_in_buffer(tty);
+ 		/* add size of next output frame in queue */
+ 		spin_lock_irqsave(&n_hdlc->tx_buf_list.spinlock,flags);
+ 		if (n_hdlc->tx_buf_list.head)
+--- linux-2.6.7/drivers/char/tty_ioctl.c
++++ linux-2.6.7/drivers/char/tty_ioctl.c
+@@ -45,8 +45,6 @@
+ 	
+ 	printk(KERN_DEBUG "%s wait until sent...\n", tty_name(tty, buf));
+ #endif
+-	if (!tty->driver->chars_in_buffer)
+-		return;
+ 	add_wait_queue(&tty->write_wait, &wait);
+ 	if (!timeout)
+ 		timeout = MAX_SCHEDULE_TIMEOUT;
+@@ -461,8 +459,7 @@
+ 			}
+ 			return 0;
+ 		case TIOCOUTQ:
+-			return put_user(tty->driver->chars_in_buffer ?
+-					tty->driver->chars_in_buffer(tty) : 0,
++			return put_user(tty->driver->chars_in_buffer(tty),
+ 					(int __user *) arg);
+ 		case TIOCINQ:
+ 			retval = tty->read_cnt;
 
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA1poZjBz/yQjBxz8RAoIzAKDJDH0qKbO5Ao1N8kZ2sje3YjiR4gCeOUi6
-ktvawWgPIZpnT1cv10Cz8Zk=
-=q4bT
------END PGP SIGNATURE-----
+-- 
+Dan Aloni
+da-x@colinux.org

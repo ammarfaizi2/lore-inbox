@@ -1,82 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265414AbSLQTCK>; Tue, 17 Dec 2002 14:02:10 -0500
+	id <S265262AbSLQTLD>; Tue, 17 Dec 2002 14:11:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265469AbSLQTCK>; Tue, 17 Dec 2002 14:02:10 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:41989 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S265414AbSLQTCH>; Tue, 17 Dec 2002 14:02:07 -0500
-Message-ID: <3DFF764F.9010702@google.com>
-Date: Tue, 17 Dec 2002 11:09:03 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S265541AbSLQTLD>; Tue, 17 Dec 2002 14:11:03 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:40092 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265262AbSLQTLC>;
+	Tue, 17 Dec 2002 14:11:02 -0500
+Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.1.1
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF2E26C923.FCC2F94E-ON85256C92.0069F495@pok.ibm.com>
+From: "Steve Best" <sbest@us.ibm.com>
+Date: Tue, 17 Dec 2002 13:18:49 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 12/17/2002 02:18:55 PM
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich Drepper <drepper@redhat.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       hpa@transmeta.com
-Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212171046550.1095-100000@home.transmeta.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-It doesn't make sense to me to use a specially formatted page forced 
-into user space to tell libraries how to do system calls.  Perhaps each 
-executable personality in the kernel should export a special shared 
-library in it's own native format that contains the necessary 
-information.  That way we don't have to worry as much about code or 
-values changing sizes or locations.
+Release 1.1.1 of JFS was made available today.
 
-We would have the chicken/egg problem with how the special shared 
-library gets loaded in the first place.  For that we either support a 
-legacy syscall method (i.e. int 0x80 on x86) which should only be used 
-by ld.so or the equivalent or magically force the library into user 
-space at a known address.
+Drop 64 on December 17, 2002 (jfs-2.4-1.1.1.tar.gz
+and jfsutils-1.1.1.tar.gz) includes fixes to the file
+system and utilities.
 
-    Ross
+Utilities changes
+
+- fix segmentation fault in mkfs.jfs when given bad block device
+- fix jfs_debugfs to display directory index with directory entries
 
 
-Linus Torvalds wrote:
+File System changes
 
->On 17 Dec 2002, Alan Cox wrote:
->  
->
->>Is there any reason you can't just keep the linker out of the entire
->>mess by generating
->>
->>	.byte whatever
->>	.dword 0xFFFF0000
->>
->>instead of call ?
->>    
->>
->
->Alan, the problem is that there _is_ no such instruction as a "call
->absolute".
->
->There is only a "call relative" or "call indirect-absolute". So you either
->have to indirect through memory or a register, or you have to fix up the
->call at link-time.
->
->Yeah, I know it sounds strange, but it makes sense. Absolute calls are
->actually very unusual, and using relative calls is _usually_ the right
->thing to do. It's only in cases like this that we really want to call a
->specific address.
->
->			Linus
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+- calling brelse() with wrong bh during writing out of secondary
+  superblock while resizing the FS
+- Remove COMMIT_Holdlock
+- jfs_clear_inode was assuming that active_ag should never be set
+  coming into this routine. Since it's possible for a file to be
+  extended after the file descriptor has been closed, we need to allow
+  the possibility. (Dirty pages of memory mapped files can be written
+  after the file has been closed.)
+- Avoid writing partial log pages for lazy transactions.
+- Move index table out of directory inode's address space.
+- jfs_truncate needs to call block_truncate_page
 
+
+For more details about JFS, please see the patch instructions or
+readme files.
+
+
+Steve
+JFS for Linux http://oss.software.ibm.com/jfs
 
 

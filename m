@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316887AbSGXGbq>; Wed, 24 Jul 2002 02:31:46 -0400
+	id <S316895AbSGXGlv>; Wed, 24 Jul 2002 02:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316892AbSGXGbq>; Wed, 24 Jul 2002 02:31:46 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:12194 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316887AbSGXGbp>; Wed, 24 Jul 2002 02:31:45 -0400
-Date: Wed, 24 Jul 2002 08:52:41 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: george anzinger <george@mvista.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: odd memory corruption in 2.5.27?
-In-Reply-To: <3D3DBD4B.4EFD3543@mvista.com>
-Message-ID: <Pine.LNX.4.44.0207240851030.32636-100000@linux-box.realnet.co.sz>
+	id <S316893AbSGXGlv>; Wed, 24 Jul 2002 02:41:51 -0400
+Received: from signup.localnet.com ([207.251.201.46]:56042 "HELO
+	smtp.localnet.com") by vger.kernel.org with SMTP id <S316892AbSGXGlu>;
+	Wed, 24 Jul 2002 02:41:50 -0400
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.27 enum
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
+	<3D3BE421.3040800@evision.ag> <20020722160118.G6428@redhat.com>
+	<20020722.191152.08962327.davem@redhat.com>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <20020722.191152.08962327.davem@redhat.com>
+Date: 24 Jul 2002 02:44:59 -0400
+Message-ID: <m3d6tdmxp0.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Jul 2002, george anzinger wrote:
+bcrl> Please don't apply this.  By leaving the trailing "," on enums,
+bcrl> additional values can be added by merely inserting an additional
+bcrl> + line in a patch, otherwise there are excess conflicts when
+bcrl> multiple patches add values to the enum.
 
-> protecting them with a combination of interrupt disables and
-> spin_locks.  Preemption is allowed (incorrectly) if
-> interrupts are off and preempt_count goes to zero on the
-> spin_unlock.  I will wager that this is an SMP machine. 
-> After the preemption interrupts will be on (schedule() does
-> that) AND you could be on a different cpu.  Either of these
-> is a BAD thing.
-> 
-> The proposed fix is to catch the attempted preemption in
-> preempt_schedule() and just return if the interrupt system
-> is off.  (Of course there is more that this to it, but I do
-> believe that the problem is known.  You could blow this
-> assertion out of the water by asserting that the machine is
-> NOT smp.)
+davem> I totally agree.
 
-I haven't looked at it further than gathering oopses and idly browsing 
-surrounding code. About your assertion, you're almost right, its UP box 
-running an SMP kernel w/ CONFIG_PREEMT. 
+Is my memory hosed or was there some years back a patch that
+specifically *added* the trailing commas to the tree, for the express
+reasons Ben mentions above?
 
--- 
-function.linuxpower.ca
+-JimC
 

@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282960AbRK0Vcs>; Tue, 27 Nov 2001 16:32:48 -0500
+	id <S282958AbRK0Vb6>; Tue, 27 Nov 2001 16:31:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282967AbRK0Vcj>; Tue, 27 Nov 2001 16:32:39 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:37762 "EHLO water.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S282960AbRK0Vc1>;
-	Tue, 27 Nov 2001 16:32:27 -0500
-From: Nathan Dabney <smurf@osdlab.org>
-Date: Tue, 27 Nov 2001 13:31:33 -0800
-To: Robert Love <rml@tech9.net>
-Cc: Joe Korty <l-k@mindspring.com>, mingo@elte.hu,
-        Ryan Cumming <bodnar42@phalynx.dhs.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-Message-ID: <20011127133133.C1168@osdlab.org>
-In-Reply-To: <1006832357.1385.3.camel@icbm> <5.0.2.1.2.20011127020817.009ed3d0@pop.mindspring.com> <1006894385.819.2.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1006894385.819.2.camel@phantasy>
-User-Agent: Mutt/1.3.23i
+	id <S282967AbRK0Vbs>; Tue, 27 Nov 2001 16:31:48 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:25617 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282958AbRK0Vbg>; Tue, 27 Nov 2001 16:31:36 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: 2.5.1-pre2 does not compile
+Date: Tue, 27 Nov 2001 20:50:09 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9u0ua1$1g2$1@penguin.transmeta.com>
+In-Reply-To: <200111272044.fARKiTv13653@db0bm.ampr.org>
+X-Trace: palladium.transmeta.com 1006894523 11003 127.0.0.1 (27 Nov 2001 20:55:23 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 27 Nov 2001 20:55:23 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 03:53:04PM -0500, Robert Love wrote:
-> Effecting all tasks matching a uid or some other filter is a little
-> beyond what either patch does.  Note however that both interfaces have
-> atomicity.
+In article <200111272044.fARKiTv13653@db0bm.ampr.org>,
+f5ibh  <f5ibh@db0bm.ampr.org> wrote:
+>
+>I've the following error :
 
-I don't see a need for that either, the inheritance and single-process change
-are the major abilities needed.
+Yes.
 
-> You can open and write to proc from within a program ... very easily, in
-> fact.
-> 
-> Also, with some sed and grep magic, you can set the affinity of all
-> tasks via the proc interface pretty easy.  Just a couple lines.
+The next-generation block-layer support is starting to be merged into
+the 2.5.x tree, and that breaks old drivers that haven't been updated to
+the new locking.
 
->From the admin point of view, this last ability is a good one.
+In particular, there used to be _one_ lock for the whole IO system
+("io_request_lock"), and these days it's a per-block-queue lock.
 
-A read-only entry in proc wouldn't do much good by itself.  The writable /proc
-entry is the one that sounds interesting.
+In many cases the fix is as simple as just replacing the
+"io_request_lock" with "host->host_lock", but sometimes this is
+complicated by the need to pass the right data structures down far
+enough..
 
--Nathan
+Many drivers have been converted (ie IDE, symbios, aic7xxx etc), but
+many more have not (especially older SCSI drivers, in your case it's the
+classic aha1542).
 
-> 	Robert Love
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+It will probably take some time until most drivers have been converted.
+Tested patches are more than welcome,
+
+		Linus

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVDCXUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVDCXlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbVDCXUx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 19:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261957AbVDCXUx
+	id S261958AbVDCXlY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 19:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVDCXlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 19:20:53 -0400
-Received: from mail.hosted.servetheworld.net ([62.70.14.38]:51901 "HELO
-	mail.hosted.servetheworld.net") by vger.kernel.org with SMTP
-	id S261955AbVDCXUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 19:20:47 -0400
-Message-ID: <42507A4C.8030209@osvik.no>
-Date: Mon, 04 Apr 2005 01:20:44 +0200
-From: Dag Arne Osvik <da@osvik.no>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+	Sun, 3 Apr 2005 19:41:24 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:29631 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261958AbVDCXlT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 19:41:19 -0400
+Message-ID: <42507F12.6070009@latinsud.com>
+Date: Mon, 04 Apr 2005 01:41:06 +0200
+From: "SuD (Alex)" <sud@latinsud.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Grzegorz Kulewski <kangur@polcom.net>
-CC: Andreas Schwab <schwab@suse.de>, Stephen Rothwell <sfr@canb.auug.org.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Use of C99 int types
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <jezmwgxa5v.fsf@sykes.suse.de> <425072A4.7080804@osvik.no> <Pine.LNX.4.62.0504040109450.11173@alpha.polcom.net>
-In-Reply-To: <Pine.LNX.4.62.0504040109450.11173@alpha.polcom.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Oops in set_spdif_output in i810_audio
+References: <424F20F6.8010804@latinsud.com> <424FC409.3020808@funkmunch.net>
+In-Reply-To: <424FC409.3020808@funkmunch.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski wrote:
+Triffid Hunter wrote:
 
-> On Mon, 4 Apr 2005, Dag Arne Osvik wrote:
->
->> (...) And, at least in theory, long may even provide less than 32 bits.
->
->
-> Are you sure?
->
-> My copy of famous C book by B. W. Kernighan and D. Ritchie says that
->
-> sizeof(short) <= sizeof(int) <= sizeof(long)
->
-> and
->
-> sizeof(short) >= 16,
-> sizeof(int) >= 16,
-> sizeof(long) >= 32.
->
-> The book is about ANSI C not C99 but I think this is still valid.
->
-> Am I wrong?
+> try turning off your internal modem in bios until someone works out 
+> whats going on here
 
+* It's one of those modern bios, no way of configuring that.
 
-No, I just looked it up (section 2.2), and you're right.
+* It seems to me that it detects only 1 card with 1 only codec which is 
+the sound card (sound works if i avoid the null pointer oops). So one of 
+the problems is the wrong detection.
+Googling i found that  jgarzik already got a patch for this 
+(ac97_codec.c:158):
++    {0x43585430, "CXT48",            &default_ops,        
+AC97_DELUDED_MODEM },
 
--- 
-  Dag Arne
+* About fixing i810_probe/i810_ac97_init, the safest and simplest 
+solution may be changing "continue" for "break" (i810_audio.c:3089), 
+i.e. give up scanning for sound codecs when the first modem is found. I 
+don't if that would prevent any real-world device from working, but the 
+alternative is add a lot of checks everywhere.
 
+See you.

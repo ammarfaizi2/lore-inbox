@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263269AbSIPWmO>; Mon, 16 Sep 2002 18:42:14 -0400
+	id <S263238AbSIPWjt>; Mon, 16 Sep 2002 18:39:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263274AbSIPWmN>; Mon, 16 Sep 2002 18:42:13 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:24848 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S263269AbSIPWmN>;
-	Mon, 16 Sep 2002 18:42:13 -0400
-Date: Tue, 17 Sep 2002 00:46:59 +0200 (CEST)
-From: venom@sns.it
-To: jbradford@dial.pipex.com
-cc: Nuitari <nuitari@balthasar.nuitari.net>, <linux-kernel@vger.kernel.org>,
-       <xavier.bestel@free.fr>, <mark@veltzer.org>
-Subject: Re: Hi is this critical??
-In-Reply-To: <200209161827.g8GIRndk001827@darkstar.example.net>
-Message-ID: <Pine.LNX.4.43.0209170045080.8244-100000@cibs9.sns.it>
+	id <S263254AbSIPWjt>; Mon, 16 Sep 2002 18:39:49 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:23564 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263238AbSIPWjt>; Mon, 16 Sep 2002 18:39:49 -0400
+Date: Tue, 17 Sep 2002 00:44:27 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Daniel Phillips <phillips@arcor.de>
+cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Raceless module interface
+In-Reply-To: <E17r3jV-0005en-00@starship>
+Message-ID: <Pine.LNX.4.44.0209170036140.28515-100000@serv>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Sep 2002 jbradford@dial.pipex.com wrote:
+Hi,
 
+On Mon, 16 Sep 2002, Daniel Phillips wrote:
+
+> > Let me explain it in a larger context. You and Daniel are making it really
+> > more complex than necessary. Only the module itself can really answer the
+> > question whether it's safe to unload or not.
 >
-> S.M.A.R.T. is useful to prove that a drive is dying, but it is not useful to prove that it is not.
+> Excuse me, Roman, but that's the central thesis of my [rfc].  If I didn't
+> express it concisely enough to make that obvious, I apologize.
 
-Yes, of course, and this was exaclty what was asked here in the mail
-from xavier that started this thread. The point is if S.M.A.R.T will
-advice before you see seek errors messages from the kernel or not.
+Sorry, but even your later mails are not very concise, I rather wait for a
+new rfc (preferably with patch) before commenting on it. :-)
 
-Luigi
+bye, Roman
 

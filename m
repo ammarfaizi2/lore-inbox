@@ -1,60 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263550AbTJQQwL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 12:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263531AbTJQQwL
+	id S263555AbTJQQsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 12:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbTJQQsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 12:52:11 -0400
-Received: from 62-101-126-192.fastres.net ([62.101.126.192]:28347 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263564AbTJQQwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 12:52:07 -0400
-Message-ID: <3F901E32.2000203@bmind.it>
-Date: Fri, 17 Oct 2003 18:52:02 +0200
-From: Paolo Dovera <pdovera@bmind.it>
-Organization: bmind SpA
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: it, en-us, en
+	Fri, 17 Oct 2003 12:48:09 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:10252 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263555AbTJQQsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 12:48:06 -0400
+Date: Fri, 17 Oct 2003 17:48:02 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Sven Luther <sven.luther@wanadoo.fr>
+cc: "Carlo E. Prelz" <fluido@fluido.as>,
+       <linux-fbdev-devel@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: FBDEV 2.6.0-test7 updates.
+In-Reply-To: <20031016092906.GA6602@iliana>
+Message-ID: <Pine.LNX.4.44.0310171747230.966-100000@phoenix.infradead.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: problem to access  /proc/acpi/battery/BAT1/* files
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I'm using the kernel 2.6.0-test6/7 and I've noticed this warning into 
-/var/log/messages
 
-Oct 17 18:15:16 localhost kernel:  dswload-0269: *** Error: Looking up 
-[PBST] in namespace, AE_ALREADY_EXISTS
-Oct 17 18:15:16 localhost kernel:  psparse-0589 [293932] 
-ps_parse_loop         : During name lookup/catalog, AE_ALREADY_EXISTS
-Oct 17 18:15:16 localhost kernel:  psparse-1121: *** Error: Method 
-execution failed [\_SB_.PCI0.LPC0.BAT1._BST](Nodec12ab328), 
-AE_ALREADY_EXISTS
-Oct 17 18:15:25 localhost kernel:  dswload-0269: *** Error: Looking up 
-[PBST] in namespace, AE_ALREADY_EXISTS
-Oct 17 18:15:25 localhost kernel:  psparse-0589 [294043] 
-ps_parse_loop         : During name lookup/catalog, AE_ALREADY_EXISTS
-Oct 17 18:15:25 localhost kernel:  psparse-1121: *** Error: Method 
-execution failed [\_SB_.PCI0.LPC0.BAT1._BST] (Node c12ab328), 
-AE_ALREADY_EXISTS
+> On Thu, Oct 16, 2003 at 11:19:18AM +0200, Carlo E. Prelz wrote:
+> >  /* Radeon RV280 (9200) */
+> >  #define PCI_DEVICE_ID_ATI_RADEON_Y_    0x5960
+> > +#define PCI_DEVICE_ID_ATI_RADEON_Yz    0x5964
+> >  /* Radeon R300 (9500) */
+> >  #define PCI_DEVICE_ID_ATI_RADEON_AD    0x4144
+> >  /* Radeon R300 (9700) */
+> > 
+> > (I did not know how to call it. _Yz did not exist, so I grabbed it. Is
+> > there any logic in these codes?)
+> 
+> You use the ascii code of the id :
+> 
+>   0x41 -> A, 0x44 -> D thus 0x4144 -> AD.
+> 
+> So, the 0x5964 must be Yd.
 
-when some programs concurrently access to /proc/acpi/battery/BAT1/* files.
-
-For example I use cpufrequency (a daemon to switch CPU frequency on my 
-P4 laptop) http://sourceforge.net/projects/cpufrequency/
-(this program checks every some seconds the status of battery)
-and I use
-        watch -n 8 "cat /proc/acpi/battery/BAT1/*"
-to see the battery state in a xterm.
-
-Is there some lock to access to status of battery?
-
-thanks for your time,
-Paolo Dovera
-
+So that is the logic to it?
 
 

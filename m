@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280976AbRKOSS1>; Thu, 15 Nov 2001 13:18:27 -0500
+	id <S280978AbRKOSSH>; Thu, 15 Nov 2001 13:18:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280941AbRKOSSS>; Thu, 15 Nov 2001 13:18:18 -0500
-Received: from darkwing.uoregon.edu ([128.223.142.13]:20165 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S280971AbRKOSSE>; Thu, 15 Nov 2001 13:18:04 -0500
-Date: Thu, 15 Nov 2001 10:17:51 -0800 (PST)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux i/o tweaking
-In-Reply-To: <Pine.LNX.4.30.0111151535060.13411-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.33.0111151009380.28958-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280976AbRKOSR5>; Thu, 15 Nov 2001 13:17:57 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:21214 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S280971AbRKOSRk>; Thu, 15 Nov 2001 13:17:40 -0500
+Date: Thu, 15 Nov 2001 10:11:41 -0800
+From: Brian Beattie <alchemy@us.ibm.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changed message for GPLONLY symbols
+Message-ID: <20011115101137.B1518@w-beattie1.des.beaverton.ibm.com>
+In-Reply-To: <10444.1005619809@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10444.1005619809@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess the question I'd ask would be what kinda number do you expect from 
-the raid 5 stripe. 107MB/s sounds like a reasonable number from a two 
-channel u160 controller... 
 
-my previous best is around 89MB/s with 4 cheetah 15K 18gb drives raid/0
+On Tue, Nov 13, 2001 at 01:50:09PM +1100, Keith Owens wrote:
+> When insmod detects a non-GPL module with unresolved symbols it
+> currently says:
+> 
+> Note: modules without a GPL compatible license cannot use GPLONLY_ symbols
+> 
+> I thought that hint was self-explanatory, obviously it was not clear.
+> Never underestimate the ability of lusers to misread a message.  insmod
+> 2.4.12 will say
+> 
+> Hint: You are trying to load a module without a GPL compatible license
+	and it has unresolved symbols.  This is probably due to a
+        coding or configuration problem.  Contact the module supplier
+        for assistance.
 
-On Thu, 15 Nov 2001, Roy Sigurd Karlsbakk 
-wrote:
+Since the attempt by an non-GPL module to use GPLONLY sysbols is a
+coding error IMHO, this message is clearer and avoids the confusion we
+have been seeing.
 
-> Hi all
+>       and it has unresolved symbols.  The module may be trying to access
+>       GPLONLY symbols but the problem is more likely to be a coding or
+>       user error.  Contact the module supplier for assistance.
 > 
-> After three days at Compaq's lab in Oslo, testing their medium-level
-> servers and storage systems with Linux, I've come to some sort of
-> conclusions, although these may be wrong. I also have come over a few
-> problems that I couln't find a good solution to.
-> 
->  * When running RAID from a Compaq Smart 5302/64 controller, software
-> RAID-5 is (slightly - ~15%) faster (on JBOD - each disk is configured as
-> a RAID-0 device with max - 256kB - stripe size) than the
-> hardware/controller based RAID-5. Both CPUs (1266MHz/512kB cache) are
-> maxed out by reading from software RAID-5 (???), giving me >= 107MB/s on
-> two SCSI-3 buses with six disks on each bus.
-> 
->  * Even though I can get up to 25 MB/s from each disk, I can't get more
-> than 107 MB/s on the whole bunch (12 drives). It doesn't help much to do
-> RAID-0 either. Don't understand anything ...
-> 
-> Thanks for all help.
-> 
-> roy
-> 
-> --
-> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-> 
-> Computers are like air conditioners.
-> They stop working when you open Windows.
-> 
-> 
+> Does anyone think that this message can be misunderstood by anybody
+> with the "intelligence" of the normal Windoze user?
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
--------------------------------------------------------------------------- 
-Joel Jaeggli				       joelja@darkwing.uoregon.edu    
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-

@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265132AbTFEUzU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbTFEUyO
+	id S265167AbTFEU6B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTFEUtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:54:14 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:20979 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id S265132AbTFEUxR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:53:17 -0400
-Date: Fri, 1 Jan 1904 02:51:54 +0100
-From: Daniele Pala <dandario@libero.it>
+	Thu, 5 Jun 2003 16:49:21 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:38069 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264864AbTFEUrA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 16:47:00 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10548468773655@kroah.com>
+Subject: Re: [PATCH] More PCI fixes for 2.5.70
+In-Reply-To: <10548468772648@kroah.com>
+From: Greg KH <greg@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Thu, 5 Jun 2003 14:01:17 -0700
+Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org
-Cc: benh@kernel.crashing.org
-Subject: [2.5.70][PPC] Small change to config
-Message-ID: <19040101015154.GA346@libero.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since "control" and "platinum" display support doesn't compile if /dev/nvram suppor is selected as a module, here's this
-small patch. The problem is that the suppor for /dev/nvram is asked after the "control" and "platinum" support...
-Cheers,
-	Daniele
+ChangeSet 1.1313, 2003/06/05 12:03:52-07:00, greg@kroah.com
+
+[PATCH] PCI: fix up previous fusion driver pci changes
+
+This makes the driver build properly now, and removes a direct access
+of the pci_devices variable.
 
 
---- a/drivers/video/Kconfig	Fri Jan  1 02:39:17 1904
-+++ b/drivers/video/Kconfig	Fri Jan  1 02:42:54 1904
-@@ -242,14 +242,14 @@
+ drivers/message/fusion/linux_compat.h |    7 ++-----
+ drivers/message/fusion/mptbase.c      |    2 +-
+ 2 files changed, 3 insertions(+), 6 deletions(-)
+
+
+diff -Nru a/drivers/message/fusion/linux_compat.h b/drivers/message/fusion/linux_compat.h
+--- a/drivers/message/fusion/linux_compat.h	Thu Jun  5 13:53:01 2003
++++ b/drivers/message/fusion/linux_compat.h	Thu Jun  5 13:53:01 2003
+@@ -147,9 +147,7 @@
  
- config FB_CONTROL
- 	bool "Apple \"control\" display support"
--	depends on FB && PPC && ALL_PPC
-+	depends on FB && PPC && ALL_PPC && NVRAM=y
- 	help
- 	  This driver supports a frame buffer for the graphics adapter in the
- 	  Power Macintosh 7300 and others.
  
- config FB_PLATINUM
- 	bool "Apple \"platinum\" display support"
--	depends on FB && PPC && ALL_PPC
-+	depends on FB && PPC && ALL_PPC && NVRAM=y
- 	help
- 	  This driver supports a frame buffer for the "platinum" graphics
- 	  adapter in some Power Macintoshes.
+ /* PCI/driver subsystem { */
+-#ifndef pci_for_each_dev
+-#define pci_for_each_dev(dev)		for((dev)=pci_devices; (dev)!=NULL; (dev)=(dev)->next)
+-#define pci_peek_next_dev(dev)		((dev)->next ? (dev)->next : NULL)
++#if 0	/* FIXME Don't know what to use to check for the proper kernel version */
+ #define DEVICE_COUNT_RESOURCE           6
+ #define PCI_BASEADDR_FLAGS(idx)         base_address[idx]
+ #define PCI_BASEADDR_START(idx)         base_address[idx] & ~0xFUL
+@@ -169,11 +167,10 @@
+ 	(4 - size); \
+ })
+ #else
+-#define pci_peek_next_dev(dev)		((dev) != pci_dev_g(&pci_devices) ? pci_dev_g((dev)->global_list.next) : NULL)
+ #define PCI_BASEADDR_FLAGS(idx)         resource[idx].flags
+ #define PCI_BASEADDR_START(idx)         resource[idx].start
+ #define PCI_BASEADDR_SIZE(dev,idx)      (dev)->resource[idx].end - (dev)->resource[idx].start + 1
+-#endif		/* } ifndef pci_for_each_dev */
++#endif		/* } ifndef 0 */
+ 
+ 
+ /* Compatability for the 2.3.x PCI DMA API. */
+diff -Nru a/drivers/message/fusion/mptbase.c b/drivers/message/fusion/mptbase.c
+--- a/drivers/message/fusion/mptbase.c	Thu Jun  5 13:53:01 2003
++++ b/drivers/message/fusion/mptbase.c	Thu Jun  5 13:53:01 2003
+@@ -1184,7 +1184,7 @@
+ 		 * Do some kind of look ahead here...
+ 		 */
+ 		if (pdev->devfn & 1) {
+-			pdev2 = pci_peek_next_dev(pdev);
++			pdev2 = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev);
+ 			if (pdev2 && (pdev2->vendor == 0x1000) &&
+ 			    (PCI_SLOT(pdev2->devfn) == PCI_SLOT(pdev->devfn)) &&
+ 			    (pdev2->device == pdev->device) &&
+

@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269655AbRHIB6w>; Wed, 8 Aug 2001 21:58:52 -0400
+	id <S269653AbRHICef>; Wed, 8 Aug 2001 22:34:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269653AbRHIB6m>; Wed, 8 Aug 2001 21:58:42 -0400
-Received: from merlin.giref.ulaval.ca ([132.203.7.100]:17624 "HELO
-	merlin.giref.ulaval.ca") by vger.kernel.org with SMTP
-	id <S269670AbRHIB6c>; Wed, 8 Aug 2001 21:58:32 -0400
-Date: Wed, 8 Aug 2001 21:58:39 -0400 (EDT)
-From: Luc Lalonde <llalonde@giref.ulaval.ca>
-To: Florin Andrei <florin@sgi.com>
-Cc: Ben Greear <greearb@candelatech.com>, LKML <linux-kernel@vger.kernel.org>,
-        "eepro100@scyld.com" <eepro100@scyld.com>
-Subject: Re: [eepro100] Re: Problem with Linux 2.4.7 and builtin eepro on
- Intel's EEA2 motherboard.
-In-Reply-To: <997317775.19780.40.camel@stantz.corp.sgi.com>
-Message-ID: <Pine.LNX.4.33.0108082157470.18777-100000@merlin.giref.ulaval.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269668AbRHICeZ>; Wed, 8 Aug 2001 22:34:25 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:35249 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S269653AbRHICeW>;
+	Wed, 8 Aug 2001 22:34:22 -0400
+Date: Thu, 9 Aug 2001 04:34:31 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
+To: linux-kernel@vger.kernel.org
+Subject: Re: I/O very slow under 2.4 (device reading)
+Message-ID: <20010809043431.C2456@cerebro.laendle>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-Operating-System: Linux version 2.4.8-pre7 (root@cerebro) (gcc version 3.0.1 20010716 (prerelease)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Fiorin,
+On Wed, Aug 08, 2001 at 11:12:45AM -0700, Linus Torvalds <torvalds@transmeta.com> wrote:
+> and the VM disagree about how/when to allocate memory. It's fixed by the patch
+> I'll make a real pre-patch (2.4.8-pre7) with the full changeset, can you
 
-What is your uptime on this machine.  I've come to the same conclusion and
-I'm up to 13 days with the Intel e100 driver.
+after 10 gigs of reading:
 
-Cheers.
+   procs                      memory    swap          io     system         cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+ 0  1  0      0   6828 372696  36340   0   0 48292     6  726  2188   0  25  75
+ 0  1  0      0   6880 370536  39352   0   0 33792     0  726  3725   1  37  62
+ 1  0  1      0   6880 370160  36340   0   0 25652    48  411  3374   1  82  17
+ 0  1  0      0   6628 370780  36288   0   0 44788     0  690  2071   1  31  68
+ 1  0  1      0   6832 372972  36264   0   0 41988     0  674  2933   0  42  57
 
+the system still feels a bit sluggishly, but otherwise NO SIGN of that
+problem (no io slowdown, no short freezes). just the usual "disks are
+in-use" contentions.
 
-On 8 Aug 2001, Florin Andrei wrote:
+cool ,)
 
-> On 07 Aug 2001 13:12:46 -0700, Ben Greear wrote:
-> > The driver seems to lock up for a while and then recover...
-> >
-> > Aug  7 11:55:19 lanf1 last message repeated 5 times
-> > Aug  7 11:56:04 lanf1 last message repeated 21 times
-> > Aug  7 11:56:07 lanf1 kernel: NETDEV WATCHDOG: eth0: transmit timed out
->
-> Same hardware, same problem, only worse: for me, it locks up forever!
->
-> Had this problem with several 2.4.x versions, then switched to Intel's
-> driver. I'm using the Intel driver now, with 2.4.7, and i have no
-> problem.
->
-> --
-> Florin Andrei
->
->
-> _______________________________________________
-> eepro100 mailing list
-> eepro100@scyld.com
-> http://www.scyld.com/mailman/listinfo/eepro100
->
+> at a nice stable 21MB/s which is all my disk can deliver. 
 
+you _should_ know that raw speed doesn't mean too much.
+
+> [ Damn, maybe I should get one of those nice big 7200 rpm IBM drives ]
+
+maybe noisier. and for some reason (I swear for ibm drives usually), they
+keep getting uncorrectable media errors on all of my machines.. ;) still
+they are the best ones available ;)
+
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

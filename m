@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291084AbSAaOSh>; Thu, 31 Jan 2002 09:18:37 -0500
+	id <S291090AbSAaOUr>; Thu, 31 Jan 2002 09:20:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291085AbSAaOS1>; Thu, 31 Jan 2002 09:18:27 -0500
-Received: from mail.chs.ru ([194.154.71.136]:47879 "EHLO mail.unix.ru")
-	by vger.kernel.org with ESMTP id <S291084AbSAaOSP>;
-	Thu, 31 Jan 2002 09:18:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fs/partitions/ibm.c compile fixes
-Date: Thu, 31 Jan 2002 17:18:13 +0300
-X-Mailer: KMail [version 1.3.2]
+	id <S291089AbSAaOUi>; Thu, 31 Jan 2002 09:20:38 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:18705 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S291085AbSAaOUU>;
+	Thu, 31 Jan 2002 09:20:20 -0500
+To: Josh MacDonald <jmacd@CS.Berkeley.EDU>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <Pine.LNX.4.33.0201291515480.1747-100000@penguin.transmeta.com>
+	<87d6zrlefa.fsf@fadata.bg>
+	<15448.28224.481925.430169@gargle.gargle.HOWL>
+	<87wuxzjxjm.fsf@fadata.bg>
+	<20020131024128.B14482@helen.CS.Berkeley.EDU>
+X-No-CC: Reply to lists, not to me.
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <20020131024128.B14482@helen.CS.Berkeley.EDU>
+Date: 31 Jan 2002 16:21:48 +0200
+Message-ID: <87hep2a9dv.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16WHjA-0005Hk-01@mail.unix.ru>
-Cc: linux390@de.ibm.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+>>>>> "Josh" == Josh MacDonald <jmacd@CS.Berkeley.EDU> writes:
 
-This patch against 2.4.18-pre7 fixes two obvious typos and make
-fs/partitions/ibm.c to be compiled.
-Also needed for both 2.5.3 and 2.5.2-dj7
+Josh> Quoting Momchil Velikov (velco@fadata.bg):
+>> >>>>> "John" == John Stoffel <stoffel@casc.com> writes:
 
---
-		Best regards,
-		Sergey S. Kostyliov <rathamahata@php4.ru>
+Momchil>  The worst case would be very large file with a few cached
+Momchil> pages with offsets uniformly distributed across the whole
+Momchil> file, that is having deep tree with only one page hanging off
+Momchil> each leaf node.
 
-diff -urN linux-2.4.18-pre7/fs/partitions/ibm.c linux/fs/partitions/ibm.c
---- linux-2.4.18-pre7/fs/partitions/ibm.c	Mon Oct  1 23:03:26 2001
-+++ linux/fs/partitions/ibm.c	Thu Jan 31 07:21:28 2002
-@@ -123,7 +123,7 @@
- 					    GFP_KERNEL);
- 	if ( geo == NULL )
- 		return 0;
--	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo);
-+	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo))
- 		return 0;
- 	blocksize = hardsect_size[MAJOR(dev)][MINOR(dev)];
- 	if ( blocksize <= 0 ) {
-@@ -131,7 +131,7 @@
- 	}
- 	blocksize >>= 9;
- 	
--	data = read_dev_sector(bdev, inode->label_block*blocksize, &sect);
-+	data = read_dev_sector(bdev, info->label_block*blocksize, &sect);
- 	if (!data)
- 		return 0;
- 
+John> Isn't this a good place to use AVL trees then, since they balance
+John> automatically?  Admittedly, it may be more overhead than we want in
+John> the case where the tree is balanced by default anyway.  
+
+>> The widespread opinion is that binary trees are generally way too deep
+>> compared to radix trees, so searches have larger cache footprint.
+
+Josh> I've posted this before -- my cache-optimized skip list solves the
+Josh> problem of balanced-tree cache footprint.  It uses cacheline-sized
+
+I don't think skip lists differ from the balanced trees w.r.t cache
+line footprint.
+
+Josh> nodes and per-node locking to avoid false-sharing and increase 
+
+Whether there _is_ a (non-negligible) false sharing would be an open
+question.
+
+Josh> concurrency.  The memory usage for the skip list is also less than
+Josh> the red-black tree for trees larger than several hundred nodes.
+
+Yes. Skip list or (whatever) b-tree are sure to have less space
+overhead in the worst case.  Therefore, I'd be curious to see
+comparisons with the three pagecache implementations.  Note that in my
+last patch you can do a drop-in replacement of the radix tree with a
+skip list, since memory allocation issues are solved.
+
+Regards,
+-velco

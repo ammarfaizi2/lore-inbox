@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVAIWhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVAIWmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVAIWhX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 17:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVAIWhX
+	id S261900AbVAIWmE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 17:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVAIWmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 17:37:23 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:62149 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261896AbVAIWhQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 17:37:16 -0500
-Message-ID: <067d01c4f69b$cb9d8b80$0f01a8c0@max>
-From: "Richard Purdie" <rpurdie@rpsys.net>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <007e01c4ef30$f23ba3c0$0f01a8c0@max> <1104674725.14712.50.camel@localhost.localdomain>
-Subject: Re: Flaw in ide_unregister()
-Date: Sun, 9 Jan 2005 22:37:20 -0000
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+	Sun, 9 Jan 2005 17:42:03 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:23564 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261900AbVAIWmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 17:42:00 -0500
+Date: Sun, 9 Jan 2005 23:41:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 =?iso-8859-1?Q?patch=5D=A0remov?=
+	=?iso-8859-1?Q?e?= InterMezzo MAINTAINERS entry
+Message-ID: <20050109224154.GA1483@stusta.de>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-[Re: ide_unregister and problems with ide-cs.c]
-> In 2.6.9-ac and 2.6.10-ac the ide_unregister_hwif calls return an error
-> if the drive is in use. At this point the ide-cs code still throws it
-> away. The -ac code IDE also adds "removed_hwif_iops" so the bits are
-> there for the correct result which is something like
->
-> if(ide_unregister_hwif(hwif) < 0 {
-> printk("Whine whine...");
-> removed_hwif_ops(hwif);
-> while(ide_unregister_hwif(hwif) < 0)
-> msleep(1000);
-> }
-
-I've just tried 2.6.10-ac8 on my target (an arm PDA) and it doesn't help 
-ide-cs.c. When I pull out a mounted CF out the socket, the kernel prints 
-"Unregister 0 fail 1 0" repeatedly on the console showing the usage count 
-permanently stays at 1. This is the same problem as under 2.6.10.
-
-I haven't investigated it yet but I suspect the usage count is held by 
-ide-disk as the CF card has a mounted filesystem. As previously mentioned 
-and for reference, this patch has the changes I had to make to get standard 
-2.6.10 to work:
-
-http://www.rpsys.net/openzaurus/2.6.10/ide_fixes-r1.patch
-
-Richard 
+InterMezzo was removed in 2.6, so there's no reason for keeping a 
+MAINTAINERS entry.
 
 
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-No virus found in this outgoing message.
-Checked by AVG Anti-Virus.
-Version: 7.0.300 / Virus Database: 265.6.9 - Release Date: 06/01/2005
-
+--- linux-2.6.7-rc1-full/MAINTAINERS.old	2004-05-23 23:52:55.000000000 +0200
++++ linux-2.6.7-rc1-full/MAINTAINERS	2004-05-23 23:53:07.000000000 +0200
+@@ -1092,13 +1092,6 @@
+ W:	http://sourceforge.net/projects/e1000/
+ S:	Supported
+ 
+-INTERMEZZO FILE SYSTEM
+-P:	Cluster File Systems	
+-M:	intermezzo-devel@lists.sf.net
+-W:	http://www.inter-mezzo.org/
+-L:	intermezzo-discuss@lists.sourceforge.net
+-S:	Maintained
+-
+ IOC3 DRIVER
+ P:	Ralf Baechle
+ M:	ralf@oss.sgi.com

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271231AbTGWTLY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 15:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271233AbTGWTIo
+	id S271226AbTGWTLV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 15:11:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271231AbTGWTHT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 15:08:44 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1810 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S271226AbTGWTHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 15:07:36 -0400
-Date: Wed, 23 Jul 2003 13:43:22 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: jimis@gmx.net
+	Wed, 23 Jul 2003 15:07:19 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:21418 "EHLO
+	genius.impure.org.uk") by vger.kernel.org with ESMTP
+	id S271233AbTGWTFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 15:05:46 -0400
+Date: Wed, 23 Jul 2003 20:20:10 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Feature proposal (scheduling related)
-Message-ID: <20030723114322.GD729@zaurus.ucw.cz>
-References: <3F1E6A25.5030308@gmx.net>
+Subject: Re: Linux 2.6.0-test1-ac3
+Message-ID: <20030723192010.GA28748@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+References: <200307231910.h6NJAHg02616@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F1E6A25.5030308@gmx.net>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <200307231910.h6NJAHg02616@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Jul 23, 2003 at 03:10:17PM -0400, Alan Cox wrote:
+ > o	Fix delay setup in speedstep-ich		(Valdis Kletnieks)
 
-> With the current scheduler we can prioritize the CPU usage for each 
-> process. What I think would be extremely useful (as I have needed it 
-> many times) is the scheduling of disk I/O and net I/O traffic. 2 
-> examples showing the importance (the numbers are estimations just to 
-> explain whati I mean):
+Don't push this Linuswards, Dominik sent me a better set of
+fixes which are sitting in the cpufreq tree awaiting pushing
+when I get back from KS/OLS.
 
-Yes that would be nice, and in 2.5 timeframe
-there was patch doing that. Port it to 2.6 an test it!
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+		Dave
 

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316089AbSHBRpJ>; Fri, 2 Aug 2002 13:45:09 -0400
+	id <S316213AbSHBRqX>; Fri, 2 Aug 2002 13:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316135AbSHBRpJ>; Fri, 2 Aug 2002 13:45:09 -0400
-Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:15110 "EHLO
-	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id <S316089AbSHBRpI>; Fri, 2 Aug 2002 13:45:08 -0400
-Message-Id: <200208021748.g72Hm8m02852@fachschaft.cup.uni-muenchen.de>
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Dave Hansen <haveblue@us.ibm.com>, Kasper Dupont <kasperd@daimi.au.dk>
-Subject: Re: [RFC] Race condition?
-Date: Fri, 2 Aug 2002 19:41:38 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <3D4A8D45.49226E2B@daimi.au.dk> <3D4ABA9D.8060307@us.ibm.com>
-In-Reply-To: <3D4ABA9D.8060307@us.ibm.com>
+	id <S316342AbSHBRqV>; Fri, 2 Aug 2002 13:46:21 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25255 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316213AbSHBRpt>; Fri, 2 Aug 2002 13:45:49 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200208021748.g72HmnV08218@devserv.devel.redhat.com>
+Subject: Re: Accelerating user mode linux
+To: jdike@karaya.com (Jeff Dike)
+Date: Fri, 2 Aug 2002 13:48:49 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200208021828.NAA02466@ccure.karaya.com> from "Jeff Dike" at Aug 02, 2002 01:28:18 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 2. August 2002 19:00 schrieb Dave Hansen:
-> Kasper Dupont wrote:
-> > Is there a race condition in this piece of code from do_fork in
-> > linux/kernel/fork.c? I cannot see what prevents two processes
-> > from calling this at the same time and both successfully fork
-> > even though the user had only one process left.
-> >
-> >         if (atomic_read(&p->user->processes) >=
-> > p->rlim[RLIMIT_NPROC].rlim_cur && !capable(CAP_SYS_ADMIN) &&
-> > !capable(CAP_SYS_RESOURCE)) goto bad_fork_free;
-> >
-> >         atomic_inc(&p->user->__count);
-> >         atomic_inc(&p->user->processes);
->
-> I don't see any locking in the call chain leading to this function, so
-> I think you're right.  The attached patch fixes this.  It costs an
-> extra 2 atomic ops in the failure case, but otherwise just makes the
-> processes++ operation earlier.
->
-> Patch is against 2.5.27, but applies against 30.
+> So, there's nothing special about entering userspace for the first time.
+> Everything is under a signal frame, so any time something needs to enter
+> userspace, it just returns through it.
 
-It has the opposite failure mode. Forks only some of which should
-succeed may all fail.
+Ok
 
-	Regards
-		Oliver
+> This has the slight disadvantage that the process address space isn't directly
+> accessible, but I can live with that.  A virt_to_phys translation isn't too
+> painful.
 
+Right
+
+> This raises the question of how the process address spaces are created.  For
+> a variety of reasons unrelated to altmm (which I can go into if anyone's
+> interested), I want address spaces to be separate user-visible objects.  
+
+That really makes all the existing code not work with it. Doing an altmm
+is easy in the sense that it doesn't require 20 new syscall and doesnt
+slow down the main kernel paths for a single odd case.
+
+I can see why there is a need to manipulate the other mm I need to think
+about the right way to handle it.

@@ -1,31 +1,44 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154785-662>; Fri, 9 Oct 1998 10:08:41 -0400
-Received: from snowcrash.cymru.net ([163.164.160.3]:1643 "EHLO snowcrash.cymru.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156289-662>; Fri, 9 Oct 1998 08:59:09 -0400
-Message-Id: <m0zRiFI-0007U1C@the-village.bc.nu>
-From: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Subject: Re: network nicety
-To: rhw@bigfoot.com (Riley Williams)
-Date: Fri, 9 Oct 1998 20:30:36 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.rutgers.edu
-In-Reply-To: <Pine.LNX.3.96.981009191551.26970I-100000@ps.cus.umist.ac.uk> from "Riley Williams" at Oct 9, 98 07:20:33 pm
-Content-Type: text
+Received: by vger.rutgers.edu id <155236-7107>; Mon, 12 Oct 1998 22:05:02 -0400
+Received: from clifford.server.magnet.at ([195.170.70.89]:4922 "EHLO babel.clifford.at" ident: "clifford") by vger.rutgers.edu with ESMTP id <157102-7107>; Mon, 12 Oct 1998 20:11:45 -0400
+Date: Tue, 13 Oct 1998 08:17:58 +0200 (MEST)
+From: Clifford Wolf <clifford@clifford.at>
+To: Alexander Kjeldaas <astor@guardian.no>
+cc: linux-kernel@vger.rutgers.edu
+Subject: Re: International kernel patch v2.1.125.2
+In-Reply-To: <19981012175002.A18917@lucifer.guardian.no>
+Message-ID: <Pine.LNX.3.96.981013081355.25484A-100000@babel.clifford.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: owner-linux-kernel@vger.rutgers.edu
 
->  2. Does Linux apply it automatically when the remote end is also a
->     Linux system? If not, there's little incentive for others to
->     also support it.
 
-It isnt automatic. CBQ is a policy driven system. You get to set policy
-according to local needs. Thats one of the problems you need to then
-talk to the other end to pass policy (and also potentially along paths
-packets are taking).
+On Mon, 12 Oct 1998, Alexander Kjeldaas wrote:
 
-If you control both directions from a routing point then CBQ can
-be a huge help as can other flow control schemes like RED (random
-early drop - a simple scheme that punishes the highest bandwidth
-users when congestion is occuring)
+> Hi, the next crypto patch for 2.1.125 is available.  The idea is to
+> collect all crypto patches so that using crypto in the kernel will be
+> easier than today.
 
-Alan
+Hi,
+
+since I've not got a feedback from you about joining my patch archive I
+will maintain a description file for you (until you decide to maintain it
+by yourself). Please have a look at http://linux-patches.rock-projects.com/
+and tell me if the description file I use is OK for you.
+
+Since I don't maintain the patch, this description file won't be
+up-to-date all the time. That's why it would be better if you could
+maintain it by yourself.
+
+greetings,
+
+  - clifford
+
+--    --    --    --    --    --    --    --    --    --    --    --    --
+Clifford Wolf
+magnet - Internet at Work                            IRC: efnet / clifford
+Director of System Development                     http://www.clifford.at/
+e-mail: c.wolf@magnet.at                            email: god@clifford.at
 
 
 -

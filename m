@@ -1,62 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263771AbTLXRtx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 12:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbTLXRtx
+	id S263584AbTLXRvx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 12:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTLXRvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 12:49:53 -0500
-Received: from mail.aei.ca ([206.123.6.14]:59112 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S263771AbTLXRtv (ORCPT
+	Wed, 24 Dec 2003 12:51:53 -0500
+Received: from mail.kroah.org ([65.200.24.183]:55701 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263584AbTLXRvj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 12:49:51 -0500
-Subject: Re: 2.6 unknown partition table
-From: Shane Shrybman <shrybman@aei.ca>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1072284569.4710.3.camel@leto.cs.pocnet.net>
-References: <1072277542.10203.14.camel@mars.goatskin.org>
-	 <1072284569.4710.3.camel@leto.cs.pocnet.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1072288180.10203.18.camel@mars.goatskin.org>
+	Wed, 24 Dec 2003 12:51:39 -0500
+Date: Wed, 24 Dec 2003 09:51:30 -0800
+From: Greg KH <greg@kroah.com>
+To: joshk@triplehelix.org,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-mm1 oops from khubd
+Message-ID: <20031224175130.GA30182@kroah.com>
+References: <20031223071327.GG7522@triplehelix.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 24 Dec 2003 12:49:40 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031223071327.GG7522@triplehelix.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-12-24 at 11:49, Christophe Saout wrote:
-> Am Mi, den 24.12.2003 schrieb Shane Shrybman um 15:52:
+On Mon, Dec 22, 2003 at 11:13:27PM -0800, Joshua Kwan wrote:
+> After deciding to try out udev from Greg KH, I started inserting and
+> removing my USB memory stick (a Lexar JumpDrive) while tweaking my
+> /etc/udev/udev.rules to make it map the device to /udev/usbstick all the
+> time.
 > 
-> > I noticed this in the logs yesterday on 2.6.0-test11-mm1 and upgraded to
-> > 2.6.0-mm1, but its still there. I use LVM on that disk and it is working
-> > fine, (LV file systems are mountable and useable).
-> >
-> > Advice?
-> > 
-> > # fdisk -l /dev/hdg
-> > [...]
-> > Disk /dev/hdg doesn't contain a valid partition table
-> >
-> > [...]
-> > vgdisplay  PV Name               /dev/hdg     
+> After a while, I noticed that nothing new was occuring in my system log.
+> So I checked dmesg:
 > 
-> Everything is fine. You put your physical volume directly on the
-> harddisk, not in a partition, so you don't have a partition table.
-> vgscan recognizes the hard disk itself as LVM physical volume anyway
-> that's why it works.
-> 
+> Unable to handle kernel NULL pointer dereference at virtual address 0000002c
+>  printing eip:
+> c0172b2e
+> *pde = 00000000
+> Oops: 0002 [#1]
+> PREEMPT 
+> CPU:    0
+> EIP:    0060:[<c0172b2e>]    Not tainted VLI
+> EFLAGS: 00010292
+> EIP is at simple_unlink+0xa/0x1c
+> eax: 00000000   ebx: c42d2280   ecx: 00000000   edx: c42d2280
+> esi: c13f9a80   edi: cfdcc800   ebp: 00000003   esp: c13d9eec
+> ds: 007b   es: 007b   ss: 0068
+> Process khubd (pid: 5, threadinfo=c13d8000 task=c129c080)
+> Stack: c42d2280 c01860e5 c13f8c80 c42d2280 cc0c42cc c039c0a0 c021e746 c13f9a80 
+>        cc0c42f8 cc0c42cc cfdcc8cc c021e8a6 cc0c42cc cc0c4328 cc0c42cc cfdcc8cc 
+>        c021d968 cc0c42cc cc0c42cc 0000000a c021d9b9 cc0c42cc 00000100 c026dd28 
+> Call Trace:
+>  [<c01860e5>] sysfs_hash_and_remove+0x7b/0x7d
+>  [<c021e746>] device_release_driver+0x28/0x66
+>  [<c021e8a6>] bus_remove_device+0x55/0x96
+>  [<c021d968>] device_del+0x5d/0x9b
+>  [<c021d9b9>] device_unregister+0x13/0x23
+>  [<c026dd28>] hub_port_connect_change+0x30f/0x314
+>  [<c026d679>] hub_port_status+0x45/0xb0
+>  [<c026e000>] hub_events+0x2d3/0x346
+>  [<c026e0a0>] hub_thread+0x2d/0xe4
+>  [<c03001c6>] ret_from_fork+0x6/0x14
+>  [<c011ca48>] default_wake_function+0x0/0x12
+>  [<c026e073>] hub_thread+0x0/0xe4
+>  [<c0109255>] kernel_thread_helper+0x5/0xb
 
-Eeek.. I knew that! ;) Sorry for the stupid question and Happy Holidays!
+Ick, I thought we had fixed this...
 
-> If you want to get rid of this, the next time you create a PV please
-> create a partition first with fdisk, e.g. /dev/hdg1 with type 8e (LVM)
-> and then pvcreate /dev/hdg1.
-> 
-> --
-> Christophe Saout <christophe@saout.de>
-> Please avoid sending me Word or PowerPoint attachments.
-> See http://www.fsf.org/philosophy/no-word-attachments.html
-> 
+Can you try the patch below?  It should apply on top of the -mm1 tree
+you are using.  Let me know if this fixes the problem or not.
 
+thanks,
+
+greg k-h
+
+
+--- a/fs/sysfs/dir.c	Fri Dec  5 17:36:20 2003
++++ b/fs/sysfs/dir.c	Wed Dec 24 09:49:05 2003
+@@ -82,9 +82,10 @@
+ {
+ 	struct dentry * parent = dget(d->d_parent);
+ 	down(&parent->d_inode->i_sem);
+-	d_delete(d);
+-	if (d->d_inode)
++	if (!d_unhashed(d)) {
++		d_delete(d);
+ 		simple_rmdir(parent->d_inode,d);
++	}
+ 
+ 	pr_debug(" o %s removing done (%d)\n",d->d_name.name,
+ 		 atomic_read(&d->d_count));

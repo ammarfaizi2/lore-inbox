@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276201AbRI1Rlk>; Fri, 28 Sep 2001 13:41:40 -0400
+	id <S276207AbRI1Rnm>; Fri, 28 Sep 2001 13:43:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276203AbRI1Rlc>; Fri, 28 Sep 2001 13:41:32 -0400
-Received: from [209.195.52.30] ([209.195.52.30]:47632 "HELO [209.195.52.30]")
-	by vger.kernel.org with SMTP id <S276202AbRI1Rl0>;
-	Fri, 28 Sep 2001 13:41:26 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Bobby Hitt <bobhitt@bscnet.com>
-Cc: linux-kernel@vger.kernel.org
-Date: Fri, 28 Sep 2001 09:21:11 -0700 (PDT)
-Subject: Re: 2 GB file limitation
-In-Reply-To: <043801c14831$d4ba2190$092cdb3f@bobathome>
-Message-ID: <Pine.LNX.4.40.0109280920360.19506-100000@dlang.diginsite.com>
+	id <S276199AbRI1Rnd>; Fri, 28 Sep 2001 13:43:33 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:50943 "EHLO
+	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S276200AbRI1RnU>; Fri, 28 Sep 2001 13:43:20 -0400
+Date: Fri, 28 Sep 2001 10:50:05 -0700
+From: "Martin J. Bligh" <fletch@aracnet.com>
+Reply-To: "Martin J. Bligh" <fletch@aracnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adding a printk in start_secondary breaks 2.4.10, not 2.4.9 ??
+Message-ID: <946825303.1001674205@[10.10.1.2]>
+In-Reply-To: <E15n1Rz-0007lt-00@the-village.bc.nu>
+X-Mailer: Mulberry/2.0.5 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-?? slackware 8 has large file support (I've been useing it for a while
-now)
+> The console locking changes have I suspect broken your bandaid. I guess
+> this time you need to fix it properly. Garbled panics normally occur when
+> both cpus panic in parallel. That really wants some kind of timed spinlock
+> to try and dump them one after the other
 
-David Lang
+Humpf. You mean I've got to get rid of my disgusting hack? Sigh ... OK. ;-)
 
-On Fri, 28 Sep 2001, Bobby Hitt wrote:
+FWIW, I still think that means that the console locking changes are broken 
+-
+adding a printk shouldn't panic the kernel. I'll go look at the console 
+locking
+changes (*and* fix my disgusting hack ;-) )
 
-> Date: Fri, 28 Sep 2001 11:25:40 -0400
-> From: Bobby Hitt <bobhitt@bscnet.com>
-> To: linux-kernel@vger.kernel.org
-> Subject: 2 GB file limitation
->
-> Hello,
->
-> Thanks to all that provided input for my problem. All good info. Seems that
-> Slackware distributions, even the latest has the latest tar and gzip
-> programs. I'm going to snatch them off the RedHat site and install.
->
-> Thanks again!
->
-> Bobby
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+M.
+

@@ -1,80 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbTDOMbK (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbTDOMbK 
+	id S261292AbTDOM1h (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 08:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTDOM1h 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 08:31:10 -0400
-Received: from f10.law8.hotmail.com ([216.33.241.10]:43279 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S261335AbTDOMbI 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 08:31:08 -0400
-X-Originating-IP: [67.86.246.131]
-X-Originating-Email: [seandarcy@hotmail.com]
-From: "sean darcy" <seandarcy@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.67-bk4 & 5  - boot oops at  USB Mass Storage
-Date: Tue, 15 Apr 2003 08:42:53 -0400
+	Tue, 15 Apr 2003 08:27:37 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:40332 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S261292AbTDOM1g (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 08:27:36 -0400
+Date: Tue, 15 Apr 2003 13:36:45 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Duncan Sands <baldrick@wanadoo.fr>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUGed to death
+Message-ID: <20030415123641.GA13966@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jens Axboe <axboe@suse.de>, Duncan Sands <baldrick@wanadoo.fr>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Andrew Morton <akpm@digeo.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <80690000.1050351598@flay> <200304151401.00704.baldrick@wanadoo.fr> <20030415123134.GM9776@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F102ZBNCogiwHsqhA5300000785@hotmail.com>
-X-OriginalArrivalTime: 15 Apr 2003 12:42:53.0881 (UTC) FILETIME=[887D3290:01C3034C]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030415123134.GM9776@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.67 boots fine. With bk4 or bk5 I get an oops right after:
+On Tue, Apr 15, 2003 at 02:31:34PM +0200, Jens Axboe wrote:
 
-USB Mass Storage support registered
+ > If you do that, you must audit every single BUG_ON to make sure the
+ > expression doesn't have any side effects.
+ > 
+ > 	BUG_ON(do_the_good_stuff());
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000040
-printing EIP:
-c026af44
-*pde=00000000
-oops: 0002 [#1]
-cpu: 0
-EIP: 0060:[c026af44] Not tainted
+Sure, but such a construct looks really bad anyway.
+Relying on side-effects of whats essentially a debug macro
+sounds very dodgy.
 
-On 2.5.67, dmesg gives:
+	foo = do_the_good_stuff();
+	BUG_ON (foo==baz)
 
-...............
-ehci-hcd 00:10.3: VIA Technologies, In USB 2.0
-ehci-hcd 00:10.3: irq 10, pci mem e0840e00
-Please use the 'usbfs' filetype instead, the 'usbdevfs' name is deprecated.
-ehci-hcd 00:10.3: new USB bus registered, assigned bus number 1
-ehci-hcd 00:10.3: USB 2.0 enabled, EHCI 1.00, driver 2003-Jan-22
-hub 1-0:0: USB hub found
-hub 1-0:0: 6 ports detected
-drivers/usb/host/uhci-hcd.c: USB Universal Host Controller Interface driver 
-v2.0uhci-hcd 00:10.0: VIA Technologies, In USB
-uhci-hcd 00:10.0: irq 11, io base 0000dc00
-uhci-hcd 00:10.0: new USB bus registered, assigned bus number 2
-hub 2-0:0: USB hub found
-hub 2-0:0: 2 ports detected
-uhci-hcd 00:10.1: VIA Technologies, In USB (#2)
-uhci-hcd 00:10.1: irq 10, io base 0000e000
-uhci-hcd 00:10.1: new USB bus registered, assigned bus number 3
-hub 3-0:0: USB hub found
-hub 3-0:0: 2 ports detected
-uhci-hcd 00:10.2: VIA Technologies, In USB (#3)
-uhci-hcd 00:10.2: irq 5, io base 0000e400
-uhci-hcd 00:10.2: new USB bus registered, assigned bus number 4
-hub 4-0:0: USB hub found
-hub 4-0:0: 2 ports detected
-drivers/usb/core/usb.c: registered new driver usblp
-drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
-Initializing USB Mass Storage driver...
-drivers/usb/core/usb.c: registered new driver usb-storage
-USB Mass Storage support registered.
-drivers/usb/core/usb.c: registered new driver hid
-drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-mice: PS/2 mouse device common for all mice
-.........
+Would be a better way of expressing this.
 
-
-I have a kt400 mobo.
-
-jay
-
-
-_________________________________________________________________
-
+		Dave
 

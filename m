@@ -1,36 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268131AbUHKRlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268128AbUHKRlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268131AbUHKRlv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:41:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268134AbUHKRlv
+	id S268128AbUHKRlq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUHKRlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:41:51 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:56334 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268131AbUHKRlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:41:49 -0400
-Date: Wed, 11 Aug 2004 18:41:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040811184148.A30660@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tomas Szepe <szepe@pinerecords.com>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org> <20040811170208.GG10100@louise.pinerecords.com> <20040811181142.A30309@infradead.org> <20040811172222.GI10100@louise.pinerecords.com>
+	Wed, 11 Aug 2004 13:41:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2539 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268128AbUHKRlo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:41:44 -0400
+Date: Wed, 11 Aug 2004 10:19:23 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Grzegorz Kulewski <kangur@polcom.net>
+Cc: phillip@lougher.demon.co.uk, leiyang@nec-labs.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Compression algorithm in cloop
+Message-Id: <20040811101923.6a95215e.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.60.0408111918120.23115@alpha.polcom.net>
+References: <411A4D34.6000104@lougher.demon.co.uk>
+	<Pine.LNX.4.60.0408111918120.23115@alpha.polcom.net>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040811172222.GI10100@louise.pinerecords.com>; from szepe@pinerecords.com on Wed, Aug 11, 2004 at 07:22:22PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 07:22:22PM +0200, Tomas Szepe wrote:
-> And btw, mails to hch@infradead.org bounce.
+On Wed, 11 Aug 2004 19:21:50 +0200 (CEST) Grzegorz Kulewski wrote:
 
-not for just about everyone else on the planet :)
+| On Wed, 11 Aug 2004, Phillip Lougher wrote:
+| 
+| >> Where should I start from? Really a newbie to this,
+| >> appreciate any comments and suggestions!!
+| >
+| > There has been discussion on this list before about adding
+| > bzip2 support to the kernel.  Do a search on the list for this.
+| 
+| Long, long ago there was something called e2compr. They had bzip2 in the 
+| kernel. I remember 40 seconds mc start time on disk compressed with bzip2 
+| on i486-DX 40 MHz... :-)
 
+still at
+  http://e2compr.sourceforge.net/
+
+--
+~Randy

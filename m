@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315200AbSG2LGp>; Mon, 29 Jul 2002 07:06:45 -0400
+	id <S315275AbSG2LRP>; Mon, 29 Jul 2002 07:17:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315257AbSG2LGp>; Mon, 29 Jul 2002 07:06:45 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:44814 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315200AbSG2LGp>; Mon, 29 Jul 2002 07:06:45 -0400
-Message-ID: <3D452165.7060207@evision.ag>
-Date: Mon, 29 Jul 2002 13:05:09 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en, pl, ru
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: martin@dalecki.de, Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
-References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com> <3D40E62B.9070202@evision.ag> <20020726143840.GC8761@suse.de> <3D416625.4050205@evision.ag> <20020728212523.A3460@suse.de> <3D4517EA.5030305@evision.ag> <20020729124436.D4861@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315278AbSG2LRP>; Mon, 29 Jul 2002 07:17:15 -0400
+Received: from mx2.mail.ru ([194.67.57.12]:15631 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id <S315275AbSG2LRO>;
+	Mon, 29 Jul 2002 07:17:14 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Funding GPL projects or funding the GPL?
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 194.226.0.89 via proxy [194.226.0.63]
+Date: Mon, 29 Jul 2002 15:20:35 +0400
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17Z8Zn-00071t-00@f16.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Mon, Jul 29 2002, Marcin Dalecki wrote:
-> 
->>Jens Axboe wrote:
->>
->>
->>>But the crap still got merged, sigh... Yet again an excellent point of
->>>why stuff like this should go through the maintainer. Apparently Linus
->>>blindly applies this stuff.
->>
->>Jens. Please note that this doesn't make *anything* worser then before,
->>since I don't use this function right now.
-> 
-> 
-> SCSI does, though :-)
-> 
-> It's ok now, the issue is resolved as far as I'm concerned.
+     Most of you, people, didn`t ever thought about the fact that the money
+scheme
+  doesn`t simply work at all. That`s it.
 
-Fine. So I will start to use it soon in IDE too...
+  It`s being a _very_ fundamental issue. Look at the history:
+  Money were invented as a human work equivalent. What it
+  became now - this exercise is for the reader.
 
+  Let me prove my point (and by proving i mean pointing out so called worst
+cases):
+
+    1. you are born in a poor family. you can work very hard, but have nothing.
+
+    2. you are employed as a miner. you indeed
+work hard. look at a manager
+  doing brainfarting 24 x 7 x 365.
+
+
+  So the life shows that we cannot rely on the
+money as a human work equivalent.
+  
+  The worst thing is that money corrupt evrything they touch.
+  Thats why i`m doing my OSS developement for
+free, and i don`t plan to change that.
+
+  Let the freedom be with you. And remember - freedom never comes outside of
+you.
+
+---
+
+cheers,
+
+   Samium Gromoff
 

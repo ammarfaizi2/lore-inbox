@@ -1,73 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265089AbTFUHrL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 03:47:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbTFUHrL
+	id S265097AbTFUHww (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 03:52:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265101AbTFUHww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 03:47:11 -0400
-Received: from bart.one-2-one.net ([217.115.142.76]:25613 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S265089AbTFUHrI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 03:47:08 -0400
-Date: Sat, 21 Jun 2003 10:01:41 +0200 (CEST)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-In-Reply-To: <20030620120910.3f2cb001.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.44.0306201258140.10892-100000@notebook.home.mdiehl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 21 Jun 2003 03:52:52 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:45547 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265097AbTFUHwt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 03:52:49 -0400
+Date: Sat, 21 Jun 2003 10:06:19 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Vojtech Pavlik <vojtech@suse.cz>, linux-usb-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hid-core: fix double kfree of device->rdesc on hid_parse_parse error path
+Message-ID: <20030621100619.A23898@ucw.cz>
+References: <20030620234911.GA6246@conectiva.com.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030620234911.GA6246@conectiva.com.br>; from acme@conectiva.com.br on Fri, Jun 20, 2003 at 08:49:11PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Jun 2003, Stephan von Krawczynski wrote:
+On Fri, Jun 20, 2003 at 08:49:11PM -0300, Arnaldo Carvalho de Melo wrote:
+> Hi Vojtech,
+> 
+> 	Please pull from:
+> 
+> bk://kernel.bkbits.net/acme/usb-2.5
+> 
+> 	device->rdesc is freed in hid_free_device.
+> 
+> Best Regards,
+> - Arnaldo
 
-> GPL has an inherent long-term strategy, you are talking of short-term,
-> Larry. That does not match. If I am using only GPL-software I know I am
-> able to use it as is in five years from now.
+Thanks, added that patch to my tree. I didn't pull it from your tree,
+since that one contains a lot of other changesets.
 
-Really? Are you sure it would still compile with gcc-5.1.7 at that time? 
-Are you sure somebody will take care it will still work with latest 
-hardware then? Are you sure somebody will fix all the security issues 
-which came up over the years? Are you sure somebody will help you out in 
-case you are stuck with a new problem then?
+> You can import this changeset into BK by piping this whole message to:
+> '| bk receive [path to repository]' or apply the patch as usual.
+> 
+> ===================================================================
+> 
+> 
+> ChangeSet@1.1363, 2003-06-20 20:30:13-03:00, acme@conectiva.com.br
+>   o hid-core: fix double kfree of device->rdesc on hid_parse_parse error path
+> 
+> 
+>  hid-core.c |    5 -----
+>  1 files changed, 5 deletions(-)
+> 
+> 
+> diff -Nru a/drivers/usb/input/hid-core.c b/drivers/usb/input/hid-core.c
+> --- a/drivers/usb/input/hid-core.c	Fri Jun 20 20:32:46 2003
+> +++ b/drivers/usb/input/hid-core.c	Fri Jun 20 20:32:46 2003
+> @@ -674,7 +674,6 @@
+>  
+>  		if (item.format != HID_ITEM_FORMAT_SHORT) {
+>  			dbg("unexpected long global item");
+> -			kfree(device->rdesc);
+>  			kfree(device->collection);
+>  			hid_free_device(device);
+>  			kfree(parser);
+> @@ -684,7 +683,6 @@
+>  		if (dispatch_type[item.type](parser, &item)) {
+>  			dbg("item %u %u %u %u parsing failed\n",
+>  				item.format, (unsigned)item.size, (unsigned)item.type, (unsigned)item.tag);
+> -			kfree(device->rdesc);
+>  			kfree(device->collection);
+>  			hid_free_device(device);
+>  			kfree(parser);
+> @@ -694,7 +692,6 @@
+>  		if (start == end) {
+>  			if (parser->collection_stack_ptr) {
+>  				dbg("unbalanced collection at end of report description");
+> -				kfree(device->rdesc);
+>  				kfree(device->collection);
+>  				hid_free_device(device);
+>  				kfree(parser);
+> @@ -702,7 +699,6 @@
+>  			}
+>  			if (parser->local.delimiter_depth) {
+>  				dbg("unbalanced delimiter at end of report description");
+> -				kfree(device->rdesc);
+>  				kfree(device->collection);
+>  				hid_free_device(device);
+>  				kfree(parser);
+> @@ -714,7 +710,6 @@
+>  	}
+>  
+>  	dbg("item fetching failed at offset %d\n", (int)(end - start));
+> -	kfree(device->rdesc);
+>  	kfree(device->collection);
+>  	hid_free_device(device);
+>  	kfree(parser);
+> 
+> ===================================================================
+> 
+> 
+> This BitKeeper patch contains the following changesets:
+> 1.1363
+> ## Wrapped with gzip_uu ##
+> 
+> 
+> M'XL( )Z9\SX  \V4VXK;,!"&KZ.G&-C+8GLDV5)BR))VMP?80D/*7A=%GL0F
+> M&RO(3MJ"'[ZR0[/='A*Z]*(^#=:,?\_ALZ_@OB&?CXS=$KN"=ZYI\Y%U-=FV
+> M.IC8NFV\],&Q<"XXDM)M*5ENDGVSC$2<L>"9F]:6<"#?Y",>R]-*^W5'^6CQ
+> M^NW]^Y<+QJ93N"E-O::/U,)TREKG#^:A:&:F+1]<';?>U,V6VN&=W2FT$X@B
+> M[!G7$C/5<86I[BPO.#<IIP)%.E;IHUJ?X#DMB4IP'DX47:8FBK-;X#&72@+*
+> M!%4B$ 3F$G,N(Y0Y(O2MF?W<$GC!(4+V"OYM'3?,@H.R*B+K/.6PJKY X?;+
+> M!X+-RA.!6T%!A\I2=.T+:D)TW8=_VAG?T/$*Y+WSL L)L3>@4&7([B#32@@V
+> M?QP"B_YR8PP-LNL+%1>^ZEGH"4E"8K']H?(4N>[2-"QTA>9<KU9ZJ8N),2K[
+> M?9>?J%7U;M\FWWMS%.['B4**<2H[(26F VCGGKK,WC,K8&M/Z]G&.U/^(O.'
+> MU+GB$ZD#B5)RG@XD*O&$0S'.TPL<(D39?\_A'1RG\P$B_WDX D_SLX-Z!I^W
+> H2FL(7[0:'\UD,!JSP?#^[O1[LB793;/?3L=4:*4EL6^9'"&9"P4     
+>  
 
-Do you feel comfortable depending on that helpful unknown somebody? What 
-if the one who released the stuff doesn't support it any longer because he 
-gave away the hardware or got tired having to fix his stuff over and over 
-again due to api volatility even months after so-called feature freeze or 
-simply due to changed personal preferences?
-
-Of course, you are still better of with the GPL'ed sources available but 
-this alone doesn't buy you anything. In real world the difference between 
-"still possible to support" (thanks to GPL f.e.) and "getting good 
-(relyable in quality and time) support" tends to be non-trivial ;-)
-
-So I don't see any long term strategy there inherent in the GPL. Simply 
-throwing RTFS in front of the people is definitedly better than nothing, 
-but doesn't qualify as a strategy to me. But maybe I'm missing something.
-
-> If I depend on being nice to commercial
-> companies, it may well turn out, that they are not being nice to me no matter
-> what I do.
-
-Well, as a test you might want to try asking (say here on lkml) to get the 
-GPL'ed defxx-driver working. I might be wrong but it may well turn out 
-nobody would be nice doing it for you, no matter what you do ;-)
-
-> In other words: it's all about being free or being dependant on goodwill.
-
-Nope, at least from a user's POV: While you are always free to decide to 
-use it or not - you are always depending on somebody providing you the 
-support you need to keep the stuff working for you...
-
-For somebody willing and capable to do the maintenance himself it's still 
-imposing some dependency/constraint to him, because one needs to allocate 
-time to both keep up with the development process and do the actual work. 
-Which in turn means being dependent on other people's or institutions' 
-goodwill so you can afford said amount of time.
-
-Martin
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

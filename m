@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbUKST5i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261560AbUKSUAa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbUKST5i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 14:57:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbUKST4S
+	id S261560AbUKSUAa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 15:00:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbUKST6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 14:56:18 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7599 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261561AbUKSTwO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 14:52:14 -0500
-Date: Fri, 19 Nov 2004 11:51:58 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Eric Pouech <pouech-eric@wanadoo.fr>
-cc: Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: ptrace single-stepping change breaks Wine
-In-Reply-To: <419E4A76.8020909@wanadoo.fr>
-Message-ID: <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com>
- <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org>
- <419E4A76.8020909@wanadoo.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Nov 2004 14:58:11 -0500
+Received: from phoenix.infradead.org ([81.187.226.98]:32008 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261560AbUKST5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 14:57:45 -0500
+Date: Fri, 19 Nov 2004 19:57:36 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Stelian Pop <stelian@popies.net>, mdharm-usb@one-eyed-alien.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] usb-storage should enable scsi disk in Kconfig
+Message-ID: <20041119195736.GA8466@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stelian Pop <stelian@popies.net>, mdharm-usb@one-eyed-alien.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20041119193350.GE2700@deep-space-9.dsnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041119193350.GE2700@deep-space-9.dsnet>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 19, 2004 at 08:33:50PM +0100, Stelian Pop wrote:
+> As $subject says, usb-storage storage should automatically enable
+> scsi disk support in Kconfig.
+> 
+> Please apply.
 
+No, it shouldn't.  There's lots of usb storage devices that don't use
+sd, as there are lots of SPI/FC/etc.. devices.
 
-On Fri, 19 Nov 2004, Eric Pouech wrote:
->
-> I don't have 2.6.9 installed here, I'm just reporting & interpreting bug reports 
-> we have from end users. I'll try to make on the bug reporters try to fix the 
-> other spots, but that's always easier from them the get the source from one spot.
-
-Btw, does wine ever _use_ PTRACE_SINGLESTEP for any of the things it does?
-
-If it does, then that woulc certainly explain why my "fix" made no 
-difference: my fix _only_ handles the case where the ptracer never 
-actually asks for single-stepping, and single-stepping was started 
-entirely by the program being run (ie by setting TF in eflags from within 
-the program itself).
-
-But if wine ends up using PTRACE_SINGESTEP because wine actually wants to 
-single-step over some instructions, then the kernel will set the PT_DTRACE 
-bit, and start tracing through signal handlers too. The way Wine doesn't 
-want..
-
-		Linus

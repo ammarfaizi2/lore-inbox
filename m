@@ -1,109 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVDENYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVDENgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVDENYh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 09:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbVDENYh
+	id S261542AbVDENgj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 09:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVDENgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 09:24:37 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19472 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261725AbVDENYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 09:24:19 -0400
-Date: Tue, 5 Apr 2005 15:24:18 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Reuben Farrelly <reuben-lkml@reub.net>, len.brown@intel.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: 2.6.12-rc2-mm1: ACPI=y, ACPI_BOOT=n problems
-Message-ID: <20050405132417.GD6885@stusta.de>
-References: <fa.gcqu6i7.1o6qrhn@ifi.uio.no> <42524D83.1080104@reub.net> <20050405121444.GB6885@stusta.de> <6.2.3.0.2.20050406002812.04393a30@tornado.reub.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6.2.3.0.2.20050406002812.04393a30@tornado.reub.net>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 5 Apr 2005 09:36:39 -0400
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:56476
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S261542AbVDENgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 09:36:35 -0400
+Message-ID: <4252945A.40904@ev-en.org>
+Date: Tue, 05 Apr 2005 14:36:26 +0100
+From: Baruch Even <baruch@ev-en.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Spelling mistake threshoulds -> thresholds
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090802050303050700050602"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 06, 2005 at 12:32:52AM +1200, Reuben Farrelly wrote:
-> Hi again
-> 
-> At 12:14 a.m. 6/04/2005, Adrian Bunk wrote:
-> >On Tue, Apr 05, 2005 at 08:34:11PM +1200, Reuben Farrelly wrote:
-> >
-> >> Hi,
-> >
-> >Hi Reuben,
-> >
-> >>...
-> >> Hrm. Something changed between the last -mm release which compiled
-> >> through, and this one..
-> >>...
-> >>   LD      .tmp_vmlinux1
-> >> arch/i386/kernel/built-in.o(.init.text+0x1823): In function `setup_arch':
-> >> : undefined reference to `acpi_boot_table_init'
-> >> arch/i386/kernel/built-in.o(.init.text+0x1828): In function `setup_arch':
-> >> : undefined reference to `acpi_boot_init'
-> >> make: *** [.tmp_vmlinux1] Error 1
-> >> [root@tornado linux-2.6]#
-> >>
-> >> Backing out bk-acpi.patch works around it..
-> >
-> >Please send your .config .
-> 
-> Have just figured out that it seems to be caused by having ACPI 
-> disabled in .config, once I re-enabled ACPI the build problem went away.
-> 
-> Config attached anyway, I imagine the problem is quite reproduceable..
+This is a multi-part message in MIME format.
+--------------090802050303050700050602
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ah, this was the working .config .
-fter setting CONFIG_ACPI=n I started seeing different but most likely 
-related problems.
+Hi,
 
+Just a simple spelling mistake fix.
 
-@Len:
-ACPI=y and ACPI_BOOT=n seems to be a legal configuration (with 
-X86_HT=y), but it breaks into pieces if you try the compilation.
+Signed-Off-By: Baruch Even <baruch@ev-en.org>
 
-The first error I get is:
+--------------090802050303050700050602
+Content-Type: text/x-patch;
+ name="spelling_threshold.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="spelling_threshold.patch"
 
-<--  snip  -->
+diff -Nurp -X dontdiff 2.6.11.orig/include/net/tcp.h 2.6.11/include/net/tcp.h
+--- 2.6.11.orig/include/net/tcp.h	2005-03-16 00:09:00.000000000 +0000
++++ 2.6.11/include/net/tcp.h	2005-04-05 14:33:13.473828484 +0100
+@@ -1351,7 +1351,7 @@ static inline void tcp_cwnd_validate(str
+ 	}
+ }
+ 
+-/* Set slow start threshould and cwnd not falling to slow start */
++/* Set slow start threshold and cwnd not falling to slow start */
+ static inline void __tcp_enter_cwr(struct tcp_sock *tp)
+ {
+ 	tp->undo_marker = 0;
+diff -Nurp -X dontdiff 2.6.11.orig/net/ipv4/ipmr.c 2.6.11/net/ipv4/ipmr.c
+--- 2.6.11.orig/net/ipv4/ipmr.c	2005-03-16 00:09:06.000000000 +0000
++++ 2.6.11/net/ipv4/ipmr.c	2005-04-05 14:33:13.541817170 +0100
+@@ -359,7 +359,7 @@ out:
+ 
+ /* Fill oifs list. It is called under write locked mrt_lock. */
+ 
+-static void ipmr_update_threshoulds(struct mfc_cache *cache, unsigned char *ttls)
++static void ipmr_update_thresholds(struct mfc_cache *cache, unsigned char *ttls)
+ {
+ 	int vifi;
+ 
+@@ -721,7 +721,7 @@ static int ipmr_mfc_add(struct mfcctl *m
+ 	if (c != NULL) {
+ 		write_lock_bh(&mrt_lock);
+ 		c->mfc_parent = mfc->mfcc_parent;
+-		ipmr_update_threshoulds(c, mfc->mfcc_ttls);
++		ipmr_update_thresholds(c, mfc->mfcc_ttls);
+ 		if (!mrtsock)
+ 			c->mfc_flags |= MFC_STATIC;
+ 		write_unlock_bh(&mrt_lock);
+@@ -738,7 +738,7 @@ static int ipmr_mfc_add(struct mfcctl *m
+ 	c->mfc_origin=mfc->mfcc_origin.s_addr;
+ 	c->mfc_mcastgrp=mfc->mfcc_mcastgrp.s_addr;
+ 	c->mfc_parent=mfc->mfcc_parent;
+-	ipmr_update_threshoulds(c, mfc->mfcc_ttls);
++	ipmr_update_thresholds(c, mfc->mfcc_ttls);
+ 	if (!mrtsock)
+ 		c->mfc_flags |= MFC_STATIC;
+ 
 
-  CC      arch/i386/kernel/setup.o
-arch/i386/kernel/setup.c:96: error: parse error before "acpi_sci_flags"
-arch/i386/kernel/setup.c:96: warning: type defaults to `int' in 
-declaration of `acpi_sci_flags'
-arch/i386/kernel/setup.c:96: warning: data definition has no type or 
-storage class
-arch/i386/kernel/setup.c: In function `parse_cmdline_early':
-arch/i386/kernel/setup.c:811: error: request for member `trigger' in 
-something not a structure or union
-arch/i386/kernel/setup.c:814: error: request for member `trigger' in 
-something not a structure or union
-arch/i386/kernel/setup.c:817: error: request for member `polarity' in 
-something not a structure or union
-arch/i386/kernel/setup.c:820: error: request for member `polarity' in 
-something not a structure or union
-arch/i386/kernel/setup.c: In function `setup_arch':
-arch/i386/kernel/setup.c:1571: warning: implicit declaration of function 
-`acpi_boot_table_init'
-arch/i386/kernel/setup.c:1572: warning: implicit declaration of function 
-`acpi_boot_init'
-make[1]: *** [arch/i386/kernel/setup.o] Error 1
-make: *** [arch/i386/kernel] Error 2
-
-<--  snip  -->
-
-
-> Reuben
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--------------090802050303050700050602--

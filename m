@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317489AbSGJGbS>; Wed, 10 Jul 2002 02:31:18 -0400
+	id <S317488AbSGJGbG>; Wed, 10 Jul 2002 02:31:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317491AbSGJGbR>; Wed, 10 Jul 2002 02:31:17 -0400
-Received: from kiruna.synopsys.com ([204.176.20.18]:35723 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S317489AbSGJGbP>; Wed, 10 Jul 2002 02:31:15 -0400
-Date: Wed, 10 Jul 2002 08:33:46 +0200
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
+	id <S317489AbSGJGbG>; Wed, 10 Jul 2002 02:31:06 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:41677 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S317488AbSGJGbE>;
+	Wed, 10 Jul 2002 02:31:04 -0400
+Date: Thu, 11 Jul 2002 08:32:28 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: "Kevin O'Connor" <kevin@koconnor.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
-Message-ID: <20020710063346.GD32293@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel@vger.kernel.org
-References: <200207091549.15913.trond.myklebust@fys.uio.no> <Pine.LNX.3.95.1020709095544.27285A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.95.1020709095544.27285A-100000@chaos.analogic.com>
-User-Agent: Mutt/1.3.28i
+Subject: Re: O(1) batch scheduler
+In-Reply-To: <20020709223021.A4567@arizona.localdomain>
+Message-ID: <Pine.LNX.4.44.0207110831350.3580-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 10:06:45AM -0400, Richard B. Johnson wrote:
-> I think code that opens a directory as a file is broken. We have
-> opendir() for that and it returns a DIR pointer, not a file descriptor.
-> If the directory was properly opened, one would never attempt to
-> fsync() it.
 
-It's the libc which defines it. Theere no syscall "opendir". How you think
-you can return what sus defines as "DIR*" from the kernel?
+On Tue, 9 Jul 2002, Kevin O'Connor wrote:
 
-offtopic: on aix you can do this: "cat ."
+> -			rq->idle_ticks_left = IDLE_TICKS;
+> -			for (i = IDLE_SLOTS-1; i > 0; i--)
+> -				rq->idle_count[i] = rq->idle_count[i-1];
+> -			rq->idle_count[0] = 0;
+> -			rq->idle_avg = recalc_idle_avg(rq);
+> +			rq->idle_avg = (rq->idle_avg * (IDLE_SLOTS - 1)
+> +					+ rq->idle_count) / IDLE_SLOTS;
+> +			rq->idle_count = 0;
+
+this part is buggy: ->idle_ticks_left needs to be reset in this branch.
+
+	Ingo
 

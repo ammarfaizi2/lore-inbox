@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279084AbRJ2JAM>; Mon, 29 Oct 2001 04:00:12 -0500
+	id <S279086AbRJ2Jas>; Mon, 29 Oct 2001 04:30:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279085AbRJ2I75>; Mon, 29 Oct 2001 03:59:57 -0500
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:34300 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S279084AbRJ2I7l>; Mon, 29 Oct 2001 03:59:41 -0500
-Date: Mon, 29 Oct 2001 14:30:03 +0530 (IST)
-From: Manik Raina <manik@cisco.com>
-To: <linux-kernel@vger.kernel.org>
-cc: <linux-abi-devel@lists.sourceforge.net>
-Subject: [Patch] small fix for warning in exec_domain.c
-Message-ID: <Pine.GSO.4.33.0110291428230.20450-100000@cbin2-view1.cisco.com>
+	id <S279087AbRJ2Jaj>; Mon, 29 Oct 2001 04:30:39 -0500
+Received: from mail.anu.edu.au ([150.203.2.7]:14765 "EHLO mail.anu.edu.au")
+	by vger.kernel.org with ESMTP id <S279086AbRJ2JaY>;
+	Mon, 29 Oct 2001 04:30:24 -0500
+Message-ID: <3BDD20E3.6AF58BBB@anu.edu.au>
+Date: Mon, 29 Oct 2001 20:26:59 +1100
+From: Robert Cohen <robert.cohen@anu.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Misaligned write performance
+In-Reply-To: <Pine.LNX.4.33.0110181850001.1489-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Linus Torvalds wrote:
+> 
+> > I believe that this is an odd situation and sure it only happens for
+> > badly written program. I can see that it would be stupid to optimise for
+> > this situation.
+> > But do we really need to do this badly for this case?
+> 
+> Well, if you find a real application that cares, I might change my mind,
+> but right now read-ahead looks like a waste of time to me.. Does anybody
+> really do re-write in practice?
 
-When support for Kernel modules is not configured, we get
-a warning. This fix solves that.
+You're right. I don't have a real world program that cares.
+The program I have is a thing named lantest which is the standard
+benchmark benchmark for macintosh file server performace. Actually as
+far as I can tell, the only benchmark available.
 
-thanks
-Manik Raina
+The reason am bothered by this case is that I feel its bad practise to
+leave degenerate performance situations where the kernel performance
+really sucks if it can be easily avoided. If you have a hole in kernel
+performce where people can get into degenerate performance, sooner or
+later someone is going to fall into it and then they're going to blame
+the kernel. Sure this may only happen to badly written programs, but its
+not as if the world is exactly short of them.
 
-Index: exec_domain.c
-===================================================================
-RCS file: /vger/linux/kernel/exec_domain.c,v
-retrieving revision 1.21
-diff -u -r1.21 exec_domain.c
---- exec_domain.c	25 Oct 2001 20:23:02 -0000	1.21
-+++ exec_domain.c	29 Oct 2001 08:40:02 -0000
-@@ -77,7 +77,6 @@
- lookup_exec_domain(u_long personality)
- {
- 	struct exec_domain *	ep;
--	char			buffer[30];
- 	u_long			pers = personality(personality);
+If you take my situation as a case in point, I was asked to evaluate
+Linux and Solaris a potential file serving platforms for Mac clients. So
+as part of my testing, I fired up lantest as a benchmark. Solaris was
+fine, Linux sucked. My conclusion was that Linux was an immature
+operating system that still needed some work and we went with Solaris.
+Its only because I devoted time and effort into understanding why Linux
+did so badly that I now understand that this is not a Linux problem per
+se. And I only did that because I wanted to report the problem and help
+Linux become a better operating system.
 
- 	read_lock(&exec_domains_lock);
-@@ -89,8 +88,11 @@
+Anyway, as far as I can tell, it would barely affect Linux performance
+to do some read ahead in this case. The disk head is already there, it
+costs almost nothing to read a few extra 10's or 100's of K's of data.
+And it would help eliminate this potentially degenerate case.
 
- #ifdef CONFIG_KMOD
- 	read_unlock(&exec_domains_lock);
--	sprintf(buffer, "personality-%ld", pers);
--	request_module(buffer);
-+	{
-+		char buffer[30];
-+		sprintf(buffer, "personality-%ld", pers);
-+		request_module(buffer);
-+	}
- 	read_lock(&exec_domains_lock);
 
- 	for (ep = exec_domains; ep; ep = ep->next) {
-
+--
+Robert Cohen
+Unix Support
+TLTSU
+Australian National University
+Ph: 612 58389

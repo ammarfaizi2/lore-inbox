@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264976AbTLKOXe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 09:23:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbTLKOXb
+	id S264964AbTLKOlx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:41:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTLKOlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 09:23:31 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:42663 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S264976AbTLKOX3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 09:23:29 -0500
-Subject: Re: PPP over ttyUSB (visor.o, Treo)
-From: Stian Jordet <liste@jordet.nu>
-To: Greg KH <greg@kroah.com>
-Cc: Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20031211064441.GA2529@kroah.com>
-References: <20031210165540.B26394@fi.muni.cz>
-	 <20031210212807.GA8784@kroah.com> <1071105744.1154.1.camel@chevrolet.hybel>
-	 <1071114290.750.18.camel@chevrolet.hybel> <20031211064441.GA2529@kroah.com>
-Content-Type: text/plain
-Message-Id: <1071152620.753.1.camel@chevrolet.hybel>
+	Thu, 11 Dec 2003 09:41:53 -0500
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:2768 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S264964AbTLKOlv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 09:41:51 -0500
+Date: Thu, 11 Dec 2003 09:41:48 -0500
+From: Raul Miller <moth@magenta.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
+Message-ID: <20031211094148.G28449@links.magenta.com>
+References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 11 Dec 2003 15:23:40 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031211054111.GX8039@holomorphy.com>; from wli@holomorphy.com on Wed, Dec 10, 2003 at 09:41:11PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor, 11.12.2003 kl. 07.44 skrev Greg KH:
-> On Thu, Dec 11, 2003 at 04:44:50AM +0100, Stian Jordet wrote:
-> > tor, 11.12.2003 kl. 02.22 skrev Stian Jordet:
-> > > ons, 10.12.2003 kl. 22.28 skrev Greg KH:
-> > > > Can you try the patch below?  I think it will fix the problem.
-> > > 
-> > > Fixes it for me. Thanks :)
-> > > 
-> > Uhm.. I was a bit too fast. It fixed the problem, okay, but it makes the
-> > kernel spit out a lot of these messages:
-> > 
-> > 
-> > Dec 11 02:29:40 chevrolet kernel: usb 1-1: USB disconnect, address 7
-> > Dec 11 02:29:40 chevrolet kernel: hub 1-0:1.0: new USB device on port 1,
-> > assigned address 8
+> On Thu, Dec 11, 2003 at 12:33:39AM -0500, Ed Sweetman wrote:
+> > I thought highmem wasn't necesarily needed for memory <=2GB? Highmem 
+> > incurs some performance hits doesn't it and so the urge to move to it 
+> > with only 2GB is not very attractive.  Anyways i'm just interested in if 
+> > that's the case or not since 2GB is easy to get to these days and i had 
+> > heard that highmem could be avoided passed the 1GB barrier.
+
+On Wed, Dec 10, 2003 at 09:41:11PM -0800, William Lee Irwin III wrote:
+> You're probably thinking of 2:2 split patches.
 > 
-> This has nothing to do with the visor or other usb-serial drivers.  It
-> looks like you have either a flaky USB connection, or a power issue on
-> your USB hub.  Either way, the device keeps disconnecting itself
-> electronically (nothing Linux can do about that) and then reconnecting
-> itself.  Not good.
+> 2:2 splits are at least technically ABI violations, which is probably
+> why this isn't merged etc. Applications sensitive to it are uncommon.
 > 
-> Is this connected to a powered hub?  If not, I'd recommend using one, or
-> getting a new keyboard/mouse as this is on the fritz.
+> Yes, the SVR4 i386 ELF/ABI spec literally mandates 0xC0000000 as the
+> top of the process address space.
 
-It isn't connected to a hub at all. I have never had any usb problems,
-before I tried this patch. Now it's unusable :( What ever is the cause,
-the patch triggers it. 
+Apologies if I'm asking about the obvious, but... 
 
-Best regards,
-Stian
+[1] isn't 0xC0000000 at 3GB?  
+[2] Even if ELF did restrict a user process to 1GB (which I'm pretty
+sure it doesn't), wouldn't the kernel still be able to manage 2GB of
+user memory?
 
+Probably my real question is: "what's this about 2:2 split patches"?
+
+Basically, I thought "linux supports 2GB ram" had been been the case
+since the dark ages.  It's hard for me to comprehend how highmem, or 64
+bit cpus, could have much to do with a 1GB limit.
+
+[In my fantasies, I was thinking that the system came up with only 1GB of
+the memory easily usable, and that the lack of support for my hardware
+meant that it couldn't be properly reconfigured.  But I recognize that
+I haven't spent the time researching this to see if in fact this is
+the case.]
+
+I am in the process of bringing up an cross compilation environment for
+amd64 -- I need to do that anyways -- and I'll try building a real 64
+bit kernel to see if that helps any.  If that doesn't, I guess I'll try
+a couple 4G highmem kernels (one 64 bit, one 32 bit).  If nothing else,
+that will eat up some time...
+
+Thanks,
+
+-- 
+Raul Miller
+moth@magenta.com

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264701AbTF0SlY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 14:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbTF0SlY
+	id S264676AbTF0Sqz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 14:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264679AbTF0Sqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 14:41:24 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:23989 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264701AbTF0SlU
+	Fri, 27 Jun 2003 14:46:55 -0400
+Received: from california.sandia.gov ([146.246.250.1]:27410 "EHLO
+	ca.sandia.gov") by vger.kernel.org with ESMTP id S264676AbTF0Sqx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 14:41:20 -0400
-Message-ID: <3EFC92E9.4040806@austin.ibm.com>
-Date: Fri, 27 Jun 2003 13:54:33 -0500
-From: Mark Peloquin <peloquin@austin.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Fri, 27 Jun 2003 14:46:53 -0400
+From: Mitch Sukalski <mwsukal@ca.sandia.gov>
+Reply-To: mwsukal@ca.sandia.gov
+Organization: Sandia National Laboratories
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: non-transparent Intel 82801BAM/CAM PCI-to-PCI bridge (rev. 81 chip, in IBM T40 2373-92U 4/2003 laptop)
+Date: Fri, 27 Jun 2003 12:00:47 -0700
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, linstab <linstab@osdl.org>,
-       ltp-results <ltp-results@lists.sourceforge.net>
-Subject: Re: [BENCHMARK] 2.5.73-bk3, -bk4, -mjb1 regression test results
-References: <3EFC8E3D.6050505@austin.ibm.com> <1056739431.9085.21.camel@nighthawk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306271200.49875.mwsukal@ca.sandia.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If you have a new IBM T40 (mine is a model 2372-92U, build 4/03, 2GB RAM), the 
+latest 2.4.21 kernel (and 2.4.20 as well), and PCMCIA support is broken, then 
+you may have the same problem that I've just isolated. My symptoms included 
+crazy values for socket status, and many "timed out during reset" messages 
+(see dmesg output below).
 
-
-Dave Hansen wrote:
-
->On Fri, 2003-06-27 at 11:34, Mark Peloquin wrote:
->  
->
->>Nightly Regression Summary
->>for
->>    
->>
->...
->
->Have you ever had these regression tests run against the same kernel?  
->say, 2.5.73 vs 2.5.73
->
->How often do you see improvements or regressions reported then?
->  
->
-
-Its benchmark specific. Currently dbench, specjbb, and lmbench have a 
-few problematic data points that aren't terribly repeatable. So on the 
-same kernel, one can see improvements and regressions. That said, the 
-majority of data points are very repeatable and give good indications of 
-real change. We will continue to tweak things here and there to reduce 
-the number of false positives.
-
-Mark
-
+Jun 12 15:00:36 juggler kernel: Yenta IRQ list 0000, PCI irq11
+Jun 12 15:00:36 juggler kernel: Socket status: 080c2420
+Jun 12 15:00:36 juggler kernel: Yenta IRQ list 0000, PCI irq11
+Jun 12 15:00:36 juggler kernel: Socket status: 000dd9e2
+Jun 12 15:00:39 juggler kernel: cs: socket f74a8000 timed out during reset.  
+Try increasing setup_delay.
+...
 

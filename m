@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272379AbTHBJmP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 05:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272381AbTHBJmP
+	id S272404AbTHBJ4B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 05:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272457AbTHBJ4B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 05:42:15 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:55432 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S272379AbTHBJmO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 05:42:14 -0400
-Date: Sat, 2 Aug 2003 11:41:53 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre10-ac1
-Message-ID: <20030802094153.GA4901@ranty.pantax.net>
-Reply-To: ranty@debian.org
-References: <200308012216.h71MGLe31285@devserv.devel.redhat.com> <20030802040917.GA22776@ip68-4-255-84.oc.oc.cox.net> <20030802063749.GA23189@ranty.pantax.net> <1059816240.22299.31.camel@pegasus>
+	Sat, 2 Aug 2003 05:56:01 -0400
+Received: from viriato1.servicios.retecal.es ([212.89.0.44]:33689 "EHLO
+	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S272404AbTHBJz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 05:55:59 -0400
+Subject: Re: [2.6.0-test2-mm2] Badness in device_release at
+	drivers/base/core.c:84
+From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
+	 =?UTF-8?Q?=F3=AE=A0=92?= <ramon.rey@hispalinux.es>
+To: Greg KH <greg@kroah.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20030802025621.GA2651@kroah.com>
+References: <1059785617.1873.5.camel@debian>
+	 <20030802025621.GA2651@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jtOICpDKfPfgW7PlxKmI"
+Organization: Hispalinux - http://www.hispalinux.es
+Message-Id: <1059818154.1037.8.camel@debian>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1059816240.22299.31.camel@pegasus>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 02 Aug 2003 11:55:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 11:23:53AM +0200, Marcel Holtmann wrote:
-> Hi Manuel,
-> 
-> > > ccache gcc -D__KERNEL__ -I/home/barryn/lsx/kernels/2.4/build/linux-2.4.22-pre10-ac1/include -Wall -Wstrict-prototypes -Wno-trigraphs -Os -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -DMODULE -DMODVERSIONS -include /home/barryn/lsx/kernels/2.4/build/linux-2.4.22-pre10-ac1/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=firmware_class  -DEXPORT_SYMTAB -c firmware_class.c
-> > > firmware_class.c: In function `call_helper':
-> > > firmware_class.c:78: error: `hotplug_path' undeclared (first use in this function)
-> > > firmware_class.c:78: error: (Each undeclared identifier is reported only once
-> > > firmware_class.c:78: error: for each function it appears in.)
-> > > make[1]: *** [firmware_class.o] Error 1
-> > > make[1]: Leaving directory `/home/barryn/lsx/kernels/2.4/build/linux-2.4.22-pre10-ac1/lib'
-> > > make: *** [_mod_lib] Error 2
-> > [snip]
-> > > # CONFIG_HOTPLUG is not set
-> > 
-> >  CONFIG_HOTPLUG needs to be enabled, attached patch to make it explicit:
-> 
-> your patch didn't fix the problem, because it will be the same if some
-> internal driver needs request_firmware() and CONFIG_HOTPLUG is not set.
-> The call_helper() funtcion needs to be put into #idef's.
 
- request_firmware() needs hotplug to do anything useful, without
- hotplug it doesn't make any sense. It is useless.
+--=-jtOICpDKfPfgW7PlxKmI
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
- The patch may not be it, but, IMHO, the way to go is making
- request_firmware() explicitly depend on hotplug, because it does depend
- on it. Suggestions are welcomed.
+El s?, 02-08-2003 a las 04:56, Greg KH escribi=F3:
+> On Sat, Aug 02, 2003 at 02:53:38AM +0200, Ram=F3n Rey Vicente???? wrote:
+> > Hi.
+> >=20
+> > I obtain the included log messages on reboots
+> >=20
+> > Badness in device_release at drivers/base/core.c:84
+> > Badness in kobject_cleanup at lib/kobject.c:402
+>=20
+> Please search the archives before posting this kind of stuff.
+>=20
+> These problems have been fixed and are in Linus's tree.
 
- Regards
+Ups, I'm sorry , I'll be more careful the next time :(.=20
 
- 	Manuel
+Good job Greg!
+--=20
+Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
+        jabber ID       <rreylinux at jabber dot org>
+------------------------------------------------------------
+gpg public key ID 0xBEBD71D5 # http://pgp.escomposlinux.org/
+
+--=-jtOICpDKfPfgW7PlxKmI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
+	digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/K4qqRGk68b69cdURAnwOAJ0c/3lNqAQ5iscILG0eoiNMsOOAoACfZfJe
+lGgY2sKqMN27r+l8RUsaFPo=
+=8CwI
+-----END PGP SIGNATURE-----
+
+--=-jtOICpDKfPfgW7PlxKmI--
+

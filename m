@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263725AbTDTWhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 18:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTDTWhJ
+	id S263726AbTDTWrH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 18:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263727AbTDTWrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 18:37:09 -0400
-Received: from zork.zork.net ([66.92.188.166]:45189 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S263725AbTDTWhJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 18:37:09 -0400
+	Sun, 20 Apr 2003 18:47:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42756 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263726AbTDTWrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 18:47:06 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: OpenSSH protocol version 2 doesn't support Kerberos
- authentication
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: DICTO SIMPLICITER, ARGUMENTUM AD
- BACULUM
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sun, 20 Apr 2003 23:49:10 +0100
-In-Reply-To: <1050878426.614.4.camel@teapot.felipe-alfaro.com> (Felipe
- Alfaro Solana's message of "21 Apr 2003 00:40:27 +0200")
-Message-ID: <6un0iklr89.fsf@zork.zork.net>
-User-Agent: Gnus/5.090019 (Oort Gnus v0.19) Emacs/21.2 (gnu/linux)
-References: <1050878426.614.4.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] 2.5.68 Fix IO_APIC IRQ assignment bug
+Date: Sun, 20 Apr 2003 22:58:49 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <b7v8n9$p8o$1@penguin.transmeta.com>
+References: <200304201811_MC3-1-3537-1648@compuserve.com>
+X-Trace: palladium.transmeta.com 1050879529 26174 127.0.0.1 (20 Apr 2003 22:58:49 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 20 Apr 2003 22:58:49 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> writes:
+In article <200304201811_MC3-1-3537-1648@compuserve.com>,
+Chuck Ebbert  <76306.1226@compuserve.com> wrote:
+>
+> Looks like the fix for the "ran out of interrupt sources" panic
+>has a problem.  It will eventually assign a device the same IRQ
+>number as the first system vector, i.e. the local APIC timer.
 
-> Such situation led me to browse the OpenSSH sources and, to my dismay, I
-> have found that Kerberos V5 authentication is *not* implemented for
-> protocol version 2, only in protocol version 1. Just take a look at
-> sshconnect1.c and sshconnect2.c to check.
+Good call.
 
-I don't use Kerberos, but Debian ships a ssh-krb5 package which claims
-to support authentication via Kerberos for both v1 and v2 connections.
+Although I suspect you need about a million interrupt sources to hit
+this, since FIRST_SYSTEM_VECTOR is somethign like 0xef, and thus you can
+hit it only when "offset" has already been incremented seven times
+(which implies that we've walked the whole vector space quite a few
+times by then).
 
-http://packages.debian.org/unstable/net/ssh-krb5.html
+Did you actually see this on hardware?
 
--- 
-Sean Neakums - <sneakums@zork.net>
+Anyway, applied as obvious.
+
+		Linus

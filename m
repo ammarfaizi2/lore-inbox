@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319623AbSIMMj3>; Fri, 13 Sep 2002 08:39:29 -0400
+	id <S319633AbSIMMn6>; Fri, 13 Sep 2002 08:43:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319625AbSIMMj3>; Fri, 13 Sep 2002 08:39:29 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:18707 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S319623AbSIMMj2>; Fri, 13 Sep 2002 08:39:28 -0400
-Message-ID: <3D81DD9E.4050303@namesys.com>
-Date: Fri, 13 Sep 2002 16:44:14 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Nikita Danilov <Nikita@Namesys.COM>, Bryan Whitehead <driver@jpl.nasa.gov>,
-       Nick LeRoy <nleroy@cs.wisc.edu>, jw schultz <jw@pegasys.ws>,
-       linux-kernel@vger.kernel.org
+	id <S319635AbSIMMn6>; Fri, 13 Sep 2002 08:43:58 -0400
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:26274 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S319633AbSIMMn5> convert rfc822-to-8bit; Fri, 13 Sep 2002 08:43:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: Ivan Ivanov <ivandi@vamo.orbitel.bg>, linux-kernel@vger.kernel.org
 Subject: Re: XFS?
-References: <Pine.LNX.3.96.1020913072112.22464A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Sep 2002 07:47:54 -0500
+User-Agent: KMail/1.4.1
+References: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
+In-Reply-To: <Pine.LNX.4.44.0209131011340.4066-100000@magic.vamo.orbitel.bg>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209130747.54730.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-
->On Thu, 12 Sep 2002, Nikita Danilov wrote:
+On Friday 13 September 2002 02:47 am, Ivan Ivanov wrote:
+> I think that you missed the main problem with all this new "great"
+> filesystems. And the main problem is potential data loss in case of a
+> crash. Only ext3 supports ordered or journal data mode.
 >
->  
+> XFS and JFS are designed for large multiprocessor machines powered by UPS
+> etc., where the risk of power fail, or some kind of tecnical problem is
+> veri low.
 >
->>Then you missed "reiserfs inclusion into the kernel" soap opera.
->>
->>And besides, reiserfs in mainline to no extent means reiser4 in mainline
->>(unfortunately).
->>    
->>
+> On the other side Linux works in much "risky" environment - old
+> machines, assembled from "yellow" parts, unstable power suply and so on.
 >
->No, that's probably a good thing. I don't care how good any programming
->team might be, an implementation written from scratch probably should burn
->in for a while before going in anywhere it might be used for production.
+> With XFS every time when power fails while writing to file the entire file
+> is lost. The joke is that it is normal according FAQ :)
+
+Also note, it has been my experience that the blocks allocated to the file are
+also lost. It takes a fsck operation to recover that.
+
+I had a raided XFS filesystem that lost power at 3am every night... IRIX 
+panic/crash/dead. After the third one in a row half of the raid volume was
+missing. I noticed that when the aviailable space was exausted. It took an
+xfs_repair to rebuild the free space. (power failure due to overloaded circuit
+and somebody turned on a monitor...)
+
+> JFS has the same problem.
+> With ReiserFS this happens sometimes, but much much rarely. May be v4 will
+> solve this problem at all.
 >
->And with all respect to the group, a 4th rewite from scratch in only a few
->years suggests that the ratio of coding to designing is pretty high.
+> The above three filesystems have problems with badblocks too.
 >
->  
+> So the main problem is how usable is the filesystem. I mean if a company
+> spends a few tousand $ to provide a "low risky" environment, then may be
+> it will use AIX or IRIX, but not Linux.
+> And if I am running a <$1000 "server" I will never use XFS/JFS.
 >
-Version 3 came out in 1998 or so, and large software projects should be, 
-but rarely are, rewritten from scratch every 5 years.  If you want to 
-object to XFS, object that it hasn't been rewritten in recent times.
+> -----------------
+> Best Regards
+> Ivan
 
-As for the notion that the more designing you do, the less rewriting you 
-need to do, it is a bit like the belief that the better your scientific 
-theories the less you need to perform experiments.
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-Projects that are no longer attempting rewrites of their cores are dead 
-in their soul, and their authors should pass them on to someone younger.
-
-That said, version 4 will be followed by semantic enhancements and 
-distributed filesystem work, as I finally have in version 4 a storage 
-layer good enough that I can move mostly to the tasks that first 
-interested me about FS design.  Most of the stuff that needs improvement 
-in the version 4 storage layer can be done as new plugins, or so I 
-fondly hope.;-)
-
-Hans
-
+Any opinions expressed are solely my own.

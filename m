@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317642AbSHCSQl>; Sat, 3 Aug 2002 14:16:41 -0400
+	id <S317638AbSHCSOD>; Sat, 3 Aug 2002 14:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317649AbSHCSQY>; Sat, 3 Aug 2002 14:16:24 -0400
-Received: from [200.181.158.64] ([200.181.158.64]:14084 "EHLO
-	firewall.PolesApart.dhs.org") by vger.kernel.org with ESMTP
-	id <S317642AbSHCSOg>; Sat, 3 Aug 2002 14:14:36 -0400
-Date: Sat, 3 Aug 2002 15:18:01 -0300 (BRT)
-From: Alexandre Pereira Nunes <alex@PolesApart.dhs.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: some questions using rdtsc in user space
-In-Reply-To: <006901c23a81$08f52170$0100a8c0@brianwinxp>
-Message-ID: <Pine.LNX.4.44.0208031507370.991-100000@PolesApart.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317639AbSHCSM7>; Sat, 3 Aug 2002 14:12:59 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9232 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317640AbSHCSMy>; Sat, 3 Aug 2002 14:12:54 -0400
+To: James Simmons <jsimmons@transvirtual.com>
+CC: <linux-kernel@vger.kernel.org>
+From: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] 4: 2.5.29-keyboard
+Message-Id: <E17b3Ro-0006wJ-00@flint.arm.linux.org.uk>
+Date: Sat, 03 Aug 2002 19:16:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Aug 2002, Brian Evans wrote:
+This patch has been verified to apply cleanly to 2.5.30
 
-> In a similar case here we just added a PIC controller to buffer
-> the commands and results. They are cheap and easy to program
-> and if your using devices that are very 'dumb' can take a lot
-> of headaches out of making sure timing is correct. Another
-> advantage is you get easier use in all operating systems.
->
-> Brian
->
+Some ARM-based machines have an extra key (#) on their numeric keypad
+that produces the ESC [ S or ESC O S escape sequences.  This patch adds
+Linux support for the key.
 
-My friend had this idea, and we are considering switching to using the
-serial port in this case. We're just trying to see what we can do in
-software, if we got nothing but bad results, that (using a pic) will
-eventualy become our main choice. The reason to nothing doing so is that
-the device is somewhat tolerant, so if we got good average results, maybe
-we keep it as is. But if we decide to use the serial port, we'd better
-using the pic solution anyway, killing both problems (the parallel port
-uses to be used by a printer, while almost everyone has a spare serial
-port). In future we might consider using USB, It seems that there's a PIC
-series with usb interfacing, but for now that's future.
+ drivers/char/keyboard.c |    4 ++--
+ 1 files changed, 2 insertions, 2 deletions
 
-Thanks for your help,
-
-Alexandre
+diff -urN orig/drivers/char/keyboard.c linux/drivers/char/keyboard.c
+--- orig/drivers/char/keyboard.c	Wed Jul 17 15:10:39 2002
++++ linux/drivers/char/keyboard.c	Wed Jul 17 15:14:57 2002
+@@ -552,8 +552,8 @@
+ 
+ static void k_pad(struct vc_data *vc, unsigned char value, char up_flag)
+ {
+-	static const char *pad_chars = "0123456789+-*/\015,.?()";
+-	static const char *app_map = "pqrstuvwxylSRQMnnmPQ";
++	static const char *pad_chars = "0123456789+-*/\015,.?()#";
++	static const char *app_map = "pqrstuvwxylSRQMnnmPQS";
+ 
+ 	if (up_flag)
+ 		return;		/* no action, if this is a key release */
 

@@ -1,77 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUIOKND@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUIOKPH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUIOKND (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 06:13:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUIOKND
+	id S264389AbUIOKPH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 06:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUIOKNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 06:13:03 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:50142 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S264396AbUIOKLL (ORCPT
+	Wed, 15 Sep 2004 06:13:07 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:9702 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S264389AbUIOKLj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 06:11:11 -0400
-Date: Wed, 15 Sep 2004 12:11:10 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/config reducing kernel image size
-Message-ID: <20040915101110.GA12585@MAIL.13thfloor.at>
-Mail-Followup-To: Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no>,
-	linux-kernel@vger.kernel.org
-References: <1095179606.11939.22.camel@host-81-191-110-70.bluecom.no> <20040914172646.GA614@DervishD> <1095183412.1834.7.camel@host-81-191-110-70.bluecom.no> <20040914180124.GA624@DervishD>
+	Wed, 15 Sep 2004 06:11:39 -0400
+Date: Wed, 15 Sep 2004 12:12:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040915101250.GA3538@elte.hu>
+References: <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095210126.2406.70.camel@krustophenia.net> <20040915013925.GF9106@holomorphy.com> <20040915095614.GB1629@elte.hu> <20040915095723.GK9106@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040914180124.GA624@DervishD>
+In-Reply-To: <20040915095723.GK9106@holomorphy.com>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 08:01:24PM +0200, DervishD wrote:
->     Hi Tom :)
-> 
->  * Tom Fredrik Blenning Klaussen <bfg-kernel@blenning.no> dixit:
-> > > > There is no point in storing all the comments and unused options in the
-> > > > kernel image. This typically reduces the config size to about 1/5th
-> > > > before compressing, and to about 1/4th after compressing.
-> > >     I'm with you in that there is no point in storing the comments,
-> > > but I disagree about the unused options. Storing the unused options
-> > > as comments is more useful than it seems ;)
-> > This is why I added a config option.
-> 
->     But removing the comments is a good idea. Even reformatting the
-> contents, or something like that.
->  
-> > >     I'm not really sure about it, but I think that the unset options
-> > > are left as comments for the sake of automation. The space saving
-> > > doesn't (IMHO) worth the pain.
-> > I'm not sure either, but I don't know of any programs that uses this.
-> 
->     Neither do I.
 
-well, the kernel config uses it, to decide if 
-some option is known, or has to be defaulted/asked
+* William Lee Irwin III <wli@holomorphy.com> wrote:
 
-try to remove one of those 'comments' from a config
-and run 'make oldconfig', you'll get asked for this
-specific option ...
+> I had the buggy code being associated with BKL use in mind as a motive
+> for the BKL sweeps etc., and wasn't referring to any pending changes.
 
-best,
-Herbert
+ok, fair enough.
 
-> > Putting this config file inside the same source tree as it was compiled
-> > with, and then just starting and stopping menuconfig will restore it to
-> > it's original form.
-> 
->     That's true.
-> 
->     Raúl Núñez de Arenas Coronado
-> 
-> -- 
-> Linux Registered User 88736
-> http://www.pleyades.net & http://raul.pleyades.net/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	Ingo

@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263657AbREYIo7>; Fri, 25 May 2001 04:44:59 -0400
+	id <S263658AbREYIrT>; Fri, 25 May 2001 04:47:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263658AbREYIou>; Fri, 25 May 2001 04:44:50 -0400
-Received: from t2.redhat.com ([199.183.24.243]:58103 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263657AbREYIoe>; Fri, 25 May 2001 04:44:34 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010525005253.A16005@bug.ucw.cz> 
-In-Reply-To: <20010525005253.A16005@bug.ucw.cz> 
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>, jffs-dev@axis.com
-Subject: Re: jffs on non-MTD device? 
+	id <S263659AbREYIrJ>; Fri, 25 May 2001 04:47:09 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:51610 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S263658AbREYIqw>; Fri, 25 May 2001 04:46:52 -0400
+Message-Id: <5.1.0.14.2.20010525093809.048337e0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 25 May 2001 09:47:24 +0100
+To: Blesson Paul <blessonpaul@usa.net>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [Re: How to add NTFS support]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010525044008.14212.qmail@nwcst284.netaddress.usa.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 25 May 2001 09:44:10 +0100
-Message-ID: <24676.990780250@redhat.com>
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-pavel@suse.cz said:
-> I'm trying to run jffs on my ATA-flash disk (running ext2 could kill
-> some flash cells too soon, right?) but it refuses:
+At 05:40 25/05/2001, Blesson Paul wrote:
+>So you are constructing a improved NTFS file driver. So when you have to 
+>check your written codes of file driver, will u recompile the whole kernel 
+>? . That is what I am asking. I am in a way to build a new file system.
+>I took NTFS as a sample one. I thought , I will first try to compile and make
+>it run.
 
-CompactFlash does wear levelling internally. 
+NTFS is not a good example for a 2.4.x file system at the moment IMHO. It 
+doesn't even use the page cache at all...
 
->         if (MAJOR(dev) != MTD_BLOCK_MAJOR) {
->                 printk(KERN_WARNING "JFFS: Trying to mount a "
->                        "non-mtd device.\n");
->                 return 0;
->         }
+But anyway, I recompile the whole kernel the first time round, i.e. say I 
+install the latest kernel, apply my latest NTFS patch, copy my old .config 
+to linux/.config, make oldconfig. Then I set off: make dep && make bzImage 
+&& make modules && sudo make modules_install [switch to different VT and do 
+other stuff, go out, have dinner, whatever...], then install kernel, lilo, 
+reboot.
 
-> What are reasons for this check? 
+Once I am running the new kernel, it becomes much easier: modify some code 
+in linux/fs/ntfs, then from linux/ I just do: make modules && make 
+modules_install && rmmod ntfs && modprobe ntfs and the new driver is loaded...
 
-JFFS doesn't actually use the block device interface. Specifying it in the 
-mount command is simply a hack to make life easier, which nobody's yet 
-managed to obsolete. We actually use the underlying MTD device:
+If I change any code outside of fs/ntfs then a new make bzImage, etc is 
+required, as I build everything static (only ntfs as a module).
 
-        mtd = get_mtd_device(NULL, MINOR(dev));
+If I install a new kernel as I do quite frequently to keep up on what's 
+going on, a new kernel compile is required from scratch...
 
-If you want JFFS (or JFFS2) on a CF device - in the apparent absence of any 
-other relatively low overhead, compressing, journalling file system to use 
-on it - then you need to provide a translation driver similar to the mtdram 
-one which fakes an MTD device, using a block device as backing store.
+Hope this helps.
 
---
-dwmw2
+Anton
 
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://sf.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

@@ -1,51 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTKCOti (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 09:49:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbTKCOth
+	id S262050AbTKCOya (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 09:54:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTKCOya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 09:49:37 -0500
-Received: from h1ab.lcom.net ([216.51.237.171]:24969 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S262074AbTKCOtg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 09:49:36 -0500
-Date: Mon, 3 Nov 2003 08:49:33 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: linux-kernel@vger.kernel.org
-Subject: IA64/x86-64 and execution protection support?
-Message-ID: <20031103144932.GC31953@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
+	Mon, 3 Nov 2003 09:54:30 -0500
+Received: from scanmail1.cableone.net ([24.116.0.121]:13836 "EHLO
+	scanmail1.cableone.net") by vger.kernel.org with ESMTP
+	id S262050AbTKCOy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 09:54:28 -0500
+Message-ID: <3FA66BF8.1090601@cableone.net>
+Date: Mon, 03 Nov 2003 07:53:44 -0700
+From: Gary Wolfe <gpwolfe@cableone.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: [crash/panic] Linux-2.6.0-test9
+References: <3FA5FFF7.2020006@cableone.net> <20031103005218.6dc72800.akpm@osdl.org>
+In-Reply-To: <20031103005218.6dc72800.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-SMTP-HELO: cableone.net
+X-SMTP-MAIL-FROM: gpwolfe@cableone.net
+X-SMTP-PEER-INFO: 24-116-194-85.cpe.cableone.net [24.116.194.85]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Andrew Morton wrote:
 
-I was reading El Reg this morning when they discussed "execution protection"
-  on the new Intel (IA64) and AMD (K8 and above) chips.
-Does the Linux kernel have support for preventing execution of certain
-  memory regions on those architectures?
-Also, I know that some implementations of x86 stack protection are out there;
-  I've not seen them in the vanilla kernels; is there any plan to implement
-  them?
+>Gary Wolfe <gpwolfe@cableone.net> wrote:
+>  
+>
+>>Greetings,
+>>
+>>I have:
+>>
+>>Asus P4C800 Deluxe w/2.4GHz P4 (no HT and not 800Mhz bus)
+>>
+>>Tried test8 and, now, test9 and both exhibit same problem.
+>>
+>>The issue seems to be related to the PnPBIOS support under the Plug and 
+>>Play Kconfig category.  When enabled I get a crash of the form:
+>>
+>>Linux Plug and Play Support v0.97 (c) Adam Belay
+>>PnPBIOS: Scanning system for PnP BIOS support...
+>>PnPBIOS: Found PnP BIOS installation structure at 0xc00f5350
+>>PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0x5f3a, dseg 0xf0000
+>>general protection fault: 0000 [#1]
+>>CPU: 0
+>>EIP: 0098:[<00002b60>] Not tainted
+>>EFLAGS: 00010083
+>>EIP is at 0x2b60
+>>eax: 000023d6  ebx: 0000007a  ecx: 00010000  edx: 00000001
+>>esi: dfed244e  edi: 0000006d  ebp: dfed0000  esp: dfed9eda
+>>    
+>>
+>
+>Your stack pointer became misaligned.  I thought Manfred fixed that?
+>You don't have nmi_watchdog enabled on the kernel boot command line
+>do you?
+>  
+>
 
-Thank you!
--Joseph
--- 
-Joseph===============================================trelane@digitasaru.net
-"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
- patents against open source projects, Mundie replied, 'Yes, absolutely.'
- An audience member pointed out that many open source projects aren't
- funded and so can't afford legal representation to rival Microsoft's. 'Oh
- well,' said Mundie. 'Get your money, and let's go to court.' 
-Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft
+I do not.  The command line, through grub after the kernel spec is, ro 
+root=/dev/hda5 hdc=ide-scsi
+
+By the way I thought of some more information that may, or may not, 
+matter in this case.  This is all based on RH90, upgraded based on the 
+Documentation/Changes file of course, and I'm using gcc version  3.2.2 
+200330222 (Red Hat Linux 3.2.2-5).
+
+Thanks for the response,
+Gary
+
+>  
+>
+>>ds: 00b0  es: 00b0  ss: 0068
+>>Process Swapper (pid:1 threadinfo=dfed8000 task=c151b900)
+>>Stack: 000003d6 23d629d2 00000000 815d006d 0000d3ff 00010001 9f2c80fc 
+>>006dd408
+>>9f2c0000 d3ff9f08 00060001 61f990c0c 010c010c 007b6054 0000007b 00a08000
+>>601000b0 00a85fd6 00000082 000b0000 00010090 00a80000 00b00000 00a00001
+>>Call Trace:
+>>
+>>Code: Bad EIP value.
+>><0>Kernel panic: Attempted to kill init!
+>>
+>>....blinking  cursor and nothing else.
+>>
+>>If I remove the PNPBIOS option I get past this point.  I would be happy 
+>>to email my full .config should anyone wish to look at it.  I'd also be 
+>>happy to test any patches anyone may have for this issue.
+>>
+>>    
+>>
+>
+>
+>  
+>
+
+
+

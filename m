@@ -1,73 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUGLVzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263804AbUGLV6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUGLVzp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 17:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUGLVzm
+	id S263804AbUGLV6m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUGLV60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 17:55:42 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:20575 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263775AbUGLVyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 17:54:31 -0400
-Date: Mon, 12 Jul 2004 22:54:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] rmaplock 5/6 unuse_process mmap_sem
-In-Reply-To: <Pine.LNX.4.44.0407122248060.4005-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0407122253290.4005-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Mon, 12 Jul 2004 17:58:26 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:34061 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263831AbUGLV5r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 17:57:47 -0400
+Date: Mon, 12 Jul 2004 23:57:41 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: freaky@bananateam.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Memory Stick Issues - (after Wyse Terminal (WinCE.NET))
+Message-ID: <20040712215741.GA2936@pclin040.win.tue.nl>
+References: <S266763AbUGLIjk/20040712083941Z+1618@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <S266763AbUGLIjk/20040712083941Z+1618@vger.kernel.org>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: SINECTIS: mailhost.tue.nl 1114; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updating the mm lock ordering documentation drew attention to the fact
-that we were wrong to blithely add down_read(&mm->mmap_sem) to swapoff's
-unuse_process, while it holds swapcache page lock: not very likely, but
-it could deadlock against, say, mlock faulting a page back in from swap.
+On Mon, Jul 12, 2004 at 08:39:40AM +0000, freaky@bananateam.nl wrote:
 
-But it looks like these days it's safe to drop and reacquire page lock
-if down_read_trylock fails: the page lock is held to stop try_to_unmap
-unmapping the page's ptes as fast as try_to_unuse is mapping them back
-in; but the recent fix for get_user_pages works to prevent that too.
+> One more question, is the patch provided going into the next kernel release?
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
-
- mm/rmap.c     |    4 ++++
- mm/swapfile.c |   10 +++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
-
---- rmaplock4/mm/rmap.c	2004-07-12 18:20:48.025890256 +0100
-+++ rmaplock5/mm/rmap.c	2004-07-12 18:21:02.456696440 +0100
-@@ -526,6 +526,10 @@ static int try_to_unmap_one(struct page 
- 	 * an exclusive swap page, do_wp_page will replace it by a copy
- 	 * page, and the user never get to see the data GUP was holding
- 	 * the original page for.
-+	 *
-+	 * This test is also useful for when swapoff (unuse_process) has
-+	 * to drop page lock: its reference to the page stops existing
-+	 * ptes from being unmapped, so swapoff can make progress.
- 	 */
- 	if (PageSwapCache(page) &&
- 	    page_count(page) != page_mapcount(page) + 2) {
---- rmaplock4/mm/swapfile.c	2004-07-09 10:53:46.000000000 +0100
-+++ rmaplock5/mm/swapfile.c	2004-07-12 18:21:02.458696136 +0100
-@@ -548,7 +548,15 @@ static int unuse_process(struct mm_struc
- 	/*
- 	 * Go through process' page directory.
- 	 */
--	down_read(&mm->mmap_sem);
-+	if (!down_read_trylock(&mm->mmap_sem)) {
-+		/*
-+		 * Our reference to the page stops try_to_unmap_one from
-+		 * unmapping its ptes, so swapoff can make progress.
-+		 */
-+		unlock_page(page);
-+		down_read(&mm->mmap_sem);
-+		lock_page(page);
-+	}
- 	spin_lock(&mm->page_table_lock);
- 	for (vma = mm->mmap; vma; vma = vma->vm_next) {
- 		if (!is_vm_hugetlb_page(vma)) {
-
+Yes.

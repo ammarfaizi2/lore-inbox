@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282817AbRK0G27>; Tue, 27 Nov 2001 01:28:59 -0500
+	id <S282816AbRK0G2t>; Tue, 27 Nov 2001 01:28:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282819AbRK0G2t>; Tue, 27 Nov 2001 01:28:49 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:62947 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S282818AbRK0G2j>;
-	Tue, 27 Nov 2001 01:28:39 -0500
-Date: Tue, 27 Nov 2001 09:26:17 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linux maillist account <l-k@mindspring.com>
-Cc: Robert Love <rml@tech9.net>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: a nohup-like interface to cpu affinity
-In-Reply-To: <5.0.2.1.2.20011126231737.009f0ec0@pop.mindspring.com>
-Message-ID: <Pine.LNX.4.33.0111270921020.3061-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282819AbRK0G2j>; Tue, 27 Nov 2001 01:28:39 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:64684 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S282817AbRK0G2Y>;
+	Tue, 27 Nov 2001 01:28:24 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/802/Makefile 
+In-Reply-To: Your message of "Mon, 26 Nov 2001 22:18:55 -0800."
+             <20011126.221855.102041585.davem@redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 27 Nov 2001 17:28:16 +1100
+Message-ID: <12324.1006842496@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 26 Nov 2001, Linux maillist account wrote:
-
-> A nohup-like interface to the cpu affinity service would be useful.  It
-> could work like the
-> following example:
+On Mon, 26 Nov 2001 22:18:55 -0800 (PST), 
+"David S. Miller" <davem@redhat.com> wrote:
+>   From: Keith Owens <kaos@ocs.com.au>
+>   Date: Tue, 27 Nov 2001 17:12:04 +1100
+>   
+>   The source repository (whether BK or any other system) is not the
+>   problem.  You can get the timestamps right in the source but the moment
+>   you generate and ship a diff then you lose control of timestamps.  See
+>   the long screed below about the problems with shipping generated files,
+>   from kbuild-2.5.txt.
 >
->     $ cpuselect -c 1,3-5 gcc -c module.c
+>Even after reading this I don't understand why defkeymap.c gets
+>special treatment just because it requires external tools to generate.
+>
+>If the timestamps get messed up, it's going to try to regerenerate the
+>file with loadkeys whether you have it or not.
 
-yep, this can be done via the chaff utility i posted:
+When the maintainer did the build on their system, the timestamps were
+right.  The moment the change is converted to a patch and sent for
+inclusion in the kernel, timestamp order cannot be guaranteed, the
+final result on kernel.org may have the base file being older or newer
+than the generated output.  kbuild 2.4 is completely broken for
+generated files, tthe only reason it "works" is because most of these
+files do not change.
 
-	gcc -c module.c & ./chaff $! 0x6
+kbuild 2.5 fixes this problem.  It knows that you can never rely on
+timestamps when you ship both a base file and a file that has been
+generated from it.  Instead it uses checksums to detect any changes,
+that is part of the gory details that were omitted from the previous
+mail.
 
-or, it can be done by changing the affinity of the current shell, every
-new child process will inherit it:
+>At best, I'd be happy to take a patch which commented out the rule
+>which tries to generate net/802/cl2llc.c but not one which will chmod
+>it.  Because the latter only makes sense if we are now deciding to do
+>this for _every_ such case in the tree.
 
-	./chaff $$ 0x6; gcc -c module.c
-
-(or a cpuselect utility can be written.)
-
-> On another subject -- capabilities -- any process should be able to
-> reduce the number of cpus in its own cpu affinity mask without any
-> special permission.  To add cpus to a reduced mask, or to change the
-> cpu affinity mask of other processes, should require the appropriate
-> capability, be it CAP_SYS_NICE, CAP_SYS_ADMIN, or whatever is decided.
-
-yep, this is how sched_set_affinity() is workig - it allows the setting of
-affinities if either CAP_SYS_NICE is set, or the process' uid/gid matches
-that of the target process' effective uid/gid.
-
-	Ingo
+I have fixed _every_ such case in 2.5.  It is unfixable in 2.4, the
+order of timestamps on generated and shipped files is not reliable.
 

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbULUAmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbULUAoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261664AbULUAmR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 19:42:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbULUAmE
+	id S261491AbULUAoq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 19:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbULUAoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 19:42:04 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2061 "HELO
+	Mon, 20 Dec 2004 19:44:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5389 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261275AbULUAlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 19:41:49 -0500
-Date: Tue, 21 Dec 2004 01:41:44 +0100
+	id S261491AbULUAl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 19:41:56 -0500
+Date: Tue, 21 Dec 2004 01:41:51 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] ide-scsi.c: make 2 functions static (fwd)
-Message-ID: <20041221004144.GE21288@stusta.de>
+Subject: [2.6 patch] SCSI megaraid_mm.c: make some code static (fwd)
+Message-ID: <20041221004150.GH21288@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -29,39 +29,31 @@ The patch forwarded below still applies and compiles against
 Please apply.
 
 
+
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Mon, 15 Nov 2004 03:07:55 +0100
+Date:	Mon, 15 Nov 2004 03:14:57 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: James.Bottomley@SteelEye.com
 Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] ide-scsi.c: make 2 functions static
+Subject: [2.6 patch] SCSI megaraid_mm.c: make some code static
 
-The patch below makes two functions without external users static.
+The patch below makes some needlessly global code static.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c.old	2004-11-13 21:51:26.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c	2004-11-13 21:51:41.000000000 +0100
-@@ -301,7 +301,7 @@
- 	return ide_do_drive_cmd(drive, rq, ide_preempt);
- }
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/megaraid/megaraid_mm.c.old	2004-11-13 22:43:49.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/megaraid/megaraid_mm.c	2004-11-13 22:43:58.000000000 +0100
+@@ -65,7 +65,7 @@
+ static int adapters_count_g;
+ static struct list_head adapters_list_g;
  
--ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
-+static ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
- {
- 	struct request *rq;
- 	byte err;
-@@ -327,7 +327,7 @@
- 	return ide_stopped;
- }
+-wait_queue_head_t wait_q;
++static wait_queue_head_t wait_q;
  
--ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
-+static ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
- {
- 	struct request *rq;
- 
+ static struct file_operations lsi_fops = {
+ 	.open	= mraid_mm_open,
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

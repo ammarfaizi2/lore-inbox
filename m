@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130619AbRCPQOw>; Fri, 16 Mar 2001 11:14:52 -0500
+	id <S130616AbRCPQVm>; Fri, 16 Mar 2001 11:21:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130656AbRCPQOo>; Fri, 16 Mar 2001 11:14:44 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:63501 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S130619AbRCPQO0>; Fri, 16 Mar 2001 11:14:26 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <86256A11.00590FF8.00@smtpnotes.altec.com>
-Date: Fri, 16 Mar 2001 10:12:42 -0600
-Subject: Re: How to mount /proc/sys/fs/binfmt_misc ?
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S130618AbRCPQVd>; Fri, 16 Mar 2001 11:21:33 -0500
+Received: from [64.41.138.173] ([64.41.138.173]:36274 "EHLO
+	simon.digitalimpact.com") by vger.kernel.org with ESMTP
+	id <S130616AbRCPQVX>; Fri, 16 Mar 2001 11:21:23 -0500
+Message-ID: <3AB23D6A.E0B072C8@digitalimpact.com>
+Date: Fri, 16 Mar 2001 08:20:58 -0800
+From: "Shane Y. Gibson" <sgibson@digitalimpact.com>
+Organization: Digital Impact, Inc.
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+CC: andrewm@uow.edu.au, kaos@ocs.com.au
+Subject: Re: Oops 0000 and 0002 on dual PIII 750 2.4.2 SMP platform
+In-Reply-To: <Pine.LNX.4.21.0103152311030.4543-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Thanks for the quick response.  I took your suggestion (a) and created
-/etc/binfmt_misc, and set up a test in my rc.local to mount it and register my
-usual entries there if /proc/sys/fs/binfmt_misc doesn't exist.  So now it works
-with both 2.4.3-pre4 and 2.4.2-ac20.
-
-Wayne
-
-
-
-
-Alexander Viro <viro@math.psu.edu> on 03/16/2001 09:37:49 AM
-
-To:   Wayne Brown/Corporate/Altec@Altec
-cc:   linux-kernel@vger.kernel.org
-
-Subject:  Re: How to mount /proc/sys/fs/binfmt_misc ?
-
-
-
-
-
-On Fri, 16 Mar 2001 Wayne.Brown@altec.com wrote:
-
->   The release notes specify this:
+Marcelo Tosatti wrote:
 >
->      mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
->
-> but this doesn't work because
->
->      mount: mount point /proc/sys/fs/binfmt_misc does not exist
+> Can you please try to reproduce it with the following patch against 2.4.2?
 
-Grr... OK, I've been an overoptimistic idiot and missed that ugliness.
+Marcelo (et al),
 
-Solutions:
-     a) mount it on some real place. And write there to register
-entries instead of the bogus /proc/sys/fs/binfmt_misc
-     b) add a couple of proc_mkdir() into fs/proc/root.c
-That is, add
-     proc_mkdir("sys/fs", 0):
-     proc_mkdir("sys/fs/binfmt_misc", 0);
-after the line that says
-     proc_mkdir("sys", 0);
+I'll give it a whirl with the patch.  Should I also
+try setting `nmi_watchdog=0' in lilo.conf, as Andrew
+Morton suggests?
 
-I would strongly recommend (a). In the long run we'll need to go that
-way.
+Additionally, I'll upgrade my version of ksymoops.
+Unfortunately, I won't get a chance to test all of
+this until Monday; at which time I'll report back to
+the group.
 
+v/r
+Shane
+ 
+--
+Shane Y. Gibson                    sgibson@digitalimpact.com
+Network Architect                  (408) 447-8253  work
+IT Data Center Operations          (408) 447-8298  fax
+Digital Impact, Inc.               (650) 302-0193  cellular
+                                   (888) 786-4863  pager
 
-
+ "Outlook not so good." That magic 8-ball knows everything!
+  I'll ask about Exchange Server next.           -- unknown

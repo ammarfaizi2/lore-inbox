@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbUDPHW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 03:22:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262602AbUDPHW7
+	id S262625AbUDPHkk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 03:40:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbUDPHkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 03:22:59 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:59550 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262580AbUDPHW6
+	Fri, 16 Apr 2004 03:40:40 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:58774 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262625AbUDPHki
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 03:22:58 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Axel Weiss <aweiss@informatik.hu-berlin.de>
-Subject: Re: compiling external modules
-Date: Fri, 16 Apr 2004 09:22:56 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200404152305.49456.aweiss@informatik.hu-berlin.de> <20040415215907.GD2656@mars.ravnborg.org>
-In-Reply-To: <20040415215907.GD2656@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Apr 2004 03:40:38 -0400
+Date: Fri, 16 Apr 2004 08:38:36 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Andy Lutomirski <luto@stanford.edu>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com,
+       shuchen@realtek.com.tw
+Subject: Re: r8169 excessive PHY reset
+Message-ID: <20040416083836.A24723@electric-eye.fr.zoreil.com>
+References: <407F6CC8.1060903@stanford.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200404160922.56151.baldrick@free.fr>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <407F6CC8.1060903@stanford.edu>; from luto@stanford.edu on Thu, Apr 15, 2004 at 10:19:04PM -0700
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I get some spare time I will try to come up with a simpler example.
+Andy Lutomirski <luto@stanford.edu> :
+[r8169 phy issue with 2.6.5-mm5]
+> -	mod_timer(timer, RTL8169_PHY_TIMEOUT);
 
-Please do, that would be very helpful, especially if it works for both 2.4 and
-2.6.
+I forgot a 'jiffies +' there. It is fixed in current Linus's tree.
 
-All the best,
-
-Duncan.
+--
+Ueimor

@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266841AbSK1XiR>; Thu, 28 Nov 2002 18:38:17 -0500
+	id <S266865AbSK1XwD>; Thu, 28 Nov 2002 18:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266842AbSK1XiQ>; Thu, 28 Nov 2002 18:38:16 -0500
-Received: from dp.samba.org ([66.70.73.150]:19869 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266841AbSK1XiP>;
-	Thu, 28 Nov 2002 18:38:15 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] Module alias and table support 
-Cc: linux-kernel@vger.kernel.org, "Adam J. Richter" <adam@yggdrasil.com>
-In-reply-to: Your message of "Wed, 27 Nov 2002 14:59:31 -0800."
-             <3DE54E53.8000005@pacbell.net> 
-Date: Fri, 29 Nov 2002 10:39:05 +1100
-Message-Id: <20021128234536.B34522C0BA@lists.samba.org>
+	id <S266876AbSK1XwD>; Thu, 28 Nov 2002 18:52:03 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:3591 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S266865AbSK1XwC>; Thu, 28 Nov 2002 18:52:02 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: connectivity to bkbits.net?
+Date: Thu, 28 Nov 2002 23:59:24 +0000 (UTC)
+Organization: Cistron
+Message-ID: <as6aks$amj$1@ncc1701.cistron.net>
+References: <200211281625.gASGPo804227@work.bitmover.com> <8aiMdRMXw-B@khms.westfalen.de> <20021128211347.D27234@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1038527964 10963 62.216.29.67 (28 Nov 2002 23:59:24 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3DE54E53.8000005@pacbell.net> you write:
-> Thanks, but I was hoping for a less radical solution:  just fixing
-> the "no device table support" bug fixed in the latest modutils ... I
-> do like the idea of forward motion in the module support, except that's
-> not what we've seen so far with modutils.
+In article <20021128211347.D27234@flint.arm.linux.org.uk>,
+Russell King  <rmk@arm.linux.org.uk> wrote:
+>On Thu, Nov 28, 2002 at 06:53:00PM +0200, Kai Henningsen wrote:
+>> >From two or three traceroutes, that problem seems to be at the SGI end. I  
+>> can't get to them either (nothing after the same IP as for you, at hop  
+>> #17, some place at Genuity), but you are practically next door.
+>
+>Lesson #1 of firewalling: drop everything.
+>Lesson #2 of firewalling: only accept what you absolutely have to.
 
-Um, device table support went back in .49, at Adam's request (grand
-plans are great and all that, but other maintainers are busy too, and
-it'll take a while to get the new scheme sorted out).  You just have to
-run depmod -a to generate the .xxxmap files.
+Lesson#3 of firewalling: due to #1 and #2 most admins block
+ICMP_UNREACH_NEEDFRAG as well (ICMP == ping == bad) breaking
+path MTUd. http://alive.znep.com/~marcs/mtu/
 
-The patch included in the 0.8 NEWS file allows the new depmod to
-generate the tables too.
+Note that IPv6 has no fragmentation and pMTUd is mandatory.
+Oh joy.
 
-> Seems like one of the issues is that there's really no maintainer
-> for modutils lately.  And I'm not even sure where to get the latest
-> modutils (more recent than 0.7) even if I were ready to patch them.
+Mike.
+-- 
+They all laughed when I said I wanted to build a joke-telling machine.
+Well, I showed them! Nobody's laughing *now*! -- acesteves@clix.pt
 
-Sorry, I thought I posted it a fair bit.
-	http://www.[COUNTRY].kernel.org/pub/linux/kernel/people/rusty/modules
-
-Hope that helps!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

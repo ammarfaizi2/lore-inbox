@@ -1,67 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314929AbSD2Iry>; Mon, 29 Apr 2002 04:47:54 -0400
+	id <S314938AbSD2JA1>; Mon, 29 Apr 2002 05:00:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314933AbSD2Irx>; Mon, 29 Apr 2002 04:47:53 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:26088 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S314929AbSD2Irw>;
-	Mon, 29 Apr 2002 04:47:52 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: initrd and devfs
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 29 Apr 2002 18:46:45 +1000
-Message-ID: <22788.1020070005@kao2.melbourne.sgi.com>
+	id <S314940AbSD2JA0>; Mon, 29 Apr 2002 05:00:26 -0400
+Received: from xsmtp.ethz.ch ([129.132.97.6]:18474 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S314938AbSD2JAZ>;
+	Mon, 29 Apr 2002 05:00:25 -0400
+Message-ID: <3CCD0B66.4040107@debian.org>
+Date: Mon, 29 Apr 2002 10:59:18 +0200
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: arjan@fenrus.demon.nl
+CC: Matthew M <matthew.macleod@btinternet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Microcode update driver
+In-Reply-To: <fa.fn3ukrv.1ghovg0@ifi.uio.no> <fa.hho4jnv.11lkl19@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Apr 2002 09:00:25.0181 (UTC) FILETIME=[4D0CF8D0:01C1EF5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having problems with the combination of initrd and devfs.
 
-mkinitrd 3.3.9, hacked to build an ia64 initrd on ia32.
-Kernel 2.4.18-ia64-020410, config extract.
 
-CONFIG_DEVFS_FS=y
-CONFIG_DEVFS_MOUNT=y
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_SIZE=8192
-CONFIG_BLK_DEV_INITRD=y
+arjan@fenrus.demon.nl wrote:
 
-linuxrc commands:
+> In article <m171Yag-000Ga6C@Wasteland> you wrote:
+> 
+>>On Saturday 27 April 2002 7:57 pm, Roy Sigurd Karlsbakk wrote:
+>>
+>>>Sorry if this is a FAQ, but where's the microcode.dat supposed to be
+>>>placed? I can't find any information about that in the doc.
+>>>
+>>/usr/share/misc/microcode.dat
+>>
+> 
+> hum doesn't the FHS specify that /usr/share shouldn't contain arch
+> specific files ? microcode.dat I can't really call arch neutral....
 
-insmod /lib/qla1280.o
-echo Mounting /proc filesystem
-mount -t proc /proc /proc
-echo Creating root device
-mkrootdev /dev/root
-  fails "mkrootdev: mknod failed: 17".  devfs has already created
-  /dev/root as a symlink.
-echo 0x0100 > /proc/sys/kernel/real-root-dev
-echo Mounting root filesystem
-mount --ro -t ext2 /dev/root /sysroot
-  fails "mount: error 16 mounting ext2" because /dev/root is wrong.
-pivot_root /sysroot /sysroot/initrd
-  fails "pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2"
 
-By removing /dev/root immediately before mkrootdev /dev/root I can get
-past those errors, even pivot_root works.  But then it gets nasty :-
+Right! But is not a configuration file (in /etc/, like the original sources
+and RH). So it should be in /usr/lib (or in /usr/include, it is really a C/C++
+file, but now we don't use it as a C file).
 
-INIT: version 2.78 booting
-                        Welcome to Red Hat Linux
-                Press 'I' to enter interactive startup.
-Mounting proc filesystem:  [  OK  ]
-Unmounting initrd:  umount: /initrd: device is busy
-  Because of this mount - none /initrd/dev devfs rw 0 0
+Anyway, I will no change the location [1]. The file is a nearly a C file, so
+no problems with other archs. I see it as the man pages of lilo, and other
+arch specific program. They are in /usr/share, readable by all arch,
+but not so usefull on other arch.
 
-If I boot with initrd and devfs=nomount it goes through initrd
-processing and successfully umounts initrd, but then fails "Remounting
-root filesystem in read-write mode: mount: no such partition found".
-/proc/mounts contains
+	giacomo
 
-  /dev/root / ext2 ro 0 0
+PS: Do you maintain the RH kernel-utils ?
 
-What is the correct way of using initrd and devfs together?
 
-devfsd.conf is not the answer, initrd does not run the devfsd daemon.
+[1] until I find a good new location in FHS
 

@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277223AbRJVRa6>; Mon, 22 Oct 2001 13:30:58 -0400
+	id <S277231AbRJVRdU>; Mon, 22 Oct 2001 13:33:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277229AbRJVRat>; Mon, 22 Oct 2001 13:30:49 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:45811
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S277210AbRJVRah>; Mon, 22 Oct 2001 13:30:37 -0400
-Date: Mon, 22 Oct 2001 10:31:06 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with sd_mod in 2.4.12-ac4
-Message-ID: <20011022103106.B27227@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011022010951.A1027@bloch.verdurin.priv>
-Mime-Version: 1.0
+	id <S277214AbRJVRcV>; Mon, 22 Oct 2001 13:32:21 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:5637 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S277230AbRJVRbf>; Mon, 22 Oct 2001 13:31:35 -0400
+Message-ID: <3BD45631.78C4D16F@zip.com.au>
+Date: Mon, 22 Oct 2001 10:24:01 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
+In-Reply-To: <010801c15abe$ced47240$0100050a@abartoszko> <Pine.GSO.4.21.0110220242290.2294-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011022010951.A1027@bloch.verdurin.priv>
-User-Agent: Mutt/1.3.23i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 01:09:51AM +0100, Adam Huffman wrote:
-> This works in 2.4.13-pre5 and 2.4.10-ac11.
->
+Alexander Viro wrote:
+> 
+> ...
+> Check that your modules.conf contains
+> 
+> post-install binfmt_misc mount -t binfmt_misc none /proc/sys/binfmt_misc
+> pre-remove binfmt_misc umount /proc/sys/binfmt_misc
+> 
 
-Can you try to find where in the -ac series that it broke?
-
+Why is it necessary that the new binfmt_misc create its own
+filesystem type, when all it seems to need is a couple of
+/proc entries?

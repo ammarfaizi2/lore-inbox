@@ -1,122 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129249AbRBRTZr>; Sun, 18 Feb 2001 14:25:47 -0500
+	id <S129945AbRBRT0R>; Sun, 18 Feb 2001 14:26:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129945AbRBRTZh>; Sun, 18 Feb 2001 14:25:37 -0500
-Received: from bacchus.veritas.com ([204.177.156.37]:3236 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S129944AbRBRTZS>; Sun, 18 Feb 2001 14:25:18 -0500
-Date: Sun, 18 Feb 2001 19:31:36 +0000 (GMT)
-From: Mark Hemment <markhe@veritas.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] HIGHMEM+buffers
-Message-ID: <Pine.LNX.4.21.0102181919230.11260-200000@alloc>
+	id <S130497AbRBRT0J>; Sun, 18 Feb 2001 14:26:09 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.18.131]:51217 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S129945AbRBRT0B>; Sun, 18 Feb 2001 14:26:01 -0500
+Date: Sun, 18 Feb 2001 19:25:53 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: <kuznet@ms2.inr.ac.ru>
+cc: <linux-kernel@vger.kernel.org>, <davem@redhat.com>
+Subject: Re: SO_SNDTIMEO: 2.4 kernel bugs
+In-Reply-To: <200102181724.UAA24231@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.30.0102181843200.21465-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168455872-793547845-982524696=:11260"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---168455872-793547845-982524696=:11260
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Sun, 18 Feb 2001 kuznet@ms2.inr.ac.ru wrote:
 
-Hi,
+> Hello!
+>
+> > Unfortunately, I discovered a bug with SO_SNDTIMEO/sendfile():
+>
+> None of the options apply to sendfile(). It is not socket level
+> operation. You have to use alarm for it.
 
-  On a 4GB SMP box, configured with HIGHMEM support, making a 670G
-(obviously using a volume manager) ext2 file system takes 12minutes (over
-10minutes of sys time).
+Hi Alexey,
 
-  One problem is buffer allocations do not use HIGHMEM, but the
-nr_free_buffer_pages() doesn't take this into account causing
-balance_dirty_state() to return the wrong state.
+Actually sendfile() _does_ timeout using SO_SNDTIMEO. It just takes longer
+to timeout because the kernel sendfile() page loop will (usually) need to
+timeout a short write, and then timeout a 0 byte write.
 
-  The attached patch fixes the worse part of nr_free_buffer_pages() - with
-HIGHMEM it now only counts free+inactive pages in the NORMAL and DMA
-zone.  It doesn't fix the inactive_dirty calculation.
-  Also, in buffer.c:flush_dirty_buffers(), it is worthwhile to kick the
-disk queues if it decides to reschedule.
+So the actual timeout would be 2 * SO_SNDTIMEO.
 
-  With the patch, that 670G filesystem can be created in 5m36secs (under
-half the time).
+Unfortunately, I'm seeing timeout at (I think) 3 * SO_SNDTIMEO, which I
+can't account for.
 
-  Patch is against 2.4.1-ac18.
+Cheers
+Chris
 
-Mark
-
---168455872-793547845-982524696=:11260
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="buffer.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0102181931360.11260@alloc>
-Content-Description: buffer.patch
-Content-Disposition: attachment; filename="buffer.patch"
-
-ZGlmZiAtdXJOIC1YIGRvbnRkaWZmIHZhbmlsbGEtMi40LjEtYWMxOC9mcy9i
-dWZmZXIuYyBtYXJraGUtMi40LjEtYWMxOC9mcy9idWZmZXIuYw0KLS0tIHZh
-bmlsbGEtMi40LjEtYWMxOC9mcy9idWZmZXIuYwlTdW4gRmViIDE4IDE1OjA2
-OjI2IDIwMDENCisrKyBtYXJraGUtMi40LjEtYWMxOC9mcy9idWZmZXIuYwlT
-dW4gRmViIDE4IDE5OjAzOjE5IDIwMDENCkBAIC0yNjM4LDggKzI2MzgsMTEg
-QEANCiAJCWxsX3J3X2Jsb2NrKFdSSVRFLCAxLCAmYmgpOw0KIAkJYXRvbWlj
-X2RlYygmYmgtPmJfY291bnQpOw0KIA0KLQkJaWYgKGN1cnJlbnQtPm5lZWRf
-cmVzY2hlZCkNCisJCWlmIChjdXJyZW50LT5uZWVkX3Jlc2NoZWQpIHsNCisJ
-CQkvKiBraWNrIHdoYXQgd2UndmUgYWxyZWFkeSBwdXNoZWQgZG93biAqLw0K
-KwkJCXJ1bl90YXNrX3F1ZXVlKCZ0cV9kaXNrKTsNCiAJCQlzY2hlZHVsZSgp
-Ow0KKwkJfQ0KIAkJZ290byByZXN0YXJ0Ow0KIAl9DQogIG91dF91bmxvY2s6
-DQpkaWZmIC11ck4gLVggZG9udGRpZmYgdmFuaWxsYS0yLjQuMS1hYzE4L2lu
-Y2x1ZGUvbGludXgvc3dhcC5oIG1hcmtoZS0yLjQuMS1hYzE4L2luY2x1ZGUv
-bGludXgvc3dhcC5oDQotLS0gdmFuaWxsYS0yLjQuMS1hYzE4L2luY2x1ZGUv
-bGludXgvc3dhcC5oCVN1biBGZWIgMTggMTU6MDY6MjkgMjAwMQ0KKysrIG1h
-cmtoZS0yLjQuMS1hYzE4L2luY2x1ZGUvbGludXgvc3dhcC5oCVN1biBGZWIg
-MTggMTg6MTE6MDMgMjAwMQ0KQEAgLTY1LDcgKzY1LDkgQEANCiANCiBleHRl
-cm4gaW50IG5yX3N3YXBfcGFnZXM7DQogRkFTVENBTEwodW5zaWduZWQgaW50
-IG5yX2ZyZWVfcGFnZXModm9pZCkpOw0KK0ZBU1RDQUxMKHVuc2lnbmVkIGlu
-dCBucl9mcmVlX3BhZ2VzX3pvbmUoaW50KSk7DQogRkFTVENBTEwodW5zaWdu
-ZWQgaW50IG5yX2luYWN0aXZlX2NsZWFuX3BhZ2VzKHZvaWQpKTsNCitGQVNU
-Q0FMTCh1bnNpZ25lZCBpbnQgbnJfaW5hY3RpdmVfY2xlYW5fcGFnZXNfem9u
-ZShpbnQpKTsNCiBGQVNUQ0FMTCh1bnNpZ25lZCBpbnQgbnJfZnJlZV9idWZm
-ZXJfcGFnZXModm9pZCkpOw0KIGV4dGVybiBpbnQgbnJfYWN0aXZlX3BhZ2Vz
-Ow0KIGV4dGVybiBpbnQgbnJfaW5hY3RpdmVfZGlydHlfcGFnZXM7DQpkaWZm
-IC11ck4gLVggZG9udGRpZmYgdmFuaWxsYS0yLjQuMS1hYzE4L21tL3BhZ2Vf
-YWxsb2MuYyBtYXJraGUtMi40LjEtYWMxOC9tbS9wYWdlX2FsbG9jLmMNCi0t
-LSB2YW5pbGxhLTIuNC4xLWFjMTgvbW0vcGFnZV9hbGxvYy5jCVN1biBGZWIg
-MTggMTU6MDY6MjkgMjAwMQ0KKysrIG1hcmtoZS0yLjQuMS1hYzE4L21tL3Bh
-Z2VfYWxsb2MuYwlTdW4gRmViIDE4IDE5OjA0OjM2IDIwMDENCkBAIC01NDcs
-NiArNTQ3LDIzIEBADQogfQ0KIA0KIC8qDQorICogVG90YWwgYW1vdW50IG9m
-IGZyZWUgKGFsbG9jYXRhYmxlKSBSQU0gaW4gYSBnaXZlbiB6b25lLg0KKyAq
-Lw0KK3Vuc2lnbmVkIGludCBucl9mcmVlX3BhZ2VzX3pvbmUgKGludCB6b25l
-X3R5cGUpDQorew0KKwlwZ19kYXRhX3QJKnBnZGF0Ow0KKwl1bnNpZ25lZCBp
-bnQJIHN1bTsNCisNCisJc3VtID0gMDsNCisJcGdkYXQgPSBwZ2RhdF9saXN0
-Ow0KKwl3aGlsZSAocGdkYXQpIHsNCisJCXN1bSArPSAocGdkYXQtPm5vZGVf
-em9uZXMrem9uZV90eXBlKS0+ZnJlZV9wYWdlczsNCisJCXBnZGF0ID0gcGdk
-YXQtPm5vZGVfbmV4dDsNCisJfQ0KKwlyZXR1cm4gc3VtOw0KK30NCisNCisv
-Kg0KICAqIFRvdGFsIGFtb3VudCBvZiBpbmFjdGl2ZV9jbGVhbiAoYWxsb2Nh
-dGFibGUpIFJBTToNCiAgKi8NCiB1bnNpZ25lZCBpbnQgbnJfaW5hY3RpdmVf
-Y2xlYW5fcGFnZXMgKHZvaWQpDQpAQCAtNTY1LDE0ICs1ODIsNDMgQEANCiB9
-DQogDQogLyoNCisgKiBUb3RhbCBhbW91bnQgb2YgaW5hY3RpdmVfY2xlYW4g
-KGFsbG9jYXRhYmxlKSBSQU0gaW4gYSBnaXZlbiB6b25lLg0KKyAqLw0KK3Vu
-c2lnbmVkIGludCBucl9pbmFjdGl2ZV9jbGVhbl9wYWdlc196b25lIChpbnQg
-em9uZV90eXBlKQ0KK3sNCisJcGdfZGF0YV90CSpwZ2RhdDsNCisJdW5zaWdu
-ZWQgaW50CSBzdW07DQorDQorCXN1bSA9IDA7DQorCXBnZGF0ID0gcGdkYXRf
-bGlzdDsNCisJd2hpbGUgKHBnZGF0KSB7DQorCQlzdW0gKz0gKHBnZGF0LT5u
-b2RlX3pvbmVzK3pvbmVfdHlwZSktPmluYWN0aXZlX2NsZWFuX3BhZ2VzOw0K
-KwkJcGdkYXQgPSBwZ2RhdC0+bm9kZV9uZXh0Ow0KKwl9DQorCXJldHVybiBz
-dW07DQorfQ0KKw0KKw0KKy8qDQogICogQW1vdW50IG9mIGZyZWUgUkFNIGFs
-bG9jYXRhYmxlIGFzIGJ1ZmZlciBtZW1vcnk6DQorICoNCisgKiBGb3IgSElH
-SE1FTSBzeXN0ZW1zIGRvbid0IGNvdW50IEhJR0hNRU0gcGFnZXMuDQorICog
-VGhpcyBpcyBmdW5jdGlvbiBpcyBzdGlsbCBmYXIgZnJvbSBwZXJmZWN0IGZv
-ciBISUdITUVNIHN5c3RlbXMsIGJ1dA0KKyAqIGl0IGlzIGNsb3NlIGVub3Vn
-aCBmb3IgdGhlIHRpbWUgYmVpbmcuDQogICovDQogdW5zaWduZWQgaW50IG5y
-X2ZyZWVfYnVmZmVyX3BhZ2VzICh2b2lkKQ0KIHsNCiAJdW5zaWduZWQgaW50
-IHN1bTsNCiANCi0Jc3VtID0gbnJfZnJlZV9wYWdlcygpOw0KLQlzdW0gKz0g
-bnJfaW5hY3RpdmVfY2xlYW5fcGFnZXMoKTsNCisjaWYJQ09ORklHX0hJR0hN
-RU0NCisJc3VtID0gbnJfZnJlZV9wYWdlc196b25lKFpPTkVfTk9STUFMKSAr
-DQorCSAgICAgIG5yX2ZyZWVfcGFnZXNfem9uZShaT05FX0RNQSkgKw0KKwkg
-ICAgICBucl9pbmFjdGl2ZV9jbGVhbl9wYWdlc196b25lKFpPTkVfTk9STUFM
-KSArDQorCSAgICAgIG5yX2luYWN0aXZlX2NsZWFuX3BhZ2VzX3pvbmUoWk9O
-RV9ETUEpOw0KKyNlbHNlDQorCXN1bSA9IG5yX2ZyZWVfcGFnZXMoKSArDQor
-CSAgICAgIG5yX2luYWN0aXZlX2NsZWFuX3BhZ2VzKCk7DQorI2VuZGlmDQog
-CXN1bSArPSBucl9pbmFjdGl2ZV9kaXJ0eV9wYWdlczsNCiANCiAJLyoNCg==
---168455872-793547845-982524696=:11260--

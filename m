@@ -1,88 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265073AbTGHRo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 13:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbTGHRo6
+	id S265062AbTGHRoy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 13:44:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbTGHRoy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 13:44:58 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:60681 "EHLO
+	Tue, 8 Jul 2003 13:44:54 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:52745 "EHLO
 	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S265073AbTGHRoz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 13:44:55 -0400
+	id S265062AbTGHRox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 13:44:53 -0400
 From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.74 - BUG in kfree during sys_close from netstat
-Date: Tue, 8 Jul 2003 21:59:50 +0400
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2.5.74] devfs lookup deadlock/stack corruption combined patch
+Date: Tue, 8 Jul 2003 21:49:17 +0400
 User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, devfs@oss.sgi.com
+References: <E198K0q-000Am8-00.arvidjaar-mail-ru@f23.mail.ru> <200307072306.15995.arvidjaar@mail.ru> <20030707140010.4268159f.akpm@osdl.org>
+In-Reply-To: <20030707140010.4268159f.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200307082155.49404.arvidjaar@mail.ru>
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307082149.17918.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mandrake 9.1, kernel 2.5.74. Started kmail, started kppp, connected, attempted 
-to send or receive - nothing happened. Run netstat -an - and got
+On Tuesday 08 July 2003 01:00, Andrew Morton wrote:
+> Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> > I finally hit a painfully trivial way to reproduce another long standing
+> > devfs problem - deadlock between devfs_lookup and
+> > devfs_d_revalidate_wait.
+>
+> uh.
+>
+> > The current fix is to move re-acquire of i_sem after all
+> > devfs_d_revalidate_wait waiters have been waked up.
+>
+> Directory modifications appear to be under write_lock(&dir->u.dir.lock); so
+> that obvious problem is covered.  Your patch might introduce a race around
+> _devfs_get_vfs_inode() - two CPUs running that against the same inode at
+> the same time?
+>
 
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:1537!
-invalid operand: 0000 [#2]
-CPU:    0
-EIP:    0060:[<c014c530>]    Tainted: P
-EFLAGS: 00010002
-EIP is at kfree+0x2e0/0x2f0
-eax: 0000002c   ebx: 00040000   ecx: cf1fe670   edx: 00000001
-esi: c02b9ee0   edi: 00000100   ebp: c6443f34   esp: c6443f14
-ds: 007b   es: 007b   ss: 0068
-Process netstat (pid: 10138, threadinfo=c6442000 task=c2e2ad40)
-Stack: c6443f28 c02752fe cdcc0908 00000001 00000206 cdcc0908 c34438d4 c245537c
-       c6443f4c c01881b8 00000100 c34438d4 c34438d4 cffdf8e4 c6443f70 c0165089
-       c245537c c34438d4 c245537c c996fa98 c34438d4 c69ee724 00000000 c6443f98
-Call Trace:
- [<c02752fe>] raw_seq_start+0x4e/0x60
- [<c01881b8>] seq_release_private+0x18/0x32
- [<c0165089>] __fput+0x129/0x130
- [<c0163703>] filp_close+0xc3/0x110
- [<c01637e2>] sys_close+0x92/0x120
- [<c010b527>] syscall_call+0x7/0xb
+Actually it just makes it marginally more probable.
 
-Code: 0f 0b 01 06 d1 93 2b c0 e9 44 fd ff ff 8d 76 00 55 89 e5 57
+Normal open without O_CREATE runs ->d_revalidate outside of i_sem i.e. neither 
+devfs_lookup vs. devfs_d_revalidate_wait nor devfs_d_revalidate_wait vs. 
+itself are protected  by i_sem and this is (should be) the most common case 
+for /dev access.
 
-this happened more than once; previous stack (I do not know actually what 
-triggered it - I did not run netstat for sure) looked like:
+This race happens under non-trivial conditions. devfsd descendant (i.e. some 
+action) should be involved; and action triggered by devfs_lookup does not 
+race with it by definition because devfs_lookup waits for action to finish. 
+I.e. it needs another devfsd action that would access /dev entry after it 
+just has been created or two concurrent lookups in LOOKUP action itself. 
+Quite unlikely in real life and race window is very small.
 
-PPP BSD Compression module registered
-PPP Deflate Compression module registered
-kfree_debugcheck: out of range ptr 100h.
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:1537!
-invalid operand: 0000 [#1]
-CPU:    0
-EIP:    0060:[<c014c530>]    Tainted: P
-EFLAGS: 00010002
-EIP is at kfree+0x2e0/0x2f0
-eax: 0000002c   ebx: 00040000   ecx: cf1fe670   edx: 00000001
-esi: c02b9ee0   edi: 00000100   ebp: c7789f34   esp: c7789f14
-ds: 007b   es: 007b   ss: 0068
-Process netstat (pid: 8509, threadinfo=c7788000 task=c2c4d2f0)
-Stack: c7789f28 c02752fe c32d1dc8 00000001 00000206 c32d1dc8 c462c414 c245537c
-       c7789f4c c01881b8 00000100 c462c414 c462c414 cffdf8e4 c7789f70 c0165089
-       c245537c c462c414 c245537c c996fa98 c462c414 c2c3b8d4 00000000 c7789f98
-Call Trace:
- [<c02752fe>] raw_seq_start+0x4e/0x60
- [<c01881b8>] seq_release_private+0x18/0x32
- [<c0165089>] __fput+0x129/0x130
- [<c0163703>] filp_close+0xc3/0x110
- [<c01637e2>] sys_close+0x92/0x120
- [<c010b527>] syscall_call+0x7/0xb
-
-Code: 0f 0b 01 06 d1 93 2b c0 e9 44 fd ff ff 8d 76 00 55 89 e5 57
- <3>kfree_debugcheck: out of range ptr 100h.
-
-Just tried and when connection is done while kmail is not started it works. I 
-am not sure what kmail does - except that it actually is the only application 
-to actively use IP here most of the time.
+I do not want to sound like it has to be ignored - but devfs code is so messy 
+that no trivial fix exists that would not make code even more messy. So I 
+would still apply original fixes and let this problem be solved later - it is 
+not so important as to delay two other.
 
 -andrey

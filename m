@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274752AbRJQGfj>; Wed, 17 Oct 2001 02:35:39 -0400
+	id <S274749AbRJQGmv>; Wed, 17 Oct 2001 02:42:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274766AbRJQGfa>; Wed, 17 Oct 2001 02:35:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33419 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274752AbRJQGfX>;
-	Wed, 17 Oct 2001 02:35:23 -0400
-Date: Tue, 16 Oct 2001 23:35:34 -0700 (PDT)
-Message-Id: <20011016.233534.48799017.davem@redhat.com>
-To: axboe@suse.de
-Cc: cary_dickens2@hp.com, linux-kernel@vger.kernel.org, erik_habbinga@hp.com
-Subject: Re: Problem with 2.4.14prex and qlogicfc
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011017081837.C3035@suse.de>
-In-Reply-To: <C5C45572D968D411A1B500D0B74FF4A80418D570@xfc01.fc.hp.com>
-	<20011017081837.C3035@suse.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274774AbRJQGmm>; Wed, 17 Oct 2001 02:42:42 -0400
+Received: from fep02-0.kolumbus.fi ([193.229.0.44]:48623 "EHLO
+	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id <S274766AbRJQGme>; Wed, 17 Oct 2001 02:42:34 -0400
+Date: Wed, 17 Oct 2001 09:43:42 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: <makisara@kai.makisara.local>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+cc: <linux-kernel@vger.kernel.org>, <jmerkey@timpanogas.org>
+Subject: Re: SCSI tape load problem with Exabyte Drive
+In-Reply-To: <20011016153623.A21324@vger.timpanogas.org>
+Message-ID: <Pine.LNX.4.33.0110170935300.2271-100000@kai.makisara.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jens Axboe <axboe@suse.de>
-   Date: Wed, 17 Oct 2001 08:18:37 +0200
+On Tue, 16 Oct 2001, Jeff V. Merkey wrote:
 
-   On Tue, Oct 16 2001, DICKENS,CARY (HP-Loveland,ex2) wrote:
-   > I'm seeing a problem on all the kernels that are 2.4.13pre1 and up.
+>
+>
+> On 2.4.6 with st and AICXXXX driver, issuance of an MTLOAD command
+> via st ioctl() calls results in a unit attention and failure of
+> the drive while loading a tape from an EXB-480 robotics tape
+> library.
+>
+> Code which generates this error is attached.  The error will not
+> clear unless the code first closes the open handle to the device,
+> then reopens the handle and retries the load command.  The failure
+> scenario is always the same.  The first MTLOAD command triggers
+> the tape drive to load the tape, then all subsequent commands
+> fail until the handle is closed and the device is reopened and
+> a second MTLOAD command gets issued, then the drive starts
+> working.
+>
+This is a "feature" of the st driver: if you get UNIT ATTENTION anywhere
+else than within open(), it is considered an error. In most cases this is
+true but MTLOAD is an exception. I have not thought about this exception
+and noone before you has reported it ;-)
 
-   This smells like a bug in the pci64 conversion of qlogicfc. Maybe davem
-   has an idea, I'll take a look too.
-   
-Not if it broke in pre1 since the pci64 stuff went into pre2 :-)
+As you say, the workaround is to close and reopen the device after MTLOAD.
+You should not need the second MTLOAD.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+I will think about a fix to this problem. The basic reason for not
+allowing UNIT ATTENTION anywhere is that flushing the driver state
+properly in any condition is complicated and there has been no legitimate
+reason to allow this. However, here it should be sufficient to use a no-op
+SCSI command after LOAD to get the UNIT ATTENTION.
+
+	Kai
+
+

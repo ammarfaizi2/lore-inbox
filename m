@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285045AbRLQHxZ>; Mon, 17 Dec 2001 02:53:25 -0500
+	id <S285041AbRLQIUx>; Mon, 17 Dec 2001 03:20:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285047AbRLQHxQ>; Mon, 17 Dec 2001 02:53:16 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:2948 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S285045AbRLQHxC>; Mon, 17 Dec 2001 02:53:02 -0500
-Message-ID: <3C1DF93E.80907@free.fr>
-Date: Mon, 17 Dec 2001 08:55:10 -0500
-From: FORT David <popo.enlighted@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011121
-X-Accept-Language: fr, en-us
+	id <S285048AbRLQIUc>; Mon, 17 Dec 2001 03:20:32 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:37292 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S285041AbRLQIUW> convert rfc822-to-8bit; Mon, 17 Dec 2001 03:20:22 -0500
+From: Christoph Rohland <cr@sap.com>
+To: =?iso-8859-1?q?Ra=FAlN=FA=F1ez?= de Arenas Coronado 
+	<raul@viadomus.com>
+Cc: rml@tech9.net, linux-kernel@vger.kernel.org
+Subject: Re: Is /dev/shm needed?
+In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>
+Organisation: SAP LinuxLab
+Date: 17 Dec 2001 09:19:01 +0100
+In-Reply-To: <E16FkV9-00010E-00@DervishD.viadomus.com>
+Message-ID: <m3heqqi7ii.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.4.16 deadlock in kswapd
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-today i was transfering some files between two drives(reiserfs->ext3) and
-suddenly everything locked up. I sys-rqed to show the executed IP and
-every five times i've tryed it was showing the following stack trace:
+Hi RaúlNúñez,
 
-EIP: 0010:[<c0111657>] CPU: 0 EFLAGS: 00200202    Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-EAX: 00000002 EBX: 02000000 ECX: 00000000 EDX: 00200202
-ESI: efe38120 EDI: e112fe90 EBP: efe38120 DS: 0018 ES: 0018
-CR0: 8005003b CR2: 4002a009 CR3: 1f165000 CR4: 000002d0
-Call Trace: [<c01117b5>] [<c012f052>] [<c01920a5>] [<c0191840>] 
-[<c0191f10>]
-   [<c012f4f6>] [<c012f6d2>] [<c012f72c>] [<c012f7d1>] [<c012f846>] 
-[<c012f981>]
-   [<c012f8e0>] [<c0105000>] [<c0105656>] [<c012f8e0>]
-Warning (Oops_read): Code line not seen, dumping what data is available
+On Mon, 17 Dec 2001, RaúlNúñez de Arenas Coronado wrote:
+>     Hello Robert :)
+> 
+>>It is not needed.  /dev/shm mounted with tmpfs is only needed for
+>>POSIX shared memory, which is still fairly rare.
+> 
+>     That this means that I can mount more than one 'tmpfs' just like
+> if it's a *real* filesystem? I wasn't sure, since it's implemented
+> thru the page cache.
 
- >>EIP; c0111657 <flush_tlb_others+e7/110>   <=====
-Trace; c01117b5 <flush_tlb_page+75/80>
-Trace; c012f052 <swap_out+312/4b0>
-Trace; c01920a5 <ide_dmaproc+135/210>
-Trace; c0191840 <ide_dma_intr+0/c0>
-Trace; c0191f10 <dma_timer_expiry+0/60>
-Trace; c012f4f6 <shrink_cache+306/390>
-Trace; c012f6d2 <shrink_caches+52/80>
-Trace; c012f72c <try_to_free_pages+2c/50>
-Trace; c012f7d1 <kswapd_balance_pgdat+51/a0>
-Trace; c012f846 <kswapd_balance+26/40>
-Trace; c012f981 <kswapd+a1/c0>
-Trace; c012f8e0 <kswapd+0/c0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105656 <kernel_thread+26/30>
-Trace; c012f8e0 <kswapd+0/c0>
+Yes, every single mount is an independant tree.
 
-The interesting thing is that i don't have any swap, so i'm really 
-interested
-in knowing why kswapd is envolved here.
-Feel free to ask additionnal informations.
+>>It is dynamic, so you don't need to specify a size.
+> 
+>     Yes, I knew, I meant the maximum size. I don't want half of the
+> RAM occupied just by a programming mistake ;)))
 
-PS: the kernel is tainted by lm_sensors
+What I like most about /tmp in tmpfs is the ability to resize on the
+fly: I have a big swap partition and a reasonable limit for /tmp and
+/var/tmp.
 
--- 
-%--LINUX-HTTPD-PIOGENE----------------------------------------------------%
-%  -datamining <-/                        |   .~.                         %
-%  -networking/PHP/java/JSPs              |   /V\        L  I  N  U  X    %
-%  -opensource                            |  // \\     >Fear the Penguin< %
-%  -GNOME/enlightenment/GIMP              | /(   )\                       %
-%           feel enlightened....          |  ^^-^^                        %
-%                              HomePage: http://www.enlightened-popo.net  %
-%---------- -- This was sent by Djinn running Linux 2.4.16 -- ------------%
+When one of these gets full I can either stop the affending job or
+increase the limit: If there is swap left I can simply increase the
+limit. If swap is full I add a swap file on a real filesystem and
+increase the limit.
 
+Greetings
+		Christoph
+
+P.S: Documentation/filesystems/tmpfs.txt is in the 2.4.17-rc patch.
 

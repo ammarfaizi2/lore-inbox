@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263568AbTLSTuh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 14:50:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTLSTuh
+	id S263573AbTLSUBc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 15:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTLSUBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 14:50:37 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:44212 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S263568AbTLSTug (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 14:50:36 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: nick black <dank@suburbanjihad.net>
-Date: Fri, 19 Dec 2003 20:50:32 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.6-test11 framebuffer Matrox
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <2D06A661C4B@vcnet.vc.cvut.cz>
+	Fri, 19 Dec 2003 15:01:32 -0500
+Received: from bm-3a.paradise.net.nz ([202.0.58.22]:19606 "EHLO
+	linda-3.paradise.net.nz") by vger.kernel.org with ESMTP
+	id S263573AbTLSUBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 15:01:31 -0500
+Date: Sun, 21 Dec 2003 09:01:47 +1300
+From: Oliver Hunt <ojh16@student.canterbury.ac.nz>
+Subject: Re: IDE issues
+In-reply-to: <3FE2EFD5.6000009@inet6.fr>
+To: Lionel Bouton <Lionel.Bouton@inet6.fr>, linux-kernel@vger.kernel.org
+Message-id: <3FE4AAAB.8000209@student.canterbury.ac.nz>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031105
+ Thunderbird/0.3
+References: <3FE43492.3020703@student.canterbury.ac.nz>
+ <3FE2EFD5.6000009@inet6.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 Dec 03 at 16:29, nick black wrote:
-> In article <3FE2BB05.1000107@convergence.de>, Michael Hunold wrote:
-> > Hmm, I just tested with the 2.6.0 release and my both cards are working 
-> > properly now. The only thing is a huge white box around the penguin logo.
-> 
-> As I said, this happens to me without Petr's patch, and goes away with
-> it.  Can you check out my earlier post in this thread, and analyze your
-> X+fbcon interaction with reagrds to fbdev vs. mga driver, and Petr's
-> patch?
+This is 2.6.0, as i said 2.6.0-test11 worked fine on this system running 
+gentoo, and didn't run under debian... grrr...
 
-I think that it works due to pure luck. XFree's mga driver reprograms 
-some accelerator registers (namely color depth and horizontal line length)
-under some circumstances (like when gnome's clock applet in right upper
-corner changes value - i.e. every second or every minute depending on
-setting when DRI is enabled) even if XFree are not on foreground.  This
-causes serious problems, as then you are running console at (say) 640x480/8bpp,
-but accelerator gets set to 1280x1024/32bpp, painting 16x larger characters
-to screen :-(
+Oh well, off to see if this helps...
 
-I know only three workarounds: either do not use DRI, or disable use of
-accelerator on console (fbset -accel false), or use same vxres and depth
-on console and in X (or fourth: fix XFree driver to not touch hardware
-when they are not on foreground...).
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+--Oliver
+
+Lionel Bouton wrote:
+
+> Oliver Hunt wrote the following on 12/20/2003 12:37 PM :
+>
+>> I was using 2.6.0-test11 on a gentoo install on this system and my 
+>> system worked fine, however that install died earlier this week, and 
+>> now i'm running debian.  The configuration in gentoo didn't boot for 
+>> debian so i reset everything from scratch.
+>>
+>> [...]
+>
+>
+>
+>> CONFIG_BLK_DEV_SIS5513=y
+>>  
+>>
+> Might be either a too old kernel version without proper support for 
+> your SiS chipset or shaky local APIC support.
+> I suppose you use a 2.4 kernel with debian. Which version is it ?
+> What is the chipset (or the motherboard) model ?
+>
+
 

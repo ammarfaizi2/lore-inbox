@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280665AbRKFXN2>; Tue, 6 Nov 2001 18:13:28 -0500
+	id <S280672AbRKFXP7>; Tue, 6 Nov 2001 18:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280667AbRKFXNJ>; Tue, 6 Nov 2001 18:13:09 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5391 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S280665AbRKFXM6>; Tue, 6 Nov 2001 18:12:58 -0500
+	id <S280671AbRKFXPu>; Tue, 6 Nov 2001 18:15:50 -0500
+Received: from ns.suse.de ([213.95.15.193]:62729 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S280670AbRKFXPk>;
+	Tue, 6 Nov 2001 18:15:40 -0500
+Date: Wed, 7 Nov 2001 00:15:37 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: Using %cr2 to reference "current"
-To: dalecki@evision.ag
-Date: Tue, 6 Nov 2001 23:19:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <3BE879A0.E06DE631@evision-ventures.com> from "Martin Dalecki" at Nov 07, 2001 01:00:32 AM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <E161FL2-00027E-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0111070012430.16759-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E161FVT-00029X-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If we are talking about memmory bload. Let's usk a question. Is somebody
-> there
-> working seriously on changing the default function call conventions on
-> IA32
+On Tue, 6 Nov 2001, Alan Cox wrote:
 
-Thats pure noise
+> > If this is done, it should perhaps be done on only on certain x86s,
+> > as some show the results go the other way. For example, the Cyrix III..
+> Do we have many SMP Cyrix III's ?
 
-On a 256Mb machine you have 65536 page map entries. Those are 64 bytes but
-its not hard to get it down to 56 bytes (.5Mb saved) and probably to 48
-bytes. We can probably also shave 8 bytes off each cached inode if not
-more (the nfs changes in -ac are a big help there already) - thats typically
-another 200K on a reasonable size box - and the new bootmem code can save a
-chunk too
+I wish :)  Today no, tomorrow only VIA knows.
+I just used that as an example that it may not be a win everywhere.
+A better example perhaps was the P5 case Ricky posted, which as you
+know, are seen in the real world in SMP.
 
-Im not sure how much the code change for function call patterns would be
-but I doubt its so big for such little effort
+regards,
 
-Alan
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

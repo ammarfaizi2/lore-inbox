@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317166AbSFKQf2>; Tue, 11 Jun 2002 12:35:28 -0400
+	id <S317167AbSFKQgy>; Tue, 11 Jun 2002 12:36:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317169AbSFKQf1>; Tue, 11 Jun 2002 12:35:27 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47632 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317166AbSFKQf1>; Tue, 11 Jun 2002 12:35:27 -0400
-Date: Tue, 11 Jun 2002 17:35:20 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: cfowler <cfowler@outpostsentinel.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Break on serial port
-Message-ID: <20020611173520.D3665@flint.arm.linux.org.uk>
-In-Reply-To: <1023810086.21809.26.camel@moses.outpostsentinel.com>
+	id <S317168AbSFKQgx>; Tue, 11 Jun 2002 12:36:53 -0400
+Received: from [205.214.34.82] ([205.214.34.82]:43791 "EHLO mail.paxonet.com")
+	by vger.kernel.org with ESMTP id <S317167AbSFKQgw>;
+	Tue, 11 Jun 2002 12:36:52 -0400
+Message-Id: <4.3.1.2.20020611092415.031616a0@coremail>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.1
+Date: Tue, 11 Jun 2002 09:28:41 -0700
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+From: Simon Matthews <simon@paxonet.com>
+Subject: Re: NFS Client mis-behaviour?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <shs8z5lanvf.fsf@charged.uio.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 11, 2002 at 11:41:26AM -0400, cfowler wrote:
-> I remeber a while back being able to send a break on serial console. 
-> I've been unable to do this under 2.4.17.  Has this feature been turned
-> off?  Is there a way to turn it back on?
+Trond,
 
-It works fine here.  Please confirm that:
+I realize that the transport is hidden to NFS. However, in the situation I 
+described, the NFS client did not behave well: it seemed to lock up totally 
+for a period of 10-15 minutes.
 
-1. your kernel is built with CONFIG_MAGIC_SYSRQ
-2. cat /proc/sys/kernel/sysrq returns '1'
-3. the serial console port is being held open by some user program (eg,
-   getty or init)
+Other packets were able to make it into and out of the machine: I could 
+telnet/ssh/rlogin. The user could not interrupt the process, despite the 
+fact that the mount options included "intr".
 
-If any of the three above are not true, then break<sysrq-key> doesn't work.
+My point is that the use of half-duplex may prevent the NFS client from 
+sending or receiving (probably sending) some packets. But, since the 
+processes that caused the load had stopped doing anything and other packets 
+were passing in and out, the NFS client should have been able to recover 
+earlier.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Simon
+
+
+At 04:31 PM 6/11/02 +0200, Trond Myklebust wrote:
+> >>>>> " " == Simon Matthews <simon@paxonet.com> writes:
+>
+>      > Solution: the Ethernet interface was connected to a switch that
+>      > only supports half-duplex connecting to a full-duplex switch
+>      > solved the problem. However, it does seem that the NFS client
+>      > was not handling the situation well.
+>
+>The NFS client neither knows nor cares what is going on down in the
+>ethernet layer. As far as it is concerned, you might as well be using
+>semaphore to pass messages between the computers.
+>
+>All the NFS client needs to know is that it should retry the socket
+>sendmsg() operation when a certain (user defined) timeout value is
+>reached.
+>
+>Cheers,
+>   Trond
 

@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317752AbSGKDuu>; Wed, 10 Jul 2002 23:50:50 -0400
+	id <S317754AbSGKECz>; Thu, 11 Jul 2002 00:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317753AbSGKDut>; Wed, 10 Jul 2002 23:50:49 -0400
-Received: from moutvdomng1.kundenserver.de ([195.20.224.131]:61691 "EHLO
-	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317752AbSGKDus>; Wed, 10 Jul 2002 23:50:48 -0400
-Date: Wed, 10 Jul 2002 21:53:25 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Keith Owens <kaos@ocs.com.au>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 2.5.25 net/core/Makefile
-Message-ID: <Pine.LNX.4.44.0207102147400.5067-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317755AbSGKECy>; Thu, 11 Jul 2002 00:02:54 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:22953 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S317754AbSGKECx>;
+	Thu, 11 Jul 2002 00:02:53 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Wed, 10 Jul 2002 22:02:44 -0600
+To: "David S. Miller" <davem@redhat.com>
+Cc: rusty@rustcorp.com.au, adam@yggdrasil.com, R.E.Wolff@BitWizard.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: Rusty's module talk at the Kernel Summit
+Message-ID: <20020710220244.K18791@host110.fsmlabs.com>
+References: <200207041724.KAA06758@adam.yggdrasil.com> <20020711124830.26e2388b.rusty@rustcorp.com.au> <20020710.194555.88475708.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020710.194555.88475708.davem@redhat.com>; from davem@redhat.com on Wed, Jul 10, 2002 at 07:45:55PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Large PTE's aren't free either, though.  Cheap enough to implement but
+there's some fragmentation that isn't easy to deal with in some
+pathological cases.  The virtual space is pretty tight on some archs
+already.
 
-On Jul 9, 2002 02:13:30, Keith Owens wrote:
-> +# See p8022 in net/802/Makefile for config options to check
-> +ifneq ($(subst n,,$(CONFIG_LLC)$(CONFIG_TR)$(CONFIG_IPX)$(CONFIG_ATALK)),)
->  obj-y += ext8022.o
->  endif
+A lot of stock distributions load most drivers as modules so a machine well
+stocked with devices may run into trouble.
 
-Make's response:
-
-make[4]: Entering directory `/home/thunder/tmp/thunder-2.5-kb24/net/core'
-Makefile:20: *** missing separator.  Stop.
-make[4]: Leaving directory `/home/thunder/tmp/thunder-2.5-kb24/net/core'
-make[3]: *** [core] Error 2
-
-Ideas?
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+} Modules can be mapped using a large PTE mapping.
+} I've been meaning to do this on sparc64 for a long
+} time.
+} 
+} So this TLB argument alone is not sufficient :-)
+} I do concur on the "ipv4 as module is difficult to
+} get correct" argument however.
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

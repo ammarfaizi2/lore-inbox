@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbTHWSCN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 14:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264077AbTHWR63
+	id S263509AbTHWR5C (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 13:57:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264976AbTHWRxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 13:58:29 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32384
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264833AbTHWRxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 13:53:30 -0400
-Date: Fri, 22 Aug 2003 15:57:11 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Hannes Reinecke <Hannes.Reinecke@suse.de>
-Cc: Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dumb question: BKL on reboot ?
-Message-ID: <20030822135711.GN29612@dualathlon.random>
-References: <3F434BD1.9050704@suse.de> <20030820112918.0f7ce4fe.akpm@osdl.org> <20030820113520.281fe8bb.davem@redhat.com> <1061411024.9371.33.camel@nighthawk> <3F447D40.5020000@suse.de> <20030821154113.GE29612@dualathlon.random> <3F44EB85.5000108@suse.de> <20030821163938.GG29612@dualathlon.random> <3F45BA87.1060902@suse.de>
+	Sat, 23 Aug 2003 13:53:04 -0400
+Received: from waste.org ([209.173.204.2]:21128 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S264939AbTHWRuk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 13:50:40 -0400
+Date: Sat, 23 Aug 2003 12:50:36 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test3-mm3 - cp -a kills machine
+Message-ID: <20030823175036.GP3958@waste.org>
+References: <20030822015658.GD3958@waste.org> <Pine.LNX.4.44.0308212259000.3258-100000@home.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F45BA87.1060902@suse.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <Pine.LNX.4.44.0308212259000.3258-100000@home.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >This can't be the lock_kernel, you see, there's no lock_kernel
-> >invocation at all in the machine_restart_smp path.
+On Thu, Aug 21, 2003 at 10:59:46PM -0700, Linus Torvalds wrote:
 > 
-> Oh? sys_reboot() does call lock_kernel(). kernel/sys.c:303.
+> On Thu, 21 Aug 2003, Matt Mackall wrote:
+> > > No console message either. Repeated after taking out local APIC
+> > > support, same thing.
+> > 
+> > Similar repeatable problems with periodic fsck on ext3 root. Appears
+> > not to be ext3 or loop, perhaps something IDE-related in Linus' bk
+> > tree added between mm2 and mm3.
+> 
+> The more you can track this down, the easier it will be for us. Willing to 
+> triangulate a bit? For example, just start testing the suspicious parts of 
+> the patch?
 
-yes, I know, I meant that it's not spinning on the lock, sys_reboot gets
-through lock_kernel w/o problems. It gets the lock successfully.
+Doh, false alarm. This turned out to be overzealous marking of
+initdata (about 20 bytes!) in something I was applying locally.
+Apparently, -mm3 made it straddle a page boundary.
 
-> Agreed, this smp_processor_id() == 0 thing is interesting. I'll try you 
-> suggestion and see how far I'll progress.
-
-thanks, that's the right fix as far as I can tell and the lock_kernel
-would better stay to serialize concurrent sys_reboot.
-
-Andrea
+-- 
+Matt Mackall : http://www.selenic.com : of or relating to the moon

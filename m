@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270230AbTGRMQD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 08:16:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271596AbTGRMQD
+	id S271734AbTGRMTM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 08:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271720AbTGRMTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 08:16:03 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12172 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S270230AbTGRMQA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 08:16:00 -0400
-Date: Fri, 18 Jul 2003 09:26:41 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Jim Gifford <maillist@jg555.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.22-pre6 deadlock
-In-Reply-To: <01d701c34cc0$7f698740$3400a8c0@W2RZ8L4S02>
-Message-ID: <Pine.LNX.4.55L.0307180925580.6642@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva>
- <024801c345a2$ceeef090$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307091428450.26373@freak.distro.conectiva>
- <064101c34644$3d917850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva>
- <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva>
- <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva>
- <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva>
- <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva>
- <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307171545460.1789@freak.distro.c
- onectiva> <014501c34c9b$d93d4920$3400a8c0@W2RZ8L4S02>
- <Pine.LNX.4.55L.0307171649340.2003@freak.distro.c onectiva>
- <01d701c34cc0$7f698740$3400a8c0@W2RZ8L4S02>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Jul 2003 08:19:12 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:6160 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271718AbTGRMTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 08:19:09 -0400
+Date: Fri, 18 Jul 2003 13:34:04 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linux-SCSI <linux-scsi@vger.kernel.org>
+Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b4).
+Message-ID: <20030718133404.A26784@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Lars Marowsky-Bree <lmb@suse.de>,
+	Andrew Vasquez <andrew.vasquez@qlogic.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>,
+	Linux-SCSI <linux-scsi@vger.kernel.org>
+References: <B179AE41C1147041AA1121F44614F0B0598B10@AVEXCH02.qlogic.org> <20030718122304.A23013@infradead.org> <20030718121202.GC6520@marowsky-bree.de> <20030718131352.A26546@infradead.org> <20030718122622.GD6520@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030718122622.GD6520@marowsky-bree.de>; from lmb@suse.de on Fri, Jul 18, 2003 at 02:26:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 18, 2003 at 02:26:22PM +0200, Lars Marowsky-Bree wrote:
+> > Given that this module never was in 2.4 I don't see clear backwards
+> > compatiblity problems..
+> 
+> You are being very funny. No, nobody ever shipped a qlogic driver.
+> Right.
 
-Yes, please.
+So what?  Vendor ship all kinds of strange stuff and we can't really
+keep the compat cruft for that around.  And the mpio stuff in qla2xxx
+is _lots_ of cruft.
 
-I'll investigate yours and Stephan more carefully today.
-
-On Thu, 17 Jul 2003, Jim Gifford wrote:
-
-> If it acts up again, do you want a copy of the build logs??
->

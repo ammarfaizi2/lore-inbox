@@ -1,72 +1,223 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268977AbRG3Pft>; Mon, 30 Jul 2001 11:35:49 -0400
+	id <S268972AbRG3Pnt>; Mon, 30 Jul 2001 11:43:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268972AbRG3Pfj>; Mon, 30 Jul 2001 11:35:39 -0400
-Received: from tartarus.telenet-ops.be ([195.130.132.34]:64397 "EHLO
-	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
-	id <S268977AbRG3Pf3>; Mon, 30 Jul 2001 11:35:29 -0400
-Date: Mon, 30 Jul 2001 17:26:28 +0200
-From: Sven Vermeulen <sven.vermeulen@rug.ac.be>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: GPL issuefor run time kernel function overwrite
-Message-ID: <20010730172628.A1078@Zenith.starcenter>
-In-Reply-To: <F56FOSPUPeKljq65Rn800008a48@hotmail.com> <Pine.LNX.3.95.1010730104556.1947A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1010730104556.1947A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Jul 30, 2001 at 10:48:58AM -0400
-X-Operating-System: Linux 2.4.7-ac1
+	id <S268980AbRG3Pna>; Mon, 30 Jul 2001 11:43:30 -0400
+Received: from teranet244-12-200.monarch.net ([24.244.12.200]:27387 "HELO
+	lustre.clusterfilesystem.com") by vger.kernel.org with SMTP
+	id <S268972AbRG3Pn0>; Mon, 30 Jul 2001 11:43:26 -0400
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: "lkml" <linux-kernel@vger.kernel.org>,
+        "Shirish Phatak" <shirish@tacitussystems.com>
+Subject: RE: ext3-2.4-0.9.5
+Date: Mon, 30 Jul 2001 09:43:14 -0600
+Message-ID: <MAEOLIJIABPOFFEFBMOKGEHBCDAA.braam@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+In-Reply-To: <3B657AD9.E15B756D@zip.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Andrew,
 
-On Mon, Jul 30, 2001 at 10:48:58AM -0400, Richard B. Johnson wrote:
-[snip]
-> We already have so-called "proprietary" code being included into
-> the kernel. This started with "harmless" bits of binary which is
-> uploaded into the hardware when some drivers are installed.
-> Including such binary is also contrary to GPL, but without this
-> secret goo, the hardware won't run.
->=20
-> This exception to GPL, in my opinion, opened the door to future
-> corruption and exploitation. Time will tell.
+Boy, you've had quite a weekend again.
 
-Doesn't the copyright-holder of the work have the final decision wether or
-not a non-GPL-modification may be inserted? I think the only change that
-should be done then is a notice that this and that is non-GPL but permitted
-by the copyright-holder...
+Do you think this includes the fix for Shirish' bug?
 
-Ofcourse, If you aren't the copyright-holder of the work (in his totality),
-you need to contact the copyright-holder in order to receive (written)
-permission...
-
-Just a thought.
-
---=20
- Sven Vermeulen            -    Key-ID CDBA2FDB=20
- LUG: http://www.lugwv.be  -    http://www.keyserver.net
+- Peter -
 
 
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> -----Original Message-----
+> From: ext3-users-admin@redhat.com [mailto:ext3-users-admin@redhat.com]On
+> Behalf Of Andrew Morton
+> Sent: Monday, July 30, 2001 9:19 AM
+> To: lkml; ext3-users@redhat.com
+> Subject: ext3-2.4-0.9.5
+>
+>
+>
+> The latest ext3 patches against linux-2.4.7 and linux-2.4.7-ac3 are at
+>
+> 	http://www.uow.edu.au/~andrewm/linux/ext3/
+>
+> Changes since 0.9.4 include:
+>
+> - Fixed a bug which could trip an assertion failure when using small
+>   journals under heavy load in full data journalling mode.
+>
+> - A patch from Ted plus the latest version of e2fsprogs plus the stomping
+>   of various ext3 bugs gives us preliminary support for external journals.
+>
+> - Redesigned the handling of synchronous operations.  Much simplified and
+>   several bugs fixed.
+>
+> - Drastically improved throughput with synchronous mounts - they're now as
+>   efficient as `chattr +S'.
+>
+> - Fixed an O(n^2) bottleneck in the commit code.
+>
+> - Implemented transaction handle batching for a big throughput increase
+>   with synchronous operations.
+>
+>
+> The external journal code seems to work OK - brief usage details
+> are at the
+> web site.  The intent here is that the external journal be an NVRAM device
+> (or a disk) which can be used to accelerate full-data journalling.
+> Simulation using a normal RAM drive indicates that we can double
+> throughput
+> with some loads (dbench) but not others (synctest).  More work is
+> needed to
+> fully characterise this.
+>
+>
+> For the synchronous operations I've put together an application which
+> attempts to simulate an MTA's behaviour.  The simulator is called
+> `synctest' and it is in ext3 CVS.  There's a copy at
+> http://www.uow.edu.au/~andrewm/synctest.c - I'd really appreciate
+> it if the MTA
+> guys could poke some useful holes in the modelling.
+>
+> The simulator launches a (large) number of sub-processes.  Each subprocess
+> does the following:
+>
+>   for 100 different filenames
+>     create a file
+>     write some data to the file (5k to 250k, exponential distribution)
+>     optionally fsync() the file
+>     close the file
+>     optionally fsync() the file's parent dir
+>     rename the file
+>     optionally fsync() the file's parent dir
+>     rename the file
+>     optionally fsync() the file's parent dir
+>     rename the file
+>     optionally fsync() the file's parent dir
+>     unlink the file from 30 passes ago.
+>
+> (I'm told that postfix does a lot of renaming).
+>
+>
+> Now, it makes a very great deal of difference how these files are
+> organised
+> in directories.  If you have 100 processes each doing synchronous
+> operations
+> in separate directories then the new transaction batching in ext3 gives it
+> enormous scalability, whereas ext2 basically stops.
+>
+> If you have 100 processes each doing synchronous operations in a
+> single big
+> directory then ext2 does OK, and ext3 is only slightly quicker than ext2.
+> This is because the VFS serialises operations on particular
+> directories via
+> parent->i_sem and defeats ext3 transaction batching.
+>
+> Most testing was performed on a `chattr +S' directory tree
+> because that seems
+> to be a convenient way to operate popular MTAs.
+>
+> ext3 relied upon the `chattr' setting to provide synchronous semantics for
+> all directory and write operations.  For ext2, the synctest `-f'
+> option was
+> used to fsync the data at the end of the write.
+>
+> The following tests were executed on a modern IDE disk with disk write
+> caching enabled.  Internal journal.  100 processes were used in
+> every test.
+> The number of `synctest' processes per directory was altered.
+>
+> The final column represents ext2 throughput without `chattr +S', but using
+> fsync() to sync the parent directory and the data.
+>
+> processes/dir   number of      ext2 completion   ext3 completion  ext2 (no
+>                 directories    time (minutes)    time (minutes)   chattr)
+>
+>    50               2              7:24              5:10          3:24
+>    20               5              9:21              3:31
+>    10              10             11:09              3:05          6:01
+>     5              20             14:37              3:02
+>     1             100             23:10              2:44          9:44
+>
+>
+> Apparently postfix will typically use 256 directories for hashing its
+> mailspool files.  The reason for this is, presumably, to avoid
+> having single
+> directories with hundreds of thousands of files in them.  Postfix
+> will spawn
+> hundreds of processes to work on those directories.  So the last
+> row of this
+> table is the interesting one.
+>
+> ext2 bogs down because it has so much metadata to write - it is spread all
+> over the disk and cannot benefit from write clustering.
+>
+> ext3 stopped scaling at 20 processes per directory because the limiting
+> factor was checkpointing all the data and metadata into the main
+> filesystem.
+> Seeking.  The time taken to write the data to the journal is
+> negligible when
+> compared with this.  In fact, the same testing was performed with
+> an external
+> journal on RAM disk and the throughput was basically unaltered.  More main
+> memory will really help improve things here.
+>
+> A 400 megabyte journal was used.  What happens is that ext3 happily writes
+> all outgoing data into the journal in linear 100 megabyte chunks until you
+> run out of either a) journal space or b) memory.  Then the whole
+> world stops
+> for 15-20 seconds while hundreds of megabytes of stuff is written all over
+> the main filesystem.  This is optimal, but perhaps not desirable.  Using a
+> smaller journal size will tame this behaviour nicely.  Or use ordered-data
+> mode which runs smoothly, performs well and has full synchronous behaviour
+> and recoverability.
+>
+>
+> Conclusions.  Assuming that `synctest' is somewhat like a real
+> MTA, and that
+> the MTA is using two-level hashing we can say that:
+>
+>
+> - chattr +S on ext2 costs you 2:1 or 3:1 throughput when compared with
+>   fsync()-on-data and fsync()-on-dir.
+>
+> - full-journalling ext3 can offer a 3x to 10x improvement over ext2,
+>   depending upon how ext2 is used and the directory layout/task count.
+>
+> - ext2 likes to have few directories, many processes per directory.
+>
+> - ext3 likes many directories, few processes per directory.
+>
+> - We can write data to the journal much faster than we can checkpoint that
+>   data into the main filesystem, so the benefit of an external
+> journal device
+>   (spinning or NVRAM) has not been demonstrated.
+>
+> - The holding of i_sem over the parent is a severe scalability limitation
+>   with synchronous metadata operations.  Better to have:
+>
+> 	void *opaque;
+> 	down(&parent->i_sem);
+> 	file->f_op->op(&opaque, args...);
+> 	up(&parent->i_sem);
+> 	if (IS_SYNC(inode))
+> 		inode->i_op->wait_on_stuff(opaque);
+>
+> -
+>
+>
+>
+> _______________________________________________
+> Ext3-users mailing list
+> Ext3-users@redhat.com
+> https://listman.redhat.com/mailman/listinfo/ext3-users
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7ZXykXfqz7M26L9sRAlfLAJ988+WWcWoLwlKpOohloLdDMtvy9ACfR/KE
-I58646BDQJzDppGtVqfTsH8=
-=6K4t
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--

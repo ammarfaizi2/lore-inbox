@@ -1,47 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271116AbTHHMzA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 08:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271182AbTHHMzA
+	id S271182AbTHHMzN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 08:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271298AbTHHMzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 08:55:00 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:16769 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S271116AbTHHMy7
+	Fri, 8 Aug 2003 08:55:13 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:54370 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S271182AbTHHMzH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 08:54:59 -0400
-Date: Fri, 8 Aug 2003 14:54:44 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br, sct@redhat.com
-Subject: Re: 2.4.22-rc1 FIFO bug still present
-Message-Id: <20030808145444.388dc9e6.robn@verdi.et.tudelft.nl>
-In-Reply-To: <1060346384.4933.34.camel@dhcp22.swansea.linux.org.uk>
-References: <20030806192306.6085b3e0.robn@verdi.et.tudelft.nl>
-	<1060346384.4933.34.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 8 Aug 2003 08:55:07 -0400
+Date: Fri, 8 Aug 2003 15:55:02 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
+       gibbs@scsiguy.com, alan@redhat.com
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1, aic7xxx-6.2.36: solid hangs)
+Message-ID: <20030808125502.GB150921@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, gibbs@scsiguy.com, alan@redhat.com
+References: <20030729073948.GD204266@niksula.cs.hut.fi> <20030730071321.GV150921@niksula.cs.hut.fi> <Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva> <20030730181003.GC204962@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030730181003.GC204962@niksula.cs.hut.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Aug 2003 13:39:44 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> On Mer, 2003-08-06 at 18:23, Rob van Nieuwkerk wrote:
-> > Stephen C. Tweedie made a fix (see below) for it in May.
-> > It has been in the Alan's -ac series since then and it works fine.
+On Wed, Jul 30, 2003 at 09:10:03PM +0300, you [Ville Herva] wrote:
 > 
-> Certainly seems to be fine and it is a real bug. There is another unfixed
-> one of the same form with tty drivers too
+> However, I just realized that all of those kernel were compiled with fairly
+> dubious gcc, version 2.96-85. I just compiled otherwise identically
+> configured 2.4.21-jam1 with gcc-3.2.1-2. It'll take some time to tell
+> whether this cures it. This is my main suspect now.
 
-Hi Alan,
+Ok, the kernel compiled with gcc version 3.2.1 20021207 (Red Hat Linux 8.0
+3.2.1-2) has now been up for more than a week. It seems stable, but I'm not
+sure yet.
 
-How does this other bug present itself ?
-I use both console and serial port output in my readonly CF
-application.  And I don't have any writes to the CF anymore after
-fixing the FIFO bug.
+Which brings me to the question: which gcc version is considered most stable
+for compiling 2.4.x these days?
 
-	greetings,
-	Rob van Nieuwkerk
+README says:
+"Make sure you have gcc 2.95.3 available.  gcc 2.91.66 (egcs-1.1.2) may
+also work but is not as safe, and *gcc 2.7.2.3 is no longer supported*"
+
+And Documentation/Changes says:
+
+"You may use gcc 3.0.x instead if you wish, although it may cause problems.
+Later versions of gcc have not received much testing for Linux kernel
+compilation, and there are almost certainly bugs (mainly, but not
+exclusively, in the kernel) that will need to be fixed in order to use these
+compilers."
+
+and
+
+"The Red Hat gcc 2.96 compiler subtree can also be used to build this tree.
+You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not build
+the kernel correctly."
+
+This seems to suggest 2.96-85 would be more stable than gcc-3.2.1-2. Is this
+the case?
+  
+> > Justin, is this problem known to other boards or.. ?
+> 
+> The lockups may be completely unrelated to aic7xxx and the crashes on boot
+> that I posted kernel logs of. I don't know.
+
+I guess I'll poll Justin when/if the aic7xxx crashes reappear. The hang was
+probably not related to aic7xxx. Sorry for the false accusation.
+
+
+
+-- v --
+
+v@iki.fi

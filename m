@@ -1,93 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311587AbSDDUzX>; Thu, 4 Apr 2002 15:55:23 -0500
+	id <S311614AbSDDU7x>; Thu, 4 Apr 2002 15:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311614AbSDDUzO>; Thu, 4 Apr 2002 15:55:14 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43274 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S311587AbSDDUzA>;
-	Thu, 4 Apr 2002 15:55:00 -0500
-Message-ID: <3CACBD74.FAED4B72@zip.com.au>
-Date: Thu, 04 Apr 2002 12:54:12 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
+	id <S311615AbSDDU7n>; Thu, 4 Apr 2002 15:59:43 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:59369 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S311614AbSDDU7f>; Thu, 4 Apr 2002 15:59:35 -0500
+Date: Thu, 4 Apr 2002 22:57:56 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <Pine.LNX.3.95.1020404095833.16825A-100000@chaos.analogic.com>
+Message-ID: <Pine.NEB.4.44.0204042244130.7845-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: Linus Torvalds <torvalds@transmeta.com>, Dave Hansen <haveblue@us.ibm.com>,
-        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() atboot 
- time
-In-Reply-To: <Pine.LNX.4.33.0204041113410.12895-100000@penguin.transmeta.com> <1017948383.22303.537.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> 
-> ...
-> Do you think it is better to deny preemption if state==TASK_ZOMBIE (note
-> this requires code in preempt_schedule and the interrupt return path,
-> since Ingo decoupled the two) or just disable preemption around critical
-> regions caused by setting state to TASK_ZOMBIE ?
-> 
-> I suspect this is the first occurrence of a problem of this kind ... and
-> the attached patch handles it.
-> 
+On Thu, 4 Apr 2002, Richard B. Johnson wrote:
 
-No, the problem goes deeper than this.
+>...
+> I am amazed with the number of "lawyers" we have here. Maybe it's
+> just some semantics or property of translation, but it is not
+> illegal to violate a license.
+>
+> The term "illegal" historically refers to laws. Laws are rules
+> enacted by governments.
+>
+> A license is permission, granted by a property owner, usually
+> but not always, setting forth the conditions of use.
+>...
 
-I have code which does, effectively:
+IANAL but my one-and-a-half-years-old copy of German copyright law says
+(very shortened):
 
-sleeper()
-{
-	spin_lock(&some_lock);
-	set_current_state(TASK_UNINTERRUPTIBLE);
-	some_flag = 0;
-	spin_unlock(&lock);
-	schedule();
-	if (some_flag == 0)
-		i_am_horribly_confused();
-}
+<--  snip  -->
 
-waker()
-{
-	spin_lock(&some_lock);
-	some_flag = 1;
-	wake_up_process(sleeper);
-	spin_unlock(&some_lock);
-}
+Zu den geschuetzten Werken ... gehoeren insbesondere:
+- ... Computerprogramme
+...
+Wer in anderen als den gesetzlich zugelassenen Faellen ohne Einwilligung
+eines Berechtigten ein Werk oder eine Bearbeitung oder Umgestaltung eines
+Werkes vervielfaeltigt, verbreitet oder oeffentlich wiedergibt, wird mit
+Freiheitsstrafe bis zu drei Jahren oder mit Geldstrafe bestraft.
+...
+Handelt der Taeter ... gewerbsmaessig, so ist die Strafe Freiheitsstrafe
+bis zu fuenf Jahre oder Geldstrafe.
+...
 
-or something like that.  See __pdflush() and 
-pdflush_operation() in http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8-pre1/delalloc/dallocbase-60-pdflush.patch
+<--  snip  -->
 
-The above code work fine, is nice and I want to keep
-it that way.  But it fails on preempt.
+A _very rough_ summary (I don't think I can really translate this legal
+text correctly - there are perhaps people on this list who can make a
+real translation) is:
 
-The spin_unlock() in sleeper() can sometimes set
-task->state to TASK_RUNNING(), so my schedule() call
-just falls straight through.
+If you copy a computer program in a case where it's not permitted by law
+without the permission of the copyright holder the penalty is a fine or up
+to three years prison. If you do this commercially the penalty is a fine
+or up to five years prison.
 
-Probably nobody has noticed this in other places because
-most sleep/wakeup stuff tends to be done inside a loop;
-the bogus "wakeup" is ignored.
+> Cheers,
+> Dick Johnson
 
-Although it can be worked around at the call site, I
-think this needs fixing.  Otherwise we have the rule
-"spin_unlock will flip you into TASK_RUNNING 0.0001%
-of the time if CONFIG_PREEMPT=y".  ug.
+cu
+Adrian
 
-I have thought deeply about this, and I then promptly
-forgot everything I thought about, but I ended up
-concluding that the sanest way of resolving this is
-inside __set_current_state().  If the new state is
-TASK_RUNNING and the old state is not TASK_RUNNING
-then enable preemption, call schedule() if necessary, etc.
 
-It is not acceptable to just say "don't preempt a task
-which is not in state TASK_RUNNING", because if an
-interrupt happens against a CPU which is running a task
-which is in state TASK_INTERRUPTIBLE (say), then that
-wakeup won't be serviced until the task exits the kernel.
-
--

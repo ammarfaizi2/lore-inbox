@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129507AbQLWOhq>; Sat, 23 Dec 2000 09:37:46 -0500
+	id <S129666AbQLWOk1>; Sat, 23 Dec 2000 09:40:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129666AbQLWOhh>; Sat, 23 Dec 2000 09:37:37 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:47365 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S129507AbQLWOhY>; Sat, 23 Dec 2000 09:37:24 -0500
-Date: Sat, 23 Dec 2000 15:04:08 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: John Covici <covici@ccs.covici.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 test12 ipchains doesn't work as module
-Message-ID: <20001223150408.W5858@coruscant.gnumonks.org>
-In-Reply-To: <m3lmtblvwf.fsf@ccs.covici.com>
-Mime-Version: 1.0
+	id <S130076AbQLWOkR>; Sat, 23 Dec 2000 09:40:17 -0500
+Received: from colorfullife.com ([216.156.138.34]:21261 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S129666AbQLWOkM>;
+	Sat, 23 Dec 2000 09:40:12 -0500
+Message-ID: <3A44B324.1E1E9AF1@colorfullife.com>
+Date: Sat, 23 Dec 2000 15:13:56 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Q: netdevice interface change
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m3lmtblvwf.fsf@ccs.covici.com>; from covici@ccs.covici.com on Tue, Dec 19, 2000 at 08:32:48PM -0500
-X-Operating-System: 2.4.0-test11p4
-X-Date: Today is Prickle-Prickle, the 62nd day of The Aftermath in the YOLD 3166
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19, 2000 at 08:32:48PM -0500, John Covici wrote:
-> I configured 2.4.0 test12 to use the ipchains compatability option as
-> a module and I did a modprobe on all the other modules in that section
-> of such as iptable_filter, etc.  When I tried to do the modprobe on
->  
+Hi Andrew,
 
-I'm not sure if I understand you correctly, but it is _not_ possible
-to use any of the two backwards compatibility modules in combination with
-the new modules. Either you use ipchains backwards compatibility _or_
-iptable_filter.
+I have 2 questions about your netdevice2.txt:
+   http://www.uow.edu.au/~andrewm/linux/netdevice2.txt 
 
-For more discussion about iptables/netfilter, join the netfilter mailinglist
-(see http://netfilter.kernelnotes.org)
+* is withdraw_netdevice() really required, can't unregister_netdev
+check "hidden", and notify the protocols/hotplug based on that value?
 
->          John Covici
->          covici@ccs.covici.com
+* I don't like the backward compatibility section:
 
--- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org                http://www.gnumonks.org
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+<<<<<<<<
+Other things:
+
+     #define HAVE_PUBLISH_NETDEV
+
+          This is for 2.2-compatible drivers.  They can do this:
+
+          #ifdef HAVE_PUBLISH_NETDEV
+          #define init_etherdev prepare_etherdev
+          #define publish_netdev(dev) do {} while (0)
+          #define withdraw_netdev unregister_netdev
+          #endif
+>>>>>>>>
+
+As far as I know Linus prefers backward compatibility the other way
+around:
+
+<<<<<<
+A 2.4 driver that must remain compatible with 2.2 should use
+the new interface and add these lines to their source file:
+
+       #ifndef HAVE_PUBLISH_NETDEV
+       #define prepare_etherdev init_etherdev
+       #define publish_netdev(dev) do {} while (0)
+       #define withdraw_netdev unregister_netdev
+       #endif
+>>>>>>
+
+--
+  Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

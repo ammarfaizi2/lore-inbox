@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267517AbUJHQKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUJHQay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267517AbUJHQKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 12:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270039AbUJHQKc
+	id S267565AbUJHQay (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 12:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269792AbUJHQay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 12:10:32 -0400
-Received: from open.hands.com ([195.224.53.39]:42961 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S267517AbUJHQKU (ORCPT
+	Fri, 8 Oct 2004 12:30:54 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:43728 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S267565AbUJHQaw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 12:10:20 -0400
-Date: Fri, 8 Oct 2004 17:20:25 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Brice.Goglin@ens-lyon.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
-Message-ID: <20041008162025.GL5551@lkcl.net>
-References: <20041008130442.GE5551@lkcl.net> <41669DE0.9050005@didntduck.org> <20041008151837.GI5551@lkcl.net> <4166AFD0.2020905@ens-lyon.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4166AFD0.2020905@ens-lyon.fr>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-hands-com-MailScanner-SpamScore: s
-X-MailScanner-From: lkcl@lkcl.net
+	Fri, 8 Oct 2004 12:30:52 -0400
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57033BCADD@exa-atlanta>
+From: "Mukker, Atul" <Atulm@lsil.com>
+To: "'Sergey S. Kostyliov'" <rathamahata@ehouse.ru>,
+       "Mukker, Atul" <Atulm@lsil.com>
+Cc: comsatcat@earthlink.net, linux-kernel@vger.kernel.org
+Subject: RE: Megaraid random loss of luns
+Date: Fri, 8 Oct 2004 12:30:35 -0400 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 08, 2004 at 05:18:40PM +0200, Brice Goglin wrote:
-> > call sys_rename, sys_pread, sys_create, sys_mknod, sys_rmdir
-> > etc. - everything that does file access.
-> 
-> If you ever actually call sys_this or sys_that ... from
-> the kernel, you'll have to do something like this to avoid
-> copy_from/to_user to fail because the target buffer is not
-> in kernel space:
-> 
-> mm_segment_t old_fs;
-> old_fs = get_fs();
-> set_fs(KERNEL_DS);
-> <do you stuff here>
-> set_fs(old_fs);
- 
- that's it!  that's what i was looking for.  thank you.
+You can try to add the PCI ids for your controllers in megaraid_mbox.c
+pci_device_id table. That _should_ work
 
- l.
+-Atul
+
+> -----Original Message-----
+> From: Sergey S. Kostyliov [mailto:rathamahata@ehouse.ru]
+> Sent: Friday, October 08, 2004 12:02 PM
+> To: Mukker, Atul
+> Cc: comsatcat@earthlink.net; linux-kernel@vger.kernel.org
+> Subject: Re: Megaraid random loss of luns
+> 
+> Hi!
+> On Friday 08 October 2004 16:51, Mukker, Atul wrote:
+> > I _highly_ recommend to replace the default driver with the latest
+> 2.20.4.0
+> > driver and retry.
+> 
+> Unfortunately, version 2.20.4.0 doesn't recognize my AMI megaraid 160
+> (Series 475)
+> 
+> [rathamahata@white megaraid]$ grep Version ./megaraid_mbox.c
+>  * Version      : v2.20.4 (September 27 2004)
+> [rathamahata@white megaraid]$ /sbin/lspci  | grep Mega
+> 02:04.0 RAID bus controller: American Megatrends Inc. MegaRAID (rev 02)
+> [rathamahata@white megaraid]$ /sbin/lspci -n  | grep 02:04.0
+> 02:04.0 Class 0104: 101e:1960 (rev 02)
+> [rathamahata@white megaraid]$
+> 
+> 
+> --
+> Sergey S. Kostyliov <rathamahata@ehouse.ru>
+> Jabber ID: rathamahata@jabber.org

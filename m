@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUH2HWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUH2Ha0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266891AbUH2HWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 03:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266831AbUH2HWr
+	id S267189AbUH2Ha0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 03:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267334AbUH2Ha0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 03:22:47 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:13252 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S264256AbUH2HWo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 03:22:44 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Patrick Gefre <pfg@sgi.com>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Latest Altix I/O code reorganization code 
-In-reply-to: Your message of "Sun, 29 Aug 2004 09:16:35 +0200."
-             <20040829071635.GB7325@mars.ravnborg.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 29 Aug 2004 17:22:32 +1000
-Message-ID: <30024.1093764152@ocs3.ocs.com.au>
+	Sun, 29 Aug 2004 03:30:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14515 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267189AbUH2HaY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 03:30:24 -0400
+Message-ID: <41318602.3060900@pobox.com>
+Date: Sun, 29 Aug 2004 03:30:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James.Bottomley@SteelEye.com
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Add x86 implementation of dma_declare_coherent_memory
+References: <200408290606.i7T66G08009639@hera.kernel.org>
+In-Reply-To: <200408290606.i7T66G08009639@hera.kernel.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Aug 2004 09:16:35 +0200, 
-Sam Ravnborg <sam@ravnborg.org> wrote:
->On Sun, Aug 29, 2004 at 04:39:34PM +1000, Keith Owens wrote:
->> On Fri, 27 Aug 2004 17:21:31 +0100, 
->> Christoph Hellwig <hch@infradead.org> wrote:
->> >all files: lots of missing statics, try running
->> >http://samba.org/ftp/unpacked/junkcode/findstatic.pl over the compiled code.
->> 
->> ftp://ftp.ocs.com.au/pub/namespace.pl does a more rigorous check for
->> symbols that can be static.  namespace.pl knows about the special
->> kernel symbols, linkage and EXPORT_SYMBOL().
->
->Should we add it to the support scripts in the kernel?
->Something like: 
->
->make checknamespace
+Linux Kernel Mailing List wrote:
+> +void dma_release_declared_memory(struct device *dev)
+> +{
+> +	struct dma_coherent_mem *mem = dev->dma_mem;
+> +	
+> +	if(!mem)
+> +		return;
+> +	dev->dma_mem = NULL;
+> +	kfree(mem->bitmap);
+> +	kfree(mem);
+> +}
+> +EXPORT_SYMBOL(dma_release_declared_memory);
 
-Funny about that ... I was making a patch to send to you and akpm when
-your mail arrived.
+
+There seems to be an iounmap() call missing.
+
+Or is it me who is missing something?  :)
+
+	Jeff
+
 

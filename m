@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263523AbTJWKfF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 06:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263524AbTJWKfF
+	id S263415AbTJWKtY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 06:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTJWKtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 06:35:05 -0400
-Received: from [203.199.93.15] ([203.199.93.15]:1033 "EHLO
-	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
-	id S263523AbTJWKe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 06:34:59 -0400
-From: "vwake" <vwake@indiatimes.com>
-Message-Id: <200310231005.PAA20811@WS0005.indiatimes.com>
-To: <linux-kernel@vger.kernel.org>
-Reply-To: "vwake" <vwake@indiatimes.com>
-Subject: High Utilization kswapd and kupdated in Large memory system 
-Date: Thu, 23 Oct 2003 15:58:49 +0530
-X-URL: http://indiatimes.com
+	Thu, 23 Oct 2003 06:49:24 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:60851 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263415AbTJWKtD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 06:49:03 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16279.45595.995992.419848@alkaid.it.uu.se>
+Date: Thu, 23 Oct 2003 12:48:59 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Samuel Kvasnica <samuel.kvasnica@tuwien.ac.at>
+Cc: linux-kernel@vger.kernel.org,
+       Vitez Gabor <gabor@swszl.szkp.uni-miskolc.hu>,
+       ivtv-devel@lists.sourceforge.net
+Subject: Re: nforce2 random lockups - still no solution ?
+In-Reply-To: <3F97AACB.2020609@tuwien.ac.at>
+References: <3F95748E.8020202@tuwien.ac.at>
+	<200310211113.00326.lkml@lpbproductions.com>
+	<20031022085449.GA21393@swszl.szkp.uni-miskolc.hu>
+	<3F96847C.4000506@tuwien.ac.at>
+	<20031022133327.GA25283@swszl.szkp.uni-miskolc.hu>
+	<3F97AACB.2020609@tuwien.ac.at>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-On large memory machine ( 32 GB RAM) any continuous disk activity puts kswapd and kupdated to 99% utilization and eventually ( in about 10 mins) brings down the whole machine.
+Samuel Kvasnica writes:
+ > Dear Gabor,
+ > 
+ > thantks a lot, indeed you are right ! I've been confused by some nforce 
+ > FAQs where 'nolapic' option was recommended. In fact I did never check 
+ > whether this option
+ > really exists. Now, after recompiling the kernel the framegrabber works 
+ > with uncompressed stream for almost 24h and it is rock-solid.
+ > 
+ > So, a workaround recommendation for all using ivtv driver on nforce2 
+ > chipsets and kernels up to 2.4.22:
+ > 
+ > *** RECOMPILE YOUR KERNEL WITH LOCAL APIC DISABLED ***,
+ > 
+ > otherwise you'll experience very rare random lockups while watching the 
+ > compressed stream and lockups within 10 minutes when watching the 
+ > uncompressed
+ > yuv stream.
+ > 
+ > What I'd like to know is whether this bug is AMD processor or chipset 
+ > related.
 
-The machine works well when the memory was set at 4GB using the 'mem=" entry on grub.conf. The same disk operations succeed when kept in this config.
+Chipset and/or BIOS. AMD processors are known to work in other mobos.
 
-
-The kernel is version 2.4.22 stable downloaded from kernel.org, and compiled with 64GB option enabled. The machine is installed with Redhat Linux 9.0.
-
-No errors gets logged anywhere and also there are no console error messages. The machine eventually gets locked up, and only a hard reset will bring it back into shape. I do not suspect the hardware because it is reproduceable in a different machine with similar hardware config.
-
-The hardware config as below:
-
-Dell PE 6650 / 4* Xeon 2GHz / 32 GB RAM / 500 GB Raid 5 on PERC 3DC ( AMI megaraid driver) 6 DISCS / 2* Broadcom 100/1000 NIC ( bcm5700 driver) 
-
-The system has / and /boot in ext3 and rest in ReiserFS. The 500 GB data partition is in ReiserFS.
-
-The problem is reproducible by just copying some large data ( 3-5 GB ) to any of the filesystems.
-One observation ( may not be useful) is that the symptoms starts after the cached memory in /proc/meminfo goes beyond 16GB !
-
-
-I had tried changing the "elvtune" parameters to " -r 4096 -w 8192" as adviced in some of the archived maillist mails. But this didnt help !
-
-Please let me know if any further information is needed from the machine.
-
-Thanks... 
-
-Vivek
-
-
-
-Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
-
- Buy The Best In BOOKS at http://www.bestsellers.indiatimes.com
-
-Bid for for Air Tickets @ Re.1 on Air Sahara Flights. Just log on to http://airsahara.indiatimes.com and Bid Now !
-
+You may try disabling just I/O-APIC or ACPI.

@@ -1,89 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUHZNY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268851AbUHZN0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268861AbUHZNY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 09:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268851AbUHZNY4
+	id S268851AbUHZN0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 09:26:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268866AbUHZNZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 09:24:56 -0400
-Received: from verein.lst.de ([213.95.11.210]:7383 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S266460AbUHZNYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 09:24:49 -0400
-Date: Thu, 26 Aug 2004 15:24:39 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Christophe Saout <christophe@saout.de>
-Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
-Message-ID: <20040826132439.GA1188@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Christophe Saout <christophe@saout.de>,
-	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <412D9FE6.9050307@namesys.com> <20040826014542.4bfe7cc3.akpm@osdl.org> <1093522729.9004.40.camel@leto.cs.pocnet.net> <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net>
+	Thu, 26 Aug 2004 09:25:59 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:64965 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S268851AbUHZNZy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 09:25:54 -0400
+Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Kaigai Kohei <kaigai@ak.jp.nec.com>
+Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
+       James Morris <jmorris@redhat.com>
+In-Reply-To: <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
+References: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	 <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil>
+	 <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp>
+	 <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil>
+	 <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1093526273.11694.8.camel@leto.cs.pocnet.net>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 26 Aug 2004 09:24:12 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 03:17:53PM +0200, Christophe Saout wrote:
-> It's hard to talk to you if you're not even trying to understand what
-> I'm trying to say. Andrew wanted to know what these plugins are. I tried
-> to give an answer and then you come along to tell me that it's not
-> relevant. Sure, Linux doesn't care about what the filesystem does
-> internally but Andrew wanted to know that.
+On Thu, 2004-08-26 at 03:53, Kaigai Kohei wrote:
+> In my understanding, your worry about robustness is the execution path
+> when kmalloc() returns NULL.
 
-Huh?  I don understand what reiser4 plugins are, and I tell you that a
-subset of these are _wrong_ for use in the kernel. 
+Correct.
 
-> > > Are you actually listening? If you implement a filesystem there's a
-> > > place where you have to implement the Linux VFS methods. I'm talking
-> > > about inode_operations and these things. This has nothing to do with
-> > > doing anything outside the Linux VFS. And I'm not talking about these
-> > > metas either. These really don't belong inside the filesystem.
-> > 
-> > as I wrote in this mail this absolutely _does_ belong in the filesystem,
-> > it's a major part of it and isn't easily separatable.
-> 
-> Huh?
-> 
-> Now you're completely confusing me.
-> 
-> First you say that that file-as-a-directory is crap then you say that it
-> does belong into the filesystem?
+> (But avc_insert() always returns 0, because avc_insert() reclaim a avc_node
+>  under the spinlock when free_list is empty.)
 
-I think you're talking about something different then me, I'm not
-talking about the magic meta files but the VFS interface in general.
+Yes, this is the point.  avc_has_perm could not fail previously from an
+out of memory condition, as the cache nodes were preallocated,
+maintained on their own freelist, and reclaimed as needed.
 
-This VFS interface is an integral part of ævery filesystem, and it
-doesn't make a whole lot to put it into a plugin.  If you want your
-filesystem core portable it does to a certain extent make sense to
-abstract them out, but as someone who's worked on a few such 'portable'
-filesystems I can tell you that it doesn't work out as expected.
+> By this method, the decision-making is available irrespective of
+> the result of kmalloc(). Is it robustless?
+> The original implementation has too many lock contensitons in Big-SMP
+> environment. It is more positive to consider the method using RCU.
 
-> I'll try again:
-> 
-> inode_operations, etc... are implemented as a "reiser4 plugin". This
-> means that reiser4 is usable as filesystem, you can store files in a
-> directory hierarchy. There's absolute nothing special here. Absolutely
-> nothing. And yes, reiser4 plugins are invisible from the VFS. It looks
-> like a normal filesystem because it behaves like one.
+Yes, that would address my concern.  However, I'm still unclear as to
+why using RCU mandates that we migrate from preallocated nodes to
+dynamic allocation.  I certainly agree that the existing global spinlock
+doesn't scale.  
 
-Now kill the whole plugin mess and let them talk directly to another.
-My first mail explained to you why it doesn't make sense to have
-multiple such plugins to work on a common subset of data.
+> Please wait for a patch, thanks.
 
-> The latter doesn't necessarily have anything to do with plugins.
-> The plugins are plugins for the storage layer, not for some semantic
-> enhancement.
+Thanks for working on this.  Could you also supply updated performance
+data when you have a newer patch?  Thanks.
 
-Again plugins below the pagecache (if that's what you call the "storage
-layer") _do_ make sense.  plugins at the semantic layer don't.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

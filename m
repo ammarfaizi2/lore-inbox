@@ -1,506 +1,391 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312603AbSCZRqn>; Tue, 26 Mar 2002 12:46:43 -0500
+	id <S312608AbSCZRxX>; Tue, 26 Mar 2002 12:53:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312604AbSCZRqg>; Tue, 26 Mar 2002 12:46:36 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:35205 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312603AbSCZRqb>;
-	Tue, 26 Mar 2002 12:46:31 -0500
-Date: Tue, 26 Mar 2002 18:45:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-        Patrick Mochel <mochel@osdl.org>, torvalds@transmeta.com
-Subject: device model: introducing sys bus
-Message-ID: <20020326174501.GA2434@elf.ucw.cz>
-Mime-Version: 1.0
+	id <S312606AbSCZRxQ>; Tue, 26 Mar 2002 12:53:16 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:28614 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S312604AbSCZRw7>; Tue, 26 Mar 2002 12:52:59 -0500
+Date: Tue, 26 Mar 2002 09:54:00 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: marcelo@conectiva.com.br
+cc: linux-kernel@vger.kernel.org, viro@math.psu.edu, hannal@us.ibm.com
+Subject: [PATCH 2.4.19-pre4] path_lookup - simple precursor to fast_walk
+Message-ID: <6880000.1017165240@w-hlinder.des>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I'd like to propose this patch... If we want to move from reboot
-notifier to the driver model, in-kernel device_suspend is neccessary.
+This is a cleanup precursor to a fast_walk patch I wrote based on
+suggestions from Al Viro to decrease cacheline bouncing of a global
+reference counter during path lookup of dentries in the cache.
+That patch has shown 50% reduction in BKL contention on an 8-way
+SMP running dbench. Incidentally, it has also shown a 90% reduction in
+dcache_lock contention on a 16-way NUMA-Q building the kernel.
+Results and patch coming soon.
 
-Consider applying,
-								Pavel
+This patch included simply cleans up source code by changing the many calls
+of the form: if(path_init) error = path_walk to one function path_lookup.
+By wrapping path_init with path_lookup I will be able to control which
+filesystems use the fast_walk mechanism.
+
+Linus has already accepted this patch from Al Viro in 2.5.6, his comments:
+<viro@math.psu.edu> (02/03/02 1.375.1.84)
+	[PATCH] path_lookup()
+	
+		New helper:
+	path_lookup(name, flags, nd)
+	{
+		int err = 0;
+		if (path_init(name, flags, nd))
+			err = path_walk(name, nd);
+		return err;
+	}
+	
+	Places doing that by hand converted to calling it.
+	
+	Actually, quite a few of them were doing equivalent of __user_walk()
+	(getname() and if it was successful - call path_lookup() and putname()).
+	Converted to calling __user_walk().
 
 
---- clean/Documentation/driver-model.txt	Sun Mar 10 20:06:28 2002
-+++ linux-acpi/Documentation/driver-model.txt	Thu Mar 21 13:19:24 2002
-@@ -52,7 +52,8 @@
- Each bus layer should implement the callbacks for these drivers. It then
- forwards the calls on to the device-specific callbacks. This means that
- device-specific drivers must still implement callbacks for each operation.
--But, they are not called from the top level driver layer.
-+But, they are not called from the top level driver layer. [So for example
-+PCI devices will not call device_register but pci_device_register.]
+Please consider this patch for inclusion in your 2.4.19 tree.
+
+Following is the linux-2.4.19-pre4 version. Also available at: 
+http://prdownloads.sf.net/lse/path_lookupA4-2.4.19-pre4.patch
+
+Hanna Linder
+hannal@us.ibm.com
+IBM Linux Technology Center
+
+-------
+diff -Nru -X dontdiff linux-2.4.19-pre4/fs/exec.c linux-path_lookup/fs/exec.c
+--- linux-2.4.19-pre4/fs/exec.c	Tue Mar 26 09:23:31 2002
++++ linux-path_lookup/fs/exec.c	Tue Mar 26 09:35:40 2002
+@@ -343,8 +343,7 @@
+ 	struct file *file;
+ 	int err = 0;
  
- This does add another layer of indirection for calling one of these functions,
- but there are benefits that are believed to outweigh this slowdown.
-@@ -60,7 +61,7 @@
- First, it prevents device-specific drivers from having to know about the
- global device layer. This speeds up integration time incredibly. It also
- allows drivers to be more portable across kernel versions. Note that the
--former was intentional, the latter is an added bonus.
-+former was intentional, the latter is an added bonus. 
- 
- Second, this added indirection allows the bus to perform any additional logic
- necessary for its child devices. A bus layer may add additional information to
-@@ -225,7 +226,6 @@
- 	It also allows the platform driver (e.g. ACPI) to a driver without the driver
- 	having to have explicit knowledge of (atrocities like) ACPI.
- 
--
- current_state:
- 	Current power state of the device. For PCI and other modern devices, this is
- 	0-3, though it's not necessarily limited to those values.
-@@ -251,18 +251,24 @@
+-	if (path_init(name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
+-		err = path_walk(name, &nd);
++	err = path_lookup(name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
+ 	file = ERR_PTR(err);
+ 	if (!err) {
+ 		inode = nd.dentry->d_inode;
+diff -Nru -X dontdiff linux-2.4.19-pre4/fs/namei.c linux-path_lookup/fs/namei.c
+--- linux-2.4.19-pre4/fs/namei.c	Tue Mar 26 09:23:31 2002
++++ linux-path_lookup/fs/namei.c	Tue Mar 26 09:35:40 2002
+@@ -739,6 +739,16 @@
  }
  
- probe:
--	Check for device existence and associate driver with it.
-+	Check for device existence and associate driver with it. In case of device 
-+	insertion, *all* drivers are called. Struct device has parent and bus_id 
-+	valid at this point. probe() may only be called from process context. Returns
-+	0 if it handles that device, -ESRCH if this driver does not know how to handle
-+	this device, valid error otherwise.
- 
- remove:
- 	Dissociate driver with device. Releases device so that it could be used by
- 	another driver. Also, if it is a hotplug device (hotplug PCI, Cardbus), an
--	ejection event could take place here.
-+	ejection event could take place here. remove() can be called from interrupt 
-+	context. [Fixme: Is that good?] Returns 0 on success. [Can we recover from
-+	failed remove or should I define that remove() never fails?]
- 
- suspend:
--	Perform one step of the device suspend process.
-+	Perform one step of the device suspend process. Returns 0 on success.
- 
- resume:
--	Perform one step of the device resume process.
-+	Perform one step of the device resume process. Returns 0 on success.
- 
- The probe() and remove() callbacks are intended to be much simpler than the
- current PCI correspondents.
-@@ -275,7 +281,7 @@
- 
- Some device initialisation was done in probe(). This should not be the case
- anymore. All initialisation should take place in the open() call for the
--device.
-+device. [FIXME: How do you "open" uhci?]
- 
- Breaking initialisation code out must also be done for the resume() callback,
- as most devices will have to be completely reinitialised when coming back from
-@@ -324,6 +330,7 @@
- 
- enum{
- 	SUSPEND_NOTIFY,
-+	SUSPEND_DISABLE,
- 	SUSPEND_SAVE_STATE,
- 	SUSPEND_POWER_DOWN,
- };
-@@ -331,6 +338,7 @@
- enum {
- 	RESUME_POWER_ON,
- 	RESUME_RESTORE_STATE,
-+	RESUME_ENABLE,
- };
- 
- 
-@@ -352,9 +360,9 @@
- Instead, the walking of the device tree has been moved to userspace. When a
- user requests the system to suspend, it will walk the device tree, as exported
- via driverfs, and tell each device to go to sleep. It will do this multiple
--times based on what the system policy is.
--
--[ FIXME: URL pointer to the corresponding utility is missing here! ]
-+times based on what the system policy is. [Not possible. Take ACPI enabled 
-+system, with battery critically low. In such state, you want to suspend-to-disk,
-+*fast*. User maybe is not even running powerd (think system startup)!]
- 
- Device resume should happen in the same manner when the system awakens.
- 
-@@ -366,22 +374,25 @@
- cannot resume the hardware from the requested level, or it feels that it is
- too important to be put to sleep, it should return an error from this function.
- 
--It does not have to stop I/O requests or actually save state at this point.
-+It does not have to stop I/O requests or actually save state at this point. Called
-+from process context.
- 
- SUSPEND_DISABLE:
- 
- The driver should stop taking I/O requests at this stage. Because the save
- state stage happens afterwards, the driver may not want to physically disable
--the device; only mark itself unavailable if possible.
-+the device; only mark itself unavailable if possible. Called from process 
-+context.
- 
- SUSPEND_SAVE_STATE:
- 
- The driver should allocate memory and save any device state that is relevant
--for the state it is going to enter.
-+for the state it is going to enter. Called from process context.
- 
- SUSPEND_POWER_DOWN:
- 
--The driver should place the device in the power state requested.
-+The driver should place the device in the power state requested. May be called
-+from interrupt context.
- 
- 
- For resume, the stages are defined as follows:
-@@ -389,25 +400,27 @@
- RESUME_POWER_ON:
- 
- Devices should be powered on and reinitialised to some known working state.
-+Called from process context.
- 
- RESUME_RESTORE_STATE:
- 
- The driver should restore device state to its pre-suspend state and free any
--memory allocated for its saved state.
-+memory allocated for its saved state. Called from process context.
- 
- RESUME_ENABLE:
- 
--The device should start taking I/O requests again.
-+The device should start taking I/O requests again. Called from process context.
- 
- 
- Each driver does not have to implement each stage. But, it if it does
--implemente a stage, it should do what is described above. It should not assume
-+implement a stage, it should do what is described above. It should not assume
- that it performed any stage previously, or that it will perform any stage
--later.
-+later. [Really? It makes sense to support SAVE_STATE only after DISABLE].
- 
- It is quite possible that a driver can fail during the suspend process, for
- whatever reason. In this event, the calling process must gracefully recover
--and restore everything to their states before the suspend transition began.
-+and restore everything to their states before the suspend transition began. 
-+[Suspend may not fail, think battery low.]
- 
- If a driver knows that it cannot suspend or resume properly, it should fail
- during the notify stage. Properly implemented power management schemes should
---- clean/arch/i386/kernel/i8259.c	Sun Mar 10 20:06:31 2002
-+++ linux-acpi/arch/i386/kernel/i8259.c	Fri Mar 22 12:40:56 2002
-@@ -11,6 +11,7 @@
- #include <linux/smp_lock.h>
- #include <linux/init.h>
- #include <linux/kernel_stat.h>
-+#include <linux/device.h>
- 
- #include <asm/atomic.h>
- #include <asm/system.h>
-@@ -332,6 +333,39 @@
- 		goto handle_real_irq;
+ /* SMP-safe */
++int path_lookup(const char *path, unsigned flags, struct nameidata *nd)
++{
++	int error = 0;
++	if (path_init(path, flags, nd))
++		error = path_walk(path, nd);
++	return error;
++}
++
++
++/* SMP-safe */
+ int path_init(const char *name, unsigned int flags, struct nameidata *nd)
+ {
+ 	nd->last_type = LAST_ROOT; /* if there are only slashes... */
+@@ -844,8 +854,7 @@
+ 	err = PTR_ERR(tmp);
+ 	if (!IS_ERR(tmp)) {
+ 		err = 0;
+-		if (path_init(tmp, flags, nd))
+-			err = path_walk(tmp, nd);
++		err = path_lookup(tmp, flags, nd);
+ 		putname(tmp);
  	}
- }
-+
-+static int i8249A_resume(struct device *dev, u32 level)
-+{
-+	printk("i8249A -- do nothing for now\n");
-+	return 0;
-+}
-+
-+/* This is just a hook for the overall driver tree.
-+ *
-+ * FIXME: This is soon goig to replace the custom linked list games played up
-+ * to great extend between the different components of the IDE drivers.
-+ */
-+
-+static struct device_driver i8249A_devdrv = {
-+	resume: i8249A_resume,
-+};
-+
-+
-+static struct device device_i8259A = {
-+	name:	       	"i8259A",
-+	bus_id:		"0020",
-+	parent:		&device_sys,
-+	driver:		&i8249A_devdrv,
-+};
-+
-+#define __init /* Do not want make this init-only */
-+
-+static void __init init_8259A_devicefs(void)
-+{
-+	device_register(&device_i8259A);
-+}
-+
-+__initcall(init_8259A_devicefs);
+ 	return err;
+@@ -999,8 +1008,7 @@
+ 	 * The simplest case - just a plain lookup.
+ 	 */
+ 	if (!(flag & O_CREAT)) {
+-		if (path_init(pathname, lookup_flags(flag), nd))
+-			error = path_walk(pathname, nd);
++		error = path_lookup(pathname, lookup_flags(flag), nd);
+ 		if (error)
+ 			return error;
+ 		dentry = nd->dentry;
+@@ -1010,8 +1018,7 @@
+ 	/*
+ 	 * Create - we need to know the parent.
+ 	 */
+-	if (path_init(pathname, LOOKUP_PARENT, nd))
+-		error = path_walk(pathname, nd);
++	error = path_lookup(pathname, LOOKUP_PARENT, nd);
+ 	if (error)
+ 		return error;
  
- void __init init_8259A(int auto_eoi)
+@@ -1263,8 +1270,7 @@
+ 	if (IS_ERR(tmp))
+ 		return PTR_ERR(tmp);
+ 
+-	if (path_init(tmp, LOOKUP_PARENT, &nd))
+-		error = path_walk(tmp, &nd);
++	error = path_lookup(tmp, LOOKUP_PARENT, &nd);
+ 	if (error)
+ 		goto out;
+ 	dentry = lookup_create(&nd, 0);
+@@ -1332,8 +1338,7 @@
+ 		struct dentry *dentry;
+ 		struct nameidata nd;
+ 
+-		if (path_init(tmp, LOOKUP_PARENT, &nd))
+-			error = path_walk(tmp, &nd);
++		error = path_lookup(tmp, LOOKUP_PARENT, &nd);
+ 		if (error)
+ 			goto out;
+ 		dentry = lookup_create(&nd, 1);
+@@ -1427,8 +1432,7 @@
+ 	if(IS_ERR(name))
+ 		return PTR_ERR(name);
+ 
+-	if (path_init(name, LOOKUP_PARENT, &nd))
+-		error = path_walk(name, &nd);
++	error = path_lookup(name, LOOKUP_PARENT, &nd);
+ 	if (error)
+ 		goto exit;
+ 
+@@ -1496,8 +1500,7 @@
+ 	if(IS_ERR(name))
+ 		return PTR_ERR(name);
+ 
+-	if (path_init(name, LOOKUP_PARENT, &nd))
+-		error = path_walk(name, &nd);
++	error = path_lookup(name, LOOKUP_PARENT, &nd);
+ 	if (error)
+ 		goto exit;
+ 	error = -EISDIR;
+@@ -1568,8 +1571,7 @@
+ 		struct dentry *dentry;
+ 		struct nameidata nd;
+ 
+-		if (path_init(to, LOOKUP_PARENT, &nd))
+-			error = path_walk(to, &nd);
++		error = path_lookup(to, LOOKUP_PARENT, &nd);
+ 		if (error)
+ 			goto out;
+ 		dentry = lookup_create(&nd, 0);
+@@ -1639,25 +1641,18 @@
+ asmlinkage long sys_link(const char * oldname, const char * newname)
  {
-diff -ur -x .dep* -x .hdep* -x *.[oas] -x *~ -x #* -x *CVS* -x *.orig -x *.rej -x *.old -x .menu* -x asm -x local.h -x System.map -x autoconf.h -x compile.h -x version.h -x .version -x defkeymap.c -x uni_hash.tbl -x zImage -x vmlinux -x vmlinuz -x TAGS -x bootsect -x *RCS* -x conmakehash -x map -x build -x build -x configure -x *target* -x *.flags -x *.bak clean/arch/i386/kernel/time.c linux-acpi/arch/i386/kernel/time.c
---- clean/arch/i386/kernel/time.c	Sun Mar 10 20:06:31 2002
-+++ linux-acpi/arch/i386/kernel/time.c	Mon Mar 25 22:49:40 2002
-@@ -42,6 +42,7 @@
- #include <linux/init.h>
- #include <linux/smp.h>
- #include <linux/module.h>
-+#include <linux/device.h>
+ 	int error;
+-	char * from;
+ 	char * to;
  
- #include <asm/io.h>
- #include <asm/smp.h>
-@@ -635,6 +636,19 @@
- bad_ctc:
- 	return 0;
+-	from = getname(oldname);
+-	if(IS_ERR(from))
+-		return PTR_ERR(from);
+ 	to = getname(newname);
+ 	error = PTR_ERR(to);
+ 	if (!IS_ERR(to)) {
+ 		struct dentry *new_dentry;
+ 		struct nameidata nd, old_nd;
+ 
+-		error = 0;
+-		if (path_init(from, LOOKUP_POSITIVE, &old_nd))
+-			error = path_walk(from, &old_nd);
++		error = __user_walk(oldname, LOOKUP_POSITIVE, &old_nd);
+ 		if (error)
+ 			goto exit;
+-		if (path_init(to, LOOKUP_PARENT, &nd))
+-			error = path_walk(to, &nd);
++		error = path_lookup(to, LOOKUP_PARENT, &nd);
+ 		if (error)
+ 			goto out;
+ 		error = -EXDEV;
+@@ -1677,8 +1672,6 @@
+ exit:
+ 		putname(to);
+ 	}
+-	putname(from);
+-
+ 	return error;
  }
-+
-+static struct device device_i8253 = {
-+	name:		"i8253",
-+	bus_id:		"0040",
-+	parent:		&device_sys
-+};
-+
-+static void time_init_driverfs(void)
-+{
-+	device_register(&device_i8253);
-+}
-+
-+device_initcall(time_init_driverfs);
  
- void __init time_init(void)
+@@ -1857,14 +1850,11 @@
+ 	struct dentry * old_dentry, *new_dentry;
+ 	struct nameidata oldnd, newnd;
+ 
+-	if (path_init(oldname, LOOKUP_PARENT, &oldnd))
+-		error = path_walk(oldname, &oldnd);
+-
++	error = path_lookup(oldname, LOOKUP_PARENT, &oldnd);
+ 	if (error)
+ 		goto exit;
+ 
+-	if (path_init(newname, LOOKUP_PARENT, &newnd))
+-		error = path_walk(newname, &newnd);
++	error = path_lookup(newname, LOOKUP_PARENT, &newnd);
+ 	if (error)
+ 		goto exit1;
+ 
+diff -Nru -X dontdiff linux-2.4.19-pre4/fs/namespace.c linux-path_lookup/fs/namespace.c
+--- linux-2.4.19-pre4/fs/namespace.c	Tue Mar 26 09:23:31 2002
++++ linux-path_lookup/fs/namespace.c	Tue Mar 26 09:35:43 2002
+@@ -364,17 +364,9 @@
+ asmlinkage long sys_umount(char * name, int flags)
  {
---- clean/drivers/base/core.c	Thu Mar 21 11:35:57 2002
-+++ linux-acpi/drivers/base/core.c	Tue Mar 26 18:02:16 2002
-@@ -19,11 +19,23 @@
- # define DBG(x...)
- #endif
+ 	struct nameidata nd;
+-	char *kname;
+ 	int retval;
  
--static struct device device_root = {
-+struct device device_root = {
- 	bus_id:		"root",
- 	name:		"System root",
- };
+-	kname = getname(name);
+-	retval = PTR_ERR(kname);
+-	if (IS_ERR(kname))
+-		goto out;
+-	retval = 0;
+-	if (path_init(kname, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &nd))
+-		retval = path_walk(kname, &nd);
+-	putname(kname);
++	retval = __user_walk(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &nd);
+ 	if (retval)
+ 		goto out;
+ 	retval = -EINVAL;
+@@ -501,8 +493,7 @@
+ 		return err;
+ 	if (!old_name || !*old_name)
+ 		return -EINVAL;
+-	if (path_init(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd))
+-		err = path_walk(old_name, &old_nd);
++	err = path_lookup(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd);
+ 	if (err)
+ 		return err;
  
-+struct device device_sys = {
-+	bus_id:		"sys",
-+	name:		"Bus for motherboard devices",
-+	parent:		&device_root,
-+};
-+
-+struct device device_legacy = {
-+	bus_id:		"legacy",
-+	name:		"Bus for devices on southbridge/X-BUS/ISA",
-+	parent:		&device_root,
-+};
-+
- int (*platform_notify)(struct device * dev) = NULL;
- int (*platform_notify_remove)(struct device * dev) = NULL;
+@@ -568,8 +559,7 @@
+ 		return -EPERM;
+ 	if (!old_name || !*old_name)
+ 		return -EINVAL;
+-	if (path_init(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd))
+-		err = path_walk(old_name, &old_nd);
++	err = path_lookup(old_name, LOOKUP_POSITIVE|LOOKUP_FOLLOW, &old_nd);
+ 	if (err)
+ 		return err;
  
-@@ -119,9 +131,89 @@
- 	put_device(dev->parent);
- }
+@@ -726,8 +716,7 @@
+ 	flags &= ~(MS_NOSUID|MS_NOEXEC|MS_NODEV);
  
-+static int __device_suspend(struct device * root, u32 state, u32 level, int depth)
-+{
-+	list_t	* node, * next;
-+	struct device * child;
-+	int error = 0;
-+
-+	if (depth>7)
-+		panic("Device tree too deep");
-+ 
-+	spin_lock(&device_lock);
-+	list_for_each_safe(node,next,&root->children) {
-+		child = list_entry(node,struct device, node);
-+ 
-+		get_device(child);
-+		spin_unlock(&device_lock);
-+		__device_suspend(child, state, level, depth+1);
-+
-+		if(child->driver && child->driver->suspend)
-+			error = child->driver->suspend(child, state, level);
-+
-+		put_device(child);
-+		spin_lock(&device_lock);
-+ 
-+		if (error)
-+			break;
-+	}
-+	spin_unlock(&device_lock);
-+	return error;
-+}
-+
-+
-+static int __device_resume(struct device * root, u32 level, int depth)
-+{
-+	list_t	* node, * next;
-+	struct device * child;
-+	int error = 0;
-+
-+	if (depth>7)
-+		panic("Device tree too deep");
-+ 
-+	spin_lock(&device_lock);
-+	list_for_each_safe(node,next,&root->children) {
-+		child = list_entry(node,struct device, node);
-+ 
-+		get_device(child);
-+		spin_unlock(&device_lock);
-+
-+		if(child->driver && child->driver->resume)
-+			error = child->driver->resume(child, level);
-+
-+		__device_resume(child, level, depth+1);
-+
-+		put_device(child);
-+		spin_lock(&device_lock);
-+ 
-+		if (error)
-+			break;
-+	}
-+	spin_unlock(&device_lock);
-+	return error;
-+}
-+
-+int device_suspend(struct device * root, u32 state, u32 level)
-+{
-+	__device_suspend(root, state, level, 0);
-+}
-+
-+
-+int device_resume(struct device * root, u32 level)
-+{
-+	__device_resume(root, level, 0);
-+}
-+
- static int __init device_init_root(void)
+ 	/* ... and get the mountpoint */
+-	if (path_init(dir_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
+-		retval = path_walk(dir_name, &nd);
++	retval = path_lookup(dir_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
+ 	if (retval)
+ 		return retval;
+ 
+@@ -826,7 +815,6 @@
  {
--	return device_register(&device_root);
-+	int res;
-+	res = device_register(&device_root);
-+	if (res) return res;
-+	res = device_register(&device_sys);
-+	if (res) return res;
-+	res = device_register(&device_legacy);
-+	if (res) return res;
-+	return 0;
- }
+ 	struct vfsmount *tmp;
+ 	struct nameidata new_nd, old_nd, parent_nd, root_parent, user_nd;
+-	char *name;
+ 	int error;
  
- static int __init device_init(void)
---- clean/drivers/block/floppy.c	Sun Mar 10 20:06:33 2002
-+++ linux-acpi/drivers/block/floppy.c	Thu Mar 21 13:19:24 2002
-@@ -167,6 +167,7 @@
- #include <linux/interrupt.h>
- #include <linux/init.h>
- #include <linux/devfs_fs_kernel.h>
-+#include <linux/device.h>
+ 	if (!capable(CAP_SYS_ADMIN))
+@@ -834,28 +822,14 @@
  
- /*
-  * PS/2 floppies have much slower step rates than regular floppies.
-@@ -4146,11 +4147,16 @@
+ 	lock_kernel();
  
- static int have_no_fdc= -ENODEV;
+-	name = getname(new_root);
+-	error = PTR_ERR(name);
+-	if (IS_ERR(name))
+-		goto out0;
+-	error = 0;
+-	if (path_init(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd))
+-		error = path_walk(name, &new_nd);
+-	putname(name);
++	error = __user_walk(new_root, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &new_nd);
+ 	if (error)
+ 		goto out0;
+ 	error = -EINVAL;
+ 	if (!check_mnt(new_nd.mnt))
+ 		goto out1;
  
-+static struct device device_floppy;
+-	name = getname(put_old);
+-	error = PTR_ERR(name);
+-	if (IS_ERR(name))
+-		goto out1;
+-	error = 0;
+-	if (path_init(name, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd))
+-		error = path_walk(name, &old_nd);
+-	putname(name);
++	error = __user_walk(put_old, LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY, &old_nd);
+ 	if (error)
+ 		goto out1;
  
- int __init floppy_init(void)
+diff -Nru -X dontdiff linux-2.4.19-pre4/fs/open.c linux-path_lookup/fs/open.c
+--- linux-2.4.19-pre4/fs/open.c	Fri Oct 12 13:48:42 2001
++++ linux-path_lookup/fs/open.c	Tue Mar 26 09:35:40 2002
+@@ -360,17 +360,8 @@
  {
- 	int i,unit,drive;
+ 	int error;
+ 	struct nameidata nd;
+-	char *name;
  
-+	strcpy(device_floppy.name, "floppy");
-+	strcpy(device_floppy.bus_id, "03?0");
-+	device_floppy.parent = &device_sys;
-+	device_register(&device_floppy);
+-	name = getname(filename);
+-	error = PTR_ERR(name);
+-	if (IS_ERR(name))
+-		goto out;
+-
+-	error = 0;
+-	if (path_init(name,LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY,&nd))
+-		error = path_walk(name, &nd);
+-	putname(name);
++	error = __user_walk(filename,LOOKUP_POSITIVE|LOOKUP_FOLLOW|LOOKUP_DIRECTORY,&nd);
+ 	if (error)
+ 		goto out;
  
- 	raw_cmd = NULL;
- 
---- clean/drivers/char/pc_keyb.c	Wed Dec 19 22:38:12 2001
-+++ linux-acpi/drivers/char/pc_keyb.c	Mon Mar 25 22:28:54 2002
-@@ -35,6 +35,7 @@
- #include <linux/smp_lock.h>
- #include <linux/kd.h>
- #include <linux/pm.h>
-+#include <linux/device.h>
- 
- #include <asm/keyboard.h>
- #include <asm/bitops.h>
-@@ -804,7 +805,7 @@
- }
- #endif /* CONFIG_PSMOUSE */
- 
--static char * __init initialize_kbd(void)
-+static char * initialize_kbd(void)
+@@ -420,17 +411,9 @@
  {
- 	int status;
+ 	int error;
+ 	struct nameidata nd;
+-	char *name;
+-
+-	name = getname(filename);
+-	error = PTR_ERR(name);
+-	if (IS_ERR(name))
+-		goto out;
  
-@@ -1231,3 +1232,34 @@
- }
+-	path_init(name, LOOKUP_POSITIVE | LOOKUP_FOLLOW |
++	error = __user_walk(filename, LOOKUP_POSITIVE | LOOKUP_FOLLOW |
+ 		      LOOKUP_DIRECTORY | LOOKUP_NOALT, &nd);
+-	error = path_walk(name, &nd);	
+-	putname(name);
+ 	if (error)
+ 		goto out;
  
- #endif /* CONFIG_PSMOUSE */
-+
-+#ifdef CONFIG_PM
-+
-+static int pckeyb_resume(struct device *dev, u32 level)
-+{
-+	if (level != RESUME_RESTORE_STATE)
-+		return 0;
-+
-+	initialize_kbd();
-+	return 0;
-+}
-+
-+static struct device_driver pckeyb_devdrv = {
-+	resume: 	pckeyb_resume,
-+};
-+
-+static struct device device_pckeyb = {
-+	name:	       	"pc_keyb",
-+	bus_id:		"0060",
-+	parent:		&device_sys,
-+	driver:		&pckeyb_devdrv,
-+};
-+
-+static void __init init_pckeyb_devicefs(void)
-+{
-+	device_register(&device_pckeyb);
-+}
-+
-+__initcall(init_pckeyb_devicefs);
-+
-+#endif
---- clean/include/linux/device.h	Tue Mar  5 21:52:49 2002
-+++ linux-acpi/include/linux/device.h	Fri Mar 22 11:45:43 2002
-@@ -61,6 +61,7 @@
- 
- 	int	(*suspend)	(struct device * dev, u32 state, u32 level);
- 	int	(*resume)	(struct device * dev, u32 level);
-+	int	(*enable_wake) 	(struct device * dev, u32 state, int enable);   /* Enable wake event */
- };
- 
- struct device {
-@@ -83,7 +84,7 @@
- 					   device */
- 	void		*driver_data;	/* data private to the driver */
- 	void		*platform_data;	/* Platform specific data (e.g. ACPI,
--					   BIOS data relevant to device */
-+					   BIOS data relevant to device) */
- 
- 	u32		current_state;  /* Current operating state. In
- 					   ACPI-speak, this is D0-D3, D0
-@@ -142,5 +143,11 @@
- }
- 
- extern void put_device(struct device * dev);
-+extern struct device device_root;
-+extern struct device device_legacy;
-+extern struct device device_sys;
-+
-+extern int device_suspend(struct device *dev, u32 state, u32 level);
-+extern int device_resume(struct device *dev, u32 level);
- 
- #endif /* _DEVICE_H_ */
+diff -Nru -X dontdiff linux-2.4.19-pre4/fs/super.c linux-path_lookup/fs/super.c
+--- linux-2.4.19-pre4/fs/super.c	Tue Mar 26 09:23:32 2002
++++ linux-path_lookup/fs/super.c	Tue Mar 26 09:35:40 2002
+@@ -575,8 +575,7 @@
+ 	/* What device it is? */
+ 	if (!dev_name || !*dev_name)
+ 		return ERR_PTR(-EINVAL);
+-	if (path_init(dev_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd))
+-		error = path_walk(dev_name, &nd);
++	error = path_lookup(dev_name, LOOKUP_FOLLOW|LOOKUP_POSITIVE, &nd);
+ 	if (error)
+ 		return ERR_PTR(error);
+ 	inode = nd.dentry->d_inode;
+diff -Nru -X dontdiff linux-2.4.19-pre4/include/linux/fs.h linux-path_lookup/include/linux/fs.h
+--- linux-2.4.19-pre4/include/linux/fs.h	Tue Mar 26 09:23:41 2002
++++ linux-path_lookup/include/linux/fs.h	Tue Mar 26 09:35:44 2002
+@@ -1315,6 +1315,7 @@
+ extern int FASTCALL(__user_walk(const char *, unsigned, struct nameidata *));
+ extern int FASTCALL(path_init(const char *, unsigned, struct nameidata *));
+ extern int FASTCALL(path_walk(const char *, struct nameidata *));
++extern int FASTCALL(path_lookup(const char *, unsigned, struct nameidata *));
+ extern int FASTCALL(link_path_walk(const char *, struct nameidata *));
+ extern void path_release(struct nameidata *);
+ extern int follow_down(struct vfsmount **, struct dentry **);
 
 
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

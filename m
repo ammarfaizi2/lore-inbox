@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265232AbTLRRA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 12:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265240AbTLRRA0
+	id S265236AbTLRQ5l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 11:57:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbTLRQ5l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 12:00:26 -0500
-Received: from mail.kroah.org ([65.200.24.183]:1755 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265232AbTLRRAW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 12:00:22 -0500
-Date: Thu, 18 Dec 2003 08:37:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Thomas Koeller <thomas@koeller.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module use count & unloading
-Message-ID: <20031218163756.GA20882@kroah.com>
-References: <20031218150525.5504D12001E@sarkovy.koeller.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031218150525.5504D12001E@sarkovy.koeller.dyndns.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 18 Dec 2003 11:57:41 -0500
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:33408 "EHLO
+	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S265236AbTLRQ5i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 11:57:38 -0500
+Message-ID: <3FE1DC69.9050704@jonmasters.org>
+Date: Thu, 18 Dec 2003 16:57:13 +0000
+From: Jon Masters <jonathan@jonmasters.org>
+Organization: World Organi[sz]ation Of Broken Dreams
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Buffalo Airstation
+X-Enigmail-Version: 0.81.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 18, 2003 at 04:03:11PM +0100, Thomas Koeller wrote:
-> Hi,
-> 
-> I just learned that it is expected behavior for a module
-> to be in use while having an in-use count of zero, see
-> http://bugme.osdl.org/show_bug.cgi?id=1693. If this is
-> so, how am I supposed to know whether a module can safely
-> be unloaded? It also seems the old 'autoclean / modprobe -k'
-> functionality from 2.4 is no longer available in 2.6.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It wasn't safe to do that in 2.4 either.  That would easily unload your
-USB controller drivers, USB keyboard and USB mouse drivers, as they all
-do not increment their in-use count.
+Hi there,
 
-thanks,
+I made some progress getting up to date code from Buffalo today, after I
+called them, in getting a link to the older source and information about
+the forthcoming new release. Apparently they are having a meeting on
+January 6 to try to push forward a new release soon thereafter.
 
-greg k-h
+http://www2.melcoinc.co.jp/pub/lan/linux_src.tgz
+
+Jon.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQE/4dxpeTyyexZHHxERArhvAJ9ukQOAZ/u1CkLewP0GvoIxQz+OXACffNaw
+DNICzmOYDZKr/1dBumpH1ho=
+=wzq4
+-----END PGP SIGNATURE-----
+

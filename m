@@ -1,48 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262304AbSJVINv>; Tue, 22 Oct 2002 04:13:51 -0400
+	id <S261894AbSJVIJp>; Tue, 22 Oct 2002 04:09:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262314AbSJVINu>; Tue, 22 Oct 2002 04:13:50 -0400
-Received: from white-ippp0.koehntopp.de ([195.244.233.49]:1169 "EHLO
-	white.koehntopp.de") by vger.kernel.org with ESMTP
-	id <S262304AbSJVINu>; Tue, 22 Oct 2002 04:13:50 -0400
-Date: Tue, 22 Oct 2002 10:19:39 +0200
-From: Kristian Koehntopp <kris@koehntopp.de>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Xavier Bestel <xavier.bestel@free.fr>, Robert Love <rml@tech9.net>,
-       Ben Collins <bcollins@debian.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper outrage, old and new
-Message-ID: <20021022081938.GA18613@white.koehntopp.de>
-References: <1035152407.967.11.camel@bip> <Pine.LNX.4.44L.0210202051260.22993-100000@imladris.surriel.com>
-Mime-Version: 1.0
+	id <S262180AbSJVIJp>; Tue, 22 Oct 2002 04:09:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27182 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261894AbSJVIJo>; Tue, 22 Oct 2002 04:09:44 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: landley@trommello.org, Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Son of crunch time: the list v1.2.
+References: <20021021135137.2801edd2.rusty@rustcorp.com.au>
+	<3DB3AB3E.23020.5FFF7144@localhost>
+	<200210211536.25109.landley@trommello.org>
+	<3DB4B1B9.4070303@pobox.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Oct 2002 02:14:02 -0600
+In-Reply-To: <3DB4B1B9.4070303@pobox.com>
+Message-ID: <m1k7kaubzp.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0210202051260.22993-100000@imladris.surriel.com>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 20, 2002 at 08:53:09PM -0200, Rik van Riel wrote:
-> Germany (and France, judging from your words) have laws that
-> guarantee that the creator of a work keeps copyright on the
-> work.
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-What is called "copyright" in the US is Urheberrechte (authors
-rights) in Germany. It conceptually differs from US copyright,
-as it not only includes Vervielfaeltigungsrechte (copy and use
-rights) but Autorpersoenlichkeitsrechte (author personality
-rights) as well. German law allows the transfer of copy and use
-rights, but it completely forbids to give up author personality
-rights.
+> > 13) Kexec, luanch ELF format linux kernel from Linux (Eric W. Biederman)
+> > http://lists.insecure.org/lists/linux-kernel/2002/Oct/6584.html
+> 
+> Useful, but at the same time not many people will use this I think.  It may need
+> to live as a patch for a while, if not for a long while...
 
-Author personality rights include rights to being named as an
-author of a work, rights to forbid entstellende Modifikationen
-(defacing modifications?) and for some types of work that cannot
-be reproduced even the right of the author to access (visit) the
-work.
+Hmm. 2+ years is not enough?
 
-German law also limits copy and use rights in certain more
-esoteric cases.
+A couple of comments.
 
-Kristian
+The limitation to the ELF file format is long gone, (so the summary is
+incorrect).  sys_kexec can launch any random kernel, it just needs an
+appropriate user space program that understands the format.  kexec
+bzImage works, and I suspect kexec could even start booting windows
+from the boot sector of a hard drive.
+
+The code has been looked at, and discussed by the kmonte, and bootimg
+authors, and the kexec interface has not been found to be a problem.
+Except for tracking kernel interface changes the code really has not
+needed to change in quite a long while.
+
+The biggest challenge right now is to track down the strange and
+mysterious failures caused by driver or BIOS bugs.  Kexec is
+inherently open to a bug anywhere in the system causing it to fail.
+The development work consists of writing code, and inventing
+techniques to track down those mysterious failures.  Kernel debuggers
+don't work when you don't have a running kernel. 
+
+All of this is generic kernel stabilization work, and it sounds to me
+like a good complement to the upcoming 2.5.x stabilization efforts.
+
+A smallish user base may be a good argument against it.  But I unless
+I have miscounted there are quite a few people playing with bootimg,
+and kmonte, not to mention the earlier versions of kexec.  
+
+To do things right sys_kexec needs access to call device_shutdown, and
+the reboot notifier chain.  The latter is available only as a  static
+variable in kernel/sys.c.  And neither of them are exported from the
+kernel.  
+
+Keeping sys_kexec out of the kernel seems to encourage half baked,
+half debugged implementations that just work for their authors, and
+are limited to what it is easy to do as a module.
+
+Putting in the sys_kexec patch in the kernel will certainly discourage
+hacks in the code, and encourage those last few strange mysterious
+failures to be tracked.  Plus it will put pressure on driver
+maintainers to fix various bugs in their code.  And the patch is
+not very intrusive at all so I fail to see a downside except bloat.
+
+Eric

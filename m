@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268332AbTBYVY0>; Tue, 25 Feb 2003 16:24:26 -0500
+	id <S268576AbTBYVgv>; Tue, 25 Feb 2003 16:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268333AbTBYVY0>; Tue, 25 Feb 2003 16:24:26 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:986 "EHLO dns.toxicfilms.tv")
-	by vger.kernel.org with ESMTP id <S268332AbTBYVYY>;
-	Tue, 25 Feb 2003 16:24:24 -0500
-Date: Tue, 25 Feb 2003 22:34:38 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.20-usagi-grsec-pom
-Message-ID: <Pine.LNX.4.51.0302252224130.1146@dns.toxicfilms.tv>
+	id <S268577AbTBYVgv>; Tue, 25 Feb 2003 16:36:51 -0500
+Received: from dsl-fl-207-34-65-6-cgy.nucleus.com ([207.34.65.6]:45489 "EHLO
+	bluetooth.WNI.AD") by vger.kernel.org with ESMTP id <S268576AbTBYVgt>;
+	Tue, 25 Feb 2003 16:36:49 -0500
+Message-ID: <3E5BE54E.50705@WirelessNetworksInc.com>
+Date: Tue, 25 Feb 2003 14:51:10 -0700
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Writing new filesystem
+References: <20030225083631.17493.qmail@webmail17.rediffmail.com> <20030225111428.A1666@hexapodia.org>
+In-Reply-To: <20030225111428.A1666@hexapodia.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 Feb 2003 21:47:04.0740 (UTC) FILETIME=[6FAD2640:01C2DD17]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  [snip]
+> 
+> Look at fs/Makefile, search for "ext2", and add your new fs directory in
+> the appropriate spots.
+> 
+> I would recommend using ext2 or something, rather than msdosfs, as your
+> template.  The DOS filesystem is crufty.
+> 
+> -andy
+> 
 
-i made a patch that applied over vanilla 2.4.20 adds:
-- latest ip6 usagi stable
-- latest grsecurity-1.9.9c
-- all of the important pending netfilter patches (as up2date as pre4,
-  forthcomming pre5)
-- extra netfilter patches:
-  HL-ipv6, IPV4OPTSSTRIP, NETLINK, NETMAP, REJECT-ipv6, SAME, TTL
-  ahesp6-ipv6, frag-ipv6, fuzzy, hl-ipv6, iplimit, ipt_unclean-ubit,
-  ipv4options, ipv6header-ipv6, mport, nth, pool, psd, quota, random
-  realm, route6-ipv6, time, u32, CONNMARK, ROUTE, amanda-conntrack-nat
-  condition, condition6, eggdrop-conntrack, h323-conntrack-nat,
-  ip_tables-proc, ipt_TARPIT, mms-conntrack-nat, netfilter-docbook,
-  nfnetlink-ctnetlink-0.11 pptp-conntrack-nat, quake3-conntrack, recent,
-  rpc, rsh, string, talk-conntrack-nat, tftp-conntrack-nat
+I agree with above.  Also, first look at the simplest fs, which is 
+romfs.  Then look at the oldest, which is minix and finally look at 
+ext2.  After that exercise, you'll know how it works.
 
-I guess some admins that want to make ipv4/ipv6 routers/firewalls +
-hardened security from grsec, would like to get their hands on that.
-
-http://dns.toxicfilms.tv/usagi_grsec_netfilter.diff.bz2
-
-Regards,
-Maciej Soltysiak
-
------BEGIN GEEK CODE BLOCK-----
-VERSION: 3.1
-GIT/MU d-- s:- a-- C++ UL++++$ P L++++ E- W- N- K- w--- O! M- V- PS+ PE++
-Y+ PGP- t+ 5-- X+ R tv- b DI+ D---- G e++>+++ h! y?
------END GEEK CODE BLOCK-----

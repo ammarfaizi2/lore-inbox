@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313508AbSFBUMu>; Sun, 2 Jun 2002 16:12:50 -0400
+	id <S313558AbSFBUSN>; Sun, 2 Jun 2002 16:18:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313558AbSFBUMt>; Sun, 2 Jun 2002 16:12:49 -0400
-Received: from gogh.rz.tu-ilmenau.de ([141.24.190.33]:24872 "EHLO
-	gogh.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
-	id <S313508AbSFBUMs>; Sun, 2 Jun 2002 16:12:48 -0400
-Date: Sun, 2 Jun 2002 22:13:22 +0200
-From: Paul Stoeber <paul.stoeber@stud.tu-ilmenau.de>
-To: linux-kernel@vger.kernel.org
-Subject: patch to have root fs on USB device (please CC)
-Message-ID: <20020602201322.GA85820@gogh.RZ.TU-Ilmenau.DE>
+	id <S313563AbSFBUSM>; Sun, 2 Jun 2002 16:18:12 -0400
+Received: from 12-252-146-102.client.attbi.com ([12.252.146.102]:7443 "EHLO
+	archimedes") by vger.kernel.org with ESMTP id <S313558AbSFBUSM>;
+	Sun, 2 Jun 2002 16:18:12 -0400
+Date: Sun, 2 Jun 2002 14:17:58 -0600
+To: Hanno B?ck <hanno@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: radeon framebuffer problem
+Message-ID: <20020602201758.GA19815@galileo>
+Mail-Followup-To: James Mayer <james.mayer@acm.org>,
+	Hanno B?ck <hanno@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020602211014.3ccbe57e.hanno@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
+From: James Mayer <james@cobaltmountain.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It simply sleeps 10 seconds before mount_block_root().
+Hi,
 
-I get an 'Unable to mount root' panic if I don't apply it,
-because the attached device rolls in too late.
+> Jun  2 19:55:35 hannonb kernel: radeonfb: cannot map FB
+> 
+> My card is a Radeon Mobility M6 LY.
+> All kernels are with radeon framebuffer compiled in as the only
+> framebuffer.
 
-Same for FireWire, but that's currently out of reach because
-I must run rescan-scsi-bus.sh from user space to make the
-disk visible as /dev/sd?  (to be fixed soon??).
+You might want to try this, I have an M6 LY with what I suspect is the
+same problem.
 
-Same for all hotpluggable storage devices I suppose.
+Good luck!
 
-Of course that patch is really terribly wrong, maybe someone
-will fix these things some day.
-
-Please CC, I'm not on the list.
-
-
-wait-before-mounting-root.patch in
-Linux xyz 2.4.19-pre8 #2 Sun May 26 20:02:49 UTC 2002 ppc unknown
-
---- init/do_mounts.c.orig	Sat May 25 18:11:45 2002
-+++ init/do_mounts.c	Sat May 25 18:15:22 2002
-@@ -311,9 +311,13 @@
- }
- static void __init mount_block_root(char *name, int flags)
- {
--	char *fs_names = __getname();
-+	char *fs_names;
- 	char *p;
+--- radeonfb.c.orig	Thu May  9 16:51:26 2002
++++ radeonfb.c	Thu May  9 16:48:46 2002
+@@ -877,6 +877,14 @@
+ 	/* mem size is bits [28:0], mask off the rest */
+ 	rinfo->video_ram = tmp & CONFIG_MEMSIZE_MASK;
  
-+	set_current_state(TASK_UNINTERRUPTIBLE);
-+	schedule_timeout(10*HZ);
++	/* According to XFree86 4.2.0, some production M6's return 0
++	   for 8MB. */
++	if (rinfo->video_ram == 0 && 
++	    (pdev->device == PCI_DEVICE_ID_RADEON_LY || 
++	     pdev->device == PCI_DEVICE_ID_RADEON_LZ)) {
++	    rinfo->video_ram = 8192 * 1024;
++	  }
 +
-+	fs_names = __getname();
- 	get_fs_names(fs_names);
- retry:
- 	for (p = fs_names; *p; p += strlen(p)+1) {
+ 	/* ram type */
+ 	tmp = INREG(MEM_SDRAM_MODE_REG);
+ 	switch ((MEM_CFG_TYPE & tmp) >> 30) {

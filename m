@@ -1,39 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUIVAEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUIVAFk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUIVAEp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 20:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266703AbUIVAEp
+	id S266703AbUIVAFk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 20:05:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266704AbUIVAFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 20:04:45 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:16259 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266615AbUIVAEo
+	Tue, 21 Sep 2004 20:05:39 -0400
+Received: from CBL212-235-17-64.bb.netvision.net.il ([212.235.17.64]:50304
+	"EHLO localhost") by vger.kernel.org with ESMTP id S266703AbUIVAFe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 20:04:44 -0400
-Subject: Re: [patch] updated inotify
-From: Robert Love <rml@novell.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040921235449.GO2482@conectiva.com.br>
-References: <1095800893.5090.16.camel@betsy.boston.ximian.com>
-	 <20040921235449.GO2482@conectiva.com.br>
-Content-Type: text/plain
-Date: Tue, 21 Sep 2004 20:04:43 -0400
-Message-Id: <1095811483.2454.67.camel@localhost>
+	Tue, 21 Sep 2004 20:05:34 -0400
+Date: Wed, 22 Sep 2004 03:08:22 +0200
+From: Sasha Khapyorsky <sashak@smlink.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97
+ patch)
+Message-ID: <20040922030822.2af2047d@localhost>
+In-Reply-To: <1095785705.17821.760.camel@hades.cambridge.redhat.com>
+References: <200409111850.i8BIowaq013662@harpo.it.uu.se>
+	<20040912011128.031f804a@localhost>
+	<1095785705.17821.760.camel@hades.cambridge.redhat.com>
+X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-21 at 20:54 -0300, Arnaldo Carvalho de Melo wrote:
+On Tue, 21 Sep 2004 17:55:06 +0100
+David Woodhouse <dwmw2@infradead.org> wrote:
 
-> coding style? So nitpicking I go, see below.
+> What chance of making it work with the ISDN drivers? Should we make an
+> ALSA driver for ISDN?
 
-I know.  You know I know, so I don't need the commentary dude :)
+ISDN is not soft modem - we don't need ALSA drivers for this.
 
-I only corrected some of the code, as I touched it.  There is a lot
-more.
-
-	Robert Love
+Sasha.
 
 

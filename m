@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311937AbSCOFoc>; Fri, 15 Mar 2002 00:44:32 -0500
+	id <S311939AbSCOFtO>; Fri, 15 Mar 2002 00:49:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311940AbSCOFoW>; Fri, 15 Mar 2002 00:44:22 -0500
-Received: from angband.namesys.com ([212.16.7.85]:33156 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S311937AbSCOFoO>; Fri, 15 Mar 2002 00:44:14 -0500
-Date: Fri, 15 Mar 2002 08:44:08 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Alex Walker <alex@x3ja.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.5.6 and 2.5.7-pre1 - reiserfs?
-Message-ID: <20020315084408.A5622@namesys.com>
-In-Reply-To: <20020314162009.F9664@x3ja.co.uk> <20020314192916.A1929@namesys.com> <20020314170123.G9664@x3ja.co.uk> <20020314200337.A2186@namesys.com> <20020314174027.H9664@x3ja.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020314174027.H9664@x3ja.co.uk>
-User-Agent: Mutt/1.3.22.1i
+	id <S311940AbSCOFsx>; Fri, 15 Mar 2002 00:48:53 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:45831 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S311939AbSCOFst>; Fri, 15 Mar 2002 00:48:49 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: davidm@hpl.hp.com
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, rth@twiddle.net
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas 
+In-Reply-To: Your message of "Thu, 14 Mar 2002 20:19:21 -0800."
+             <15505.30281.414005.400815@napali.hpl.hp.com> 
+Date: Fri, 15 Mar 2002 16:52:01 +1100
+Message-Id: <E16lkdG-0001kx-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+In message <15505.30281.414005.400815@napali.hpl.hp.com> you write:
+> >>>>> On Fri, 15 Mar 2002 15:07:27 +1100, Rusty Russell <rusty@rustcorp.com.a
+u> said:
+> 
+>   Rusty> Sorry, after thought, I've reverted to my original position.  the
+>   Rusty> original SMP per_cpu()/this_cpu() implementations were broken.
+> 
+>   Rusty> They must return an lvalue, otherwise they're useless for 50% of cas
+es
+>   Rusty> (ie. assignment).  x86_64 can still use its own mechanism for
+>   Rusty> arch-specific per-cpu data, of course.
+> 
+> What's your position about someone taking the address of this_cpu(foo)
+> and passing it to another CPU?  IMO, the effect of this should be
+> allowed to be implementation-dependent.  If you agree, perhaps it
+> would be good to add a comment to this effect?
 
-On Thu, Mar 14, 2002 at 05:40:27PM +0000, Alex Walker wrote:
-> EXT3-fs: Unrecognized mount option conv
-> EXT2-fs: Unrecognized mount option conv
-> found reiserfs format "3.5" with standard journal
-> [Usual boot messages]
+Well, if you want to do TLB tricks, sure.  I don't know if that's a
+good idea (Linus seems opposed to it).  But I'll add the comment.
 
-Hm.
-How about typing this at LILO prompt:
-LILO: <your_image> rw rootfstype=reiserfs rootflags=conv
-
-This one should work.
-
-Bye,
-    Oleg
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

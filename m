@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVACFAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVACFJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVACFAI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 00:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVACFAI
+	id S261382AbVACFJF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 00:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVACFJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 00:00:08 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:4736
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261383AbVACFAC
+	Mon, 3 Jan 2005 00:09:05 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:19866 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261382AbVACFJA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 00:00:02 -0500
-Date: Sun, 2 Jan 2005 21:00:01 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: steve@perfectpc.co.nz
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: iptable_nat: Unknown symbol need_ip_conntrack
-Message-ID: <20050103050001.GA12500@linuxace.com>
-References: <Pine.LNX.4.60.0501031641250.32415@localhost>
+	Mon, 3 Jan 2005 00:09:00 -0500
+Date: Mon, 3 Jan 2005 06:10:02 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: kconfig: avoid temporary file
+Message-ID: <20050103051002.GB8113@mars.ravnborg.org>
+Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <20041230235146.GA9450@mars.ravnborg.org> <20041230235216.GB9450@mars.ravnborg.org> <200501030155.05203.zippel@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0501031641250.32415@localhost>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200501030155.05203.zippel@linux-m68k.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 04:52:39PM +1300, steve@perfectpc.co.nz wrote:
+On Mon, Jan 03, 2005 at 01:55:04AM +0100, Roman Zippel wrote:
 > 
-> Hi,
+> I'm not really against the change, but the reason is weird. In the end the 
+> string is still written to a file anyway...
+Next step is to integrate Petr Baudis patch to link lxdialog with mconf.
+Then it is nice to get rid of the file based interface.
+ 
+> > +/* Growable string. Allocates memory as needed when string expands */
+> > +struct gstr {
+> > + char *s;
+> > + size_t len;
+> > +};
 > 
-> I found these log in dmesg output but not sure how to get rid of them :-)
+> I would prefer something more like this:
 > 
-> NET: Registered protocol family 17
-> ip_tables: (C) 2000-2002 Netfilter core team
-> ip_conntrack version 2.1 (511 buckets, 4088 max) - 332 bytes per conntrack
-> ip_conntrack_ftp: Unknown symbol ip_conntrack_expect_related
-...
-> iptable_nat: Unknown symbol ip_conntrack_alter_reply
+> struct gstr {
+>  int size;
+>  char s[0];
+> };
 > 
-> Kernel 2.6.10-ac2 . Apart from this, the system appears to be normal; 
+> and this would be better names for the functions:
+> 
+> struct gstr *str_new(void);
+> void str_free(struct gstr *gs);
+> void str_append(struct gstr *gs, const char *s);
+> 
+> It would be useful to have these sort of functions in the library, so we can 
+> e.g. use them to dynamically generate the help text.
 
-Looks like a problem with your configuration/kernel build...I have no
-such problems here on 2.6.10.
+I will update my patch with your suggestions later this week.
 
-> 
-> One more thing, the same system if I run 2.4.27 kernel I got a lot of
-> message like:
-> 
-> MASQUERADE: Route sent us somewhere else.
-
-Known problem fixed in 2.6.10.  Backport to 2.4.x unlikely...
-
-Phil
+	Sam

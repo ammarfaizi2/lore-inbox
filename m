@@ -1,81 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132717AbRC2Lno>; Thu, 29 Mar 2001 06:43:44 -0500
+	id <S132719AbRC2Lny>; Thu, 29 Mar 2001 06:43:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132712AbRC2Lne>; Thu, 29 Mar 2001 06:43:34 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:2565 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S132719AbRC2LnR>;
-	Thu, 29 Mar 2001 06:43:17 -0500
+	id <S132718AbRC2Lnp>; Thu, 29 Mar 2001 06:43:45 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:224 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132720AbRC2Ln1>;
+	Thu, 29 Mar 2001 06:43:27 -0500
 To: <linux-kernel@vger.kernel.org>
 Subject: Re: RFC: configuring net interfaces
-In-Reply-To: <Pine.LNX.4.30.0103281558140.15795-100000@intra.cyclades.com>
+In-Reply-To: <m3itkuq6xt.fsf@intrepid.pm.waw.pl>
+	<20010328182729.A16067@se1.cogenit.fr>
+	<m34rwd8pj2.fsf@intrepid.pm.waw.pl>
+	<003101c0b7e5$0c53dbb0$0201a8c0@mojo>
 Content-Type: text/plain; charset=US-ASCII
 From: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
-Date: 29 Mar 2001 13:24:59 +0200
-In-Reply-To: Ivan Passos's message of "Wed, 28 Mar 2001 16:24:19 -0500 (EST)"
-Message-ID: <m3y9to6cms.fsf@intrepid.pm.waw.pl>
+Date: 29 Mar 2001 12:34:39 +0200
+In-Reply-To: "Paul Fulghum"'s message of "Wed, 28 Mar 2001 18:13:10 -0600"
+Message-ID: <m37l187tj4.fsf@intrepid.pm.waw.pl>
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Passos <lists@cyclades.com> writes:
+"Paul Fulghum" <paulkf@microgate.com> writes:
 
-> I guess 'interface' means media type (e.g. V.35, RS-232, X.21, etc.).
-> Maybe it would be more intuitive to call it 'media'. What do you think?
-
-Probably.
-
-> Also, for synchronous cards that have built-in DSU/CSU's (such as the
-> Cylades-PC300/TE), it's also necessary to configure T1/E1 parameters
-> (e.g. line code, frame mode, active channels, etc.). Should we make these
-> parameters also available here or keep them in the driver realm?? I think
-> we should have them here too, but maybe you see some problem with this
-> that I don't.
-
-No problem. That was just an example.
-
-> > +struct hdlc_protocol		/* 4 bytes */
+>  > +struct hdlc_physical /* 10 bytes */
 > > +{
-> > +	unsigned int proto;
+> > + unsigned int interface;
+> > + unsigned int clock_rate;
+> > + unsigned short clock_type;
 > > +};
 > 
-> What are the possible protocols to be set here?? I imagine PPP, Cisco
-> HDLC, Raw HDLC, Frame Relay, X.25, and ... ?? Is that it??
-
-Exactly.
-
-> > +struct fr_protocol		/* 12 bytes */
-> > +{
-> > +	unsigned short lmi_type;
-> > +	unsigned short t391;
-> > +	unsigned short t392;
-> > +	unsigned short n391;
-> > +	unsigned short n392;
-> > +	unsigned short n393;
-> > +};
+> What about encoding (NRZ/NRZI)?
 > 
-> So we would have hdlc_protocol->proto set to PROTO_FR, and then the
-> details about Frame Relay would be set in this separate structure. Is that
-> what you have in mind??
+> Plus I think the CRC type would be a good idea for
+> raw HDLC mode. (CRC-16, CRC-32, no CRC)
 
-Exactly. With defaults filled in by the (some) driver.
-
-> Maybe it's a better idea to have just two ioctl's here (GET and SET), and
-> have "subioctl's" inside the structure passed to the HDLC layer (and
-> defined by the HDLC layer). This would allow changes in the HDLC layer
-> without having to change sockios.h (you'd still have to change HDLC's
-> code and definitions, but this would be more self-contained). Again, this
-> may be better, or maybe not. What do you think?
-
-I think it would make it more complicated. ioctl namespace is huge enough.
-Without changing ifmap struct size (which would require recompilation
-of all programs using it - ip, ifconfig etc), the *_protocol/physical
-structures can only be 16 bytes long each (8 shorts or 4 ints) - I would
-rather not put command code there.
-
-Of course, the structs I outlined are just an example, which need
-checking for max and min values and then setting variable length
-(int/short/char).
+Here - I think so. + good defaults.
 -- 
 Krzysztof Halasa
 Network Administrator

@@ -1,31 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293627AbSCGTGl>; Thu, 7 Mar 2002 14:06:41 -0500
+	id <S310453AbSCGTHB>; Thu, 7 Mar 2002 14:07:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310452AbSCGTGb>; Thu, 7 Mar 2002 14:06:31 -0500
-Received: from bitmover.com ([192.132.92.2]:31113 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S293627AbSCGTGU>;
-	Thu, 7 Mar 2002 14:06:20 -0500
-Date: Thu, 7 Mar 2002 11:06:17 -0800
-From: Larry McVoy <lm@bitmover.com>
+	id <S310459AbSCGTGw>; Thu, 7 Mar 2002 14:06:52 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:20384 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S310453AbSCGTGl>;
+	Thu, 7 Mar 2002 14:06:41 -0500
+Date: Thu, 7 Mar 2002 14:06:34 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
 To: Ed Vance <EdV@macrolink.com>
-Cc: "'Jean-Luc Leger'" <reiga@dspnet.fr.eu.org>, linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux M aintainers
-Message-ID: <20020307110617.C20271@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Ed Vance <EdV@macrolink.com>,
-	'Jean-Luc Leger' <reiga@dspnet.fr.eu.org>,
-	linux-kernel@vger.kernel.org
+cc: "'Jean-Luc Leger'" <reiga@dspnet.fr.eu.org>, linux-kernel@vger.kernel.org
+Subject: RE: Petition Against Official Endorsement of BitKeeper by Linux M
+ aintainers
 In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76E0@EXCHANGE>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A76E0@EXCHANGE>; from EdV@macrolink.com on Thu, Mar 07, 2002 at 10:56:08AM -0800
+Message-ID: <Pine.GSO.4.21.0203071402472.26116-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 07, 2002 at 10:56:08AM -0800, Ed Vance wrote:
+
+
+On Thu, 7 Mar 2002, Ed Vance wrote:
+
 > On Thu, Mar 07, 2002 at 10:03 AM, Jean-Luc Leger wrote:
 > > > Larry McVoy <lm@bitmover.com> writes:
 > > > >	bk prs -hrv2.5.0.. |  while read x
@@ -39,27 +36,13 @@ On Thu, Mar 07, 2002 at 10:56:08AM -0800, Ed Vance wrote:
 > ...
 >     read  [-ers]  [-t  timeout]  [-a  aname]  [-p  prompt] [-n
 >           nchars] [-d delim] [name ...] 
+>                               ^^^^
+> Nope, no "$" on the variable name in this context. The reference 
+> is to the variable's identifier rather than its value.
 
-We're getting well into programming 101 and I should just shut up, but
-here:
+He said _second_ line.  Larry got $i there.  In any case, for that
+one
+bk prs -hrv2.5.0.. | sed -e "s!.*!<body of the loop>!" | sh
+would be simpler and more compact (with & instead of $i).
+He doesn't have metacharcters in there, so it's safe...
 
-	cat > mkpatches <<EOF
-	#!/bin/sh
-
-	bk prs -hr"$1".. |  while read x
-	do	bk export -tpatch -r$x > /tmp/patches/patch-$x
-	done
-	EOF
-
-Yes, I believe you need cat and a Bourne compatible shell for the <<EOF
-stuff and we really don't need a listing of all the shells in which this
-will and will not work.
-
-The point, which seems to be completely lost in the "I can program in 
-shell better than you" discussion, is that it is trivial to export 
-changes from BK as patches.  Given that the world turns on patches
-today, that should be the end of the discussion and insofar as I am
-concerned, it is the end of the discussion.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

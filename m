@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUJSRbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269772AbUJSQ6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267285AbUJSRbr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 13:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269630AbUJSR2U
+	id S269772AbUJSQ6U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 12:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269773AbUJSQ5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 13:28:20 -0400
-Received: from dfw-gate3.raytheon.com ([199.46.199.232]:13937 "EHLO
-	dfw-gate3.raytheon.com") by vger.kernel.org with ESMTP
-	id S267285AbUJSRRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 13:17:19 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U6
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF684A90CB.5A611764-ON86256F32.005DA19F@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Tue, 19 Oct 2004 12:14:47 -0500
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 10/19/2004 12:14:51 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Tue, 19 Oct 2004 12:57:23 -0400
+Received: from mail.kroah.org ([69.55.234.183]:47300 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269772AbUJSQim convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 12:38:42 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core patches for 2.6.9
+In-Reply-To: <10982037712438@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Tue, 19 Oct 2004 09:36:13 -0700
+Message-Id: <10982037731314@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->i have released the -U6 Real-Time Preemption patch:
->
->
-http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U6
+ChangeSet 1.1867.3.2, 2004/09/14 11:12:09-07:00, akpm@osdl.org
 
-Booted to single user and was able to get some network operations going
-with
-this version (w/ previously mentioned update). However, at the step where
-I start CUPS, I got a number of traces on the display referring to
-parport_pc
-related function calls [but I don't use a parallel printer...]. It ended
-with:
+[PATCH] kobject_uevent warning fix
 
-NMI Watchdog detected LOCKUP on CPU1, eip c0139b22, registers:
-[not sure you want the all the details, I'll put a few key items in
-and can try to reproduce on request]
+lib/kobject_uevent.c: In function `kobject_hotplug':
+lib/kobject_uevent.c:225: warning: long long int format, u64 arg (arg 3)
 
-Modules linked in: parport_pc lp parport autofs4 sunrpc 8139too mii dm_mod
-uhci_hcd ext3 jbd
-CPU:    1
-... EIP is at sub_preempt_count+0x82/0xa0
-... Process ksoftirqd/1 (pid:5 ...)
 
-Pid: 1825, comm:    modprobe
-... CPU: 0
-... EIP is at flush_tlb_others+0x90/0xf0
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-(stack trace shows sys_init_module, parport_pc_init, ...
-parport_announce_port,
- mcount, parport_pc_probe_port, parport_announce_port, __mcount,
-parport_daisy_init, ...
- parport_wait_event, down_write_interruptible, error_code, show_stack,
-etc.)
-preempt count: 00010006
-...
-console shuts up...
 
-Alt-Sysrq keys are recognized (displays command) but don't display any
-data.
-Will send whatever made it into to the system log shortly.
+ lib/kobject_uevent.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+
+diff -Nru a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+--- a/lib/kobject_uevent.c	2004-10-19 09:22:55 -07:00
++++ b/lib/kobject_uevent.c	2004-10-19 09:22:55 -07:00
+@@ -222,7 +222,7 @@
+ 	spin_unlock(&sequence_lock);
+ 
+ 	envp [i++] = scratch;
+-	scratch += sprintf(scratch, "SEQNUM=%lld", seq) + 1;
++	scratch += sprintf(scratch, "SEQNUM=%lld", (long long)seq) + 1;
+ 
+ 	envp [i++] = scratch;
+ 	scratch += sprintf(scratch, "SUBSYSTEM=%s", name) + 1;
 

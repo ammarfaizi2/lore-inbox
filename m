@@ -1,58 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbRF3Ekh>; Sat, 30 Jun 2001 00:40:37 -0400
+	id <S264754AbRF3Ers>; Sat, 30 Jun 2001 00:47:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264754AbRF3Ek1>; Sat, 30 Jun 2001 00:40:27 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:34178 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S264724AbRF3EkP>; Sat, 30 Jun 2001 00:40:15 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 29 Jun 2001 21:40:12 -0700
-Message-Id: <200106300440.VAA14185@adam.yggdrasil.com>
-To: alan@lxorguk.ukuu.org.uk, rmk@arm.linux.org.uk
-Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
-Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+	id <S264840AbRF3Erj>; Sat, 30 Jun 2001 00:47:39 -0400
+Received: from ndslppp243.ptld.uswest.net ([63.224.227.243]:57930 "HELO
+	knghtbrd.dyn.dhs.org") by vger.kernel.org with SMTP
+	id <S264754AbRF3ErW>; Sat, 30 Jun 2001 00:47:22 -0400
+Date: Fri, 29 Jun 2001 21:48:40 -0700
+From: Joseph Carter <knghtbrd@d2dc.net>
+To: Tim Jansen <tim@tjansen.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Mac USB keyboards (Was: USB Keyboard errors with 2.4.5-ac)
+Message-ID: <20010629214840.B14167@debian.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NKoe5XOeduwbEQHU"
+Content-Disposition: inline
+In-Reply-To: <01063000110000.01057@cookie>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux galen 2.4.3-ac12
+X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Argh!  I just accidentally sent and older version of my
-patch.  Here is the current version.  Sorry about that.
+--NKoe5XOeduwbEQHU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
---------------------------CUT HERE----------------------------------
---- linux-2.4.6-pre6/scripts/Configure	Sat Dec 30 18:16:13 2000
-+++ linux/scripts/Configure	Fri Jun 29 21:39:24 2001
-@@ -48,6 +48,10 @@
- #
- # 24 January 1999, Michael Elizabeth Chastain, <mec@shout.net>
- # - Improve the exit message (Jeff Ronne).
-+#
-+# 29 June 2001, Adam J. Richter, <adam@yggdrasil.com>
-+# - Default all non-numeric variables arch/*/config.in to "n"
-+
- 
- #
- # Make sure we're really running bash.
-@@ -531,6 +535,18 @@
- echo " * Automatically generated C config: don't edit" >> $CONFIG_H
- echo " */" >> $CONFIG_H
- echo "#define AUTOCONF_INCLUDED" >> $CONFIG_H
-+
-+# Ensure all unselected architecture variables are set to "n" rather than being
-+# undefined, so that dep_bool and dep_tristate properly detect their absense.
-+set +f
-+for var in $(cat arch/*/config.in |
-+	     egrep -w -v '^[ 	]*int' |
-+             tr '   $"' '\n\n\n' |
-+	     egrep '^CONFIG_[A-Z0-9_]*$' |
-+	     sort -u) ; do
-+	define_bool "$var" "n"
-+done
-+set -f
- 
- DEFAULT=""
- if [ "$1" = "-d" ] ; then
+On Sat, Jun 30, 2001 at 12:11:00AM +0200, Tim Jansen wrote:
+> I use a USB keyboard (Macally iKey) and mouse (Logitech iFeel) without=20
+> problems.  I also get these messages, but I dont see any performance prob=
+lem.=20
+> It may help you to enable an option like "Legacy USB keyboard support" in=
+=20
+> your BIOS. This will emulate a PS/2 keyboard until USB is initialized.
+
+If you're using it on a wintel arch machine, have you managed to get the
+numeric keypad's =3D key or the power key to work?  Doesn't here and I've
+tried more than one model of keyboard on more than one machine, no luck
+even with showkey.  MacOS likes the keys just fine, naturally.
+
+--=20
+Joseph Carter <knghtbrd@d2dc.net>                   Free software developer
+
+* TribFurry only gets spam mail from ucsd... I used to get email from
+            myself but I decided I didn't like myself and stopped talking
+	    to me
+
+
+--NKoe5XOeduwbEQHU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
+
+iEUEARECAAYFAjs9WigACgkQj/fXo9z52rNiMgCY3WVq6T59Md7UP2kJrDPDZcC1
+qQCfRPvTkCW61kauRNHsgmwJXjOaYFY=
+=uCyp
+-----END PGP SIGNATURE-----
+
+--NKoe5XOeduwbEQHU--

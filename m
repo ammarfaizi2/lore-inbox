@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264649AbSLIIl3>; Mon, 9 Dec 2002 03:41:29 -0500
+	id <S264690AbSLIIqM>; Mon, 9 Dec 2002 03:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264672AbSLIIl3>; Mon, 9 Dec 2002 03:41:29 -0500
-Received: from smtp01.uc3m.es ([163.117.136.121]:48133 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S264649AbSLIIl2>;
-	Mon, 9 Dec 2002 03:41:28 -0500
-Date: Mon, 9 Dec 2002 09:49:02 +0100
-Message-Id: <200212090849.gB98n2319698@oboe.it.uc3m.es>
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-To: ahtraps@yahoo.com (Andy Trap)
-Subject: Re: Difference between dummy and loopback interfaces
-X-Newsgroups: comp.os.linux.networking
-In-Reply-To: <e414a6f2.0212082318.71702ff9@posting.google.com>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
+	id <S264699AbSLIIqL>; Mon, 9 Dec 2002 03:46:11 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:51896 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264690AbSLIIqK>; Mon, 9 Dec 2002 03:46:10 -0500
+Date: Mon, 9 Dec 2002 03:53:47 -0500
+From: Arjan van de Ven <arjanv@redhat.com>
+To: george anzinger <george@mvista.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/3] High-res-timers part 1 (core) take 20
+Message-ID: <20021209035347.C12524@devserv.devel.redhat.com>
+References: <3DF2F8D9.6CA4DC85@mvista.com> <1039341009.1483.3.camel@laptop.fenrus.com> <3DF44031.58A12F66@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DF44031.58A12F66@mvista.com>; from george@mvista.com on Sun, Dec 08, 2002 at 11:03:13PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <e414a6f2.0212082318.71702ff9@posting.google.com> you wrote:
-> I have read this. But the description leaves the following questions
-> unanswered:
+On Sun, Dec 08, 2002 at 11:03:13PM -0800, george anzinger wrote:
+> Arjan van de Ven wrote:
+> > 
+> > On Sun, 2002-12-08 at 08:46, george anzinger wrote:
+> > 
+> > > +/*
+> > > + * Here is an SMP helping macro...
+> > > + */
+> > > +#ifdef CONFIG_SMP
+> > > +#define IF_SMP(a) a
+> > > +#else
+> > > +#define IF_SMP(a)
+> > > +#endif
+> > 
+> > ehmmmmm personally I would consider any need of this ugly and evil
+> > 
+> > > +     IF_SMP(if (old_base && (new_base != old_base))
+> > > +            spin_unlock(&old_base->lock);
+> > > +             )
+> > 
+> > Like here..... SMP dependent ifdef's of spinlock usage... shudder
+> > 
+> Well it does seem like a waste to do spinlock ordering code
+> on a UP system...
 
-> 1. How this is any different than configuring the IP address of vlite
->    (72.16.1.65) on the loopback interface.
-
-It's very different. RH's parctice of configuring the loopback device
-as something other than (in addition to) localhost (no domain!) is just
-plain broken, as umpteen administrators will tell you. localhost is
-in the root domain, and nowhere else, netwise.
-
-> 2. The implementation of dummy_xmit() unconditionally drops every packet
->    sent to it which suggests that intra-node communication can never
->    occur over a dummy interface. The loopback interface on the other
->    hand queues packets sent to it on the receive queue (allowing intra-
->    node communication even when the dialup line is down)
-
-> I can't think of a condition where a dummy device is useful (other than
-> for simulating a blackhole device which sucks every packet sent to it).
-
-The dummy device is conventionally used to provide a separate interface
-that can be used to bind the hostname to when there is no real nic in
-the box to bind it to (binding it to loopback being a no no). One
-ususally does if-down ppp0, for example, with a few lines in that
-brings up the hostname on dummy0. When ppp comes up, the hostname may
-be bound to the ppp0 connection, but personally I prefer t leave it
-stable.
-
-"a stable binding point" for the hostname is another use for dummy0,
-when the configuration is dynamic, such as in a failover cluster.
-
-Peter
+that's why spinlocks are effectively nops on UP.
+What you say is true of just about every spinlock user, and no
+they shouldn't all do some IF_SMP() thing; the spinlock itself should be
+(and is) zero on UP

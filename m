@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318252AbSHZUUw>; Mon, 26 Aug 2002 16:20:52 -0400
+	id <S318249AbSHZUNH>; Mon, 26 Aug 2002 16:13:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318253AbSHZUUw>; Mon, 26 Aug 2002 16:20:52 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:28670 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318252AbSHZUUv>;
-	Mon, 26 Aug 2002 16:20:51 -0400
-Date: Mon, 26 Aug 2002 13:19:24 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+	id <S318250AbSHZUNH>; Mon, 26 Aug 2002 16:13:07 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37893 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318249AbSHZUNG>; Mon, 26 Aug 2002 16:13:06 -0400
+Date: Mon, 26 Aug 2002 21:17:21 +0100
+From: Russell King <rmk@arm.linux.org.uk>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pavel Machek <pavel@elf.ucw.cz>, Andrea Arcangeli <andrea@suse.de>,
-       Mikael Pettersson <mikpe@csd.uu.se>, john stultz <johnstul@us.ibm.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>, Leah Cunningham <leahc@us.ibm.com>,
-       wilhelm.nuesser@sap.com, paramjit@us.ibm.com, msw@redhat.com
-Subject: Re: [PATCH] tsc-disable_B9
-Message-ID: <160380000.1030393164@flay>
-In-Reply-To: <1030388713.2776.11.camel@irongate.swansea.linux.org.uk>
-References: <1028812663.28883.32.camel@irongate.swansea.linux.org.uk><1028860246.1117.34.camel@cog> <20020815165617.GE14394@dualathlon.random><1029496559.31487.48.camel@irongate.swansea.linux.org.uk><15708.64483.439939.850493@kim.it.uu.se><20020821131223.GB1117@dualathlon.random><1029939024.26425.49.camel@irongate.swansea.linux.org.uk><20020821143323.GF1117@dualathlon.random><1029942115.26411.81.camel@irongate.swansea.linux.org.uk><20020821161317.GI1117@dualathlon.random> <20020826161031.GA479@elf.ucw.cz> <159220000.1030387536@flay> <1030388713.2776.11.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+Cc: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG/PATCH] : bug in tty_default_put_char()
+Message-ID: <20020826211721.G4763@flint.arm.linux.org.uk>
+References: <20020826180749.GA8630@bougret.hpl.hp.com> <1030388224.2797.2.camel@irongate.swansea.linux.org.uk> <20020826185930.GA8749@bougret.hpl.hp.com> <1030388847.2776.15.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1030388847.2776.15.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Aug 26, 2002 at 08:07:27PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It's not correlating it to real time that's the problem. It's getting resceduled
->> inbetween calls that hurts. Take your example.
->> 
->> rdtsc
->> mov %eax,%ebx
->> 			<- get rescheduled here
->> rdtsc
->> 
->> Broken. May even take negative "time".
+On Mon, Aug 26, 2002 at 08:07:27PM +0100, Alan Cox wrote:
+> On Mon, 2002-08-26 at 19:59, Jean Tourrilhes wrote:
+> > 	Just check drivers/char/n_tty.c for every occurence of
+> > put_char() and be scared. The problem is to find a practical solution.
+> > 	For myself, I've added some clever workaround in IrCOMM to
+> > accept data before full setup.
 > 
-> Statistically irrelevant. When you have 100,000 samples all the
-> pre-emption ones drop into the dud sample filter with IRQ disturbance
-> and so on.
- 
-OK, so let's take a better example. People are (I think) mainly using rdtsc
-to provide a monotonically increasing counter for database "transaction
-order" stamping. I think that's really the case we're worried about. 
+> Sure making it return the right errors doesnt fix anything, but it
+> allows you to fix some of it bit by bit. 
 
-M.
+put_char() is not allowed to fail since the caller should have already
+checked for buffer space via the write_room() method.
+
+All places look adequately protected in n_tty.c, so I'm not currently
+sure how Jean's users are seeing this condition; I'd need to have a
+BUG() showing the call trace of such an event happening.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

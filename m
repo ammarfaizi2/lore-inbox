@@ -1,67 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUKPJlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbUKPJoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUKPJlz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 04:41:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbUKPJk2
+	id S261459AbUKPJoF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 04:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbUKPJmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 04:40:28 -0500
-Received: from CPE-203-51-35-114.nsw.bigpond.net.au ([203.51.35.114]:58355
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S261392AbUKPJkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 04:40:10 -0500
-Message-ID: <4199CAF8.1000501@eyal.emu.id.au>
-Date: Tue, 16 Nov 2004 20:40:08 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.10 usb-storage too verbose
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Nov 2004 04:42:04 -0500
+Received: from mail.euroweb.hu ([193.226.220.4]:42722 "HELO mail.euroweb.hu")
+	by vger.kernel.org with SMTP id S261496AbUKPJkr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 04:40:47 -0500
+To: arjan@infradead.org
+CC: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-reply-to: <1100596704.2811.17.camel@laptop.fenrus.org> (message from Arjan
+	van de Ven on Tue, 16 Nov 2004 10:18:24 +0100)
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
+	 <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
+	 <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <1100596704.2811.17.camel@laptop.fenrus.org>
+Message-Id: <E1CTzpJ-0000ap-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 16 Nov 2004 10:40:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I mount/read/unmount a USB disk I end up with tons of messages like
-below. Should it be this verbose on a stable kernel (I would understand
-debugging)?
 
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command READ_10 (10 bytes)
-usb-storage:  28 00 00 0b 0d a8 00 00 80 00
-usb-storage: Bulk Command S 0x43425355 T 0x32c L 65536 F 128 Trg 0 LUN 0 CL 12
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 65536 bytes, 1 entries
-usb-storage: Status code 0; transferred 65536/65536
-usb-storage: -- transfer complete
-usb-storage: Bulk data transfer result 0x0
-usb-storage: Attempting to get CSW...
-usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
-usb-storage: Status code 0; transferred 13/13
-usb-storage: -- transfer complete
-usb-storage: Bulk status result = 0
-usb-storage: Bulk Status S 0x53425355 T 0x32c R 0 Stat 0x0
-usb-storage: scsi cmd done, result=0x0
-usb-storage: *** thread sleeping.
-usb-storage: queuecommand called
-usb-storage: *** thread awakened.
-usb-storage: Command READ_10 (10 bytes)
-usb-storage:  28 00 00 0b 0e 28 00 00 80 00
-usb-storage: Bulk Command S 0x43425355 T 0x32d L 65536 F 128 Trg 0 LUN 0 CL 12
-usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
-usb-storage: Status code 0; transferred 31/31
-usb-storage: -- transfer complete
-usb-storage: Bulk command transfer result=0
-usb-storage: usb_stor_bulk_transfer_sglist: xfer 65536 bytes, 2 entries
+> somehow I find dropping the lock and then doing a list_del() without
+> any kind of verification very suspicious.
 
--- 
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+list_del() is done with the lock held.  Look closely. 
+
+Miklos

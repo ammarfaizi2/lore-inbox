@@ -1,69 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262458AbREXWjZ>; Thu, 24 May 2001 18:39:25 -0400
+	id <S262472AbREXWsQ>; Thu, 24 May 2001 18:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262461AbREXWjF>; Thu, 24 May 2001 18:39:05 -0400
-Received: from elaine24.Stanford.EDU ([171.64.15.99]:2002 "EHLO
-	elaine24.Stanford.EDU") by vger.kernel.org with ESMTP
-	id <S262458AbREXWi6>; Thu, 24 May 2001 18:38:58 -0400
-Date: Thu, 24 May 2001 15:38:50 -0700 (PDT)
-From: Junfeng Yang <yjf@stanford.edu>
-To: Willem Riede <wriede@home.com>
-cc: Dawson Engler <engler@csl.stanford.edu>, <linux-kernel@vger.kernel.org>,
-        <mc@CS.Stanford.EDU>
-Subject: Re: [CHECKER] null bugs in 2.4.4 and 2.4.4-ac8
-In-Reply-To: <3B0D85E6.7E509F3E@home.com>
-Message-ID: <Pine.GSO.4.31.0105241532450.11846-100000@elaine24.Stanford.EDU>
+	id <S262470AbREXWsG>; Thu, 24 May 2001 18:48:06 -0400
+Received: from smtp2.vol.cz ([195.250.128.42]:49930 "EHLO smtp2.vol.cz")
+	by vger.kernel.org with ESMTP id <S262466AbREXWr6>;
+	Thu, 24 May 2001 18:47:58 -0400
+Message-ID: <000b01c0e4a3$9c96bae0$1700000a@kamamura>
+From: "Tomas Styblo" <trip@matrix.cyberspace.cz>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4 freezes on VIA KT133
+Date: Fri, 25 May 2001 00:48:11 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 May 2001, Willem Riede wrote:
+Hi !
 
-> Dawson Engler wrote:
-> >
-> > Hi All,
-> >
-> > Enclosed are 103 potential errors where code gets a pointer from a
-> > possibly-failing routine (kmalloc, etc) and dereferences it without
-> >
-> > [BUG] osst_do_scsi will never return NULL if argument SRpnt isn't NULL. But they copy SRpnt back by *aSRpnt, implies it could be NULL
->
-> No. It implies SRpnt could have changed. The functions flagged
-> (osst_read_back_buffer_and_rewrite and osst_reposition_and_retry)
-> cannot be reached with SRpnt == NULL. So these are false alarms.
+I've yet seen similar freeze reports here in the past, so I decided to post
+my one too.
+The said system is a server, Athlon 850, no overclocking, no overheating,
+100 Mhz FSB, 512 MB brand RAM, Abit KT7A board with VIA KT133.
 
-these are false positives if osst_read_back_buffer_and rewrite can't be
-reached with SRpnt == NULL. It seems that osst_do_scsi will not change
-SRpnt unless it is NULL though. In other words, SRpnt is changed by
-osst_do_scsi <=> the initial argument SRpnt == NULL. Probabaly the pointer
-aSRpnt is useless.
+The system is heavy loaded in daytime, but almost idle at night. It crashes
+only about three times per month. These freezes
+started to happen after 2.2 -> 2.4 upgrade, that I performed early after the
+2.4.1 revision was released. These crashes are completely untracable for me,
+because there is nothing suspicious in the syslog afterwards. Also the
+system runs ABSOLUTELY perfectly between the crashes  - no problems with
+kernel compilations or similar tasks that push the system over stability.
 
->
-> > /u2/engler/mc/oses/linux/2.4.4/drivers/scsi/osst.c:1163:osst_read_back_buffer_and_rewrite: ERROR:NULL:1111:1163: Using unknown ptr "SRpnt" illegally! set by 'osst_do_scsi':1163 [nbytes = 216]
-> > #if DEBUG
-> >                 if (debugging)
-> >                         printk(OSST_DEB_MSG "osst%d: About to attempt to write to frame %d\n", dev, new_block+i);
-> > #endif
-> >                 SRpnt = osst_do_scsi(SRpnt, STp, cmd, OS_FRAME_SIZE, SCSI_DATA_WRITE,
-> > Start --->
-> >                                             STp->timeout, MAX_WRITE_RETRIES, TRUE);
-> >
-> >         ... DELETED 46 lines ...
-> >
-> >                         }
-> >                 }
-> >                 if (flag) {
-> >                         if ((SRpnt->sr_sense_buffer[ 2] & 0x0f) == 13 &&
-> >                              SRpnt->sr_sense_buffer[12]         ==  0 &&
-> > Error --->
-> >                              SRpnt->sr_sense_buffer[13]         ==  2) {
-> >                                 printk(KERN_ERR "osst%d: Volume overflow in write error recovery\n", dev);
-> >                                 vfree((void *)buffer);
-> >                                 return (-EIO);                  /* hit end of tape = fail */
-> >
->
-> Regards. Willem Riede.
->
+The crashes occur absolutely unpredictably, sometimes even at night, when
+the system is idle.
+
+The system runs various network services and dynamic web applications that
+use the MySQL database a lot. The only used filesystem is EXT2. I do not use
+buggy redhat compiler.
+
+This report is probably not very helpful, but it may be useful for those who
+planned to purchase AMD / VIA solution for a server.
+I am not subscribed to this list, but I will monitor it through a web
+archive and will try to respond, if needed.
+
+Thanks for your work !
+Tomas Styblo
+
 

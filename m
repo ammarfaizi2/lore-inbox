@@ -1,53 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVCKT35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVCKTbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVCKT35 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 14:29:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVCKT00
+	id S261378AbVCKTbs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 14:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCKTaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 14:26:26 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:9104 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261359AbVCKTXH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 14:23:07 -0500
-Message-ID: <4231F14A.2090602@tmr.com>
-Date: Fri, 11 Mar 2005 14:28:10 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: Krzysztof Halasa <khc@pm.waw.pl>, Greg KH <greg@kroah.com>,
+	Fri, 11 Mar 2005 14:30:55 -0500
+Received: from mail.murom.net ([213.177.124.17]:19587 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S261402AbVCKT1y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 14:27:54 -0500
+Date: Fri, 11 Mar 2005 22:27:01 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Patrick McHardy <kaber@trash.net>, netdev@oss.sgi.com,
+       dtor_core@ameritech.net, netfilter-devel@lists.netfilter.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.11.2
-References: <m3acpa9qta.fsf@defiant.localdomain><m3acpa9qta.fsf@defiant.localdomain> <20050311173808.GZ28536@shell0.pdx.osdl.net>
-In-Reply-To: <20050311173808.GZ28536@shell0.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Last night Linus bk - netfilter busted?
+Message-Id: <20050311222701.216aba43.vsu@altlinux.ru>
+In-Reply-To: <20050311105136.2a5e4ddc.davem@davemloft.net>
+References: <200503110223.34461.dtor_core@ameritech.net>
+	<4231A498.4020101@trash.net>
+	<20050311105136.2a5e4ddc.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Fri__11_Mar_2005_22_27_01_+0300_lu/w9Mn=IHAiPcq/"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Krzysztof Halasa (khc@pm.waw.pl) wrote:
-> 
->>Another patch for 2.6.11.x: already in main tree, fixes kernel panic
->>on receive with WAN cards based on Hitachi SCA/SCA-II: N2, C101,
->>PCI200SYN.
->>Also a documentation change fixing user-panic can-t-find-required-software
->>failure (just the same patch as in mainline) :-)
-> 
-> 
-> We are not accepting documentation fixes.  Could you please send just
-> the panic fix to stable@kernel.org (cc lkml)?  And add Signed-off-by...
+--Signature=_Fri__11_Mar_2005_22_27_01_+0300_lu/w9Mn=IHAiPcq/
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-I really think you should not have a hard and fast rule on doc, for the 
-case where a fix also makes the mainline doc wrong and someone might do 
-something destructive reading the mainline docs and using the fixed 
-code. Drivers come to mind.
+On Fri, 11 Mar 2005 10:51:36 -0800 David S. Miller wrote:
 
-I am NOT saying this is such a case, I'm just against zero tolerance 
-rules when I can see a reasonable case where they don't do what you want.
+> On Fri, 11 Mar 2005 15:00:56 +0100
+> Patrick McHardy <kaber@trash.net> wrote:
+> 
+> > Works fine here. You could try if reverting one of these two patches
+> > helps (second one only if its a SMP box).
+> > 
+> > ChangeSet@1.2010, 2005-03-09 20:28:17-08:00, bdschuym@pandora.be
+> >    [NETFILTER]: Reduce call chain length in netfilter (take 2)
+> 
+> It's this change, I know it is, because Linus sees the same problem
+> on his workstation.
+> 
+> You wouldn't happen to be seeing this problem on a PPC box would
+> you?  Since Linus's machine is a PPC machine too, that would support
+> my theory that this could be a compiler issue on that platform.
+> 
+> Damn, wait, Patrick, I think I know what's happening.  The iptables
+> IPT_* verdicts are dependant upon the NF_* values, and they don't
+> cope with Bart's changes I bet.  Can you figure out what the exact
+> error would be?  This kind of issue would explain the looping inside
+> of ipt_do_table(), wouldn't it?
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+This is not just some buggy code - that patch also breaks interfaces:
+
+include/linux/netfilter_ipv4/ip_tables.h:
+#define IPT_RETURN (-NF_MAX_VERDICT - 1)
+
+And this value is visible in userspace.  Therefore we cannot modify
+NF_MAX_VERDICT without breaking all existing iptables binaries.
+
+--Signature=_Fri__11_Mar_2005_22_27_01_+0300_lu/w9Mn=IHAiPcq/
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCMfEIW82GfkQfsqIRAlL4AJ40CH8yoWTNI8F/+isZHwf4CGqq4ACeOQWL
+xiFAh8jgzFt1YDmzWnc8Oc8=
+=RHYq
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__11_Mar_2005_22_27_01_+0300_lu/w9Mn=IHAiPcq/--

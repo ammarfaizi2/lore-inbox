@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285129AbRLQNFK>; Mon, 17 Dec 2001 08:05:10 -0500
+	id <S279798AbRLQNUY>; Mon, 17 Dec 2001 08:20:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285127AbRLQNFA>; Mon, 17 Dec 2001 08:05:00 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:57872 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S285129AbRLQNEt>; Mon, 17 Dec 2001 08:04:49 -0500
-Content-Type: text/plain;
-  charset="PT 154"
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Dmitry Volkoff <vdb@mail.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Unfreeable buffer/cache problem in 2.4.17-rc1 still there
-Date: Mon, 17 Dec 2001 15:01:12 -0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <20011216223909.A230@localhost>
-In-Reply-To: <20011216223909.A230@localhost>
+	id <S280027AbRLQNUN>; Mon, 17 Dec 2001 08:20:13 -0500
+Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:59144 "EHLO
+	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S279798AbRLQNUH>; Mon, 17 Dec 2001 08:20:07 -0500
+From: "" <simon@baydel.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 17 Dec 2001 09:57:03 -0000
 MIME-Version: 1.0
-Message-Id: <01121715011208.02146@manta>
-Content-Transfer-Encoding: 8bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Panic output
+Message-ID: <3C1DC16F.19499.A8A87F@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 16 December 2001 17:39, Dmitry Volkoff wrote:
-> Hello!
->
-> Below is simple test case which I think is related to "memory disappear"
-> problem.
->
-> My real program is doing something like this:
->
-> // test.c
-> #include <sys/types.h>
-> #include <sys/stat.h>
-> #include <fcntl.h>
-> #include <stdio.h>
-> #include <unistd.h>
->
-> int main(void)
-> {
->   int fd;
->   int r;
->   char data[10] = "0123456789";
->   int i;
->   int end = 30;
->   for (i=0;i<end;i++) {
->     fd = open("testfile", O_WRONLY | O_NDELAY | O_TRUNC | O_CREAT, 0644);
->     if (fd == -1) {
->       printf("unable to open\n");
->       return;
->     }
->     r = write(fd,data,sizeof data);
->     if (r == -1) {
->       printf("unable to write\n");
->       close(fd);
->       return;
->     }
->     close(fd);
->     sleep(1);
->   }
-> }
-> // end test.c
+During writing a driver for a PCI board I experienced the hardware 
+hanging and I had to press the big red button. The hang was traced 
+using a PCI analyzer and I found that the driver, loaded as a 
+module, was taking a route which called panic. I changed 
+/proc/sys/kernel/panic to a non zero value and the machine started 
+to reboot on PCI hang. My problem is I never see any output on the 
+screen or in /var/log/messages. All the stuff I have looked at in 
+/usr/src/linux/Documentation suggests the messages should be 
+here. I am running a 2.4.0 kernel with a SuSE 7.1 installation. At 
+the hang time the system is running kde 2 and in a command 
+winow I have a tail -f /var/log/messages running. The first change I 
+see is the PC bios startup. 
 
-I removed sleep(1). Is it needed?
+Please Help
 
-After 10000+ runs of this proggy swap usage isn't changed on 2.4.17-pre7.
-top reports constant 2304K of swap usage.
---
-vda
+Simon.
+__________________________
+
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________

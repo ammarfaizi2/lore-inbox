@@ -1,101 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272044AbTGYMc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 08:32:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272045AbTGYMcz
+	id S272045AbTGYMgN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 08:36:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272047AbTGYMgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 08:32:55 -0400
-Received: from tomts23-srv.bellnexxia.net ([209.226.175.185]:39344 "EHLO
-	tomts23-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S272044AbTGYMcu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 08:32:50 -0400
-Date: Fri, 25 Jul 2003 08:46:29 -0400 (EDT)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@localhost.localdomain
-To: Bernd Eckenfels <ecki-lkm@lina.inka.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: why the current kernel config menu layout is a mess
-In-Reply-To: <E19frN3-00025I-00@calista.inka.de>
-Message-ID: <Pine.LNX.4.53.0307250820320.25867@localhost.localdomain>
-References: <E19frN3-00025I-00@calista.inka.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Jul 2003 08:36:13 -0400
+Received: from noose.gt.owl.de ([62.52.19.4]:6673 "EHLO noose.gt.owl.de")
+	by vger.kernel.org with ESMTP id S272045AbTGYMfr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 08:35:47 -0400
+Date: Fri, 25 Jul 2003 14:40:10 +0200
+From: Florian Lohoff <flo@rfc822.org>
+To: Max Krasnyansky <maxk@qualcomm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21] bluez/usb-ohci bulk_msg timeout
+Message-ID: <20030725124010.GA910@paradigm.rfc822.org>
+References: <5.1.0.14.2.20030721100313.0759df08@unixmail.qualcomm.com> <20030718173214.GD15430@paradigm.rfc822.org> <5.1.0.14.2.20030721100313.0759df08@unixmail.qualcomm.com> <5.1.0.14.2.20030723140628.096fcbe0@unixmail.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
+Content-Disposition: inline
+In-Reply-To: <5.1.0.14.2.20030723140628.096fcbe0@unixmail.qualcomm.com>
+Organization: rfc822 - pure communication
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jul 2003, Bernd Eckenfels wrote:
 
-> In article <Pine.LNX.4.53.0307242020140.23200@localhost.localdomain> you wrote:
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > "Multiple devices (RAID and LVM)"
-> 
-> Well, if we go along the line of using unix naming, then MD can be moved ot
-> block devices, not to filesystems.
+On Wed, Jul 23, 2003 at 02:08:25PM -0700, Max Krasnyansky wrote:
+> Probably. Could try the prev revision of the HCI USB driver though. ie Th=
+e one without SCO
+> support. Just copy hci_usb.[ch] over from older kernel and see if it work=
+s with newer OHCI.
 
-i'm still not keen on the notion of having an entire menu category
-called "block devices".  apart from the hard-core kernel coders here,
-i don't think mere mortals think this way.  but there's another concern
-with any menu re-org.
+I tried the ones from 2.4.20 and the same error messages appear - So i
+think its the OHCI stuff - It got a some major changes it seems from the
+2.4.21 patch ...
 
-from my poking around in the whole Kconfig structure, it seems that the
-menu structure is tied awfully closely to the underlying directory
-structure.  this would make it overly difficult to shift parts of
-the config menu around without dragging the corresponding directories
-around as well.
+Linux version 2.4.21-vaio3 (root@paradigm) (gcc version 2.95.4 20011002 (De=
+bian prerelease)) #1 Fri Jul 25 13:12:06 CEST 2003
 
-so, as much as i'd like to see a more intuitive menu layout, i'm
-starting to think that this may not be all that easy anymore.
-it's one thing to shift menu entries around.  it's quite another
-to start moving entire directories around in the kernel source
-tree, and it seems that that's what would be necessary.  unless
-i'm misreading something badly.
+[...]
 
-rday
+hub.c: new USB device 00:0f.0-2, assigned address 3
+usb.c: USB device 3 (vend/prod 0x44e/0x3001) is not claimed by any active d=
+river.
+usb_control/bulk_msg: timeout
+usbdevfs: USBDEVFS_CONTROL failed dev 3 rqt 128 rq 6 len 9 ret -110
+BlueZ Core ver 2.3 Copyright (C) 2000,2001 Qualcomm Inc
+Written 2000,2001 by Maxim Krasnyansky <maxk@qualcomm.com>
+BlueZ HCI USB driver ver 2.1 Copyright (C) 2000,2001 Qualcomm Inc
+Written 2000,2001 by Maxim Krasnyansky <maxk@qualcomm.com>
+usb.c: registered new driver hci_usb
+usb_control/bulk_msg: timeout
+usbdevfs: USBDEVFS_CONTROL failed dev 3 rqt 128 rq 6 len 193 ret -110
+usb_control/bulk_msg: timeout
+usbdevfs: USBDEVFS_CONTROL failed dev 3 rqt 128 rq 6 len 193 ret -110
+usb_control/bulk_msg: timeout
+usbdevfs: USBDEVFS_CONTROL failed dev 3 rqt 128 rq 6 len 9 ret -110
+BlueZ RFCOMM ver 1.0
+Copyright (C) 2002 Maxim Krasnyansky <maxk@qualcomm.com>
+Copyright (C) 2002 Marcel Holtmann <marcel@holtmann.org>
+usbdevfs: USBDEVFS_CONTROL failed dev 3 rqt 128 rq 6 len 9 ret -75
+BlueZ L2CAP ver 2.3 Copyright (C) 2000,2001 Qualcomm Inc
+Written 2000,2001 by Maxim Krasnyansky <maxk@qualcomm.com>
+CSLIP: code copyright 1989 Regents of the University of California
+PPP generic driver version 2.4.2
 
-p.s.  since i'm sure there's at least a couple people here i haven't
-annoyed intensely thus far :-), let me toss out two more thoughts.
+Flo
+--=20
+Florian Lohoff                  flo@rfc822.org             +49-171-2280134
+                        Heisenberg may have been here.
 
-checkboxes at the top level
----------------------------
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-  some time ago, i suggested it would be nice to be able to deselect
-entire submenus right at the top level.  for example, it's clearly
-inefficient to have to select "Parallel port support" and bring
-up its corresponding submenu, if your only goal is to *deselect*
-that option.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-  it would be really terrific to have checkboxes for deselecting
-entire subsystems right at the top level, but i suspect that would
-require a major rewrite of Kconfig, wouldn't it?  bummer.
+iD8DBQE/ISUpUaz2rXW+gJcRAtbEAJ4gkXWyNz1Lkpu3ZRyP3LmVlPBmLACffDgJ
+8acGbrnKshAmCx/g6BoCDC4=
+=G+bp
+-----END PGP SIGNATURE-----
 
-who defines a menu?
--------------------
-
-  the other problem i noticed is the restrictions imposed when a
-Kconfig file defines its own menu title.  just as one example, 
-consider ../drivers/acpi/Kconfig.  that Kconfig file defines itself
-at the very top as the menu for "ACPI Support".  but who's to say
-that someone else might not write another set of drivers in another
-directory that relate to some other feature of ACPI?
-
-  that will be inconvenient since the Kconfig file i refer to has
-already taken the inflexible position of claiming, "*i*, and only i,
-shall handle ACPI, and i shall be the ACPI support menu."
-
-  frankly, i don't think Kconfig files should define their own
-menu names.  that should be done by their *including* files,
-which gives the including files the flexibility to decide how to
-name and include menus.
-
-  if this were done consistently, re-ordering the menu layout
-would be a breeze.  in short, if i use ACPI as an example, whoever
-wrote the ACPI stuff would be responsible for writing the Kconfig
-file to describe options and dependencies, but would leave the
-menu name and how those menu entries were included in the overall
-structure to a higher-level Kconfig file, all the way back to
-the top-level Kconfig file, whose job would be to simply define
-the top-level menu and include the appropriate next-level
-Kconfig files.
-
-  although, i will admit, there may be limitations to this
-i haven't thought of yet.
+--vkogqOf2sHV7VnPd--

@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310963AbSCRONB>; Mon, 18 Mar 2002 09:13:01 -0500
+	id <S310943AbSCROQl>; Mon, 18 Mar 2002 09:16:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310953AbSCROMx>; Mon, 18 Mar 2002 09:12:53 -0500
-Received: from mail.pixelwings.com ([194.152.163.212]:42765 "EHLO
-	pixelwings.com") by vger.kernel.org with ESMTP id <S310943AbSCROMn> convert rfc822-to-8bit;
-	Mon, 18 Mar 2002 09:12:43 -0500
-Date: Mon, 18 Mar 2002 15:12:38 +0100
-From: Clemens Schwaighofer <cs@pixelwings.com>
+	id <S310953AbSCROQc>; Mon, 18 Mar 2002 09:16:32 -0500
+Received: from boa.mtg-marinetechnik.de ([62.153.155.10]:50169 "EHLO
+	anaconda.mtg-marinetechnik.de") by vger.kernel.org with ESMTP
+	id <S310943AbSCROQY>; Mon, 18 Mar 2002 09:16:24 -0500
+Message-ID: <3C95F6B6.D3B1E921@gmx.net>
+Date: Mon, 18 Mar 2002 15:16:22 +0100
+From: Richard Ems <r.ems.mtg@gmx.net>
+Reply-To: r.ems@gmx.net
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-4GB i686)
+X-Accept-Language: en, de, es
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.18 freezes on heavy IO
-Message-ID: <21050000.1016460758@lynx>
 In-Reply-To: <3C95F129.7D9744B5@gmx.net>
-X-Mailer: Mulberry/2.1.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Richard Ems
+So next freeze! (The 4th or 5th today!)
 
---On Monday, March 18, 2002 02:52:41 PM +0100 you wrote:
+Now I got "hda:lost interrupt", ext3 partitions where all mounted with
+the "debug" option and the console log level was set to 8 with
+ALT-SysRq-8.
+Both Caps-Lock and Scroll-Lock LEDs where flashing, what does this mean?
+Again only the reset button worked ...
 
-> Hi all!
->
-> I'm seeing my system freeze on heavy IO. Only the reset button brings it
-> back to life again (ALT-SysRq-b also worked once). I'm running SuSE's
-> 2.4.18-30 on a Pentium III (Coppermine) with 256 MB RAM (yes, I should
-> try vanilla 2.4.18, I will ...)
-
-try ac3 patch, it worked for me and gave me a stable system
+Thanks again, Richard
 
 -- 
-"Der Krieg ist ein Massaker von Leuten, die sich nicht kennen, zum
-Nutzen von Leuten, die sich kennen, aber nicht massakrieren"
-- Paul Valéry (1871-1945)
-mfg, Clemens Schwaighofer                       PIXELWINGS Medien GMBH
-Kandlgasse 15/5, A-1070 Wien                      T: [+43 1] 524 58 50
-JETZT NEU! MIT FEWA GEWASCHEN       -->      http://www.pixelwings.com
+   Richard Ems
+   ... e-mail: r.ems@gmx.net
+   ... Computer Science, University of Hamburg
+
+   Unix IS user friendly. It's just selective about who its friends are.

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293335AbSCEPZQ>; Tue, 5 Mar 2002 10:25:16 -0500
+	id <S293343AbSCEPb3>; Tue, 5 Mar 2002 10:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293342AbSCEPZG>; Tue, 5 Mar 2002 10:25:06 -0500
-Received: from h00403399c977.ne.mediaone.net ([24.218.248.214]:21712 "EHLO
-	fred.cambridge.ma.us") by vger.kernel.org with ESMTP
-	id <S293335AbSCEPYx>; Tue, 5 Mar 2002 10:24:53 -0500
-From: pjd@fred001.dynip.com
-Message-Id: <200203051523.g25FN2j02633@fred.cambridge.ma.us>
-Subject: Re: Need Suggestion(modifying kernel source)
-To: cvaka_kernel@yahoo.com (chiranjeevi vaka)
-Date: Tue, 5 Mar 2002 10:23:01 -0500 (EST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020304212315.89890.qmail@web21305.mail.yahoo.com> from "chiranjeevi vaka" at Mar 04, 2002 01:23:15 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S293349AbSCEPbT>; Tue, 5 Mar 2002 10:31:19 -0500
+Received: from [199.203.178.211] ([199.203.178.211]:21908 "EHLO
+	exchange.store-age.com") by vger.kernel.org with ESMTP
+	id <S293343AbSCEPbI> convert rfc822-to-8bit; Tue, 5 Mar 2002 10:31:08 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="x-user-defined"
+Content-Transfer-Encoding: 8BIT
+Subject: printk() goes to console.
+Date: Tue, 5 Mar 2002 17:30:35 +0200
+Message-ID: <DCC3761A6EC31643A3BAF8BB584B26CC0DB95C@exchange.store-age.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: printk() goes to console.
+Thread-Index: AcHEWrGfO75qdDA1EdaipgADR78XpQ==
+From: "Alexander Sandler" <ASandler@store-age.com>
+To: "Linux Kernel Mailing List (E-mail)" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chiranjeevi vaka wrote:
-> 
-> The major problem I am getting is, as and when I do a
-> small change, to test that change, I have to compile
-> the whole kernel make boot floppy and reboot the
-> kernel with that floppy and test the code. This way is
-> takinbg too much time. I donno how linux kernel
-> developers will make changes to kernel and test them. 
+Hi.
 
-A possibility that no one has mentioned is to have a diskless
-target machine, booting with TFTP and using an NFS root filesystem.
-Boot NILO (www.nilo.org) on a floppy, and configure it to load
-the kernel off a TFTP server, which would also be the machine you
-compile and run kgdb on.
+I am working on block device driver. There is a little problem I am experiencing with it that I'de like to share and also, may be someone may tell me what it can be caused by. I am using printk( KERN_DEBUG ... ) to print different messages about the driver status and then collecting those messages from /proc/kmsg. The problem is that when it prints many messages (like it is printing something for every request it receives), from time to time, those messages getting into system console. Sometimes, I am receiving part of my debug messages printed to console mixed with some junk. 
+It's not like it bother me too much. However it still seems to be wrong.
+So, does any one has an idea what it can be caused by?
 
-One advantage is that no matter how badly you crash the target
-machine you won't corrupt the filesystem.
-
-............................................................................
- Peter Desnoyers 
- 162 Pleasant St.         (617) 661-1979          pjd@fred.cambridge.ma.us
- Cambridge, Mass. 02139
-
+Alexandr Sandler.

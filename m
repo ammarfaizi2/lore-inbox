@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbTKIKS5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 05:18:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbTKIKS5
+	id S262324AbTKIKjO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 05:39:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKIKjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 05:18:57 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:43279 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S262303AbTKIKSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 05:18:55 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Accessing device information in REMOVE agent
-Date: Sun, 9 Nov 2003 13:06:13 +0300
-User-Agent: KMail/1.5.3
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200311081602.25978.arvidjaar@mail.ru> <20031108222529.GB7671@kroah.com>
-In-Reply-To: <20031108222529.GB7671@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 9 Nov 2003 05:39:14 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:4749 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262324AbTKIKjN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 05:39:13 -0500
+Date: Sun, 9 Nov 2003 11:38:53 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: John Bradford <john@grabjohn.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Matt <dirtbird@ntlworld.com>, herbert@gondor.apana.org.au,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [MOUSE] Alias for /dev/psaux
+Message-ID: <20031109103853.GA13154@ucw.cz>
+References: <20031105173907.GA27922@ucw.cz> <Pine.LNX.4.44.0311050942461.11208-100000@home.osdl.org> <20031105180321.GC27922@ucw.cz> <20031109100412.GA12868@ucw.cz> <200311091033.hA9AXfKT000886@81-2-122-30.bradfords.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311091306.13580.arvidjaar@mail.ru>
+In-Reply-To: <200311091033.hA9AXfKT000886@81-2-122-30.bradfords.org.uk>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 09 November 2003 01:25, Greg KH wrote:
-> On Sat, Nov 08, 2003 at 04:02:25PM +0300, Andrey Borzenkov wrote:
-> > I'd like to be notified when block device goes away (e.g. USB stick
-> > unplugged) basically to look if device is in use and possibly initiate
-> > clean up. Block hotplug currently is passing only DEVPATH; but it alone
-> > is not reliable way to identify it; device may be used under alias names
-> > via symbolic links.
->
-> What do you mean?  DEVPATH is unique for that point in time.  There are
-> no alias's in sysfs.
->
+On Sun, Nov 09, 2003 at 10:33:41AM +0000, John Bradford wrote:
+> > XFree86 also sets the mouse to 200dpi
+> 
+> That's odd, I have a mouse which doesn't work correctly unless I
+> specifically add an Option "Resolution" "200" line to XF86Config.
 
-Sorry I had to be more precise.
+This has changed between the versions of XFree86. Older versions used a
+value of 100 which is the PS/2 default. Because of mice which give
+trouble when they don't get a 200, like yours, this was changed in the
+recent version(s).
 
-I'd like to (try to) replace current synchronous media change checks in 
-supermount by mounting device on insert and releasing it on remove. For those 
-cases when it makes sense of course, USB sticks in the first place.
+> Either the default isn't 200, or something else must be happening
+> differently when I set the resolution manually.
+> 
+> Without a resolution option at all, the mouse has to be moved at a
+> certain speed to register movement at all.  This has nothing to do
+> with accelleration, (which I don't use).  Moving the mouse slowly, for
+> any length of time, never produces any movement on-screen.  Moving it
+> quickly does.  With the resolution set to 200 or above, it works as
+> expected.  Lower than 200, and it exhibits the strange behavior.
+> 
+> The same thing happens with gpm.
+> 
+> (This behavior is observable with 2.4.  I haven't tested this mouse
+> with the in-kernel driver in 2.6 yet).
 
-But users are free to use any names or links for their device names i.e. they 
-can do
+Please test, but after you apply the patch.
 
-ln -s sda /de/myflash
-mount /dev/myflash
-
-and on remove it is rather hard to match this name against DEVPATH. But I can 
-save (major,minor) when mounting and use it to match mounted filesystem on 
-remove.
-
->
-> > Would it make sense to add device number? It seems to be natural native
-> > "block device ID" :)
->
-> What "device number"?  The major/minor?  Why?  It's about as unique as
-> DEVPATH is for any point in time.
->
-
-Hmm ... probably I can just as well use device name (meaning genhd->disk_name) 
-you are right.
-
-Thank you
-
--andrey
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

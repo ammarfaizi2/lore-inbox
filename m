@@ -1,97 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287809AbSAXNbU>; Thu, 24 Jan 2002 08:31:20 -0500
+	id <S287804AbSAXNdK>; Thu, 24 Jan 2002 08:33:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287804AbSAXNbL>; Thu, 24 Jan 2002 08:31:11 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:53392 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S287809AbSAXNaz>; Thu, 24 Jan 2002 08:30:55 -0500
-Date: Thu, 24 Jan 2002 14:24:32 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        Rusty Russell <rusty@rustcorp.com.au>,
-        Marcelo Tossati <marcelo@conectiva.com.br>,
-        David Miller <davem@redhat.com>
-Subject: Re: Patch: linux-2.5.3-pre4/net/ipv4/netfilter/ipfwadm_core.c typo fixes to make it compile
-Message-ID: <20020124142432.J11216@sunbeam.de.gnumonks.org>
-In-Reply-To: <200201241009.CAA00324@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <200201241009.CAA00324@baldur.yggdrasil.com>; from adam@yggdrasil.com on Thu, Jan 24, 2002 at 02:09:22AM -0800
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
-X-Date: Today is Prickle-Prickle, the 24th day of Chaos in the YOLD 3168
+	id <S287817AbSAXNdB>; Thu, 24 Jan 2002 08:33:01 -0500
+Received: from mgw-x1.nokia.com ([131.228.20.21]:57728 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S287804AbSAXNcs>;
+	Thu, 24 Jan 2002 08:32:48 -0500
+Message-ID: <3C500D09.4080206@nokia.com>
+Date: Thu, 24 Jan 2002 15:32:57 +0200
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+Reply-To: affix-devel@lists.sourceforge.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+MIME-Version: 1.0
+Newsgroups: comp.os.linux.networking
+To: Affix support <affix-support@lists.sourceforge.net>,
+        affix-devel@lists.sourceforge.net,
+        Bluetooth-Drivers-for-Linux 
+	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
+        NRC-WALLET DL <DL.NRC-WALLET@nokia.com>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New Affix Release: Affix-0_9pre10
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 24, 2002 at 02:09:22AM -0800, Adam J. Richter wrote:
-> 	linux-2.5.3-pre4/net/ipv4/netfilter/ipfwadm_core.c incorrectly
-> contained parentheses after uses of the MOD_{INC,DEC}_USE_COUNT macros.
-> This causes it to fail to compile.  
+Hello,
 
-*sigh*. I feel really stupid. 
+Find new affix release Affix-0_9pre10 on
+http://affix.sourceforge.net
 
-This change was introduced by a patch from Rusty Russell.
+- additional locks added
+- Added Master Slave switch
+   btctl connectrole [master|slave]
+- added timeout for HCI commands (for buggy devices)
+- fixed action on receiving DM packet
+- added kpatch-2.4.17
+- fixed btsrv to be compiled w/o SDP
+- added *debmod* & *debapp* rules to compile Debian packages
+- !!! added additional installation notes
 
-> It is not clear to me who the maintainer of this file is.  So, I apologize
-> for not including that person directly in this email.
 
-The maintainer am now I, and I feel guilty for passing this on without even
-trying to compile it. Sorry.
+br, Dmitry
 
-> 	Here is the patch.
-
-Thanks. 
-
-Linus, DaveM, Marcelo: Please apply to 2.4.x and 2.5.x ASAP. Thanks.
-
-> 
-> Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-
---- linux-2.5.3-pre4/net/ipv4/netfilter/ipfwadm_core.c	Thu Jan 24 01:38:47 2002
-+++ linux/net/ipv4/netfilter/ipfwadm_core.c	Thu Jan 24 01:27:58 2002
-@@ -688,7 +688,7 @@
- 		ftmp = *chainptr;
- 		*chainptr = ftmp->fw_next;
- 		kfree(ftmp);
--		MOD_DEC_USE_COUNT();
-+		MOD_DEC_USE_COUNT;
- 	}
- 	restore_flags(flags);
- }
-@@ -732,7 +732,7 @@
- 	ftmp->fw_next = *chainptr;
-        	*chainptr=ftmp;
- 	restore_flags(flags);
--	MOD_INC_USE_COUNT();
-+	MOD_INC_USE_COUNT;
- 	return(0);
- }
- 
-@@ -783,7 +783,7 @@
- 	else
-         	*chainptr=ftmp;
- 	restore_flags(flags);
--	MOD_INC_USE_COUNT();
-+	MOD_INC_USE_COUNT;
- 	return(0);
- }
- 
-@@ -858,7 +858,7 @@
- 	}
- 	restore_flags(flags);
- 	if (was_found) {
--		MOD_DEC_USE_COUNT();
-+		MOD_DEC_USE_COUNT;
- 		return 0;
- 	} else
- 		return(EINVAL);
--
 -- 
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-============================================================================
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M- 
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+  Dmitry Kasatkin
+  Nokia Research Center / Helsinki
+  Mobile: +358 50 4836365
+  E-Mail: dmitry.kasatkin@nokia.com
+
+
+NB. Now I am Dmitry Kasatkin instead of Dmitri Kassatkine
+

@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbTFDSmC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 14:42:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbTFDSmC
+	id S263792AbTFDSgO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 14:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTFDSgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 14:42:02 -0400
-Received: from a089003.adsl.hansenet.de ([213.191.89.3]:53677 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S261788AbTFDSmB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 14:42:01 -0400
-Message-ID: <3EDE4049.8040205@portrix.net>
-Date: Wed, 04 Jun 2003 20:54:01 +0200
-From: Jan Dittmer <j.dittmer@portrix.net>
-Organization: portrix.net GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030521 Debian/1.3.1-1
-X-Accept-Language: en
+	Wed, 4 Jun 2003 14:36:13 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:44727 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263823AbTFDSgK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 14:36:10 -0400
+Date: Wed, 4 Jun 2003 11:50:44 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is sys_sysfs used? 
+In-Reply-To: <Pine.LNX.4.53.0306041442100.1500@chaos>
+Message-ID: <Pine.LNX.4.44.0306041148230.13077-100000@cherise>
 MIME-Version: 1.0
-To: Margit Schubert-While <margitsw@t-online.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: I2C/Sensors 2.5.70
-References: <5.1.0.14.2.20030604200930.00afde40@pop.t-online.de>
-In-Reply-To: <5.1.0.14.2.20030604200930.00afde40@pop.t-online.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look in -mm, Documentation/i2c/sysfs-interface.
-Mainline seems to have lost this...
-Greg KH is the Maintainer, though I wrote the via686a driver.
 
-Jan
+> But what would you use as a place-holder?? There are lots
+> of unused sys-calls (break, acct, lock, mpx, etc). You
+> certainly can't be running out of numbers, and you certainly
+> can't remove  a number and change everything else, you'll
+> not get up, even with static-linked files!
+
+Mark it as unused in unistd.h (like #232 for asm-i386), and implement it 
+as sys_ni_syscall in the entry.S table. 
+
+Al has already reminded me that it must be marked deprecated for a full 
+version before it can be removed, but when/if it does, then that's what 
+would happen until some lucky sucker took its place.
 
 
-Margit Schubert-While wrote:
->  > Martin Schlemmer wrote :
->  > Will have to check with Greg here.
-> OK - Has anybody tested/got running I2C/Sensors > 2.5.6x ?
-> 
-> Who's maintaining the 2.5 sensors part ?
-> Need some info on naming conventions/display units for a port
-> of lm85 driver (chips lm85(b,c), adm1027, adt7463).
-> Doc is a wee bit out of date :-)
-> 
-> Margit
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+	-pat
 

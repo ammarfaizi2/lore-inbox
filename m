@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbUEQQgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbUEQQip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbUEQQgc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 12:36:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbUEQQga
+	id S261907AbUEQQip (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 12:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUEQQin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 12:36:30 -0400
-Received: from lpbproductions.com ([68.98.208.147]:29162 "HELO
-	lpbproductions.com") by vger.kernel.org with SMTP id S261900AbUEQQe6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 12:34:58 -0400
-From: "Matt H." <lkml@lpbproductions.com>
-Reply-To: lkml@lpbproduction.scom
-To: =?iso-8859-1?q?Mart=EDn_Chikilian?= <slack@efn.uncor.edu>
-Subject: Re: Linus is not the Linux father - Said MSFT Alexis de Tocqueville Institution
-Date: Mon, 17 May 2004 09:35:50 -0700
-User-Agent: KMail/1.6.51
-Cc: linux-kernel@vger.kernel.org
-References: <40A8E6A9.6040403@efn.uncor.edu>
-In-Reply-To: <40A8E6A9.6040403@efn.uncor.edu>
-MIME-Version: 1.0
+	Mon, 17 May 2004 12:38:43 -0400
+Received: from fed1rmmtao04.cox.net ([68.230.241.35]:24510 "EHLO
+	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
+	id S261907AbUEQQiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 12:38:19 -0400
+Date: Mon, 17 May 2004 09:38:13 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Robert Picco <Robert.Picco@hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm3
+Message-ID: <20040517163813.GH6763@smtp.west.cox.net>
+References: <20040516025514.3fe93f0c.akpm@osdl.org> <20040517161432.GG6763@smtp.west.cox.net> <40A8E8A1.2090404@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200405170935.50811.lkml@lpbproductions.com>
+In-Reply-To: <40A8E8A1.2090404@hp.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is just FUD so the author can hopefully increase the sales on his book.
+On Mon, May 17, 2004 at 12:30:25PM -0400, Robert Picco wrote:
 
-Matt H.
+> Tom Rini wrote:
+> 
+> >On Sun, May 16, 2004 at 02:55:14AM -0700, Andrew Morton wrote:
+> >
+> > 
+> >
+> >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm3/
+> >>
+> >>- A few VM changes, getting things synced up better with Andrea's work.
+> >>
+> >>- A new kgdb stub, for ia64 (what happened to the grand unified kgdb
+> >> project?)
+> >>   
+> >>
+> >
+> >No one asked the ia64 folks who did that work "Hey, have you looked at
+> >the grand unified kgdb project on kgdb.sf.net ?" would be my guess.
+> >
+> >Having said that, if you're willing to go with a slightly late
+> >initalizing (I saw part of the early_param work get dropped again I
+> >think, so I'm gonna guess you don't wanna deal with that again yet) KGDB
+> >for i386 and PPC32, I can whip something up vs 2.6.6 in a day or so.
+> 
+> I did the ia64 port and started with Andrew's 2.6.4-mm2 i386 sources.  
+> I'm assuming the long term strategy is to move to a unified kgdb being 
+> done on sourceforge?  If so, I'll take a look at this.
 
+My long term strategy is to get everyone using the version on
+sourceforge that splits out the common portions of the stub from the
+arch-specific portions.  If you could go ahead and get ia64 working on
+this as well I'd appreciate it.
 
-On Monday 17 May 2004 9:22 am, Martín Chikilian wrote:
-> This post is for everyone, and specially for Linus:
-> http://news.yahoo.com/news?tmpl=story&u=/040514/234/71e7q.html
-> And the message disection:
-> http://www.groklaw.net/article.php?story=20040517002423242
->
-> Probably Linus already read this, but I'm very interested in knowing his
-> opinion.
-> Regards,
-> Martin
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Right now it's still vs 2.6.5, but I'm going to try and fix that today
+or tomorrow to be vs 2.6.6.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

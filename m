@@ -1,35 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130667AbQLGRii>; Thu, 7 Dec 2000 12:38:38 -0500
+	id <S130436AbQLGRl2>; Thu, 7 Dec 2000 12:41:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130466AbQLGRi2>; Thu, 7 Dec 2000 12:38:28 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:268 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130667AbQLGRiT>; Thu, 7 Dec 2000 12:38:19 -0500
-Subject: Re: [whitevampire@MINDLESS.COM: Naptha - New DoS]
-To: rodrigob@conectiva.com.br ("Rodrigo Barbosa (aka morcego)")
-Date: Thu, 7 Dec 2000 17:10:06 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br
-In-Reply-To: <20001207150247.G24723@conectiva.com.br> from "Rodrigo Barbosa (aka morcego)" at Dec 07, 2000 03:02:47 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130466AbQLGRlS>; Thu, 7 Dec 2000 12:41:18 -0500
+Received: from north.net.CSUChico.EDU ([132.241.66.18]:12297 "EHLO
+	north.net.csuchico.edu") by vger.kernel.org with ESMTP
+	id <S130436AbQLGRlM>; Thu, 7 Dec 2000 12:41:12 -0500
+Date: Thu, 7 Dec 2000 09:10:45 -0800
+From: John Kennedy <jk@csuchico.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: attempt to access beyond end of device
+Message-ID: <20001207091045.A29789@north.csuchico.edu>
+In-Reply-To: <20001207165659.A1167@gondor.com> <20001207173428.A23936@veritas.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1444Yb-0002hb-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001207173428.A23936@veritas.com>; from aeb@veritas.com on Thu, Dec 07, 2000 at 05:34:28PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unaffected operating systems:
-> * OpenBSD seems to be unaffected
-> * Windows 2000 seems to be unaffected
+On Thu, Dec 07, 2000 at 05:34:28PM +0100, Andries Brouwer wrote:
+> On Thu, Dec 07, 2000 at 04:56:59PM +0100, Jan Niehusmann wrote:
+> > That means that if blk_size[major][MINOR(bh->b_rdev)] == 0, the request
+> > is canceled but no message is printed. Shouldn't there be a warning message?
+> 
+> Maybe that code fragment is mine. If so, then at some point
+> in time I decided that the answer to your question is no.
 
-Someone isnt trying hard enough ;)
+  As a potential real-world case (but possibly unrelated), I had an
+interesting situation crop-up while I was playing with the loopback
+filesystems.
 
-Linux 2.4 is designed to handle some of these issues, but you need to 
-address aspects of this in applications, protocols and elsewhere. Its basically
-no different to the synbomb except the resource usage is trickier to control
+  If you just use the program-tools, you end up with a situation like:
 
+	losetup <blah> [close all] dd <blah> [close all] losetup -d [blah]
+
+  In my case, I was making a standalone program that did it all in one
+program and I messed up in the ordering of the close() and the LOOP_CLR_FD.
+
+  I'm pretty sure that (with my small 10K test dataset) the I/O between
+the loopback device and the looped file was never hitting the disk.
+If I LOOP_CLR_FD before I closed, I ended up with bad data in the looped
+file and kernel errors syslogged:
+
+	kernel: attempt to access beyond end of device
+	kernel: 07:00: rw=1, want=1, limit=0
+	kernel: dev 07:00 blksize=0 blocknr=0 sector=0 size=1024 count=1
+
+  I tended to get 10 of those, one for each of the 10 1K blocks in
+my test dataset.
+
+  Doing the close() then the LOOP_CLR_FD got rid of the errors.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274878AbTHKVr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 17:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274880AbTHKVr6
+	id S272910AbTHKWAS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 18:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273403AbTHKWAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 17:47:58 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:65164
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S274878AbTHKVr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 17:47:57 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]O14int [SCHED_SOFTRR please]
-Date: Tue, 12 Aug 2003 07:53:28 +1000
-User-Agent: KMail/1.5.3
-References: <200308091036.18208.kernel@kolivas.org> <5.2.1.1.2.20030810122144.019bdb00@pop.gmx.net> <200308112019.38613.roger.larsson@skelleftea.mail.telia.com>
-In-Reply-To: <200308112019.38613.roger.larsson@skelleftea.mail.telia.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Aug 2003 18:00:18 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:29446 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S272910AbTHKWAQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 18:00:16 -0400
+Date: Tue, 12 Aug 2003 00:00:12 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Harm Verhagen <h.verhagen@chello.nl>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Apacer SM/CF combo reader driver
+Message-ID: <20030812000012.A1353@pclin040.win.tue.nl>
+References: <1060637573.18663.10.camel@i141046.upc-i.chello.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308120753.28814.kernel@kolivas.org>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1060637573.18663.10.camel@i141046.upc-i.chello.nl>; from h.verhagen@chello.nl on Mon, Aug 11, 2003 at 11:32:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Aug 2003 04:19, Roger Larsson wrote:
-> xmms is a RT process - it does not really have interactivity problems...
-> It will be extremely hard to fix this in a generic scheduler, instead
-> let xmms be the RT process it is with SCHED_SOFTRR (or whatever
-> it will be named).
+On Mon, Aug 11, 2003 at 11:32:54PM +0200, Harm Verhagen wrote:
 
-Have you actually _tried_ the tweaked generic scheduler before this big claim?
+> > Apacer SM/CF combo reader, USB 07c4:a109. 
 
-Con
+> I needed to compile the kernel (RedHat 2.4.20-19.9) with the "Probe all
+> LUNs on each device" option enabled (CONFIG_SCSI_MULTI_LUN) in order to
+> access the SM on my apacer combo reader (0x0d7d:0x0240).
+
+That is an entirely different animal. Unrelated.
 

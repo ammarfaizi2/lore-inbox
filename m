@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318026AbSHCX2y>; Sat, 3 Aug 2002 19:28:54 -0400
+	id <S318036AbSHCXbh>; Sat, 3 Aug 2002 19:31:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318027AbSHCX2x>; Sat, 3 Aug 2002 19:28:53 -0400
-Received: from p032.as-l031.contactel.cz ([212.65.234.224]:38016 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S318026AbSHCX2w>;
-	Sat, 3 Aug 2002 19:28:52 -0400
-Date: Sun, 4 Aug 2002 01:27:05 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Pawel Kot <pkot@linuxnews.pl>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: No Subject
-Message-ID: <20020803232705.GB30729@ppc.vc.cvut.cz>
-References: <Pine.SOL.4.30.0208040010520.696-100000@mion.elka.pw.edu.pl> <1028417880.1760.52.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028417880.1760.52.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S318038AbSHCXbh>; Sat, 3 Aug 2002 19:31:37 -0400
+Received: from dsl-213-023-022-101.arcor-ip.net ([213.23.22.101]:32446 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318036AbSHCXbg>;
+	Sat, 3 Aug 2002 19:31:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [PATCH] Rmap speedup
+Date: Sun, 4 Aug 2002 01:36:31 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <E17aiJv-0007cr-00@starship> <E17b3sE-0001T4-00@starship> <3D4C4DD9.779C057B@zip.com.au>
+In-Reply-To: <3D4C4DD9.779C057B@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17b8Rk-0003iQ-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 04, 2002 at 12:38:00AM +0100, Alan Cox wrote:
-> On Sat, 2002-08-03 at 23:16, Bartlomiej Zolnierkiewicz wrote:
-> > Just rethough it. What if chipset is in compatibility mode?
-> > Like VIA with base addresses set to 0?
+On Saturday 03 August 2002 23:40, Andrew Morton wrote:
+> Running the same test on 2.4:
 > 
-> If we found a register that was marked as unassigned with a size then we
-> would map it to a PCI address. That would go for BAR0-3 on any PCI IDE
-> device attached to the south bridge.
+> 2.4.19-pre7:
+> 	./daniel.sh  35.12s user 65.96s system 363% cpu 27.814 total
+> 	./daniel.sh  35.95s user 64.77s system 362% cpu 27.763 total
+> 	./daniel.sh  34.99s user 66.46s system 364% cpu 27.861 total
 > 
-> What problems does that cause for the VIA stuff ?
+> 2.4.19-pre7+rmap:
+> 	./daniel.sh  36.20s user 106.80s system 363% cpu 39.316 total
+> 	./daniel.sh  38.76s user 118.69s system 399% cpu 39.405 total
+> 	./daniel.sh  35.47s user 106.90s system 364% cpu 39.062 total
+> 
+> 2.4.19-pre7+rmap-13b+your patch:
+> 	./daniel.sh  33.72s user 97.20s system 364% cpu 35.904 total
+> 	./daniel.sh  35.18s user 94.48s system 363% cpu 35.690 total
+> 	./daniel.sh  34.83s user 95.66s system 363% cpu 35.921 total
+> 
+> The system time is pretty gross, isn't it?
+> 
+> And it's disproportional to the increased number of lockings.
 
-We must read PCI config register 9 (programming interface), and check its value.
+These numbers show a 30% reduction in rmap overhead with my patch,
+close to what I originally reported:
 
-If r9 & 0x05 == 0x05, we can program BARs. 
+  ((35.904 + 35.690 + 35.921) - (27.814 + 27.763 + 27.861)) / 
+  ((39.316 + 39.405 + 39.062) - (27.814 + 27.763 + 27.861)) ~= .70
 
-Otherwise if r9 & 0x0A != 0x0A, we must not touch hardware: it supports 
-only legacy 0x1F0/0x170 assignment (PCI-IDE spec says that BAR0-BAR3
-can be either hardwired to zero, or it can be writeable, but written
-value must be ignored).
+But they also show that rmap overhead is around 29% on your box,
+even with my patch:
 
-If r9 & 0x0A == 0x0A, we must write r9 | 0x05 to PCI config register 9,
-and then (after verifying that write suceeded... it does not suceed
-in VMware, for example...) we must (re)program BARs.
+  (35.904 + 35.690 + 35.921) / (27.814 + 27.763 + 27.861) ~= 1.29
 
-Worst problem is that (some) VIA chips have BAR0-BAR3 writeable,
-but are programmed to ignore them by BIOS (as IRQ14/IRQ15 routing is
-not available when in native mode). Current kernel code will believe
-that device was relocated, but reality will be different, because of device
-ignores BAR0-BAR3 value until programming interface is modified.
-					Best regards,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+Granted, it's still way too high, and we are still in search of the
+'dark cycles'.
 
+Did we do an apples-to-apples comparison of 2.4 to 2.5?  Because if
+we did, then going by your numbers, 2.5.26 is already considerably
+worse than 2.4.19-pre7:
+
+  ((30.260 + 29.642)/2) / ((27.814 + 27.763 + 27.861)/3) ~= 1.08
+
+Is it fair to compare your 2.4 vs 2.5 numbers?
+
+--
+Daniel

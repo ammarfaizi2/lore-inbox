@@ -1,69 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271165AbUJVCXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271185AbUJVC3b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271165AbUJVCXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 22:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271168AbUJVCU5
+	id S271185AbUJVC3b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 22:29:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271200AbUJVC3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 22:20:57 -0400
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:10515 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S271165AbUJVCSn (ORCPT
+	Thu, 21 Oct 2004 22:29:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10910 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271185AbUJVC1y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 22:18:43 -0400
-To: Greg Buchholz <linux@sleepingsquirrel.org>
-Cc: linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors+linuxkernel1098411255@astro.swin.edu.au>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-In-reply-to: <20041021170808.GA675@sleepingsquirrel.org>
-References: <20041021170808.GA675@sleepingsquirrel.org>
-X-test-to: Greg Buchholz <linux@sleepingsquirrel.org>
-X-cc-to: linux-kernel@vger.kernel.org
-X-reply-to-bofh-messageid: <2ROVu-7du-47@gated-at.bofh.it>
-X-Face: A>QmH)/u`[d}b.a5?Xq=L&d?Q}cF5x|wu#O_mAK83d(Tw,BjxX[}n4<13.e$"d!Gg(I%n8fL)I9fZ$0,8s3_5>iI]4c%FXg{CpVhuIuyI,W'!5Cl?5M,dL-*dHYs}K9=YQZCN-\2j1S>cU6XPXsQhz$x`M\ZEV}nPw'^jPc41FiwTQZ'g)xNK{2',](o5mrODBHe))
-Message-ID: <slrn-0.9.7.4-14727-1584-200410221214-tc@hexane.ssi.swin.edu.au>
-Date: Fri, 22 Oct 2004 12:18:23 +1000
+	Thu, 21 Oct 2004 22:27:54 -0400
+Date: Thu, 21 Oct 2004 19:25:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       guillaume.thouvenin@bull.net
+Subject: Re: [Lse-tech] [PATCH 2.6.9 2/2] enhanced accounting data
+ collection
+Message-Id: <20041021192551.2c2dfe18.akpm@osdl.org>
+In-Reply-To: <417863D3.9060907@engr.sgi.com>
+References: <41785FE3.806@engr.sgi.com>
+	<417863D3.9060907@engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Buchholz <linux@sleepingsquirrel.org> said on Thu, 21 Oct 2004 10:08:08 -0700:
-> Stephen Wille Padnos wrote:
-> >I guess I would look at this as an opportunity to make a "visual
-> >coprocessor", that also has the hardware necessary to output to a
-> >monitor (preferably multiple monitors).
+
+Please don't send multiple patches under the same Subject:.  It confuses me
+and breaks my patch processing tools (I strip out the "1/2" numbering
+because it becomes irrelevant).
+
+Please choose a meaningful and distinct title for each patch.  See
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+
+Jay Lan <jlan@engr.sgi.com> wrote:
+>
+> 2/2: acct_mm
 > 
->     This idea is a step in the right direction.  To make the project
-> viable, you might be better off trying to court a slightly different
-> audience (instead of the cost-sensitive/3D-performant market).  What if
-> instead, you were selling a highly parallel reprogrammable computing
-> core, which also happened to do graphics?  I could see a potentially
-> much bigger and higher profit margin market for a standardized interface
-> from Linux to an FPGA.  Image people buying them for headless servers as
-> crypto accellerators.  Or as DSP/FFT accellerators (for speech
-> recognition , MPEG compression, or whatever).  I'm sure you'd sell a few
-> to grad students writing theses on data flow machines, parallel
-> languages, prime factorization etc.  Heck, I'd buy one just because it'd
-> be cool to try and write a 1000 element merge sort in hardware that
-> completed in one or two clock cycles.  It's not hard to imaging people
-> using it to speed up emulators like QEMU.  Maybe the distributed
-> computing folks (Folding@Home, SETI) would also be interested, since
-> their work is already highly parallelizable.  You get the idea. 
+> Enhanced MM accounting data collection.
+> 
 
-People would happily pay millions for this.
+> Index: linux/include/linux/sched.h
+> ===================================================================
+> --- linux.orig/include/linux/sched.h	2004-10-01 17:16:35.105905373 -0700
+> +++ linux/include/linux/sched.h	2004-10-14 12:15:33.450280955 -0700
+> @@ -249,6 +249,8 @@
+>  	struct kioctx		*ioctx_list;
+>  
+>  	struct kioctx		default_kioctx;
+> +
+> +	unsigned long hiwater_rss, hiwater_vm;
+>  };
 
-Tim has probably heard of Grape?
+	unsigned long hiwater_rss;	/* comment goes here */
+	unsigned long hiwater_vm;	/* and here */
 
-I don't know whether grape uses FPGAs or not, but take a look at the
-photo down the bottom of this:
+>  
+>  extern int mmlist_nr;
+> @@ -593,6 +595,10 @@
+>  
+>  /* i/o counters(bytes read/written, #syscalls */
+>  	unsigned long rchar, wchar, syscr, syscw;
+> +#if defined(CONFIG_BSD_PROCESS_ACCT)
+> +	u64 acct_rss_mem1, acct_vm_mem1;
+> +	clock_t acct_stimexpd;
+> +#endif
 
-http://grape.c.u-tokyo.ac.jp/~fukushig/paper/sc96/sc96.html
+Please place the above three fields on separate lines and document them.
 
-I reckon if we could put an accelarator card in each of our 200 new
-machines, that could be programmed on the fly to do N-body
-calculations, or then changed to do SPH, or whatever, and we only had
-to pay $500 per card, and it doubled performace, we'd do it in a
-second. Half the number of computers, drop energy consumption (and
-cooling), etc. It'd be great.
+It's not clear to me what, semantically, these fields represent.  That's
+something which is appropriate for the supporting changelog entry.
 
+> +/* Update highwater values */
+> +static inline void update_mem_hiwater(void)
+> +{
+> +	if (current->mm) {
+> +		if (current->mm->hiwater_rss < current->mm->rss) {
+> +			current->mm->hiwater_rss = current->mm->rss;
+> +		}
+> +		if (current->mm->hiwater_vm < current->mm->total_vm) {
+> +			current->mm->hiwater_vm = current->mm->total_vm;
+> +		}
+> +	}
+> +}
 
--- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-A mouse is a device used to focus xterms.
+If this has more than one callsite then it it too big to inline.
+
+If it has a single callsite then it's OK to inline it, but it can and
+should be moved into the .c file.
+
+> +
+> +static inline void acct_update_integrals(void)
+> +{
+> +	long delta;
+> +
+> +	if (current->mm) {
+> +		delta = current->stime - current->acct_stimexpd;
+> +		current->acct_stimexpd = current->stime;
+> +		current->acct_rss_mem1 += delta * current->mm->rss;
+> +		current->acct_vm_mem1 += delta * current->mm->total_vm;
+> +	}
+> +}
+
+Consider caching `current' in a local variable - sometimes gcc likes to
+reevaluate it each time and it takes 14 bytes of code per pop.
+
+This function is too big to inline.
+
+> +static inline void acct_clear_integrals(struct task_struct *tsk)
+> +{
+> +	if (tsk) {
+> +		tsk->acct_stimexpd = 0;
+> +		tsk->acct_rss_mem1 = 0;
+> +		tsk->acct_vm_mem1 = 0;
+> +	}
+> +}
+
+Do any of the callers pass in a null `tsk'?
+

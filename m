@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262009AbTD2N4e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 09:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbTD2N4e
+	id S262014AbTD2OHW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 10:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262015AbTD2OHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 09:56:34 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31492 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262009AbTD2N4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 09:56:34 -0400
-Date: Tue, 29 Apr 2003 15:08:47 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alex Williamson <alex_williamson@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 8250_pci include offset in iomap_base
-Message-ID: <20030429150847.A13439@flint.arm.linux.org.uk>
-Mail-Followup-To: Alex Williamson <alex_williamson@hp.com>,
-	linux-kernel@vger.kernel.org
-References: <3EAD6572.8622DDC3@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EAD6572.8622DDC3@hp.com>; from alex_williamson@hp.com on Mon, Apr 28, 2003 at 11:31:30AM -0600
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+	Tue, 29 Apr 2003 10:07:22 -0400
+Received: from watch.techsource.com ([209.208.48.130]:10234 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S262014AbTD2OHV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 10:07:21 -0400
+Message-ID: <3EAE8A5F.8000408@techsource.com>
+Date: Tue, 29 Apr 2003 10:21:19 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 28, 2003 at 11:31:30AM -0600, Alex Williamson wrote:
->    This one-liner is required for PCI serial ports that have multiple
-> MMIO ports off a single PCI BAR.  Calls to request_mem_resource() fail
-> after the first one otherwise.  Patch against 2.5.67.  Thanks,
+I have known a lot of incredibly creative people who have never shared 
+their ideas with anyone because they feared others would steal their 
+ideas and not give credit where it's due.  Maybe you think they're crazy 
+for thinking that way, but evidence abounds that that sort of thing 
+happens all the time.  It's very sad that so many brilliant ideas have 
+never been shared with the world.  What do the "information wants to be 
+free" people have to say to those people who know they're going to be 
+ripped off if they open their mouths?
 
-Applied.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
 

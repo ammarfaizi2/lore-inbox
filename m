@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262224AbSKHSnp>; Fri, 8 Nov 2002 13:43:45 -0500
+	id <S261365AbSKHTM2>; Fri, 8 Nov 2002 14:12:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262248AbSKHSnp>; Fri, 8 Nov 2002 13:43:45 -0500
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:37760 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S262224AbSKHSno> convert rfc822-to-8bit; Fri, 8 Nov 2002 13:43:44 -0500
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Paul Larson <plars@linuxtestproject.org>, David Faure <faure@kde.org>
-Subject: Re: 2.5.46-mm1: CONFIG_SHAREPTE do not work with KDE 3
-Date: Fri, 8 Nov 2002 19:50:26 +0100
-User-Agent: KMail/1.4.7
-Cc: Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <200211070547.00387.Dieter.Nuetzel@hamburg.de> <3DC9F1C0.70712ED4@digeo.com> <1036779514.17557.7.camel@plars>
-In-Reply-To: <1036779514.17557.7.camel@plars>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S261557AbSKHTM2>; Fri, 8 Nov 2002 14:12:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36364 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261365AbSKHTM1>;
+	Fri, 8 Nov 2002 14:12:27 -0500
+Date: Fri, 8 Nov 2002 19:19:07 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
+Cc: "'Matthew Wilcox '" <willy@debian.org>,
+       "''Linus Torvalds ' '" <torvalds@transmeta.com>,
+       "''Jeremy Fitzhardinge ' '" <jeremy@goop.org>,
+       "''William Lee Irwin III ' '" <wli@holomorphy.com>,
+       "''linux-ia64@linuxia64.org ' '" <linux-ia64@linuxia64.org>,
+       "''Linux Kernel List ' '" <linux-kernel@vger.kernel.org>,
+       "''rusty@rustcorp.com.au ' '" <rusty@rustcorp.com.au>,
+       "''dhowells@redhat.com ' '" <dhowells@redhat.com>,
+       "''mingo@elte.hu ' '" <mingo@elte.hu>
+Subject: Re: [Linux-ia64] reader-writer livelock problem
+Message-ID: <20021108191907.N12011@parcelfarce.linux.theplanet.co.uk>
+References: <3FAD1088D4556046AEC48D80B47B478C0101F4EE@usslc-exch-4.slc.unisys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200211081950.26382.Dieter.Nuetzel@hamburg.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F4EE@usslc-exch-4.slc.unisys.com>; from kevin.vanmaren@unisys.com on Fri, Nov 08, 2002 at 12:05:30PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 8. November 2002 19:18 schrieb Paul Larson:
-> On Wed, 2002-11-06 at 22:53, Andrew Morton wrote:
-> > Dieter Nützel wrote:
-> > > When I enable shared 3rd-level pagetables between processes KDE 3.0.x
-> > > and KDE 3.1 beta2 at least do not work.
-> >
-> > Yup.  That's a bug which happens to everyone in the world
-> > except Dave :(
->
-> I've tried to reproduce this also on a RH 7.3 box.  ksmserver is
-> running, but strace says it's stuck on a select() call.  There are no
-> kernel messages, but I got this from startx:
->
-> DCOPServer up and running.
-> Warning: connect() failed: : Connection refused
+On Fri, Nov 08, 2002 at 12:05:30PM -0600, Van Maren, Kevin wrote:
+> Absolutely you should minimize the locking contention.
+> However, that isn't always possible, such as when you
+> have 64 processors contending on the same resource.
 
-That's similar to mine.
+if you've got 64 processors contending on the same resource, maybe you
+need to split that resource up so they can have a copy each.  all that
+cacheline bouncing can't do your numa boxes any good.
 
-> It looks like maybe this problem shows up in different ways.
+> With the current kernel, the trivial example with reader/
+> writer locks was having them all call gettimeofday().
 
-Somewhat.
+i hear x86-64 has a lockless gettimeofday.  maybe that's the solution.
 
-> Anyone have ideas about how to debug this?
+> But try having 64 processors fstat() the same file,
+> which I have also seen happen (application looping,
+> waiting for another process to finish setting up the
+> file so they can all mmap it).
 
-See my former post.
+umm.. the call trace:
 
-Maybe some KDE developers out here? 
+sys_fstat
+|-> vfs_fstat
+|   |-> fget
+|	|-> read_lock(&files->file_lock)
+|   |-> vfs_getattr
+|	|-> inode->i_op->getattr
+|	|-> generic_fillattr
+|-> cp_new_stat64
+    |-> memset
+    |-> copy_to_user
 
--Dieter
+so you're talking about contention on files->file_lock, right?  it's really
+not the kernel's fault that your app is badly written.  that lock's private
+to process & children, so it's not like another application can hurt you.
+
+> What MCS locks do is they reduce the number of times
+> the cacheline has to be flung around the system in
+> order to get work done: they "scale" much better with
+> the number of processors: O(N) instead of O(N^2).
+
+yes, but how slow are they in the uncontended case?
+
+-- 
+Revolutions do not require corporate support.

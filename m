@@ -1,68 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVBFURd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVBFUWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVBFURd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 15:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVBFURd
+	id S261307AbVBFUWX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 15:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVBFUWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 15:17:33 -0500
-Received: from coderock.org ([193.77.147.115]:6585 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261306AbVBFUR2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 15:17:28 -0500
-Date: Sun, 6 Feb 2005 21:17:21 +0100
-From: Domen Puncer <domen@coderock.org>
-To: Stephen Evanchik <evanchsa@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11-rc3] IBM Trackpoint support
-Message-ID: <20050206201721.GA14111@nd47.coderock.org>
-References: <a71293c20502031443764fb4e5@mail.gmail.com>
+	Sun, 6 Feb 2005 15:22:23 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63238 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261307AbVBFUWN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 15:22:13 -0500
+Date: Sun, 6 Feb 2005 21:22:09 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-dvb-maintainer@linuxtv.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] DVB: remove bouncing address of Alex Woods
+Message-ID: <20050206202208.GC3129@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a71293c20502031443764fb4e5@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm a bit late, sorry. Haven't seen these mentioned in replies:
+This patch removes the bouncing email address linux-dvb@giblets.org of
+Alex Woods.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+ drivers/media/dvb/ttusb-dec/ttusb_dec.c  |    4 ++--
+ drivers/media/dvb/ttusb-dec/ttusbdecfe.c |    2 +-
+ drivers/media/dvb/ttusb-dec/ttusbdecfe.h |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+--- linux-2.6.11-rc3-mm1-full/drivers/media/dvb/ttusb-dec/ttusbdecfe.h.old	2005-02-06 21:18:09.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/media/dvb/ttusb-dec/ttusbdecfe.h	2005-02-06 21:18:31.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+  * TTUSB DEC Driver
+  *
+- * Copyright (C) 2003-2004 Alex Woods <linux-dvb@giblets.org>
++ * Copyright (C) 2003-2004 Alex Woods
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+--- linux-2.6.11-rc3-mm1-full/drivers/media/dvb/ttusb-dec/ttusb_dec.c.old	2005-02-06 21:18:43.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/media/dvb/ttusb-dec/ttusb_dec.c	2005-02-06 21:18:53.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+  * TTUSB DEC Driver
+  *
+- * Copyright (C) 2003-2004 Alex Woods <linux-dvb@giblets.org>
++ * Copyright (C) 2003-2004 Alex Woods
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -1583,7 +1583,7 @@
+ module_init(ttusb_dec_init);
+ module_exit(ttusb_dec_exit);
+ 
+-MODULE_AUTHOR("Alex Woods <linux-dvb@giblets.org>");
++MODULE_AUTHOR("Alex Woods");
+ MODULE_DESCRIPTION(DRIVER_NAME);
+ MODULE_LICENSE("GPL");
+ MODULE_DEVICE_TABLE(usb, ttusb_dec_table);
+--- linux-2.6.11-rc3-mm1-full/drivers/media/dvb/ttusb-dec/ttusbdecfe.c.old	2005-02-06 21:19:01.000000000 +0100
++++ linux-2.6.11-rc3-mm1-full/drivers/media/dvb/ttusb-dec/ttusbdecfe.c	2005-02-06 21:19:06.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+  * TTUSB DEC Frontend Driver
+  *
+- * Copyright (C) 2003-2004 Alex Woods <linux-dvb@giblets.org>
++ * Copyright (C) 2003-2004 Alex Woods
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
 
 
-On 03/02/05 17:43 -0500, Stephen Evanchik wrote:
-> +int tp_sens = TP_DEF_SENS;
-> +module_param_named(sens, tp_sens, uint, 0);
-> +MODULE_PARM_DESC(sens, "Sensitivity");
-
-I don't see out-of-file usages... these could be static.
-
-...
-> +	static int name(char* page, char** start, off_t off, int count, int*
-> eof, void* data) \
-> +	{ \
-> +		int len; \
-> +		struct psmouse *psmouse = (struct psmouse *)data; \
-> +		struct trackpoint_data *tp = (struct trackpoint_data*)psmouse->private; \
-
-No need to cast (void *).
-
-...
-> +static int scroll_write_func(struct file *file, const char __user
-> *buffer, unsigned long count, void *data)
-> +{
-> +	int len = count;
-> +	unsigned char tmp[5];
-> +	struct psmouse *psmouse = (struct psmouse *)data;
-> +	struct trackpoint_data *tp = (struct trackpoint_data*)psmouse->private;
-> +	if(count > sizeof(tmp) - 1)
-> +		len = sizeof(tmp) - 1;
-
-How about: len = min(count, sizeof(tmp) - 1);?
-
-...
-> +no_ext_dev:
-
-Nitpick:
-Some like ' ' before label (makes diff -pu patches more readable)
 
 
 
-	Domen
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

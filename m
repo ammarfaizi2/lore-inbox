@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277797AbRJIWAE>; Tue, 9 Oct 2001 18:00:04 -0400
+	id <S278004AbRJIWBO>; Tue, 9 Oct 2001 18:01:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278004AbRJIV7z>; Tue, 9 Oct 2001 17:59:55 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:54797 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277797AbRJIV7w>; Tue, 9 Oct 2001 17:59:52 -0400
-X-Apparently-From: <trever?adams@yahoo.com>
-Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
-From: "Trever L. Adams" <trever_adams@yahoo.com>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110091348010.15092-100000@windmill.gghcwest.com>
-In-Reply-To: <Pine.LNX.4.33.0110091348010.15092-100000@windmill.gghcwest.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
-Date: 09 Oct 2001 18:00:43 -0400
-Message-Id: <1002664845.3360.8.camel@aurora>
-Mime-Version: 1.0
+	id <S278005AbRJIWBE>; Tue, 9 Oct 2001 18:01:04 -0400
+Received: from pC19F9C6D.dip.t-dialin.net ([193.159.156.109]:10756 "EHLO
+	router.abc") by vger.kernel.org with ESMTP id <S278004AbRJIWAx> convert rfc822-to-8bit;
+	Tue, 9 Oct 2001 18:00:53 -0400
+Message-ID: <3BC373A8.CD94917B@baldauf.org>
+Date: Wed, 10 Oct 2001 00:01:13 +0200
+From: Xuan Baldauf <xuan--lkml@baldauf.org>
+Organization: Medium.net
+X-Mailer: Mozilla 4.78 [en] (Win98; U)
+X-Accept-Language: de-DE,en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: dynamic swap prioritizing
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-09 at 16:48, Jeffrey W. Baker wrote:
-> > Mine does NAT.  So it appears this is not NAT related (though it may be
-> > further aggravated by NAT).  My connection rate is FAR lower than
-> > yours.  Our total connections may be 100,000 on a high rate day (just a
-> > guess... I really do not know).
-> 
-> My machine has three IP addrs bound to one physical interface and uses
-> policy routing.  Do you use any of those?
-> 
-> -jwb
+Hello,
 
-Two IP addresses.  One to the internal ethernet, one to the external
-(dynamic ip) ppp.  I do not believe I am doing policy routing.  I have
-the static route for ethernet and ppp sets up its own.
+I have a linux box with 3 harddisks of different
+characteristics (size, seek time, throughput), each capable
+of holding a swap partition. Sometimes, one harddisk is
+driven heavily (e.g. database application), sometimes, the
+other harddisk is busy.
 
-Trever
+I imagine following optimization:
+- all swap partitions have the same priority from the start
+on
+- runtime statistics are gathered covering response time
+(time from page request to availability)
+- the fastest drive is used first (or maybe in striping mode
+parallely woth the second-fastest drive)
+- because the fastest drive will be more busy, its response
+times will rise, reaching equality with other drives
+- at that point, other drives are also considered for
+swapout
+- that system regularily adapts its decisions based on
+recent statistics ("recent" is a tuning parameter)
 
+Such an algorithm also would properly prioritize
+network-swap and video-memory-swap, reducing time and cost
+of a manual priority configuration (and statistics
+gathering).
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+Does the linux kernel already implement such an
+optimization? Is it planned?
+
+Xuân.
+
 

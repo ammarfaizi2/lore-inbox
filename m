@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288871AbSAERBN>; Sat, 5 Jan 2002 12:01:13 -0500
+	id <S288873AbSAERDn>; Sat, 5 Jan 2002 12:03:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288872AbSAERBD>; Sat, 5 Jan 2002 12:01:03 -0500
-Received: from florence.ie.alphyra.com ([193.120.224.170]:37505 "EHLO
-	florence.ie.alphyra.com") by vger.kernel.org with ESMTP
-	id <S288871AbSAERAw>; Sat, 5 Jan 2002 12:00:52 -0500
-Date: Sat, 5 Jan 2002 17:00:31 +0000 (GMT)
-From: Paul Jakma <paulj@alphyra.ie>
-X-X-Sender: <paulj@dunlop.dub.ie.alphyra.com>
-To: Dave Jones <davej@suse.de>
-cc: <knobi@knobisoft.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-In-Reply-To: <20020104221729.A5688@suse.de>
-Message-ID: <Pine.LNX.4.33.0201051659040.15928-100000@dunlop.dub.ie.alphyra.com>
+	id <S288874AbSAERDd>; Sat, 5 Jan 2002 12:03:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61708 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288873AbSAERD0>; Sat, 5 Jan 2002 12:03:26 -0500
+Subject: Re: Patch: linux-2.5.2-pre8/fs/intermezzo kdev_t compilation fixes
+To: adam@yggdrasil.com (Adam J. Richter)
+Date: Sat, 5 Jan 2002 17:13:54 +0000 (GMT)
+Cc: braam@clusterfs.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020105045311.A24785@baldur.yggdrasil.com> from "Adam J. Richter" at Jan 05, 2002 04:53:11 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16MuOI-0000MI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Jan 2002, Dave Jones wrote:
+> 	In the long term, the Intermezzo team may want to look into
+> whether kdev_t will reliably not use the most significant bit of
+> an int (the sign bit), which seems to be the assumption in some of
+> the error handling code.  I don't think that problem is imminent,
+> however, as I think the currently planned kdev_t expansion is only
+> to twenty bits.
 
->  When devicefs is ready (or more to the point, the drivers become
->  devicefs aware), something to the effect of ls -R /devices 
->  should be possible.
-
-how does devicefs differ from devfs? eg, on some of my systems i mount 
-devfs on /devfs and an ls -l of it shows all the devices that 
-currently have drivers that registered them.
-
-> Dave.
-
---paulj
-
+12:20 = 32bits

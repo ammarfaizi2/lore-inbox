@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265386AbTIDSGb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265397AbTIDSGb
+	id S265387AbTIDSBY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265390AbTIDSBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:06:31 -0400
-Received: from oasis.frogfoot.net ([168.210.54.51]:17081 "HELO
-	oasis.frogfoot.net") by vger.kernel.org with SMTP id S265386AbTIDSGO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:06:14 -0400
-Date: Thu, 4 Sep 2003 20:05:54 +0200
-From: Abraham van der Merwe <abz@frogfoot.net>
-To: Linux Kernel Discussions <linux-kernel@vger.kernel.org>
-Subject: BUG: 2.4.23-pre3 + ifconfig
-Message-ID: <20030904180554.GA21536@oasis.frogfoot.net>
-Mail-Followup-To: Linux Kernel Discussions <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Frogfoot Networks CC
-X-Operating-System: Debian GNU/Linux oasis 2.4.21 (i686)
-X-GPG-Public-Key: http://oasis.frogfoot.net/keys/
-X-Uptime: 20:01:11 up 16 days, 1:16, 4 users, load average: 0.04, 0.04, 0.00
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
+	Thu, 4 Sep 2003 14:01:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18125 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265387AbTIDSA6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 14:00:58 -0400
+Message-ID: <32888.4.4.25.4.1062698455.squirrel@www.osdl.org>
+Date: Thu, 4 Sep 2003 11:00:55 -0700 (PDT)
+Subject: Re: [PATCH] ikconfig - cleanups
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <shemminger@osdl.org>
+In-Reply-To: <20030904105154.7fb8a628.shemminger@osdl.org>
+References: <20030904105154.7fb8a628.shemminger@osdl.org>
+X-Priority: 3
+Importance: Normal
+Cc: <rddunlap@osdl.org>, <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Please reconcile it with
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm5/broken-out/ikconfig-gzipped.patch
 
-I just installed 2.4.23-pre3 on one of our servers. If I up/down the
-loopback device multiple times ifconfig hangs on the second down (as in
-unkillable) and afterwards ifconfig stops functioning and I can't reboot the
-machine, etc.
+and then it can go in
 
-No oopses, kernel panics, messages or anything. The system is still alive,
-it is just as if some system call is hung.
 
-If anyone is interested, I can send my .config or any other relevant details.
+> Cleanup ikconfig
+> 	- use single_open for built_with file.
+> 	- get rid of unneeded globals
+> 	- use copy_to_user instead of char at a time
+> 	- only need the read routine, proc defaults to correct behaviour
+> 	  for the rest.
 
--- 
+~Randy
 
-Regards
- Abraham
 
-"Consequences, Schmonsequences, as long as I'm rich."
-		-- "Ali Baba Bunny" [1957, Chuck Jones]
-
-___________________________________________________
- Abraham vd Merwe - Frogfoot Networks CC
- 9 Kinnaird Court, 33 Main Street, Newlands, 7700
- Phone: +27 21 686 1665 Cell: +27 82 565 4451
- Http: http://www.frogfoot.net/ Email: abz@frogfoot.net
 

@@ -1,45 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133070AbRDLMZW>; Thu, 12 Apr 2001 08:25:22 -0400
+	id <S133113AbRDLM3m>; Thu, 12 Apr 2001 08:29:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133111AbRDLMZN>; Thu, 12 Apr 2001 08:25:13 -0400
-Received: from [209.101.91.34] ([209.101.91.34]:1285 "EHLO mail.compro.net")
-	by vger.kernel.org with ESMTP id <S133070AbRDLMZK>;
-	Thu, 12 Apr 2001 08:25:10 -0400
-Message-ID: <3AD59EB9.35F3A535@compro.net>
-Date: Thu, 12 Apr 2001 08:25:29 -0400
-From: Mark Hounschell <markh@compro.net>
-Reply-To: markh@compro.net
-Organization: Compro Computer Svcs.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S133115AbRDLM3d>; Thu, 12 Apr 2001 08:29:33 -0400
+Received: from phoenix.datrix.co.za ([196.37.220.5]:26186 "EHLO
+	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
+	id <S133113AbRDLM3S>; Thu, 12 Apr 2001 08:29:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marcin Kowalski <kowalski@datrix.co.za>
+Reply-To: kowalski@datrix.co.za
+Organization: Datrix Solutions
+To: davem@redhat.com, viro@math.psu.edu
+Subject: Re: [CFT][PATCH] Re: Fwd: Re: memory usage - dentry_cache
+Date: Thu, 12 Apr 2001 14:27:24 +0200
+X-Mailer: KMail [version 1.2]
+Cc: jgarzik@mandrakesoft.com, adilger@turbolinux.com,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <3AD550F0.8058FAA@mandrakesoft.com> <Pine.GSO.4.21.0104120257070.18135-100000@weyl.math.psu.edu> <15061.27388.843554.687422@pizda.ninka.net>
+In-Reply-To: <15061.27388.843554.687422@pizda.ninka.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: markh@compro.net
-Subject: amiga affs support broken in 2.4.x kernels??
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01041214272403.11986@webman>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I'm not a list member so IF you respond to this mail please CC me.
-I've been looking at the archives and see some problems with the 2.3.x
-kernel versions and affs support. I havn't tried any 2.3.x versions but
-starting with 2.4.0 I can no longer mount an affs file system. No matter
-if loopback or an actual device. 2.2.x kernels work greate. Does anyone
-KNOW whether this still works or not and if not maybe a patch somwhere
-for the 2.4.x kernels. It doesn't appear that anything has changed in
-the
-/usr/src/linux/fs/affs dircetory since at least 2.2.14 so I beleive the
-problem to be else where. I've tried all the versions of util-linux and
-all work with 2.2.14/2.2.18. What happens whin I try to mount an affs
-fs using the command "mount -t affs /dev/sdc1 /mnt" is the mount command
-just hangs and CANNOT be killed. If I access any files on the system
-after
-the hang I get major file corruption. If I imediatly hit the kill switch
-then it is usually recoverable. Any response/help would be greatly
-appc'd
+Hi
 
-Regards
-Mark Hounschell
-markh@compro.net
+Regarding the patch ....
+
+I don't have experience with the linux kernel internals but could this patch 
+not lead to a run-loop condition as the only thing that can break our of the 
+for(;;) loop is the tmp==&dentry_unused statement. So if the required number 
+of dentries does not exist and this condition is not satisfied we would have 
+an infinate loop... sorry if this is a silly question.
+
+Also the comment >/* If the dentry was recently referenced, don't free it. 
+*/<, the code inside is excuted if the DCACHE_REFERENCED flags are set and in 
+the code is is reversing the DCACHE_REFERENCED flag on the dentry and adding 
+it to the dentry_unsed list??? So a Refrenched entry is set Not Referenced 
+and place in the unsed list?? I am unclear about that... is the comment 
+correct or is my understanding lacking (which is very probable :-))..
+
+TIA
+MarCin
+
+
+FYI >-------- 
+
+ void prune_dcache(int count)
+{
+        spin_lock(&dcache_lock);
+        for (;;) {
+                struct dentry *dentry;
+                struct list_head *tmp;
+ 
+                tmp = dentry_unused.prev;
+ 
+                if (tmp == &dentry_unused)
+                        break;
+                list_del_init(tmp);
+                dentry = list_entry(tmp, struct dentry, d_lru);
+ 
+                /* If the dentry was recently referenced, don't free it. */
+                if (dentry->d_flags & DCACHE_REFERENCED) {
+                        dentry->d_flags &= ~DCACHE_REFERENCED;
+                        list_add(&dentry->d_lru, &dentry_unused);
+                        continue;
+                }
+                dentry_stat.nr_unused--;
+ 
+                /* Unused dentry with a count? */
+                if (atomic_read(&dentry->d_count))
+                        BUG();
+ 
+                prune_one_dentry(dentry);
+                if (!--count)
+                        break;
+        }
+        spin_unlock(&dcache_lock);
+}
+
+-----------------------------
+     Marcin Kowalski
+     Linux/Perl Developer
+     Datrix Solutions
+     Cel. 082-400-7603
+      ***Open Source Kicks Ass***
+-----------------------------

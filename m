@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266799AbUGLL2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUGLLaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266799AbUGLL2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 07:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266802AbUGLL2s
+	id S266802AbUGLLaj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 07:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266803AbUGLLaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 07:28:48 -0400
-Received: from mail.dif.dk ([193.138.115.101]:32997 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266799AbUGLL2n (ORCPT
+	Mon, 12 Jul 2004 07:30:39 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:27094 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266802AbUGLLaY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 07:28:43 -0400
-Date: Mon, 12 Jul 2004 13:27:17 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Roger Luethi <rl@hellgate.ch>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: via-rhine breaks with recent Linus kernels : probe of 0000:00:09.0
- failed with error -5
-In-Reply-To: <20040712080933.GA9221@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.56.0407121317130.24721@jjulnx.backbone.dif.dk>
-References: <8A43C34093B3D5119F7D0004AC56F4BC082C7F9E@difpst1a.dif.dk>
- <20040712080933.GA9221@k3.hellgate.ch>
+	Mon, 12 Jul 2004 07:30:24 -0400
+Date: Mon, 12 Jul 2004 13:30:17 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andy Whitcroft <apw@shadowen.org>,
+       Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: is_highmem() and WANT_PAGE_VIRTUAL (was: Re: Linux 2.6.8-rc1)
+In-Reply-To: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
+Message-ID: <Pine.GSO.4.58.0407121326410.17199@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Jul 2004, Roger Luethi wrote:
+On Sun, 11 Jul 2004, Linus Torvalds wrote:
+> Andy Whitcroft:
+>   o convert uses of ZONE_HIGHMEM to is_highmem
 
-> On Mon, 12 Jul 2004 03:49:35 +0200, Jesper Juhl wrote:
-> > I've noticed that with recent kernels from Linus' tree the via-rhine
-> > driver that I use for my NIC seems to have broken.
-> >
-[snip]
-> >
-> > I get the following from the kernels that break:
-> > Invalid MAC address for card #0
-> > via-rhine: probe of 0000:00:09.0 failed with error -5
->
-> I had this happen recently when I moved from rc3-bk6 to bk20. When I
-> started to look into it, the problem went away and never came back.
->
-> There are some subtle timing issues with chip resets and reloading the
-> EEPROM. So far, it was the Rhine-I which has been more sensitive, but
-> when I hit this problem Rhine-I was fine while Rhine-II and Rhine-III
-> were not.
->
-> You can try adding an msleep(5) before and after reload_eeprom (make
-> sure you get the right one, mainline still has two ifdef'ed calls),
-> or you can try switching drivers between mainline and -mm.
->
+| --- reference/mm/page_alloc.c	2004-07-07 18:08:56.000000000 +0100
+| +++ current/mm/page_alloc.c	2004-07-07 18:10:15.000000000 +0100
+| @@ -1421,7 +1421,7 @@ void __init memmap_init_zone(struct page
+|  		INIT_LIST_HEAD(&page->lru);
+|  #ifdef WANT_PAGE_VIRTUAL
+|  		/* The shift won't overflow because ZONE_NORMAL is below 4G. */
+| -		if (zone != ZONE_HIGHMEM)
+| +		if (!is_highmem(zone))
+|  			set_page_address(page, __va(start_pfn << PAGE_SHIFT));
+|  #endif
+|  		start_pfn++;
 
-Making this change to 2.6.8-rc1 has no effect for me :
+The above change is incorrect, since zone is an unsigned long, while
+is_highmem() takes a struct zone *.
 
-diff -uP linux-2.6.8-rc1-orig/drivers/net/via-rhine.c linux-2.6.8-rc1/drivers/net/via-rhine.c
---- linux-2.6.8-rc1-orig/drivers/net/via-rhine.c	2004-07-12 01:42:03.000000000 +0200
-+++ linux-2.6.8-rc1/drivers/net/via-rhine.c	2004-07-12 13:28:22.000000000 +0200
-@@ -757,14 +757,17 @@
- 	wait_for_reset(dev, quirks, shortname);
+Gr{oetje,eeting}s,
 
- 	/* Reload the station address from the EEPROM. */
-+	msleep(5);
- #ifdef USE_MMIO
- 	reload_eeprom(ioaddr0);
-+	msleep(5);
- 	/* Reloading from eeprom overwrites cfgA-D, so we must re-enable MMIO.
- 	   If reload_eeprom() was done first this could be avoided, but it is
- 	   not known if that still works with the "win98-reboot" problem. */
- 	enable_mmio(ioaddr0, quirks);
- #else
- 	reload_eeprom(ioaddr);
-+	msleep(5);
- #endif
-
- 	for (i = 0; i < 6; i++)
-
-
-But, copying the driver from 2.6.7-mm7 to 2.6.8-rc1 works like a charm.
-
+						Geert
 
 --
-Jesper Juhl <juhl-lkml@dif.dk>
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293530AbSCOXn6>; Fri, 15 Mar 2002 18:43:58 -0500
+	id <S293521AbSCOXoS>; Fri, 15 Mar 2002 18:44:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293527AbSCOXns>; Fri, 15 Mar 2002 18:43:48 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:1798 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S293521AbSCOXnd>;
-	Fri, 15 Mar 2002 18:43:33 -0500
-Date: Fri, 15 Mar 2002 15:43:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Gordon J Lee <gordonl@world.std.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
-Message-ID: <20020315234333.GH5563@kroah.com>
-In-Reply-To: <3C927F3E.7C7FB075@world.std.com>
-Mime-Version: 1.0
+	id <S293527AbSCOXoI>; Fri, 15 Mar 2002 18:44:08 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56338 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293521AbSCOXny>; Fri, 15 Mar 2002 18:43:54 -0500
+Subject: Re: RFC2385 (MD5 signature in TCP packets) support
+To: davem@redhat.com (David S. Miller)
+Date: Fri, 15 Mar 2002 23:59:36 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, davids@webmaster.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020315.153705.111545634.davem@redhat.com> from "David S. Miller" at Mar 15, 2002 03:37:05 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C927F3E.7C7FB075@world.std.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 15 Feb 2002 19:01:14 -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16m1bl-000554-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 15, 2002 at 06:09:50PM -0500, Gordon J Lee wrote:
-> 2.4.9     works fine!
+> A RST must, in order to function properly, be as simple and non-error
+> prone as possible.  MD5 signatures are totally against that.
 
-Forgot to mention, how many processors does this kernel show you having?
-I think you need to run the latest 2.4.19-ac kernel to get the second
-processors to show up properly.
+Duh wakey wakey Dave
 
-thanks,
+> Either use IPSEC or fix its' deficiencies.
 
-greg k-h
+What do you think Ipsec does with an RST frame with an incorrect IP-AH
+MD5 signature ? Exactly the same thing.
+
+I'm not saying the RFC is a good idea (tho its a needed patch to use Linux
+for backbone routing sanely with most vendors BGP kit). Your argument about
+the RST frame is however pure horseshit
+
+Alan

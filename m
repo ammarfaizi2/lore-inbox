@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264907AbSLFQoA>; Fri, 6 Dec 2002 11:44:00 -0500
+	id <S264786AbSLFQqQ>; Fri, 6 Dec 2002 11:46:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264788AbSLFQmi>; Fri, 6 Dec 2002 11:42:38 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23309 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S264786AbSLFQm3>; Fri, 6 Dec 2002 11:42:29 -0500
-Date: Fri, 6 Dec 2002 17:50:04 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Arjan van de Ven'" <arjanv@redhat.com>, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org, acpi-devel@sourceforge.net
-Subject: Re: [BK PATCH] ACPI updates
-Message-ID: <20021206165004.GE7961@atrey.karlin.mff.cuni.cz>
-References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com>
-Mime-Version: 1.0
+	id <S264797AbSLFQqK>; Fri, 6 Dec 2002 11:46:10 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:11144 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264745AbSLFQox>; Fri, 6 Dec 2002 11:44:53 -0500
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+References: <20021206161519.A16341@parcelfarce.linux.theplanet.co.uk>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: Matthew Wilcox <willy@debian.org>
+Subject: Re: [PATCH] 2.5.50: unused code in link_path_walk()
+Date: Fri, 06 Dec 2002 17:52:13 +0100
+Message-ID: <87of7zqede.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
+ Intelligence, i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Matthew Wilcox <willy@debian.org> writes:
 
-> I (Andy) said:
-> > > Well maybe that's what we should do - use the UnitedLinux 
-> > ACPI patch (which
-> > > iirc is based on fairly recent ACPI code, and presumably minimizes
-> > > ACPI-related breakage) and then proceed incrementally from there?
-> > > 
-> > > Sound OK? Marcelo? UL folks?
-> 
-> > I guess it will be better if you push acpi patch without killing those
-> > backup solutions. Extractign blacklist from UL might be worth it,
-> > through.
-> 
-> Well after communicating with Marcelo it sounds like he'd like to hold off
-> taking it in 2.4.21 because IDE changes take priority, and two big changes
-> at once is too many for a stable kernel revision.
-> 
-> Fair enough. I'm just worried that 2.4.22 is a long ways away.
-> 
-> Maybe one way to address Marcelo's stability concerns and Arjan's "keep
-> acpitable.[ch] around" preference is for me to submit a patch that I *know*
-> don't affect anything besides ACPI -- i.e. only the changes that have been
-> made under drivers/acpi, and then go from there, submitting UL-derived and
-> other improvements incrementally after that.
+> @@ -700,7 +700,6 @@
+>                                  if (this.name[1] != '.')
+>                                          break;
+>                                  follow_dotdot(&nd->mnt, &nd->dentry);
+> -				inode = nd->dentry->d_inode;
+>                                  /* fallthrough */
+>                          case 1:
+>                                  goto return_base;
+>
+> seems broken to me.  if follow_dotdot() changes nd->dentry (can happen!),
+> inode needs to be changed.  look:
+>
+>         inode = nd->dentry->d_inode;
+>         for(;;) {
+>                 err = exec_permission_lite(inode);
+>                 if (this.name[0] == '.') switch (this.len) {
+>                         case 2: 
+>                                 if (this.name[1] != '.')
+>                                         break;
+>                                 follow_dotdot(&nd->mnt, &nd->dentry);
+>                                 inode = nd->dentry->d_inode;
+>                                 /* fallthrough */
+>                         case 1:
+>                                 continue;
+>                 }
+>         }
 
-Yes, try that. Its certainly better than no ACPI update at all.
-									Pavel
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+You looked at the _first_ switch statement. You must go further down
+to the _second_ switch. *There*, you don't need this assignment, AFAICS.
+
+> btw, you should cc linux-fsdevel for patches to the VFS.
+
+Thanks for this pointer, I'll spam linux-fsdevel in the future ;-).
+
+Regards, Olaf.

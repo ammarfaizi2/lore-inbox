@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132826AbRDDOHQ>; Wed, 4 Apr 2001 10:07:16 -0400
+	id <S132697AbRDDOTR>; Wed, 4 Apr 2001 10:19:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132827AbRDDOHG>; Wed, 4 Apr 2001 10:07:06 -0400
-Received: from xxlo.krakow.ids.pl ([212.160.185.145]:53516 "HELO
-	xxliceum.krakow.ids.pl") by vger.kernel.org with SMTP
-	id <S132826AbRDDOGw>; Wed, 4 Apr 2001 10:06:52 -0400
-Date: Wed, 4 Apr 2001 16:03:54 +0200
-From: Daniellek <daniel@rotfl.linux.krakow.pl>
-To: linux-kernel@vger.kernel.org
-Subject: possible problem with moxa intellio driver in 2.4.x kernels
-Message-ID: <20010404160354.B22936@rotfl.linux.krakow.pl>
-Mail-Followup-To: Daniellek <daniel@rotfl.linux.krakow.pl>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: =?iso-8859-2?Q?Co_by_tu_wpisa=E6=3F_Mo=BFe_daniellek=2Ez=2Edomu_=3F_=3B?=
- =?iso-8859-2?Q?=29?=
-X-Operating-System: Linux 2.2.17
-X-Wyslij-mi-SMSa: daniel-sms@linux.krakow.pl
+	id <S132700AbRDDOTI>; Wed, 4 Apr 2001 10:19:08 -0400
+Received: from [212.115.175.146] ([212.115.175.146]:5626 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S132697AbRDDOTB>; Wed, 4 Apr 2001 10:19:01 -0400
+Message-ID: <27525795B28BD311B28D00500481B7601F115A@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: random PIDs
+Date: Wed, 4 Apr 2001 16:17:45 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have MOXA C218Turbo PCI card, in the moment i have 4 leased lines connected
-to it (all of them 115200). Form time to time (2 times a day, sometimes 1
-time/2 days - seems random), one or more ports looks like there're dead...
-Pppd is loaded, interface is up, but there's no activity on port (i look at
-activity with "mxmon" supplied with moxa).
+Finished & tested my random PID kernel/fork.c:get_pid() replacement.
+This one keeps track of the last N (default is 64) pids who have exited.
+These are then not used. So, one cannot have more then 32767 - (64 + 1
+(init) + 1 (idle)) = 32761 processes :o)
 
-When interface is up and runnig i've got:
-Baud Rate - 115200
-CTS - ON
-DSR - ON
-DCD - ON
-when it's up, but dead, i've got:
-Baud Rate - 9600
-CTS - OFF
-DSR - OFF
-DCD - ON
+I know that it was all implemented before, but this patch is very small 
+and I couldn't stand the idea the fact that my last announcement was for
+a patch which didn't work at all :o)
 
-Currently i'm using 2.4.3 kernel, but have used 2.4.2-ac11 and -ac26
-System is Slackware 7.2 (pre), glibc 2.2.1, pppd 2.4.1 (with 2.4.0 the problem
-was the same)
+One can find it at: http://www.vanheusden.com/Linux/kernel_patches.php3
+(or: http://www.vanheusden.com/Linux/fp-2.2.19.patch.gz but then you
+miss the list of other patches ;-])
+Patch is against kernel 2.2.19.
 
-What more informations should i supply to find cure? :)
+I did not do any performance tests, but the machine I tested it on
+(300MHz dec alpha) felt (felt?) as smooth as before :o)
 
-PS. When port hangs, I can run moxaload one more time, restart pppd, and
-connections are wroking for another day or X hours...
 
--- 
-Daniel Fenert            --==> daniel@linux.krakow.pl <==--
-==-P o w e r e d--b y--S l a c k w a r e-=-ICQ #37739641-==
-Fear turned out to be a key to all doors --Alistair MacLean
-===- http://daniellek.linux.krakow.pl/ -===< +48604628083 >
+Folkert van Heusden
+
+[ www.vanheusden.com ]
+
+p.s. the patch mentioned above also raises the number of pool-words
+from 128 to 2048, adds code to do_exit which tells you if the idle
+task is killed (as in 2.4.x), and replaces
+net/core/utils.c:net_[s]random() with something which uses
+get_random_bytes().

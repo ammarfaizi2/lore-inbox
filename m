@@ -1,95 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291269AbSCDERV>; Sun, 3 Mar 2002 23:17:21 -0500
+	id <S291297AbSCDEWd>; Sun, 3 Mar 2002 23:22:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291272AbSCDERM>; Sun, 3 Mar 2002 23:17:12 -0500
-Received: from slip-202-135-78-125.ad.au.prserv.net ([202.135.78.125]:18048
-	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S291269AbSCDEQ6>; Sun, 3 Mar 2002 23:16:58 -0500
-Date: Mon, 4 Mar 2002 00:30:40 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: torvalds@transmeta.com, matthew@hairy.beasts.org, bcrl@redhat.com,
-        david@mysql.com, wli@holomorphy.com, linux-kernel@vger.kernel.org,
-        lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH] Lightweight userspace semaphores...
-Message-Id: <20020304003040.21ac02b7.rusty@rustcorp.com.au>
-In-Reply-To: <20020302095031.A1381@elinux01.watson.ibm.com>
-In-Reply-To: <E16eT9h-0000kE-00@wagner.rustcorp.com.au>
-	<20020225100025.A1163@elinux01.watson.ibm.com>
-	<20020227112417.3a302d31.rusty@rustcorp.com.au>
-	<20020302095031.A1381@elinux01.watson.ibm.com>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S291291AbSCDEWX>; Sun, 3 Mar 2002 23:22:23 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:9969
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S291272AbSCDEWG>; Sun, 3 Mar 2002 23:22:06 -0500
+Date: Sun, 3 Mar 2002 18:49:11 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "T. A." <tkhoadfdsaf@hotmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Question on the rmap VM
+Message-ID: <20020304024911.GC353@matchmail.com>
+Mail-Followup-To: "T. A." <tkhoadfdsaf@hotmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <OE50LayI4TY7zD5J47O00005d3d@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OE50LayI4TY7zD5J47O00005d3d@hotmail.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Mar 2002 09:50:31 -0500
-Hubertus Franke <frankeh@watson.ibm.com> wrote:
-
-> On Wed, Feb 27, 2002 at 11:24:17AM +1100, Rusty Russell wrote:
-> > - We can no longer do generic semaphores: mutexes only.
-> > - Requires arch __update_count atomic op.
+On Sun, Mar 03, 2002 at 04:17:31AM -0500, T. A. wrote:
+> Hi,
 > 
->     I don't see that, you can use atomic_inc on 386s ..
+>     I have a question on the rmap VM.  What is the swap requierment for it?
+> I remember the previous Rik van Riel VM required twice the amount of
+> swapspace as memory to run effectively as many people were complaining about
+> that.  I read a while ago that the switch in 2.4.10 to the new AA VM fixed
+> that issue.  Will rmap bring back that 2x requirement?  Thanks.
 
-__update_count needed to be able to do the decrement from 0 or
-the count, whichever was greater.  I have eliminated this in the
-new patch (patch III).
+All three 2.4 VMs run best with swap at the same size as ram.
 
-> (a) the hashing is to simple. As a consequence there are two limitations
->      -  the total number of locks that can be waited for is 
->         (1<< USEM_HASHBITS).
->         that is way not enough (as you pointed out).
->      - this has to be bumped up to roughly the number of tasks in the
->        system.
+Let me define some VM names:
+mainline (latest from Marcelo (currently based on an older version of -aa))
+rik-vscan (latest in 2.4.13-ac7 (ac8 has some probs))
+rik-rmap (latest patch from rik is still in development but stable (ie,
+         running in production for me))
+-aa (andrea) (latest patch against mainline)
 
-OK.  We dealt with hash collisions by sharing waitqueues.  This works, but
-means we have to do wake-all.  My new patch uses its own queues: we still
-share queues, but we only wake the first one waiting on our counter.
+The 2x ram requirement has been removed in all of the latest versions of the
+VM implementations.
 
-> (c) your implementation could be easily expanded to include Ben's
->     suggestion of multiple queues (which I already implement in my 
->     submission), by including the queue index into the hashing mechanism.
+Let's compare this part of the 2.2 VM with the base concept of what the 2.4
+VMs are doing.
 
-Hmmm.... it should be pretty easy to extend: the queues can be shared.
+2.2:
+  o swap page (4k on most arches) to disk
+  o swap page from disk
+  o remove from swap
+On a system that has a lot of swap activity it is common for the swap areas
+to become fragmented.  Also, if the same page needs to be swapped out again,
+(and hasn't been modified while in memory) it has to write to disk again.
 
-> (f) Why get away from semaphores and only stick to mutexes. Isn't there
->     some value to provide counting semaphores ? Effectively, mutexes are
->     a subclass of semaphores with a max-count of 1.
+2.4:
+  o swap page (4k on most arches) to disk
+  o swap page from disk
+  o leave page in swap
+With this solution, the pages are left in place there is less chance to get
+a fragmented swap area.  Also, if the same page needs to be swapped out
+again, (and hasn't been modified while in memory) it is *not* written to
+disk again, just simply marked as swapped and freed for other purposes.
 
-Yes, but counting semaphores need two variables, or cmpxchg.  Mutexes do not
-need either (proof by implementation 8).  While general counting semaphores
-may be useful, the fact that they are not implemented in the kernel suggests
-they are not worth paying extra for.
+===========
 
-> (g) I don't understand the business of rechecking in the kernel. In your
->     case it comes cheap as you pinned the page already. In general that's 
->     true, since the page was just touched the pinning itself is reasonable
->     cheap. Nevertheless, I am concerned that now you need intrinsic knowledge
->     how the lock word is used in user space. For instance, I use it in 
->     different fashions, dependent whether its a semaphore or rwlock.
+Now, if the swap space is smaller than RAM, then when swap space gets low
+the kernel will have to start freeing pages that are both in swap and
+memory (remember, this is possible now in the 2.4 VMs).  This causes
+fragmentation and extra overhead and slows you down at what is probably the
+worst time possible to slow down.
 
-This is a definite advantage: my old fd-based code never looked at the
-userspace counter: it had a kernel sempahore to sleep on for each
-userspace lock. OTOH, this involves kernel allocation, with the complexity
-that brings.
+Of course I might've left something out, so if I did, please fill in the
+blanks...
 
-> (h) how do you deal with signals ? E.g. SIGIO or something like it.
+Hope this helps.
 
-They're interruptible, so you'll get -ERESTARTSYS.  Should be fine.
- 
-> Overall, pinning down the page (assuming that not a lot of tasks are
-> waiting on a large number of queues at the same time) is acceptable, 
-> and it cuts out one additional level of indirection that is present 
-> in my submission.
-
-I agree.  While originally reluctant, when it's one page per sleeping
-process it's rather neat.
-
-Cheers!
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Mike

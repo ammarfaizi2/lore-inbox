@@ -1,27 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262755AbTI1UtG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 16:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTI1UtF
+	id S262721AbTI1UpF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 16:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTI1UpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 16:49:05 -0400
-Received: from gprs147-229.eurotel.cz ([160.218.147.229]:51073 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262755AbTI1Us4 (ORCPT
+	Sun, 28 Sep 2003 16:45:05 -0400
+Received: from gprs147-229.eurotel.cz ([160.218.147.229]:50817 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262721AbTI1UpC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 16:48:56 -0400
-Date: Sun, 28 Sep 2003 22:24:24 +0200
+	Sun, 28 Sep 2003 16:45:02 -0400
+Date: Sun, 28 Sep 2003 22:44:31 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: pm: Revert swsusp to 2.6.0-test3
-Message-ID: <20030928202424.GA3072@elf.ucw.cz>
-References: <20030928100620.5FAA63450F@smtp-out2.iol.cz> <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org> <20030928175853.GF359@elf.ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: -test6 include/asm-i386/mman.h bits
+Message-ID: <20030928204431.GA9008@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030928175853.GF359@elf.ucw.cz>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,22 +24,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > This should not be warring patch. Pat
-> > > already has variant in his tree,
-> > > feel free to pull from him - but it
-> > > would be nice to have working swsusp
-> > > in -test6. --p
-> > 
-> > Ok. In that case, can we remove the '#if 0' blocks entirely, or at least 
-> > add a big comment on why they are there but disabled?
-> 
-> Like this?
+This does not seem right, one copy should be enough.
 
-Sorry, discard this. I do not know what went wrong, but my bkcvs did
-not seem to contain those changes, nor can I see them at bkbits.net,
-yet -test6 contains them.
+diff -Nru a/include/asm-i386/mman.h b/include/asm-i386/mman.h
+--- a/include/asm-i386/mman.h   Sat Sep 27 17:51:31 2003
++++ b/include/asm-i386/mman.h   Sat Sep 27 17:51:31 2003
+@@ -6,6 +6,10 @@
+ #define PROT_EXEC      0x4             /* page can be executed */
+ #define PROT_SEM       0x8             /* page may be used for atomic ops */
+ #define PROT_NONE      0x0             /* page can not be accessed */
++#define PROT_GROWSDOWN 0x01000000      /* mprotect flag: extend change to start of growsdown vma */
++#define PROT_GROWSUP   0x02000000      /* mprotect flag: extend change to end of growsup vma */
++#define PROT_GROWSDOWN 0x01000000      /* mprotect flag: extend change to start of growsdown vma */
++#define PROT_GROWSUP   0x02000000      /* mprotect flag: extend change to end of growsup vma */
 
-Sorry for confusion.
+ #define MAP_SHARED     0x01            /* Share changes */
+ #define MAP_PRIVATE    0x02            /* Changes are private */
+
 								Pavel
 -- 
 When do you have a heart between your knees?

@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUFAU5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265219AbUFAU54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUFAU5m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 16:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUFAU5l
+	id S265219AbUFAU54 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 16:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUFAU5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 16:57:41 -0400
-Received: from pop.gmx.de ([213.165.64.20]:27075 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265243AbUFAU5A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 16:57:00 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
-Subject: Re: 2.6.7-rc2-mm1
-Date: Tue, 1 Jun 2004 23:06:40 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040601021539.413a7ad7.akpm@osdl.org> <200406012109.54711.dominik.karall@gmx.net> <20040601194703.GB1058@tirion.prodam>
-In-Reply-To: <20040601194703.GB1058@tirion.prodam>
-MIME-Version: 1.0
+	Tue, 1 Jun 2004 16:57:55 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21515 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265218AbUFAU5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 16:57:33 -0400
+Date: Tue, 1 Jun 2004 21:57:10 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] 2.6.6 synclinkmp.c
+Message-ID: <20040601215710.F31301@flint.arm.linux.org.uk>
+Mail-Followup-To: Paul Fulghum <paulkf@microgate.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Dave Jones <davej@redhat.com>
+References: <20040527174509.GA1654@quadpro.stupendous.org> <1085769769.2106.23.camel@deimos.microgate.com> <20040528160612.306c22ab.akpm@osdl.org> <1086123061.2171.10.camel@deimos.microgate.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406012306.40713.dominik.karall@gmx.net>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1086123061.2171.10.camel@deimos.microgate.com>; from paulkf@microgate.com on Tue, Jun 01, 2004 at 03:51:02PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 June 2004 21:47, Luiz Fernando N. Capitulino wrote:
->  Hi Dominik,
->
-> Em Tue, Jun 01, 2004 at 09:09:52PM +0200, Dominik Karall escreveu:
-> | On Tuesday 01 June 2004 11:15, Andrew Morton wrote:
-> | > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.7-rc2
-> | >/2.6 .7-rc2-mm1/
-> |
-> | The kernel does not boot on my machine, I tried 2.6.7-rc2 without -mm1
-> | patch, that one works, but with mm1 patch nothing happens after
-> | uncompressing. It was the same with 2.6.7-rc1-mm1 too. Before
-> | 2.6.7-rc1-mm1 there wasn't that problem.
->
->  Did you tried 2.6.7-rc2-bk1 and 2.6.7-rc2-bk2 ?
+On Tue, Jun 01, 2004 at 03:51:02PM -0500, Paul Fulghum wrote:
+> In particular, call pci_unregister_driver if driver init fails. This
+> is in response to a bug report by Dave Jones.
 
-I tested 2.6.7-rc2-bk2 right now, it works.
+If pci_register_driver fails, the driver is not, repeat not left
+registered.  Therefore it must not be unregistered after failure
+to register.
 
-greets dominik
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

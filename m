@@ -1,29 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315570AbSEIAKc>; Wed, 8 May 2002 20:10:32 -0400
+	id <S315568AbSEIAI3>; Wed, 8 May 2002 20:08:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315571AbSEIAKb>; Wed, 8 May 2002 20:10:31 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:59145 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S315570AbSEIAKa>;
-	Wed, 8 May 2002 20:10:30 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alexander.Riesen@synopsys.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
-In-Reply-To: Your message of "Wed, 08 May 2002 19:25:57 +0200."
-             <20020508172557.GB1044@riesen-pc.gr05.synopsys.com> 
-Mime-Version: 1.0
+	id <S315569AbSEIAI2>; Wed, 8 May 2002 20:08:28 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24580 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315568AbSEIAI2>;
+	Wed, 8 May 2002 20:08:28 -0400
+Message-ID: <3CD9BDBC.A5B52E8C@zip.com.au>
+Date: Wed, 08 May 2002 17:07:24 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Reading page from given block device
+In-Reply-To: <20020508204809.GA2300@elf.ucw.cz> <3CD996E5.BFB5CF9E@zip.com.au> <20020508225603.GA11842@atrey.karlin.mff.cuni.cz> <3CD9AE15.114D13E3@zip.com.au> <20020508231520.GC11842@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 May 2002 10:10:19 +1000
-Message-ID: <13244.1020903019@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002 19:25:57 +0200, 
-Alex Riesen <Alexander.Riesen@synopsys.com> wrote:
->i've found the reason: the make's stdin was redirected in /dev/null
->(my make is aliased to a program prettifying output).
+Pavel Machek wrote:
+> 
+> ...
+> Second try:
+> 
+> c0134a28 -- __getblk
+>             __get_hash_table
 
-Use standard make.
+hmm.  It looks like your blockdev may have the wrong
+blocksize in bd_inode->i_blkbits, and __get_hash_table
+cannot find the 4k block against the 1k blocksize device.
+It keeps returning zero.
 
+The new pagecache-based __get_hash_table uses bd_inode->i_blkbits
+to go from a block number to a pagecache index.  That works
+fine when called via the official `bread()' function, but 
+probably your __bread() approach has confused it.
+
+Try running set_blocksize(bdev, PAGE_SIZE) before calling
+__bread().  
+
+
+-

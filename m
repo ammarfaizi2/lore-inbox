@@ -1,94 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263051AbTJaH3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 02:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTJaH3Z
+	id S263053AbTJaHeK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 02:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTJaHeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 02:29:25 -0500
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:36035 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S263051AbTJaH3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 02:29:02 -0500
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Nick Piggin <piggin@cyberone.com.au>, Ivan Gyurdiev <ivg2@cornell.edu>
-Subject: Re: Processes receive SIGSEGV if TCQ is enabled
-Date: Fri, 31 Oct 2003 08:28:33 +0100
-User-Agent: KMail/1.5.9
-Cc: Andrew Morton <akpm@osdl.org>, B.Zolnierkiewicz@elka.pw.edu.pl,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <200310301601.55588.schlicht@uni-mannheim.de> <3FA1943A.7010300@cornell.edu> <3FA1A171.3040807@cyberone.com.au>
-In-Reply-To: <3FA1A171.3040807@cyberone.com.au>
+	Fri, 31 Oct 2003 02:34:10 -0500
+Received: from [212.55.154.23] ([212.55.154.23]:6042 "HELO sapo.pt")
+	by vger.kernel.org with SMTP id S263053AbTJaHeG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 02:34:06 -0500
+Message-ID: <3FA21098.6020504@vgertech.com>
+Date: Fri, 31 Oct 2003 07:34:48 +0000
+From: Nuno Silva <nuno.silva@vgertech.com>
+Organization: VGER, LDA
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031020 Debian/1.5-1
+X-Accept-Language: en-us, pt
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_p8go/CmIP8D38GM";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310310828.41598.schlicht@uni-mannheim.de>
+To: Dave Jones <davej@redhat.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ide-scsi is working [was: Post-halloween doc updates.]
+References: <20031030141519.GA10700@redhat.com>
+In-Reply-To: <20031030141519.GA10700@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!!
 
---Boundary-02=_p8go/CmIP8D38GM
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-Hi,
+Dave Jones wrote:
 
-On Friday 31 October 2003 00:40, Nick Piggin wrote:
-> Hi,
-> If you're testing IDE TCQ, please try the following patch and use the
-> default io scheduler. It won't fix anything, but it poisons requests
-> so we can sometimes tell if they are being used in the wrong places.
-> I have seen warnings that lead me to believe this might be happening.
-> Its against 2.6.0-test9-mm1. Report any stack traces you see. Thanks.
+[...]
 
-OK, I tested 2.6.0-test9-mm1 + your patch, but it seems not to print any=20
-messages or stack traces, even if many processes are killed after setting T=
-CQ=20
-depth to 1.
+> 
+> IDE.
+> ~~~~
 
-Today, however, I got reiserfs corruption messages in the logs, but=20
-fsck.reiserfs could not find any corruption on the next boot, so I think th=
-is=20
-is not a real corruption but just reading the wrong data...
+[...]
 
-The messages are something like:
+>   o  ide_scsi is completely broken in 2.6 currently. Known problem.
+>      If you need it either use 2.4 or fix it 8)
 
-Oct 31 07:57:53 bigboss kernel: is_tree_node: node level 2120 does not matc=
-h=20
-to the expected one 1
-Oct 31 07:57:53 bigboss kernel: vs-5150: search_by_key: invalid format foun=
-d=20
-in block 642544. Fsck?
-Oct 31 07:57:53 bigboss kernel: vs-13070: reiserfs_read_locked_inode: i/o=20
-failure occurred trying to find stat data of [4767268 4767269 0x0 SD]
-Oct 31 07:57:53 bigboss kernel: is_tree_node: node level 2120 does not matc=
-h=20
-to the expected one 1
-Oct 31 07:57:53 bigboss kernel: vs-5150: search_by_key: invalid format foun=
-d=20
-in block 642544. Fsck?
-Oct 31 07:57:53 bigboss kernel: vs-13070: reiserfs_read_locked_inode: i/o=20
-failure occurred trying to find stat data of [4767268 4767269 0x0 SD]
 
-> Nick
+I have 2.6.0-test9 and I just recorded knoppix to CD with ide-scsi. In 
+fact, it never stopped working, in this box, with several 2.6.* kernels.
 
-  Thomas
+Hmmmm maybe it's because my cdrecorder is USB?
 
---Boundary-02=_p8go/CmIP8D38GM
-Content-Type: application/pgp-signature
-Content-Description: signature
+The box has debian sid and cdrecord is:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+puma:/# cdrecord -scanbus
+Cdrecord-Clone 2.01a19 (i686-pc-linux-gnu) Copyright (C) 1995-2003 Jörg 
+Schilling
+Linux sg driver version: 3.5.29
+Using libscg version 'schily-0.7'
+scsibus2:
+         2,0,0   200) 'HP      ' 'CD-Writer cd4f  ' '1.0A' Removable CD-ROM
+         2,1,0   201) *
+         2,2,0   202) *
+         2,3,0   203) *
+         2,4,0   204) *
+         2,5,0   205) *
+         2,6,0   206) *
+         2,7,0   207) *
+scsibus3:
+         3,0,0   300) 'HP      ' 'psc 2210        ' '1.00' Removable Disk
+         3,1,0   301) *
+         3,2,0   302) *
+         3,3,0   303) *
+         3,4,0   304) *
+         3,5,0   305) *
+         3,6,0   306) *
+         3,7,0   307) *
+puma:/#
 
-iD8DBQA/og8pYAiN+WRIZzQRAjU9AKDWqZ9uHgvlRB5wup+92aWgHkC8ygCgv2Wf
-l48zXb3Z5NmOROg9LtNRLQ8=
-=TrB2
------END PGP SIGNATURE-----
+Just to be clear: I *can* record cd's! :-)
 
---Boundary-02=_p8go/CmIP8D38GM--
+Can I provide any more info?
+
+Regards,
+Nuno Silva
+
+

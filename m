@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265995AbRF1PqI>; Thu, 28 Jun 2001 11:46:08 -0400
+	id <S265998AbRF1Pps>; Thu, 28 Jun 2001 11:45:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265997AbRF1Pps>; Thu, 28 Jun 2001 11:45:48 -0400
-Received: from spc.esa.lanl.gov ([128.165.46.232]:2432 "HELO spc.esa.lanl.gov")
-	by vger.kernel.org with SMTP id <S265995AbRF1Ppq>;
-	Thu, 28 Jun 2001 11:45:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.4.6-pre6 cs46xx build error with CONFIG_SOUND_FUSION=m
-Date: Thu, 28 Jun 2001 09:42:55 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org, fdavis@andrew.cmu.edu
-In-Reply-To: <E15FdnX-00076n-00@the-village.bc.nu>
-In-Reply-To: <E15FdnX-00076n-00@the-village.bc.nu>
+	id <S265997AbRF1Ppi>; Thu, 28 Jun 2001 11:45:38 -0400
+Received: from ss01.nc.us.ibm.com ([32.97.136.231]:55747 "EHLO
+	ddstreet.raleigh.ibm.com") by vger.kernel.org with ESMTP
+	id <S265995AbRF1Pp2>; Thu, 28 Jun 2001 11:45:28 -0400
+Date: Thu, 28 Jun 2001 11:40:00 -0400 (EDT)
+From: Dan Streetman <ddstreet@us.ibm.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ps2 keyboard filter hook
+Message-ID: <Pine.LNX.4.10.10106281127100.26174-100000@ddstreet.raleigh.ibm.com>
 MIME-Version: 1.0
-Message-Id: <01062809425500.01131@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 June 2001 09:33, Alan Cox wrote:
-> > With CONFIG_SOUND_FUSION=m, I get the following error for 2.4.6-pre6
-> > during make modules:
-> >
-> > I've got a number of older 2.4.[3,4,5] kernels, so I'll go back and try
-> > to figure out when the change occured, but this is the first time I've
-> > seen this particular build error.
->
-> I've fixed the build bug in ac20.. just uploading now
 
-At the suggestion of Frank Davis, I tried 2.4.5-ac19, and it built just fine for me
-with CONFIG_SOUND_FUSION=m, and sound is also working with 2.4.5-ac19.
+On Sat, Jun 16, Mike A. Harris wrote:
 
-I don't see -ac20 yet, but will try it later today with CONFIG_SOUND_FUSION=m
-and CONFIG_SOUND_FUSION=y.
+>I find it very odd indeed with IBM's big voice of open source
+>praise, yada yada, and what Lou has said in the past, that there
+>would be any question at all of wether it would be open source or
+>not.  Isn't big blue behind open source?  Or is it just for
+>publicity?  Makes me wonder now...
 
-Thanks,
-Steven
+This is a bit of a late reply, but I think maybe I wasn't clear in my first
+statement that I couldn't get the driver opened.
+
+The driver isn't mine; I just wrote the hooks.  The actual driver's
+author doesn't want it released as Open Source, and all other team members
+(besides me) are unconvinced that it will be useful to anyone to release it
+(i.e., they're asking "why" instead of "why not").
+
+So it's local approval that is my particular problem; I'm sure that if we had
+asked for approval from the company-wide decision makers, they would have given
+it.  From the limited experience I've had with them, they are very pro-OSS.
+
+-- 
+Dan Streetman
+ddstreet@us.ibm.com
+--------------------------------------------------
+186,282 miles per second:
+It isn't just a good idea, it's the law!
+
+

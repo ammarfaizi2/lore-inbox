@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273870AbRIRGYc>; Tue, 18 Sep 2001 02:24:32 -0400
+	id <S273866AbRIRG1D>; Tue, 18 Sep 2001 02:27:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273867AbRIRGYW>; Tue, 18 Sep 2001 02:24:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43279 "HELO
+	id <S273867AbRIRG0w>; Tue, 18 Sep 2001 02:26:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:56847 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S273866AbRIRGYI>; Tue, 18 Sep 2001 02:24:08 -0400
-Date: Tue, 18 Sep 2001 02:00:09 -0300 (BRT)
+	id <S273866AbRIRG0g>; Tue, 18 Sep 2001 02:26:36 -0400
+Date: Tue, 18 Sep 2001 02:02:37 -0300 (BRT)
 From: Marcelo Tosatti <marcelo@conectiva.com.br>
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.10-pre11
-In-Reply-To: <20010918073248.G698@athlon.random>
-Message-ID: <Pine.LNX.4.21.0109180145330.7152-100000@freak.distro.conectiva>
+In-Reply-To: <20010918081146.J698@athlon.random>
+Message-ID: <Pine.LNX.4.21.0109180201460.7152-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,50 +23,49 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
 
-> On Tue, Sep 18, 2001 at 12:55:46AM -0300, Marcelo Tosatti wrote:
-> > 
-> > 
-> > On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
-> > 
-> > > On Tue, Sep 18, 2001 at 12:33:15AM -0300, Marcelo Tosatti wrote:
-> > > > 
-> > > > On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
-> > > > 
-> > > > > On Mon, Sep 17, 2001 at 11:53:10PM -0300, Marcelo Tosatti wrote:
-> > > > > > Don't you agree that your code can introduce new stability bugs ?
-> > > > > 
-> > > > > not anything that can corrupt randomly your hd.
-> > > > 
-> > > > Sure, the old code did not corrupt hd's randomly, did it?
-> > > > 
-> > > > Let me redo the question: Don't you think the old stinky and slow code was
-> > > > reasonably stable ? :) 
+> On Mon, Sep 17, 2001 at 10:48:34PM -0700, Andrew Morton wrote:
+> > Linus Torvalds wrote:
 > > > 
-> > > As said in the other email, just check 2.4 l-k reports of this week,
-> > > last week etc.., I've lots of private reports too. While for everybody
-> > > 2.2.19 is working fine.
+> > > Ok, the big thing here is continued merging, this time with Andrea.
+> > > 
 > > 
-> > Have you seen any problem report which does not happen with anon intensive
-> > workloads ? 
+> > In one test here the VM changes seem fragile, and slower.
+> > 
+> > Dual x86, 512 megs RAM, 512 megs swap.  No highmem.
+> > 
+> > The workload is:
+> > 
+> > 	while true
+> > 	do
+> > 		/usr/src/ext3/tools/usemem 300
+> > 	done
+> > 
+> > 	(This just mallocs 300 megs, touches it then exits)
+> > 
+> > in parallel with
+> > 
+> > 	time /usr/src/ext3/tools/bash-shared-mapping -n 5 -t 3 foo 300000000
+> > 
+> > on ext2.
+> > 
+> > (bash-shared-mapping is a tool which I wrote for ext3.  It's one of the
+> >  most aggressive VM/MM stress testers around, and has found a number of
+> >  kernel bugs).
+> > 
+> > On 2.4.9-ac10, the b-s-m run took 294 seconds.  On 2.4.10-pre11 it
+> > took 330 seconds DESPITE the fact that one of the b-s-m instances
+> > was oom-killed quite early in the test.
+> > 
+> > `vmstat' took about thirty seconds to start (this is usual), but
+> > was promptly killed, despite having (presumably) a small RSS.  Instances
+> > of `usemem' were oom-killed quite frequently.  In 2.4.9-ac10, nothing
+> > was oom-killed.
 > 
-> of course, all the mysql/postgres db reports I got were non anon
-> intensive I assume, I assume they had enough ram, they all said 2.2 was
-> fine.
-> 
-> > As far as I've noted, people usually report performance problems when
-> > running anon intensive workloads. For those cases, I'm pretty sure the
-> > swap_out() loop is the fuckup: the swap allocation code is really a _CRAP_
-> > for the current VM.
-> 
-> I don't think that was the case, 2.2 has the same swap_out loop.
+> should be the very same problem identified by Marcelo. I'm wondering why
+> I didn't reproduced here during testing, 512mbytes is not highmem and my
+> desktop has 512mbytes too and it didn't killed anything yet. As for the
+> slowdown there are a few localized places to look at. but let's fix the
+> oom first.
 
-Ok, back to the current allocation failure problem.
-
-In addition to the zone specific page hiding problem, I'm afraid threads
-can hide pages from themselves up to a point there is nothing to block on
-(even if we have just one zone).
-
-There is nothing which avoids that from happening in theory.
-
-Well, I'm going to sleep now. 
+Try to run several memory hungry threads (thus hiding more pages).
 

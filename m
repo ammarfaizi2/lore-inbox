@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316959AbSFZVto>; Wed, 26 Jun 2002 17:49:44 -0400
+	id <S316962AbSFZV7t>; Wed, 26 Jun 2002 17:59:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316960AbSFZVtn>; Wed, 26 Jun 2002 17:49:43 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:8953 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316959AbSFZVtn>; Wed, 26 Jun 2002 17:49:43 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.3.95.1020626100928.25416A-100000@chaos.analogic.com> 
-References: <Pine.LNX.3.95.1020626100928.25416A-100000@chaos.analogic.com> 
-To: root@chaos.analogic.com
-Cc: Nicolas Bougues <nbougues-listes@axialys.net>,
-       Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Problems with wait queues 
+	id <S316964AbSFZV7t>; Wed, 26 Jun 2002 17:59:49 -0400
+Received: from web30.achilles.net ([209.151.1.2]:61587 "EHLO
+	web30.achilles.net") by vger.kernel.org with ESMTP
+	id <S316962AbSFZV7s>; Wed, 26 Jun 2002 17:59:48 -0400
+Subject: Re: PROBLEM: 2.4.19-pre10-ac2 bug in page_alloc.c:131
+From: Robert Love <rml@tech9.net>
+To: Bongani <bonganilinux@mweb.co.za>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Alexandre Pereira Nunes <alex@PolesApart.dhs.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1025125214.1911.40.camel@localhost.localdomain>
+References: <Pine.LNX.4.44.0206222202400.7601-100000@PolesApart.dhs.org> 
+	<20020626204721.GK22961@holomorphy.com> 
+	<1025125214.1911.40.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 26 Jun 2002 17:54:13 -0400
+Message-Id: <1025128477.1144.3.camel@icbm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 26 Jun 2002 22:49:30 +0100
-Message-ID: <2014.1025128170@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-06-26 at 17:00, Bongani wrote:
+> IIRC the preemptive patch is now part of -ac
 
-For the benefit of any newcomers to the list who haven't clocked RBJ yet...
+The preemptive kernel is not part of 2.4-ac.
 
-root@chaos.analogic.com said:
->  I am sure that you can have things look correct as well as run
-> properly. However, you didn't show us the code. You need to do
-> something like:
+Btw, fwiw, I do not think this problem has anything to do with
+preemption.  The "exited with preempt_count" message just means the task
+exited with preemption disabled.  It is not a problem if the task died
+abnormally.
 
->             interruptible_sleep_on(&semaphore);
-
-> while your wake-up occurs with:
-
->             wake_up_interruptible(&semaphore);
-
-Do not ever use sleep_on() and friends. Almost all usage of these 
-functions will be buggy.
-
-
---
-dwmw2
-
+	Robert Love
 

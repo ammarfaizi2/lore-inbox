@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269911AbRHEDzj>; Sat, 4 Aug 2001 23:55:39 -0400
+	id <S269913AbRHED5I>; Sat, 4 Aug 2001 23:57:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269912AbRHEDz3>; Sat, 4 Aug 2001 23:55:29 -0400
-Received: from ns.skjellin.no ([193.69.71.66]:63121 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id <S269911AbRHEDzN>;
-	Sat, 4 Aug 2001 23:55:13 -0400
-Message-ID: <002b01c11d62$73e65540$8405000a@slurv>
-From: "Andre Tomt" <andre@tomt.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: SMP Support for AMD Athlon MP motherboards
-Date: Sun, 5 Aug 2001 05:55:22 +0200
+	id <S269912AbRHED46>; Sat, 4 Aug 2001 23:56:58 -0400
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:15488 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S269913AbRHED4q>; Sat, 4 Aug 2001 23:56:46 -0400
+Message-ID: <3B6CC309.541FA10@randomlogic.com>
+Date: Sat, 04 Aug 2001 20:52:41 -0700
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Akamai Technologies, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2526.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2526.0000
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+CC: modegard@akamai.com
+Subject: Re: Dual Athlon, AGP, and PCI
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I recently got my hands on a unreleased evaluation AthlonMP motherboard with
-two 1.1Ghz Athlon CPU's. First thing I tried was of course Linux. I ran into
-some problems, however.
+Just an update as to progress with this dual Athlon.
 
-1. the SCSI subsystem hung during loading. Before anything card-specefic
-driver loaded. SMP og non-SMP kernels, same thing. Modular loading of
-scsi-drivers did the same thing upon loading. Full lockup. Got it partly
-working on an IDE drive after a while.
+I've managed to find time around a hectic work schedule to get IDE
+and
+AGP support working. hadparm -v  right after boot shows DMA enabled.
+hdparm -t now produces 35.89MB/sec (consistently) as compared to 2.5
+previously. This is also a full 10MB/sec. better than I had
+previously
+after tweaking the IDE settings with hdparm after booting.
 
-2. Linux did only see one CPU.
+AGP is working with both the agpgart driver and the NVidia driver,
+but
+FW still does not. I have not spent much time on this though.
 
-3. It were highly unstable, even in non-SMP mode.
+I need to do some more testing, etc. before I submit any code
+changes
+(and it might be a good ide if I upgraded to one of the latest
+releases/patches as well).
 
-Whats the degree of support in Linux for such an AMD mobo? Is the Athlon MP
-architecture supported at all yet?
-
-I managed to get FreeBSD running on it, and use the SCSI-controller
-(Adaptec, not sure about what board since I do not have physical access as I
-write this. Uses the aic7xxx driver, u160scsi). However, FreeBSD would not
-boot in SMP mode (scsi lockup like Linux did in both SMP and non-SMP
-kernels, it did see both CPU's however...).
-
-Now, shed some light on this. I tried kernels fram 2.0.3x to 2.4.7, 2.0 and
-2.2 did alot of really strange stuff, like making user space apps saying
-"You do not exist"(?).
-
-How is the support for AMD Athlon MP, really :-)
-
---
-Regards,
-André Tomt
-
+PGA
+-- 
+Paul G. Allen
+UNIX Admin II/Network Security
+Akamai Technologies, Inc.
+www.akamai.com

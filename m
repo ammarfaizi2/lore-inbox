@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284560AbRLESs4>; Wed, 5 Dec 2001 13:48:56 -0500
+	id <S284561AbRLESuQ>; Wed, 5 Dec 2001 13:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284539AbRLESsr>; Wed, 5 Dec 2001 13:48:47 -0500
-Received: from net24-164-102-119.neo.rr.com ([24.164.102.119]:20107 "EHLO
-	nova.qfire.net") by vger.kernel.org with ESMTP id <S284560AbRLESsi>;
-	Wed, 5 Dec 2001 13:48:38 -0500
-From: James Cassidy <jcassidy@nova.qfire.net>
-Date: Wed, 5 Dec 2001 13:48:27 -0500
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: John Clemens <john@deater.net>, cory.bell@usa.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-ID: <20011205134827.A10335@qfire.net>
-In-Reply-To: <1007541620.2340.2.camel@localhost.localdomain> <Pine.LNX.4.33.0112051127390.27471-100000@pianoman.cluster.toy> <20011205115450.6c66664d.dang@fprintf.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011205115450.6c66664d.dang@fprintf.net>
-User-Agent: Mutt/1.3.23i
+	id <S284565AbRLESuB>; Wed, 5 Dec 2001 13:50:01 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1555 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S284561AbRLEStu>; Wed, 5 Dec 2001 13:49:50 -0500
+Date: Wed, 5 Dec 2001 15:33:00 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Linux 2.4.17-pre3
+Message-ID: <Pine.LNX.4.21.0112051532140.20543-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	When ACPI hung on boot did you have APIC/IO-APIC compiled into
-your kernel? I found when I compiled in APIC/IO-APIC on my Compaq presario
-laptop it would hang on bootup also. Appears to get stuck when writing
-out to a IO-Port.
+Hi, 
 
-						-- James (QFire)
+Here goes pre3.
 
-> I have an N5415, and am using your k7 patch (thanks much!).  I don't use USB,
-> so I didn't try or comment on your patch.  However, I was never able to get
-> ACPI to work.  If I compiled it in without APM compiled in, it always hung on
-> boot.  So, I have only APM, which doesn't even show the battery life
-> correctly.  Whether or not I can suspend, knowing battery life would be an
-> improvement.  Is there something special I have to do to get ACPI to work? 
-> (I'm currently using 2.4.13-ac7-preempt-k7, but I've tried 2.4.1[56] also, as
-> well as many earlier kernels.)
-> 
-> Daniel
-> --- 
-> Recursion n.:
->         See Recursion.
->                         -- Random Shack Data Processing Dictionary
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+People with Pentium Pro, please test if the workaround is really working
+correctly... 
+
+pre3:
+
+- Enable ppro errata workaround                 (Dave Jones)
+- Update tmpfs documentation                    (Christoph Rohland)
+- Fritz!PCIv2 ISDN card support                 (Kai Germaschewski)
+- Really apply ymfpci changes                   (Pete Zaitcev)
+- USB update                                    (Greg KH)
+- Adds detection of more eepro100 cards         (Troy A. Griffitts)
+- Make ftruncate64() compliant with SuS         (Andrew Morton)
+- ATI64 fb driver update                        (Geert Uytterhoeven)
+- Coda fixes                                    (Jan Harkes)
+- devfs update                                  (Richard Gooch)
+- Fix ad1848 breakage in -pre2                  (Alan Cox)
+- Network updates                               (David S. Miller)
+- Add cramfs locking                            (Christoph Hellwig)
+- Move locking of page_table_lock on expand_stack
+  before accessing any vma field                (Manfred Spraul)
+- Make time monotonous with gettimeofday        (Andi Kleen)
+- Add MODULE_LICENSE(GPL) to ide-tape.c         (Mikael Pettersson)
+- Minor cs46xx ioctl fix                        (Thomas Woller)
+
+

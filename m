@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129609AbRCLIdz>; Mon, 12 Mar 2001 03:33:55 -0500
+	id <S129623AbRCLIoF>; Mon, 12 Mar 2001 03:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129608AbRCLIdp>; Mon, 12 Mar 2001 03:33:45 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:516 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129599AbRCLId3>;
-	Mon, 12 Mar 2001 03:33:29 -0500
-Date: Fri, 9 Mar 2001 13:36:20 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: safemode <safemode@voicenet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: incorrect CPU usage readings in 2.2.19prex?
-Message-ID: <20010309133620.A31@(none)>
-In-Reply-To: <3AA80004.65259634@voicenet.com>
+	id <S129624AbRCLInp>; Mon, 12 Mar 2001 03:43:45 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:9448 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129623AbRCLIne>;
+	Mon, 12 Mar 2001 03:43:34 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: george anzinger <george@mvista.com>
+cc: mingo@elte.hu, Andrew Morton <andrewm@uow.edu.au>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] serial console vs NMI watchdog 
+In-Reply-To: Your message of "Mon, 12 Mar 2001 00:27:14 -0800."
+             <3AAC8862.3461A1A8@mvista.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3AA80004.65259634@voicenet.com>; from safemode@voicenet.com on Thu, Mar 08, 2001 at 04:56:20PM -0500
+Date: Mon, 12 Mar 2001 19:41:43 +1100
+Message-ID: <24342.984386503@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 12 Mar 2001 00:27:14 -0800, 
+george anzinger <george@mvista.com> wrote:
+>Keith Owens wrote:
+>> kdb uses NMI IPI to get the other cpu's attention.  One cpu is in
+>> control and may or may not be accepting NMI, it depends on the event
+>> that entered kdb.  The other cpus end up in kdb code, spinning waiting
+>> for a cpu switch.  Initially they are not receiving NMI because they
+>> were invoked via NMI which is masked until they exit.
+>
+>Are you actually twiddling the hardware, or just changing what happens
+>on NMI?
 
-> Is there something generally wrong with how linux determines total cpu
-> usage (via procmeter3 and top) when dealing with applications that are
-> threaded?   I routinely get 0% cpu usage when playing mpegs and mp3s and
-> some avi's even (Divx when using no software enhancement) ... Somehow i
-> doubt that the decoders are so streamlined that they produce <1% cpu
-> usage on the computer.  Does anyone know what's going on with this?
-> ps shows nearly 0% cpu usage in the threads as well.
+No hardware twiddling.  One cpu gets an event which triggers kdb, that
+event may or may not be via NMI.  kdb on ix86 then uses NMI to get the
+attention of the other cpus, even if they are in a disabled spinloop.
+ix86 hardware will not deliver another NMI to a cpu until the cpu
+issues iret to return from the NMI handler.
 
-CPU usage of programs that sleep after short computation is incorrectly computed
+Initially all but one cpu is forced into kdb via the NMI handler so no
+more NMI events will occur on those cpus.  The first cpu may or may not
+be receiving NMI, it depends on how kdb was invoked on the first cpu.
+To do single stepping of code, kdb allows one cpu out of kdb state so
+it can execute one instruction at the point it was interrupted.  If the
+cpu was entered via NMI then that means exiting from the NMI handler
+back to the original code, do single step then back into kdb again.
 
-See badboy examples for code that gets 70% of cpu and is reported as getting
-0%.
-
->     i've seen it in these programs
->         freeamp
->         mplayer
-> 
-> I've seen it in earlier 2.2.19 kernels but i'm using pre14 right now.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Having exited the NMI handler, that cpu will start receiving NMI events
+again, even though it is still under kdb control.  So some cpus will
+get NMI, some will not, depending on user actions.  kdb uses a software
+mechanism to selectively disable the NMI watchdog.
 

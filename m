@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280671AbRKBMjh>; Fri, 2 Nov 2001 07:39:37 -0500
+	id <S280673AbRKBMqV>; Fri, 2 Nov 2001 07:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280675AbRKBMj1>; Fri, 2 Nov 2001 07:39:27 -0500
-Received: from hermes.toad.net ([162.33.130.251]:45252 "EHLO hermes.toad.net")
-	by vger.kernel.org with ESMTP id <S280671AbRKBMjM>;
-	Fri, 2 Nov 2001 07:39:12 -0500
-Subject: Re: apm suspend broken ?
-From: Thomas Hood <jdthood@mail.com>
+	id <S280670AbRKBMqM>; Fri, 2 Nov 2001 07:46:12 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:48646 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S280668AbRKBMqC>; Fri, 2 Nov 2001 07:46:02 -0500
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Date: Fri, 2 Nov 2001 12:46:01 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <9ru4i9$e47$1@ncc1701.cistron.net>
+In-Reply-To: <20011102124252.1032e9b2.rusty@rustcorp.com.au> <Pine.GSO.4.21.0111020359540.12621-100000@weyl.math.psu.edu>
+X-Trace: ncc1701.cistron.net 1004705161 14471 195.64.65.67 (2 Nov 2001 12:46:01 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 02 Nov 2001 07:38:25 -0500
-Message-Id: <1004704715.774.21.camel@thanatos>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fn+Suspend (or launching "apm -s") does not ALWAYS suspend
-> the laptop. Sometimes, it blanks the screen but leaves the
-> lcd light on, the cpu fan is on also. Pressing Fn+D to turn
-> off the lcd light completes the job and the laptop finaly
-> suspends completely.
+In article <Pine.GSO.4.21.0111020359540.12621-100000@weyl.math.psu.edu>,
+Alexander Viro  <viro@math.psu.edu> wrote:
+>On Fri, 2 Nov 2001, Rusty Russell wrote:
+>
+>> On Thu, 01 Nov 2001 05:42:36 -0500
+>> Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
+>> 
+>> > Is this designed to replace sysctl?
+>> 
+>> Well, I'd suggest replacing *all* the non-process stuff in /proc.  Yes.
+>
+>Aha.  Like, say it, /proc/kcore.  Or /proc/mounts, yodda, yodda.
 
-My guess is that what is happening is: apm receives the event
-and notifies apmd an X.  X blanks the display and returns.
-apmd processes the event and returns.  apm does suspend().
-But then you hit some BIOS bug.  Or the BIOS expects the 
-OS to turn off the LCD light before returning.
+Well in 2.5 union mounts are going to go in right? Then you could
+have a compatibility "proc-compat" filesystem that reads data from
+/kernel and supplies it in backwards compatible formats such as
+/proc/mounts, that you union-mount over /proc
 
-Does it make any difference if apmd and X are NOT running?
+And in 2.7, rm -rf linux/fs/proc-compat
 
-Stephen: Do you think it would be worth sticking a call to
-apm_console_blank inside suspend() for this person to see
-if it helps?
-
---
-Thomas
-
-P.S.  Stephen:  Should the line "ignore_normal_resume = 1;"
-inside suspend() be put prior to the sti()?
+Mike.
+-- 
+"Only two things are infinite, the universe and human stupidity,
+ and I'm not sure about the former" -- Albert Einstein.
 

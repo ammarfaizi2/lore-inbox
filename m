@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266691AbUHOOJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUHOONq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266691AbUHOOJo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 10:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266692AbUHOOJo
+	id S265808AbUHOONq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 10:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266692AbUHOONq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 10:09:44 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:63454 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266691AbUHOOJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 10:09:42 -0400
-Subject: Re: external drive size differences
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nigel Kukard <nkukard@lbsd.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040815140715.GL31901@lbsd.net>
-References: <20040815093759.GK31901@lbsd.net>
-	 <1092571159.17605.8.camel@localhost.localdomain>
-	 <20040815140715.GL31901@lbsd.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092575240.17605.21.camel@localhost.localdomain>
+	Sun, 15 Aug 2004 10:13:46 -0400
+Received: from quechua.inka.de ([193.197.184.2]:44774 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S265808AbUHOONo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 10:13:44 -0400
+Date: Sun, 15 Aug 2004 16:13:42 +0200
+From: Bernd Eckenfels <be-mail2004@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove obsolete HEAD in top Makefile
+Message-ID: <20040815141342.GB30572@lina.inka.de>
+References: <E1BwJne-0006M7-00@calista.eckenfels.6bone.ka-ip.net> <411F58DF.2070002@greatcn.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 15 Aug 2004 14:07:20 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <411F58DF.2070002@greatcn.org>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-15 at 15:07, Nigel Kukard wrote:
-> > 
-> > Your firewire adapter doesn't support large drives I would suspect.
-> > 137Gb is the exact limit of a non LBA48 aware adapter.
-> 
-> by adapter do you mean the actual pci interface card or the external
-> drive enclosure?
+On Sun, Aug 15, 2004 at 08:36:47PM +0800, Coywolf Qi Hunt wrote:
+> >iff it is not using it you need to remove it in the next line, too.
+> Nah, I'm only removing HEAD, not head-y. :p
 
-Drive enclosure as I understand firewire.
+If you remove this line:
+head-y += $(HEAD)
 
+then head-y is undefined, and could therefore be removed, too. I dont know
+what HEAD was used for, and where does it come from. But since the 2.4 code
+uses head in a compareable way (i.e. only in that location with toetally
+differen s tructure) I am not sure if it is not needed.
+
+Can you explain what it was used for and why it can be removed now?
+
+Gruss
+Bernd
+-- 
+  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

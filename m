@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287023AbSABWNo>; Wed, 2 Jan 2002 17:13:44 -0500
+	id <S287025AbSABWQy>; Wed, 2 Jan 2002 17:16:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287022AbSABWNf>; Wed, 2 Jan 2002 17:13:35 -0500
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:5045 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S287037AbSABWNW>; Wed, 2 Jan 2002 17:13:22 -0500
-Message-ID: <3C338600.B019EED9@sympatico.ca>
-Date: Wed, 02 Jan 2002 17:13:20 -0500
-From: Chris Friesen <chris_friesen@sympatico.ca>
-X-Mailer: Mozilla 4.78 [en] (Win98; U)
-X-Accept-Language: en
+	id <S287022AbSABWQe>; Wed, 2 Jan 2002 17:16:34 -0500
+Received: from [212.2.162.35] ([212.2.162.35]:42455 "EHLO bubble.oceanfree.net")
+	by vger.kernel.org with ESMTP id <S287036AbSABWQ2>;
+	Wed, 2 Jan 2002 17:16:28 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: David Golden <david.golden@oceanfree.net>
+Organization: Legion
+To: linux-kernel@vger.kernel.org
+Subject: Re: system.map
+Date: Wed, 2 Jan 2002 22:15:53 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201022028.04945@xsebbi.de> <3C337AC8.2020900@free.fr>
+In-Reply-To: <3C337AC8.2020900@free.fr>
 MIME-Version: 1.0
-To: Aaron Lehmann <aaronl@vitelus.com>
-CC: James Simmons <jsimmons@transvirtual.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] DRM OS
-In-Reply-To: <Pine.LNX.4.10.10112121959320.8479-100000@www.transvirtual.com> <Pine.LNX.4.10.10112140107130.8630-100000@master.linux-ide.org> <20011214163235.A17636@vitelus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <02010222155300.11915@golden1.goldens.ie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Lehmann wrote:
-> 
-> On Fri, Dec 14, 2001 at 01:15:48AM -0800, Andre Hedrick wrote:
-> > CPU(crypto)<->Memory(crypto)<->Framebuffer(crypto)
-> > ata(clean)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
-> > scsi(crypto)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
-> > CPU(crypto)<->Bridge(crypto)<->Memory(crypto)
-> >
-> > Just watch and see!
-> 
-> Why would crypto help at all?
+On Wednesday 02 January 2002 21:25, Lionel Bouton wrote:
+it and
+> search it in numerous places : with or without `-uname -r` appended (at
+> least in / /boot /usr/src/linux).
+>
 
-That's just the point!  The hardware manufacturers are going to implement the
-crypto so that only valid digitally signed files can be played on that hardware,
-and there will be crypto at every step to try and prevent people from getting at
-the unencrypted bytestream.
+:-( Pity it apparently doesn't search
 
-They want to keep us from doing cd/mp3 or DVD/DivX type conversions.
+/boot/`uname -r`/System.map
 
-Chris
+That way the /boot/kernelver/* scheme (see previous post) would work...
+
+
+

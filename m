@@ -1,140 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266005AbUF2UIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266018AbUF2UHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266005AbUF2UIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 16:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266000AbUF2UIJ
+	id S266018AbUF2UHM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 16:07:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266017AbUF2UGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 16:08:09 -0400
-Received: from web41504.mail.yahoo.com ([66.218.93.87]:59740 "HELO
-	web41504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266010AbUF2UF0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 16:05:26 -0400
-Message-ID: <20040629200525.25773.qmail@web41504.mail.yahoo.com>
-Date: Tue, 29 Jun 2004 13:05:25 -0700 (PDT)
-From: Brian <bmg300@yahoo.com>
-Subject: Re: Kernel VM bug?
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040628025832.GM21066@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-2102131088-1088539525=:25322"
+	Tue, 29 Jun 2004 16:06:35 -0400
+Received: from mail.gmx.de ([213.165.64.20]:1679 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266012AbUF2UGC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 16:06:02 -0400
+X-Authenticated: #5082238
+Date: Tue, 29 Jun 2004 22:05:58 +0200
+From: Carsten Otto <c-otto@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: possible arp table corruption [2.4.18]
+Message-ID: <20040629200558.GH25252@carsten-otto.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HuscSE0D68UGttcd"
+Content-Disposition: inline
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-2102131088-1088539525=:25322
+
+--HuscSE0D68UGttcd
 Content-Type: text/plain; charset=us-ascii
-Content-Id: 
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hello!
+
+I noticed a few strange errors in the arp table of a local firewall serving
+about 300 connected computers.
+This PC is running 2.4.18 (Debian Woody) and I get the list via the program
+"arp" (version 1.60-4, called from inside a python script). This script is =
+called
+about every 20 seconds.
+
+I don't know if the kernel or "arp" or something else is broken, but I don't
+think "arp" does change much before printing the output. That is why I think
+posting the problem to this list is not very wrong.
+
+Here are some examples of the errors:
+
+134.130.48.66            ether   00:00:5A:13:3A:36   C   eth0
+134.130.49.152           ether   00:50:04:46:8A:B2   C   eth0 <- wrong!
+134.130.49.45            ether   00:50:FC:FF:62:4E   C   eth0
+
+---
+
+134.130.48.240           ether   00:02:3F:AF:3C:B4   C   eth0
+134.130.48.157           ether   00:10:4B:45:86:6C   C   eth0 <- OK
+134.130.48.157           ether   00:10:4B:45:86:6C   C   eth0 <- double!
+134.130.48.213           ether   00:0E:A6:3B:41:81   C   eth0
+
+---
+
+134.130.48.186           ether   00:04:61:52:CC:9F   C   eth0=20
+134.130.49.41            ether   00:02:3F:68:67:E9   C   eth0 <- OK
+134.130.48.40            ether   00:02:3F:68:67:E9   C   eth0 <- MAC repeat=
+ed
+134.130.48.40            ether   00:07:95:04:C8:3C   C   eth0 <- OK
+134.130.49.159           ether   00:E0:18:2D:95:F0   C   eth0
+
+I also got a "134.130.4x.6xx" IP a few times, but that case is not in my lo=
+gs.
+
+Please tell me
+   - if there is a known bug in (at least) 2.4.18
+   - if "arp" is broken
+   - if I am doing something wrong
+
+Please also reply directly to me, because the LKML is quite complex.
+
+Thank you very much,
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
+
+--HuscSE0D68UGttcd
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
-GRASS also has problems on the 2.6.7 kernel.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-My system is an Athlon-XP with 512MB RAM running Slackware 10.0.0 (kernel 2.4.26) full
-installation in X windows with minimal window manager and minimal other processes.
+iD8DBQFA4cumjUF4jpCSQBQRAom9AJ4vgyxJX1mPcIYRjPUPVQvmoRMbRACgo2Qf
+lGaEGVvlw+Ch346rwE2y0fQ=
+=M5Jp
+-----END PGP SIGNATURE-----
 
-To reproduce:
-Download the NASA blue marble from
-(ftp://mitch.gsfc.nasa.gov/pub/stockli/bluemarble/MOD09A1.W.interpol.cyl.retouched.topo.bathymetry.3x21600x21600.gz)
-and use netpbm to convert the RAW RGB to a PPM.
-'cat bluemarble.gz | gzip -dc | rawtoppm 21600 21600 > bluemarble.W.ppm'
-
-Compile and install grass CVS as of June 28 2004 20:20:00 UTC or use attached bash shell script.
-
-Create a new grass location, let's say with a location name of 'tiger' and a mapset name of
-'brian' (use space to delete if compiled without readline support). Make sure the database
-directory is set and it already exists. Answer 'yes' until you get asked to select the coordinate
-system. Select coordinate system B, longitude latitude. Keep answering until you get asked to
-select a geodatic datum, use 'wgs84' as the datum. Type '1' when asked for the datum
-transformation parameters. For north edge type 50N, south edge type 23N, west edge 125W, east edge
-70W, both east west and north south resolution of 0.00222222.
-
-Create a new location, let's say with a location name of 'blue.w_loc' and the mapset MUST be
-'PERMANENT'. The rest is the same until the default region. Set those to north 90N, south 90S,
-west 180W, east 0W, and both grid resolutions to 0.00833333.
-
-Restart GRASS and choose the 'blue.w_loc'/'PERMANENT' location/mapset. Import the bluemarble PPM
-using r.in.ppm and use the create separate red/green/blue maps command line option "-b"
-'r.in.ppm -bv input=<path to blue marble ppm> output=bluemarble.w'.
-
-Restart GRASS and use the the 'tiger'/'brian' location/mapset.
-Project the bluemarble maps until the filesystem cache fills up and something bad happens. Might
-take a few tries.
-'r.proj input=bluemarble.w.r location=blue.w_loc mapset=PERMANENT method=cubic;r.proj
-input=bluemarble.w.g location=blue.w_loc mapset=PERMANENT method=cubic;r.proj input=bluemarble.w.b
-location=blue.w_loc mapset=PERMANENT method=cubic'
-
-Brian
-
---- William Lee Irwin III <wli@holomorphy.com> wrote:
-> To investigate what may have happened in 2.4, it may be helpful for us
-> to be able to run GRASS on a similar data set (IIRC it is open source
-> and freely available for download) and to arrange for testing on a
-> similar machine, which by and large we can arrange for ourselves given
-> a sufficiently detailed description.
-> 
-> Thanks.
-> 
-> -- wli
-
-
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail is new and improved - Check it out!
-http://promotions.yahoo.com/new_mail
---0-2102131088-1088539525=:25322
-Content-Type: text/x-sh; name="build_grass.sh"
-Content-Description: build_grass.sh
-Content-Disposition: inline; filename="build_grass.sh"
-
-#!/bin/bash
-mkdir $HOME/grassroot|| exit
-cd $HOME/grassroot
-
-#Checkout grass
-echo "Password is grass"
-cvs -d:pserver:grass-guest@intevation.de:/home/grass/grassrepository login
-cvs -d:pserver:grass-guest@intevation.de:/home/grass/grassrepository -z3 checkout -D "28 Jun 2004 20:20" grass
-
-#Get grass dependencies
-cd $HOME/grassroot
-echo "Getting fftw-2.1.5..."
-wget http://www.fftw.org/fftw-2.1.5.tar.gz
-tar -xzf fftw-2.1.5.tar.gz
-echo "Getting proj4..."
-wget --passive-ftp ftp://ftp.remotesensing.org/pub/proj/proj-4.4.8.tar.gz
-tar -xzf proj-4.4.8.tar.gz
-echo "Getting gdal-1.2.1..."
-wget --passive-ftp ftp://ftp.remotesensing.org/gdal/gdal-1.2.1.tar.gz
-tar -xzf gdal-1.2.1.tar.gz
-
-#Compile dependencies
-cd $HOME/grassroot
-cd fftw-2.1.5
-./configure --prefix=/opt/grass &&
-make || exit
-echo "Need root password"
-su -c "make install"
-
-cd $HOME/grassroot
-cd proj-4.4.8
-./configure --prefix=/opt/grass &&
-make || exit
-echo "Need root password"
-su -c "make install"
-
-cd $HOME/grassroot
-cd gdal-1.2.1
-./configure --prefix=/opt/grass &&
-make || exit
-echo "Need root password"
-su -c "make install"
-
-#Compile grass
-cd $HOME/grassroot
-cd grass
-PATH="/opt/grass/bin":$PATH ./configure --prefix=/opt/grass --with-proj-includes=/opt/grass/include/ --with-proj-libs=/opt/grass/lib/ --with-fftw-libs=/opt/grass/lib --with-fftw-includes=/opt/grass/include/ --without-postgres --without-odbc &&
-make || exit
-echo "Need root password"
-su -c "make install"
-
---0-2102131088-1088539525=:25322--
+--HuscSE0D68UGttcd--

@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285023AbRLFHV5>; Thu, 6 Dec 2001 02:21:57 -0500
+	id <S285030AbRLFH15>; Thu, 6 Dec 2001 02:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285027AbRLFHVr>; Thu, 6 Dec 2001 02:21:47 -0500
-Received: from zok.sgi.com ([204.94.215.101]:25480 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S285023AbRLFHVi>;
-	Thu, 6 Dec 2001 02:21:38 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas 
-In-Reply-To: Your message of "Thu, 06 Dec 2001 09:09:35 +1100."
-             <E16BkER-0006J0-00@wagner> 
+	id <S285032AbRLFH1r>; Thu, 6 Dec 2001 02:27:47 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:29538 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S285030AbRLFH1h>; Thu, 6 Dec 2001 02:27:37 -0500
+Date: Thu, 6 Dec 2001 07:27:36 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Jakob Kemi <jakob.kemi@telia.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.17-pre4
+Message-ID: <20011206072735.V14028@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0112051640570.20575-100000@freak.distro.conectiva> <200112052155.fB5Ltxa26014@d1o849.telia.com> <20011205221812.U14028@redhat.com> <200112060024.fB60OTa09388@d1o849.telia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 06 Dec 2001 18:21:25 +1100
-Message-ID: <12352.1007623285@kao2.melbourne.sgi.com>
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="dSlz+W6f9RhvPS0G"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200112060024.fB60OTa09388@d1o849.telia.com>; from jakob.kemi@telia.com on Thu, Dec 06, 2001 at 01:22:52AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 06 Dec 2001 09:09:35 +1100, 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->The following patch implements convenient per-cpu areas:
 
-Did you look at PERCPU_ADDR in ia64?  Much (all?) of the per cpu data
-is in struct cpuinfo_ia64 which is at the same virtual address on all
-cpus but with different physical addresses on each cpu.  Let the mmu do
-the work.  S390 does a similar trick, using the Prefixed Save Area
-(PSA) which is virtual 0 but different physical addresses on each cpu.
+--dSlz+W6f9RhvPS0G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Thu, Dec 06, 2001 at 01:22:52AM +0100, Jakob Kemi wrote:
+
+> Dunno, It's been a couple of mails about it on the list, under the
+> topic CPIA is broke and then later '2.4.14/2.4.15 cpia driver IS
+> broke.. no its parport'
+
+Okay, I guess I skimmed too fast..
+
+> Sounds good to me, I'll do that next time. It was just that I heard
+> the 25 of nov. that the patch was sent by joe and I just wanted to
+> make sure that it didn't dissapear in the noise.
+
+It probably would have otherwise.
+
+Thanks,
+Tim.
+*/
+
+--dSlz+W6f9RhvPS0G
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8Dx3nyaXy9qA00+cRAmmqAJ9nsolDLKWOLioxwoNEd6SZBvyLlQCeN60G
+OumdkteG9ZT1g58vhpxAOU0=
+=ILEf
+-----END PGP SIGNATURE-----
+
+--dSlz+W6f9RhvPS0G--

@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289697AbSBKOSz>; Mon, 11 Feb 2002 09:18:55 -0500
+	id <S289735AbSBKOTp>; Mon, 11 Feb 2002 09:19:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289739AbSBKOSg>; Mon, 11 Feb 2002 09:18:36 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:13575 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289735AbSBKOSb>; Mon, 11 Feb 2002 09:18:31 -0500
-Date: Mon, 11 Feb 2002 14:18:23 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Robert Schwebel <robert@schwebel.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: New version (2.4.18-pre9.2) of AMD Elan patch
-Message-ID: <20020211141823.D21300@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.33.0202111442060.24650-100000@callisto.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0202111442060.24650-100000@callisto.local>; from robert@schwebel.de on Mon, Feb 11, 2002 at 02:45:58PM +0100
+	id <S289739AbSBKOTg>; Mon, 11 Feb 2002 09:19:36 -0500
+Received: from gate.perex.cz ([194.212.165.105]:45065 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S289735AbSBKOTW>;
+	Mon, 11 Feb 2002 09:19:22 -0500
+Date: Mon, 11 Feb 2002 15:16:39 +0100 (CET)
+From: Jaroslav Kysela <perex@perex.cz>
+X-X-Sender: <perex@pnote.perex-int.cz>
+To: ALSA development <alsa-devel@alsa-project.org>,
+        LKML <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: ALSA patch for 2.5.4
+Message-ID: <Pine.LNX.4.31.0202111429270.500-100000@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 11, 2002 at 02:45:58PM +0100, Robert Schwebel wrote:
-> This patch against 2.4.18-pre9 deals with the following stuff:
-> 
-> - serial driver bugfix (was sent to Theodore Ts'o)
+Hello all,
 
-Please copy me on this fix, if not done already.  Thanks.
+	a new ALSA patch for 2.5.4 is available at
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-2002-02-11-1-linux-2.5.4.patch.gz
+
+	I repeat myself but anyway. We are open to any suggestions and
+ideas for this kernel integration patch. Unfortunately, Linus has not
+approved this directory tree and he is not talking with us at the time.
+It seems that BIO changes are over, but he's probably busy enough to
+ignore our e-mails with co-operation requests.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+SuSE Linux    http://www.suse.com
+ALSA Project  http://www.alsa-project.org
+
 

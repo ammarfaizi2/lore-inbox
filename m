@@ -1,70 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135818AbRD3TOq>; Mon, 30 Apr 2001 15:14:46 -0400
+	id <S135859AbRD3TRr>; Mon, 30 Apr 2001 15:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135822AbRD3TOk>; Mon, 30 Apr 2001 15:14:40 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1411 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S135818AbRD3TOb>; Mon, 30 Apr 2001 15:14:31 -0400
-Date: Mon, 30 Apr 2001 15:14:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "David S. Miller" <davem@redhat.com>
-cc: Torrey Hoffman <torrey.hoffman@myrio.com>,
-        "'Kenneth Johansson'" <ken@canit.se>,
-        Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: RE: 2.4 and 2GB swap partition limit
-In-Reply-To: <15085.47104.75880.572242@pizda.ninka.net>
-Message-ID: <Pine.LNX.3.95.1010430151259.15968A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135853AbRD3TRg>; Mon, 30 Apr 2001 15:17:36 -0400
+Received: from wire.cadcamlab.org ([156.26.20.181]:16393 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S135842AbRD3TRS>; Mon, 30 Apr 2001 15:17:18 -0400
+Date: Mon, 30 Apr 2001 14:16:23 -0500
+To: "Eric S. Raymond" <esr@thyrsus.com>, John Stoffel <stoffel@casc.com>,
+        CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.3.1, aka "I stick my neck out a mile..."
+Message-ID: <20010430141623.A15821@cadcamlab.org>
+In-Reply-To: <20010427193501.A9805@thyrsus.com> <15084.12152.956561.490805@gargle.gargle.HOWL> <20010429183526.B32748@thyrsus.com> <15085.37569.205459.898540@gargle.gargle.HOWL> <20010430133932.B28849@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010430133932.B28849@thyrsus.com>; from esr@thyrsus.com on Mon, Apr 30, 2001 at 01:39:32PM -0400
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, David S. Miller wrote:
 
-> 
-> Richard B. Johnson writes:
->  > On Mon, 30 Apr 2001, Torrey Hoffman wrote:
->  > > In general, is there a safe way to replace executable files for
->  > > programs that might be running while their on-disk images are
->  > > replaced?
->  > 
->  > Yes. Perfectly safe:
->  > 
->  > mv /usr/bin/exeimage /usr/bin/exeimage.sav
->  > cp /wherever/exeimage /usr/bin/exeimage
->  > 
->  > 
->  > The executing task will continue to use the old image until it exits.
-> 
-> Even more effective is:
-> 
-> mv /wherever/exeimage /usr/bin/exeimage
-> 
-> The kernel keeps around the contents of the old file while
-> the executing process still runs.
-> 
-> This is also basically how things like libc get installed.
-> A single mv is not only preserves currently referenced contents,
-> it is atomic.
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
+[esr]
+> Besides, right now the configurator has a simple invariant.  It will
+> only accept consistent configurations
 
-Sure, but now you can't get back if the new software doesn't run.
-This is why I recommended the two steps and cautioned about testing
-the new stuff first.
+So you are saying that the old 'vi .config; make oldconfig' trick is
+officially unsupported?  That's too bad, it was quite handy.
 
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Peter

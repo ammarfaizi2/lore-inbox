@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261616AbSJDNer>; Fri, 4 Oct 2002 09:34:47 -0400
+	id <S261713AbSJDNoq>; Fri, 4 Oct 2002 09:44:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261666AbSJDNer>; Fri, 4 Oct 2002 09:34:47 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:10192 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S261616AbSJDNeq>; Fri, 4 Oct 2002 09:34:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [Evms-devel] Re: EVMS Submission for 2.5
-Date: Fri, 4 Oct 2002 08:07:19 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       evms-devel@lists.sourceforge.net
-References: <02100216332002.18102@boiler> <02100319394801.00236@cygnus> <1033736789.31839.24.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1033736789.31839.24.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Message-Id: <02100408071900.02266@boiler>
-Content-Transfer-Encoding: 7BIT
+	id <S261719AbSJDNoq>; Fri, 4 Oct 2002 09:44:46 -0400
+Received: from stingr.net ([212.193.32.15]:33809 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S261713AbSJDNoq>;
+	Fri, 4 Oct 2002 09:44:46 -0400
+Date: Fri, 4 Oct 2002 17:50:16 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux-kernel@vger.kernel.org
+Cc: linux.nics@intel.com, Andrey Nekrasov <andy@spylog.ru>
+Subject: Re: NIC on Intel STL2 - bad work with eepro100 & e100
+Message-ID: <20021004135016.GJ6318@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux.nics@intel.com,
+	Andrey Nekrasov <andy@spylog.ru>
+References: <20021004113128.GA31145@an.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20021004113128.GA31145@an.local>
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 October 2002 08:06, Alan Cox wrote:
-> On Fri, 2002-10-04 at 01:39, Kevin Corry wrote:
-> > Yep, you guessed it. I'm no big fan of Lindent. In my opinion, it makes
-> > some really bad choices about how to break long lines (among other
-> > things), as you've kindly pointed out. But, I had to start somewhere and
-> > wanted to get something out before I left for the day. Obviously the AIX
-> > plugin will need some additional attention at some point.
->
-> IMHO the Lindent script is broken. It should also specify a line length
-> of something like 256 so it doesnt go mashing lines.
+Replying to Andrey Nekrasov:
+> 			Intel Server Board STL2.
+>       Network: onboard NIC "Intel(R) 82559 single chip PCI LAN controller"
 
-Well, currently the Lindent script specifies a line length of 80 characters. 
-Should this be changed?
+I have almost the same behavior here except that eepro100 works
+without freezes. Maybe spylog servers' NIC load is much more higher
+than mine :)
 
-indent -kr -i8 -ts8 -sob -l80 -ss -bs -psl "$@"
-                         ^^^^
+Intel support guys advised me to test both versions of e100 driver.
 
-The CodingStyle document doesn't seem to specifically mention line length, 
-but does imply in a couple of places that code should fit nicely on a 
-80-column, 24/25-line terminal.
+ftp://aiedownload.intel.com/df-support/2896/eng/e100-2.1.15.tar.gz
+ftp://aiedownload.intel.com/df-support/2896/eng/e100-1.8.38.tar.gz
+
+Unfortunately, I haven't tested it yet. My investigation shows that
+the following fragment of e100_main.c code fails:
+
+<code from="e100_hw_init">
+     if (!e100_wait_exec_cmplx(bdp, 0, SCB_RUC_LOAD_BASE))
+            return false;
+</code>
+
+we returning false here.
+
+And I am stalled for now till the end of next week until the ACM ICPC
+Qfinal is over :(
 
 -- 
-Kevin Corry
-corryk@us.ibm.com
-http://evms.sourceforge.net/
+Paul P 'Stingray' Komkoff 'Greatest' Jr /// (icq)23200764 /// (http)stingr.net
+  When you're invisible, the only one really watching you is you (my keychain)

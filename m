@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312601AbSEVMOt>; Wed, 22 May 2002 08:14:49 -0400
+	id <S313038AbSEVMYj>; Wed, 22 May 2002 08:24:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312938AbSEVMOs>; Wed, 22 May 2002 08:14:48 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60177 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S312601AbSEVMOr>; Wed, 22 May 2002 08:14:47 -0400
-Date: Wed, 22 May 2002 13:14:41 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: jack@suse.cz, Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-Message-ID: <20020522131441.C16934@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com> <3CEB78D7.7070107@evision-ventures.com>
+	id <S313070AbSEVMYj>; Wed, 22 May 2002 08:24:39 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:11026 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S313038AbSEVMYi>; Wed, 22 May 2002 08:24:38 -0400
+Date: Wed, 22 May 2002 14:24:28 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Joris Braakman <jorisb@nl.euro.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 SPARC SMP oops
+Message-ID: <20020522122428.GB26844@louise.pinerecords.com>
+In-Reply-To: <20020522131202.B6096@lama.euronet.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 6 days, 6:02)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 22, 2002 at 12:54:15PM +0200, Martin Dalecki wrote:
-> Please put the following crap under /proc/sys/fs,
-> where it belongs. OK?
+> The following oops looks a lot like Tomas Szepe oops, so I copied the
+> subject.
+> 
+> I could still login with ssh, su to root and issue a reboot, which
+> didn't work completely, but after a halt command I got the bootprompt 
+> on the console and issued a boot. Other commands as ps or top didn't
+> work.  ls did work. It happened under heavy load. The machine was running 
+> for more than one day with this load.
+> 
+> It is a sparc 5, single processor, 128MB.
 
-/proc/sys is for sysctls, not random proc junk.  Therefore, putting the
-random crap you point out that's currently in /proc/fs in /proc/sys/fs:
+I assume this is indeed the well-known SRMMU bug. It's very easy to
+reproduce actually, just stress the machine so that the load reaches
+20+. For a temporary and imperfect solution, look up the relevant
+thread on the aurora sparc mailing list.
 
-> [root@kozaczek fs]# pwd
-> /proc/fs
-> [root@kozaczek fs]# cat quota
-> Version 60501
-> Formats
-> 0 0 0 0 0 0 0 8
-> [root@kozaczek fs]#
+Someone is supposed to have been working on a fix for some time now.
 
-is even worse.
-
-/proc/sys has a clean and clear purpose.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+T.

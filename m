@@ -1,115 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265212AbRFUUlV>; Thu, 21 Jun 2001 16:41:21 -0400
+	id <S265215AbRFUUtC>; Thu, 21 Jun 2001 16:49:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265207AbRFUUlL>; Thu, 21 Jun 2001 16:41:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:14208 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265208AbRFUUlE>; Thu, 21 Jun 2001 16:41:04 -0400
-Date: Thu, 21 Jun 2001 16:40:44 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, D.A.Fedorov@inp.nsk.su,
-        Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Is it useful to support user level drivers
-In-Reply-To: <3B325206.3EB44DDD@alsa-project.org>
-Message-ID: <Pine.LNX.3.95.1010621161215.4263A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265217AbRFUUsw>; Thu, 21 Jun 2001 16:48:52 -0400
+Received: from force.4t2.com ([195.230.37.100]:29218 "EHLO force.4t2.com")
+	by vger.kernel.org with ESMTP id <S265215AbRFUUsq>;
+	Thu, 21 Jun 2001 16:48:46 -0400
+To: linux-kernel@vger.kernel.org
+Path: news.abyss.4t2.com!not-for-mail
+From: x@abyss.4t2.com (Thomas Weber)
+Newsgroups: 4t2.lists.linux.kernel
+Subject: Re: 2.4.6pre iptables masquerading seems to kill eth0
+Date: 21 Jun 2001 22:51:33 +0200
+Organization: The Abyss of 4t2.com
+Message-ID: <9gtmol$9ve$1@pandemonium.abyss.4t2.com>
+In-Reply-To: <3B31A652.85D2E597@idb.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Jun 2001, Abramo Bagnara wrote:
 
-> Alan Cox wrote:
-> > 
-> > > (i.e. counted). An alternative to queuing (user selectable) is to block
-> > > interrupt generation at hardware level in kernel space immediately
-> > > before notification.
-> > >
-> > > I'm missing something?
-> > 
-> > IRQ 9 shared between user space app and disk. IRQ arrives is disabled and
-> > reported, app wakes up, app wants to page in code, IRQ is disabled, box dies
-> > 
-> > You have to handle that in kernel space, at least enough to handle the
-> > irq event, ack it and queue the data
-> 
-> I try to be more clear:
-> 
-> Kernel space:
-> - irq 9 arrives from our device
-> - interrupts are disabled
-> - our kernel space micro handler is invoked
-> - interrupt source is checked
-> - if no notification is pending a signal is notificated for user space
-> (or a process is marked runnable)
-> - optionally our device interrupt generation is disabled
-> - handler returns
-> - interrupts are enabled
+I'm on 2.4.6pre3 + freeswan/ipsec on my gateway now for 5 days.
+It's an old 486/66 32MB with several isdn links, a dsl uplink (with 
+iptables masquerading) behind a ne2k clone and a 3c509 to the inside network.
+no problems at all with the interfaces (all compiled as modules).
 
-It just broke. The handler returned before the cause of the interrupt
-was handled. Think LEVEL interrupts. The same interrupt will again
-be entered, looping over and over again, until the tiny bit if CPU
-resource available for the few instants the handler was not in the
-ISR, was enough for the user-mode signal-handler to shut the
-damn thing off, pull the plug, and figure this will never work.
+  Tom
 
-> 
-> User space:
-> - signal arrive (or process is restarted)
-> - action is done
-> - notification is acknowledged (using an ioctl)
-> 
-
-Way too late see above.
-
-
-> Kernel space:
-> - if we have other notifications to do, do one
-> - optionally our device interrupt generation is reenabled
-> 
-> -- 
-
-Over and over again, I find more and more persons who haven't
-a clue about what an interrupt is and how it relates to the
-rest of the system. The start of this debacle occurred when
-CPUs became fast enough so sloppy 'C'-coders were able to
-make so-called interrupt handlers that kind of worked. Then
-others, looking at the code, said; "Oh! This is just ordinary
-'C' code. Good, I can do this stuff too....". Ultimately we
-will have so-called Software Engineers reading and writing
-files in interrupt service routines.
-
-There is no such thing as a "user mode" interrupt service routine.
-There never was one, and there will never be one on any machine
-that fetches instructions from memory for execution. Remember
-the Dr. Dobbs articles about "Interrupt THUNKS", you could
-use in real-mode interrupt service routines? No need to answer.
-They never worked, and they could never work. Remember "Call-backs"
-from interrupt service routines? They never worked either. These
-are all creations of coders, not Engineers, not even Technicians,
-coders who learned how to use a tool (a compiler), who came up
-with these "brilliant" ideas! Just because somebody published an
-article, doesn't mean that anything written therein was correct.
-
-FYI. The purpose of an interrupt service routine is to handle
-the immediate needs of the hardware. That's all!  There is
-nothing "immediate" in user-mode.
-
-In a virtual memory system, the user's handler probably isn't
-even in memory at the time an interrupt arrives. And, it can't
-be paged into memory because the interrupt was for Disk I/O.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+In article <3B31A652.85D2E597@idb.hist.no>,
+Helge Hafting <helgehaf@idb.hist.no> wrote:
+>I have a home network with two machines connected with
+>3c905B cards.  The main machine also has a isdn dialup connection.
+>
+>Networking works well except if I let the main machine masquerade
+>so the other can use the internet too.  I use iptables for this.
+>It works for a day or so, then eth0 goes silent on the main machine.
+>(Rebooting it shows that the other one was fine all the time.)
+>
+>The symptoms is that there is no contact between the two machines.
+>No ping or anything.  "ifconfig" shows the interface is up
+>with the correct ip address, but all packets just disappear.
+>There are no error messages except from programs that time out.
+>
+>Bringing the interface down and up
+>again with ifconfig does not help.  It is compiled into the
+>kernel, so I can't try module reloading.
+>
+>Is this some sort of known problem? Or is there something
+>I could do to find out more?  I couldn't
+>find anything in the logfiles.

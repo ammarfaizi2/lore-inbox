@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281094AbRKGXmN>; Wed, 7 Nov 2001 18:42:13 -0500
+	id <S281118AbRKGXtn>; Wed, 7 Nov 2001 18:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281129AbRKGXmC>; Wed, 7 Nov 2001 18:42:02 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:54487 "EHLO
-	e33.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S281118AbRKGXl5>; Wed, 7 Nov 2001 18:41:57 -0500
-Message-Id: <200111072340.fA7NeX409526@eng4.beaverton.ibm.com>
-To: viro@math.psu.edu
-cc: linux-kernel@vger.kernel.org, haveblue@us.ibm.com
-Subject: removal of BKL from drivers ..
-Date: Wed, 07 Nov 2001 15:40:33 -0800
-From: Rick Lindsley <ricklind@us.ibm.com>
+	id <S281129AbRKGXte>; Wed, 7 Nov 2001 18:49:34 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:7924
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S281118AbRKGXtU>; Wed, 7 Nov 2001 18:49:20 -0500
+Date: Wed, 7 Nov 2001 15:49:13 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@zip.com.au>
+Subject: Re: ext3 vs resiserfs vs xfs
+Message-ID: <20011107154913.B560@mikef-linux.matchmail.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <E161Y87-00052r-00@the-village.bc.nu>, <5.1.0.14.2.20011107183639.0285a7e0@pop.cus.cam.ac.uk> <5.1.0.14.2.20011107193045.02b07f78@pop.cus.cam.ac.uk> <3BE99650.70AF640E@zip.com.au>, <3BE99650.70AF640E@zip.com.au> <20011107133301.C20245@mikef-linux.matchmail.com> <3BE9AF15.50524856@zip.com.au> <20011107145229.A560@mikef-linux.matchmail.com> <20011107153805.B27157@thune.mrc-home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011107153805.B27157@thune.mrc-home.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As an outgrowth of the locking document I did a few months ago
-(http://lse.sourceforge.net/lockhier), Dave Hansen (haveblue) and I
-have been looking at the use of the BKL in the release() functions of
-drivers to see if it was really needed.  This isn't so much a
-performance thing (although you can never really tell with the BKL :)
-as a cleanliness thing.  It would appear that while some of those
-drivers could stand some SMP locking, using the BKL in the release
-function (only) doesn't provide it.  We've identified over 50 drivers
-in which this can be removed, and are working on the patches (and
-planning to contact the maintainers, per usual).  We'll select a small
-number of them and apply safe SMP locking to them as examples for those
-who like to cut 'n' paste their drivers for new devices.
+On Wed, Nov 07, 2001 at 03:38:05PM -0800, Mike Castle wrote:
+> On Wed, Nov 07, 2001 at 02:52:29PM -0800, Mike Fedyk wrote:
+> > On Wed, Nov 07, 2001 at 02:00:53PM -0800, Andrew Morton wrote:
+> > > Try  adding `rootflags=data=journal' to your kernel boot
+> > > commandline.
+> > 
+> > adding that line to an ext2 only kernel will make it kernel panic when it
+> > tries to mount root because it doesn't understand the option!
+> 
+> 
+> So set that option only for ext3 enabled kernels.  If you're using lilo,
+> instead of using a global append= setting, use a local one for that ext3
+> kernel, and leave it off for the ext2-only kernel.
+> 
 
-The advantage of these changes will be to aid any developer trying to
-determine how the BKL may or may not interact with their code. With
-these patches, there will be 50+ less cases to consider.
+Yep, I know how to work around the problem.
 
-At the time, it appears that most of these lock/unlock pairs were
-created just in case they were needed, since there wasn't time to
-inspect each driver or contact each maintainer.  Before we post these
-patches, I thought I'd ask if in the time since Al Viro moved this out
-here (July 2000) if anybody (especially him!) has found a *legitimate*
-use of the BKL in the release() functions. (We have not found one.)
+The question is: why do I *need* to have to do that???
 
-Rick
+One of the features of ext3 is the backwards compatibility with ext2, but if
+you choose to take advantage of ext3 (non default journal mode) to its full
+capabilities, ext2 borks on those settings.
 
-PS The patches, available in about a week or so barring complications,
-   will also be posted to the above sourceforge website.
+With careful consideration, this problem can be avoided with everything the
+way it is now, but it is a bit of a hassle...
+
+Though, with non ext3 you wouldn't even have the possibility of mounting the
+FS without the correct FS driver loaded...
+
+I think the easiest way to avoid this problem would be a compile time option
+to set the default journal mode.  But, that would add another question the ext3
+developers would have to ask... "what is your default journal mode"... But
+they probably already have to ask that since it's settable from kernel
+command line, and /etc/fstab...
+
+Mike

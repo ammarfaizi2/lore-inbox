@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVC3GdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVC3Ghu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVC3GdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 01:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVC3GdV
+	id S261762AbVC3Ghu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 01:37:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVC3Ghu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 01:33:21 -0500
-Received: from mailout3.samsung.com ([203.254.224.33]:14632 "EHLO
-	mailout3.samsung.com") by vger.kernel.org with ESMTP
-	id S261756AbVC3GdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 01:33:11 -0500
-Date: Wed, 30 Mar 2005 15:31:48 +0900
-From: "Hyok S. Choi" <hyok.choi@samsung.com>
-Subject: [PATCH] the nommu support for ARM linux 2.6.10
-To: linux-kernel@vger.kernel.org
-Message-id: <0IE500K8WJJ7E8@mmp1.samsung.com>
-Organization: Samsung Electronics Co.,Ltd.
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Thread-index: AcUwV7i2VXLKJ/ckQjSLot1EE1hS4gElok7gAAD0MNA=
+	Wed, 30 Mar 2005 01:37:50 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15515 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261762AbVC3Ghr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 01:37:47 -0500
+Date: Tue, 29 Mar 2005 22:35:34 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: johnpol@2ka.mipt.ru, akpm@osdl.org, greg@kroah.com,
+       linux-kernel@vger.kernel.org, jlan@engr.sgi.com, efocht@hpce.nec.com,
+       linuxram@us.ibm.com, gh@us.ibm.com, elsa-devel@lists.sourceforge.net
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+Message-Id: <20050329223534.62f78b0a.pj@engr.sgi.com>
+In-Reply-To: <1112161183.20919.84.camel@frecb000711.frec.bull.fr>
+References: <1111745010.684.49.camel@frecb000711.frec.bull.fr>
+	<20050328134242.4c6f7583.pj@engr.sgi.com>
+	<1112079856.5243.24.camel@uganda>
+	<20050329004915.27cd0edf.pj@engr.sgi.com>
+	<1112087822.8426.46.camel@frecb000711.frec.bull.fr>
+	<20050329072335.52b06462.pj@engr.sgi.com>
+	<1112161183.20919.84.camel@frecb000711.frec.bull.fr>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An updated MPU and noMMU support patch for ARM against linux 2.6.10 kernel
-is available at :
+Guillaume wrote:
+> When I wrote "several user space applications" it was just to say that
+> this fork connector is not designed only for ELSA and fork information
+> is available to every listeners.
 
-http://opensrc.sec.samsung.com/download/linux-2.6.10-hsc1.patch.gz
+So I suppose if fork_connector were not used to collect <parent pid,
+child pid> information for accounting, then someone would have to make
+the case that there were enough other uses, of sufficient value, to add
+fork_connector.  We have to be a bit careful, in the kernel, to avoid
+adding mechanisms until we have the immediate use in hand.  If we don't
+do this, then the kernel ends up looking like the Gargoyles on a
+Renaissance church - burdened with overly ornate features serving no
+earthly purpose.
 
-You can select the memory management type "MPU" or "NONE" in the arm kernel
-configuration menu, which was traditionally known as "armnommu" or
-uClinux/ARM by 2.6.9. (sure, you can choose "MMU" for vanila Linux :-)
-
-It's a different way from other uclinux arch. (i.e. m68knommu), which
-enables simultaneous support to use "singular address space" support even
-for MMU platforms.
-You can choose "MMU" or "NONE" for your mmu based arm platform with a few
-modification. i.e. virtual address --> physical address conversion.
-
-the 2.6.11.6-hsc0 patch will be available in this week, and some benchmark
-will be provided for both cases on a same h/w platform.
-and addtional MPU support API is pending for some services like memory
-protection, even for uClinux.
-
-any suggesstions welcomed.
-
-You can reach the project home at : http://opensrc.sec.samsung.com/
-
-currently officially supported platforms are : s3c24a0, s5c7375, atmel,
-espd_s3c510b, P2001, s3c3410, s3cb0x.
-thanks for contribution : Tobias Lorenz and Jiun-Shian Ho
-
-Regards,
-Hyok
-
----
-CHOI, HYOK-SUNG
-Engineer (Kernel/System Architecture)
-Digital Media R&D Center, Samsung Electronics Co.,Ltd.
-tel: +82-31-200-8594  fax: +82-31-200-3427
-e-mail: hyok.choi@samsung.com
-[Linux 2.6 ARM MPU/noMMU Kernel Maintainer] http://opensrc.sec.samsung.com/
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

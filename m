@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310192AbSB1W6M>; Thu, 28 Feb 2002 17:58:12 -0500
+	id <S310190AbSB1Wj2>; Thu, 28 Feb 2002 17:39:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310193AbSB1W4Y>; Thu, 28 Feb 2002 17:56:24 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:17298 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S310189AbSB1Wxh>;
-	Thu, 28 Feb 2002 17:53:37 -0500
-Date: Thu, 28 Feb 2002 14:51:17 -0800 (PST)
-Message-Id: <20020228.145117.101862422.davem@redhat.com>
-To: christopher.leech@intel.com
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: hardware VLAN acceleration
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C144E@orsmsx118.jf.intel.com>
-In-Reply-To: <BD9B60A108C4D511AAA10002A50708F22C144E@orsmsx118.jf.intel.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S310182AbSB1Whg>; Thu, 28 Feb 2002 17:37:36 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41991 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310179AbSB1WdK>;
+	Thu, 28 Feb 2002 17:33:10 -0500
+Message-ID: <3C7EB026.52ED48B3@mandrakesoft.com>
+Date: Thu, 28 Feb 2002 17:33:10 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rui Sousa <rui.p.m.sousa@clix.pt>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        German Gomez Garcia <german@piraos.com>,
+        "=?iso-8859-1?Q?Jos=E9?= Carlos Monteiro" <jcm@netcabo.pt>,
+        linux-kernel@vger.kernel.org,
+        emu10k1-devel <emu10k1-devel@lists.sourceforge.net>,
+        Steve Stavropoulos <steve@math.upatras.gr>,
+        Daniel Bertrand <d.bertrand@ieee.org>, dledford@redhat.com
+Subject: Re: [Emu10k1-devel] Re: Emu10k1 SPDIF passthru doesn't work if
+In-Reply-To: <Pine.LNX.4.44.0202282042150.1215-100000@sophia-sousar2.nice.mindspeed.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Leech, Christopher" <christopher.leech@intel.com>
-   Date: Thu, 28 Feb 2002 13:47:25 -0800
+Rui Sousa wrote:
+> 
+> On Wed, 27 Feb 2002, Alan Cox wrote:
+> 
+> It's true dma_addr_t does change from u32 to u64 and we do thinks like:
+> 
+> (32 bit pci register) = cpu_to_le32(dma_handle)
+> 
+> What is the correct way of doing this?
+> 
+> (32 bit pci register) = cpu_to_le32((u32)dma_handle)
 
-   Is vlan_rx_kill_vid only there to ensure locking between vlan_hwaccel_rx and
-   unregister_802_1Q_vlan_dev?  If so, could this be handled outside of the
-   driver?
-   
-It is there because the VLAN layer has no buisness knowing how to lock
-out receive interrupt processing in your driver.
+If you only have 32 bits, then I presume 64-bit DMA isn't supported.
 
-The Acenic driver, for example, uses no SMP locking at all and runs
-it's RX interrupts %100 lockless requiring a global "cli()" in order
-to implement vlan_rx_kill_vid().
+So, (1) never pass more than 0xffffffff to pci_set_dma_mask, and (2)
+just truncate dma_addr_t (addr & 0xffffffff) so that you only read the
+low 32-bits, always.
 
-   Also, when a vlan dev is unregistered, does the driver need to know that the
-   vlan_group passed in to vlan_rx_register is no longer valid?
-   
-The group is still valid, groups are never destroyed by the VLAN layer
-once they are created.
+	Jeff
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+
+
+-- 
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

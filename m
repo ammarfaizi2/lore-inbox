@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262704AbSJGT6M>; Mon, 7 Oct 2002 15:58:12 -0400
+	id <S263185AbSJGUrr>; Mon, 7 Oct 2002 16:47:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262699AbSJGT6M>; Mon, 7 Oct 2002 15:58:12 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:10740 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262694AbSJGT5h>; Mon, 7 Oct 2002 15:57:37 -0400
-Subject: Re: BK is *evil* corporate software
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: pavel@ucw.cz, bcollins@debian.org, lm@bitmover.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021007.114936.51301887.davem@redhat.com>
-References: <20021005175437.GK585@phunnypharm.org>
-	<20021005112552.A9032@work.bitmover.com> <20021007001137.A6352@elf.ucw.cz> 
-	<20021007.114936.51301887.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 21:12:13 +0100
-Message-Id: <1034021533.26502.15.camel@irongate.swansea.linux.org.uk>
+	id <S263191AbSJGUrD>; Mon, 7 Oct 2002 16:47:03 -0400
+Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:60288 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S263185AbSJGUqV>; Mon, 7 Oct 2002 16:46:21 -0400
+Date: Mon, 7 Oct 2002 14:51:52 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: linux-kernel@vger.kernel.org
+Subject: Is this racy?
+Message-ID: <20021007145152.A4065@mail.harddata.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-07 at 19:49, David S. Miller wrote:
->    From: Pavel Machek <pavel@ucw.cz>
->    Date: Mon, 7 Oct 2002 00:11:37 +0200
->    
->    (as it stands you want $5000 for any bk-using developer inside
->    RedHat and SuSE).
-> 
-> Stop spreading crap and fud.  I, and nobody else at Red Hat, give or
-> need to give Larry one dime to use BK for kernel work.
+In fs/proc/array.c (2.4.20-pre9, 2.4.19 and likely many other
+versions) in function 'proc_pid_stat()' there is a code like that:
 
-We do fix cvs things. Oh wait Larry has publically said CVS is no
-competition 8)
+	......
+	read_lock(&tasklist_lock);
+	ppid = task->pid ? task->p_opptr->pid : 0;
+	read_unlock(&tasklist_lock);
+	res = sprintf(buffer,"<long format string>",
+		task->pid,
+		......
+		ppid,
+		......
 
-I'd agree with Dave - Larry is an arrogant egomaniac, but he's not
-'evil' and if he was that, he'd be like a Bond villain - so busy
-explaining how clever he was that he'd not actually manage it ;)
+So assignment to ppid is locked but other reads from fiels of 'task'
+structure are not guarded that way.  Is this ok or if not we do not
+particularly care?  Function 'task_state()' in the same file seems
+to be more careful about this.
 
+  Michal
 

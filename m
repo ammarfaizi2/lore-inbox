@@ -1,104 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264105AbUD0OHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264151AbUD0OMp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264105AbUD0OHe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 10:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264130AbUD0OHe
+	id S264151AbUD0OMp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 10:12:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUD0OMp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 10:07:34 -0400
-Received: from dsl081-101-153.den1.dsl.speakeasy.net ([64.81.101.153]:57800
-	"EHLO mail.chen-becker.org") by vger.kernel.org with ESMTP
-	id S264105AbUD0OGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 10:06:05 -0400
-Message-ID: <408E68C9.5010102@chen-becker.org>
-Date: Tue, 27 Apr 2004 08:06:01 -0600
-From: Derek Chen-Becker <derek@chen-becker.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040119
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kim Holviala <kim@holviala.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Troubleshooting PS/2 mouse in 2.6.5
-References: <408D4CB4.4070901@chen-becker.org> <200404270849.23397.kim@holviala.com> <408E64EB.6080204@chen-becker.org>
-In-Reply-To: <408E64EB.6080204@chen-becker.org>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Apr 2004 10:12:45 -0400
+Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:63492 "EHLO swin.edu.au")
+	by vger.kernel.org with ESMTP id S264160AbUD0OLC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 10:11:02 -0400
+To: linux-kernel@vger.kernel.org
+From: Tim Connors <tconnors+linuxkernel1083074728@astro.swin.edu.au>
+Subject: Re:  [PATCH] Blacklist binary-only modules lying about their license (-> possible GPL violation :)
+In-reply-to: <20040427131257.GG29503@lug-owl.de>
+References: <408DC0E0.7090500@gmx.net> <Pine.LNX.4.58.0404262116510.19703@ppc970.osdl.org> <1083045844.2150.105.camel@bach> <20040427092159.GC29503@lug-owl.de> <408E37D9.7030804@gmx.net> <408E5944.8090807@grupopie.com> <20040427131257.GG29503@lug-owl.de>
+X-Face: "$j_Mi4]y1OBC/&z_^bNEN.b2?Nq4#6U/FiE}PPag?w3'vo79[]J_w+gQ7}d4emsX+`'Uh*.GPj}6jr\XLj|R^AI,5On^QZm2xlEnt4Xj]Ia">r37r<@S.qQKK;Y,oKBl<1.sP8r,umBRH';vjULF^fydLBbHJ"tP?/1@iDFsKkXRq`]Jl51PWN0D0%rty(`3Jx3nYg!
+Message-ID: <slrn-0.9.7.4-10615-8854-200404280005-tc@hexane.ssi.swin.edu.au>
+Date: Wed, 28 Apr 2004 00:10:55 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derek Chen-Becker wrote:
-> Kim Holviala wrote:
+Jan-Benedict Glaw <jbglaw@lug-owl.de> said on Tue, 27 Apr 2004 15:12:57 +0200:
 > 
->> On Monday 26 April 2004 20:53, Derek Chen-Becker wrote:
->>
->>
->>>     I'm upgrading my workstation from 2.4.22 to 2.6.5 and everything is
->>> working great except for /dev/input/mice: it doesn't appear to be
->>> producing anything, even if I cat it. I've checked and both dmesg and
->>> /proc/bus/input/devices show the mouse handler loaded and show the mouse
->>> as recognized.
->>
->>
->>
->> What do the system logs say? I suggest you build psmouse into a module 
->> so that you can modprobe/rmmod it to test stuff without rebooting.
->>
+> --+sHJum3is6Tsg7/J
+> Content-Type: text/plain; charset=iso-8859-1
+> Content-Disposition: inline
+> Content-Transfer-Encoding: quoted-printable
+> 
+> On Tue, 2004-04-27 13:59:48 +0100, Paulo Marques <pmarques@grupopie.com>
+> wrote in message <408E5944.8090807@grupopie.com>:
+> > Carl-Daniel Hailfinger wrote:
+> > >This way, the module format doesn't change, but we can do additional
+> > >verification in the loader.
+> >=20
+> > The way I see it, they know a C string ends with a '\0'. This is like=20
+> > saying that a English sentence ends with a dot. If they wrote "GPL\0" the=
+> y=20
+> > are effectively saying that the license *is* GPL period.
+> >=20
+> > So, where the source code? :)
+> 
+> That's another (quite amusing:) point of view. Anybody willing to ask a
+> lawyer?
 
-OK, this is weird. I changed psmouse to be a module and now it works (I 
-also made gameport a module). Here's /proc/bus/input/devices from when 
-it *didn't* work:
+In the wonderful Good Ol USofA, I think it would be trivial to apply
+the DMCA: A character string following the appropriate convention
+(null termination) is a protection mechanism.
 
-I: Bus=0011 Vendor=0002 Product=0005 Version=0000
-N: Name="ImPS/2 Generic Wheel Mouse"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0
-B: EV=7
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=103
+Breaking that convention is a cicumvention device.
 
-I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-N: Name="AT Translated Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd
-B: EV=120003
-B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
-B: LED=7
+If it can work for XOR, and gets someone thrown in prison for 12
+months, surely it will work for null termination?
 
+Pretty clear cut, so, who's going to write this lovely company a
+letter/send in the land-sharks (someone better, otherwise companies
+will realise very quickly that they can stamp all over us with no
+retribution[1])? I don't own any relevant copyright, unfortunately.
 
-And here's from when it *does* work:
-
-I: Bus=0011 Vendor=0001 Product=0001 Version=ab41
-N: Name="AT Translated Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd
-B: EV=120003
-B: KEY=4 2000000 3802078 f840d001 f2ffffdf ffefffff ffffffff fffffffe
-B: LED=7
-
-I: Bus=0011 Vendor=0002 Product=0005 Version=0000
-N: Name="ImPS/2 Generic Wheel Mouse"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0
-B: EV=7
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=103
-
-The only difference I can see is the ordering. Does the mouse handler 
-have to be initialized after the keyboard handler?
-
-Thanks,
-
-Derek
-
+[1] Has anything been done about the other members on the hall or
+shame?
 
 -- 
-+---------------------------------------------------------------+
-| Derek Chen-Becker                                             |
-| derek@chen-becker.org                                         |
-| http://chen-becker.org                                        |
-|                                                               |
-| PGP key available on request or from public key servers       |
-| ID: 21A7FB53                                                  |
-| Fngrprnt: 209A 77CA A4F9 E716 E20C  6348 B657 77EC 21A7 FB53  |
-+---------------------------------------------------------------+
+TimC -- http://astronomy.swin.edu.au/staff/tconnors/
+HANDLE WITH EXTREME CARE: This Product Contains Minute Electrically
+Charged Particles Moving at Velocities in Excess of Five Hundred
+Million Miles Per Hour.

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284488AbRLIV6Z>; Sun, 9 Dec 2001 16:58:25 -0500
+	id <S284519AbRLIVzP>; Sun, 9 Dec 2001 16:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284520AbRLIV6O>; Sun, 9 Dec 2001 16:58:14 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51216 "EHLO
+	id <S284518AbRLIVzF>; Sun, 9 Dec 2001 16:55:05 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47888 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284500AbRLIV5s>; Sun, 9 Dec 2001 16:57:48 -0500
-To: linux-kernel@vger.kernel.org
+	id <S284491AbRLIVys>; Sun, 9 Dec 2001 16:54:48 -0500
+Message-ID: <3C13DDF5.2050303@zytor.com>
+Date: Sun, 09 Dec 2001 13:56:05 -0800
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: On re-working the major/minor system
-Date: 9 Dec 2001 13:57:21 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9v0mo1$ms$1@cesium.transmeta.com>
-In-Reply-To: <9urbtm$69e$1@cesium.transmeta.com> <9urbtm$69e$1@cesium.transmeta.com> <20011207145535.A18152@codepoet.org> <8EWhHLVmw-B@khms.westfalen.de>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: torvalds@transmeta.com, marcelo@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux/i386 boot protocol version 2.03
+In-Reply-To: <200112090922.BAA11252@tazenda.transmeta.com> <m17krww8ky.fsf@frodo.biederman.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <8EWhHLVmw-B@khms.westfalen.de>
-By author:    kaih@khms.westfalen.de (Kai Henningsen)
-In newsgroup: linux.dev.kernel
-> 
-> > The C library, and the POSIX standard, etc, etc.
-> 
-> I think you'll find that there is *NOTHING* in either the C standard,  
-> POSIX, or the Austin future-{POSIX,UNIX} standard that knows about major  
-> or minor numbers.
-> 
+Eric W. Biederman wrote:
+> 2) If we use units of kilobytes instead of bytes for this we don't
+>    loose any precision and gain the ability to put a ramdisk in high
+>    memory without bumping the protocol version.
 
-It's not "future" anymore... Austin is now IEEE 1003.1-2001 and thus
-the new POSIX standard.
-
-Anyway, look for things like tar, cpio, ISO 9660 and that class of
-standards.
+Thought about it some more, and then realized we would have to do a lot 
+more overhaul of the boot protocol than this to support initrd in highmem 
+... and we'd still not be able to actually use it on any real 
+configuration.  Thanks, but no thanks.
 
 	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+

@@ -1,66 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132151AbRCVSo6>; Thu, 22 Mar 2001 13:44:58 -0500
+	id <S132143AbRCVShr>; Thu, 22 Mar 2001 13:37:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132148AbRCVSot>; Thu, 22 Mar 2001 13:44:49 -0500
-Received: from mons.uio.no ([129.240.130.14]:16626 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S132146AbRCVSod>;
-	Thu, 22 Mar 2001 13:44:33 -0500
-To: Camm Maguire <camm@enhanced.com>
-Cc: linux-kernel@vger.kernel.org, nfs-devel@linux.kernel.org
-Subject: Re: PROBLEM: 2.2.18 oops leaves umount hung in disk sleep
-In-Reply-To: <E14g8eP-0006k5-00@intech19.enhanced.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 22 Mar 2001 19:43:41 +0100
-In-Reply-To: Camm Maguire's message of "Thu, 22 Mar 2001 12:13:29 -0500"
-Message-ID: <shs1yrpabky.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S132131AbRCVShB>; Thu, 22 Mar 2001 13:37:01 -0500
+Received: from unthought.net ([212.97.129.24]:47839 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S132147AbRCVSgb>;
+	Thu, 22 Mar 2001 13:36:31 -0500
+Date: Thu, 22 Mar 2001 19:35:49 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Kevin Buhr <buhr@stat.wisc.edu>
+Cc: "David S. Miller" <davem@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
+Message-ID: <20010322193549.D6690@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Kevin Buhr <buhr@stat.wisc.edu>,
+	"David S. Miller" <davem@redhat.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com> <vba1yrr7w9v.fsf@mozart.stat.wisc.edu> <15032.1585.623431.370770@pizda.ninka.net> <vbay9ty50zi.fsf@mozart.stat.wisc.edu> <vbaelvp3bos.fsf@mozart.stat.wisc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <vbaelvp3bos.fsf@mozart.stat.wisc.edu>; from buhr@stat.wisc.edu on Thu, Mar 22, 2001 at 12:23:15PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Camm Maguire <camm@enhanced.com> writes:
+On Thu, Mar 22, 2001 at 12:23:15PM -0600, Kevin Buhr wrote:
+> buhr@cs.wisc.edu (Kevin Buhr) writes:
+...
+> I pulled the "gcc-3_0-branch" of GCC from CVS and compiled Mozilla
+> under a 2.4.2 kernel.  The numbers I saw were:
+> 
+>     real    57m26.850s
+>     user    96m57.490s
+>     sys     3m16.780s
+> 
+> which are almost exactly the same as my GCC 2.95.2 numbers.  When I
+> peeked at "/proc/<cc1plus>/maps" a few times, I counted ~150 lines,
+> not ~2000.  On another, much smaller block of C++ code, I get similar
+> results: no dramatic change in kernel time.
+> 
+> Either the Mozilla codebase and my other test case don't tickle the
+> problem, or something has changed in 3.0's allocation scheme since
+> RedHat 2.96 was built.
 
-     > 2.2.18 oops leaves umount hung in disk sleep
+Mozilla uses C++ mainly as "extended C" - due to compatibility concerns.
 
-This is normal behaviour for an Oops ;-)
+Try compiling something like Qt/KDE/gtk-- which are really heavy on
+templates (with all the benefits and drawbacks of that).
 
-     >      Unable to handle kernel NULL pointer dereference at
-     >      virtual address 00000000
-    current-> tss.cr3 = 02872000, %%cr3 = 02872000
-     >      *pde = 00000000 Oops: 0000 CPU: 0
+My code here is quite template heavy, and I suspect that's what's triggering
+it.  In fact, I can't compile our development code with optimization, because
+GCC runs out of memory (it only allocates some 300-500 MB, but each page has
+it's own map in /proc/pid/maps, and a wc -l /proc/pid/maps doesn't finish for
+minutes).  My typical GCC eats 100-200 MB and runs for several minutes.
 
-     >      intech9# ksymoops <oo.txt
+You should benchmark this particular case with code that makes GCC eat
+lots of memory, 100MB or more.  I've never seen Mozilla really make GCC
+eat that much memory  -  other projects do.
 
-     >      ksymoops 2.3.4 on i586 2.2.18-i586tsc.  Options used -V
-     >      (default) -k /proc/ksyms (default) -l /proc/modules
-     >      (default) -o /lib/modules/2.2.18-i586tsc/ (default) -m
-     >      /boot/System.map-2.2.18-i586tsc (default)
-
-     >      Warning: You did not tell me where to find symbol
-     >      information.  I will assume that the log matches the
-     >      kernel and modules that are running right now and I'll use
-     >      the default options above for symbol resolution.  If the
-     >      current kernel and/or modules do not match the log, you
-     >      can get more accurate output by telling me the kernel
-     >      version and where to find map, modules, ksyms etc.
-     >      ksymoops -h explains the options.
-
-     >      Warning (compare_maps): ksyms_base symbol
-     >      module_list_R__ver_module_list not found in System.map.
-     >      Ignoring ksyms_base entry
-    
-     >      Unable to handle kernel NULL pointer dereference at
-     >      virtual address 00000000 current->tss.cr3 = 02872000,
-     >      %%cr3 = 02872000 *pde = 00000000 Oops: 0000 CPU: 0
-
-Do you have the full ksymoops decode available? The above is somewhat
-minimal.
-
-Also please could you try to duplicate the problem with a standard
-autofs v3 daemon? I'm not sure that the v4 'automount' is quite as
-well tested as the v3 daemon (it still seems to be in beta).
-
-Cheers,
-  Trond
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

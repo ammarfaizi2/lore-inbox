@@ -1,42 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbTENIR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 04:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTENIR6
+	id S261185AbTENIPH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 04:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbTENIPH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 04:17:58 -0400
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:41404 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP id S261254AbTENIR5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 04:17:57 -0400
-Message-ID: <20030514083039.26350.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
+	Wed, 14 May 2003 04:15:07 -0400
+Received: from sophia.inria.fr ([138.96.64.20]:55182 "EHLO sophia.inria.fr")
+	by vger.kernel.org with ESMTP id S261185AbTENIPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 04:15:05 -0400
+Subject: Re: FW: am-utils or kernel bug ? Seems to be kernel or glibc bug...
+From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+To: Ion Badulescu <ionut@badula.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0305132214120.2091-100000@moisil.badula.org>
+References: <Pine.LNX.4.44.0305132214120.2091-100000@moisil.badula.org>
+Content-Type: text/plain
+Organization: INRIA
+Message-Id: <1052900861.24411.121.camel@atlas.inria.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 14 May 2003 10:27:41 +0200
 Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Dean McEwan" <dean_mcewan@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 14 May 2003 08:30:39 +0000
-Subject: Digital Rights Management - An idea
-X-Originating-Ip: 195.195.129.3
-X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    I had an idea for DRM, what about a kernel that forces everything downloaded to have a 
-valid signature, and doesn't let the file/program be accessed otherwise?
+On Wed, 2003-05-14 at 04:23, Ion Badulescu wrote:
+> > > i am running Redhat 9.0 ( kernel 2.4.20 )
+> > > and am-utils (am-utils-6.0.9-2)  (because i need the browsing
+feature
+> > > that automount doen't support).
+> > > 
+> > > Unfortunatelly, amd sometimes hangs at boot time during its
+> > > initialization (/etc/rc.d/init.d/amd ).
+> > > I can reproduce this bug with /etc/rc.d/init.d/amd start / stop
+> > > sequences, sometimes the start hangs sometimes it works.
+> > > This bug occurs on ALL RedHat 9.0 boxes we have (7 PC with totally
+> > > different hardware).
 
-    We could discuss ideas now, move on to code examples next, and then draw up a whitepaper,
+...
 
-    All those who are interested mail me.
+> > > [root@redhat-serv root]# strace -p 2454
+> > > futex(0x4212e1c8, FUTEX_WAIT, -2, NULL <unfinished ...>
+> > > 
+> > > 
+> > > [root@redhat-serv root]# strace -p 2455
+> > > select(1024, [4 5 6 7], NULL, NULL, {932, 980000} <unfinished ...>
+> 
+> I'll be damned if I understand what the futex is used for here. But since 
+> that's the parent amd, presumably it's waiting for the child to complete 
+> something, probably a mount.
+> 
+> As for the second trace, we need to know what the four filedescriptors are 
+> for. 'lsof -p 2455' should shed some light...
+> 
+> I suspect either a bug in glibc (likely), or a bug in the way amd uses
+> some Unix primitives and which just happen to work on older glibc's (less
+> likely). It's going to be rather hard to debug, however, if we can't
+> reproduce it locally.
+> 
+> Another suggestion I have is this: boot into an older kernel without futex
+> support (2.4.18-27.7.x should do just fine, ignore the missing
+> dependencies because they are not fatal). Glibc will adjust to the older
+> kernel and use other mechanisms, and we'll see if the hang still occurs.
+> Basically, since futexes were back-ported by Red Hat from 2.5 kernels, I
+> suspect there might be some bugs or races in there, and this test would
+> help to clear it out.
 
----
-Dean.
-DM TECH.
+You were right, Ion,
+switching to a RH8 kernel ( 2.4.18-14 ) , solved the issue. I cannot
+reproduce this futex bug on the father process...
+
+Who should i contact in order to correct things ?
+
 -- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+INRIA
 
-Powered by Outblaze

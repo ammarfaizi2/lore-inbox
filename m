@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270907AbRHNWtr>; Tue, 14 Aug 2001 18:49:47 -0400
+	id <S270912AbRHNWs2>; Tue, 14 Aug 2001 18:48:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270917AbRHNWth>; Tue, 14 Aug 2001 18:49:37 -0400
-Received: from relay01.cablecom.net ([62.2.33.101]:59403 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S270907AbRHNWtV>; Tue, 14 Aug 2001 18:49:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Christian Widmer <cwidmer@iiic.ethz.ch>
-Reply-To: cwidmer@iiic.ethz.ch
-To: linux-kernel@vger.kernel.org
-Subject: checksumming on a DP83820
-Date: Wed, 15 Aug 2001 00:49:00 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01081417581000.04104@asterix>
-Content-Transfer-Encoding: 7BIT
+	id <S270907AbRHNWsR>; Tue, 14 Aug 2001 18:48:17 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:51844 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S270916AbRHNWsE>;
+	Tue, 14 Aug 2001 18:48:04 -0400
+Date: Tue, 14 Aug 2001 15:46:09 -0700 (PDT)
+Message-Id: <20010814.154609.99205977.davem@redhat.com>
+To: goemon@anime.net
+Cc: chrisc@shad0w.org.uk, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CDP handler for linux
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0108141429040.31529-100000@anime.net>
+In-Reply-To: <Pine.LNX.4.33.0108142137300.3810-100000@monolith.shad0w.org.uk>
+	<Pine.LNX.4.30.0108141429040.31529-100000@anime.net>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-does anybody know the DP83820 which is used on the GigaNix NIC and
-can awnser me the folloing question or knows where to ask. 
+   From: Dan Hollis <goemon@anime.net>
+   Date: Tue, 14 Aug 2001 14:32:40 -0700 (PDT)
 
-the DP83820 supports IP/UDP/TCP checksumming. the chip docu say you
-can mark the transmit descriptior when it contains a IP, UDP, TCP header.
-1) is it possible for udp to spread multiple descriptios and the checksum
-   will be calculated? 
-2) if so can it be bigger than a jumboframe?
+   On Tue, 14 Aug 2001, Chris Crowther wrote:
+   > either - it just sits there, collecting and sending information.  The only
+   > thing you would really need in userspace, would be tools to read
+   > information from the cdp handler if you wanted to do more than just look
+   > at the neighbor summary.  I can't see any real advantages of running it as
+   > a daemon as opposed to a kernel component.
+   
+   Except that as userspace daemon if cdpd goes splat the kernel generally
+   doesnt go splat either.
+   
+I really think this should be in userspace too.
 
-i don't find any awnsers in the chip docu from national. i think 1) could be
-possible but 2) not. am i right?
-
-thanks
-chris
-
+Later,
+David S. Miller
+davem@redhat.com

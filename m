@@ -1,52 +1,199 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316977AbSEWS2B>; Thu, 23 May 2002 14:28:01 -0400
+	id <S316978AbSEWS2w>; Thu, 23 May 2002 14:28:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316978AbSEWS2A>; Thu, 23 May 2002 14:28:00 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:57862 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S316977AbSEWS2A>; Thu, 23 May 2002 14:28:00 -0400
-Date: Thu, 23 May 2002 19:27:57 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Cc: rddunlap@osdl.org
-Subject: Re: [announce] 'kerneltop'
-Message-ID: <20020523182756.GB4161@compsoc.man.ac.uk>
-In-Reply-To: <Pine.LNX.4.33L2.0205231112260.4119-100000@dragon.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
+	id <S316979AbSEWS2w>; Thu, 23 May 2002 14:28:52 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316978AbSEWS2s>; Thu, 23 May 2002 14:28:48 -0400
+Date: Thu, 23 May 2002 14:28:59 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Some kind of race with loop in 2.4.18
+Message-ID: <Pine.LNX.3.95.1020523141527.1243A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 23, 2002 at 11:13:22AM -0700, Randy.Dunlap wrote:
 
-> BTW, does anyone know of another such program that
-> already exists (and that I missed somehow in my web search)?
+If I create a 650 Mb file, make an ext2 file-system on it, then
+mount it through the loop device on /mnt. It seems that I have
+a virtual file-system that I could used to make an image, eventually
+to burn a CR-ROM. This is how I've been doing it, but.... with
+2.4.18, there is a problem.
 
-Depends on your definition of "such program". For one, there is :
+Once the file-syetem gets about 50% full, using tar to copy
+some directories from my hard disk, the hard-disk light remains
+on continuously, but the file-system doesn't get any fuller.
 
-http://sourceforge.net/projects/minilop/
+10 second intervals, nothing happening plus SCSI Disk drive
+continuously active....
 
-There is at least one other (older I think) version of readprofile.c
-going about as well as my slightly modified version too...
+Script started on Thu May 23 14:11:21 2002
+# while df ; do sleep 10 ; done
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708780  10051188  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   5708812  10051156  36% /
+/dev/sdc1              6356624   1198700   4835020  20% /alt
+/dev/sdc3              2253284   1383916    754908  65% /home/users
+/dev/sda1              1048272    282208    766064  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+/root/cdrom.root/cdrom.img
+                        554284    262318    263806  50% /mnt
 
-There is also a version that avoids a reboot via a module hack (see
-freshmeat), and the previously mentioned module-profiling readprofile
-version.
+# exit
+exit
 
-Also see these (incomplete) parts of my howto :
+Script done on Thu May 23 14:14:08 2002
 
-http://movementarian.org/kernelprofilers.html
-http://movementarian.org/bibliography.html
+None of the disks are full, and there is plenty of free RAM, etc.
+I let this go one for about an hour, then I tried to ^C out of
+`tar`.  Well no, it's in the 'D' state forever....
 
-regards
-john
+If I create the VFS (loop-mounted file) on a disk that I am not tarring
+from, tar completes okay.
 
--- 
-"This is playing, not work, therefore it's not a waste of time."
-	- Zath
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

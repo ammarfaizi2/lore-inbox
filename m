@@ -1,53 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131671AbQLLG7f>; Tue, 12 Dec 2000 01:59:35 -0500
+	id <S129226AbQLLHWl>; Tue, 12 Dec 2000 02:22:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131709AbQLLG7Y>; Tue, 12 Dec 2000 01:59:24 -0500
-Received: from saw.sw.com.sg ([203.120.9.98]:12948 "HELO saw.sw.com.sg")
-	by vger.kernel.org with SMTP id <S131671AbQLLG7T>;
-	Tue, 12 Dec 2000 01:59:19 -0500
-Message-ID: <20001212142846.A14979@saw.sw.com.sg>
-Date: Tue, 12 Dec 2000 14:28:46 +0800
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Tom Murphy <freyason@yahoo.com>
-Cc: Dragan Stancevic <visitor@valinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test12-pre7 shutdowns and eepro100 woes
-In-Reply-To: <20001211185219.28022.qmail@web2006.mail.yahoo.com>
+	id <S129228AbQLLHWc>; Tue, 12 Dec 2000 02:22:32 -0500
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:51893 "EHLO
+	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S129226AbQLLHW0>; Tue, 12 Dec 2000 02:22:26 -0500
+From: Heiko.Carstens@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org
+Message-ID: <C12569B3.0024DA06.00@d12mta01.de.ibm.com>
+Date: Tue, 12 Dec 2000 07:42:29 +0100
+Subject: Re: CPU attachent and detachment in a running Linux system
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20001211185219.28022.qmail@web2006.mail.yahoo.com>; from "Tom Murphy" on Mon, Dec 11, 2000 at 10:52:19AM
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-On Mon, Dec 11, 2000 at 10:52:19AM -0800, Tom Murphy wrote:
->    Also, regarding the eepro100 driver, are there any plans to fix
-> support for the following chipset (given by lspci):
-> 
-[snip]
->   I have one of these at work and I will get the following messages:
-> 
-> Dec 11 10:46:13 morpheus kernel: eepro100: cmd_wait for(0xffffff80)
-> +timedout with(0xffffff80)!
-> Dec 11 10:46:20 morpheus last message repeated 6 times
-> 
->    (using eepro100 from 2.2.18pre27.. I guess it's not 2.2.18 proper)
 
-Last time you asked the similar question, my answer to you bounced.
 
-This debug output was submitted by Dragan Stancevic <visitor@valinux.com>.
-The current timeout values are high enough to try to increase them more.
-The question I'm interested in is how command 0x80 appeared in the command
-register...
 
-To answer your question in short, yet, we hope to fix the problem sooner or
-later.
+>> sigp. To synchronize n CPUs one can create n kernel threads and give
+>> them a high priority to make sure they will be executed soon (e.g. by
+>> setting p->policy to SCHED_RR and p->rt_priority to a very high
+>> value). As soon as all CPUs are in synchronized state (with
+>> interrupts disabled) the new CPU can be started. But before this can
+>> be done there are some other things left to do:
+>
+>You dont IMHO need to use such a large hammer. We already do similar
+sequences
+>for tlb invalidation on X86 for example. You can broadcast an
+interprocessor
+>interrupt and have the other processors set a flag each. You spin until
+they
+>are all captured, then when you clear the flag they all continue. You just
+>need to watch two processors doing it at the same time 8)
 
-Regards
-					Andrey V.
-					Savochkin
+Alan,
+
+thanks for your input but I think it won't work this way because the value
+of smp_num_cpus needs to be increased by one right before a new cpu gets
+started. Then one can imagine the following situation at one of the cpus
+that needs to be captured:
+
+read the value of smp_num_cpus;
+- interrupt that is intended to capture this cpu -
+the value of smp_num_cpus will be increased and the new cpu will be started
+by another cpu before this cpu continues with normal operation;
+- end of interrupt handling -
+do something that relies on the prior read value of smp_num_cpus (which is
+now wrong);
+
+The result would be an inconsistency. This problem should not occur if all
+cpus would be captured by kernel threads.
+
+I still wonder what you and other people think about the idea of an
+interface where the parts of the kernel with per-cpu dependencies should
+register two functions...
+
+Best regards,
+Heiko
+
+By the way, I changed the subject of your original reply because I sent my
+first mail twice (with and without a subject line).
+I'm sorry for my own stupidity :)
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

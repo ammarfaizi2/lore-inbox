@@ -1,94 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUC3FwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 00:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263253AbUC3FwQ
+	id S263258AbUC3Fy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 00:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263240AbUC3Fy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 00:52:16 -0500
-Received: from smtp1.fuse.net ([216.68.8.171]:46232 "EHLO smtp1.fuse.net")
-	by vger.kernel.org with ESMTP id S263226AbUC3FwH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 00:52:07 -0500
-From: "Ivica Ico Bukvic" <ico@fuse.net>
-To: "'A list for linux audio users'" 
-	<linux-audio-user@music.columbia.edu>,
-       <alsa-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>,
-       <linux-pcmcia@lists.infradead.org>
-Subject: RE: [linux-audio-user] snd-hdsp+cardbus=distortion -- the sagacontinues (cardbus driver=culprit?) UPDATE: 99.9% sure it is the cardbus driver yenta_socket
-Date: Tue, 30 Mar 2004 00:52:11 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Thread-index: AcQV0TXomEbe4s2EQVeW6vMmbNh1mgARfHPA
-In-Reply-To: <20040329235823.04bacef4@laptop>
-Message-Id: <20040330055204.UUGL2042.smtp1.fuse.net@64BitBadass>
+	Tue, 30 Mar 2004 00:54:57 -0500
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:61623 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S261681AbUC3Fyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 00:54:52 -0500
+Date: Mon, 29 Mar 2004 22:55:32 -0700
+From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+Message-ID: <20040330055532.GA21154@bounceswoosh.org>
+Mail-Followup-To: Pavel Machek <pavel@suse.cz>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <4066021A.20308@pobox.com> <20040329113641.GE1453@openzaurus.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20040329113641.GE1453@openzaurus.ucw.cz>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the update on the issue (at least from my aspect):
+On Mon, Mar 29 at 13:36, Pavel Machek wrote:
+>32MB is one second if everything goes okay... That will be horrible for latency, right?
 
-TODO:
-1) provide detailed lspci
-(will do later tomorrow, too tired right now)
+It'll be somewhere between half a second and 1.5 seconds, depending on
+how old your hard drive is, all other things being removed from the
+equation.  The media rate of modern IDE drives is about 60MB/s right
+now, and going up slightly soon.  The top SCSI drives are around
+85MB/s if I remember correctly.
 
-2) thoroughly check /var/log/syslog for anything suspicious
-Apart from the ACPI and APIC problems, nothing out of the ordinary (i.e.
-APIC assigns IRQ 0 to cardbus and therefore nothing works, but if I disable
-APIC it's all ok. Furthermore, I've just yesterday fixed the ACPI and APIC
-problems by patching the kernel yet the problem persists. Right now the
-laptop boots with ACPI and APIC turned on, IRQ's get assigned properly, as a
-matter of fact EXACTLY the same like in Windows where the problem does not
-occur. Therefore, now the assumption that there is a "sweet" IRQ I need to
-select does not stand any more, as the same problem is exhibiting itself
-when the cardbus is at IRQ 11 (no ACPI/APIC) or at 17 (with ACPI/APIC and
-also the same IRQ as in WinXP). This now leads me to believe that the
-problem is strictly limited to the yenta_socket driver.
+On average, 1s is about right.
 
-3) try pcmcia-cs (most likely won't work as Tim already tried that and it
-made no difference on his laptop, also the package wasn't updated since
-Dec.)
+It becomes a tradeoff between a big hit now and a lot of little hits
+over time.  If you don't expect to have any idle time soon, you're
+probably better off flushing as big a chunk as possible to free RAM
+for the upcoming/continuous workload.  If you think you might have
+idle time, the lower MB/s of smaller requests will keep you more
+granular and improve latency, even though overall work completed per
+unit time will be slightly lower.
 
-This is not an option, as Tim pointed out, not only because this package
-only works with pre 2.5 kernels but also because it has been tested by Tim
-and had no difference.
+For a bursty access pattern, you're probably best off with small
+requests that fit within the drive's cache, but I don't have any sort
+of measurable data on this.
 
-4) try playback with an external Word Clock source
-Will try tomorrow (although I don't think so, as the card appears to work
-just fine on other Linux notebook).
+Most of the OS testing that we're subjected to doesn't attempt large
+requests.
 
-5) provide downloadable examples of the distorted sounds
-(will do tomorrow). But by briefly looking at it, it definitely looks the
-same like Tim's (image found here:
-http://www.volny.cz/guitar_billy/hdsp.screenshot.png) where it seems like
-the sound has one small burst of audio data, then the comparably-sized
-streak of no change in data. There is still some distortion which I am not
-sure whether it is a result of this kind of misperformance of the sound or
-there is more to the story.
+--eric
 
-6) Pester alsa-dev, lau, and kernel/pcmcia people to death begging for help
-:-)
-
-IN-PROGRESS :-)
-
-7) Pester eMachines to update BIOS (I may retire before this one happens,
-though)
-
-I did get through to someone and they did reply to my e-mail seeming
-interested in cooperating to resolve the issue, but at this point it does
-not seem like the BIOS is the culprit.
-
-
-8) Something else?
-How about I go catch some z's :-)
-
-Good idea...
-
-
-Best wishes,
-
-Ico
-
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270385AbTG1SRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 14:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270386AbTG1SRJ
+	id S270438AbTG1SYK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 14:24:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270439AbTG1SYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 14:17:09 -0400
-Received: from mail3.bluewin.ch ([195.186.1.75]:7299 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id S270385AbTG1SRH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 14:17:07 -0400
-Date: Mon, 28 Jul 2003 20:32:21 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: via-rhine broken in 2.4.22-pre8 and 2.6.0-pre1&2
-Message-ID: <20030728183220.GB30246@k3.hellgate.ch>
-Mail-Followup-To: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>,
-	linux-kernel@vger.kernel.org
-References: <3F2515A2.8040008@kmlinux.fjfi.cvut.cz>
+	Mon, 28 Jul 2003 14:24:10 -0400
+Received: from 209-5-247-146.mb.skyweb.ca ([209.5.247.146]:51108 "EHLO
+	telecomoptions.com") by vger.kernel.org with ESMTP id S270438AbTG1SYI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 14:24:08 -0400
+Subject: sound static on VIA 8233 southbridge using ALSA drivers
+From: Dave Poirier <dpoirier@telecomoptions.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 28 Jul 2003 13:38:55 -0500
+Message-Id: <1059417535.331.4.camel@grid>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F2515A2.8040008@kmlinux.fjfi.cvut.cz>
-X-Operating-System: Linux 2.6.0-test2 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003 14:22:58 +0200, Jindrich Makovicka wrote:
-> I recently tried 2.6.0-test1, 2.6.0-test2, 2.4.22-pre6 and 2.4.22-pre8, 
-> and via-rhine seems broken in all of them. Network connection doesn't 
-> work, and only the timeout messages appear:
+Kernel: 2.6 test1 and test2
 
-Does that mean no traffic at all? No ping, no nothing?
+using the 8233 ALSA drivers a lot of static can be heard, replacing the
+ALSA drivers by the VT82Cxxx OSS driver fixes the static problem.
 
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: Transmit timed out, status 0003, PHY status 786d, resetting...
-> eth0: Setting full-duplex based on MII #1 link partner capability of 41e1.
-> 
-> 2.4.21 still works fine.
+  Bus  0, device  17, function  5:
+  Multimedia audio controller: VIA Technologies, In VT8233 AC97 Audio Co
+(rev 80).
+  IRQ 11.
+  I/O at 0xd800 [0xd8ff].
 
-Same .config? Is APIC and/or ACPI enabled? Are you running half-duplex?
-What other modules do you loaded?
+Is there any existing patch/solution for this problem? (please CC answer
+as I am not subscribed to lkml).
 
-Roger
+-eks
+
+

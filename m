@@ -1,74 +1,101 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317591AbSFIKDn>; Sun, 9 Jun 2002 06:03:43 -0400
+	id <S317593AbSFIKYu>; Sun, 9 Jun 2002 06:24:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317592AbSFIKDm>; Sun, 9 Jun 2002 06:03:42 -0400
-Received: from dialin-145-254-152-251.arcor-ip.net ([145.254.152.251]:20016
-	"EHLO picklock.adams.family") by vger.kernel.org with ESMTP
-	id <S317591AbSFIKDm> convert rfc822-to-8bit; Sun, 9 Jun 2002 06:03:42 -0400
-Message-ID: <3D0328D2.8CD47269@loewe-komp.de>
-Date: Sun, 09 Jun 2002 12:07:14 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-Organization: B16
-X-Mailer: Mozilla 4.79 [de] (X11; U; Linux 2.4.18-4GB-SMP i686)
-X-Accept-Language: de, en
+	id <S317594AbSFIKYt>; Sun, 9 Jun 2002 06:24:49 -0400
+Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:23458
+	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
+	with ESMTP id <S317593AbSFIKYs>; Sun, 9 Jun 2002 06:24:48 -0400
+Message-ID: <3D032CDE.7000307@st-peter.stw.uni-erlangen.de>
+Date: Sun, 09 Jun 2002 12:24:30 +0200
+From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-        frankeh@watson.ibm.com, alan@lxorguk.ukuu.org.uk
-Subject: Re: [PATCH] Futex Asynchronous Interface
-In-Reply-To: <Pine.LNX.4.44.0206081523410.11630-100000@home.transmeta.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Anders Gustafsson <andersg@0x63.nu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.20]newbee call for help getting lvm working
+In-Reply-To: <3CFF9590.5030504@st-peter.stw.uni-erlangen.de> <20020608222628.GA10981@h55p111.delphi.afb.lu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan *17GzsB-0005lh-00*A5Km3VbGr36* (Studentenwohnanlage Nuernberg St.-Peter)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds schrieb:
-> 
-> On Fri, 7 Jun 2002, Peter Wächtler wrote:
-> >
-> > What about /proc/futex then?
-> 
-> Why?
-> 
-> Tell me _one_ advantage from having the thing exposed as a filename?
-> 
+Anders Gustafsson wrote:
 
-There is no enforcing advantage for this.
+>On Thu, Jun 06, 2002 at 07:02:08PM +0200, Svetoslav Slavtchev wrote:
+>  
+>
+>>Hi ,
+>>i was trying to get the patch from Anders Gustafsson working in 2.5.20,
+>>but i'm getting  by compilation:
+>>....
+>>lvm.c: In function `__update_hardsectsize':
+>>lvm.c:2021: warning: implicit declaration of function `get_hardsect_size'
+>>    
+>>
+>
+>
+>[.. snip ..]
+>
+>  
+>
+>>   /* only perform this operation on active snapshots */
+>>   if ((lv->lv_access & LV_SNAPSHOT) &&
+>>       (lv->lv_status & LV_ACTIVE)) {
+>>       for (e = 0; e < lv->lv_remap_end; e++) {
+>>           hardsectsize =  get_hardsect_size( 
+>>lv->lv_block_exception[e].rdev_new);
+>>    
+>>
+>
+>snapshotting doesn't work anyhow, so this block could be removed 'til
+>its unbroked.
+>
+thanks, i had a similar solution , but i wasn't shure
+i'll try it with a 2.5.20-dj3 or dj4
 
-newbie question: how to provide file operations like poll
-without an entry in the filesystem? (in the meantime I will try
-to answer this myself :)
+--- linux-2.5.18/drivers/md/lvm.c    2002-06-04 17:25:40.000000000 +0200
++++ linux-2.5.20-dj3-lvm-xfs-w3/drivers/md/lvm.c    2002-06-08 
+19:08:41.000000000 +0200
+@@ -216,6 +216,7 @@
+ #include <linux/stat.h>
+ #include <linux/fs.h>
+ #include <linux/proc_fs.h>
++#include <linux/buffer_head.h> /* for invalidate_buffers */
+ #include <linux/blkdev.h>
+ #include <linux/genhd.h>
+ #include <linux/devfs_fs_kernel.h>
 
-> The whole point with "everything is a file" is not that you have some
-> random filename (indeed, sockets and pipes show that "file" and "filename"
-> have nothing to do with each other), but the fact that you can use common
-> tools to operate on different things.
-> 
-> But there's absolutely no point in opening /dev/futex from a shell script
-> or similar, because you don't get anything from it. You still have to bind
-> the fd to it's real object.
-> 
-> In short, the name "/dev/futex" (or "/proc/futex") is _meaningless_.
-> There's no point to it. It has no life outside the FUTEX system call, and
-> the only thing that you can do by exposing it as a name is to cause
-> problems for people who don't want to mount /proc, or who do not happen to
-> have that device node in their /dev.
-> 
-> > Give it an entry in the namespace, why not with sockets (unix and ip) also?
-> 
-> Perhaps because you cannot enumerate sockets and pipes? They don't _have_
-> names before they are created. Same as futexes, btw.
-> 
+@@ -2014,17 +2015,23 @@
+             max_hardsectsize = hardsectsize;
+     }
+ 
++
++    /* FROM ME SVETLJO, otherweise it doesnt compile
++     * get_hardsect_size had disapeared in 2.5.18
++     */
+     /* only perform this operation on active snapshots */
+-    if ((lv->lv_access & LV_SNAPSHOT) &&
++/*    if ((lv->lv_access & LV_SNAPSHOT) &&
+         (lv->lv_status & LV_ACTIVE)) {
+         for (e = 0; e < lv->lv_remap_end; e++) {
+-            hardsectsize = get_hardsect_size( 
+lv->lv_block_exception[e].rdev_new);
++           hardsectsize = get_hardsect_size( 
+lv->lv_block_exception[e].rdev_new);
+             if (hardsectsize == 0)
+                 hardsectsize = 512;
+             if (hardsectsize > max_hardsectsize)
+                 max_hardsectsize = hardsectsize;
+         }
+     }
++*/
++
+ }
 
-Still you can open a file in the namespace and write some commands to it.
-Then it turns out to be a socket on port 25:
-
-fd=open("/dev/socket",O_RDWR);
-write(fd,"connect stream 25\n",sizeof(..));
-write(fd,"helo mail.my.com\n",..);
-...
+ /*
 
 
-Just one more question: would it be possible to specify a poll operation
-for /proc/blah?
+

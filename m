@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293466AbSCKCLP>; Sun, 10 Mar 2002 21:11:15 -0500
+	id <S293483AbSCKCNz>; Sun, 10 Mar 2002 21:13:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293471AbSCKCLF>; Sun, 10 Mar 2002 21:11:05 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64944 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S293466AbSCKCKv>; Sun, 10 Mar 2002 21:10:51 -0500
-Date: Sun, 10 Mar 2002 19:10:46 -0700
-Message-Id: <200203110210.g2B2Akb25831@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "David S. Miller" <davem@redhat.com>
-Cc: whitney@math.berkeley.edu, rgooch@ras.ucalgary.ca,
-        linux-kernel@vger.kernel.org
-Subject: Re: Broadcom 5700/5701 Gigabit Ethernet Adapters
-In-Reply-To: <20020310.180456.91344522.davem@redhat.com>
-In-Reply-To: <20020310.170338.83978717.davem@redhat.com>
-	<200203110114.g2B1EuG24994@vindaloo.ras.ucalgary.ca>
-	<200203110205.g2B25Ar05044@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-	<20020310.180456.91344522.davem@redhat.com>
+	id <S293484AbSCKCNf>; Sun, 10 Mar 2002 21:13:35 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:15416 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S293483AbSCKCNY>; Sun, 10 Mar 2002 21:13:24 -0500
+Date: Mon, 11 Mar 2002 03:14:25 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <fletch@aracnet.com>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: 23 second kernel compile (aka which patches help scalibility on NUMA)
+Message-ID: <20020311031425.N8949@dualathlon.random>
+In-Reply-To: <82825246.1015624024@[10.10.2.3]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <82825246.1015624024@[10.10.2.3]>
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
->    From: Wayne Whitney <whitney@math.berkeley.edu>
->    Date: Sun, 10 Mar 2002 18:05:10 -0800
->    
->    So does anyone have any comments on the stability and performance of
->    these cards/drivers?
+On Fri, Mar 08, 2002 at 09:47:04PM -0800, Martin J. Bligh wrote:
+> Big locks left:
 > 
-> As I said in a previous email the natsemi chips don't perform
-> too well.
+> pagemap_lru_lock
+> 20.2% 57.1%  5.4us(  86us)  111us(  16ms)(14.7%)   1014988 42.9% 57.1%    0%  
 
-As Wayne said:
-> There is also the D-Link DGE-550T, a 64-bit/66MHz card starting at
-> US$80 (according to pricewatch).  It apparently uses a different
-> in-kernel driver, dl2k.o.
+I think this is only due the lru_cache_add executed by the anonymous
+pagefaults. Pagecache should stay in the lru constantly if you're
+running in hot pagecache as I guess. For a workload like this one
+keeping anon pages out of the lru would be an obvious win. The only
+reason we put anon pages into the lru before they are converted to
+swapcache is to get a nicer swapout behaviour, but you're certainly not
+swapping out anything. It's a tradeoff. Just like the additional
+memory/cpu and locking overhead that rmap requires will slowdown page
+faults even more than what you see now, with the only object to get a
+nicer pagout behaviour (modulo the ram-binding "migration" stuff where
+rmap is mandatory to do it instantly and not over time). If we don't
+care of getting a nice swapout behaviour workloads like a kernel compile
+could be speededup and scaled up much better, but for general purpose we
+don't want to slowdown like a crawl when swapping activities become
+necessary.
 
-So this is a different chip from the natsemi, right?
+> Any other suggestions are welcome. I'd also be interested
+> to know if 23s is fast for make bzImage, or if other big
+> iron machines can kick this around the room.
 
-				Regards,
+It's also a big function of .config, compiler and kernel source (and if
+you include make dep too or not).
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+>From my part my record kernel compile is been at LANL with 32cpus
+wildfire with a 2.4.3-aa kernel IIRC (it just had the basic numa
+scheduler optimizations), it took 37 seconds IIRC (with a quite generic
+.config that could be used on most alphas except for the
+CONFIG_WILDFIRE that was required at that time, but not all the possible
+drivers out there included of course).  With Ingo's scheduler and the
+other enachements that happend during 2.4, it probably won't go down to
+the teenth, but it should get into the low twenty I believe.  Also 32way
+scalability on a kernel compile cannot be exploited completly, unless
+the .config is very full like the one used by distributions. Last but
+not the least the output was scrolling so fast on the VGA console that I
+guess redirecting the output to >/dev/null may save some point percent
+too :). and of course that was with an alpha target, not an x86 target,
+so that's not comparable also because of last variable. I think your
+23 seconds figure looks very nice.
+
+Andrea

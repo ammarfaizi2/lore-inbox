@@ -1,61 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267444AbTA3IgC>; Thu, 30 Jan 2003 03:36:02 -0500
+	id <S267446AbTA3IhT>; Thu, 30 Jan 2003 03:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267445AbTA3IgC>; Thu, 30 Jan 2003 03:36:02 -0500
-Received: from gate.perex.cz ([194.212.165.105]:30472 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id <S267444AbTA3IgB>;
-	Thu, 30 Jan 2003 03:36:01 -0500
-Date: Thu, 30 Jan 2003 09:45:14 +0100 (CET)
-From: Jaroslav Kysela <perex@perex.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Adam Belay <ambx1@neo.rr.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [alsa, pnp] more on opl3sa2 (fwd)
-In-Reply-To: <20030129221234.GC2246@neo.rr.com>
-Message-ID: <Pine.LNX.4.44.0301300940090.1445-100000@pnote.perex-int.cz>
+	id <S267445AbTA3IhT>; Thu, 30 Jan 2003 03:37:19 -0500
+Received: from users.evp.sf.ukrtel.net ([195.5.3.162]:26889 "EHLO
+	users.evp.sf.ukrtel.net") by vger.kernel.org with ESMTP
+	id <S267446AbTA3IhS>; Thu, 30 Jan 2003 03:37:18 -0500
+Date: Thu, 30 Jan 2003 10:47:00 +0200 (EET)
+From: Andrei Loukinykh <avl@seavenue.net>
+To: linux-kernel@vger.kernel.org
+Subject: ide-scsi fails with kernels > 2.4.1
+Message-ID: <Pine.LNX.4.20.0301301045560.24862-100000@users.evp.sf.ukrtel.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Jan 2003, Adam Belay wrote:
 
-> On Mon, Jan 27, 2003 at 03:36:41PM +0100, Jaroslav Kysela wrote:
-> >
-> > Any notes?
-> 
-> Actually I was wondering if you could provide some further information about the 
-> nature of these multidevice sound cards so I can better understand the 
-> situation.
-> 
-> 1.)  How are the componets of a typical card divided among the sub-devices. (ex: 
-> control, mpu, wave table, etc)
+ Hi all
+  Being a sort of god damn tired (sorry), i decided to ask here
 
-There are these logical devices as you mentioned plus (optional) joystick 
-or IDE controler which the sound driver doesn't drive.
+ In short:
+   My CDRW refuses to work with any kernel bigger than 2.4.1.
 
-> 2.)  Are all the devices required for the card to properly function, in other 
-> words, must the card always have possession of all of the sound related 
-> sub-devices in order to function at a minimal level.
+It is IDE-CDRW . I use ide-scsi driver for this.
+With 2.4.1 - all o'k.
+ Then I tried 2.4.7 ... 2.4.9 ... 2.4.19.. 2.4.20 ( i dont remember al of
+them) - none works. I get the following:
 
-No, but that's not the point. The sound driver must grab all devices to 
-follow hardware structure.
+hdc: SAMSUNG CD-R/RW SW-408B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+blk: queue c030e544, I/O limit 4095Mb (mask 0xffffffff)
+hda: 12672450 sectors (6488 MB), CHS=788/255/63, UDMA(33)
+hdc: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
+hdc: set_drive_speed_status: error=0x04
 
-3.)  Are there any other isapnp cards that depend on multiple devices per
-driver, to my knowledge only a limited set of sound cards do.
 
-Almost all isapnp soundcards. The opl3sa2 driver is an exception. Try to 
-grep for ISAPNP_DEVICE_ID in linux/sound/isa directory + subdirectories.
+Someone please help
+ I desperately need 2.4.20 for my devices to work, but I also need CDR..
 
-Anyway, as I said. The card is bus (PCI has something similar - PCI 
-bridges).
 
-						Jaroslav
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+Best regards,
+Andrei V. Loukinykh , Evpatoria Ukrtelecom ISP, +380 6569 29376
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"UNIX is like a vigvam - no Windows, no Gates and an Apache inside"
+
 
 

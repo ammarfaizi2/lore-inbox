@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277143AbRKYOtr>; Sun, 25 Nov 2001 09:49:47 -0500
+	id <S277165AbRKYOwP>; Sun, 25 Nov 2001 09:52:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277165AbRKYOte>; Sun, 25 Nov 2001 09:49:34 -0500
-Received: from pc1-camc3-0-cust88.cam.cable.ntl.com ([80.2.244.88]:50049 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S277143AbRKYOtV>;
-	Sun, 25 Nov 2001 09:49:21 -0500
-Date: Sun, 25 Nov 2001 14:49:03 +0000
-From: Arjan van de Ven <arjan@fenrus.demon.nl>
-To: James Davies <james_m_davies@yahoo.com>
+	id <S275973AbRKYOvz>; Sun, 25 Nov 2001 09:51:55 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:6919 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S277165AbRKYOvn>; Sun, 25 Nov 2001 09:51:43 -0500
+Date: Sun, 25 Nov 2001 14:51:35 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.4.13 Kernel and Ext3 vs Ext2
-Message-ID: <20011125144902.A9714@fenrus.demon.nl>
-In-Reply-To: <E167zTW-0002SK-00@fenrus.demon.nl> <1006698831.1212624.0@smtp018.mail.yahoo.com>
+Subject: Re: Linux 2.4.16-pre1
+Message-ID: <20011125145134.B23807@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.21.0111241636200.12066-100000@freak.distro.conectiva> <20011125143449.B5506@duron.intern.kubla.de> <tgadxagbjn.fsf@mercury.rus.uni-stuttgart.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1006698831.1212624.0@smtp018.mail.yahoo.com>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <tgadxagbjn.fsf@mercury.rus.uni-stuttgart.de>; from Florian.Weimer@RUS.Uni-Stuttgart.DE on Sun, Nov 25, 2001 at 03:39:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 12:28:27AM +1000, James Davies wrote:
-> On Sun, 25 Nov 2001 23:37, arjan@fenrus.demon.nl wrote:
-> > In article <20011125132713Z280878-17408+19757@vger.kernel.org> you wrote:
-> > > You can also download a kernel RPM. the latest one released by redhat is
-> > > 2.4.13, and it is pretty much guaranteed to work with your current system
-> > > and not break anything. It is also be patched with ext3 support.
-> >
-> > Ehmmm..... The last released kernel by Red Hat is 2.4.9-13, not
-> > 2.4.13-something....
-> 
-> ftp://rpmfind.net/linux/rawhide/1.0/i386/RedHat/RPMS/kernel-2.4.13-0.6.i386.rpm
+On Sun, Nov 25, 2001 at 03:39:08PM +0100, Florian Weimer wrote:
+> BTW, what is the correct recovery strategy, assuming 2.4.15 has not
+> been rebooted yet?  Installing a fixed kernel is obviously the first
+> step.  How should one reboot the system to minimize damage?  Use a
+> normal system shutdown (with the -F parameter to forc fsck on next
+> boot), or go to single user, "touch /forcefsck", sync, wait a minute,
+> and switching of power?
 
-rawhide != released !!!!!
-rawhide is a weekly development snapshot that is taken at basically a random
-time. Those kernels have seen no QA and are untested, they might not even
-boot.
+>From Viro's mail (on http://lwn.net/daily/2.4.15-recovery.php3):
 
-You're very welcome to help betatest them, and I welcome all bugreports
-against them; however considering them as released... no
+| IOW, if you are running 2.4.15 - build a patched kernel, install it and
+| do the following:
+|	* switch to single-user
+|	* sync
+|	* umount everything non-buys
+|	* remount the rest read-only
+|	* turn the thing off
+|	* boot with patched kernel or with anything before 2.4.15-pre9
 
-Greetings,
-   Arjan van de Ven
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

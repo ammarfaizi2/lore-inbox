@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVCYBYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVCYBNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVCYBYI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 20:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVCYBN4
+	id S261388AbVCYBNe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 20:13:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVCYBN2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 20:13:56 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34321 "HELO
+	Thu, 24 Mar 2005 20:13:28 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:34833 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261380AbVCYBLZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 20:11:25 -0500
-Date: Fri, 25 Mar 2005 02:11:23 +0100
+	id S261388AbVCYBL2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 20:11:28 -0500
+Date: Fri, 25 Mar 2005 02:11:26 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] mm/swap_state.c: unexport swapper_space
-Message-ID: <20050325011123.GX3966@stusta.de>
+Subject: [2.6 patch] unexport slab_reclaim_pages
+Message-ID: <20050325011126.GY3966@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -31,14 +31,14 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 This patch was already sent on:
 - 6 Mar 2005
 
---- linux-2.6.11-mm1-full/mm/swap_state.c.old	2005-03-04 16:25:54.000000000 +0100
-+++ linux-2.6.11-mm1-full/mm/swap_state.c	2005-03-04 16:26:16.000000000 +0100
-@@ -40,7 +40,6 @@
- 	.i_mmap_nonlinear = LIST_HEAD_INIT(swapper_space.i_mmap_nonlinear),
- 	.backing_dev_info = &swap_backing_dev_info,
- };
--EXPORT_SYMBOL(swapper_space);
+--- linux-2.6.11-mm1-full/mm/slab.c.old	2005-03-04 16:14:03.000000000 +0100
++++ linux-2.6.11-mm1-full/mm/slab.c	2005-03-04 16:14:17.000000000 +0100
+@@ -558,7 +558,6 @@
+  * SLAB_RECLAIM_ACCOUNT turns this on per-slab
+  */
+ atomic_t slab_reclaim_pages;
+-EXPORT_SYMBOL(slab_reclaim_pages);
  
- #define INC_CACHE_INFO(x)	do { swap_cache_info.x++; } while (0)
- 
+ /*
+  * chicken and egg problem: delay the per-cpu array allocation
 

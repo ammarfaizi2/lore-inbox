@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVBVIBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVBVIE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVBVIBl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 03:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVBVIBl
+	id S262243AbVBVIE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 03:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVBVIE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 03:01:41 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:27932 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262241AbVBVIBk (ORCPT
+	Tue, 22 Feb 2005 03:04:58 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:37015 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262243AbVBVIE4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 03:01:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=tWpF7cCedNMaPAO275XDNOpqDpLXrSIE76RU7mHmHdQRPljFGY7avrBOEio26S8Qw3i5n5kBdRJsTwivkcX5HqlnrwTFBMiNIA9n0MUBDgFb5AKnTLROw5sfGUI0hvvg019Vm1pPLnhCbrzT0sVWoG7d9zcz8/rJ1t8hiSXwH6A=
-Message-ID: <421AE6D3.7060105@gmail.com>
-Date: Tue, 22 Feb 2005 13:31:23 +0530
-From: Inguva <inguva@gmail.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux lover <linux_lover2004@yahoo.com>
-CC: linux-kernel@vger.kernel.org, lkg india <lkg_india@yahoogroups.com>
-Subject: Re: Which types of functions are exported by kernel source?
-References: <20050222073808.2221.qmail@web52210.mail.yahoo.com>
-In-Reply-To: <20050222073808.2221.qmail@web52210.mail.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Feb 2005 03:04:56 -0500
+Date: Tue, 22 Feb 2005 09:04:31 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: Martin =?iso-8859-1?Q?MOKREJ=A9?= 
+	<mmokrejs@ribosome.natur.cuni.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: memory management weirdness
+Message-ID: <20050222080431.GB778@elte.hu>
+References: <4219E62D.7000009@ribosome.natur.cuni.cz> <m14qg5mq5v.fsf@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m14qg5mq5v.fsf@muc.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->/proc/ksyms. But if function in kernel source is not
->defined with asmlinkage then it is exported to kernel
->and seen in /proc/ksyms.
->      Is that correct??
->  
->
-I dont think so. Only symbols explicitly exported via EXPORT_SYMBOL
-macro are exported. asmlinkage keyword has nothing to do with symbol
-exporting.
+* Andi Kleen <ak@muc.de> wrote:
 
-Regards,
-Inguva
+> >   Although I've not re-tested this today again, it used to help a bit to specify
+> > mem=3548M to decrease memory used by linux (tested with AGP card plugged in, when
+> > bios reported 3556MB RAM only).
+> >
+> >   I found that removing the AGP based videoc card and using an old PCI based
+> > video card results in bios detecting 4072MB of RAM. But still, the machine was
+> > slow. I've tried to "cat >| /proc/mtrr" to alter the memory settings, but the
+> > result was only a partial speedup.
+> >
+> >   I'm not sure how to convince linux kernel to run fast again.
+> 
+> It's most likely a MTRR problem. Play more with them.
+
+in particular, try to create two small tables in the same format: one
+showing the e820 memory map as reported in your kernel log, and one
+showing the mtrr areas. If there is any e820 area that is not write-back
+cached via the mtrr mappings then that's the problem. You can also use
+"mem=exactmap,..." to fix up the memory map that the BIOS provides to
+Linux. Slowdowns are very often such MTRR problems. (perhaps the kernel
+should report RAM areas that are not covered by MTRR write-back?)
+
+	Ingo

@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbUBUTLc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 14:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbUBUTLb
+	id S261603AbUBUTaY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 14:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUBUTaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 14:11:31 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44979 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261604AbUBUTLa (ORCPT
+	Sat, 21 Feb 2004 14:30:24 -0500
+Received: from fw.osdl.org ([65.172.181.6]:27318 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261603AbUBUTaR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 14:11:30 -0500
-From: Daniel Phillips <phillips@arcor.de>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Subject: Re: GFS requirements (was: Non-GPL export of invalidate_mmap_range)
-Date: Sat, 21 Feb 2004 14:09:13 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040216190927.GA2969@us.ibm.com> <200402202216.09908.phillips@arcor.de> <20040221141724.GH6280@marowsky-bree.de>
-In-Reply-To: <20040221141724.GH6280@marowsky-bree.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 21 Feb 2004 14:30:17 -0500
+Date: Sat, 21 Feb 2004 11:30:44 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Cc: linux-kernel@vger.kernel.org, anton@megashop.ru
+Subject: Re: 2.6.1 IO lockup on SMP systems
+Message-Id: <20040221113044.7deb60b9.akpm@osdl.org>
+In-Reply-To: <200402211945.21837.rathamahata@php4.ru>
+References: <200401311940.28078.rathamahata@php4.ru>
+	<20040131161729.04000e92.akpm@osdl.org>
+	<200402211945.21837.rathamahata@php4.ru>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402211409.13203.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 21 February 2004 09:17, Lars Marowsky-Bree wrote:
-> On 2004-02-20T22:16:09, I said:
-> > Each DFS is free to implement its own infrastructure, possibly involving
-> > kernel extensions.
+"Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
 >
-> Yes. Though I do reserve the right to find this highly silly, that we
-> might end up with multiple hooks for clustering infrastructure in the
-> kernel...
+> Hello Andrew,
+> 
+> On Sunday 01 February 2004 03:17, Andrew Morton wrote:
+> > "Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
+> > >
+> > > I had experienced a lockups on three of my servers with 2.6.1. It doesn't
+> > >  look like a deadlock, the box is still pingable and all tcp ports which were
+> > >   in listen state before a lockup are remains in listen state, but I can't get
+> > >  any data from this ports. According to sar(1) systems had not been overloaded
+> > >  right before a lockup. And there is no log entries in all user services logs
+> > >  for almost 10 hours after lockup.
+> > 
+> > Please ensure that CONFIG_KALLSYMS is enabled, then generate an all-tasks
+> > backtrace or a locked machine with sysrq-T or `echo t >
+> > /proc/sysrq-trigger'.  Then send us the resulting trace.
+> 
+> I've just reproduced this lockup with 2.6.3.
+> 
+> > 
+> > You may need a serial console to be able to capture all the output.
+> > 
+> > Also, it would be useful to know what sort of load the machines are under,
+> > and what filesystems are in use.
+> 
+> The machine is a http server. The main applications are:
+> 1) apache 1.3 which serves php pages (mod_php):
+> 	 15.3 requests/sec - 111.9 kB/second - 7.3 kB/request
+> 	 54 requests currently being processed, 19 idle servers
+> 2) mysql:
+> 	Threads: 19  Questions: 26922012  Slow queries: 9799  Opens: 64980
+> 	Flush tables: 1  Open tables: 630  Queries per second avg: 143.547
+> 
+> This is an IO bound machine in general. All filesystems are reiserfs.
+> 
+> Here is a sysrq-T output obtained from a locked box via serail console:
 
-But the one true clustering infrastructure hasn't been developed yet.  The 
-upcoming crop of designs need a chance to evolve before a framework is cast 
-in stone.  Perhaps we will eventually end up with a generic harness, 
-something like a vfs for cluster infrastructure, but in my opinion, we're far 
-from being able to define that sensibly now.  It's better to implement 
-exactly what a given DFS needs for the time being.
+OK, so everything is stuck trying to allocate memory.  Perhaps you ran out
+of swapspace, or some process has gone berzerk allocating memory.
 
-> So, how does OpenGFS/GFS achieve the communication? How does it interact
-> with the infrastructure (which, I infere from your above comments, is
-> meant to reside in user-space)?
+How much memory does the machine have, and how much swap space?
 
-It's done both ways, actually.  No new kernel hooks are used in either case.
+I suggest that you run a `vmstat 30' trace on a terminal somewhere, see what
+it says prior to the hangs.  Also capture the sysrq-M output after it has
+hung.
 
-Regards,
+It would be useful to monitor the contents of /proc/vmstat also.
 
-Daniel
-
+And perhaps keep top running in `sort by memory usage' mode.

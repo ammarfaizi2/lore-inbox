@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUJRS4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267335AbUJRT0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267411AbUJRS4n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 14:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267424AbUJRSzg
+	id S267335AbUJRT0K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267505AbUJRT0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 14:55:36 -0400
-Received: from pat.uio.no ([129.240.130.16]:45023 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S267411AbUJRSsF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 14:48:05 -0400
-Subject: Re: NFS4 client deadlock with 2.6.9-rc3-mm4 based kernel
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1098124066.13075.5.camel@leto.cs.pocnet.net>
-References: <1098124066.13075.5.camel@leto.cs.pocnet.net>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1098125272.5744.37.camel@lade.trondhjem.org>
+	Mon, 18 Oct 2004 15:26:09 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:2244 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267556AbUJRTXB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:23:01 -0400
+Date: Mon, 18 Oct 2004 21:24:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Mark_H_Johnson@raytheon.com, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041018192419.GA7076@elte.hu>
+References: <OFF2CA4065.A5BB2E79-ON86256F31.005A287D-86256F31.005A2895@raytheon.com> <20041018165416.GA31259@elte.hu> <4173F879.40102@cybsft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 18 Oct 2004 20:47:52 +0200
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4173F879.40102@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På må , 18/10/2004 klokka 20:27, skreiv Christophe Saout:
-> Hi,
-> 
-> I've managed to lock up the nfs4 client code in an nfs4 chroot
-> environment.
-> 
-> I'm not sure but it seems that __rpc_execute has a problem when called
-> recursively...?
 
-Yes. Synchronous RPC calls should never be run by rpciod.
+* K.R. Foley <kr@cybsft.com> wrote:
 
-This is a known problem, and I'm working on a fix. I've already got
-working code for nfs4_do_close(), but a similar scheme has be set up for
-the byte range locking code.
+> Well you just beat me with that one. :) And here is another for
+> aha152x.
 
-At the moment I'm busy with my move from Norway to the US, so please
-give me a week or 2 to get back to you on this one.
+> -       DECLARE_MUTEX_LOCKED(sem);
+> +       DECLARE_MUTEX(sem);
 
-Cheers,
-  Trond
+almost - the full patch is the one below. (DECLARE_MUTEX() initializes
+the mutex as unlocked, so there's a difference.)
 
+	Ingo
+
+--- linux/drivers/scsi/aha152x.c.orig
++++ linux/drivers/scsi/aha152x.c
+@@ -1160,11 +1160,12 @@ static void timer_expired(unsigned long 
+ static int aha152x_device_reset(Scsi_Cmnd * SCpnt)
+ {
+ 	struct Scsi_Host *shpnt = SCpnt->device->host;
+-	DECLARE_MUTEX_LOCKED(sem);
++	DECLARE_MUTEX(sem);
+ 	struct timer_list timer;
+ 	int ret, issued, disconnected;
+ 	unsigned long flags;
+ 
++	init_MUTEX_LOCKED(&sem);
+ #if defined(AHA152X_DEBUG)
+ 	if(HOSTDATA(shpnt)->debug & debug_eh) {
+ 		printk(INFO_LEAD "aha152x_device_reset(%p)", CMDINFO(SCpnt), SCpnt);

@@ -1,84 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbUEVM4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbUEVNJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbUEVM4n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 08:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUEVM4n
+	id S261236AbUEVNJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 09:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUEVNJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 08:56:43 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:50923 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261210AbUEVM4k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 08:56:40 -0400
-Date: Sat, 22 May 2004 14:56:33 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-Cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
-Subject: Re: rfc: test whether a device has a partition table
-Message-ID: <20040522125633.GA4777@apps.cwi.nl>
-References: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de>
+	Sat, 22 May 2004 09:09:58 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20697 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261236AbUEVNJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 09:09:58 -0400
+Date: Sat, 22 May 2004 15:09:50 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andreas Hartmann <andihartmann@01019freenet.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-mm4
+Message-ID: <20040522130950.GN18564@fs.tum.de>
+References: <fa.lqrqfab.1imhp7@ifi.uio.no> <fa.eegjbm3.l4sub7@ifi.uio.no> <c8mjr4$2fn$1@p3EE062AA.dip0.t-ipconnect.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16559.14090.6623.563810@hertz.ikp.physik.tu-darmstadt.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <c8mjr4$2fn$1@p3EE062AA.dip0.t-ipconnect.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 22, 2004 at 01:18:34PM +0200, Uwe Bonnes wrote:
+Thanks for sending your .config.
 
-> around last september there was a discussion about the linux kernel
-> recognizing "supperfloppys" as disks with bogus partition tables.
+This bug is already fixed in -mm5.
 
-Yes - already had forgotten about that - thanks for reviving
+cu
+Adrian
 
-> Linux Torvalds wrote at one point in the discussion:
+-- 
 
-> >I don't mind the 0x00/0x80 "boot flag" checks - those look fairly 
-> > obvious and look reasonably safe to add to the partitioning code.
-> 
-> The discussion seemed to fade out with no visible result, and for example my
-> USB stick "ID 0d7d:1420 Apacer" with a floppy as second partition gets
-> recognized as:
-> SCSI device sdc: 2880 512-byte hdwr sectors (1 MB)
-> sdc: Write Protect is off
->  sdc: sdc1 sdc2 sdc3 sdc4
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-What do you mean by "floppy as second partition"?
-
-> Find appended a patch that does the 0x00/0x80 "boot flag" checks. Please
-> discuss and consider for inclusion into the kernel.
-
-> +#define BOOT_IND(p)	(get_unaligned(&p->boot_ind))
->  #define SYS_IND(p)	(get_unaligned(&p->sys_ind))
-
-Hmm. get_unaligned() for a single byte?
-I see no reason for these two macros.
-Also, it is a good habit to parenthesize macro parameters.
-
-> +	/* 
-> +	   Some consistancy check for a valid partition table
-
-consistency
-
-> +	   Boot indicator must either be 0x80 or 0x0 on all primary partitions
-> +	   Only one partition may be marked bootable (0x80)
-> +	*/
-> + 	p = (struct partition *) (data + 0x1be);
-> +	for (slot = 1 ; slot <= 4 ; slot++, p++) {
-> +	  if ((BOOT_IND(p) != 0x80) && (BOOT_IND(p) != 0x0))
-> +	    return 0;
-> +	  if (BOOT_IND(p) == 0x80) 
-> +	    nr_bootable++;
-> +	}
-> +	if (nr_bootable > 1) 
-> +	  return 0;
-
-I have no objections.
-
-Does it in your case suffice to check for 0 / 0x80 only
-(without testing nr_bootable)?
-
-I would prefer to omit that test, until there is at least one
-person who shows a boot sector where it is needed.
-
-Andries

@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264085AbUIINvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUIINwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264085AbUIINvd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 09:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUIINvd
+	id S264098AbUIINwt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 09:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUIINwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 09:51:33 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:49046 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264085AbUIINvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 09:51:00 -0400
-Message-ID: <41405B51.20705@yahoo.com.au>
-Date: Thu, 09 Sep 2004 23:32:01 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andrew Morton <akpm@osdl.org>, Andrey Savochkin <saw@saw.sw.com.sg>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Q about pagecache data never written to disk
-References: <20040905120147.A9202@castle.nmd.msu.ru> <20040905035233.6a6b5823.akpm@osdl.org> <20040905154336.B9202@castle.nmd.msu.ru> <20040905140040.58a5fcdc.akpm@osdl.org> <20040909123957.GB1065@elf.ucw.cz> <41405773.3090403@yahoo.com.au> <20040909133703.GA32038@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20040909133703.GA32038@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 9 Sep 2004 09:52:49 -0400
+Received: from imap.gmx.net ([213.165.64.20]:36066 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264098AbUIINwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 09:52:39 -0400
+X-Authenticated: #17725021
+Date: Thu, 9 Sep 2004 15:48:28 +0200
+From: Henry Margies <henry.margies@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Is there a problem in timeval_to_jiffies?
+Message-Id: <20040909154828.5972376a.henry.margies@gmx.de>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: %3lz3@K$hA\]+AEANQT9>.M`@Pfo]3I,M,_JWswT5MBOpjXQ'VST8|DGMhkv8j,9Xb%j3jG
+ |onl!dcPab\nF3>j.1\:ixCGSM)nHq&UXeDDhN@x^5I
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Hallo.
 
->>>kernel realizes that there's not enough disk space, and discard
->>>changes, therefore /tmp/sign.me reverts to previous, evil, content.
->>>
->>
->>root would have to make that change while user has the file open,
->>and should welcome the subsequent unleashing of evil content as a
->>valuable lesson.
-> 
-> 
-> Really? I thought that writeback is not synchronous at close()
-> time.... Hmm.... It probably could be in case of mmap....
-> 
 
-writeback isn't, but the pages will get marked dirty at unmap.
-But I think I am wrong actually - I don't actually see why the
-user would have to have the file open.
+I'm working on an arm based embedded device running kernel 2.6.9.
+I asked this question also on the arm mailing list, but nobody
+could answer me my questions there, so I will try here :)
 
-> It is still pretty unexpected. Like "root sees you have that file
-> open, so he stops you via ptrace".... but ok....
+I have some problems with itimers. For example, if I set up a
+timer using a period of 20ms, the system needs 30ms to send the
+signal. I figured out, that it needs always 10ms more than I
+want.
 
-Or maybe
+The problem seems to be located in the timeval_to_jiffies()
+function.
 
-cp /tmp/sign.me ~/
-chown ... ~/sign.me
-chmod ... ~/sign.me
-mv ~/sign.me /tmp/signed
+In function do_setitimer() the following calculation is done:
+
+     i = timeval_to_jiffies(&value->it_interval);
+
+... where i is the interval for my timer. The problem is, that
+for it_interval = 0 seconds and 20000 microseconds, i = 3. But
+shouldn't it be 2? It looks like, the problem is somewhere in
+here (timeval_to_jiffies()):
+
+      return (((u64)sec * SEC_CONVERSION) +
+                (((u64)usec * USEC_CONVERSION + USEC_ROUND) >>
+                 (USEC_JIFFIE_SC - SEC_JIFFIE_SC))) >>
+			SEC_JIFFIE_SC;
+
+I don't understand all of the formula in detail. But for me, it
+looks like the problem is in USEC_ROUND.
+
+Any ideas?
+
+Thx in advance,
+Henry
+
+-- 
+
+Hi! I'm a .signature virus! Copy me into your
+~/.signature to help me spread!
+

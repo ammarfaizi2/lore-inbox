@@ -1,32 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129384AbRBLM6f>; Mon, 12 Feb 2001 07:58:35 -0500
+	id <S129501AbRBLM6f>; Mon, 12 Feb 2001 07:58:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129710AbRBLM6Y>; Mon, 12 Feb 2001 07:58:24 -0500
+	id <S129384AbRBLM6Z>; Mon, 12 Feb 2001 07:58:25 -0500
 Received: from limes.hometree.net ([194.231.17.49]:10803 "EHLO
 	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S129384AbRBLM6O>; Mon, 12 Feb 2001 07:58:14 -0500
+	id <S129501AbRBLM6P>; Mon, 12 Feb 2001 07:58:15 -0500
 To: linux-kernel@vger.kernel.org
-Date: Mon, 12 Feb 2001 12:57:35 +0000 (UTC)
+Date: Mon, 12 Feb 2001 12:55:41 +0000 (UTC)
 From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <968mjv$l9t$1@forge.intermeta.de>
+Message-ID: <968mgd$l8m$1@forge.intermeta.de>
 Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <95ulrk$aik$1@forge.intermeta.de>, <20010209080454.A17656@beops-jg2.be.uu.net>
+In-Reply-To: <95ulrk$aik$1@forge.intermeta.de>, <3A83335A.A5764CD7@transmeta.com>
 Reply-To: hps@tanstaafl.de
 Subject: Re: DNS goofups galore...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jan.gyselinck@be.uu.net (Jan Gyselinck) writes:
+hpa@transmeta.com (H. Peter Anvin) writes:
 
->There's not really something wrong with MX's pointing to CNAME's.  It's just that some mailservers could (can?) not handle this.  So if you want to be able to receive mail from all kinds of mailservers, don't use CNAME's for MX's.
+>>         In other words, you do a lookup, you start with a primary lookup
+>> and then possibly a second lookup to resolve an MX or CNAME.  It's only
+>> the MX that points to a CNAME that results in yet another lookup.  An
+>> MX pointing to a CNAME is almost (almost, but not quite) as bad as a
+>> CNAME pointing to a CNAME.
+>> 
 
-No. It breaks a basic assumption set in stone in RFC821. It has
-nothing to do with mailer software.
+>There is no reducibility problem for MX -> CNAME, unlike the CNAME ->
+>CNAME case.
+
+>Please explain how there is any different between an CNAME or MX pointing
+>to an A record in a different SOA versus an MX pointing to a CNAME
+>pointing to an A record where at least one pair is local (same SOA).
+
+CNAME is the "canonical name" of a host. Not an alias. There is good
+decriptions for the problem with this in the bat book. Basically it
+breaks if your mailer expects one host on the other side (mail.foo.org) 
+and suddently the host reports as mail.bar.org). The sender is
+allowed to assume that the name reported after the "220" greeting
+matches the name in the MX. This is impossible with a CNAME:
+
+mail.foo.org.   IN A 1.2.3.4
+mail.bar.org.   IN CNAME mail.foo.org.
+bar.org.        IN MX 10 mail.bar.org.
+
+% telnet mail.bar.org smtp
+220 mail.foo.org ESMTP ready
+    ^^^^^^^^^^^^
+
+This kills loop detection. Yes, it is done this way =%-) and it breaks
+if done wrong.
 
 	Regards
 		Henning
-
 -- 
 Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
 INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de

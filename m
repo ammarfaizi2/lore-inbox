@@ -1,176 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262042AbUKJXGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbUKJXIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbUKJXGA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 18:06:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbUKJXGA
+	id S262137AbUKJXIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 18:08:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbUKJXIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 18:06:00 -0500
-Received: from gate.crashing.org ([63.228.1.57]:64415 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262042AbUKJXFh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 18:05:37 -0500
-Subject: Re: [PATCH] sungem: Fix stop_phy
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Colin Leroy <colin@colino.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-In-Reply-To: <20041110092731.230719cb.colin@colino.net>
-References: <20041110092731.230719cb.colin@colino.net>
-Content-Type: text/plain
-Date: Thu, 11 Nov 2004 10:02:54 +1100
-Message-Id: <1100127774.25813.24.camel@gaston>
+	Wed, 10 Nov 2004 18:08:52 -0500
+Received: from fmr03.intel.com ([143.183.121.5]:14781 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262137AbUKJXIl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 18:08:41 -0500
+Date: Wed, 10 Nov 2004 15:04:01 -0800
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Greg KH <greg@kroah.com>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       Hotplug List <linux-hotplug-devel@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kobject: fix double kobject_put in kobject_unregister()
+Message-ID: <20041110150400.C13668@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20041110141923.A13668@unix-os.sc.intel.com> <20041110225421.GA16785@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041110225421.GA16785@kroah.com>; from greg@kroah.com on Wed, Nov 10, 2004 at 02:54:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-11-10 at 09:27 +0100, Colin Leroy wrote:
-> Hi,
+On Wed, Nov 10, 2004 at 02:54:21PM -0800, Greg KH wrote:
+> On Wed, Nov 10, 2004 at 02:19:23PM -0800, Keshavamurthy Anil S wrote:
+> > Hi Greg,
+> > 	
+> > This patch fixes the problem where in kobject resources were getting
+> > freed when those kobject were still in use due to double kobject_put()
+> > getting called in the kobject_unregister() code path.
+> > 
+> > With out this patch kobject_unregister() will have some serious side effects.
+> > 
+> > Please apply.
+> > 
+> > signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+> > 
+> > 
+> >  linux-2.6.10-rc1-mm4-askeshav/lib/kobject.c |    3 ++-
+> >  1 files changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > diff -puN lib/kobject.c~kobject_unregister_fix lib/kobject.c
+> > --- linux-2.6.10-rc1-mm4/lib/kobject.c~kobject_unregister_fix	2004-11-10 13:43:42.243877455 -0800
+> > +++ linux-2.6.10-rc1-mm4-askeshav/lib/kobject.c	2004-11-10 13:46:30.788797265 -0800
+> > @@ -301,6 +301,8 @@ void kobject_del(struct kobject * kobj)
+> >  {
+> >  	kobject_hotplug(kobj, KOBJ_REMOVE);
+> >  	sysfs_remove_dir(kobj);
+> > +
+> > +	/* unlink does kobject_put() for us */
+> >  	unlink(kobj);
+> >  }
+> >  
+> > @@ -313,7 +315,6 @@ void kobject_unregister(struct kobject *
+> >  {
+> >  	pr_debug("kobject %s: unregistering\n",kobject_name(kobj));
+> >  	kobject_del(kobj);
+> > -	kobject_put(kobj);
+> >  }
 > 
-> sungem driver's stop_phy differs quite a lot from Darwin's driver:
-> In darwin, the hack consisting in reading and writing the same 
-> from/to MII_LPA is applied to every sungem card, not only bcm5201.
-> Also, it is done before the rest of the stuff, not after. Maybe order
-> matters.
-> In Linux sungem's driver, the BCM5221 phy is suspended as the BCM5201.
-> It is (completely) different in darwin.
+> No, this is wrong.  Count the add and put in the sequence of:
+> 	kobject_register()
+> 	kobject_unregister()
 > 
-> The patch following this follows OS X a bit more closely. It works on
-> iBook G4 with a BCM5221, it would be nice if users of other PHYs could
-> test it. If I'm correct, stop_phy is called once during boot (I had an
-> oops from it during boot while hacking on it), so booting and checking
-> that network works should be enough.
+> they are balanced.
+> 
+> You mention you are seeing problems.  Have a trace?  Example code?
 
-Which version of Darwin did you look at ? There have been changes since
-I wrote that code. Note that currently, sungem stops everything (cell,
-PHY, ...) when the interface is down for more than 10 seconds, though
-I've been thinking about removing that "feature" since it prevents
-polling the link...
+Here is the call trace when I tried to do kobject_unregiser()
+Call Trace:
+ [<a000000100016de0>] show_stack+0x80/0xa0
+                                sp=e00000000e3cf730 bsp=e00000000e3c9230
+ [<a000000100017640>] show_regs+0x840/0x880
+                                sp=e00000000e3cf900 bsp=e00000000e3c91c8
+ [<a000000100023f10>] die+0x150/0x1c0
+                                sp=e00000000e3cf910 bsp=e00000000e3c9188
+ [<a000000100023fc0>] die_if_kernel+0x40/0x60
+                                sp=e00000000e3cf910 bsp=e00000000e3c9158
+ [<a0000001000240f0>] ia64_fault+0x110/0x1060
+                                sp=e00000000e3cf910 bsp=e00000000e3c9100
+ [<a00000010000dae0>] ia64_leave_kernel+0x0/0x260
+                                sp=e00000000e3cfb20 bsp=e00000000e3c9100
+ [<a0000001002743e0>] strlen+0x20/0x140
+                                sp=e00000000e3cfcf0 bsp=e00000000e3c90a8
+ [<a00000010026a270>] kobject_get_path+0x150/0x1e0
+                                sp=e00000000e3cfcf0 bsp=e00000000e3c9068
+ [<a00000010026a770>] kobject_hotplug+0x350/0x6e0
+                                sp=e00000000e3cfcf0 bsp=e00000000e3c9008
+ [<a0000001002695b0>] kobject_del+0x30/0x80
+                                sp=e00000000e3cfd10 bsp=e00000000e3c8fe0
+ [<a000000100269620>] kobject_unregister+0x20/0x60
+                                sp=e00000000e3cfd10 bsp=e00000000e3c8fc0
+ [<a000000100302420>] acpi_device_unregister+0x320/0x340
+                                sp=e00000000e3cfd10 bsp=e00000000e3c8fa0
+ [<a000000100302b70>] acpi_bus_remove+0x2f0/0x340
+                                sp=e00000000e3cfd10 bsp=e00000000e3c8f68
+ [<a000000100302ec0>] acpi_bus_trim+0x300/0x440
+                                sp=e00000000e3cfd30 bsp=e00000000e3c8f18
+ [<a000000100303110>] acpi_eject_store+0x110/0x240
+                                sp=e00000000e3cfde0 bsp=e00000000e3c8ee0
+ [<a000000100301fb0>] acpi_device_attr_store+0x70/0xa0
+                                sp=e00000000e3cfe20 bsp=e00000000e3c8ea8
+ [<a0000001001864b0>] sysfs_write_file+0x270/0x300
+                                sp=e00000000e3cfe20 bsp=e00000000e3c8e58
+ [<a0000001001052e0>] vfs_write+0x200/0x2c0
 
-> Signed-off-by: Colin Leroy <colin@colino.net>
-> diff -ur a/drivers/net/sungem.c b/drivers/net/sungem.c
-> --- a/drivers/net/sungem.c	2004-10-18 23:55:28.000000000 +0200
-> +++ b/drivers/net/sungem.c	2004-11-10 09:16:55.660896544 +0100
-> @@ -2124,6 +2124,8 @@
->  	 */
->  	msleep(10);
->  
-> +	/* FIXME OS X starts with disabling interrupts for BCM5201 */
+I will try to explain the what is happening here.
 
-PHY interrupts are used for WOL afaik
+I have a sysfs tree like this.
+.../_SB/LSB0 
+.../_SB/LSB0/CPU5
+.../_SB/LSB0/MEM1
+.../_SB/LSB0/MEM2
 
->  	/* Make sure we aren't polling PHY status change. We
->  	 * don't currently use that feature though
->  	 */
+Say LSB0 is kobj1, CPU5 is kobj2, MEM1 is kobj3, MEM2 is kobj4
 
-We don't use autopoll as it's somewhat buggy
+All I am trying to do is first I will do kobject_unregister(kobj2),then 
+kobject_unregister(kobj3), then kobject_unregister(kobj4) and now
+when I try to do kobject_unregister(kobj1) i.e when I am trying to remove
+LSB0 directory, I am seeing the above stack trace.
 
-> @@ -2131,6 +2133,8 @@
->  	mifcfg &= ~MIF_CFG_POLL;
->  	writel(mifcfg, gp->regs + MIF_CFG);
->  
-> +	bcm_link_partner_hack(&gp->phy_mii);
+The patch I posted fixed this problem.
 
-I doubt this is useful, and I'd like to avoid those hacks that violate
-the layering of sungem vs. sungem_phy.c
+Let me know if you need more data.
 
-If you really want to read the LPA, then do so on all PHYs from
-sungem.c. Clearing the interrupts can be done from the PHY init().
+-Anil
 
->  	if (gp->wake_on_lan) {
->  		/* Setup wake-on-lan */
->  	} else {
-> @@ -2159,7 +2163,7 @@
->  	}
->  
->  	if (found_mii_phy(gp) && gp->phy_mii.def->ops->suspend)
-> -		gp->phy_mii.def->ops->suspend(&gp->phy_mii, 0 /* wake on lan options */);
-> +		gp->phy_mii.def->ops->suspend(&gp->phy_mii, gp->wake_on_lan);
->  
->  	if (!gp->wake_on_lan) {
->  		/* According to Apple, we must set the MDIO pins to this begnign
-> diff -ur a/drivers/net/sungem_phy.c b/drivers/net/sungem_phy.c
-> --- a/drivers/net/sungem_phy.c	2004-10-18 23:53:45.000000000 +0200
-> +++ b/drivers/net/sungem_phy.c	2004-11-10 08:59:20.000000000 +0100
-> @@ -101,15 +101,17 @@
->  	return 0;
->  }
->  
-> -static int bcm5201_suspend(struct mii_phy* phy, int wol_options)
-> +void bcm_link_partner_hack(struct mii_phy *phy)
->  {
-> -	if (!wol_options)
-> -		phy_write(phy, MII_BCM5201_INTERRUPT, 0);
-> -
->  	/* Here's a strange hack used by both MacOS 9 and X */
->  	phy_write(phy, MII_LPA, phy_read(phy, MII_LPA));
-> -	
-> +}
-> +
-> +static int bcm5201_suspend(struct mii_phy* phy, int wol_options)
-> +{
->  	if (!wol_options) {
-> +		phy_write(phy, MII_BCM5201_INTERRUPT, 0);
-> +
->  #if 0 /* Commented out in Darwin... someone has those dawn docs ? */
->  		u16 val = phy_read(phy, MII_BCM5201_AUXMODE2)
->  		phy_write(phy, MII_BCM5201_AUXMODE2,
-> @@ -144,6 +146,20 @@
->  	return 0;
->  }
 
-The BCM52xx docs are available on Broadcom site.
- 
-> +static int bcm5221_suspend(struct mii_phy* phy, int wol_options)
-> +{
-> +	if (!wol_options) {
-> +		u16 data = phy_read(phy, MII_BCM5221_TEST);
-> +		phy_write(phy, MII_BCM5221_TEST, 
-> +			data | MII_BCM5221_TEST_ENABLE_SHADOWS);
-> +
-> +		data = phy_read(phy, MII_BCM5221_SHDOW_AUX_MODE4);
-> +		phy_write(phy, MII_BCM5221_SHDOW_AUX_MODE4, 
-> +			data | MII_BCM5221_IDDQ);
-> +	}
-> +	return 0;
-> +}
-> +
->  static int bcm5400_init(struct mii_phy* phy)
->  {
->  	u16 data;
-> @@ -662,7 +678,7 @@
->  
->  /* Broadcom BCM 5221 */
->  static struct mii_phy_ops bcm5221_phy_ops = {
-> -	.suspend	= bcm5201_suspend,
-> +	.suspend	= bcm5221_suspend,
->  	.init		= bcm5221_init,
->  	.setup_aneg	= genmii_setup_aneg,
->  	.setup_forced	= genmii_setup_forced,
-> diff -ur a/drivers/net/sungem_phy.h b/drivers/net/sungem_phy.h
-> --- a/drivers/net/sungem_phy.h	2004-10-18 23:54:40.000000000 +0200
-> +++ b/drivers/net/sungem_phy.h	2004-11-10 08:59:53.000000000 +0100
-> @@ -53,6 +53,7 @@
->   */
->  extern int mii_phy_probe(struct mii_phy *phy, int mii_id);
->  
-> +void bcm_link_partner_hack(struct mii_phy *phy);
->  
->  /* MII definitions missing from mii.h */
->  
-> @@ -81,6 +82,7 @@
->  #define MII_BCM5221_SHDOW_AUX_STAT2_APD		0x0020
->  #define MII_BCM5221_SHDOW_AUX_MODE4		0x1a
->  #define MII_BCM5221_SHDOW_AUX_MODE4_CLKLOPWR	0x0004
-> +#define MII_BCM5221_IDDQ			0x0001
->  
->  /* MII BCM5400 1000-BASET Control register */
->  #define MII_BCM5400_GB_CONTROL			0x09
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
+> 
+> thanks,
+> 
+> gre k-h

@@ -1,81 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266233AbSL1RmO>; Sat, 28 Dec 2002 12:42:14 -0500
+	id <S266243AbSL1Rqh>; Sat, 28 Dec 2002 12:46:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbSL1RmO>; Sat, 28 Dec 2002 12:42:14 -0500
-Received: from ns.netrox.net ([64.118.231.130]:23500 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S266233AbSL1RmN>;
-	Sat, 28 Dec 2002 12:42:13 -0500
-Subject: [PATCH] deprecated function attribute
-From: Robert Love <rml@tech9.net>
-To: Alexander Kellett <lypanov@kde.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, william stinson <wstinson@wanadoo.fr>,
-       trivial@rustcorp.com.au
-In-Reply-To: <20021228153009.GA29614@groucho.verza.com>
-References: <20021228035319.903502C04B@lists.samba.org>
-	 <20021228153009.GA29614@groucho.verza.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041097877.1066.9.camel@icbm>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 28 Dec 2002 12:51:18 -0500
+	id <S266246AbSL1Rqh>; Sat, 28 Dec 2002 12:46:37 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:9128 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S266243AbSL1Rqg>;
+	Sat, 28 Dec 2002 12:46:36 -0500
+Message-ID: <3E0DE569.9070108@colorfullife.com>
+Date: Sat, 28 Dec 2002 18:54:49 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFT][PATCH] generic device DMA implementation
+References: <200212281626.gBSGQPT02456@localhost.localdomain>
+In-Reply-To: <200212281626.gBSGQPT02456@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-12-28 at 10:30, Alexander Kellett wrote:
+James Bottomley wrote:
 
-> can gcc 3.2's __attribute__((deprecated)) be used?
+>manfred@colorfullife.com said:
+>  
+>
+>>Your new documentation disagrees with the current implementation, and
+>>that is just wrong.
+>>    
+>>
+>
+>I don't agree that protecting users from cache line overlap misuse is current 
+>implementation.  It's certainly not on parisc which was the non-coherent 
+>platform I chose to model this with, which platforms do it now for the pci_ 
+>API?
+>  
+>
+You are aware that "users" is not one or two drivers that noone uses, 
+it's the whole networking stack.
+What do you propose to fix sendfile() and networking with small network 
+packets [e.g. two 64 byte packets within a 128 byte cache line]?
 
-I just tested it and it seems to work.  If we mark a function as
-deprecated, then each use of the function emits a warning like:
+One platforms that handles it is Miles Bader's memcopy based 
+dma_map_single() implementation.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103907087825616&w=2
 
-	foo.c:12: warning: `baz' is deprecated (declared at bar.c:60)
+And obviously i386, i.e. all archs with empty dma_map_single() functions.
 
-Which is very informative, giving both the location of each usage and
-where the little bastard is declared.
+I see three options:
+- modify the networking core, and enforce that a cache line is never 
+shared between users for such archs. Big change. Often not necessary - 
+some nics must double buffer internally anyway.
+- modify every driver that doesn't do double buffering, and enable 
+double buffering on the affected archs. Even larger change.
+- do the double buffering in dma_map_single() & co.
 
-It seems like this was added in gcc 3.0, not 3.2?  It was at least in
-3.1...
+One problem for double buffering in dma_map_single() is that it would 
+double buffer too often: for example, the start of the rx buffers is 
+usually misaligned by the driver, to ensure that the IP headers are 
+aligned. The rest of the cacheline is unused, but it's not possible to 
+give that information to dma_map_single().
 
-Attached patch adds support for usage of the attribute as "deprecated"
-and is backward-compatible.  Usage is:
-
-	int deprecated foo(void)
-
-etc.. The attached patch is _entirely_ untested.
-
-	Robert Love
-
- compiler.h |   13 +++++++++++++
- 1 files changed, 13 insertions(+)
-
-
-diff -urN linux-2.5.53/include/linux/compiler.h linux/include/linux/compiler.h
---- linux-2.5.53/include/linux/compiler.h	2002-12-28 12:38:56.000000000 -0500
-+++ linux/include/linux/compiler.h	2002-12-28 12:45:03.000000000 -0500
-@@ -13,6 +13,19 @@
- #define likely(x)	__builtin_expect((x),1)
- #define unlikely(x)	__builtin_expect((x),0)
- 
-+/*
-+ * Allow us to mark functions as 'deprecated' and have gcc emit a nice
-+ * warning for each use, in hopes of speeding the functions removal.
-+ * Usage is:
-+ * 		int deprecated foo(void)
-+ * and then gcc will emit a warning for each usage of the function.
-+ */
-+#if __GNUC__ == 3
-+#define deprecated	__attribute__((deprecated))
-+#else
-+#define deprecated
-+#endif
-+
- /* This macro obfuscates arithmetic on a variable address so that gcc
-    shouldn't recognize the original var, and make assumptions about it */
- #define RELOC_HIDE(ptr, off)					\
-
+--
+    Manfred
 
 

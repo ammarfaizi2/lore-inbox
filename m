@@ -1,36 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319444AbSIGGZN>; Sat, 7 Sep 2002 02:25:13 -0400
+	id <S319443AbSIGGeK>; Sat, 7 Sep 2002 02:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319442AbSIGGZN>; Sat, 7 Sep 2002 02:25:13 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:37605 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S319441AbSIGGZM>; Sat, 7 Sep 2002 02:25:12 -0400
-Date: Sat, 7 Sep 2002 08:28:34 +0200 (CEST)
-From: Oktay Akbal <oktay.akbal@s-tec.de>
-X-X-Sender: oktay@omega.s-tec.de
-To: Mike Anderson <andmike@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org>
-Subject: Re: qlogic failover multipath
-In-Reply-To: <20020906153437.GA2164@beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.44.0209070822250.21784-100000@omega.s-tec.de>
+	id <S319445AbSIGGeK>; Sat, 7 Sep 2002 02:34:10 -0400
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:11216 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S319443AbSIGGeJ>; Sat, 7 Sep 2002 02:34:09 -0400
+Message-ID: <3D799EE0.1020708@wanadoo.fr>
+Date: Sat, 07 Sep 2002 08:38:24 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.0) Gecko/20020615 Debian/1.0.0-3
+X-Accept-Language: fr-FR, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.1; AVE: 6.15.0.1; VDF: 6.15.0.6
-	 at email has not found any known virus in this email.
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre5-ac4 does not compile
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Sep 2002, Mike Anderson wrote:
-
-> You can edit the qla_settings.h file and set MPIO_SUPPORT to 1 or I
-> believe if you use the qla2x00src-v6.1b5-fo archive that this should
-> already be set to 1.
-
-Thank you, I will try at Monday. It is set to 0 in b5.
-But my archive is named: qla2x00src-v6.1b5.tgz
--fo seems to come only from enabling MPIO ?
-
-Oktay Akbal
-
+drivers/ide/idedriver.o: dans la fonction « proc_ide_read_drivers »:
+drivers/ide/idedriver.o(.text+0x3fe): référence indéfinie vers « 
+ide_modules »
+drivers/ide/idedriver.o: dans la fonction « proc_ide_read_identify »:
+drivers/ide/idedriver.o(.text+0x635): référence indéfinie vers « 
+taskfile_lib_ge
+t_identify »
+drivers/ide/idedriver.o: dans la fonction « proc_ide_read_settings »:
+drivers/ide/idedriver.o(.text+0x73c): référence indéfinie vers « 
+ide_read_settin
+g »
+drivers/ide/idedriver.o: dans la fonction « proc_ide_write_settings »:
+drivers/ide/idedriver.o(.text+0x98b): référence indéfinie vers « 
+ide_find_settin
+g_by_name »
+drivers/ide/idedriver.o(.text+0x9b6): référence indéfinie vers « 
+ide_write_setti
+ng »
+drivers/ide/idedriver.o: dans la fonction « proc_ide_write_driver »:
+drivers/ide/idedriver.o(.text+0xbfa): référence indéfinie vers « 
+ide_replace_sub
+driver »
+drivers/ide/idedriver.o: dans la fonction « create_proc_ide_drives »:
+drivers/ide/idedriver.o(.text+0xdb7): référence indéfinie vers « 
+generic_subdriv
+er_entries »
+drivers/ide/idedriver.o: dans la fonction « create_proc_ide_interfaces »:
+drivers/ide/idedriver.o(.text+0xf3c): référence indéfinie vers « ide_hwifs »
+drivers/ide/idedriver.o(.text+0xf41): référence indéfinie vers « ide_hwifs »
+drivers/ide/idedriver.o(.text+0xf46): référence indéfinie vers « ide_hwifs »
+drivers/ide/idedriver.o: dans la fonction « destroy_proc_ide_interfaces »:
+drivers/ide/idedriver.o(.text+0xfa8): référence indéfinie vers « ide_hwifs »
+drivers/ide/idedriver.o(.text+0xfad): référence indéfinie vers « ide_hwifs »
+drivers/ide/idedriver.o(.text+0xfb2): encore plus de références 
+indéfinies suive
+nt vers « ide_hwifs »
+make[1]: *** [vmlinux] Erreur 1
+make[1]: Leaving directory `/usr/src/kernel-source-2.4.20-pre5-ac4'
+make: *** [stamp-build] Erreur 2
 

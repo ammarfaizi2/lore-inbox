@@ -1,30 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135198AbRDROxZ>; Wed, 18 Apr 2001 10:53:25 -0400
+	id <S135199AbRDROyp>; Wed, 18 Apr 2001 10:54:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135199AbRDROxG>; Wed, 18 Apr 2001 10:53:06 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43014 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135198AbRDROwa>; Wed, 18 Apr 2001 10:52:30 -0400
-Subject: Re: [PATCH] IBM ServeRAID driver version 4.71 update
-To: P.Zandbergen@macroscoop.nl (Pim Zandbergen)
-Date: Wed, 18 Apr 2001 15:54:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, ipslinux@us.ibm.com (ServeRAID For Linux)
-In-Reply-To: <NCBBJAAFLJPMOAOEDDEDMEBCCHAA.P.Zandbergen@macroscoop.nl> from "Pim Zandbergen" at Apr 18, 2001 03:36:20 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S135200AbRDROyi>; Wed, 18 Apr 2001 10:54:38 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:16480 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135199AbRDROxx>; Wed, 18 Apr 2001 10:53:53 -0400
+Date: Wed, 18 Apr 2001 17:07:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Theodore Tso <tytso@mit.edu>, "David S. Miller" <davem@redhat.com>,
+        Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better audio.
+Message-ID: <20010418170702.B30770@athlon.random>
+In-Reply-To: <20010417205722.A3626@think> <200104180246.f3I2kL1192784@saturn.cs.uml.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14ptLU-0004u2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200104180246.f3I2kL1192784@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Tue, Apr 17, 2001 at 10:46:20PM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> contains linux-2.4.2-ips-471.patch. This looks like the official update
-> to kernel 2.4.X for the IBM ServeRAID driver.
-> 
-> I have not seen this patch published elsewhere.
-> Could we have this patch merged into the standard kernel, please?
+On Tue, Apr 17, 2001 at 10:46:20PM -0400, Albert D. Cahalan wrote:
+> support for NUMA hardware (it's not cache coherent) right now
 
-I've asked them to clean up a few things.
+btw, there are three kind of NUMA systems:
 
+        1)      cc-numa first citizens (wildfire alpha, future chips)
+        2)      cc-numa second citizens (origin2k)
+        3)      non cache coherent numa machines
+
+On the first class numa citizens NUMA means "heuristics for higher performance".
+On those systems you don't need any NUMA change for correct operation of the
+kernel (besides the fact you may need to use discontigmem to boot the kernel
+if there can be huge physical holes in the physical layout of the ram but
+that is true also for any other non numa machine with big holes in the physical
+ram address space).
+
+On the second and thrid class of NUMA systems NUMA means "required changes
+for correct operations of the system". difference between 1 and 2 is that
+category 2) needs also to put specialized PIO memory barriers to serialize the
+I/O across different nodes. So it "only" additionaly requires total auditing of
+the device drivers.
+
+I think linux will need to optimize class 1 of systems and I assume SGI has the
+PIO memory barriers patches for the device drivers to support class 2 as well.
+
+Nobody ever considered the non cache coherent numa support so far AFIK and
+I guess it will hardly end into mainline (personally I wouldn't be that
+excited to deal with that additional complexity ;). If you can tell, what
+system is it?
+
+Andrea

@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266387AbUFZULC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266395AbUFZUMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266387AbUFZULC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 16:11:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266395AbUFZULC
+	id S266395AbUFZUMl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 16:12:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266427AbUFZUMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 16:11:02 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36017 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266387AbUFZUKw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 16:10:52 -0400
-Date: Sat, 26 Jun 2004 13:09:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: BlaisorBlade <blaisorblade_spam@yahoo.it>
-Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org
-Subject: Re: Inclusion of UML in 2.6.8
-Message-Id: <20040626130945.190fb199.akpm@osdl.org>
-In-Reply-To: <200406261905.22710.blaisorblade_spam@yahoo.it>
-References: <200406261905.22710.blaisorblade_spam@yahoo.it>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 26 Jun 2004 16:12:40 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:50116 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S266395AbUFZUMe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 16:12:34 -0400
+From: Michael Buesch <mbuesch@freenet.de>
+To: Wes Janzen <superchkn@sbcglobal.net>
+Subject: Re: [PATCH] Staircase scheduler v7.4
+Date: Sat, 26 Jun 2004 22:11:16 +0200
+User-Agent: KMail/1.6.2
+References: <40DC38D0.9070905@kolivas.org> <40DDD6CC.7000201@sbcglobal.net>
+In-Reply-To: <40DDD6CC.7000201@sbcglobal.net>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Pauli Virtanen <pauli.virtanen@hut.fi>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406262211.24373.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BlaisorBlade <blaisorblade_spam@yahoo.it> wrote:
->
-> Andrew, what are the requisite for stable inclusion of the UML update inside 
->  2.6-mm
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I have no problem plopping it into -mm, as long as it doesn't cause me too
-much pain.  It did cause patch management pain last time, but probably
-whatever is was interacting with has now been merged up so it'll be OK.
+On Saturday 26 June 2004 22:04, you wrote:
+> Hi Con,
+> 
+> I don't know what's going on but 2.6.7-mm2 with the staircase v7.4 (with 
+> or without staircase7.4-1) takes about 3 hours to get from loading the 
+> kernel from grub to the login prompt.  Now I realize my K6-2 400 isn't 
+> state of the art...  I don't have this problem running 2.6.7-mm2.
+> 
+> It just pauses after starting nearly every service for an extended 
+> period of time.  It responds to sys-rq keys but just seems to be doing 
+> nothing while waiting.
+> 
+> Any suggestions?
 
-But for a merge into mainline we do need to get down and do some work on it
-- reintroducing ghash.h would not be welcome (I though Jeff was going to
-eliminate that?) and last time we looked the patch had some blockdev
-drivers in it which were doing antiquated 2.4 things.
+Maybe same problem as mine?
+Some init-scripts don't get their timeslices?
 
-Generally, UML in 2.6 seems to have fallen behind fairly seriously and at
-some stage we need to go through the exercise of splitting the patch up,
-reviewing and fixing all the bits and feeding it in.
+> Thanks,
+> 
+> Wes Janzen
+
+(Oh, please don't quote whole patches in future, if you don't
+comment on them, Wes. Thanks.)
+
+- -- 
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA3dhpFGK1OIvVOP4RArqcAJ9xtGOUwyP2QJIXzZjZQxNlCxDp0gCfYIbl
+XQtqxR5OT4ZE5BVMdvqzF/E=
+=qDl9
+-----END PGP SIGNATURE-----

@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264408AbTIIThC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 15:37:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbTIIThC
+	id S264514AbTIITkI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 15:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264517AbTIITkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 15:37:02 -0400
-Received: from mx2.it.wmich.edu ([141.218.1.94]:17580 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S264408AbTIITg7 (ORCPT
+	Tue, 9 Sep 2003 15:40:08 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:48645 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S264514AbTIITkE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 15:36:59 -0400
-Message-ID: <3F5E2BA4.60704@wmich.edu>
-Date: Tue, 09 Sep 2003 15:36:04 -0400
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: atapi write support? No
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Sep 2003 15:40:04 -0400
+Date: Tue, 9 Sep 2003 21:40:01 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: 2.6.0-test5: configcheck results
+Message-ID: <20030909194001.GB3009@mars.ravnborg.org>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>
+References: <20030909100412.A25143@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030909100412.A25143@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone able to actually use the atapi write support present in the 
-later cdrecord releases?  2.6 can't seem to work with it at all.  Is 
-this due to the kernel being broken or cdrecord not being up to date 
-with 2.6 semantics?
+On Tue, Sep 09, 2003 at 10:04:12AM +0100, Russell King wrote:
+> Hi all,
+> 
+> I just ran make configcheck on 2.6.0-test5 and the results are:
+> 
+>     832 files need linux/config.h but don't actually include it.
+>     689 files which include linux/config.h but don't require the header.
 
+Randy, you have looked into related perl scripts. Is the result of
+checkconfig.pl reliable?
+
+	Sam

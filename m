@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263029AbSJBKKl>; Wed, 2 Oct 2002 06:10:41 -0400
+	id <S263032AbSJBKLC>; Wed, 2 Oct 2002 06:11:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263031AbSJBKKl>; Wed, 2 Oct 2002 06:10:41 -0400
-Received: from tungsten.btinternet.com ([194.73.73.81]:49326 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S263029AbSJBKKi>; Wed, 2 Oct 2002 06:10:38 -0400
-From: Nick Sanders <sandersn@btinternet.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Kernel Panic 2.5.39 when starting hotplug
-Date: Wed, 2 Oct 2002 11:16:01 +0100
-User-Agent: KMail/1.4.7
-Cc: linux-kernel@vger.kernel.org
-References: <200209281324.47486.sandersn@btinternet.com> <200210020222.40880.sandersn@btinternet.com> <20021002015903.GA11453@kroah.com>
-In-Reply-To: <20021002015903.GA11453@kroah.com>
-MIME-Version: 1.0
+	id <S263033AbSJBKLC>; Wed, 2 Oct 2002 06:11:02 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9482 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263032AbSJBKLA>; Wed, 2 Oct 2002 06:11:00 -0400
+Date: Wed, 2 Oct 2002 11:16:26 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Dereferencing semaphores and atomic_t's
+Message-ID: <20021002111625.B24770@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210021116.02036.sandersn@btinternet.com>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 October 2002 2:59 am, Greg KH wrote:
-> On Wed, Oct 02, 2002 at 02:22:40AM +0100, Nick Sanders wrote:
-> > Sorry about the last report not the most informative, I'm still getting a
-> > kernel panic with 2.5.40. I think it's my Alcatel USB Speedtouch Modem as
-> > it only panics when I plug it in.
->
-> Are you using the new "in-kernel" driver for this device?  Or the
-> userspace driver?  Hm, in looking at your .config, you're not using the
-> kernel driver, any reason you aren't?
->
-> And if you move usbmodules to something else (like usbmodules.orig), it
-> will not be run by the hotplug code.  Does that prevent the oops?
->
-I used the kernel driver about 9 months ago but it wasn't reliable, the 
-userspace driver is brilliantly reliable and also I don't have to patch the 
-kernel, just looked at 2.5.40 and see it's in the kernel but I have been 
-using 2.4 till recently but there is still the speedmgmt application which 
-used to hang the machine on shutdown  and also when the link was dropped and 
-you also need a ATM aware PPP daemon so the userpace driver is IMHO simpler 
-use.
+drivers/scsi/scsi_error.c:
 
-Moving /usr/sbin/usbmodules to /usr/sbin/usbmodules.orig stops the kernel 
-panic, I get the following on boot
+        SCSI_LOG_ERROR_RECOVERY(3, printk("Wake up parent %d\n",
+                                          shost->eh_notify->count.counter));
 
-Starting hotplug subsystem: usb** can't synthesize root hub events.
+        up(shost->eh_notify);
 
-Thanks
+drivers/scsi/hosts.c:
 
-Nick
+                up(shost->eh_wait);
+                SCSI_LOG_ERROR_RECOVERY(5, printk("Waking error handler"
+                                          "thread (%d)\n",
+                                          atomic_read(&shost->eh_wait->count)));
+
+
+                up(shost->eh_wait);
+                SCSI_LOG_ERROR_RECOVERY(5, printk("Waking error handler"
+                                          "thread (%d)\n",
+                                          atomic_read(&shost->eh_wait->count)));
+
+Do we really allow this type of layering violation?
+
+(There appear to be some circumstances when obtaining the semaphore count is
+useful, but shouldn't we provide an architecture helper function to do that
+since a semaphore structure _is_ an architecture-defined opaque structure.)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

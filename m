@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265136AbSJWRub>; Wed, 23 Oct 2002 13:50:31 -0400
+	id <S265128AbSJWR4l>; Wed, 23 Oct 2002 13:56:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265138AbSJWRua>; Wed, 23 Oct 2002 13:50:30 -0400
-Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:60932 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S265136AbSJWRu2>;
-	Wed, 23 Oct 2002 13:50:28 -0400
-Date: Wed, 23 Oct 2002 13:56:39 -0400 (EDT)
-From: Gerhard Mack <gmack@innerfire.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: One for the Security Guru's
-In-Reply-To: <Pine.LNX.3.95.1021023105535.13301A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0210231346500.26808-100000@innerfire.net>
+	id <S265138AbSJWR4l>; Wed, 23 Oct 2002 13:56:41 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:55058 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S265128AbSJWR4k>;
+	Wed, 23 Oct 2002 13:56:40 -0400
+Message-ID: <3DB6E45F.5010402@mvista.com>
+Date: Wed, 23 Oct 2002 13:03:11 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: dipankar@gamebox.net
+CC: linux-kernel@vger.kernel.org, John Levon <levon@movementarian.org>
+Subject: Re: [PATCH] NMI request/release, version 3
+References: <20021022021005.GA39792@compsoc.man.ac.uk> <3DB4B8A7.5060807@mvista.com> <20021022025346.GC41678@compsoc.man.ac.uk> <3DB54C53.9010603@mvista.com> <20021022232345.A25716@dikhow> <3DB59385.6050003@mvista.com> <20021022233853.B25716@dikhow> <3DB59923.9050002@mvista.com> <20021022190818.GA84745@compsoc.man.ac.uk> <3DB5C4F3.5030102@mvista.com> <20021023230327.A27020@dikhow>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Richard B. Johnson wrote:
+Dipankar Sarma wrote:
 
+>On Tue, Oct 22, 2002 at 04:36:51PM -0500, Corey Minyard wrote:
 >
-> Of course the attack against Linux was "true". If you put a
-> Linux machine (or Sun or whatever), on the outside of a firewall
-> it may be attacked, therefore vulnerable to attack. And, if
-> investors learned that you were so stupid as to put it outside
-> a firewall, you might get sued by the investors. It's all perfectly
-> true. It's a trick by liars that lie by telling irrefutable
-> truths.
+>Hmm... I am not sure if this is correct. 
+>
+Yes, it's not correct, I will fix it.  I didn't realize there was an 
+rcu-safe list.  That should make things simpler.
 
-Actually at the place that just went bankrupt on me I had a Security
-consultant complain that 2 of my servers were outside the firewall.  He
-recommended that I get a firewall just for those 2 servers but backed off
-when I pointed out that I would need to open all of the same ports that
-are open on the server anyways so the vulnerability isn't any less with
-the firewall.
+>I probably have missed quite a few things here in these changes, but
+>would be interesting to see if they could be made to work. One clear
+>problem - someone does a release_nmi() and then a request_nmi() 
+>on the same handler while it is waiting for its RCU grace period
+>to be over. Oh well :-)
+>
+Well, the documentation said "Don't do that!".  But I think you are 
+right, I will make release_nmi() block until the item is free.
 
-Firewalls are another Security Consultant's lie and using them for
-anything other than preventing outside connections to internal machines
-and keeping certain DOS attacks outside the network is a waste of money.
-To top it off they make admins feel safer so they are less likely to make
-sure the machine is actually admined properly.
+Thanks,
 
-Never trust Security Consultants.
-
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+-Corey
 

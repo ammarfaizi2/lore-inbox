@@ -1,88 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269501AbUICBIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269477AbUICBIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269501AbUICBIG (ORCPT <rfc822;willy@w.ods.org>);
+	id S269477AbUICBIG (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Sep 2004 21:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269480AbUICAzw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269501AbUICBEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:55:52 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:22227 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S269490AbUICAzB convert rfc822-to-8bit
+	Thu, 2 Sep 2004 21:04:51 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41710 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S269477AbUICBAo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 20:55:01 -0400
-Date: Fri, 03 Sep 2004 00:54:56 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: buildin a RAID5 md vith 6 drives
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Balsa 2.2.4
-Message-Id: <1094172896l.17931l.2l@werewolf.able.es>
-X-Balsa-Fcc: file:///home/magallon/mail/sentbox
+	Thu, 2 Sep 2004 21:00:44 -0400
+Message-ID: <4137C1FA.7070000@mvista.com>
+Date: Thu, 02 Sep 2004 17:59:38 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+CC: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>,
+       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, david+powerix@blue-labs.org
+Subject: Re: [PATCH] Re: boot time, process start time, and NOW time
+References: <87smcf5zx7.fsf@devron.myhome.or.jp>	<20040816124136.27646d14.akpm@osdl.org>	<Pine.LNX.4.53.0408172207520.24814@gockel.physik3.uni-rostock.de>	<412285A5.9080003@mvista.com>	<1092782243.2429.254.camel@cog.beaverton.ibm.com>	<Pine.LNX.4.53.0408180051540.25366@gockel.physik3.uni-rostock.de>	<1092787863.2429.311.camel@cog.beaverton.ibm.com>	<1092781172.2301.1654.camel@cube>	<1092791363.2429.319.camel@cog.beaverton.ibm.com>	<Pine.LNX.4.53.0408180927450.14935@gockel.physik3.uni-rostock.de>	<20040819191537.GA24060@elektroni.ee.tut.fi>	<20040826040436.360f05f7.akpm@osdl.org>	<Pine.LNX.4.53.0408261311040.21236@gockel.physik3.uni-rostock.de>	<Pine.LNX.4.53.0408310037280.5596@gockel.physik3.uni-rostock.de>	<1093916047.14662.144.camel@cog.beaverton.ibm.com>	<Pine.LNX.4.53.0408310757430.6523@gockel.physik3.uni-rostock.de>	<87fz61yf75.fsf@devron.myhome.or.jp> <4137896E.5080802@mvista.com> <87u0uggxme.fsf@devron.myhome.or.jp>
+In-Reply-To: <87u0uggxme.fsf@devron.myhome.or.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
+OGAWA Hirofumi wrote:
+> George Anzinger <george@mvista.com> writes:
+> 
+> 
+>>OGAWA Hirofumi wrote:
+>>Well, my machine says the result should be 996000000, so something is
+>>wrong with your or my math.
+> 
+> 
+> Hmm.. I don't know why. I'm using x86 cpu machine.
+> 
+> 
+>>As to if the initial jiffie value should
+>>be a multiple of HZ, I don't see why.  I think it is several counts
+>>off of this value when the system wall clock is set in any case.
+> 
+> 
+> Ah, sorry for quite insufficiency explanation.
+> 
+> Since INITIAL_JIFFIES is -5 minutes, so I though tv.tv_nsec should be 0.
+> The cause of this is
+> 
+>      INITIAL_JIFFIES % HZ (4294667296 % 1000)
+> 
+> because INITIAL_JIFFIES is unsigned long.
+> 
+> So, I guessed this is not intention.
+> Looks like this should be (-300*1000) % 1000.
 
-I tried to build a RAID5 array with 6 drivres, just with:
+What "should be"?  Are you refering to some real code or some thoughts you had? 
+   I am not aware of the kernel converting INITIAL_JIFFIES to time ....
+> 
+> What do you think of this?
 
+The actual initial value of jiffies is not important.  The reason this value was 
+chosen was to catch problems that occur when the unsigned value rolls over to 
+zero (and several were found and fixed).
 
-mdadm --create --verbose --run \
-        /dev/md0 --level=5 --chunk=256 \
-        --raid-devices=6 \
-        /dev/sda1 /dev/sdb1 /dev/sdc1 \
-        /dev/sdd1 /dev/sde1 /dev/sdf1
-
-And the raid looks in an strange state:
-
-nada:~# mdadm -D /dev/md0
-/dev/md0:
-        Version : 00.90.01
-  Creation Time : Fri Sep  3 02:17:28 2004
-     Raid Level : raid5
-     Array Size : 1225557760 (1168.78 GiB 1254.97 GB)
-    Device Size : 245111552 (233.76 GiB 250.99 GB)
-   Raid Devices : 6
-  Total Devices : 6
-Preferred Minor : 0
-    Persistence : Superblock is persistent
-
-    Update Time : Fri Sep  3 02:42:32 2004
-          State : clean, degraded, recovering
- Active Devices : 5
-Working Devices : 6
- Failed Devices : 0
-  Spare Devices : 1
-
-         Layout : left-symmetric
-     Chunk Size : 256K
-
- Rebuild Status : 8% complete
-
-           UUID : fd6fcad0:21da140b:072a82b1:11b3db21
-         Events : 0.30
-
-    Number   Major   Minor   RaidDevice State
-       0       8        1        0      active sync   /dev/sda1
-       1       8       17        1      active sync   /dev/sdb1
-       2       8       33        2      active sync   /dev/sdc1
-       3       8       49        3      active sync   /dev/sdd1
-       4       8       65        4      active sync   /dev/sde1
-       5       0        0        -      removed
-
-       6       8       81        5      spare rebuilding   /dev/sdf1
-
-Why does it think a drive has been removed, and the last drive is a spare ?
-Isn't raid5 symmetric over all drives ?
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Beta 1) for i586
-Linux 2.6.8.1-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #8
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286456AbRL0SRj>; Thu, 27 Dec 2001 13:17:39 -0500
+	id <S286451AbRL0SOs>; Thu, 27 Dec 2001 13:14:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286415AbRL0SQC>; Thu, 27 Dec 2001 13:16:02 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:62456 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S286456AbRL0SO6>;
-	Thu, 27 Dec 2001 13:14:58 -0500
-Date: Thu, 27 Dec 2001 11:14:15 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Alexander Viro <viro@math.psu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [Ext2-devel] [RFC] [PATCH] Clean up fs.h union for ext2
-Message-ID: <20011227111415.D12868@lynx.no>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Alexander Viro <viro@math.psu.edu>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <E16JR71-0000cU-00@starship.berlin>
-Mime-Version: 1.0
+	id <S286455AbRL0SOn>; Thu, 27 Dec 2001 13:14:43 -0500
+Received: from pop.gmx.de ([213.165.64.20]:18204 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S286437AbRL0SMy>;
+	Thu, 27 Dec 2001 13:12:54 -0500
+Message-ID: <3C2B64D1.B277EFF8@gmx.net>
+Date: Thu, 27 Dec 2001 19:13:37 +0100
+From: Andrew Cannon <ajc@gmx.net>
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Riley Williams <rhw@memalpha.cx>
+CC: Ralf Baechle <ralf@uni-koblenz.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] RBF File System for Linux v0.53 (alpha)
+In-Reply-To: <Pine.LNX.4.21.0112270010570.3044-100000@Consulate.UFP.CX>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E16JR71-0000cU-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Dec 27, 2001 at 04:21:42AM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 27, 2001  04:21 +0100, Daniel Phillips wrote:
-> The strategy is to abstract all references to the struct inode union through 
-> an inline function:
+
+I aim for a high degree of backwards-compatibility;->
+
+...Andrew
+
+
+Riley Williams wrote:
 > 
-> 	static inline struct ext2_inode_info *ext2_i (struct inode *inode)
-> 	{
-> 		return &(inode->u.ext2_inode_info);
-> 	}
+> Hi Ralf.
 > 
-> There is some grist here for the mills of language lawyers here.  Note the 
-> compilation warning:
+> >> Subject: [ANNOUNCE] RBF File System for Linux v0.53 (alpha)
+> >                                      ^^^^^^^^^^^^^^^
 > 
->    ialloc.c:336: warning: passing arg 1 of `ext2_i' discards qualifiers from 
->    pointer target type
-
-Why not just declare ext2_i like the following?  It _should_ work:
-
-static inline struct ext2_inode_info *ext2_i(const struct inode *inode)
-{
-	return &(inode->u.ext2_inode_info);
-}
-
-
-Minor nit: this is already done for the ext3 code, but it looks like:
-
-#define EXT3_I	(&((inode)->u.ext3_i))
-
-We already have the EXT3_SB, so I thought I would be consistent with it:
-
-#define EXT3_SB	(&((sb)->u.ext3_sb))
-
-Do people like the inline version better?  Either way, I would like to make
-the ext2 and ext3 codes more similar, rather than less.
-
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+> >> This is my first pass at a Linux File System, so any comments,
+> >> feedback, suggestions etc would be welcome!
+> 
+> > You could really upgrade the kernel ;-)
+> 
+> Especially as no such kernel as 0.53 ever existed 8-)
+> 
+> Best wishes from Riley.
+> 
+> ---
+>  * Linux Kernel History = http://www.MemAlpha.cx/Linux/Kernel/

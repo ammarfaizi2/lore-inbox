@@ -1,54 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVBYHEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262634AbVBYHI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262633AbVBYHEs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 02:04:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVBYHEs
+	id S262634AbVBYHI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 02:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262636AbVBYHI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 02:04:48 -0500
-Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:16 "EHLO
+	Fri, 25 Feb 2005 02:08:57 -0500
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:784 "EHLO
 	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262633AbVBYHEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 02:04:46 -0500
-Date: Thu, 24 Feb 2005 23:04:28 -0800 (PST)
+	id S262634AbVBYHIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 02:08:17 -0500
+Date: Thu, 24 Feb 2005 23:07:52 -0800 (PST)
 From: Andre Hedrick <andre@linux-ide.org>
-To: Stuart MacDonald <stuartm@connecttech.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linus' decrees?
-In-Reply-To: <000001c51aab$e409bb60$294b82ce@stuartm>
-Message-ID: <Pine.LNX.4.10.10502242303230.23632-100000@master.linux-ide.org>
+To: Greg Folkert <greg@gregfolkert.net>
+cc: Stuart MacDonald <stuartm@connecttech.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Greg's Decree! (was Re: Linus' decrees?)
+In-Reply-To: <1109280654.14960.5.camel@king.gregfolkert.net>
+Message-ID: <Pine.LNX.4.10.10502242305190.23632-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Stuart,
+Greg,
 
-Yeah!  It is a road paved w/ X-maintainers ... AKA the the difference
-between the active maintainer list and the credit list.
+Linus is not always correct, sometimes his point of view is hard to see.
+My shoulders got in the way most of the time; however, Linus is
+consistant.  Well until he changes his mind.
+
+Crack ??  Get some plumber's putty to smooth over the gap.
 
 Cheers,
 
 Andre Hedrick
 LAD Storage Consulting Group
 
-On Thu, 24 Feb 2005, Stuart MacDonald wrote:
+On Thu, 24 Feb 2005, Greg Folkert wrote:
 
-> Recently I ran across
-> http://groups.google.ca/groups?hl=en&lr=lang_en&safe=off&selm=1033074519.2698.5.
-> camel%40localhost.localdomain
+> On Thu, 2005-02-24 at 15:03 -0500, Stuart MacDonald wrote:
+> > Recently I ran across
+> > http://groups.google.ca/groups?hl=en&lr=lang_en&safe=off&selm=1033074519.2698.5.
+> > camel%40localhost.localdomain
+> > 
+> > Is there a collection point for Linus' decrees?
+> > 
+> > The LSB (http://www.linuxbase.org/) seems to be mostly involved with
+> > how a distro is laid out, and not much to do with the kernel.
 > 
-> Is there a collection point for Linus' decrees?
+> Okay, Linus decreed... oh yeah.
 > 
-> The LSB (http://www.linuxbase.org/) seems to be mostly involved with
-> how a distro is laid out, and not much to do with the kernel.
+> Exactly what is wrong with the method anyway?
 > 
-> ..Stu
+> You on Crack?
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> And no... that is not a decree in the traditional sense. It is more like
+> me saying:
+>         "I decree that Linus Torvalds is the lead maintainer of the
+>         Linux Kernel"
+> 
+> Make TONS-O-SENSE to state the obvious. IOW the statement was all meant
+> to say *DO IT THIS WAY AND NO OTHER* as nobody else honors any other
+> method.
+> -- 
+> greg, greg@gregfolkert.net
+> 
+> The technology that is
+> Stronger, better, faster: Linux
 > 
 

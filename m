@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310479AbSCPRfD>; Sat, 16 Mar 2002 12:35:03 -0500
+	id <S310494AbSCPRix>; Sat, 16 Mar 2002 12:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310480AbSCPRey>; Sat, 16 Mar 2002 12:34:54 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:51975 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S310479AbSCPRen>;
-	Sat, 16 Mar 2002 12:34:43 -0500
-Date: Sat, 16 Mar 2002 09:34:34 -0800
-From: Greg KH <greg@kroah.com>
-To: Gordon J Lee <gordonl@world.std.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IBM x360 2.2.x boot failure, 2.4.9 works fine
-Message-ID: <20020316173434.GB10003@kroah.com>
-In-Reply-To: <3C927F3E.7C7FB075@world.std.com> <20020315234333.GH5563@kroah.com> <3C92B1EA.F40BDBD5@world.std.com> <20020316055542.GA8125@kroah.com> <3C938093.D1640CB6@world.std.com>
+	id <S310488AbSCPRip>; Sat, 16 Mar 2002 12:38:45 -0500
+Received: from bitmover.com ([192.132.92.2]:24964 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S310482AbSCPRie>;
+	Sat, 16 Mar 2002 12:38:34 -0500
+Date: Sat, 16 Mar 2002 09:38:32 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Larry McVoy <lm@bitmover.com>,
+        James Bottomley <James.Bottomley@SteelEye.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Problems using new Linux-2.4 bitkeeper repository.
+Message-ID: <20020316093832.F10086@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Larry McVoy <lm@bitmover.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203161608.g2GG8WC05423@localhost.localdomain> <3C9372BE.4000808@mandrakesoft.com> <20020316083059.A10086@work.bitmover.com> <3C9375B7.3070808@mandrakesoft.com> <20020316085213.B10086@work.bitmover.com> <3C937B82.60500@mandrakesoft.com> <20020316091452.E10086@work.bitmover.com> <3C938027.4040805@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C938093.D1640CB6@world.std.com>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Sat, 16 Feb 2002 15:28:36 -0800
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C938027.4040805@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Sat, Mar 16, 2002 at 12:25:59PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 12:27:48PM -0500, Gordon J Lee wrote:
-> > > > > 2.4.9     works fine!
-> > > >
-> > > > Forgot to mention, how many processors does this kernel show you having?
-> > >
-> > > It has two physical packages, and shows two processors.  See below.
-> >
-> > Ah, can you try the latest 2.4.19-ac tree and make sure that the rest of
-> > your processors (the "evil" twins) show up?
-> 
-> Yes, they show up.  I tried 'cat /proc/cpuinfo' on the following:
-> 
-> 2.4.18  shows two processors
-> 2.4.19-pre3 shows two processors
-> 2.4.19-pre3-ac1 shows four processors
+> I think a fair question would be, is this scenario going to occur often? 
+>  I don't know.  But I'll bet you -will- see it come up again in kernel 
+> development.  Why?  We are exercising the distributed nature of the 
+> BitKeeper system.  The system currently punishes Joe in Alaska and 
+> Mikhail in Russia if they independently apply the same GNU patch, and 
+> then later on wind up attempting to converge trees.
 
-Great, thanks for testing.  I'd recommend using this hardware :)
+Indeed.  So speak in file systems, because a BK package is basically a file
+system, with multiple distributed instances, all of which may be out of
+sync.  The problems show up when the same patch is applied N times and 
+then comes together.  The inodes collide.  Right now, you think that's
+the problem, and want BK to fix it.  We can fix that.  But that's not 
+the real problem.  The real problem is N sets of diffs being applied
+and then merged.  The revision history ends up with the data inserted N
+times.
 
-greg k-h
+I'm not sure what to do about it.  I can handle the duplicate inode case
+more gracefully but it's a heavy duty rewack.
+
+We could play games where we detect the same patch inserted multiple times
+and refuse to merge them.  Hmm. Hmm.  Not sure that helps.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

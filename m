@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVBAXSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVBAXTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVBAXSg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 18:18:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVBAXSg
+	id S262167AbVBAXTS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 18:19:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVBAXTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 18:18:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:26294 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262163AbVBAXS1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 18:18:27 -0500
-Subject: Re: Linux hangs during IDE initialization at boot for 30 sec
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: ee21rh@surrey.ac.uk
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       list linux-ide <linux-ide@vger.kernel.org>
-In-Reply-To: <pan.2005.02.01.20.21.46.334334@surrey.ac.uk>
-References: <200502011257.40059.brade@informatik.uni-muenchen.de>
-	 <pan.2005.02.01.20.21.46.334334@surrey.ac.uk>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 10:18:20 +1100
-Message-Id: <1107299901.5624.28.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Tue, 1 Feb 2005 18:19:18 -0500
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:24948 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262167AbVBAXTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 18:19:14 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Victor Hahn <victorhahn@web.de>
+Subject: Re: Really annoying bug in the mouse driver
+Date: Tue, 1 Feb 2005 18:19:12 -0500
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <41E91795.9060609@web.de> <d120d5000502010556629fdb48@mail.gmail.com> <41FF9001.5090607@web.de>
+In-Reply-To: <41FF9001.5090607@web.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200502011819.12304.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 20:22 +0000, Richard Hughes wrote:
-> On Tue, 01 Feb 2005 12:57:33 +0100, Michael Brade wrote:
+On Tuesday 01 February 2005 09:19, Victor Hahn wrote:
+> Dmitry Torokhov wrote:
 > 
-> > Hi,
-> > 
-> > since at least kernel 2.6.9 I'm having a problem booting linux - it hangs 
-> > after this
-> > 
-> > Probing IDE interface ide0...
-> > hda: HITACHI_DK23DA-30, ATA DISK drive
-> > elevator: using anticipatory as default io scheduler
-> > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> > Probing IDE interface ide1...
-> > hdc: TOSHIBA DVD-ROM SD-R2212, ATAPI CD/DVD-ROM drive
-> > ide1 at 0x170-0x177,0x376 on irq 15
-> > 
-> > After about 30 seconds everything continues fine with
-> > 
-> > hda: max request size: 128KiB
-> > 
-> > I found additional lines in the log just before the line above:
+> >Sorry, I think it will apply to 2.6.11-rc2, I'll try to rediff against
+> >2.6.10 later tonight.
+> >
 > 
-> Same here on 2.6.11-rc2-bk3 using a *Toshiba* Satellite Pro A10.
+> You don't need to do extra work to make it compatible with 2.6.10, I 
+> just applied it to 2.6.11-rc2, thanks. I'm just compiling it now, I'm 
+> looking forward to see the result!
 > 
-> messages can be found here:
-> 
-> http://hughsie.no-ip.com/write/kernel/messages
 
-This looks like bogus HW, or bogus list of IDE interfaces ...
+Any luck with the patch?
 
-The IDE layer waits up to 30 seconds for a device to drop it's busy bit,
-which is necessary for some drives that aren't fully initialized yet.
-
-I suspect in your case, it's reading "ff", which indicates either that
-there is no hardware where the kernel tries to probe, or that there is
-bogus IDE interfaces which don't properly have the D7 line pulled low so
-that BUSY appears not set in absence of a drive.
-
-I'm not sure how the list of intefaces is probed on this machine, that's
-probably where the problem is.
-
-Ben.
-
-
+-- 
+Dmitry

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279421AbRJWN0Z>; Tue, 23 Oct 2001 09:26:25 -0400
+	id <S279424AbRJWNdQ>; Tue, 23 Oct 2001 09:33:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279424AbRJWN0P>; Tue, 23 Oct 2001 09:26:15 -0400
-Received: from web12308.mail.yahoo.com ([216.136.173.106]:50948 "HELO
-	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S279421AbRJWNZ4>; Tue, 23 Oct 2001 09:25:56 -0400
-Message-ID: <20011023132630.88943.qmail@web12308.mail.yahoo.com>
-Date: Tue, 23 Oct 2001 06:26:30 -0700 (PDT)
-From: Stephen Cameron <smcameron@yahoo.com>
-Subject: [PATCH} cpqfc, eliminate virt_to_bus + fix passthrough bug
-To: linux-kernel@vger.kernel.org
-Cc: alan@redhat.com
+	id <S279426AbRJWNdG>; Tue, 23 Oct 2001 09:33:06 -0400
+Received: from euston.inpharmatica.co.uk ([193.115.214.6]:58356 "EHLO
+	sunsvr03.inpharmatica.co.uk") by vger.kernel.org with ESMTP
+	id <S279424AbRJWNct>; Tue, 23 Oct 2001 09:32:49 -0400
+Message-ID: <3BD571A1.1000009@purplet.demon.co.uk>
+Date: Tue, 23 Oct 2001 14:33:21 +0100
+From: Mike Jagdis <jaggy@purplet.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en, fr, de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Behavior of poll() within a module
+In-Reply-To: <Pine.LNX.3.95.1011023085214.9875A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch description:
-   * reinitialize Cmnd->SCp.sent_command (used to identify commands as
-     passthrus) on calling scsi_done, since the scsi mid layer does not
-     use (or reinitialize) this field to prevent subsequent comands from
-     having it set incorrectly. 
+Richard B. Johnson wrote:
+> What is the intended behavior of poll within a module when
+> two or more tasks are sleeping in poll? Specifically, when
+> wake_up_interruptible is executed from a module, are all
+> tasks awakened or is only one? If only one, is it the
+> first task to call poll/select or the last, which is awakened
+> first? 
 
-   * Revise driver to use new kernel 2.4.x PCI DMA API, instead of 
-     virt_to_bus().  (enables driver to work w/ ia64 systems with >2Gb RAM.)
-     Rework main scatter-gather code to handle cases where SG element
-     lengths are larger than 0x7FFFF bytes and use as many scatter 
-     gather pages as necessary. (Steve Cameron)
-   * Makefile changes to bring cpqfc into line w/ rest of SCSI drivers
-     (thanks to Keith Owens)
+Normally all but... In the case of accept() the kernel knows
+that a woken up process will service the event (the code is
+all in the kernel) so the accept code flags its wait_queue
+entry to say, "If this gets woken don't wake the rest".
+Unfortunately the way wake one and wake all semantics are
+handled within the wait queue mean we get FIFO rather than
+LIFO behaviour I believe :-(
 
-Patch is large, so it's here:
-http://www.geocities.com/dotslashstar/cpqfc_2.1.1_for_2.4.12-ac5.txt
+I guess you could do "the accept() thing" yourself from a
+module - or add a Linux specific poll flag and do it from
+user space for that matter.
 
-Patch applies to 2.4.12-ac5 and to 2.4.13-pre6.
+Oh, and yes, wake all is required behaviour of poll/select.
+It's just accept that is special because all the code is in
+the kernel and if it gets woken we _know_ that event is no
+longer present.
 
--- steve
-(aka steve.cameron@compaq.com)
+				Mike
 
-
-__________________________________________________
-Do You Yahoo!?
-Make a great connection at Yahoo! Personals.
-http://personals.yahoo.com

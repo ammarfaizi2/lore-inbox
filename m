@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313799AbSDIHOF>; Tue, 9 Apr 2002 03:14:05 -0400
+	id <S313803AbSDIHQX>; Tue, 9 Apr 2002 03:16:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313803AbSDIHOE>; Tue, 9 Apr 2002 03:14:04 -0400
-Received: from violet.setuza.cz ([194.149.118.97]:59919 "EHLO violet.setuza.cz")
-	by vger.kernel.org with ESMTP id <S313799AbSDIHOE>;
-	Tue, 9 Apr 2002 03:14:04 -0400
-Subject: RE: Documentation or software - bug?
-From: Frank Schaefer <frank.schafer@setuza.cz>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
+	id <S313804AbSDIHQW>; Tue, 9 Apr 2002 03:16:22 -0400
+Received: from [195.20.224.249] ([195.20.224.249]:37388 "EHLO samoa.sitewaerts")
+	by vger.kernel.org with ESMTP id <S313803AbSDIHQV>;
+	Tue, 9 Apr 2002 03:16:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Felix Seeger <seeger@sitewaerts.de>
+Organization: <sitewaerts> GmbH
+To: Greg KH <greg@kroah.com>, Felix Seeger <felix.seeger@gmx.de>
+Subject: Re: usb problems (no /dev/usb)
+Date: Tue, 9 Apr 2002 09:17:21 +0200
+X-Mailer: KMail [version 1.4]
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0204062230370.6422-200000@dragon.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 09 Apr 2002 09:14:04 +0200
-Message-Id: <1018336445.620.4.camel@ADMIN>
-Mime-Version: 1.0
+In-Reply-To: <200204082106.33705.felix.seeger@gmx.de> <20020408235945.GD10263@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200204090917.21508.seeger@sitewaerts.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-04-07 at 08:38, Randy.Dunlap wrote:
-> 
-> Hi,
-> 
-> Here's my conclusion/opinion.
-> 
-> All of the (networking) BOOLEAN parameters expect newlen (in the
-> sysctl system call) to be sizeof(int), not 1, but (your) sysctl
-> program executes the syscall with newlen = 1.
-> 
- 
-> ---------- Forwarded message ----------
-> 
-> Hi there,
-> 
-> I try to set up a box without procfs, thus I've to set some kernel
-> parameters using _sysctl().
-> 
-Hi,
+Am Dienstag, 9. April 2002 01:59 schrieb Greg KH:
+> On Mon, Apr 08, 2002 at 09:06:33PM +0200, Felix Seeger wrote:
+> > Hi
+> >
+> > I have tried to install a usb printer but I have no /dev/usb.
+> >
+> > Usb drivers / usb printer installed (in kernel / module)
+> >
+> > Do I have to create the folders /dev/usb and the things that are in there
+> > ?
+>
+> If you are not using devfs, yes.
+>
+> > Why ? ;)
+>
+> Welcome to Unix :)
+>
+> thanks,
+>
+> greg k-h
+Ok, it is in development, thats fine ;)
+It works now, I've found a mknod command in the newsgroups.
 
-I've figured out this already, but thanks for you'r time
+Is there a document for mknod which explaints the numbers at the ond of the 
+command. The manpage is not really good.
 
-Regards
-Frank
-
+thanks
+have fun
+Felix

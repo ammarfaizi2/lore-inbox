@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293046AbSBWAEL>; Fri, 22 Feb 2002 19:04:11 -0500
+	id <S293021AbSBWALm>; Fri, 22 Feb 2002 19:11:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293052AbSBWAED>; Fri, 22 Feb 2002 19:04:03 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:39314 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S293046AbSBWADD>; Fri, 22 Feb 2002 19:03:03 -0500
-Date: Fri, 22 Feb 2002 19:02:56 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Balbir Singh <balbir_soni@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Trivial patch against mempool
-Message-ID: <20020222190256.C16169@redhat.com>
-In-Reply-To: <F24fGB9wIWXLU9778dv00003562@hotmail.com>
-Mime-Version: 1.0
+	id <S293052AbSBWALc>; Fri, 22 Feb 2002 19:11:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48905 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293021AbSBWALR>; Fri, 22 Feb 2002 19:11:17 -0500
+Subject: Re: is CONFIG_PACKET_MMAP always a win?
+To: mfedyk@matchmail.com (Mike Fedyk)
+Date: Sat, 23 Feb 2002 00:24:35 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        lk@tantalophile.demon.co.uk (Jamie Lokier), dank@kegel.com (Dan Kegel),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org),
+        zab@zabbo.net (Zach Brown)
+In-Reply-To: <20020222214408.GI20060@matchmail.com> from "Mike Fedyk" at Feb 22, 2002 01:44:08 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <F24fGB9wIWXLU9778dv00003562@hotmail.com>; from balbir_soni@hotmail.com on Fri, Feb 22, 2002 at 12:28:14PM -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ePzP-0003bi-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 22, 2002 at 12:28:14PM -0800, Balbir Singh wrote:
-> Check if the alloc_fn and free_fn are not NULL. The caller generally
-> ensures that alloc_fn and free_fn are valid. It would not harm
-> to check. This makes the checking in mempool_create() more complete.
+> > receiving source is free. Its certainly pretty close to free because the
+> > overhead of sucking it into L1 cache will dominate and you need to do that
+> > anyway.
+> > 
+> Doesn't DMA access system memory directly and leave processor caches alone?
 
-Rather than leak memory in that case, why not just BUG_ON null 
-function pointers so that people know what code is at fault?
+It accesses system memory. That means the copy you have in cache is stale
+so you need to get rid of the copy in the cache - be that software or
+hardware.
 
-		-ben

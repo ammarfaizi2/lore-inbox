@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265116AbTIIXOM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 19:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265149AbTIIXOM
+	id S265200AbTIIXQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 19:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbTIIXQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 19:14:12 -0400
-Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:1248
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265116AbTIIXOD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 19:14:03 -0400
-Date: Tue, 9 Sep 2003 16:14:02 -0700
-To: Jan Ischebeck <mail@jan-ischebeck.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test5-mm1
-Message-ID: <20030909231402.GG7314@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Jan Ischebeck <mail@jan-ischebeck.de>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1063138439.2168.34.camel@JHome.uni-bonn.de>
+	Tue, 9 Sep 2003 19:16:25 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:2441 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265200AbTIIXQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 19:16:24 -0400
+Subject: Re: [PM] Patrick: which part of "maintainer" and "peer review"
+	needs explaining to you?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0309091604070.695-100000@cherise>
+References: <Pine.LNX.4.44.0309091604070.695-100000@cherise>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1063149303.31269.30.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BQPnanjtCNWHyqYD"
-Content-Disposition: inline
-In-Reply-To: <1063138439.2168.34.camel@JHome.uni-bonn.de>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
+Date: Wed, 10 Sep 2003 00:15:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2003-09-10 at 00:07, Patrick Mochel wrote:
+> What about suspend-to-ram, APM, and runtime states? 
+> 
+> That actually makes it quite a bit more complicated, globally. By forcing 
+> the policy down to the drivers, you force each one to interpret the value 
+> themselves and make the decision. By doing it centrally, the only thing 
+> the low-level drivers have to worry about is going into the state. 
 
---BQPnanjtCNWHyqYD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+APM and ACPI suspend/resume (especially resume) are different. Very
+different with some hardware in fact. For IDE to be done perfectly you
+want to know if its ACPI S4 or APM suspend. The driver needs to be able
+to get the actual aim but most I agree wont care which.
 
-On Tue, Sep 09, 2003 at 10:14:00PM +0200, Jan Ischebeck wrote:
-> make[2]: *** [mm/slab.o] Fehler 1
-> make[1]: *** [mm] Fehler 2
-> make: *** [stamp-build] Fehler 2
-
-Try the patch I recently posted to the list Re: the original message.
-
---=20
-Joshua Kwan
-
---BQPnanjtCNWHyqYD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iQIVAwUBP15euKOILr94RG8mAQIk6hAA4ZRrQjDWtSD3U0eyYa9IttbNi5fZu6pH
-G4Yh4jkCz3K9BSoE0XM20zw+U1uE9qPy8N2sA301KJlOYZLRvA9Y7IFvDILldpCh
-Y0NhFGssuR7zR+XgW3QUzcY38N0SUKfAaEV8IOdYy1U3amsPF7e6aL5DVwp+06I/
-4+yXuKAM4dJ/CH2NYQnh/9Ex/voHwHRv5uC5KbFVLjYrPafGidGDnqql7Yare/Ys
-ae9cqmawteeyUvHFXAK/ZpJzMXbbBGo/xZO3ktYGvgCQ/5gvCX8KExu8N5iFPwds
-z18+mCDwh5O15gcQZbCwYK4esyEhB12UqZntL2YwEMX9gw9pF9rT4c+vuBrScoTF
-FqW5yIyaysSjb8G+2dZ1rAmHcGFoft3I39O4RDRQuBPTt1cx7ZKYF7qIjRDDHxHz
-uFEHsxK0n9irjrkD687bx84+gyh1AxjStZOnBSb5SPWBIV0s46PQJ87eY3uKyVvf
-BFF0YYqGYj4iaGSPmWRJG9E7gsEfEyDOaxInr7zZ9lfqRxBvZGOgQqeotAjMrc0u
-ijgV/0ejj15QI2mwkSsMX/JqY6qvAgnV7XYXD1Xhr6jwX4DDrmj+63R7ZlvyLrKc
-a/9sEr7Jp2wcK5hTeB7CbbCDmoW3Ee/IjVJoV02UP1sAboJmmgMs22aroeniki+a
-FBTUJvdIOU4=
-=y8gK
------END PGP SIGNATURE-----
-
---BQPnanjtCNWHyqYD--

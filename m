@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVCAXJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVCAXTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbVCAXJy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 18:09:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVCAXJy
+	id S262113AbVCAXTp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 18:19:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbVCAXTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 18:09:54 -0500
-Received: from hell.org.pl ([62.233.239.4]:34314 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S262109AbVCAXJo (ORCPT
+	Tue, 1 Mar 2005 18:19:45 -0500
+Received: from smtp07.web.de ([217.72.192.225]:22230 "EHLO smtp07.web.de")
+	by vger.kernel.org with ESMTP id S262113AbVCAXTn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 18:09:44 -0500
-Date: Wed, 2 Mar 2005 00:09:46 +0100
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: linux-kernel@vger.kernel.org
-Cc: rmk+serial@arm.linux.org.uk
-Subject: kernel BUG at drivers/serial/8250.c:1256!
-Message-ID: <20050301230946.GA30841@hell.org.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+	Tue, 1 Mar 2005 18:19:43 -0500
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Andreas Schwab <schwab@suse.de>
+Subject: Re: x86_64: 32bit emulation problems
+Date: Wed, 2 Mar 2005 00:19:19 +0100
+User-Agent: KMail/1.7.2
+Cc: Andi Kleen <ak@muc.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       nfs@lists.sourceforge.net
+References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <200503012207.02915.bernd-schubert@web.de> <jewtsruie9.fsf@sykes.suse.de>
+In-Reply-To: <jewtsruie9.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+Message-Id: <200503020019.20256.bernd-schubert@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 01 March 2005 23:10, Andreas Schwab wrote:
+> Bernd Schubert <bernd-schubert@web.de> writes:
+> >> It is most likely some kind of user space problem.  I would change
+> >> it to int err = stat(dir, &buf);
+> >> and then go through it with gdb and see what value err gets assigned.
+> >>
+> >> I cannot see any kernel problem.
+> >
+> > The err value will become -1 here.
+>
+> That's because there are some values in the stat64 buffer delivered by the
+> kernel which cannot be packed into the stat buffer that you pass to stat.
+> Use stat64 or _FILE_OFFSET_BITS=64.
 
-I've finally got around to test latest kernels and managed to find a bug in 
-the serial subsystem, which happens during suspend.
+Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But why does 
+it work without this option on a 32bit kernel, but not on a 64bit kernel?
 
-I use a 3Com PC Card Bluetooth adapter that needs serial_cs and hci_uart
-modules. Whenever I try to suspend using 2.6.10 or a newer kernel, the
-following bug appears. Note that 2.6.9 works perfectly.
+32bit kernel, 32bit binary: always works
+64bit kernel, 64bit binary: always works
 
-#v+ handwritten, 2.6.11-rc5
-kernel BUG at drivers/serial/8250.c:1256!
-invalid operand: 0000 [#1]
-PREEMPT
-[...]
-EIP is at serial_unlink_irq_chain+0x4b/0x60 [8250]
-[...]
-Call Trace:
-uart_suspend_port [serial_core]
-serial_suspend [serial_cs]
-serial_event [serial_cs]
-send_event_callback [pcmcia]
-__bus_for_each_dev
-bus_for_each_dev
-send_event_callback [pcmcia]
-send_event [pcmcia]
-send_event_callback [pcmcia]
-handle_event [pcmcia]
-ds_event [pcmcia]
-send_event [pcmcia_core]
-socket_suspend [pcmcia_core]
-#v-
+64bit kernel, 32bit binary:
+ - always works on knfsd mount points
+ - always works with -D_FILE_OFFSET_BITS=64
+ - only works on unfs3 mount points with _FILE_OFFSET_BITS=64 
 
-Photos are available here (sorry for the quality):
-http://hell.org.pl/~sziwan/bug_8250-1.jpg
-http://hell.org.pl/~sziwan/bug_8250-2.jpg
-http://hell.org.pl/~sziwan/bug_8250-3.jpg
 
-I'll be happy to provide whatever information is needed.
+Do I really have to write a bug report for every single debian package that 
+access /etc  and /var to make the maintainers recompile it with 
+-D_FILE_OFFSET_BITS=64? 
+Btw, whats about Suse, are there all packages compiled with this option? ;)
 
-Best regards,
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Cheers, 
+(a completely confused) Bernd

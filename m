@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268609AbUHYUzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268711AbUHYU76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268609AbUHYUzY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 16:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268674AbUHYUzS
+	id S268711AbUHYU76 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 16:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268662AbUHYUzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 16:55:18 -0400
-Received: from cantor.suse.de ([195.135.220.2]:64738 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268707AbUHYUvv (ORCPT
+	Wed, 25 Aug 2004 16:55:43 -0400
+Received: from holomorphy.com ([207.189.100.168]:41871 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268696AbUHYUuz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 16:51:51 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>,
-       Nikita Danilov <Nikita@namesys.com>
-In-Reply-To: <412CF96A.5040503@namesys.com>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
-	 <20040825200859.GA16345@lst.de>
-	 <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org>
-	 <412CF96A.5040503@namesys.com>
-Content-Type: text/plain
-Message-Id: <1093467108.21878.240.camel@watt.suse.com>
+	Wed, 25 Aug 2004 16:50:55 -0400
+Date: Wed, 25 Aug 2004 13:50:45 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       ck kernel mailing list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8.1-ck4
+Message-ID: <20040825205045.GI2793@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Rik van Riel <riel@redhat.com>, Con Kolivas <kernel@kolivas.org>,
+	ck kernel mailing list <ck@vds.kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <412880BF.6050503@kolivas.org> <Pine.LNX.4.44.0408251621160.5145-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 25 Aug 2004 16:51:49 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0408251621160.5145-100000@chimarrao.boston.redhat.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-25 at 16:41, Hans Reiser wrote:
-> I just want to add that I AM capable of working with the other 
-> filesystem developers in a team-player way, and I am happy to cooperate 
-> with making portions more reusable where there is serious interest from 
-> other filesystems in that, 
+On Sun, 22 Aug 2004, Con Kolivas wrote:
+>> Added since 2.6.8.1-ck3:
+>> +mapped_watermark.diff
 
-Prove it.  Stop replying for today and come back tomorrow with some
-useful discussions.  Christoph suggested that some of the v4 semantics
-belong in the VFS and therefore linux as a whole.  He's helping you to
-make sure the semantics and fit nicely with the rest of kernel
-interfaces and are race free.
+On Wed, Aug 25, 2004 at 04:22:32PM -0400, Rik van Riel wrote:
+> Sounds like a bad idea for file servers ;)
+> Wouldn't it be better to lazily move these cached pages to
+> a "cached" list like the BSDs have, and reclaim it immediately
+> when the memory is needed for something else ?
+> It should be easy enough to keep the cached data around and
+> still have the cache pages easily reclaimable.
 
-Take him up on the offer.
+This will be unmapped and clean; but that's not certain to be enough.
+We must ask at what cost comes aggressive caching.
 
--chris
 
-
+-- wli

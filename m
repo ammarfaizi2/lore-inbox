@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263357AbRFPMzD>; Sat, 16 Jun 2001 08:55:03 -0400
+	id <S264621AbRFPNYW>; Sat, 16 Jun 2001 09:24:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264620AbRFPMyo>; Sat, 16 Jun 2001 08:54:44 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:20872 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S263357AbRFPMyd>;
-	Sat, 16 Jun 2001 08:54:33 -0400
-Date: Sat, 16 Jun 2001 14:53:53 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106161253.OAA311473.aeb@vlet.cwi.nl>
-To: ddstreet@us.ibm.com, jgarzik@mandrakesoft.com
-Subject: Re: ps2 keyboard filter hook
-Cc: linux-kernel@vger.kernel.org
+	id <S264622AbRFPNYM>; Sat, 16 Jun 2001 09:24:12 -0400
+Received: from juicer35.bigpond.com ([139.134.6.87]:41430 "EHLO
+	mailin10.bigpond.com") by vger.kernel.org with ESMTP
+	id <S264621AbRFPNYD>; Sat, 16 Jun 2001 09:24:03 -0400
+Message-Id: <m15BG8K-001UIwC@mozart>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+cc: Heiko Carstens <heiko.carstens@de.ibm.com>,
+        suganuma <suganuma@hpc.bs1.fc.nec.co.jp>,
+        Anton Blanchard <antonb@au.ibm.com>,
+        Jason McMullan <jmcmullan@linuxcare.com>
+Subject: [ANNOUNCE] HotPlug CPU patch against 2.4.5
+Date: Sat, 16 Jun 2001 23:29:00 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> patch to allow other drivers to register with the PS/2 driver as 'filters'
+Hi all,
 
-> Didn't we just conclude a discussion here on linux-kernel, which said
-> that patches which simply add hooks allowing proprietary extensions are
-> not accepted into the kernel?
+	http://sourceforge.net/projects/lhcs/
 
-There is a certain need for this kind of patches.
-I have seen similar stuff for the blind, or for disabled
-people who for example can use only one hand.
-Also for people who use a combined keyboard/barcode reader.
-Hooks for drivers that do something special have other uses
-than for proprietary extensions.
+	Version 0.3 (untested) of the HotPlug CPU Patch is out, with
+ia64 and x86 support.  Bringing CPUs down and up is as simple as:
 
-It is good to see what people want.
-One of these centuries we must replace the present keyboard
-and console stuff, probably by something very similar to
-Vojtech's input device stuff, and we must make sure that
-the new code is powerful enough to last for a few years again.
+	# Down...
+	echo 0 > /proc/sys/cpu/1
+	# Up...
+	echo 1 > /proc/sys/cpu/1
 
-Andries
+	Apologies for the slow release, and *huge* kudos to the people
+who did the real work for this release:
+
+	Kimio Suganuma (ia64)
+	Jason McMullan (x86)
+
+Thanks!
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

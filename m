@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288508AbSADGfj>; Fri, 4 Jan 2002 01:35:39 -0500
+	id <S288511AbSADGmB>; Fri, 4 Jan 2002 01:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288510AbSADGf2>; Fri, 4 Jan 2002 01:35:28 -0500
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:5128
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S288508AbSADGfN>; Fri, 4 Jan 2002 01:35:13 -0500
-Message-Id: <5.1.0.14.2.20020104012836.0230eae0@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 04 Jan 2002 01:28:51 -0500
-To: Edesio Costa e Silva <edesio@ieee.org>,
-        David Golden <david.golden@oceanfree.net>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: A happy new year
-Cc: linux-kernel@vger.kernel.org, Edesio Costa e Silva <edesio@acm.org>
-In-Reply-To: <20020101162800.A463@home.softaplic.com.br>
-In-Reply-To: <02010116310100.01195@golden1.goldens.ie>
- <20020101232033.GA565@www.ekinos.com>
- <3C32043B.CC31DB56@top.bg>
- <3C31DFB8.354F6401@eznet.net>
- <02010116310100.01195@golden1.goldens.ie>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S288512AbSADGlu>; Fri, 4 Jan 2002 01:41:50 -0500
+Received: from nlaknet.slt.lk ([203.115.0.2]:7624 "EHLO laknet.slt.lk")
+	by vger.kernel.org with ESMTP id <S288511AbSADGlp>;
+	Fri, 4 Jan 2002 01:41:45 -0500
+Message-ID: <3C35F8B2.98763627@sltnet.lk>
+Date: Fri, 04 Jan 2002 12:47:14 -0600
+From: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17-9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: akpm@zip.com.au
+Subject: Re: losetuping files in tmpfs fails?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 04:28 PM 1/1/2002 -0200, Edesio Costa e Silva wrote:
+Greetings.
 
->Make the computer human powered... :)
+Andrew Morton wrote:
 
-can I overclock my machine by pedaling faster?
+> Yup, tmpfs doesn't provide some of the facilities which the
+<snip>
+> It's not obvious that there's a burning need to support loop-on-tmpfs
+> though, is there?
 
+	No, there isn't. I noticed this myself a few months back, but didn't
+complain because, well, the purpose of tmpfs is to provide support for
+POSIX shared memory, right? (At least according to Configure.help).
+{If,/ Because} tmpfs does that correctly, it's not broken.
+	The only app I've encountered that breaks with this is mkinitrd and
+associates, but it should at least attempt to fallback to the user's
+home directory IMHO (without complaining "you're all out of loop
+devices" - an old Redhat mkinitrd).
 
---
-Stevie-O
+Cheerio!
 
-Real programmers use COPY CON PROGRAM.EXE
-
+	 - ioj

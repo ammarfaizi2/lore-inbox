@@ -1,51 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269749AbUJAKbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269748AbUJAKfV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269749AbUJAKbS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 06:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269748AbUJAKbS
+	id S269748AbUJAKfV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 06:35:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269744AbUJAKfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 06:31:18 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:18307 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S269747AbUJAKbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 06:31:15 -0400
-Date: Fri, 1 Oct 2004 20:30:32 +1000
-From: CaT <cat@zip.com.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       "Li, Shaohua" <shaohua.li@intel.com>
-Subject: Re: promise controller resource alloc problems with ~2.6.8
-Message-ID: <20041001103032.GA1049@zip.com.au>
-References: <20040927084550.GA1134@zip.com.au> <Pine.LNX.4.58.0409301615110.2403@ppc970.osdl.org> <20040930233048.GC7162@zip.com.au> <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 1 Oct 2004 06:35:21 -0400
+Received: from p5089F465.dip.t-dialin.net ([80.137.244.101]:1540 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S269751AbUJAKeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 06:34:15 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Date: Fri, 1 Oct 2004 12:34:12 +0200
+User-Agent: KMail/1.7
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200410011154.32670.petkov@uni-muenster.de> <20041001095432.GF3008@suse.de>
+In-Reply-To: <20041001095432.GF3008@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0409301646040.2403@ppc970.osdl.org>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200410011234.12462.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 30, 2004 at 04:56:21PM -0700, Linus Torvalds wrote:
-> Now, the reason for using "insert_resource()" in arch/i386/pci/i386.c 
-> should go away with Shaohua Li's patch, so I'd love to hear if applying 
-> Li's patch _and_ making the "insert_resource()" be a "request_resource()" 
-> fixes the problem for you.
+On Friday 01 October 2004 11:54, Jens Axboe wrote:
+> On Fri, Oct 01 2004, Borislav Petkov wrote:
+> > On Friday 01 October 2004 11:18, Jens Axboe wrote:
+> > > On Fri, Oct 01 2004, Bartlomiej Zolnierkiewicz wrote:
+> > > > On Thursday 30 September 2004 23:46, Borislav Petkov wrote:
+> > > > > On Thursday 30 September 2004 18:25, Bartlomiej Zolnierkiewicz 
+wrote:
+> > > > > > On Thursday 30 September 2004 17:32, Borislav Petkov wrote:
+> > > > > > > On Thursday 30 September 2004 14:52, Bartlomiej Zolnierkiewicz
+> >
+> > wrote:
+> > > > > > > > On Thursday 30 September 2004 06:46, Andrew Morton wrote:
+> > > > > > > > > ide broke :(   Maybe Bart's bk tree?
+> > > > > > > >
+> > > > > > > > no, disk works just fine ;)  If it is my tree I will happilly
+> > > > > > > > fix it.
+> > > > > > > >
+> > > > > > > > Borislav, could you apply only these patches from -mm4 and
+> > > > > > > > retest?
+> > > > > > > >
+> > > > > > > > linus.patch
+> > > > > > > > bk-ide-dev.patch
+> > > > > > > >
+> > > > > > > > > Begin forwarded message:
+> > > > > > > > >
+> > > > > > > > > Date: Wed, 29 Sep 2004 12:43:35 +0200
+> > > > > > > > > From: Borislav Petkov <petkov@uni-muenster.de>
+> > > > > > > > > To: Andrew Morton <akpm@osdl.org>
+> > > > > > > > > Cc: linux-kernel@vger.kernel.org
+> > > > > > > > > Subject: Re: 2.6.9-rc2-mm4
+> > > > > > > > >
+> > > > > > > > >
+> > > > > > > > > <snip>
+> > > > > > > > >
+> > > > > > > > > Hello,
+> > > > > > > > >  I've already posted about problems with audio extraction
+> > > > > > > > > but it went unnoticed. Here's a recount: When I attempt to
+> > > > > > > > > read an audio cd into wavs with cdda2wav, the process
+> > > > > > > > > starts but after a while the completion meter freezes and
+> > > > > > > > > klogd says "hdc: lost interrupt" and cdda2wav hangs itself.
+> > > > > > > > > Disabling DMA doesn't help as well as the boot option
+> > > > > > > > > "pci=routeirq" too. Older kernels like 2.6.7 do not show
+> > > > > > > > > such behavior and there audio extraction runs fine. Sysinfo
+> > > > > > > > > attached.
+> > > > > > > > >
+> > > > > > > > > Regards,
+> > > > > > > > > Boris.
+> > > > > > >
+> > > > > > > Hi people,
+> > > > > > >
+> > > > > > >  well, I've applied the above patches but no change - same
+> > > > > > > "hdc: lost interrupt" message. 2.6.9-rc3 behaves the same, as
+> > > > > > > expected.
+> > > > > >
+> > > > > > Well, if 2.6.9-rc3 fails then it is not my tree...
+> > > > > >
+> > > > > > Please find kernel version which introduces this bug.
+> > > > >
+> > > > > Just compiled 2.6.8.1 and tested audio extraction. The bug is
+> > > > > there. After that, reran the test with 2.6.7. Everything went fine.
+> > > > > So it must have been between 2.6.7 and 2.6.8.1 when the bug got
+> > > > > introduced. Any additional debugging options in the ATA/IDE cd
+> > > > > driver i could turn on so that I could get more verbose messages
+> > > > > while executing cdda2wav?
+> > > >
+> > > > I'm not aware of any.  Jens?
+> > >
+> > > I don't see any changes that could impact this from 2.6.7 to 2.6.8. We
+> > > tightened the dma alignment (from 4 to 32 bytes), but should not cause
+> > > problems going in that direction. Unless the other path is buggy, of
+> > > course.
+> > >
+> > > Does dma make a difference? Please try 2.6.9-rc3 as well.
+> >
+> > Sorry guys,
+> >
+> > still a no go. Tested today 2.6.8.1 and 2.6.9-rc3 both with DMA
+> > on/off. same lost interrupt message. How about a hardware problem?
+> > Maybe the cd-drive is showing some hidden "features" under certain
+> > conditions, although it is highly unlikely since 2.6.7 runs fine.
+> > strange...
+>
+> I can't say, probably you need to look outside of ide changes to locate
+> the problem. Have you tried disabling acpi on your box?
+I'm not sure whether adding the boot option acpi=off is enough to disable ACPI 
+in 2.6, but if this is the case 2.6.9-rc3 is still a no go with acpi 
+disabled. How about APIC? 
 
-You meant this, right?
-
-if (!pr || insert_resource(pr, r) < 0)
-	printk(KERN_ERR "PCI: Cannot allocate resource region %d of bridge %s\n", idx, pci_name(dev));
-
-If so then the patch + the above did not work. :/
-
-> Greg, we kind of left the ACPI resource management breakage pending, and 
-> clearly we need some resolution. Comments?
-
-BTW. I just realised (and I apologise for not doing so earlier) that I'm
-not using ACPI on this box.
-
--- 
-    Red herrings strewn hither and yon.
+Boris.

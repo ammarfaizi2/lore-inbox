@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264092AbRGCLyG>; Tue, 3 Jul 2001 07:54:06 -0400
+	id <S264080AbRGCLtz>; Tue, 3 Jul 2001 07:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264103AbRGCLx4>; Tue, 3 Jul 2001 07:53:56 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46597 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264092AbRGCLxk>; Tue, 3 Jul 2001 07:53:40 -0400
-Subject: Re: [RFC] I/O Access Abstractions
-To: dhowells@redhat.com (David Howells)
-Date: Tue, 3 Jul 2001 12:53:14 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), dhowells@redhat.com (David Howells),
-        jes@sunsite.dk (Jes Sorensen), dwmw2@redhat.com,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com
-In-Reply-To: <3911.994146916@warthog.cambridge.redhat.com> from "David Howells" at Jul 03, 2001 08:55:16 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264092AbRGCLte>; Tue, 3 Jul 2001 07:49:34 -0400
+Received: from viper.haque.net ([66.88.179.82]:2199 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S264080AbRGCLt3>;
+	Tue, 3 Jul 2001 07:49:29 -0400
+Message-ID: <3B41B146.7669DF58@haque.net>
+Date: Tue, 03 Jul 2001 07:49:26 -0400
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Blesson Paul <blessonpaul@usa.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel still resides in the root
+In-Reply-To: <20010703054924.20200.qmail@nwcst340.netaddress.usa.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15HOjy-0007aR-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For example, one board I've got doesn't allow you to do a straight
-> memory-mapped I/O access to your PCI device directly, but have to reposition a
-> window in the CPU's memory space over part of the PCI memory space first, and
-> then hold a spinlock whilst you do it.
+Blesson Paul wrote:
+>                 I just completed the full compilation. But there is one still
+> missing factor. I uncommented the INSTALL_PATH=/boot. But still the vmlinux
+> still resides in the directory where i compiled the kernel. Why is it so. What
+> to do if the kernel should be present in the boot directory.
 
-What does this prove. PA-RISC has this problem in reverse for I/O cycle access
-to PCI slots on hppa1.1 at least. Cookies work _fine_
+You did run make install? Do you have a custom install script in
+/sbin/installkernel?
 
-And by the time you are taking a spinlock who cares about the add, you can do
-that while the bus transactions for the atomic op are completing
+The vmlinux you see is the uncompressed kernel. If you compiled with
+make bzImage, zImage, etc the resulting compressed kernel is at
+arch/<your arch>/boot/. You then either run make install or 
+	cp ./System.map arch/<your arch>/boot/<kernel> /boot 
 
-On the other hand each call, each push of resource * pointers costs real clocks
-on x86
+-- 
 
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

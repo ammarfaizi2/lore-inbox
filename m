@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273067AbTG3RVM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 13:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273070AbTG3RVM
+	id S273079AbTG3R0T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 13:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273081AbTG3R0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 13:21:12 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:53508 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S273067AbTG3RVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 13:21:11 -0400
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
-       suparna@in.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-In-Reply-To: <20030730163615.GD17201@wotan.suse.de>
-References: <20030708213427.39de0195.ak@suse.de>
-	<20030708.150433.104048841.davem@redhat.com>
-	<20030708222545.GC6787@dsl2.external.hp.com>
-	<20030708.152314.115928676.davem@redhat.com>
-	<20030723114006.GA28688@dsl2.external.hp.com>
-	<20030728131513.5d4b1bd3.ak@suse.de>
-	<20030730044256.GA1974@dsl2.external.hp.com>
-	<20030729215118.13a5ac18.davem@redhat.com>
-	<20030730160250.GA16960@dsl2.external.hp.com> 
-	<20030730163615.GD17201@wotan.suse.de>
+	Wed, 30 Jul 2003 13:26:18 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:51957 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S273079AbTG3R0Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 13:26:16 -0400
+Subject: Re: TSCs are a no-no on i386
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <E19huHB-0000Or-00@chiark.greenend.org.uk>
+References: <20030730135623.GA1873@lug-owl.de>
+	 <E19huHB-0000Or-00@chiark.greenend.org.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 30 Jul 2003 12:18:46 -0500
-Message-Id: <1059585657.1850.197.camel@mulgrave>
+Organization: 
+Message-Id: <1059585565.10452.2.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Jul 2003 18:19:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-30 at 11:36, Andi Kleen wrote:
-> The differences were greater with the mpt fusion driver, maybe it has
-> more overhead. Or your IO subsystem is significantly different.
+On Mer, 2003-07-30 at 17:58, Matthew Garrett wrote:
+> g++ >=3.2 use 486-specific instructions in order to do atomic operations
+> in C++ code. 3.3 includes a 386 version of the same code, but it's not
+> possible to use a mixture of the two (ie, code compiled with a "486" g++
+> will not work on the "386" version), and so to keep ABI compatibility
+> with the other distributions it's necessary to break 386. The "obvious"
+> solution (dragging this back on topic) is a kernel patch to emulate 486
+> instructions on a 386.
 
-By and large, these results are more like what I expect.
-
-As I've said before, getting SG tables to work efficiently is a core
-part of getting an I/O board to function.
-
-There are two places vmerging can help:
-
-1. Reducing the size of the SG table
-2. Increasing the length of the I/O for devices with fixed (but small)
-SG table lengths.
-
-However, it's important to remember that vmerging comes virtually for
-free in the BIO layer, so the only added cost is the programming of the
-IOMMU.  This isn't an issue on SPARC, PA-RISC and the like where IOMMU
-programming is required to do I/O, it may be something the IOMMU
-optional architectures (like IA-64 and AMD-64) should consider, which is
-where I entered with the IOMMU bypass patch.
-
-James
+You don't need to mash the kernel up for this - you can write yourself a
+SIGILL handler to do the work - take a look at things like the pure
+software MMX preloader someone wrote.
 
 

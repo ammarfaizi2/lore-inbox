@@ -1,48 +1,160 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315266AbSEGADR>; Mon, 6 May 2002 20:03:17 -0400
+	id <S315236AbSEGBCV>; Mon, 6 May 2002 21:02:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315268AbSEGADQ>; Mon, 6 May 2002 20:03:16 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:17420 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315266AbSEGADQ>; Mon, 6 May 2002 20:03:16 -0400
-Date: Tue, 7 May 2002 02:03:04 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 55
-In-Reply-To: <3CD64844.20907@evision-ventures.com>
-Message-ID: <Pine.LNX.4.21.0205070156580.32715-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315271AbSEGBCV>; Mon, 6 May 2002 21:02:21 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:43775 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315236AbSEGBCT>; Mon, 6 May 2002 21:02:19 -0400
+Message-Id: <200205070059.g470x8v10550@w-gaughen.des.beaverton.ibm.com>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+Reply-to: gone@us.ibm.com
+From: Patricia Gaughen <gone@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: colpatch@us.ibm.com
+Subject: problems with 2.5.[9-13] on numa-q boxes hanging during boot
+Mime-Version: 1.0
+Content-Type: multipart/mixed ;
+	boundary="==_Exmh_-8886895460"
+Date: Mon, 06 May 2002 17:59:08 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multipart MIME message.
 
-On Mon, 6 May 2002, Martin Dalecki wrote:
+--==_Exmh_-8886895460
+Content-Type: text/plain; charset=us-ascii
 
-> - Consolidate the handling of device ID byte order in one place.
->    This was spotted and patched by Bartomiej onierkiewicz.
 
-Another thing: where is the equivalilent part of this removed code?
+2.5.[9-13] isn't booting on my hardware (8 proc numaq).  It hangs during boot. 
+ The last message on the console is "INIT:".  If I don't define 
+CONFIG_MULTIQUAD, it boot.  But without CONFIG_MULTIQUAD I only have 4 procs.
 
--static __inline__ void ide_fix_driveid(struct hd_driveid *id)
--{
--#if defined(CONFIG_AMIGA) || defined (CONFIG_MAC) || defined(M68K_IDE_SWAPW)
--   u_char *p = (u_char *)id;
--   int i, j, cnt;
--   u_char t;
--
--   if (!MACH_IS_AMIGA && !MACH_IS_MAC && !MACH_IS_Q40 && !MACH_IS_ATARI)
--       return;
--#ifdef M68K_IDE_SWAPW
--   if (M68K_IDE_SWAPW)    /* fix bus byteorder first */
--      for (i=0; i < 512; i+=2) {
--        t = p[i]; p[i] = p[i+1]; p[i+1] = t;
--      }
--#endif
+I've put printks in the kernel but haven't gotten any closer to a solution 
+(cpu_idle() is called), also have tried kdb but it didn't help (it said that 
+the processes had no stack frame).  If you have any suggestions for where to 
+go now in debugging this issue I'd greatly appreciate it.
 
-bye, Roman
+Has anyone else had troubles with 2.5.[9-13] hanging during boot?
+
+My config for 2.5.13 is attached.
+
+-- 
+Patricia Gaughen (gone@us.ibm.com)
+IBM Linux Technology Center
+http://www.ibm.com/linux/ltc/
+
+
+--==_Exmh_-8886895460
+Content-Type: text/plain ; name="2.5.13-config"; charset=us-ascii
+Content-Description: 2.5.13-config
+Content-Disposition: attachment; filename="2.5.13-config"
+
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_CPUID=y
+CONFIG_HIGHMEM64G=y
+CONFIG_HIGHMEM=y
+CONFIG_X86_PAE=y
+CONFIG_SMP=y
+CONFIG_MULTIQUAD=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_PACKET=y
+CONFIG_NETFILTER=y
+CONFIG_NETFILTER_DEBUG=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_CMD640=y
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_QLOGIC_ISP=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_ADAPTEC_STARFIRE=y
+CONFIG_NET_TULIP=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_AUTOFS4_FS=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_EXPORTFS=y
+CONFIG_SMB_FS=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_CRC32=y
+
+--==_Exmh_-8886895460--
+
 

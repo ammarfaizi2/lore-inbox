@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265728AbUAUQZU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 11:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265744AbUAUQZU
+	id S265956AbUAUQ2K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 11:28:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265960AbUAUQ2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 11:25:20 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:31126 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S265728AbUAUQZQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 11:25:16 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 21 Jan 2004 17:13:31 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] selinux build fix
-Message-ID: <20040121161331.GA2531@bytesex.org>
+	Wed, 21 Jan 2004 11:28:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48286 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265956AbUAUQ1z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 11:27:55 -0500
+Subject: Re: Linux 2.6.2-rc1 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org>
+References: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org>
+Content-Type: text/plain
+Message-Id: <1074702474.10746.2.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 21 Jan 2004 08:27:54 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi
+Linux 2.6 Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-trivial one: uses __init and thus needs linux/init.h
+Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
+             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
+-----------  -----------  -------- -------- -------- -------- ---------
+2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
+2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
+2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
+2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
+2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
 
-  Gerd
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
+Daily compiles (ia32): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
+Daily compiles (ia64): 
+   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
+Latest changes in Linus' bitkeeper tree:
+   http://linux.bkbits.net:8080/linux-2.5
 
---- linux/security/selinux/netif.c.se	2004-01-21 16:42:10.000000000 +0100
-+++ linux/security/selinux/netif.c	2004-01-21 16:42:22.000000000 +0100
-@@ -12,6 +12,7 @@
-  * it under the terms of the GNU General Public License version 2,
-  * as published by the Free Software Foundation.
-  */
-+#include <linux/init.h>
- #include <linux/types.h>
- #include <linux/stddef.h>
- #include <linux/kernel.h>
+John
 
--- 
-"... und auch das ganze Wochenende oll" -- Wetterbericht auf RadioEins
+
+

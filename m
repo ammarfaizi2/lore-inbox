@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270987AbTHGUv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 16:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270986AbTHGUv4
+	id S270988AbTHGUxw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 16:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270993AbTHGUxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 16:51:56 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:10385 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S270987AbTHGUvz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 16:51:55 -0400
-Date: Thu, 7 Aug 2003 22:51:31 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Thu, 7 Aug 2003 16:53:51 -0400
+Received: from ns1.citynetwireless.net ([209.218.71.4]:2567 "EHLO
+	mail.citynetwireless.net") by vger.kernel.org with ESMTP
+	id S270988AbTHGUx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 16:53:29 -0400
+Message-ID: <00bc01c35d25$748c22e0$0500000a@bp>
+From: "Ro0tSiEgE LKML" <lkml@ro0tsiege.org>
 To: <linux-kernel@vger.kernel.org>
-cc: <Andries.Brouwer@cwi.nl>
-Subject: ide-tape broken (was Re: [PATCH] use ide-identify.h, fix endian bug)
-In-Reply-To: <UTC200308072012.h77KCtf02202.aeb@smtp.cwi.nl>
-Message-ID: <Pine.SOL.4.30.0308072244170.23618-100000@mion.elka.pw.edu.pl>
+Subject: no exec after kernel bootup on Elan
+Date: Thu, 7 Aug 2003 15:49:54 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have kernel 2.4.21 on a Soekris net4521 (Elan SC520), and after the kernel
+finishes booting up, (when it's supposed to exec init or whatever program I
+specify), nothing happens, I get no output past the line "Freeing unused
+kernel memory: 120k free".
 
-On Thu, 7 Aug 2003 Andries.Brouwer@cwi.nl wrote:
+I get the same results with any program I specify, whether static and
+dynamically compiled.
 
-> Given ide-identify.h, we can simplify ide-floppy.c and ide-tape.c a lot.
-> In fact ide-tape.c was broken on big-endian machines.
-> (Unfortunately much more is broken that was fixed here,
-> ide-tape.c is not in a good shape today.)
-
-ide-tape is broken because nobody cares, so I don't care too
-(was broken even before).  It needs rewrite and testing.
-
-So once again if anybody cares and has hardware to test,
-please contact me and I will try fix it.
-
-Until then I don't touch it et all and consider it obsoleted.
-
---bartlomiej
 

@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277533AbRJZEg2>; Fri, 26 Oct 2001 00:36:28 -0400
+	id <S277559AbRJZFoU>; Fri, 26 Oct 2001 01:44:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277544AbRJZEgT>; Fri, 26 Oct 2001 00:36:19 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:39333 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S277532AbRJZEgF>; Fri, 26 Oct 2001 00:36:05 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Jan Kara <jack@suse.cz>
-Date: Fri, 26 Oct 2001 14:36:16 +1000 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15320.59456.565780.111066@notabene.cse.unsw.edu.au>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-In-Reply-To: message from Jan Kara on Thursday October 25
-In-Reply-To: <15310.25406.789271.793284@notabene.cse.unsw.edu.au>
-	<20011024171658.B10075@atrey.karlin.mff.cuni.cz>
-	<15319.12709.29314.342313@notabene.cse.unsw.edu.au>
-	<20011025174815.C4644@atrey.karlin.mff.cuni.cz>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	id <S277598AbRJZFoK>; Fri, 26 Oct 2001 01:44:10 -0400
+Received: from mail1.amc.com.au ([203.15.175.2]:17413 "HELO mail1.amc.com.au")
+	by vger.kernel.org with SMTP id <S277559AbRJZFoD>;
+	Fri, 26 Oct 2001 01:44:03 -0400
+Message-Id: <5.1.0.14.0.20011026151926.00a23d60@mail.amc.localnet>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 26 Oct 2001 15:44:33 +1000
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Stuart Young <sgy@amc.com.au>
+Subject: Re: linux-2.4.13..
+Cc: Anuradha Ratnaweera <anuradha@gnu.org>, bert hubert <ahu@ds9a.nl>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20011026081728.A14607@bee.lk>
+In-Reply-To: <20011024114026.A14078@outpost.ds9a.nl>
+ <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com>
+ <20011024114026.A14078@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday October 25, jack@suse.cz wrote:
-> > So if you move a directory between quota trees, then the usages will
-> > be wrong in the first instance.  But only root can make this happen.
-> > However, there is an easy way to fix it: just run a find or a du in
-> > the new tree. 
->   Umm.. I'm not sure about one thing: When you move the dir between the
-> trees when you update TID's? I understood that not during the move...
+At 08:17 AM 26/10/01 +0600, Anuradha Ratnaweera wrote:
+>IMHO _nothing_ should be done for the final.  A better alternative is to 
+>name a stable pre kernel as a final without changes.  In the current 
+>scenario, a final kernel release is one which is _not_ tested.
 
-That is right.  Not during the move.
-Well... the tid of the directory itself changes during the move.  The
-tid's of descendants change later.
+My "personal" opinion is that final's are for Documentation updates, 
+correction of spelling errors in comments (not code, which needs testing), 
+and *possibly* trivial updates to data files (eg: like 
+linux/drivers/pci/pci.ids).
 
-> So the only possibility that I see is that each time you read the inode
-> you check whether its TID is OK. But that means going through dirs everytime
-> you read some inode which doesn't look nice to me...
-> 
+There have been a number of 2.4 issues in finals. Not all of them as 
+staggering as 2.4.11, but things like the driver issues with the sblive 
+(emu10k1) joystick stuff comes to mind, which was a 'final' addition. 
+Admittedly it's not a hugely critical system, but it was fairly visible.
 
-Have a look at the code and see where treequota_check is called.
+What would also be nice is a list of actual changed files for each patch 
+mentioned in the ChangeLog, which if there is a problem between 2 revisions 
+of a kernel (wether they're pre's of the same major kernel, or different 
+major kernels), could really help pinpoint some problems a hell of a lot 
+faster. Doesn't have to be in the ChangeLog, but it'd nice to have about 
+(especially for those that don't keep every version of the kernel on disk).
 
-It is called every time a "lookup" is done, whether the result is in
-the cache or not.  If the lookup found something, then you have a
-inode and it's parent right there in the cache.  treequota_check
-checks that the tid of the child matches that of the parent, and
-changes it if not.  So the overhead is very small for the common case
-where the tid is correct.
+Then again, opinions are like..... *grin*
 
-It just tests:
-   is inode NULL
-   are treequotas enabled for this inode
-   does the tid of the child match that of the parent (or the uid of
-           the child if parent.tid==0
 
-> > 
-> > It is, I think, the 'best' solution that is possible.
->   I also don't see a better solution but I'm not sure this solution is good
-> enough to be implemented (to me it looks more like a hack than a regular
-> part of system...).
 
-I accept that it does look like a bit of a hack.
-But I think it is simple, understandable, and predictable.
-And I think that (for me) the value of tree quotas is more than enough
-to offset that cost.
-
-NeilBrown
+AMC Enterprises P/L    - Stuart Young
+First Floor            - Network and Systems Admin
+3 Chesterville Rd      - sgy@amc.com.au
+Cheltenham Vic 3192    - Ph:  (03) 9584-2700
+http://www.amc.com.au/ - Fax: (03) 9584-2755
 

@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262102AbSJIWGC>; Wed, 9 Oct 2002 18:06:02 -0400
+	id <S262112AbSJIWJo>; Wed, 9 Oct 2002 18:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262108AbSJIWGC>; Wed, 9 Oct 2002 18:06:02 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39943 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262102AbSJIWGB>; Wed, 9 Oct 2002 18:06:01 -0400
-Date: Wed, 9 Oct 2002 15:10:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Tim Hockin <thockin@hockin.org>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.41 s390 (8/8): 16 bit uid/gids.
-In-Reply-To: <200210091824.g99IOkI18617@www.hockin.org>
-Message-ID: <Pine.LNX.4.44.0210091508050.24776-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262114AbSJIWJo>; Wed, 9 Oct 2002 18:09:44 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:2740 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262112AbSJIWJo>;
+	Wed, 9 Oct 2002 18:09:44 -0400
+Date: Wed, 09 Oct 2002 15:08:18 -0700 (PDT)
+Message-Id: <20021009.150818.102229501.davem@redhat.com>
+To: vividh@ipinfusion.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Interface address change netlink socket
+ problem.(Patch attached)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3DA4A3A3.2090408@ipinfusion.com>
+References: <3DA4A3A3.2090408@ipinfusion.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 9 Oct 2002, Tim Hockin wrote:
-> > 
-> > In other words, that __UID16 thing should be a real CONFIG_XXX option.
-> 
-> Because Sparc64/s390x/? still need to tell highuid.h to do macro magic for
-> NEW_TO_OLD_UID() and friends in some places and not others.  A CONFIG_XXX
-> applies all the time to all files.
-
-If __UID16 works, then renaming it to CONFIG_UID16_ONLY _must_ also work. 
-
-I don't understand your argument about other architectures. I'm claiming 
-that __UID16 is a config option, and that it must be renamed to _show_ 
-that it is a config option.
-
-If the renaming results in code that doesn't work, then the code didn't 
-work in the first place or your cpp is incredibly broken.
-
-WE MUST NOT HAVE CONFIG OPTIONS THAT ARE HIDDEN AND CALLED __UID16! That's 
-my whole point.
-
-		Linus
-
+Can you explain how not initializing some fields of the 'ifa'
+prevents the extra netlink messages?  I don't understand how
+your patch works.

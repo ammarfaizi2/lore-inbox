@@ -1,172 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267122AbSLaCMz>; Mon, 30 Dec 2002 21:12:55 -0500
+	id <S267123AbSLaCNw>; Mon, 30 Dec 2002 21:13:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbSLaCMz>; Mon, 30 Dec 2002 21:12:55 -0500
-Received: from port-212-202-185-174.reverse.qdsl-home.de ([212.202.185.174]:55434
-	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
-	id <S267122AbSLaCMw>; Mon, 30 Dec 2002 21:12:52 -0500
-Date: Tue, 31 Dec 2002 03:21:47 +0100 (CET)
-From: Patrick McHardy <kaber@trash.net>
-To: alan@lxorguk.ukuu.org.uk
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-pre2 Oops in i810_audio.c
-In-Reply-To: <Pine.LNX.4.44.0212302329460.20422-300000@el-zoido.localnet>
-Message-ID: <Pine.LNX.4.44.0212310315020.20422-200000@el-zoido.localnet>
+	id <S267126AbSLaCNw>; Mon, 30 Dec 2002 21:13:52 -0500
+Received: from services.erkkila.org ([24.97.94.217]:13744 "EHLO erkkila.org")
+	by vger.kernel.org with ESMTP id <S267123AbSLaCNu>;
+	Mon, 30 Dec 2002 21:13:50 -0500
+Message-ID: <3E10FF55.8040302@erkkila.org>
+Date: Tue, 31 Dec 2002 02:22:13 +0000
+From: "Paul E. Erkkila" <pee@erkkila.org>
+Reply-To: pee@erkkila.org
+Organization: ErkkilaDotOrg
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021220
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811840-901990452-1041301307=:20422"
+To: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: patch breaks uni with apic
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
----1463811840-901990452-1041301307=:20422
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+This patch causes uni+apic to fail during link, as send_IPI_self is
+undefined from arch/i386/kernel/irq.c  enable_irq.
 
-I've gathered some more information why my codec is misdetected, reading
-the Reset register returns 1110011, so it's clearly the codecs fault. BTW,
-AC'97 Component Specification revision 2.3 lists ID1 as reserved. What
-seems strange to me is that ac97_codec reports
-ac97_codec: AC97 Modem codec, id: CXT66 (Unknown)
-and decides this by reading AC97_EXTENDED_MODEM_ID, but i810_audio says
-i810_audio: codec 0 is an AC97 1.0 softmodem - skipping
-based on reading AC97_RESET. Could it be that it is a combined codec and
-it would be perfectly legal not to skip it, even though it includes a
-softmodem ?  I've attached the output of lspci -vv incase its useful.
+Kernel logs from previous kernel seem to think i have an apic =).
 
-Regards,
-Patrick
+-pee
 
-On Mon, 30 Dec 2002, Patrick McHardy wrote:
 
-> Hi Alan,
-> 
-> i810_audio oopses in 2.4.21-pre2, i also tried 2.4.20-ac2 some time ago 
-> but i don't have the oops handy. There seem to be too different problems,
-> the first one is ac97_codec recognizing my codec as a softmodem (it works 
-> fine with 2.4.18), the second is i810_audio:i810_set_dac_channels doesn't 
-> check if state->card->ac97_codec[0] is NULL. 
-> 
-> Attached you'll find dmesg and ksymoops output.
-> I don't know how much i810_audio/ac97_codec from 2.4.21-pre2 and 
-> 2.4.20-ac2 differ, just tell me if you need the resulting Oops from -ac.
-> 
-> Regards,
-> Patrick
-> 
-> 
+ChangeSet 1.1006, 2002/12/30 14:03:14-08:00, James.Bottomley@steeleye.com
 
----1463811840-901990452-1041301307=:20422
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=lspci
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212310321470.20422@el-zoido.localnet>
-Content-Description: 
-Content-Disposition: attachment; filename=lspci
+	[PATCH] Fix hw_irq to test the proper CONFIG variable
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycC4gODI0NDBNWCBIb3N0
-IEJyaWRnZSAocmV2IDAxKQ0KCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0
-ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3Rl
-cHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBV
-REYtIEZhc3RCMkItIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8
-VEFib3J0LSA8TUFib3J0KyA+U0VSUi0gPFBFUlItDQoJTGF0ZW5jeTogNjQN
-Cg0KMDA6MDAuMSBNdWx0aW1lZGlhIGF1ZGlvIGNvbnRyb2xsZXI6IEludGVs
-IENvcnAuIDgyNDQwTVggQUMnOTcgQXVkaW8gQ29udHJvbGxlcg0KCVN1YnN5
-c3RlbTogU2Ftc3VuZyBFbGVjdHJvbmljcyBDbyBMdGQ6IFVua25vd24gZGV2
-aWNlIDIzMjUNCglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyKyBTcGVj
-Q3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBT
-RVJSLSBGYXN0QjJCLQ0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0
-QjJCLSBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxN
-QWJvcnQtID5TRVJSLSA8UEVSUi0NCglMYXRlbmN5OiAwDQoJSW50ZXJydXB0
-OiBwaW4gQiByb3V0ZWQgdG8gSVJRIDUNCglSZWdpb24gMDogSS9PIHBvcnRz
-IGF0IDgyMDAgW3NpemU9MjU2XQ0KCVJlZ2lvbiAxOiBJL08gcG9ydHMgYXQg
-ODQwMCBbc2l6ZT02NF0NCg0KMDA6MDAuMiBNb2RlbTogSW50ZWwgQ29ycC4g
-ODI0NDBNWCBBQyc5NyBNb2RlbSBDb250cm9sbGVyIChwcm9nLWlmIDAwIFtH
-ZW5lcmljXSkNCglTdWJzeXN0ZW06IFNhbXN1bmcgRWxlY3Ryb25pY3MgQ28g
-THRkOiBVbmtub3duIGRldmljZSAyMzI2DQoJQ29udHJvbDogSS9PKyBNZW0t
-IEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFy
-RXJyLSBTdGVwcGluZy0gU0VSUi0gRmFzdEIyQi0NCglTdGF0dXM6IENhcC0g
-NjZNaHotIFVERi0gRmFzdEIyQi0gUGFyRXJyLSBERVZTRUw9ZmFzdCA+VEFi
-b3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0ZW5j
-eTogMA0KCUludGVycnVwdDogcGluIEIgcm91dGVkIHRvIElSUSA1DQoJUmVn
-aW9uIDA6IEkvTyBwb3J0cyBhdCA4ODAwIFtzaXplPTI1Nl0NCglSZWdpb24g
-MTogSS9PIHBvcnRzIGF0IDhhMDAgW3NpemU9MTI4XQ0KDQowMDowNy4wIElT
-QSBicmlkZ2U6IEludGVsIENvcnAuIDgyNDQwTVggSVNBIEJyaWRnZSAocmV2
-IDAxKQ0KCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNs
-ZSsgTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIt
-IEZhc3RCMkItDQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIr
-IFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFi
-b3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0ZW5jeTogMA0KDQowMDowNy4xIElE
-RSBpbnRlcmZhY2U6IEludGVsIENvcnAuIDgyNDQwTVggRUlERSBDb250cm9s
-bGVyIChwcm9nLWlmIDgwIFtNYXN0ZXJdKQ0KCUNvbnRyb2w6IEkvTysgTWVt
-LSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBh
-ckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXAt
-IDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+
-VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJTGF0
-ZW5jeTogNjQNCglSZWdpb24gNDogSS9PIHBvcnRzIGF0IDEwMDAgW3NpemU9
-MTZdDQoNCjAwOjA3LjIgVVNCIENvbnRyb2xsZXI6IEludGVsIENvcnAuIDgy
-NDQwTVggVVNCIFVuaXZlcnNhbCBIb3N0IENvbnRyb2xsZXIgKHByb2ctaWYg
-MDAgW1VIQ0ldKQ0KCUNvbnRyb2w6IEkvTy0gTWVtLSBCdXNNYXN0ZXItIFNw
-ZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmct
-IFNFUlItIEZhc3RCMkItDQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZh
-c3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0
-LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItDQoJSW50ZXJydXB0OiBwaW4gRCBy
-b3V0ZWQgdG8gSVJRIDExDQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCAxMDIw
-IFtkaXNhYmxlZF0gW3NpemU9MzJdDQoNCjAwOjA3LjMgQnJpZGdlOiBJbnRl
-bCBDb3JwLiA4MjQ0ME1YIFBvd2VyIE1hbmFnZW1lbnQgQ29udHJvbGxlcg0K
-CUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXItIFNwZWNDeWNsZSsgTWVt
-V0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RC
-MkItDQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVy
-ci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+
-U0VSUi0gPFBFUlItDQoNCjAwOjA4LjAgQ2FyZEJ1cyBicmlkZ2U6IFJpY29o
-IENvIEx0ZCBSTDVjNDc4IChyZXYgODApDQoJU3Vic3lzdGVtOiBTYW1zdW5n
-IEVsZWN0cm9uaWNzIENvIEx0ZDogVW5rbm93biBkZXZpY2UgNmYzMA0KCUNv
-bnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lO
-Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkIt
-DQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0g
-REVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VS
-Ui0gPFBFUlItDQoJTGF0ZW5jeTogMTY4DQoJSW50ZXJydXB0OiBwaW4gQSBy
-b3V0ZWQgdG8gSVJRIDExDQoJUmVnaW9uIDA6IE1lbW9yeSBhdCAxMDAwMDAw
-MCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT00S10NCglCdXM6
-IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wMSwgc3Vib3JkaW5hdGU9MDQsIHNl
-Yy1sYXRlbmN5PTE3Ng0KCU1lbW9yeSB3aW5kb3cgMDogMTA0MDAwMDAtMTA3
-ZmYwMDAgKHByZWZldGNoYWJsZSkNCglNZW1vcnkgd2luZG93IDE6IDEwODAw
-MDAwLTEwYmZmMDAwDQoJSS9PIHdpbmRvdyAwOiAwMDAwNDAwMC0wMDAwNDBm
-Zg0KCUkvTyB3aW5kb3cgMTogMDAwMDQ0MDAtMDAwMDQ0ZmYNCglCcmlkZ2VD
-dGw6IFBhcml0eS0gU0VSUi0gSVNBLSBWR0EtIE1BYm9ydC0gPlJlc2V0LSAx
-NmJJbnQrIFBvc3RXcml0ZSsNCgkxNi1iaXQgbGVnYWN5IGludGVyZmFjZSBw
-b3J0cyBhdCAwMDAxDQoNCjAwOjA4LjEgQ2FyZEJ1cyBicmlkZ2U6IFJpY29o
-IENvIEx0ZCBSTDVjNDc4IChyZXYgODApDQoJU3Vic3lzdGVtOiBTYW1zdW5n
-IEVsZWN0cm9uaWNzIENvIEx0ZDogVW5rbm93biBkZXZpY2UgNmYzMA0KCUNv
-bnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lO
-Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkIt
-DQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkItIFBhckVyci0g
-REVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VS
-Ui0gPFBFUlItDQoJTGF0ZW5jeTogMTY4DQoJSW50ZXJydXB0OiBwaW4gQiBy
-b3V0ZWQgdG8gSVJRIDUNCglSZWdpb24gMDogTWVtb3J5IGF0IDEwMDAxMDAw
-ICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTRLXQ0KCUJ1czog
-cHJpbWFyeT0wMCwgc2Vjb25kYXJ5PTA1LCBzdWJvcmRpbmF0ZT0wOCwgc2Vj
-LWxhdGVuY3k9MTc2DQoJTWVtb3J5IHdpbmRvdyAwOiAxMGMwMDAwMC0xMGZm
-ZjAwMCAocHJlZmV0Y2hhYmxlKQ0KCU1lbW9yeSB3aW5kb3cgMTogMTEwMDAw
-MDAtMTEzZmYwMDANCglJL08gd2luZG93IDA6IDAwMDA0ODAwLTAwMDA0OGZm
-DQoJSS9PIHdpbmRvdyAxOiAwMDAwNGMwMC0wMDAwNGNmZg0KCUJyaWRnZUN0
-bDogUGFyaXR5LSBTRVJSLSBJU0EtIFZHQS0gTUFib3J0LSA+UmVzZXQtIDE2
-YkludCsgUG9zdFdyaXRlKw0KCTE2LWJpdCBsZWdhY3kgaW50ZXJmYWNlIHBv
-cnRzIGF0IDAwMDENCg0KMDA6MGIuMCBWR0EgY29tcGF0aWJsZSBjb250cm9s
-bGVyOiBBVEkgVGVjaG5vbG9naWVzIEluYyAzRCBSYWdlIExUIFBybyAocmV2
-IGRjKSAocHJvZy1pZiAwMCBbVkdBXSkNCglTdWJzeXN0ZW06IFNhbXN1bmcg
-RWxlY3Ryb25pY3MgQ28gTHRkOiBVbmtub3duIGRldmljZSA2YTAxDQoJQ29u
-dHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5W
-LSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZysgU0VSUi0gRmFzdEIyQi0N
-CglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBE
-RVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJS
-LSA8UEVSUi0NCglMYXRlbmN5OiA2NiAoMjAwMG5zIG1pbiksIGNhY2hlIGxp
-bmUgc2l6ZSAwOA0KCVJlZ2lvbiAwOiBNZW1vcnkgYXQgZmQwMDAwMDAgKDMy
-LWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xNk1dDQoJUmVnaW9uIDE6IEkv
-TyBwb3J0cyBhdCAyMDAwIFtzaXplPTI1Nl0NCglSZWdpb24gMjogTWVtb3J5
-IGF0IGZjMDAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXpl
-PTRLXQ0KCUV4cGFuc2lvbiBST00gYXQgPHVuYXNzaWduZWQ+IFtkaXNhYmxl
-ZF0gW3NpemU9MTI4S10NCglDYXBhYmlsaXRpZXM6IDxhdmFpbGFibGUgb25s
-eSB0byByb290Pg0KDQo=
----1463811840-901990452-1041301307=:20422--
+
+# This patch includes the following deltas:
+#	           ChangeSet	1.1005  -> 1.1006
+#	include/asm-i386/hw_irq.h	1.16    -> 1.17
+#
+
+  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
+arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
+drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
+arch/i386/kernel/built-in.o(.text+0x4510): In function `enable_irq':
+: undefined reference to `send_IPI_self'
+make: *** [.tmp_vmlinux1] Error 1
+

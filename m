@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279261AbRKAQZV>; Thu, 1 Nov 2001 11:25:21 -0500
+	id <S279264AbRKAQbb>; Thu, 1 Nov 2001 11:31:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279257AbRKAQZL>; Thu, 1 Nov 2001 11:25:11 -0500
-Received: from jive.SoftHome.net ([66.54.152.27]:5798 "EHLO softhome.net")
-	by vger.kernel.org with ESMTP id <S279250AbRKAQY7>;
-	Thu, 1 Nov 2001 11:24:59 -0500
-Message-ID: <3BE1777F.30705@softhome.net>
-Date: Thu, 01 Nov 2001 16:25:35 +0000
-From: Ricardo Martins <thecrown@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en, pt
+	id <S279271AbRKAQbV>; Thu, 1 Nov 2001 11:31:21 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:27943 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S279264AbRKAQbQ>; Thu, 1 Nov 2001 11:31:16 -0500
+Date: Thu, 1 Nov 2001 11:27:03 -0500 (EST)
+From: Peter Jones <pjones@redhat.com>
+X-X-Sender: <pjones@lacrosse.corp.redhat.com>
+To: Alex Buell <alex.buell@tahallah.demon.co.uk>
+cc: Paul Mackerras <paulus@samba.org>,
+        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
+In-Reply-To: <Pine.LNX.4.33.0111011621070.2281-100000@tahallah.demon.co.uk>
+Message-ID: <Pine.LNX.4.33.0111011126200.9216-100000@lacrosse.corp.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: on exit xterm  totally wrecks linux 2.4.11 to 2.4.14-pre6 (unkillable processes)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using Linux kernel 2.4.10, and since the fatidic 2.4.11 release ( i 
-tried 2.4.11 (one day :)))) 2.4.12, 2.4.13 and 2.4.14-pre6) I get the 
-same bug on and on (that means I can reproduce the experience and obtain 
-the same results).
+On Thu, 1 Nov 2001, Alex Buell wrote:
 
-Procedure
-In X windows (version 4.1.0 compiled from the sources) when writing 
-"exit" in xterm to close the terminal emulator, the window freezes, and 
-from that moment on, every process becomes "unkillable", including xterm 
-and X (ps also freezes), and there's no way to shutdown GNU/Linux in a 
-sane way (must hit reset or poweroff).
+> On Thu, 1 Nov 2001, Peter Jones wrote:
+> 
+> > > Ah, is that what it does. OK, I'll carefully suggest to the authors of ESD
+> > > (preferably with a blunt trauma instrument) using AFMT_S16_NE. Thanks.
+> 
+> > It should probably be mentioned that you're using a really old version
+> > of ESD, and that they've at least made it so that you'll get the right
+> > one for any BE machine.  NE is still the better answer though -- now
+> > their configure script figures out BE/LE, and it'll build wrong if
+> > you're crosscompiling.
+> 
+> But this version I'm using is esound-2.2.8, which came from www.gnome.org!
+> I suppose I'll have to grab it from their CVS server.
 
-Environment
-I used Glibc 2.2.4 and GCC 3.0.1 (tried with 2.95.3, obtained the same 
-results).
+Oh, I'm sorry.  You said "2.8" last time and I assumed you meant 0.2.8.  
+How interesting...
 
-The odd thing is, that with the same configuration, kernel 2.4.10 works 
-just fine, but every other release since then ends up doing the same 
-thing (the system can't maintain integrity after writing "exit" and 
-hiting enter in xterm).
+In any event, the answer is "use _NE", I think.
 
-Please help me, I getting slightly mad with the situation.
+-- 
+        Peter
 
-Ricardo Martins
+"We all enter this world in the same way: naked; screaming; soaked in
+blood.  But if you live your life right, that kind of thing doesn't have
+to stop there."
+		-- Dana Gould
 

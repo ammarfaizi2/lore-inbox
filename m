@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270227AbRIFMwP>; Thu, 6 Sep 2001 08:52:15 -0400
+	id <S270253AbRIFNDS>; Thu, 6 Sep 2001 09:03:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269779AbRIFMwG>; Thu, 6 Sep 2001 08:52:06 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:17682 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S270227AbRIFMvz>;
-	Thu, 6 Sep 2001 08:51:55 -0400
-Date: Thu, 6 Sep 2001 14:51:52 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: _deepfire@mail.ru, linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: page pre-swapping + moving it on cache-list
-Message-Id: <20010906145152.5b229174.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.33L.0109060828420.31200-100000@imladris.rielhome.conectiva>
-In-Reply-To: <200109060519.f865Ja106488@vegae.deep.net>
-	<Pine.LNX.4.33L.0109060828420.31200-100000@imladris.rielhome.conectiva>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S270257AbRIFNDI>; Thu, 6 Sep 2001 09:03:08 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:17928 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S270253AbRIFNC5>;
+	Thu, 6 Sep 2001 09:02:57 -0400
+Date: Thu, 6 Sep 2001 10:03:03 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() on 2.4.9/10 issue
+In-Reply-To: <20010906124700Z16067-32383+3773@humbolt.nl.linux.org>
+Message-ID: <Pine.LNX.4.33L.0109061002050.31200-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Sep 2001 08:29:03 -0300 (BRST) Rik van Riel <riel@conectiva.com.br>
-wrote:
+On Thu, 6 Sep 2001, Daniel Phillips wrote:
+> On September 6, 2001 02:32 pm, Rik van Riel wrote:
 
-> On Thu, 6 Sep 2001, Samium Gromoff wrote:
-> 
-> >        Here is an idea i think i stole from Matthew Dillon`s paper.
-> >
-> >     Actually it sound more like we take some pages from the near 0
-> >   age and swapping them out but not throwing them away, but moving them
-> >   from active list to cache. So that we can always throw them away
-> >   at near null cost while shrinking the cache. This is like a
-> >   replacement for swap-cache if i`m right here...
-> 
-> This is called the "inactive_clean" list in Linux terminology. ;)
+> > Two words:  "IO clustering".
+>
+> Yes, *after* the IO queue is fully loaded that makes sense.  Leaving it
+> partly or fully idle while waiting for it to load up makes no sense at all.
+>
+> IO clustering will happen naturally after the queue loads up.
 
-What's the use of an inactive_clean list anyway, or the effective difference
-between its members and the members of memfree (I suspect such a list from the
-output of /proc/meminfo)?
-Besides the fact, that the splitting in two lists prevents proper
-defragmentation (if you have pages in two lists you are not driven to defrag at
-the point where you put them together in one).
+Exactly, so we need to give the queue some time to load
+up, right ?
 
-Regards,
-Stephan
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

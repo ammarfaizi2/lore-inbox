@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287751AbSBGMs1>; Thu, 7 Feb 2002 07:48:27 -0500
+	id <S288614AbSBGM4H>; Thu, 7 Feb 2002 07:56:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287769AbSBGMsT>; Thu, 7 Feb 2002 07:48:19 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28270 "HELO
-	mailhub.stusta.mhn.de") by vger.kernel.org with SMTP
-	id <S287751AbSBGMrn>; Thu, 7 Feb 2002 07:47:43 -0500
-Date: Thu, 7 Feb 2002 13:47:37 +0100
-From: "Oliver M . Bolzer" <oliver@gol.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ?????????????????????
-Message-ID: <20020207134737.A1663@magi.fakeroot.net>
-In-Reply-To: <OF364AD35A.0EC28B68-ON86256B58.000D6156@hometownamerica.net> <0GR400G9IRB2XW@mtaout03.icomcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Mutt/1.2.4i-jp0
-In-Reply-To: <0GR400G9IRB2XW@mtaout03.icomcast.net>; from hiryuu@envisiongames.net on Wed, Feb 06, 2002 at 04:21:50PM -0500
+	id <S289384AbSBGMz5>; Thu, 7 Feb 2002 07:55:57 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:49533 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S288614AbSBGMzy>; Thu, 7 Feb 2002 07:55:54 -0500
+Date: Thu, 7 Feb 2002 12:58:11 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: riel@conectiva.com.br, alan@lxorguk.ukuu.org.uk, Ulrich.Weigand@de.ibm.com,
+        zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: The IBM order relaxation patch
+In-Reply-To: <20020207.042903.71864726.davem@redhat.com>
+Message-ID: <Pine.LNX.4.21.0202071251240.1062-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 06, 2002 at 04:21:50PM -0500, Brian <hiryuu@envisiongames.net> wrote...
-> Can we get something like 
-> 	/[\200-\377]{6}/   (6 upper ACSII characters in a row)
-> added to the taboo list?
+On Thu, 7 Feb 2002, David S. Miller wrote:
+> 
+> BTW, in checking this out it seems current->allocation_order is only
+> set and never checked anywhere.
 
-If you mean to match a header like Subject: , don't forget to
-decode them first. Usually, headers containing these are MIME-encoded.
+Yes, the "local_pages" interaction between __free_pages_ok and
+balance_classzone is in a half-baked state in the mainline tree,
+I think Linus backed out some of what Andrea intended: the -aa tree
+makes more sense there (where "allocation_order" is "local_pages.order").
 
--- 
-	Oliver M. Bolzer
-	oliver@gol.com
+Hugh
 
-GPG (PGP) Fingerprint = 621B 52F6 2AC1 36DB 8761  018F 8786 87AD EF50 D1FF

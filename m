@@ -1,173 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVBIJXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVBIJXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVBIJXv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 04:23:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVBIJXv
+	id S261442AbVBIJXf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 04:23:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVBIJXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 04:23:51 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54683 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261613AbVBIJX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 04:23:28 -0500
-Date: Wed, 9 Feb 2005 10:23:26 +0100
-From: Jan Kara <jack@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Update locking doc
-Message-ID: <20050209092326.GC27328@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="s9fJI615cBHmzTOP"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 9 Feb 2005 04:23:35 -0500
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:27338 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261442AbVBIJXX convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 04:23:23 -0500
+MIME-Version: 1.0
+To: torvalds@osdl.org
+Subject: BK-kernel-tools/shortlog update
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Wed,_09_Feb_2005_09_23_14_+0000_0@merlin.emma.line.org>
+Content-type: text/plain; charset=iso-8859-1
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20050209092314.D45AC77F04@merlin.emma.line.org>
+Date: Wed,  9 Feb 2005 10:23:14 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Linus,
 
---s9fJI615cBHmzTOP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+you can either use "bk receive" to patch with this mail,
+or you can
+Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
+or in cases of dire need, you can apply the patch below.
 
-  Hello Andrew!
+BK: Parent repository is http://bktools.bkbits.net/bktools
 
-  Attached patch updates documentation in
-Documentation/filesystems/Locking to match the current state of quota
-code. Also a few comments in quota code are updated. Please apply.
+Patch description:
+ChangeSet@1.272, 2005-02-09 10:22:16+01:00, matthias.andree@gmx.de
+  Automerge
 
-								Honza
+ChangeSet@1.269.1.2, 2005-02-09 06:53:57+01:00, samel@mail.cz
+  shortlog: add 7 new addresses
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+Matthias
 
---s9fJI615cBHmzTOP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="quota-2.6.11-rc2-docupdate.diff"
+------------------------------------------------------------------------
 
-Updated locking documentation with new information about quota code.
-Added a few comments.
+##### DIFFSTAT #####
+ shortlog |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
-Signed-off-by: Jan Kara <jack@suse.cz>
+##### GNUPATCH #####
+--- 1.238.1.1/shortlog	2005-02-07 07:51:36 +01:00
++++ 1.241/shortlog	2005-02-09 10:22:16 +01:00
+@@ -795,6 +795,7 @@
+ 'dwmw2:redhat.com' => 'David Woodhouse',
+ 'dwmw2:shinybook.infradead.org' => 'David Woodhouse',
+ 'dz:cs.unitn.it' => 'Massimo Dal Zotto',
++'e9925248:student.tuwien.ac.at' => 'Martin Kögler',
+ 'ebiederm:xmission.com' => 'Eric W. Biederman',
+ 'ebrower:gmail.com' => 'Eric Brower',
+ 'ebrower:resilience.com' => 'Eric Brower',
+@@ -1333,6 +1334,7 @@
+ 'josh:joshisanerd.com' => 'Josh Myer',
+ 'josha:sgi.com' => 'Josh Aas',
+ 'joshk:triplehelix.org' => 'Joshua Kwan',
++'jpaana:s2.org' => 'Jarno Paananen',
+ 'jparadis:redhat.com' => 'Jim Paradis',
+ 'jparmele:wildbear.com' => 'Joseph Parmelee',
+ 'jpk:sgi.com' => 'Jon Krueger',
+@@ -1665,6 +1667,7 @@
+ 'marineam:gentoo.org' => 'Michael Marineau',
+ 'marius:citi.umich.edu' => 'Marius Aamodt Eriksen',
+ 'mark.fasheh:oracle.com' => 'Mark Fasheh',
++'mark.haigh:spirentcom.com' => 'Mark F. Haigh',
+ 'mark:alpha.dyndns.org' => 'Mark W. McClelland',
+ 'mark:hal9000.dyndns.org' => 'Mark W. McClelland',
+ 'mark:mtfhpc.demon.co.uk' => 'Mark Fortescue',
+@@ -1884,6 +1887,7 @@
+ 'nfont:austin.ibm.com' => 'Nathan Fontenot',
+ 'nhorman:gmail.com' => 'Neil Horman',
+ 'nhorman:redhat.com' => 'Neil Horman',
++'nib:cookinglinux.org' => 'Nicolas Bouliane',
+ 'nick.holloway:pyrites.org.uk' => 'Nick Holloway',
+ 'nickpiggin:cyberone.com.au' => 'Nick Piggin',
+ 'nickpiggin:yahoo.com.au' => 'Nick Piggin',
+@@ -2383,6 +2387,7 @@
+ 'simonb:lipsyncpost.co.uk' => 'Simon Burley',
+ 'sivanich:sgi.com' => 'Dimitri Sivanich',
+ 'sjackman:gmail.com' => 'Shaun Jackman',
++'sjean:cookinglinux.org' => 'Samuel Jean',
+ 'sjhill:realitydiluted.com' => 'Steven J. Hill',
+ 'skewer:terra.com.br' => 'Marcelo Abreu',
+ 'skip.ford:verizon.net' => 'Skip Ford',
+@@ -2494,6 +2499,7 @@
+ 'swiergot:intersec.pl' => 'Jaroslaw Swierczynski',
+ 'sxking:qwest.net' => 'Steven King',
+ 'sylvain.meyer:worldonline.fr' => 'Sylvain Meyer',
++'syntax:pa.net' => 'Daniel E. Markle',
+ 'syrjala:sci.fi' => 'Ville Syrjala',
+ 'szepe:pinerecords.com' => 'Tomas Szepe',
+ 'sziwan:hell.org.pl' => 'Karol Kozimor',
+@@ -2761,6 +2767,7 @@
+ 'ysauyuki.kozakai:toshiba.co.jp' => 'Yasuyuki Kozakai', # typo
+ 'yuasa:hh.iij4u.or.jp' => 'Yoichi Yuasa',
+ 'yuri:acronis.com' => 'Yuri Per', # lbdb
++'yust:anti-leasure.ru' => 'Alex Yustasov',
+ 'yuvalt:gmail.com' => 'Yuval Turgeman',
+ 'zach:vmware.com' => 'Zachary Amsden',
+ 'zaitcev:redhat.com' => 'Pete Zaitcev',
 
-diff -ruX /home/jack/.kerndiffexclude linux-2.6.11-rc2/Documentation/filesystems/Locking linux-2.6.11-rc2-docupdate/Documentation/filesystems/Locking
---- linux-2.6.11-rc2/Documentation/filesystems/Locking	2005-01-27 12:55:49.000000000 +0100
-+++ linux-2.6.11-rc2-docupdate/Documentation/filesystems/Locking	2005-02-06 17:21:58.000000000 +0100
-@@ -104,6 +104,8 @@
- 	void (*clear_inode) (struct inode *);
- 	void (*umount_begin) (struct super_block *);
- 	int (*show_options)(struct seq_file *, struct vfsmount *);
-+	ssize_t (*quota_read)(struct super_block *, int, char *, size_t, loff_t);
-+	ssize_t (*quota_write)(struct super_block *, int, const char *, size_t, loff_t);
- 
- locking rules:
- 	All may block.
-@@ -126,10 +128,17 @@
- clear_inode:		no
- umount_begin:		yes	no	no
- show_options:		no				(vfsmount->sem)
-+quota_read:		no	no	no		(see below)
-+quota_write:		no	no	no		(see below)
- 
- ->read_inode() is not a method - it's a callback used in iget().
- ->remount_fs() will have the s_umount lock if it's already mounted.
- When called from get_sb_single, it does NOT have the s_umount lock.
-+->quota_read() and ->quota_write() functions are both guaranteed to
-+be the only ones operating on the quota file by the quota code (via
-+dqio_sem) (unless an admin really wants to screw up something and
-+writes to quota files with quotas on). For other details about locking
-+see also dquot_operations section.
- 
- --------------------------- file_system_type ---------------------------
- prototypes:
-@@ -442,23 +451,46 @@
- 
- --------------------------- dquot_operations -------------------------------
- prototypes:
--	void (*initialize) (struct inode *, short);
--	void (*drop) (struct inode *);
--	int (*alloc_block) (const struct inode *, unsigned long, char);
-+	int (*initialize) (struct inode *, int);
-+	int (*drop) (struct inode *);
-+	int (*alloc_space) (struct inode *, qsize_t, int);
- 	int (*alloc_inode) (const struct inode *, unsigned long);
--	void (*free_block) (const struct inode *, unsigned long);
--	void (*free_inode) (const struct inode *, unsigned long);
--	int (*transfer) (struct dentry *, struct iattr *);
-+	int (*free_space) (struct inode *, qsize_t);
-+	int (*free_inode) (const struct inode *, unsigned long);
-+	int (*transfer) (struct inode *, struct iattr *);
-+	int (*write_dquot) (struct dquot *);
-+	int (*acquire_dquot) (struct dquot *);
-+	int (*release_dquot) (struct dquot *);
-+	int (*mark_dirty) (struct dquot *);
-+	int (*write_info) (struct super_block *, int);
-+
-+These operations are intended to be more or less wrapping functions that ensure
-+a proper locking wrt the filesystem and call the generic quota operations.
-+
-+What filesystem should expect from the generic quota functions:
-+
-+		FS recursion	Held locks when called
-+initialize:	yes		maybe dqonoff_sem
-+drop:		yes		-
-+alloc_space:	->mark_dirty()	-
-+alloc_inode:	->mark_dirty()	-
-+free_space:	->mark_dirty()	-
-+free_inode:	->mark_dirty()	-
-+transfer:	yes		-
-+write_dquot:	yes		dqonoff_sem or dqptr_sem
-+acquire_dquot:	yes		dqonoff_sem or dqptr_sem
-+release_dquot:	yes		dqonoff_sem or dqptr_sem
-+mark_dirty:	no		-
-+write_info:	yes		dqonoff_sem 
-+
-+FS recursion means calling ->quota_read() and ->quota_write() from superblock
-+operations.
-+
-+->alloc_space(), ->alloc_inode(), ->free_space(), ->free_inode() are called
-+only directly by the filesystem and do not call any fs functions only
-+the ->mark_dirty() operation.
- 
--locking rules:
--		BKL
--initialize:	no
--drop:		no
--alloc_block:	yes
--alloc_inode:	yes
--free_block:	yes
--free_inode:	yes
--transfer:	no
-+More details about quota locking can be found in fs/dquot.c.
- 
- --------------------------- vm_operations_struct -----------------------------
- prototypes:
-diff -ruX /home/jack/.kerndiffexclude linux-2.6.11-rc2/fs/dquot.c linux-2.6.11-rc2-docupdate/fs/dquot.c
---- linux-2.6.11-rc2/fs/dquot.c	2005-01-27 12:56:25.000000000 +0100
-+++ linux-2.6.11-rc2-docupdate/fs/dquot.c	2005-02-06 16:45:59.000000000 +0100
-@@ -1092,7 +1092,7 @@
- }
- 
- /*
-- * This is a non-blocking operation.
-+ * This operation can block, but only after everything is updated
-  */
- int dquot_free_space(struct inode *inode, qsize_t number)
- {
-@@ -1128,7 +1128,7 @@
- }
- 
- /*
-- * This is a non-blocking operation.
-+ * This operation can block, but only after everything is updated
-  */
- int dquot_free_inode(const struct inode *inode, unsigned long number)
- {
-@@ -1163,6 +1163,7 @@
-  * Transfer the number of inode and blocks from one diskquota to an other.
-  *
-  * This operation can block, but only after everything is updated
-+ * A transaction must be started when entering this function.
-  */
- int dquot_transfer(struct inode *inode, struct iattr *iattr)
- {
 
---s9fJI615cBHmzTOP--
+
+##### BKPATCH #####
+
+## Wrapped with gzip_b64 ##
+H4sIAILWCUICA81WTW/bOBA9m7+CQA85dE2TlChaAlwkabrbNJu2SNHDHhlpIquWSIOkEmeh
+373npaR8uXW6yG4CrC0YJj3P8zjvzUiv8PFRNvHGXqq6cPtr0GVbaeKt0q4Br0humu7tUukS
+voDvOKU8vBmPaCLSjqeJEB1wECKPmTqXcwk5R6/wVwc2mzTK+2WlHFG6sABh/71xPpuUzYYU
+/fLMmLCcudbBbAVWQz07PAnXdFxMvTG1QyHws/L5El+CddmEkehux1+vIZucvfvt6+8HZwgt
+FviOK14s0DOfy6kG6v1GVTXJ/9xGi4CWAcsE75I44hwdYUZ4kpLwiamYUT6jKaZJJqJMyNeU
+ZZTirT/ErxmeUnSIn5n1W5RjtzTW16bMsCoKLLGGq/6bBefAoRMcKDOOPt9XD02f+EKIKore
+3JNfmga+Y37LYiQu2JzKWLJ5FzGZiu4CUnWRS5oqCoU6L7arswXuq51SIaKYdzRhiUQPpF7n
+qaTEuKImxpY7ZGIiFqFQiYi4GGWSDyRiNOM8Y8mNRN95eH/07ktqddD6UDpbAqrwPzhuqIGQ
+3ShfkFFwGqPTp8H+Z6rvLvgO+VPOWXIrf+j824itxv/PfNDPXTj0fJR0sUiFHM0UzXf1fMx3
+97x8MR890ul9uT7hqb3a9Nd0E/S/PdS/kP9YphIztAdpygWP55nzbQHaE99eVaCJyonye3jx
+Bu+dKusrjU/+Kmuwe7+gYxZFosd+WyulVeZ4369j7AdltQkzPuxr0ENwkgyJGmVXZKmqcpm5
+dWVDqlCfvkZ3SVb4V4Lf9xEDbj5PepyuzrPcmFWly7rS7eY+18cqN7Vy+NC0dRXS9agg4kDN
+fQOlH8F9UU0LNf4QIgZInA6J3LX2apOtFdFwc/IjpasQ+Y7gnl49ZpBJ1Idft+GOqLSvpjUo
+11ogth1RBzVs8B/hZ+XMZYA8PuJ+MOUw4eKHpozZkyccfdEJh4cRV/ww434+5m/8e/ok0PO5
+/e65I19CvnJts5DRBZ+HAYD+Bk5oardJCQAA
+

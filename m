@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287488AbSCHQmz>; Fri, 8 Mar 2002 11:42:55 -0500
+	id <S310949AbSCHQqG>; Fri, 8 Mar 2002 11:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310946AbSCHQmp>; Fri, 8 Mar 2002 11:42:45 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:45994 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S287488AbSCHQmh>; Fri, 8 Mar 2002 11:42:37 -0500
-Date: Fri, 8 Mar 2002 09:42:01 -0700
-Message-Id: <200203081642.g28Gg1518485@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 18
-In-Reply-To: <3C88DCEF.5000708@evision-ventures.com>
-In-Reply-To: <Pine.LNX.4.33.0202232152200.26469-100000@home.transmeta.com>
-	<3C88DCEF.5000708@evision-ventures.com>
+	id <S310948AbSCHQpr>; Fri, 8 Mar 2002 11:45:47 -0500
+Received: from courage.cs.stevens-tech.edu ([155.246.89.70]:10750 "HELO
+	courage.cs.stevens-tech.edu") by vger.kernel.org with SMTP
+	id <S310947AbSCHQpn>; Fri, 8 Mar 2002 11:45:43 -0500
+Newsgroups: comp.os.linux.development.system
+Date: Fri, 8 Mar 2002 11:45:30 -0500 (EST)
+From: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: simple -- who adds stuff to UDP hash?
+Message-ID: <Pine.NEB.4.33.0203081139420.1845-100000@courage.cs.stevens-tech.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki writes:
-> - Add EXPORT_SYMBOL(ide_fops) again, since it's used in ide-cd.c add
->    a note there that this is actually possibly adding the same
->    device twice to the devfs stuff.
+Hello everybody.
 
-If it is adding the same device twice, that's definately a
-bug. Duplicate devfs entries are not allowed.
+In 2.4.17 net/ipv4/udp.c there is a hash table defined:
+struct sock *udp_hash[UDP_HTABLE_SIZE];
 
-				Regards,
+In my understanding it should contain all the allocated udp sockets (and
+it does, since udp_v4_lookup is able to find one after a new packet
+arrives).
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+_However_, I cannot find a single piece of code which would add a new
+socket after it was created. Also, udp_v4_hash is a 'null' function.
+
+Please let me know how new sockets are added to it -- I need it when I
+create my own socket in "accept" (my code is based on UDP).
+
+-marek
+
+P.S. By sockets I mean 'struct sock'.
+

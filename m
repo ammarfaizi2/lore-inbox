@@ -1,52 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVCHEsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVCHEtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVCHEsu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 23:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVCHEst
+	id S261486AbVCHEtN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 23:49:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVCHEtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 23:48:49 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:10135 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261448AbVCHEsA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 23:48:00 -0500
-Subject: Re: [patch] inotify for 2.6.11-mm1, updated
-From: Robert Love <rml@novell.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: akpm@osdl.org, John McCutchan <ttb@tentacle.dhs.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050308044009.GA352@infradead.org>
-References: <1109961444.10313.13.camel@betsy.boston.ximian.com>
-	 <1109963494.10313.32.camel@betsy.boston.ximian.com>
-	 <20050307011939.GA7764@infradead.org>
-	 <1110230878.3973.40.camel@betsy.boston.ximian.com>
-	 <20050308044009.GA352@infradead.org>
-Content-Type: text/plain
-Date: Mon, 07 Mar 2005 23:50:36 -0500
-Message-Id: <1110257436.12936.65.camel@localhost>
+	Mon, 7 Mar 2005 23:49:12 -0500
+Received: from waste.org ([216.27.176.166]:48796 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261486AbVCHEs2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 23:48:28 -0500
+Date: Mon, 7 Mar 2005 20:47:57 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, paul@linuxaudiosystems.com, joq@io.com,
+       cfriesen@nortelnetworks.com, chrisw@osdl.org, rlrevell@joe-job.com,
+       arjanv@redhat.com, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050308044757.GH3120@waste.org>
+References: <20050112185258.GG2940@waste.org> <200501122116.j0CLGK3K022477@localhost.localdomain> <20050307195020.510a1ceb.akpm@osdl.org> <20050308035503.GA31704@infradead.org> <20050307201646.512a2471.akpm@osdl.org> <20050308042242.GA15356@elte.hu> <20050307202821.150bd023.akpm@osdl.org> <20050308043250.GA32746@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308043250.GA32746@infradead.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 04:40 +0000, Christoph Hellwig wrote:
+On Tue, Mar 08, 2005 at 04:32:50AM +0000, Christoph Hellwig wrote:
+> On Mon, Mar 07, 2005 at 08:28:21PM -0800, Andrew Morton wrote:
+> > > please describe this "very simple and very real-world problem" in simple
+> > > terms. Lets make sure "problem" and "solution" didnt become detached.
+> > > 
+> > 
+> > Well others can do that better than I but I'd describe it as
+> > 
+> > - Audio apps need to meet their realtime requirements
 
-> Why do you need the classdevice?  I'm really not too eager about adding
-> tons of new misdevices now that we can route directly to individual majors
-> with cdev_add & stuff.  Especially when you're actually relying on class
-> device you should have your own one instead of relying on an onsolete
-> layer.
+Add video, data acquisition, motion control, CD burning, etc..
 
-We have sysfs knobs and /sys/class/misc/inotify makes sense.
+> > - The way to implement that is to give them !SCHED_OTHER and mlockall
+> >   capabilities.
+> > 
+> > - But they don't want to run as root.
+> 
+> Which all fits very nicely with MEMLOCK rlimit and a tiny wrapper
+> that sets !SCHED_OTHER and execs the audio app..
 
-> Actually, you fixed that in read_write.c, just compat.c is still missing.
-> Looks like you forget to fix that one and didn't have a chance to compile-test
-> the 32bit compat layer?
+This is somewhat complicated by the fact that the existing apps are
+already running and instead need promotion. Then we run into problems
+lie set_rlimit doesn't want to work on other processes and issues with
+sched_setparam on other threads, etc.
 
-Yah, I just missed it.  It is fixed in my tree.
+Part of me wants to say, well you designed it wrong. You should have
+planned a setuid launcher for the rt threads. But at the same time,
+the rlimits thing seems like a reasonably clean way to give RT access
+to users, and still allows for protect watchdog processes..
+ 
+> and as I mentioned a few times if we really want to go for a magic
+> uid/gid-based approach we should at least have one that's useable for
+> all capabilities so it can replace the oracle hack aswell.  But the
+> proponents of the patch weren't iterested to invest the tiniest bit
+> of work over what they submited.
 
-Thanks,
+Does the mlock rlimit not already address the Oracle problem?
 
-	Robert Love
-
-
+-- 
+Mathematics is the supreme nostalgia of our time.

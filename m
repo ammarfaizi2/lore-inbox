@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318993AbSHMTN0>; Tue, 13 Aug 2002 15:13:26 -0400
+	id <S319041AbSHMTPx>; Tue, 13 Aug 2002 15:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319016AbSHMTN0>; Tue, 13 Aug 2002 15:13:26 -0400
-Received: from monster.nni.com ([216.107.0.51]:20755 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S318993AbSHMTNZ>;
-	Tue, 13 Aug 2002 15:13:25 -0400
-Date: Tue, 13 Aug 2002 15:06:18 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: linux-kernel@vger.kernel.org
-Subject: Mongo local_irq_foo() patch
-Message-Id: <20020813150618.2d867b0e.arodland@noln.com>
-X-Mailer: Sylpheed version 0.8.1claws38 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S319042AbSHMTPx>; Tue, 13 Aug 2002 15:15:53 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28434 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319041AbSHMTPw>; Tue, 13 Aug 2002 15:15:52 -0400
+Date: Tue, 13 Aug 2002 12:22:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Matt Dobson <colpatch@us.ibm.com>
+Subject: Re: [PATCH] NUMA-Q disable irqbalance
+In-Reply-To: <2009430000.1029265102@flay>
+Message-ID: <Pine.LNX.4.44.0208131220350.7411-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'd decided to run 2.5.31, and actually gotten it mostly-working when I
-noticed that quite a few of my favorite modules had unresolved symbols,
-mostly related to cli()/sti() and friends, so I did a semiautomatic
-(completely attended) conversion of the following:
 
-sound/oss/
-drivers/net/irda/
-net/irda/
+On Tue, 13 Aug 2002, Martin J. Bligh wrote:
+> 
+> OK, I was being unclear, that's not really what I meant. If I may rephrase:
+> I don't like the performance hit it gives on P3 standard SMP machines (not
+> NUMA-Q) though it does work on there too, and there's no easy way for 
+> people to disable it.
 
-The patch is rather large (111K in over 4000 lines).
+Well, it makes performance _so_ much better on a P4 that it's not even 
+funny. It's basically a "P4 is unusable with SMP" without it.
 
-Would the proper procedure be to:
+		Linus
 
-split the patch up into 2 or 3 pieces and send to proper maintainers (if
-I can find them),
-
-split the patch up and send to linus+LKML,
-
-or upload the whole thing as one big patch to HTTP and post the link
-here ?
-
--- hobbs

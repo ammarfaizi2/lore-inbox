@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267606AbUBTATs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:19:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267615AbUBTATs
+	id S267637AbUBTAWT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:22:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267635AbUBTAUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:19:48 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:39346 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S267606AbUBTAP1 (ORCPT
+	Thu, 19 Feb 2004 19:20:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37601 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267591AbUBTATS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:15:27 -0500
-Date: Fri, 20 Feb 2004 01:15:24 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Greg Ungerer <gerg@snapgear.com>
+	Thu, 19 Feb 2004 19:19:18 -0500
+Date: Thu, 19 Feb 2004 16:21:02 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Fabio Coatti <cova@ferrara.linux.it>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
-Message-ID: <20040220001524.GL17140@khan.acc.umu.se>
-Mail-Followup-To: Greg Ungerer <gerg@snapgear.com>,
-	linux-kernel@vger.kernel.org
-References: <40342BD5.9080105@snapgear.com> <20040219103900.GH17140@khan.acc.umu.se> <4034B2E5.1090505@snapgear.com> <20040219131317.GI17140@khan.acc.umu.se> <40355080.8090008@snapgear.com>
+Subject: Re: 2.6.3-mm1 and aic7xxx
+Message-Id: <20040219162102.0b699698.akpm@osdl.org>
+In-Reply-To: <200402192234.53855.cova@ferrara.linux.it>
+References: <200402192234.53855.cova@ferrara.linux.it>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40355080.8090008@snapgear.com>
-User-Agent: Mutt/1.4.1i
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pubkey_dc47ca16.gpg.asc
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 20, 2004 at 10:10:40AM +1000, Greg Ungerer wrote:
-[snip]
-> You don't need real hardware :-)
+Fabio Coatti <cova@ferrara.linux.it> wrote:
+>
+> I'm experiencing some problems with 2.6.3-mm1 release: on boot the system 
+> hangs trying to detect scsi devices, and the light on scsi cdrom flashes 
+> every few seconds. With 2.6.3-rc3-mm1 all works just fine, and I get this 
+> syslog entry:
 > 
-> The gdb/ARMulator makes a fine target for development.
-> Quicker and easier to develop with. Heres a good place
-> to get started with it if interrested:
+> Feb 19 22:23:15 kefk kernel: ahc_pci:3:6:0: Host Adapter Bios disabled.  Using 
+> default SCSI device parameters
+> Feb 19 22:23:15 kefk kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA 
+> DRIVER, Rev 6.2.36
+> Feb 19 22:23:15 kefk kernel:         <Adaptec 2902/04/10/15/20C/30C SCSI 
+> adapter>
+> Feb 19 22:23:15 kefk kernel:         aic7850: Single Channel A, SCSI Id=7, 
+> 3/253 SCBs
 > 
->   http://www.uclinux.org/pub/uClinux/utilities/armulator/
+> <<<<<<<<<<<<<<<2.6.3-mm1 hangs here
 
-Yeah, but real hardware is more fun.
+Are you able to get a sysrq-T or sysrq-P trace?
 
-> >How's the status of the 2.0-port of uClinux, btw?  Is it unintrusive
-> >enough to be considered for a 2.0-merge?
-> 
-> Hmm, probably not. It is no where near as clean as the 2.6
-> merge. It could be cleaned up, but no one seems to interrested
-> in doing the work.
+> I've also noticed (only with 2.6.3-mm1) a "PCI BIOS passed non existent PCI 
+> BUS 0!" message when it probes ICH5, i.e.
 
-Well, if there are users and interest, I could do at least some of the
-work.  Since I've already done some work with 2.0 uClinux, and since I'm
-the 2.0 maintainer, I do have some experience ;-)
+Could be an acpi thing.  If you have time, could you try
 
+	patch -p1 -R < bk-acpi.patch
 
-Regards: David
--- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+and see if that helps?
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3-mm1/broken-out/bk-acpi.patch
+
+Thanks.
+

@@ -1,191 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266764AbUHOPLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266782AbUHOPLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266764AbUHOPLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 11:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266782AbUHOPJA
+	id S266782AbUHOPLh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 11:11:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266778AbUHOPLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 11:09:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16863 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266781AbUHOPFK (ORCPT
+	Sun, 15 Aug 2004 11:11:22 -0400
+Received: from holomorphy.com ([207.189.100.168]:17312 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266762AbUHOPKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 11:05:10 -0400
-Date: Sun, 15 Aug 2004 11:04:14 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: switch ide-proc to use the ide_key functionality
-Message-ID: <20040815150414.GA12181@devserv.devel.redhat.com>
+	Sun, 15 Aug 2004 11:10:34 -0400
+Date: Sun, 15 Aug 2004 08:10:24 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing pte
+Message-ID: <20040815151024.GI11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Manfred Spraul <manfred@colorfullife.com>,
+	Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org
+References: <411F7067.8040305@colorfullife.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <411F7067.8040305@colorfullife.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc3/drivers/ide/ide-proc.c linux-2.6.8-rc3/drivers/ide/ide-proc.c
---- linux.vanilla-2.6.8-rc3/drivers/ide/ide-proc.c	2004-08-09 15:51:00.000000000 +0100
-+++ linux-2.6.8-rc3/drivers/ide/ide-proc.c	2004-08-12 17:26:00.000000000 +0100
-@@ -355,7 +355,7 @@
- static int proc_ide_read_identify
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *)data;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
- 	int		len = 0, i = 0;
- 	int		err = 0;
- 
-@@ -397,11 +397,15 @@
- static int proc_ide_read_settings
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *) data;
--	ide_settings_t	*setting = (ide_settings_t *) drive->settings;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
-+	ide_settings_t	*setting;
- 	char		*out = page;
- 	int		len, rc, mul_factor, div_factor;
-+	
-+	if(drive == NULL)
-+		return -EIO;
- 
-+	setting = (ide_settings_t *) drive->settings;
- 	down(&ide_setting_sem);
- 	out += sprintf(out, "name\t\t\tvalue\t\tmin\t\tmax\t\tmode\n");
- 	out += sprintf(out, "----\t\t\t-----\t\t---\t\t---\t\t----\n");
-@@ -431,7 +435,7 @@
- static int proc_ide_write_settings(struct file *file, const char __user *buffer,
- 				   unsigned long count, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *) data;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
- 	char		name[MAX_LEN + 1];
- 	int		for_real = 0;
- 	unsigned long	n;
-@@ -440,6 +444,9 @@
- 
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
-+		
-+	if (drive == NULL)
-+		return -EIO;
- 
- 	if (count >= PAGE_SIZE)
- 		return -EINVAL;
-@@ -523,9 +530,12 @@
- int proc_ide_read_capacity
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *) data;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
- 	int		len;
- 
-+	if(drive == NULL)
-+		return -EIO;
-+		
- 	len = sprintf(page,"%llu\n",
- 		      (long long) (DRIVER(drive)->capacity(drive)));
- 	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
-@@ -534,9 +544,12 @@
- int proc_ide_read_geometry
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *) data;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
- 	char		*out = page;
- 	int		len;
-+	
-+	if(drive == NULL)
-+		return -EIO;
- 
- 	out += sprintf(out,"physical     %d/%d/%d\n",
- 			drive->cyl, drive->head, drive->sect);
-@@ -552,10 +565,14 @@
- static int proc_ide_read_dmodel
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *) data;
--	struct hd_driveid *id = drive->id;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
-+	struct hd_driveid *id;
- 	int		len;
- 
-+	if(drive == NULL)
-+		return -EIO;
-+
-+	id = drive->id;
- 	len = sprintf(page, "%.40s\n",
- 		(id && id->model[0]) ? (char *)id->model : "(none)");
- 	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
-@@ -564,40 +581,30 @@
- static int proc_ide_read_driver
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *) data;
--	ide_driver_t	*driver = drive->driver;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
-+	ide_driver_t	*driver;
- 	int		len;
- 
-+	if(drive == NULL)
-+		return -EIO;
-+			
-+	driver = drive->driver;
-+
- 	len = sprintf(page, "%s version %s\n",
- 			driver->name, driver->version);
- 	PROC_IDE_READ_RETURN(page,start,off,count,eof,len);
- }
- 
--static int proc_ide_write_driver
--	(struct file *file, const char __user *buffer, unsigned long count, void *data)
--{
--	ide_drive_t	*drive = (ide_drive_t *) data;
--	char name[32];
--
--	if (!capable(CAP_SYS_ADMIN))
--		return -EACCES;
--	if (count > 31)
--		count = 31;
--	if (copy_from_user(name, buffer, count))
--		return -EFAULT;
--	name[count] = '\0';
--	if (ide_replace_subdriver(drive, name))
--		return -EINVAL;
--	return count;
--}
--
- static int proc_ide_read_media
- 	(char *page, char **start, off_t off, int count, int *eof, void *data)
- {
--	ide_drive_t	*drive = (ide_drive_t *) data;
-+	ide_drive_t	*drive = ide_drive_from_key(data);
- 	const char	*media;
- 	int		len;
- 
-+	if(drive == NULL)
-+		return -EINVAL;
-+
- 	switch (drive->media) {
- 		case ide_disk:	media = "disk\n";
- 				break;
-@@ -616,7 +623,7 @@
- }
- 
- static ide_proc_entry_t generic_drive_entries[] = {
--	{ "driver",	S_IFREG|S_IRUGO,	proc_ide_read_driver,	proc_ide_write_driver },
-+	{ "driver",	S_IFREG|S_IRUGO,	proc_ide_read_driver,	NULL },
- 	{ "identify",	S_IFREG|S_IRUSR,	proc_ide_read_identify,	NULL },
- 	{ "media",	S_IFREG|S_IRUGO,	proc_ide_read_media,	NULL },
- 	{ "model",	S_IFREG|S_IRUGO,	proc_ide_read_dmodel,	NULL },
-@@ -668,7 +675,7 @@
- 
- 		drive->proc = proc_mkdir(drive->name, parent);
- 		if (drive->proc)
--			ide_add_proc_entries(drive->proc, generic_drive_entries, drive);
-+			ide_add_proc_entries(drive->proc, generic_drive_entries, ide_drive_to_key(drive));
- 		sprintf(name,"ide%d/%s", (drive->name[2]-'a')/2, drive->name);
- 		ent = proc_symlink(drive->name, proc_ide_root, name);
- 		if (!ent) return;
+Christoph wrote:
+>> Well this is more an idea than a real patch yet. The page_table_lock
+>> becomes a bottleneck if more than 4 CPUs are rapidly allocating and using
+>> memory. "pft" is a program that measures the performance of page faults on
+>> SMP system. It allocates memory simultaneously in multiple threads thereby
+>> causing lots of page faults for anonymous pages.
+
+On Sun, Aug 15, 2004 at 04:17:11PM +0200, Manfred Spraul wrote:
+> Very odd. Why do you see a problem with the page_table_lock but no 
+> problem from the mmap semaphore?
+> The page fault codepath acquires both.
+> How often is the page table lock acquired per page fault? Just once or 
+> multiple spin_lock calls per page fault? Is the problem contention or 
+> cache line trashing?
+> Do you have profile/lockmeter output? Is the down_read() in 
+> do_page_fault() a hot spot, too?
+
+->mmap_sem would likely be useful to address as well. A different
+structure for vma trees, more amenable to finegrained locking or
+lockfree algorithms, would likely be useful there.
 
 
-Signed-off-by: Alan Cox <alan@redhat.com>
-
+-- wli

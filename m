@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270022AbTHOQzM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270148AbTHOQMM
+	id S270148AbTHOQzN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270142AbTHOQMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:12:12 -0400
+	Fri, 15 Aug 2003 12:12:05 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S267724AbTHOQJC (ORCPT
+	by vger.kernel.org with ESMTP id S267471AbTHOQJB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:09:02 -0400
-Subject: Re: Trying to run 2.6.0-test3
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <0daa01c36330$50e76d70$1aee4ca5@DIAMONDLX60>
-References: <0a5b01c36305$4dec8b80$1aee4ca5@DIAMONDLX60>
-	 <1060937593.604.14.camel@teapot.felipe-alfaro.com>
-	 <0b8801c36314$17890fa0$1aee4ca5@DIAMONDLX60>
-	 <1060948426.589.3.camel@teapot.felipe-alfaro.com>
-	 <0daa01c36330$50e76d70$1aee4ca5@DIAMONDLX60>
-Content-Type: text/plain
-Message-Id: <1060959729.744.6.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 15 Aug 2003 17:02:10 +0200
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Aug 2003 12:09:01 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] call drv->shutdown at rmmod
+References: <Pine.LNX.4.33.0308140929180.916-100000@localhost.localdomain>
+	<1060937467.13316.39.camel@gaston>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 15 Aug 2003 09:28:31 -0600
+In-Reply-To: <1060937467.13316.39.camel@gaston>
+Message-ID: <m1oeyrx7mo.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-15 at 15:20, Norman Diamond wrote:
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-> > > Guess why I compiled it without ACPI support and with APM support.  Guess
-> > > why my kernel command line has acpi=off apm=on.  (Although the command line
-> > > options are redundant with the self-compiled kernel configuration, they are
-> > > necessary when booting a generic kernel.  Yes I know that the machine has
-> > > just enough ACPI hooks to cause problems when anyone other than Windows 98
-> > > tries to use ACPI.  It's not even recommended to force ACPI on when
-> > > installing Windows 98 on this machine.  Windows 2000 blue screens if ACPI is
-> > > forced on.  Linux doesn't panic when its default ACPI takes over, but it
-> > > does prevent APM from working.)
-> >
-> > If you turn ACPI on, you won't need APM support.
+> > You're assuming that a driver can always bring a device out a shutdown
+> > state. That's one of the things we talked about at OLS, and the other half
+> > of the justification behind such a feature, not just making sure the
+> > device is queisced. Your argument against my suggestion are some of the
+> > same arguments for a feature like you're introducing. 
 > 
-> WRONG.  ACPI DOESN'T WORK ON THE MACHINE I'M DOING THIS ON.  DID
-> YOU TRY READING WHAT YOU QUOTED THERE?  Yes I know you volunteer
-> more effort on Linux than I do, but you're asking me to flame you anyway.
-> How many times do you need to be told?
-
-Yes, I tried reading. You said Linux doesn't panic while using ACPI, so
-I supposed ACPI just worked but the problem was you wanted APM support.
-
-> > To be sincere, I don't know exactly why "pci=usepirqmask" needs to be
-> > used. I'm no hardware expert. But I know that I needed it when I wasn't
-> > using ACPI.
+> There is a problem of semantics here. Is shutdown() supposed to shutdown
+> the hardware device (ie. low power) or just the driver ? If yes, then
+> it's duplicate of the PM callbacks. My understanding of the shutdown()
+> callback is that it was more than "stop driver activity, put device into
+> idle state" to prepare for a shutdown/reboot (though we do also sleep
+> IDE drives in this case, but this is because of that nasty cache flush
+> issue).
 > 
-> Hmm.  Then some dependency seems to be broken in kernel compilation.  When
-> ACPI is not compiled in, it should know that the effect of "pci=usepirqmask"
-> should be compiled in (whatever that effect is).
+> The problem with kexec is just that. What it needs isn't low power devices,
+> it needs device back in "idle" state, but if possible powered up (or at
+> least in whatever state the driver found them on boot). The most important
+> thing is to actually stop pending bus mastering activities.
+> 
+> On PPC, we have a name for that which comes from Open Firmware (since we
+> need to ask the firmware to stop bus mastering & idle devices the same way
+> when we take over it and before we get control of the system memory) and
+> it's called "quiesce".
 
-It's not a problem with dependencies. On ACPI-enabled kernels, you using
-ACPI routing. If you boot using "acpi=off", then you're using standard
-PCI routing and that, in turn, on same machines, it warns you to use
-"pci=usepirqmask". Don't know why, on some machines using standard PCI
-routing, you don't need to boot with "pci=usepirqmask". I suppose it
-will be some kind of hardware incompatibility or a bad implementation.
+Even if kexec is not brought into the picture the devices need to be quiesed on
+reboot.  On x86 and probably other architectures there are 2 ways a reboot can go.
+1) The firmware when it regains control toggles the motherboard reset
+   line resetting all of the devices, so nothing we do really makes a difference.
+2) The firmware when it regains control tweaks a few things and
+   pretends it was never out of control, and restarts the boot
+   process.
 
+When the firmware does not toggle the motherboard reset line during a
+reboot the firmware case is exactly equivalent to the kexec one.
 
+So shutdown needs to quiese things.
+
+Eric

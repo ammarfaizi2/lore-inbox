@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274916AbTGaXOv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 19:14:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274915AbTGaXOu
+	id S270092AbTGaXKk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 19:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270576AbTGaXKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 19:14:50 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31972 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S274913AbTGaXOa
+	Thu, 31 Jul 2003 19:10:40 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55798 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S270092AbTGaXKg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 19:14:30 -0400
-Date: Fri, 1 Aug 2003 00:14:28 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: "Mukker, Atul" <atulm@lsil.com>
-Cc: "'Jens Axboe'" <axboe@suse.de>, "Bagalkote, Sreenivas" <sreenib@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-megaraid-devel@dell.com'" <linux-megaraid-devel@dell.com>
-Subject: Re: [ANNOUNCE] megaraid 2.00.6 patch for kernels without hostlock
-Message-ID: <20030731231428.GP22222@parcelfarce.linux.theplanet.co.uk>
-References: <0E3FA95632D6D047BA649F95DAB60E570185F3CF@EXA-ATLANTA.se.lsil.com>
+	Thu, 31 Jul 2003 19:10:36 -0400
+Subject: Re: [PATCH] protect migration/%d etc from sched_setaffinity
+From: Robert Love <rml@tech9.net>
+To: Joe Korty <joe.korty@ccur.com>
+Cc: torvalds@osdl.org, akpm@digeo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20030731230635.GA7852@rudolph.ccur.com>
+References: <20030731224604.GA24887@tsunami.ccur.com>
+	 <1059692548.931.329.camel@localhost>
+	 <20030731230635.GA7852@rudolph.ccur.com>
+Content-Type: text/plain
+Message-Id: <1059693499.786.1.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570185F3CF@EXA-ATLANTA.se.lsil.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-5) 
+Date: 31 Jul 2003 16:18:19 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 05:10:50PM -0400, Mukker, Atul wrote:
+On Thu, 2003-07-31 at 16:06, Joe Korty wrote:
+
+> It's not all system daemons, just some of them that need protection.
 > 
-> Well, that's definitely a good idea. Expect a new driver with this change.
-> BTW, is there a kernel version beyond which all versions would support per
-> host lock, and I mean a 2.4.x kernel :-)
+> Keeping the set of locked-down daemons to the smallest possible is
+> important when one wants to 'set aside' cpus for use only by
+> specific, need-the-lowest-latency-possible realtime applications.
 
-that's a pretty dangerous change to make to a stable kernel.  much better
-to work on stabilising 2.6.
+Yah, I know. But this is a lot of code just to prevent root from hanging
+herself, and she has plenty of other ways with which to do that.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+	Robert Love
+
+

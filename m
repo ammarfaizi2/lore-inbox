@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265009AbUFMGUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265011AbUFMGeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbUFMGUt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 02:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbUFMGUt
+	id S265011AbUFMGeV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 02:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265013AbUFMGeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 02:20:49 -0400
-Received: from dev.tequila.jp ([128.121.50.153]:58898 "EHLO dev.tequila.jp")
-	by vger.kernel.org with ESMTP id S265009AbUFMGUr (ORCPT
+	Sun, 13 Jun 2004 02:34:20 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:43203 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S265011AbUFMGeT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 02:20:47 -0400
-Message-ID: <40CBF29D.3080400@eunet.at>
-Date: Sun, 13 Jun 2004 15:22:21 +0900
-From: Clemens Schwaighofer <schwaigl@eunet.at>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-CC: gullevek@gullevek.org, linux-kernel@vger.kernel.org, cs@tequila.co.jp
-Subject: Re: compile error with 2.6.7-rc3-mm1
-References: <40C9AF48.2040807@gullevek.org>	<20040611062829.574db94f.pj@sgi.com>	<40CA6835.2070405@eunet.at>	<20040612034430.72a8207e.pj@sgi.com>	<40CBC809.3000102@eunet.at>	<20040612204207.0136b76f.pj@sgi.com>	<40CBD251.4000601@eunet.at> <20040612212024.0bbec683.pj@sgi.com>
-In-Reply-To: <20040612212024.0bbec683.pj@sgi.com>
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Jun 2004 02:34:19 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel/module compiler version problem 
+In-reply-to: Your message of "Fri, 11 Jun 2004 15:16:00 -0400."
+             <40CA04F0.9000307@nortelnetworks.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 13 Jun 2004 16:34:07 +1000
+Message-ID: <29225.1087108447@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 11 Jun 2004 15:16:00 -0400, 
+Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+>I'm running 2.4.22, build with gcc 3.3.1, modutils 2.4.22.
+>
+>I have an ATM driver that is shipped with a binary blob and a source code shim. 
+>  It compiles fine.  When I go to load it, I get the following error:
+>
+>"The module you are trying to load is compiled with a gcc
+>version 2 compiler, while the kernel you are running is compiled with
+>a gcc version 3 compiler. This is known to not work."
+>
+>Presumably the binary blob was compiled with gcc 2.x?  Is there any way to 
+>override this?  "insmod -f" doesn't seem to work.
 
-Paul Jackson wrote:
+That patch originally came from RedHat, and was included in modutils
+2.4.22.  From RH Bugzilla 73732.
 
-okay, I am sorry :) I am not a C coder, just other lesser (perl, php,
-java, etc)
+"The insmod in Red Hat Linux 8.0 looks for modules and kernels which do
+not have a matching gcc version. This is done because both the base and
+the Red Hat kernel ABI for gcc 2 and gcc 3 built kernels are not the
+same. This is due to workarounds for old (egcs) compiler bugs which
+change the padding in kernel data structures.
 
-| The preprocessor output from this line in the x86.i file will look
-| something like this, hopefully:
-|
-|    Good:
-|
-| 	old_mask = ((cpumask_t){ { [0 ... (((8)+32 -1)/32)-1] = 0UL } });
-|
-| Not like this:
-|
-|    Bad:
-|
-| 	old_mask = { { [0 ... (((8)+32 -1)/32)-1] = 0UL } };
+Other vendors using gcc 3 series compilers received many strange bug
+reports that turned out to be gcc 2 and gcc 3 module mixups. We saw the
+same problems and verified the cause in our earlier beta releases. In
+order to assist our customers Red Hat extended insmod to detect the
+problem case and display an error message."
 
-okay, I have the "Bad" one. Whatever that means, it seems bad :)
-
-lg, clemens
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (MingW32)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAy/KdJwwYX0IeBp8RAjCRAJ96AtWAVml+rZ1ErGdh0b5PQR8/3QCgqzz4
-ptOblxs2ln8V504PZpzc29Q=
-=nXov
------END PGP SIGNATURE-----

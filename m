@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268339AbTCCEeB>; Sun, 2 Mar 2003 23:34:01 -0500
+	id <S268343AbTCCEyL>; Sun, 2 Mar 2003 23:54:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268341AbTCCEeB>; Sun, 2 Mar 2003 23:34:01 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:23687 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S268339AbTCCEeA>; Sun, 2 Mar 2003 23:34:00 -0500
-Date: Sun, 2 Mar 2003 22:44:25 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Michael Buesch <freesoftwaredeveloper@web.de>
-cc: linux-kernel@vger.kernel.org, Karsten Keil <keil@isdn4linux.de>
-Subject: Re: fcpcipnp bug?
-In-Reply-To: <200303021512.01952.freesoftwaredeveloper@web.de>
-Message-ID: <Pine.LNX.4.44.0303022243110.23884-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268348AbTCCEyL>; Sun, 2 Mar 2003 23:54:11 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:54799 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268343AbTCCEyK>;
+	Sun, 2 Mar 2003 23:54:10 -0500
+Date: Sun, 2 Mar 2003 20:55:25 -0800
+From: Greg KH <greg@kroah.com>
+To: mdew <mdew@mdew.dyndns.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Stv0680-usb-general] USB error?
+Message-ID: <20030303045525.GD13705@kroah.com>
+References: <1046665376.15584.29.camel@nirvana.flat>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1046665376.15584.29.camel@nirvana.flat>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Mar 2003, Michael Buesch wrote:
+On Mon, Mar 03, 2003 at 05:22:56PM +1300, mdew wrote:
+> 
+> -- 
+> mdew <mdew@mdew.dyndns.org>
 
-> I get some compiletime errors when compiling linux-2.5.63 vanilla.
+Content-Description: Forwarded message - [Stv0680-usb-general] USB error?
+> Date: 03 Mar 2003 15:09:52 +1300
+> From: mdew <mdew@mdew.dyndns.org>
+> To: stv0680-usb <stv0680-usb-general@lists.sourceforge.net>
+> Subject: [Stv0680-usb-general] USB error?
+> 
+> nirvana:~/pencam2-0.65# ./pencam2
+>  usb_claim_interface error
+>  usb_claim_interface error
 
-Yup, I know ;( It's fixed in my tree, I only need to find the time to 
-finish up a few other changes before pushing stuff to Linus...
+Read the docs for pencam :)
+(Hint, the video driver is bound to the device, you need to unload it
+before using the pencam program.)
 
---Kai
-
-
+greg k-h

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267411AbTAVJ1X>; Wed, 22 Jan 2003 04:27:23 -0500
+	id <S267392AbTAVJX1>; Wed, 22 Jan 2003 04:23:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267412AbTAVJ1X>; Wed, 22 Jan 2003 04:27:23 -0500
-Received: from host-80-252-0-105.gazeta.pl ([80.252.0.105]:4772 "EHLO
-	virgin.gazeta.pl") by vger.kernel.org with ESMTP id <S267411AbTAVJ1W>;
-	Wed, 22 Jan 2003 04:27:22 -0500
-Date: Wed, 22 Jan 2003 10:36:25 +0100
-From: =?iso-8859-2?Q?Przemys=B3aw?= Maciuszko <sal@agora.pl>
+	id <S267393AbTAVJX1>; Wed, 22 Jan 2003 04:23:27 -0500
+Received: from mail.hometree.net ([212.34.181.120]:27040 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S267392AbTAVJX0>; Wed, 22 Jan 2003 04:23:26 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Problem with Qlogic 2200 and 2.4.20
-Message-ID: <20030122093625.GB2617@virgin.gazeta.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.3i
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [OT] Re: Linux in the News! WooHoo!
+Date: Wed, 22 Jan 2003 09:32:33 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <b0lofh$rrk$1@forge.intermeta.de>
+References: <Pine.LNX.4.44.0301212108460.4030-100000@phoenix.infradead.org> <3E2DEB22.5050107@lexus.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1043227953 22262 212.34.181.4 (22 Jan 2003 09:32:33 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Wed, 22 Jan 2003 09:32:33 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
-I have a strange problem with 2.4.20 (also 2.4.19) and Qlogic FC 2200.
+jjs <jjs@lexus.com> writes:
 
-The machine runs test news-server, so disk load is high.
-After few minutes of running I get the following errors on console:
+>Bottom line: server-only OSes are in danger
+>of becoming irrelevant, because once ms can
+>claim 100 percent (or close) of the desktop,
+>they can then leverage the desktop monopoly
+>to dictate what's allowed in the server room.
 
-qlogifc0 : no handle slots, this should not happen
-hostdata->queued is 19, in_ptr: 63
-qlogifc0 : no handle slots, this should not happen
-hostdata->queued is 19, in_ptr: 6a
-qlogifc0 : no handle slots, this should not happen
-hostdata->queued is 19, in_ptr: 70
+True spoken. See also "Novell Netware" (Server only OS) or "IBM OS/2"
+(Desktop only OS).
 
-and so on.
+	Regards
+		Henning
 
-After this machine locks up completetly and hard reboot must be done.
-When there is no load on disks machine runs fine for many hours.
-I'm using stripped logical volume on disk connected through this Qlogic FC
-(from IBM's Shark) and using ext3.
-LVM version 1.0.6
 
 -- 
-Przemys³aw Maciuszko
-Agora S.A.
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

@@ -1,73 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287539AbSABNUe>; Wed, 2 Jan 2002 08:20:34 -0500
+	id <S287563AbSABNlG>; Wed, 2 Jan 2002 08:41:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287462AbSABNU0>; Wed, 2 Jan 2002 08:20:26 -0500
-Received: from web1.oops-gmbh.de ([212.36.232.3]:57610 "EHLO
-	sabine.freising-pop.de") by vger.kernel.org with ESMTP
-	id <S287454AbSABNUM>; Wed, 2 Jan 2002 08:20:12 -0500
-Message-ID: <3C33071A.EB4943E8@sirius-cafe.de>
-Date: Wed, 02 Jan 2002 14:11:55 +0100
-From: Martin Knoblauch <knobi@sirius-cafe.de>
-Reply-To: knobi@knobisoft.de
-Organization: Knobisoft :-), Freising
-X-Mailer: Mozilla 4.6 [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: hauan@cmu.edu
-Subject: Re: smp cputime issues
+	id <S287454AbSABNk4>; Wed, 2 Jan 2002 08:40:56 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:19250 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S287563AbSABNkm>; Wed, 2 Jan 2002 08:40:42 -0500
+Date: Wed, 2 Jan 2002 14:39:49 +0100
+From: Sascha Andres <linux-kernel@programmers-world.com>
+To: Kernel Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: The syncookies firewall breaking problem are corrected?
+Message-ID: <20020102133949.GB6137@programmers-world.com>
+Mail-Followup-To: Kernel Mailingliste <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020102125458Z287002-18284+10793@vger.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020102125458Z287002-18284+10793@vger.kernel.org>
+User-Agent: Mutt/1.3.24i
+X-OS: Linux linux 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> smp cputime issues
-> 
-> 
-> hello,
-> 
->   we are encountering some weird timing behaviour on our linux cluster.
-> 
->   specifically: when running 2 copies of selected programs on a
->   dual-cpu system, the cputime reported for each process is up to 25%
->   higher than when the processes are run on their own. however, if running
->   two different jobs on the same machine, both complete with a cputime
->   equal to when run individually. sample timing output attached.
-> 
->   profiling confirms that everything slows down approximately to scale.
->   the results reproduce on a range of different machines (see below).
-> 
-> additional specifications:
->   - kernel version 2.4.16 (with apic enabled)
->   - chipsets: apollo pro 133, apollo pro 266,
->               intel i860, serverworks LE
->   - all jobs requires less than 1/10 of physical memory
->   - no significant disk i/o takes place
->   - timing with dtime(), /usr/bin/time and shell built-in time
->   - this behavior is NOT seen for all applications. the worst
->     "offender" spends most of its time doing linear algebra.
-> 
->   ideas or info-pointers appreciated. more specs available on request.
-> 
+hi,
+On Wed, Jan 02, 2002 at 11:02:12AM -0200, Leonardo Pimenta Gonzalez wrote:
+> The lastest stable version of kernel 2.4.17 have it corrected?
+yes.
+> If yes, in which version of kernel it are corrected?
+2.4.15 (?); but you should use at least 2.4.16.
 
- two points. First for clarification - do you see the effects also on
-elapsed time? Or do you say that the CPU time reporting is screwed?
+ciao sascha
 
- Second - you mention that you see the effect mainly on linear algebra
-stuff. Could it be that you are memory bandwidth limited if you run two
-of them together? Are you using Intel CPUs (my guess) which have the FSB
-concept that may make memory bandwidth scaling a problem, or AMD Athlons
-which use the Alpha/EV6 bus and should be a bit more friendly.
-
- Finally, how big is "1/10th of physical" memory? What kind of memory.
-
-Martin
 -- 
-+-----------------------------------------------------+
-|Martin Knoblauch                                     |
-|-----------------------------------------------------|
-|http://www.knobisoft.de/cats                         |
-|-----------------------------------------------------|
-|e-mail: knobi@knobisoft.de                           |
-+-----------------------------------------------------+
+Sascha Andres linux-kernel@programmers-world.com
+http://www.programmers-world.com

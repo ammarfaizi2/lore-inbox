@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267947AbTCBXfm>; Sun, 2 Mar 2003 18:35:42 -0500
+	id <S267952AbTCBXx0>; Sun, 2 Mar 2003 18:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267899AbTCBXfl>; Sun, 2 Mar 2003 18:35:41 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:14477 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S267839AbTCBXfk> convert rfc822-to-8bit; Sun, 2 Mar 2003 18:35:40 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <neilb@cse.unsw.edu.au>, <linux-raid@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Sun, 2 Mar 2003 15:46:03 -0800
-In-Reply-To: <15970.37465.869711.682093@notabene.cse.unsw.edu.au>
-Subject: Re: ANNOUNCE: mdadm 1.1.0 - A tool for managing Soft RAID under Linux
+	id <S267966AbTCBXx0>; Sun, 2 Mar 2003 18:53:26 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:9732 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267952AbTCBXxZ>;
+	Sun, 2 Mar 2003 18:53:25 -0500
+Date: Mon, 3 Mar 2003 01:02:43 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Pavel =?iso-8859-1?Q?Jan=EDk?= <Pavel@Janik.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030303000243.GC319@elf.ucw.cz>
+References: <20030226200208.GA392@elf.ucw.cz> <m38yvz3qts.fsf@Janik.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030302234604.AAA10433@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m38yvz3qts.fsf@Janik.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Mar 2003 10:23:05 +1100, Neil Brown wrote:
+Hi!
 
->NeilBrown  03/03/03
->The third day
->of the third month
->of the third year
->of the third millenium
+>    > I've created little project for read-only (for now ;-) kitbeeper
+>    > clone. It is available at www.sf.net/projects/bitbucket (no tar balls,
+>    > just get it fresh from CVS).
+> 
+> I think that it is waste of your valuable time to create clones of
+> proprietary software like KitBeeper (I do not want to infringe on Larry's
+> trademark) is. It is not worth the effort and in fact your work supports
+> using that proprietary tool. I suggest to completely remove the
+> project.
 
-	I'm afraid it's the fourth year. 2000 was the first year of the 
-third millenium. 2001 was the second year. So 2002 was the third 
-year. Sorry.
-
+Actually bk's on-disk format is quite reasonable, and there's a *lot*
+of example data in that format, so it might be easier to develop
+free version control system this way.
+								Pavel
 -- 
-David Schwartz
-<davids@webmaster.com>
-
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

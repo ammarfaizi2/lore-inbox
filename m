@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267602AbTAXImN>; Fri, 24 Jan 2003 03:42:13 -0500
+	id <S267605AbTAXItK>; Fri, 24 Jan 2003 03:49:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267605AbTAXImN>; Fri, 24 Jan 2003 03:42:13 -0500
-Received: from holomorphy.com ([66.224.33.161]:57753 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267602AbTAXImM>;
-	Fri, 24 Jan 2003 03:42:12 -0500
-Date: Fri, 24 Jan 2003 00:50:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: GrandMasterLee <masterlee@digitalroadkill.net>,
-       Austin Gonyou <austin@coremetrics.com>, linux-kernel@vger.kernel.org
-Subject: Re: Using O(1) scheduler with 600 processes.
-Message-ID: <20030124085026.GW780@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	GrandMasterLee <masterlee@digitalroadkill.net>,
-	Austin Gonyou <austin@coremetrics.com>,
-	linux-kernel@vger.kernel.org
-References: <1043367029.28748.130.camel@UberGeek> <310350000.1043367864@titus> <1043388556.12894.23.camel@localhost> <435060000.1043389112@titus> <1043389673.14486.7.camel@localhost> <438270000.1043390898@titus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438270000.1043390898@titus>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267608AbTAXItK>; Fri, 24 Jan 2003 03:49:10 -0500
+Received: from jack.stev.org ([217.79.103.51]:20531 "EHLO jack.stev.org")
+	by vger.kernel.org with ESMTP id <S267605AbTAXItJ>;
+	Fri, 24 Jan 2003 03:49:09 -0500
+Message-ID: <00b601c2c387$ebc51c00$0cfea8c0@ezdsp.com>
+From: "James Stevenson" <james@stev.org>
+To: "Andrey Borzenkov" <arvidjaar@mail.ru>, "Brian King" <brking@charter.net>
+Cc: <linux-kernel@vger.kernel.org>
+References: <E18bxDI-000Ic3-00@f15.mail.ru>
+Subject: Re: Re[2]: OOPS in idescsi_end_request
+Date: Fri, 24 Jan 2003 09:06:44 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4920.2300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, someone else wrote:
->> So I decided to try 2.4.20aa1 instead, reversing the xfs patches, and
->> then updating with a newer code base, worse problems reversing those xfs
->> patches. 
->> SO I decided to just roll my own with the known features we use in
->> production.
->> 2.4.20 + xfs + lvm106 + rmap or aavm + O(1) sched + pte-highmem. 
+[LARGE SNIP]
 
-On Thu, Jan 23, 2003 at 10:48:19PM -0800, Martin J. Bligh wrote:
-> If you have enough ptes to want pte-highmem, I doubt you want rmap.
-> pte-chain space consumption will kill you. The calculations are pretty
-> easy to work out as to what the right solution is for your setup.
+> Would you agree to test the patch (possibly next week).
 
-Basically vma-based ptov resolution needs to be implemented for private
-anonymous pages, which will require much less ZONE_NORMAL space overhead
-as pte_chains may then be chucked.
-
-Dropping physical scanning altogether would be a mistake esp. for boxen
-of any appreciable amount of physical locality (NUMA, big highmem
-penalties, etc.) or wishing to support any significant number of tasks.
+yeah sure.
 
 
--- wli
+> cheers
+>
+> -andrey
+>
+> > >
+> > > If you can reliably reproduce the problem you could give it a try.
+> > >
+> > > Anybody sees yet another race condition here? :))
+> > >
+> > > -andrey
+> > >
+> > >
+> > >>While burning a CD tonight I ended up taking an oops on my system. I
+had
+> > >>the lkcd patch applied to my 2.4.19 kernel, so I was able to look at
+the
+> > >>  oops after my system rebooted. After digging into it a little and
+> > >>looking at the ide-scsi code I think I found the problem but am not
+> > >>sure. How can idescsi_reset simply return SCSI_RESET_SUCCESS to the
+scsi
+> > >>mid layer? I think what is happening is that a command times out,
+> > >>idescsi_abort is called, which returns SCSI_ABORT_SNOOZE. Later on
+> > >>idescsi_reset gets called, which returns SCSI_RESET_SUCCESS. At this
+> > >>point the scsi mid-layer owns the scsi_cmnd and returns the failure
+back
+> > >>up the chain. Later on, the command gets run through
+> > >>idescsi_end_request, which then tries to access the scsi_cmnd
+structure
+> > >>which is it no longer owns.
+> > >>
+> > >>Any help is appreciated. I have a complete lkcd dump of the failure if
+> > >>anyone would like more information...
+> > >>
+
+

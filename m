@@ -1,87 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268399AbUHLElV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268390AbUHLEld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268399AbUHLElV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 00:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268390AbUHLElU
+	id S268390AbUHLEld (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 00:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268381AbUHLEld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 00:41:20 -0400
-Received: from ctb-mesg6.saix.net ([196.25.240.78]:15072 "EHLO
-	ctb-mesg6.saix.net") by vger.kernel.org with ESMTP id S268381AbUHLEj0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 00:39:26 -0400
-Subject: Re: 2.6.8-rc3-np1
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: lkml@lpbproduction.scom
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <200408111604.30739.lkml@lpbproductions.com>
-References: <4117494E.704@yahoo.com.au>
-	 <1092262435.8976.59.camel@nosferatu.lan>
-	 <200408111604.30739.lkml@lpbproductions.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v9CP41KR7GhA8KwolRKZ"
-Message-Id: <1092285761.8976.62.camel@nosferatu.lan>
+	Thu, 12 Aug 2004 00:41:33 -0400
+Received: from [12.177.129.25] ([12.177.129.25]:18116 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S268398AbUHLEkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 00:40:25 -0400
+Message-Id: <200408120541.i7C5fIJd010913@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] 2.6.8-rc4-mm1 - UML fixes 
+In-Reply-To: Your message of "Wed, 11 Aug 2004 20:30:12 PDT."
+             <20040812033012.GE11200@holomorphy.com> 
+References: <200408120415.i7C4FWJd010494@ccure.user-mode-linux.org>  <20040812033012.GE11200@holomorphy.com> 
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 06:42:41 +0200
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 12 Aug 2004 01:41:18 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+wli@holomorphy.com said:
+> Out of curiosity, why are you allocating 4*PAGE_SIZE for the stack if
+> you're only going to use 2*PAGE_SIZE of it? I saw no other users for
+> the rest of ->thread_info offhand. 
 
---=-v9CP41KR7GhA8KwolRKZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Well, that's slightly misleading.  The other two pages (minus the thread_info)
+are available for stack if needed.  UML stacks are somewhat larger than the
+native kernel stacks because of the userspace signal frames, so I allocate
+4 pages for now to be safe.
 
-On Thu, 2004-08-12 at 01:04, Matt Heler wrote:
-> This applied fine here with some tweaking. Removing the nmi fixes from th=
-e np=20
-> patch allowed it to apply just fine with some offsets , but not fuzz.
->=20
-
-
-Yeah, I got it to apply with one small reject I think.  I assume you
-did build it?  Do you have CONFIG_SCHED_SMT enabled?
-
->=20
->=20
->=20
-> On Wednesday 11 August 2004 3:13 pm, Martin Schlemmer wrote:
-> > On Mon, 2004-08-09 at 11:52, Nick Piggin wrote:
-> > > http://www.kerneltrap.org/~npiggin/2.6.8-rc3-np1/
-> > >
-> > > Patch is against 2.6.8-rc3-mm2 only at this stage due to significant
-> > > memory management changes in there making it difficult to track Linus=
-'
-> > > tree as well.
-> > >
-> > > Feedback on the scheduler would be much appreciated, as it might get
-> > > a run in Andrew's tree soon.
-> >
-> > I am trying to get it patched against rc4-mm1, but it seems there
-> > are some issues with the SMT bits - dependent_sleeper for example
-> > is still around although it was removed with all previous patches
-> > (and uses task_t.time_slice which is no longer there).
-> >
-> > I assume you forgot to apply them?  Possible to get a complete
-> > patch?  If not, I'll see if I can get something going after some
-> > sleep.
-> >
-> >
-> > Thanks,
---=20
-Martin Schlemmer
-
---=-v9CP41KR7GhA8KwolRKZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBGvVBqburzKaJYLYRAotmAJ9SLWDqOjVIh/fThze+KMEcgp6XBwCfX9eh
-ZYj9IiOh0MFZCzjrwMLrHcc=
-=XNRX
------END PGP SIGNATURE-----
-
---=-v9CP41KR7GhA8KwolRKZ--
+				Jeff
 

@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271757AbTGRURT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 16:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271787AbTGRURS
+	id S270365AbTGRUQE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 16:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbTGRUQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 16:17:18 -0400
-Received: from CPE-65-29-18-15.mn.rr.com ([65.29.18.15]:2944 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S271757AbTGRURP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 16:17:15 -0400
+	Fri, 18 Jul 2003 16:16:04 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:16654 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270370AbTGRUP6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 16:15:58 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: rms@gnu.org
 Subject: Re: Bitkeeper
-From: Shawn <core@enodev.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: Richard Stallman <rms@gnu.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0307181603340.21716-100000@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.44.0307181603340.21716-100000@chimarrao.boston.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058560325.2662.31.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 18 Jul 2003 15:32:06 -0500
+Date: Fri, 18 Jul 2003 22:30:17 +0200
+User-Agent: KMail/1.5.2
+References: <E19dbGS-00026T-9R@fencepost.gnu.org>
+In-Reply-To: <E19dbGS-00026T-9R@fencepost.gnu.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200307182230.17803.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To add to this, why?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I don't mean to jump on anyone, but so long as someone can pull all the
-BK data out if Larry gets unreasonable (via the active and existing SVN
-or CVS gateways) who the frig cares if there's a BK clone??? If things
-got nasty, pull the data and switch unceremoniously switch to SVN or
-whatever.
+On Friday 18 July 2003 21:51, Richard Stallman wrote:
+>     > If you are trying to copy BK, give it up.  We'll simply follow in the
+>     > footsteps of every other company faced with this sort of thing and
+>     > change the protocol every 6 months.  Since you would be chasing us
+>     > you can never catch up.  If you managed to stay close then we'd put
+>     > digital signatures into the protocol to prevent your clone from
+>     > interoperating with BK.
+>
+> I think it would be appropriate at this point to write a free client
+> that talks with Bitkeeper, and for Linux developers to start switching
+> to that from Bitkeeper.  At that point, McVoy will face a hard choice:
+> if he carries out these threats, he risks alienating the community
+> that he hopes will market Bitkeeper for him.
 
-Are there folks out there today with current SVN repos which have all
-the BK metadata everyone keeps pissing on about?
+Hi Richard.
 
-On Fri, 2003-07-18 at 15:06, Rik van Riel wrote:
-> On Fri, 18 Jul 2003, Richard Stallman wrote:
-> 
-> > I think it would be appropriate at this point to write a free client
-> > that talks with Bitkeeper,
-> 
-> Maybe.  I'll leave that decision to whomever decides to
-> invest his time and/or money in implementing such software.
-> 
-> > and for Linux developers to start switching to that from Bitkeeper.
-> 
-> That would be a bit premature.  I certainly wouldn't switch
-> to a piece of software that doesn't exist yet. ;)
+You're ready for a small flame-war with Larry? 8-)
+
+First I think, this list isn't the correct place for starting
+a bk-flame again.
+But I also share your opinion, that it's time to write even a
+free client.
+But how hard will it be? How big is the knowlege of the
+protocols bk uses? It'll be not easy, but for sure very interesting.
+
+- -- 
+Regards Michael Buesch
+http://www.8ung.at/tuxsoft
+Penguin on this machine:  Linux 2.4.21  - i386
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/GFjZoxoigfggmSgRAs7XAJ4tZybSXfPTdk7I9cSIuUYSM72xXACfaeOZ
+k2QsR3KsL6HxXXj1y/ECdn0=
+=2Wzr
+-----END PGP SIGNATURE-----
 

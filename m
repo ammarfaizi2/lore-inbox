@@ -1,76 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbUKOMEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbUKOMLB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbUKOMEj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 07:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUKOMEj
+	id S261578AbUKOMLB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 07:11:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbUKOMLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 07:04:39 -0500
-Received: from verein.lst.de ([213.95.11.210]:21377 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261586AbUKOMES (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 07:04:18 -0500
-Date: Mon, 15 Nov 2004 13:04:09 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Andries.Brouwer@cwi.nl
-Cc: akpm@osdl.org, hch@lst.de, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] appletalk Makefile
-Message-ID: <20041115120409.GA17703@lst.de>
-References: <200411151158.iAFBwi613920@apps.cwi.nl>
+	Mon, 15 Nov 2004 07:11:01 -0500
+Received: from mailfe05.swip.net ([212.247.154.129]:61103 "EHLO
+	mailfe05.swip.net") by vger.kernel.org with ESMTP id S261578AbUKOMK5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 07:10:57 -0500
+X-T2-Posting-ID: 2Ngqim/wGkXHuU4sHkFYGQ==
+Subject: Re: x86: only single-step into signal handlers if the tracer
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <20041114184456.6bfd07d3.akpm@osdl.org>
+References: <200411150203.iAF23Trb024677@hera.kernel.org>
+	 <41981266.2070707@pobox.com>  <20041114184456.6bfd07d3.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 15 Nov 2004 13:10:49 +0100
+Message-Id: <1100520649.657.9.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411151158.iAFBwi613920@apps.cwi.nl>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 15, 2004 at 12:58:44PM +0100, Andries.Brouwer@cwi.nl wrote:
-> There is no dev.c in net/appletalk.
+> > This reminds me of a problem I am seeing under recent -bk kernels.
+> > 
+> > Mozilla (FC2) will freeze (no screen redraws, etc.).  'ps xf' shows 
+> > mozilla sleeping.  If I strace the process, Mozilla will un-freeze and 
+> > continue as expected.
+> > 
+> 
+> Presumably the futex thing:
+> 
 
-Dave forgot to bk add it when I sent him the patch.  Here's what
-should be dev.c:
+This patch seems to fix it for me, recently various programs have got
+stuck in pthread_condition_wait (this on x86-64).
 
------------- snip ------------
-/*
- * Moved here from drivers/net/net_init.c, which is:
- *	Written 1993,1994,1995 by Donald Becker.
- */
+When that happened I did gdb --pid and then 'continue' which made it
+wake up.
 
-#include <linux/errno.h>
-#include <linux/module.h>
-#include <linux/netdevice.h>
-#include <linux/if_arp.h>
-#include <linux/if_ltalk.h>
-
-static int ltalk_change_mtu(struct net_device *dev, int mtu)
-{
-	return -EINVAL;
-}
-
-static int ltalk_mac_addr(struct net_device *dev, void *addr)
-{	
-	return -EINVAL;
-}
-
-void ltalk_setup(struct net_device *dev)
-{
-	dev->change_mtu		= ltalk_change_mtu;
-	dev->hard_header	= NULL;
-	dev->rebuild_header 	= NULL;
-	dev->set_mac_address 	= ltalk_mac_addr;
-	dev->hard_header_cache	= NULL;
-	dev->header_cache_update= NULL;
-
-	dev->type		= ARPHRD_LOCALTLK;
-	dev->hard_header_len 	= LTALK_HLEN;
-	dev->mtu		= LTALK_MTU;
-	dev->addr_len		= LTALK_ALEN;
-	dev->tx_queue_len	= 10;	
-	
-	dev->broadcast[0]	= 0xFF;
-
-	dev->flags		= IFF_BROADCAST|IFF_MULTICAST|IFF_NOARP;
-}
-EXPORT_SYMBOL(ltalk_setup);

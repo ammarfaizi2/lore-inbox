@@ -1,100 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264698AbTFLBwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 21:52:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbTFLBts
+	id S264668AbTFLCDj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 22:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264671AbTFLCDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 21:49:48 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:62221 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264692AbTFLBsv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 21:48:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10553833533873@movementarian.org>
-Subject: [PATCH 4/4] OProfile: fix init / exit routine
-In-Reply-To: <10553833522557@movementarian.org>
-From: John Levon <levon@movementarian.org>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Thu, 12 Jun 2003 03:02:33 +0100
-Content-Transfer-Encoding: 7BIT
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19QHQA-000FFv-L2*KbI8Emw4Wc2*
+	Wed, 11 Jun 2003 22:03:39 -0400
+Received: from netmail01.services.quay.plus.net ([212.159.14.219]:54156 "HELO
+	netmail01.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S264668AbTFLCDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 22:03:38 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Andrew Morton" <akpm@digeo.com>, "Steve French" <smfrench@austin.rr.com>
+Cc: <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: Compiling kernel with SuSE 8.2/gcc 3.3
+Date: Thu, 12 Jun 2003 03:17:22 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCAAEMEEEAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <20030611184045.21f1fc83.akpm@digeo.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew.
 
-Ensure that the arch exit routines are always called when needed,
-previously we could end up with a nasty crash if using oprofile.timer=1,
-or the FS register failed.
+ >> Although it fixes it for building on 32 bit architectures, 
+ >> won't changing
+ >>
+ >>	__u64 uid = 0xFFFFFFFFFFFFFFFF;
+ >>
+ >> to
+ >>
+ >>	__u64 uid = 0xFFFFFFFFFFFFFFFFULL;
+ >>
+ >> generate a type mismatch warning on ppc64 and similar 64
+ >> bit architectures since __u64 is not a unsigned long long
+ >> on ppc64 (it is unsigned long)?
 
-diff -Naur -X dontdiff linux-cvs/drivers/oprofile/oprof.c linux-fixes/drivers/oprofile/oprof.c
---- linux-cvs/drivers/oprofile/oprof.c	2003-05-26 05:42:45.000000000 +0100
-+++ linux-fixes/drivers/oprofile/oprof.c	2003-06-12 03:07:14.000000000 +0100
-@@ -131,36 +131,33 @@
- 
- static int __init oprofile_init(void)
- {
--	int err = -ENODEV;
-+	/* Architecture must fill in the interrupt ops and the
-+	 * logical CPU type, or we can fall back to the timer
-+	 * interrupt profiler.
-+	 */
-+	int err = oprofile_arch_init(&oprofile_ops);
- 
--	if (!timer) {
--		/* Architecture must fill in the interrupt ops and the
--		 * logical CPU type, or we can fall back to the timer
--		 * interrupt profiler.
--		 */
--		err = oprofile_arch_init(&oprofile_ops);
--	}
--
--	if (err == -ENODEV) {
-+	if (err == -ENODEV || timer) {
- 		timer_init(&oprofile_ops);
- 		err = 0;
--	}
--
--	if (err)
-+	} else if (err) {
- 		goto out;
-+	}
- 
- 	if (!oprofile_ops->cpu_type) {
- 		printk(KERN_ERR "oprofile: cpu_type not set !\n");
- 		err = -EFAULT;
--		goto out;
-+	} else {
-+		err = oprofilefs_register();
- 	}
--
--	err = oprofilefs_register();
--	if (err)
--		goto out;
-  
-+	if (err)
-+		goto out_exit;
- out:
- 	return err;
-+out_exit:
-+	oprofile_arch_exit();
-+	goto out;
- }
- 
- 
-diff -Naur -X dontdiff linux-cvs/include/linux/oprofile.h linux-fixes/include/linux/oprofile.h
---- linux-cvs/include/linux/oprofile.h	2003-04-05 05:12:09.000000000 +0100
-+++ linux-fixes/include/linux/oprofile.h	2003-06-12 02:03:47.000000000 +0100
-@@ -40,7 +40,9 @@
- 
- /**
-  * One-time initialisation. *ops must be set to a filled-in
-- * operations structure.
-+ * operations structure. This is called even in timer interrupt
-+ * mode.
-+ *
-  * Return 0 on success.
-  */
- int oprofile_arch_init(struct oprofile_operations ** ops);
+ >	u64 uid = -1;
+ >
+ > will work just nicely.
+
+Won't that generate a warning about assigning a signed quantity
+to an unsigned variable?
+
+What's really needed is a set of definitions along the lines of
+
+	#define MAX_U32	((__u32) 0xFFFFFFFFUL)
+	#define MAX_U64	((__u64) 0xFFFFFFFFFFFFFFFFULL)
+
+but as an intermediate measure, how about...
+
+	__u64 uid = ((__u64) 0xFFFFFFFFFFFFFFFFULL);
+
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.488 / Virus Database: 287 - Release Date: 5-Jun-2003
 

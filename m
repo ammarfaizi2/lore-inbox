@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265184AbSKNUHa>; Thu, 14 Nov 2002 15:07:30 -0500
+	id <S265179AbSKNUFs>; Thu, 14 Nov 2002 15:05:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265187AbSKNUHa>; Thu, 14 Nov 2002 15:07:30 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:28883 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S265184AbSKNUH3>; Thu, 14 Nov 2002 15:07:29 -0500
-Message-ID: <3DD40374.9050001@unix-os.sc.intel.com>
-Date: Thu, 14 Nov 2002 12:11:32 -0800
-From: Rohit Seth <rseth@unix-os.sc.intel.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@redhat.com>, rohit.seth@intel.com
-CC: dada1 <dada1@cosmosbay.com>, Christoph Hellwig <hch@infradead.org>,
-       Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove hugetlb syscalls
-References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com> <08a601c28bbb$2f6182a0$760010ac@edumazet> <20021114141310.A25747@infradead.org> <002b01c28bf0$751a3960$760010ac@edumazet> <20021114103147.A17468@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265180AbSKNUFs>; Thu, 14 Nov 2002 15:05:48 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:50185 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S265179AbSKNUFs>; Thu, 14 Nov 2002 15:05:48 -0500
+Date: Thu, 14 Nov 2002 18:12:31 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <20021114201231.GE15563@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <225710000.1037241209@flay> <3DD3D6E1.3060104@pobox.com> <234560000.1037297061@flay> <1037304674.13735.0.camel@rth.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037304674.13735.0.camel@rth.ninka.net>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
+Em Thu, Nov 14, 2002 at 12:11:14PM -0800, David S. Miller escreveu:
+> On Thu, 2002-11-14 at 10:04, Martin J. Bligh wrote:
+> > > If people have net driver bugs, feel free to report them to the 
+> > > above URL, and assign them to me...
+> > 
+> > You should now be the default owner for net driver bugs. Still looking
+> > for other willing owners ;-)
+> 
+> Please assign the other networking categories to davem@vger.kernel.org
+> thanks.
 
->On Thu, Nov 14, 2002 at 04:13:56PM +0100, dada1 wrote:
->  
->
->>Thanks Christoph
->>
->>If I asked, this is because I tried the obvious and it doesnt work.
->>    
->>
->
->It's a file.  You need to use MAP_SHARED.
->  
->
-This is not the problem with MAP_SHARED.  It is the lack of  (arch 
-specific) hugepage aligned function support in the kernel. You can use 
-the mmap on hugetlbfs using only MAP_FIXED with properly aligned 
-addresses (but then this also is only a hint to kernel).  With addr == 
- NULL in mmap, the function is bound to fail almost all the times.
+Hey boss, if you accept I can take care of the ones for
 
+net/{ipx,llc,appletalk,x25,lapb}
 
-Thanks Ben for letting me know the problem with previous post.
+:-)
 
->  
->
-
-
-
+- Arnaldo

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312834AbSCZXbu>; Tue, 26 Mar 2002 18:31:50 -0500
+	id <S312854AbSCZXfU>; Tue, 26 Mar 2002 18:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312842AbSCZXbe>; Tue, 26 Mar 2002 18:31:34 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56330 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312833AbSCZXas>; Tue, 26 Mar 2002 18:30:48 -0500
-Subject: Re: readv() return and errno
-To: Andries.Brouwer@cwi.nl
-Date: Tue, 26 Mar 2002 23:40:47 +0000 (GMT)
-Cc: balbir_soni@yahoo.com, jholly@cup.hp.com, plars@austin.ibm.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <UTC200203262115.VAA429771.aeb@cwi.nl> from "Andries.Brouwer@cwi.nl" at Mar 26, 2002 09:15:44 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S312843AbSCZXeQ>; Tue, 26 Mar 2002 18:34:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23564 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312842AbSCZXct>;
+	Tue, 26 Mar 2002 18:32:49 -0500
+Message-ID: <3CA104CE.7070001@mandrakesoft.com>
+Date: Tue, 26 Mar 2002 18:31:26 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ben Greear <greearb@candelatech.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: up-to-date bk repository?
+In-Reply-To: <3CA0FEF7.90003@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16q0YZ-0004Cu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The above ERRORS section says: In case this call returns EINVAL
-> one of the possible reasons is that an invalid argument was given.
-> There do exist Unix-like systems (not necessarily Linux) that
-> consider a zero count invalid.
+Getting farther on ia32, you reach this, too:
 
-Got me as well - by that meaning you are correct -  the man page is only
-wrong for ssize_t type stuff.
+gcc -D__KERNEL__ -I/home/jgarzik/repo/marcelo-2.4/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686   -DKBUILD_BASENAME=pci_pc  -c -o pci-pc.o pci-pc.c
+pci-pc.c: In function `pci_fixup_i450nx':
+pci-pc.c:1094: warning: unused variable `quad'
+gcc -D__KERNEL__ -I/home/jgarzik/repo/marcelo-2.4/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+-march=i686   -DKBUILD_BASENAME=pci_irq  -c -o pci-irq.o pci-irq.c
+pci-irq.c:468: `PCI_DEVICE_ID_ITE_IT8330G_0' undeclared here (not in a 
+function)
+pci-irq.c:468: initializer element is not constant
+pci-irq.c:468: (near initialization for `pirq_routers[7].device')
+make[1]: *** [pci-irq.o] Error 1
+make[1]: Leaving directory `/home/jgarzik/repo/marcelo-2.4/arch/i386/kernel'
+make: *** [_dir_arch/i386/kernel] Error 2
 
-Sorry
 
-Alan

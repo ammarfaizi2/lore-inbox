@@ -1,52 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265957AbUACLS3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 06:18:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265964AbUACLS3
+	id S262687AbUACLNH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 06:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbUACLNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 06:18:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:47325 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265957AbUACLR4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 06:17:56 -0500
-Date: Sat, 3 Jan 2004 14:43:37 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: dtor_core@ameritech.net, vojtech@suse.cz, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga
- continues)
-Message-Id: <20040103144337.4a121f00.rusty@rustcorp.com.au>
-In-Reply-To: <20031231124032.GA367@ucw.cz>
-References: <20031005171055.A21478@flint.arm.linux.org.uk>
-	<20031230195303.F13556@flint.arm.linux.org.uk>
-	<20031230230028.GA778@ucw.cz>
-	<200312302045.38501.dtor_core@ameritech.net>
-	<20031231124032.GA367@ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 3 Jan 2004 06:13:06 -0500
+Received: from lmdeliver02.st1.spray.net ([212.78.202.115]:34204 "EHLO
+	lmdeliver02.st1.spray.net") by vger.kernel.org with ESMTP
+	id S262687AbUACLND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 06:13:03 -0500
+From: Paolo Ornati <ornati@lycos.it>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Subject: Re: Strange IDE performance change in 2.6.1-rc1 (again)
+Date: Sat, 3 Jan 2004 12:13:01 +0100
+User-Agent: KMail/1.5.2
+References: <200401021658.41384.ornati@lycos.it> <20040102213228.GH1882@matchmail.com> <1073082842.824.5.camel@tux.rsn.bth.se>
+In-Reply-To: <1073082842.824.5.camel@tux.rsn.bth.se>
+MIME-Version: 1.0
+Content-Disposition: inline
+Cc: Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200401031213.01353.ornati@lycos.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Dec 2003 13:40:33 +0100
-Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > +#undef MODULE_PARAM_PREFIX
-> > +#define MODULE_PARAM_PREFIX /* empty */
-> > +
-> >  static unsigned int i8042_noaux;
-> >  module_param(i8042_noaux, bool, 0);
-> 
-> Well, I think it might be cleaner to just drop the i8042_ prefix and go
-> with the "i8042." prefix if that's the 2.6 way. It'll annoy a couple
-> people, but's it's the way to go in the future.
+On Friday 02 January 2004 23:34, you wrote:
+> On Fri, 2004-01-02 at 22:32, Mike Fedyk wrote:
+> > Have there been any ide updates in 2.6.1-rc1?
+>
+> I see that a readahead patch was applied just before -rc1 was released.
+>
+> found it in bk-commits-head
+>
+> Subject: [PATCH] readahead: multiple performance fixes
+> Message-Id:  <200312310120.hBV1KLZN012971@hera.kernel.org>
+>
+> Maybe Paolo can try backing it out.
 
-Yeah, unless there's a good reason, it's nicer if there's symmetry so
-people can guess how to pass params.
+YES, YES, YES...
 
-Thanks,
-Rusty.
+Reveting "readahead: multiple performance fixes" patch performance came back 
+like in 2.6.0.
+
+2.6.0:
+64        31.91
+128      31.89
+256      26.22
+8192    26.26
+
+2.6.1-rc1 (readahead patch reverted):
+64	31.84
+128	31.86
+256	25.93
+8192	26.16
+
+I know these are only performance in sequential data reads... and real life 
+is another thing... but I think the author of the patch should be informed 
+(Ram Pai).
+
+for Ram Pai:
+_____________________________________________________________________
+My first message:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0401.0/0004.html
+
+This thread:
+Strange IDE performance change in 2.6.1-rc1 (again)
+http://www.ussg.iu.edu/hypermail/linux/kernel/0401.0/0289.html
+(look at the graph)
+
+Any comments?
+_____________________________________________________________________
+
+Bye
+
 -- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+	Paolo Ornati
+	Linux v2.4.23
+

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277966AbRJRSsB>; Thu, 18 Oct 2001 14:48:01 -0400
+	id <S277968AbRJRStL>; Thu, 18 Oct 2001 14:49:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277968AbRJRSrl>; Thu, 18 Oct 2001 14:47:41 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:1546 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277966AbRJRSrf>;
-	Thu, 18 Oct 2001 14:47:35 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110181847.WAA04552@ms2.inr.ac.ru>
-Subject: Re: Ref: zerocopy +netfilter performance problem.
-To: ravi_chamarti@yahoo.com (Ravi Chamarti)
-Date: Thu, 18 Oct 2001 22:47:46 +0400 (MSK DST)
-Cc: ravi_chamarti@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20011018184124.57237.qmail@web20901.mail.yahoo.com> from "Ravi Chamarti" at Oct 18, 1 11:41:24 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S277973AbRJRStE>; Thu, 18 Oct 2001 14:49:04 -0400
+Received: from mrelay.cc.umr.edu ([131.151.1.89]:37896 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id <S277968AbRJRSsu>;
+	Thu, 18 Oct 2001 14:48:50 -0400
+Message-ID: <6CAC36C3427CEB45A4A6DF0FBDABA56D86D92A@umr-mail03.cc.umr.edu>
+From: "Neulinger, Nathan" <nneul@umr.edu>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Promise SuperTrak 100/SX6000 support?
+Date: Thu, 18 Oct 2001 13:49:15 -0500
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+I asw discussions on the list back in April talking about Alan and some
+others working on driver support for this card (i.e. open-source drivers,
+not the binary-only stuff the promise distributes), but haven't seen any
+mention since.
 
-> How many netfilter modules exist which do not
+What's the status? Is there functional support in the works or is this a
+long ways off?
 
-All of them.
+-- Nathan
 
-> if the somehow hook register shows interest only in
-> header
-
-All the headers except for IP header can be split, at least
-defragmenter generates them.
-
-So, not this but rather: "does it understand that skb may be not linear?"
-
-It will work of course.
-
-Alexey
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+Computing Services                       Fax: (573) 341-4216

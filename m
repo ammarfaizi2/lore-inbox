@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVBQXzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVBQX55@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVBQXzf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 18:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVBQXzf
+	id S261218AbVBQX55 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 18:57:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVBQX5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 18:55:35 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:59792 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261249AbVBQXyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 18:54:44 -0500
-Subject: Re: [BK] upgrade will be needed
-From: Lee Revell <rlrevell@joe-job.com>
-To: Sean <seanlkml@sympatico.ca>
-Cc: Ed Tomlinson <tomlins@cam.org>, Chris Friesen <cfriesen@nortel.com>,
-       "d.c" <aradorlinux@yahoo.es>, tytso@mit.edu, cs@tequila.co.jp,
-       galibert@pobox.com, kernel@crazytrain.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1742.10.10.10.24.1108683124.squirrel@linux1>
-References: <20050214020802.GA3047@bitmover.com>
-	 <4214CC9B.7090001@nortel.com> <3757.10.10.10.24.1108659538.squirrel@linux1>
-	 <200502171825.08631.tomlins@cam.org>
-	 <1742.10.10.10.24.1108683124.squirrel@linux1>
-Content-Type: text/plain
-Date: Thu, 17 Feb 2005 18:54:43 -0500
-Message-Id: <1108684483.15453.7.camel@krustophenia.net>
+	Thu, 17 Feb 2005 18:57:46 -0500
+Received: from news.suse.de ([195.135.220.2]:22973 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261218AbVBQX52 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 18:57:28 -0500
+Date: Fri, 18 Feb 2005 00:57:19 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Andi Kleen <ak@suse.de>, benh@kernel.crashing.org, nickpiggin@yahoo.com.au,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] page table iterators
+Message-ID: <20050217235719.GB31591@wotan.suse.de>
+References: <4214A1EC.4070102@yahoo.com.au> <4214A437.8050900@yahoo.com.au> <20050217194336.GA8314@wotan.suse.de> <1108680578.5665.14.camel@gaston> <20050217230342.GA3115@wotan.suse.de> <20050217153031.011f873f.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050217153031.011f873f.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-17 at 18:32 -0500, Sean wrote:
-> On Thu, February 17, 2005 6:25 pm, Ed Tomlinson said:
-> > Linus has tried other SCMs.  They did not suffice.   I remember the preBK
-> > days, when you had to post a patch half a dozen time to get it merged.
-> > Patches were being missed left right and center.  This changed after BK.
-> > We _are_ getting large benefits from BK.  They may be hard to see at our
-> > side of the keyboard - but I believe Linus when he says BK is the best
-> > tool for him.  That this probably will not be the case for ever.  Think
-> > it still is for now though.
+On Thu, Feb 17, 2005 at 03:30:31PM -0800, David S. Miller wrote:
+> On Fri, 18 Feb 2005 00:03:42 +0100
+> Andi Kleen <ak@suse.de> wrote:
 > 
-> It's not a choice between BK or nothing.   Much of the improvements you're
-> attributing to BK would have been realized with any other SCM system too.
+> > And to be honest we only have about 6 or 7 of these walkers
+> > in the whole kernel. And 90% of them are in memory.c
+> > While doing 4level I think I changed all of them around several
+> > times and it wasn't that big an issue.  So it's not that we
+> > have a big pressing problem here... 
 > 
+> It's super error prone.  A regression added by your edit of these
 
-Ed did not say it was a choice between BK and nothing.  He said "Linus
-has tried other SCMs.  They did not suffice."  Did you even read his
-comment?
+Actually it was in Nick's code (PUD layer ;-).  But I won't argue
+that my code didn't have bugs too...
 
-Please don't cc: me on this thread anymore, unless it's about some work
-you did to bring BK functionality to a free SCM.
+> walkers for the 4level changes was only discovered and fixed
+> yesterday by the ppc folks.
+> 
+> I absolutely support any change which consolidates these things.
 
-Lee
+The problem is just that these walker macros when they
+do all the lazy walking stuff will be quite complicated.
+And I don't really want another uaccess.h-like macro mess.
 
+Yes currently they look simple, but that will change.
+
+Open coding is probably the smaller evil.
+
+And they're really not changed that often.
+
+-Andi

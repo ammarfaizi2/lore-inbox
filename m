@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310261AbSCFWFG>; Wed, 6 Mar 2002 17:05:06 -0500
+	id <S310217AbSCFWSs>; Wed, 6 Mar 2002 17:18:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310240AbSCFWE4>; Wed, 6 Mar 2002 17:04:56 -0500
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:22182 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S310283AbSCFWEm>; Wed, 6 Mar 2002 17:04:42 -0500
-Date: Wed, 6 Mar 2002 17:09:51 -0500
-To: gyro@zeta-soft.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Performance issue on dual Athlon MP
-Message-ID: <20020306170951.A31564@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S310219AbSCFWSj>; Wed, 6 Mar 2002 17:18:39 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:48109 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S310217AbSCFWS3>;
+	Wed, 6 Mar 2002 17:18:29 -0500
+Date: Wed, 6 Mar 2002 22:22:41 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+X-X-Sender: <tigran@einstein.homenet>
+To: <linux-kernel@vger.kernel.org>
+Subject: chroot_fs_refs and pivot_root question
+Message-ID: <Pine.LNX.4.33.0203062221030.2531-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a dual Athlon MP box (Tyan S2460 Tiger MP, 1.53 GHz, 2.5 GB Corsair
-> PC2100).  The initial installation was of SuSE 7.3, but I have upgraded to
-> 2.4.17 with Andrea's 3.5 GB userspace patch.
+Hello,
 
-> Is this a known problem with 2.4.17 and/or the 3.5 GB userspace patch?  I
-> have not tried turning off the 3.5 GB config option (`CONFIG_05GB').  I do
-> have `CONFIG_MK7' set.
+Looking at (2.4.9's) sys_pivot_root() implementation I can see that it
+moves all the processes' root/pwd references from the old root to the new
+one.
 
-The configuration I would try first on 2.4.19pre1aa1 with 2.5 GB of RAM is 
-CONFIG_3GB=y and CONFIG_NOHIGHMEM=y.  If that causes some other problem,
-I'd go with CONFIG_2GB, then finally CONFIG_1GB.  Each config changes
-the user/kernel memory split.  The loads I've run suggest for best 
-performance:
+However, somehow /sbin/init managed to survive the move and is keeping the
+filesystem busy:
 
-	CONFIG_2GB > CONFIG_1GB > CONFIG_05GB
+# lsof /sysroot
+COMMAND PID     USER  FD   TYPE DEVICE    SIZE  NODE NAME
+init      1        0 txt    REG  22,65   28220 11217 /sysroot/sbin/init
+init      1        0 mem    REG  22,65  468849 10376
+/sysroot/lib/ld-2.2.2.so
+init      1        0 mem    REG  22,65 5636080 10370
+/sysroot/lib/i686/libc-2.2.2.so
 
-On my 1GB box, I've been running CONFIG_2GB for a couple months and 
-performance is great.  Only lingering question for me is the handling
-of oom.  Oom hasn't caused be a problem, but I haven't seen the oom
-killer do it's work when I create an oom condition.
+# cat /proc/1/maps
+08048000-0804f000 r-xp 00000000 16:41 11217      /sysroot/sbin/init
+0804f000-08050000 rw-p 00006000 16:41 11217      /sysroot/sbin/init
+08050000-08054000 rwxp 00000000 00:00 0
+15556000-1556c000 r-xp 00000000 16:41 10376      /sysroot/lib/ld-2.2.2.so
+1556c000-1556d000 rw-p 00015000 16:41 10376      /sysroot/lib/ld-2.2.2.so
+1556d000-1556e000 rw-p 00000000 00:00 0
+15573000-15699000 r-xp 00000000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
+15699000-1569f000 rw-p 00125000 16:41 10370      /sysroot/lib/i686/libc-2.2.2.so
+1569f000-156a3000 rw-p 00000000 00:00 0
+3fffe000-40000000 rwxp fffff000 00:00 0
 
-BTW, Andrew Morton's read_latency2 patch is a winner.  The read_latency2
-diff I use on my 2.4.19pre1aa1 boxes is at:
+Any clues why and how to force it to exec a binary on the new root (or
+get rid of it in any other way)?
 
-http://home.earthlink.net/~rwhron/kernel/read_latency2-2.4.19pre1aa1.diff
+Regards,
+Tigran
 
--- 
-Randy Hron
+
 

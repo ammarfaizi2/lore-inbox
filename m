@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbTLESDD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:03:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbTLESDD
+	id S264875AbTLERyp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 12:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTLERyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:03:03 -0500
-Received: from magic.adaptec.com ([216.52.22.17]:13797 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S264255AbTLESDB (ORCPT
+	Fri, 5 Dec 2003 12:54:45 -0500
+Received: from mail.gmx.de ([213.165.64.20]:8613 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264875AbTLERym (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:03:01 -0500
-Date: Fri, 05 Dec 2003 11:07:24 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: "A. S." <lukels@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Compiling SCSI driver (Adaptec aic7xxx)
-Message-ID: <2494970000.1070647644@aslan.btc.adaptec.com>
-In-Reply-To: <BAY9-F11LdP4GLqfjE70001985b@hotmail.com>
-References: <BAY9-F11LdP4GLqfjE70001985b@hotmail.com>
-X-Mailer: Mulberry/3.1.0 (Linux/x86)
+	Fri, 5 Dec 2003 12:54:42 -0500
+X-Authenticated: #689055
+Message-ID: <3FD0C64D.5050804@gmx.de>
+Date: Fri, 05 Dec 2003 18:54:21 +0100
+From: Torsten Scheck <torsten.scheck@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031014 Thunderbird/0.3
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: andersen@codepoet.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Large-FAT32-Filesystem Bug
+References: <3FD0555F.5060608@gmx.de> <20031205160746.GA18568@codepoet.org>
+In-Reply-To: <20031205160746.GA18568@codepoet.org>
+X-Enigmail-Version: 0.81.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Compiling SCSI driver (Adaptec aic7xxx):
+Erik Andersen wrote:
+> On Fri Dec 05, 2003 at 10:52:31AM +0100, Torsten Scheck wrote:
+[...]
+>>I found a critical FAT32 bug when I tried to store data onto an
+>>internal IDE 160 GB and onto an external USB2/FW-250 GB hard
+>>disk.
 > 
-> aicasm_symbol.c:39: db1/db.h: No such file or directory
 > 
-> No "db.h" was found in the source code.
+> Does this help?
+> 
+>  -Erik
 
-The assembler required DB 1.85 support to work.  You'll find references
-to DB in the symbol table routines.
+[... int=>loff_t ino,inum-patch ...]
 
---
-Justin
+Hi Erik:
+
+I applied your patch to 2.4.23 and it solved the problem. No more lost 
+clusters. All data stays where it belongs.
+
+I'll test it for a few days and get back to you later.
+
+Thank you very much.
+
+Torsten
+
+
+For those who play with vfat filesystems now:
+
+I noticed that fsck.vfat just pretends to repair a _mounted_ vfat 
+filesystem. You have to unmount it, so it is actually repaired. An error 
+message would be appropriate here. I'll contact the dosfsck maintainer, 
+but I thought telling you might avoid confusion.
 

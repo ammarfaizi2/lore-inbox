@@ -1,27 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261396AbREQKtW>; Thu, 17 May 2001 06:49:22 -0400
+	id <S261399AbREQL1j>; Thu, 17 May 2001 07:27:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbREQKtD>; Thu, 17 May 2001 06:49:03 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:63760 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S261396AbREQKtB>; Thu, 17 May 2001 06:49:01 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A4F.003B5469.00@d73mta05.au.ibm.com>
-Date: Thu, 17 May 2001 16:17:36 +0530
-Subject: bindprocessor
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S261401AbREQL13>; Thu, 17 May 2001 07:27:29 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:43735 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S261400AbREQL1R>;
+	Thu, 17 May 2001 07:27:17 -0400
+Date: Thu, 17 May 2001 13:26:44 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200105171126.NAA37619.aeb@vlet.cwi.nl>
+To: linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: Bug in unlink error return
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How can I bind a user space process to a particular processor in  a SMP
-environment?
+Someone complained a moment ago about the error return in unlink.
+And indeed, it used to be correct but since 2.1.132 we return a
+buggy (or at least non-POSIX) error for unlink(directory).
 
-thanks,
-Daljeet Maini
+Just changed the man page to say
+
+unlink(2)
+...
+       EPERM  The system does not allow unlinking of directories,
+              or unlinking  of  directories  requires  privileges
+              that  the  current  process doesn't have.  (This is
+              the POSIX prescribed error return.)
+
+       EISDIR pathname refers to a directory.  (This is the  non-
+              POSIX value returned by Linux since 2.1.132.)
+...
+
+Probably this should be fixed again, both in 2.2 and 2.4.
+2.0 is still correct (I checked only ext2).
+
+Andries
 
 
+[The EISDIR is correct for rename(), and the cleanup that
+made a nice uniform may_delete() in namei.c introduced this bug.
+The very simple but slightly ugly fix is to write (in vfs_unlink)
+	error = may_delete(dir, dentry, 0);
+	if (error == -EISDIR)
+		error = -EPERM;
+]

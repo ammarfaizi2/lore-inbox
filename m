@@ -1,62 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143465AbRA1QWy>; Sun, 28 Jan 2001 11:22:54 -0500
+	id <S143435AbRA1Q0e>; Sun, 28 Jan 2001 11:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143435AbRA1QWn>; Sun, 28 Jan 2001 11:22:43 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:28887 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S143465AbRA1QWf>; Sun, 28 Jan 2001 11:22:35 -0500
-Date: Sun, 28 Jan 2001 17:22:32 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: <linux-kernel@vger.kernel.org>
-cc: Rainer Mager <rmager@vgkk.com>, "Scott A. Sibert" <kernel@hollins.edu>
-Subject: [patch] smbfs cache rewrite - 2nd try
-Message-ID: <Pine.LNX.4.30.0101242116520.30884-100000@cola.teststation.com>
+	id <S143496AbRA1Q0Y>; Sun, 28 Jan 2001 11:26:24 -0500
+Received: from colorfullife.com ([216.156.138.34]:53258 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S143435AbRA1Q0L>;
+	Sun, 28 Jan 2001 11:26:11 -0500
+Message-ID: <3A744820.2C4C94F6@colorfullife.com>
+Date: Sun, 28 Jan 2001 17:26:08 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: dwmw2@redhat.com, andrewm@uow.edu.au
+CC: linux-kernel@vger.kernel.org
+Subject: flush_scheduled_tasks() question
+Content-Type: multipart/mixed;
+ boundary="------------08C01DDEE8FEAE4089CF4EF1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------08C01DDEE8FEAE4089CF4EF1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Hello again
+Is is intentional that tummy_task is not initialized?
+Ok, it won't crash because the current __run_task_queue() implementation
+doesn't call tq->routine if it's NULL, but IMHO it's ugly.
 
-This patch is more complete than the version posted earlier. It implements
-support for OS/2 (and possibly things even older than that :) and have
-been more tested. This borrows a lot from the ncpfs dircache code.
+Additionally I don't like the loop in flush_scheduled_tasks(), what
+about replacing it with a locked semaphore (same idea as vfork)?
 
-Smbfs testers wanted, with or without highmem boxes.
+I've attched an untested patch.
+
+--
+	Manfred
+--------------08C01DDEE8FEAE4089CF4EF1
+Content-Type: text/plain; charset=us-ascii;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+--- context.c.orig	Sun Jan 28 17:02:35 2001
++++ context.c	Sun Jan 28 17:09:24 2001
+@@ -22,7 +22,6 @@
+ 
+ static DECLARE_TASK_QUEUE(tq_context);
+ static DECLARE_WAIT_QUEUE_HEAD(context_task_wq);
+-static DECLARE_WAIT_QUEUE_HEAD(context_task_done);
+ static int keventd_running;
+ static struct task_struct *keventd_task;
+ 
+@@ -97,7 +96,6 @@
+ 		schedule();
+ 		remove_wait_queue(&context_task_wq, &wait);
+ 		run_task_queue(&tq_context);
+-		wake_up(&context_task_done);
+ 		if (signal_pending(curtask)) {
+ 			while (waitpid(-1, (unsigned int *)0, __WALL|WNOHANG) > 0)
+ 				;
+@@ -119,31 +117,24 @@
+  * The caller should hold no spinlocks and should hold no semaphores which could
+  * cause the scheduled tasks to block.
+  */
+-static struct tq_struct dummy_task;
+ 
+-void flush_scheduled_tasks(void)
++static void up_semaphore(void* sem)
+ {
+-	int count;
+-	DECLARE_WAITQUEUE(wait, current);
++	up((struct semaphore*)sem);
++}
+ 
+-	/*
+-	 * Do it twice. It's possible, albeit highly unlikely, that
+-	 * the caller queued a task immediately before calling us,
+-	 * and that the eventd thread was already past the run_task_queue()
+-	 * but not yet into wake_up(), so it woke us up before completing
+-	 * the caller's queued task or our new dummy task.
+-	 */
+-	add_wait_queue(&context_task_done, &wait);
+-	for (count = 0; count < 2; count++) {
+-		set_current_state(TASK_UNINTERRUPTIBLE);
++void flush_scheduled_tasks(void)
++{
++	DECLARE_MUTEX_LOCKED(sem);
++	struct tq_struct wakeup_task;
+ 
+-		/* Queue a dummy task to make sure we get kicked */
+-		schedule_task(&dummy_task);
++	wakeup_task.routine = up_semaphore;
++	wakeup_task.data = &sem;
++	/* Queue a dummy task to make sure we get kicked */
++	schedule_task(&dummy_task);
+ 
+-		/* Wait for it to complete */
+-		schedule();
+-	}
+-	remove_wait_queue(&context_task_done, &wait);
++	/* Wait for it to complete */
++	down(&sem);
+ }
+ 	
+ int start_context_thread(void)
 
 
-Bugs (believed) fixed vs 2.4.1-pre10:
-+ cache code would oops/lockup on highmem machines (too many kmap'ed pages
-  and possibly a few other things)
-+ readpage/writepage could oops on highmem machines (missing kmap)
-+ listing long directories would fail on some dirs on some types of servers
-  (from 2.2.18, has nothing to do with the cache code)
-
-Improvements:
-+ new cache code creates dentries and inodes from the "findfirst" data,
-  reducing the number of smb requests needed to list a directory (ls -l)
-  from n/x + n to n/x (where x is the number of entries that fit in one
-  request).
-+ new mount option, ttl, allows control over how long the cache is
-  considered valid, default ttl=1000 (1 second).
-
-Bugs introduced:
-- date conversion may need to do timezone conversion in smbfs
-- 'd; touch dd; d; rm DD; d', where d is an alias for ls -alF, will crash
-  on the rm if the server is "old", tested vs a samba server configured to
-  talk "LANMAN1". Does not crash when using "NT1".
-  Don't know if this is a new or old bug yet.
-- more?
-  (this is where you come in ...)
-
-
-Download ~57k from:
-http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.1-pre10-cache-2.patch
-(Apply using 'patch -p1' from the linux directory.)
-
-/Urban
+--------------08C01DDEE8FEAE4089CF4EF1--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

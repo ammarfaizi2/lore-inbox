@@ -1,47 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271566AbRHPMza>; Thu, 16 Aug 2001 08:55:30 -0400
+	id <S268569AbRHPNIw>; Thu, 16 Aug 2001 09:08:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271575AbRHPMzU>; Thu, 16 Aug 2001 08:55:20 -0400
-Received: from trained-monkey.org ([209.217.122.11]:13321 "EHLO
-	trained-monkey.org") by vger.kernel.org with ESMTP
-	id <S271566AbRHPMzL>; Thu, 16 Aug 2001 08:55:11 -0400
-From: Jes Sorensen <jes@trained-monkey.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271277AbRHPNIm>; Thu, 16 Aug 2001 09:08:42 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21387 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268569AbRHPNIc>;
+	Thu, 16 Aug 2001 09:08:32 -0400
+Date: Thu, 16 Aug 2001 06:08:42 -0700 (PDT)
+Message-Id: <20010816.060842.99454999.davem@redhat.com>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [patch] zero-bounce highmem I/O
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20010816145636.B4352@suse.de>
+In-Reply-To: <20010816140317.Y4352@suse.de>
+	<20010816.052727.68039859.davem@redhat.com>
+	<20010816145636.B4352@suse.de>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15227.49850.404277.718903@trained-monkey.org>
-Date: Thu, 16 Aug 2001 08:55:22 -0400
-To: root@chaos.analogic.com
-Cc: ServeRAID For Linux <ipslinux@us.ibm.com>, alan@redhat.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] ips.c spin lock 64 bit issues
-In-Reply-To: <Pine.LNX.3.95.1010816084145.8161A-100000@chaos.analogic.com>
-In-Reply-To: <OFB6726B6C.6282CC76-ON85256AAA.00434E7F@raleigh.ibm.com>
-	<Pine.LNX.3.95.1010816084145.8161A-100000@chaos.analogic.com>
-X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
+   From: Jens Axboe <axboe@suse.de>
+   Date: Thu, 16 Aug 2001 14:56:36 +0200
 
-Richard> I don't think that "unsigned long" is the correct data type.
+   On Thu, Aug 16 2001, David S. Miller wrote:
+   > Enough babbling on my part, I'll have a look at your bounce patch
+   > later today. :-)
+   
+   Wait for the next version, I'll clean up the PCI DMA bounce value
+   stuff first and post a new version.
 
-Richard> Isn't there a data type that means "the largest unsigned
-Richard> integer type that fits into a register on the target..."? I was
-Richard> told that that's what "size_t" means. If so, all the flags
-Richard> variables <everywhere> should be changed to this type. If not,
-Richard> then somebody should define a "flags_t" type. With the new
-Richard> 64-bit machines, this is going to bite over and over again
-Richard> until something like this is done.
+Ok.  I was thinking about the 4GB issue and we could describe it
+simply using one platform macro define that could be boolean tested in
+both your new block stuff and a fixed up version of the networking's
+current ugly HIGHMEM tests.
 
-Face it, unsigned long *is* the correct data type. The API has been
-specified like this for years, no reason to change it. long us
-guaranteed to be able to hold a pointer on Linux, ie. the largest
-natural data type.
+/* PCI address are equivalent to memory physical addresses.
+ * As a consequence, the lower 4GB of main memory may be
+ * addressable using PCI single-address cycles.  The rest of
+ * memory requires the use of dual-address cycles.
+ *
+ * If this is false, the kernel assumes that some hardware
+ * translation mechanism exists to allow all of physical
+ * memory to be accessed using single-address cycles.
+ */
+#define PCI_DMA_PHYS_IS_BUS	(1)
 
-And no, you are more likely to find a 32 bit size_t on some systems and
-we do not need yet another obscure data type flags_t when unsigned long
-does the job fine as it is.
+So you'd get things like:
 
-Jes
+	if (PCI_DMA_PHYS_IS_BUS) {
+		/* We might need to bounce this. */
+		if (! dev_dma_in_range(dev, address + len))
+			address = make_bounce_buffer(dev, address, len);
+	} else {
+		/* All physical memory is legal for DMA so there
+		 * is nothing to check.
+		 */
+	}
+
+or whatever.  You get the idea.
+
+This is really interesting because it means things like the following.
+
+A device which is only capable of 32-bit PCI addressing can still just
+use the pci_map_{single,sg}() interfaces yet DMA to all of system
+memory.  The block and networking layers will never try to bounce stuff.
+
+Basically, this is what happens today with non-CONFIG_HIGHMEM
+64-bit platforms, with a particular cost for the cases where
+translation is done via bounce buffers (notably ia64).
+
+What do you think?
+
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,38 +1,204 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277024AbRJCXjj>; Wed, 3 Oct 2001 19:39:39 -0400
+	id <S277027AbRJCXs3>; Wed, 3 Oct 2001 19:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277025AbRJCXja>; Wed, 3 Oct 2001 19:39:30 -0400
-Received: from janeway.cistron.net ([195.64.65.23]:44548 "EHLO
-	janeway.cistron.net") by vger.kernel.org with ESMTP
-	id <S277024AbRJCXjX>; Wed, 3 Oct 2001 19:39:23 -0400
-Date: Thu, 4 Oct 2001 01:39:50 +0200
-From: Wichert Akkerman <wichert@cistron.nl>
-To: linux-lvm@sistina.com
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [linux-lvm] Re: partition table read incorrectly
-Message-ID: <20011004013950.A16757@cistron.nl>
-Mail-Followup-To: linux-lvm@sistina.com, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <200110031901.TAA04080@vlet.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110031901.TAA04080@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Wed, Oct 03, 2001 at 07:01:10PM +0000
+	id <S277028AbRJCXsU>; Wed, 3 Oct 2001 19:48:20 -0400
+Received: from ausxc08.us.dell.com ([143.166.99.216]:38451 "EHLO
+	ausxc08.us.dell.com") by vger.kernel.org with ESMTP
+	id <S277027AbRJCXsJ>; Wed, 3 Oct 2001 19:48:09 -0400
+Message-ID: <8F120FA493CAD743B30EEB8F356985B5023FCA23@AUSXMBT102VS1.amer.dell.com>
+From: Robert_Macaulay@Dell.com
+To: Andrew.Bond@COMPAQ.com, linux-kernel@vger.kernel.org
+Cc: Mike.Nikolaiev@COMPAQ.com, Jamshed.Patel@oracle.com
+Subject: =?utf-8?B?UkU6IFtQQVRDSF0ga2lvYnVmX2luaXQgb3B0aW1pemF0aW9u?=
+Date: Wed, 3 Oct 2001 18:48:23 -0500 
+X-MS-TNEF-Correlator: <8F120FA493CAD743B30EEB8F356985B5023FCA23@AUSXMBT102VS1.amer.dell.com>
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C14C65.E377EB30"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Andries.Brouwer@cwi.nl wrote:
-> But why do you call it wrong?
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-I deleted all partitions with fdisk so I expect none to be there.
-fdisk shows none, but the kernel does.
+------_=_NextPart_000_01C14C65.E377EB30
+Content-Type: text/plain;
+	charset="utf-8"
 
-Wichert.
+We expierenced a panic when starting Oracle 8i with your patch(actually ac4)
+right after the database was mounted. I will forward you the oops I posted
+earlier today.
 
--- 
-  _________________________________________________________________
- /       Nothing is fool-proof to a sufficiently talented fool     \
-| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
-| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |
+-----Original Message----- 
+From: Bond, Andrew 
+Sent: Wed 10/3/2001 4:47 PM 
+To: linux-kernel@vger.kernel.org 
+Cc: Nikolaiev, Mike; Jamshed Patel (E-mail) 
+Subject: [PATCH] kiobuf_init optimization
+
+
+
+        I have come up with a change to the kiobuf_init() routine that 
+drops the blind memset() to 0 of the entire kiobuf structure and zeros 
+out 3 specific fields instead.  Since this is done on every IO and the 
+kiobuf structure is over 8K in size (8756 bytes I believe) it becomes 
+quite costly from a cpu cycle perspective as well as a cache utilization 
+perspective.  The typical IO path uses a small subset of the 
+preallocated fields within the kiobuf structure.  Therefore, the IO path 
+pays a performance penalty for having to zero out many fields that it 
+typically doesn't use. 
+
+        The kiobuf_init() routine using a memset() of the entire kiobuf 
+structure is in the top 10 of cpu consuming kernel routines in Oracle 9i 
+testing using raw io.  Using the included kiobuf_init patch, our testing 
+has shown a 5% improvement in Oracle transactional performance in 4 and 
+8 processor configurations, and the kiobuf_init() routine became a 
+non-issue for performance.  The testing was performed with Oracle, but 
+this patch could provide performance improvements to any application 
+that uses raw IO or relies on kiobufs in the IO path. 
+
+        Obviously, since the structure is no longer set to zero, any 
+code that makes a zero assumption would break.  I haven't come across 
+code that makes this assumption yet for fields that I did not 
+specifically zero out in the patch, but I could very well be missing 
+something.  It appears that Alan has included this patch in his 
+2.4.10-ac4 tree.  So, let me know if you have any problems that you 
+think might be related to this patch.   Any input would be greatly 
+appreciated. 
+
+        The patch is against a 2.4.9 tree, but it is localized to just 
+the kiobuf_init() routine and should apply to any of the recent kernels. 
+
+        Run from the root level of your kernel tree:  
+                patch -p1 < kiobuf_init_speedup.patch 
+
+        I cannot currently receive the kernel mailing list at this email 
+address, so please cc: me on posts related to this patch. 
+
+Thanks, 
+Andrew Bond 
+
+ <<kiobuf_init_speedup.patch>> 
+
+
+------_=_NextPart_000_01C14C65.E377EB30
+Content-Type: application/ms-tnef
+Content-Transfer-Encoding: base64
+
+eJ8+IiAXAQaQCAAEAAAAAAABAAEAAQeQBgAIAAAA5AQAAAAAAADoAAEFgAMADgAAANEHCgADABIA
+MAAXAAMAQQEBCYABACEAAABGNDZBNUJDNkVGM0MyQzQ1QjY0NjJCRjY3MEUyRTlFMgBlBwEggAMA
+DgAAANEHCgADABIAMAAfAAMASQEBDYAEAAIAAAACAAIAAQOQBgBwGAAAOwAAAEAAOQAw63fjZUzB
+AR8AMUABAAAAIAAAAFIATwBCAEUAUgBUAF8ATQBBAEMAQQBVAEwAQQBZAAAAAwAaQAAAAAAfADBA
+AQAAACAAAABSAE8AQgBFAFIAVABfAE0AQQBDAEEAVQBMAEEAWQAAAAMAGUAAAAAAHwBJAAEAAABC
+AAAAWwBQAEEAVABDAEgAXQAgAGsAaQBvAGIAdQBmAF8AaQBuAGkAdAAgAG8AcAB0AGkAbQBpAHoA
+YQB0AGkAbwBuAAAAAABAAE4AgNm79FRMwQECAVsAAQAAAEEAAAAAAAAAgSsfpL6jEBmdbgDdAQ9U
+AgAAAABCb25kLCBBbmRyZXcAU01UUABBbmRyZXcuQm9uZEBDT01QQVEuY29tAAAAAB8AZgABAAAA
+CgAAAFMATQBUAFAAAAAAAB8AZwABAAAALgAAAEEAbgBkAHIAZQB3AC4AQgBvAG4AZABAAEMATwBN
+AFAAQQBRAC4AYwBvAG0AAAAAAB8AWgABAAAAGgAAAEIAbwBuAGQALAAgAEEAbgBkAHIAZQB3AAAA
+AAAfADJAAQAAAC4AAABBAG4AZAByAGUAdwAuAEIAbwBuAGQAQABDAE8ATQBQAEEAUQAuAGMAbwBt
+AAAAAAACAVwAAQAAABwAAABTTVRQOkFORFJFVy5CT05EQENPTVBBUS5DT00AAwAdQAAAAAACAV4A
+AQAAAEEAAAAAAAAAgSsfpL6jEBmdbgDdAQ9UAgAAAABCb25kLCBBbmRyZXcAU01UUABBbmRyZXcu
+Qm9uZEBDT01QQVEuY29tAAAAAB8AaAABAAAACgAAAFMATQBUAFAAAAAAAB8AaQABAAAALgAAAEEA
+bgBkAHIAZQB3AC4AQgBvAG4AZABAAEMATwBNAFAAQQBRAC4AYwBvAG0AAAAAAB8AXQABAAAAGgAA
+AEIAbwBuAGQALAAgAEEAbgBkAHIAZQB3AAAAAAAfADNAAQAAAC4AAABBAG4AZAByAGUAdwAuAEIA
+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
+/z//QQ9CH0MvRD9FT0ZfR29/SH9JjzbPD58Qr0oofAQttHAxSr8m9vBMGTxNDzc3bzh/5xlfY1F7
+gHVw/i58BB0PHh/tefC/8c/y3//z7/T/VX/3H/gv+T/6T0uP/0yfZV9mb2d/aI9pn2qva7//bM9t
+327vb/9xD3Ifcy90P591T1Q/Tn9Pj1CZSSDZ8PZujWCiMGMWoKVw6qDpUe9Uj2DvOSTqYmmOMeoi
+FtX2bdfwIdFnjNCbUNgxojD/mzOO8IIBWK9Zv+1/IC8hP092D3oPex+uXmRkpXBz3nPZEH5Pf185
+JHPpkOlAxaWAc9SgY2M6meDUoPJvEnBwb9rA2bCaj5uf/4RfhW9bf1yPXZ9er1+/jo//Yd9i72P/
+ZQ+KP4tP09vpsP5rjWCTH5Qvhb+Gz4ffmH83oF+hb1BdQeiAgMB3IPpCkSBko9+k75U/lk+XX/+p
+H5l/mo+bn5yvnb+ez6m//6rPq9+zj3dPeF++P1LvwK9fwb9TjVcPWBbDv2fE2j7/wx/IT8lfjY+2
+P66/Wn+w7y+x/7MPtB/OTTC4oS9CAExPQ0tRVU9UvkXPz9Pvtf/ZP7bHNbuh8dagT0RZtR3VENr/
+tzFCN89RSFRNTKfwfQHfsB8ARxABAAAAHgAAAG0AZQBzAHMAYQBnAGUALwByAGYAYwA4ADIAMgAA
+AAAAAwAmAAAAAAADADYAAAAAAAMA3j/p/QAAAwDxPwkEAAADAP0/5AQAAB8AcAABAAAAQgAAAFsA
+UABBAFQAQwBIAF0AIABrAGkAbwBiAHUAZgBfAGkAbgBpAHQAIABvAHAAdABpAG0AaQB6AGEAdABp
+AG8AbgAAAAAACwDyEAEAAAAfAPMQAQAAAFYAAABSAEUAJQAzAEEAIABbAFAAQQBUAEMASABdACAA
+awBpAG8AYgB1AGYAXwBpAG4AaQB0ACAAbwBwAHQAaQBtAGkAegBhAHQAaQBvAG4ALgBFAE0ATAAA
+AAAACwD0EAAAAAALAPUQAAAAAAsA9hAAAAAAAgFHAAEAAAAzAAAAYz1VUzthPSA7cD1ERUxMO2w9
+QVVTWE1CVDEwMlZTLTAxMTAwMzIzNDgyM1otNTIwNDQAAAIB+T8BAAAATwAAAAAAAADcp0DIwEIQ
+GrS5CAArL+GCAQAAAAAAAAAvTz1ERUxML09VPUFVU1RJTi9DTj1SRUNJUElFTlRTL0NOPVJPQkVS
+VF9NQUNBVUxBWQAAHwD4PwEAAAAiAAAATQBhAGMAYQB1AGwAYQB5ACwAIABSAG8AYgBlAHIAdAAA
+AAAAHwA4QAEAAAAgAAAAUgBPAEIARQBSAFQAXwBNAEEAQwBBAFUATABBAFkAAAACAfs/AQAAAE8A
+AAAAAAAA3KdAyMBCEBq0uQgAKy/hggEAAAAAAAAAL089REVMTC9PVT1BVVNUSU4vQ049UkVDSVBJ
+RU5UUy9DTj1ST0JFUlRfTUFDQVVMQVkAAB8A+j8BAAAAIgAAAE0AYQBjAGEAdQBsAGEAeQAsACAA
+UgBvAGIAZQByAHQAAAAAAB8AOUABAAAAIAAAAFIATwBCAEUAUgBUAF8ATQBBAEMAQQBVAEwAQQBZ
+AAAAQAAHMKw46bRlTMEBQAAIMBDsD+hlTMEBHwAaAAEAAAASAAAASQBQAE0ALgBOAE8AVABFAAAA
+AAAfADcAAQAAAEoAAABSAEUAOgAgAFsAUABBAFQAQwBIAF0AIABrAGkAbwBiAHUAZgBfAGkAbgBp
+AHQAIABvAHAAdABpAG0AaQB6AGEAdABpAG8AbgAAAAAAHwA9AAEAAAAKAAAAUgBFADoAIAAAAAAA
+HwAdDgEAAABCAAAAWwBQAEEAVABDAEgAXQAgAGsAaQBvAGIAdQBmAF8AaQBuAGkAdAAgAG8AcAB0
+AGkAbQBpAHoAYQB0AGkAbwBuAAAAAAAfADUQAQAAAI4AAAA8ADgARgAxADIAMABGAEEANAA5ADMA
+QwBBAEQANwA0ADMAQgAzADAARQBFAEIAOABGADMANQA2ADkAOAA1AEIANQAwADIAMwBGAEMAQQAy
+ADMAQABBAFUAUwBYAE0AQgBUADEAMAAyAFYAUwAxAC4AYQBtAGUAcgAuAGQAZQBsAGwALgBjAG8A
+bQA+AAAAAAALACkAAAAAAAsAIwAAAAAAAwAGEKM4ooIDAAcQcgcAAAMAEBAAAAAAAwAREAIAAAAe
+AAgQAQAAAGUAAABXRUVYUElFUkVOQ0VEQVBBTklDV0hFTlNUQVJUSU5HT1JBQ0xFOElXSVRIWU9V
+UlBBVENIKEFDVFVBTExZQUM0KVJJR0hUQUZURVJUSEVEQVRBQkFTRVdBU01PVU5URURJV0lMAAAA
+AAIBfwABAAAARwAAADw4RjEyMEZBNDkzQ0FENzQzQjMwRUVCOEYzNTY5ODVCNTAyM0ZDQTIzQEFV
+U1hNQlQxMDJWUzEuYW1lci5kZWxsLmNvbT4AAO6l
+
+------_=_NextPart_000_01C14C65.E377EB30--

@@ -1,70 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVAMJnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVAMJps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVAMJnR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 04:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVAMJnR
+	id S261509AbVAMJps (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 04:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVAMJpr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 04:43:17 -0500
-Received: from box3.punkt.pl ([217.8.180.76]:26387 "HELO box.punkt.pl")
-	by vger.kernel.org with SMTP id S261318AbVAMJnM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 04:43:12 -0500
-From: Mariusz Mazur <mmazur@kernel.pl>
-To: Andrew Walrond <andrew@walrond.org>
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.10.0
-Date: Thu, 13 Jan 2005 10:42:25 +0100
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-References: <200501081613.27460.mmazur@kernel.pl> <200501121211.23475.mmazur@kernel.pl> <200501130813.42545.andrew@walrond.org>
-In-Reply-To: <200501130813.42545.andrew@walrond.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8bit
+	Thu, 13 Jan 2005 04:45:47 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:42925 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261509AbVAMJpY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 04:45:24 -0500
+Date: Thu, 13 Jan 2005 11:45:32 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Roland Dreier <roland@topspin.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [openib-general] [PATCH][5/18] InfiniBand/mthca: add needed rmb() in event queue poll
+Message-ID: <20050113094532.GA31298@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20051121347.kR765yQEXhqhoLHL@topspin.com> <20051121347.vxtR3merv690zIQY@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200501131042.25470.mmazur@kernel.pl>
+In-Reply-To: <20051121347.vxtR3merv690zIQY@topspin.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On czwartek 13 styczeñ 2005 09:13, Andrew Walrond wrote:
-> I know you are deliberately vague in the faq ;) But what about something
-> like X11? It needs the real config.h in order to build the kernel DRM
-> drivers.
+Hello!
+Quoting r. Roland Dreier (roland@topspin.com) "[openib-general] [PATCH][5/18] InfiniBand/mthca: add needed rmb() in event queue poll":
+> Add an rmb() between checking the ownership bit of an event queue
+> entry and reading the contents of the EQE.  Without this barrier, the
+> CPU could read stale contents of the EQE before HW writes the EQE but
+> have the read of the ownership bit reordered until after HW finishes
+> writing, which leads to the driver processing an incorrect event. This
+> was actually observed to happen when multiple completion queues are in
+> heavy use on an IBM JS20 PowerPC 970 system.
+> 
+> Also explain the existing rmb() in completion queue poll (there for
+> the same reason) and slightly improve debugging output.
+> 
+> Signed-off-by: Roland Dreier <roland@topspin.com>
+> 
+> --- linux/drivers/infiniband/hw/mthca/mthca_cq.c	(revision 1437)
+> +++ linux/drivers/infiniband/hw/mthca/mthca_cq.c	(revision 1439)
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Copyright (c) 2004 Topspin Communications.  All rights reserved.
+> + * Copyright (c) 2004, 2005 Topspin Communications.  All rights reserved.
+>   *
+>   * This software is available to you under a choice of one of two
+>   * licenses.  You may choose to be licensed under the terms of the GNU
+> @@ -391,6 +391,10 @@
+>  	if (!next_cqe_sw(cq))
+>  		return -EAGAIN;
+>  
+> +	/*
+> +	 * Make sure we read CQ entry contents after we've checked the
+> +	 * ownership bit.
+> +	 */
+>  	rmb();
+>  
+>  	cqe = get_cqe(cq, cq->cons_index);
+> @@ -768,7 +772,8 @@
+>  		u32 *ctx = MAILBOX_ALIGN(mailbox);
+>  		int j;
+>  
+> -		printk(KERN_ERR "context for CQN %x\n", cq->cqn);
+> +		printk(KERN_ERR "context for CQN %x (cons index %x, next sw %d)\n",
+> +		       cq->cqn, cq->cons_index, next_cqe_sw(cq));
+>  		for (j = 0; j < 16; ++j)
+>  			printk(KERN_ERR "[%2x] %08x\n", j * 4, be32_to_cpu(ctx[j]));
+>  	}
+> --- linux/drivers/infiniband/hw/mthca/mthca_eq.c	(revision 1437)
+> +++ linux/drivers/infiniband/hw/mthca/mthca_eq.c	(revision 1439)
+> @@ -1,5 +1,5 @@
+>  /*
+> - * Copyright (c) 2004 Topspin Communications.  All rights reserved.
+> + * Copyright (c) 2004, 2005 Topspin Communications.  All rights reserved.
+>   *
+>   * This software is available to you under a choice of one of two
+>   * licenses.  You may choose to be licensed under the terms of the GNU
+> @@ -240,6 +240,12 @@
+>  		int set_ci = 0;
+>  		eqe = get_eqe(eq, eq->cons_index);
+>  
+> +		/*
+> +		 * Make sure we read EQ entry contents after we've
+> +		 * checked the ownership bit.
+> +		 */
+> +		rmb();
+> +
+>  		switch (eqe->type) {
+>  		case MTHCA_EVENT_TYPE_COMP:
+>  			disarm_cqn = be32_to_cpu(eqe->event.comp.cqn) & 0xffffff;
 
-I'm a distribution vendor. If x11 really required having current kernel config 
-at compile time to function properly, I'd start sending threats to its 
-authors.
+Since we are using the eqe here, it seems that read_barrier_depends
+shall be sufficient (as well as in the cq case)?
 
-> Should it be built against 
->  1) llh + blank config.h
+However, I see that read_barrier_depends is a nop on ppc, and the
+comment indicates that problems were seen on ppc 970.
+What gives? do I misunderstand what a dependency is?
 
-Yes, if an app really does require config.h (and it *shouldn't*), it ought to 
-have the sanest possible default configuration (by default I mean without 
-depending on any CONFIG_). And again that's something I can tell you as a 
-distro vendor.
-
->  2) llh + real config.h
-
-And if you have some exotic configuration or such, and your app does support 
-it, then you should be using your kernel's config.h (though it would be 
-preferable if you just added the appropriate CONFIG_s to otherwise empty 
-config.h).
-
->  3) kernel source
->
-> I guess this ambiguity would go away once the real kernel headers have been
-> sanitized for userspace (ie we could always use the real config.h without
-> fear of breakage) But as you have already stated, the issues are complex,
-> and consensus is lacking. The longer the status quo continues, the more
-> apps are going to break when we do get round to it.
->
-> And I think, in this instance, the "shut up and hack" response is
-> inappropriate; Either these changes come from a senior linux hacker, or
-> they will be ignored/derided (again).
-
--- 
-In the year eighty five ten
-God is gonna shake his mighty head
-He'll either say,
-"I'm pleased where man has been"
-Or tear it down, and start again
+MST

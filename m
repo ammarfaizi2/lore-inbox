@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316715AbSEVT47>; Wed, 22 May 2002 15:56:59 -0400
+	id <S316719AbSEVUCd>; Wed, 22 May 2002 16:02:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316718AbSEVT46>; Wed, 22 May 2002 15:56:58 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:56330 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S316715AbSEVT45>; Wed, 22 May 2002 15:56:57 -0400
-Date: Wed, 22 May 2002 21:57:00 +0200
-From: Jan Kara <jack@suse.cz>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Jan Kara <jack@suse.cz>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org,
-        Nathan Scott <nathans@wobbly.melbourne.sgi.com>
-Subject: Re: Quota patches
-Message-ID: <20020522195700.GA3595@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020520135530.GB9209@atrey.karlin.mff.cuni.cz> <87bsb86k4r.fsf@devron.myhome.or.jp>
+	id <S316721AbSEVUCc>; Wed, 22 May 2002 16:02:32 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:47258 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316719AbSEVUCc>;
+	Wed, 22 May 2002 16:02:32 -0400
+Date: Wed, 22 May 2002 12:02:13 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: fchabaud@free.fr
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: nVidia NIC/IDE/something support?
+Message-ID: <20020522120212.A37@toy.ucw.cz>
+In-Reply-To: <20020517002947.G116@toy.ucw.cz> <200205220605.g4M65cI14609@colombe.home.perso>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
-  
-> Jan Kara <jack@suse.cz> writes:
-> 
-> >   Hello,
-> > 
-> >   In following mails I'll send (because patches are big, I'll post them just
-> > diretly to Linus - others see ftp below) quota patches for 2.5.15 (patches
-> > apply well on 2.5.16 too). Currently they implement:
-> >   * new quota format (allows 32 uids, accounting in bytes -> mainly for
-> >     Reiserfs)
-> >   * needed infrastructure for XFS quota
-> >   * quota statistics in /proc (we can drop Q_GETSTATS call; it's a lot
-> >     easier to change in future)
-> >   * implements correct syncing of quota
-> >   * introduces interface which allows usage of both quota formats in kernel
-> >   * implemented filesystem callback function on certain quota operations
-> >     (needed for journaled quota, Ext3)
-> >   * implements ioctl() for reporting occupied space in bytes (not just blocks)
-> > 
-> >   The patches can be downloaded at:
-> > ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.5/2.5.15/
-> > 
-> >   Old quota tools should work with patches if you configure old quota interface
-> > in '.config'. There are also quota utilities capable of communicating with new
-> > generic interface. You can download them at:
-> > 
-> > http://www.sf.net/projects/linuxquota/
-> > 
-> > or you can checkout version from SourceForge CVS.
-> > 
-> >   Any comments & bugreports welcome.
-> 
-> What do you think of the following patches for kernel without
-> quota support? We already have weak symbol for sys_quotactl(). 
-  I know this but this file is also needed by XFS people so it isn't
-so easy.  But as XFS stuff is not currently in kernel the change is
-probably for now (I'll check whether there's not some hidden reference
-I forgot about and submit patch to Linus).
+Hi
 
-								Honza
+> >> Unfortunately the license you must agree to says it is all nvidia license
+> >> and furthermore contains clauses illegal in the UK. If Nvidia was to submit
+> >> any GPL bits they wanted merged without such stuff it would be useful
+> > 
+> > That's probably simple error by nvidia...
+> 
+> nvidia help for swsusp would be nice also. I tried the patch on my
+> desktop for the first time and it seems to work reliably (even from X)
+> except that 3D is lost after resume. That's rather curious: menus
+> without highlights or things like that.
+
+Hmmm... I guess we might get them to fix it for 2.6 ;-).
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

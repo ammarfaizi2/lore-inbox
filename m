@@ -1,89 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbTABQQm>; Thu, 2 Jan 2003 11:16:42 -0500
+	id <S262392AbTABQUW>; Thu, 2 Jan 2003 11:20:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbTABQQm>; Thu, 2 Jan 2003 11:16:42 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:46292 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262384AbTABQQl>;
-	Thu, 2 Jan 2003 11:16:41 -0500
-Date: Thu, 2 Jan 2003 08:22:05 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: John Bradford <john@grabjohn.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix os release detection in module-init-tools-0.9.6
-In-Reply-To: <Pine.LNX.3.96.1030102073757.18246B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.33L2.0301020818230.22868-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262395AbTABQUW>; Thu, 2 Jan 2003 11:20:22 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54919
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262392AbTABQUV>; Thu, 2 Jan 2003 11:20:21 -0500
+Subject: Re: kernel .config support?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0301020930510.7804-100000@dell>
+References: <Pine.LNX.4.44.0301020930510.7804-100000@dell>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 02 Jan 2003 17:11:45 +0000
+Message-Id: <1041527505.24830.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jan 2003, Bill Davidsen wrote:
+On Thu, 2003-01-02 at 14:32, Robert P. J. Day wrote:
+> 
+>   whatever happened to that funky option from 2.4 --
+> for kernel .config support, which allegedly buried the
+> config file inside the kernel itself.  (it never worked --
+> the alleged extraction script scripts/extract-ikconfig
+> depended on a program called "binoffset" that didn't 
+> exist in that distribution.)
 
-| On Wed, 1 Jan 2003, Randy.Dunlap wrote:
-|
-| > On Wed, 1 Jan 2003, John Bradford wrote:
-| >
-| > | > > | Um, you read the .config, which hopefully is stored somewhere.
-| > | > > | (Although you could resurrect the /proc/config patch which goes around
-| > | > > | every so often).  There are many things you can't tell by reading
-| > | > > | /proc/ksyms.
-| > | > >
-| > | > > Right, the .config file is the answer.  And there are at least 2
-| > | > > patch solutions for it, the /proc/config that Rusty mentioned, or
-| > | > > the in-kernel config that Khalid Aziz and others from HP did along
-| > | > > with me, and it's in 2.4.recent-ac or 2.5.recent-dcl or 2.5.recent-cgl.
-| > | >
-| > | > It would be useful to have a few global options perhaps included in /proc
-| > | > (or wherever) on all kernels. By global I mean those which affect the
-| > | > entire kernel, like preempt or smp, rather than driver options. We already
-| > | > note 'tainted,' so this is not a totally new idea. It would seem that most
-| > | > of the processor options could fall in this class, MCE, IOAPIC, etc.
-| > | >
-| > | > If the aim is to speed stability, putting any of the "whole config"
-| > | > options in and defaulted on might be a step toward that.
-| > |
-| > | Having all of the config options in a /proc/config file would be a
-| > | great help for people using my new bug database, because it would
-| > | allow them to upload the .config for their current kernel even if it
-| > | is not one they have compiled themselves.
-| >
-| > It seems that we still differ that putting them in /proc
-| > is required.  I don't see a hard requirement for that as long
-| > as the vmlinu[xz] or bzImage etc. file contains the config
-| > strings, which is what the other mentioned patch does.
-|
-| The problem is that a failing kernel shouldn't be trying to get that info,
-| and it would be (at least) as valuable as tainted to have a summary line
-| showing the global options in the oops.
-
-Oh, I see.  You want a few "key" options to be printed during the
-oops message, similar to the Tainted flags.  Is that right?
-
-| > They are still affixed to a particular file, and they can be
-| > pulled from it whether it's the running kernel or not.
-| > Putting them in /proc wastes RAM and is undesirable, at least
-| > on small systems and most embedded platforms.
-| So do many other optional things. That's why they're optional. Putting the
-| whole .config in /proc should be optional, a few global flags like preempt
-| are probably valuable enough in an oops to justify a few bytes.
-|
-| > However, that patch does also contain an option for putting
-| > the config entries in /proc.  :)
-| >
-| > | At the moment, the facility to search for bugs via the config options
-| > | that cause them is only useful for people who are compiling their own
-| > | kernel.
-|
-| That one *would* be solved by a .config added to the vmlinuz file, or by a
-| config list in /lib/modules/{kernel}, etc.
-
-Sure, and people already have install scripts that copy kernels and config
-files to "permanent" locations to do this (latter one).
-I know that I've seen someone else mention doing this (maybe akpm) and
-my install script does it also.
-
--- 
-~Randy
+Its never been in the standard 2.4 kernel. The facility has been in the
+-ac kernel, and was recently submitted for consideration in 2.5
 

@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288460AbSATV6f>; Sun, 20 Jan 2002 16:58:35 -0500
+	id <S288575AbSATWBZ>; Sun, 20 Jan 2002 17:01:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288473AbSATV60>; Sun, 20 Jan 2002 16:58:26 -0500
-Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:50696 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S288460AbSATV6Q>;
-	Sun, 20 Jan 2002 16:58:16 -0500
-Date: Sun, 20 Jan 2002 16:46:30 -0500 (EST)
-From: Frank Davis <fdavis@si.rr.com>
-X-X-Sender: <fdavis@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-cc: <fdavis@si.rr.com>
-Subject: 2.5.3-pre2: isdn_common.c compile error
-Message-ID: <Pine.LNX.4.33.0201201644001.1213-100000@localhost.localdomain>
+	id <S288473AbSATWBP>; Sun, 20 Jan 2002 17:01:15 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43282 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288579AbSATWBE>;
+	Sun, 20 Jan 2002 17:01:04 -0500
+Date: Sun, 20 Jan 2002 20:00:51 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Shawn <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <3C4B3B67.60505@namesys.com>
+Message-ID: <Pine.LNX.4.33L.0201201956480.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
-    While 'make modules', I received the following error:
+On Mon, 21 Jan 2002, Hans Reiser wrote:
 
-Regards,
-Frank
+> >This means that if the VM asks to get a particular page
+> >freed, at the very minimum you need to make a page from the
+> >same zone freeable.
+>
+> I'll discuss with Josh tomorrow how we might implement support for that.
+>   A clean and simple mechanism does not come to my mind immediately.
 
-isdn_common.c: In function `isdn_register_devfs':
-isdn_common.c:2256: `ISDN_MINOR_B' undeclared (first use in this function)
-isdn_common.c:2256: (Each undeclared identifier is reported only once
-isdn_common.c:2256: for each function it appears in.)
-make[2]: *** [isdn_common.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/drivers/isdn'
-make[1]: *** [_modsubdir_isdn] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_mod_drivers] Error 2
+Note that in order to support more reliable allocation of
+contiguous memory areas (eg. for loading modules) we may
+also want to add some simple form of defragmentation to
+the VM.
+
+If you really want to make life easy for the VM, ->writepage()
+should work towards making the page it is called for freeable.
+
+You probably want to do this since an easy VM is good for
+performance and it would be embarrasing if reiserfs had the
+worst performance under load simply due to bad interaction
+with other subsystems...
+
+kind regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

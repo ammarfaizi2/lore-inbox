@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264832AbTIIWKn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 18:10:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264833AbTIIWKn
+	id S264667AbTIIWCT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 18:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264670AbTIIWCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 18:10:43 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:9745 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264832AbTIIWKf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 18:10:35 -0400
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6.0-test5: configcheck results
-Date: 9 Sep 2003 22:01:43 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <bjlik7$gla$1@gatekeeper.tmr.com>
-References: <20030909100412.A25143@flint.arm.linux.org.uk>
-X-Trace: gatekeeper.tmr.com 1063144903 17066 192.168.12.62 (9 Sep 2003 22:01:43 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 9 Sep 2003 18:02:18 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:42176 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S264667AbTIIWCL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 18:02:11 -0400
+Date: Tue, 9 Sep 2003 15:01:42 -0700
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] deal with lack of acpi prt entries gracefully
+Message-ID: <20030909220142.GA7668@sgi.com>
+Mail-Followup-To: Andrew de Quincey <adq_dvb@lidskialf.net>,
+	andrew.grover@intel.com, linux-kernel@vger.kernel.org
+References: <20030909201310.GB6949@sgi.com> <200309092143.58189.adq@lidskialf.net> <20030909211756.GA7487@sgi.com> <200309092238.27112.adq_dvb@lidskialf.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309092238.27112.adq_dvb@lidskialf.net>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030909100412.A25143@flint.arm.linux.org.uk>,
-Russell King  <rmk@arm.linux.org.uk> wrote:
+On Tue, Sep 09, 2003 at 10:38:26PM +0100, Andrew de Quincey wrote:
+> On Tuesday 09 September 2003 22:17, Jesse Barnes wrote:
+> > On Tue, Sep 09, 2003 at 09:43:58PM +0100, Andrew de Quincey wrote:
+> > > On Tuesday 09 September 2003 21:13, Jesse Barnes wrote:
+> > > > Instead of going into an infinite loop because the list isn't setup
+> > > > yet, just return NULL if there are no prt entries.
+> > >
+> > > Ah, this is a patch against the vanilla kernel.. This is unfortunately
+> > > incompatible with my recent ACPI patches.
+> >
+> > Maybe you could include it in your patch then?  I noticed that your
+> > patch changes some of the IRQ routing code...
+> 
+> I'm not sure it is still needed or not. The patch makes a lot of changes as to 
+> how the acpi_prt list is generated. What triggers the problem exactly, so I 
+> can test? 
 
-| I just ran make configcheck on 2.6.0-test5 and the results are:
-| 
-|     832 files need linux/config.h but don't actually include it.
-|     689 files which include linux/config.h but don't require the header.
+An SGI Altix system that only supports part of the ACPI spec :).  Our
+PROM currently doesn't generate any MADT entries other than CPUs (I'm
+not even sure how we could add them since we use our own interrupt
+controller, not an IOAPIC or IOSAPIC) and lacks an ACPI namespace, so
+we're missing all sorts of stuff.
 
-I'm suspicious of the first one, unless you mean "include it with
-multi-level includes of other stuff." The second one is probably close
-to the truth.
-
-Thanks for doing this work, I'm not sure any tool is trustworthy, but it
-should be relatively easy to test the "do not need" files with a script.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+Jesse

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310145AbSCAHSB>; Fri, 1 Mar 2002 02:18:01 -0500
+	id <S310213AbSCAHZk>; Fri, 1 Mar 2002 02:25:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310362AbSCAHQE>; Fri, 1 Mar 2002 02:16:04 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:6923 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S310359AbSCAHOj>; Fri, 1 Mar 2002 02:14:39 -0500
-Date: Fri, 1 Mar 2002 08:14:10 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Val Henson <val@nmt.edu>,
-        "Randy.Dunlap" <rddunlap@osdl.org>, Laurent <laurent@augias.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: read_proc issue
-Message-ID: <20020301071410.GA11256@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20020227140432.L20918@boardwalk> <E16gBps-0005wa-00@the-village.bc.nu> <20020228000532.GA8858@arthur.ubicom.tudelft.nl> <E16fucy-0004vi-00@starship.berlin>
+	id <S310382AbSCAHVr>; Fri, 1 Mar 2002 02:21:47 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:10252 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S310369AbSCAHUA>; Fri, 1 Mar 2002 02:20:00 -0500
+Date: Fri, 1 Mar 2002 08:19:47 +0100
+From: Jurriaan on Alpha <thunder7@xs4all.nl>
+To: Dave Jones <davej@suse.de>, James Simmons <jsimmons@transvirtual.com>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] tdfx ported to new fbdev api
+Message-ID: <20020301071947.GA13938@alpha.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <20020228214045.E32662@suse.de> <Pine.LNX.4.10.10202281259230.20040-100000@www.transvirtual.com> <20020228220847.J32662@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16fucy-0004vi-00@starship.berlin>
+In-Reply-To: <20020228220847.J32662@suse.de>
 User-Agent: Mutt/1.3.27i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 04:19:35AM +0100, Daniel Phillips wrote:
-> On February 28, 2002 01:05 am, Erik Mouw wrote:
-> > It might also be an idea to export proc_calc_metrics() from
-> > fs/proc/proc_misc.c because quite a lot of code actually tries to do
-> > exactly the same.
+From: Dave Jones <davej@suse.de>
+Date: Thu, Feb 28, 2002 at 10:08:47PM +0100
+> On Thu, Feb 28, 2002 at 01:00:04PM -0800, James Simmons wrote:
+>  > > > The patch is against 2.5.5-dj2
+>  > > > http://www.transvirtual.com/~jsimmons/tdfx.diff
+>  > >  Is this one different to the one I saw last time?
+>  > Actually no. I think the driver hasn't changed. I does work for me. Did
+>  > you try it out again.
 > 
-> Look at all the parameters, they're trying to be a struct.  How about
-> cleaning it up before exporting?
+>  Ok. I didn't look too deeply last time, but it died immediately
+>  on switching the display, and was really dead, no keyboard leds,
+>  nada.
+> 
+That was my experience also (Voodoo 4500 pci/Alpha architecture).
+However, the VIDCFG_2X handling in his patch worked, and the kernel
+(pre-2.4.18) didn't. Luckily, a small patch was accepted to change that.
 
-Look at all the parameters of a procfs read() function and compare them
-with the parameters of proc_calc_metrics(). See why cleaning up
-would make things only more complicated?
+I'm willing to test any patches for tdfxfb on Alpha.
 
-
-Erik
-
+Good luck,
+Jurriaan
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+One guide for speakers of Klingon advises them to begin by
+purchasing a large supply of napkins.
+	Robert O'Reilly [Gowron] on speaking Klingon.
+GNU/Linux 2.4.19pre1 on Debian/Alpha 988 bogomips load:1.64 1.33 0.76

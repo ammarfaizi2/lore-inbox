@@ -1,48 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290925AbSASIl7>; Sat, 19 Jan 2002 03:41:59 -0500
+	id <S290926AbSASIo3>; Sat, 19 Jan 2002 03:44:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290926AbSASIlk>; Sat, 19 Jan 2002 03:41:40 -0500
-Received: from dsl-213-023-060-177.arcor-ip.net ([213.23.60.177]:40710 "HELO
-	spot.local") by vger.kernel.org with SMTP id <S290925AbSASIl0>;
-	Sat, 19 Jan 2002 03:41:26 -0500
-Date: Sat, 19 Jan 2002 09:44:24 +0100
-From: Oliver Feiler <kiza@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: Removing files in devfs
-Message-ID: <20020119094424.A239@gmxpro.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Operating-System: Linux 2.4.16 i686
-X-Species: Snow Leopard
+	id <S290927AbSASIoX>; Sat, 19 Jan 2002 03:44:23 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:43281 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S290926AbSASIoM>;
+	Sat, 19 Jan 2002 03:44:12 -0500
+Message-ID: <3C4931DA.5020703@epfl.ch>
+Date: Sat, 19 Jan 2002 09:44:10 +0100
+From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
+Organization: LTS-DE-EPFL
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, ja
+MIME-Version: 1.0
+To: Didier Moens <moensd@xs4all.be>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH]Re: OOPS in APM 2.4.18-pre4 with i830MP agpgart
+In-Reply-To: <3C487E68.1000404@xs4all.be>
+Content-Type: multipart/mixed;
+ boundary="------------000700030408040405060400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
+--------------000700030408040405060400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	Is this behaviour supposed to be?
+Didier Moens wrote:
 
-9:36 root@kiza /dev# l null 
-crw-rw-rw-    1 root     root       1,   3 Jan  1  1970 null
-9:36 root@kiza /dev# rm null
-removing `null'
-9:36 root@kiza /dev# l null
-ls: null: No such file or directory
-9:36 root@kiza /dev#
+> Dear all,
+> 
+> On november 27th, Nicolas Aspert was so kind as to post a modification 
+> to agpgart, which catters for detection of the Intel i830MP.
+> 
+> The patch was included in 2.4.18-pre2.
+> 
+> Unfortunately, loading agpgart yields an oops when APM ("apm -s") is 
+> invoked, both in terminal and in X. APM functions perfectly when agpgart 
+> is absent.
+> 
+> 
+> 
 
-	I have kernel 2.4.16 with devfs and on every other system I tried I 
-only get "rm: cannot unlink `null': Operation not permitted" when trying to 
-delete something in devfs. And I cannot see any differences as far as devfs is 
-concerned on the systems I tried. devfs compiled in, mounted on boot time, 
-same version of devfsd.
+Hello all
 
-Regards,
+Here is a patch that fixes the APM/suspend/resume issues in agpgart (for 
+820 and 830MP chipsets).
+The patch is against 2.4.18-pre4
 
-Oliver
+Have a nice week-end.
+
+
+Nicolas
 
 -- 
-Oliver Feiler                                               kiza@gmx.net
-http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
-http://www.lionking.org/~kiza/
+Nicolas Aspert      Signal Processing Laboratory (LTS)
+Swiss Federal Institute of Technology (EPFL)
+
+
+
+--------------000700030408040405060400
+Content-Type: text/plain;
+ name="patch-agp_suspend_resume-2.4.18-pre4"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-agp_suspend_resume-2.4.18-pre4"
+
+diff -Nru linux-2.4.18-pre4.clean/drivers/char/agp/agpgart_be.c linux-2.4.18-pre4.dirty/drivers/char/agp/agpgart_be.c
+--- linux-2.4.18-pre4.clean/drivers/char/agp/agpgart_be.c	Sat Jan 19 09:35:00 2002
++++ linux-2.4.18-pre4.dirty/drivers/char/agp/agpgart_be.c	Sat Jan 19 09:38:41 2002
+@@ -1857,7 +1857,10 @@
+        agp_bridge.free_by_type = agp_generic_free_by_type;
+        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
+        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
+-
++       agp_bridge.suspend = agp_generic_suspend;
++       agp_bridge.resume = agp_generic_resume;
++       agp_bridge.cant_use_aperture = 0;
++       
+        return 0;
+ 
+        (void) pdev; /* unused */
+@@ -1887,7 +1890,10 @@
+        agp_bridge.free_by_type = agp_generic_free_by_type;
+        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
+        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
+-
++       agp_bridge.suspend = agp_generic_suspend;
++       agp_bridge.resume = agp_generic_resume;
++       agp_bridge.cant_use_aperture = 0;
++       
+        return 0;
+ 
+        (void) pdev; /* unused */
+
+--------------000700030408040405060400--
+

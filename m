@@ -1,77 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbULOC0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbULOCiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbULOC0S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 21:26:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbULOC0S
+	id S261822AbULOCiP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 21:38:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbULOCiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 21:26:18 -0500
-Received: from web51506.mail.yahoo.com ([206.190.38.198]:63832 "HELO
-	web51506.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261810AbULOC0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 21:26:08 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=aDzV3EqEzjwgFRGD4u66TZfEbanroNCfzGth27T7nNDqd4SRZN06Cir6AugH5yfU9DH0GmvEjwGpaejln6EWINM5eRs8y7YUtEXktL+9ACGBOxlD6YyNKG5WX/fzUFuEq00x0DU7+MSYYcUdpEDTm0RDEfNNbHPg3IQnf1+0+eQ=  ;
-Message-ID: <20041215022607.42712.qmail@web51506.mail.yahoo.com>
-Date: Tue, 14 Dec 2004 18:26:07 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: Re: How to get the whole information dumped from kernel
+	Tue, 14 Dec 2004 21:38:14 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:24823 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S261822AbULOCiL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 21:38:11 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
+Date: Tue, 14 Dec 2004 21:38:10 -0500
+User-Agent: KMail/1.7
+References: <20041124101626.GA31788@elte.hu> <1103062423.14699.48.camel@krustophenia.net> <20041214223118.GD22043@elte.hu>
+In-Reply-To: <20041214223118.GD22043@elte.hu>
+Cc: Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200412142138.10456.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.42.94] at Tue, 14 Dec 2004 20:38:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Dec 2004 at 10:53, Linus Torvalds wrote:
-> On Fri, 10 Dec 2004, Park Lee wrote:
-> >
-> > These information is the last portion of the 
-> > whole information dumped from kernel on the 
-> > screen. But because the machine has crashed so 
-> > badly that I cann't get the whole information 
-> > back.
-> > Then, would you please tell me how can I get the 
-> > whole information dumped from kernel when the 
-> > kernel crashed? (I think that only get the whole 
-> > information, Can I know what the wrong is exactly 
-> > and solve it.)
+On Tuesday 14 December 2004 17:31, Ingo Molnar wrote:
+>* Lee Revell <rlrevell@joe-job.com> wrote:
+>> On Tue, 2004-12-14 at 22:18 +0100, Ingo Molnar wrote:
+>> > the two projects are obviously complementary and i have no
+>> > intention to reinvent the wheel in any way. Best would be to
+>> > bring hires timers up to upstream-mergable state (independently
+>> > of the -RT patch) and ask Andrew to include it in -mm, then i'd
+>> > port -RT to it automatically.
+>>
+>> Among other things I think Paul Davis mentioned that George's high
+>> res timer patch would make it possible for JACK to send MIDI
+>> clock.  This would be a huge improvement.
 >
-> Several approaches:
->  - serial console ends up being very useful if you 
-> do a lot of this - you can log everything to 
-> another machine.
->  (And in some cases "netconsole" can be an easier 
-> alternative, see 
-> Documentation/networking/netconsole.txt for more 
-> details).
+><clueless question> roughly what latency/accuracy requirements does
+> the MIDI clock have, and why is it an advantage if Linux generates
+> it? What generates it otherwise - external MIDI hardware? Or was
+> the problem mainly not latency/accuracy but that Linux couldnt
+> generate a finegrained enough clock?
+>
+> Ingo
 
-Thanks.
+I'm not sure of the exact reasons, Ingo.  But the midi clock is a
+bit of an odd man out in the normal progression of baud rates,
+its 31,250 baud, in case you didn't already know that.
+  
+A lot of systems resort to a hardware timer driving a seriel shift
+register as I doubt if one could guarantee writing to a single
+bit port with an interval error of much more than 5% bit to bit,
+and cumulatively less than that for the overall byte.  It can be
+done though, we have a program for the coco's that run on a .89
+mhz clock that can actually drive the seriel port well enough to
+run a midi keyboard plugged into it. I've run it, and it has
+enough spare time that I can steer some instruments to a second
+homemade midi pack plugged into its expansion interface at the
+same time & no descernable squiggles in the beat of the music.
 
-I've tried to use netconsole, but it did not work very
-well in my case. 
-So, I want to try serial console. I have 2 computers,
-one is a PC, and the other is a Laptop. Unfortunately,
-my Laptop doesn't have a serial port on it. But then,
-the each machine has a internal serial modem
-respectively.
-Then, can I use a telephone line to directly connect
-the two machines via their internal modems (i.e. One
-end of the telephone line is plugged into The PC's
-modem, and the other end is plugged into The Laptop's
-modem directly), and let them do the same function as
-two serial ports and a null modem can do? If it is,
-How to achieve that?
+Did you see my comment about the later versions seeming to slow
+seti a wee bit?  Other than that, I'm in love with this, the
+whole system just plain feels better.  The only thing on my wish
+list right now is to be able to shut tvtime up, it grows the
+system log about a megabyte a minute with its missed read reports.
+Or is it tvtime that needs help?
 
-Thank you.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 
-=====
---
-Best Regards,
-Park Lee
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

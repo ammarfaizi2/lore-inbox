@@ -1,35 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286140AbRLJBLH>; Sun, 9 Dec 2001 20:11:07 -0500
+	id <S286141AbRLJBLZ>; Sun, 9 Dec 2001 20:11:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286132AbRLJBJu>; Sun, 9 Dec 2001 20:09:50 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22020 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286131AbRLJBIx>; Sun, 9 Dec 2001 20:08:53 -0500
-Subject: Re: [RFC] Scheduler queue implementation ...
-To: davidel@xmailserver.org (Davide Libenzi)
-Date: Mon, 10 Dec 2001 01:18:16 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org (lkml),
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <Pine.LNX.4.40.0112091701000.996-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Dec 09, 2001 05:06:04 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DF5E-00009N-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S286132AbRLJBLJ>; Sun, 9 Dec 2001 20:11:09 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:38617 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S286133AbRLJBKW>;
+	Sun, 9 Dec 2001 20:10:22 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 10 Dec 2001 01:10:20 GMT
+Message-Id: <UTC200112100110.BAA258670.aeb@cwi.nl>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] util-linux-2.11n
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > of non cpu hog processes running. A lot of messaging systems have high task
-> > switch rates but very few cpu hogs. So you still need to handle the non hogs
-> > carefully to avoid degenerating back into Linus scheduler.
-> 
-> In my experience, if you've I/O bound tasks that lead to a long run queue,
-> that means that you're suffering major kernel latency problems ( other than the
-> scheduler ).
+Now that Al has not yet told me what is wrong with the
+device handling scheme outlined, let me do something else
+instead and remove some of the backlog for util-linux.
+Just released util-linux-2.11n in the usual places.
 
-I don't see any evidence of it in the profiles. Its just that a lot of stuff
-gets passed around between multiple daemons. You can see similar things
-in something as mundane as a 4 task long pipe, a user mode file system or
-some X11 clients.
+l-k relevance: blockdev has a --report option as announced
+
+Very off-topic: FSF promotes free software, but produces
+message translation files with header
+ # Copyright (C) 2001 Free Software Foundation, Inc.
+and without any indication that these files can be freely
+modified and distributed. No GPL or anything. Very unfree.
+This is the reason that there still is no up-to-date set
+of French messages.
+
+Andries

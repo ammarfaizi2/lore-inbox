@@ -1,49 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317506AbSFRRPz>; Tue, 18 Jun 2002 13:15:55 -0400
+	id <S317505AbSFRRNf>; Tue, 18 Jun 2002 13:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317511AbSFRRPz>; Tue, 18 Jun 2002 13:15:55 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:56588 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S317506AbSFRRPx>; Tue, 18 Jun 2002 13:15:53 -0400
-Date: Tue, 18 Jun 2002 10:15:08 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Paul Mundt <lethal@chaoticdreams.org>
-cc: Martin Diehl <lists@mdiehl.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.22: FB_VESA - early crash in fbcon_cursor()
-In-Reply-To: <20020618083829.A316@ChaoticDreams.ORG>
-Message-ID: <Pine.LNX.4.44.0206181009580.5510-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317506AbSFRRNd>; Tue, 18 Jun 2002 13:13:33 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:37108 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317505AbSFRRN0>; Tue, 18 Jun 2002 13:13:26 -0400
+Subject: Re: Question about sched_yield()
+From: Robert Love <rml@tech9.net>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: David Schwartz <davids@webmaster.com>, mgix@mgix.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3D0F669C.89596EC0@nortelnetworks.com>
+References: <20020618093644.AAA9337@shell.webmaster.com@whenever> 
+	<3D0F669C.89596EC0@nortelnetworks.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 18 Jun 2002 10:13:20 -0700
+Message-Id: <1024420400.3090.202.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2002-06-18 at 09:58, Chris Friesen wrote:
 
-> Looks like the dispsw isn't being set and you're running into the NULL
-> dereference in fbcon_cursor() upon trying to dereference it.. it looks like
-> fbgen.c is the culprit here, as it never sets display->dispsw if we aren't in
-> 24-bpp or have FBCON_HAS_ACCEL set..
+> David Schwartz wrote:
 >
-> James, what's the point of th FBCON_HAS_ACCEL ifdef? It looks like all the
-> accel wrapper code does is provide a wrapper to the fillrect, imageblit, and
-> copyarea routines -- if the driver doesn't have accelerated ones to provide
-> for itself, it just uses the cfb_fillrect/imageblit/copyarea as a fallback,
-> thus it should _always_ be safe to call them.
->
-> If that's not the case, we'll have to re-introduce the FBON_HAS_CFBx
-> brain-damage in gen_set_disp() to keep dispsw happy.
+> >         What would you expect?
+> 
+> If there is only the one task, then sure it's going to be 100% cpu on that
+> task.
+> 
+> However, if there is anything else other than the idle task that wants to
+> run, then it should run until it exhausts its timeslice.
+> 
+> One process looping on sched_yield() and another one doing calculations
+> should result in almost the entire system being devoted to calculations.
 
-Your right. Alot of people have been bitten by that. Especially since
-people are so use to manually setting the CFB stuff. Patch applied to BK
-tree.
+Exactly.  The reason the behavior is odd is not because the sched_yield
+task is getting any CPU, David.  I realize sched_yield is not equivalent
+to blocking.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
+The reason this behavior is suspect is because the task is receiving a
+similar amount of CPU to tasks that are _not_ yielding but in fact doing
+useful work for the entire duration of their timeslice.
 
+A task that continually uses its timeslice vs one that yields should
+easily receive a greater amount of CPU, but this is not the case.
+
+As someone who works in the scheduler, this points out that sched_yield
+is, well, broken.  First guess would be it is queuing to the front of
+the runqueue (it once did this but I thought it was fixed) or otherwise
+exhausting the timeslice wrong.
+
+Someone pointed out this bug existed similarly in 2.5, although it was a
+bit different.  2.5 has a different (and better, imo) sched_yield
+implementation that tries to overcome certain shortcomings and also
+perform optimally and fairly.
+
+	Robert Love
 

@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbUAOQ41 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 11:56:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264481AbUAOQ41
+	id S264961AbUAOQwK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 11:52:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUAOQwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 11:56:27 -0500
-Received: from ultra12.almamedia.fi ([193.209.83.38]:38288 "EHLO
-	ultra12.almamedia.fi") by vger.kernel.org with ESMTP
-	id S263742AbUAOQ40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 11:56:26 -0500
-Message-ID: <4006C665.3065DFA1@users.sourceforge.net>
-Date: Thu, 15 Jan 2004 18:57:09 +0200
-From: Jari Ruusu <jariruusu@users.sourceforge.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.22aa1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jim Faulkner <jfaulkne@ccs.neu.edu>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: PROBLEM: AES cryptoloop corruption under recent -mm kernels
-References: <Pine.GSO.4.58.0401141357410.10111@denali.ccs.neu.edu>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Jan 2004 11:52:10 -0500
+Received: from [128.173.54.129] ([128.173.54.129]:57216 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264961AbUAOQwI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 11:52:08 -0500
+Message-Id: <200401151652.i0FGq7OP007066@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Charles Shannon Hendrix <shannon@widomaker.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA and NVIDIA 
+In-Reply-To: Your message of "Thu, 15 Jan 2004 10:58:17 EST."
+             <20040115155817.GD25550@widomaker.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <1074106424.6839.15.camel@applehead> <20040114201637.566a9330@Genbox>
+            <20040115155817.GD25550@widomaker.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1676788167P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 15 Jan 2004 11:52:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Faulkner wrote:
-> I am experiencing data corruption on my AES cryptoloop partition under
-> recent -mm kernels (including 2.6.1-mm3).  I am unsure how long this
-> problem has existed, and I am unsure if this problem exists in the
-> mainstream kernel (I can't test it because of an aic7xxx bug in the
-> mainstream kernel).
+--==_Exmh_-1676788167P
+Content-Type: text/plain; charset=us-ascii
 
-This bug is fixed in loop-AES package. In addition to this bug fix it fixes
-many other bugs as well, and achieves correct write ordering when used with
-journaling file systems.
+On Thu, 15 Jan 2004 10:58:17 EST, Charles Shannon Hendrix <shannon@widomaker.com>  said:
 
-http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.0d.tar.bz2
-http://loop-aes.sourceforge.net/loop-AES/loop-AES-v2.0d.tar.bz2.sign
+> You are using framebuffer with the commercial nVidia driver? I didn't
+> think you could do that.
 
-Jim,
-If you want your data secure, you need to re-encrypt your data anyway.
-Mainline loop crypto implementation has exploitable vulnerability that is
-equivalent to back door. Kerneli.org folks have always shipped back-doored
-loop crypto, and now mainline folks are shipping back-doored loop crypto.
-Kerneli.org derivatives such as Debian, SuSE, and others are also
-back-doored.
+It works for me.  I admit however that I'm basically just using the framebuffer
+driver to get 160x64 on the line-mode consoles.  I've not gotten brave enough
+to start 2 X servers.. ;)
 
--- 
-Jari Ruusu  1024R/3A220F51 5B 4B F9 BB D3 3F 52 E9  DB 1D EB E3 24 0E A9 DD
+--==_Exmh_-1676788167P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFABsU3cC3lWbTT17ARAkgBAKDdUSmR/C/q9ohW2WbCQo7rMM2LHgCghA3x
+2UPnyqGJt7Arjxq03+QfJcM=
+=PVd8
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1676788167P--

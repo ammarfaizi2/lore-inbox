@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265871AbUAEDtK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 22:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265874AbUAEDtK
+	id S265868AbUAEDuq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 22:50:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUAEDuq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 22:49:10 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:14035
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S265871AbUAEDtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 22:49:06 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: David Lang <david.lang@digitalinsight.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: udev and devfs - The final word
-Date: Sun, 4 Jan 2004 21:48:24 -0600
-User-Agent: KMail/1.5.4
-Cc: Andries Brouwer <aebr@win.tue.nl>, Rob Love <rml@ximian.com>,
+	Sun, 4 Jan 2004 22:50:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54683 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265868AbUAEDui
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 22:50:38 -0500
+Date: Mon, 5 Jan 2004 03:50:37 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Daniel Jacobowitz <dan@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
        Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
        Greg KH <greg@kroah.com>
-References: <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <Pine.LNX.4.58.0401041903290.6089@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.58.0401041903290.6089@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040105035037.GD4176@parcelfarce.linux.theplanet.co.uk>
+References: <20040104000840.A3625@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031802420.2162@home.osdl.org> <20040104034934.A3669@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031856130.2162@home.osdl.org> <20040104142111.A11279@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041302080.2162@home.osdl.org> <20040104230104.A11439@pclin040.win.tue.nl> <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200401042148.24742.rob@landley.net>
+In-Reply-To: <Pine.LNX.4.58.0401041918260.2162@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 04 January 2004 21:06, David Lang wrote:
-> Linus, what Andries is saying is that if you export a directory (say
-> /home) the process of exporting it somehow uses the /dev device number so
-> if the server reboots and gets a different device number for the partition
-> that /home is on the clients won't see it as the same export, breaking the
-> NFS requirement that a server can be rebooted.
+On Sun, Jan 04, 2004 at 07:33:16PM -0800, Linus Torvalds wrote:
+> Ahh. I'll buy into that, and yes, this is an example of something that 
+> needs to be fixed. 
+> 
+> It shouldn't be fixed by saying "device numbers have to be stable across 
+> reboots", because the fact is, we're most likely going to have storage 
+> that is really really hard to enumerate in a repeatable fashion.
+> 
+> So the _proper_ thing to do is to have the NFS server not use the device 
+> number as part of fsid. It should use the _stable_ UUID of the filesystem 
+> or some similar label.
 
-NFS always struck me as a peverse design.  "The fileserver must be stateless 
-with regard to clients, even though maintainging state is what a filesystem 
-DOES, and the point of the thing is to export a filesystem."  Okay...  (If it 
-was exporting read-only filesystems with no locking of any kind, maybe they'd 
-have a point, but come on guys...)
+... and we already have a way to specify it explicitly.  Which, BTW, allows
+to take server down, copy exported fs from failing IDE disk to SCSI one and
+reexport.  With clients remaining happy with you.  Remember discussions
+circa 2.5.50 or so about that stuff?
 
-So here's an example of where the fileserver _does_ expect to maintain 
-non-file state across reboots.  "Ooh, the device node we're exporting is part 
-of the ID, gee, we missed one!"
+So we have tools for that.  And it's 100% OK to say "if you are doing NFS
+export of filesystem that lives on $new_weird_device, explicit fsid= is
+not just a good idea, it's a must-have".
 
-So why, exactly, can the NFS server not maintain whatever extra state it needs 
-to remember between reboots in a filesystem?  (Not even necessarily the one 
-it's exporting, just some rc file something under /var.)  The device node it 
-was exporting USED to be in the filesystem, you know, ala mknod.  Now that 
-the kernel's not keeping that stable, have the #*%(&# server generate a 
-number and make a note of it somewhere.  (Is requiring an NFS server to have 
-access to persistent storage too much to ask?)
-
-Personally, I could never figure out why Samba servers are in userspace but 
-NFS servers seem to want to live in the kernel.  I can almost secure a samba 
-server for access to the outside world, but a NFS system that isn't behind a 
-firewall automatically says to me "this machine has already been compromised 
-eight ways from sunday within five minutes of being exposed to the internet".  
-Call me paranoid...
-
-Rob
-
+What is _not_ OK, though, is to have folks suddenly see /dev/hda3 changing
+its device number - then we would break existing setups that worked all
+along; even if admin can fix the breakage, it's not a good thing to do.

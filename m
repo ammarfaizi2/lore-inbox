@@ -1,252 +1,126 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154065-16160>; Sun, 20 Sep 1998 00:44:47 -0400
-Received: from diala061.ppp.lrz-muenchen.de ([129.187.24.61]:1226 "HELO fred.muc.de" ident: "TIMEDOUT2") by vger.rutgers.edu with SMTP id <153970-16160>; Sun, 20 Sep 1998 00:44:12 -0400
-Message-ID: <19980920101801.A1794@kali.lrz-muenchen.de>
-Date: Sun, 20 Sep 1998 10:18:01 +0200
-From: Andi Kleen <ak@muc.de>
-To: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.rutgers.edu, ak@muc.de
-Subject: Performance counters and Re: [PATCH] *_user fixes for ptrace on i386
-References: <19980920011930.A1474@kali.lrz-muenchen.de> <Pine.LNX.3.96.980919222619.25789A-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <Pine.LNX.3.96.980919222619.25789A-100000@penguin.transmeta.com>; from Linus Torvalds on Sun, Sep 20, 1998 at 07:27:49AM +0200
+Received: by vger.rutgers.edu id <154561-16160>; Sun, 20 Sep 1998 19:47:01 -0400
+Received: from duracef.shout.net ([204.253.184.12]:23161 "EHLO duracef.shout.net" ident: "mec") by vger.rutgers.edu with ESMTP id <153962-16160>; Sun, 20 Sep 1998 18:08:30 -0400
+Date: Sun, 20 Sep 1998 20:52:48 -0500
+From: Michael Elizabeth Chastain <mec@shout.net>
+Message-Id: <199809210152.UAA13294@duracef.shout.net>
+To: torvalds@transmeta.com
+Subject: Re: PTRACE_POKEDATA on PROT_NONE hangs kernel
+Cc: linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Sun, Sep 20, 1998 at 07:27:49AM +0200, Linus Torvalds wrote:
+Hello Linus and linux-kernel,
+
+First of all, if anyone else out there knows about the recent
+_PAGE_PROTNONE optimization, could you write to me please?
+I need to talk to you, if only for background information.
+
+Linus wrote:
+> I suspect the _correct_ fix is to change the test
 > 
+> 	if (!pte_write(*pgtable))
 > 
-> On Sun, 20 Sep 1998, Andi Kleen wrote:
-> > 
-> > I didn't consider these functions as speed critical, thus I chosed the
-> > alternative that generates more compact code. If you think they're critical
-> > I can move the access_ok calls out of the loops again - the main point
-> > was to add the check for the return value of the actual data transfer.
+> to
 > 
-> I'm just nervous that you're removing __put_user()/__get_user() calls
-> because you dislike them, not for any technical reasons. I like the "more
-> compact code" argument, I just didn't get that when I got the patch.
+> 	if (!(pte_val(*pgtable) & _PAGE_RW))
 > 
-> I'll think about it some more - in the meantime the patch is gone, but I
-> could maybe see it be re-applied.
+> (What the above does is checks that the page is just writable, even if it
+> is marked _PAGE_PROTNONE).
+> 
+> Does this fix it for you? If so, send me email, and I'll do it in my
+> kernel.
 
-Ok,I appended the patch again. Please tell me if you want me to change it.
+I tried this and the kernel doesn't hang with my test program any more.
+It also works with my real application.  But it fails with another test
+program (see below).
 
-Now another issue. I intend to implement support for the p5+
-performance counters into Linux. This is a 2.3 project of course, I just
-want to hear general opinions from you and the list on the API I chosed.
+I am real dubious about this line of code.  Please don't patch it
+in yet, and bear with me as I am a novice in the mm code.
 
-I think the right place for it is in ptrace. If a process wants to measure
-itself it can just do ptrace(..., getpid(), ..). Because of the security
-implications all reading and writing to the registers should be done from
-kernel space - the counters will stop ticking as soon as supervisor mode
-is entered anyways (when the OS flag is set in PervEvtSel), and in most
-cases the profiler will be an external process anyways.
+First, take another look at these definitions:
 
-The kernel shall save and restore the counters and settings on context 
-switch. The check for that can be merged with the check for debugging
-registers that is already in __switch_to so there will be no slowdown for
-the non-debugging case (BTW I think changing it to 
-"if (!next->tss.debugreg[7]) return;" will safe one taken branch in this
-critical function)
+	/* include/asm-i386/pgtable.h */
+	#define _PAGE_PRESENT	0x001
+	#define _PAGE_PROTNONE	0x002		/* If not present */
+	#define _PAGE_RW	0x002		/* If present */
 
-I added a few new ptrace requests:
+I am seeing a pte value of 0x0067c062 right now.  Meditate on the
+last two bits of that, that is where the problem is.
 
-struct perf_reg {
-	int	p_num;			/* 0,1 for PervCtr0,1 on Intel */
-	int	p_event;		/* Type of event to count for */
-	__u64	p_value;		/* value to be read/writen */	
-};
+It's bogus to test for _PAGE_RW on pages that may not be present.  Your
+test as written actually behaves as: if (!_PAGE_RW && !_PAGE_PROTNONE),
+which works, by coincidence or on purpose, I don't really know.
 
-One problem is that p_event varies greatly between architectures and CPUs.
-I propose to define some well-known events that are mapped by the kernel
-to the CPU specific events, and reserve a range for CPU specific counters.
-Problem is that the kernel has to contain a potentially large table then,
-but I see no better way.
+There are two pte tests in put_long:
 
-int ptrace(PTRACE_SETPERF, pid, struct perf_reg *reg, int flags);
+	/* arch/i386/kernel/ptrace.c: put_long */
+	pgtable = pte_offset(pgmiddle, addr);
+	if (!pte_present(*pgtable)) {
+		handle_mm_fault(tsk, vma, addr, 1);
+		goto repeat;
+	}
+	page = pte_page(*pgtable);
+	if (!pte_write(*pgtable)) {
+		handle_mm_fault(tsk, vma, addr, 1);
+		goto repeat;
+	}
 
-Write reg->p_value into the performance register defined by reg and set it
-up to count that event. Does not start the counter yet.
-Return error if the CPU does not support that event or register.
+Here is some trace output from my instrumented kernel:
 
-flags: 
+    put_long: addr: 0x40008000 count: 1
+    put_long: pmd_none(*pgmiddle)
+    handle_mm_fault: address: 0x40008000 *pte: 0x00000000
+    handle_pte_fault: address: 0x40008000 entry: 0x00000000
+    handle_pte_fault: !pte_present
+    do_no_page: address: 0x40008000 entry: 0x00000000
+    do_no_page: anonymous_page
+    do_no_page: entry: 0x00819062
+    handle_mm_fault: address: 0x40008000 *pte: 0x00819062
 
-None defined yet.
+    put_long: addr: 0x40008000 count: 2
+    put_long: pte_val(*pgtable): 0x00819062
+    put_long: return
 
-int ptrace(PTRACE_GETPERF, pid, struct perf_reg *reg, int flags);
+You can probably follow this trace as easily as I can explain it.  :)
+Basically, put_long does call handle_mm_fault earlier, and that calls
+handle_pte_fault, and that calls do_no_page, which binds a page to
+that address.  Then on the second iteration of the main put_long loop,
+the pte still has _PAGE_PRESENT false and _PAGE_PROTNONE true, but now
+there really is a page underneath it.  With your strange test in place,
+the pte passes both of these tests, and falls through to actually
+perform the write.
 
-Get the current value and selected event for performance register reg->p_num.
-Return error if the CPU does not support that register.
+But I think it's a nasty patch because someone wrote mm/memory.c with
+the idea that _PAGE_PROTNONE pages are never present.  And now ptrace
+can make it present (but without setting the _PAGE_PRESENT bit) and who
+knows what other code path is going to go haywire.
 
-flags:
+I think _PAGE_PROTNONE should have its own bit assigned (if possible).
+It definitely needs some re-design with consideration for ptrace.
+You could change the ptrace specification so that it returns an error when
+reading or writing such a page.  But this feature did work correctly
+from 1.3.XX to 2.1.108 so I'd like it to keep working.
 
-PERF_COUNTER_MAX	Read the overflow value instead, when the counter
-			will overflow and may cause a SIGPROF if requested.
-			On Intel that is always 2^40-1
+Here is the kind of nasty problem that the existing code runs into,
+with your first patch applied:
 
-int ptrace(PTRACE_PERFCTL_SET, pid, struct perf_reg *reg, int flags)
+    child mmap's page with PROT_NONE and gets a _PAGE_PROTNONE page
+    parent calls PTRACE_PEEKUSER on this address
+    parent calls PTRACE_POKEUSER on this address
 
-Control the performace counting for register reg.
+I wrote a test program to do this.  The PTRACE_PEEKUSER causes the child's
+_PAGE_PROTNONE page to get bound to the common read-only zero page.
+Then PTRACE_POKEUSER bypasses do_wp_page and writes its value directly
+onto the common read-only zero page, where it appears to anybody who
+thinks they are getting a page of zeros, including the bss segment of
+unrelated programs !!
 
-flags:
+So, what do you think?  Shall I continue studying the mm code and look
+for a cleaner solution?
 
-PERF_COUNTER_ON		If set counter runs, otherwise it is turned off.
-PERF_OVERFLOW_SIG	Send SIGPROF if counter overflows (if the CPU
-			supports it)
-PERF_OVERFLOW_OCCURED	Overflow occured. Only be set by the kernel.
-			The kernel counts overflows in the p_value bits above
-			PERF_COUNTER_MAX. If PERF_COUNTER_MAX is not a power
-			of 2 the behaviour is undefined.
-
-int ptrace(PTRACE_PERFCTL_GET, pid, struct perf_reg *reg, int flags)
-
-Return current active flags for register reg.
-
-This interface should map to the performance monitors of Intel P5 and PPro/PII,
-PPC604e. The 21164 does not seem to provide a way to cause a interrupt on
-overflow thus PERF_OVERFLOW_SIG won't work, but the rest does.
-
-How would it map to other architectures e.g. MIPS or UltraSparc?
-
-It might be a good idea to provide a read-only sysctl for the number of 
-performance registers available.
-
--Andi
-
-
---- ../linus/linux/arch/i386/kernel/ptrace.c	Sat Sep 19 12:03:02 1998
-+++ linux/arch/i386/kernel/ptrace.c	Sun Sep 20 00:48:08 1998
-@@ -564,7 +564,7 @@
- 			child->p_pptr = child->p_opptr;
- 			SET_LINKS(child);
- 			write_unlock_irqrestore(&tasklist_lock, flags);
--	/* make sure the single step bit is not set. */
-+			/* make sure the single step bit is not set. */
- 			tmp = get_stack_long(child, EFL_OFFSET) & ~TRAP_FLAG;
- 			put_stack_long(child, EFL_OFFSET, tmp);
- 			wake_up_process(child);
-@@ -573,89 +573,66 @@
- 		}
- 
- 		case PTRACE_GETREGS: { /* Get all gp regs from the child. */
--		  	if (!access_ok(VERIFY_WRITE, (unsigned *)data,
--				       17*sizeof(long)))
--			  {
--			    ret = -EIO;
--			    goto out;
--			  }
--			for ( i = 0; i < 17*sizeof(long); i += sizeof(long) )
--			  {
--			    __put_user(getreg(child, i),(unsigned long *) data);
-+			for (i = 0; i < 17*sizeof(long); i += sizeof(long)) {
-+			    ret = put_user(getreg(child, i),(unsigned long *) data);
-+			    if (ret) break;
- 			    data += sizeof(long);
--			  }
--			ret = 0;
-+			}
- 			goto out;
--		  };
-+		}
- 
- 		case PTRACE_SETREGS: { /* Set all gp regs in the child. */
- 			unsigned long tmp;
--		  	if (!access_ok(VERIFY_READ, (unsigned *)data,
--				       17*sizeof(long)))
--			  {
--			    ret = -EIO;
--			    goto out;
--			  }
--			for ( i = 0; i < 17*sizeof(long); i += sizeof(long) )
--			  {
--			    __get_user(tmp, (unsigned long *) data);
-+			for (i = 0; i < 17*sizeof(long); i += sizeof(long)) {
-+			    ret = get_user(tmp, (unsigned long *) data);
-+			    if (ret) break;
- 			    putreg(child, i, tmp);
- 			    data += sizeof(long);
--			  }
--			ret = 0;
-+			}
- 			goto out;
--		  };
-+		}
- 
- 		case PTRACE_GETFPREGS: { /* Get the child FPU state. */
--			if (!access_ok(VERIFY_WRITE, (unsigned *)data,
--				       sizeof(struct user_i387_struct)))
--			  {
--			    ret = -EIO;
--			    goto out;
--			  }
- 			ret = 0;
--			if ( !child->used_math ) {
--			  /* Simulate an empty FPU. */
--			  child->tss.i387.hard.cwd = 0xffff037f;
--			  child->tss.i387.hard.swd = 0xffff0000;
--			  child->tss.i387.hard.twd = 0xffffffff;
-+			if (!child->used_math) {
-+				/* Simulate an empty FPU. */
-+				child->tss.i387.hard.cwd = 0xffff037f;
-+				child->tss.i387.hard.swd = 0xffff0000;
-+				child->tss.i387.hard.twd = 0xffffffff;
- 			}
- #ifdef CONFIG_MATH_EMULATION
- 			if ( boot_cpu_data.hard_math ) {
- #endif
--				__copy_to_user((void *)data, &child->tss.i387.hard,
--						sizeof(struct user_i387_struct));
-+				ret = copy_to_user((void *)data, 
-+						   &child->tss.i387.hard,
-+						   sizeof(struct user_i387_struct)) 
-+					? -EFAULT : 0 ;
- #ifdef CONFIG_MATH_EMULATION
- 			} else {
--			  save_i387_soft(&child->tss.i387.soft,
--					 (struct _fpstate *)data);
-+				save_i387_soft(&child->tss.i387.soft,
-+					       (struct _fpstate *)data);
- 			}
- #endif
- 			goto out;
- 		  };
- 
- 		case PTRACE_SETFPREGS: { /* Set the child FPU state. */
--			if (!access_ok(VERIFY_READ, (unsigned *)data,
--				       sizeof(struct user_i387_struct)))
--			  {
--			    ret = -EIO;
--			    goto out;
--			  }
-+			ret = 0; 
- 			child->used_math = 1;
- #ifdef CONFIG_MATH_EMULATION
- 			if ( boot_cpu_data.hard_math ) {
- #endif
--			  __copy_from_user(&child->tss.i387.hard, (void *)data,
--					   sizeof(struct user_i387_struct));
--			  child->flags &= ~PF_USEDFPU;
--			  stts();
-+				ret = copy_from_user(&child->tss.i387.hard, (void *)data,
-+					   sizeof(struct user_i387_struct))
-+				  ? -EFAULT : 0;
-+				child->flags &= ~PF_USEDFPU;
-+				stts();
- #ifdef CONFIG_MATH_EMULATION
- 			} else {
--			  restore_i387_soft(&child->tss.i387.soft,
--					    (struct _fpstate *)data);
-+				restore_i387_soft(&child->tss.i387.soft,
-+						  (struct _fpstate *)data);
- 			}
- #endif
--			ret = 0;
- 			goto out;
- 		  };
- 
-
+Michael Elizabeth Chastain
+<mailto:mec@shout.net>
+"love without fear"
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

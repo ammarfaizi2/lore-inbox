@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261838AbTCLRzW>; Wed, 12 Mar 2003 12:55:22 -0500
+	id <S261839AbTCLR5q>; Wed, 12 Mar 2003 12:57:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261839AbTCLRzW>; Wed, 12 Mar 2003 12:55:22 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:24555 "EHLO
+	id <S261840AbTCLR5q>; Wed, 12 Mar 2003 12:57:46 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:26347 "EHLO
 	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S261838AbTCLRzV>; Wed, 12 Mar 2003 12:55:21 -0500
-Date: Wed, 12 Mar 2003 19:05:50 +0100
+	id <S261839AbTCLR5p>; Wed, 12 Mar 2003 12:57:45 -0500
+Date: Wed, 12 Mar 2003 19:08:19 +0100
 From: Martin Waitz <tali@admingilde.org>
-To: Niels Provos <provos@citi.umich.edu>
+To: Giuliano Pochini <pochini@shiny.it>
 Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hanna Linder <hannal@us.ibm.com>, Janet Morgan <janetmor@us.ibm.com>,
-       Marius Aamodt Eriksen <marius@citi.umich.edu>,
-       Shailabh Nagar <nagar@watson.ibm.com>
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-Message-ID: <20030312180550.GA27366@admingilde.org>
-Mail-Followup-To: Niels Provos <provos@citi.umich.edu>,
+Message-ID: <20030312180819.GB27366@admingilde.org>
+Mail-Followup-To: Giuliano Pochini <pochini@shiny.it>,
 	Davide Libenzi <davidel@xmailserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Hanna Linder <hannal@us.ibm.com>,
-	Janet Morgan <janetmor@us.ibm.com>,
-	Marius Aamodt Eriksen <marius@citi.umich.edu>,
-	Shailabh Nagar <nagar@watson.ibm.com>
-References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com> <20030311043202.GK2225@citi.citi.umich.edu>
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com> <XFMail.20030311171056.pochini@shiny.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030311043202.GK2225@citi.citi.umich.edu>
+In-Reply-To: <XFMail.20030311171056.pochini@shiny.it>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi :)
+On Tue, Mar 11, 2003 at 05:10:56PM +0100, Giuliano Pochini wrote:
+> If ET il faster than LT, tell people to stop whining and to learn
+> the API. Otherwise choose LT, mainly because of 2), but also
+> because ET API is more subtle bug prone.
 
-On Mon, Mar 10, 2003 at 11:32:02PM -0500, Niels Provos wrote:
-> It seems that option 3) which implements both "edge" and "level"
-> triggered behavior is the best solution.  This is similar to kqueue
-> which supports both triggering modes.
-imho the kqueue api is a lot nicer anyway.
-
-what about simply implementing kqueue?
-it's already available in other OS's,
-so it's easier for application developers to adopt it, too.
+in some situations, ET simply has wrong semantics.
 
 -- 
 CU,		  / Friedrich-Alexander University Erlangen, Germany

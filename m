@@ -1,83 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319197AbSHTRgH>; Tue, 20 Aug 2002 13:36:07 -0400
+	id <S317253AbSHTRjH>; Tue, 20 Aug 2002 13:39:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319200AbSHTRgH>; Tue, 20 Aug 2002 13:36:07 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:38159 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S319197AbSHTRgG>; Tue, 20 Aug 2002 13:36:06 -0400
-Subject: Re: 2.4.20-pre2-ac4 oops at boot
-From: Samuel Flory <sflory@rackable.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1029800778.21212.8.camel@irongate.swansea.linux.org.uk>
-References: <1029797620.5308.73.camel@flory.corp.rackablelabs.com> 
-	<1029800778.21212.8.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 20 Aug 2002 10:38:58 -0700
-Message-Id: <1029865139.5308.80.camel@flory.corp.rackablelabs.com>
-Mime-Version: 1.0
+	id <S319211AbSHTRjG>; Tue, 20 Aug 2002 13:39:06 -0400
+Received: from ra.abo.fi ([130.232.213.1]:4532 "EHLO ra.abo.fi")
+	by vger.kernel.org with ESMTP id <S317253AbSHTRjF>;
+	Tue, 20 Aug 2002 13:39:05 -0400
+Date: Tue, 20 Aug 2002 20:43:09 +0300 (EEST)
+From: Marcus Alanen <maalanen@ra.abo.fi>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch, 2.5] vmalloc.c error path fixes
+Message-ID: <Pine.LNX.4.44.0208202022100.16857-100000@tuxedo.abo.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Thanks! That seems to fix it.
+I think there are some problems in vmalloc.c.  The two first parts 
+of the diff fix a spinlock being held if an error occurs in 
+map_vm_area, and the last part fixes the error path of __vmalloc.
 
+Perhaps somebody who knows more of the mm could verify this.
 
-On Mon, 2002-08-19 at 16:46, Alan Cox wrote:
-> On Mon, 2002-08-19 at 23:53, Samuel Flory wrote:
-> >   I've been having problem with the ac kernels, and tyan 2720. (Dual
-> > xeon E7500 chipset.) Under 2.4.20-pre2-ac4 it spews a bunch of "Trying
-> > to free nonexistent resource" when initializing the ide interface, and
-> 
-> Those are on my fix list but harmless
-> 
-> > dies.  Under 2.4.19-ac4 the system netboots, but oops when I attempt to
-> > create a filesystem on a 3ware controller.  Under 2.4.19 the system
-> 
-> 2.4.19-ac4 balancing oops is fixed (I turned it off)
-> 
-> 
-> > ksymoops 2.4.4 on i686 2.4.20-pre2-ac3.  Options used
-> >      -v /stuff/src/linux-2.4.20-pre2-ac4/vmlinux (specified)
-> >      -K (specified)
-> >      -L (specified)
-> >      -O (specified)
-> >      -m /boot/System.map-2.4.20-pre2-ac4 (specified)
-> > 
-> 
-> Ok random crap code. You had no pci_host_proc_list and that rather upset
-> things. This converts the failing code it into something resembling same
-> programming I hope and should fix your boot
-> 
-> Please let me know if it fixes the bug
-> 
-> 
-> ----
-> 
+Marcus
 
-> --- drivers/ide/ide-proc.c~	2002-08-20 00:48:53.000000000 +0100
-> +++ drivers/ide/ide-proc.c	2002-08-20 00:48:53.000000000 +0100
-> @@ -914,11 +914,14 @@
->  				proc_ide_read_drivers, NULL);
->  
->  #ifdef CONFIG_BLK_DEV_IDEPCI
-> -	while ((p->name != NULL) && (p->set) && (p->get_info != NULL)) {
-> -		p->parent = proc_ide_root;
-> -		create_proc_info_entry(p->name, 0, p->parent, p->get_info);
-> -		p->set = 2;
-> -		if (p->next == NULL) return;
-> +	while (p != NULL)
-> +	{
-> +		if (p->name != NULL && p->set && p->get_info != NULL) 
-> +		{
-> +			p->parent = proc_ide_root;
-> +			create_proc_info_entry(p->name, 0, p->parent, p->get_info);
-> +			p->set = 2;
-> +		}
->  		p = p->next;
->  	}
->  #endif /* CONFIG_BLK_DEV_IDEPCI */
+===== mm/vmalloc.c 1.18 vs edited =====
+--- 1.18/mm/vmalloc.c	Mon Aug  5 22:05:22 2002
++++ edited/mm/vmalloc.c	Mon Aug 19 00:37:40 2002
+@@ -153,15 +153,20 @@
+ 	unsigned long address = VMALLOC_VMADDR(area->addr);
+ 	unsigned long end = address + (area->size-PAGE_SIZE);
+ 	pgd_t *dir;
++	int err = 0;
+ 
+ 	dir = pgd_offset_k(address);
+ 	spin_lock(&init_mm.page_table_lock);
+ 	do {
+ 		pmd_t *pmd = pmd_alloc(&init_mm, dir, address);
+-		if (!pmd)
+-			return -ENOMEM;
+-		if (map_area_pmd(pmd, address, end - address, prot, pages))
+-			return -ENOMEM;
++		if (!pmd) {
++			err = -ENOMEM;
++			break;
++		}
++		if (map_area_pmd(pmd, address, end - address, prot, pages)) {
++			err = -ENOMEM;
++			break;
++		}
+ 
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+@@ -169,7 +174,7 @@
+ 
+ 	spin_unlock(&init_mm.page_table_lock);
+ 	flush_cache_all();
+-	return 0;
++	return err;
+ }
+ 
+ 
+@@ -379,14 +384,20 @@
+ 
+ 	area->nr_pages = nr_pages;
+ 	area->pages = pages = kmalloc(array_size, (gfp_mask & ~__GFP_HIGHMEM));
+-	if (!area->pages)
++	if (!area->pages) {
++		remove_vm_area(area->addr);
++		kfree(area);
+ 		return NULL;
++	}
+ 	memset(area->pages, 0, array_size);
+ 
+ 	for (i = 0; i < area->nr_pages; i++) {
+ 		area->pages[i] = alloc_page(gfp_mask);
+-		if (unlikely(!area->pages[i]))
++		if (unlikely(!area->pages[i])) {
++			/* Successfully allocated i pages, free them in __vunmap() */
++			area->nr_pages = i;
+ 			goto fail;
++		}
+ 	}
+ 	
+ 	if (map_vm_area(area, prot, &pages))
+
+-- 
+Marcus Alanen * Embedded Systems Laboratory * http://www.eslab.cs.abo.fi/
+marcus.alanen@abo.fi
 
 

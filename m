@@ -1,47 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314128AbSDQPQX>; Wed, 17 Apr 2002 11:16:23 -0400
+	id <S314131AbSDQPXi>; Wed, 17 Apr 2002 11:23:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314129AbSDQPQX>; Wed, 17 Apr 2002 11:16:23 -0400
-Received: from ns.snowman.net ([63.80.4.34]:30480 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S314128AbSDQPQV>;
-	Wed, 17 Apr 2002 11:16:21 -0400
-Date: Wed, 17 Apr 2002 11:15:15 -0400 (EDT)
-From: <nick@snowman.net>
-To: Baldur Norddahl <bbn-linux-kernel@clansoft.dk>
-cc: Mike Dresser <mdresser_l@windsormachine.com>, linux-kernel@vger.kernel.org
-Subject: Re: IDE/raid performance
-In-Reply-To: <20020417140045.GC27648@dark.x.dtu.dk>
-Message-ID: <Pine.LNX.4.21.0204171108480.3300-100000@ns>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314132AbSDQPXi>; Wed, 17 Apr 2002 11:23:38 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41477 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S314131AbSDQPXg>; Wed, 17 Apr 2002 11:23:36 -0400
+Date: Wed, 17 Apr 2002 17:23:37 +0200
+From: Jan Hubicka <jh@suse.cz>
+To: Jan Hubicka <jh@suse.cz>
+Cc: bugtraq@securityfocus.com, linux-kernel@vger.kernel.org,
+        Pavel Machek <pavel@atrey.karlin.mff.cuni.cz>, jakub@redhat.com,
+        aj@suse.de, ak@suse.de
+Subject: Re: SSE related security hole
+Message-ID: <20020417152337.GG29952@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020417145130.GA29952@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="aVD9QWMuhilNxW9f"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Apr 2002, Baldur Norddahl wrote:
-> Quoting Mike Dresser (mdresser_l@windsormachine.com):
-> > On Wed, 17 Apr 2002, Baldur Norddahl wrote:
-> Motherboard: Tyan Tiger MPX S2466N
-> Chipset: AMD 760MPX
-> CPU: Dual Athlon MP 1800+ 1.53 GHz                                              
-> Two Promise Technology UltraDMA133 TX2 controllers
-> Two Promise Technology UltraDMA100 TX2 controllers
-> Matrox G200 AGP video card.
-> 1 GB registered DDR RAM
-> > Also, with 12 hd's, dual cpu's, etc, what kind of power supply are you
-> > using?
-> It is a 350W powersupply. I wanted something bigger, but couldn't get it for
-> sane prices. I can't rule out that it is overloaded of course. If it is, I
-> haven't seen any other symptoms, the system is rock stable so far.
-> Baldur
-AMD recommends a minimum of 400watts for a dual athlon system
-IIRC.  Ignoreing that the startup current on an IBM 5400rpm IDE disk seems
-to be about 25-30watts.  Each 1800+ MP puts out 66w of heat, meaning it
-uses more than 66w (I couldn't find the power useage stats) for a total of
-132 watts, so on boot ignoreing everything but the disks and the chips
-you've got 12x25w (for the disks) + 2x66w (for the procs) or about
-432watts.  This will go down alot after all your disks spin up, but I'm
-amazed your system boots.  Morale of this message:  Don't be a dipshit and
-put 12 IDE disks on a single power supply.
-	Nick
 
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi,
+Jakub asked me to cleanup the source and post assembly file.  Here it comes.
+
+#include <stdlib.h>
+#include <stdio.h>
+
+int
+m ()
+{
+  int i, n = 7;	
+  float comp, sum = 0;
+  sin(1);
+  for (i = 1; i <= n; ++i)
+    sum += i;
+  printf ("sum of %d ints: %g\n", n, sum);
+  return 0;
+}
+
+main ()
+{
+  m ();
+}
+
+--aVD9QWMuhilNxW9f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="bad3.s"
+
+	.file	"bad3.c"
+	.section	.rodata
+.LC1:
+	.string	"sum of %d ints: %g\n"
+	.text
+	.align 2
+	.p2align 4,,15
+.globl m
+	.type	m,@function
+m:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pxor	%xmm1, %xmm1
+	subl	$24, %esp
+	movss	%xmm1, -4(%ebp)
+	movl	$0, (%esp)
+	movl	$1072693248, 4(%esp)
+	call	sin
+	fstp	%st(0)
+	movl	$1, %eax
+	.p2align 4,,15
+.L6:
+	cvtsi2ss	%eax, %xmm1
+	incl	%eax
+	cmpl	$7, %eax
+	addss	-4(%ebp), %xmm1
+	movss	%xmm1, -4(%ebp)
+	jle	.L6
+	flds	-4(%ebp)
+	movl	$.LC1, (%esp)
+	movl	$7, 4(%esp)
+	fstpl	8(%esp)
+	call	printf
+	leave
+	xorl	%eax, %eax
+	ret
+.Lfe1:
+	.size	m,.Lfe1-m
+	.align 2
+	.p2align 4,,15
+.globl main
+	.type	main,@function
+main:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$8, %esp
+	andl	$-16, %esp
+	call	m
+	movl	%ebp, %esp
+	popl	%ebp
+	ret
+.Lfe2:
+	.size	main,.Lfe2-main
+	.ident	"GCC: (GNU) 3.2 20020415 (experimental)"
+
+--aVD9QWMuhilNxW9f--

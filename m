@@ -1,73 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129521AbQLOTZy>; Fri, 15 Dec 2000 14:25:54 -0500
+	id <S130897AbQLOT0e>; Fri, 15 Dec 2000 14:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130897AbQLOTZg>; Fri, 15 Dec 2000 14:25:36 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28490 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129521AbQLOTZV>; Fri, 15 Dec 2000 14:25:21 -0500
-Date: Fri, 15 Dec 2000 19:54:33 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Franz Sirl <Franz.Sirl-kernel@lauterbach.com>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Mike Black <mblack@csihq.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 signal.h
-Message-ID: <20001215195433.G17781@inspiron.random>
-In-Reply-To: <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215175632.A17781@inspiron.random> <Pine.LNX.3.95.1001215120537.1093A-100000@chaos.analogic.com> <20001215184325.B17781@inspiron.random> <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4.3.2.7.2.20001215185622.025f8740@mail.lauterbach.com>; from Franz.Sirl-kernel@lauterbach.com on Fri, Dec 15, 2000 at 06:59:24PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131005AbQLOT0Z>; Fri, 15 Dec 2000 14:26:25 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:59654 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130897AbQLOT0L>; Fri, 15 Dec 2000 14:26:11 -0500
+Date: Fri, 15 Dec 2000 10:55:26 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Diehl <mdiehlcs@compuserve.de>
+cc: Martin Mares <mj@suse.cz>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: yenta, pm, ioremap(!) problems (was: PCI irq routing..)
+In-Reply-To: <Pine.LNX.4.21.0012151627280.713-100000@notebook.diehl.home>
+Message-ID: <Pine.LNX.4.10.10012151042170.2255-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 15, 2000 at 06:59:24PM +0100, Franz Sirl wrote:
-> It's required by ISO C, and since that's the standard now, gcc spits out a 
-> warning. Just adding a ; is enough and already done for most stuff in 
-> 2.4.0-test12.
 
-I'm not complaining gcc folks, I just dislike the new behaviour in general,
-it's inconsistent.
 
-This is wrong:
+On Fri, 15 Dec 2000, Martin Diehl wrote:
+> 
+> 3) The TI1131 is apparently not PCI PM 1.0 compliant. At least it seems it
+> has been replaced by the 12xx series at the moment some major player
+> required PCI PM 1.0 to get his "Designed for ..." label in '98 ;-)
+> So I had to add some code to save and restore things like memory and io
+> windows of the bridge which were lost after resume. This is implemented as
+> a controller specific addon to the common yenta operations similar to the
+> open/init case.
 
-x()
-{
+Fair enough.
 
-	switch (1) {
-	case 0:
-	case 1:
-	case 2:
-	case 3:
-	}
-}
+> 4) The final bang was when I realized that after all that done the
+> content of the CardBus/ExCA register space was total garbage after
+> resume. And, even worse, it completely failed to restore - not even
+> 0's written to it could be read back as such. This turned out to be a
+> io-mapping issue! Believe it or not - my solution is to disable the
+> cardbus controller in BIOS setup. The rationale is as follows:
+> 
+> - When controller is enabled the BIOS assigns BASE_0 to 0xe6000/0xe7000.
+>   This is mapped to 0xc00e6000 by ioremap(). Everything works fine until
+>   we suspend. Furthermore I've proved by use of virt_to_bus() and vice
+>   versa the mapping is still there after resume. However the content is
+>   not writeable anymore and contains some arbitrary garbage - which always
+>   stays the same, even over cold reboot. But no Oops or so - just if
+>   you were writing to /dev/null and reading some hardwired bytes.
+>   Even unmapping it at suspend and remapping after resume did not help.
 
-and this is right:
+The ioremap() mappings will definitely still be there - those are kernel
+data structures, and the suspend/resume won't do anything to them.
 
-x()
-{
+I'm surprised: "yenta_init()" will re-initialize the yenta
+PCI_BASE_ADDRESS_0 register, but maybe there's something wrong there. Try
+adding a pci_enable_device() to turn the device on and also re-route the
+interrupts if necessary.
 
-	switch (1) {
-	case 0:
-	case 1:
-	case 2:
-	case 3:
-	;
-	}
-}
+The above is fairly strange, though. I wonder if the problem is that
+0xe6000 value: that's a pretty bogus address for a PCI window, as it's in
+the BIOS legacy area. 
 
-Why am I required to put a `;' only in the last case and not in all
-the previous ones? Or maybe gcc-latest is forgetting to complain about
-the previous ones ;)
+I suspect that the suspend/resume will do something bad to the BAT
+registers, which control the BIOS area mapping behaviour, and it just
+kills the forwarding of the legacy region to the PCI bus, or something.
 
-Anyway it's a minor issue, if the standard says so we'll live with it.
+I wonder if the PCI cardbus init code should just notice this, and force
+all cardbus windows to be re-initialized. That legacy area address really
+doesn't look right.
 
-(and it's also getting offtopic...)
+		Linus
 
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

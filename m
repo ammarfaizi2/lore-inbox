@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315919AbSHBRyK>; Fri, 2 Aug 2002 13:54:10 -0400
+	id <S316187AbSHBRx7>; Fri, 2 Aug 2002 13:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSHBRyK>; Fri, 2 Aug 2002 13:54:10 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:43276 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S315919AbSHBRyJ>; Fri, 2 Aug 2002 13:54:09 -0400
-X-mailer: xrn 9.02
-From: Paul Menage <pmenage@ensim.com>
-Subject: Re: manipulating sigmask from filesystems and drivers
+	id <S315919AbSHBRx7>; Fri, 2 Aug 2002 13:53:59 -0400
+Received: from mons.uio.no ([129.240.130.14]:13798 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S316088AbSHBRx6>;
+	Fri, 2 Aug 2002 13:53:58 -0400
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, pmenage@ensim.com
-X-Newsgroups: 
-In-reply-to: <0C01A29FBAE24448A792F5C68F5EA47D2D3E2B@nasdaq.ms.ensim.com>
-Message-Id: <E17agg9-0001vK-00@pmenage-dt.ensim.com>
-Date: Fri, 02 Aug 2002 10:57:33 -0700
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       David Howells <dhowells@redhat.com>, <alan@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: manipulating sigmask from filesystems and drivers
+References: <Pine.LNX.4.44.0208021023040.914-100000@home.transmeta.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 02 Aug 2002 19:57:10 +0200
+In-Reply-To: <Pine.LNX.4.44.0208021023040.914-100000@home.transmeta.com>
+Message-ID: <shsr8hhqh3d.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <0C01A29FBAE24448A792F5C68F5EA47D2D3E2B@nasdaq.ms.ensim.com>,
- you write:
->
->With write(), you have to make a judgement call. Unlike read, a truncated
->write _is_ visible outside the killed process. But exactly like read()
->there _are_ system management reasons why you may really need to kill
->writers. So the debatable point comes from whether you want to consider a
->killing signal to be "exceptional enough" to warrant the partial write.
->
+>>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
 
-How about a sysctl that lets the user specify the size threshold at
-which writes use a killable wait state rather than
-TASK_UNINTERRUPTIBLE? (Probably defaulting to never.)
+     >  "Which is what we want in generic_file_read() (and _probably_
+     >   generic_file_write() as well, but that's slightly more
+     >   debatable)"
 
-Paul
+A frequent cause of complaints with the NFS client 'intr' mount option
+is that grabbing the inode semaphore too is uninterruptible, and hence
+even a lookup() can hang.
+Would you therefore be planning on making down() interruptible by
+SIGKILL?
+
+Cheers,
+   Trond

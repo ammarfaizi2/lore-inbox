@@ -1,47 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUIOJOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUIOJc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUIOJOq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 05:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264531AbUIOJOp
+	id S261875AbUIOJc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 05:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUIOJc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 05:14:45 -0400
-Received: from cantor.suse.de ([195.135.220.2]:54682 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264571AbUIOJMi (ORCPT
+	Wed, 15 Sep 2004 05:32:27 -0400
+Received: from smtp4.netcabo.pt ([212.113.174.31]:29575 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S261875AbUIOJcX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 05:12:38 -0400
-Date: Wed, 15 Sep 2004 11:12:32 +0200
-From: Andi Kleen <ak@suse.de>
-To: George Anzinger <george@mvista.com>
-Cc: Christoph Lameter <clameter@sgi.com>, john stultz <johnstul@us.ibm.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-Message-ID: <20040915091232.GA22158@wotan.suse.de>
-References: <1094700768.29408.124.camel@cog.beaverton.ibm.com> <413FDC9F.1030409@mvista.com> <1094756870.29408.157.camel@cog.beaverton.ibm.com> <4140C1ED.4040505@mvista.com> <Pine.LNX.4.58.0409131420500.490@schroedinger.engr.sgi.com> <1095114307.29408.285.camel@cog.beaverton.ibm.com> <Pine.LNX.4.58.0409141045370.6963@schroedinger.engr.sgi.com> <41479369.6020506@mvista.com> <Pine.LNX.4.58.0409142024270.10739@schroedinger.engr.sgi.com> <4147F774.6000800@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4147F774.6000800@mvista.com>
+	Wed, 15 Sep 2004 05:32:23 -0400
+Message-ID: <19084.195.245.190.94.1095240596.squirrel@195.245.190.94>
+In-Reply-To: <1095210962.2406.79.camel@krustophenia.net>
+References: <20040903120957.00665413@mango.fruits.de> 
+    <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> 
+    <1094597710.16954.207.camel@krustophenia.net> 
+    <1094598822.16954.219.camel@krustophenia.net> 
+    <32930.192.168.1.5.1094601493.squirrel@192.168.1.5> 
+    <20040908082358.GB680@elte.hu> <20040908083158.GA1611@elte.hu> 
+    <37312.195.245.190.93.1094728166.squirrel@195.245.190.93>
+    <1095210962.2406.79.camel@krustophenia.net>
+Date: Wed, 15 Sep 2004 10:29:56 +0100 (WEST)
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R5
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Lee Revell" <rlrevell@joe-job.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Florian Schmidt" <mista.tapas@gmx.net>,
+       "K.R. Foley" <kr@cybsft.com>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 15 Sep 2004 09:32:22.0016 (UTC) FILETIME=[E6F54800:01C49B06]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I really think a tickless system, for other than UML systems, is a loosing 
-> thing.  The accounting overhead on context switch (which increases as the 
+Hi,
 
-You can run the accounting independently at much lower frequency (10ms is
-perfectly fine as 2.4 has proven - i suspect even lower would be ok too) 
-IMHO it should be a sysctl so that users can do a trade off between
-power consumption and accounting accuracy.
+Lee Revell wrote:
+>
+>Rui Nuno Capela wrote:
+>>
+>> 8) Indeed, only by disabling both softirq and hardirq preeemption I get
+>> an usable VP+SMP kernel. But that's no surprise either, it has been
+>> always like that until Q3, which was the latest VP+SMP combination that
+>> didn't suffer with the Wacom tablet presence at boot/init time. I only
+>> hoped the (soft|hard)irq trouble would be solved by R9 time.
+>
+> Rui, did you ever get this working?  Other testers are not reporting
+> problems, it would be good to know if there are still bugs lurking.
+>
+> Have you tried booting with hard and softirq preemption disabled and
+> enabling them one at a time?
+>
 
-And there is one important special that doesn't need any accounting
-for user space at all: the idle loop. 
-It still needs some way to account interrupts, but that could be done
-in do_IRQ or also do with rather low frequency. 
+I've beeing doing a lot experiments, the trial-and-error way, by tweaking
+kernel config options on and off, and (re)building the
+linux-2.6.9-rc1-bk12-S0 SMP kernel.
 
--Andi
+I have some news indeed. As you may recall, I'm trying to run jackd
+realtime low-latency audio on a P4 2.80C HT (Hyperthreading), and I keep
+CONFIG_SMP=y always set.
+
+I found, almost by mistake, that whether CONFIG_SCHED_SMT is set makes a
+lot of difference.
+
+a) With CONFIG_SCHED_SMT=y, which I've being doing since ever, the system
+behavior is that same one I've been complaining about: having
+softirq-preempt=0 and hardirq-preempt=0 is the minimal setting to run
+jackd in realtime mode without hard-locking the whole system. Even then, I
+get the system completely frozen more times than I like, almost twice a
+day! Can't figure out who's or what's the culprit here. It's quite random.
+
+b) When CONFIG_SCHED_SMT is not set, I can run all along with
+softirq-preempt=1, hardirq-preempt=1 et al. While running jackd in
+realtime mode, I get NO hard-locks, but unfortunately XRUNs are plenty. A
+real storm. However I've noticed that the whole seems pretty much stable,
+as I didn't experience one single system hang. Regression to
+softirq-preempt=0 and hardirq-preempt=0 dissolves the xrun storm to
+nothing again.
+
+All my experiments were done based on starting jackd -R -p 128 -n 2 ...
+using an onboard Intel ICH5 soundcrap driven by snd-intel8x0 (alsa). Oh, I
+forgot to say that it's been always with kernel-preempt=1 and
+voluntary-preempt=1.
+
+I'm preparing to take some latency traces later on, while regarding the
+SMP=1 SMT=0 configuration and softirq=1 hardirq=1 setting, in a effort to
+let that horrible XRUN flux getting out of the way somehow, someday ;)
+
+So, bottomline is that the SMT-aware scheduler is not ready for VP, isn't
+it? Does anyone care to confirm this out?
+
+Cheers.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

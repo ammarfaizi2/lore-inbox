@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291168AbSBGPOI>; Thu, 7 Feb 2002 10:14:08 -0500
+	id <S291166AbSBGPO2>; Thu, 7 Feb 2002 10:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291167AbSBGPOA>; Thu, 7 Feb 2002 10:14:00 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:44251 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S291166AbSBGPNm>;
-	Thu, 7 Feb 2002 10:13:42 -0500
-Date: Thu, 7 Feb 2002 17:13:32 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Robin Farine <robin.farine@acn-group.ch>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17 freezes
-Message-ID: <20020207171332.D20396@mea-ext.zmailer.org>
-In-Reply-To: <1013089032.8112.6.camel@halftrack>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1013089032.8112.6.camel@halftrack>; from robin.farine@acn-group.ch on Thu, Feb 07, 2002 at 02:37:12PM +0100
+	id <S291167AbSBGPOT>; Thu, 7 Feb 2002 10:14:19 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:1543 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S291166AbSBGPOH>;
+	Thu, 7 Feb 2002 10:14:07 -0500
+Date: Thu, 7 Feb 2002 13:13:54 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, <zaitcev@redhat.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: The IBM order relaxation patch
+In-Reply-To: <OFDEA688CD.7104528D-ONC1256B59.00522C09@de.ibm.com>
+Message-ID: <Pine.LNX.4.33L.0202071313200.17850-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 07, 2002 at 02:37:12PM +0100, Robin Farine wrote:
-> Hi,
-> 
-> The mailing-list archive contains some reports of 2.4.17 freezes or
-> crashes in the context of specific hardware configuration, such as
-> SCSI+ATA and UDMA66 or RAID. In my office however, I had three PCs
-> running 2.4.17 from the Debian woody distribution, all of them
-> PentiumIII 82371AB PIIX4 chipset but otherwise without anything fancy.
+On Thu, 7 Feb 2002, Ulrich Weigand wrote:
 
-  The freezing machines all have RAID-1 and fast CPUs and a lot
-  (500-1000 MB) memory ?  .. and are SMP ?
-... 
-> Hope this can help tracking the problem down or at least save some time
-> to people with a similar situation,
+> On s390 we have per physical page hardware referenced / changed bits.
+> In the rmap framework, it should also be possible to make more
+> efficient use of these ...
 
-  I reported on this two months ago, and a month ago I figured out
-  that non-SMP kernel works just fine (although the other CPU
-  at my SMP machine now idles...)
+Absolutely, on S390 you could basically bypass part
+of the -rmap code.
 
-  Since then I have had to move the machine into location where
-  I can't poke at it daily, and thus I can't test the thing now.
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-> Robin
+http://www.surriel.com/		http://distro.conectiva.com/
 
-/Matti Aarnio

@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVAYLaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVAYLnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261902AbVAYLaq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 06:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVAYL3o
+	id S261914AbVAYLnI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 06:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVAYLez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 06:29:44 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:53254 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261903AbVAYL2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 06:28:01 -0500
-Date: Tue, 25 Jan 2005 12:27:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] floppy.c: make some code static
-Message-ID: <20050125112758.GG30909@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 25 Jan 2005 06:34:55 -0500
+Received: from [220.225.34.50] ([220.225.34.50]:39373 "EHLO
+	ganesha.intranet.calsoftinc.com") by vger.kernel.org with ESMTP
+	id S261909AbVAYLeS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 06:34:18 -0500
+From: Amit Gud <amitg@calsoftinc.com>
+Organization: Calsoft Pvt. Ltd.
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Unified spinlock initialization include/linux/wait.h
+Date: Tue, 25 Jan 2005 17:05:53 +0530
+User-Agent: KMail/1.5
+Cc: kernel-janitors@lists.osdl.org, gud@eth.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501251705.58234.amitg@calsoftinc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+Unify the spinlock initialization as far as possible.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Do consider applying.
 
----
+Signed-off-by: Amit Gud <gud@eth.net>
 
- drivers/block/floppy.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-This patch was already sent on:
-- 29 Nov 2004
-
---- linux-2.6.10-rc1-mm3-full/drivers/block/floppy.c.old	2004-11-06 19:55:49.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/block/floppy.c	2004-11-06 20:06:29.000000000 +0100
-@@ -4397,7 +4397,7 @@
+--- orig/include/linux/wait.h	2005-01-20 20:06:42.000000000 +0530
++++ linux-2.6.11-rc2/include/linux/wait.h	2005-01-25 16:41:31.000000000 +0530
+@@ -79,7 +79,7 @@ typedef struct __wait_queue_head wait_qu
+ 
+ static inline void init_waitqueue_head(wait_queue_head_t *q)
+ {
+-	q->lock = SPIN_LOCK_UNLOCKED;
++	spin_lock_init(&q->lock);
+ 	INIT_LIST_HEAD(&q->task_list);
  }
- #endif
  
--int __init floppy_init(void)
-+static int __init floppy_init(void)
- {
- 	int i, unit, drive;
- 	int err, dr;
-@@ -4738,7 +4738,7 @@
- 
- #ifdef MODULE
- 
--char *floppy;
-+static char *floppy;
- 
- static void unregister_devfs_entries(int drive)
- {
 

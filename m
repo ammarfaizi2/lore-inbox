@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264235AbUD1B3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUD1BbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbUD1B3B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 21:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUD1B3B
+	id S264571AbUD1BbD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 21:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264573AbUD1BbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 21:29:01 -0400
-Received: from dh132.citi.umich.edu ([141.211.133.132]:34708 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264235AbUD1B26
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 21:28:58 -0400
-Subject: Re: 2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page
-	writeback
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040427180253.5a043319.akpm@osdl.org>
-References: <1083080207.2616.31.camel@lade.trondhjem.org>
-	 <20040428004707.89142.qmail@web12824.mail.yahoo.com>
-	 <20040427180253.5a043319.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1083115735.5928.119.camel@lade.trondhjem.org>
+	Tue, 27 Apr 2004 21:31:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2242 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264571AbUD1Ba7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 21:30:59 -0400
+Date: Tue, 27 Apr 2004 18:33:06 -0700
+From: Dave Olien <dmo@osdl.org>
+To: thornber@redhat.com
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org
+Subject: [CORRECTED PATCH], trivial patch for dm-target.c with correction
+Message-ID: <20040428013305.GA18833@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 27 Apr 2004 21:28:56 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-04-27 at 21:02, Andrew Morton wrote:
-> Shantanu Goel <sgoel01@yahoo.com> wrote:
-> >
-> > Andrew/Trond,
-> > 
-> > Any consensus as to what the right approach is here?
-> 
-> For now I suggest you do
-> 
-> -	err = WRITEPAGE_ACTIVATE;
-> +	err = 0;
-> 
-> in nfs_writepage().
 
-That will just cause the page to be put back onto the inactive list
-without starting writeback. Won't that cause precisely those kswapd
-loops that Shantanu was worried about?
-AFAICS if you want to do this, you probably need to flush the page
-immediately to disk on the server using a STABLE write as per the
-appeanded patch. The problem is that screws the server over pretty hard
-as it will get flooded with what are in effect a load of 4k O_SYNC
-writes.
+Sorry, I made an error on that last patch to dm-target.c.  I overlooked
+that it needed the init.h header file included also, and I had not compiled
+the change because it was "so trivial".
 
-Cheers,
-  Trond
+Please use this patch instead.
 
 
---- linux-2.6.6-rc2/fs/nfs/write.c.orig	2004-04-27 16:01:01.000000000 -0400
-+++ linux-2.6.6-rc2/fs/nfs/write.c	2004-04-27 21:18:58.000000000 -0400
-@@ -313,7 +313,7 @@
- 		if (err >= 0) {
- 			err = 0;
- 			if (wbc->for_reclaim)
--				err = WRITEPAGE_ACTIVATE;
-+				nfs_flush_inode(inode, 0, 0, FLUSH_STABLE);
- 		}
- 	} else {
- 		err = nfs_writepage_sync(NULL, inode, page, 0,
-
+diff -ur linux-2.6.6-rc2-udm1-original/drivers/md/dm-target.c linux-2.6.6-rc2-udm1-patched/drivers/md/dm-target.c
+--- linux-2.6.6-rc2-udm1-original/drivers/md/dm-target.c	2004-04-27 17:59:53.000000000 -0700
++++ linux-2.6.6-rc2-udm1-patched/drivers/md/dm-target.c	2004-04-27 18:29:58.000000000 -0700
+@@ -7,6 +7,7 @@
+ #include "dm.h"
+ 
+ #include <linux/module.h>
++#include <linux/init.h>
+ #include <linux/kmod.h>
+ #include <linux/bio.h>
+ #include <linux/slab.h>
+@@ -181,12 +182,12 @@
+ 	.map  = io_err_map,
+ };
+ 
+-int dm_target_init(void)
++int __init dm_target_init(void)
+ {
+ 	return dm_register_target(&error_target);
+ }
+ 
+-void dm_target_exit(void)
++void __exit dm_target_exit(void)
+ {
+ 	if (dm_unregister_target(&error_target))
+ 		DMWARN("error target unregistration failed");

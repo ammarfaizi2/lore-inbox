@@ -1,56 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261496AbSJDLhP>; Fri, 4 Oct 2002 07:37:15 -0400
+	id <S261560AbSJDLuG>; Fri, 4 Oct 2002 07:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbSJDLhP>; Fri, 4 Oct 2002 07:37:15 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:33802 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261496AbSJDLhO>; Fri, 4 Oct 2002 07:37:14 -0400
-Date: Fri, 4 Oct 2002 12:42:47 +0100
-From: John Levon <levon@movementarian.org>
-To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+	id <S261564AbSJDLuG>; Fri, 4 Oct 2002 07:50:06 -0400
+Received: from fw.openss7.com ([142.179.197.31]:12558 "EHLO gw.openss7.com")
+	by vger.kernel.org with ESMTP id <S261560AbSJDLuF>;
+	Fri, 4 Oct 2002 07:50:05 -0400
+Date: Fri, 4 Oct 2002 05:55:37 -0600
+From: "Brian F. G. Bidulock" <bidulock@openss7.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: export of sys_call_table
-Message-ID: <20021004114247.GA98207@compsoc.man.ac.uk>
-References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003233504.GA20570@suse.de> <20021003235022.GA82187@compsoc.man.ac.uk> <mailman.1033691043.6446.linux-kernel2news@redhat.com> <200210040403.g9443Vu03329@devserv.devel.redhat.com> <20021003233221.C31444@openss7.org>
+Message-ID: <20021004055537.B13743@openss7.org>
+Reply-To: bidulock@openss7.org
+Mail-Followup-To: Arjan van de Ven <arjanv@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021003153943.E22418@openss7.org> <1033682560.28850.32.camel@irongate.swansea.linux.org.uk> <20021003170608.A30759@openss7.org> <1033722612.1853.1.camel@localhost.localdomain> <20021004051932.A13743@openss7.org> <1033731087.1853.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
 Content-Disposition: inline
-In-Reply-To: <20021003233221.C31444@openss7.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1033731087.1853.11.camel@localhost.localdomain>; from arjanv@redhat.com on Fri, Oct 04, 2002 at 01:31:27PM +0200
+Organization: http://www.openss7.org/
+Dsn-Notification-To: <bidulock@openss7.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 11:32:21PM -0600, Brian F. G. Bidulock wrote:
 
-> You do know that there *is* open source code which is not
-> contained in the Linux kernel ;)
+--TRYliJ5NKNqkz5bu
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think the fact that downloading the kernel source, applying a patch,
-fixing the conflicts, and rebooting, can be a significant PITA for
-admin/developers has completely passed them by.
+Arjan,
 
-> development kernels only), because the symbol is no longer
-> exported and no registration procedure was provided for
-> registering otherwise non-implemented system calls (in
-> particular the UNIX98 and iBCS/ABI standard putmsg/getmsg
-> calls).
+On Fri, 04 Oct 2002, Arjan van de Ven wrote:
 
-Look, why don't you submit the module-loading patch for LiS already ?
+> > 	static long asmlinkage sys_spipe(int *fd)
+> > 	{
+> > 		int ret =3D -ENOSYS;
+> > 		read_lock(&streams_call_lock);
+> > 		if (do_spipe)
+> > 			ret =3D do_spipe(fd);
+> > 		read_unlock(&streams_call_lock);
+> > 		return ret;
+> > 	}
+>=20
+> ehm sys_spipe doesn't exist, neither do all but 2 of the others you
+> showed.
 
-Btw, anybody know what the BKL is actually protecting against in
-sys_nfsservctl ?
+spipe, fattach, fdetach can sometimes be faked with ioctl().
+Perhaps we can reserve these while we're at it.
 
-> And what about AFS?  I see that it uses a sys_ni_syscall slot as
-> well...
+>=20
+> iBCS is dead. It's called linux-abi nowadays.....
 
-I thought it got fixed last time round.
+AFAIK it lives on as socksys under sparc architecture.  See
+for example solaris_putmsg and solaris_getmsg in 2.4.18
+arch/sparc64/solaris/systbl.S and arch/sparc64/solaris/timod.c
 
-regards
-john
+> > But this is repetative and doesn't solve replacement of existing
+> > system calls for profilers and such.
+>=20
+> Profilers don't actually NEED this.... OProfile is fixed for this for
+> example in the 2.5 branch.=20
 
--- 
-"Me and my friends are so smart, we invented this new kind of art:
- Post-modernist throwing darts"
-	- the Moldy Peaches
+Fair enough.  I only really care about the STREAMS system calls...
+
+--brian
+
+
+--=20
+Brian F. G. Bidulock    =A6 The reasonable man adapts himself to the =A6
+bidulock@openss7.org    =A6 world; the unreasonable one persists in  =A6
+http://www.openss7.org/ =A6 trying  to adapt the  world  to himself. =A6
+                        =A6 Therefore  all  progress  depends on the =A6
+                        =A6 unreasonable man. -- George Bernard Shaw =A6
+
+--TRYliJ5NKNqkz5bu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9nYG4MYOP2up1d2URAqRdAJ4tl9bVeeh/ymi24d+AgDJ4iOntKwCg5qlN
+KpYDMbSLXvnNE8iXBFD0zcg=
+=NqlG
+-----END PGP SIGNATURE-----
+
+--TRYliJ5NKNqkz5bu--

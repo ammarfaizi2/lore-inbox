@@ -1,42 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313440AbSDLIIm>; Fri, 12 Apr 2002 04:08:42 -0400
+	id <S313438AbSDLIIn>; Fri, 12 Apr 2002 04:08:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313442AbSDLIIl>; Fri, 12 Apr 2002 04:08:41 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:35031 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313440AbSDLIIl>;
+	id <S313442AbSDLIIn>; Fri, 12 Apr 2002 04:08:43 -0400
+Received: from firewall.sfn.asso.fr ([193.49.43.1]:62625 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S313438AbSDLIIl>;
 	Fri, 12 Apr 2002 04:08:41 -0400
-Date: Fri, 12 Apr 2002 10:08:38 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-Message-ID: <20020412100838.A17963@ucw.cz>
-In-Reply-To: <20020411154601.GY17962@antefacto.com> <20020411164331.GR612@gallifrey> <20020411184923.A15238@ucw.cz> <1018544869.962.22.camel@psuedomode> <20020411191249.A15435@ucw.cz> <3CB69032.D332FA51@aitel.hist.no>
+Date: Fri, 12 Apr 2002 10:08:04 +0200
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: Rowan Ingvar Wilson <rowan.ingvar.wilson@0800dial.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: /dev/zero
+Message-ID: <20020412100804.A6605@pcmaftoul.esrf.fr>
+In-Reply-To: <1018595942.2918.2.camel@ADMIN> <002c01c1e1f3$5bf7e600$c82d3c3e@m3v0u8>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 12, 2002 at 09:43:46AM +0200, Helge Hafting wrote:
-
-> > 2) If you hack out the VT switching out of X, then still each X server
-> > will disable all PCI resources for other video cards, because it
-> > believes it owns the system. This will freeze all other active X
-> > servers.
+It's just zeroes, so it allows you to test raw write speed on any
+device:
+dd if=/dev/zero of=/dev/hda to test your performances of hda ...
+normally if I get it well, /dev/zero can't be you're bottleneck.
+        Sam
+On Fri, Apr 12, 2002 at 08:26:22AM +0100, Rowan Ingvar Wilson wrote:
+> Just as a matter of interest myself...what is it's actual function? It
+> is used during kernel debugging to supply an input?
 > 
-> Do X somehow _depend_ on disabling other cards or is this
-> another thing that could be #ifdefed out?
-> Assuming, of course that the resources don't
-> overlap in any unhealthy way.
-
-They do. Almost always, there is the legacy VGA i/o space, which is
-needed to initialize the secondary card(s) by BIOS ran in vm86 space.
-
-After #ifdefing the disabling out, the Xservers crashed reproducibly.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Frank Schaefer
+> Sent: 12 April 2002 08:19
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: /dev/zero
+> 
+> On Fri, 2002-04-12 at 08:46, blesson paul wrote:
+> > Hi all
+> >                I am newbie to linux kernel. What is the use of
+> /dev/zero. 
+> > Why it is created and how to use it
+> > regards
+> > Blesson Paul
+> > 
+> > 
+> > 
+> > _________________________________________________________________
+> > Chat with friends online, try MSN Messenger: http://messenger.msn.com
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> Hi,
+> 
+> /dev/zero is a data source. It delivers zeroes ( maybe that's why this
+> name ;-).
+> 
+> BTW: You are new to the linux kernel or new to linux / unix?
+> 
+> Regards
+> Frank
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,111 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282953AbRLCIvx>; Mon, 3 Dec 2001 03:51:53 -0500
+	id <S282923AbRLCIvy>; Mon, 3 Dec 2001 03:51:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282923AbRLCItA>; Mon, 3 Dec 2001 03:49:00 -0500
-Received: from smtp-rt-3.wanadoo.fr ([193.252.19.155]:10674 "EHLO
-	apicra.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S284830AbRLCG5q> convert rfc822-to-8bit; Mon, 3 Dec 2001 01:57:46 -0500
-Message-ID: <3c0b22643cf030d0@apicra.wanadoo.fr> (added by apicra.wanadoo.fr)
-Date: Mon, 03 Dec 2001 07:57:40 +0200 (MET)
-From: "Pierre ROUSSELET" <pierre.rousselet@wanadoo.fr>
-To: <rgooch@ras.ucalgary.ca>
-Cc: <linux-kernel@vger.kernel.org>, <wli@holomorphy.com>
-In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr>   <200112030633.fB36Xf617997@vindaloo.ras.ucalgary.ca>
-Subject: Re: 2.5.1-pre5 not easy to boot with devfs  
-MIME-Version: 1.0
-Content-Type: text/plain;
- charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id <S282988AbRLCItC>; Mon, 3 Dec 2001 03:49:02 -0500
+Received: from bitmover.com ([192.132.92.2]:36557 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S284442AbRLBXyl>;
+	Sun, 2 Dec 2001 18:54:41 -0500
+Date: Sun, 2 Dec 2001 15:54:40 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: Larry McVoy <lm@bitmover.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Message-ID: <20011202155440.F2622@work.bitmover.com>
+Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
+	Larry McVoy <lm@bitmover.com>,
+	Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011202122940.B2622@work.bitmover.com> <200112022252.XAA19497@webserver.ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200112022252.XAA19497@webserver.ithnet.com>; from skraw@ithnet.com on Sun, Dec 02, 2001 at 11:52:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have to be patient, my linux box is at home. I'll test your patch in a few hours.
+> Please Larry, have a look at the environment: nobody here owns a box  
+> with 128 CPUs. Most of the people here take care of things they either
+> - own themselves                                                      
+> - have their hands own at work                                        
+> - get paid for                                                        
+>                                                                       
+> You will not find _any_ match with 128 CPUs here.                     
 
-Pierre
+Nor will you find any match with 4 or 8 CPU systems, except in very rare
+cases.  Yet changes go into the system for 8 way and 16 way performance.
+That's a mistake.
 
->Messsage du 03/12/2001 08:33
->De : Richard Gooch <rgooch@ras.ucalgary.ca>
->A : Pierre Rousselet <pierre.rousselet@wanadoo.fr>
->Copie à :  <linux-kernel@vger.kernel.org>,  <wli@holomorphy.com>
->Objet : Re: 2.5.1-pre5 not easy to boot with devfs  
->
-> Pierre Rousselet writes:
-> > As far as I can see,
-> > 
-> > when CONFIG_DEBUG_KERNEL is set
-> >   and 
-> > when devfsd is started at boot time
-> > I get an Oops when remounting, rw the root fs :
-> > 
-> > Unable to handle kernel request at va 5a5a5a5e
-> > ...
-> > EIP: 0010:[<c01516f9>] Not tainted
-> > ...
-> > Process devfsd(pid:15,stackpage=cfd33000)
-> 
-> Ah, ha! I've found the problem. Perversely, I wasn't able to reproduce
-> this bug until I booted a UP kernel. I've appended the fix. Please try
-> this out. I have sufficient confidence in this fix that I'll make a
-> proper release in a few minutes.
-> 
-> 				Regards,
-> 
-> 					Richard....
-> Permanent: rgooch@atnf.csiro.au
-> Current:   rgooch@ras.ucalgary.ca
-> 
-> diff -urN linux-2.4.17-pre2/Documentation/filesystems/devfs/ChangeLog linux/Documentation/filesystems/devfs/ChangeLog
-> --- linux-2.4.17-pre2/Documentation/filesystems/devfs/ChangeLog	Sat Dec  1 10:48:46 2001
-> +++ linux/Documentation/filesystems/devfs/ChangeLog	Sun Dec  2 23:23:12 2001
-> @@ -1805,3 +1805,7 @@
->  
->  - Do not send CREATE, CHANGE, ASYNC_OPEN or DELETE events from devfsd
->    or children
-> +===============================================================================
-> +Changes for patch v199.1
-> +
-> +- Fixed bug in <devfsd_read>: was dereferencing freed pointer
-> diff -urN linux-2.4.17-pre2/fs/devfs/base.c linux/fs/devfs/base.c
-> --- linux-2.4.17-pre2/fs/devfs/base.c	Sat Dec  1 10:48:46 2001
-> +++ linux/fs/devfs/base.c	Sun Dec  2 23:21:10 2001
-> @@ -569,6 +569,9 @@
->  	       Do not send CREATE, CHANGE, ASYNC_OPEN or DELETE events from
->  	       devfsd or children.
->    v1.2
-> +    20011202   Richard Gooch <rgooch@atnf.csiro.au>
-> +	       Fixed bug in <devfsd_read>: was dereferencing freed pointer.
-> +  v1.3
->  */
->  #include <linux/types.h>
->  #include <linux/errno.h>
-> @@ -601,7 +604,7 @@
->  #include <asm/bitops.h>
->  #include <asm/atomic.h>
->  
-> -#define DEVFS_VERSION            "1.2 (20011127)"
-> +#define DEVFS_VERSION            "1.3 (20011202)"
->  
->  #define DEVFS_NAME "devfs"
->  
-> @@ -3243,11 +3246,17 @@
->      tlen = rpos - *ppos;
->      if (done)
->      {
-> +	devfs_handle_t parent;
-> +
->  	spin_lock (&fs_info->devfsd_buffer_lock);
->  	fs_info->devfsd_first_event = entry->next;
->  	if (entry->next == NULL) fs_info->devfsd_last_event = NULL;
->  	spin_unlock (&fs_info->devfsd_buffer_lock);
-> -	for (; de != NULL; de = de->parent) devfs_put (de);
-> +	for (; de != NULL; de = parent)
-> +	{
-> +	    parent = de->parent;
-> +	    devfs_put (de);
-> +	}
->  	kmem_cache_free (devfsd_buf_cache, entry);
->  	if (ival > 0) atomic_sub (ival, &fs_info->devfsd_overrun_count);
->  	*ppos = 0;
-> 
-
+I'd be ecstatic if the hackers limited themselves to what was commonly 
+available, that is essentially what I'm arguing for.  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

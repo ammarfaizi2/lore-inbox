@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265537AbUGGWIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265541AbUGGWLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265537AbUGGWIj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 18:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUGGWIj
+	id S265541AbUGGWLM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 18:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265540AbUGGWLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 18:08:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3755 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265537AbUGGWIh (ORCPT
+	Wed, 7 Jul 2004 18:11:11 -0400
+Received: from mail.kroah.org ([69.55.234.183]:10404 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265545AbUGGWKB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 18:08:37 -0400
-Date: Wed, 7 Jul 2004 15:11:34 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] task name handling in proc fs
-Message-Id: <20040707151134.05fc1e07.akpm@osdl.org>
-In-Reply-To: <20040707215246.GB4314@w-mikek2.beaverton.ibm.com>
-References: <20040701220510.GA6164@w-mikek2.beaverton.ibm.com>
-	<20040701151935.1f61793c.akpm@osdl.org>
-	<20040701224215.GC5090@w-mikek2.beaverton.ibm.com>
-	<20040701160335.229cfe03.akpm@osdl.org>
-	<20040707215246.GB4314@w-mikek2.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 7 Jul 2004 18:10:01 -0400
+Date: Wed, 7 Jul 2004 15:08:25 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jesse Stockall <stockall@magma.ca>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: (as339) Interpret down_trylock() result code correctly in usb.c
+Message-ID: <20040707220825.GD4990@kroah.com>
+References: <Pine.LNX.4.44L0.0407061202340.5551-100000@ida.rowland.org> <20040707215416.GC4514@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040707215416.GC4514@kroah.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz <kravetz@us.ibm.com> wrote:
->
-> +void set_task_comm(struct task_struct *tsk, char *name)
-> +{
-> +	int i, ch;
-> +
-> +	task_lock(tsk);
-> +	for (i=0; (ch = *(name++)) != '\0';) {
-> +		if (ch == '/')
-> +			i = 0;
-> +		else
-> +			if (i < (sizeof(tsk->comm) - 1))
-> +				tsk->comm[i++] = ch;
-> +	}
-> +	tsk->comm[i] = '\0';
-> +	task_unlock(tsk);
-> +}
+On Wed, Jul 07, 2004 at 02:54:16PM -0700, Greg KH wrote:
+> On Tue, Jul 06, 2004 at 12:11:19PM -0400, Alan Stern wrote:
+> > Greg:
+> > 
+> > As Andrew Morton has already spotted, I messed up the interpretation of
+> > the result codes from various _trylock() routines.  I didn't notice that
+> > down_trylock() and down_read_trylock() use opposite conventions for
+> > indicating success!  This patch fixes the incorrect interpretation of
+> > down_trylock().  That error may well be responsible for some of the
+> > problems cropping up recently with OHCI controllers.  Please apply.
+> 
+> Applied.
+> 
+> But even with this patch, and Andrew's, I have a hang at boot with my
+> USB mouse plugged in (uhci system).
 
-I don't think the basename logic should be in this function.  Only one
-caller needs it, and if we later try to use this function to set
-current->comm for per-cpu kernel threads, it will mangle the text.
+If I remove the mouse, and then boot, it works just fine.  I can then
+insert it and the drivers are loaded just fine too.
 
-root         2  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/0]
-root         3  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/0]
-root         4  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/1]
-root         5  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/1]
-root         6  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/2]
-root         7  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/2]
-root         8  0.0  0.0     0    0 ?        SW   Jul06   0:00 [migration/3]
-root         9  0.0  0.0     0    0 ?        SWN  Jul06   0:00 [ksoftirqd/3]
+Looks like a race on accessing usbfs and loading a driver at the same
+time, as the "cold-boot" code scans usbfs to determine what driver to
+load.
 
-We probably won't actually _do_ that, since kthread_create() uses vsnprintf(),
-but pushing code which is specific to one caller into a library function
-seems wrong...
+thanks,
+
+greg k-h

@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266145AbUFUHVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266144AbUFUHZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266145AbUFUHVe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFUHVZ
+	id S266144AbUFUHZA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:25:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUFUHVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:21:25 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:24836 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266145AbUFUHUy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:20:54 -0400
+	Mon, 21 Jun 2004 03:21:44 -0400
+Received: from mta3.srv.hcvlny.cv.net ([167.206.5.69]:64954 "EHLO
+	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S266144AbUFUHTq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 03:19:46 -0400
+Date: Mon, 21 Jun 2004 03:19:27 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
 Subject: Re: 2.6.7-bk way too fast
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.33.0406202320020.25702-100000@sweetums.bluetronic.net>
-References: <Pine.GSO.4.33.0406202320020.25702-100000@sweetums.bluetronic.net>
-Content-Type: text/plain
-Date: Mon, 21 Jun 2004 09:20:44 +0200
-Message-Id: <1087802444.1691.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
-Content-Transfer-Encoding: 7bit
+In-reply-to: <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Message-id: <200406210319.38694.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: Text/Plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.6.2
+References: <40D64DF7.5040601@pobox.com>
+ <200406210239.28918.norberto+linux-kernel@bensa.ath.cx>
+ <Pine.LNX.4.58.0406202313510.11274@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-06-20 at 23:29 -0400, Ricky Beam wrote:
-> On Sun, 20 Jun 2004, Jeff Garzik wrote:
-> >Something is definitely screwy with the latest -bk.
-> 
-> I'm not seeing any troubles...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm only seeing this behavior in one of my machines. One is a laptop,
-which doesn't suffer from this slew, the other one is a desktop system,
-which suffers from it. Both are using ACPI, but only the desktop system
-is usign APIC/IO-APIC.
+On Monday 21 June 2004 02:16, Linus Torvalds wrote:
+> On Mon, 21 Jun 2004, Norberto Bensa wrote:
+> > Attaaached,    ..cooonfiig  and   dmmesssg.  Note:   iit''s
+> > waaaaaaaaaaaaaaay    too     fffasssst  on X.  Text moode    termiinall
+> > it''ss  oook.
+>
+> Does it fix it to just remove that one line completely?
+>
+> Like this..
+>
+> 		Linus
 
-I can post both configs, if useful.
+I didn't try Andrew's patch, but your fixes it on my laptop.
 
+Jeff.
+
+- -- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA1owHwFP0+seVj/4RAlqdAKCSNKjp2BP3q+hE7gkmdaOG45xeggCeKHWa
+zKr9aTY4NXAPT24GSk2dtG8=
+=NUoj
+-----END PGP SIGNATURE-----

@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281142AbRKOWkU>; Thu, 15 Nov 2001 17:40:20 -0500
+	id <S281150AbRKOWjk>; Thu, 15 Nov 2001 17:39:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281144AbRKOWkB>; Thu, 15 Nov 2001 17:40:01 -0500
-Received: from [216.80.8.1] ([216.80.8.1]:27146 "HELO mercury.prairiegroup.com")
-	by vger.kernel.org with SMTP id <S281142AbRKOWjs>;
-	Thu, 15 Nov 2001 17:39:48 -0500
-Message-ID: <3BF44444.7010101@prairiegroup.com>
-Date: Thu, 15 Nov 2001 16:40:04 -0600
-From: Martin McWhorter <m_mcwhorter@prairiegroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Possible Bug: 2.4.14 USB Keyboard
-In-Reply-To: <20011114145312.A6925@kroah.com> <mailman.1005834780.32418.linux-kernel2news@redhat.com> <200111151807.fAFI7XN30496@devserv.devel.redhat.com> <3BF40D17.4060501@prairiegroup.com> <20011115141430.B10133@devserv.devel.redhat.com> <3BF41E17.5080200@prairiegroup.com> <20011115152432.A26630@devserv.devel.redhat.com> <3BF433EE.40403@prairiegroup.com> <20011115170148.A19715@devserv.devel.redhat.com> <3BF43E55.80401@prairiegroup.com> <20011115171751.A22915@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S281144AbRKOWja>; Thu, 15 Nov 2001 17:39:30 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:33684 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S281142AbRKOWjW>;
+	Thu, 15 Nov 2001 17:39:22 -0500
+Date: Thu, 15 Nov 2001 14:39:01 -0800 (PST)
+Message-Id: <20011115.143901.121189547.davem@redhat.com>
+To: groudier@free.fr
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] small sym-2 fix
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011115203852.M2136-100000@gerard>
+In-Reply-To: <20011115172204.B1589-100000@gerard>
+	<20011115203852.M2136-100000@gerard>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=big5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id JAA11054
 
-Pete,
+   From: Gérard Roudier <groudier@free.fr>
+   Date: Thu, 15 Nov 2001 20:46:34 +0100 (CET)
 
+   diff -u ../sym-2-orig/sym_glue.h ./sym_glue.h
+   --- ../sym-2-orig/sym_glue.h	Thu Nov 15 22:53:34 2001
+   +++ ./sym_glue.h	Thu Nov 15 23:18:58 2001
+   @@ -77,7 +77,6 @@
+    #include <linux/errno.h>
+    #include <linux/pci.h>
+    #include <linux/string.h>
+   -#include <linux/malloc.h>
+    #include <linux/mm.h>
+    #include <linux/ioport.h>
+    #include <linux/time.h>
 
-
-> Try to rename /sbin/hotplug into something else _temporarily_,
-
-Gave this a try. No luck. Interestingly nothing apperently stopped working.
-
-But I did find something that did. Remove the loading of hid in 
-rc.sysinit and add it the the end of rc.local.
-
-Thanks alot Pete,
-Martin
-
+Hmmm, why not add linux/slab.h?  It exists in every Linux kernel tree
+your driver would ever be compiled under.
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

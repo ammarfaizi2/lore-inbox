@@ -1,237 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274602AbRIYKc7>; Tue, 25 Sep 2001 06:32:59 -0400
+	id <S274610AbRIYKkT>; Tue, 25 Sep 2001 06:40:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274607AbRIYKck>; Tue, 25 Sep 2001 06:32:40 -0400
-Received: from [195.157.147.30] ([195.157.147.30]:11525 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S274602AbRIYKcd>; Tue, 25 Sep 2001 06:32:33 -0400
-Date: Tue, 25 Sep 2001 11:33:19 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9-ac14 Failed to boot
-Message-ID: <20010925113319.C22318@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S274611AbRIYKkK>; Tue, 25 Sep 2001 06:40:10 -0400
+Received: from femail35.sdc1.sfba.home.com ([24.254.60.25]:32684 "EHLO
+	femail35.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S274610AbRIYKj4>; Tue, 25 Sep 2001 06:39:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>,
+        "[A]ndy80" <andy80@ptlug.org>
+Subject: Re: Burning a CD image slow down my connection
+Date: Tue, 25 Sep 2001 03:40:18 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.A32.3.95.1010925121523.20872B-100000@werner.exp-math.uni-essen.de>
+In-Reply-To: <Pine.A32.3.95.1010925121523.20872B-100000@werner.exp-math.uni-essen.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010925104017.RLQT29954.femail35.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday I upgraded from 2.4.7 + ext3 to 2.4.9-ac14.  The new kernel failed to
-boot for me, stopping (bizarrely) between:
+On Tuesday 25 September 2001 03:21 am, Dr. Michael Weller wrote:
+> On 25 Sep 2001, [A]ndy80 wrote:
+> > I've my Plextor Writer as secondary master seen as a scsi device
+> > and if I try do use hdparm it says:
+> >
+> > [root@piccoli shady]# hdparm -t /dev/cdrom
+> > /dev/cdrom not supported by hdparm
+>
+> Hmm, /dev/cdrom would typically be a link. You might try to apply
+> hdparm to where the link points to, but I cannot really believe
+> hdparm doesn't follow links.
+>
+> Normally /dev/cdrom should point to /dev/hdc in your case. I somewhat
+> suspect that it points to /dev/scd0. If so, can you actually
+> mount the cdrom? The ide2scsi device emulation basically just passes
+> scsi commands as atapi commands over the ide bus (since atapi just
+> use the scsi commands but tunnel them over ide). I'm surprised this
+> also works for cdroms. I wasn't aware of the fact they are ATAPI and
+> thus support the scsi command set. Maybe the cdwriters are special in
+> that context.
 
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-
-...and 
-
-block: queued sectors max/low 340440kB/209368kB, 1024 slots per queue
-
-(which is the next message it normally prints on bootup).  This being somewhat
-unlike problems I've had in the past, I'm looking for advice about what to try
-to help diagnose the problem.
-
-.config attached below.
-
-Thanks
-
-Sean
-
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_SMP=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_NET=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_HOTPLUG=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUSMGR=y
-CONFIG_ACPI_SYS=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_PC_FIFO=y
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_PNPBIOS=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=y
-CONFIG_PACKET=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_ADVANCED_ROUTER=y
-CONFIG_RTNETLINK=y
-CONFIG_NETLINK=y
-CONFIG_IP_MULTIPLE_TABLES=y
-CONFIG_IP_ROUTE_FWMARK=y
-CONFIG_IP_ROUTE_MULTIPATH=y
-CONFIG_IP_ROUTE_TOS=y
-CONFIG_IP_ROUTE_VERBOSE=y
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_NF_CONNTRACK=y
-CONFIG_IP_NF_FTP=y
-CONFIG_IP_NF_QUEUE=y
-CONFIG_IP_NF_IPTABLES=y
-CONFIG_IP_NF_MATCH_LIMIT=y
-CONFIG_IP_NF_MATCH_MAC=y
-CONFIG_IP_NF_MATCH_MARK=y
-CONFIG_IP_NF_MATCH_MULTIPORT=y
-CONFIG_IP_NF_MATCH_TOS=y
-CONFIG_IP_NF_MATCH_TCPMSS=y
-CONFIG_IP_NF_MATCH_STATE=y
-CONFIG_IP_NF_MATCH_UNCLEAN=y
-CONFIG_IP_NF_MATCH_OWNER=y
-CONFIG_IP_NF_FILTER=y
-CONFIG_IP_NF_TARGET_REJECT=y
-CONFIG_IP_NF_TARGET_MIRROR=y
-CONFIG_IP_NF_NAT=y
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=y
-CONFIG_IP_NF_TARGET_REDIRECT=y
-CONFIG_IP_NF_NAT_FTP=y
-CONFIG_IP_NF_MANGLE=y
-CONFIG_IP_NF_TARGET_TOS=y
-CONFIG_IP_NF_TARGET_MARK=y
-CONFIG_IP_NF_TARGET_LOG=y
-CONFIG_IP_NF_TARGET_TCPMSS=y
-CONFIG_ATALK=y
-CONFIG_NET_SCHED=y
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-CONFIG_NET_SCH_CBQ=y
-CONFIG_NET_SCH_CSZ=y
-CONFIG_NET_SCH_PRIO=y
-CONFIG_NET_SCH_RED=y
-CONFIG_NET_SCH_SFQ=y
-CONFIG_NET_SCH_TEQL=y
-CONFIG_NET_SCH_TBF=y
-CONFIG_NET_SCH_GRED=y
-CONFIG_NET_SCH_DSMARK=y
-CONFIG_NET_SCH_INGRESS=y
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_TCINDEX=y
-CONFIG_NET_CLS_ROUTE4=y
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=y
-CONFIG_NET_CLS_U32=y
-CONFIG_NET_CLS_POLICE=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SCSI_DEBUG_QUEUES=y
-CONFIG_SCSI_MULTI_LUN=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_AIC7XXX=y
-CONFIG_SCSI_PPA=y
-CONFIG_SCSI_IMM=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_EEPRO100=y
-CONFIG_VIA_RHINE=y
-CONFIG_PPP=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_DRM=y
-CONFIG_DRM_OLD=y
-CONFIG_DRM40_TDFX=y
-CONFIG_QUOTA=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_JBD_DEBUG=y
-CONFIG_TMPFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_ZISOFS=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFS_V3=y
-CONFIG_NFSD=y
-CONFIG_NFSD_V3=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_LOCKD_V4=y
-CONFIG_ZISOFS_FS=y
-CONFIG_ZLIB_FS_INFLATE=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_SOUND=y
-CONFIG_SOUND_EMU10K1=y
-CONFIG_MIDI_EMU10K1=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_BUGVERBOSE=y
+My DVD-ROM drive and Plextor PlexWriter CD-RW drive both function under 
+the idescsi emulation driver. *All* current IDE CD writers are ATAPI 
+and REQUIRE idescsi (or in windows, an ASPI layer) in order to be used 
+as a cd writer.

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271126AbTGPVJw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 17:09:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbTGPVJr
+	id S271128AbTGPVEn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 17:04:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271122AbTGPVDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 17:09:47 -0400
-Received: from ip45.usw1.rb1.pdx.nwlink.com ([207.202.132.45]:14473 "EHLO
-	consumption.net") by vger.kernel.org with ESMTP id S271126AbTGPVIz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 17:08:55 -0400
-Date: Wed, 16 Jul 2003 14:23:48 -0700 (PDT)
-From: <crozierm@consumption.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB mouse "hang" with 2.5.75
-In-Reply-To: <20030715212956.GA5524@kroah.com>
-Message-ID: <Pine.LNX.4.21.0307161421250.11285-100000@consumption.net>
+	Wed, 16 Jul 2003 17:03:02 -0400
+Received: from smtp5.wanadoo.fr ([193.252.22.27]:33937 "EHLO
+	mwinf0402.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S271119AbTGPVC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 17:02:26 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Vince <fuzzy77@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: [Oops report] (ppp/pppoatm)... explanation found !
+Date: Wed, 16 Jul 2003 23:17:16 +0200
+User-Agent: KMail/1.5.9
+References: <3F157830.8030402@free.fr> <3F15AF87.3000500@free.fr> <3F15BE12.3000704@free.fr>
+In-Reply-To: <3F15BE12.3000704@free.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200307162317.16785.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I really believe this is a kernel bug that should be fixed (and most
+> probably a pppoatm one : I don't remember ever getting such an error
+> when launching pppd with my pcmcia V90 modem disconnected), but from [1]
+> it's not clear to me who is the pppoatm kernel maintainer these days :
+> anybody knows to whom I should forward this bugreport ?
 
-Another symptom/workaround for this problem is that reading
-/proc/bus/usb/devices causes the mouse start working again.
+Try linux-atm-general@lists.sourceforge.net.
 
-Easier than re-plugging the mouse, at any rate.
+All the best,
 
-> > Should it be possible for X to lock up the mouse?  When the mouse stops
-> > working in X, it seems to stop working for everything else too (the "cat
-> > /dev/input/mice" test, at least).
-> 
-> Hm, don't really know, sorry.
-
-
+Duncan.

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265247AbSLBXkH>; Mon, 2 Dec 2002 18:40:07 -0500
+	id <S265277AbSLBXfY>; Mon, 2 Dec 2002 18:35:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbSLBXig>; Mon, 2 Dec 2002 18:38:36 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:55807 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S265228AbSLBXfm>;
-	Mon, 2 Dec 2002 18:35:42 -0500
-Date: Mon, 2 Dec 2002 15:41:40 -0800
+	id <S265247AbSLBXey>; Mon, 2 Dec 2002 18:34:54 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:26879 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S265228AbSLBXdm>;
+	Mon, 2 Dec 2002 18:33:42 -0500
+Date: Mon, 2 Dec 2002 15:39:40 -0800
 To: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Jeff Garzik <jgarzik@mandrakesoft.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
        irda-users@lists.sourceforge.net
-Subject: [PATCH 2.4] : ir241_checker.diff
-Message-ID: <20021202234140.GI16284@bougret.hpl.hp.com>
+Subject: [PATCH 2.4] : ir241_irnet_simult_race-2.diff
+Message-ID: <20021202233940.GF16284@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,135 +25,200 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir241_checker.diff :
-------------------
-	<Need to apply after ir241_flow_sched_XXX.diff to avoid "offset">
-	o [CORRECT] Fix two bugs found by the Stanford checker in IrDA
-	o [CORRECT] Fix two bugs found by the Stanford checker in IrCOMM
-	o [CORRECT] Fix one bug found by the Stanford checker in ali driver
+ir241_irnet_simult_race-2.diff :
+------------------------------
+	o [CORRECT] Prevent dealock on simultaneous peer IrNET connections
+		Only the primary peer will accept the IrNET connection
 
 
-diff -u -p -r linux/net/irda/irlap.d2.c linux/net/irda/irlap.c
---- linux/net/irda/irlap.d2.c	Tue Aug  6 18:22:38 2002
-+++ linux/net/irda/irlap.c	Tue Aug  6 18:23:24 2002
-@@ -1101,8 +1101,8 @@ int irlap_proc_read(char *buf, char **st
+diff -u -p linux/include/net/irda/irlap.d7.h linux/include/net/irda/irlap.h
+--- linux/include/net/irda/irlap.d7.h	Wed Apr 10 18:36:27 2002
++++ linux/include/net/irda/irlap.h	Wed Apr 10 19:36:28 2002
+@@ -31,8 +31,6 @@
+ #include <linux/types.h>
+ #include <linux/skbuff.h>
+ #include <linux/netdevice.h>
+-#include <linux/ppp_defs.h>
+-#include <linux/ppp-comp.h>
+ #include <linux/timer.h>
  
- 	self = (struct irlap_cb *) hashbin_get_first(irlap);
- 	while (self != NULL) {
--		ASSERT(self != NULL, return -ENODEV;);
--		ASSERT(self->magic == LAP_MAGIC, return -EBADR;);
-+		ASSERT(self != NULL, break;);
-+		ASSERT(self->magic == LAP_MAGIC, break;);
+ #include <net/irda/irlap_event.h>
+@@ -239,5 +237,25 @@ void irlap_apply_connection_parameters(s
  
- 		len += sprintf(buf+len, "irlap%d ", i++);
- 		len += sprintf(buf+len, "state: %s\n", 
-diff -u -p -r linux/net/irda/irlmp.d2.c linux/net/irda/irlmp.c
---- linux/net/irda/irlmp.d2.c	Tue Aug  6 18:22:46 2002
-+++ linux/net/irda/irlmp.c	Tue Aug  6 18:23:24 2002
-@@ -1750,7 +1750,7 @@ int irlmp_proc_read(char *buf, char **st
- 	len += sprintf( buf+len, "Unconnected LSAPs:\n");
- 	self = (struct lsap_cb *) hashbin_get_first( irlmp->unconnected_lsaps);
- 	while (self != NULL) {
--		ASSERT(self->magic == LMP_LSAP_MAGIC, return 0;);
-+		ASSERT(self->magic == LMP_LSAP_MAGIC, break;);
- 		len += sprintf(buf+len, "lsap state: %s, ", 
- 			       irlsap_state[ self->lsap_state]);
- 		len += sprintf(buf+len, 
-@@ -1779,7 +1779,7 @@ int irlmp_proc_read(char *buf, char **st
- 		len += sprintf(buf+len, "\n  Connected LSAPs:\n");
- 		self = (struct lsap_cb *) hashbin_get_first(lap->lsaps);
- 		while (self != NULL) {
--			ASSERT(self->magic == LMP_LSAP_MAGIC, return 0;);
-+			ASSERT(self->magic == LMP_LSAP_MAGIC, break;);
- 			len += sprintf(buf+len, "  lsap state: %s, ", 
- 				       irlsap_state[ self->lsap_state]);
- 			len += sprintf(buf+len, 
-diff -u -p linux/net/irda/ircomm/ircomm_core.d0.c linux/net/irda/ircomm/ircomm_core.c
---- linux/net/irda/ircomm/ircomm_core.d0.c	Tue Aug  6 18:23:01 2002
-+++ linux/net/irda/ircomm/ircomm_core.c	Tue Aug  6 18:23:24 2002
-@@ -498,7 +498,7 @@ int ircomm_proc_read(char *buf, char **s
- 
- 	self = (struct ircomm_cb *) hashbin_get_first(ircomm);
- 	while (self != NULL) {
--		ASSERT(self->magic == IRCOMM_MAGIC, return len;);
-+		ASSERT(self->magic == IRCOMM_MAGIC, break;);
- 
- 		if(self->line < 0x10)
- 			len += sprintf(buf+len, "ircomm%d", self->line);
-diff -u -p linux/net/irda/ircomm/ircomm_tty.d0.c linux/net/irda/ircomm/ircomm_tty.c
---- linux/net/irda/ircomm/ircomm_tty.d0.c	Tue Aug  6 18:23:12 2002
-+++ linux/net/irda/ircomm/ircomm_tty.c	Tue Aug  6 18:23:24 2002
-@@ -512,6 +512,9 @@ static void ircomm_tty_close(struct tty_
- 	if (!tty)
- 		return;
- 
-+	ASSERT(self != NULL, return;);
-+	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+ #define IRLAP_GET_HEADER_SIZE(self) (LAP_MAX_HEADER)
+ #define IRLAP_GET_TX_QUEUE_LEN(self) skb_queue_len(&self->txq)
 +
- 	save_flags(flags); 
- 	cli();
++/* Return TRUE if the node is in primary mode (i.e. master)
++ * - Jean II */
++static inline int irlap_is_primary(struct irlap_cb *self)
++{
++	int ret;
++	switch(self->state) {
++	case LAP_XMIT_P:
++	case LAP_NRM_P:
++		ret = 1;
++		break;
++	case LAP_XMIT_S:
++	case LAP_NRM_S:
++		ret = 0;
++		break;
++	default:
++		ret = -1;
++	}
++	return(ret);
++}
  
-@@ -522,9 +525,6 @@ static void ircomm_tty_close(struct tty_
- 		IRDA_DEBUG(0, "%s(), returning 1\n", __FUNCTION__);
- 		return;
+ #endif
+diff -u -p linux/include/net/irda/irttp.d7.h linux/include/net/irda/irttp.h
+--- linux/include/net/irda/irttp.d7.h	Wed Apr 10 18:45:50 2002
++++ linux/include/net/irda/irttp.h	Fri Apr 12 09:57:29 2002
+@@ -197,6 +197,18 @@ static inline void irttp_listen(struct t
+ 	self->dtsap_sel = LSAP_ANY;
+ }
+ 
++/* Return TRUE if the node is in primary mode (i.e. master)
++ * - Jean II */
++static inline int irttp_is_primary(struct tsap_cb *self)
++{
++	if ((self == NULL) ||
++	    (self->lsap == NULL) ||
++	    (self->lsap->lap == NULL) ||
++	    (self->lsap->lap->irlap == NULL))
++		return -2;
++	return(irlap_is_primary(self->lsap->lap->irlap));
++}
++
+ extern struct irttp_cb *irttp;
+ 
+ #endif /* IRTTP_H */
+diff -u -p linux/net/irda/irnet/irnet.d7.h linux/net/irda/irnet/irnet.h
+--- linux/net/irda/irnet/irnet.d7.h	Wed Apr 10 18:53:59 2002
++++ linux/net/irda/irnet/irnet.h	Fri Apr 12 14:22:36 2002
+@@ -217,6 +217,11 @@
+  *	  Better fix in irnet_disconnect_indication() :
+  *	  - if connected, kill pppd via hangup.
+  *	  - if not connected, reenable ppp Tx, which trigger IrNET retry.
++ *
++ * v12 - 10.4.02 - Jean II
++ *	o Fix race condition in irnet_connect_indication().
++ *	  If the socket was already trying to connect, drop old connection
++ *	  and use new one only if acting as primary. See comments.
+  */
+ 
+ /***************************** INCLUDES *****************************/
+diff -u -p linux/net/irda/irnet/irnet_irda.d7.c linux/net/irda/irnet/irnet_irda.c
+--- linux/net/irda/irnet/irnet_irda.d7.c	Wed Apr 10 18:53:52 2002
++++ linux/net/irda/irnet/irnet_irda.c	Fri Apr 12 14:20:35 2002
+@@ -1340,46 +1340,80 @@ irnet_connect_indication(void *		instanc
+       return;
+     }
+ 
+-  /* Socket connecting ?
+-   * Clear up flag : prevent irnet_disconnect_indication() to mess up tsap */
+-  if(test_and_clear_bit(0, &new->ttp_connect))
+-    {
+-      /* The socket is trying to connect to the other end and may have sent
+-       * a IrTTP connection request and is waiting for a connection response
+-       * (that may never come).
+-       * Now, the pain is that the socket may have opened a tsap and is
+-       * waiting on it, while the other end is trying to connect to it on
+-       * another tsap.
+-       */
+-      DERROR(IRDA_CB_ERROR, "Socket already connecting. Ouch !\n");
++  /* The following code is a bit tricky, so need comments ;-)
++   */
++  /* If ttp_connect is set, the socket is trying to connect to the other
++   * end and may have sent a IrTTP connection request and is waiting for
++   * a connection response (that may never come).
++   * Now, the pain is that the socket may have opened a tsap and is
++   * waiting on it, while the other end is trying to connect to it on
++   * another tsap.
++   * Because IrNET can be peer to peer, we need to workaround this.
++   * Furthermore, the way the irnetd script is implemented, the
++   * target will create a second IrNET connection back to the
++   * originator and expect the originator to bind this new connection
++   * to the original PPPD instance.
++   * And of course, if we don't use irnetd, we can have a race when
++   * both side try to connect simultaneously, which could leave both
++   * connections half closed (yuck).
++   * Conclusions :
++   *	1) The "originator" must accept the new connection and get rid
++   *	   of the old one so that irnetd works
++   *	2) One side must deny the new connection to avoid races,
++   *	   but both side must agree on which side it is...
++   * Most often, the originator is primary at the LAP layer.
++   * Jean II
++   */
++  /* Now, let's look at the way I wrote the test...
++   * We need to clear up the ttp_connect flag atomically to prevent
++   * irnet_disconnect_indication() to mess up the tsap we are going to close.
++   * We want to clear the ttp_connect flag only if we close the tsap,
++   * otherwise we will never close it, so we need to check for primary
++   * *before* doing the test on the flag.
++   * And of course, ALLOW_SIMULT_CONNECT can disable this entirely...
++   * Jean II
++   */
++
++  /* Socket already connecting ? On primary ? */
++  if(0
+ #ifdef ALLOW_SIMULT_CONNECT
+-      /* Cleanup the TSAP if necessary - IrIAP will be cleaned up later */
++     || ((irttp_is_primary(server->tsap) == 1)	/* primary */
++	 && (test_and_clear_bit(0, &new->ttp_connect)))
++#endif /* ALLOW_SIMULT_CONNECT */
++     )
++    {
++      DERROR(IRDA_CB_ERROR, "Socket already connecting, but going to reuse it !\n");
++
++      /* Cleanup the old TSAP if necessary - IrIAP will be cleaned up later */
+       if(new->tsap != NULL)
+ 	{
+-	  /* Close the connection the new socket was attempting.
+-	   * This seems to be safe... */
++	  /* Close the old connection the new socket was attempting,
++	   * so that we can hook it up to the new connection.
++	   * It's now safe to do it... */
+ 	  irttp_close_tsap(new->tsap);
+ 	  new->tsap = NULL;
  	}
--
--	ASSERT(self != NULL, return;);
--	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return;);
+-      /* Note : no return, fall through... */
+-#else /* ALLOW_SIMULT_CONNECT */
+-      irnet_disconnect_server(server, skb);
+-      return;
+-#endif /* ALLOW_SIMULT_CONNECT */
+     }
+   else
+-    /* If socket is not connecting or connected, tsap should be NULL */
+-    if(new->tsap != NULL)
+-      {
+-	/* If we are here, we are also in irnet_disconnect_indication(),
+-	 * and it's a nice race condition... On the other hand, we can't be
+-	 * in irda_irnet_destroy() otherwise we would not have found the
+-	 * socket in the hashbin. */
+-	/* Better get out of here, otherwise we will mess up tsaps ! */
+-	DERROR(IRDA_CB_ERROR, "Race condition detected, abort connect...\n");
+-	irnet_disconnect_server(server, skb);
+-	return;
+-      }
++    {
++      /* Three options :
++       * 1) socket was not connecting or connected : ttp_connect should be 0.
++       * 2) we don't want to connect the socket because we are secondary or
++       * ALLOW_SIMULT_CONNECT is undefined. ttp_connect should be 1.
++       * 3) we are half way in irnet_disconnect_indication(), and it's a
++       * nice race condition... Fortunately, we can detect that by checking
++       * if tsap is still alive. On the other hand, we can't be in
++       * irda_irnet_destroy() otherwise we would not have found this
++       * socket in the hashbin.
++       * Jean II */
++      if((test_bit(0, &new->ttp_connect)) || (new->tsap != NULL))
++	{
++	  /* Don't mess this socket, somebody else in in charge... */
++	  DERROR(IRDA_CB_ERROR, "Race condition detected, socket in use, abort connect...\n");
++	  irnet_disconnect_server(server, skb);
++	  return;
++	}
++    }
  
- 	if ((tty->count == 1) && (self->open_count != 1)) {
- 		/*
-diff -u -p linux/drivers/net/irda/ali-ircc.d2.c  linux/drivers/net/irda/ali-ircc.c
---- linux/drivers/net/irda/ali-ircc.d2.c	Mon Dec  2 15:03:38 2002
-+++ linux/drivers/net/irda/ali-ircc.c	Mon Dec  2 15:03:44 2002
-@@ -2017,22 +2017,19 @@ static int ali_ircc_net_ioctl(struct net
- 
- 	IRDA_DEBUG(2, "%s(), %s, (cmd=0x%X)\n", __FUNCTION__, dev->name, cmd);
- 	
--	/* Disable interrupts & save flags */
--	save_flags(flags);
--	cli();	
--	
- 	switch (cmd) {
- 	case SIOCSBANDWIDTH: /* Set bandwidth */
- 		IRDA_DEBUG(1, "%s(), SIOCSBANDWIDTH\n", __FUNCTION__);
--		/*
--		 * This function will also be used by IrLAP to change the
--		 * speed, so we still must allow for speed change within
--		 * interrupt context.
--		 */
--		if (!in_interrupt() && !capable(CAP_NET_ADMIN))
-+		/* Root only */
-+		if (!capable(CAP_NET_ADMIN))
- 			return -EPERM;
- 		
-+		/* Is it really needed ? And what about spinlock ? */
-+		save_flags(flags);
-+		cli();	
-+
- 		ali_ircc_change_speed(self, irq->ifr_baudrate);		
-+		restore_flags(flags);
- 		break;
- 	case SIOCSMEDIABUSY: /* Set media busy */
- 		IRDA_DEBUG(1, "%s(), SIOCSMEDIABUSY\n", __FUNCTION__);
-@@ -2042,14 +2039,17 @@ static int ali_ircc_net_ioctl(struct net
- 		break;
- 	case SIOCGRECEIVING: /* Check if we are receiving right now */
- 		IRDA_DEBUG(2, "%s(), SIOCGRECEIVING\n", __FUNCTION__);
-+		/* Is it really needed ? And what about spinlock ? */
-+		save_flags(flags);
-+		cli();	
-+
- 		irq->ifr_receiving = ali_ircc_is_receiving(self);
-+		restore_flags(flags);
- 		break;
- 	default:
- 		ret = -EOPNOTSUPP;
- 	}
--	
--	restore_flags(flags);
--	
-+
- 	IRDA_DEBUG(2, "%s(), ----------------- End ------------------\n", __FUNCTION__);	
- 	
- 	return ret;
+   /* So : at this point, we have a socket, and it is idle. Good ! */
+   irnet_connect_socket(server, new, qos, max_sdu_size, max_header_size);

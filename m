@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263625AbRFAR2x>; Fri, 1 Jun 2001 13:28:53 -0400
+	id <S263631AbRFARaN>; Fri, 1 Jun 2001 13:30:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263630AbRFAR2e>; Fri, 1 Jun 2001 13:28:34 -0400
-Received: from colorfullife.com ([216.156.138.34]:50697 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S263625AbRFAR23>;
-	Fri, 1 Jun 2001 13:28:29 -0400
-Message-ID: <3B17D0C1.5FC21CFB@colorfullife.com>
-Date: Fri, 01 Jun 2001 19:28:33 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: thunder7@xs4all.nl
-CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
-In-Reply-To: <3B16A7E3.1BD600F3@colorfullife.com> <20010531222708.A8295@middle.of.nowhere> <3B16AD5D.DEDB8523@colorfullife.com> <20010601071414.A871@middle.of.nowhere>
+	id <S263630AbRFARaD>; Fri, 1 Jun 2001 13:30:03 -0400
+Received: from grobbebol.xs4all.nl ([194.109.248.218]:52038 "EHLO
+	grobbebol.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263627AbRFAR3z>; Fri, 1 Jun 2001 13:29:55 -0400
+Date: Fri, 1 Jun 2001 17:28:37 +0000
+From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+To: Danny ter Haar <dth@trinity.hoho.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ethernet still quits
+Message-ID: <20010601172837.A652@grobbebol.xs4all.nl>
+In-Reply-To: <20010601151705.A526@grobbebol.xs4all.nl> <3B17B506.B773B998@mandrakesoft.com> <9f8dba$m5h$1@voyager.cistron.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <9f8dba$m5h$1@voyager.cistron.net>; from dth@trinity.hoho.nl on Fri, Jun 01, 2001 at 03:45:46PM +0000
+X-OS: Linux grobbebol 2.4.5 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thunder7@xs4all.nl wrote:
+On Fri, Jun 01, 2001 at 03:45:46PM +0000, Danny ter Haar wrote:
+> >the current 'ac' patches or a previous version on
+> >http://sf.net/projects/gkernel/ temporarily.
 > 
-> :setpci -s 00:07.2 INTERRUPT_LINE=15
-> :lspci -vx -s 00:07.2
-> 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
->         Subsystem: Unknown device 0925:1234
->         Flags: bus master, medium devsel, latency 32, IRQ 19
->         I/O ports at a000 [size=32]
->         Capabilities: [80] Power Management version 2
-> 30: 00 00 00 00 80 00 00 00 00 00 00 00 15 04 00 
-> :setpci -s 00:07.2 INTERRUPT_LINE=19
-> :lspci -vx -s 00:07.2
-> 00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 16) (prog-if 00 [UHCI])
->         Subsystem: Unknown device 0925:1234
->         Flags: bus master, medium devsel, latency 32, IRQ 19
->         I/O ports at a000 [size=32]
->         Capabilities: [80] Power Management version 2
-> 30: 00 00 00 00 80 00 00 00 00 00 00 00 19 04 00 00
+> also on :
+> www.bzimage.org/kernel-patches/v2.4/alan/v2.4.5/
 > 
-> So that is correct. I'll attach all the information from the MPS 1.4
-> reboot, in which 00:07.2 happily points at 05, while everything else
-> thinks it's at 19.....
->
+> 8139_too_work.c (62kB)
+> 
+> And also there:
+> 
+> patch-2.4.5-ac6-crypto.bz2 (268kB)
 
-Could you compile uhci as a module, set the configuration to MPS1.4 and
-find out with which interrupt line setting it works.
-I'd try both
+Thanks Jeff and Danny. you're a help !
 
-setpci -s 00:07.2 INTERRUPT_LINE=13
-setpci -s 00:07.2 INTERRUPT_LINE=3
-[even if 13 works, please try 03 as well. 13 is hexadecimal==19]
-
-The via ac97 sound driver contains an irq fixup for this problem. Either
-a similar fixup is necessary in the uhci driver, or the fixup from the
-ac97 driver could be moved to the pci-quirks and applied to all devices
-in the southbridge.
-
---
-	Manfred
+-- 
+Grobbebol's Home                   |  Don't give in to spammers.   -o)
+http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
+Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  

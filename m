@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129309AbRCEOhe>; Mon, 5 Mar 2001 09:37:34 -0500
+	id <S129318AbRCEOzg>; Mon, 5 Mar 2001 09:55:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129310AbRCEOhZ>; Mon, 5 Mar 2001 09:37:25 -0500
-Received: from mailhost.mipsys.com ([62.161.177.33]:50653 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S129309AbRCEOhN>; Mon, 5 Mar 2001 09:37:13 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: <linux-fbdev-devel@sourceforge.net>, Cort Dougan <cort@fsmlabs.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [prepatches] removal of console_lock
-Date: Mon, 5 Mar 2001 15:36:54 +0100
-Message-Id: <19350128080838.10672@mailhost.mipsys.com>
-In-Reply-To: <3AA38E05.549BCF95@uow.edu.au>
-In-Reply-To: <3AA38E05.549BCF95@uow.edu.au>
-X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S129321AbRCEOz0>; Mon, 5 Mar 2001 09:55:26 -0500
+Received: from mail630.gsfc.nasa.gov ([128.183.190.39]:29713 "EHLO
+	mail630.gsfc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S129318AbRCEOzP>; Mon, 5 Mar 2001 09:55:15 -0500
+Date: Mon, 5 Mar 2001 09:55:12 -0500
+From: John Kodis <kodis@mail630.gsfc.nasa.gov>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: linux-kernel@vger.kernel.org, bug-bash@gnu.org
+Subject: Re: binfmt_script and ^M
+Message-ID: <20010305095512.A30787@tux.gsfc.nasa.gov>
+Mail-Followup-To: John Kodis <kodis@mail630.gsfc.nasa.gov>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	linux-kernel@vger.kernel.org, bug-bash@gnu.org
+In-Reply-To: <m3k8648i94.fsf@appel.lilypond.org> <Pine.LNX.3.95.1010305083112.8719A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1010305083112.8719A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Mar 05, 2001 at 08:40:22AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Cort Dougan wrote:
->> 
->> I still get huge over-runs with fbdev (much improved, though).
->
->If you're referring to scheduling overruns then yes, you will
->still see monstrous ones.  We're still spending great lengths of
->time in the kernel, only now we're doing it with interrupts
->enabled.  We can still block all tasks for half a second at a time.
+On Mon, Mar 05, 2001 at 08:40:22AM -0500, Richard B. Johnson wrote:
 
-Well, at least having interrupts enabled is really nice for us on PPC
-since we have this nasty chip (the PMU) that don't like at all beeing
-interrupted for a long time in the middle of a message exchange.
-It has caused endless trouble in the past and still, occasionally, when
-you set your powerbook display bit depth to 32 and don't enable HW 
-acceleration in the fbdev driver.
+> Somebody must have missed the boat entirely. Unix does not, never
+> has, and never will end a text line with '\r'.
 
-I hope your patch will be merged in as soon as possible :) I'll do some
-tests here.
+Unix does not, never has, and never will end a text line with ' ' (a
+space character) or with \t (a tab character).  Yet if I begin a shell
+script with '#!/bin/sh ' or '#!/bin/sh\t', the training white space is
+striped and /bin/sh gets exec'd.  Since \r has no special significance
+to Unix, I'd expect it to be treated the same as any other whitespace
+character -- it should be striped, and /bin/sh should get exec'd.
 
-Ben.
-
+-- 
+John Kodis <kodis@acm.org>
+Phone: 301-286-7376

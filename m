@@ -1,59 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279506AbRKIG53>; Fri, 9 Nov 2001 01:57:29 -0500
+	id <S279509AbRKIG6T>; Fri, 9 Nov 2001 01:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279509AbRKIG5T>; Fri, 9 Nov 2001 01:57:19 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:11525 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S279506AbRKIG5B>; Fri, 9 Nov 2001 01:57:01 -0500
-Message-ID: <3BEB7CF2.AC027782@zip.com.au>
-Date: Thu, 08 Nov 2001 22:51:30 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Robert Lowery <Robert.Lowery@colorbus.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Assertion failure wth ext3 on standard Redhat 7.2 kernel
-In-Reply-To: <370747DEFD89D2119AFD00C0F017E66150B29A@cbus613-server4.colorbus.com.au>
+	id <S279581AbRKIG6M>; Fri, 9 Nov 2001 01:58:12 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:48366 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S279509AbRKIG54>;
+	Fri, 9 Nov 2001 01:57:56 -0500
+Date: Thu, 8 Nov 2001 23:56:32 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alexander Viro <viro@math.psu.edu>, ext2-devel@lists.sourceforge.net,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] ext2/ialloc.c cleanup
+Message-ID: <20011108235632.D907@lynx.no>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	Alexander Viro <viro@math.psu.edu>,
+	ext2-devel@lists.sourceforge.net,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011108154311.E9043@lynx.no> <Pine.GSO.4.21.0111081802250.8052-100000@weyl.math.psu.edu> <3BEB7464.245FBB23@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3BEB7464.245FBB23@zip.com.au>; from akpm@zip.com.au on Thu, Nov 08, 2001 at 10:15:00PM -0800
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Lowery wrote:
+On Nov 08, 2001  22:15 -0800, Andrew Morton wrote:
+>         max_dirs = ndirs / ngroups + inodes_per_group / 16;
+>         min_inodes = avefreei - inodes_per_group / 4;
+>         min_blocks = avefreeb - EXT2_BLOCKS_PER_GROUP(sb) / 4;
 > 
-> Hi,
+> things start to get a bit confusing.  A couple of 1-2 line comments
+> which explain what the variables actually represent would help to
+> clarify things.  Also, an explanation of `debt' is needed.
+
+Yes, my eyes glazed over at this point as well.
+
+> Tree	Stock	Stock/ideal	Patched	Patched/stock	Orlov	Orlov/ideal
+> 	(secs)			(secs)			(secs)	
+
+Andrew, could you stick with a single metric (either /ideal or /stock)?
+
+> 12	54	4.15		101	187.04%		76	5.85
+> 13	82	6.31		104	126.83%		78	6
+> 14	89	6.85		103	115.73%		77	5.92
+> 15	88	6.77		95	107.95%		77	5.92
+> 16	106	8.15		99	93.40%		77	5.92
+
+What else would be useful here is percent full for the filesystem.
+Since stock ext2 preallocates up to 7 blocks for each file, this is good
+for reducing fragmentation, but as the filesystem gets full it makes
+fragmentation worse in the end.
+
+> So I just don't know at this stage.  Even after a single pass of the Smith
+> workload, we're running at 3x to 5x worse than ideal.  If that's simply
+> the best we can do, then we need to compare stock 2.4.14 with Orlov
+> partway through the progress of the Smith workload to evaluate how much
+> more serious the fragmentation is.   That's easy enough - I'll do it.
 > 
-> I have recently upgraded my machine to redhat 7.2 (from redhat 6.2) and I am
-> constantly (eg < 1 hour of uptime) getting kernel crashes which I believe
-> are relating to ext3.  I know I should submit this to redhat's bugzilla, but
-> before I do I was hoping someone on the list might want to comment as I am
-> sure it is probably something I am doing wrong.
-> 
-> The machine has previously been rock solid, and the only hardware change I
-> have made recently is to add an extra 64M of RAM (Total 128MB).  I have run
-> memtest86 on it for 10 hours with no errors reported.
-> 
-> The last error I get is
-> Assertion failure in __journal_file_buffer() at transaction.c:1953:
-> "jh->b_jlist < 9".  I can still switch between consoles, but cannot do much
-> else other than press the reset button :(
-> 
+> The next task is to work out why a single pass of the Smith workload
+> fragments the filesystem so much, and whether this can be improved.
 
-ext3 downloads are currently running at 1,200 per day plus
-an unknown number of Red Hat users, and you're the first to report
-this one.   So it's going to be something odd.  It _could_ be bad
-hardware, but if it's always failing in the same way, that sounds
-unlikely.
+After reading the paper, one possible cause of skewed results may be
+a result of their "reverse engineering" of the filesystem layout from
+the inode numbers.  They state that they were not able to capture the
+actual pathnames of the files in the workload, so they invented pathnames
+that would put the files in the same cylinder groups based on the FFS
+allocation algorithms then in use, assuming the test filesystem had an
+identical layout.
 
-Could you please force a `fsck' against the fs, let us know the
-outcome?
+It may be possible to hack the test data into ext2 by creating a filesystem
+with the same number of block groups as the test FFS filesystem with the
+Smith workload.  It may also not be valid for our needs, as we are playing
+with the actual group selection algorithm, so real pathnames may give us
+a different layout.
 
-Also, a ksymoops trace of the oops output would be most useful.
+Have you ever looked at the resulting data from a Smith test?  Does it do
+more than simply create 27 directories (the number of cylinder groups) and
+dump files directly therein, as opposed to creating more subdirectories?
+Remember that they were strictly concerned with block allocation for files,
+and not cylinder group selection for directories.
 
-It looks like memory corruption of some form - a structure
-member has an impossible value.  Are you using any less-than-mainstream
-device drivers in that box?
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
--

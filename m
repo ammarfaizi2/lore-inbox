@@ -1,93 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbULVAUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbULVAUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbULVAUT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 19:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbULVAUT
+	id S261923AbULVAUk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 19:20:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbULVAUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 19:20:19 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50668 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261918AbULVATy (ORCPT
+	Tue, 21 Dec 2004 19:20:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:14242 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261919AbULVAUZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 19:19:54 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] allow struct bin_attributes in class devices
-Date: Tue, 21 Dec 2004 16:19:52 -0800
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_o2LyBK1qAfW0qeJ"
-Message-Id: <200412211619.52596.jbarnes@engr.sgi.com>
+	Tue, 21 Dec 2004 19:20:25 -0500
+Date: Tue, 21 Dec 2004 16:20:10 -0800
+From: Greg KH <greg@kroah.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, willy@debian.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] add legacy resources to sysfs
+Message-ID: <20041222002010.GA12799@kroah.com>
+References: <200412211247.44883.jbarnes@engr.sgi.com> <200412211542.47997.jbarnes@engr.sgi.com> <20041222000509.GA12595@kroah.com> <200412211614.20958.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200412211614.20958.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_o2LyBK1qAfW0qeJ
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, Dec 21, 2004 at 04:14:20PM -0800, Jesse Barnes wrote:
+> On Tuesday, December 21, 2004 4:05 pm, Greg KH wrote:
+> > >  drivers/base/class.c    |   16 ++++++++++
+> >
+> > Hm, how about splitting this further, one for the driver core stuff (you
+> > forgot the device.h change here too...) and the other for the PCI stuff?
+> 
+> Sure, I'll split it out.  Did you mean that I was missing the prototype?  I'll 
+> fix that up too.
 
-This small patch adds routines to create and remove bin_attribute files for 
-class devices.  One intended use is for binary files corresponding to PCI 
-busses, like bus legacy I/O ports or ISA memory.
+Yeah, no prototype.  Makes it a bit hard to use the function :)
 
- drivers/base/class.c   |   16 ++++++++++++++++
- include/linux/device.h |    5 ++++-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+thanks,
 
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-
-Thanks,
-Jesse
-
---Boundary-00=_o2LyBK1qAfW0qeJ
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="class-device-bin-files.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="class-device-bin-files.patch"
-
-===== drivers/base/class.c 1.56 vs edited =====
---- 1.56/drivers/base/class.c	2004-11-12 03:45:39 -08:00
-+++ edited/drivers/base/class.c	2004-12-21 13:59:00 -08:00
-@@ -179,6 +179,22 @@
- 		sysfs_remove_file(&class_dev->kobj, &attr->attr);
- }
- 
-+int class_device_create_bin_file(struct class_device *class_dev,
-+				 struct bin_attribute *attr)
-+{
-+	int error = -EINVAL;
-+	if (class_dev)
-+		error = sysfs_create_bin_file(&class_dev->kobj, attr);
-+	return error;
-+}
-+
-+void class_device_remove_bin_file(struct class_device *class_dev,
-+				  struct bin_attribute *attr)
-+{
-+	if (class_dev)
-+		sysfs_remove_bin_file(&class_dev->kobj, attr);
-+}
-+
- static int class_device_dev_link(struct class_device * class_dev)
- {
- 	if (class_dev->dev)
-===== include/linux/device.h 1.133 vs edited =====
---- 1.133/include/linux/device.h	2004-12-08 15:22:36 -08:00
-+++ edited/include/linux/device.h	2004-12-21 16:16:06 -08:00
-@@ -228,7 +228,10 @@
- 				    const struct class_device_attribute *);
- extern void class_device_remove_file(struct class_device *, 
- 				     const struct class_device_attribute *);
--
-+extern int class_device_create_bin_file(struct class_device *,
-+					struct bin_attribute *);
-+extern void class_device_remove_bin_file(struct class_device *,
-+					 struct bin_attribute *);
- 
- struct class_interface {
- 	struct list_head	node;
-
---Boundary-00=_o2LyBK1qAfW0qeJ--
+greg k-h

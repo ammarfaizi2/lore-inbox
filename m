@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261312AbSKXOPx>; Sun, 24 Nov 2002 09:15:53 -0500
+	id <S261339AbSKXOSC>; Sun, 24 Nov 2002 09:18:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbSKXOPx>; Sun, 24 Nov 2002 09:15:53 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:60821 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261312AbSKXOPw> convert rfc822-to-8bit; Sun, 24 Nov 2002 09:15:52 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: NFS performance ...
-Date: Sun, 24 Nov 2002 15:23:01 +0100
-User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: KELEMEN Peter <fuji@elte.hu>, Andrea Arcangeli <andrea@suse.de>
+	id <S261349AbSKXOSC>; Sun, 24 Nov 2002 09:18:02 -0500
+Received: from zero.aec.at ([193.170.194.10]:59915 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S261339AbSKXOSB>;
+	Sun, 24 Nov 2002 09:18:01 -0500
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Invalid module format - how does one fix this?
+References: <200211240859.35516.tomlins@cam.org>
+From: Andi Kleen <ak@muc.de>
+Date: 24 Nov 2002 15:25:05 +0100
+In-Reply-To: <200211240859.35516.tomlins@cam.org>
+Message-ID: <m3vg2nniym.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211241521.09981.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter,
+Ed Tomlinson <tomlins@cam.org> writes:
 
-> I have a very simple NFS setup over a siwtched 100Mbit/s network.
-> client is Celeron 400MHz/256M RAM, using XFS
-> server is dual Pentium Pro 200MHz/1G RAM, using XFS
-> server is running Linux 2.4.19-pre8aa3.
->
-> Network bandwith can be utilized, because ICMP flooding the
-> server results in ~20000 kbit/s network traffic (as of
-> iptraf), but NFS (v3,udp) write performance is unacceptably
-> slow (around 300 KiB/sec), same results with the following
-> kernels:
-> Linux 2.4.18-WOLK3.1
-> Linux 2.4.18-wolk3.7.1
-> Linux 2.4.20-pre8aa2
-> However, with 2.4.19-rmap14b-xfs the very same NFS
-> performance tops out at 2.54 MiB/sec.  What's the catch?
-I think Andrea and me have something in our kernels that may cause it. For me 
-I don't know what that can be. I even have no idea what it can be :(
+> FATAL: Error inserting /lib/modules/2.5.49-mm1/kernel/ac97_codec.o: Invalid module format
+> 
+> I get this on about 10% of the modules I want to load.  How do I fix it?
 
-Andrea, you?
+readelf -r module_in_question.o
 
-Peter, have you also tested v3 over tcp?
+then look at arch/$ARCH/kernel/module.c and find out which relocation
+is not implemented. Then implement it. Enabling DEBUGP there and in 
+kernel/module.c may also help. 
 
-ciao, Marc
-
-
+-Andi

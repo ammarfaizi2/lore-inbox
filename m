@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUJLSOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266538AbUJLSSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267548AbUJLSOR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267483AbUJLSLi
+	id S266538AbUJLSSh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267474AbUJLSQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:11:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13478 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266582AbUJLSLB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:11:01 -0400
-Date: Tue, 12 Oct 2004 14:10:52 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrea Arcangeli <andrea@cpushare.com>
-cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: secure computing for 2.6.7
-In-Reply-To: <20041012174605.GH17372@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0410121409160.13693-100000@chimarrao.boston.redhat.com>
+	Tue, 12 Oct 2004 14:16:30 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S266538AbUJLSPj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 14:15:39 -0400
+Date: Tue, 12 Oct 2004 14:15:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Stephan <support@bbi.co.bw>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fw: Problem compiling linux-2.6.8.1......
+In-Reply-To: <003101c4b086$6c05eb50$0200060a@STEPHANFCN56VN>
+Message-ID: <Pine.LNX.4.61.0410121410550.3902@chaos.analogic.com>
+References: <003101c4b086$6c05eb50$0200060a@STEPHANFCN56VN>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Oct 2004, Andrea Arcangeli wrote:
+On Tue, 12 Oct 2004, Stephan wrote:
 
-> However as said boinc and seti would better start using it too.
+> hmm , I failed to mention that I'm running redhat ES 3. Don't know if this 
+> matters.
+>
+> Here's the full print out.
+>
+> gcc (GCC) 3.2.3 20030502 (Red Hat Linux 3.2.3-42)
+> Copyright (C) 2002 Free Software Foundation, Inc.
+> This is free software; see the source for copying conditions.  There is NO
+> warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+>
+> Kind Regards
+> Stephan
+>
+>
+>
+>> gcc (GCC) 3.2.3 20030502
+>>
 
-Thinking about it some more, I'm not convinced they can.
+I think you might need to upgrade some tools. Look in 
+linux-n.n.n/Documentation/Changes. The kernel uses a
+lot of "GNU-isms" that change from time-to-time.
 
-After all, they need to get new data to perform calculations
-on, and pass the results of previous calculations on to the
-server.
 
-In order to do that, the user needs to run code that's not
-restricted by seccomp. Taking that into account, what's the
-point ?
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 

@@ -1,29 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRCMNwW>; Tue, 13 Mar 2001 08:52:22 -0500
+	id <S131027AbRCMOR2>; Tue, 13 Mar 2001 09:17:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131027AbRCMNwM>; Tue, 13 Mar 2001 08:52:12 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:12811 "EHLO
-	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S130768AbRCMNwE>; Tue, 13 Mar 2001 08:52:04 -0500
-Message-Id: <200103131351.f2DDpUs53164@aslan.scsiguy.com>
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: jens <psh1@telus.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.3-pre3 not recognizing some SCSI CD drives 
-In-Reply-To: Your message of "Mon, 12 Mar 2001 19:57:05 PST."
-             <og6ratgov0f0fo4674ieectch0es2ujk8k@4ax.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 13 Mar 2001 06:51:30 -0700
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+	id <S131028AbRCMORT>; Tue, 13 Mar 2001 09:17:19 -0500
+Received: from enhanced.ppp.eticomm.net ([206.228.183.5]:9972 "EHLO
+	intech19.enhanced.com") by vger.kernel.org with ESMTP
+	id <S131027AbRCMORM>; Tue, 13 Mar 2001 09:17:12 -0500
+To: Khalid Aziz <khalid@fc.hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18 IDE tape problem, with ide-scsi
+In-Reply-To: <54u25g3yb9.fsf_-_@intech19.enhanced.com> <3A9BC2A9.F5EE8554@fc.hp.com> <544rxg2gde.fsf@intech19.enhanced.com> <3A9BC8ED.698DCA2C@fc.hp.com> <54vgpvq4y1.fsf@intech19.enhanced.com> <3A9BEF68.72EEF0E8@fc.hp.com> <54snkpyyug.fsf@intech19.enhanced.com> <3AACFEC7.5A48F607@fc.hp.com>
+From: Camm Maguire <camm@enhanced.com>
+Date: 13 Mar 2001 09:14:45 -0500
+In-Reply-To: Khalid Aziz's message of "Mon, 12 Mar 2001 09:52:23 -0700"
+Message-ID: <54y9u9n4bu.fsf@intech19.enhanced.com>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Just installed 2.4.3-pre4 .... same problem :(
+Thank you again, so much!
 
-It might help to know what controller you are using.
+Take care,
 
---
-Justin
+Khalid Aziz <khalid@fc.hp.com> writes:
 
+> 11,3 is "Multiple read errors". You can find all of the ASC and ASCQ
+> listed in any SCSI spec document. You can find the SCSI-2 specs at
+> <ftp://ftp.t10.org/t10/drafts/s2/s2-r10l.pdf>.
+> 
+> --
+> Khalid
+> 
+> Camm Maguire wrote:
+> > 
+> > Thank you again for your help.  While I do seem to get more errors
+> > with the ide-tape driver, I am also seeing some problems on further
+> > examination which are common to both ide-tape and st over ide-scsi, so
+> > perhaps I have a bad drive or tape.
+> > 
+> > When trying to mt eom, for example, I get
+> > 
+> > =============================================================================
+> > st0: Error: 28000000, cmd: 5 0 0 0 0 0 Len: 16
+> > [valid=0] Info fld=0x0, Current st09:00: sns = 70  5
+> > ASC=20 ASCQ= 0
+> > Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x0a 0x00 0x00 0x00 0x00 0x20 0x00 0x00 0x00
+> > st0: Can't read block limits.
+> > st0: Mode sense. Length 11, medium b6, WBS 10, BLL 8
+> > st0: Density 45, tape length: 0, drv buffer: 1
+> > st0: Block size: 512, buffer size: 32768 (64 blocks).
+> > st0: Retensioning tape.
+> > st0: Error: 28000000, cmd: 5 0 0 0 0 0 Len: 16
+> > [valid=0] Info fld=0x0, Current st09:00: sns = 70  5
+> > ASC=20 ASCQ= 0
+> > Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x0a 0x00 0x00 0x00 0x00 0x20 0x00 0x00 0x00
+> > st0: Can't read block limits.
+> > st0: Mode sense. Length 11, medium b6, WBS 10, BLL 8
+> > st0: Density 45, tape length: 0, drv buffer: 1
+> > st0: Block size: 512, buffer size: 32768 (64 blocks).
+> > st0: Spacing tape forward over 16383 filemarks.
+> > st0: Spacing to end of recorded medium.
+> > st0: Error: 28000000, cmd: 11 3 0 0 0 0 Len: 16
+> > Info fld=0x3feb, Deferred st09:00: sns = f1  3
+> > ASC=11 ASCQ= 3
+> > Raw sense data:0xf1 0x00 0x03 0x00 0x00 0x3f 0xeb 0x0a 0x00 0x00 0x00 0x00 0x11 0x03 0x00 0x00
+> > st0: Error: 28000000, cmd: 5 0 0 0 0 0 Len: 16
+> > [valid=0] Info fld=0x0, Current st09:00: sns = 70  5
+> > ASC=20 ASCQ= 0
+> > Raw sense data:0x70 0x00 0x05 0x00 0x00 0x00 0x00 0x0a 0x00 0x00 0x00 0x00 0x20 0x00 0x00 0x00
+> > st0: Can't read block limits.
+> > st0: Mode sense. Length 11, medium b6, WBS 10, BLL 8
+> > st0: Density 45, tape length: 0, drv buffer: 1
+> > st0: Block size: 512, buffer size: 32768 (64 blocks).
+> > st0: Rewinding tape.
+> > =============================================================================
+> > 
+> > What is the 11,3?  Where can I find these codes listed?  Why is the
+> > drive having trouble finding the end of the tape?  I'll be testing
+> > more tapes soon, but this definitely happens with at least several.
+> > The mt command returned to the prompt with 'Input/ouput error'.
+> > 
+> > Many Thanks again,
+> > 
+> 
+> -- 
+> ====================================================================
+> Khalid Aziz                             Linux Development Laboratory
+> (970)898-9214                                        Hewlett-Packard
+> khalid@fc.hp.com                                    Fort Collins, CO
+> 
+> 
+
+-- 
+Camm Maguire			     			camm@enhanced.com
+==========================================================================
+"The earth is but one country, and mankind its citizens."  --  Baha'u'llah

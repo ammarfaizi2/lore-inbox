@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316599AbSGBCtP>; Mon, 1 Jul 2002 22:49:15 -0400
+	id <S316614AbSGBDE6>; Mon, 1 Jul 2002 23:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316600AbSGBCtO>; Mon, 1 Jul 2002 22:49:14 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:16043
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S316599AbSGBCtO>; Mon, 1 Jul 2002 22:49:14 -0400
-Date: Mon, 1 Jul 2002 19:48:25 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] O(1) scheduler in 2.4
-Message-ID: <20020702024825.GI20920@opus.bloom.county>
-References: <Pine.LNX.3.96.1020701134937.23820A-100000@gatekeeper.tmr.com> <20020701181228.GF20920@opus.bloom.county> <20020701234432.GC1697@werewolf.able.es>
+	id <S316615AbSGBDE5>; Mon, 1 Jul 2002 23:04:57 -0400
+Received: from OL65-148.fibertel.com.ar ([24.232.148.65]:20181 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S316614AbSGBDE4>;
+	Mon, 1 Jul 2002 23:04:56 -0400
+Date: Tue, 2 Jul 2002 00:11:52 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RE2: [OKS] Module removal
+Message-ID: <20020702001152.D2295@almesberger.net>
+References: <20020701224034.C2295@almesberger.net> <31042.1025576745@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020701234432.GC1697@werewolf.able.es>
-User-Agent: Mutt/1.4i
+In-Reply-To: <31042.1025576745@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Jul 02, 2002 at 12:25:45PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 01:44:32AM +0200, J.A. Magallon wrote:
-> 
-> On 2002.07.01 Tom Rini wrote:
-> >On Mon, Jul 01, 2002 at 01:52:54PM -0400, Bill Davidsen wrote:
-> >
-> >> What's the issue?
-> >
-> >b) 2.4 is the _stable_ tree.  If every big change in 2.5 got back ported
-> >to 2.4, it'd be just like 2.5 :)
-> 
-> So you want to wait till 2.6.40 to be able to use a O1 scheduler on a
-> kernel that does not eat up your drives ? (say, next year by this same month...)
+Keith Owens wrote:
+> This is just one symptom of the overall problem, which is module code
+> that adjusts its use count by executing code that belongs to the
+> module.  The same problem exists on entry to a module function, the
+> module can be removed before MOD_INC_USE_COUNT is reached.
 
-I assume you mean 2.4.60 here, and no, I don't think O1 scheduler should
-go into 2.4 ever.  We're aiming for a _stable_ series here.  Let me
-stress that again, _stable_.  I'd hope that 2.4.60 is as slow in coming
-as 2.0.40 is.
+Ah yes, now I remember, thanks. I filed that under "improper reference
+tracking". After all, why would anybody hold an uncounted reference in
+the first place ?
 
-> >c) I also suspect that it hasn't been as widley tested on !x86 as the
-> >stuff currently in 2.4.  And again, 2.4 is the stable tree.
-> 
-> I know it is not a priority for 2.4, but say it wil never happen...
+I can understand that the exact number of references may be unknown,
+e.g. if I pass a reference to some registration function, which may in
+turn hand it to third parties, but why wouldn't I know that there is
+at least one reference ?
 
-I won't say it will never happen, just that I don't think it should.
-It's a rather invasive thing (and as Ingo said, it's just not getting
-stable).
+If some other module B hands out uncounted references on behalf of
+some module A, it would seem natural for B to make sure that it
+collects them before getting unloaded (and thereby releasing A).
+
+> 1) Do the reference counting outside the module, before it is entered.
+
+Evil, agreed ;-)
+
+- Werner
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://icapeople.epfl.ch/almesber/_____________________________________/

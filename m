@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274869AbTHPQhP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 12:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274880AbTHPQhO
+	id S274838AbTHPQkB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 12:40:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274884AbTHPQkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 12:37:14 -0400
-Received: from mail.kroah.org ([65.200.24.183]:11943 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S274869AbTHPQhL (ORCPT
+	Sat, 16 Aug 2003 12:40:00 -0400
+Received: from mail.kroah.org ([65.200.24.183]:49063 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S274838AbTHPQj4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 12:37:11 -0400
-Date: Sat, 16 Aug 2003 09:37:27 -0700
+	Sat, 16 Aug 2003 12:39:56 -0400
+Date: Sat, 16 Aug 2003 09:40:19 -0700
 From: Greg KH <greg@kroah.com>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: walt <wa1ter@myrealbox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3 current - compile error - no member named 'name'
-Message-ID: <20030816163727.GC9735@kroah.com>
-References: <3F3E288B.3010105@cornell.edu> <3F3DD93E.7090706@myrealbox.com> <3F3E38AE.1040902@cornell.edu>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, axel@pearbough.net
+Subject: Re: [Bug 1116] New: build error in drivers/scsi/ide-scsi.c
+Message-ID: <20030816164019.GD9735@kroah.com>
+References: <32230000.1061041877@[10.10.2.4]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F3E38AE.1040902@cornell.edu>
+In-Reply-To: <32230000.1061041877@[10.10.2.4]>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 09:59:10AM -0400, Ivan Gyurdiev wrote:
-> walt wrote:
-> >Ivan Gyurdiev wrote:
-> >
-> >>Hopefully, this is not a duplicate post:
-> >>===========================================
-> >>
-> >>drivers/ieee1394/nodemgr.c: In function `nodemgr_update_ud_names':
-> >>drivers/ieee1394/nodemgr.c:471: error: structure has no member named 
-> >>`name'
-> >
-> >
-> >I got a similar error starting with last night's bk pull:
-> >
-> >drivers/pnp/core.c: In function `pnp_register_protocol':
-> >drivers/pnp/core.c:72: structure has no member named `name'
-> >
-> >-
+Martin, when is the email-to-bugzilla interface going to be up and
+working?
+
+On Sat, Aug 16, 2003 at 06:51:17AM -0700, Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=1116
 > 
-> And I just got another one of those trying to compile the nvidia driver 
-> for this kernel. So apparently this is not firewire or pnp specific.
+>            Summary: build error in drivers/scsi/ide-scsi.c
+>     Kernel Version: 2.6.0-test3-bk
+>             Status: NEW
+>           Severity: high
+>              Owner: andmike@us.ibm.com
+>          Submitter: axel@pearbough.net
+> 
+> 
+> Distribution:Slackware-9.0
+> Hardware Environment:
+> Software Environment:
+> Problem Description:build fails at drivers/scsi/ide-scsi.c:951
+> drivers/scsi/ide-scsi.c:951: error: unknown field `name' specified in initializer
+> Steps to reproduce:drivers/scsi/ide-scsi.c:951: warning: missing braces around initializer
+> drivers/scsi/ide-scsi.c:951: warning: (near initialization for `idescsi_primary.node')
+> drivers/scsi/ide-scsi.c:951: warning: initialization from incompatible pointer type
 
-Well go bug nvidia about that, nothing we can do for closed source
-modules...
+Here's a fix for that, sorry...
 
-thanks,
 
-greg k-h
+diff -Nru a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+--- a/drivers/scsi/ide-scsi.c	Sat Aug 16 09:39:27 2003
++++ b/drivers/scsi/ide-scsi.c	Sat Aug 16 09:39:27 2003
+@@ -948,7 +948,6 @@
+ };
+ 
+ static struct device     idescsi_primary = {
+-	.name		= "Ide-scsi Parent",
+ 	.bus_id		= "ide-scsi",
+ };
+ static struct bus_type   idescsi_emu_bus = {

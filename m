@@ -1,87 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130166AbRBZUpa>; Mon, 26 Feb 2001 15:45:30 -0500
+	id <S129072AbRBZUuI>; Mon, 26 Feb 2001 15:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130221AbRBZUpU>; Mon, 26 Feb 2001 15:45:20 -0500
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:35161 "EHLO
-	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S130166AbRBZUpG>; Mon, 26 Feb 2001 15:45:06 -0500
-Message-ID: <3A9AC033.9A2EA1F6@cleggies.freeserve.co.uk>
-Date: Mon, 26 Feb 2001 20:44:35 +0000
-From: Mark Clegg <mark@cleggies.freeserve.co.uk>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: rubini@vision.unipv.it, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.x kernel keyboard fix for Digital HiNote Ultra 2000
-In-Reply-To: <E14X5Qf-0003jD-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129051AbRBZUuA>; Mon, 26 Feb 2001 15:50:00 -0500
+Received: from ns.arraycomm.com ([199.74.167.5]:25062 "HELO
+	bastion.arraycomm.com") by vger.kernel.org with SMTP
+	id <S129104AbRBZUtu>; Mon, 26 Feb 2001 15:49:50 -0500
+Message-Id: <5.0.2.1.2.20010226124747.02678da8@pop.arraycomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Mon, 26 Feb 2001 12:47:56 -0800
+To: linux-kernel@vger.kernel.org (Linux Kernel)
+From: Jasmeet Sidhu <jsidhu@arraycomm.com>
+Subject: Fwd: Re: timeout waiting for DMA
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried adding mdelay(1) before and after but
-this doesn't help. However, increasing the delay
-does, and the minimum I've got to work is mdelay(2)
-before, with no delay afterwards. I don't know what
-the delay rules for the controller are, so it may
-be necessary to add one afterwards as well. It
-certainly doesn't seem to hurt the HiNote whether
-there is or not.
 
-Regards
-Mark
-
-Revised patch....
-
---- drivers/char/pc_keyb.c.orig Mon Feb 26 20:22:45 2001
-+++ drivers/char/pc_keyb.c      Mon Feb 26 20:15:48 2001
-@@ -909,6 +909,7 @@
-        aux_write_ack(AUX_ENABLE_DEV); /* Enable aux device */
-        kbd_write_cmd(AUX_INTS_ON); /* Enable controller ints */
-
-+       mdelay(2);
-        send_data(KBD_CMD_ENABLE);      /* try to workaround toshiba4030cdt
-problem */
-
-        return 0;
-
-Akan Cox wrote.
-
-> > drivers/char/pc_keyb.c related to fixing problems on a Toshiba 4030cdt.
-> > It would appear that the fix for the Tosh, breaks the HiNote. (I don't
-> > have a Tosh to experiment with).
+>Date: Mon, 26 Feb 2001 12:47:30 -0800
+>To: Jason Rappleye <rappleye@cse.Buffalo.EDU>
+>From: Jasmeet Sidhu <jsidhu@arraycomm.com>
+>Subject: Re: timeout waiting for DMA
 >
-> Reading the pc_keyb.c code two things strike me. The first is to wonder how
-> the hell Linus let that code get submitted ;) and the second is that the
-> delay rules are totally violated, and thats something we know the hinote's
-> hate.
+>I had the same exact problem last night using the IBM drives and the ULTRA 
+>ata/100 controller from Promise.  Could this be due to an irq conflict?
 >
-> > --- drivers/char/pc_keyb.c.orig Sat Feb 24 20:01:46 2001
-> > +++ drivers/char/pc_keyb.c      Sat Feb 24 20:02:03 2001
-> > @@ -909,7 +909,7 @@
-> >         aux_write_ack(AUX_ENABLE_DEV); /* Enable aux device */
-> >         kbd_write_cmd(AUX_INTS_ON); /* Enable controller ints */
-> >
-> > -       send_data(KBD_CMD_ENABLE);      /* try to workaround
-> > toshiba4030cdt problem */
-> > +//     send_data(KBD_CMD_ENABLE);      /* try to workaround
-> > toshiba4030cdt problem */
+>kernel: hda: timeout waiting for DMA
+>kernel: ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+>kernel: hdi: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
 >
-> Instead of commenting it put
+>and after a few messages my system freazes and can only be brought up by a 
+>hard reset.  Could this be due to faulty cables as well?  or is there 
+>something else that is messing up?  I was suspecting an IRQ problem, maybe 
+>USB is using the same irq (nothing on the USB ports though)... but I am 
+>not certain.  Anybody else out there with similar problems?  Any Solutions?
 >
->         mdelay(1);
+>This was suing Kernel 2.4.2 with ac3 patch.  Is there a need to apply 
+>Andre Hedrick's ide patches from kernel 2.4.1?
 >
-> before and after, and let me know if that helps
+>Jasmeet
 >
-> Alan
+>
+>At 03:41 PM 2/26/2001 -0500, you wrote:
+>
+>>Hi,
+>>
+>>I'm running kernel 2.4.2 on an SGI 1100 (dual PIIIs) with a Serverworks
+>>III LE based motherboard. The disk is a Seagate ST330630A. The disk has
+>>DMA enabled at boot time :
+>>
+>>hda: ST330630A, ATA DISK drive
+>>hda: 59777640 sectors (30606 MB) w/2048KiB Cache, CHS=3720/255/63, UDMA(33)
+>>
+>>(also verified using hdparm)
+>>
+>>but after a while (eg partway through running bonnie with a 1GB file) I
+>>get the following errors:
+>>
+>>Feb 24 22:51:02 nash2 kernel: hda: timeout waiting for DMA
+>>Feb 24 22:51:02 nash2 kernel: ide_dmaproc: chipset supported ide_dma_timeout
+>>func only: 14
+>>Feb 24 22:51:02 nash2 kernel: hda: irq timeout: status=0x58 { DriveReady
+>>SeekComplete DataRequest }
+>><repeats a few times>
+>>Feb 24 22:51:32 nash2 kernel: hda: DMA disabled
+>>
+>>I can reenable DMA without any problems, but after some additional disk
+>>activity (eg running bonnie again), the error occurs again.
+>>
+>>Additional information on my hardware is given below. Any suggestions on
+>>how this can be resolved?
+>>
+>>Thanks,
+>>
+>>Jason
+>>
+>>hdparm -i /dev/hda
+>>
+>>/dev/hda:
+>>
+>>  Model=ST330630A, FwRev=3.21, SerialNo=3CK0JDFE
+>>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs RotSpdTol>.5% }
+>>  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=0
+>>  BuffType=0(?), BuffSize=2048kB, MaxMultSect=16, MultSect=off
+>>  DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
+>>  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=59777640
+>>  tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+>>  IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4
+>>  UDMA modes: mode0 mode1 *mode2 mode3 mode4
+>>
+>>Relevant portion of /proc/pci:
+>>
+>>   Bus  0, device  15, function  1:
+>>     IDE interface: PCI device 1166:0211 (ServerWorks) (rev 0).
+>>       Master Capable.  Latency=64.
+>>       I/O at 0x3080 [0x308f].
+>>
+>>Relevant portion of lspci -v:
+>>
+>>00:0f.1 IDE interface: Relience Computer: Unknown device 0211 (prog-if 8a
+>>[Master SecP PriP])
+>>         Flags: bus master, medium devsel, latency 64
+>>         I/O ports at 3080 [size=16]
+>>
+>>
+>>--
+>>Jason Rappleye
+>>rappleye@buffalo.edu
+>>http://www.ccr.buffalo.edu/jason.htm
+>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>- - -
+>Jasmeet Sidhu
+>Unix Systems Administrator
+>ArrayComm, Inc.
+>jsidhu@arraycomm.com
+>www.arraycomm.com
 
---
-+-------------------------------------------------------------------+
-| Mark Clegg                           www.cleggies.freeserve.co.uk |
-| 38th Rossendale (Open) Scout Group          www.the38thrsg.org.uk |
-+-------------------------------------------------------------------+
 
+- - -
+Jasmeet Sidhu
+Unix Systems Administrator
+ArrayComm, Inc.
+jsidhu@arraycomm.com
+www.arraycomm.com
 
 

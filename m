@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136060AbRAGQwf>; Sun, 7 Jan 2001 11:52:35 -0500
+	id <S136001AbRAGQzp>; Sun, 7 Jan 2001 11:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136085AbRAGQwZ>; Sun, 7 Jan 2001 11:52:25 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:1008 "EHLO
+	id <S136033AbRAGQzf>; Sun, 7 Jan 2001 11:55:35 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:13296 "EHLO
 	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S136068AbRAGQwR>; Sun, 7 Jan 2001 11:52:17 -0500
-Date: Sun, 7 Jan 2001 14:52:04 -0200 (BRDT)
+	id <S136001AbRAGQzS>; Sun, 7 Jan 2001 11:55:18 -0500
+Date: Sun, 7 Jan 2001 14:55:01 -0200 (BRDT)
 From: Rik van Riel <riel@conectiva.com.br>
-Reply-To: linux-mm@kvack.org
-To: david <sector2@ihug.co.nz>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: new kernel mm
-In-Reply-To: <3A580C47.94994D3A@ihug.co.nz>
-Message-ID: <Pine.LNX.4.21.0101071450390.21675-100000@duckman.distro.conectiva>
+To: Jim Olsen <jim@browsermedia.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Which kernel fixes the VM issues?
+In-Reply-To: <01010706312902.10913@jim.cyberjunkees.com>
+Message-ID: <Pine.LNX.4.21.0101071454060.21675-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, david wrote:
+On Sun, 7 Jan 2001, Jim Olsen wrote:
 
-> can i rewrite the mm system in kernel's 2.2.18 to add new and
-> needed functions or may be it can be a compile option old (mm
-> system or new mm system) ?
+> Hi... I have a question or two that would help me clear up a bit of the fuzz 
+> I have relating to the VM: do_try_to_free_pages issue.  
 
-Upgrade to 2.4.0  ;)
+> My question is, exactly which kernel should I use in order to
+> rid my server of this VM issue?
 
-But yes, you can rewrite 2.2.18 VM all you want, that's
-what the GPL is for...
-
-Btw, which extra functions are you looking at? You may
-find that some of them have already been implemented by
-other people (which would save you quite a bit of work).
+2.2:  2.2.19pre2 and later
+2.4:  2.4.0  (and later ;))
 
 regards,
 

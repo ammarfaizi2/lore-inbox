@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314061AbSEAVjj>; Wed, 1 May 2002 17:39:39 -0400
+	id <S314065AbSEAVjo>; Wed, 1 May 2002 17:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314065AbSEAVji>; Wed, 1 May 2002 17:39:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15120 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314061AbSEAVjh>;
-	Wed, 1 May 2002 17:39:37 -0400
-Message-ID: <3CD0605D.ACC42AA2@zip.com.au>
-Date: Wed, 01 May 2002 14:38:37 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S314069AbSEAVjn>; Wed, 1 May 2002 17:39:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58126 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314065AbSEAVjm>; Wed, 1 May 2002 17:39:42 -0400
+Date: Wed, 1 May 2002 14:38:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.12: remove VALID_PAGE
+In-Reply-To: <Pine.LNX.4.21.0205012136560.23113-100000@serv>
+Message-ID: <Pine.LNX.4.33.0205011433040.23138-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: Guillaume Boissiere <boissiere@attbi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  May 1, 2002
-In-Reply-To: <3CCFBB21.9046.7889B0D2@localhost> <20020501201927.GS574@matchmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
+
+On Wed, 1 May 2002, Roman Zippel wrote:
 > 
-> On Wed, May 01, 2002 at 09:53:37AM -0400, Guillaume Boissiere wrote:
-> > new framebuffer layer, as well as some more delayed disk block
-> > allocation bits.
-> 
-> Actually Andrews work on address_space based writeback is related somewhat,
-> but really it's a rewrite/cleanup of the buffer layer.  Delayed block
-> alocation is helped alot by this, and almost depends on it IIRC.
-> 
-> One vote for a seperate listing in the status for "Address Space based
-> Writeback / Buffer layer cleanup".
+> This patch removes VALID_PAGE() and replaces it with pte_valid_page()/
+> virt_to_valid_page(). The VALID_PAGE() test is basically always too late
+> for configuration with discontinous memory. The real input value (the 
+> virtual or physical address) has to be checked. Nice side effect: the
+> kernel becomes 1KB smaller.
 
-Well the next major step here is going direct
-pagecache<->BIO, bypassing the intermediate submit_bh
-for most I/O.
+Can you please do this differently, by splitting up the pte->page 
+conversion and explicitly using a physical PFN in between the two?
 
-Probably that will make most of the performance benefits
-of delayed-allocate go away.
+In other words, I'd much rather have
 
-There are other reasons for implementing delalloc
-(XFS, improved layout, ...).  So it ain't dead yet.
+	unsigned long pfn = pte_pfn(pte);
 
+	if (pfn_valid(pfn)) {
+		struct page *page = pfn_to_page(pfn);
+		...
+	}
 
-At 48 bytes, 2.5's buffer_head is now precisely half the
-size of 2.4's.  I'm hoping to be able to shed another eight
-bytes yet.
+and make the physical page address visible.
 
-With the pagecache<->BIO change, the buffer_head will most
-definitely become "per-page metadata which describes the state
-of sub-page segments" and not "something which is used for
-performing I/O".
+The reason I'd rather do it that way is that sometimes we right now go to 
+"struct page" for no really good reason, other than the fact that we don't 
+have any other good "intermediate" representation.
 
+So using a pte_pfn()/pfn_to_page() interface would allow other places to
+take advantage of this too, instead of adding two new special-case
+functions that aren't useful for anything else.
 
+			Linus
 
--

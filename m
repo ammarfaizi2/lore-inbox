@@ -1,69 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265021AbTFRKDu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 06:03:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFRKDu
+	id S265113AbTFRKJj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 06:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbTFRKJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 06:03:50 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:8677 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S265021AbTFRKDt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 06:03:49 -0400
-Date: Wed, 18 Jun 2003 12:17:28 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: CaT <cat@zip.com.au>
-Cc: swsusp@lister.fornax.hu, linux-kernel@vger.kernel.org
-Subject: Re: [FIX, please test] Re: 2.5.70-bk16 - nfs interferes with s4bios suspend
-Message-ID: <20030618101728.GA203@elf.ucw.cz>
-References: <20030613033703.GA526@zip.com.au> <20030615183111.GD315@elf.ucw.cz> <20030616001141.GA364@zip.com.au> <20030616104710.GA12173@atrey.karlin.mff.cuni.cz> <20030618081600.GA484@zip.com.au>
+	Wed, 18 Jun 2003 06:09:39 -0400
+Received: from imhotep.hursley.ibm.com ([194.196.110.14]:57083 "EHLO
+	tor.trudheim.com") by vger.kernel.org with ESMTP id S265113AbTFRKJf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 06:09:35 -0400
+Subject: Re: How do I make this thing stop laging?  Reboot?  Sounds like 
+	Windows!
+From: Anders Karlsson <anders@trudheim.com>
+To: Karl Vogel <karl.vogel@seagha.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <E19SZ8v-0005Ie-00@relay-1.seagha.com>
+References: <200306172030230870.01C9900F@smtp.comcast.net>
+	 <3EF0214A.3000103@aitel.hist.no>  <E19SZ8v-0005Ie-00@relay-1.seagha.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nxjZDfVGirzY7xRd2og+"
+Organization: Trudheim Technology Limited
+Message-Id: <1055931810.2285.24.camel@tor.trudheim.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030618081600.GA484@zip.com.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.4.0 Rubber Turnip www.usr-local-bin.org 
+Date: 18 Jun 2003 11:23:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > I didn't have any actual nfs mounts at the time but I tried it
-> > > with an otherwise similar system. It went through, got to freeing
-> > > memory, showed me a bunch of fullstops being drawn and then went
-> > > into an endless BUG loop. All I could pick out (after many a moment
-> > > of staring) was 'schedule in atmoic'.
-> > > 
-> > > I'll do a proper test with a console cable present in a few days. I
-> > > can't atm cos I'm not on the same network and don't have a 2nd 
-> > > computer to hook up the null-modem cable to.
-> 
-> Was able to capture the output for this case (it's long). The result
-> without preempt is below this one.
+--=-nxjZDfVGirzY7xRd2og+
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> I hit the power button here and shut the box down.
-> 
-> > Turn it off. You don't want to debug preempt and nfs at the same time.
-> 
-> And this is with preempt off:
-> 
-> Stopping tasks: XFree86 entered refrigerator
-> =pdflush entered refrigerator
-...
-> =init entered refrigerator
-> =procmail entered refrigerator
-> =|
-> Freeing memory: .........................|
-> Syncing disks before copy
-> Suspending devices
-> Suspending device c052c48c
-> Suspending devices
-> Suspending device c052c48c
-> suspending: hda ------------[ cut here ]------------
-> kernel BUG at drivers/ide/ide-disk.c:1110!
+On Wed, 2003-06-18 at 10:22, Karl Vogel wrote:
+> On 18 Jun 2003, you wrote in linux.kernel:
+>=20
+> > rmoser wrote:
+> > [...]
+[...]
+> > Because the problem _is_ unsolvable.  You want the kernel
+> > to go "oh, lots of free memory showed up, lets pull
+> > everything in from swap just in case someone might need it."
+>=20
+>=20
+> You might want to try Con Kolivas' patches on:
+>    http://members.optusnet.com.au/ckolivas/kernel/
+>=20
+> More specifically the 'swap prefetch' patch. From this FAQ:
+>=20
+> --
+> Swap prefetching? If you have >10% free physical ram and any used swap it=
+=20
+> will start swapping pages back into physical ram. Probably not of real=20
+> benefit but many people like this idea. I have a soft spot for it and lik=
+e=20
+> using it.
+> --
+>=20
+> The disadvantage is ofcourse that you will be using up more RAM than is=20
+> really necessary.
 
-Okay, you hit some ide problems, but freezing NFS worked okay. Did you
-have active NFS mounts at this point?
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Sorry for breaking in, but this is an interesting discussion. :-)
+
+I find that the Linux VM tend to push things out in to swap-space when
+it does not need it. This is fine. However, I was once told something
+about AIX that has lodged itself in the back of my mind.
+
+AIX uses (or used to use) the exact same way of reading/writing data
+from/to disk for all I/O. AIX also makes a distinction between code and
+data. If code in RAM is unused, it simply gets flushed. If it is needed
+again at a later time, it is paged in from disk where it was originally
+loaded from. Only dirty data is paged out into swap.
+
+Is it feasible to tweak the Linux VM to behave in the same fashion? If
+Linux already does it this way, I'll just shut up. :)
+
+/A
+
+
+--=-nxjZDfVGirzY7xRd2og+
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQA+8D2iLYywqksgYBoRAilpAJ4srpP3rU+6yYaqMSgFuhueWzekzQCglNyZ
+pJ9tMGhOq71W426BcxekyDI=
+=3n8Z
+-----END PGP SIGNATURE-----
+
+--=-nxjZDfVGirzY7xRd2og+--
+

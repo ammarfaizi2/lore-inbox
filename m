@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266737AbSKOUfb>; Fri, 15 Nov 2002 15:35:31 -0500
+	id <S266771AbSKOUib>; Fri, 15 Nov 2002 15:38:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266746AbSKOUfb>; Fri, 15 Nov 2002 15:35:31 -0500
-Received: from holomorphy.com ([66.224.33.161]:18129 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S266737AbSKOUfa>;
-	Fri, 15 Nov 2002 15:35:30 -0500
-Date: Fri, 15 Nov 2002 12:38:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Kallol Biswas <kallol.biswas@efi.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: lan based kgdb
-Message-ID: <20021115203854.GB23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Kallol Biswas <kallol.biswas@efi.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3DD5591E.A3D0506D@efi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD5591E.A3D0506D@efi.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S266774AbSKOUib>; Fri, 15 Nov 2002 15:38:31 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:53486 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S266771AbSKOUia>; Fri, 15 Nov 2002 15:38:30 -0500
+From: jordan.breeding@attbi.com
+To: linux-kernel@vger.kernel.org
+Subject: use of drm on pci radeons in 2.5.x
+Date: Fri, 15 Nov 2002 20:45:17 +0000
+X-Mailer: AT&T Message Center Version 1 (Nov  5 2002)
+X-Authenticated-Sender: am9yZGFuLmJyZWVkaW5nQGF0dGJpLmNvbQ==
+Message-Id: <20021115204520.GNOV1052.rwcrmhc52.attbi.com@rwcrwbc70>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 15, 2002 at 12:29:18PM -0800, Kallol Biswas wrote:
-> Is there a source level remote kernel debugger that
-> communicates over an ethernet interface? The debugger
-> kgdb from kgdb.sourceforge.net works only with serial port.
+I noticed that ATI now has quite a few PCI based Radeons.  I also notcied that 
+the current drm code in the kernel as well as the dri code in the CVS Xfree86 
+tree has code like:
 
-With some hacking to produce a polling network driver, it should very
-well be possible to provide a communication back-end for a gdb stub
-that uses an ethernet NIC.
+#if defined(__alpha__) || defined(__powerpc__)
+# define PCIGART_ENABLED
+#else
+# undef PCIGART_ENABLED
+#endif
 
-gdb itself is already perfectly capable of communicating with
-such targets, using the specifier
+which could also be easily modified to allow for its use on x86, however in 
+drivers/char/drm/Kconfig we have this currently:
 
-	target remote otherhost:1234
+config DRM_RADEON
+    tristate "ATI Radeon"
+    depends on DRM && AGP
+    help
+  Choose this option if you have an ATI Radeon graphics card.  There
+  are both PCI and AGP versions.  You don't need to choose this to
+  run the Radeon in plain VGA mode.  There is a product page at
+  <http://www.ati.com/na/pages/products/pc/radeon32/index.html>.
+  If M is selected, the module will be called radeon.o.
 
-where 1234 is the port number the gdb stub on the target reserves for
-itself to communicate with the host. It's probably best to use a
-dedicated network interface, though it's not absolutely required. (With
-a dedicated interface otherhost will then be the interface's hostname.)
+My question is that if someone was running on PPC or Alpha or an x86 chipset 
+(and modifying the test mentioned above) with no AGP like the Intel E7500 and 
+was using a Radeon with PCI (like the PCI 7500) why should they have to enable 
+AGP in Kconfig just to get the Radeon DRM driver?  Thanks.
 
-A serious issue is that the communication protocol is somewhat more
-complex, so there is a possibility the debug runtime will not be robust.
-
-Bill
+Jordan

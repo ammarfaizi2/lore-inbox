@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbUJZRyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbUJZR5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbUJZRyg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 13:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbUJZRyb
+	id S261411AbUJZR5N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 13:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUJZR45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 13:54:31 -0400
-Received: from holomorphy.com ([207.189.100.168]:8934 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261360AbUJZRwP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 13:52:15 -0400
-Date: Tue, 26 Oct 2004 10:52:00 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Stephen Frost <sfrost@snowman.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041026175200.GO17038@holomorphy.com>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com> <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org> <20041023154128.GP12780@ns.snowman.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041023154128.GP12780@ns.snowman.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 26 Oct 2004 13:56:57 -0400
+Received: from zamok.crans.org ([138.231.136.6]:1768 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id S261377AbUJZRyt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 13:54:49 -0400
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1: LVM stopped working
+References: <87oeitdogw.fsf@barad-dur.crans.org>
+	<58cb370e041026070067daa404@mail.gmail.com>
+	<58cb370e0410261007145fc22c@mail.gmail.com>
+From: Mathieu Segaud <matt@minas-morgul.org>
+Date: Tue, 26 Oct 2004 19:54:47 +0200
+In-Reply-To: <58cb370e0410261007145fc22c@mail.gmail.com> (Bartlomiej
+	Zolnierkiewicz's message of "Tue, 26 Oct 2004 19:07:45 +0200")
+Message-ID: <87oeipcql4.fsf@barad-dur.crans.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Linus Torvalds (torvalds@osdl.org) wrote:
->> However, for some reason four numbers just looks visually too obnoxious to
-
-On Sat, Oct 23, 2004 at 11:41:28AM -0400, Stephen Frost wrote:
-> I agree, four numbers is *very* obnoxious, I mean, really, if for no
-> other reason than *Oracle* uses four numbers. :)
-
-I swear I had nothing to do with it.
+Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> disait dernièrement que :
 
 
--- wli
+>> > However, I use dm-crypt to encrypt my / (no initrd, just initramfs) and
+>> > it works under 2.6.9-mm1, so the bug is likely to be in IDE stuff.
+>> 
+>> prove it ;)
+>
+> To make this task easier I prepared 2.6.9-rc3-mm3 to 2.6.9-mm1 IDE patch:
+>
+> http://home.elka.pw.edu.pl/~bzolnier/ide-2.6.9-rc3-mm3-to-2.6.9-mm1.patch.bz2
+>
+> Just revert it from 2.6.9-mm1.
+
+reverting ide changes do not change anything....
+error is still here
+The only changes I can see now, are the md changes. I will try reverting it,
+and if I get no positive results, I give up (for today :))
+
+-- 
+printk("What? oldfid != cii->c_fid. Call 911.\n");
+        linux-2.4.3/fs/coda/cnode.c
+

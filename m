@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUH2Agi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267473AbUH2Aki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266717AbUH2Agi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 20:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUH2Agf
+	id S267473AbUH2Aki (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 20:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268145AbUH2Aki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 20:36:35 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:16324 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S266717AbUH2Age (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 20:36:34 -0400
-Date: Sun, 29 Aug 2004 02:36:32 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: orlov/nobh
-Message-ID: <20040829003630.GA19197@apps.cwi.nl>
+	Sat, 28 Aug 2004 20:40:38 -0400
+Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:30333 "HELO
+	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S267473AbUH2Akf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 20:40:35 -0400
+In-Reply-To: <4131074D.7050209@namesys.com>
+To: Hans Reiser <reiser@namesys.com>
+Subject: The Necessity of File Types (was silent semantic changes with
+ reiser4)
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, torvalds@osdl.org
+X-Mailer: BeMail - Mail Daemon Replacement 2.3.1 Final
+From: "Alexander G. M. Smith" <agmsmith@rogers.com>
+Date: Sat, 28 Aug 2004 20:40:18 -0400 EDT
+Message-Id: <3632837631-BeMail@cr593174-a>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +oldalloc                   Use old allocator for new inodes.
-> > +orlov              (*)     Use Orlov allocator.
-> > +
-> > +nobh                       Do not attach buffer_heads to file pagecache.
+Linus Torvalds wrote:
+> I'm pretty confident that we can extend the VFS layer to support
+> named streams [...]
+
+Hans Reiser wrote on Sat, 28 Aug 2004 15:29:33 -0700:
+> I object to openat().....
 > 
-> For these two it would be nice to include a description
-> of why you'd want them or a pointer to something
-> describing it. An admin trying to squeeze performance out
-> of his server might see these options in such documentation
-> and then want to know if they can help him.
+> My reason is that the things that distinguish between objects should be 
+> the names, not the choice of system call.  The reason for this is that 
+> it improves closure and namespace unification to do so, because it 
+> allows all the objects to be accessed within the same namespace.
 
-See http://lwn.net/Articles/14633/ and http://lwn.net/Articles/14446/
-for Orlov.
+I have to agree with Hans there.  Just have one main kind of file system object.  No separate stream system, other than as an optional alternative way of viewing things.  Treat it as a file or a directory or as an attribute as the context implies.  Have just one open call to open it, another to enumerate its children, and another to read and write data to it.  Paths to file system objects, no matter what their purpose, are all just plain paths (you can get fancy later with sub-name-spaces and name space boundaries).
 
-I am not aware of serious benchmark work. Simple direct tests
-seem either to show no significant difference or to favor Orlov.
-I have never seen a study on fragmentation after extended use
-of both allocators.
+But how do you tell what kind of thing it is?  How do you tell if it is important enough to back up?  How do you tell that a thing is intended to be treated as a directory containing other things rather than as a stand-alone object?  File types are needed for that!
 
-Concerning nobh, I think that is a toy by Andrew, meant for
-very large machines. He is in a better position to comment
-(in fact on both orlov and nobh).
+In BeOS we had a MIME type database and all important files were given an attribute of BEOS:TYPE which contained their MIME string.  A system-wide database associated applications that handled each type, and also listed the standard attributes for each MIME type (such as Subject/From/To/... for "text/e-mail" files).  It even included some extra info about which attributes should be shown to the user and which were editable by the user in the desktop directory window GUI.  By the way, the database was just a tree of files (one for each MIME type using the same structure as MIME names) with attributes attached to them containing the relevant meta-meta-data.
 
-Andries
+Unclassified files (ones with no type, such as those generated by "cp" and other non-attribute aware programs) were treated as application/octet-stream.  There was also a background task that would try to identify them when the computer was idle, or if you tried to open them in a file requestor.  It used the file extension and also looked for characteristic signature bytes to pick the type.
+
+Unfortunately BeOS had fragmented the type system by having a separate system of 4 character codes to identify the type of attributes (since attributes had their own API separate from files).  That would tell you the attribute was an INT32 or  C-String or Date.
+
+I'd like to see one unified type system for the unified file/directory/attribute thing (has anyone named those multipurpose file system objects yet or can I call them Fildirutes?).  That means a global list of types and an attribute attached to all files needing a type.  That standard child file (used as an attribute) would be named something like "..meta.mimetype".  The global list would contain information about whether that type of thing needed to be backed up, what its standard computed attributes would be, and all sorts of common properties that all files of that type need.  Plus I'd add the primitive types, so "primitive/int32" and "primitive/date64" would be possible types for things which are simple attributes.
+
+If you're worried about extra files, those file types could be stored as a unique ID (I recommend 8 character codes, using semi-readable text, for portability reasons) in each file inode.  The type would only appear as a file to users of the file system.
+
+Another need for the type system is the need to index attributes.  Someone has to tell the OS that "MAIL:date-received" is a 64 bit number of microseconds since the start of time, so that the OS knows how to sort the index for that attribute.
+
+Jan Harkes wrote on Sat, 28 Aug 2004 12:11:14 -0400:
+> From what I saw in one part of the discussion, it allows for infinite
+> depth recursion (file/metas/metas/metas/...). Some applications are
+> going to have a lot of fun with that.
+
+Some of the type information can be faked out as appearing as files.  So looking for the MIME type of a MIME type file (thing/..meta.mimetype/..meta.mimetype) would pretend to be a file that contained "text/mime-string", but not actually represent anything on disk.  Instead stock answers for the really primitive data types would be generated by the file system, recursively if needed.
+
+The recursion should be there.  Just like it is for "." and "..", which "ls -R" for some reason doesn't traverse :-)
+
+By the way, I disagree on Hans with using a directory for the meta data, I'd prefer to just have "..meta." as the name prefix of the metadata things.  Otherwise there's an extra directory level in there, making ..meta/ different from other directories (making browsing it a bit awkward since it doesn't have metadata of its own - like window coordinates for displaying the directory).
+
+- Alex

@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbUCEJUl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 04:20:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbUCEJUl
+	id S262272AbUCEJTw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 04:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbUCEJTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 04:20:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:39570 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262277AbUCEJUj (ORCPT
+	Fri, 5 Mar 2004 04:19:51 -0500
+Received: from gate.crashing.org ([63.228.1.57]:63945 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262272AbUCEJTu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 04:20:39 -0500
-Date: Fri, 5 Mar 2004 10:20:29 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Kyle Wong <kylewong@southa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: questions about io scheduler
-Message-ID: <20040305092029.GB10923@suse.de>
-References: <088201c40293$5b27ce80$9c02a8c0@southa.com>
+	Fri, 5 Mar 2004 04:19:50 -0500
+Subject: serial driver / tty issues
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1078477351.6327.65.camel@gaston>
+References: <1078473270.5703.57.camel@gaston>
+	 <20040305085838.B22156@flint.arm.linux.org.uk>
+	 <1078477351.6327.65.camel@gaston>
+Content-Type: text/plain
+Message-Id: <1078478335.5702.79.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <088201c40293$5b27ce80$9c02a8c0@southa.com>
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 05 Mar 2004 20:18:56 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05 2004, Kyle Wong wrote:
-> 1. Is  anticipatory io scheduler + echo 0 >
-> /sys/block/hd*/queue/iosched/antic_expire = deadline scheduler?
+Hi Russell !
 
-It isn't 100% the same, but very very close.
+So, I was tracking down some problems with that pmac_zilog() driver
+of mine, some were my fault, but some others are still quite 
+interesting as they seem to affect other drivers as well.
 
-> 2. Does io scheduler works with md RAID? Correct me if I'm wrong,
-> io-schedular <-->  md driver <--> harddisks.
+The basic issue was an interesting HW situation that resulted in the
+SCC flooding me with 0 chars + framing errors like mad (faster than
+the serial port speed, more like a stuck irq actually) when the port
+is connected to an unplug keyspan adapter (so the input line is
+probably getting noise or whatever crap).
 
-No, it's md -> io scheduler -> hard drive.
+That triggered extreme situation both in the driver and the tty layer
+due to the fast flood of incoming shit.
 
--- 
-Jens Axboe
+ - most/all serial drivers, when the flip buffer is full, will
+call tty->flip.work.func() directly with the spinlock held. This is
+asking for trouble. I have reproduceable cases where that cause the
+tty layer to try to echo, thus calling back the serial_core
+uart_put_char() which will try to ... take the spinlock. Dead.
+
+ - what about the call to tty_flip_buffer_push() done by all
+drivers with the lock held too ? It's fine as long as we don't
+have this low_latency thing set. I suppose nothing but the driver
+itself will set it but I got a bit lost in the serial_core, can
+you just confirm that is ok ?
+
+ - I had a couple of times a crash in n_tty_receive_buf() called
+from keventd (from ldisc flip workqueue), apparently racing with
+a close of the port. The scenario is that the close happens, i
+get out of my driver back to serial core which goes back to
+tty_release afaik. At that point (I'm not sure exactly when, maybe
+in the flush of the pending work queues that is done there, maybe
+just on the other CPU), the pending work queue is triggered since
+our input buffer is still full of crap.
+It reliably oopses trying to derefence 0 (writing a byte, it's not
+a memcpy, without a spinlocked region, I haven't spotted exactly
+where in n_tty_receive_buf(), this function is shit to disassemble
+as it seems to get a ton of things inlined).
+
+Ben.
+
 

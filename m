@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263766AbUFNSaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263763AbUFNSb6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263766AbUFNSaW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 14:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUFNSaW
+	id S263763AbUFNSb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 14:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263772AbUFNSb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 14:30:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40644 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263766AbUFNSaT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 14:30:19 -0400
-Date: Mon, 14 Jun 2004 19:30:18 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
+	Mon, 14 Jun 2004 14:31:58 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:1535 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S263763AbUFNSbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 14:31:46 -0400
+Message-ID: <40CDEECF.7060102@nortelnetworks.com>
+Date: Mon, 14 Jun 2004 14:30:39 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Steve French <smfltc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __user and iov_base
-Message-ID: <20040614183017.GB12308@parcelfarce.linux.theplanet.co.uk>
-References: <1087235597.10368.12.camel@stevef95.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1087235597.10368.12.camel@stevef95.austin.ibm.com>
-User-Agent: Mutt/1.4.1i
+CC: linux-kernel@vger.kernel.org
+Subject: Re: upcalls from kernel code to user space daemons
+References: <1087236468.10367.27.camel@stevef95.austin.ibm.com>
+In-Reply-To: <1087236468.10367.27.camel@stevef95.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 12:53:18PM -0500, Steve French wrote:
-> If a buffer is never used in user space, and is potentially recycled
-> (via mempools) for use by more than one process, then it can't be passed
-> around as an __user buffer, but is it ok to simply do
-> 	myiovec.iov_base = (__user char *)some_buffer; 
-> or is there another preferred way to handle kernel to __user
-> mappings/casts?
+Steve French wrote:
+> Is there a good terse example of an upcall from a kernel module (such as
+> filesystem) to an optional user space helper daemon?   The NFS RPC
+> example seems more complicated than what I would like as does the
+> captive ioctl approach which I see in a few places.
+> 
+> I simply need to poke a userspace daemon (e.g. launched by mount) to do
+> in userspace these two optional functions which are not available in
+> kernel and pass a small (under 64K) amount of data back to the kernel
+> module:
+> 1) getHostByName:  when the kernel cifs code detects a server crashes
+> and fails reconnecting the socket and the kernel code wants to see if
+> the hostname now has a new ip address.
+> 2) package a kerberos ticket ala RFC2478 (SPNEGO)
 
-Yes - leave them alone.  The warning points to real problem with the
-interface; ergo, it should not disappear until there's a clean solution
-(if ever).
+One way to do it (or is this what you meant by captive ioctl?)
+
+userspace daemon loops on ioctl()
+kernel portion of ioctl call goes to sleep until something to do
+when needed, fill in data and return to userspace
+userspace does stuff, then passes data back down via ioctl()
+ioctl() puts userspace back to sleep and continues on with other work
+
+Chris

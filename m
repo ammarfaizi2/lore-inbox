@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129994AbRAOUBM>; Mon, 15 Jan 2001 15:01:12 -0500
+	id <S131230AbRAOUCC>; Mon, 15 Jan 2001 15:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131230AbRAOUBC>; Mon, 15 Jan 2001 15:01:02 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:63758 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129994AbRAOUAx>; Mon, 15 Jan 2001 15:00:53 -0500
-Message-ID: <3A6356E4.4B5CFE01@transmeta.com>
-Date: Mon, 15 Jan 2001 12:00:36 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-CC: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        Dunlap Randy <randy.dunlap@intel.com>,
-        "'H. Peter Anvin'" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: The latest instance in the A20 farce
-In-Reply-To: <200101151930.f0FJUTC254802@saturn.cs.uml.edu>
+	id <S131257AbRAOUBw>; Mon, 15 Jan 2001 15:01:52 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:31498 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S131230AbRAOUBh>;
+	Mon, 15 Jan 2001 15:01:37 -0500
+Date: Mon, 15 Jan 2001 22:01:25 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Tobias Ringstrom <tori@tellus.mine.nu>,
+        David Balazic <david.balazic@uni-mb.si>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: MTRR type AMD Duron/intel ?
+Message-ID: <20010115220125.U25659@mea-ext.zmailer.org>
+In-Reply-To: <Pine.LNX.4.30.0101151937460.8658-100000@svea.tellus> <Pine.LNX.4.10.10101151151080.6408-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10101151151080.6408-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jan 15, 2001 at 11:52:12AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Albert D. Cahalan" wrote:
+On Mon, Jan 15, 2001 at 11:52:12AM -0800, Linus Torvalds wrote:
+> On Mon, 15 Jan 2001, Tobias Ringstrom wrote:
+> > Last time I checked this was issued for perfectly known and valid bridges
+> > that advertice no IO resources.  Isn't it a bit silly to issue that
+> > warning for that case, or am I missing something?
 > 
-> It looks like we let Microsoft fill the design guide void.
-> If you were to write "PC DESIGN GUIDE - For the Linux Operating
-> System" and a pile of test code, then there would be an
-> alternative to point people at.
+> Ehh - so what do they bridge, then?
 > 
-> Complaining is pretty useless.
+> I'd say that a bridge that doesn't seem to bridge any IO or MEM region,
+> yet has stuff behind it, THAT is the silly thing. Thus the "silly"
+> warning.
 
-I was thinking about this today.  If we write a Linux design guide, even
-as a delta spec, does anyone think it will be listed to?
+	Like a cardbus controller without any cards in ?
+	My IBM laptop reports that at the TI PCI1450 bridges,
+	when I don't have anything plugged in.
 
-	-hpa
+> 		Linus
 
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+/Matti Aarnio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

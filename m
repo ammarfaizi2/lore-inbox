@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262130AbULaSCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbULaSB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262130AbULaSCB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 13:02:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbULaSCA
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 13:02:00 -0500
-Received: from [195.23.16.24] ([195.23.16.24]:37863 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262130AbULaSB6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262128AbULaSB6 (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 31 Dec 2004 13:01:58 -0500
-Message-ID: <1104515971.41d593835721f@webmail.grupopie.com>
-Date: Fri, 31 Dec 2004 17:59:31 +0000
-From: "" <pmarques@grupopie.com>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: "" <linux-kernel@vger.kernel.org>, "" <kaos@ocs.com.au>,
-       "" <sam@ravnborg.org>
-Subject: Re: sh: inconsistent kallsyms data
-References: <20041231172549.GA18211@linux-sh.org>
-In-Reply-To: <20041231172549.GA18211@linux-sh.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 82.154.89.203
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbULaSB6
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 31 Dec 2004 13:01:58 -0500
+Received: from dialin-163-34.tor.primus.ca ([216.254.163.34]:11648 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S262128AbULaSB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 13:01:56 -0500
+Date: Fri, 31 Dec 2004 13:01:51 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: Simon Burke <simon.burke@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: /tmp as ramdisk
+Message-ID: <20041231180151.GA2975@node1.opengeometry.net>
+Mail-Followup-To: Simon Burke <simon.burke@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <2d7d2dd20412310941724cc1cb@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2d7d2dd20412310941724cc1cb@mail.gmail.com>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Paul Mundt <lethal@linux-sh.org>:
+On Fri, Dec 31, 2004 at 05:41:43PM +0000, Simon Burke wrote:
+> Stupid question really.
+> 
+> On my servers I'd like to mount /tmp as a ramdisk, for several
+> reasons. How would i go about this with linux? Is it as simple as
+> putting it in the /etc/fstab?  where do i define the size of such a
+> disk?
 
-> Building 2.6.10 for sh results in inconsistent kallsyms data. Turning on
-> CONFIG_KALLSYMS_ALL fixes it, as does CONFIG_KALLSYMS_EXTRA_PASS.
+mount -t tmpfs tmpfs /tmp
 
-I think the only change from 2.6.9 that could affect this is the addition of the
-is_arm_mapping_symbol from Russel King.
-
-Can you try to comment out this function in scripts/kallsyms.c (and the call to
-it in read_symbol) and see if it changes the result for you?
-
---
-Paulo Marques - www.grupopie.com
-
-"A journey of a thousand miles begins with a single step."
-Lao-tzu, The Way of Lao-tzu
+-- 
+William Park <opengeometry@yahoo.ca>
+Open Geometry Consulting, Toronto, Canada
+Linux solution for data processing. 

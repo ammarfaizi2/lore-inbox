@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261345AbSJHQNT>; Tue, 8 Oct 2002 12:13:19 -0400
+	id <S261356AbSJHQPd>; Tue, 8 Oct 2002 12:15:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261347AbSJHQNT>; Tue, 8 Oct 2002 12:13:19 -0400
-Received: from host194.steeleye.com ([66.206.164.34]:58120 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S261345AbSJHQNS>; Tue, 8 Oct 2002 12:13:18 -0400
-Message-Id: <200210081618.g98GIwo02176@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+	id <S261362AbSJHQPR>; Tue, 8 Oct 2002 12:15:17 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:8327 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S261356AbSJHQO7>; Tue, 8 Oct 2002 12:14:59 -0400
+Date: Tue, 8 Oct 2002 11:19:34 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
 To: Adrian Bunk <bunk@fs.tum.de>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       James Bottomley <James.Bottomley@HansenPartnership.com>,
-       Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
+       Alan Cox <alan@redhat.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.5.41-ac1 
-In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
-   of "Tue, 08 Oct 2002 18:08:53 +0200." <Pine.NEB.4.44.0210081804260.8340-100000@mimas.fachschaften.tu-muenchen.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 08 Oct 2002 12:18:57 -0400
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+In-Reply-To: <Pine.NEB.4.44.0210081804260.8340-100000@mimas.fachschaften.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0210081116180.32256-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps a better option is to add a single config option that compiles the 
-trampoline (CONFIG_X86_TRAMPOLINE) then I can build the object for both 
-voyager and smp x86.
+On Tue, 8 Oct 2002, Adrian Bunk wrote:
 
-James
+> On Tue, 8 Oct 2002, Kai Germaschewski wrote:
+> 
+> >...
+> > To restore the previous state, just do
+> >
+> > obj-y += ... ../kernel/trampoline.o
+> >...
+> 
+> There seems to be a bug in kbuild that makes your suggestion impossible:
+
+Oh well, actually, I only made it possible to have multipart objects pull 
+in objects from different dirs (but I still discourage that except for 
+special cases), not for obj-y.
+
+So you have to do sth like
+
+obj-y += .. trampoline.o
+
+trampoline-objs := ../kernel/trampoline.o
+
+And you do not really want to do this, you rather want CONFIG_VOYAGER to 
+define_bool CONFIG_X86_SMP y and be done without ugly hacks in the 
+Makefiles.
+
+--Kai
 
 

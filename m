@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbTE1WbH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 18:31:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbTE1WbH
+	id S261294AbTE1Wde (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 18:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTE1Wde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 18:31:07 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:23959 "EHLO
-	server0027.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S261279AbTE1WbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 18:31:06 -0400
-Date: Wed, 28 May 2003 23:44:22 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org
-Subject: CRASH 2.5.70
-Message-Id: <20030528234422.6173b72e.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 28 May 2003 18:33:34 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61444 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261294AbTE1Wdc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 18:33:32 -0400
+Date: Wed, 28 May 2003 18:40:50 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Ricky Beam <jfbeam@bluetronic.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.70
+In-Reply-To: <Pine.LNX.4.44.0305280909550.8790-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.3.96.1030528181428.21414C-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Wed, 28 May 2003, Linus Torvalds wrote:
 
-Im getting a (pretty repeatable) hard lockup when I delete a LOT of
-files in rox-filer.
+> 
+> On Wed, 28 May 2003, Bill Davidsen wrote:
+> > 
+> > Just the other day you posted strong opposition to breaking existing
+> > binaries, how does that map with breaking existing hardware?
+> 
+> One fundamental difference is that I cannot fix it without people who
+> _have_ the hardware caring. So if they don't care, I don't care. It's that
+> easy. If you want to have your hardware supported, you need to help
+> support it.
 
-sometimes random processes die just prior to the lockup. (xmms died just
-prior to the last one)
+That's the case now, isn't it? unless the person with the non-working
+hardware is willing and able to become the maintainer a lot of drivers
+don't seem to get fixed. Unfortunately that the people with the old
+hardware usually aren't developers.
+> 
+> Another difference is that it's better to not work at all, than to work
+> incorrectly. So if your kernel doesn't boot or can't use your random piece
+> of hardware, you just use an old kernel. But if everything looks normal,
+> but some binary breaks in strange ways, that's _bad_.
 
-there is no debug output at all.
+Totally agree.
+> 
+> The latter reason is, btw, why we don't paper over the build failures like 
+> some people suggested. If it hasn't been updated to the new interfaces, it 
+> should preferably not even build: which is a big reason why we try to 
+> rename interfaces when they change, exactly so that you don't get a subtly 
+> broken build.
 
-other filesystem ops (eg. chmod/chown) dont seem to cause the lockups,
-just delete.
-
-I dont overclock this box, and it ran 2.4.<n> stably for months.
-
-AthlonXP1800 on an Asus A7M266 with 256MB DDR memory.
+I don't think anyone suggested that, but there are a fair number of
+drivers which could be fixed in minutes by someone who understands the new
+interface. Replacing cli is easy, knowing what you replace it with is
+something else again. There are new locks, per-cpu stuff added, lockless
+methods... to do this right you have to do it often, and few users can do
+more than give an error report which allows the problem to be reproduced.
 
 -- 
-Spyros lair: http://www.mnementh.co.uk/
-Do not meddle in the affairs of Dragons, for you are tasty and good with
-ketchup.
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Systems programmers keep it up longer.

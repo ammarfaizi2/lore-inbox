@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272885AbTHFMcV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 08:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273016AbTHFMcV
+	id S275001AbTHFNBL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 09:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275006AbTHFNBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 08:32:21 -0400
-Received: from sea2-f12.sea2.hotmail.com ([207.68.165.12]:30982 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S272885AbTHFMcU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 08:32:20 -0400
-X-Originating-IP: [194.7.240.2]
-X-Originating-Email: [lode_leroy@hotmail.com]
-From: "lode leroy" <lode_leroy@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.70 lockup while write()ing to /dev/hda1
-Date: Wed, 06 Aug 2003 14:32:19 +0200
+	Wed, 6 Aug 2003 09:01:11 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:36741 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S275001AbTHFNBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 09:01:08 -0400
+Date: Wed, 6 Aug 2003 14:57:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <ncunningham@clear.net.nz>,
+       Pascal Brisset <pascal.brisset-ml@wanadoo.fr>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>
+Subject: Re: [Swsusp-devel] Re: [PATCH] Allow initrd_load() before software_resume() (version 2)
+Message-ID: <20030806125749.GA6875@openzaurus.ucw.cz>
+References: <20030801002742.1033FE8003AE@mwinf0502.wanadoo.fr> <1059700691.1750.1.camel@laptop-linux> <20030801103054.9E75F30003B9@mwinf0201.wanadoo.fr> <1059734493.11684.0.camel@laptop-linux> <20030806113045.GB583@elf.ucw.cz> <1060170451.5848.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F12XkCBewSQRg600027013@hotmail.com>
-X-OriginalArrivalTime: 06 Aug 2003 12:32:19.0542 (UTC) FILETIME=[C7127F60:01C35C16]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060170451.5848.2.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just want to report a problem I saw on linux 2.5.70:
-(since I have a workaround, I do not intend to debug this further)
+Hi!
 
-the following program locks up the computer.
-sometimes this has happened after about 16MB,
-sometimes after about 64MB...
+> > > Okay. I hadn't tried it yet. I'll happily take up the barrow for you and
+> > > push it to Pavel and Linus with the rest, if you like.
+> > 
+> > Don't even think about that.
+> > 
+> > It is not safe to run userspace *before* doing resume. You don't want
+> > to see problems this would bring in. Forget it.
+> > 			
+> so how do you resume from a partition on a device mapper volume?
+> 
+> (and yes I basically agree with your sentiment though)
 
-main()
-{
-    int f = open("/dev/hda1", O_RDWR);
-    char buffer[8192];
-    for(i=0;1;i++) {
-       printf("%d\r", i);
-       write(f, buffer, sizeof(buffer);
-       /* fsync(f); */
-    }
-    close(f)
-}
+I know very little about DM, its very well possible that resume from it is not supported.
 
-when using adding the fsync(), all goes fine!
-
-_________________________________________________________________
-Receive your Hotmail & Messenger messages on your mobile phone with MSN 
-Mobile http://www.msn.be/gsm/smsservices
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

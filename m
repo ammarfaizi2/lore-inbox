@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129222AbRBESai>; Mon, 5 Feb 2001 13:30:38 -0500
+	id <S131245AbRBESbS>; Mon, 5 Feb 2001 13:31:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131245AbRBESa2>; Mon, 5 Feb 2001 13:30:28 -0500
-Received: from smtp3.xs4all.nl ([194.109.127.132]:5641 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S129222AbRBESaT>;
-	Mon, 5 Feb 2001 13:30:19 -0500
-Date: Mon, 5 Feb 2001 18:26:52 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Frank de Lange <frank@unternet.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
-Message-ID: <20010205182652.B604@grobbebol.xs4all.nl>
-In-Reply-To: <20010202145216.C13831@unternet.org>
+	id <S131396AbRBESbI>; Mon, 5 Feb 2001 13:31:08 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:57096 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131245AbRBESbC>; Mon, 5 Feb 2001 13:31:02 -0500
+Date: Mon, 5 Feb 2001 19:32:16 +0100
+From: Oliver Feiler <kiza@lionking.org>
+To: linux-kernel@vger.kernel.org
+Subject: Very high system load writing data to SCSI DVD-RAM
+Message-ID: <20010205193216.A198@lionking.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010202145216.C13831@unternet.org>; from frank@unternet.org on Fri, Feb 02, 2001 at 02:52:16PM +0100
-X-OS: Linux grobbebol 2.4.1 
+X-Operating-System: Linux 2.2.18 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 02, 2001 at 02:52:16PM +0100, Frank de Lange wrote:
-> I'm currently running 2.4.1 with Maciej's patch-2.4.0-io_apic-4. Additionally,
-> I disabled focus_processor in apic.c to get rid of some network delays. Flood
-> pings both from and to this system do not cause any problems, other than making
-> the streaming audio sound a bit choppy...
+Hello,
 
+	I have the following problem with a DVD-RAM drive. The drive is a 
+Panasonic LF-D101 connected to a Tekram DC395U SCSI controller. Kernel is 
+2.2.18 with the patch for the Tekram controller 
+(http://www.garloff.de/kurt/linux/dc395/). 
 
-ok, Franks -- the deal -- I'll re-add the disable foxus stuff; Maciej's
-latest apic patch keeps the system working for 2days+ and that  is much
-better tahan before., it used to lock up within half a day.
+	When I write huge amounts of data to a DVD-RAM the system load is 
+getting very high, like 10 or even above and the system temporarily freezes 
+for a short time every minute or so while writing data to the drive. The DVD 
+drive writes data with 1.35 MB/sec on the discs so there is not really much 
+data going over the SCSI controller. Reading data from DVD-RAMs is done with 
+2.7 MB/s (2x) by the drive and does not cause any problems at all.
 
-I'll report further. an Maciej -- thanks for your work !
+	This problem also existed with previous kernels (2.2.16/17) and with 
+another SCSI controller I had before the Tekram. Adaptec 2904CD using the 
+aic7xxx driver.
+
+	There is a 4x Teac burner connected to the SCSI controller as well. 
+Burning CDs does not raise the system load or cause any other problems.
+
+Bye,
+Oliver
 
 -- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+Oliver Feiler                                               kiza@gmx.net
+http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
+http://www.lionking.org/~kiza/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

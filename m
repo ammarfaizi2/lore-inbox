@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272345AbRH3RNx>; Thu, 30 Aug 2001 13:13:53 -0400
+	id <S272350AbRH3RTo>; Thu, 30 Aug 2001 13:19:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272346AbRH3RNn>; Thu, 30 Aug 2001 13:13:43 -0400
-Received: from relay1.zonnet.nl ([62.58.50.37]:29337 "EHLO relay1.zonnet.nl")
-	by vger.kernel.org with ESMTP id <S272345AbRH3RN3>;
-	Thu, 30 Aug 2001 13:13:29 -0400
-Message-ID: <3B8E7443.2A66531F@linux-m68k.org>
-Date: Thu, 30 Aug 2001 19:13:39 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Daniel Phillips <phillips@bonn-fries.net>,
-        David Lang <david.lang@digitalinsight.com>,
-        linux-kernel@vger.kernel.org
+	id <S272352AbRH3RTe>; Thu, 30 Aug 2001 13:19:34 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:40453 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S272350AbRH3RTZ>; Thu, 30 Aug 2001 13:19:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: ptb@it.uc3m.es
 Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <Pine.LNX.4.33.0108300909560.7973-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 30 Aug 2001 19:26:19 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200108301703.TAA05549@nbd.it.uc3m.es>
+In-Reply-To: <200108301703.TAA05549@nbd.it.uc3m.es>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010830171934Z16012-32384+1116@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Linus Torvalds wrote:
-
->         static int unix_mkname(struct sockaddr_un * sunaddr, int len, unsigned *hashp)
->         {
->                 if (len <= sizeof(short) || len > sizeof(*sunaddr))
->                         return -EINVAL;
->                 ...
+On August 30, 2001 07:03 pm, Peter T. Breuer wrote:
+> "Daniel Phillips wrote:"
+> > More than anything, it shows that education is needed, not macro 
+patch-ups.
+> > We have exactly the same issues with < and >, should we introduce 
+> > three-argument macros to replace them?
 > 
-> Would you agree that the above is _good_ code, and code that makes
-> perfect sense, and code that does exactly the right thing in testing its
-> arguments?
+> # define le(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) == _a ; })
+> # define ge(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) == _b ; })
 
-Where is the problem to change the type into "unsigned int"?
+Oh, you are one sick puppy.
 
-> Face it, you don't know what you're talking about.
+For completeness:
 
-Sorry, but what makes you so sure about it?
-Anyway, forget -Wsign-compare, but could you _please_ give me an answer
-to my other arguments? Maybe I'm a stupid idiot, but then please
-enlighten me and show me the right way. So here is the important part of
-my mail again:
+# define lt(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) != _b ; })
+# define gt(t,a,b) ({ t _a = a; t _b = b;  min(t,_a,_b) != _a ; })
 
-This is my last attempt to get things IMO right. Most of the arguments
-for the new macro were about bugs of the past. No question about this,
-this had to be fixed, I'm not arguing about this at all.
+--
+Daniel
 
-I'm trying to get your attention to the bugs of the future. I still
-don't understand why you think the new macro will be any better. Why do
-you think the average kernel hacker will think about the type of the
-compare and will come to the correct conclusion? It's far too easy to
-use an int as type argument and forget about it. gcc won't warn about
-this, so someone first has to hit this bug, before it gets fixed.
-
-Maybe I'm too dumb, but I still fail to see, what sense it should make
-to turn a signed compare into an unsigned one. Either one knows both
-signed values are only positive, then the sign of the compare and the
-destination doesn't matter at all. If the value could be negative,
-better test it explicit:
-
-        if (len < 0 || len > MAX)
-                len = MAX;
-
-First, it's far more readable and makes the intention so clear, that
-even your average kernel hacker understands it. Second, gcc produces
-exactly the same code with this, so there is no need to play type tricks
-with the min macro.
-
-Please reconsider your decision. IMVHO the new macros are a mistake and
-will cause only more trouble than they are worth.
-
-bye, Roman

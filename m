@@ -1,84 +1,314 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261709AbREVNqv>; Tue, 22 May 2001 09:46:51 -0400
+	id <S261737AbREVOSx>; Tue, 22 May 2001 10:18:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261715AbREVNqk>; Tue, 22 May 2001 09:46:40 -0400
-Received: from t2.redhat.com ([199.183.24.243]:13041 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S261709AbREVNq2>; Tue, 22 May 2001 09:46:28 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <15113.31946.548249.53012@gargle.gargle.HOWL> 
-In-Reply-To: <15113.31946.548249.53012@gargle.gargle.HOWL>  <20010520165952.A9622@devserv.devel.redhat.com> <20010518113726.A29617@devserv.devel.redhat.com> <20010518114922.C14309@thyrsus.com> <8485.990357599@redhat.com> <20010520111856.C3431@thyrsus.com> <15823.990372866@redhat.com> <20010520114411.A3600@thyrsus.com> <16267.990374170@redhat.com> <20010520131457.A3769@thyrsus.com> <18686.990380851@redhat.com> <20010520164700.H4488@thyrsus.com> <25499.990399116@redhat.com> 
-To: John Stoffel <stoffel@casc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Background to the argument about CML2 design philosophy 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 22 May 2001 14:45:53 +0100
-Message-ID: <7938.990539153@redhat.com>
+	id <S261744AbREVOSo>; Tue, 22 May 2001 10:18:44 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:31667 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261737AbREVOS3>;
+	Tue, 22 May 2001 10:18:29 -0400
+Date: Tue, 22 May 2001 10:18:28 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] struct char_device
+Message-ID: <Pine.GSO.4.21.0105221007460.15685-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Linus, patch below adds the missing half of kdev_t -
+for block devices we already have a unique pointer (struct block_device *,
+inode->i_bdev) and that adds a similar animal for character devices.
+	That is, it adds a new structure (struct char_device) and a cache
+indexed by dev_t. init_special_inode() sets ->i_cdev to corresponding
+element of cache (creating it if needed).
+	Result: ->i_cdev is shared by all inodes of given character device
+(i.e. if we need per-device objects we can put them there), we can use
+stuct char_device * as ID for character devices, we can (in 2.5) get
+rid of i_rdev - it's covered by ->i_bdev and ->i_cdev now.
+	Patch is pretty straightforward - cache handling is lifted from
+fs/block_device, the rest is trivial.
+	Please, consider applying.
+							Al
 
-stoffel@casc.com said:
-> David> for the sake of the sanity of all concerned, do things one at a
-> David> time. Provide for merging into 2.5 a set of rules which 
-> David> reproduce the existing CML1 behaviour in this respect.
-
-> Can you define what you mean here?  It's not really clear to me, and I
-> suspect others.  
-
-You appear to be responding to my email, yet you did not do me the courtesy 
-of including me in the recipients. Should I assume you're asking this 
-question of me directly, or was it a rhetorical question?
-
-stoffel@casc.com said:
-> I don't think he is introducing new modes, he's just trying to make
-> sure that you can't create a .config which is broken. 
-
-Good. You should be prevented from creating a .config which is broken, and 
-the existing CML1 rules attempt to achieve this. CML2 should continue to do 
-so, and indeed should do so more effectively and flexibly.
-
-> - fear that CML2 won't let them make crazy configurations, such as an
->   8-way SMP box with ISA.  Can't see how CML2 would restrict this
->   choice myself.
-
-I do not fear that CML2 itself will prevent these 'crazy' configurations.
-That is why I said that the issue is entirely orthogonal to CML2.
-
-However, it would obviously be possible to introduce new dependencies to the
-rules files -- either CML1 or CML2 -- which do prevent such configurations.
-
-What I fear is that such new, unwanted, dependencies may be introduced to
-the kernel -- either by accident or by deception -- in the large patch which
-introduces CML2 and converts the existing rules files. Subtle changes to 
-the behaviour could easily go unnoticed in such a large patch.
-
-I am asking that such a deception should not be attempted. The CML2 rules
-introduced to 2.5.n should exactly represent the behaviour of the CML1 rules
-in 2.5.(n-1). Changes to the policy represented within the rules files can
-then be presented afterwards, and should be considered entirely separate to
-the change in mechanism.
-
-stoffel@casc.com said:
-> If you run into a case where you have a config which would work, but
-> CML2 doesn't let you, why don't you fix the grammar instead of saying
-> CML2 is wrong? 
-
-I think you are being overly defensive. I was not saying that CML2 is 
-wrong. I said that I was ambivalent about CML2, and the point I'm talking 
-about is entirely irrelevant to CML2 - except that I'm trying to make sure 
-that the large CML2 patch is not used as a vehicle for sneaking other, more 
-contentious, changes into the kernel. 
-
-I want to discuss those changes _separately_ once the CML2 issue is
-out of the way, because otherwise people just won't bother to read what I
-said, and will assume I'm arguing against CML2 itself.
-
---
-dwmw2
-
+diff -urN S5-pre4/fs/Makefile S5-pre4-cdev/fs/Makefile
+--- S5-pre4/fs/Makefile	Thu May  3 17:13:26 2001
++++ S5-pre4-cdev/fs/Makefile	Tue May 22 09:12:11 2001
+@@ -11,8 +11,8 @@
+ mod-subdirs :=	nls
+ 
+ obj-y :=	open.o read_write.o devices.o file_table.o buffer.o \
+-		super.o  block_dev.o stat.o exec.o pipe.o namei.o fcntl.o \
+-		ioctl.o readdir.o select.o fifo.o locks.o \
++		super.o block_dev.o char_dev.o stat.o exec.o pipe.o namei.o \
++		fcntl.o ioctl.o readdir.o select.o fifo.o locks.o \
+ 		dcache.o inode.o attr.o bad_inode.o file.o iobuf.o dnotify.o \
+ 		filesystems.o
+ 
+diff -urN S5-pre4/fs/block_dev.c S5-pre4-cdev/fs/block_dev.c
+--- S5-pre4/fs/block_dev.c	Sat May 19 22:46:35 2001
++++ S5-pre4-cdev/fs/block_dev.c	Tue May 22 08:34:44 2001
+@@ -392,7 +392,7 @@
+ 	}
+ }
+ 
+-void __init bdev_init(void)
++void __init bdev_cache_init(void)
+ {
+ 	int i;
+ 	struct list_head *head = bdev_hashtable;
+diff -urN S5-pre4/fs/char_dev.c S5-pre4-cdev/fs/char_dev.c
+--- S5-pre4/fs/char_dev.c	Wed Dec 31 19:00:00 1969
++++ S5-pre4-cdev/fs/char_dev.c	Tue May 22 10:03:10 2001
+@@ -0,0 +1,114 @@
++/*
++ *  linux/fs/block_dev.c
++ *
++ *  Copyright (C) 1991, 1992  Linus Torvalds
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++
++#define HASH_BITS	6
++#define HASH_SIZE	(1UL << HASH_BITS)
++#define HASH_MASK	(HASH_SIZE-1)
++static struct list_head cdev_hashtable[HASH_SIZE];
++static spinlock_t cdev_lock = SPIN_LOCK_UNLOCKED;
++static kmem_cache_t * cdev_cachep;
++
++#define alloc_cdev() \
++	 ((struct char_device *) kmem_cache_alloc(cdev_cachep, SLAB_KERNEL))
++#define destroy_cdev(cdev) kmem_cache_free(cdev_cachep, (cdev))
++
++static void init_once(void * foo, kmem_cache_t * cachep, unsigned long flags)
++{
++	struct char_device * cdev = (struct char_device *) foo;
++
++	if ((flags & (SLAB_CTOR_VERIFY|SLAB_CTOR_CONSTRUCTOR)) ==
++	    SLAB_CTOR_CONSTRUCTOR)
++	{
++		memset(cdev, 0, sizeof(*cdev));
++		sema_init(&cdev->sem, 1);
++	}
++}
++
++void __init cdev_cache_init(void)
++{
++	int i;
++	struct list_head *head = cdev_hashtable;
++
++	i = HASH_SIZE;
++	do {
++		INIT_LIST_HEAD(head);
++		head++;
++		i--;
++	} while (i);
++
++	cdev_cachep = kmem_cache_create("cdev_cache",
++					 sizeof(struct char_device),
++					 0, SLAB_HWCACHE_ALIGN, init_once,
++					 NULL);
++	if (!cdev_cachep)
++		panic("Cannot create cdev_cache SLAB cache");
++}
++
++/*
++ * Most likely _very_ bad one - but then it's hardly critical for small
++ * /dev and can be fixed when somebody will need really large one.
++ */
++static inline unsigned long hash(dev_t dev)
++{
++	unsigned long tmp = dev;
++	tmp = tmp + (tmp >> HASH_BITS) + (tmp >> HASH_BITS*2);
++	return tmp & HASH_MASK;
++}
++
++static struct char_device *cdfind(dev_t dev, struct list_head *head)
++{
++	struct list_head *p;
++	struct char_device *cdev;
++	for (p=head->next; p!=head; p=p->next) {
++		cdev = list_entry(p, struct char_device, hash);
++		if (cdev->dev != dev)
++			continue;
++		atomic_inc(&cdev->count);
++		return cdev;
++	}
++	return NULL;
++}
++
++struct char_device *cdget(dev_t dev)
++{
++	struct list_head * head = cdev_hashtable + hash(dev);
++	struct char_device *cdev, *new_cdev;
++	spin_lock(&cdev_lock);
++	cdev = cdfind(dev, head);
++	spin_unlock(&cdev_lock);
++	if (cdev)
++		return cdev;
++	new_cdev = alloc_cdev();
++	if (!new_cdev)
++		return NULL;
++	atomic_set(&new_cdev->count,1);
++	new_cdev->dev = dev;
++	spin_lock(&cdev_lock);
++	cdev = cdfind(dev, head);
++	if (!cdev) {
++		list_add(&new_cdev->hash, head);
++		spin_unlock(&cdev_lock);
++		return new_cdev;
++	}
++	spin_unlock(&cdev_lock);
++	destroy_cdev(new_cdev);
++	return cdev;
++}
++
++void cdput(struct char_device *cdev)
++{
++	if (atomic_dec_and_test(&cdev->count)) {
++		spin_lock(&cdev_lock);
++		list_del(&cdev->hash);
++		spin_unlock(&cdev_lock);
++		destroy_cdev(cdev);
++	}
++}
++
+diff -urN S5-pre4/fs/dcache.c S5-pre4-cdev/fs/dcache.c
+--- S5-pre4/fs/dcache.c	Sat Apr 28 02:12:56 2001
++++ S5-pre4-cdev/fs/dcache.c	Tue May 22 09:22:43 2001
+@@ -1250,6 +1250,9 @@
+ kmem_cache_t *bh_cachep;
+ EXPORT_SYMBOL(bh_cachep);
+ 
++extern void bdev_cache_init(void);
++extern void cdev_cache_init(void);
++
+ void __init vfs_caches_init(unsigned long mempages)
+ {
+ 	bh_cachep = kmem_cache_create("buffer_head",
+@@ -1279,4 +1282,7 @@
+ #endif
+ 
+ 	dcache_init(mempages);
++	inode_init(mempages);
++	bdev_cache_init();
++	cdev_cache_init();
+ }
+diff -urN S5-pre4/fs/devfs/base.c S5-pre4-cdev/fs/devfs/base.c
+--- S5-pre4/fs/devfs/base.c	Sat May 19 22:46:35 2001
++++ S5-pre4-cdev/fs/devfs/base.c	Tue May 22 08:51:03 2001
+@@ -2256,6 +2256,7 @@
+     {
+ 	inode->i_rdev = MKDEV (de->u.fcb.u.device.major,
+ 			       de->u.fcb.u.device.minor);
++	inode->i_cdev = cdget (kdev_t_to_nr(inode->i_rdev));
+     }
+     else if ( S_ISBLK (de->inode.mode) )
+     {
+diff -urN S5-pre4/fs/devices.c S5-pre4-cdev/fs/devices.c
+--- S5-pre4/fs/devices.c	Fri Feb 16 19:00:19 2001
++++ S5-pre4-cdev/fs/devices.c	Tue May 22 08:31:04 2001
+@@ -203,6 +203,7 @@
+ 	if (S_ISCHR(mode)) {
+ 		inode->i_fop = &def_chr_fops;
+ 		inode->i_rdev = to_kdev_t(rdev);
++		inode->i_cdev = cdget(rdev);
+ 	} else if (S_ISBLK(mode)) {
+ 		inode->i_fop = &def_blk_fops;
+ 		inode->i_rdev = to_kdev_t(rdev);
+diff -urN S5-pre4/fs/inode.c S5-pre4-cdev/fs/inode.c
+--- S5-pre4/fs/inode.c	Sat May 19 22:46:35 2001
++++ S5-pre4-cdev/fs/inode.c	Mon May 21 22:49:48 2001
+@@ -497,6 +497,10 @@
+ 		bdput(inode->i_bdev);
+ 		inode->i_bdev = NULL;
+ 	}
++	if (inode->i_cdev) {
++		cdput(inode->i_cdev);
++		inode->i_cdev = NULL;
++	}
+ 	inode->i_state = I_CLEAR;
+ }
+ 
+@@ -750,6 +754,7 @@
+ 	memset(&inode->i_dquot, 0, sizeof(inode->i_dquot));
+ 	inode->i_pipe = NULL;
+ 	inode->i_bdev = NULL;
++	inode->i_cdev = NULL;
+ 	inode->i_data.a_ops = &empty_aops;
+ 	inode->i_data.host = inode;
+ 	inode->i_data.gfp_mask = GFP_HIGHUSER;
+diff -urN S5-pre4/include/linux/fs.h S5-pre4-cdev/include/linux/fs.h
+--- S5-pre4/include/linux/fs.h	Sat May 19 22:46:36 2001
++++ S5-pre4-cdev/include/linux/fs.h	Tue May 22 09:14:25 2001
+@@ -384,6 +384,14 @@
+ 	int			gfp_mask;	/* how to allocate the pages */
+ };
+ 
++struct char_device {
++	struct list_head	hash;
++	atomic_t		count;
++	dev_t			dev;
++	atomic_t		openers;
++	struct semaphore	sem;
++};
++
+ struct block_device {
+ 	struct list_head	bd_hash;
+ 	atomic_t		bd_count;
+@@ -426,8 +434,10 @@
+ 	struct address_space	*i_mapping;
+ 	struct address_space	i_data;	
+ 	struct dquot		*i_dquot[MAXQUOTAS];
++	/* These three should probably be a union */
+ 	struct pipe_inode_info	*i_pipe;
+ 	struct block_device	*i_bdev;
++	struct char_device	*i_cdev;
+ 
+ 	unsigned long		i_dnotify_mask; /* Directory notify events */
+ 	struct dnotify_struct	*i_dnotify; /* for directory notifications */
+@@ -982,6 +992,8 @@
+ extern int unregister_blkdev(unsigned int, const char *);
+ extern struct block_device *bdget(dev_t);
+ extern void bdput(struct block_device *);
++extern struct char_device *cdget(dev_t);
++extern void cdput(struct char_device *);
+ extern int blkdev_open(struct inode *, struct file *);
+ extern struct file_operations def_blk_fops;
+ extern struct file_operations def_fifo_fops;
+diff -urN S5-pre4/init/main.c S5-pre4-cdev/init/main.c
+--- S5-pre4/init/main.c	Sat May 19 22:46:36 2001
++++ S5-pre4-cdev/init/main.c	Tue May 22 08:34:09 2001
+@@ -93,7 +93,6 @@
+ extern void ppc_init(void);
+ extern void sysctl_init(void);
+ extern void signals_init(void);
+-extern void bdev_init(void);
+ extern int init_pcmcia_ds(void);
+ extern void net_notifier_init(void);
+ 
+@@ -569,8 +568,6 @@
+ 	ccwcache_init();
+ #endif
+ 	signals_init();
+-	bdev_init();
+-	inode_init(mempages);
+ #ifdef CONFIG_PROC_FS
+ 	proc_root_init();
+ #endif
+diff -urN S5-pre4/kernel/ksyms.c S5-pre4-cdev/kernel/ksyms.c
+--- S5-pre4/kernel/ksyms.c	Sat May 19 22:46:37 2001
++++ S5-pre4-cdev/kernel/ksyms.c	Tue May 22 09:06:47 2001
+@@ -186,6 +186,8 @@
+ EXPORT_SYMBOL(notify_change);
+ EXPORT_SYMBOL(set_blocksize);
+ EXPORT_SYMBOL(getblk);
++EXPORT_SYMBOL(cdget);
++EXPORT_SYMBOL(cdput);
+ EXPORT_SYMBOL(bdget);
+ EXPORT_SYMBOL(bdput);
+ EXPORT_SYMBOL(bread);
 

@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268334AbUJDRUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUJDRXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268334AbUJDRUo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 13:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268335AbUJDRUo
+	id S268335AbUJDRXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 13:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268336AbUJDRXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 13:20:44 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:18605 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268334AbUJDRUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 13:20:39 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm4-S7
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20041004101711.GA21029@elte.hu>
-References: <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu>
-	 <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
-	 <20040928000516.GA3096@elte.hu> <1096785457.1837.0.camel@krustophenia.net>
-	 <1096786248.1837.4.camel@krustophenia.net>
-	 <1096787179.1837.8.camel@krustophenia.net> <20041003195725.GA31882@elte.hu>
-	 <1096851180.16648.2.camel@krustophenia.net>
-	 <20041004101711.GA21029@elte.hu>
-Content-Type: text/plain
-Message-Id: <1096910438.16648.15.camel@krustophenia.net>
+	Mon, 4 Oct 2004 13:23:09 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:11738 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268335AbUJDRXA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 13:23:00 -0400
+Date: Mon, 4 Oct 2004 10:22:20 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, trivial@rustcorp.com.au, rusty@rustcorp.com.au
+Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper call
+Message-ID: <20041004102220.A3304@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20041003100857.GB5804@optonline.net> <20041003162012.79296b37.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 04 Oct 2004 13:20:38 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041003162012.79296b37.akpm@osdl.org>; from akpm@osdl.org on Sun, Oct 03, 2004 at 04:20:12PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-04 at 06:17, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > Here is an almost identical one (it's even exactly 507 usecs!).  This
-> > and the one I sent previously were apparently caused by switching from
-> > X to a text console and back. 
-> 
-> ah, it's the VGA console:
-> 
-> > Sep  2 16:13:49 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
-> > Sep  2 16:13:49 krustophenia kernel:  [vgacon_save_screen+120/128] vgacon_save_screen+0x78/0x80
-> > Sep  2 16:13:49 krustophenia kernel:  [redraw_screen+411/560] redraw_screen+0x19b/0x230
-> 
-> now i'm wondering why that's running with preemption disabled - i
-> thought we fixed that.
-> 
+On Sun, Oct 03, 2004 at 04:20:12PM -0700, Andrew Morton wrote:
+> Does CPU hotplug behave correctly wrt /sys/devices/system/cpu?  Given that
+> register_cpu() is still marked __init, I assume not.
 
-Same here.  But, here's the actual trace from S7 (that one was Q
-something).  It is indeed the VGA console.
+Currently what we have in the kernel is logical cpu hotplug, i.e once the
+cpu is registered via register_cpu() that cpu can only go offline and still
+the entry for that cpu will be present in the /sys/devices/system/cpu/cpuX/online.
 
-Oct  3 02:58:08 krustophenia kernel: (events/0/3): new 507 us maximum-latency critical section.
-Oct  3 02:58:08 krustophenia kernel:  => started at: <kernel_fpu_begin+0x15/0x70>
-Oct  3 02:58:08 krustophenia kernel:  => ended at:   <_mmx_memcpy+0x13a/0x180>
-Oct  3 02:58:08 krustophenia kernel:  [check_preempt_timing+330/480] check_preempt_timing+0x14a/0x1e0
-Oct  3 02:58:08 krustophenia kernel:  [common_interrupt+24/32] common_interrupt+0x18/0x20
-Oct  3 02:58:08 krustophenia kernel:  [sub_preempt_count+74/112] sub_preempt_count+0x4a/0x70
-Oct  3 02:58:08 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
-Oct  3 02:58:08 krustophenia kernel:  [_mmx_memcpy+314/384] _mmx_memcpy+0x13a/0x180
-Oct  3 02:58:08 krustophenia kernel:  [vgacon_save_screen+120/128] vgacon_save_screen+0x78/0x80
-Oct  3 02:58:08 krustophenia kernel:  [redraw_screen+411/560] redraw_screen+0x19b/0x230
-Oct  3 02:58:08 krustophenia kernel:  [complete_change_console+44/224] complete_change_console+0x2c/0xe0
-Oct  3 02:58:08 krustophenia kernel:  [console_callback+258/272] console_callback+0x102/0x110
-Oct  3 02:58:08 krustophenia kernel:  [worker_thread+559/1088] worker_thread+0x22f/0x440
-Oct  3 02:58:08 krustophenia kernel:  [console_callback+0/272] console_callback+0x0/0x110
-Oct  3 02:58:08 krustophenia kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
-Oct  3 02:58:08 krustophenia kernel:  [schedule+829/1712] schedule+0x33d/0x6b0
-Oct  3 02:58:08 krustophenia kernel:  [default_wake_function+0/32] default_wake_function+0x0/0x20
-Oct  3 02:58:08 krustophenia kernel:  [mcount+20/24] mcount+0x14/0x18
-Oct  3 02:58:08 krustophenia kernel:  [kthread+180/192] kthread+0xb4/0xc0
-Oct  3 02:58:08 krustophenia kernel:  [worker_thread+0/1088] worker_thread+0x0/0x440
-Oct  3 02:58:08 krustophenia kernel:  [kthread+0/192] kthread+0x0/0xc0
-Oct  3 02:58:08 krustophenia kernel:  [kernel_thread_helper+5/16] kernel_thread_helper+0x5/0x10
+So __init register_cpu() is fine untill we support unregister_cpu()
+which is required for physical cpu hotplug case.
 
-Lee
-
+I have submitted ACPI based physical cpu hotplug patches and waiting to here from
+ACPI mainitainer Len Brown, there I have taken care to support unregister_cpu()
+and register_cpu() is marked as __devinit in those patches.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313113AbSEYAfq>; Fri, 24 May 2002 20:35:46 -0400
+	id <S313182AbSEYBnm>; Fri, 24 May 2002 21:43:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313114AbSEYAfp>; Fri, 24 May 2002 20:35:45 -0400
-Received: from shimura.Math.Berkeley.EDU ([169.229.58.53]:54150 "EHLO
-	shimura.math.berkeley.edu") by vger.kernel.org with ESMTP
-	id <S313113AbSEYAfo>; Fri, 24 May 2002 20:35:44 -0400
-Date: Fri, 24 May 2002 17:35:40 -0700 (PDT)
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Reply-To: whitney@math.berkeley.edu
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: AMD 760MP vs AMD 760MPX -ac kernel support
-Message-ID: <Pine.LNX.4.44.0205241711490.21993-100000@mf1.private>
+	id <S313183AbSEYBnl>; Fri, 24 May 2002 21:43:41 -0400
+Received: from web14206.mail.yahoo.com ([216.136.173.70]:24590 "HELO
+	web14206.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S313182AbSEYBnk>; Fri, 24 May 2002 21:43:40 -0400
+Message-ID: <20020525014340.24302.qmail@web14206.mail.yahoo.com>
+Date: Fri, 24 May 2002 18:43:40 -0700 (PDT)
+From: Erik McKee <camhanaich99@yahoo.com>
+Subject: Fwd: Re: 2.5.17 Problem
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Since Alan Cox has a machine with the AMD 760MPX chipset (AMD 762
-northbridge and AMD 768 southbridge), the -ac kernel tree contains support
-for various AMD 760MPX functionality:
+--- Erik McKee <camhanaich99@yahoo.com> wrote:
+> From Erik McKee Fri May 24 18:15:20 2002
+> Date: Fri, 24 May 2002 18:15:20 -0700 (PDT)
+> From: Erik McKee <camhanaich99@yahoo.com>
+> Subject: Re: 2.5.17 Problem
+> To: Chris Wright <chris@wirex.com>
+> 
+> Nope...no CONFIG_SMP here ;)
+> 
+> 
+> --- Chris Wright <chris@wirex.com> wrote:
+> > * Erik McKee (camhanaich99@yahoo.com) wrote:
+> > > Ok, I am becoming a frequent poster here.  Nothing in the logs on this
+> one
+> > > either.  Left 2.5.17 running overnight on this box which used to be rock
+> > solid
+> > > unser 2.4.  kde was running, with a screensaver.  On attempting to use
+> the
+> > box,
+> > > mouse mvement did dispell the screensaver.  alt-ctrl-f2 to get to a vc
+> > however
+> > > left me with a clean black screen.  Nothing worked....alt-sysrq -s or
+> > > alt-sysrq-u ddin't produce any disk activity.  alt-sys-rq-b did however
+> > reboot
+> > > the system.  only issue was unclean raid array afterwards ;)
+> > 
+> > is this, by chance, a UP machine with:
+> > CONFIG_SMP=y
+> > CONFIG_PREEMPT=y
+> > 
+> > i've been seeing regular kernel hangs obtaining the BKL with this
+> > configuration.
+> > 
+> > thanks,
+> > -chris
+> 
+> 
+> __________________________________________________
+> Do You Yahoo!?
+> LAUNCH - Your Yahoo! Music Experience
+> http://launch.yahoo.com
+> 
 
-arch/i386/kernel/pci-irq.c	AMD 768 IRQ Router
-drivers/char/amd768_rng.c	AMD 768 Random Number Generator
-driver/char/amd768_pm.c		AMD 762/768 Power Management
-drivers/sound/i810_audio.c	AMD 768 AC97 Audio
 
-I was wondering which of this functionality might also exist in the 760MP
-chipset (AMD 762 northbridge and AMD 766 southbridge).  According to its
-datasheet, the AMD 766 does not have a RNG or AC97 Audio.  But what about
-the IRQ Router and Power Management support, should these work on the AMD
-766?  If so, should it be possible to support the AMD 766 by just adding
-entries to the PCI device tables in each file?
-
-Thanks,
-Wayne
-
-
+__________________________________________________
+Do You Yahoo!?
+LAUNCH - Your Yahoo! Music Experience
+http://launch.yahoo.com

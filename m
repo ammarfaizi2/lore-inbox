@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbULaMi6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbULaMyi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbULaMi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 07:38:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbULaMi6
+	id S261989AbULaMyi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 07:54:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbULaMyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 07:38:58 -0500
-Received: from mail.portrix.net ([212.202.157.208]:55960 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261969AbULaMi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 07:38:56 -0500
-Message-ID: <41D5485A.4060709@ppp0.net>
-Date: Fri, 31 Dec 2004 13:38:50 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+	Fri, 31 Dec 2004 07:54:38 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:63969 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S261989AbULaMyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 07:54:35 -0500
+Message-ID: <41D54BA3.70403@t-online.de>
+Date: Fri, 31 Dec 2004 13:52:51 +0100
+From: mikeb1@t-online.de (Michael Berger)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: gene.heskett@verizon.net
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.6.10-ac1
-References: <1104103881.16545.2.camel@localhost.localdomain> <200412302006.19872.gene.heskett@verizon.net> <41D52275.8030100@ppp0.net> <200412310705.52976.gene.heskett@verizon.net>
-In-Reply-To: <200412310705.52976.gene.heskett@verizon.net>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+To: Cal Peake <cp@absolutedigital.net>, linux-kernel@vger.kernel.org
+Subject: Re: Compile error in kernel 2.6.10-bk3 in file slhc.c
+References: <3hbOM-43L-21@gated-at.bofh.it> <41D5009E.4090100@t-online.de> <297f4e0104123102571bb1759f@mail.gmail.com> <Pine.LNX.4.61.0412310614320.6599@lancer.cnet.absolutedigital.net>
+In-Reply-To: <Pine.LNX.4.61.0412310614320.6599@lancer.cnet.absolutedigital.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ID: Xd0JGqZaweWN--dny80SR5G0UsM2g0aAGiYnvNCPRTvcJZ+5oXMM0d
+X-TOI-MSGID: f71889ec-8d1b-4ba5-8ee2-84e26709a9f2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> If I feed it the lines with the numbers it reports something about an 
-> invalid IP on restart.
+Cal Peake wrote:
+
+>On Fri, 31 Dec 2004, Ikke wrote:
+>
+>  
+>
+>>Could you point me to the patch please?
+>>    
+>>
+>
+>at:
+>
+>http://linux.bkbits.net:8080/linux-2.5/cset@1.2082?nav=index.html|ChangeSet@-1d
+>
+>and below.
+>
+>-- Cal
+>
+># This is a BitKeeper generated diff -Nru style patch.
+>#
+># ChangeSet
+>#   2004/12/30 15:21:16-08:00 acme@conectiva.com.br 
+>#   [PATCH] Fix net/core/sock.o build failure
+>#   
+>#   This fixes a build failure that happens when you don't select IPV6.
+>#   
+>#   Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+># 
+># include/linux/ipv6.h
+>#   2004/12/29 14:22:45-08:00 acme@conectiva.com.br +1 -1
+>#   Fix net/core/sock.o build failure
+># 
+>diff -Nru a/include/linux/ipv6.h b/include/linux/ipv6.h
+>--- a/include/linux/ipv6.h	2004-12-31 03:15:16 -08:00
+>+++ b/include/linux/ipv6.h	2004-12-31 03:15:16 -08:00
+>@@ -273,6 +273,7 @@
+> 	struct ipv6_pinfo inet6;
+> };
 > 
-> [root@coyote root]# parsemce -e Bank 2: d40040000000017a -b Bank 2: -s 
-> d40040000000017a
-> Status: (ba) Error IP valid
-> Restart IP invalid.
+>+#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+> static inline struct ipv6_pinfo * inet6_sk(const struct sock *__sk)
+> {
+> 	return inet_sk(__sk)->pinet6;
+>@@ -283,7 +284,6 @@
+> 	return &((struct raw6_sock *)__sk)->raw6;
+> }
 > 
-> The exact same output is obtained from the Bank 1 message & numbers 
-> too.
+>-#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
+> #define __ipv6_only_sock(sk)	(inet6_sk(sk)->ipv6only)
+> #define ipv6_only_sock(sk)	((sk)->sk_family == PF_INET6 && __ipv6_only_sock(sk))
+> #else
+>
+>  
+>
+Dear Cal
 
-Try
+Thank you. I already received the same patch and found it also posted at 
+the LKML. Kernel 2.6.10-bk3 is up now for 17+ hours.
 
-$ ./parsemce -e 0xba -b 2 -s d40040000000017a -a 0
-Status: (ba) Error IP valid
-Restart IP invalid.
-parsebank(2): d40040000000017a @ 0
-        External tag parity error
-        Correctable ECC error
-        Address in addr register valid
-        Error enabled in control register
-        Error overflow
-        Memory heirarchy error
-        Request: Generic error
-        Transaction type : Generic
-        Memory/IO : I/O
+Good work LKML
 
-See [1] for a possible explanation. I hope the link works. It's a message
-from DaveJ about the same error:
-"Looks like the L2 cache ECC checking spotted something going wrong,
-and fixed it up. This can happen in cases where there is inadequate
-cooling, power, or overclocking (or in rare circumstances, flaky CPUs)"
-
-Jan
-
-[1] http://groups-beta.google.com/group/linux.kernel/browse_thread/thread/bbf1d32da11eb369/8b2300b83ac0ab9e?q=%22Restart+IP+invalid%22&_done=%2Fgroups%3Fq%3D%22Restart+IP+invalid%22%26hl%3Den%26lr%3D%26client%3Dfirefox%26rls%3Dorg.mozilla:en-US:unofficial%26sa%3DN%26tab%3Dwg%26&_doneTitle=Back+to+Search&&d#8b2300b83ac0ab9e
+--Michael

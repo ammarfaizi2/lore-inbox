@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbSKUHKE>; Thu, 21 Nov 2002 02:10:04 -0500
+	id <S266377AbSKUHto>; Thu, 21 Nov 2002 02:49:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266384AbSKUHKE>; Thu, 21 Nov 2002 02:10:04 -0500
-Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:10903 "EHLO
-	pelerin.serpentine.com") by vger.kernel.org with ESMTP
-	id <S266379AbSKUHKD>; Thu, 21 Nov 2002 02:10:03 -0500
-Subject: [PATCH] Get 2.5.48 UML to compile with CONFIG_NFSD=y
-From: "Bryan O'Sullivan" <bos@serpentine.com>
-To: linux-kernel@vger.kernel.org
-Cc: jdike@karaya.com
-Content-Type: multipart/mixed; boundary="=-xUKFmJiKDCfJtmyDTm5w"
-Organization: 
-Message-Id: <1037863030.13803.5.camel@camp4.serpentine.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 20 Nov 2002 23:17:10 -0800
+	id <S266384AbSKUHtn>; Thu, 21 Nov 2002 02:49:43 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:64157 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S266377AbSKUHtn>;
+	Thu, 21 Nov 2002 02:49:43 -0500
+Date: Thu, 21 Nov 2002 10:13:17 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] threading enhancements, tid-2.5.47-C0
+In-Reply-To: <20021121001819.GA12650@bjl1.asuk.net>
+Message-ID: <Pine.LNX.4.44.0211211007100.1782-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-xUKFmJiKDCfJtmyDTm5w
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+On Thu, 21 Nov 2002, Jamie Lokier wrote:
 
-There's a typo in the user-mode-linux syscall table that causes a
-compilation failure with the NFS server enabled.  The attached patch
-applies to BK-current and fixes the problem.
+> Thread calls cfork(), which does this in the parent:
+> 
+> 	sigprocmask(...)
+> 		// Very short time during which signals aren't delivered.
+> 	clone(...)
+> 		// Very short time during which signals aren't delivered.
+> 	sigprocmask(...)
+> 
 
-	<b
+Jamie, we've been there, done that. This is precisely the kind of signal
+locking cruft we got rid of in LinuxThreads, and which cruft caused it to
+be slow. My goal was and still is to isolate signals from the rest of the
+kernel APIs as much as possible, while still keeping the traditional
+semantics. Check out an strace of a LinuxThreads linked pthread
+application and you'll see signal mask manipulation syscalls all around
+the place. Check out an NPTL strace, and see all those straightforward
+single-syscall operations.
 
---=-xUKFmJiKDCfJtmyDTm5w
-Content-Disposition: attachment; filename=2.5.48-um-nfsd.patch
-Content-Type: text/plain; name=2.5.48-um-nfsd.patch; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+sure, fork() has some overhead larger than signal manipulation costs, but
+this does not make the approach right in any way. If all this userspace
+cost can be dealt with by doing some simple things in kernel-space, why
+not do it?
 
-==== //depot/linux-2.5-bos/arch/um/kernel/sys_call_table.c#1 - /export/bos/p4/linux-2.5-bos/arch/um/kernel/sys_call_table.c ====
-Index: linux-2.5-bos/arch/um/kernel/sys_call_table.c
---- linux-2.5-bos/arch/um/kernel/sys_call_table.c.~1~	Wed Nov 20 21:45:28 2002
-+++ linux-2.5-bos/arch/um/kernel/sys_call_table.c	Wed Nov 20 21:45:28 2002
-@@ -238,7 +238,7 @@
- extern syscall_handler_t sys_remap_file_pages;
- 
- #if CONFIG_NFSD
--#define NFSSERVCTL sys_nfsserctl
-+#define NFSSERVCTL sys_nfsservctl
- #else
- #define NFSSERVCTL sys_ni_syscall
- #endif
-End of Patch.
-
---=-xUKFmJiKDCfJtmyDTm5w--
+	Ingo
 

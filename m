@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbTLVVOI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 16:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbTLVVOI
+	id S264467AbTLVVKa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 16:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264473AbTLVVK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 16:14:08 -0500
-Received: from h1ab.lcom.net ([216.51.237.171]:647 "EHLO digitasaru.net")
-	by vger.kernel.org with ESMTP id S264500AbTLVVOE (ORCPT
+	Mon, 22 Dec 2003 16:10:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7644 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264467AbTLVVK2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 16:14:04 -0500
-Date: Mon, 22 Dec 2003 15:14:00 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Stan Bubrouski <stan@ccs.neu.edu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: SCO's infringing files list
-Message-ID: <20031222211358.GG6761@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Stan Bubrouski <stan@ccs.neu.edu>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <1072125736.1286.170.camel@duergar>
+	Mon, 22 Dec 2003 16:10:28 -0500
+Date: Mon, 22 Dec 2003 13:11:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: colpatch@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, jbarnes@sgi.com
+Subject: Re: [PATCH] Simplify node/zone field in page->flags
+Message-Id: <20031222131126.66bef9a2.akpm@osdl.org>
+In-Reply-To: <3FE74B43.7010407@us.ibm.com>
+References: <3FE74B43.7010407@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1072125736.1286.170.camel@duergar>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Any thoughts?
+Matthew Dobson <colpatch@us.ibm.com> wrote:
+>
+> Currently we keep track of a pages node & zone in the top 8 bits (on 
+> 32-bit arches, 10 bits on 64-bit arches) of page->flags.  We typically 
+> compute the field as follows:
+> 	node_num * MAX_NR_ZONES + zone_num = 'nodezone'
+> 
+> It's non-trivial to break this 'nodezone' back into node and zone 
+> numbers.  This patch modifies the way we compute the index to be:
+> 	(node_num << ZONE_SHIFT) | zone_num
+> 
+> This makes it trivial to recover either the node or zone number with a 
+> simple bitshift.  There are many places in the kernel where we do things 
+> like: page_zone(page)->zone_pgdat->node_id to determine the node a page 
+> belongs to.  With this patch we save several pointer dereferences, and 
+> it all boils down to shifting some bits.
 
-Yep.  After a very partial and preliminary look (ctype.h, signal.h, errno.h)
-  I would recommend that SCO sue the much larger pot of Microsoft Windows
-  users out there.
-So far as I can tell, Visual Studio ships with these files as well, although
-  I can't compare the Linux, SCO, and Windows versions of them.
-Anyone with more info?
+This conflicts with (is a superset of) 
 
--Joseph
+	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm5/broken-out/ZONE_SHIFT-from-NODES_SHIFT.patch
 
+I suspect you've sent a replacement patch, yes?  If Jesse is OK with the
+new patch I'll do the swap, thanks.
 
--- 
-Joseph===============================================trelane@digitasaru.net
-      Graduate Student in Physics, Freelance Free Software Developer

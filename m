@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270918AbRHNWt2>; Tue, 14 Aug 2001 18:49:28 -0400
+	id <S270919AbRHNWth>; Tue, 14 Aug 2001 18:49:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270917AbRHNWtR>; Tue, 14 Aug 2001 18:49:17 -0400
-Received: from maile.telia.com ([194.22.190.16]:31960 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S270907AbRHNWtE> convert rfc822-to-8bit;
-	Tue, 14 Aug 2001 18:49:04 -0400
-Subject: Re: Hardlock with all kernel >= 2.4.7-pre5 - softirq related ?
-From: Thomas Svedberg <thsv@bigfoot.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010814214641.B27499@athlon.random>
-In-Reply-To: <997803113.1423.22.camel@athlon1.hemma.se> 
-	<20010814214641.B27499@athlon.random>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 15 Aug 2001 00:48:57 +0200
-Message-Id: <997829352.7554.56.camel@athlon1.hemma.se>
-Mime-Version: 1.0
+	id <S270917AbRHNWt2>; Tue, 14 Aug 2001 18:49:28 -0400
+Received: from cs242719-203.austin.rr.com ([24.27.19.203]:30971 "EHLO
+	snafu.haywired.net") by vger.kernel.org with ESMTP
+	id <S270916AbRHNWtO>; Tue, 14 Aug 2001 18:49:14 -0400
+Date: Tue, 14 Aug 2001 18:12:23 -0500 (CDT)
+From: <paulsch@haywired.net>
+To: <linux-thinkpad@www.bm-soft.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] mwave_linux-2.4.8 / release mwavem-1.0.2
+Message-ID: <Pine.LNX.4.33.0108141809020.16539-100000@screwy.haywired.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Den 14 Aug 2001 21:46:41 +0200 skrev Andrea Arcangeli:
-> On Tue, Aug 14, 2001 at 05:29:54PM +0200, Thomas Svedberg wrote:
-> > I have experienced hardlocks (everything freezes with small white square
-> 
-> exact kernel version? Please make sure you can reproduce on 2.4.9-pre3,
-> thanks.
+The mwave driver and distribution have been updated...  They can be gotten
+at the Mwave home page:  http://oss.software.ibm.com/acpmodem/
 
-I have had crashes with 2.4.7, 2.4.8, and all -pre i tried from
-2.4.7-pre5 and onward as well as with the few recent -ac I tried.
+Questions, comments, etc. are welcome...
 
-The diff I included earlier was the part of the difference from
-2.4.7-pre4 to -pre5 that I narrowed down the lockup to.
+Here are the changes:
 
-I will try 2.4.9-pre tomorrow and see what happens (but recent kernels
-have taken longer (about 24h) to lock up than older (<1h), so a positive
-success will take some time.
+Version 1.0.2 Source
+
+    * Includes latest 2.4.8 driver patch
+	- Fix undefinded __exit for 2.2.x kernels
+	- Global s_mdd now prefixed with mwave_ as it should be
+	- Bugfixes for initialization failure cases (Thomas Hood)
+	- printk cleanups (Hood)
+	- Disabling of other UARTs contolled by
+MWAVE_FUTZ_WITH_OTHER_DEVICES flag (Hood)
+    * ./configure and mwaved fixes for older versions of bash
 
 
-/ Thomas
-.......................................................................
- Thomas Svedberg
- Department of Mathematics
- Chalmers University of Technology
+Cheers...Paul...
 
- Address: S-412 96 Göteborg, SWEDEN
- E-mail : thsv@bigfoot.com, thsv@math.chalmers.se
- Phone  : +46 31 772 5368
- Fax    : +46 31 772 3595
-.......................................................................
+
+-- 
+
+Paul B Schroeder
+paulsch@haywired.net
+
 

@@ -1,74 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVBICIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVBICJd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVBICIW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 21:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbVBICHp
+	id S261746AbVBICJd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 21:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVBICJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 21:07:45 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:53148 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261745AbVBICHb (ORCPT
+	Tue, 8 Feb 2005 21:09:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30133 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261747AbVBICIa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 21:07:31 -0500
-Date: Tue, 8 Feb 2005 18:07:13 -0800
-To: Chris Wright <chrisw@osdl.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] Wireless Extension v17 (resend)
-Message-ID: <20050209020713.GA12770@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20050208181637.GB29717@bougret.hpl.hp.com> <20050208180116.GA10695@logos.cnet> <20050208215112.GB3290@bougret.hpl.hp.com> <20050208184145.GD10799@logos.cnet> <20050209003746.GB9792@bougret.hpl.hp.com> <20050208175129.G469@build.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050208175129.G469@build.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@hpl.hp.com>
+	Tue, 8 Feb 2005 21:08:30 -0500
+Date: Tue, 8 Feb 2005 18:08:21 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Richard Henderson <rth@twiddle.net>
+cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Manfred Spraul <manfred@colorfullife.com>
+Subject: Re: out-of-line x86 "put_user()" implementation
+In-Reply-To: <20050209012543.GA13802@twiddle.net>
+Message-ID: <Pine.LNX.4.58.0502081805470.2165@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0502062212450.2165@ppc970.osdl.org>
+ <20050207114415.GA22948@elte.hu> <Pine.LNX.4.58.0502071717310.2165@ppc970.osdl.org>
+ <20050209012543.GA13802@twiddle.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 08, 2005 at 05:51:29PM -0800, Chris Wright wrote:
-> * Jean Tourrilhes (jt@hpl.hp.com) wrote:
-> > 	The first is the handling of spyoffset which is potentially
-> > unsafe. Unfortunately, the fix involve some API/infrastructure change,
-> > so is not transparent. Fortunately drivers are clever enough to not
-> > trigger this bug.
-> > 	The second is a potential leak of kernel data to user space in
-> > private handler handling. Few drivers use that feature, there is no
-> > risk of crash or direct attack, so I would not worry about it.
+
+
+On Tue, 8 Feb 2005, Richard Henderson wrote:
 > 
-> Hmm, having ability to read kernel data is not so nice.
+> The first 3 gets lost.
 
-	It's not like you can read any arbitrary address, exploiting
-such a flaw is in my mind theoritical. Let's not overblow things,
-there are some real bugs to take care of.
+Thanks. So here's v3 (which also removes the now stale __put_user_check() 
+macro).
 
->  prism54 uses
-> this, and is a reasonably popular card.  Looks to me like this should be
-> plugged.  Is the patch below sufficient? (stolen from full 2.6 patch)
+Andrew - do you want to put it in -mm? 
 
-	Yep, except that you have an extra chunk that should not be
-in. You probably did not use the latest version of the patch (and that
-was not in the one sent to Marcelo). I would not like to introduce a
-real bug in 2.4.X :-(
+		Linus
 
-> thanks,
-> -chris
-
-	This chunk is erroneous :
-
-> @@ -731,7 +749,7 @@ static inline int ioctl_private_call(str
->  				return -EFAULT;
->  
->  			/* Does it fits within bounds ? */
-> -			if(iwr->u.data.length > (descr->set_args &
-> +			if(iwr->u.data.length > (descr->get_args &
->  						 IW_PRIV_SIZE_MASK))
->  				return -E2BIG;
->  		} else {
-
-	Have fun...
-
-	Jean
+---
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2005/02/08 18:05:45-08:00 torvalds@evo.osdl.org 
+#   x86: make "put_user()" be out-of-line
+#   
+#   It's really too big to be inlined.
+#   
+#   Ingo tests and reports: this shrinks his kernel text size by
+#   about 12kB (roughly 0.5%)
+# 
+# arch/i386/lib/putuser.S
+#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +87 -0
+# 
+# include/asm-i386/uaccess.h
+#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +27 -13
+#   x86: make "put_user()" be out-of-line
+# 
+# arch/i386/lib/putuser.S
+#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +0 -0
+#   BitKeeper file /home/torvalds/v2.6/linux/arch/i386/lib/putuser.S
+# 
+# arch/i386/lib/Makefile
+#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +1 -1
+#   x86: make "put_user()" be out-of-line
+# 
+# arch/i386/kernel/i386_ksyms.c
+#   2005/02/08 18:05:32-08:00 torvalds@evo.osdl.org +5 -0
+#   x86: make "put_user()" be out-of-line
+# 
+diff -Nru a/arch/i386/kernel/i386_ksyms.c b/arch/i386/kernel/i386_ksyms.c
+--- a/arch/i386/kernel/i386_ksyms.c	2005-02-08 18:06:14 -08:00
++++ b/arch/i386/kernel/i386_ksyms.c	2005-02-08 18:06:14 -08:00
+@@ -97,6 +97,11 @@
+ EXPORT_SYMBOL(__get_user_2);
+ EXPORT_SYMBOL(__get_user_4);
+ 
++EXPORT_SYMBOL(__put_user_1);
++EXPORT_SYMBOL(__put_user_2);
++EXPORT_SYMBOL(__put_user_4);
++EXPORT_SYMBOL(__put_user_8);
++
+ EXPORT_SYMBOL(strpbrk);
+ EXPORT_SYMBOL(strstr);
+ 
+diff -Nru a/arch/i386/lib/Makefile b/arch/i386/lib/Makefile
+--- a/arch/i386/lib/Makefile	2005-02-08 18:06:14 -08:00
++++ b/arch/i386/lib/Makefile	2005-02-08 18:06:14 -08:00
+@@ -3,7 +3,7 @@
+ #
+ 
+ 
+-lib-y = checksum.o delay.o usercopy.o getuser.o memcpy.o strstr.o \
++lib-y = checksum.o delay.o usercopy.o getuser.o putuser.o memcpy.o strstr.o \
+ 	bitops.o
+ 
+ lib-$(CONFIG_X86_USE_3DNOW) += mmx.o
+diff -Nru a/arch/i386/lib/putuser.S b/arch/i386/lib/putuser.S
+--- /dev/null	Wed Dec 31 16:00:00 196900
++++ b/arch/i386/lib/putuser.S	2005-02-08 18:06:14 -08:00
+@@ -0,0 +1,87 @@
++/*
++ * __put_user functions.
++ *
++ * (C) Copyright 2005 Linus Torvalds
++ *
++ * These functions have a non-standard call interface
++ * to make them more efficient, especially as they
++ * return an error value in addition to the "real"
++ * return value.
++ */
++#include <asm/thread_info.h>
++
++
++/*
++ * __put_user_X
++ *
++ * Inputs:	%eax[:%edx] contains the data
++ *		%ecx contains the address
++ *
++ * Outputs:	%eax is error code (0 or -EFAULT)
++ *
++ * These functions should not modify any other registers,
++ * as they get called from within inline assembly.
++ */
++
++#define ENTER	pushl %ebx ; GET_THREAD_INFO(%ebx)
++#define EXIT	popl %ebx ; ret
++
++.text
++.align 4
++.globl __put_user_1
++__put_user_1:
++	ENTER
++	cmpl TI_addr_limit(%ebx),%ecx
++	jae bad_put_user
++1:	movb %al,(%ecx)
++	xorl %eax,%eax
++	EXIT
++
++.align 4
++.globl __put_user_2
++__put_user_2:
++	ENTER
++	movl TI_addr_limit(%ebx),%ebx
++	subl $1,%ebx
++	cmpl %ebx,%ecx
++	jae bad_put_user
++2:	movw %ax,(%ecx)
++	xorl %eax,%eax
++	EXIT
++
++.align 4
++.globl __put_user_4
++__put_user_4:
++	ENTER
++	movl TI_addr_limit(%ebx),%ebx
++	subl $3,%ebx
++	cmpl %ebx,%ecx
++	jae bad_put_user
++3:	movl %eax,(%ecx)
++	xorl %eax,%eax
++	EXIT
++
++.align 4
++.globl __put_user_8
++__put_user_8:
++	ENTER
++	movl TI_addr_limit(%ebx),%ebx
++	subl $7,%ebx
++	cmpl %ebx,%ecx
++	jae bad_put_user
++4:	movl %eax,(%ecx)
++5:	movl %edx,4(%ecx)
++	xorl %eax,%eax
++	EXIT
++
++bad_put_user:
++	movl $-14,%eax
++	EXIT
++
++.section __ex_table,"a"
++	.long 1b,bad_put_user
++	.long 2b,bad_put_user
++	.long 3b,bad_put_user
++	.long 4b,bad_put_user
++	.long 5b,bad_put_user
++.previous
+diff -Nru a/include/asm-i386/uaccess.h b/include/asm-i386/uaccess.h
+--- a/include/asm-i386/uaccess.h	2005-02-08 18:06:14 -08:00
++++ b/include/asm-i386/uaccess.h	2005-02-08 18:06:14 -08:00
+@@ -185,6 +185,21 @@
+ 
+ extern void __put_user_bad(void);
+ 
++/*
++ * Strange magic calling convention: pointer in %ecx,
++ * value in %eax(:%edx), return value in %eax, no clobbers.
++ */
++extern void __put_user_1(void);
++extern void __put_user_2(void);
++extern void __put_user_4(void);
++extern void __put_user_8(void);
++
++#define __put_user_1(x, ptr) __asm__ __volatile__("call __put_user_1":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
++#define __put_user_2(x, ptr) __asm__ __volatile__("call __put_user_2":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
++#define __put_user_4(x, ptr) __asm__ __volatile__("call __put_user_4":"=a" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
++#define __put_user_8(x, ptr) __asm__ __volatile__("call __put_user_8":"=A" (__ret_pu):"0" ((typeof(*(ptr)))(x)), "c" (ptr))
++#define __put_user_X(x, ptr) __asm__ __volatile__("call __put_user_X":"=a" (__ret_pu):"c" (ptr))
++
+ /**
+  * put_user: - Write a simple value into user space.
+  * @x:   Value to copy to user space.
+@@ -201,9 +216,18 @@
+  *
+  * Returns zero on success, or -EFAULT on error.
+  */
+-#define put_user(x,ptr)							\
+-  __put_user_check((__typeof__(*(ptr)))(x),(ptr),sizeof(*(ptr)))
+-
++#define put_user(x,ptr)						\
++({	int __ret_pu;						\
++	__chk_user_ptr(ptr);					\
++	switch(sizeof(*(ptr))) {				\
++	case 1: __put_user_1(x, ptr); break;			\
++	case 2: __put_user_2(x, ptr); break;			\
++	case 4: __put_user_4(x, ptr); break;			\
++	case 8: __put_user_8(x, ptr); break;			\
++	default:__put_user_X(x, ptr); break;			\
++	}							\
++	__ret_pu;						\
++})
+ 
+ /**
+  * __get_user: - Get a simple variable from user space, with less checking.
+@@ -258,16 +282,6 @@
+ 	__pu_err;						\
+ })
+ 
+-
+-#define __put_user_check(x,ptr,size)					\
+-({									\
+-	long __pu_err = -EFAULT;					\
+-	__typeof__(*(ptr)) __user *__pu_addr = (ptr);			\
+-	might_sleep();						\
+-	if (access_ok(VERIFY_WRITE,__pu_addr,size))			\
+-		__put_user_size((x),__pu_addr,(size),__pu_err,-EFAULT);	\
+-	__pu_err;							\
+-})							
+ 
+ #define __put_user_u64(x, addr, err)				\
+ 	__asm__ __volatile__(					\

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290315AbSAXV1b>; Thu, 24 Jan 2002 16:27:31 -0500
+	id <S290325AbSAXV3l>; Thu, 24 Jan 2002 16:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290320AbSAXV1V>; Thu, 24 Jan 2002 16:27:21 -0500
-Received: from svr3.applink.net ([206.50.88.3]:27655 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S290307AbSAXV1P>;
-	Thu, 24 Jan 2002 16:27:15 -0500
-Message-Id: <200201242123.g0OLNAL06617@home.ashavan.org.>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: RFC: booleans and the kernel
-Date: Fri, 25 Jan 2002 15:24:39 -0600
-X-Mailer: KMail [version 1.3.2]
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org>
-In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org>
+	id <S290322AbSAXV3V>; Thu, 24 Jan 2002 16:29:21 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:20650 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S290323AbSAXV3T> convert rfc822-to-8bit; Thu, 24 Jan 2002 16:29:19 -0500
+Date: Thu, 24 Jan 2002 22:29:15 +0100 (CET)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: Wayne Whitney <whitney@math.berkeley.edu>
+cc: Rasmus =?iso-8859-1?Q?B=F8g?= Hansen <moffe@amagerkollegiet.dk>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: ACPI trouble (Was: Re: [patch] amd athlon cooling on kt266/266a
+ chipset)
+In-Reply-To: <200201241749.g0OHnbG02468@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+Message-ID: <Pine.LNX.4.40.0201242223490.9957-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
+On Thu, 24 Jan 2002, Wayne Whitney wrote:
+
+> In mailing-lists.linux-kernel, Rasmus Bøg Hansen wrote:
 >
-> The compiler _will_ turn if(a==0) into a test of a with itself rather than
-> a comparison against a constant. Since PDP days, no doubt.
+> I have an ASUS A7V motherboard, similar to your ASUS A7V133.  I find
+> that stock kernel (2.4.18-pre7) APM powers off the machine, but stock
+> kernel ACPI does not.  However, the Intel ACPI patch, available from
+> http://developer.intel.com/technology/IAPC/acpi/downloads.htm against
+> kernel 2.4.16, does power down my machine.  I was able to forward port
+> this to 2.4.18-pre7 without too much trouble by starting with 2.4.16,
+> applying the Intel ACPI patch first, and then applying kernel
+> patch-2.4.17 and kernel patch-2.4.18-pre7.
 
-I thought that the whole point of booleans was to stop silly errors
-like 
+ok .. .maybe someone should look what the differences for the "halt"
+functions are ... i risked a short look in the acpi sources, but i have
+not the time to compare the patches at the moment ... maybe at the weekend
+... but the acpi sources don't look like easy to understand :) (like many
+parts of ther kernel ... imha as a kernel newbee :) )
 
-if ( x = 1 )
-{
-	printf ("\nX is true\n");
-}
-else
-{
-	# we never get here...
-}
+>
+> As to the merits of the amd_disconnect patch that started this thread,
+> under 2.4.18-pre7-acpi, I get an idle CPU temperature of about 48 C.
+> With the amd_disconnect patch, it drops to 32-35 C, wow!  As
+> previously discussed, APM + amd_disconnect on an Athlon does not
+> provide any power savings, one needs ACPI + amd_disconnect.
 
--- 
-timothy.covell@ashavan.org.
+ahh ...  anopther "it works"- feedback ... :)
+
+
+daniel
+

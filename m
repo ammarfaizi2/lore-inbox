@@ -1,399 +1,1461 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267251AbUJNWEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267705AbUJNWJC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267251AbUJNWEj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267334AbUJNUpx
+	id S267705AbUJNWJC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:09:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267553AbUJNWHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 16:45:53 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:51446 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S267251AbUJNSuu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:50:50 -0400
-Subject: Re: 2.6.9-rc4-mm1 OOPs on AMD64
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041011153830.495b7c2d.akpm@osdl.org>
-References: <1097527401.12861.383.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041011214304.GD31731@wotan.suse.de>
-	 <1097532118.12861.395.camel@dyn318077bld.beaverton.ibm.com>
-	 <20041011221519.GA11702@wotan.suse.de>
-	 <20041011153830.495b7c2d.akpm@osdl.org>
-Content-Type: multipart/mixed; boundary="=-tfBh56jvGX/5xdor0twZ"
-Organization: 
-Message-Id: <1097779232.2861.9.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Oct 2004 11:40:32 -0700
+	Thu, 14 Oct 2004 18:07:53 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:16364 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S267374AbUJNVo7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:44:59 -0400
+Date: Thu, 14 Oct 2004 23:44:57 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 3/4] move spinlock definitions to spinlock_types.h
+Message-ID: <Pine.LNX.4.61.0410142344410.29972@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-tfBh56jvGX/5xdor0twZ
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Mon, 2004-10-11 at 15:38, Andrew Morton wrote:
-> Andi Kleen <ak@suse.de> wrote:
-> >
-> > > Console: colour VGA+ 80x25
-> > > Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
-> > > Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
-> > > Bad page state at free_hot_cold_page (in process 'swapper', page
-> > > 000001017ac06070)
-> > > flags:0x00000000 mapping:0000000000000000 mapcount:1 count:0
-> > 
-> > Some memory corruption or confused memory allocator.
-
-Sorry for taking this long to track this down ..
-I was looking at all wrong patches to backout. I had
-to resolve to binary search to track this down :)
-
-This is the patch "x86-64-optimize-numa-lookup.patch" Andi made, 
-that broke my AMD64 melody box. Backing this out, fixed the OOPS
-on boot.
-
-I will leave it capable hands of Andi to figure out whats wrong
-with it. Andi, if you want me to test the fix, send it my way.
-
-Thanks,
-Badari
-
---=-tfBh56jvGX/5xdor0twZ
-Content-Disposition: attachment; filename=x86-64-optimize-numa-lookup.patch
-Content-Type: text/plain; name=x86-64-optimize-numa-lookup.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+This moves the definition and initializer of spinlock_t and rwlock_t to
+spinlock_types.h.
 
 
-From: Andi Kleen <ak@muc.de>
+ asm-alpha/spinlock.h           |   27 ----------------
+ asm-alpha/spinlock_types.h     |   36 ++++++++++++++++++++++
+ asm-arm/spinlock.h             |   13 -------
+ asm-arm/spinlock_types.h       |   23 ++++++++++++++
+ asm-arm26/spinlock_types.h     |    4 ++
+ asm-cris/spinlock_types.h      |    4 ++
+ asm-h8300/spinlock_types.h     |    4 ++
+ asm-i386/rwlock.h              |    3 -
+ asm-i386/spinlock.h            |   38 -----------------------
+ asm-i386/spinlock_types.h      |   55 +++++++++++++++++++++++++++++++++
+ asm-ia64/spinlock.h            |   14 --------
+ asm-ia64/spinlock_types.h      |   23 ++++++++++++++
+ asm-m68k/spinlock_types.h      |    4 ++
+ asm-m68knommu/spinlock_types.h |    6 +++
+ asm-mips/spinlock.h            |   16 ---------
+ asm-mips/spinlock_types.h      |   24 ++++++++++++++
+ asm-parisc/spinlock.h          |   23 --------------
+ asm-parisc/spinlock_types.h    |   55 +++++++++++++++++++++++++++++++++
+ asm-parisc/system.h            |   23 --------------
+ asm-ppc/spinlock.h             |   34 --------------------
+ asm-ppc/spinlock_types.h       |   43 ++++++++++++++++++++++++++
+ asm-ppc64/spinlock.h           |   13 -------
+ asm-ppc64/spinlock_types.h     |   24 ++++++++++++++
+ asm-s390/spinlock.h            |   15 ---------
+ asm-s390/spinlock_types.h      |   24 ++++++++++++++
+ asm-sh/spinlock.h              |   16 ---------
+ asm-sh/spinlock_types.h        |   25 +++++++++++++++
+ asm-sh64/spinlock_types.h      |    4 ++
+ asm-sparc/spinlock.h           |   26 ---------------
+ asm-sparc/spinlock_types.h     |   45 +++++++++++++++++++++++++++
+ asm-sparc64/spinlock.h         |   24 --------------
+ asm-sparc64/spinlock_types.h   |   42 +++++++++++++++++++++++++
+ asm-um/spinlock_types.h        |    6 +++
+ asm-v850/spinlock_types.h      |    4 ++
+ asm-x86_64/rwlock.h            |    3 -
+ asm-x86_64/spinlock.h          |   38 -----------------------
+ asm-x86_64/spinlock_types.h    |   49 +++++++++++++++++++++++++++++
+ linux/spinlock.h               |   44 --------------------------
+ linux/spinlock_types.h         |   67 +++++++++++++++++++++++++++++++++++++++++
+ 39 files changed, 572 insertions(+), 369 deletions(-)
 
-Shrink the page_to_pfn / pfn_to_page macros for NUMA kernels.
-
-This is done by precomputing some terms used for it and caching it in an
-array and avoiding redundant computation that was not optimized away by the
-compiler.  In particular the node map is now directly looked up in an
-single array instead of going through two array lookups.
-
-This patch saves around 2k of .text on a defconfig kernel and generates a
-lot better code.
-
-Out of lining them would save even more space (10k), but this is not done
-for performance.  One reason they're so big inline is that gcc 3.3
-generated an very long lea multiplication chain, even though a single mult
-would have been faster on K8.  gcc 3.5 seems to have fixed that.
-
-Some numbers:
-
-   text    data     bss     dec     hex filename
-   3586142  906809  496088 4989039  4c206f vmlinux
-		Current version implemented by this patch (saves ~2k) 
-   
-   3586574  906844  496088 4989506  4c2242 vmlinux-noinline
-		Old macros, out of line (saves 1.6k) 
-   
-   3575166  906955  496088 4978209  4bf621 vmlinux-opt-ool
-   		Optimized macros out of line (- saves ~13k) 
-		
-   3588255  906750  494040 4989045  4c2075 vmlinux-standard
-   		Original version
-
-Also remove the unused nodes_present variable.		
-
-Original suggestion for this optimization came from Bill Irwin.		
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/x86_64/mm/k8topology.c |   11 ++--
- 25-akpm/arch/x86_64/mm/numa.c       |   84 ++++++++++++++++++++++++++++++------
- 25-akpm/include/asm-x86_64/mmzone.h |   36 +++++++++------
- 3 files changed, 100 insertions(+), 31 deletions(-)
-
-diff -puN arch/x86_64/mm/k8topology.c~x86-64-optimize-numa-lookup arch/x86_64/mm/k8topology.c
---- 25/arch/x86_64/mm/k8topology.c~x86-64-optimize-numa-lookup	Tue Oct  5 16:38:20 2004
-+++ 25-akpm/arch/x86_64/mm/k8topology.c	Tue Oct  5 16:38:20 2004
-@@ -143,19 +143,20 @@ int __init k8_scan_nodes(unsigned long s
- 	if (!found)
- 		return -1; 
- 
--	memnode_shift = compute_hash_shift(nodes);
--	if (memnode_shift < 0) { 
-+	memnode_addr_shift = compute_hash_shift(nodes);
-+	if (memnode_addr_shift < 0) {
- 		printk(KERN_ERR "No NUMA node hash function found. Contact maintainer\n"); 
- 		return -1; 
- 	} 
--	printk(KERN_INFO "Using node hash shift of %d\n", memnode_shift); 
-+	memnode_pfn_shift = memnode_addr_shift - PAGE_SHIFT;
-+	printk(KERN_INFO "Using node hash shift of %d\n", memnode_addr_shift);
- 
- 	for (i = 0; i < MAXNODE; i++) { 
- 		if (nodes[i].start != nodes[i].end) { 
- 			/* assume 1:1 NODE:CPU */
- 			cpu_to_node[i] = i; 
--		setup_node_bootmem(i, nodes[i].start, nodes[i].end); 
--	} 
-+			setup_node_bootmem(i, nodes[i].start, nodes[i].end);
-+		}
- 	}
- 
- 	numa_init_array();
-diff -puN arch/x86_64/mm/numa.c~x86-64-optimize-numa-lookup arch/x86_64/mm/numa.c
---- 25/arch/x86_64/mm/numa.c~x86-64-optimize-numa-lookup	Tue Oct  5 16:38:20 2004
-+++ 25-akpm/arch/x86_64/mm/numa.c	Tue Oct  5 16:38:20 2004
-@@ -10,6 +10,7 @@
- #include <linux/mmzone.h>
- #include <linux/ctype.h>
- #include <linux/module.h>
-+#include <linux/kallsyms.h>
- #include <asm/e820.h>
- #include <asm/proto.h>
- #include <asm/dma.h>
-@@ -19,28 +20,58 @@
- #define Dprintk(x...)
- #endif
- 
+Index: linux-2.6-inc/include/asm-ppc64/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-ppc64/spinlock_types.h	2004-10-13 21:32:39.278272985 +0200
+@@ -0,0 +1,24 @@
++#ifndef __ASM_PPC64_SPINLOCK_TYPES_H
++#define __ASM_PPC64_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock;
++} spinlock_t;
++
++#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
++
++#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
++
++typedef struct {
++	volatile signed int lock;
++} rwlock_t;
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
++
++#define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_PPC64_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-mips/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-mips/spinlock_types.h	2004-10-13 21:32:39.278272985 +0200
+@@ -0,0 +1,24 @@
++#ifndef __ASM_MIPS_SPINLOCK_TYPES_H
++#define __ASM_MIPS_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock;
++} spinlock_t;
++
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
++
++#define spin_lock_init(x)	do { (x)->lock = 0; } while(0)
++
++typedef struct {
++	volatile unsigned int lock;
++} rwlock_t;
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
++
++#define rwlock_init(x)  do { *(x) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_MIPS_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-s390/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-s390/spinlock_types.h	2004-10-13 21:32:39.278272985 +0200
+@@ -0,0 +1,24 @@
++#ifndef __ASM_S390_SPINLOCK_TYPES_H
++#define __ASM_S390_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock;
++} __attribute__ ((aligned (4))) spinlock_t;
++
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
++#define spin_lock_init(lp) do { (lp)->lock = 0; } while(0)
++
++typedef struct {
++	volatile unsigned long lock;
++	volatile unsigned long owner_pc;
++} rwlock_t;
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
++
++#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_S390_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-i386/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-i386/spinlock_types.h	2004-10-13 21:32:39.278272985 +0200
+@@ -0,0 +1,55 @@
++#ifndef __ASM_I386_SPINLOCK_TYPES_H
++#define __ASM_I386_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock;
++#ifdef CONFIG_DEBUG_SPINLOCK
++	unsigned magic;
++#endif
++} spinlock_t;
++
++#define SPINLOCK_MAGIC	0xdead4ead
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++#define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
++#else
++#define SPINLOCK_MAGIC_INIT	/* */
++#endif
++
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
++
++static inline void spin_lock_init(spinlock_t *lock)
++{
++	*lock = SPIN_LOCK_UNLOCKED;
++}
++
++typedef struct {
++	volatile unsigned int lock;
++#ifdef CONFIG_DEBUG_SPINLOCK
++	unsigned magic;
++#endif
++} rwlock_t;
++
++#define RW_LOCK_BIAS		 0x01000000
++#define RW_LOCK_BIAS_STR	"0x01000000"
++
++#define RWLOCK_MAGIC	0xdeaf1eed
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++#define RWLOCK_MAGIC_INIT	, RWLOCK_MAGIC
++#else
++#define RWLOCK_MAGIC_INIT	/* */
++#endif
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
++
++static inline void rwlock_init(rwlock_t *lock)
++{
++	*lock = RW_LOCK_UNLOCKED;
++}
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_I386_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-h8300/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-h8300/spinlock_types.h	2004-10-13 21:32:39.278272985 +0200
+@@ -0,0 +1,4 @@
++#ifndef __ASM_H8300_SPINLOCK_TYPES_H
++#define __ASM_H8300_SPINLOCK_TYPES_H
++
++#endif /* __ASM_H8300_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-alpha/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-alpha/spinlock_types.h	2004-10-13 21:32:39.279272814 +0200
+@@ -0,0 +1,36 @@
++#ifndef __ASM_ALPHA_SPINLOCK_TYPES_H
++#define __ASM_ALPHA_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock /*__attribute__((aligned(32))) */;
++#ifdef CONFIG_DEBUG_SPINLOCK
++	int on_cpu;
++	int line_no;
++	void *previous;
++	struct task_struct * task;
++	const char *base_file;
++#endif
++} spinlock_t;
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++#define SPIN_LOCK_UNLOCKED (spinlock_t) {0, -1, 0, NULL, NULL, NULL}
++#define spin_lock_init(x)						\
++	((x)->lock = 0, (x)->on_cpu = -1, (x)->previous = NULL, (x)->task = NULL)
++#else
++#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
++#define spin_lock_init(x)	((x)->lock = 0)
++#endif
++
++typedef struct {
++	volatile int write_lock:1, read_counter:31;
++} /*__attribute__((aligned(32)))*/ rwlock_t;
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
++
++#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_ALPHA_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-sparc/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-sparc/spinlock_types.h	2004-10-13 21:32:39.279272814 +0200
+@@ -0,0 +1,45 @@
++#ifndef __ASM_SPARC_SPINLOCK_TYPES_H
++#define __ASM_SPARC_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++
++struct _spinlock_debug {
++	unsigned char lock;
++	unsigned long owner_pc;
++};
++typedef struct _spinlock_debug spinlock_t;
++
++#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0, 0 }
++#define spin_lock_init(lp)	do { *(lp)= SPIN_LOCK_UNLOCKED; } while(0)
++
++struct _rwlock_debug {
++	volatile unsigned int lock;
++	unsigned long owner_pc;
++	unsigned long reader_pc[NR_CPUS];
++};
++typedef struct _rwlock_debug rwlock_t;
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0, {0} }
++
++#define rwlock_init(lp)	do { *(lp)= RW_LOCK_UNLOCKED; } while(0)
++
++#else /* !CONFIG_DEBUG_SPINLOCK */
++
++typedef unsigned char spinlock_t;
++#define SPIN_LOCK_UNLOCKED	0
++
++#define spin_lock_init(lock)   (*((unsigned char *)(lock)) = 0)
++
++typedef struct { volatile unsigned int lock; } rwlock_t;
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
++
++#define rwlock_init(lp)	do { *(lp)= RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* !CONFIG_DEBUG_SPINLOCK */
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_SPARC_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/linux/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/linux/spinlock_types.h	2004-10-13 21:32:39.279272814 +0200
+@@ -0,0 +1,67 @@
++#ifndef __LINUX_SPINLOCK_TYPES_H
++#define __LINUX_SPINLOCK_TYPES_H
++
++#include <asm/spinlock_types.h>
++
++#ifndef CONFIG_SMP
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++
++#define SPINLOCK_MAGIC	0x1D244B3C
++typedef struct {
++	unsigned long magic;
++	volatile unsigned long lock;
++	volatile unsigned int babble;
++	const char *module;
++	char *owner;
++	int oline;
++} spinlock_t;
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { SPINLOCK_MAGIC, 0, 10, __FILE__ , NULL, 0}
++
++static inline void __spin_lock_init(spinlock_t *lock, const char *module)
++{
++	lock->magic = SPINLOCK_MAGIC;
++	lock->lock = 0;
++	lock->babble = 5;
++	lock->module = __FILE__;
++	lock->owner = NULL;
++	lock->oline = 0;
++}
++#define spin_lock_init(lock) __spin_lock_init(lock, __FILE__)
++
++#else
++
 +/*
-+ * NUMA data structures. These describe the NUMA topology to the kernel
++ * gcc versions before ~2.95 have a nasty bug with empty initializers.
++ */
++#if (__GNUC__ > 2)
++  typedef struct { } spinlock_t;
++  #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
++#else
++  typedef struct { int gcc_is_buggy; } spinlock_t;
++  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
++#endif
++
++static inline void spin_lock_init(spinlock_t *lock)
++{
++}
++
++#endif /* CONFIG_DEBUG_SPINLOCK */
++
++/* RW spinlocks: No debug version */
++
++#if (__GNUC__ > 2)
++  typedef struct { } rwlock_t;
++  #define RW_LOCK_UNLOCKED (rwlock_t) { }
++#else
++  typedef struct { int gcc_is_buggy; } rwlock_t;
++  #define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
++#endif
++
++static inline void rwlock_init(rwlock_t *lock)
++{
++}
++
++#endif /* CONFIG_SMP */
++
++#endif /* __LINUX_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-v850/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-v850/spinlock_types.h	2004-10-13 21:32:39.279272814 +0200
+@@ -0,0 +1,4 @@
++#ifndef __ASM_V850_SPINLOCK_TYPES_H
++#define __ASM_V850_SPINLOCK_TYPES_H
++
++#endif /* __ASM_V850_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-sparc64/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-sparc64/spinlock_types.h	2004-10-13 21:32:39.280272643 +0200
+@@ -0,0 +1,42 @@
++#ifndef __ASM_SPARC64_SPINLOCK_TYPES_H
++#define __ASM_SPARC64_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++#ifndef CONFIG_DEBUG_SPINLOCK
++
++typedef unsigned char spinlock_t;
++#define SPIN_LOCK_UNLOCKED	0
++
++#define spin_lock_init(lock)	(*((unsigned char *)(lock)) = 0)
++
++typedef unsigned int rwlock_t;
++#define RW_LOCK_UNLOCKED	0
++#define rwlock_init(lp) do { *(lp) = RW_LOCK_UNLOCKED; } while(0)
++
++#else /* !(CONFIG_DEBUG_SPINLOCK) */
++
++typedef struct {
++	unsigned char lock;
++	unsigned int owner_pc, owner_cpu;
++} spinlock_t;
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0, 0, 0xff }
++#define spin_lock_init(__lock)	\
++do {	(__lock)->lock = 0; \
++	(__lock)->owner_pc = 0; \
++	(__lock)->owner_cpu = 0xff; \
++} while(0)
++
++typedef struct {
++	unsigned long lock;
++	unsigned int writer_pc, writer_cpu;
++	unsigned int reader_pc[NR_CPUS];
++} rwlock_t;
++#define RW_LOCK_UNLOCKED	(rwlock_t) { 0, 0, 0xff, { } }
++#define rwlock_init(lp) do { *(lp) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_DEBUG_SPINLOCK */
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_SPARC64_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-um/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-um/spinlock_types.h	2004-10-13 21:32:39.280272643 +0200
+@@ -0,0 +1,6 @@
++#ifndef __ASM_UM_SPINLOCK_TYPES_H
++#define __ASM_UM_SPINLOCK_TYPES_H
++
++#include "asm/arch/spinlock_types.h"
++
++#endif /* __ASM_UM_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-sh/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-sh/spinlock_types.h	2004-10-13 21:32:39.280272643 +0200
+@@ -0,0 +1,25 @@
++#ifndef __ASM_SH_SPINLOCK_TYPES_H
++#define __ASM_SH_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned long lock;
++} spinlock_t;
++
++#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
++
++#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
++
++typedef struct {
++	spinlock_t lock;
++	atomic_t counter;
++} rwlock_t;
++
++#define RW_LOCK_BIAS		0x01000000
++#define RW_LOCK_UNLOCKED	(rwlock_t) { { 0 }, { RW_LOCK_BIAS } }
++#define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while (0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_SH_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-m68knommu/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-m68knommu/spinlock_types.h	2004-10-13 21:32:39.280272643 +0200
+@@ -0,0 +1,6 @@
++#ifndef __ASM_M68KNOMMU_SPINLOCK_TYPES_H
++#define __ASM_M68KNOMMU_SPINLOCK_TYPES_H
++
++#include <asm-m68k/spinlock_types.h>
++
++#endif /* __ASM_M68KNOMMU_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-m68k/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-m68k/spinlock_types.h	2004-10-13 21:32:39.280272643 +0200
+@@ -0,0 +1,4 @@
++#ifndef __ASM_M68K_SPINLOCK_TYPES_H
++#define __ASM_M68K_SPINLOCK_TYPES_H
++
++#endif /* __ASM_M68K_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-ia64/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-ia64/spinlock_types.h	2004-10-13 21:32:39.281272472 +0200
+@@ -0,0 +1,23 @@
++#ifndef __ASM_IA64_SPINLOCK_TYPES_H
++#define __ASM_IA64_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock;
++} spinlock_t;
++
++#define SPIN_LOCK_UNLOCKED			(spinlock_t) { 0 }
++#define spin_lock_init(x)			((x)->lock = 0)
++
++typedef struct {
++	volatile int read_counter	: 31;
++	volatile int write_lock		:  1;
++} rwlock_t;
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
++
++#define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_IA64_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-cris/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-cris/spinlock_types.h	2004-10-13 21:32:39.281272472 +0200
+@@ -0,0 +1,4 @@
++#ifndef __ASM_CRIS_SPINLOCK_TYPES_H
++#define __ASM_CRIS_SPINLOCK_TYPES_H
++
++#endif /* __ASM_CRIS_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/linux/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/linux/spinlock.h	2004-06-16 20:27:38.000000000 +0200
++++ linux-2.6-inc/include/linux/spinlock.h	2004-10-13 21:32:39.281272472 +0200
+@@ -12,6 +12,7 @@
+ #include <linux/thread_info.h>
+ #include <linux/kernel.h>
+ #include <linux/stringify.h>
++#include <linux/spinlock_types.h>
+ 
+ #include <asm/processor.h>	/* for cpu relax */
+ #include <asm/system.h>
+@@ -49,27 +50,6 @@
+ 
+ #ifdef CONFIG_DEBUG_SPINLOCK
+  
+-#define SPINLOCK_MAGIC	0x1D244B3C
+-typedef struct {
+-	unsigned long magic;
+-	volatile unsigned long lock;
+-	volatile unsigned int babble;
+-	const char *module;
+-	char *owner;
+-	int oline;
+-} spinlock_t;
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { SPINLOCK_MAGIC, 0, 10, __FILE__ , NULL, 0}
+-
+-#define spin_lock_init(x) \
+-	do { \
+-		(x)->magic = SPINLOCK_MAGIC; \
+-		(x)->lock = 0; \
+-		(x)->babble = 5; \
+-		(x)->module = __FILE__; \
+-		(x)->owner = NULL; \
+-		(x)->oline = 0; \
+-	} while (0)
+-
+ #define CHECK_LOCK(x) \
+ 	do { \
+ 	 	if ((x)->magic != SPINLOCK_MAGIC) { \
+@@ -145,21 +125,10 @@ typedef struct {
+ 		(x)->lock = 0; \
+ 	} while (0)
+ #else
+-/*
+- * gcc versions before ~2.95 have a nasty bug with empty initializers.
+- */
+-#if (__GNUC__ > 2)
+-  typedef struct { } spinlock_t;
+-  #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
+-#else
+-  typedef struct { int gcc_is_buggy; } spinlock_t;
+-  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+-#endif
+ 
+ /*
+  * If CONFIG_SMP is unset, declare the _raw_* definitions as nops
+  */
+-#define spin_lock_init(lock)	do { (void)(lock); } while(0)
+ #define _raw_spin_lock(lock)	do { (void)(lock); } while(0)
+ #define spin_is_locked(lock)	((void)(lock), 0)
+ #define _raw_spin_trylock(lock)	((void)(lock), 1)
+@@ -167,17 +136,6 @@ typedef struct {
+ #define _raw_spin_unlock(lock)	do { (void)(lock); } while(0)
+ #endif /* CONFIG_DEBUG_SPINLOCK */
+ 
+-/* RW spinlocks: No debug version */
+-
+-#if (__GNUC__ > 2)
+-  typedef struct { } rwlock_t;
+-  #define RW_LOCK_UNLOCKED (rwlock_t) { }
+-#else
+-  typedef struct { int gcc_is_buggy; } rwlock_t;
+-  #define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
+-#endif
+-
+-#define rwlock_init(lock)	do { (void)(lock); } while(0)
+ #define _raw_read_lock(lock)	do { (void)(lock); } while(0)
+ #define _raw_read_unlock(lock)	do { (void)(lock); } while(0)
+ #define _raw_write_lock(lock)	do { (void)(lock); } while(0)
+Index: linux-2.6-inc/include/asm-sh64/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-sh64/spinlock_types.h	2004-10-13 21:32:39.281272472 +0200
+@@ -0,0 +1,4 @@
++#ifndef __ASM_SH64_SPINLOCK_TYPES_H
++#define __ASM_SH64_SPINLOCK_TYPES_H
++
++#endif /* __ASM_SH64_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-parisc/system.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-parisc/system.h	2004-08-14 13:00:50.000000000 +0200
++++ linux-2.6-inc/include/asm-parisc/system.h	2004-10-13 21:32:39.282272301 +0200
+@@ -159,29 +159,6 @@ static inline void set_eiem(unsigned lon
+   (volatile unsigned int *) __ret;                                      \
+ })
+ 
+-#ifdef CONFIG_SMP
+-/*
+- * Your basic SMP spinlocks, allowing only a single CPU anywhere
+- */
+-
+-typedef struct {
+-	volatile unsigned int lock[4];
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	unsigned long magic;
+-	volatile unsigned int babble;
+-	const char *module;
+-	char *bfile;
+-	int bline;
+-	int oncpu;
+-	void *previous;
+-	struct task_struct * task;
+-#endif
+-} spinlock_t;
+-
+-#define __lock_aligned __attribute__((__section__(".data.lock_aligned")))
+-
+-#endif
+-
+ #define KERNEL_START (0x10100000 - 0x1000)
+ 
+ #endif
+Index: linux-2.6-inc/include/asm-arm26/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-arm26/spinlock_types.h	2004-10-13 21:32:39.282272301 +0200
+@@ -0,0 +1,4 @@
++#ifndef __ASM_ARM26_SPINLOCK_TYPES_H
++#define __ASM_ARM26_SPINLOCK_TYPES_H
++
++#endif /* __ASM_ARM26_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-i386/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-i386/spinlock.h	2004-10-10 17:14:07.000000000 +0200
++++ linux-2.6-inc/include/asm-i386/spinlock.h	2004-10-13 21:32:39.282272301 +0200
+@@ -14,25 +14,6 @@ asmlinkage int printk(const char * fmt, 
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+  */
+ 
+-typedef struct {
+-	volatile unsigned int lock;
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	unsigned magic;
+-#endif
+-} spinlock_t;
+-
+-#define SPINLOCK_MAGIC	0xdead4ead
+-
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-#define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
+-#else
+-#define SPINLOCK_MAGIC_INIT	/* */
+-#endif
+-
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
+-
+-#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+-
+ /*
+  * Simple spin lock operations.  There are two variants, one clears IRQ's
+  * on the local processor, one does not.
+@@ -167,25 +148,6 @@ here:
+  * irq-safe write-lock, but readers can get non-irqsafe
+  * read-locks.
+  */
+-typedef struct {
+-	volatile unsigned int lock;
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	unsigned magic;
+-#endif
+-} rwlock_t;
+-
+-#define RWLOCK_MAGIC	0xdeaf1eed
+-
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-#define RWLOCK_MAGIC_INIT	, RWLOCK_MAGIC
+-#else
+-#define RWLOCK_MAGIC_INIT	/* */
+-#endif
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
+-
+-#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+-
+ #define rwlock_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+ 
+ /*
+Index: linux-2.6-inc/include/asm-x86_64/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-x86_64/spinlock_types.h	2004-10-13 21:50:10.417360732 +0200
+@@ -0,0 +1,49 @@
++#ifndef __ASM_X86_64_SPINLOCK_TYPES_H
++#define __ASM_X86_64_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock;
++#ifdef CONFIG_DEBUG_SPINLOCK
++	unsigned magic;
++#endif
++} spinlock_t;
++
++#define SPINLOCK_MAGIC	0xdead4ead
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++#define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
++#else
++#define SPINLOCK_MAGIC_INIT	/* */
++#endif
++
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
++
++#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
++
++typedef struct {
++	volatile unsigned int lock;
++#ifdef CONFIG_DEBUG_SPINLOCK
++	unsigned magic;
++#endif
++} rwlock_t;
++
++#define RWLOCK_MAGIC	0xdeaf1eed
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++#define RWLOCK_MAGIC_INIT	, RWLOCK_MAGIC
++#else
++#define RWLOCK_MAGIC_INIT	/* */
++#endif
++
++#define RW_LOCK_BIAS		 0x01000000
++#define RW_LOCK_BIAS_STR	"0x01000000"
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
++
++#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_X86_64_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-ppc/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-ppc/spinlock_types.h	2004-10-13 21:32:39.282272301 +0200
+@@ -0,0 +1,43 @@
++#ifndef __ASM_PPC_SPINLOCK_TYPES_H
++#define __ASM_PPC_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned long lock;
++#ifdef CONFIG_DEBUG_SPINLOCK
++	volatile unsigned long owner_pc;
++	volatile unsigned long owner_cpu;
++#endif
++} spinlock_t;
++
++#ifdef __KERNEL__
++#ifdef CONFIG_DEBUG_SPINLOCK
++#define SPINLOCK_DEBUG_INIT     , 0, 0
++#else
++#define SPINLOCK_DEBUG_INIT     /* */
++#endif
++
++#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 SPINLOCK_DEBUG_INIT }
++
++#define spin_lock_init(x) 	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
++
++typedef struct {
++	volatile unsigned long lock;
++#ifdef CONFIG_DEBUG_SPINLOCK
++	volatile unsigned long owner_pc;
++#endif
++} rwlock_t;
++
++#ifdef CONFIG_DEBUG_SPINLOCK
++#define RWLOCK_DEBUG_INIT     , 0
++#else
++#define RWLOCK_DEBUG_INIT     /* */
++#endif
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { 0 RWLOCK_DEBUG_INIT }
++#define rwlock_init(lp) do { *(lp) = RW_LOCK_UNLOCKED; } while(0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_PPC_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-parisc/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-parisc/spinlock_types.h	2004-10-13 21:32:39.283272130 +0200
+@@ -0,0 +1,55 @@
++#ifndef __ASM_PARISC_SPINLOCK_TYPES_H
++#define __ASM_PARISC_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++/*
++ * Your basic SMP spinlocks, allowing only a single CPU anywhere
 + */
 +
- struct pglist_data *node_data[MAXNODE];
- bootmem_data_t plat_node_bdata[MAX_NUMNODES];
- 
--int memnode_shift;
-+static struct nodemap_update {
-+	DECLARE_BITMAP(map, NODEMAPSIZE);
-+} nodemap_update[MAXNODE] __initdata;
-+
-+int memnode_addr_shift;
-+int memnode_pfn_shift;
- u8  memnodemap[NODEMAPSIZE];
- 
-+/* This is a special biased mem_map per node table.
-+   It contains the mem_map for a node minus the start pfn.
-+   This trick makes some common inline functions faster and smaller. */
-+struct page *memnode_rel_memmap[NODEMAPSIZE];
-+
- unsigned char cpu_to_node[NR_CPUS];  
- cpumask_t     node_to_cpumask[MAXNODE]; 
- 
- static int numa_off __initdata; 
- 
--unsigned long nodes_present; 
-+/* Mark node for later update */
-+static inline __init void mark_memnode(long index, long node)
-+{
-+	set_bit(index, &nodemap_update[node].map);
-+}
-+
-+static void __init
-+update_memnode_table(long node, struct page *mem_map, unsigned long start_pfn)
-+{
-+	int i;
-+	for (i = 0; i < NODEMAPSIZE; i++) {
-+		if (!test_bit(i, &nodemap_update[node].map))
-+			continue;
-+		memnode_rel_memmap[i] = mem_map - start_pfn;
-+	}
-+}
- 
- int __init compute_hash_shift(struct node *nodes)
- {
--	int i; 
-+	long i;
- 	int shift = 24;
- 	u64 addr;
- 	
- 	/* When in doubt use brute force. */
- 	while (shift < 48) { 
- 		memset(memnodemap,0xff,sizeof(*memnodemap) * NODEMAPSIZE); 
-+		memset(memnode_rel_memmap,0,sizeof(*memnode_rel_memmap) * NODEMAPSIZE);
- 		for (i = 0; i < numnodes; i++) { 
- 			if (nodes[i].start == nodes[i].end) 
- 				continue;
-@@ -50,11 +81,12 @@ int __init compute_hash_shift(struct nod
- 				if (memnodemap[addr >> shift] != 0xff && 
- 				    memnodemap[addr >> shift] != i) { 
- 					printk(KERN_INFO 
--					    "node %d shift %d addr %Lx conflict %d\n", 
-+					    "node %ld shift %d addr %Lx conflict %d\n",
- 					       i, shift, addr, memnodemap[addr>>shift]);
- 					goto next; 
- 				} 
- 				memnodemap[addr >> shift] = i; 
-+				mark_memnode(addr >> shift, i);
- 			} 
- 		} 
- 		return shift; 
-@@ -62,6 +94,7 @@ int __init compute_hash_shift(struct nod
- 		shift++; 
- 	} 
- 	memset(memnodemap,0,sizeof(*memnodemap) * NODEMAPSIZE); 
-+	memset(memnode_rel_memmap,0,sizeof(*memnode_rel_memmap) * NODEMAPSIZE);
- 	return -1; 
- }
- 
-@@ -112,13 +145,26 @@ void __init setup_node_bootmem(int nodei
- 	node_set_online(nodeid);
- } 
- 
-+static void __init my_node_alloc_mem_map(struct pglist_data *pgdat, long npages)
-+{
-+	unsigned long size;
-+
-+	size = (npages + 1) * sizeof(struct page);
-+	pgdat->node_mem_map = alloc_bootmem_node(pgdat, size);
-+#ifndef CONFIG_DISCONTIGMEM
-+	mem_map = contig_page_data.node_mem_map;
++typedef struct {
++	volatile unsigned int lock[4];
++#ifdef CONFIG_DEBUG_SPINLOCK
++	unsigned long magic;
++	volatile unsigned int babble;
++	const char *module;
++	char *bfile;
++	int bline;
++	int oncpu;
++	void *previous;
++	struct task_struct * task;
 +#endif
-+}
++} spinlock_t;
 +
- /* Initialize final allocator for a zone */
- void __init setup_node_zones(int nodeid)
- { 
- 	unsigned long start_pfn, end_pfn; 
- 	unsigned long zones[MAX_NR_ZONES];
- 	unsigned long dma_end_pfn;
-+	DECLARE_BITMAP(nodemapbits, NODEMAPSIZE);
- 
-+	memset(nodemapbits, 0, sizeof(nodemapbits));
- 	memset(zones, 0, sizeof(unsigned long) * MAX_NR_ZONES); 
- 
- 	start_pfn = node_start_pfn(nodeid);
-@@ -134,7 +180,14 @@ void __init setup_node_zones(int nodeid)
- 	} else { 
- 		zones[ZONE_NORMAL] = end_pfn - start_pfn; 
- 	} 
--    
++#define __lock_aligned __attribute__((__section__(".data.lock_aligned")))
 +
-+	/* Allocate mem_map */
-+	my_node_alloc_mem_map(NODE_DATA(nodeid), end_pfn - start_pfn);
++#ifndef CONFIG_DEBUG_SPINLOCK
 +
-+	/* Set up pfn_to_page */
-+	update_memnode_table(nodeid, NODE_DATA(nodeid)->node_mem_map, start_pfn);
++#define __SPIN_LOCK_UNLOCKED	{ { 1, 1, 1, 1 } }
++#undef SPIN_LOCK_UNLOCKED
++#define SPIN_LOCK_UNLOCKED (spinlock_t) __SPIN_LOCK_UNLOCKED
 +
-+	/* And initialise the node in main VM */
- 	free_area_init_node(nodeid, NODE_DATA(nodeid), zones,
- 			    start_pfn, NULL); 
- } 
-@@ -195,14 +248,17 @@ static int numa_emulation(unsigned long 
-  		       (nodes[i].end - nodes[i].start) >> 20);
-  	}
-  	numnodes = numa_fake;
-- 	memnode_shift = compute_hash_shift(nodes);
-- 	if (memnode_shift < 0) {
-- 		memnode_shift = 0;
-+ 	memnode_addr_shift = compute_hash_shift(nodes);
-+	memnode_pfn_shift = memnode_addr_shift - PAGE_SHIFT;
-+ 	if (memnode_addr_shift < 0) {
-+ 		memnode_addr_shift = 0;
-+ 		memnode_pfn_shift = 0;
-  		printk(KERN_ERR "No NUMA hash function found. Emulation disabled.\n");
-  		return -1;
-  	}
-- 	for (i = 0; i < numa_fake; i++)
-+ 	for (i = 0; i < numa_fake; i++) {
-  		setup_node_bootmem(i, nodes[i].start, nodes[i].end);
-+	}
-  	numa_init_array();
-  	return 0;
- }
-@@ -224,9 +280,11 @@ void __init numa_initmem_init(unsigned l
- 	printk(KERN_INFO "Faking a node at %016lx-%016lx\n", 
- 	       start_pfn << PAGE_SHIFT,
- 	       end_pfn << PAGE_SHIFT); 
--		/* setup dummy node covering all memory */ 
--	memnode_shift = 63; 
-+	/* set up dummy node covering all memory */
-+	memnode_addr_shift = 63;
-+	memnode_pfn_shift = 63;
- 	memnodemap[0] = 0;
-+	mark_memnode(0,0);
- 	numnodes = 1;
- 	for (i = 0; i < NR_CPUS; i++)
- 		cpu_to_node[i] = 0;
-@@ -274,6 +332,8 @@ __init int numa_setup(char *opt) 
- 
- EXPORT_SYMBOL(cpu_to_node);
- EXPORT_SYMBOL(node_to_cpumask);
--EXPORT_SYMBOL(memnode_shift);
-+EXPORT_SYMBOL(memnode_addr_shift);
-+EXPORT_SYMBOL(memnode_pfn_shift);
- EXPORT_SYMBOL(memnodemap);
- EXPORT_SYMBOL(node_data);
-+EXPORT_SYMBOL(memnode_rel_memmap);
-diff -puN include/asm-x86_64/mmzone.h~x86-64-optimize-numa-lookup include/asm-x86_64/mmzone.h
---- 25/include/asm-x86_64/mmzone.h~x86-64-optimize-numa-lookup	Tue Oct  5 16:38:20 2004
-+++ 25-akpm/include/asm-x86_64/mmzone.h	Tue Oct  5 16:38:20 2004
-@@ -16,8 +16,11 @@
- #define NODEMAPSIZE 0xff
- 
- /* Simple perfect hash to map physical addresses to node numbers */
--extern int memnode_shift; 
-+extern int memnode_addr_shift;
-+extern int memnode_pfn_shift;
- extern u8  memnodemap[NODEMAPSIZE]; 
-+/* pgdat->node_mem_map - pgdat->node_start_pfn. cached for fast pfn_to_page */
-+extern struct page *memnode_rel_memmap[NODEMAPSIZE];
- extern int maxnode;
- 
- extern struct pglist_data *node_data[];
-@@ -25,13 +28,20 @@ extern struct pglist_data *node_data[];
- static inline __attribute__((pure)) int phys_to_nid(unsigned long addr) 
- { 
- 	int nid; 
--	VIRTUAL_BUG_ON((addr >> memnode_shift) >= NODEMAPSIZE);
--	nid = memnodemap[addr >> memnode_shift]; 
-+	VIRTUAL_BUG_ON((addr >> memnode_addr_shift) >= NODEMAPSIZE);
-+	nid = memnodemap[addr >> memnode_addr_shift];
- 	VIRTUAL_BUG_ON(nid > maxnode); 
- 	return nid; 
- } 
- 
--#define pfn_to_nid(pfn) phys_to_nid((unsigned long)(pfn) << PAGE_SHIFT)
-+static inline __attribute__((pure)) int pfn_to_nid(unsigned long pfn)
-+{
-+	int nid;
-+	VIRTUAL_BUG_ON((pfn >> memnode_pfn_shift) >= NODEMAPSIZE);
-+	nid = memnodemap[pfn >> memnode_pfn_shift];
-+	VIRTUAL_BUG_ON(nid > maxnode);
-+	return nid;
-+}
- 
- #define kvaddr_to_nid(kaddr)	phys_to_nid(__pa(kaddr))
- #define NODE_DATA(nid)		(node_data[nid])
-@@ -46,20 +56,18 @@ static inline __attribute__((pure)) int 
- #define local_mapnr(kvaddr) \
- 	( (__pa(kvaddr) >> PAGE_SHIFT) - node_start_pfn(kvaddr_to_nid(kvaddr)) )
- 
--/* AK: this currently doesn't deal with invalid addresses. We'll see 
--   if the 2.5 kernel doesn't pass them
--   (2.4 used to). */
--#define pfn_to_page(pfn) ({ \
--	int nid = phys_to_nid(((unsigned long)(pfn)) << PAGE_SHIFT); 	\
--	((pfn) - node_start_pfn(nid)) + node_mem_map(nid);		\
--})
-+/* These must be macros due to some broken include dependencies */
++#else
 +
-+#define pfn_to_page(pfn) ((pfn) + memnode_rel_memmap[(pfn) >> memnode_pfn_shift])
++#define SPINLOCK_MAGIC	0x1D244B3C
++
++#define __SPIN_LOCK_UNLOCKED	{ { 1, 1, 1, 1 }, SPINLOCK_MAGIC, 10, __FILE__ , NULL, 0, -1, NULL, NULL }
++#undef SPIN_LOCK_UNLOCKED
++#define SPIN_LOCK_UNLOCKED (spinlock_t) __SPIN_LOCK_UNLOCKED
++
++#endif /* CONFIG_DEBUG_SPINLOCK */
++
++#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
++
++typedef struct {
++	spinlock_t lock;
++	volatile int counter;
++} rwlock_t;
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { __SPIN_LOCK_UNLOCKED, 0 }
++
++#define rwlock_init(lp)	do { *(lp) = RW_LOCK_UNLOCKED; } while (0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_PARISC_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-arm/spinlock_types.h
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6-inc/include/asm-arm/spinlock_types.h	2004-10-13 21:32:39.283272130 +0200
+@@ -0,0 +1,23 @@
++#ifndef __ASM_ARM_SPINLOCK_TYPES_H
++#define __ASM_ARM_SPINLOCK_TYPES_H
++
++#ifdef CONFIG_SMP
++
++typedef struct {
++	volatile unsigned int lock;
++} spinlock_t;
++
++#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
++
++#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while (0)
++
++typedef struct {
++	volatile unsigned int lock;
++} rwlock_t;
++
++#define RW_LOCK_UNLOCKED	(rwlock_t) { 0 }
++#define rwlock_init(x)		do { *(x) + RW_LOCK_UNLOCKED; } while (0)
++
++#endif /* CONFIG_SMP */
++
++#endif /* __ASM_ARM_SPINLOCK_TYPES_H */
+Index: linux-2.6-inc/include/asm-i386/rwlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-i386/rwlock.h	2003-07-18 23:22:38.000000000 +0200
++++ linux-2.6-inc/include/asm-i386/rwlock.h	2004-10-13 21:32:39.283272130 +0200
+@@ -17,9 +17,6 @@
+ #ifndef _ASM_I386_RWLOCK_H
+ #define _ASM_I386_RWLOCK_H
  
--#define page_to_pfn(page) \
--	(long)(((page) - page_zone(page)->zone_mem_map) + page_zone(page)->zone_start_pfn)
-+#define page_to_pfn(page) ({ \
-+	struct zone *z = page_zone(page); 				\
-+	/* Could also cache zone_mem_map + zone_start_pfn. Worth it? */ \
-+	((page) - z->zone_mem_map) + z->zone_start_pfn;			\
-+})
- 
- /* AK: !DISCONTIGMEM just forces it to 1. Can't we too? */
- #define pfn_valid(pfn)          ((pfn) < num_physpages)
- 
+-#define RW_LOCK_BIAS		 0x01000000
+-#define RW_LOCK_BIAS_STR	"0x01000000"
 -
- #endif
- #endif
-_
-
---=-tfBh56jvGX/5xdor0twZ--
-
+ #define __build_read_lock_ptr(rw, helper)   \
+ 	asm volatile(LOCK "subl $1,(%0)\n\t" \
+ 		     "js 2f\n" \
+Index: linux-2.6-inc/include/asm-ppc/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-ppc/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-ppc/spinlock.h	2004-10-13 21:32:39.284271959 +0200
+@@ -7,24 +7,6 @@
+  * Simple spin lock operations.
+  */
+ 
+-typedef struct {
+-	volatile unsigned long lock;
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	volatile unsigned long owner_pc;
+-	volatile unsigned long owner_cpu;
+-#endif
+-} spinlock_t;
+-
+-#ifdef __KERNEL__
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-#define SPINLOCK_DEBUG_INIT     , 0, 0
+-#else
+-#define SPINLOCK_DEBUG_INIT     /* */
+-#endif
+-
+-#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 SPINLOCK_DEBUG_INIT }
+-
+-#define spin_lock_init(x) 	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+ #define spin_is_locked(x)	((x)->lock != 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while(spin_is_locked(x))
+ #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+@@ -78,22 +60,6 @@ extern int _raw_spin_trylock(spinlock_t 
+  * irq-safe write-lock, but readers can get non-irqsafe
+  * read-locks.
+  */
+-typedef struct {
+-	volatile unsigned long lock;
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	volatile unsigned long owner_pc;
+-#endif
+-} rwlock_t;
+-
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-#define RWLOCK_DEBUG_INIT     , 0
+-#else
+-#define RWLOCK_DEBUG_INIT     /* */
+-#endif
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0 RWLOCK_DEBUG_INIT }
+-#define rwlock_init(lp) do { *(lp) = RW_LOCK_UNLOCKED; } while(0)
+-
+ #define rwlock_is_locked(x)	((x)->lock != 0)
+ 
+ #ifndef CONFIG_DEBUG_SPINLOCK
+Index: linux-2.6-inc/include/asm-sh/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-sh/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-sh/spinlock.h	2004-10-13 21:32:39.284271959 +0200
+@@ -15,14 +15,6 @@
+ /*
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+  */
+-typedef struct {
+-	volatile unsigned long lock;
+-} spinlock_t;
+-
+-#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
+-
+-#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+-
+ #define spin_is_locked(x)	((x)->lock != 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while (spin_is_locked(x))
+ #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+@@ -65,14 +57,6 @@ static inline void _raw_spin_unlock(spin
+  * needs to get a irq-safe write-lock, but readers can get non-irqsafe
+  * read-locks.
+  */
+-typedef struct {
+-	spinlock_t lock;
+-	atomic_t counter;
+-} rwlock_t;
+-
+-#define RW_LOCK_BIAS		0x01000000
+-#define RW_LOCK_UNLOCKED	(rwlock_t) { { 0 }, { RW_LOCK_BIAS } }
+-#define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while (0)
+ #define rwlock_is_locked(x)	(atomic_read(&(x)->counter) != RW_LOCK_BIAS)
+ 
+ static inline void _raw_read_lock(rwlock_t *rw)
+Index: linux-2.6-inc/include/asm-alpha/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-alpha/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-alpha/spinlock.h	2004-10-13 21:32:39.284271959 +0200
+@@ -14,26 +14,6 @@
+  * We make no fairness assumptions. They have a cost.
+  */
+ 
+-typedef struct {
+-	volatile unsigned int lock /*__attribute__((aligned(32))) */;
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	int on_cpu;
+-	int line_no;
+-	void *previous;
+-	struct task_struct * task;
+-	const char *base_file;
+-#endif
+-} spinlock_t;
+-
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) {0, -1, 0, NULL, NULL, NULL}
+-#define spin_lock_init(x)						\
+-	((x)->lock = 0, (x)->on_cpu = -1, (x)->previous = NULL, (x)->task = NULL)
+-#else
+-#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
+-#define spin_lock_init(x)	((x)->lock = 0)
+-#endif
+-
+ #define spin_is_locked(x)	((x)->lock != 0)
+ #define spin_unlock_wait(x)	({ do { barrier(); } while ((x)->lock); })
+ #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+@@ -94,13 +74,6 @@ static inline int _raw_spin_trylock(spin
+ 
+ /***********************************************************/
+ 
+-typedef struct {
+-	volatile int write_lock:1, read_counter:31;
+-} /*__attribute__((aligned(32)))*/ rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
+-
+-#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ #define rwlock_is_locked(x)	(*(volatile int *)(x) != 0)
+ 
+ #ifdef CONFIG_DEBUG_RWLOCK
+Index: linux-2.6-inc/include/asm-sparc/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-sparc/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-sparc/spinlock.h	2004-10-13 21:32:39.284271959 +0200
+@@ -13,14 +13,7 @@
+ #include <asm/psr.h>
+ 
+ #ifdef CONFIG_DEBUG_SPINLOCK
+-struct _spinlock_debug {
+-	unsigned char lock;
+-	unsigned long owner_pc;
+-};
+-typedef struct _spinlock_debug spinlock_t;
+ 
+-#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0, 0 }
+-#define spin_lock_init(lp)	do { *(lp)= SPIN_LOCK_UNLOCKED; } while(0)
+ #define spin_is_locked(lp)  (*((volatile unsigned char *)(&((lp)->lock))) != 0)
+ #define spin_unlock_wait(lp)	do { barrier(); } while(*(volatile unsigned char *)(&(lp)->lock))
+ 
+@@ -32,16 +25,6 @@ extern void _do_spin_unlock(spinlock_t *
+ #define _raw_spin_lock(lock)	_do_spin_lock(lock, "spin_lock")
+ #define _raw_spin_unlock(lock)	_do_spin_unlock(lock)
+ 
+-struct _rwlock_debug {
+-	volatile unsigned int lock;
+-	unsigned long owner_pc;
+-	unsigned long reader_pc[NR_CPUS];
+-};
+-typedef struct _rwlock_debug rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0, {0} }
+-
+-#define rwlock_init(lp)	do { *(lp)= RW_LOCK_UNLOCKED; } while(0)
+ #define rwlock_is_locked(lp) ((lp)->lock != 0)
+ 
+ extern void _do_read_lock(rwlock_t *rw, char *str);
+@@ -79,10 +62,6 @@ do {	unsigned long flags; \
+ 
+ #else /* !CONFIG_DEBUG_SPINLOCK */
+ 
+-typedef unsigned char spinlock_t;
+-#define SPIN_LOCK_UNLOCKED	0
+-
+-#define spin_lock_init(lock)   (*((unsigned char *)(lock)) = 0)
+ #define spin_is_locked(lock)    (*((volatile unsigned char *)(lock)) != 0)
+ 
+ #define spin_unlock_wait(lock) \
+@@ -137,11 +116,6 @@ extern __inline__ void _raw_spin_unlock(
+  * XXX This might create some problems with my dual spinlock
+  * XXX scheme, deadlocks etc. -DaveM
+  */
+-typedef struct { volatile unsigned int lock; } rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
+-
+-#define rwlock_init(lp)	do { *(lp)= RW_LOCK_UNLOCKED; } while(0)
+ #define rwlock_is_locked(lp) ((lp)->lock != 0)
+ 
+ 
+Index: linux-2.6-inc/include/asm-mips/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-mips/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-mips/spinlock.h	2004-10-13 21:32:39.285271788 +0200
+@@ -13,14 +13,6 @@
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+  */
+ 
+-typedef struct {
+-	volatile unsigned int lock;
+-} spinlock_t;
+-
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+-
+-#define spin_lock_init(x)	do { (x)->lock = 0; } while(0)
+-
+ #define spin_is_locked(x)	((x)->lock != 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while ((x)->lock)
+ #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+@@ -90,14 +82,6 @@ static inline unsigned int _raw_spin_try
+  * read-locks.
+  */
+ 
+-typedef struct {
+-	volatile unsigned int lock;
+-} rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
+-
+-#define rwlock_init(x)  do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+-
+ #define rwlock_is_locked(x) ((x)->lock)
+ 
+ static inline void _raw_read_lock(rwlock_t *rw)
+Index: linux-2.6-inc/include/asm-sparc64/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-sparc64/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-sparc64/spinlock.h	2004-10-13 21:32:39.285271788 +0200
+@@ -31,10 +31,6 @@
+ 
+ #ifndef CONFIG_DEBUG_SPINLOCK
+ 
+-typedef unsigned char spinlock_t;
+-#define SPIN_LOCK_UNLOCKED	0
+-
+-#define spin_lock_init(lock)	(*((unsigned char *)(lock)) = 0)
+ #define spin_is_locked(lock)	(*((volatile unsigned char *)(lock)) != 0)
+ 
+ #define spin_unlock_wait(lock)	\
+@@ -68,16 +64,6 @@ extern void _raw_spin_lock_flags(spinloc
+ 
+ #else /* !(CONFIG_DEBUG_SPINLOCK) */
+ 
+-typedef struct {
+-	unsigned char lock;
+-	unsigned int owner_pc, owner_cpu;
+-} spinlock_t;
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0, 0, 0xff }
+-#define spin_lock_init(__lock)	\
+-do {	(__lock)->lock = 0; \
+-	(__lock)->owner_pc = 0; \
+-	(__lock)->owner_cpu = 0xff; \
+-} while(0)
+ #define spin_is_locked(__lock)	(*((volatile unsigned char *)(&((__lock)->lock))) != 0)
+ #define spin_unlock_wait(__lock)	\
+ do { \
+@@ -99,9 +85,6 @@ extern int _spin_trylock (spinlock_t *lo
+ 
+ #ifndef CONFIG_DEBUG_SPINLOCK
+ 
+-typedef unsigned int rwlock_t;
+-#define RW_LOCK_UNLOCKED	0
+-#define rwlock_init(lp) do { *(lp) = RW_LOCK_UNLOCKED; } while(0)
+ #define rwlock_is_locked(x) (*(x) != RW_LOCK_UNLOCKED)
+ 
+ extern void __read_lock(rwlock_t *);
+@@ -118,13 +101,6 @@ extern int __write_trylock(rwlock_t *);
+ 
+ #else /* !(CONFIG_DEBUG_SPINLOCK) */
+ 
+-typedef struct {
+-	unsigned long lock;
+-	unsigned int writer_pc, writer_cpu;
+-	unsigned int reader_pc[NR_CPUS];
+-} rwlock_t;
+-#define RW_LOCK_UNLOCKED	(rwlock_t) { 0, 0, 0xff, { } }
+-#define rwlock_init(lp) do { *(lp) = RW_LOCK_UNLOCKED; } while(0)
+ #define rwlock_is_locked(x) ((x)->lock != 0)
+ 
+ extern void _do_read_lock(rwlock_t *rw, char *str);
+Index: linux-2.6-inc/include/asm-ia64/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-ia64/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-ia64/spinlock.h	2004-10-13 21:32:39.285271788 +0200
+@@ -17,13 +17,6 @@
+ #include <asm/intrinsics.h>
+ #include <asm/system.h>
+ 
+-typedef struct {
+-	volatile unsigned int lock;
+-} spinlock_t;
+-
+-#define SPIN_LOCK_UNLOCKED			(spinlock_t) { 0 }
+-#define spin_lock_init(x)			((x)->lock = 0)
+-
+ #ifdef ASM_SUPPORTED
+ /*
+  * Try to get the lock.  If we fail to get the lock, make a non-standard call to
+@@ -113,13 +106,6 @@ do {											\
+ #define _raw_spin_trylock(x)	(cmpxchg_acq(&(x)->lock, 0, 1) == 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while ((x)->lock)
+ 
+-typedef struct {
+-	volatile int read_counter	: 31;
+-	volatile int write_lock		:  1;
+-} rwlock_t;
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
+-
+-#define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ #define rwlock_is_locked(x)	(*(volatile int *) (x) != 0)
+ 
+ #define _raw_read_lock(rw)								\
+Index: linux-2.6-inc/include/asm-parisc/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-parisc/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-parisc/spinlock.h	2004-10-13 21:32:39.285271788 +0200
+@@ -10,12 +10,6 @@
+ 
+ #ifndef CONFIG_DEBUG_SPINLOCK
+ 
+-#define __SPIN_LOCK_UNLOCKED	{ { 1, 1, 1, 1 } }
+-#undef SPIN_LOCK_UNLOCKED
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) __SPIN_LOCK_UNLOCKED
+-
+-#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+-
+ static inline int spin_is_locked(spinlock_t *x)
+ {
+ 	volatile unsigned int *a = __ldcw_align(x);
+@@ -48,14 +42,6 @@ static inline int _raw_spin_trylock(spin
+ 
+ #else /* !(CONFIG_DEBUG_SPINLOCK) */
+ 
+-#define SPINLOCK_MAGIC	0x1D244B3C
+-
+-#define __SPIN_LOCK_UNLOCKED	{ { 1, 1, 1, 1 }, SPINLOCK_MAGIC, 10, __FILE__ , NULL, 0, -1, NULL, NULL }
+-#undef SPIN_LOCK_UNLOCKED
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) __SPIN_LOCK_UNLOCKED
+-
+-#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+-
+ #define CHECK_LOCK(x)							\
+ 	do {								\
+ 	 	if (unlikely((x)->magic != SPINLOCK_MAGIC)) {			\
+@@ -125,15 +111,6 @@ do {									\
+  * Read-write spinlocks, allowing multiple readers
+  * but only one writer.
+  */
+-typedef struct {
+-	spinlock_t lock;
+-	volatile int counter;
+-} rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { __SPIN_LOCK_UNLOCKED, 0 }
+-
+-#define rwlock_init(lp)	do { *(lp) = RW_LOCK_UNLOCKED; } while (0)
+-
+ #define rwlock_is_locked(lp) ((lp)->counter != 0)
+ 
+ /* read_lock, read_unlock are pretty straightforward.  Of course it somehow
+Index: linux-2.6-inc/include/asm-s390/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-s390/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-s390/spinlock.h	2004-10-13 21:32:39.286271617 +0200
+@@ -34,12 +34,6 @@
+  * We make no fairness assumptions. They have a cost.
+  */
+ 
+-typedef struct {
+-	volatile unsigned int lock;
+-} __attribute__ ((aligned (4))) spinlock_t;
+-
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+-#define spin_lock_init(lp) do { (lp)->lock = 0; } while(0)
+ #define spin_unlock_wait(lp)	do { barrier(); } while(((volatile spinlock_t *)(lp))->lock)
+ #define spin_is_locked(x) ((x)->lock != 0)
+ #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+@@ -102,15 +96,6 @@ extern inline void _raw_spin_unlock(spin
+  * irq-safe write-lock, but readers can get non-irqsafe
+  * read-locks.
+  */
+-typedef struct {
+-	volatile unsigned long lock;
+-	volatile unsigned long owner_pc;
+-} rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0, 0 }
+-
+-#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+-
+ #define rwlock_is_locked(x) ((x)->lock != 0)
+ 
+ #ifndef __s390x__
+Index: linux-2.6-inc/include/asm-arm/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-arm/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-arm/spinlock.h	2004-10-13 21:32:39.286271617 +0200
+@@ -15,13 +15,6 @@
+  * Unlocked value: 0
+  * Locked value: 1
+  */
+-typedef struct {
+-	volatile unsigned int lock;
+-} spinlock_t;
+-
+-#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
+-
+-#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while (0)
+ #define spin_is_locked(x)	((x)->lock != 0)
+ #define spin_unlock_wait(x)	do { barrier(); } while (spin_is_locked(x))
+ #define _raw_spin_lock_flags(lock, flags) _raw_spin_lock(lock)
+@@ -68,12 +61,6 @@ static inline void _raw_spin_unlock(spin
+ /*
+  * RWLOCKS
+  */
+-typedef struct {
+-	volatile unsigned int lock;
+-} rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED	(rwlock_t) { 0 }
+-#define rwlock_init(x)		do { *(x) + RW_LOCK_UNLOCKED; } while (0)
+ 
+ /*
+  * Write locks are easy - we just set bit 31.  When unlocking, we can
+Index: linux-2.6-inc/include/asm-x86_64/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-x86_64/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-x86_64/spinlock.h	2004-10-13 21:50:10.407362469 +0200
+@@ -13,25 +13,6 @@ extern int printk(const char * fmt, ...)
+  * Your basic SMP spinlocks, allowing only a single CPU anywhere
+  */
+ 
+-typedef struct {
+-	volatile unsigned int lock;
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	unsigned magic;
+-#endif
+-} spinlock_t;
+-
+-#define SPINLOCK_MAGIC	0xdead4ead
+-
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-#define SPINLOCK_MAGIC_INIT	, SPINLOCK_MAGIC
+-#else
+-#define SPINLOCK_MAGIC_INIT	/* */
+-#endif
+-
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
+-
+-#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+-
+ /*
+  * Simple spin lock operations.  There are two variants, one clears IRQ's
+  * on the local processor, one does not.
+@@ -136,25 +117,6 @@ printk("eip: %p\n", &&here);
+  * irq-safe write-lock, but readers can get non-irqsafe
+  * read-locks.
+  */
+-typedef struct {
+-	volatile unsigned int lock;
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-	unsigned magic;
+-#endif
+-} rwlock_t;
+-
+-#define RWLOCK_MAGIC	0xdeaf1eed
+-
+-#ifdef CONFIG_DEBUG_SPINLOCK
+-#define RWLOCK_MAGIC_INIT	, RWLOCK_MAGIC
+-#else
+-#define RWLOCK_MAGIC_INIT	/* */
+-#endif
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
+-
+-#define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+-
+ #define rwlock_is_locked(x) ((x)->lock != RW_LOCK_BIAS)
+ 
+ /*
+Index: linux-2.6-inc/include/asm-ppc64/spinlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-ppc64/spinlock.h	2004-10-10 19:11:45.000000000 +0200
++++ linux-2.6-inc/include/asm-ppc64/spinlock.h	2004-10-13 21:32:39.286271617 +0200
+@@ -17,15 +17,9 @@
+ #include <linux/config.h>
+ #include <asm/paca.h>
+ 
+-typedef struct {
+-	volatile unsigned int lock;
+-} spinlock_t;
+-
+ #ifdef __KERNEL__
+-#define SPIN_LOCK_UNLOCKED	(spinlock_t) { 0 }
+ 
+ #define spin_is_locked(x)	((x)->lock != 0)
+-#define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+ 
+ static __inline__ void _raw_spin_unlock(spinlock_t *lock)
+ {
+@@ -140,13 +134,6 @@ static __inline__ void _raw_spin_lock_fl
+  * irq-safe write-lock, but readers can get non-irqsafe
+  * read-locks.
+  */
+-typedef struct {
+-	volatile signed int lock;
+-} rwlock_t;
+-
+-#define RW_LOCK_UNLOCKED (rwlock_t) { 0 }
+-
+-#define rwlock_init(x)		do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ #define rwlock_is_locked(x)	((x)->lock)
+ 
+ static __inline__ int is_read_locked(rwlock_t *rw)
+Index: linux-2.6-inc/include/asm-x86_64/rwlock.h
+===================================================================
+--- linux-2.6-inc.orig/include/asm-x86_64/rwlock.h	2003-07-18 23:22:47.000000000 +0200
++++ linux-2.6-inc/include/asm-x86_64/rwlock.h	2004-10-13 21:50:10.405362816 +0200
+@@ -20,9 +20,6 @@
+ 
+ #include <linux/stringify.h>
+ 
+-#define RW_LOCK_BIAS		 0x01000000
+-#define RW_LOCK_BIAS_STR	"0x01000000"
+-
+ #define __build_read_lock_ptr(rw, helper)   \
+ 	asm volatile(LOCK "subl $1,(%0)\n\t" \
+ 		     "js 2f\n" \

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313447AbSDGTlb>; Sun, 7 Apr 2002 15:41:31 -0400
+	id <S313448AbSDGTlu>; Sun, 7 Apr 2002 15:41:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313448AbSDGTla>; Sun, 7 Apr 2002 15:41:30 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:36370 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S313447AbSDGTl1>; Sun, 7 Apr 2002 15:41:27 -0400
-Date: Sun, 7 Apr 2002 20:41:14 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Steven N. Hirsch" <shirsch@adelphia.net>, linux-kernel@vger.kernel.org
+	id <S313450AbSDGTlt>; Sun, 7 Apr 2002 15:41:49 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20232 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313448AbSDGTls>; Sun, 7 Apr 2002 15:41:48 -0400
 Subject: Re: Two fixes for 2.4.19-pre5-ac3
-Message-ID: <20020407194114.GA21800@compsoc.man.ac.uk>
-In-Reply-To: <20020407173343.GA18940@compsoc.man.ac.uk> <E16uIf7-0006Zw-00@the-village.bc.nu>
-Mime-Version: 1.0
+To: movement@marcelothewonderpenguin.com (John Levon)
+Date: Sun, 7 Apr 2002 20:58:50 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        shirsch@adelphia.net (Steven N. Hirsch), linux-kernel@vger.kernel.org
+In-Reply-To: <20020407193245.GA21570@compsoc.man.ac.uk> from "John Levon" at Apr 07, 2002 08:32:46 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-X-Scanner: exiscan *16uIXP-0007QL-00*32bPFtgK2/Y* (Manchester Computing, University of Manchester)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16uIoN-0006b3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 07, 2002 at 08:49:17PM +0100, Alan Cox wrote:
+> The system call tracking is only used to associate a particular EIP with
+> a particular offset in some binary image. There's no other efficient
+> method to capture the mmap() calls for these images, for everything
+> running. ptrace() is only really useful for a small number of processes,
+> and is slow. Offline post-analysis isn't possible. There is no
+> API for getting access to this information.
 
-> Removing it in the -ac tree is a good way to stimulate discussion
+Ok, so you have a real reason for dealing with it
 
-OK
+> Removing sys_call_table from exports won't have any positive effect.
+> Using it has always been "well, you're on your own" - if there is a
+> really good reason it needs to be changed, fine; but just changing it
+> because it's not supposed to be used isn't a good enough reason when
+> there is actually a couple of niche cases where it's the only option.
 
-> fixing the code that relies on it (except for the 99% of code relying on it
-> which is cracker authored trojans)
-
-No doubt, but it's not much harder to look at nm vmlinux or System.map,
-so I don't see the security angle...
-
-I'd be happy to bear the brunt of users moaning at me because they now
-have to apply a kernel patch (and I have to maintain it ...), iff there
-was some strongly technical reason the code has to change.
-
-regards
-john
-
--- 
-"I never understood what's so hard about picking a unique
- first and last name - and not going beyond the 6 character limit."
- 	- Toon Moene
+Lets see if we can sort out AFS and the like then come back to that one. I
+think you may have a valid point. If 2.5 has EXPORT_SYMBOL_INTERNAL it 
+gets a lot easier.

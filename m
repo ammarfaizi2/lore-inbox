@@ -1,101 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbULXBKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbULXBTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbULXBKL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 20:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbULXBKL
+	id S261357AbULXBTT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 20:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbULXBTS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 20:10:11 -0500
-Received: from mail.dif.dk ([193.138.115.101]:11974 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261357AbULXBJp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 20:09:45 -0500
-Date: Fri, 24 Dec 2004 02:20:32 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix inlining related build failures in mxser.c
-In-Reply-To: <20041224005900.GA22106@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.61.0412240215400.3504@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.61.0412240155070.3504@dragon.hygekrogen.localhost>
- <20041224005900.GA22106@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 23 Dec 2004 20:19:18 -0500
+Received: from mail-relay-2.tiscali.it ([213.205.33.42]:11735 "EHLO
+	mail-relay-2.tiscali.it") by vger.kernel.org with ESMTP
+	id S261357AbULXBTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Dec 2004 20:19:12 -0500
+Date: Fri, 24 Dec 2004 02:18:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] oom killer (Core)
+Message-ID: <20041224011833.GE2143@dualathlon.random>
+References: <20041201104820.1.patchmail@tglx> <20041210163247.GM2714@holomorphy.com> <1102697553.3306.91.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102697553.3306.91.camel@tglx.tec.linutronix.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 10, 2004 at 05:52:33PM +0100, Thomas Gleixner wrote:
+> +			if ((p->flags & PF_MEMDIE) ||
+> +			    ((p->flags & PF_EXITING) && !(p->flags & PF_DEAD)))
 
-Hi Linus,
+this had to be:
 
-Sending this to you as pr Alan's request.
+			if (((p->flags & PF_MEMDIE) || (p->flags & PF_EXITING)) &&
+			    !(p->flags & PF_DEAD))
 
-On Thu, 23 Dec 2004, Alan Cox wrote:
+I didn't take zombies into account. A task may be in memdie state and zombie at
+the same time. We must not wait a PF_MEMDIE to go away completely, we must wait
+only until PF_DEAD is not set. After PF_DEAD is set we know all ram we
+were waiting for is already in the free list.
 
-> On Fri, Dec 24, 2004 at 02:01:18AM +0100, Jesper Juhl wrote:
-> > An allyesconfig build of 2.6.10-rc3-bk16 revealed the following build 
-> > failures (which arefixed by the patch below) :
-> 
-> Please send it on to Linus. I've never tried to build any moxa driver with
-> such a new compiler version. It looks the right thing to do.
-> 
-> (Moxa support removed from cc list)
-> 
-> Alan
-> 
+I noticed some deadlocks during an oom-torture-test before applying the stuff
+into the suse kernel. The above change fixed all my deadlocks. Everything else
+was working fine already.
 
-Simple way to fix those is to simply un-inline the functions in question 
-(and since they are somewhat large that's what I did) - an alternative 
-would be to rework the ordering of the file so the functions are defined 
-before their first use.
-(for the actual build errors see my original post to Alan/lkml with same 
-subject - I got this with gcc 3.4.1 btw)
+Actually before finding the above bug I fixed PF_MEMDIE too and I converted it
+to p->memdie, an unsigned char. All archs should support 1 byte granularity
+for per-process atomic instructions, it's near used_math that I also converted
+to a char to signal it cannot be a bitflag sharing the same char with globals.
 
+Struct layout looks like this.
 
-Signed-off-by: Jesper juhl <juhl-lkml@dif.dk>
+	/*
+	 * All archs should support atomic ops with
+	 * 1 byte granularity.
+	 */
+	unsigned char memdie;
+	/*
+	 * Must be changed atomically so it shouldn't be
+	 * be a shareable bitflag.
+	 */
+	unsigned char used_math;
+	/*
+	 * OOM kill score adjustment (bit shift).
+	 * Cannot live together with used_math since
+	 * used_math and oomkilladj can be changed at the
+	 * same time, so they would race if they're in the
+	 * same atomic block.
+	 */
+	short oomkilladj;
 
-diff -up linux-2.6.10-rc3-bk16-orig/drivers/char/mxser.c linux-2.6.10-rc3-bk16/drivers/char/mxser.c
---- linux-2.6.10-rc3-bk16-orig/drivers/char/mxser.c	2004-12-23 23:26:48.000000000 +0100
-+++ linux-2.6.10-rc3-bk16/drivers/char/mxser.c	2004-12-24 01:54:15.000000000 +0100
-@@ -410,9 +410,9 @@ static void mxser_start(struct tty_struc
- static void mxser_hangup(struct tty_struct *);
- static void mxser_rs_break(struct tty_struct *, int);
- static irqreturn_t mxser_interrupt(int, void *, struct pt_regs *);
--static inline void mxser_receive_chars(struct mxser_struct *, int *);
--static inline void mxser_transmit_chars(struct mxser_struct *);
--static inline void mxser_check_modem_status(struct mxser_struct *, int);
-+static void mxser_receive_chars(struct mxser_struct *, int *);
-+static void mxser_transmit_chars(struct mxser_struct *);
-+static void mxser_check_modem_status(struct mxser_struct *, int);
- static int mxser_block_til_ready(struct tty_struct *, struct file *, struct mxser_struct *);
- static int mxser_startup(struct mxser_struct *);
- static void mxser_shutdown(struct mxser_struct *);
-@@ -1989,7 +1989,7 @@ static irqreturn_t mxser_interrupt(int i
- 	return handled;
- }
- 
--static inline void mxser_receive_chars(struct mxser_struct *info, int *status)
-+static void mxser_receive_chars(struct mxser_struct *info, int *status)
- {
- 	struct tty_struct *tty = info->tty;
- 	unsigned char ch, gdl;
-@@ -2143,7 +2143,7 @@ intr_old:
- 
- }
- 
--static inline void mxser_transmit_chars(struct mxser_struct *info)
-+static void mxser_transmit_chars(struct mxser_struct *info)
- {
- 	int count, cnt;
- 	unsigned long flags;
-@@ -2206,7 +2206,7 @@ static inline void mxser_transmit_chars(
- 	spin_unlock_irqrestore(&info->slock, flags);
- }
- 
--static inline void mxser_check_modem_status(struct mxser_struct *info, int status)
-+static void mxser_check_modem_status(struct mxser_struct *info, int status)
- {
- 	/* update input line counters */
- 	if (status & UART_MSR_TERI)
+As for the |= PF_MEMALLOC in oom_kill_task that was a gratuitous smp breakage,
+I didn't need to do anything in PF_MEMALLOC since alloc_pages checks _both_
+PF_MEMALLOC and p->memdie already.
 
+I also added a !chosen in the below code to make that logic more self
+contained and less dependent on the badness implementation (should never
+be necessary though):
 
+			if (points > maxpoints || !chosen) {
+				chosen = p;
+				maxpoints = points;
+			}
 
+I can port the final patch (including fixage of PF_MEMDIE races) to 2.6.10-rc
+after I finished.

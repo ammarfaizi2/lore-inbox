@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265019AbSKSCwG>; Mon, 18 Nov 2002 21:52:06 -0500
+	id <S265114AbSKSDDe>; Mon, 18 Nov 2002 22:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbSKSCwG>; Mon, 18 Nov 2002 21:52:06 -0500
-Received: from mnh-1-30.mv.com ([207.22.10.62]:18693 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S265019AbSKSCwF>;
-	Mon, 18 Nov 2002 21:52:05 -0500
-Message-Id: <200211190303.WAA06025@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML device configuration reporting
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 18 Nov 2002 22:03:30 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S265123AbSKSDDe>; Mon, 18 Nov 2002 22:03:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43268 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265114AbSKSDDd>;
+	Mon, 18 Nov 2002 22:03:33 -0500
+Message-ID: <3DD9AB88.4000102@pobox.com>
+Date: Mon, 18 Nov 2002 22:10:00 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: kksymoops
+References: <20021118230821.8F3822C241@lists.samba.org>
+In-Reply-To: <20021118230821.8F3822C241@lists.samba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please pull 
-	http://jdike.stearns.org:5000/mconfig-2.5
+Rusty,
 
-This update allows the UML device drivers to report their configurations
-to the host.
+What is the status of kksymoops?
 
-				Jeff
+I realize that you have a full plate, but [for the short time it existed 
+in mainline] this was a incredibly useful feature for end users 
+providing bug reports to me (and others).
 
+I'm _not_ asking "when", just wondering what the plan is to resuscitate 
+kksymoops.
 
- arch/um/drivers/chan_kern.c     |   66 ++++++++++++++++++++++++++++-
- arch/um/drivers/fd.c            |    6 ++
- arch/um/drivers/line.c          |   91 +++++++++++++++++++++++++++++++++++-----
- arch/um/drivers/mconsole_kern.c |   62 +++++++++++++++++++++++++--
- arch/um/drivers/null.c          |    5 +-
- arch/um/drivers/port_user.c     |    9 +++
- arch/um/drivers/pty.c           |   17 ++++++-
- arch/um/drivers/ssl.c           |   32 +++++++++++++-
- arch/um/drivers/stdio_console.c |   30 ++++++++++++-
- arch/um/drivers/tty.c           |    8 ++-
- arch/um/drivers/ubd_kern.c      |   39 +++++++++++++++++
- arch/um/drivers/xterm.c         |    4 +
- arch/um/include/chan_kern.h     |    3 +
- arch/um/include/chan_user.h     |    3 -
- arch/um/include/line.h          |   11 +++-
- arch/um/include/mconsole_kern.h |   16 ++++++-
- 16 files changed, 371 insertions(+), 31 deletions(-)
+	Jeff
 
-ChangeSet@1.843, 2002-11-18 15:57:40-05:00, jdike@uml.karaya.com
-  Merged the get_config changes from 2.4.
 
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbUKIBUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbUKIBYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbUKIBUO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 20:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUKIBAu
+	id S261348AbUKIBYd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 20:24:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbUKIBXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 20:00:50 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38153 "HELO
+	Mon, 8 Nov 2004 20:23:16 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:60169 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261324AbUKIA4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 19:56:10 -0500
-Date: Tue, 9 Nov 2004 01:55:38 +0100
+	id S261334AbUKIBBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 20:01:16 -0500
+Date: Tue, 9 Nov 2004 02:00:42 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Gerd Knorr <kraxel@bytesex.org>
 Cc: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-Subject: [4/11] bttv-cards.c: remove unused function bttv_reset_audio
-Message-ID: <20041109005538.GS15077@stusta.de>
+Subject: [7/11] bttv-driver.c: make some variables static
+Message-ID: <20041109010042.GV15077@stusta.de>
 References: <20041107175017.GP14308@stusta.de> <20041108114008.GB20607@bytesex> <20041109004341.GO15077@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,40 +24,61 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The function bttv_reset_audio in drivers/media/video/bttv-cards.c is 
-completely unused.
+The patch below makes 3 variables in drivers/media/video/bttv-driver.c 
+with no external users static.
+
+
+diffstat output:
+ drivers/media/video/bttv-driver.c |    6 +++---
+ drivers/media/video/bttvp.h       |    3 ---
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-cards.c.old	2004-11-07 16:34:59.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-cards.c	2004-11-07 17:14:25.000000000 +0100
-@@ -2521,27 +2522,6 @@
+
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h.old	2004-11-07 16:34:44.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttvp.h	2004-11-07 16:47:42.000000000 +0100
+@@ -89,7 +89,6 @@
+ 	int   sram;
+ };
+ extern const struct bttv_tvnorm bttv_tvnorms[];
+-extern const unsigned int BTTV_TVNORMS;
+ 
+ struct bttv_format {
+ 	char *name;
+@@ -101,8 +100,6 @@
+ 	int  flags;
+ 	int  hshift,vshift;   /* for planar modes   */
+ };
+-extern const struct bttv_format bttv_formats[];
+-extern const unsigned int BTTV_FORMATS;
+ 
+ /* ---------------------------------------------------------- */
+ 
+--- linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c.old	2004-11-07 16:40:15.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/media/video/bttv-driver.c	2004-11-07 16:41:55.000000000 +0100
+@@ -321,12 +321,12 @@
+ 		.sram           = -1,
+ 	}
+ };
+-const unsigned int BTTV_TVNORMS = ARRAY_SIZE(bttv_tvnorms);
++static const unsigned int BTTV_TVNORMS = ARRAY_SIZE(bttv_tvnorms);
+ 
+ /* ----------------------------------------------------------------------- */
+ /* bttv format list
+    packed pixel formats must come first */
+-const struct bttv_format bttv_formats[] = {
++static const struct bttv_format bttv_formats[] = {
+ 	{
+ 		.name     = "8 bpp, gray",
+ 		.palette  = VIDEO_PALETTE_GREY,
+@@ -478,7 +478,7 @@
+ 		.flags    = FORMAT_FLAGS_RAW,
+ 	}
+ };
+-const unsigned int BTTV_FORMATS = ARRAY_SIZE(bttv_formats);
++static const unsigned int BTTV_FORMATS = ARRAY_SIZE(bttv_formats);
  
  /* ----------------------------------------------------------------------- */
  
--void bttv_reset_audio(struct bttv *btv)
--{
--	/*
--	 * BT878A has a audio-reset register.
--	 * 1. This register is an audio reset function but it is in
--	 *    function-0 (video capture) address space.
--	 * 2. It is enough to do this once per power-up of the card.
--	 * 3. There is a typo in the Conexant doc -- it is not at
--	 *    0x5B, but at 0x058. (B is an odd-number, obviously a typo!).
--	 * --//Shrikumar 030609
--	 */
--	if (btv->id != 878)
--		return;
--
--	if (bttv_debug)
--		printk("bttv%d: BT878A ARESET\n",btv->c.nr);
--	btwrite((1<<7), 0x058);
--	udelay(10);
--	btwrite(     0, 0x058);
--}
--
- /* initialization part one -- before registering i2c bus */
- void __devinit bttv_init_card1(struct bttv *btv)
- {
-

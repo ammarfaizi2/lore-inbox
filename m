@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263961AbTIJOiz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 10:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264788AbTIJOiy
+	id S264795AbTIJOcV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 10:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264801AbTIJOcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 10:38:54 -0400
-Received: from gprs147-217.eurotel.cz ([160.218.147.217]:36481 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263961AbTIJOiu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 10:38:50 -0400
-Date: Wed, 10 Sep 2003 16:38:37 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Claas Langbehn <claas@rootdir.de>
-Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq@lidskialf.net>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] [2.6.0-test5-mm1] Suspend to RAM problems
-Message-ID: <20030910143837.GC2589@elf.ucw.cz>
-References: <20030910103142.GA1053@rootdir.de> <20030910111312.GA847@rootdir.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910111312.GA847@rootdir.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 10 Sep 2003 10:32:21 -0400
+Received: from smtp3.us.dell.com ([143.166.148.134]:30988 "EHLO
+	smtp3.us.dell.com") by vger.kernel.org with ESMTP id S264795AbTIJOcT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 10:32:19 -0400
+Date: Wed, 10 Sep 2003 04:31:51 -0500 (CDT)
+From: Matt Domsch <Matt_Domsch@Dell.com>
+X-X-Sender: mdomsch@localhost.localdomain
+To: Greg KH <greg@kroah.com>
+cc: rmk@arm.linux.org.uk, Dave Jones <davej@redhat.com>,
+       Anatoly Pugachev <mator@gsib.ru>, <linux-kernel@vger.kernel.org>
+Subject: Re: Buggy PCI drivers - do not mark pci_device_id as discardable
+ data
+In-Reply-To: <20030910042428.GA10134@kroah.com>
+Message-ID: <Pine.LNX.4.44.0309100427490.17820-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> > At least these have probe functions marked __init in -test5.
+> 
+> These either need to be marked __devinit and make "new_id" dependant on
+> CONFIG_HOTPLUG, or we need to remove the __init marker on these
+> functions.
+> 
+> Any throughts about which?
 
-> I also tried to suspend with ACPI in single user mode:
-> 
-> echo 3 >/proc/acpi/sleep
-> 
-> makes the system sleep within a second.
-> 
-> After waking it up by pressing a key or the power button
-> the VGA Bios shows up for a second and afterwards I get
-> this message:
-> 
-> APIC error on CPU0: 08(08)
-> 
-> ...and it repeats endlessly :(
-> 
-> my keyboard is dead afterwards.
+I expect the CONFIG_EMBEDDED folks would much prefer the 
+__devinit/CONFIG_HOTPLUG path, so it all disappears for them.
 
-Can you test on -test3 kernel?
-							Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Matt Domsch
+Sr. Software Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+

@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130163AbRACS5P>; Wed, 3 Jan 2001 13:57:15 -0500
+	id <S130172AbRACS7f>; Wed, 3 Jan 2001 13:59:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130172AbRACS4z>; Wed, 3 Jan 2001 13:56:55 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:62480 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130163AbRACS4x>;
-	Wed, 3 Jan 2001 13:56:53 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Tom Rini <trini@kernel.crashing.org>
-Date: Wed, 3 Jan 2001 19:25:22 MET-1
+	id <S130202AbRACS7Z>; Wed, 3 Jan 2001 13:59:25 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:64527 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130172AbRACS7I>; Wed, 3 Jan 2001 13:59:08 -0500
+Date: Wed, 3 Jan 2001 10:28:05 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Mason <mason@suse.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alexander Viro <viro@math.psu.edu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] filemap_fdatasync & related changes
+In-Reply-To: <428710000.978539866@tiny>
+Message-ID: <Pine.LNX.4.10.10101031027090.1896-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [linux-fbdev] [PATCH] matroxfb as a module (PPC)
-CC: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-fbdev@vuser.vu.union.edu,
-        linux-kernel@vger.kernel.org, geert@linux-m68k.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <118A418518B3@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  3 Jan 01 at 10:54, Tom Rini wrote:
-> I agree this sounds good.  I just think it's too late to do it now. :)
+
+
+On Wed, 3 Jan 2001, Chris Mason wrote:
 > 
-> The vmode/cmode/vesa number stuff should stick around in 2.4 (it's too late
-> now to remove it) but documented as obsolete, and removed in 2.5.
+> Just noticed the filemap_fdatasync code doesn't check the return value from
+> writepage.  Linus, would you take a patch that redirtied the page, puts it
+> back onto the dirty list (at the tail), and unlocks the page when writepage
+> returns 1?
 
-I personally prefer 'video=matrox:vesa:0x105' over 
-'video=matrox:1024x768-8', as with matroxfb you can modify this mode with
-'left', 'right', 'fv', 'fh'... options, and without these parameters it is 
-unusable on fixed sync monitors (f.e. 'sync' is vital to specify 
-sync-on-green feature).
+I don't see how that would help. It's just asking for endless loops.
 
-If someone will create modedb, which will allow specifying all parameters
-of fb_var_screeninfo, I'll remove this parsing code from matroxfb. But 
-without it I think that 'vesa' will survive forever... And as I can test
-only vga16fb and matroxfb, I'm not probably right one to do this.
-                                            Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

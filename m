@@ -1,97 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268901AbRH0Uua>; Mon, 27 Aug 2001 16:50:30 -0400
+	id <S268926AbRH0U5L>; Mon, 27 Aug 2001 16:57:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268926AbRH0UuV>; Mon, 27 Aug 2001 16:50:21 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:28838 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S268901AbRH0UuF>;
-	Mon, 27 Aug 2001 16:50:05 -0400
-Message-ID: <3B8AB41B.3B75F4B9@randomlogic.com>
-Date: Mon, 27 Aug 2001 13:56:59 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268922AbRH0U5C>; Mon, 27 Aug 2001 16:57:02 -0400
+Received: from ns1ca.ubisoft.qc.ca ([205.205.27.131]:45064 "EHLO
+	ns1ca.ubisoft.qc.ca") by vger.kernel.org with ESMTP
+	id <S268916AbRH0U4v>; Mon, 27 Aug 2001 16:56:51 -0400
+Message-ID: <9A1957CB9FC45A4FA6F35961093ABB84041F9D2F@srvmail-mtl.ubisoft.qc.ca>
+From: Patrick Allaire <pallaire@gameloft.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: How to disable blanking of the screen in the kernel ?
+Date: Mon, 27 Aug 2001 16:50:51 -0400
 MIME-Version: 1.0
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
-Subject: Re: VCool - cool your Athlon/Duron during idle
-In-Reply-To: <Pine.GSO.4.21.0108272108430.14459-100000@skiathos.physics.auth.gr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Liakakis Kostas wrote:
-> 
-> On Mon, 27 Aug 2001, Kurt Roeckx wrote:
-> 
-> > On Mon, Aug 27, 2001 at 02:48:24PM +0300, Liakakis Kostas wrote:
-> > > On Mon, 27 Aug 2001, Jan Niehusmann wrote:
-> > >
-> > > > (asus writes that one of the problems that can happen with this power
-> > > > saving mode are the huge changes in power dissipation, from 60W to 5W
-> > > > and back - therefore I assume the power saving mode can save up to 55W)
-> > >
-> > > The problem they are describing is not the change in power dissipation,
-> > > but the change in current draw from the regulated 1.75V (difference of
-> > > about 30A or more).
-> >
-> > And what do you think power is?
-> > Maybe it's the voltage times the current?
-> 
-> Your point being? This is power yeah. However I can get 50W with 1V@50A
-> and with 50V@1A ... tell me which will be easier for a regulator when
-> going from 10 to 50W while trying to keep the voltage steady.
 
-First of all, let me say that I used to run the lab at NCR Corporation testing and qualifying power supplies, and making design recommendations/changes when
-they failed, for main frame computers. 
+Hi,
 
-That would depend upon the power supply, and specifically, the regulator design. Consider that the average PC user buys a cheap $30 - $50 (US Dollars) case and
-P/S package. That P/S will never be able to handle this kind of transition and stay within its specified regulation. In the electronics industry, you get what
-you pay for (with the exception of a couple of big names that simply sell junk 'cause they can), and there's no exception to this rule when it comes to power
-supplies. I have tested PC power supplies by various mfgs. and have found that most do not hold up to the specifications printed on them, let alone to anything
-a CPU/MB mfg. may require. Many operate on the fringe of their specified voltage range even under low load, send them up to maximum load and they quickly fly
-south (and many never return!). In simple terms, you won't find a P/S under $100 (US) that will be worth the CPUs weight in regulation, let alone will be able
-to handle such a large power transition.
+I am on a 2.2.19 kernel. I am doing an embedded box and I want to disable
+the console blanking ... how can I do that ? I dont have apm support in the
+kernel. there is no X on the box ...
 
-> 
-> So to rephrase myself the condition of less power dissipation (and that is
-> thermal output, not power consumption which isvoltage times current... )
-> is the result of less current draw of ~30A. This is a huge difference. And
-> this is the problem. There are regulators on certain motherboards which
-> can't cope with this. And they increase (not that bad unless you fry a
-> chip) when current drops, or decrease voltage when there is current need
-> (crash) of the tolerance limmits.
+thank you
 
-MoBo regulators aside, as stated above, most power supplies can't handle it, so there's nothing the regulator could do no matter how well designed it is. What I
-said above does stand for on-board regulators as well. 
+Patrick Allaire
+mailto:pallaire@gameloft.com
+If you can see it, but it's not there, it's virtual. 
+If you can't see it, but it is there, it's hidden. 
+It you can't see it and it isn't there, it's gone.
 
-BTW, there are two basic power ratings for an electronic component - Power Dissipation (Pd) and Power Consumption (Pc). Pd is the amount of power (V*I or
-Voltage times Current) that the component wastes in heat (which is generated by the friction of electrons moving through the component). Pc is the total power
-required by the component for operation, and is a function of Pd plus the power actually used by the component and not wasted in heat. Pc is also V*I. Pc is
-measured by connecting meters (voltage and current) to the power connections on the component while in operation. Pd can be measured by the amount of heat
-coming off of it, or by various other methods. Both Pd and Pc can be decreased by turning off portions of the component, decreasing clock speed (thereby
-decreasing friction), and by decreasing voltage and/or current to minimum operational levels. It can be increased by turning off the wrong portions of the
-component causing others to exceed their specifications, by increasing clock speed, by increasing voltage and/or current to maximum operational levels (or
-beyond - a Bad Thing :), and by decreasing voltage and/or current below operational levels. The last scenario causes the component to do all kinds of things it
-wasn't meant to do, which usually causes Pd to rise dramatically and therefore Pc follows.
 
-So, in summary, I wouldn't use power saving modes (and I don't) unless:
-
-1. I had 100% conviction that my P/S would meet or exceed the required specifications.
-2. I had 100% conviction that the MoBo would meet or exceed the required specifications.
-3. I had 100% conviction that all components in the system would meet or exceed the required specifications.
-
-More often that not, they don't, and most consumers are none the wiser. I have never used any power saving mode because in any given case the system in question
-could not meet 1 - 3.
-
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043

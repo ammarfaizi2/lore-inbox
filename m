@@ -1,61 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbUDOS25 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 14:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263735AbUDOSR4
+	id S263153AbUDOSST (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 14:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263225AbUDORnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 14:17:56 -0400
-Received: from colino.net ([62.212.100.143]:24054 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S263153AbUDOSLs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 14:11:48 -0400
-Date: Thu, 15 Apr 2004 20:11:17 +0200
-From: Colin Leroy <colin@colino.net>
-To: linux-kernel@vger.kernel.org
-Cc: linux-usb-devel@lists.sf.net
-Subject: 2.6.6-rc1: cdc-acm still (differently) broken
-Message-Id: <20040415201117.11524f63@jack.colino.net>
-Organization: 
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.4.0; powerpc-unknown-linux-gnu)
+	Thu, 15 Apr 2004 13:43:42 -0400
+Received: from mail.kroah.org ([65.200.24.183]:29622 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263185AbUDORmT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 13:42:19 -0400
+X-Donotread: and you are reading this why?
+Subject: Re: [PATCH] Driver Core update for 2.6.6-rc1
+In-Reply-To: <1082050912368@kroah.com>
+X-Patch: quite boring stuff, it's just source code...
+Date: Thu, 15 Apr 2004 10:41:52 -0700
+Message-Id: <1082050912553@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Thu__15_Apr_2004_20_11_17_+0200_q+VVjoAW0Socb98="
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+ChangeSet 1.1643.36.8, 2004/03/25 10:43:11-08:00, hannal@us.ibm.com
 
---Multipart=_Thu__15_Apr_2004_20_11_17_+0200_q+VVjoAW0Socb98=
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+[PATCH] added class support to stallion.c
 
-Hi,
+Here is a patch to add class support to the Stallion multiport
+serial driver.
 
-cdc-acm was broken since after 2.6.4, due to the alt_cursetting changes. I sent a patch, which has been integrated (well, the same one has ;-)) not long ago.
-I gave 2.6.6-rc1 a try, and found that cdc-acm is now broken is a new way:
-when plugging the phone, acm_probe() fails on interface #0; I traced the problem to this: usb_interface_claimed() returns true - and in fact intf->dev.driver is already cdc-acm (despite the fact that this is the first call to acm_probe() !), for reasons beyond my comprehension.
 
-But, even if the interface is claimed, the intfdata hasn't been set, which allows to do another check: the attached patch fixes this bug. 
+ drivers/char/stallion.c |   10 +++++++++-
+ 1 files changed, 9 insertions(+), 1 deletion(-)
 
-HTH,
--- 
-Colin
 
---Multipart=_Thu__15_Apr_2004_20_11_17_+0200_q+VVjoAW0Socb98=
-Content-Type: application/octet-stream;
- name="cdc-acm.patch"
-Content-Disposition: attachment;
- filename="cdc-acm.patch"
-Content-Transfer-Encoding: base64
+diff -Nru a/drivers/char/stallion.c b/drivers/char/stallion.c
+--- a/drivers/char/stallion.c	Thu Apr 15 10:20:54 2004
++++ b/drivers/char/stallion.c	Thu Apr 15 10:20:54 2004
+@@ -41,6 +41,7 @@
+ #include <linux/init.h>
+ #include <linux/smp_lock.h>
+ #include <linux/devfs_fs_kernel.h>
++#include <linux/device.h>
+ 
+ #include <asm/io.h>
+ #include <asm/uaccess.h>
+@@ -732,6 +733,8 @@
+ 
+ /*****************************************************************************/
+ 
++static struct class_simple *stallion_class;
++
+ #ifdef MODULE
+ 
+ /*
+@@ -788,12 +791,15 @@
+ 		restore_flags(flags);
+ 		return;
+ 	}
+-	for (i = 0; i < 4; i++)
++	for (i = 0; i < 4; i++) {
+ 		devfs_remove("staliomem/%d", i);
++		class_simple_device_remove(MKDEV(STL_SIOMEMMAJOR, i));
++	}
+ 	devfs_remove("staliomem");
+ 	if ((i = unregister_chrdev(STL_SIOMEMMAJOR, "staliomem")))
+ 		printk("STALLION: failed to un-register serial memory device, "
+ 			"errno=%d\n", -i);
++	class_simple_destroy(stallion_class);
+ 
+ 	if (stl_tmpwritebuf != (char *) NULL)
+ 		kfree(stl_tmpwritebuf);
+@@ -3181,10 +3187,12 @@
+ 		printk("STALLION: failed to register serial board device\n");
+ 	devfs_mk_dir("staliomem");
+ 
++	stallion_class = class_simple_create(THIS_MODULE, "staliomem");
+ 	for (i = 0; i < 4; i++) {
+ 		devfs_mk_cdev(MKDEV(STL_SIOMEMMAJOR, i),
+ 				S_IFCHR|S_IRUSR|S_IWUSR,
+ 				"staliomem/%d", i);
++		class_simple_device_add(stallion_class, MKDEV(STL_SIOMEMMAJOR, i), NULL, "staliomem/%d", i);
+ 	}
+ 
+ 	stl_serial->owner = THIS_MODULE;
 
-LS0tIGRyaXZlcnMvdXNiL2NsYXNzL2NkYy1hY20uYy5vcmlnCTIwMDQtMDQtMTUgMjA6MDQ6NDcu
-MDUxMTQ1MTQ0ICswMjAwCisrKyBkcml2ZXJzL3VzYi9jbGFzcy9jZGMtYWNtLmMJMjAwNC0wNC0x
-NSAyMDowNTo1Mi40MTkyMDc2ODggKzAyMDAKQEAgLTU4NSw3ICs1ODUsOCBAQAogCiAJCWZvciAo
-aiA9IDA7IGogPCBjZmFjbS0+ZGVzYy5iTnVtSW50ZXJmYWNlcyAtIDE7IGorKykgewogCQkgICAg
-Ci0JCQlpZiAodXNiX2ludGVyZmFjZV9jbGFpbWVkKGNmYWNtLT5pbnRlcmZhY2Vbal0pIHx8CisJ
-CQlpZiAoKHVzYl9pbnRlcmZhY2VfY2xhaW1lZChjZmFjbS0+aW50ZXJmYWNlW2pdKSAKKwkJCQkm
-JiB1c2JfZ2V0X2ludGZkYXRhKGNmYWNtLT5pbnRlcmZhY2Vbal0pICE9IE5VTEwgKSB8fAogCQkJ
-ICAgIHVzYl9pbnRlcmZhY2VfY2xhaW1lZChjZmFjbS0+aW50ZXJmYWNlW2ogKyAxXSkpCiAJCQkJ
-Y29udGludWU7CiAK
-
---Multipart=_Thu__15_Apr_2004_20_11_17_+0200_q+VVjoAW0Socb98=--

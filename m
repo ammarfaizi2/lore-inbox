@@ -1,95 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUG0KTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUG0KUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUG0KTh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 06:19:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUG0KTh
+	id S264045AbUG0KUm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 06:20:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264098AbUG0KUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 06:19:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:43920 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263117AbUG0KTe (ORCPT
+	Tue, 27 Jul 2004 06:20:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:39044 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S264045AbUG0KUc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 06:19:34 -0400
-Date: Tue, 27 Jul 2004 12:19:27 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [I4L] Fix IRQ-sharing lockup in nj_s
-Message-ID: <20040727101927.GA11952@pingi3.kke.suse.de>
-Mail-Followup-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040727082241.GA15624@gondor.apana.org.au>
+	Tue, 27 Jul 2004 06:20:32 -0400
+Date: Tue, 27 Jul 2004 12:18:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Jens Axboe <axboe@suse.de>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-J4
+Message-ID: <20040727101837.GA16410@elte.hu>
+References: <20040713143947.GG21066@holomorphy.com> <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040727053338.GE1433@suse.de> <20040727080127.GA6988@elte.hu> <20040727062302.GG1433@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040727082241.GA15624@gondor.apana.org.au>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.4-52-default i686
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040727062302.GG1433@suse.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Jens Axboe <axboe@suse.de> wrote:
 
-Yes, correct.
+> That said, this second version looks better from an inclusion point of
+> view. Better fix those manual q->max_sectors settings first.
 
-On Tue, Jul 27, 2004 at 06:22:41PM +1000, Herbert Xu wrote:
-> Hi:
->=20
-> This is a backport of a fix that's already in 2.6.  The problem is that
-> nj_s is enabling interrupts before the handler is even installed.  This
-> patch delays the call until after the handler has been registered.
->=20
-> Cheers,
-> --=20
-> Visit Openswan at http://www.openswan.org/
-> Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+ok - the third patch i sent is supposed to deal with all those cases as
+well.
 
-
-Signed-off-by: Karsten Keil <kkeil@suse.de>
-
-=3D=3D=3D=3D=3D drivers/isdn/hisax/nj_s.c 1.7 vs edited =3D=3D=3D=3D=3D
---- 1.7/drivers/isdn/hisax/nj_s.c	2002-04-01 11:02:11 +10:00
-+++ edited/drivers/isdn/hisax/nj_s.c	2004-07-27 18:19:41 +10:00
-@@ -130,6 +130,7 @@
- 			release_io_netjet(cs);
- 			return(0);
- 		case CARD_INIT:
-+			reset_netjet_s(cs);
- 			inittiger(cs);
- 			clear_pending_isac_ints(cs);
- 			initisac(cs);
-@@ -262,7 +263,6 @@
- 	} else {
- 		request_region(cs->hw.njet.base, bytecnt, "netjet-s isdn");
- 	}
--	reset_netjet_s(cs);
- 	cs->readisac  =3D &NETjet_ReadIC;
- 	cs->writeisac =3D &NETjet_WriteIC;
- 	cs->readisacfifo  =3D &NETjet_ReadICfifo;
-
---=20
-Karsten Keil
-SuSE Labs
-ISDN development
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBBiwvo5VVC52CNcQRAloqAJ47q1TBPwS5XZ04wCv4yrrIBkAUbQCfZsC6
-Z+nbXPWmDLXk3/t+ApxhEfs=
-=Q03j
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--
+	Ingo

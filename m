@@ -1,190 +1,703 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313162AbSDINlh>; Tue, 9 Apr 2002 09:41:37 -0400
+	id <S312146AbSDINkH>; Tue, 9 Apr 2002 09:40:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313187AbSDINlg>; Tue, 9 Apr 2002 09:41:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:58129 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313162AbSDINlf>;
-	Tue, 9 Apr 2002 09:41:35 -0400
-Date: Tue, 9 Apr 2002 15:41:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][CFT] IDE TCQ #2
-Message-ID: <20020409134137.GB32133@suse.de>
-In-Reply-To: <20020409124417.GK25984@suse.de> <3CB2DD74.30700@evision-ventures.com>
-Mime-Version: 1.0
+	id <S313162AbSDINkG>; Tue, 9 Apr 2002 09:40:06 -0400
+Received: from ihemail1.lucent.com ([192.11.222.161]:46010 "EHLO
+	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S312146AbSDINkC>; Tue, 9 Apr 2002 09:40:02 -0400
+From: John Stoffel <stoffel@casc.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Message-ID: <15538.61227.998030.2224@gargle.gargle.HOWL>
+Date: Tue, 9 Apr 2002 09:39:55 -0400
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.8p2 - lockup report
+X-Mailer: VM 6.95 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 09 2002, Martin Dalecki wrote:
-> >  echo "using_tcq:0" > /proc/ide/hdX/setting
-> >
-> >  will disable TCQ and revert to DMA,
-> >
-> >  echo "using_tcq:32" > /proc/ide/hdX/setting
-> >
-> >  will set queue depth to 32, any value in between the two are of course
-> >  also allowed. The driver will print enable/disable info to the kernel
-> >  log.
-> 
-> Well this belongs to an ioctl or sysctl... However most
-> of the /proc/ide stuff if not all will go to the sysctl quite soon.
 
-Put it wherever you want it, I'm just making it easier for myself not
-having to pass patches to hdparm around as well for people to enable
-taggged queueing.
+Hi all,
 
-> > #include <linux/config.h>
-> > #include <linux/module.h>
-> >@@ -109,53 +110,64 @@
-> > static u8 get_command(ide_drive_t *drive, int cmd)
-> > {
-> > 	int lba48bit = (drive->id->cfs_enable_2 & 0x0400) ? 1 : 0;
-> >+	int command = WIN_NOP;
-> 
-> The "incremental" usage of the command variable I think is an 
-> overoptimization.
+While I've been compiling and thinking about running 2.5.x on my home
+system, I finally got what I thought was a good build out of 2.5.8p2
+and I booted up.  It came up fine, but it locked up completely when I
+did anything with xmms beyond starting it up and letting it play.
 
-Quite possibly, I couldn't resist since the commands are defined the
-way there are.
+I used the attached config to build the kernel, both with and without
+Pre-emption enabled, since I figured that might be the problem.  I'm
+still using the modules.conf file from my 2.4.18p7rmap12a (which was
+up and stable for 67+ days, good work Rik and crew!) install, which is
+a RedHat 7.2 based system (upgraded from 7.1), along with my own
+random upgrades of stuff.  
 
-> u8 is the proper type for it anyway. I have unwound the code below once
-> to make it more obvious and you would be surprised what GCC does with it 
-> :-).
-> >+
-> >+	return command;
-> > }
-> 
-> See you are returning an int entity as u8!
+I did compile in both ALSA and OSS, so I suspect I'm running into some
+sort of conflict there.  Unfortunately, there's nothing in the logs to
+say why the system locked up, and I don't have a serial console on the
+system.  Nor did I get any type of Oops.  
 
-Oh yeah, woops. Value is ok.
+My system is a dual processor Dell Precision 610MT, PIII Xeon 550mhz,
+768mb of RAM, AGP Matrox G450 32mb, Intel Etherpro (builtin ethernet
+doesn't work reliably) and builtin CS4236+ sound.  
 
-> >+	ide_task_t			*args = &ar->ar_task;
-> >+	struct request			*rq = ar->ar_rq;
-> 
-> Hints that ide_task_t and ata_request_t and struct request usage
-> belong together. This could alleviate the ugly usage of the
-> rq->special field if rq is struct request - which would be a GoodThin(TM).
+Please let me know if I can give you any more info.
 
-Of course, that's my whole point with this ata_request stuff. It's just
-messy now because I only cared for tcq usage, not cleaning the rest of
-the cruft.
+John
 
-> >n ata_taskfile(drive,
-> >-			&args.taskfile,
-> >-			&args.hobfile,
-> >-			args.handler,
-> >-			args.prehandler,
-> >+			&args->taskfile,
-> >+			&args->hobfile,
-> >+			args->handler,
-> >+			args->prehandler,
-> > 			rq);
-> 
-> Due to the other cleanups which happened already it was now possible
-> for me to collapse the arguments of the ata_taskfile function to
-> use only one parameter - names ide_task_t. This will immediately allow
-> to consolidate all data specific to a command into one queued structure,
-> which will be named struct ata_request then. I will post the
-> corresponding patch just immediately, since the integration of the
-> tcq stuff will be quite involved with it.
 
-Good, ata_taskfile/ide_wait_taskfile is a horrible interface right now.
-But you now that :-)
+---------------------------------------------------------------
+modules.conf
+---------------------------------------------------------------
+  alias eth0 eepro100
+  # OSS/Lite portion
+  # Kernel 2.2? Use this instead
+  alias sound-service-0-3 snd-pcm1-oss
+  alias sound-service-0-12 snd-pcm1-oss
+  alias sound-slot-0 cs4232
+  post-install sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -L
+  >/dev/null 2>&1
+   || :
+  pre-remove sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -S
+  >/dev/null 2>&1 |
+  | :
+  options sound dmabuf=1
+  alias synth0 opl3
+  options opl3 io=0x388
+  options cs4232 isapnp=1
 
-> >+/*
-> >+ * FIXME: taskfiles should be a map of pages, not a long virt address... 
-> >/jens
-> >+ */
-> 
-> I fully agree with you - possible it will be helpfull to just pee at
-> the SCSI code to see how it should be done...
 
-Just build a big bio, for instance. And hey, look then taskfile and
-request paths are identical all of a sudden.
+---------------------------------------------------------------
+.config
+---------------------------------------------------------------
 
-> >+	if (rq->flags & REQ_DRIVE_TASKFILE)
-> >+		ar->ar_sg_nents = ide_raw_build_sglist(hwif, rq);
-> >+	else 
-> >+		ar->ar_sg_nents = ide_build_sglist(hwif, rq);
-> 
-> Most certainly the switch should be pushed down to one sinde
-> build_sglist function - we are passing the rq anyway to it.
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
 
-See above, they can be unified instead.
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
-> >@@ -372,10 +378,9 @@
-> > void ide_destroy_dmatable (ide_drive_t *drive)
-> > {
-> > 	struct pci_dev *dev = drive->channel->pci_dev;
-> >-	struct scatterlist *sg = drive->channel->sg_table;
-> >-	int nents = drive->channel->sg_nents;
-> >+	ata_request_t *ar = IDE_CUR_AR(drive);
-> 
-> This looks a bit ugly and should be analogous to ata_ar_get()
-> possible ata_ar_current() will fit.
+#
+# General setup
+#
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
 
-Ok with me, no strong style oppinions here.
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
 
-> >+int ide_start_dma(struct ata_channel *hwif, ide_drive_t *drive, 
-> >ide_dma_action_t func)
-> >+{
-> >+	unsigned int reading = 0, count;
-> >+	unsigned long dma_base = hwif->dma_base;
-> >+	ata_request_t *ar = IDE_CUR_AR(drive);
-> >+
-> >+	if (rq_data_dir(ar->ar_rq) == READ)
-> >+		reading = 1 << 3;
-> >+
-> >+	if (hwif->rwproc)
-> >+		hwif->rwproc(drive, func);
-> >+
-> >+	if (!(count = ide_build_dmatable(drive, ar->ar_rq, func)))
-> >+		return 1;	/* try PIO instead of DMA */
-> >+
-> >+	ar->ar_flags |= ATA_AR_SETUP;
-> >+	outl(ar->ar_dmatable, dma_base + 4);	/* PRD table */
-> >+	outb(reading, dma_base);		/* specify r/w */
-> >+	outb(inb(dma_base + 2) | 6, dma_base+2);/* clear INTR & ERROR flags 
-> >*/
-> 
-> Hmmm there is one architecture which will have possbile problems with this
-> namely cris. But right now I'm quite convinced that they should fix 
-> something
-> there and the OUT_ IDE code specific compatibility macros should be removed
-> altogether.
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+# CONFIG_M686 is not set
+CONFIG_MPENTIUMIII=y
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MELAN is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MCYRIXIII is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_MICROCODE is not set
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+CONFIG_SMP=y
+# CONFIG_PREEMPT is not set
+# CONFIG_MULTIQUAD is not set
+CONFIG_HAVE_DEC_LOCK=y
 
-How is cris working now, then?
+#
+# General options
+#
 
-> >diff -urN -X /home/axboe/cdrom/exclude 
-> >/opt/kernel/linux-2.5.8-pre2/drivers/ide/ide-features.c 
-> >linux/drivers/ide/ide-features.c
-> >--- /opt/kernel/linux-2.5.8-pre2/drivers/ide/ide-features.c	Tue Apr  9 
-> >11:41:13 2002
-> >+++ linux/drivers/ide/ide-features.c	Thu Apr  4 08:14:18 2002
-> >@@ -75,10 +75,7 @@
-> > char *ide_dmafunc_verbose (ide_dma_action_t dmafunc)
-> > {
-> > 	switch (dmafunc) {
-> >-		case ide_dma_read:		return("ide_dma_read");
-> >-		case ide_dma_write:		return("ide_dma_write");
-> > 		case ide_dma_begin:		return("ide_dma_begin");
-> >-		case ide_dma_end:		return("ide_dma_end:");
-> > 		case ide_dma_check:		return("ide_dma_check");
-> > 		case ide_dma_on:		return("ide_dma_on");
-> > 		case ide_dma_off:		return("ide_dma_off");
-> This abortion will be killed by using __FUNCTION__ where apriopriate in 
-> debugging code.
+#
+# ACPI Support
+#
+# CONFIG_ACPI is not set
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+# CONFIG_HOTPLUG is not set
+# CONFIG_PCMCIA is not set
+# CONFIG_HOTPLUG_PCI is not set
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+# CONFIG_APM is not set
 
-Good!
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
 
-> OK I will just "eat" your code this evening...
+#
+# Parallel port support
+#
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+# CONFIG_PARPORT_SERIAL is not set
+# CONFIG_PARPORT_PC_FIFO is not set
+# CONFIG_PARPORT_PC_SUPERIO is not set
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_GSC is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
 
-Looking forward to the merge work ahead :-)
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
 
--- 
-Jens Axboe
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+CONFIG_PARIDE=m
+CONFIG_PARIDE_PARPORT=m
+CONFIG_PARIDE_PD=m
+CONFIG_PARIDE_PCD=m
+CONFIG_PARIDE_PF=m
+CONFIG_PARIDE_PT=m
+CONFIG_PARIDE_PG=m
+# CONFIG_PARIDE_ATEN is not set
+# CONFIG_PARIDE_BPCK is not set
+# CONFIG_PARIDE_BPCK6 is not set
+# CONFIG_PARIDE_COMM is not set
+# CONFIG_PARIDE_DSTR is not set
+# CONFIG_PARIDE_FIT2 is not set
+# CONFIG_PARIDE_FIT3 is not set
+# CONFIG_PARIDE_EPAT is not set
+# CONFIG_PARIDE_EPIA is not set
+# CONFIG_PARIDE_FRIQ is not set
+# CONFIG_PARIDE_FRPW is not set
+# CONFIG_PARIDE_KBIC is not set
+# CONFIG_PARIDE_KTTI is not set
+# CONFIG_PARIDE_ON20 is not set
+# CONFIG_PARIDE_ON26 is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_CISS_SCSI_TAPE is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_BLK_DEV_LOOP=y
+# CONFIG_BLK_DEV_NBD is not set
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
 
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_MD_MULTIPATH is not set
+# CONFIG_BLK_DEV_LVM is not set
+
+#
+# Networking options
+#
+CONFIG_PACKET=y
+# CONFIG_PACKET_MMAP is not set
+# CONFIG_NETLINK_DEV is not set
+# CONFIG_NETFILTER is not set
+# CONFIG_FILTER is not set
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+# CONFIG_ARPD is not set
+# CONFIG_INET_ECN is not set
+# CONFIG_SYN_COOKIES is not set
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_VLAN_8021Q is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+# CONFIG_PHONE_IXJ_PCMCIA is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+# CONFIG_IDEDISK_STROKE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_BLK_DEV_CMD640=y
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+CONFIG_BLK_DEV_RZ1000=y
+CONFIG_BLK_DEV_IDEPCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+# CONFIG_IDEDMA_ONLYDISK is not set
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD74XX is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+CONFIG_BLK_DEV_PIIX=y
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC_ADMA is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_PDC202XX_FORCE is not set
+# CONFIG_BLK_DEV_SVWKS is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_BLK_DEV_ATARAID is not set
+# CONFIG_BLK_DEV_ATARAID_PDC is not set
+# CONFIG_BLK_DEV_ATARAID_HPT is not set
+
+#
+# SCSI support
+#
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=y
+# CONFIG_CHR_DEV_OSST is not set
+CONFIG_BLK_DEV_SR=y
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=4
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+# CONFIG_SCSI_LOGGING is not set
+
+#
+# SCSI low-level drivers
+#
+# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
+# CONFIG_SCSI_7000FASST is not set
+# CONFIG_SCSI_ACARD is not set
+# CONFIG_SCSI_AHA152X is not set
+# CONFIG_SCSI_AHA1542 is not set
+# CONFIG_SCSI_AHA1740 is not set
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
+# CONFIG_SCSI_DPT_I2O is not set
+# CONFIG_SCSI_ADVANSYS is not set
+# CONFIG_SCSI_IN2000 is not set
+# CONFIG_SCSI_AM53C974 is not set
+# CONFIG_SCSI_MEGARAID is not set
+# CONFIG_SCSI_BUSLOGIC is not set
+# CONFIG_SCSI_CPQFCTS is not set
+# CONFIG_SCSI_DMX3191D is not set
+# CONFIG_SCSI_DTC3280 is not set
+# CONFIG_SCSI_EATA is not set
+# CONFIG_SCSI_EATA_DMA is not set
+# CONFIG_SCSI_EATA_PIO is not set
+# CONFIG_SCSI_FUTURE_DOMAIN is not set
+# CONFIG_SCSI_GDTH is not set
+# CONFIG_SCSI_GENERIC_NCR5380 is not set
+# CONFIG_SCSI_IPS is not set
+# CONFIG_SCSI_INITIO is not set
+# CONFIG_SCSI_INIA100 is not set
+# CONFIG_SCSI_PPA is not set
+# CONFIG_SCSI_IMM is not set
+# CONFIG_SCSI_NCR53C406A is not set
+# CONFIG_SCSI_NCR53C7xx is not set
+# CONFIG_SCSI_SYM53C8XX_2 is not set
+# CONFIG_SCSI_NCR53C8XX is not set
+# CONFIG_SCSI_SYM53C8XX is not set
+# CONFIG_SCSI_PAS16 is not set
+# CONFIG_SCSI_PCI2000 is not set
+# COPORT_PCIGAME=m
+CONFIG_GAMEPORT_FM801=m
+CONFIG_GAMEPORT_CS461x=m
+CONFIG_SERIO=m
+CONFIG_SERIO_SERPORT=m
+# CONFIG_INPUT_JOYSTICK is not set
+# CONFIG_JOYSTICK_ANALOG is not set
+# CONFIG_JOYSTICK_A3D is not set
+# CONFIG_JOYSTICK_ADI is not set
+# CONFIG_JOYSTICK_COBRA is not set
+# CONFIG_JOYSTICK_GF2K is not set
+# CONFIG_JOYSTICK_GRIP is not set
+# CONFIG_JOYSTICK_INTERACT is not set
+# CONFIG_JOYSTICK_SIDEWINDER is not set
+# CONFIG_JOYSTICK_TMDC is not set
+# CONFIG_JOYSTICK_IFORCE_USB is not set
+# CONFIG_JOYSTICK_IFORCE_232 is not set
+# CONFIG_JOYSTICK_WARRIOR is not set
+# CONFIG_JOYSTICK_MAGELLAN is not set
+# CONFIG_JOYSTICK_SPACEORB is not set
+# CONFIG_JOYSTICK_SPACEBALL is not set
+# CONFIG_JOYSTICK_STINGER is not set
+# CONFIG_JOYSTICK_DB9 is not set
+# CONFIG_JOYSTICK_GAMECON is not set
+# CONFIG_JOYSTICK_TURBOGRAFX is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_SERIAL_CONSOLE=y
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=S is not set
+CONFIG_DRM=y
+# CONFIG_DRM_TDFX is not set
+# CONFIG_DRM_GAMMA is not set
+# CONFIG_DRM_R128 is not set
+# CONFIG_DRM_RADEON is not set
+# CONFIG_DRM_I810 is not set
+CONFIG_DRM_MGA=m
+# CONFIG_MWAVE is not set
+
+#
+# Multimedia devices
+#
+CONFIG_VIDEO_DEV=m
+
+#
+# Video For Linux
+#
+CONFIG_VIDEO_PROC_FS=y
+CONFIG_I2C_PARPORT=m
+# CONFIG_VIDEO_BT848 is not set
+# CONFIG_VIDEO_PMS is not set
+# CONFIG_VIDEO_BWQCAM is not set
+# CONFIG_VIDEO_CQCAM is not set
+# CONFIG_VIDEO_W9966 is not set
+# CONFIG_VIDEO_CPIA is not set
+# CONFIG_VIDEO_SAA5249 is not set
+# CONFIG_TUNER_3036 is not set
+# CONFIG_VIDEO_STRADIS is not set
+# CONFIG_VIDEO_ZORAN is not set
+# CONFIG_VIDEO_ZORAN_BUZ is not set
+# CONFIG_VIDEO_ZORAN_DC10 is not set
+# CONFIG_VIDEO_ZORAN_LML33 is not set
+# CONFIG_VIDEO_ZR36120 is not set
+# CONFIG_VIDEO_MEYE is not set
+
+#
+# Radio Adapters
+#
+# CONFIG_RADIO_CADET is not set
+# CONFIG_RADIO_RTRACK is not set
+# CONFIG_RADIO_RTRACK2 is not set
+# CONFIG_RADIO_AZTECH is not set
+# CONFIG_RADIO_GEMTEK is not set
+# CONFIG_RAt set
+# CONFIG_AMIGA_PARTITION is not set
+# CONFIG_ATARI_PARTITION is not set
+# CONFIG_MAC_PARTITION is not set
+CONFIG_MSDOS_PARTITION=y
+# CONFIG_BSD_DISKLABEL is not set
+# CONFIG_MINIX_SUBPARTITION is not set
+# CONFIG_SOLARIS_X86_PARTITION is not set
+# CONFIG_UNIXWARE_DISKLABEL is not set
+# CONFIG_LDM_PARTITION is not set
+# CONFIG_SGI_PARTITION is not set
+# CONFIG_ULTRIX_PARTITION is not set
+# CONFIG_SUN_PARTITION is not set
+# CONFIG_EFI_PARTITION is not set
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_86m
+# CONFIG_MAD16_OLDCARD is not set
+CONFIG_SOUND_PAS=m
+# CONFIG_PAS_JOYSTICK is not set
+CONFIG_SOUND_PSS=m
+CONFIG_PSS_MIXER=y
+# CONFIG_PSS_HAVE_BOOT is not set
+CONFIG_SOUND_SB=m
+CONFIG_SOUND_AWE32_SYNTH=m
+CONFIG_SOUND_WAVEFRONT=m
+CONFIG_SOUND_MAUI=m
+CONFIG_SOUND_YM3812=m
+CONFIG_SOUND_OPL3SA1=m
+CONFIG_SOUND_OPL3SA2=m
+CONFIG_SOUND_YMFPCI=m
+# CONFIG_SOUND_YMFPCI_LEGACY is not set
+CONFIG_SOUND_UART6850=m
+CONFIG_SOUND_AEDSP16=m
+# CONFIG_SC6600 is not set
+# CONFIG_AEDSP16_SBPRO is not set
+# CONFIG_AEDSP16_MSS is not set
+# CONFIG_AEDSP16_MPU401 is not set
+# CONFIG_SOUND_TVMIXER is not set
+
+#
+# Advanced Linux Sound Architecture
+#
+CONFIG_SND=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=m
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_VERBOSE_PRINTK=y
+CONFIG_SND_DEBUG=y
+CONFIG_SND_DEBUG_MEMORY=y
+CONFIG_SND_DEBUG_DETECT=y
+
+#
+# Generic devices
+#
+CONFIG_SND_DUMMY=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_MTPAV=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+
+#
+# ISA devices
+#
+CONFIG_SND_AD1816A=m
+CONFIG_SND_AD1848=m
+CONFIG_SND_CS4231=m
+CONFIG_SND_CS4232=m
+CONFIG_SND_CS4236=m
+CONFIG_SND_ES968=m
+CONFIG_SND_ES1688=m
+CONFIG_SND_ES18XX=m
+CONFIG_SND_GUSCLASSIC=m
+CONFIG_SND_GUSEXTREME=m
+CONFIG_SND_GUSMAX=m
+CONFIG_SND_INTERWAVE=m
+CONFIG_SND_INTERWAVE_STB=m
+CONFIG_SND_OPTI92X_AD1848=m
+CONFIG_SND_OPTI92X_CS4231=m
+CONFIG_SND_OPTI93X=m
+CONFIG_SND_SB8=m
+CONFIG_SND_SB16=m
+CONFIG_SND_SBAWE=m
+CONFIG_SND_SB16_CSP=y
+CONFIG_SND_WAVEFRONT=m
+CONFIG_SND_ALS100=m
+# CONFIG_SND_AZT2320 is not set
+# CONFIG_SND_CMI8330 is not set
+# CONFIG_SND_DT0197H is not set
+# CONFIG_SND_OPL3SA2 is not set
+# CONFIG_SND_SGALAXY is not set
+
+#
+# PCI devices
+#
+# CONFIG_SND_ALI5451 is not set
+CONFIG_SND_CS46XX=m
+CONFIG_SND_CS46XX_ACCEPT_VALID=y
+CONFIG_SND_EMU10K1=m
+# CONFIG_SND_KORG1212 is not set
+# CONFIG_SND_NM256 is not set
+# CONFIG_SND_RME96 is not set
+# CONFIG_SND_RME9652 is not set
+# CONFIG_SND_TRIDENT is not set
+# CONFIG_SND_YMFPCI is not set
+CONFIG_SND_ALS4000=m
+# CONFIG_SND_CMIPCI is not setUSB_KAWETH is not set
+# CONFIG_USB_PEGASUS is not set
+# CONFIG_USB_RTL8150 is not set
+# CONFIG_USB_USBNET is not set
+# CONFIG_USB_USS720 is not set
+
+#
+# USB Serial Converter support
+#
+# CONFIG_USB_SERIAL is not set
+# CONFIG_USB_SERIAL_GENERIC is not set
+# CONFIG_USB_SERIAL_BELKIN is not set
+# CONFIG_USB_SERIAL_WHITEHEAT is not set
+# CONFIG_USB_SERIAL_DIGI_ACCELEPORT is not set
+# CONFIG_USB_SERIAL_EMPEG is not set
+# CONFIG_USB_SERIAL_FTDI_SIO is not set
+# CONFIG_USB_SERIAL_VISOR is not set
+# CONFIG_USB_SERIAL_IPAQ is not set
+# CONFIG_USB_SERIAL_IR is not set
+# CONFIG_USB_SERIAL_EDGEPORT is not set
+# CONFIG_USB_SERIAL_KEYSPAN_PDA is not set
+# CONFIG_USB_SERIAL_KEYSPAN is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XA is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA28XB is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19 is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA18X is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA19W is not set
+# CONFIG_USB_SERIAL_KEYSPAN_USA49W is not set
+# CONFIG_USB_SERIAL_KLSI is not set
+# CONFIG_USB_SERIAL_MCT_U232 is not set
+# CONFIG_USB_SERIAL_PL2303 is not set
+# CONFIG_USB_SERIAL_SAFE is not set
+# CONFIG_USB_SERIAL_SAFE_PADDED is not set
+# CONFIG_USB_SERIAL_CYBERJACK is not set
+# CONFIG_USB_SERIAL_XIRCOM is not set
+# CONFIG_USB_SERIAL_OMNINET is not set
+# CONFIG_USB_EMI26 is not set
+# CONFIG_USB_TIGL is not set
+# CONFIG_USB_AUERSWALD is not set
+# CONFIG_USB_RIO500 is not set
+
+#
+# Bluetooth support
+#
+# CONFIG_BLUEZ is not set
+
+#
+# Kernel hacking
+#
+CONFIG_DEBUG_KERNEL=y
+# CONFIG_DEBUG_SLAB is not set
+# CONFIG_DEBUG_IOVIRT is not set
+CONFIG_MAGIC_SYSRQ=y
+# CONFIG_DEBUG_SPINLOCK is not set
+
+#
+# Library routines
+#
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318892AbSIIUuu>; Mon, 9 Sep 2002 16:50:50 -0400
+	id <S318930AbSIIUzX>; Mon, 9 Sep 2002 16:55:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318898AbSIIUut>; Mon, 9 Sep 2002 16:50:49 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:61167
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318892AbSIIUur>; Mon, 9 Sep 2002 16:50:47 -0400
-Subject: Re: [PATCH] Important per-cpu fix.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rusty@rustcorp.com.au, pavel@suse.cz,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       akpm@zip.com.au
-In-Reply-To: <20020909.011539.122194350.davem@redhat.com>
-References: <20020908.231304.30400540.davem@redhat.com>
-	<20020909081754.EC8382C09D@lists.samba.org> 
-	<20020909.011539.122194350.davem@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 09 Sep 2002 21:58:06 +0100
-Message-Id: <1031605086.29718.43.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318932AbSIIUzX>; Mon, 9 Sep 2002 16:55:23 -0400
+Received: from p5088746E.dip.t-dialin.net ([80.136.116.110]:15524 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318930AbSIIUzW>; Mon, 9 Sep 2002 16:55:22 -0400
+Date: Mon, 9 Sep 2002 15:00:18 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: khromy <khromy@lnuxlab.ath.cx>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+In-Reply-To: <20020909193820.GA2007@lnuxlab.ath.cx>
+Message-ID: <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-09 at 09:15, David S. Miller wrote:
-> Note that Andrew Morton found the problem on one of his older
-> x86 EGCS's about the same time I found it on sparc64.
+Hi,
 
-egcs gets so many long long things wrong on x86 that its only valid use
-IMHO for 2.5 is as a syntax checker. Is it really worth an ugly hack for
-a compiler one major developer has a personal affliction for and a port
-that has a tiny user base and now has a working compiler.
+On Mon, 9 Sep 2002, khromy wrote:
+> What's up with XFS in linux-2.5? I've seen some patches sent to the list
+> but I havn't seen any replies from linus.. What needs to be done to
+> finally merge it?
 
-Maybe if we put less gunk in the kernel they'd fix gcc more often 8)
+It has been stated quite regularly that XFS
+a) doesn't always work like it should yet
+b) involves some changes which Linus doesn't like in particular, for 
+   pretty good reasons.
+
+Go read the archives on that if you want more.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131756AbRCXTDq>; Sat, 24 Mar 2001 14:03:46 -0500
+	id <S131772AbRCXT21>; Sat, 24 Mar 2001 14:28:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131757AbRCXTDg>; Sat, 24 Mar 2001 14:03:36 -0500
-Received: from storm.ca ([209.87.239.69]:40186 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S131756AbRCXTDZ>;
-	Sat, 24 Mar 2001 14:03:25 -0500
-Message-ID: <3ABCEF41.BA8B698A@storm.ca>
-Date: Sat, 24 Mar 2001 14:02:25 -0500
-From: Sandy Harris <sandy@storm.ca>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,fr
+	id <S131773AbRCXT2Q>; Sat, 24 Mar 2001 14:28:16 -0500
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:46089 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S131772AbRCXT2O>; Sat, 24 Mar 2001 14:28:14 -0500
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2-ac20 patch for process time double-counting (was: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.)
+In-Reply-To: <Pine.LNX.4.33.0103240841280.2032-100000@mikeg.weiden.de>
+From: buhr@stat.wisc.edu (Kevin Buhr)
+In-Reply-To: Mike Galbraith's message of "Sat, 24 Mar 2001 08:49:57 +0100 (CET)"
+Date: 24 Mar 2001 13:27:15 -0600
+Message-ID: <vbaitkzvugc.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Linux Worm (fwd)
-In-Reply-To: <Pine.LNX.4.10.10103231028250.9403-100000@innerfire.net> <m3ae6c48v4.fsf@belphigor.mcnaught.org> <01032411170201.03927@tabby>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard wrote:
-
-> >Is there an alternative to BIND that's free software?  Never seen
-> >one.
+Mike Galbraith <mikeg@wen-online.de> writes:
 > 
-> Not one that is Open Source....
+> Times are fine.  Local APIC timer interrupts are used.
 
-Australia's RMIT and Ercisson have an Open Source load-balancing distributed
-web server, including a DNS server to do the balancing.
+Okay, thanks.  That's good.
 
-The link I have, www.eddieware.org and www.rmit.edu.au both currently appear
-to be down.
+> Testing's easy, thanks for the fix.
+
+This is where I'd submit the patch, but Alan evidently works 80 hours
+a day.  ;)  The new patch is already in ac24.
+
+Alan, FYI, I tested the patch on my SMP motherboard with CONFIG_SMP
+(and maxcpus=0,1,unspecified) and with all combinations of
+CONFIG_X86_UP_{,IO}APIC) and Michael tested CONFIG_SMP and
+CONFIG_X86_UP_APIC on his non-SMP motherboard, so I don't think this
+will come back to bite anyone.
+
+Thanks!
+
+Kevin <buhr@stat.wisc.edu>

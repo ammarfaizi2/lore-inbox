@@ -1,39 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261222AbRELLW6>; Sat, 12 May 2001 07:22:58 -0400
+	id <S261226AbRELLee>; Sat, 12 May 2001 07:34:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261223AbRELLWi>; Sat, 12 May 2001 07:22:38 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58128 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261222AbRELLWa>; Sat, 12 May 2001 07:22:30 -0400
-Subject: Re: 2.4.4 kernel freeze for unknown reason
-To: mikeg@wen-online.de (Mike Galbraith)
-Date: Sat, 12 May 2001 12:18:33 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linuxkernel@AdvancedResearch.org (Vincent Stemen),
-        jq419@my-deja.com (Jacky Liu), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105120709570.479-100000@mikeg.weiden.de> from "Mike Galbraith" at May 12, 2001 08:05:42 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S261227AbRELLeX>; Sat, 12 May 2001 07:34:23 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:11782 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261226AbRELLeL>; Sat, 12 May 2001 07:34:11 -0400
+Date: 12 May 2001 13:00:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <80knzI9mw-B@khms.westfalen.de>
+In-Reply-To: =?ISO-8859-1?Q?<p0510030db7221c090810@[10.128.7.49]=FE2>?=
+Subject: Re: [PATCH] adding PCI bus information to SCSI layer
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14yXPt-00044K-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Organization: Organisation? Me?! Are you kidding?
+=?ISO-8859-1?Q?References: _<20010511133242.B3224@bacchus.dhis.org>_<p0510030ab716bdcf5556@[207.213.214.37]>_<20010511133242.B3224@bacchus.dhis.org>_<p0510030db7221c090810@[10.128.7.49]>_<p0510030db7221c090810@[10.128.7.49]=B72>?=
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > If I turn swap off all together or turn it off and back on
-> > > periodically to clear the swap before it gets full, I do not seem to
-> > > experience the lockups.
-> 
-> Why do I not see this behavior with a heavy swap throughput test load?
-> It seems decidedly odd to me that swapspace should remain allocated on
-> other folks lightly loaded boxen given that my heavily loaded box does
-> release swapspace quite regularly.  What am I missing?
+jlundell@pobox.com (Jonathan Lundell)  wrote on 11.05.01 in <p0510030db7221c090810@[10.128.7.49]·2>:
 
-If you swap really hard it seems much happier. If you vaguely swap stuff out 
-over time then I too see the description above only I have Rik's dont deadlock
-on oom tweak so I see apps die.
+> At 1:32 PM -0300 2001-05-11, Ralf Baechle wrote:
+> >On Thu, May 03, 2001 at 12:51:25AM -0700, Jonathan Lundell wrote:
+> >>  Kai Henningsen wrote:
+> >>  >What's a lot more important is that the mail standards say that this
+> >>  >stuff should not be interpreted by the receivers as needing wrapping,
+> >>  >so irregardless of good or bad design it's just plain illegal.
+> >>  >
+> >>  >If you want to support wrapping with plain text, investigate
+> >>  >format=flowed.
+> >>
+> >>  Yes, I did that.
+> >>
+> >  > I'm curious, though: I haven't found the mail standards that forbid
+> >>  receivers to wrap long lines. Certainly many mail clients do it.
+> >>  What's the relevant RFC?
+> >
+> >RFC 2822, 2.1.1.
+>
+> Thanks. It's not quite a standard yet, but it's true, it does limit
+> lines to 998 characters. Sort of a strange limit, but there you
+> are....
 
-Alan
+It's the unchanged old RFC 821 SMTP line length limit [4.5.3 SIZES, text  
+line] (the consequences are just spelt out more clearly). And 821 is from  
+1982, so this is certainly not new in any sense of the word.
 
+MfG Kai

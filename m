@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129311AbRAYUUm>; Thu, 25 Jan 2001 15:20:42 -0500
+	id <S135725AbRAYUXm>; Thu, 25 Jan 2001 15:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132985AbRAYUUc>; Thu, 25 Jan 2001 15:20:32 -0500
-Received: from mail.myrealbox.com ([192.108.102.201]:64573 "EHLO myrealbox.com")
-	by vger.kernel.org with ESMTP id <S129311AbRAYUUS>;
-	Thu, 25 Jan 2001 15:20:18 -0500
-Message-ID: <003401c0870c$3362e390$9b2f4189@angelw2k>
-From: "Micah Gorrell" <angelcode@myrealbox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: eepro100 problems in 2.4.0
-Date: Thu, 25 Jan 2001 13:20:03 -0700
+	id <S135805AbRAYUXc>; Thu, 25 Jan 2001 15:23:32 -0500
+Received: from igor.phys.ntnu.no ([129.241.48.108]:11279 "EHLO
+	igor.phys.ntnu.no") by vger.kernel.org with ESMTP
+	id <S135725AbRAYUXS>; Thu, 25 Jan 2001 15:23:18 -0500
+To: Ondrej Sury <ondrej@globe.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1-pre10 slowdown at boot.
+In-Reply-To: <87k87jzjlt.fsf@ondrej.office.globe.cz>
+From: Terje Rosten <terjeros@phys.ntnu.no>
+Date: 25 Jan 2001 21:23:11 +0100
+In-Reply-To: <87k87jzjlt.fsf@ondrej.office.globe.cz>
+Message-ID: <yojzogfs7o0.fsf@igor.phys.ntnu.no>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 4.72.3612.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have doing some testing with kernel 2.4 and I have had constant problems
-with the eepro100 driver.  Under 2.2 it works perfectly but under 2.4 I am
-unable to use more than one card in a server and when I do use one card I
-get errors stating that eth0 reports no recources.  Has anyone else seen
-this kind of problem?
+* Ondrej Sury
+| 
+| 2.4.1-pre10 slows down after printing those (maybe ACPI or reiserfs issue),
+| and even SysRQ-(s,u,b) is not imediate and waits several (two+) seconds
+| before (syncing,remounting,booting).
 
-Micah
-___
-The irony is that Bill Gates claims to be making a stable operating system
-and Linus Torvalds claims to be trying to take over the world
+I'm also seeing this. I think it's ACPI related, I am not using
+reiserfs. I have similar hardware.
 
+
+ - terje
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

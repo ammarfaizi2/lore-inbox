@@ -1,56 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277382AbRKFFjT>; Tue, 6 Nov 2001 00:39:19 -0500
+	id <S277012AbRKFFrv>; Tue, 6 Nov 2001 00:47:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277094AbRKFFi7>; Tue, 6 Nov 2001 00:38:59 -0500
-Received: from 160-VALL-X5.libre.retevision.es ([62.83.215.160]:4870 "EHLO
-	ragnar-hojland.com") by vger.kernel.org with ESMTP
-	id <S277188AbRKFFiz>; Tue, 6 Nov 2001 00:38:55 -0500
-Date: Tue, 6 Nov 2001 06:22:21 +0100
-From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
-To: Stephen Satchell <satch@concentric.net>
-Cc: Jonathan Lundell <jlundell@pobox.com>, dalecki@evision.ag,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>,
-        Alexander Viro <viro@math.psu.edu>, John Levon <moz@compsoc.man.ac.uk>,
-        linux-kernel@vger.kernel.org,
-        Daniel Phillips <phillips@bonn-fries.net>, Tim Jansen <tim@tjansen.de>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Message-ID: <20011106062221.B182@ragnar-hojland.com>
-In-Reply-To: <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42> <200111042213.fA4MDoI229389@saturn.cs.uml.edu> <4.3.2.7.2.20011105080435.00bc7620@10.1.1.42> <p05100302b80c9aab7f40@[10.128.7.49]> <4.3.2.7.2.20011105133211.00bbfed0@10.1.1.42>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <4.3.2.7.2.20011105133211.00bbfed0@10.1.1.42>; from satch@concentric.net on Mon, Nov 05, 2001 at 01:43:11PM -0800
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
+	id <S277094AbRKFFrk>; Tue, 6 Nov 2001 00:47:40 -0500
+Received: from tomts11.bellnexxia.net ([209.226.175.55]:753 "EHLO
+	tomts11-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S277012AbRKFFrc>; Tue, 6 Nov 2001 00:47:32 -0500
+Message-ID: <3BE7796C.7DB78BC@polymtl.ca>
+Date: Tue, 06 Nov 2001 00:47:24 -0500
+From: Christian Robert <christian.robert@polymtl.ca>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: fr-CA, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Christian Robert <christian.robert@polymtl.ca>
+Subject: unable to compile kernel 2.4.14, error missing `deactivate_page' in 
+ final link
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 01:43:11PM -0800, Stephen Satchell wrote:
-> At 11:58 AM 11/5/01 -0800, Jonathan Lundell wrote:
-> >use of a version field. Rather than try to support all versions, use it to 
-> >determine whether the two ends of the communication channel are 
-> >compatible, and fail gracefully because of the incompatible version. Tell 
-> >the user to update the app, or whatever.
+[...]
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.14/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o memcpy.o memcpy.c
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.14/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o strstr.o strstr.c
+rm -f lib.a
+ar  rcs lib.a checksum.o old-checksum.o delay.o usercopy.o getuser.o memcpy.o strstr.o
+make[2]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
+make[1]: Leaving directory `/usr/src/linux-2.4.14/arch/i386/lib'
+ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/char/drm/drm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/video/video.o drivers/usb/usbdrv.o drivers/i2c/i2c.o drivers/md/mddev.o \
+        net/network.o \
+        /usr/src/linux-2.4.14/arch/i386/lib/lib.a /usr/src/linux-2.4.14/lib/lib.a /usr/src/linux-2.4.14/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+drivers/block/block.o: In function `lo_send':
+drivers/block/block.o(.text+0xa35f): undefined reference to `deactivate_page'
+drivers/block/block.o(.text+0xa3a9): undefined reference to `deactivate_page'
+make: *** [vmlinux] Error 1
+[root@X-home:/usr/src/linux] # 
 
-[snip]
+----------------------------------------------------------------------------------------------------------
 
-> And then there is the problem of who pays for my time to make the app 
-> update.  I don't charge people for updates as a rule -- that rule may have 
-> to change for my Linux apps if this ill-thought-out idea goes into the 
-> kernel.  I expend enough effort trying to keep up with the crap coming out 
+from the ftp://ftp.kernel.org/pub/linux/kernel/v2.4/patch-2.4.14.gz
 
-I hope you just don't mean the version number idea.  Because I don't see
-reason for not, instead of adding a version number to every /proc file and
-breaknig everything, adding all them to a /proc/proc-version file which 
-would still let clients make some sanity checks.
+----------------------------------------------------------------------------------------------------------
+[...]
+diff -u --recursive --new-file v2.4.13/linux/include/linux/swap.h linux/include/linux/swap.h
+--- v2.4.13/linux/include/linux/swap.h  Tue Oct 23 22:48:53 2001
++++ linux/include/linux/swap.h  Mon Nov  5 12:42:13 2001
+@@ -79,6 +79,10 @@
+ };
+ 
+ extern int nr_swap_pages;
++
++/* Swap 50% full? Release swapcache more aggressively.. */
++#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
++
+ extern unsigned int nr_free_pages(void);
+ extern unsigned int nr_free_buffer_pages(void);
+ extern int nr_active_pages;
+@@ -101,7 +105,6 @@
+ extern void FASTCALL(__lru_cache_del(struct page *));
+ extern void FASTCALL(lru_cache_del(struct page *));
+ 
+-extern void FASTCALL(deactivate_page(struct page *));
+ extern void FASTCALL(activate_page(struct page *));
+ 
+ extern void swap_setup(void);
+@@ -129,8 +132,7 @@
+ extern struct page * read_swap_cache_async(swp_entry_t);
+ 
+ /* linux/mm/oom_kill.c */
+-extern int out_of_memory(void);
+-extern void oom_kill(void);
++extern void out_of_memory(void);
+ 
+ /* linux/mm/swapfile.c */
+[...]
+----------------------------------------------------------------------------------------------------------
 
--- 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."
+but drivers/block/loop.c still has references to "deactivate_page()"
+
+Xtian.

@@ -1,113 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265831AbTL3WMw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 17:12:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbTL3WME
+	id S265852AbTL3WYB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 17:24:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265823AbTL3WOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 17:12:04 -0500
-Received: from mail.kroah.org ([65.200.24.183]:62145 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265804AbTL3WGo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 17:06:44 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.0
-In-Reply-To: <10728219753853@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Dec 2003 14:06:15 -0800
-Message-Id: <10728219752634@kroah.com>
+	Tue, 30 Dec 2003 17:14:33 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:3784 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265852AbTL3WIl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 17:08:41 -0500
+Subject: [BK PATCH] SCSI updates
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 30 Dec 2003 16:08:32 -0600
+Message-Id: <1072822114.1783.36.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1496.9.8, 2003/12/04 14:26:44-08:00, khali@linux-fr.org
+This represents the driver updates and other fairly stable changes that
+have been floating around in the SCSI trees for a while.  The only
+controversial element is updating the aic7xxx/79xx drivers.  I've been
+receiving reports that the 1.3.9 version of the aic79xx was
+non-functional in 2.6, so I updated it to 1.3.11 based on Justin's tree
+(after confirming with the reporters that this fixed their problems).
 
-[PATCH] I2C: it87 and via686a alarms
+The tree is at
 
-> it87 and via686a violate the sysfs standard by having "alarm" instead
-> of "alarms", would you please fix in your next patch?
+bk://linux-scsi.bkbits.net/scsi-for-linus
 
-I'm not the only one allowed to send patches to Greg, you know ;)
-Anyway, here we go. Greg, here is a patch that corrects the standard
-violation reported by Mark. Tested to compile.
-
-(It also removes a useless comment in it87.c.)
-
-
- drivers/i2c/chips/it87.c    |    9 ++++-----
- drivers/i2c/chips/via686a.c |    8 ++++----
- 2 files changed, 8 insertions(+), 9 deletions(-)
+and the short changelog is:
 
 
-diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c	Tue Dec 30 12:31:15 2003
-+++ b/drivers/i2c/chips/it87.c	Tue Dec 30 12:31:15 2003
-@@ -412,7 +412,6 @@
- show_temp_offset(2);
- show_temp_offset(3);
- 
--/* more like overshoot temperature */
- static ssize_t show_sensor(struct device *dev, char *buf, int nr)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -561,15 +560,15 @@
- show_fan_offset(2);
- show_fan_offset(3);
- 
--/* Alarm */
--static ssize_t show_alarm(struct device *dev, char *buf)
-+/* Alarms */
-+static ssize_t show_alarms(struct device *dev, char *buf)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct it87_data *data = i2c_get_clientdata(client);
- 	it87_update_client(client);
- 	return sprintf(buf,"%d\n", ALARMS_FROM_REG(data->alarms));
- }
--static DEVICE_ATTR(alarm, S_IRUGO | S_IWUSR, show_alarm, NULL);
-+static DEVICE_ATTR(alarms, S_IRUGO | S_IWUSR, show_alarms, NULL);
- 
- /* This function is called when:
-      * it87_driver is inserted (when this module is loaded), for each
-@@ -749,7 +748,7 @@
- 	device_create_file(&new_client->dev, &dev_attr_fan_div1);
- 	device_create_file(&new_client->dev, &dev_attr_fan_div2);
- 	device_create_file(&new_client->dev, &dev_attr_fan_div3);
--	device_create_file(&new_client->dev, &dev_attr_alarm);
-+	device_create_file(&new_client->dev, &dev_attr_alarms);
- 
- 	return 0;
- 
-diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c	Tue Dec 30 12:31:15 2003
-+++ b/drivers/i2c/chips/via686a.c	Tue Dec 30 12:31:15 2003
-@@ -635,14 +635,14 @@
- show_fan_offset(1);
- show_fan_offset(2);
- 
--/* Alarm */
--static ssize_t show_alarm(struct device *dev, char *buf) {
-+/* Alarms */
-+static ssize_t show_alarms(struct device *dev, char *buf) {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
- 	via686a_update_client(client);
- 	return sprintf(buf,"%d\n", ALARMS_FROM_REG(data->alarms));
- }
--static DEVICE_ATTR(alarm, S_IRUGO | S_IWUSR, show_alarm, NULL);
-+static DEVICE_ATTR(alarms, S_IRUGO | S_IWUSR, show_alarms, NULL);
- 
- /* The driver. I choose to use type i2c_driver, as at is identical to both
-    smbus_driver and isa_driver, and clients could be of either kind */
-@@ -767,7 +767,7 @@
- 	device_create_file(&new_client->dev, &dev_attr_fan_min2);
- 	device_create_file(&new_client->dev, &dev_attr_fan_div1);
- 	device_create_file(&new_client->dev, &dev_attr_fan_div2);
--	device_create_file(&new_client->dev, &dev_attr_alarm);
-+	device_create_file(&new_client->dev, &dev_attr_alarms);
- 
- 	return 0;
- 
+<rask:sygehus.dk>:
+  o aha1740.c: Allow level triggered interrupts to be shared
+
+Andi Kleen:
+  o Mark Ninja SCSI driver as !64BIT
+  o Mark aha152x as ISA and !64BIT driver II
+  o Mark correct aha152x driver (PCMCIA) as !64BIT
+  o Fix 64bit warnings in BusLogic driver
+
+Christoph Hellwig:
+  o aacraid updates for new probing APIs
+  o convert inia100 to new probing API
+
+Douglas Gilbert:
+  o sg Bugfixes
+  o scsi_debug lk 2.6.0t6
+
+James Bottomley:
+  o Megaraid compile fix
+  o Make aic7xxx -Werror conditional on make flag WARNINGS_BECOME_ERRORS
+  o Update aic79xx to 1.3.11, aic7xxx to 6.2.36
+  o Updated osst driver for 2.6.x
+  o More Initio 9100u fixes
+  o [v2] aha152x cmnd->device oops
+  o SCSI: Fix tmscsim driver
+  o Fix another sg mismerge
+  o sg: fix hch/dougg mismerge
+  o sg: char_devs + seq_file lk2.6.0t9
+  o MPT Fusion driver 2.05.00.05 update
+  o sym 2.1.18f
+
+Kai Makisara:
+  o Add char_devs to st This patch adds support for cdevs to the st
+driver. The changes are based on Doug Gilbert's corresponding changes to
+the sg driver. Using cdevs brings the following advantanges:
+
+Mike Christie:
+  o [RFC]  fix compile erros in ini9100 driver
+
+Patrick Mansfield:
+  o consolidate and log scsi command on send and completion
+
+Randy Dunlap:
+  o buslogic: use EH, remove some dup. docs
+  o cpqfcTSinit cleanup
+
+James
+
+
 

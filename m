@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284182AbRLASdr>; Sat, 1 Dec 2001 13:33:47 -0500
+	id <S284199AbRLASjH>; Sat, 1 Dec 2001 13:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284194AbRLASdh>; Sat, 1 Dec 2001 13:33:37 -0500
-Received: from [199.29.68.123] ([199.29.68.123]:11794 "EHLO MailAndNews.com")
-	by vger.kernel.org with ESMTP id <S284182AbRLASdb>;
-	Sat, 1 Dec 2001 13:33:31 -0500
-X-WM-Posted-At: MailAndNews.com; Sat, 1 Dec 01 13:33:25 -0500
-Message-ID: <010401c17a96$a994aa20$0500a8c0@myroom>
-From: "Matt Schulkind" <mschulkind@mailandnews.com>
-To: "lkml" <linux-kernel@vger.kernel.org>
-Subject: GeForce3 framebuffer suport
-Date: Sat, 1 Dec 2001 13:33:24 -0500
+	id <S284198AbRLASi5>; Sat, 1 Dec 2001 13:38:57 -0500
+Received: from atlante.atlas-iap.es ([194.224.1.3]:44551 "EHLO
+	atlante.atlas-iap.es") by vger.kernel.org with ESMTP
+	id <S284195AbRLASir>; Sat, 1 Dec 2001 13:38:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+Date: Sat, 1 Dec 2001 19:38:42 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: lm@bitmover.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16AF2A-0002HG-00@linux.uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone attempted to add framebuffer support for the GeForce3 into the
-prexisting riva fb drivers? I tried just added the PCI ID and adjusting all
-the tables, but when I loaded the driver, the picture looked like the bit
-depths or something was off. I also coudln't find any documentation to try
-hacking it my self. Anyone know what the differences are between the 2D in
-the GeForce2 and GeForce2 are?
+> Amen to that. STREAMS would be one of the strongest arguments in favor
+> of Linus' theory that evolution takes care of it. STREAMS were done at
+> Sun by some "architects" who thought they would be better than sockets.
 
--Matt Schulkind
+Wasn't Dennis Ritchie one of the "architects" of STREAMS at Bell Labs?
+
+  A Stream Input-Output System : AT&T Bell Laboratories Technical Journal 
+  63,  No. 8 Part 2 (October, 1984)
+
+  (http://cm.bell-labs.com/cm/cs/who/dmr/st.pdf)
+
+--ricardo
 

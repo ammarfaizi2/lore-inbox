@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276906AbRJVPsB>; Mon, 22 Oct 2001 11:48:01 -0400
+	id <S276914AbRJVPyL>; Mon, 22 Oct 2001 11:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276532AbRJVPrl>; Mon, 22 Oct 2001 11:47:41 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:19462 "EHLO
-	deathstar.prodigy.com") by vger.kernel.org with ESMTP
-	id <S276906AbRJVPr3>; Mon, 22 Oct 2001 11:47:29 -0400
-Date: Mon, 22 Oct 2001 11:47:52 -0400
-Message-Id: <200110221547.f9MFlqK15823@deathstar.prodigy.com>
-To: kaos@ocs.com.au
-Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12 
-X-Newsgroups: linux.dev.kernel
-In-Reply-To: <23837.1003738907@kao2.melbourne.sgi.com>
-Organization: TMR Associates, Schenectady NY
-Cc: linux-kernel@vger.kernel.org
-From: davidsen@tmr.com (bill davidsen)
-Reply-To: davidsen@tmr.com (bill davidsen)
+	id <S276532AbRJVPyB>; Mon, 22 Oct 2001 11:54:01 -0400
+Received: from ns1.jasper.com ([64.19.21.34]:9868 "EHLO ersfirep1")
+	by vger.kernel.org with ESMTP id <S276914AbRJVPxt>;
+	Mon, 22 Oct 2001 11:53:49 -0400
+From: "Radivoje Todorovic" <radivojet@jaspur.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: NETFILTER Hook Hack: Interesting Issue
+Date: Mon, 22 Oct 2001 10:52:00 -0500
+Message-ID: <BOEOJGNGENIJJMAOLHHCCEPICDAA.radivojet@jaspur.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <Pine.LNX.4.33.0110221720260.10673-100000@server>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <23837.1003738907@kao2.melbourne.sgi.com> you write:
+Hello,
 
-| When the post-install and pre-remove entries for module binfmt_misc are
-| hard coded into modprobe, there is no syntax in modules.conf to prevent
-| modprobe from always issuing those commands.  The next time somebody
-| decides that binfmt_misc needs different commands, everybody using the
-| old modutils on the new kernel will break.  I don't want the hassle,
-| put it in modules.conf where it can easily be changed.
 
-  Thank you. Configuration things should be in configuration files!
+Assume "int bla(struct sk_buff *skb)" is called from one of the five
+netfilter hooks. And say,once you have the packet in your callback, you want
+to create some dummy packet and send it along with original skb. How would
+you do this?
 
-  I hope people will continue to resist changes which make things easy
-for casual users while making them very difficult for more technically
-inclined people. Having to get source and recompile to disable a feature
-is hardly reasonable.
+Actually one solution would be to export symbol "ip_finish_output2" and then
+use it for extra packet in the module. Then the return NF_ACCEPT would send
+original skb out.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  His first management concern is not solving the problem, but covering
-his ass. If he lived in the middle ages he'd wear his codpiece backward.
+But how to do this without patching the kernel???
+
+
+Rade
+

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTKTBHc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 20:07:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbTKTBHb
+	id S261190AbTKTBH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 20:07:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTKTBH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 20:07:31 -0500
-Received: from holomorphy.com ([199.26.172.102]:31659 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261193AbTKTBHa (ORCPT
+	Wed, 19 Nov 2003 20:07:27 -0500
+Received: from fw.osdl.org ([65.172.181.6]:967 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261190AbTKTBH0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 20:07:30 -0500
-Date: Wed, 19 Nov 2003 17:07:25 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9-mm4 (only) and vmware
-Message-ID: <20031120010725.GY22764@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>,
-	linux-kernel@vger.kernel.org
-References: <20031119181518.0a43c673.vmlinuz386@yahoo.com.ar> <20031120002119.GA7875@localhost> <20031119170233.2619ba81.akpm@osdl.org>
+	Wed, 19 Nov 2003 20:07:26 -0500
+Date: Wed, 19 Nov 2003 17:07:53 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: pinotj@club-internet.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Message-Id: <20031119170753.06ba5fb2.akpm@osdl.org>
+In-Reply-To: <mnet1.1069265993.8009.pinotj@club-internet.fr>
+References: <mnet1.1069265993.8009.pinotj@club-internet.fr>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031119170233.2619ba81.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jose Luis Domingo Lopez <linux-kernel@24x7linux.com> wrote:
->> PS2: trying to "recompile" vmmon and vmnet again and starting VMware,
->> when tried to boot some guest OS I got the following in the logs:
->> kernel BUG at mm/memory.c:793!
+pinotj@club-internet.fr wrote:
+>
+> kernel BUG at mm/slab.c:1957!
+> invalid operand: 0000 [#1]
+> CPU:    0
+> EIP:    0060:[free_block+336/752]    Not tainted
+> EIP:    0060:[<c015ad40>]    Not tainted
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010096
+> eax: 00000045   ebx: 00000006   ecx: c0693854   edx: c056e4f8
+> esi: cd09a000   edi: cd09a018   ebp: cf821c68   esp: cf821c3c
+> ds: 007b   es: 007b   ss: 0068
+> Stack: c0502240 c0502e1d cd09af18 c0652a00 00000001 0000003a cd09af18 0000000f
+>        cffdef08 c4bcd180 00000010 cf821ca0 c015afba cffed800 cffdef08 00000010
+>        00000282 c1161ca0 00000000 00000001 cffee730 00000010 00010c00 c4bcd180
+> Call Trace:
+>  [<c015afba>] cache_flusharray+0xda/0x2b0
+>  [<c015b7ad>] kmem_cache_free+0x1ad/0x3a0
+>  [<c018158c>] free_buffer_head+0x2c/0x60
+>  [<c018158c>] free_buffer_head+0x2c/0x60
 
-On Wed, Nov 19, 2003 at 05:02:33PM -0800, Andrew Morton wrote:
-> err, this is due to pagefault-accounting-fix.patch.  Looks like vmware has
-> its own pagefault handler and Bill didn't update vmware ;)
-> Bill, can we take those BUGs out of there and just do some sane default
-> thing?
+urgh, there are several reports of this and it's always the buffer_head
+slab.  The code in there is trivial so perhaps it's just that the large
+number of buffer_heads makes them a fat target.
 
-Sure, default == VM_FAULT_MINOR incoming ETA 5 minutes.
+You should have also seen the message "slab: double free detected in cache
+'buffer_head', objp 0xNNNNNNNN".
 
-
--- wli
+Don't know, sorry.

@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261464AbSJ1Sck>; Mon, 28 Oct 2002 13:32:40 -0500
+	id <S261433AbSJ1Sun>; Mon, 28 Oct 2002 13:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261472AbSJ1Sck>; Mon, 28 Oct 2002 13:32:40 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40095 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261464AbSJ1Sci>; Mon, 28 Oct 2002 13:32:38 -0500
-Date: Mon, 28 Oct 2002 10:32:38 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Erich Focht <efocht@ess.nec.de>
-cc: Michael Hohnbaum <hohnbaum@us.ibm.com>, mingo@redhat.com,
-       habanero@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: NUMA scheduler  (was: 2.5 merge candidate list 1.5)
-Message-ID: <550240000.1035829958@flay>
-In-Reply-To: <200210281811.47708.efocht@ess.nec.de>
-References: <200210280132.33624.efocht@ess.nec.de> <3129290732.1035737182@[10.10.2.3]> <200210281811.47708.efocht@ess.nec.de>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S261436AbSJ1Sum>; Mon, 28 Oct 2002 13:50:42 -0500
+Received: from modemcable063.18-202-24.mtl.mc.videotron.ca ([24.202.18.63]:32782
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261433AbSJ1Sul>; Mon, 28 Oct 2002 13:50:41 -0500
+Date: Mon, 28 Oct 2002 13:52:03 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, <jdavid@farfalle.com>
+Subject: [PATCH][2.5] 3c509 increase udelay in *read_eeprom
+Message-ID: <Pine.LNX.4.44.0210281349350.1722-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Erich, what does all the pool stuff actually buy us over what
->> Michael is doing? Seems to be rather more complex, but maybe
->> it's useful for something we're just not measuring here?
-> 
-> The more complicated stuff is for achieving equal load between the
-> nodes. It delays steals more when the stealing node is averagely loaded,
-> less when it is unloaded. This is the place where we can make it cope
-> with more complex machines with multiple levels of memory hierarchy
-> (like our 32 CPU TX7). Equal load among the nodes is important if you
-> have memory bandwidth eaters, as the bandwidth in a node is limited.
-> 
-> When introducing node affinity (which shows good results for me!) you
-> also need a more careful ranking of the tasks which are candidates to
-> be stolen. The routine task_to_steal does this and is another source
-> of complexity. It is another point where the multilevel stuff comes in.
-> In the core part of the patch the rank of the steal candidates is computed
-> by only taking into account the time which a task has slept.
+Hi Jeff,
+This is David's patch, find his reasoning and patch below.
 
-OK, it all sounds sane, just rather complicated ;-) I'm going to trawl
-through your stuff with Michael, and see if we can simplify it a bit
-somehow whilst not changing the functionality. Your first patch seems
-to work just fine, it's just the complexity that bugs me a bit. 
+"... I had to set the udelay() call parameters to 2000 in  read_eeprom() 
+and 4000 in id_read_eeprom() to get the system to boot reliably with 2 
+3c509's in it. If I didn't set these values high enough, I got an oops 
+about 1/3 of the time when I booted....somehow (I'm guessing) it just 
+took the cards longer to initialize/respond when there were two of them 
+on the bus.
 
-The combination of your first patch with Michael's balance_exec stuff
-actually seems to work pretty well ... I'll poke at the new patch you
-sent me + Michael's exec balance + the little perf tweak I made to it,
-and see what happens ;-)
+I know the possibility of this (and the fix, setting the values higher) is 
+mentioned in Becker's 3c509 instructions, but I wanted to relay my 
+experience to you as well. Since AFAIK these subroutines are only called 
+at initialization time (we don't need to read the EEPROM after init), what 
+would be the harm of setting these values higher - at least 1000 for both, 
+say - in the standard driver? Certainly a millisecond or two means nothing 
+at boot time, and if it prevents even a few machines from mysteriously 
+oopsing when they're started, it's a win overall ..."
 
-> I attach the script for getting some statistics on the numa_test. I 
-> consider this test more sensitive to NUMA effects, as it is a bandwidth
-> eater also needing good latency.
-> (BTW, Martin: in the numa_test script I've sent you the PROBLEMSIZE must
-> be set to 1000000!).
+Index: linux-2.5.44/drivers/net/3c509.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.44/drivers/net/3c509.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 3c509.c
+--- linux-2.5.44/drivers/net/3c509.c	19 Oct 2002 21:12:02 -0000	1.1.1.1
++++ linux-2.5.44/drivers/net/3c509.c	28 Oct 2002 18:49:03 -0000
+@@ -51,11 +51,13 @@
+ 			- Full duplex support
+ 		v1.19  16Oct2002 Zwane Mwaikambo <zwane@linuxpower.ca>
+ 			- Additional ethtool features
++		v1.19a 28Oct2002 Davud Ruggiero <jdr@farfalle.com>
++			- Increase *read_eeprom udelay to workaround oops with 2 cards.
+ */
+ 
+ #define DRV_NAME	"3c509"
+-#define DRV_VERSION	"1.19"
+-#define DRV_RELDATE	"16Oct2002"
++#define DRV_VERSION	"1.19a"
++#define DRV_RELDATE	"28Oct2002"
+ 
+ /* A few values that may be tweaked. */
+ 
+@@ -571,7 +573,7 @@
+ {
+ 	outw(EEPROM_READ + index, ioaddr + 10);
+ 	/* Pause for at least 162 us. for the read to take place. */
+-	udelay (500);
++	udelay (2000);
+ 	return inw(ioaddr + 12);
+ }
+ 
+@@ -585,7 +587,7 @@
+ 	outb(EEPROM_READ + index, id_port);
+ 
+ 	/* Pause for at least 162 us. for the read to take place. */
+-	udelay (500);
++	udelay (4000);
+ 	
+ 	for (bit = 15; bit >= 0; bit--)
+ 		word = (word << 1) + (inb(id_port) & 0x01);
 
-It is ;-) I'm running 44-mm4, not virgin remember, so things like hot&cold 
-page lists may make it faster?
 
-M.
+-- 
+function.linuxpower.ca
+
 

@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVBDKEd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263486AbVBDKDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVBDKEd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 05:04:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVBDKEc
+	id S263486AbVBDKDM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 05:03:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263476AbVBDKCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 05:04:32 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:46801 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263499AbVBDKEF (ORCPT
+	Fri, 4 Feb 2005 05:02:37 -0500
+Received: from ozlabs.org ([203.10.76.45]:7050 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261490AbVBDKCW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 05:04:05 -0500
-Date: Fri, 4 Feb 2005 11:03:47 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-Message-ID: <20050204100347.GA13186@elte.hu>
-Mime-Version: 1.0
+	Fri, 4 Feb 2005 05:02:22 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+Message-ID: <16899.18474.882725.183584@cargo.ozlabs.ibm.com>
+Date: Fri, 4 Feb 2005 21:02:18 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: Nathan Lynch <nathanl@austin.ibm.com>, anton@samba.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 show -1 for physical_id of non-present cpus
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is from Nathan Lynch <nathanl@austin.ibm.com>.
 
-i have released the -V0.7.38-01 Real-Time Preemption patch, which can be
-downloaded from the usual place:
+Make the physical_id cpu sysfs attribute on ppc64 show -1 instead of
+65535 for non-present cpus.
 
-  http://redhat.com/~mingo/realtime-preempt/
+Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Changes since -37-03:
-
- - merged to 2.6.11-rc3
-
- - deadlock-tracer fix from Eugeny S. Mints
-
- - converted an oprofile spinlock to raw, which should fix the bug 
-   reported by Peter Zijlstra.
-
-to create a -V0.7.38-01 tree from scratch, the patching order is:
-
-  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.10.tar.bz2
-  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.11-rc3.bz2
-  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.11-rc3-V0.7.38-01
-
-	Ingo
+diff -puN arch/ppc64/kernel/sysfs.c~make-cpu-physical_id-signed arch/ppc64/kernel/sysfs.c
+--- linux-2.6.11-rc2-mm1/arch/ppc64/kernel/sysfs.c~make-cpu-physical_id-signed	2005-01-27 15:03:16.000000000 -0600
++++ linux-2.6.11-rc2-mm1-nathanl/arch/ppc64/kernel/sysfs.c	2005-01-27 15:05:12.000000000 -0600
+@@ -387,7 +387,7 @@ static ssize_t show_physical_id(struct s
+ {
+ 	struct cpu *cpu = container_of(dev, struct cpu, sysdev);
+ 
+-	return sprintf(buf, "%u\n", get_hard_smp_processor_id(cpu->sysdev.id));
++	return sprintf(buf, "%d\n", get_hard_smp_processor_id(cpu->sysdev.id));
+ }
+ static SYSDEV_ATTR(physical_id, 0444, show_physical_id, NULL);
+ 
+diff -puN include/asm-ppc64/paca.h~make-cpu-physical_id-signed include/asm-ppc64/paca.h
+--- linux-2.6.11-rc2-mm1/include/asm-ppc64/paca.h~make-cpu-physical_id-signed	2005-01-27 15:04:14.000000000 -0600
++++ linux-2.6.11-rc2-mm1-nathanl/include/asm-ppc64/paca.h	2005-01-27 15:04:51.000000000 -0600
+@@ -68,7 +68,7 @@ struct paca_struct {
+ 	u64 stab_real;			/* Absolute address of segment table */
+ 	u64 stab_addr;			/* Virtual address of segment table */
+ 	void *emergency_sp;		/* pointer to emergency stack */
+-	u16 hw_cpu_id;			/* Physical processor number */
++	s16 hw_cpu_id;			/* Physical processor number */
+ 	u8 cpu_start;			/* At startup, processor spins until */
+ 					/* this becomes non-zero. */
+ 

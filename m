@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269456AbUJFUg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269464AbUJFUbI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269456AbUJFUg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 16:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269453AbUJFU2l
+	id S269464AbUJFUbI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:31:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269466AbUJFU26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 16:28:41 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:45227 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269471AbUJFUVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 16:21:38 -0400
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is
-	availlable
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       J?rn Engel <joern@wohnheim.fh-wedel.de>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041006174108.GA26797@kroah.com>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de>
-	 <20041005212712.I6910@flint.arm.linux.org.uk>
-	 <20041005210659.GA5276@kroah.com>
-	 <20041005221333.L6910@flint.arm.linux.org.uk>
-	 <1097074822.29251.51.camel@localhost.localdomain>
-	 <20041006174108.GA26797@kroah.com>
-Content-Type: text/plain
+	Wed, 6 Oct 2004 16:28:58 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:28274 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S269472AbUJFU0j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 16:26:39 -0400
+Reply-To: <hzhong@cisco.com>
+From: "Hua Zhong" <hzhong@cisco.com>
+To: "'Chris Friesen'" <cfriesen@nortelnetworks.com>,
+       "'David S. Miller'" <davem@davemloft.net>
+Cc: <aebr@win.tue.nl>, <joris@eljakim.nl>, <alan@lxorguk.ukuu.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: UDP recvmsg blocks after select(), 2.6 bug?
+Date: Wed, 6 Oct 2004 13:26:29 -0700
+Organization: Cisco Systems
+Message-ID: <003a01c4abe2$c3431ad0$b83147ab@amer.cisco.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097090333.29706.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 06 Oct 2004 20:18:54 +0100
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <4164530F.7020605@nortelnetworks.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-06 at 18:41, Greg KH wrote:
-> Good point.  So, should we do it in the kernel, in call_usermodehelper,
-> so that all users of this function get it correct, or should I do it in
-> userspace, in the /sbin/hotplug program?
-> 
-> Any opinions?
+>  From what Andries posted, we can't block.  If select says 
+> its readable, we can "return data, an  end-of-file  indication, 
+> or  an  error other than one indicating that it is  blocked".
 
-Userspace is more flexible. What does the kernel do if it can't figure
-out what to open as fd 0, 1, 2. Either it explodes or asks user space.
-While /sbin/hotplug can mknod itself a private /dev/null and
-/dev/console in an emergency.
+Arrrrgh..I misread it as "or an error indicating that it is blocked"..
+
+So treating it simply as NON_BLOCKING isn't right.
+
+> Hmm...no easy solution then.
+> 
+> In any case, the current behaviour is not compliant with the 
+> POSIX text that Andries posted.  Perhaps this should be 
+> documented somewhere?
+> Alternately, how about having the recvmsg() call return a 
+> zero, and (if appropriate) the length of the name set to zero?  This 
+> appears to comply with the man page for recvmsg().
+
+If it's a read, returning zero means end-of-file. Not sure what it means 
+when recvmsg returns zero..But is this just the problem of UDP or 
+recvmsg? I doubt it.
+
+So I guess the easiest solution is just admit Linux select 
+isn't posix compliant.
+
+> Chris
+

@@ -1,43 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279884AbRKHOkI>; Thu, 8 Nov 2001 09:40:08 -0500
+	id <S280101AbRKHOli>; Thu, 8 Nov 2001 09:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280015AbRKHOj6>; Thu, 8 Nov 2001 09:39:58 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:5905 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S279884AbRKHOjs>;
-	Thu, 8 Nov 2001 09:39:48 -0500
-Date: Thu, 8 Nov 2001 15:39:38 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "White, Charles" <Charles.White@compaq.com>
-Cc: "Alan Cox (E-mail)" <alan@redhat.com>, linux-kernel@vger.kernel.org,
-        "Cameron, Steve" <Steve.Cameron@compaq.com>
-Subject: Re: [PATCH] Update to the Compaq cpqarray driver for 2.4.14 kernel tree ...
-Message-ID: <20011108153938.M27652@suse.de>
-In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB0EA3FF@cceexc18.americas.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB0EA3FF@cceexc18.americas.cpqcorp.net>
+	id <S280032AbRKHOl3>; Thu, 8 Nov 2001 09:41:29 -0500
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:43282 "EHLO
+	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S280015AbRKHOlM>; Thu, 8 Nov 2001 09:41:12 -0500
+Date: Thu, 08 Nov 2001 07:41:08 -0700 (MST)
+From: James Bourne <jbourne@MtRoyal.AB.CA>
+Subject: Re: Memory accounting problem in 2.4.13, 2.4.14pre, and possibly 2.4.14
+In-Reply-To: <3BEA116A.646B9159@zip.com.au>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.33.0111080727100.32443-100000@jbourne2.mtroyal.ab.ca>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+X-Comment: This communication is intended for the use of the recipient to which
+ it is
+X-Comment: addressed, and may contain confidential, personal, and or privileged
+X-Comment: information.  Please contact the sender immediately if you are not
+ the
+X-Comment: intended recipient of this communication, and do not copy,
+ distribute, or
+X-Comment: take action relying on it.  Any communication received in error, or
+X-Comment: subsequent reply, should be deleted or destroyed.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 08 2001, White, Charles wrote:
-> The patch is to big to include in the e-mail... 
-> This is version 2.4.20 of the cpqarray driver... 
-> 
-> This changes the driver to use the new 2.4 kernel PCI APIs. This changes
-> how all our cards are detected. 
-> This adds some new IOCTLs for adding/deleting volumes while the driver
-> is online. 
-> It have added code to request/release the io-region used by our cards.
-> 
-> It has a small fix to the flush on unload.  
-> 
-> ftp://ftp.compaq.com/pub/products/drivers/linux/released/cpqarray/cpqarr
-> ay_2.4.20D_for_2.4.14.patch
+On Wed, 7 Nov 2001, Andrew Morton wrote:
 
-It's backing out the recent changes etc.
+> Mike Fedyk wrote:
+> >
+> > >
+> >
+> > I am running unpatched 2.4.14 now.
+> >
+> > Do you still want me to try this patch now that you know I have been able to
+> > see the problem with 2.2.14+ext3?
+> >
+>
+> It's OK - I can reproduce it easily anyway.
+>
+> There are two things here.  Recent -ac kernels had a merge
+> bug down in the /proc code which caused `Cached:' to go
+> negative.  It was recently fixed.
+>
+> And quite independently, current ext3 for Linus kernels now has a
+> bug which causes the `buffermem_pages' number to get too large.
+> This has the exact same effect: `Cached:' goes negative.
+
+I can confirm this, with the ext3 0.9.14p8 and 0.9.15 patches for 2.4.14 our
+buffer and cache values become very off the wall.  Without ext3 the system
+is fine (we are currently running 2.4.14 without ext3).
+
+>
+> The buffermem_pages counter is purely for reporting - no VM decisions are
+> based on its value.  But if it worries you, just remove line 1933 of
+> fs/jbd/transaction.c.
+
+This is good to hear.
+
+Regards
+Jim
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 -- 
-Jens Axboe
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
 

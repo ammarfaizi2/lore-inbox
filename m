@@ -1,131 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263076AbUDATdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 14:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbUDATdC
+	id S262770AbUDATdn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 14:33:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263078AbUDATda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 14:33:02 -0500
-Received: from main.gmane.org ([80.91.224.249]:27594 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263076AbUDATbP (ORCPT
+	Thu, 1 Apr 2004 14:33:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:21962 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263092AbUDATaz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 14:31:15 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: sean <seandarcy@hotmail.com>
-Subject: irq 16 : Nobody cared  - alsa v. io-apic in 2.6.5-rc3-bk2
-Date: Thu, 01 Apr 2004 14:24:44 -0500
-Message-ID: <c4hq9t$96n$1@sea.gmane.org>
+	Thu, 1 Apr 2004 14:30:55 -0500
+Date: Thu, 1 Apr 2004 11:30:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc2-mm2
+Message-Id: <20040401113043.17fe8279.akpm@osdl.org>
+In-Reply-To: <16492.7681.332798.230663@alkaid.it.uu.se>
+References: <20040323232511.1346842a.akpm@osdl.org>
+	<16492.7681.332798.230663@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ool-4356fe48.dyn.optonline.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040319
-X-Accept-Language: en-us, en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a VIA k400 motherboard.
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> On 23 Mar 2004, Andrew Morton wrote:
+>  > Changes since 2.6.5-rc2-mm1:
+> ...
+>  > -nmi_watchdog-local-apic-fix.patch
+>  > -nmi-1-hz-2.patch
+>  > 
+>  >  I think these were causing kgdb to malfunction.
+> 
+> Any concrete evidence about this? I fail to see how
+> the updated nmi-1-hz patch I wrote could affect kgdb
+> in a way that wouldn't also happen on UP w/o the patch.
+> 
+> IOW, I'm more suspicious about the other patch to
+> signal LAPIC NMIs on both threads on HT P4.
 
- From dmesg:
-
-...................
-Advanced Linux Sound Architecture Driver Version 1.0.4rc2 (Tue Mar 30 
-08:19:30 2004 UTC).
-ALSA device list:
-   #0: C-Media PCI CMI8738-MC6 (model 55) at 0xe800, irq 16
-NET: Registered protocol family 2
-.....................
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 372k freed
-irq 16: nobody cared!
-Call Trace:
-  [<c0108508>] __report_bad_irq+0x28/0x80
-  [<c01088ae>] do_IRQ+0x15e/0x1a0
-  [<c0106e08>] common_interrupt+0x18/0x20
-  [<c01044e3>] default_idle+0x23/0x30
-  [<c010455d>] cpu_idle+0x2d/0x40
-  [<c04ee61b>] start_kernel+0x2ab/0x320
-  [<c04ee1c0>] unknown_bootoption+0x0/0x180
- 
-
-handlers:
-[<c0395800>] (snd_cmipci_interrupt+0x0/0x130)
-Disabling IRQ #16
-..............
-
-I'm not sure which of the io-apic output is relevant but:
-
-ENABLING IO-APIC IRQs
-init IO_APIC IRQs
-  IO-APIC (apicid-pin) 2-0, 2-16, 2-17, 2-18, 2-19, 2-20, 2-21, 2-22, 
-2-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=-1
-Using local APIC timer interrupts.
-.................
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 5 6 7 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-SCSI subsystem initialized
-......................
-IOAPIC[0]: Set PCI routing entry (2-16 -> 0xa9 -> IRQ 16 Mode:1 Active:1)
-00:00:01[A] -> 2-16 -> IRQ 16
-..........................
-testing the IO APIC.......................
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.......    : Delivery Type: 0
-.......    : LTS          : 0
-.... register #01: 00178003
-.......     : max redirection entries: 0017
-.......     : PRQ implemented: 1
-.......     : IO APIC version: 0003
-.... IRQ redirection table:
-  NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:
-  00 000 00  1    0    0   0   0    0    0    00
-  01 001 01  0    0    0   0   0    1    1    39
-  02 001 01  0    0    0   0   0    1    1    31
-  03 001 01  0    0    0   0   0    1    1    41
-  04 001 01  0    0    0   0   0    1    1    49
-  05 001 01  0    0    0   0   0    1    1    51
-  06 001 01  0    0    0   0   0    1    1    59
-  07 001 01  0    0    0   0   0    1    1    61
-  08 001 01  0    0    0   0   0    1    1    69
-  09 001 01  0    1    0   1   0    1    1    71
-  0a 001 01  0    0    0   0   0    1    1    79
-  0b 001 01  0    0    0   0   0    1    1    81
-  0c 001 01  0    0    0   0   0    1    1    89
-  0d 001 01  0    0    0   0   0    1    1    91
-  0e 001 01  0    0    0   0   0    1    1    99
-  0f 001 01  0    0    0   0   0    1    1    A1
-  10 001 01  1    1    0   1   0    1    1    A9
-  11 001 01  1    1    0   1   0    1    1    B1
-  12 001 01  1    1    0   1   0    1    1    C1
-  13 001 01  1    1    0   1   0    1    1    C9
-  14 000 00  1    0    0   0   0    0    0    00
-  15 001 01  1    1    0   1   0    1    1    D1
-  16 001 01  1    1    0   1   0    1    1    B9
-  17 001 01  1    1    0   1   0    1    1    D9
-IRQ to pin mappings:
-IRQ0 -> 0:2
-IRQ1 -> 0:1
-IRQ3 -> 0:3
-IRQ4 -> 0:4
-.......................
-IRQ15 -> 0:15
-IRQ16 -> 0:16
-IRQ17 -> 0:17
-IRQ18 -> 0:18
-IRQ19 -> 0:19
-IRQ21 -> 0:21
-IRQ22 -> 0:22
-IRQ23 -> 0:23
-.................................... done.
-PCI: Using ACPI for IRQ routing
-...................
+Which patch is that?
 
 
-sean
+
+I'm not so sure about this problem.  What I was seeing was that gdb would
+get confused about the stack backtraces.  For example:
+
+Bad:
+
+(gdb) thread 32
+[Switching to thread 32 (Thread 1399)]#0  0xc036f071 in schedule () at kernel/sched.c:1059
+1059            return prev;
+(gdb) bt
+#0  0xc036f071 in schedule () at kernel/sched.c:1059
+#1  0xc036f569 in schedule_timeout (timeout=-837222592) at kernel/timer.c:1042
+#2  0xd0afe041 in ?? ()
+#3  0xce18ffd0 in ?? ()
+#4  0xce18ffd8 in ?? ()
+#5  0xce18e000 in ?? ()
+#6  0xcd5eb160 in ?? ()
+#7  0xcd5eb08c in ?? ()
+#8  0xcd5eb040 in ?? ()
+
+
+Good:
+
+(gdb) thread 80
+[Switching to thread 80 (Thread 1777)]#0  get_request_wait (q=0xcfc8e800, rw=1)
+    at drivers/block/ll_rw_blk.c:1644
+1644                            ioc = get_io_context(GFP_NOIO);
+(gdb) bt
+#0  get_request_wait (q=0xcfc8e800, rw=1) at drivers/block/ll_rw_blk.c:1644
+#1  0xc025e4a4 in __make_request (q=0xcfc8e800, bio=0xc4e50580) at drivers/block/ll_rw_blk.c:2246
+#2  0xc025e820 in generic_make_request (bio=0xc4e50580) at drivers/block/ll_rw_blk.c:2418
+#3  0xc025e8b6 in submit_bio (rw=0, bio=0xc4e50580) at drivers/block/ll_rw_blk.c:2445
+#4  0xc01799cf in mpage_bio_submit (rw=0, bio=0x0) at fs/mpage.c:95
+#5  0xc017a68a in mpage_writepage (bio=0xc4e50580, page=0xc111b7f0, 
+    get_block=0xc01c9298 <ext2_get_block>, last_block_in_bio=0xc87d7b80, ret=0x0, wbc=0x0)
+    at fs/mpage.c:552
+#6  0xc017a947 in mpage_writepages (mapping=0xc7382c0c, wbc=0xc87d7c74, 
+    get_block=0xc01c9298 <ext2_get_block>) at fs/mpage.c:685
+#7  0xc01c9701 in ext2_writepages (mapping=0x0, wbc=0x0) at fs/ext2/inode.c:671
+#8  0xc0143407 in do_writepages (mapping=0x0, wbc=0x0) at mm/page-writeback.c:445
+#9  0xc0178fa5 in __sync_single_inode (inode=0xc7382b70, wbc=0xc87d7c74) at fs/fs-writeback.c:167
+#10 0xc0179153 in __writeback_single_inode (inode=0xc7382b70, wbc=0xc87d7c74) at fs/fs-writeback.c:222
+#11 0xc0179340 in sync_sb_inodes (sb=0xce6f1000, wbc=0xc87d7c74) at fs/fs-writeback.c:315
+#12 0xc017943a in writeback_inodes (wbc=0xc87d7c74) at fs/fs-writeback.c:361
+#13 0xc0142ef2 in balance_dirty_pages (mapping=0x0) at mm/page-writeback.c:182
+#14 0xc0143047 in balance_dirty_pages_ratelimited (mapping=0x0) at mm/page-writeback.c:231
+#15 0xc0140427 in generic_file_aio_write_nolock (iocb=0xc87d7ea8, iov=0xc87d7f6c, nr_segs=1, 
+    ppos=0xce9c1da0) at mm/filemap.c:1888
+#16 0xc0140607 in generic_file_write_nolock (file=0x0, iov=0xc87d7f6c, nr_segs=3363667624, ppos=0x0)
+    at mm/filemap.c:1923
+#17 0xc0140709 in generic_file_write (file=0xce9c1d80, buf=0x0, count=0, ppos=0xce9c1da0)
+    at mm/filemap.c:1959
+#18 0xc015ab17 in vfs_write (file=0xce9c1d80, buf=0x804b3a0 '\001' <repeats 200 times>..., count=65475, 
+    pos=0xce9c1da0) at fs/read_write.c:258
+#19 0xc015abd0 in sys_write (fd=0, buf=0x0, count=0) at fs/read_write.c:295
+#20 0xc0108d21 in sysenter_past_esp () at arch/i386/kernel/semaphore.c:177
+
+
+
+Also the whole machine would wedge when doing a `cont' when the system was
+under load.
+
+I'll bring the patches back, let them bake for a while.
+
+Could you take a look at the kgdb stub's MNI usage, see if you can spot any
+nasty interactions?
 

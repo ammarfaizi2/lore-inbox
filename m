@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287676AbSBRR4m>; Mon, 18 Feb 2002 12:56:42 -0500
+	id <S291041AbSBRSir>; Mon, 18 Feb 2002 13:38:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290956AbSBRRyM>; Mon, 18 Feb 2002 12:54:12 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:19206 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S290926AbSBRRjY>;
-	Mon, 18 Feb 2002 12:39:24 -0500
-Date: Mon, 18 Feb 2002 09:34:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: Jaroslav Kysela <perex@suse.cz>, linux-kernel@vger.kernel.org,
-        Abramo Bagnara <abramo@alsa-project.org>
-Subject: Re: How do I get the ALSA code in 2.5.5-pre1 working?
-Message-ID: <20020218173433.GA19959@kroah.com>
-In-Reply-To: <3C6ED744.9010504@megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C6ED744.9010504@megapathdsl.net>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 21 Jan 2002 15:29:19 -0800
+	id <S287769AbSBRSav>; Mon, 18 Feb 2002 13:30:51 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:25562 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S290595AbSBRR4u>; Mon, 18 Feb 2002 12:56:50 -0500
+Date: Mon, 18 Feb 2002 10:56:46 -0700
+Message-Id: <200202181756.g1IHukh32273@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: "Carsten Otte" <COTTE@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] linux-2.417 devfs 64bit portablility issue
+In-Reply-To: <OF88983DCC.7DF28A38-ONC1256B64.0036063F@de.ibm.com>
+In-Reply-To: <OF88983DCC.7DF28A38-ONC1256B64.0036063F@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 16, 2002 at 02:03:48PM -0800, Miles Lane wrote:
-> Hello,
+Carsten Otte writes:
 > 
-> I have the linux hotplug scripts installed.  When I built
-> the drivers as modules, they did not autoload, as they should
-> have.  Are you working to make the drivers register themselves
-> during the boot process so that they are autoloaded without
-> having to hack the modules.conf file?
+> Hi Richard!
+> 
+> >BTW: please don't send attachments. Send patches inline instead.
+> Sorry for sending the patch as attachment, but Notes messes
+> up whitespace so the patch would'nt apply if I include it directly.
+> 
+> >Sorry, but I find your approach grotesque. Apart from basic warts such
+> >as not declaring code+data as __init, the approach of populating the
+> >bitfield from yet another list doesn't appeal to me. I'd much rather
+> >see an approach which preserved the initialisation using bitmasks.
+>
+> I do not think this patch is very nice either & it does not work at
+> all (the initialisation of the array is only called in error case).
 
-It looks like tha ALSA pci drivers properly do the MODULE_DEVICE_TABLE
-stuff, and I have the proper entries in my modules.pcimap for my sound
-cards.
+Now you've confused me. Your patch seems to unconditionally initialise
+the bitfields at startup. I didn't see logic for restricting that
+initialisation to an error path.
 
-What driver are you using that you do not see this working for?
+> I find the overall thing for registering/deregistering devices &
+> allocating majors very inconsistent.
+> devfs_alloc_major and devfs_register_*dev do hold the information
+> about which majors are allocated in two different places without
+> knowing about each other (bdops field and this private bitfield).
+> A good solution would be if *dev_register would never return a major
+> being statically allocated when called with major 0. If this is the
+> case, I do not see what alloc_major and dealloc_major are useful
+> for.
 
-And pci drivers do not get automatically loaded by the hotplug
-subsystem, unless you insert the card _after_ userspace is up and
-running (like for a PCMCIA or pci hotplug system.)
+Except that devfs_register_???dev() (which are in fact minor
+variations on the register_???dev() calls) *do not* avoid assigned
+majors. That is why I wrote devfs_alloc_major() in the first place.
 
-thanks,
+And while I do think that register_???dev() should in fact do just
+what devfs_alloc_major() does, that's not a battle I care to fight. By
+writing devfs_alloc_major(), this functionality is optional, and I can
+avoid a whole pile of stupid flaming.
 
-greg k-h
+Hey, hey! It looks like vger is sending emails again!
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

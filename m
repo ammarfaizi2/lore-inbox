@@ -1,81 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264838AbSJOVGX>; Tue, 15 Oct 2002 17:06:23 -0400
+	id <S264820AbSJOU7S>; Tue, 15 Oct 2002 16:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264851AbSJOVFs>; Tue, 15 Oct 2002 17:05:48 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:60395 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S264838AbSJOVFE>; Tue, 15 Oct 2002 17:05:04 -0400
-Date: Tue, 15 Oct 2002 22:11:44 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fewer unlikely tests
-Message-ID: <Pine.LNX.4.44.0210152210030.1521-100000@localhost.localdomain>
+	id <S264822AbSJOU6q>; Tue, 15 Oct 2002 16:58:46 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:54675 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264820AbSJOU51>; Tue, 15 Oct 2002 16:57:27 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 15 Oct 2002 14:11:27 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: John Gardiner Myers <jgmyers@netscape.com>
+cc: Benjamin LaHaise <bcrl@redhat.com>, Dan Kegel <dank@kegel.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+In-Reply-To: <3DAC79D3.2010908@netscape.com>
+Message-ID: <Pine.LNX.4.44.0210151403370.1554-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Occasionally I worry about all those BUG_ON tests we keep adding into
-page_alloc.c.  This patch does one preliminary test of all the flags
-before trying individually.  Maybe you consider this in bad taste,
-or maybe you think it's worthwhile: as you wish.
+On Tue, 15 Oct 2002, John Gardiner Myers wrote:
 
---- 2.5.42-mm3/mm/page_alloc.c	Tue Oct 15 06:43:41 2002
-+++ linux/mm/page_alloc.c	Tue Oct 15 13:14:35 2002
-@@ -125,12 +125,19 @@
- 
- static void free_pages_check(struct page *page)
- {
--	BUG_ON(PageLRU(page));
--	BUG_ON(PagePrivate(page));
--	BUG_ON(page->mapping != NULL);
--	BUG_ON(PageLocked(page));
--	BUG_ON(PageActive(page));
--	BUG_ON(PageWriteback(page));
-+	BUG_ON(page->mapping);
-+	if (unlikely(page->flags & (
-+		1 << PG_lru	|
-+		1 << PG_private |
-+		1 << PG_locked	|
-+		1 << PG_active	|
-+		1 << PG_writeback ))) {
-+		BUG_ON(PageLRU(page));
-+		BUG_ON(PagePrivate(page));
-+		BUG_ON(PageLocked(page));
-+		BUG_ON(PageActive(page));
-+		BUG_ON(PageWriteback(page));
-+	}
- 	BUG_ON(page->pte.direct != 0);
- 	if (PageDirty(page))
- 		ClearPageDirty(page);
-@@ -204,12 +211,20 @@
- static struct page *prep_new_page(struct page *page)
- {
- 	BUG_ON(page->mapping);
--	BUG_ON(PagePrivate(page));
--	BUG_ON(PageLocked(page));
--	BUG_ON(PageLRU(page));
--	BUG_ON(PageActive(page));
--	BUG_ON(PageDirty(page));
--	BUG_ON(PageWriteback(page));
-+	if (unlikely(page->flags & (
-+		1 << PG_private	|
-+		1 << PG_locked	|
-+		1 << PG_lru	|
-+		1 << PG_active	|
-+		1 << PG_dirty	|
-+		1 << PG_writeback ))) {
-+		BUG_ON(PagePrivate(page));
-+		BUG_ON(PageLocked(page));
-+		BUG_ON(PageLRU(page));
-+		BUG_ON(PageActive(page));
-+		BUG_ON(PageDirty(page));
-+		BUG_ON(PageWriteback(page));
-+	}
- 	BUG_ON(page->pte.direct != 0);
- 	page->flags &= ~(1 << PG_uptodate | 1 << PG_error |
- 			1 << PG_referenced | 1 << PG_arch_1 |
+> Benjamin LaHaise wrote:
+>
+> >If you look at how /dev/epoll does it, the collapsing of readiness
+> >events is very elegant: a given fd is only allowed to report a change
+> >in its state once per run through the event loop.
+> >
+> And the way /dev/epoll does it has a key flaw: it only works with single
+> threaded callers.  If you have multiple threads simultaneously trying to
+> get events, then race conditions abound.
+>
+> >The ioctl that swaps
+> >event buffers acts as a barrier between the two possible reports.
+> >
+> Which assumes there are only single threaded callers.  To work correctly
+> with multithreaded callers, there needs to be a more explicit mechanism
+> for a caller to indicate it has completed handling an event and wants to
+> rearm its interest.
+>
+> There are also additional interactions with cancellation.  How does the
+> cancellation interface report and handle the case where an associated
+> event is being delivered or handled by another thread?  What happens
+> when that thread then tries to rearm the canceled interest?
+>
+
+Why would you need to use threads with a multiplex-like interface like
+/dev/epoll ? The reason of these ( poll()/select()//dev/epoll//dev/poll )
+interfaces is to be able to handle more file descriptors inside a _single_
+task.
+
+
+
+> I certainly hope /dev/epoll itself doesn't get accepted into the kernel,
+> the interface is error prone.  Registering interest in a condition when
+> the condition is already true should immediately generate an event, the
+> epoll interface did not do that last time I saw it discussed.  This
+> deficiency in the interface requires callers to include more complex
+> workaround code and is likely to result in subtle, hard to diagnose bugs.
+
+It works exactly like rt-signals and all you have to do is to change your
+code from :
+
+int myread(...) {
+
+	if (wait(POLLIN))
+		read();
+
+}
+
+to :
+
+int myread(...) {
+
+	while (read() == EGAIN)
+		wait(POLLIN);
+
+}
+
+
+
+
+- Davide
+
 

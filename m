@@ -1,327 +1,587 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUHYRZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267164AbUHYRda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268153AbUHYRZE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 13:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268173AbUHYRZD
+	id S267164AbUHYRda (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 13:33:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUHYRda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 13:25:03 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:47597 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S268153AbUHYRWI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 13:22:08 -0400
-Date: Wed, 25 Aug 2004 10:21:31 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Message-Id: <20040825172134.28782.65481.93950@sam.engr.sgi.com>
-Subject: [PATCH] Cpusets tasks file: simplify format, fixes
+	Wed, 25 Aug 2004 13:33:30 -0400
+Received: from web14922.mail.yahoo.com ([216.136.225.6]:46453 "HELO
+	web14922.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267164AbUHYRcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 13:32:42 -0400
+Message-ID: <20040825173241.54750.qmail@web14922.mail.yahoo.com>
+Date: Wed, 25 Aug 2004 10:32:41 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Martin Mares <mj@ucw.cz>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <20040823225145.GK4694@kroah.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1858616998-1093455161=:53880"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simplify the overly ornate format used to display the list of task
-pids attached to a cpuset (the 'tasks' file in each cpuset directory.)
-Instead of doing range compression on them to get something like:
+--0-1858616998-1093455161=:53880
+Content-Type: text/plain; charset=us-ascii
+Content-Id: 
+Content-Disposition: inline
 
-	1-4,10-12
+No functional changes from previous version. I fixed the braces and
+diff'd it against 2.6.8.1-mm4. 
 
-instead just print the pids one per line, as in:
+Where does "Signed-off-by:" go in a patch? Jesse and I added a
+copyright  statement.
 
-	1
-	2
-	3
-	4
-	10
-	11
-	12
+Grep for PCI_ROM_ADDRESS_ENABLE and you can see all the places where
+existing code should be adjusted for the new API. I started looking
+fixing them but I am not sure what some of them are doing. For example
+drivers/ide/pci/xxx seems to enable ROMs and then never use them. 
 
-This is easier to code to, in both shell scripts and C.
+--- Greg KH <greg@kroah.com> wrote:
+> There are a few minor coding style issues (the initial '{' for a
+> function needs to be on a new line) and I need a "Signed-off-by:"
+> line, and it probably will not apply right now due to the pci quirks
+> changes (if you rediff it against the latest -mm tree, that should 
+> fix it.) 
+> 
+> Other than that, it looks good to me.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Unfortunately, this patch doesn't provide any code savings, because
-the above change uncovered a latent bug - seeks on cpuset tasks files
-were not being handled based on a count of bytes emitted on reads,
-but based on a count of pids displayed, one count per pid.
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
-    This confused any user code that tried to seek around the file
-    using byte counts.
 
-    The 'head' command does this - seeking back to just past the last
-    line displayed, if it happened to read more data than it chose
-    to display.
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail - 50x more storage than other providers!
+http://promotions.yahoo.com/new_mail
+--0-1858616998-1093455161=:53880
+Content-Type: text/x-patch; name="pci-sysfs-rom-17-mm.patch"
+Content-Description: pci-sysfs-rom-17-mm.patch
+Content-Disposition: inline; filename="pci-sysfs-rom-17-mm.patch"
 
-    Resolved this by converting the list of pids to their ascii output
-    form on the initial open, rather than lazily converting to ascii
-    as needed to respond to a read.  This way, we can seek based on
-    output byte counts instead of counting the pids.
-
-While I was here, broke up the cpuset_tasks_mkctr() routine into
-subroutines, since it was getting to be more code than would fit in
-my head.
-
-And Simon pointed out to me that the release of the ctr structure
-used here, in cpuset_tasks_release(), was buggy: need to check that
-the ctr == file->private_data really is not NULL.
-
-Applies to 2.6.8.1-mm4.  Builds, boots and unit tests on ia64 sn2_defconfig.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
-Index: 2.6.8.1-mm4/kernel/cpuset.c
-===================================================================
---- 2.6.8.1-mm4.orig/kernel/cpuset.c	2004-08-25 08:10:27.000000000 -0700
-+++ 2.6.8.1-mm4/kernel/cpuset.c	2004-08-25 08:12:04.000000000 -0700
-@@ -997,117 +997,116 @@ static int cpuset_add_file(struct dentry
- /* cpusets_tasks_read array */
- 
- struct ctr_struct {
--	int *array;
--	int count;
-+	char *buf;
-+	int bufsz;
- };
- 
--static struct ctr_struct *cpuset_tasks_mkctr(struct file *file)
-+/*
-+ * Load into 'pidarray' up to 'npids' of the tasks using cpuset 'cs'.
-+ * Return actual number of pids loaded.
-+ */
-+static inline int pid_array_load(pid_t *pidarray, int npids, struct cpuset *cs)
- {
--	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
--	struct ctr_struct *ctr;
--	pid_t *array;
--	int n, max;
--	pid_t i, j, last;
-+	int n = 0;
- 	struct task_struct *g, *p;
- 
--	ctr = kmalloc(sizeof(*ctr), GFP_KERNEL);
--	if (!ctr)
--		return NULL;
--
--	/*
--	 * If cpuset gets more users after we read count, we won't have
--	 * enough space - tough.  This race is indistinguishable to the
--	 * caller from the case that the additional cpuset users didn't
--	 * show up until sometime later on.  Grabbing cpuset_sem would
--	 * not help, because cpuset_fork() doesn't grab cpuset_sem.
--	 */
--
--	max = atomic_read(&cs->count);
--	array = kmalloc(max * sizeof(pid_t), GFP_KERNEL);
--	if (!array) {
--		kfree(ctr);
--		return NULL;
--	}
--
--	n = 0;
- 	read_lock(&tasklist_lock);
-+
- 	do_each_thread(g, p) {
- 		if (p->cpuset == cs) {
--			array[n++] = p->pid;
--			if (unlikely(n == max))
-+			pidarray[n++] = p->pid;
-+			if (unlikely(n == npids))
- 				goto array_full;
- 		}
- 	}
- 	while_each_thread(g, p);
-+
- array_full:
- 	read_unlock(&tasklist_lock);
-+	return n;
-+}
- 
--	/* stupid bubble sort */
--	for (i = 0; i < n - 1; i++) {
--		for (j = 0; j < n - 1 - i; j++)
--			if (array[j + 1] < array[j]) {
--				pid_t tmp = array[j];
--				array[j] = array[j + 1];
--				array[j + 1] = tmp;
-+/*
-+ * In place bubble sort pidarray of npids pid_t's.
-+ */
-+static inline void pid_array_sort(pid_t *pidarray, int npids)
-+{
-+	int i, j;
-+
-+	for (i = 0; i < npids - 1; i++) {
-+		for (j = 0; j < npids - 1 - i; j++)
-+			if (pidarray[j + 1] < pidarray[j]) {
-+				pid_t tmp = pidarray[j];
-+				pidarray[j] = pidarray[j + 1];
-+				pidarray[j + 1] = tmp;
- 			}
- 	}
-+}
-+
-+/*
-+ * Convert array 'a' of 'npids' pid_t's to a string of newline separated
-+ * decimal pids in 'buf'.  Don't write more than 'sz' chars, but return
-+ * count 'cnt' of how many chars would be written if buf were large enough.
-+ */
-+static int pid_array_to_buf(char *buf, int sz, pid_t *a, int npids)
-+{
-+	int cnt = 0;
-+	int i;
-+
-+	for (i = 0; i < npids; i++)
-+		cnt += snprintf(buf + cnt, max(sz - cnt, 0), "%d\n", a[i]);
-+	return cnt;
-+}
-+
-+static inline struct ctr_struct *cpuset_tasks_mkctr(struct file *file)
-+{
-+	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
-+	struct ctr_struct *ctr;
-+	pid_t *pidarray;
-+	int npids;
-+	char c;
-+
-+	ctr = kmalloc(sizeof(*ctr), GFP_KERNEL);
-+	if (!ctr)
-+		goto err0;
- 
- 	/*
--	 * Collapse sorted array by grouping consecutive pids.
--	 * Code range of pids with a negative pid on the second.
--	 * Read from array[i]; write to array]j]; j <= i always.
-+	 * If cpuset gets more users after we read count, we won't have
-+	 * enough space - tough.  This race is indistinguishable to the
-+	 * caller from the case that the additional cpuset users didn't
-+	 * show up until sometime later on.
- 	 */
--	last = array[0];  /* any value != array[0] - 1 */
--	j = -1;
--	for (i = 0; i < n; i++) {
--		pid_t curr = array[i];
--		/* consecutive pids ? */
--		if (curr - last == 1) {
--			/* move destination index if it has not been done */
--			if (array[j] > 0)
--				j++;
--			array[j] = -curr;
--		} else
--			array[++j] = curr;
--		last = curr;
--	}
-+	npids = atomic_read(&cs->count);
-+	pidarray = kmalloc(npids * sizeof(pid_t), GFP_KERNEL);
-+	if (!pidarray)
-+		goto err1;
-+
-+	npids = pid_array_load(pidarray, npids, cs);
-+	pid_array_sort(pidarray, npids);
-+
-+	/* Call pid_array_to_buf() twice, first just to get bufsz */
-+	ctr->bufsz = pid_array_to_buf(&c, sizeof(c), pidarray, npids) + 1;
-+	ctr->buf = kmalloc(ctr->bufsz, GFP_KERNEL);
-+	if (!ctr->buf)
-+		goto err2;
-+	ctr->bufsz = pid_array_to_buf(ctr->buf, ctr->bufsz, pidarray, npids);
- 
--	ctr->array = array;
--	ctr->count = j + 1;
-+	kfree(pidarray);
- 	file->private_data = (void *)ctr;
- 	return ctr;
--}
--
--/* printf one pid from an array
-- * different formatting depending on whether it is positive or negative,
-- * or whether it is or not the first pid or the last
-- */
--static int array_pid_print(char *buf, pid_t *array, int idx, int last)
--{
--	pid_t v = array[idx];
--	int l = 0;
- 
--	if (v < 0) {		/* second pid of a range of pids */
--		v = -v;
--		buf[l++] = '-';
--	} else {		/* first pid of a range, or not a range */
--		if (idx)	/* comma only if it's not the first */
--			buf[l++] = ',';
--	}
--	l += sprintf(buf + l, "%d", v);
--	/* newline after last record */
--	if (idx == last)
--		l += sprintf(buf + l, "\n");
--	return l;
-+err2:
-+	kfree(pidarray);
-+err1:
-+	kfree(ctr);
-+err0:
-+	return NULL;
+diff -Nru a/arch/i386/pci/fixup.c b/arch/i386/pci/fixup.c
+--- a/arch/i386/pci/fixup.c	Wed Aug 25 13:19:41 2004
++++ b/arch/i386/pci/fixup.c	Wed Aug 25 13:19:41 2004
+@@ -255,3 +255,41 @@
  }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2, pci_fixup_nforce2);
  
- static ssize_t cpuset_tasks_read(struct file *file, char __user *buf,
- 						size_t nbytes, loff_t *ppos)
- {
- 	struct ctr_struct *ctr = (struct ctr_struct *)file->private_data;
--	int *array, nr_pids, i;
--	size_t len, lastlen = 0;
--	char *page;
- 
- 	/* allocate buffer and fill it on first call to read() */
- 	if (!ctr) {
-@@ -1116,32 +1115,12 @@ static ssize_t cpuset_tasks_read(struct 
- 			return -ENOMEM;
- 	}
- 
--	array = ctr->array;
--	nr_pids = ctr->count;
--
--	if (!(page = (char *)__get_free_page(GFP_KERNEL)))
--		return -ENOMEM;
--
--	i = *ppos;		/* index of pid being printed */
--	len = 0;		/* length of data sprintf'ed in the page */
--
--	while ((len < PAGE_SIZE - 10) && (i < nr_pids) && (len < nbytes)) {
--		lastlen = array_pid_print(page + len, array, i++, nr_pids - 1);
--		len += lastlen;
--	}
--
--	/* if we wrote too much, remove last record */
--	if (len > nbytes) {
--		len -= lastlen;
--		i--;
--	}
--
--	*ppos = i;
--
--	if (copy_to_user(buf, page, len))
--		len = -EFAULT;
--	free_page((unsigned long)page);
--	return len;
-+	if (*ppos + nbytes > ctr->bufsz)
-+		nbytes = ctr->bufsz - *ppos;
-+	if (copy_to_user(buf, ctr->buf + *ppos, nbytes))
-+		return -EFAULT;
-+	*ppos += nbytes;
-+	return nbytes;
- }
- 
- static int cpuset_tasks_release(struct inode *unused_inode, struct file *file)
-@@ -1153,8 +1132,10 @@ static int cpuset_tasks_release(struct i
- 		return 0;
- 
- 	ctr = (struct ctr_struct *)file->private_data;
--	kfree(ctr->array);
--	kfree(ctr);
-+	if (ctr) {
-+		kfree(ctr->buf);
-+		kfree(ctr);
++/*
++ * Fixup to mark boot BIOS video selected by BIOS before it changes
++ *
++ * From information provided by "Jon Smirl" <jonsmirl@yahoo.com>
++ *
++ * The standard boot ROM sequence for an x86 machine uses the BIOS
++ * to select an initial video card for boot display. This boot video 
++ * card will have it's BIOS copied to C0000 in system RAM. 
++ * IORESOURCE_ROM_SHADOW is used to associate the boot video
++ * card with this copy. On laptops this copy has to be used since
++ * the main ROM may be compressed or combined with another image.
++ * See pci_map_rom() for use of this flag. IORESOURCE_ROM_SHADOW
++ * is marked here since the boot video device will be the only enabled
++ * video device at this point.
++ *
++ */static void __devinit pci_fixup_video(struct pci_dev *pdev)
++{
++	struct pci_dev *bridge;
++	struct pci_bus *bus;
++	u16 l;
++
++	if ((pdev->class >> 8) != PCI_CLASS_DISPLAY_VGA)
++		return;
++
++	/* Is VGA routed to us? */
++	bus = pdev->bus;
++	while (bus) {
++		bridge = bus->self;
++		if (bridge) {
++			pci_read_config_word(bridge, PCI_BRIDGE_CONTROL, &l);
++			if (!(l & PCI_BRIDGE_CTL_VGA))
++				return;
++		}
++		bus = bus->parent;
 +	}
++	pdev->resource[PCI_ROM_RESOURCE].flags |= IORESOURCE_ROM_SHADOW;
++}
++DECLARE_PCI_FIXUP_HEADER(PCI_ANY_ID, PCI_ANY_ID, pci_fixup_video);
+diff -Nru a/drivers/pci/bus.c b/drivers/pci/bus.c
+--- a/drivers/pci/bus.c	Wed Aug 25 13:19:41 2004
++++ b/drivers/pci/bus.c	Wed Aug 25 13:19:41 2004
+@@ -97,10 +97,6 @@
+ 		spin_lock(&pci_bus_lock);
+ 		list_add_tail(&dev->global_list, &pci_devices);
+ 		spin_unlock(&pci_bus_lock);
+-
+-		pci_proc_attach_device(dev);
+-		pci_create_sysfs_dev_files(dev);
+-
+ 	}
+ 
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+--- a/drivers/pci/pci-sysfs.c	Wed Aug 25 13:19:41 2004
++++ b/drivers/pci/pci-sysfs.c	Wed Aug 25 13:19:41 2004
+@@ -5,6 +5,8 @@
+  * (C) Copyright 2002-2004 IBM Corp.
+  * (C) Copyright 2003 Matthew Wilcox
+  * (C) Copyright 2003 Hewlett-Packard
++ * (C) Copyright 2004 Jon Smirl <jonsmirl@yahoo.com>
++ * (C) Copyright 2004 Silicon Graphics, Inc. Jesse Barnes <jbarnes@sgi.com>
+  *
+  * File attributes for PCI devices
+  *
+@@ -164,6 +166,220 @@
+ 	return count;
+ }
+ 
++/**
++ * pci_enable_rom - enable ROM decoding for a PCI device
++ * @dev: PCI device to enable
++ *
++ * Enable ROM decoding on @dev.  This involves simply turning on the last
++ * bit of the PCI ROM BAR.  Note that some cards may share address decoders
++ * between the ROM and other resources, so enabling it may disable access
++ * to MMIO registers or other card memory.
++ */
++static void
++pci_enable_rom(struct pci_dev *pdev)
++{
++	u32 rom_addr;
++	
++	pci_read_config_dword(pdev, pdev->rom_base_reg, &rom_addr);
++	rom_addr |= PCI_ROM_ADDRESS_ENABLE;
++	pci_write_config_dword(pdev, pdev->rom_base_reg, rom_addr);
++}
++
++/**
++ * pci_disable_rom - disable ROM decoding for a PCI device
++ * @dev: PCI device to disable
++ *
++ * Disable ROM decoding on a PCI device by turning off the last bit in the
++ * ROM BAR.
++ */
++static void
++pci_disable_rom(struct pci_dev *pdev)
++{
++	u32 rom_addr;
++	pci_read_config_dword(pdev, pdev->rom_base_reg, &rom_addr);
++	rom_addr &= ~PCI_ROM_ADDRESS_ENABLE;
++	pci_write_config_dword(pdev, pdev->rom_base_reg, rom_addr);
++}
++
++/**
++ * pci_map_rom - map a PCI ROM to kernel space
++ * @dev: pointer to pci device struct
++ * @size: pointer to receive size of pci window over ROM
++ * @return: kernel virtual pointer to image of ROM
++ *
++ * Map a PCI ROM into kernel space. If ROM is boot video ROM,
++ * the shadow BIOS copy will be returned instead of the 
++ * actual ROM.
++ */
++unsigned char *
++pci_map_rom(struct pci_dev *pdev, size_t *size)
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	loff_t start;
++	unsigned char *rom;
++	
++	if (res->flags & IORESOURCE_ROM_SHADOW) {	/* IORESOURCE_ROM_SHADOW only set on x86 */
++		start = (loff_t)0xC0000; 	/* primary video rom always starts here */
++		*size = 0x20000;		/* cover C000:0 through E000:0 */
++	} else {
++		if (res->flags & IORESOURCE_ROM_COPY) {
++			*size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++			return (unsigned char *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
++		} else {
++			/* assign the ROM an address if it doesn't have one */
++			if (res->parent == NULL)
++				pci_assign_resource(pdev, PCI_ROM_RESOURCE);
++	
++			start = pci_resource_start(pdev, PCI_ROM_RESOURCE);
++			*size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++			if (*size == 0)
++				return NULL;
++			
++			/* Enable ROM space decodes */
++			pci_enable_rom(pdev);
++		}
++	}
++	
++	rom = ioremap(start, *size);
++	if (!rom) {
++		/* restore enable if ioremap fails */
++		if (!(res->flags & (IORESOURCE_ROM_ENABLE | IORESOURCE_ROM_SHADOW | IORESOURCE_ROM_COPY)))
++			pci_disable_rom(pdev);
++		return NULL;
++	}		
++	/* Standard PCI ROMs start out with these three bytes 55 AA size/512 */
++	if ((*rom == 0x55) && (*(rom + 1) == 0xAA))
++		*size = *(rom + 2) * 512;	/* return true ROM size, not PCI window size */
++		
++	return rom;
++}
++
++/**
++ * pci_map_rom_copy - map a PCI ROM to kernel space, create a copy
++ * @dev: pointer to pci device struct
++ * @size: pointer to receive size of pci window over ROM
++ * @return: kernel virtual pointer to image of ROM
++ *
++ * Map a PCI ROM into kernel space. If ROM is boot video ROM,
++ * the shadow BIOS copy will be returned instead of the 
++ * actual ROM.
++ */
++unsigned char *
++pci_map_rom_copy(struct pci_dev *pdev, size_t *size)
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	unsigned char *rom;
++	
++	rom = pci_map_rom(pdev, size);
++	if (!rom)
++		return NULL;
++		
++	if (res->flags & (IORESOURCE_ROM_COPY | IORESOURCE_ROM_SHADOW))
++		return rom;
++		
++	res->start = (unsigned long)kmalloc(*size, GFP_KERNEL);
++	if (!res->start) 
++		return rom;
++
++	res->end = res->start + *size; 
++	memcpy((void*)res->start, rom, *size);
++	pci_unmap_rom(pdev, rom);
++	res->flags |= IORESOURCE_ROM_COPY;
++	
++	return (unsigned char *)res->start;
++}
++
++/**
++ * pci_unmap_rom - unmap the ROM from kernel space
++ * @dev: pointer to pci device struct
++ * @rom: virtual address of the previous mapping
++ *
++ * Remove a mapping of a previously mapped ROM
++ */
++void 
++pci_unmap_rom(struct pci_dev *pdev, unsigned char *rom)
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++
++	if (res->flags & IORESOURCE_ROM_COPY)
++		return;
++		
++	iounmap(rom);
++		
++	/* Disable again before continuing, leave enabled if pci=rom */
++	if (!(res->flags & (IORESOURCE_ROM_ENABLE | IORESOURCE_ROM_SHADOW)))
++		pci_disable_rom(pdev);
++}
++
++static struct bin_attribute rom_attr;
++
++/**
++ * pci_remove_rom - disable the ROM and remove it's sysfs attribute
++ * @dev: pointer to pci device struct
++ *
++ */
++void 
++pci_remove_rom(struct pci_dev *pdev) 
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE))
++		sysfs_remove_bin_file(&pdev->dev.kobj, &rom_attr);
++	if (!(res->flags & (IORESOURCE_ROM_ENABLE | IORESOURCE_ROM_SHADOW | IORESOURCE_ROM_COPY)))
++		pci_disable_rom(pdev);
++}
++
++/**
++ * pci_remove_rom - disable the ROM and remove it's sysfs attribute
++ * @dev: pointer to pci device struct
++ *
++ */
++void 
++pci_cleanup_rom(struct pci_dev *pdev) 
++{
++	struct resource *res = &pdev->resource[PCI_ROM_RESOURCE];
++	if (res->flags & IORESOURCE_ROM_COPY) {
++		kfree((void*)res->start);
++		res->flags &= ~IORESOURCE_ROM_COPY;
++		res->start = 0;
++		res->end = 0;
++	}
++}
++
++/**
++ * pci_read_rom - read a PCI ROM
++ * @kobj: kernel object handle
++ * @buf: where to put the data we read from the ROM
++ * @off: file offset
++ * @count: number of bytes to read
++ *
++ * Put @count bytes starting at @off into @buf from the ROM in the PCI
++ * device corresponding to @kobj.
++ */
++static ssize_t
++pci_read_rom(struct kobject *kobj, char *buf, loff_t off, size_t count)
++{
++	struct pci_dev *pdev = to_pci_dev(container_of(kobj, struct device, kobj));
++	unsigned char *rom;
++	size_t size;
++	
++	rom = pci_map_rom(pdev, &size);	/* size starts out as PCI window size */
++	if (!rom)
++		return 0;
++		
++	if (off >= size)
++		count = 0;
++	else {
++		if (off + count > size)
++			count = size - off;
++		
++		memcpy_fromio(buf, rom + off, count);
++	}
++	pci_unmap_rom(pdev, rom);
++		
++	return count;
++}
++
+ static struct bin_attribute pci_config_attr = {
+ 	.attr =	{
+ 		.name = "config",
+@@ -192,7 +408,60 @@
+ 		sysfs_create_bin_file(&pdev->dev.kobj, &pci_config_attr);
+ 	else
+ 		sysfs_create_bin_file(&pdev->dev.kobj, &pcie_config_attr);
+-
++		
++	/* If the device has a ROM, try to expose it in sysfs. */
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
++		struct bin_attribute *rom_attr;
++		
++		rom_attr = kmalloc(sizeof(*rom_attr), GFP_ATOMIC);
++		if (rom_attr) {
++			pdev->rom_attr = rom_attr;
++			rom_attr->size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
++			rom_attr->attr.name = "rom";
++			rom_attr->attr.mode = S_IRUSR;
++			rom_attr->attr.owner = THIS_MODULE;
++			rom_attr->read = pci_read_rom;
++			sysfs_create_bin_file(&pdev->dev.kobj, rom_attr);
++		}
++	}
+ 	/* add platform-specific attributes */
+ 	pcibios_add_platform_entries(pdev);
+ }
++
++/**
++ * pci_remove_sysfs_dev_files - cleanup PCI specific sysfs files
++ * @pdev: device whose entries we should free
++ *
++ * Cleanup when @pdev is removed from sysfs.
++ */
++void pci_remove_sysfs_dev_files(struct pci_dev *pdev)
++{
++	if (pdev->cfg_size < 4096)
++		sysfs_remove_bin_file(&pdev->dev.kobj, &pci_config_attr);
++	else
++		sysfs_remove_bin_file(&pdev->dev.kobj, &pcie_config_attr);
++
++	if (pci_resource_len(pdev, PCI_ROM_RESOURCE)) {
++		if (pdev->rom_attr) {
++			sysfs_remove_bin_file(&pdev->dev.kobj, pdev->rom_attr);
++			kfree(pdev->rom_attr);
++		}
++	}
++}
++
++static int __init pci_sysfs_init(void)
++{
++	struct pci_dev *pdev = NULL;
++	
++	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL)
++		pci_create_sysfs_dev_files(pdev);
++
++	return 0;
++}
++
++__initcall(pci_sysfs_init);
++
++EXPORT_SYMBOL(pci_map_rom);
++EXPORT_SYMBOL(pci_map_rom_copy);
++EXPORT_SYMBOL(pci_unmap_rom);
++EXPORT_SYMBOL(pci_remove_rom);
+diff -Nru a/drivers/pci/pci.h b/drivers/pci/pci.h
+--- a/drivers/pci/pci.h	Wed Aug 25 13:19:41 2004
++++ b/drivers/pci/pci.h	Wed Aug 25 13:19:41 2004
+@@ -3,6 +3,8 @@
+ extern int pci_hotplug (struct device *dev, char **envp, int num_envp,
+ 			 char *buffer, int buffer_size);
+ extern void pci_create_sysfs_dev_files(struct pci_dev *pdev);
++extern void pci_remove_sysfs_dev_files(struct pci_dev *pdev);
++void pci_cleanup_rom(struct pci_dev *dev);
+ extern int pci_bus_alloc_resource(struct pci_bus *bus, struct resource *res,
+ 				  unsigned long size, unsigned long align,
+ 				  unsigned long min, unsigned int type_mask,
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	Wed Aug 25 13:19:41 2004
++++ b/drivers/pci/probe.c	Wed Aug 25 13:19:41 2004
+@@ -170,7 +170,7 @@
+ 		if (sz && sz != 0xffffffff) {
+ 			sz = pci_size(l, sz, PCI_ROM_ADDRESS_MASK);
+ 			if (sz) {
+-				res->flags = (l & PCI_ROM_ADDRESS_ENABLE) |
++				res->flags = (l & IORESOURCE_ROM_ENABLE) |
+ 				  IORESOURCE_MEM | IORESOURCE_PREFETCH |
+ 				  IORESOURCE_READONLY | IORESOURCE_CACHEABLE;
+ 				res->start = l & PCI_ROM_ADDRESS_MASK;
+diff -Nru a/drivers/pci/proc.c b/drivers/pci/proc.c
+--- a/drivers/pci/proc.c	Wed Aug 25 13:19:41 2004
++++ b/drivers/pci/proc.c	Wed Aug 25 13:19:41 2004
+@@ -16,7 +16,6 @@
+ #include <asm/uaccess.h>
+ #include <asm/byteorder.h>
+ 
+-static int proc_initialized;	/* = 0 */
+ 
+ static loff_t
+ proc_bus_pci_lseek(struct file *file, loff_t off, int whence)
+@@ -387,9 +386,6 @@
+ 	struct proc_dir_entry *de, *e;
+ 	char name[16];
+ 
+-	if (!proc_initialized)
+-		return -EACCES;
+-
+ 	if (!(de = bus->procdir)) {
+ 		if (pci_name_bus(name, bus))
+ 			return -EEXIST;
+@@ -425,9 +421,6 @@
+ {
+ 	struct proc_dir_entry *de = bus->procdir;
+ 
+-	if (!proc_initialized)
+-		return -EACCES;
+-
+ 	if (!de) {
+ 		char name[16];
+ 		sprintf(name, "%02x", bus->number);
+@@ -583,6 +576,7 @@
+ {
+ 	return seq_open(file, &proc_bus_pci_devices_op);
+ }
++
+ static struct file_operations proc_bus_pci_dev_operations = {
+ 	.open		= proc_bus_pci_dev_open,
+ 	.read		= seq_read,
+@@ -593,16 +587,20 @@
+ static int __init pci_proc_init(void)
+ {
+ 	struct proc_dir_entry *entry;
+-	struct pci_dev *dev = NULL;
++	struct pci_dev *pdev = NULL;
++
+ 	proc_bus_pci_dir = proc_mkdir("pci", proc_bus);
++
+ 	entry = create_proc_entry("devices", 0, proc_bus_pci_dir);
+ 	if (entry)
+ 		entry->proc_fops = &proc_bus_pci_dev_operations;
+-	proc_initialized = 1;
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+-		pci_proc_attach_device(dev);
++
++	while ((pdev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pdev)) != NULL) {
++		pci_proc_attach_device(pdev);
+ 	}
++
+ 	legacy_proc_init();
++
  	return 0;
  }
  
+diff -Nru a/drivers/pci/remove.c b/drivers/pci/remove.c
+--- a/drivers/pci/remove.c	Wed Aug 25 13:19:41 2004
++++ b/drivers/pci/remove.c	Wed Aug 25 13:19:41 2004
+@@ -16,6 +16,7 @@
+ 
+  	msi_remove_pci_irq_vectors(dev);
+ 
++	pci_cleanup_rom(dev);
+ 	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
+ 		struct resource *res = dev->resource + i;
+ 		if (res->parent)
+@@ -26,6 +27,7 @@
+ static void pci_destroy_dev(struct pci_dev *dev)
+ {
+ 	pci_proc_detach_device(dev);
++	pci_remove_sysfs_dev_files(dev);
+ 	device_unregister(&dev->dev);
+ 
+ 	/* Remove the device from the device lists, and prevent any further
+diff -Nru a/drivers/pci/setup-res.c b/drivers/pci/setup-res.c
+--- a/drivers/pci/setup-res.c	Wed Aug 25 13:19:41 2004
++++ b/drivers/pci/setup-res.c	Wed Aug 25 13:19:41 2004
+@@ -56,7 +56,7 @@
+ 	if (resno < 6) {
+ 		reg = PCI_BASE_ADDRESS_0 + 4 * resno;
+ 	} else if (resno == PCI_ROM_RESOURCE) {
+-		new |= res->flags & PCI_ROM_ADDRESS_ENABLE;
++		new |= res->flags & IORESOURCE_ROM_ENABLE;
+ 		reg = dev->rom_base_reg;
+ 	} else {
+ 		/* Hmm, non-standard resource. */
+diff -Nru a/include/linux/ioport.h b/include/linux/ioport.h
+--- a/include/linux/ioport.h	Wed Aug 25 13:19:41 2004
++++ b/include/linux/ioport.h	Wed Aug 25 13:19:41 2004
+@@ -82,6 +82,11 @@
+ #define IORESOURCE_MEM_SHADOWABLE	(1<<5)	/* dup: IORESOURCE_SHADOWABLE */
+ #define IORESOURCE_MEM_EXPANSIONROM	(1<<6)
+ 
++/* PCI ROM control bits (IORESOURCE_BITS) */
++#define IORESOURCE_ROM_ENABLE		(1<<0)	/* ROM is enabled, same as PCI_ROM_ADDRESS_ENABLE */
++#define IORESOURCE_ROM_SHADOW		(1<<1)	/* ROM is copy at C000:0 */
++#define IORESOURCE_ROM_COPY		(1<<2)	/* ROM is alloc'd copy, resource field overlaid */
++
+ /* PC/ISA/whatever - the normal PC address spaces: IO and memory */
+ extern struct resource ioport_resource;
+ extern struct resource iomem_resource;
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	Wed Aug 25 13:19:41 2004
++++ b/include/linux/pci.h	Wed Aug 25 13:19:41 2004
+@@ -537,6 +537,7 @@
+ 	unsigned int	is_busmaster:1; /* device is busmaster */
+ 	
+ 	u32		saved_config_space[16]; /* config space saved at suspend time */
++	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+ #ifdef CONFIG_PCI_NAMES
+ #define PCI_NAME_SIZE	96
+ #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
+@@ -777,6 +778,12 @@
+ int pci_dac_set_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_set_consistent_dma_mask(struct pci_dev *dev, u64 mask);
+ int pci_assign_resource(struct pci_dev *dev, int i);
++
++/* ROM control related routines */
++unsigned char *pci_map_rom(struct pci_dev *pdev, size_t *size);
++unsigned char *pci_map_rom_copy(struct pci_dev *pdev, size_t *size);
++void pci_unmap_rom(struct pci_dev *pdev, unsigned char *rom);
++void pci_remove_rom(struct pci_dev *pdev);
+ 
+ /* Power management related routines */
+ int pci_save_state(struct pci_dev *dev, u32 *buffer);
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--0-1858616998-1093455161=:53880--

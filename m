@@ -1,152 +1,289 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131104AbQLNOvK>; Thu, 14 Dec 2000 09:51:10 -0500
+	id <S131424AbQLNO7W>; Thu, 14 Dec 2000 09:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131150AbQLNOvB>; Thu, 14 Dec 2000 09:51:01 -0500
-Received: from clever.visp-europe.psi.com ([212.222.105.4]:45544 "EHLO
-	clever.visp-europe.psi.com") by vger.kernel.org with ESMTP
-	id <S131104AbQLNOuk>; Thu, 14 Dec 2000 09:50:40 -0500
-Message-ID: <01C065E1.44ACDBC0.nicog@snafu.de>
-From: Nicolas GOUTTE <nicog@snafu.de>
-To: "Linus TORVALDS (E-Mail)" <torvalds@transmeta.com>
-Cc: "Gordon CHAFFEE (E-Mail)" <chaffee@cs.berkeley.edu>,
-        "'LKML'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] VFAT creates files with short names wrongly
-Date: Thu, 14 Dec 2000 15:18:52 +0100
-X-Mailer: Microsoft Internet E-Mail/MAPI - 8.0.0.4211
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S131406AbQLNO7N>; Thu, 14 Dec 2000 09:59:13 -0500
+Received: from mail5.svr.pol.co.uk ([195.92.193.20]:2156 "EHLO
+	mail5.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S131265AbQLNO7D>; Thu, 14 Dec 2000 09:59:03 -0500
+Date: Thu, 14 Dec 2000 14:29:40 +0000
+From: Adam Huffman <bloch@verdurin.com>
+To: linux-kernel@vger.kernel.org
+Subject: USB-related Oops in test12
+Message-ID: <20001214142940.A1018@bloch.verdurin.priv>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linus, please apply!
+This Oops happened with mutt as the only active user process.
 
-This patch fixes a bug in the VFAT code.
-When creating files with short file names, the VFAT driver decides that a file name
-starting with a lower case character is always a short (MSDOS style) name, despite any
-other character of the file name that would need to be coded in a long (VFAT style) name.
-This patch ensure that all characters are tested properly to be sure that it is really a short name.
-(For a more details on the patch see below!)
+I'd been using uhci for a while with test kernels, as usb-uhci had
+been oopsing on first mouse use.  However, with test12 I found a
+problem with uhci:
 
-The patch still apllies correctly on Linux 2.4.0-test12 final.
-(test13-pre1 should not be a problem but I have not tested!)
+Dec 13 12:13:24 bloch kernel: PCI: Found IRQ 5 for device 00:07.2
+Dec 13 12:13:24 bloch kernel: PCI: The same IRQ used for device
+00:07.3
+Dec 13 12:13:24 bloch kernel: PCI: The same IRQ used for device
+00:08.0
+Dec 13 12:13:24 bloch kernel: uhci.c: USB UHCI at I/O 0xc400, IRQ 5
+Dec 13 12:13:24 bloch kernel: uhci.c: detected 2 ports
+Dec 13 12:13:24 bloch kernel: usb.c: new USB bus registered, assigned
+bus number 1
+Dec 13 12:13:24 bloch kernel: uhci: host controller process
+error. something bad happened
+Dec 13 12:13:24 bloch kernel: uhci: host controller halted. very bad
+Dec 13 12:13:24 bloch kernel: Product: USB UHCI-alt Root Hub
+Dec 13 12:13:24 bloch kernel: SerialNumber: c400
+Dec 13 12:13:24 bloch kernel: hub.c: USB hub found
+Dec 13 12:13:24 bloch kernel: hub.c: 2 ports detected
+Dec 13 12:13:24 bloch kernel: PCI: Found IRQ 5 for device 00:07.3
+Dec 13 12:13:24 bloch kernel: PCI: The same IRQ used for device
+00:07.2
+Dec 13 12:13:24 bloch kernel: PCI: The same IRQ used for device
+00:08.0
+Dec 13 12:13:24 bloch kernel: uhci.c: USB UHCI at I/O 0xc800, IRQ 5
+Dec 13 12:13:24 bloch kernel: uhci.c: detected 2 ports
+Dec 13 12:13:24 bloch kernel: usb.c: new USB bus registered, assigned
+bus number 2
+Dec 13 12:13:24 bloch kernel: uhci: host controller halted. very bad
+Dec 13 12:13:24 bloch kernel: uhci: host controller process
+error. something bad happened
+Dec 13 12:13:24 bloch kernel: uhci: host controller halted. very bad
+Dec 13 12:13:24 bloch kernel: Product: USB UHCI-alt Root Hub
+Dec 13 12:13:24 bloch kernel: SerialNumber: c800
+Dec 13 12:13:24 bloch kernel: hub.c: USB hub found
+Dec 13 12:13:24 bloch kernel: hub.c: 2 ports detected
+Dec 13 12:13:24 bloch kernel: hub.c: USB new device connect on bus1/1,
+assigned
+device number 3
+Dec 13 12:13:24 bloch kernel: usb_control/bulk_msg: timeout
+Dec 13 12:13:24 bloch kernel: usb.c: USB device not accepting new
+address=3 (error=-110)
+Dec 13 12:13:24 bloch kernel: hub.c: USB new device connect on bus1/1,
+assigned
+device number 4
+Dec 13 12:13:24 bloch kernel: PCI: Found IRQ 5 for device 00:08.0
+Dec 13 12:13:24 bloch kernel: PCI: The same IRQ used for device
+00:07.2
+Dec 13 12:13:24 bloch kernel: PCI: The same IRQ used for device
+00:07.3
+Dec 13 12:13:24 bloch kernel: usb_control/bulk_msg: timeout
+Dec 13 12:13:24 bloch kernel: usb.c: USB device not accepting new
+address=4 (error=-110)
 
-I have still not received any critics about the patch.
+so I switched back to usb-uhci
 
-To LKML readers: please CC me! Thank you in advance!
+Those PCI messages are new with test 12 - the USB controller shares an
+IRQ with an SB Live card.  That hadn't caused a problem previously.
 
-*Previous message:*
-Date: Mon, 4 Dec 2000 15:05:00 +0100
-Subject: [BUG] [PATCH] VFAT creates wrongly files with short names
+Here is the ksymoops output:
 
-Dear Linus, please apply!
+ksymoops 2.3.4 on i686 2.4.0-test12.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.0-test12/ (default)
+     -m /boot/System.map-2.4.0-test12 (specified)
 
-I have sent a similar message to the maintainer Gordon Chaffee
-<chaffee@cs.berkeley.edu> more than a week ago but I have not got any
-reaction, even after I have sent another message.
+Warning (compare_maps): snd symbol pm_register not found in /lib/modules/2.4.0-test12/misc/snd.o.  Ignoring /lib/modules/2.4.0-test12/misc/snd.o entry
+Warning (compare_maps): snd symbol pm_send not found in /lib/modules/2.4.0-test12/misc/snd.o.  Ignoring /lib/modules/2.4.0-test12/misc/snd.o entry
+Warning (compare_maps): snd symbol pm_unregister not found in /lib/modules/2.4.0-test12/misc/snd.o.  Ignoring /lib/modules/2.4.0-test12/misc/snd.o entry
+Unable to handle kernel NULL pointer dereference at virtual address 0000000c
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<d086734b>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: 00e08269     ecx: 00888105       edx: 0000000c
+esi: 00000004   edi: cfa84c40     ebp: cfabeb00       esp: c0259ec8
+ds: 0018        es: 0018       ss: 0018
+Process swapper (pid: 0, stackpage=c0259000)
+Stack: 00000000 cfabeb24 cfabc180 cff28cc0 cfa84c40 cff28cdc 00000000 d0867639
+       cff28cc0 cfa84c40 00000020 00000002 00000000 cff28cdc cff28cc0 cff28cdc
+       00000000 d0867848 cff28cc0 cfa84c48 00000000 cfef0001 00000000 c02a7480
+Call Trace: [<d0867639>] [<d0867848>] [<c010c1bf>] [<c010c342>] [<c010afb0>] [<c01c3e62>] [<c01c3b80>]
+       [<c0109150>] [<c01c3b80>] [<c011fc01>] [<c01091d8>] [<c0105000>] [<c0100191>]
+Code: 8b 04 82 c1 e9 08 83 e1 0f d3 e8 83 e0 01 c1 e0 13 09 45 08
 
-As this patch is only a simple bug fix, I have chosen to send it directly to
-you.
+>>EIP; d086734b <[usb-uhci]process_interrupt+10b/1f0>   <=====
+Trace; d0867639 <[usb-uhci]process_urb+79/1f0>
+Trace; d0867848 <[usb-uhci]uhci_interrupt+98/100>
+Trace; c010c1bf <handle_IRQ_event+2f/60>
+Trace; c010c342 <do_IRQ+72/c0>
+Trace; c010afb0 <ret_from_intr+0/20>
+Trace; c01c3e62 <acpi_idle+2e2/330>
+Trace; c01c3b80 <acpi_idle+0/330>
+Trace; c0109150 <default_idle+0/30>
+Trace; c01c3b80 <acpi_idle+0/330>
+Trace; c011fc01 <check_pgt_cache+11/20>
+Trace; c01091d8 <cpu_idle+38/50>
+Trace; c0105000 <empty_bad_page+0/1000>
+Trace; c0100191 <L6+0/2>
+Code;  d086734b <[usb-uhci]process_interrupt+10b/1f0>
+00000000 <_EIP>:
+Code;  d086734b <[usb-uhci]process_interrupt+10b/1f0>   <=====
+   0:   8b 04 82                  mov    (%edx,%eax,4),%eax   <=====
+Code;  d086734e <[usb-uhci]process_interrupt+10e/1f0>
+   3:   c1 e9 08                  shr    $0x8,%ecx
+Code;  d0867351 <[usb-uhci]process_interrupt+111/1f0>
+   6:   83 e1 0f                  and    $0xf,%ecx
+Code;  d0867354 <[usb-uhci]process_interrupt+114/1f0>
+   9:   d3 e8                     shr    %cl,%eax
+Code;  d0867356 <[usb-uhci]process_interrupt+116/1f0>
+   b:   83 e0 01                  and    $0x1,%eax
+Code;  d0867359 <[usb-uhci]process_interrupt+119/1f0>
+   e:   c1 e0 13                  shl    $0x13,%eax
+Code;  d086735c <[usb-uhci]process_interrupt+11c/1f0>
+  11:   09 45 08                  or     %eax,0x8(%ebp)
 
-The patch still works with Linux 2.4.0-test12-pre4.
+Aiee, killing interrupt handler
+Kernel panic: Attempted to kill the idle task!
 
+3 warnings issued.  Results may not be reliable.
 
+Here is the USB and ACPI output from dmesg:
 
-*Original message (corrected):*
+ACPI: support found
+ACPI: PBLK 1 @ 0x4010:0
+        -0196: *** Error: Sleep State package elements are not both of type Number
+ACPI: S1 supported
+ACPI: S5 supported
+VFS: Mounted root (ext2 filesystem) readonly.
+Freeing unused kernel memory: 192k freed
+Adding Swap: 248968k swap-space (priority -1)
+usb.c: registered new driver usbdevfs
+usb.c: registered new driver hub
+usb-uhci.c: $Revision: 1.251 $ time 02:09:53 Dec 13 2000
+usb-uhci.c: High bandwidth mode enabled
+PCI: Found IRQ 5 for device 00:07.2
+PCI: The same IRQ used for device 00:07.3
+PCI: The same IRQ used for device 00:08.0
+usb-uhci.c: USB UHCI at I/O 0xc400, IRQ 5
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+usb.c: kmalloc IF c14c4dc0, numif 1
+usb.c: new device strings: Mfr=0, Product=2, SerialNumber=1
+usb.c: USB device number 1 default language ID 0x0
+Product: USB UHCI Root Hub
+SerialNumber: c400
+hub.c: USB hub found
+hub.c: 2 ports detected
+hub.c: standalone hub
+hub.c: ganged power switching
+hub.c: global over-current protection
+hub.c: power on to power good time: 2ms
+hub.c: hub controller current requirement: 0mA
+hub.c: port removable status: RR
+hub.c: local power source is good
+hub.c: no over-current condition exists
+hub.c: enabling power on all ports
+usb.c: hub driver claimed interface c14c4dc0
+usb.c: kusbd: /sbin/hotplug add 1
+usb.c: kusbd policy returned 0xfffffffe
+PCI: Found IRQ 5 for device 00:07.3
+PCI: The same IRQ used for device 00:07.2
+PCI: The same IRQ used for device 00:08.0
+usb-uhci.c: USB UHCI at I/O 0xc800, IRQ 5
+usb-uhci.c: Detected 2 ports
+hub.c: port 1 connection change
+hub.c: port 1, portstatus 301, change 3, 1.5 Mb/s
+hub.c: port 1, portstatus 303, change 0, 1.5 Mb/s
+hub.c: USB new device connect on bus1/1, assigned device number 2
+usb.c: new USB bus registered, assigned bus number 2
+usb.c: kmalloc IF c14c4a40, numif 1
+usb.c: new device strings: Mfr=0, Product=2, SerialNumber=1
+usb.c: USB device number 3 default language ID 0x0
+Product: USB UHCI Root Hub
+SerialNumber: c800
+hub.c: USB hub found
+hub.c: 2 ports detected
+hub.c: standalone hub
+hub.c: ganged power switching
+hub.c: global over-current protection
+hub.c: power on to power good time: 2ms
+hub.c: hub controller current requirement: 0mA
+hub.c: port removable status: RR
+hub.c: local power source is good
+hub.c: no over-current condition exists
+hub.c: enabling power on all ports
+usb.c: hub driver claimed interface c14c4a40
+usb.c: kusbd: /sbin/hotplug add 3
+usb.c: kusbd policy returned 0xfffffffe
+usb.c: kmalloc IF c14c0f40, numif 1
+usb.c: skipped 1 class/vendor specific interface descriptors
+usb.c: new device strings: Mfr=1, Product=2, SerialNumber=0
+usb.c: USB device number 2 default language ID 0x409
+Manufacturer: Logitech
+Product: USB-PS/2 Mouse M-BA47
+usb.c: unhandled interfaces on device
+usb.c: USB device 2 (vend/prod 0x46d/0xc002) is not claimed by any active driver.
+  Length              = 18
+  DescriptorType      = 01
+  USB version         = 1.00
+  Vendor:Product      = 046d:c002
+  MaxPacketSize0      = 8
+  NumConfigurations   = 1
+  Device version      = 1.20
+  Device Class:SubClass:Protocol = 00:00:00
+    Per-interface classes
+Configuration:
+  bLength             =    9
+  bDescriptorType     =   02
+  wTotalLength        = 0022
+  bNumInterfaces      =   01
+  bConfigurationValue =   01
+  iConfiguration      =   00
+  bmAttributes        =   a0
+  MaxPower            =   50mA
 
-Dear Maintainer,
+  Interface: 0
+  Alternate Setting:  0
+    bLength             =    9
+    bDescriptorType     =   04
+    bInterfaceNumber    =   00
+    bAlternateSetting   =   00
+    bNumEndpoints       =   01
+    bInterface Class:SubClass:Protocol =   03:01:02
+    iInterface          =   00
+    Endpoint:
+      bLength             =    7
+      bDescriptorType     =   05
+      bEndpointAddress    =   81 (in)
+      bmAttributes        =   03 (Interrupt)
+      wMaxPacketSize      = 0008
+      bInterval           =   0a
+usb.c: kusbd: /sbin/hotplug add 2
+usb.c: kusbd policy returned 0xfffffffe
+hub.c: port 2 connection change
+hub.c: port 2, portstatus 300, change 3, 1.5 Mb/s
+hub.c: port 2 enable change, status 300
+hub.c: port 1 connection change
+hub.c: port 1, portstatus 300, change 3, 1.5 Mb/s
+hub.c: port 2 connection change
+hub.c: port 2, portstatus 300, change 3, 1.5 Mb/s
+hub.c: port 1 enable change, status 300
+hub.c: port 2 enable change, status 300
+usb.c: registered new driver hid
+input0: USB HID v1.00 Mouse [Logitech USB-PS/2 Mouse M-BA47] on usb1:2.0
+usb.c: hid driver claimed interface c14c0f40
+mouse0: PS/2 mouse device for input0
+mice: PS/2 mouse device common for all mice
+PCI: Found IRQ 5 for device 00:08.0
+PCI: The same IRQ used for device 00:07.2
+PCI: The same IRQ used for device 00:07.3
+eth0: Setting full-duplex based on MII #32 link partner ability of 45e1.
 
-I have found a bug in the VFAT code and I send you also a patch against it.
-I hope you will find it worth to be applied.
+Athlon 800 on Abit KA7-100 m/b, 256Mb.
 
-*OS*
-Linux 2.4.0-test11 (final, unpatched)
+Clean test12 tree.
 
-*Bug*
-When VFAT creates files with short names (maximal 14 characters including the
-dot), VFAT considers wrongly that the file name is a valid short name (in the
-MSDOS sence). There are exceptions from this behaviour, but for most of these
-file names it happen so.
-
-*How To Trigger*
-The bug can easily be triggered by touch(1) on any VFAT file system:
-         touch bzImage.bz2
-And with ls(1), you will be surprised to find:
-         bzimage.bz2
-The upper/lower case information is lost!
-
-Note: Also other file names than "bzImage.bz2" can trigger this behaviour but
-it is with this filename that I have found the bug.
-
-One counter-example is any file name starting with an upper case character:
-         touch TeSt
-And ls(1) will give you as expected:
-         TeSt
-
-*Technical Description*
-The bug is triggered by one bug in the function "vfat_valid_shortname" in the
-file "fs/vfat/namei.c".
-
-The problem is that in the first loop of this function the pointer "walk" is
-never incremented, so only the first chacater is tested.
-Therefore we do not test the other characters (at least the seven ones 
-following the first) and if the dot is not the ninth character, it is not
-recognised and so the second part of the function is not processed the way it
-should.
-
-While chasing this bug, I have seen another problem in the same function and
-the patch fixes it also.
-
-In the part treating the extension, the code tests if the result of the
-function "vfat_uni2short" is negative. However by how the function
-"vfat_uni2short" is implemented, it can never be negative, as this function
-replaces negative values by zero! Therefore a character not mappable in the
-current NLS is skipped, instead of triggering a return with -EINVAL .
-
-*Comment On The Patch*
-As the two changes made by the patch are similar, I have chosen to code them
-in the same way to show the similarity of the code in both places. 
-
-Therefore in the first part, I have put the assignement out of the "if"
-statement, as it is coded so in most places of this file.
-
-In the second part, I have chosen not to use the function "vfat_uni2short",
-as in the worst case it would mean to test if a value is negative, change it
-to zero and then testing if it is zero.
-
-*Further Possible Enhancements*
-The definition of the function "vfat_uni2short" (lines 197 to 206) can be
-deleted, as it is not used anywhere else. This deletition is not included in
-the following patch.
-
-*Patch*
-
---- fs/vfat/namei.c.orig	Wed Nov  1 10:57:55 2000
-+++ fs/vfat/namei.c	Tue Nov 21 15:35:25 2000
-@@ -442,10 +442,9 @@
- 	space = 1; /* disallow names starting with a dot */
- 	for (walk = name; len && walk-name < 8;) {
- 		len--;
--		if ( (chl = nls->uni2char(*walk, charbuf, NLS_MAX_CHARSET_SIZE)) < 0) {
--			walk++;
-+		chl = nls->uni2char(*walk++, charbuf, NLS_MAX_CHARSET_SIZE);
-+		if (chl < 0)
- 			return -EINVAL;
--		}
- 
- 		for (chi = 0; chi < chl; chi++) {
- 			c = vfat_getupper(nls, charbuf[chi]);
-@@ -471,7 +470,7 @@
- 		if (len >= 4) return -EINVAL;
- 		while (len > 0) {
- 			len--;
--			chl = vfat_uni2short(nls, *walk++, charbuf, NLS_MAX_CHARSET_SIZE);
-+			chl = nls->uni2char(*walk++, charbuf, NLS_MAX_CHARSET_SIZE);
- 			if (chl < 0)
- 				return -EINVAL;
- 			for (chi = 0; chi < chl; chi++) {
-
+Adam
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

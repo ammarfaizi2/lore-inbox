@@ -1,88 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269077AbUJQH4y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269078AbUJQIAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269077AbUJQH4y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 03:56:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269078AbUJQH4y
+	id S269078AbUJQIAV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 04:00:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269079AbUJQIAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 03:56:54 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:53545 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S269077AbUJQH4u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 03:56:50 -0400
-Date: Sun, 17 Oct 2004 11:57:00 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: using cc-option in arch/ppc64/boot/Makefile
-Message-ID: <20041017095700.GB16186@mars.ravnborg.org>
-Mail-Followup-To: Hollis Blanchard <hollisb@us.ibm.com>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <200410141611.32198.hollisb@us.ibm.com>
-Mime-Version: 1.0
+	Sun, 17 Oct 2004 04:00:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:30683 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269078AbUJQIAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 04:00:13 -0400
+To: jmoyer@redhat.com
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, akpm@osdl.org
+Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
+References: <16733.50382.569265.183099@segfault.boston.redhat.com>
+	<20041005112752.GA21094@logos.cnet>
+	<16739.61314.102521.128577@segfault.boston.redhat.com>
+	<20041006120158.GA8024@logos.cnet>
+	<1097119895.4339.12.camel@orbit.scot.redhat.com>
+	<20041007101213.GC10234@logos.cnet>
+	<1097519553.2128.115.camel@sisko.scot.redhat.com>
+	<16746.55283.192591.718383@segfault.boston.redhat.com>
+	<1097531370.2128.356.camel@sisko.scot.redhat.com>
+	<16749.15133.627859.786023@segfault.boston.redhat.com>
+	<16751.61561.156429.120130@segfault.boston.redhat.com>
+From: Alexandre Oliva <aoliva@redhat.com>
+Organization: Red Hat Global Engineering Services Compiler Team
+Date: 17 Oct 2004 04:59:51 -0300
+In-Reply-To: <16751.61561.156429.120130@segfault.boston.redhat.com>
+Message-ID: <orzn2lpyfc.fsf@livre.redhat.lsd.ic.unicamp.br>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410141611.32198.hollisb@us.ibm.com>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 04:11:32PM +0000, Hollis Blanchard wrote:
-> Hi Sam, I would like to use "cc-option-yn" in arch/ppc64/boot/Makefile.
-> 
-> All recent 64-bit gcc/binutils can produce 32-bit code by passing -m32 (or 
-> similar) to them. arch/ppc64/boot/zImage is actually a 32-bit executable, and 
-> the Makefile still requires a separate 32-bit cross-compiler to build it (in 
-> addition to the 64-bit cross-compiler used for the vmlinux). To decide if 
-> $(CC) can handle -m32, I'd like to use cc-option-yn (as in 
-> arch/ppc64/Makefile).
-> 
-> I've tried moving the cc-option stuff out of the top-level Makefile into 
-> something that can be included from arch/ppc64/boot/Makefile, but so far the 
-> right magic has escaped me. Any ideas?
+On Oct 15, 2004, Jeff Moyer <jmoyer@redhat.com> wrote:
 
-Something like this should do the trick?
-You could also include everything in your Makefile but I prefer Makefile.lib
-to make it a bit more general.
+jmoyer> Yes, that sounds like a fine idea.  Here is a patch which does
+jmoyer> this.  Andrew, I know you only want bug fixes, but I'd like to get
+jmoyer> this into your queue for post 2.6.9, if possible.
 
-I need to sanitize Makefile.lib before I like to do it in mainline though.
+> I got the partial read case wrong in the last patch.  In fact, it looks
+> like this code path would perform infinite retries before.  This should
+> address that by returning upon the first partial read.  Attached is a new
+> version of the patch.
 
-	Sam
+Don't you have to adjust poll/select as well, to test whether read has
+any data to return immediately?  Squid is broken with the latest
+FCdevel kernel, and this patch is in it.
 
-===== scripts/Makefile.lib 1.26 vs edited =====
---- 1.26/scripts/Makefile.lib	2004-08-15 12:17:51 +02:00
-+++ edited/scripts/Makefile.lib	2004-10-17 11:54:42 +02:00
-@@ -232,3 +232,34 @@
- # Usage:
- # $(Q)$(MAKE) $(build)=dir
- build := -f $(if $(KBUILD_SRC),$(srctree)/)scripts/Makefile.build obj
-+
-+######
-+# cc support functions to be used (only) in arch/$(ARCH)/Makefile
-+# See documentation in Documentation/kbuild/makefiles.txt
-+
-+# cc-option
-+# Usage: cflags-y += $(call gcc-option, -march=winchip-c6, -march=i586)
-+
-+cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-+             > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
-+
-+# For backward compatibility
-+check_gcc = $(warning check_gcc is deprecated - use cc-option) \
-+            $(call cc-option, $(1),$(2))
-+
-+# cc-option-yn
-+# Usage: flag := $(call gcc-option-yn, -march=winchip-c6)
-+cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-+                > /dev/null 2>&1; then echo "y"; else echo "n"; fi;)
-+
-+# cc-option-align
-+# Prefix align with either -falign or -malign
-+cc-option-align = $(subst -functions=0,,\
-+	$(call cc-option,-falign-functions=0,-malign-functions=0))
-+
-+# cc-version
-+# Usage gcc-ver := $(call cc-version $(CC))
-+cc-version = $(shell $(CONFIG_SHELL) $(srctree)/scripts/gcc-version.sh \
-+              $(if $(1), $(1), $(CC)))
-+
-+
+The reason Squid breaks is that poll (or is it select? I forget) says
+there's data to be read from cache files (as well as from error
+message files read during start up), but then read fails with -EAGAIN.
+If I bring the error files into memory with cat
+/etc/squid/errors/ERR*, then squid will successfully start up, and
+then, in order for it to not eat all the available CPU polling data
+files and attempting to read from them, I need to start a command line
+this:
+
+pid=`pidof '(squid)'
+while :; do
+  lsof -p $pid |
+  sed -n 's,.*\(/var/spool/squid/.*/.*/.*\),\1,p' |
+  xargs cat /dev/null > /dev/null;
+  sleep 5
+done
+
+-- 
+Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
+Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
+Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}

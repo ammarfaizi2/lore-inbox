@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267494AbTBUPGN>; Fri, 21 Feb 2003 10:06:13 -0500
+	id <S267478AbTBUPCv>; Fri, 21 Feb 2003 10:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267495AbTBUPGM>; Fri, 21 Feb 2003 10:06:12 -0500
-Received: from vbws78.voicebs.com ([66.238.160.78]:59921 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S267494AbTBUPGL>; Fri, 21 Feb 2003 10:06:11 -0500
-Message-ID: <3E5642B3.4080104@didntduck.org>
-Date: Fri, 21 Feb 2003 10:16:03 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: javaman <javaman@katamail.com>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH 2.5.x, 2.4.x ...] very small
-References: <20030221144448Z267481-29901+571@vger.kernel.org>
-In-Reply-To: <20030221144448Z267481-29901+571@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267480AbTBUPCu>; Fri, 21 Feb 2003 10:02:50 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:44483 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267478AbTBUPCj>; Fri, 21 Feb 2003 10:02:39 -0500
+Date: Fri, 21 Feb 2003 16:12:39 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@redhat.com>, James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.62-ac1
+Message-ID: <20030221151239.GP531@fs.tum.de>
+References: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302202233.h1KMX8408821@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-javaman wrote:
-> A very small patch (my first patch :-) for Documentation/spinlocks.txt:
-> it replace "IFF" with "IF" ;-)
-> 
-> bye,
-> Paolo
-> 
-> --- Documentation/spinlocks.txt.orig	Fri Feb 21 15:02:01 2003
-> +++ Documentation/spinlocks.txt	Fri Feb 21 15:02:44 2003
-> @@ -136,7 +136,7 @@
->  
->  If you have a case where you have to protect a data structure across
->  several CPU's and you want to use spinlocks you can potentially use
-> -cheaper versions of the spinlocks. IFF you know that the spinlocks are
-> +cheaper versions of the spinlocks. IF you know that the spinlocks are
->  never used in interrupt handlers, you can use the non-irq versions:
->  
->  	spin_lock(&lock);
-> 
+On Thu, Feb 20, 2003 at 05:33:08PM -0500, Alan Cox wrote:
 
-This is wrong.  IFF means "If and only if".
+>...
+> Linux 2.5.62-ac1
+>...
+> o	FBdev updates					(James Simmons)
+>...
 
---
-				Brian Gerst
+FYI:
 
+The Logo changes seem to be incomplete, at least pnmtologo is missing:
+
+<--  snip  -->
+
+...
+./scripts/pnmtologo -t mono -n logo_linux_mono -o drivers/video/logo/logo_linux_mono.c drivers/video/logo/logo_linux_mono.pbm
+make[3]: ./scripts/pnmtologo: Command not found
+make[3]: *** [drivers/video/logo/logo_linux_mono.c] Error 127
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

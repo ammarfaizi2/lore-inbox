@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273255AbRIUKig>; Fri, 21 Sep 2001 06:38:36 -0400
+	id <S273261AbRIUKk4>; Fri, 21 Sep 2001 06:40:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273261AbRIUKi1>; Fri, 21 Sep 2001 06:38:27 -0400
-Received: from indyio.rz.uni-sb.de ([134.96.7.3]:62973 "EHLO
-	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
-	id <S273255AbRIUKiN>; Fri, 21 Sep 2001 06:38:13 -0400
-Message-ID: <3BAB189F.D4B76FEE@stud.uni-saarland.de>
-Date: Fri, 21 Sep 2001 10:38:23 +0000
-From: Studierende der Universitaet des Saarlandes 
-	<masp0008@stud.uni-sb.de>
-Reply-To: manfred@colorfullife.com
-Organization: Studierende Universitaet des Saarlandes
-X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
+	id <S273302AbRIUKkq>; Fri, 21 Sep 2001 06:40:46 -0400
+Received: from ns.suse.de ([213.95.15.193]:51717 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S273261AbRIUKke> convert rfc822-to-8bit;
+	Fri, 21 Sep 2001 06:40:34 -0400
+To: Dirk =?iso-8859-1?q?F=F6rsterling?= <dirk.foersterling@eorga.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stdin/pipe problem with kernel 2.4.9
+In-Reply-To: <3BA9D8F8.5000801@eorga.com>
+X-Yow: Yow!  Is my fallout shelter termite proof?
+From: Andreas Schwab <schwab@suse.de>
+Date: 21 Sep 2001 12:40:56 +0200
+In-Reply-To: <3BA9D8F8.5000801@eorga.com> (Dirk
+  =?iso-8859-1?q?F=F6rsterling's?= message of "Thu, 20 Sep 2001 13:54:32
+  +0200")
+Message-ID: <jebsk4j07b.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.106
 MIME-Version: 1.0
-To: Adrian Cox <adrian@humboldt.co.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Midi close race
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-+       if (open_devs < 2)
-+               del_timer(&poll_timer);
+Dirk Försterling <dirk.foersterling@eorga.com> writes:
 
-Probably you need del_timer_sync():
-Otherwise the timer could be running on another cpu.
+|> I repost this because you may have been distracted by the date contained
+|> in the old subject line. So far there was no response at all. No hint,
+|> no trick, no RTFM (pointers?) or whatever. So far I wasn't able to find
+|> anything related using google, the kernel docs and the linux-kernel archive.
+|> The SuSE support won't help me with 2.4 and the support database doesn't contain
+|> any (findable) article related to my problem. So I decided to repost my question.
 
-+       open_devs--;
+This has nothing to do with the kernel, it's a problem with some versions
+of cron (which closes stdin/out/err at startup instead of redirecting them
+to /dev/null and subsequently gets confused when spawning the jobs).
 
---
-	Manfred
-(OT: Are there any mail archives that store the cc list? I'm not
-subscribed to l-k, and if I answer a mail the cc list is always lost)
+Andreas.
+
+-- 
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

@@ -1,83 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbULTJxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbULTKiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261472AbULTJxy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 04:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbULTJxy
+	id S261451AbULTKiM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 05:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbULTKiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 04:53:54 -0500
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:27837 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261472AbULTJxu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 04:53:50 -0500
+	Mon, 20 Dec 2004 05:38:12 -0500
+Received: from NK210-202-245-3.vdsl.static.apol.com.tw ([210.202.245.3]:46288
+	"EHLO uli.com.tw") by vger.kernel.org with ESMTP id S261298AbULTKh6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 05:37:58 -0500
+Subject: [patch] scsi/ahci: Add support for ULi M5287 
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       andrebalsa@mailingaddress.org, Clear.Zhang@uli.com.tw,
+       Emily.Jiang@uli.com.tw, Eric.Lo@uli.com.tw
+X-Mailer: Lotus Notes R5.0 (Intl) 30 March 1999
+Message-ID: <OFFB59EB4E.1CCBBD25-ON48256F70.003999B0@uli.com.tw>
+From: Peer.Chen@uli.com.tw
+Date: Mon, 20 Dec 2004 18:37:25 +0800
 MIME-Version: 1.0
-To: torvalds@osdl.org
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Mon,_20_Dec_2004_09_53_46_+0000_0@merlin.emma.line.org>
-Content-Type: text/plain; charset=US-ASCII
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20041220095346.4D7F477914@merlin.emma.line.org>
-Date: Mon, 20 Dec 2004 10:53:46 +0100 (CET)
+X-MIMETrack: Serialize by Router on ulicnm01/ULI(Release 5.0.11  |July 24, 2002) at 2004-12-20
+ 18:37:27,
+	Itemize by SMTP Server on ulim01/ULI(Release 5.0.11  |July 24, 2002) at
+ 2004/12/20 06:37:27 PM,
+	Serialize by Router on ulim01/ULI(Release 5.0.11  |July 24, 2002) at 2004/12/20
+ 06:37:30 PM,
+	Serialize complete at 2004/12/20 06:37:30 PM
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+Hi,Jeff
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+We add the support for ULi's AHCI controller M5287 in drivers/scsi/ahci.c,
+This patch is applied to kernel 2.6.10-rc3. Please apply to new kernels.
 
-BK: Parent repository is http://bktools.bkbits.net/bktools
+Signed-off-by: Peer Chen <peer.chen@uli.com.tw>
 
-Patch description:
-ChangeSet@1.253, 2004-12-20 07:13:44+01:00, samel@mail.cz
-  shortlog: added 2 new addresses
+Thanks
 
-Matthias
+Best Regards
+Peer
 
-------------------------------------------------------------------------
+--- linux-2.6.10-rc3/drivers/scsi/ahci.c.orig   2004-12-11
+03:14:17.170955840 +0800
++++ linux-2.6.10-rc3/drivers/scsi/ahci.c  2004-12-11 03:31:40.979272856
++0800
+@@ -241,6 +241,8 @@ static struct pci_device_id ahci_pci_tbl
+        board_ahci },
+      { PCI_VENDOR_ID_INTEL, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+        board_ahci },
++     { PCI_VENDOR_ID_AL, 0x5287, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++       board_ahci },
+      { }   /* terminate list */
+ };
 
-##### DIFFSTAT #####
- shortlog |    2 ++
- 1 files changed, 2 insertions(+)
+@@ -555,7 +557,6 @@ static void ahci_intr_error(struct ata_p
+            writel(0x300, port_mmio + PORT_SCR_CTL);
+            readl(port_mmio + PORT_SCR_CTL); /* flush */
+      }
+-
+      /* re-start DMA */
+      tmp = readl(port_mmio + PORT_CMD);
+      tmp |= PORT_CMD_START | PORT_CMD_FIS_RX;
+@@ -711,12 +712,29 @@ static int ahci_host_init(struct ata_pro
+      unsigned int i, j, using_dac;
+      int rc;
+      void __iomem *port_mmio;
++     u8 rev_id;        //peer add for m5287 rev 02h
 
-##### GNUPATCH #####
---- 1.224/shortlog	2004-12-16 07:22:04 +01:00
-+++ 1.225/shortlog	2004-12-20 07:13:21 +01:00
-@@ -1878,6 +1878,7 @@
- 'paul:kungfoocoder.org' => 'Paul Wagland', # lbdb
- 'paul:serice.net' => 'Paul Serice',
- 'paul:wagland.net' => 'Paul Wagland', # lbdb
-+'pauld:egenera.com' => 'Philip R. Auld',
- 'paulkf:microgate.com' => 'Paul Fulghum',
- 'paulm:routefree.com' => 'Paul Mielke',
- 'paulmck:us.ibm.com' => 'Paul E. McKenney',
-@@ -2107,6 +2108,7 @@
- 'rostedt:goodmis.org' => 'Steven Rostedt',
- 'rover:tob.ru' => 'Sergei Golod',
- 'rpjday:mindspring.com' => 'Robert P. J. Day',
-+'rpurdie:net.rmk.(none)' => 'Richard Purdie',
- 'rread:clusterfs.com' => 'Robert Read',
- 'rsa:us.ibm.com' => 'Ryan S. Arnold',
- 'rscott:attbi.com' => 'Rob Scott',
++     pci_read_config_byte(pdev, PCI_REVISION_ID, &rev_id);
+      cap_save = readl(mmio + HOST_CAP);
+      cap_save &= ( (1<<28) | (1<<17) );
+      cap_save |= (1 << 27);
 
+      /* global controller reset */
++//peer add for m5287 rev 02h
++     if(pdev->vendor==PCI_VENDOR_ID_AL && pdev->device==0x5287 && rev_id
+==0x02)
++     {
++           tmp = readl(mmio + HOST_CTL);
++           writel(tmp & ~HOST_RESET, mmio + HOST_CTL);
++           readl(mmio + HOST_CTL); /* flush */
++           writel(tmp | HOST_RESET, mmio + HOST_CTL);
++           readl(mmio + HOST_CTL); /* flush */
++           writel(tmp & ~HOST_RESET, mmio + HOST_CTL);
++           readl(mmio + HOST_CTL); /* flush */
++
++     }
++//peer add end
++     else
++     {
+      tmp = readl(mmio + HOST_CTL);
+      if ((tmp & HOST_RESET) == 0) {
+            writel(tmp | HOST_RESET, mmio + HOST_CTL);
+@@ -735,6 +753,7 @@ static int ahci_host_init(struct ata_pro
+            return -EIO;
+      }
 
++     }
+      writel(HOST_AHCI_EN, mmio + HOST_CTL);
+      (void) readl(mmio + HOST_CTL);      /* flush */
+      writel(cap_save, mmio + HOST_CAP);
+@@ -796,6 +815,18 @@ static int ahci_host_init(struct ata_pro
+            /* make sure port is not active */
+            tmp = readl(port_mmio + PORT_CMD);
+            VPRINTK("PORT_CMD 0x%x\n", tmp);
++//peer add for m5287 rev 02h
++           if(pdev->vendor==PCI_VENDOR_ID_AL && pdev->device==0x5287 &&
+rev_id==0x02)
++           {
++                 //set start bit then issue comreset when initialize
++                 writel((tmp|PORT_CMD_START), port_mmio + PORT_CMD);
++                 writel(0x01, port_mmio + PORT_SCR_CTL);
++                 readl(port_mmio + PORT_SCR_CTL); /* flush */
++                 msleep(1);
++                 writel(0x0, port_mmio + PORT_SCR_CTL);
++                 readl(port_mmio + PORT_SCR_CTL); /* flush */
++           }
++//peer add end
+            if (tmp & (PORT_CMD_LIST_ON | PORT_CMD_FIS_ON |
+                     PORT_CMD_FIS_RX | PORT_CMD_START)) {
+                  tmp &= ~(PORT_CMD_LIST_ON | PORT_CMD_FIS_ON |
 
-##### BKPATCH #####
-
-## Wrapped with gzip_b64 ##
-H4sIACqhxkECA7WT7WrbMBSGf0dXcaA/stHZkeRPGVz6NbbQwUJGL0CxTmMT2zKSkqbDFz8n
-oSkp22BbZxsjyecVj86Dz2B6m42cNhtZK3vZYbtcV63vjGxtg076hW76m1K2S/yGrueU8uFm
-PKBxJHou4ijqkWMUFSGTiyRNsODkDO4tmmzUSOfKSlpftsogDuuftXXZaNlsfbWbzrUeppON
-NJNF5VaIHZrJ9Z23QtNi7Tmta0uGupl0RQkbNDYbMT84rrinDrPR/OOn+y9Xc0LyHI6okOfk
-jY9lZYP1ZSOr2i++n6ZDxllMY86Z6OOIp4zcAvN5FAANJ4xPOAWaZCzIwvCcsoxSONkMzhl4
-lFzDGxPfkAJsqY2r9TIDqRQq4NDi425s0Fq05A4OwLOX3hHvDy9CqKTk4gW/1A2+Yn/mOKBH
-LKVJmLC0D1giov4BhXwoEiokRSUX6rQ/J+Gh18M7ZgFnPRVUiL3454oT7/+MQX6LcVBOw54y
-IfhBOY9eK+fs58r5f1P+K9H7Zn0Fzzxud4+3HaQ/H+kvnE9ZmlJgZNzJda0yXGKLZk89hvwC
-xrOyqqsO5j5cDd/HH8iUMyp2AdOtjaowa9H5pln571rd4vtDal4VpTQKZvuSIXX824sSi5Vd
-N7kMgoAvCiQ/AGa+lSu+BAAA
 

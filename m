@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130540AbQLIN2W>; Sat, 9 Dec 2000 08:28:22 -0500
+	id <S130498AbQLINjH>; Sat, 9 Dec 2000 08:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131494AbQLIN2N>; Sat, 9 Dec 2000 08:28:13 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6406 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130540AbQLIN17>; Sat, 9 Dec 2000 08:27:59 -0500
+	id <S130773AbQLINi5>; Sat, 9 Dec 2000 08:38:57 -0500
+Received: from gadolinium.btinternet.com ([194.73.73.111]:61913 "EHLO
+	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S130498AbQLINiz>; Sat, 9 Dec 2000 08:38:55 -0500
+Date: Sat, 9 Dec 2000 13:08:21 +0000 (GMT)
+From: davej@suse.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Russell King <rmk@arm.linux.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: pdev_enable_device no longer used ?
-To: davej@suse.de
-Date: Sat, 9 Dec 2000 12:53:46 +0000 (GMT)
-Cc: ink@jurassic.park.msu.ru (Ivan Kokshaysky),
-        rmk@arm.linux.org.uk (Russell King),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.21.0012091233130.4121-100000@neo.local> from "davej@suse.de" at Dec 09, 2000 12:36:43 PM
-X-Mailer: ELM [version 2.5 PL1]
+In-Reply-To: <E144jVc-0005Lk-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0012091303080.556-100000@neo.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E144jVc-0005Lk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If/When x86 (or all?) architectures use this, will it make sense to
-> remove the PCI space cache line setting from drivers ?
-> Or is there borked hardware out there that require drivers to say
-> "This cacheline size must be xxx bytes, anything else will break" ?
+On Sat, 9 Dec 2000, Alan Cox wrote:
 
-If there is surely the driver can override it again before enabling the
-master bit or talking to the device ?
+> > Or is there borked hardware out there that require drivers to say
+> > "This cacheline size must be xxx bytes, anything else will break" ?
+> If there is surely the driver can override it again before enabling the
+> master bit or talking to the device ?
 
+The pdev_enable_device() stuff is marked __init, so done once at boottime.
+So yes, a driver could then fix up during initialisation if necessary.
+I was curious whether there are any known cases, or can the stuff
+in the existing drivers be nuked if/when x86 calls pdev_enable_device().
+
+Davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

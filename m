@@ -1,76 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbUKHIdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUKHIhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbUKHIdS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 03:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbUKHIdR
+	id S261779AbUKHIhS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 03:37:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbUKHIhS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 03:33:17 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:10463 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261778AbUKHIdM
+	Mon, 8 Nov 2004 03:37:18 -0500
+Received: from postman4.arcor-online.net ([151.189.20.158]:60574 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S261779AbUKHIfr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 03:33:12 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: linux-fbdev-devel@lists.sourceforge.net,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
-Date: Mon, 8 Nov 2004 16:33:00 +0800
-User-Agent: KMail/1.5.4
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-References: <200411080521.iA85LbG6025914@hera.kernel.org> <1099893447.10262.154.camel@gaston>
-In-Reply-To: <1099893447.10262.154.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Nov 2004 03:35:47 -0500
+Date: Mon, 8 Nov 2004 09:35:31 +0100
+From: Juergen Quade <quade@hsnr.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [RFT/PATCH] Toshiba Satellite, Synaptics & keyboard problems
+Message-ID: <20041108083531.GA17236@hsnr.de>
+References: <200411080154.54279.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200411081633.00645.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+In-Reply-To: <200411080154.54279.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 November 2004 13:57, Benjamin Herrenschmidt wrote:
-> > diff -Nru a/drivers/video/riva/riva_hw.h b/drivers/video/riva/riva_hw.h
-> > --- a/drivers/video/riva/riva_hw.h	2004-11-07 21:21:47 -08:00
-> > +++ b/drivers/video/riva/riva_hw.h	2004-11-07 21:21:47 -08:00
-> > @@ -78,13 +78,13 @@
-> >  #define NV_WR08(p,i,d)	out_8(p+i, d)
-> >  #define NV_RD08(p,i)	in_8(p+i)
-> >  #else
-> > -#define NV_WR08(p,i,d)  (((U008 *)(p))[i]=(d))
-> > -#define NV_RD08(p,i)    (((U008 *)(p))[i])
-> > +#define NV_WR08(p,i,d)  (writeb((d), (u8 __iomem *)(p) + (i)))
-> > +#define NV_RD08(p,i)    (readb((u8 __iomem *)(p) + (i)))
-> >  #endif
-> > -#define NV_WR16(p,i,d)  (((U016 *)(p))[(i)/2]=(d))
-> > -#define NV_RD16(p,i)    (((U016 *)(p))[(i)/2])
-> > -#define NV_WR32(p,i,d)  (((U032 *)(p))[(i)/4]=(d))
-> > -#define NV_RD32(p,i)    (((U032 *)(p))[(i)/4])
-> > +#define NV_WR16(p,i,d)  (writew((d), (u16 __iomem *)(p) + (i)/2))
-> > +#define NV_RD16(p,i)    (readw((u16 __iomem *)(p) + (i)/2))
-> > +#define NV_WR32(p,i,d)  (writel((d), (u32 __iomem *)(p) + (i)/4))
-> > +#define NV_RD32(p,i)    (readl((u32 __iomem *)(p) + (i)/4))
-> >  #define VGA_WR08(p,i,d) NV_WR08(p,i,d)
-> >  #define VGA_RD08(p,i)   NV_RD08(p,i)
->
-> You probably broke ppc versions here. The driver enables "big endian"
-> register access, but readw/writew/l functions do byteswap, which will
-> lead to incorrect results.
->
-> The fix would be to probably just remove the code that puts the chip
-> registers into big endian mode, this isn't necessary nor a very good
-> idea actually.
->
-> I don't have an nVidia card on ppc to test any more unfortunately.
+On Mon, Nov 08, 2004 at 01:54:52AM -0500, Dmitry Torokhov wrote:
+> Hi,
+> 
+> If anyone experiencing keyboard getting "stuck" when you use Synaptics
+> touchpad in native mode on Toshiba Satellite type notebooks it seems that
+> lowering rate to 40 pps (which is roughly the same as standard PS/2 rate
+> bytewise) helps.
+> 
+> Please try the patch below (should apply to -mm tree) and see if it helps
+> any. If not using -mm tree just use "psmouse.rate=40" or "modprobe psmouse
+> rate=40" to check if fix is working for you and let me know.
 
-Hmm, I'll ask Guido Guenther if he can test the changes. I think a different
-set of access macros for PPC might be a more preferrable solution. 
+I have problems with "no keyboard" since Kernel 2.6.9.
+I am not using a -mm tree and booting with "psmouse.rate=40" does
+_not_ fix the problem :-(   (tested with 2.6.9 and 2.6.10-rc1).
 
-Tony
+As soon as X is started I have no keyboard.
+My box is a Acer Travelmate 290 notebook with synaptics/alps
+touchpad.
 
-
+          Juergen.
+> 
+> Thanks!
+> 
+> -- 
+> Dmitry
+> 
+> 
+> ===================================================================
+> 
+> 
+> ChangeSet@1.1960, 2004-11-08 01:51:37-05:00, dtor_core@ameritech.net
+>   Input: synaptics - use DMI to detect Toshiba Satellite notebooks
+>          and automatically reduce touchpad reporting rate to 40 pps
+>          as they have trouble handling high rate (80 pps).
+>   
+>   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+> 
+>  synaptics.c |   26 ++++++++++++++++++++++++++
+>  1 files changed, 26 insertions(+)
+> 
+> 
+> ===================================================================
+> 
+> 
+> 
+> diff -Nru a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> --- a/drivers/input/mouse/synaptics.c	2004-11-08 01:52:54 -05:00
+> +++ b/drivers/input/mouse/synaptics.c	2004-11-08 01:52:54 -05:00
+> @@ -604,6 +604,20 @@
+>  	return 0;
+>  }
+>  
+> +#if defined(__i386__)
+> +#include <linux/dmi.h>
+> +static struct dmi_system_id synaptics_dmi_table[] = {
+> +	{
+> +		.ident = "Toshiba Satellite",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME , "Satellite"),
+> +		},
+> +	},
+> +	{ }
+> +};
+> +#endif
+> +
+>  int synaptics_init(struct psmouse *psmouse)
+>  {
+>  	struct synaptics_data *priv;
+> @@ -636,6 +650,18 @@
+>  	psmouse->disconnect = synaptics_disconnect;
+>  	psmouse->reconnect = synaptics_reconnect;
+>  	psmouse->pktsize = 6;
+> +
+> +#if defined(__i386__)
+> +	/*
+> +	 * Toshiba's KBC seems to have trouble handling data from
+> +	 * Synaptics as full rate, switch to lower rate which is roughly
+> +	 * thye same as rate of standard PS/2 mouse.
+> +	 */
+> +	if (dmi_check_system(synaptics_dmi_table)) {
+> +		printk(KERN_INFO "synaptics: Toshiba Satellite detected, limiting rate to 40pps.\n");
+> +		psmouse->rate = 40;
+> +	}
+> +#endif
+>  
+>  	return 0;
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

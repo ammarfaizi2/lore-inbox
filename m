@@ -1,27 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288577AbSADKVx>; Fri, 4 Jan 2002 05:21:53 -0500
+	id <S288584AbSADKZD>; Fri, 4 Jan 2002 05:25:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288581AbSADKVn>; Fri, 4 Jan 2002 05:21:43 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36879 "EHLO
+	id <S288583AbSADKYx>; Fri, 4 Jan 2002 05:24:53 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39951 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288577AbSADKVW>; Fri, 4 Jan 2002 05:21:22 -0500
-Subject: Re: 53c810 SCSI controller not accessible on type-2 config PCI [Kerne
-To: Christian.Bartels@airbus.dasa.de (Bartels, Christian)
-Date: Fri, 4 Jan 2002 10:32:11 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <ADC649D6283BD511B2A90008C71E93BF33A430@s02mks8.ham.airbus.dasa.de> from "Bartels, Christian" at Jan 04, 2002 10:38:14 AM
+	id <S288581AbSADKYp>; Fri, 4 Jan 2002 05:24:45 -0500
+Subject: Re: ASUS KT266A/VT8233 board and UDMA setting
+To: vojtech@suse.cz (Vojtech Pavlik)
+Date: Fri, 4 Jan 2002 10:35:32 +0000 (GMT)
+Cc: pogosyan@phys.ualberta.ca (Dmitri Pogosyan), linux-kernel@vger.kernel.org
+In-Reply-To: <20020104102507.A20412@suse.cz> from "Vojtech Pavlik" at Jan 04, 2002 10:25:07 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16MRe0-0003RT-00@the-village.bc.nu>
+Message-Id: <E16MRhE-0003Rx-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->     Non-VGA device: NCR 53c810 (rev 1).
->       Medium devsel.  IRQ 10.  Master Capable.  Latency=80.  
->       I/O at 0xd000 [0xd001].
+> Some RH kernels (may include yours) deliberately disable UDMA3, 4 and 5
+> on any VIA IDE controller. I don't know why. Unpatch your kernel and
+> it'll likely work.
 
-What does this device look like in 2.2.18 ?
+RH 2.4.2-x. That was before we had the official VIA solution to the chipset
+bug. It was better to be safe than sorry for an end user distro.
+
+Alan

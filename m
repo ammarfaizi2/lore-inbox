@@ -1,230 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUHHAob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUHHBHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUHHAob (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 20:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUHHAob
+	id S264915AbUHHBHb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 21:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUHHBHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 20:44:31 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:61712 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S264261AbUHHAoW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 20:44:22 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [fixed-PATCH] cmpxchg(8b).
-Date: Sun, 8 Aug 2004 02:44:14 +0200
-User-Agent: KMail/1.6.2
-References: <200408072031.44477.pluto@pld-linux.org>
-In-Reply-To: <200408072031.44477.pluto@pld-linux.org>
+	Sat, 7 Aug 2004 21:07:31 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:30356 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S264915AbUHHBH3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 21:07:29 -0400
+Message-ID: <41157D38.7040300@blue-labs.org>
+Date: Sat, 07 Aug 2004 21:09:12 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_edXFBl+C3ZR7K3K"
-Message-Id: <200408080244.14996.pluto@pld-linux.org>
+To: Paul Jackson <pj@sgi.com>
+CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
+Subject: [OT] Re: warning: comparison is always false due to limited range
+ of data type
+References: <411562FD.5040500@blue-labs.org> <20040807174133.1e368fbc.pj@sgi.com>
+In-Reply-To: <20040807174133.1e368fbc.pj@sgi.com>
+Content-Type: multipart/mixed;
+ boundary="------------010208020506040400030709"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_edXFBl+C3ZR7K3K
-Content-Type: text/plain;
-  charset="iso-8859-2"
+This is a multi-part message in MIME format.
+--------------010208020506040400030709
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
+My email address works perfectly fine and is fully RFC legitimate.  No 
+editing needed.
 
+David
 
---Boundary-00=_edXFBl+C3ZR7K3K
-Content-Type: text/x-diff;
-  charset="iso-8859-2";
-  name="2.6.8-atomic.patch"
+>You're lucky you're still on the cc list David - please don't use reply
+>addresses that require editing.
+>  
+>
+
+--------------010208020506040400030709
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="2.6.8-atomic.patch"
+ filename="david+challenge-response.vcf"
 
---- linux-2.6.8-rc3/arch/i386/Kconfig.orig	2004-08-07 07:52:57.000000000 +0200
-+++ linux-2.6.8-rc3/arch/i386/Kconfig	2004-08-07 10:37:33.204220304 +0200
-@@ -342,6 +342,11 @@
- 	depends on !M386
- 	default y
- 
-+config X86_CMPXCHG8B
-+	bool
-+	depends on !M386 && !M486
-+	default y
-+
- config X86_XADD
- 	bool
- 	depends on !M386
---- linux-2.6.8-rc3/arch/x86_64/Kconfig.orig	2004-08-07 14:22:20.000000000 +0200
-+++ linux-2.6.8-rc3/arch/x86_64/Kconfig	2004-08-07 14:42:35.503414192 +0200
-@@ -45,6 +45,10 @@
- 	bool
- 	default y
- 
-+config X86_CMPXCHG8B
-+	bool
-+	default y
-+
- config EARLY_PRINTK
- 	bool
- 	default y
---- linux-2.6.8-rc3/drivers/acpi/Kconfig.orig	2004-08-03 23:28:51.000000000 +0200
-+++ linux-2.6.8-rc3/drivers/acpi/Kconfig	2004-08-07 14:45:14.718209864 +0200
-@@ -5,11 +5,11 @@
- menu "ACPI (Advanced Configuration and Power Interface) Support"
- 	depends on !X86_VISWS
- 	depends on !IA64_HP_SIM
--	depends on IA64 || X86
-+	depends on IA64 || X86_CMPXCHG
- 
- config ACPI
- 	bool "ACPI Support"
--	depends on IA64 || X86
-+	depends on IA64 || X86_CMPXCHG
- 
- 	default y
- 	---help---
---- linux-2.6.8-rc3/drivers/char/drm/Kconfig.orig	2004-08-03 23:28:30.000000000 +0200
-+++ linux-2.6.8-rc3/drivers/char/drm/Kconfig	2004-08-07 12:49:55.413820920 +0200
-@@ -6,6 +6,7 @@
- #
- config DRM
- 	bool "Direct Rendering Manager (XFree86 4.1.0 and higher DRI support)"
-+	depends on !X86 || X86_CMPXCHG
- 	help
- 	  Kernel-level support for the Direct Rendering Infrastructure (DRI)
- 	  introduced in XFree86 4.0. If you say Y here, you need to select
---- linux-2.6.8-rc3/include/asm-i386/fixmap.h.orig	2004-08-03 23:26:45.000000000 +0200
-+++ linux-2.6.8-rc3/include/asm-i386/fixmap.h	2004-08-07 23:59:39.076427856 +0200
-@@ -15,7 +15,9 @@
- 
- #include <linux/config.h>
- #include <linux/kernel.h>
-+#ifdef CONFIG_ACPI_BOOT
- #include <asm/acpi.h>
-+#endif
- #include <asm/apicdef.h>
- #include <asm/page.h>
- #ifdef CONFIG_HIGHMEM
---- linux-2.6.8-rc3/include/asm-i386/system.h.orig	2004-08-08 01:56:24.000000000 +0200
-+++ linux-2.6.8-rc3/include/asm-i386/system.h	2004-08-08 01:58:18.543104408 +0200
-@@ -149,8 +149,14 @@
- #define __xg(x) ((struct __xchg_dummy *)(x))
- 
- 
-+#ifdef CONFIG_X86_CMPXCHG8B
-+#define __HAVE_ARCH_CMPXCHG8B 1
-+
- /*
-- * The semantics of XCHGCMP8B are a bit strange, this is why
-+ * CMPXCHG8B isn't supported on Intel processors earlier
-+ * than the Pentium processors.
-+ *
-+ * The semantics of CMPXCHG8B are a bit strange, this is why
-  * there is a loop and the loading of %%eax and %%edx has to
-  * be inside. This inlines well in most cases, the cached
-  * cost is around ~38 cycles. (in the future we might want
-@@ -163,8 +169,9 @@
-  * of the instruction set reference 24319102.pdf. We need
-  * the reader side to see the coherent 64bit value.
-  */
--static inline void __set_64bit (unsigned long long * ptr,
--		unsigned int low, unsigned int high)
-+static __inline__ void __set_64bit(unsigned long long * ptr,
-+				    const unsigned int low,
-+				    const unsigned int high)
- {
- 	__asm__ __volatile__ (
- 		"\n1:\t"
-@@ -179,29 +186,19 @@
- 		:	"ax","dx","memory");
- }
- 
--static inline void __set_64bit_constant (unsigned long long *ptr,
--						 unsigned long long value)
--{
--	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
--}
--#define ll_low(x)	*(((unsigned int*)&(x))+0)
--#define ll_high(x)	*(((unsigned int*)&(x))+1)
--
--static inline void __set_64bit_var (unsigned long long *ptr,
--			 unsigned long long value)
--{
--	__set_64bit(ptr,ll_low(value), ll_high(value));
--}
-+#define set_64bit(ptr, value) 						\
-+	(__builtin_constant_p(value) ? 					\
-+	    __set_64bit(ptr,						\
-+			    (const unsigned int)(value),		\
-+			    (const unsigned int)((value) >> 32ULL)	\
-+			) :						\
-+	    __set_64bit(ptr,						\
-+			    *(((const unsigned int *)&(value)) + 0),	\
-+			    *(((const unsigned int *)&(value)) + 1)	\
-+			)						\
-+	)
- 
--#define set_64bit(ptr,value) \
--(__builtin_constant_p(value) ? \
-- __set_64bit_constant(ptr, value) : \
-- __set_64bit_var(ptr, value) )
--
--#define _set_64bit(ptr,value) \
--(__builtin_constant_p(value) ? \
-- __set_64bit(ptr, (unsigned int)(value), (unsigned int)((value)>>32ULL) ) : \
-- __set_64bit(ptr, ll_low(value), ll_high(value)) )
-+#endif
- 
- /*
-  * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
-@@ -233,18 +230,21 @@
- 	return x;
- }
- 
-+#ifdef CONFIG_X86_CMPXCHG
-+#define __HAVE_ARCH_CMPXCHG 1
-+
- /*
-  * Atomic compare and exchange.  Compare OLD with MEM, if identical,
-  * store NEW in MEM.  Return the initial value in MEM.  Success is
-  * indicated by comparing RETURN with OLD.
-+ *
-+ * CMPXCHG isn't supported on Intel processors earlier than
-+ * the Intel486 processors.
-  */
--
--#ifdef CONFIG_X86_CMPXCHG
--#define __HAVE_ARCH_CMPXCHG 1
--#endif
--
--static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
--				      unsigned long new, int size)
-+static __inline__ unsigned long __cmpxchg(volatile void *ptr,
-+			    		    const unsigned long old,
-+					    const unsigned long new,
-+					    const int size)
- {
- 	unsigned long prev;
- 	switch (size) {
-@@ -270,10 +270,14 @@
- 	return old;
- }
- 
--#define cmpxchg(ptr,o,n)\
--	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
--					(unsigned long)(n),sizeof(*(ptr))))
--    
-+#define cmpxchg(ptr, o, n)					\
-+	((__typeof__(*(ptr)))__cmpxchg((ptr),			\
-+					(unsigned long)(o),	\
-+					(unsigned long)(n),	\
-+					sizeof(*(ptr))))
-+
-+#endif
-+
- #ifdef __KERNEL__
- struct alt_instr { 
- 	__u8 *instr; 		/* original instruction */
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
 
---Boundary-00=_edXFBl+C3ZR7K3K--
+
+--------------010208020506040400030709--

@@ -1,66 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262500AbRE0WJO>; Sun, 27 May 2001 18:09:14 -0400
+	id <S262498AbRE0WOY>; Sun, 27 May 2001 18:14:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262498AbRE0WJE>; Sun, 27 May 2001 18:09:04 -0400
-Received: from ncc1701.cistron.net ([195.64.68.38]:28688 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S262489AbRE0WI5>; Sun, 27 May 2001 18:08:57 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: IDE Performance lack !
-Date: Sun, 27 May 2001 22:08:55 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9erttn$cak$1@ncc1701.cistron.net>
-In-Reply-To: <01052622193100.01317@linux.zuhause.de> <00a101c0e642$4f0791a0$52a6b3d0@Toshiba> <20010527224045.B3556@metastasis.f00f.org> <00c701c0e6d8$2b28ea40$4aa6b3d0@Toshiba>
-X-Trace: ncc1701.cistron.net 991001335 12628 195.64.65.67 (27 May 2001 22:08:55 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S262511AbRE0WOO>; Sun, 27 May 2001 18:14:14 -0400
+Received: from pc1-camb6-0-cust57.cam.cable.ntl.com ([62.253.135.57]:20358
+	"EHLO kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
+	id <S262498AbRE0WOE>; Sun, 27 May 2001 18:14:04 -0400
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Abramo Bagnara <abramo@alsa-project.org>, linux@arm.linux.org.uk,
+        davem@caip.rutgers.edu, anton@linuxcare.com.au,
+        Ralf Baechle <ralf@oss.sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: Inconsistent "#ifdef __KERNEL__" on different architectures 
+In-Reply-To: Message from Adrian Bunk <bunk@fs.tum.de> 
+   of "Sun, 27 May 2001 23:07:38 +0200." <Pine.NEB.4.33.0105272301280.8551-100000@mimas.fachschaften.tu-muenchen.de> 
+In-Reply-To: <Pine.NEB.4.33.0105272301280.8551-100000@mimas.fachschaften.tu-muenchen.de> 
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1121109888P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 27 May 2001 23:10:00 +0100
+From: Philip Blundell <philb@gnu.org>
+Message-Id: <E1548jY-0004D2-00@kings-cross.london.uk.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <00c701c0e6d8$2b28ea40$4aa6b3d0@Toshiba>,
-Jaswinder Singh <jaswinder.singh@3disystems.com> wrote:
->I am not able to understand why Linux read and/or write harddisk after some
->time (after few hours ) , harddisk read/write leds keep on glowing for few
->minutes , even though nobody working on it and machine is in idle state.
+--==_Exmh_-1121109888P
+Content-Type: text/plain; charset=us-ascii
 
-Are you sure it is idle. It might be running something from cron-
-say 'updatedb' or similar. That will cause a lot of disk i/o,
-and _ofcourse_ performance will be bad then - the machine is
-doing a lot of other things.
+>--- include/asm-arm/atomic.h.old	Sun May 27 22:30:58 2001
+>+++ include/asm-arm/atomic.h	Sun May 27 22:58:20 2001
+>@@ -12,6 +12,7 @@
+>  *   13-04-1997	RMK	Made functions atomic!
+>  *   07-12-1997	RMK	Upgraded for v2.1.
+>  *   26-08-1998	PJB	Added #ifdef __KERNEL__
+>+ *   27-05-2001	APB     Removed #ifdef __KERNEL__
+>  */
+> #ifndef __ASM_ARM_ATOMIC_H
+> #define __ASM_ARM_ATOMIC_H
+>@@ -30,7 +31,6 @@
 
-It might also be that you don't have enough memory and the
-machine is swapping itself to death. Running netscape or
-mozilla perhaps? These are known to blow themselves up to
-50-100 MB (!). That will cause the exact symptoms you're seeing.
+This is no good.  The ARM kernel just doesn't provide any atomic primitives 
+that will work in user space.  If you want atomicity you have to use 
+libpthread.
 
->>Have you tried 2.2.x ?
->>
->
->yes i am taking about 2.2.12 .
+p.
 
-2.2.12 is old. In my experience, 2.2.19 is the first really
-good 2.2 kernel. Especially in low-memory situations like
-you might be experiencing..
 
->And in my 2.4.2 :-
 
-2.4.2 isn't all that good either.. 2.4.x doesn't have VM sorted
-out just yet
+--==_Exmh_-1121109888P
+Content-Type: application/pgp-signature
 
->and when my machine becomes normal i got :-
->9.07 MB/sec
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Sounds about right for a non-UDMA disk.
+Content-Type: text/plain; charset=us-ascii
 
->But my problem is why linux boxes do not response for few seconds
->(sometimes) and especially during telnet/ssh it looks more worst and looks
->similar to Microsoft Windows :(
->there is problem in scheduling or what ?
+>--- include/asm-arm/atomic.h.old	Sun May 27 22:30:58 2001
+>+++ include/asm-arm/atomic.h	Sun May 27 22:58:20 2001
+>@@ -12,6 +12,7 @@
+>  *   13-04-1997	RMK	Made functions atomic!
+>  *   07-12-1997	RMK	Upgraded for v2.1.
+>  *   26-08-1998	PJB	Added #ifdef __KERNEL__
+>+ *   27-05-2001	APB     Removed #ifdef __KERNEL__
+>  */
+> #ifndef __ASM_ARM_ATOMIC_H
+> #define __ASM_ARM_ATOMIC_H
+>@@ -30,7 +31,6 @@
 
-Try 2.2.19
+This is no good.  The ARM kernel just doesn't provide any atomic primitives 
+that will work in user space.  If you want atomicity you have to use 
+libpthread.
 
-Mike.
+p.
 
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999 (debian)
+
+iD8DBQE7EXs4VTLPJe9CT30RAvUbAKDaa1jAUofWYw0z0u808GhOfWEj5QCfW2j+
+n/gYS07GAolG6ISDUbOKDnY=
+=2+Qj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1121109888P--

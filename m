@@ -1,39 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265111AbUF1SNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265109AbUF1SO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265111AbUF1SNN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 14:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbUF1SNN
+	id S265109AbUF1SO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 14:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUF1SOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 14:13:13 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:28044 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265111AbUF1SNL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 14:13:11 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Robert Picco <Robert.Picco@hp.com>
-Subject: Re: [PATCH] ia64 kgdb
-Date: Mon, 28 Jun 2004 11:13:01 -0700
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <40E05EF1.2070505@hp.com>
-In-Reply-To: <40E05EF1.2070505@hp.com>
-MIME-Version: 1.0
+	Mon, 28 Jun 2004 14:14:55 -0400
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:2217 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S265109AbUF1SOo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 14:14:44 -0400
+Date: Mon, 28 Jun 2004 12:18:35 -0600
+From: "Eric D. Mudama" <edmudama@bounceswoosh.org>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+       Jens Axboe <axboe@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jeff Garzik <jgarzik@pobox.com>, Ed Tomlinson <edt@aei.ca>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: ide errors in 7-rc1-mm1 and later
+Message-ID: <20040628181835.GA14632@bounceswoosh.org>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
+	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
+	Jens Axboe <axboe@suse.de>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	Jeff Garzik <jgarzik@pobox.com>, Ed Tomlinson <edt@aei.ca>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040610164135.GA2230@bounceswoosh.org> <Pine.LNX.4.10.10406260118220.19080-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406281113.01015.jbarnes@engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.10.10406260118220.19080-100000@master.linux-ide.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, June 28, 2004 11:09 am, Robert Picco wrote:
-> Hi Andrew:
+On Sat, Jun 26 at  1:31, Andre Hedrick wrote:
 >
-> This fixes the broken kgdb patch.
+>Eric,
+>
+>There is no need for a new opcode.
+>The behavior is simple and trivial to support.
+>
+>If standard flush_cache/ext were to behave just like standard data_in
+>taskfile register setup, yet use a non_data command state machine it would
+>be done.
+>
+>Special case would be deal with LBA Zero and this would have to behave
+>like a complete device flush.  Since flushing sector zero is not generally
+>done ... well this would go into a design debate and it is not my issue
+>nor my desire to enter one today.
+>
+>28-bit would support max 256 sectors
+>48-bit would support max 65536 sectors
+>
+>Anyone could write this simple proposal to T13 for SATA and T10 for SAS.
 
-Hey Bob, thanks for the patch.  Does the kgdb for ia64 require a special 
-version of gdb or is the latest one from gnu.org sufficient?  And does it 
-work with netconsole?
+True, that would work just as well.
 
-Thanks,
-Jesse
+But as you mention, it isn't necessarilly what people want or think
+they want or could actually use...
+
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
+

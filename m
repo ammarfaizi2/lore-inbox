@@ -1,38 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSGLC66>; Thu, 11 Jul 2002 22:58:58 -0400
+	id <S314395AbSGLDUF>; Thu, 11 Jul 2002 23:20:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317972AbSGLC65>; Thu, 11 Jul 2002 22:58:57 -0400
-Received: from quechua.inka.de ([212.227.14.2]:1367 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S314277AbSGLC64>;
-	Thu, 11 Jul 2002 22:58:56 -0400
-From: Bernd Eckenfels <ecki-news2002-06@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
-Message-Id: <E17Sqgi-0002Pe-00@sites.inka.de>
-Date: Fri, 12 Jul 2002 05:01:44 +0200
+	id <S317972AbSGLDUE>; Thu, 11 Jul 2002 23:20:04 -0400
+Received: from waste.org ([209.173.204.2]:24233 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S314395AbSGLDUE>;
+	Thu, 11 Jul 2002 23:20:04 -0400
+Date: Thu, 11 Jul 2002 22:22:38 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Sandy Harris <pashley@storm.ca>
+cc: Daniel Phillips <phillips@arcor.de>, Jesse Barnes <jbarnes@sgi.com>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: spinlock assertion macros
+In-Reply-To: <3D2E1A4D.10705EA5@storm.ca>
+Message-ID: <Pine.LNX.4.44.0207112047021.15441-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net> you wrote:
-> Why must HZ be the same as 'interrupts per second'?
+On Thu, 11 Jul 2002, Sandy Harris wrote:
 
-Well, it must not. But currently each timer interrupt the tick timestamp is
-increased by one. So to find out how many seconds uptime you have (and other
-things which are measured in timer ticks and passed to the userspace) you
-need to know how many ticks have passed.
+> Oliver Xymoron wrote:
+> >
+> > On Thu, 11 Jul 2002, Daniel Phillips wrote:
+> >
+> > > I was thinking of something as simple as:
+> > >
+> > >    #define spin_assert_locked(LOCK) BUG_ON(!spin_is_locked(LOCK))
+> > >
+> > > but in truth I'd be happy regardless of the internal implementation.  A note
+> > > on names: Linus likes to shout the names of his BUG macros.  I've never been
+> > > one for shouting, but it's not my kernel, and anyway, I'm happy he now likes
+> > > asserts.  I bet he'd like it more spelled like this though:
+> > >
+> > >    MUST_HOLD(&lock);
+> >
+> > I prefer that form too.
+>
+> Is it worth adding MUST_NOT_HOLD(&lock) in an attempt to catch potential
+> deadlocks?
 
-Actually there are a few things here, on the one hand, kernel should not
-pass values in ticks to the userspace. 
+No, you'd rather do that inside the debugging version of spinlock itself.
+I see MUST_HOLD happening inside helper functions that presume a lock is
+in effect but don't do any on their own to ensure integrity, while
+MUST_NOT_HOLD is a matter of forcing ordering and avoiding deadlocks.
+Locking order is larger than functions and should be documented at the
+point of declaration of the locks.
 
-On the other hand having a changing HZ does not work for timespans measured
-in those ticks, as long as those are not adjusted. One could think about
-having a doze mode where only every 100th interruped is generated but it
-increasedss the tick count by 100. Mst likely this will break a lot of
-averaged measuring and stats counting, tough.
+You can do lock order checking in the spinlock debugging code something
+like this:
 
-Greetings
-Bernd
+struct spinlock
+{
+	atomic_t val;
+#ifdef SPINLOCK_DEBUG
+	void *eip;
+	struct spinlock *previous;
+	struct spinlock *ordering;
+};
+
+DECLARE_SPINLOCK(a, 0); /* a is outermost for this group */
+DECLARE_SPINLOCK(b, &a); /* b must nest inside a */
+DECLARE_SPINLOCK(c, &b);
+
+Each time you take a spinlock, record the eip, stick the address of the
+current lock in the task struct, and stick the outer lock in previous.
+Then see if the current lock appears anywhere in the previous lock's
+ordering chain (it shouldn't). This may be a bit overkill though.
+
+It might make sense to have a MAY_SLEEP assert in a few key places (high
+up in the chains of things that rarely sleep or for which the call path to
+sleeping isn't obvious).
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310994AbSCHSMz>; Fri, 8 Mar 2002 13:12:55 -0500
+	id <S310999AbSCHSOJ>; Fri, 8 Mar 2002 13:14:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310996AbSCHSMt>; Fri, 8 Mar 2002 13:12:49 -0500
-Received: from exchange.macrolink.com ([64.173.88.99]:51469 "EHLO
-	exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S310995AbSCHSMb>; Fri, 8 Mar 2002 13:12:31 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D13A76E6@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Russell King'" <rmk@arm.linux.org.uk>
-Cc: "'Bill Nottingham'" <notting@redhat.com>,
-        "'linux-serial'" <linux-serial@vger.kernel.org>,
-        "'linux-kernel'" <linux-kernel@vger.kernel.org>,
-        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: [PATCH] serial.c procfs kudzu - discussion
-Date: Fri, 8 Mar 2002 10:12:30 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S310996AbSCHSM5>; Fri, 8 Mar 2002 13:12:57 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:34503 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S310998AbSCHSMt>; Fri, 8 Mar 2002 13:12:49 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Peter =?iso-8859-1?q?W=E4chtler?= <pwaechtler@loewe-komp.de>,
+        Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: furwocks: Fast Userspace Read/Write Locks
+Date: Fri, 8 Mar 2002 13:13:26 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <E16j95K-00047G-00@wagner.rustcorp.com.au> <3C888284.8030206@loewe-komp.de>
+In-Reply-To: <3C888284.8030206@loewe-komp.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020308181230.832C73FE07@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Mar 08, 2002, Russell King wrote:
-> 
-> I think there are two bugs here that need treating in different ways.
-> 
-> 1. Not displaying port statistics for iomem-based ports.  This is
->    probably an oversight when iomem ports were added to the serial
->    driver.
-> 
-> 2. "port:" entry being 0.  I don't think we really want to report IO
->    port or memory addresses here without giving userspace some
->    indication which we're reporting.
-> 
-> For 2, I'd suggest replacing "port:" with "mem:" for iomem ports, and
-> changing the serinfo: line to reflect the changed format (this is
-> probably ignored by kudzu though.)
-> 
-> Does this sound reasonable?
+On Friday 08 March 2002 04:21 am, Peter Wächtler wrote:
+> Rusty Russell wrote:
+> > In message <20020307153228.3A6773FE06@smtp.linux.ibm.com> you write:
+> >>On Thursday 07 March 2002 07:50 am, Arjan van de Ven wrote:
+> >>>Rusty Russell wrote:
+> >>>>This is a userspace implementation of rwlocks on top of futexes.
+> >>>
+> >>>question: if rwlocks aren't actually slower in the fast path than
+> >>>futexes,
+> >>>would it make sense to only do the rw variant and in some userspace
+> >>>layer
+> >>>map "traditional" semaphores to write locks ?
+> >>>Saves half the implementation and testing....
+> >>
+> >>I m not in favor of that. The dominant lock will be mutexes.
+> >
+> > To clarify: I'd love this, but rwlocks in the kernel aren't even
+> > vaguely fair.  With a steady stream of overlapping readers, a writer
+> > will never get the lock.
+> >
+> > Hope that clarifies,
+>
+> But you talk about the current implementation, don't you?
+> Is there something to prevent an implementation of rwlocks in the
+> kernel, where a wrlock will lock (postponed) further rdlock requests?
+>
+> I mean: the wrlocker prevents newly rdlocks to succeed and waits for the
+> current rdlockers to release the lock an then gets the lock..
 
-Hi Russell,
+Correct, the idea is to have four functionalities.
 
-Yes. I'll change the serinfo line rev marking from 1.0 to 1.1 and label 
-the  iomem value as "mem". If I remember correctly, kudzu detects that 
-field by its delimiters, so it does not matter that we change the field 
-label. It's probably easiest for me to verify by just trying it. If there 
-is a surprise there, I will inform Bill Nottingham at Red Hat. 
+(a) writer preference
+	if any writer is waiting then wake that one up.
+(b) reader preference
+	if any reader is waiting wait up all the readers in the queue
+(c) fifo preference
+	if the first waiter is a writer wait it up, otherwise wake up all readers
+(d) fifo-fair  preference
+	like (c), but only wake up readers until the next writer is encountered
 
-Also, I'll verify that the port statistics flow unit runs for the iomem 
-case.
+(a) - (c) can be implemented with Rusty's 2 user-ueue approach as long
+as the wakeup type is always the same. The last one can't (?).
 
-Thanks,
-Ed Vance
+In the kernel this is easy to implement, but the trouble is the status
+word in user space, still thinking about it.
+
+It also requires compare and swap.
+
+Also we still need the verdict on the FUTEX_UP and FUTEX_UP_FAIR issue.
+Rusty, I noticed you have not stated anything to my combining the two things
+into FUTEX V submission. Could you respond with your take on these issues.
+
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

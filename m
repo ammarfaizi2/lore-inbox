@@ -1,59 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267940AbUHKFC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267942AbUHKFGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267940AbUHKFC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 01:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267942AbUHKFC7
+	id S267942AbUHKFGU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 01:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267937AbUHKFGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 01:02:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:57295 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267940AbUHKFC5 (ORCPT
+	Wed, 11 Aug 2004 01:06:20 -0400
+Received: from mail.tpgi.com.au ([203.12.160.61]:10409 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S267942AbUHKFGR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 01:02:57 -0400
-Date: Tue, 10 Aug 2004 22:02:49 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, spam99@2thebatcave.com, <km@westend.com>,
-       zaitcev@redhat.com
-Subject: Re: uhci-hcd oops with 2.4.27/ intel D845GLVA
-Message-Id: <20040810220249.5c4913ec@lembas.zaitcev.lan>
-In-Reply-To: <200408102137.26004.david-b@pacbell.net>
-References: <1092142777.1042.30.camel@bart.intern>
-	<mailman.1092163681.21436.linux-kernel2news@redhat.com>
-	<20040810135409.44d31d1e@lembas.zaitcev.lan>
-	<200408102137.26004.david-b@pacbell.net>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 11 Aug 2004 01:06:17 -0400
+Subject: Re: suspend2 merge [was Re: [RFC] Fix Device Power Management
+	States]
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>, david-b@pacbell.net
+In-Reply-To: <20040810233607.GC2287@elf.ucw.cz>
+References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
+	 <20040809113829.GB9793@elf.ucw.cz>
+	 <Pine.LNX.4.50.0408090840560.16137-100000@monsoon.he.net>
+	 <20040809212949.GA1120@elf.ucw.cz>
+	 <Pine.LNX.4.50.0408092156480.24154-100000@monsoon.he.net>
+	 <1092130981.2676.1.camel@laptop.cunninghams>
+	 <Pine.LNX.4.50.0408100655190.13807-100000@monsoon.he.net>
+	 <1092176983.2709.3.camel@laptop.cunninghams>
+	 <Pine.LNX.4.50.0408101544470.28789-100000@monsoon.he.net>
+	 <1092179384.2711.29.camel@laptop.cunninghams>
+	 <20040810233607.GC2287@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1092200754.3843.21.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 11 Aug 2004 15:05:54 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004 21:37:26 -0700
-David Brownell <david-b@pacbell.net> wrote:
+Hi.
 
-> > First, it fixes the oops in the scan_async.
+On Wed, 2004-08-11 at 09:36, Pavel Machek wrote:
+> At one point I was pretty unhappy with swsusp state (that was just
+> before I wrote trivial highmem support), and was willing to merge
+> suspend2 pretty much at all costs. (Okay, I was never willing to let
+> LZO-suspend2 sneak into 2.6). I'm now way happier with merged
+> pmdisk+swsusp works.
+
+The LZF licensing has been corrected so it's not a problem.
+
+> I feared big problems with highmem support, but surprisingly, trivial
+> support thats in current code does not cause problems for
+> people. People seem to like pmdisk+swsusp, too...
+
+That will be because you're eating most of the memory anyway; there's
+not problem finding enough memory to copy the Highmem too. I guess that
+once we start seeing people trying to suspend 2GB to disk or you try to
+eat less memory, Highmem will become more of a pain.
+
+> Now, people like suspend2 even more, and for good reasons: it is
+> extremely fast, it provides nice feedback and its refrigerator is
+> superior.
 > 
-> That's a NOP, ehci->async must never be null.
+> I also realized that suspend2 is fundamentally more complex than
+> swsusp: it introduces additional time period where page cache must not
+> be touched. I did not realize this sooner.
 
-This is news. I received this patch FROM YOU. And I shipped it with
-RHEL3 U3. And now it's a nop? What gives?! By the way, it's verified
-to fix the oops when handoff fails.
+Sorry. I said it in so many ways! It's not really an issue though;
+processes are stopped and suspend's own I/O doesn't touch page cache.
 
-> > +++ linux-2.4.21-17.EL-usb1/drivers/usb/host/ehci-hcd.c	2004-07-30 16:21:12.000000000 -0700
-> > @@ -547,7 +547,8 @@
-> >  
-> >  	/* root hub is shut down separately (first, when possible) */
-> >  	spin_lock_irq (&ehci->lock);
-> > -	ehci_work (ehci, NULL);
-> > +	if (ehci->async)
-> > +		ehci_work (ehci, NULL);
-> >  	spin_unlock_irq (&ehci->lock);
+> I do longer think that "merge at all costs" is good idea now: in
+> kernel code is small, simple and nice by now, and I'd like to keep it
+> that way.
 
-Please look at this:
- http://www.ussg.iu.edu/hypermail/linux/kernel/0404.2/0156.html
+I want it to be simple and clear too. I'm getting there. As part of the
+cleanup, I'd just made suspend modular, which has further untangled some
+of the interdependancies between sections of code. I still have more
+work to do, but I'm increasingly feeling like removing the debugging
+code.
 
--- Pete
+> Now, there are some parts of swsusp that are not quite okay. One of
+> them is refrigerator -- it fails (in non-critical way but still) in
+> some cases where it should not fail. suspend2 seems to have this
+> solved, and I'd like to merge its refrigerator.
 
-P.S. Sorry to get your name wrong, David.
+I'll submit a patch. I need to look at how you use the refrigerator
+first. I refrigerate processes prior to resuming as well, and might need
+to adjust things if you don't do that. I also need to check it will work
+okay with S3.
+
+> Other parts... I'm not so sure. Incremental patches would certainly
+> help a lot here.
+
+Well, if you insist, I'll do what I can. I looked at doing this before,
+but was like trying to describe how to transform a mini into a station
+wagon while using it every day! It will, of course, make the merge
+_much_ slower too.
+
+Nigel
+-- 
+Nigel Cunningham
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. But true tolerance can cope with others
+being intolerant.
+

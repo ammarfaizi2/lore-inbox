@@ -1,46 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbUJYB5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUJYB7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbUJYB5e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 21:57:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUJYB4b
+	id S261668AbUJYB7m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 21:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUJYB7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 21:56:31 -0400
-Received: from thunk.org ([69.25.196.29]:65441 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261661AbUJYB4X (ORCPT
+	Sun, 24 Oct 2004 21:59:41 -0400
+Received: from gate.crashing.org ([63.228.1.57]:20941 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261664AbUJYB7L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 21:56:23 -0400
-To: perex@suse.cz
-Cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH][Trivial] sound/pci/intel8x0.c: Fix dangling #endif
-From: "Theodore Ts'o" <tytso@mit.edu>
-Phone: (781) 391-3464
-Message-Id: <E1CLu5Z-0007L4-Na@thunk.org>
-Date: Sun, 24 Oct 2004 21:56:01 -0400
+	Sun, 24 Oct 2004 21:59:11 -0400
+Subject: [PATCH] ppc64: remove unused cruft from prom.h
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 25 Oct 2004 11:57:05 +1000
+Message-Id: <1098669425.26697.15.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-The following changeset:
+This patch removes some bogus struct definitions from prom.h that aren't
+used anymore after the other pending ppc64 patches have been applied.
 
-	ChangeSet@1.1757.1.270, 2004-10-23 10:31:03+02:00, perex@suse.cz
-	  Merge
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-apparently nuked joystick support in sound/pci/intel8x0.c (whether or
-not this was deliberate is not clear) but did so in a way that left the
-intel8x0.c file broken with a dangling #endif.  The following patch
-allows the driver to compile again.
-
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-
---- 1.125/sound/pci/intel8x0.c  2004-10-23 05:12:56 -04:00
-+++ edited/sound/pci/intel8x0.c 2004-10-24 21:34:10 -04:00
-@@ -69,7 +69,6 @@
- static int ac97_quirk[SNDRV_CARDS] = {[0 ... (SNDRV_CARDS - 1)] = AC97_TUNE_DEFAULT};
- static int buggy_irq[SNDRV_CARDS];
- static int xbox[SNDRV_CARDS];
--#endif
- #ifdef SUPPORT_MIDI
- static int mpu_port[SNDRV_CARDS]; /* disabled */
- #endif
+Index: linux-work/include/asm-ppc64/prom.h
+===================================================================
+--- linux-work.orig/include/asm-ppc64/prom.h	2004-09-24 14:36:14.000000000 +1000
++++ linux-work/include/asm-ppc64/prom.h	2004-10-25 11:55:43.447229784 +1000
+@@ -93,33 +93,6 @@
+ 	unsigned int size;
+ };
+ 
+-struct pci_range32 {
+-	struct pci_address child_addr;
+-	unsigned int  parent_addr;
+-  	unsigned long size; 
+-};
+-
+-struct pci_range64 {
+-	struct pci_address child_addr;
+-  	unsigned long parent_addr;
+-        unsigned long size; 
+-};
+-
+-union pci_range {
+-	struct {
+-		struct pci_address addr;
+-		u32 phys;
+-		u32 size_hi;
+-	} pci32;
+-	struct {
+-		struct pci_address addr;
+-		u32 phys_hi;
+-		u32 phys_lo;
+-		u32 size_hi;
+-		u32 size_lo;
+-	} pci64;
+-};
+-
+ struct of_tce_table {
+ 	phandle node;
+ 	unsigned long base;
 
 

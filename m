@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275909AbTHOLjn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 07:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275910AbTHOLjn
+	id S263637AbTHOLlA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 07:41:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTHOLlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 07:39:43 -0400
-Received: from [66.98.134.43] ([66.98.134.43]:13448 "EHLO shitake.truemesh.com")
-	by vger.kernel.org with ESMTP id S275909AbTHOLjm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 07:39:42 -0400
-Date: Fri, 15 Aug 2003 12:39:41 +0100
-From: Paul Nasrat <pauln@truemesh.com>
-To: Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test3mm2 - Synaptics touchpad problem
-Message-ID: <20030815113940.GR13037@shitake.truemesh.com>
-Mail-Followup-To: Paul Nasrat <pauln@truemesh.com>,
-	Milan Roubal <roubm9am@barbora.ms.mff.cuni.cz>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <003701c3630f$387a6330$401a71c3@izidor> <20030815103529.GQ13037@shitake.truemesh.com> <00a501c3631c$676237b0$401a71c3@izidor>
+	Fri, 15 Aug 2003 07:41:00 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:14609 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263637AbTHOLk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 07:40:59 -0400
+Date: Fri, 15 Aug 2003 12:40:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Dave Jones <davej@redhat.com>,
+       Jonathan Morton <chromi@chromatix.demon.co.uk>,
+       Robert Toole <tooler@tooleweb.homelinux.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: agpgart failure on KT400
+Message-ID: <20030815124055.A8940@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Dave Jones <davej@redhat.com>,
+	Jonathan Morton <chromi@chromatix.demon.co.uk>,
+	Robert Toole <tooler@tooleweb.homelinux.com>,
+	linux-kernel@vger.kernel.org
+References: <3F3C2DA0.1030504@tooleweb.homelinux.com> <BD8AF95A-CEC1-11D7-A88B-003065664B7C@chromatix.demon.co.uk> <20030815105733.GC22433@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <00a501c3631c$676237b0$401a71c3@izidor>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030815105733.GC22433@redhat.com>; from davej@redhat.com on Fri, Aug 15, 2003 at 11:57:33AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 01:00:09PM +0200, Milan Roubal wrote:
-> Hi,
-> I am using the new drivers for XFree86 and if the touchpad is visible
+On Fri, Aug 15, 2003 at 11:57:33AM +0100, Dave Jones wrote:
+> is at least a few evenings work.  I'm just one guy.  Unless Red Hat
+> decide that AGP3 is something they really really must have for some
+> future 2.4 release, it isn't going to happen by me. Period.
+> I'm just up to my eyes in other work.
 
-Apologies I misread your bug report.  Maybe this will be of more help.
+Red Hat has merged the crap AGP3 patches for 2.4 in AS3.0 at least..
 
-> in dmesg, than it is working in XFree86 too. When it isn't,
-> it isn't than listed in /proc/bus/input/devices and is not working in
-> XFree86.
-
-That does seem odd, I haven't noticed this with vanilla 2.6.0test3
-(linux only, but a reboot linux->linux would exhibit that).
-
-I note on the non synaptics boot you have this instead of the synaptics.
-
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-
-It may be worth #define DEBUG in i8042.c, to see the differences between
-the two boot sequences in more detail.
-
-You might want to try against 2.6.0-test3, if it works for you
-then it might be worth going through the synaptics patches in mm2 one by
-one :( 
-
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm2/broken-out/
-
-http://w1.894.telia.com/~u89404340/patches/touchpad/2.6.0-test2/v1/Readme.txt
-
-I'll see if I can replicate this with my laptop this evening.
- 
-Paul

@@ -1,99 +1,112 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264872AbRGIUUj>; Mon, 9 Jul 2001 16:20:39 -0400
+	id <S264883AbRGIUV3>; Mon, 9 Jul 2001 16:21:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264883AbRGIUU3>; Mon, 9 Jul 2001 16:20:29 -0400
-Received: from sciurus.rentec.com ([192.5.35.161]:61096 "EHLO
-	sciurus.rentec.com") by vger.kernel.org with ESMTP
-	id <S264872AbRGIUUO>; Mon, 9 Jul 2001 16:20:14 -0400
-Date: Mon, 9 Jul 2001 16:20:21 -0400 (EDT)
-From: Dirk Wetter <dirkw@rentec.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: dead mem pages -> dead machines
-Message-ID: <Pine.LNX.4.33.0107091540220.12902-100000@monster000.rentec.com>
+	id <S264910AbRGIUVW>; Mon, 9 Jul 2001 16:21:22 -0400
+Received: from sammy.netpathway.com ([208.137.139.2]:9989 "EHLO
+	sammy.netpathway.com") by vger.kernel.org with ESMTP
+	id <S264883AbRGIUVO>; Mon, 9 Jul 2001 16:21:14 -0400
+Message-ID: <3B4A1234.4CDA9C20@netpathway.com>
+Date: Mon, 09 Jul 2001 15:21:08 -0500
+From: "Gary White (Network Administrator)" <admin@netpathway.com>
+Organization: Internet Pathway
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+        "Mohammad A. Haque" <mhaque@haque.net>
+Subject: Re: VMWare crashes
+In-Reply-To: <82677BD2F89@vcnet.vc.cvut.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-scanner: scanned by Inflex 0.1.5c - (http://www.inflex.co.za/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-hi,
-
-we have a growing cluster of ia32 SMP machines, each of them with 4GB
-physical memory.  the problem we observe with 2.4.5 as well as 2.4.6
-is that once we start running simulations on those machines they
-become after a short while quite unusable. this is the picture
-of a machine, freshly rebooted after the app ran for 30 minutes
-or so:
-
-machine018:~ # top -b | head -28
-  3:27pm  up  4:02,  2 users,  load average: 2.08, 3.88, 3.05
-60 processes: 55 sleeping, 3 running, 2 zombie, 0 stopped
-CPU0 states: 89.0% user,  9.0% system, 89.0% nice,  0.1% idle
-CPU1 states: 97.0% user,  1.0% system, 97.0% nice,  0.1% idle
-Mem:  4058128K av, 4050816K used,    7312K free,       0K shrd,    3152K buff
-Swap: 14337736K av, 3380176K used, 10957560K free                 2876028K cached
-
-  PID  PPID USER     PRI  SIZE SWAP  RSS SHARE   D STAT %CPU %MEM   TIME COMMA
- 3759  3684 userid    15 2105M 1.1G 928M  254M  0M R N  94.4 23.4  10:57 ceqsim
- 3498  3425 userid    16 2189M 1.5G 609M  205M  0M R N  91.7 15.3  22:12 ceqsim
- 4126   819 root      16  1044    0 1044   820  55 R     9.8  0.0   0:00 top
-    1     0 root       8    76   12   64    64   4 S     0.0  0.0   0:00 init
-    2     1 root       8     0    0    0     0   0 SW    0.0  0.0   0:00 kevent
-    3     1 root       9     0    0    0     0   0 SW    0.0  0.0   2:42 kswapd
-    4     1 root       9     0    0    0     0   0 SW    0.0  0.0   0:00 krecla
-    5     1 root       9     0    0    0     0   0 SW    0.0  0.0   0:00 bdflus
-    6     1 root       9     0    0    0     0   0 SW    0.0  0.0   0:03 kupdat
-    7     1 root       9     0    0    0     0   0 SW    0.0  0.0   0:00 scsi_e
-    8     1 root       9     0    0    0     0   0 SW    0.0  0.0   0:00 scsi_e
-   41     1 root       9     0    0    0     0   0 SW    0.0  0.0   0:01 kreise
+Just happened again. This only happens when there is a lot
+of network activity. This time I was downloading an mp3 from
+the newsgroups. During normal day to day activity it does not
+die. 
 
 
-machine018:~ # cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  4155523072 4148527104  6995968        0  3227648 2940301312
-Swap: 1796939776 3461300224 2630606848
-MemTotal:      4058128 kB
-MemFree:          6832 kB
-MemShared:           0 kB
-Buffers:          3152 kB
-Cached:        2871388 kB
-Active:        1936040 kB
-Inact_dirty:    499780 kB
-Inact_clean:    438720 kB
-Inact_target:     3080 kB
-HighTotal:     3211200 kB
-HighFree:         3988 kB
-LowTotal:       846928 kB
-LowFree:          2844 kB
-SwapTotal:    14337736 kB
-SwapFree:     10957560 kB
+Unable to handle kernel NULL pointer dereference at virtual address 00000070
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<e1af9639>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00013282
+eax: 00000000   ebx: 00000000   ecx: dae7c000   edx: 00000000
+esi: dfe42864   edi: dfe46c10   ebp: dfe46bdc   esp: dae7deb0
+ds: 0018   es: 0018   ss: 0018
+Process vmware (pid: 371, stackpage=dae7d000)
+Stack: dca4e804 00000000 dca4e800 dfe4212c c01283d2 c1887690 de21d584 c18dac00
+       dfe425c4 dfe425c4 dfe4212c e1af7ffe dfe46c30 d83d6a5c 00003202 dca4e804
+       00000000 dca4e800 dfe4212c e1af8546 dca4e804 d83d6a5c dfe427bc c020a91f
+Call Trace: [<c01283d2>] [<c020a91f>] [<c013e85a>] [<c0130696>] [<c0106e33>]
+Code: 8b 42 70 83 f8 01 74 0a ff 4a 70 0f 94 c0 84 c0 74 0c 83 c4
+
+>>EIP; e1af9639 <[vmnet]VNetBridgeReceiveFromVNet+191/20c>   <=====
+Trace; c01283d2 <kfree+1d2/270>
+Trace; c020a91f <__kfree_skb+12f/140>
+Trace; c013e85a <select_bits_free+a/10>
+Trace; c0130696 <sys_write+96/d0>
+Trace; c0106e33 <system_call+33/38>
+Code;  e1af9639 <[vmnet]VNetBridgeReceiveFromVNet+191/20c>
+0000000000000000 <_EIP>:
+Code;  e1af9639 <[vmnet]VNetBridgeReceiveFromVNet+191/20c>   <=====
+   0:   8b 42 70                  mov    0x70(%edx),%eax   <=====
+Code;  e1af963c <[vmnet]VNetBridgeReceiveFromVNet+194/20c>
+   3:   83 f8 01                  cmp    $0x1,%eax
+Code;  e1af963f <[vmnet]VNetBridgeReceiveFromVNet+197/20c>
+   6:   74 0a                     je     12 <_EIP+0x12> e1af964b <[vmnet]VNetBridgeReceiveFromVNet+1a3/20c>
+Code;  e1af9641 <[vmnet]VNetBridgeReceiveFromVNet+199/20c>
+   8:   ff 4a 70                  decl   0x70(%edx)
+Code;  e1af9644 <[vmnet]VNetBridgeReceiveFromVNet+19c/20c>
+   b:   0f 94 c0                  sete   %al
+Code;  e1af9647 <[vmnet]VNetBridgeReceiveFromVNet+19f/20c>
+   e:   84 c0                     test   %al,%al
+Code;  e1af9649 <[vmnet]VNetBridgeReceiveFromVNet+1a1/20c>
+  10:   74 0c                     je     1e <_EIP+0x1e> e1af9657 <[vmnet]VNetBridgeReceiveFromVNet+1af/20c>
+Code;  e1af964b <[vmnet]VNetBridgeReceiveFromVNet+1a3/20c>
+  12:   83 c4 00                  add    $0x0,%esp
 
 
-machine018:~ # cat /proc/swaps
-Filename                        Type            Size    Used    Priority
-/dev/sda5                       partition       2048248 2048248 -1
-/dev/sdb1                       partition       2048248 1331928 -2
-/dev/sdc1                       partition       2048248 0       -3
-[..]
+Petr Vandrovec wrote:
+> 
+> On  9 Jul 01 at 9:49, Gary White (Network Administr wrote:
+> > I realize this may be a VMWare problem, but I just waited to
+> > bring this to the attention of the developers in case it was related
+> > to the kernel and to also see if anyone else is having the same
+> > problem. VMWare dies under load with all kernel versions up to and
+> > including ac versions after 2.4.6. Kernel version up to and including
+> > 2.4.5-ac15 I know all run fine. Somewhere between 2.4.5-ac15 and 2.4.6
+> > is where the problem started. I have backed up to 2.4.5 now and VMWare
+> > is rock solid.
+> 
+> > Unable to handle kernel NULL pointer dereference at virtual address 00000070
+> >  printing eip:
+> > e1af85e1
+> > Call Trace: [<c0203fe4>] [<c0203fe4>] [<c011722f>] [<c012eb26>] [<c0106dc3>]
+> 
+> Could you feed these oopeses through ksymoops?
+> 
+> I'm now running vmware 24h/day with linux and win98 as guest, doing
+> network transfers between host and guest, and I did not noticed any problems.
+> 
+> It worked fine with 2.4.5-ac24 from wednesday to sunday, and yesterday
+> I upgraded to 2.4.6-ac2, and it still works. Kernel compiled with
+> Debian's gcc-3.0-3 or gcc-3.0-4, Asus A7V, KT133, 1GHz Athlon, and
+> Chaintech 6BTM, 440BX, 300MHz Celeron... I did not tested Linus's kernel
+> for more than 6 months now, so I cannot tell whether it works with Linus's
+> 2.4.6, or not...
+>                                         Best regards,
+>                                             Petr Vandrovec
+>                                             vandrove@vc.cvut.cz
+> 
 
-why does the kernel have 2.8GB of cached pages, and our applications
-have to swap 1.5+1.1GB of pages out? also, i do not understand why
-the amount of inactive pages is so high. i don't have good statistics
-on that, but my impression is that the amount of Inact_dirty pages
-increases as longer as the application runs.
-
-not to mention, that the moment the machine is swapping pages out
-in the order of gigabytes, the console even doesn't respond and
-network wise it only responds to icmp packets.
-
-i don't know how to collect more information, please let me know what
-i can do in order send more info (.config is CONFIG_HIGHMEM4G=y).
-
-
-thx,
-	~dirkw
-
-
-PS: cc me please since i am not subscribed to the list.
+-- 
+Gary White               Network Administrator
+admin@netpathway.com          Internet Pathway
+Voice 601-776-3355            Fax 601-776-2314
 

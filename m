@@ -1,32 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263832AbTKZFwC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 00:52:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTKZFwC
+	id S263965AbTKZF4N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 00:56:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTKZF4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 00:52:02 -0500
-Received: from smtp03.web.de ([217.72.192.158]:37136 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263832AbTKZFwB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 00:52:01 -0500
-Subject: Re: 2.6.0-preX causes memory corruption
-From: Ali Akcaagac <aliakc@web.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1069825925.907.2.camel@localhost>
+	Wed, 26 Nov 2003 00:56:13 -0500
+Received: from smtp2.actcom.co.il ([192.114.47.15]:43909 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S263965AbTKZF4J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 00:56:09 -0500
+Date: Wed, 26 Nov 2003 07:55:57 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Pat Erley <paterley@drunkencodepoets.servebeer.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] trivial change in kernel/sched.c in 2.6.0-test9+
+Message-ID: <20031126055556.GC3734@actcom.co.il>
+References: <20031126002713.1f8707f8.paterley@mail.drunkencodepoets.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 26 Nov 2003 06:52:06 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
+Content-Disposition: inline
+In-Reply-To: <20031126002713.1f8707f8.paterley@mail.drunkencodepoets.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Sorry for the subject but I have been noticing this problem for
-> > quite some time now under 2 totally different machines and I now
-> > belive that this may be a Kernel issue.
 
-> Do you have pre-emption enabled, by any chance?  If so, can you
-> reproduce these problems with it disabled?
+--xesSdrSSBC0PokLI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes it's enabled, will disable it now and report back.
+On Wed, Nov 26, 2003 at 12:27:13AM -0500, Pat Erley wrote:
 
+> this ends up saving a few math operations any time a child
+> process exits. ( calling sched_exit(task_t * p) )
+
+Yes, but does it have any noticeable effect on performance whatsoever?
+premature optimization, root of all evil, etc.=20
+
+Cheers,=20
+Muli=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
+
+"the nucleus of linux oscillates my world" - gccbot@#offtopic
+
+
+--xesSdrSSBC0PokLI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/xEBsKRs727/VN8sRAnUGAJ9r/SrhDw5hjUxOuEwgSxza5UYYPgCgr7Ix
+oh+GS/aW/ZMVqWU6XrcA3Nc=
+=D1aN
+-----END PGP SIGNATURE-----
+
+--xesSdrSSBC0PokLI--

@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292384AbSCDOIB>; Mon, 4 Mar 2002 09:08:01 -0500
+	id <S292380AbSCDOIL>; Mon, 4 Mar 2002 09:08:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292375AbSCDOHw>; Mon, 4 Mar 2002 09:07:52 -0500
-Received: from 99dyn73.com21.casema.net ([62.234.30.73]:28290 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S292380AbSCDOHg>; Mon, 4 Mar 2002 09:07:36 -0500
-Message-Id: <200203041407.PAA20022@cave.bitwizard.nl>
-Subject: Re: Kernel module ethics.
-In-Reply-To: <20020227181333.A25723@work.bitmover.com> from Larry McVoy at "Feb
- 27, 2002 06:13:33 pm"
-To: Larry McVoy <lm@bitmover.com>
-Date: Mon, 4 Mar 2002 15:07:30 +0100 (MET)
-CC: Karl <ktatgenhorst@earthlink.net>, Erik Mouw <J.A.K.Mouw@its.tudelft.nl>,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S292375AbSCDOIB>; Mon, 4 Mar 2002 09:08:01 -0500
+Received: from pool-151-204-76-90.delv.east.verizon.net ([151.204.76.90]:1796
+	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
+	id <S292380AbSCDOHz>; Mon, 4 Mar 2002 09:07:55 -0500
+Date: Mon, 4 Mar 2002 09:08:19 -0500
+From: Malcolm Mallardi <magamo@ranka.2y.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 vs 2.4.17 DVD video preformance problem?
+Message-ID: <20020304090819.A4087@trianna.upcommand.net>
+In-Reply-To: <20020304072054.A12646@trianna.upcommand.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020304072054.A12646@trianna.upcommand.net>; from magamo@ranka.2y.net on Mon, Mar 04, 2002 at 07:20:54AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
-> Like I said before, unless your code is potentially worth at least a
-> million bucks, it's almost certainly not worth anything financially,
-> so GPL it.  If you think it could be worth $1M, isn't it worth $.015M
-> to figure out your rights?
+On Mon, Mar 04, 2002 at 07:20:54AM -0500, Malcolm Mallardi wrote:
+> 	Heyla folks.  I hit a snag while using 2.4.18 for the first
+> time the other day.... When I played DVDs under it, there would be a
+> large amount of 'skips' in comparison to 2.4.17.  I know, not much of a
+> bug report, as I think the bug may have already been addressed.
+> 	The reason I say this is that my DVD-ROM drive is on the
+> secondary IDE channel of a PIIX4 chipset.  Under 2.4.17 playback
+> preformance is nearly perfect.  Could these "PIIX4 slave timing" fixes
+> that I've been reading about in a few of the newer changelogs be what
+> I'm looking for?  I'm going to track down one of the newer patches
+> (probably -pre2-ac1) and try it out and see if that gives better
+> preformance for me.
+> 
 
-In the software world, there are a lot of people who (think that they)
-have code worth $1M, but they dont have that money in the bank (yet).
+	Tested things out under 2.4.19-pre2  Something y'all did in
+there fixed it up nicely.
 
-		Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+--
+Malcolm D. Mallardi - Dark Freak At Large
+"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
+AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
+http://ranka.2y.net:3000/~magamo/index.htm

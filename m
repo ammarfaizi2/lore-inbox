@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318377AbSGRXER>; Thu, 18 Jul 2002 19:04:17 -0400
+	id <S318392AbSGRXQL>; Thu, 18 Jul 2002 19:16:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318386AbSGRXER>; Thu, 18 Jul 2002 19:04:17 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:13580 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S318377AbSGRXER>; Thu, 18 Jul 2002 19:04:17 -0400
-Date: Thu, 18 Jul 2002 16:07:06 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Andi Kleen <ak@suse.de>
-cc: Matthew Wilcox <willy@debian.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.26 broken on headless boxes
-In-Reply-To: <p73adopurv4.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.44.0207181604140.16453-100000@www.transvirtual.com>
+	id <S318394AbSGRXQK>; Thu, 18 Jul 2002 19:16:10 -0400
+Received: from pD9E23073.dip.t-dialin.net ([217.226.48.115]:4993 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318392AbSGRXQK>; Thu, 18 Jul 2002 19:16:10 -0400
+Date: Thu, 18 Jul 2002 17:17:41 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Dave Jones <davej@suse.de>
+cc: Bill Davidsen <davidsen@tmr.com>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+In-Reply-To: <20020718222229.B21997@suse.de>
+Message-ID: <Pine.LNX.4.44.0207181710290.3911-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> I also see similar problems on x86-64 in 2.5.25.  The kernel quickly crashes
-> when trying to return from opost_write() because something below has zeroed
-> out the stack (with serial console and vga console and early console enabled)
-> I have not tried it with 2.5.26 yet.
+On Thu, 18 Jul 2002, Dave Jones wrote:
+> Bit by bit, either parts of Keith's work, or orthogonal ideas
+> are making it in. Whether the big chunks make it by halloween remains
+> to be seen.
 
-It is the result of registering the console device first for printk and
-then later registering the tty device. Eventually I like to be able to
-have VT_CONSOLE independent of CONFIG_VT so we could have a light weight
-printk. The goal is register tty device once we find a keyboard of some
-kind.
+Well, I still see unnecessary recompiles. There's a lot of stuff to do 
+here, I think, which was already done in kbuild-2.5.
+
+> Are any other *nix vendors shipping NFSv4 yet?
+
+Seemingly. On Hawkeye, I sometimes get warnings of that kind (svc: 
+unknown version (4)). However, I can't tell what kind of system the 
+clients were. I've also heard about this warning from Potsdam and 
+Frankfurt.
+
+> Agreed, a pretty important feature.
+
+I ack here, our arrays are mostly filled up with only some ten gigabytes 
+left.
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

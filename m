@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315276AbSDWR3o>; Tue, 23 Apr 2002 13:29:44 -0400
+	id <S315279AbSDWReA>; Tue, 23 Apr 2002 13:34:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315279AbSDWR3n>; Tue, 23 Apr 2002 13:29:43 -0400
-Received: from [192.82.208.96] ([192.82.208.96]:8349 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S315276AbSDWR2l>;
-	Tue, 23 Apr 2002 13:28:41 -0400
-Date: Mon, 22 Apr 2002 16:49:25 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] patch to /proc/meminfo to display NUMA stats
-Message-ID: <20020422234925.GA1173212@sgi.com>
-In-Reply-To: <25270000.1019495119@flay> <6087.1019518771@ocs3.intra.ocs.com.au>
+	id <S315280AbSDWReA>; Tue, 23 Apr 2002 13:34:00 -0400
+Received: from [192.82.208.96] ([192.82.208.96]:30367 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S315279AbSDWRd6>;
+	Tue, 23 Apr 2002 13:33:58 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] race in request_module() 
+In-Reply-To: Your message of "Mon, 22 Apr 2002 23:35:51 -0400."
+             <Pine.GSO.4.21.0204222333120.5686-100000@weyl.math.psu.edu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Date: Tue, 23 Apr 2002 13:45:33 +1000
+Message-ID: <10796.1019533533@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I implemented something kind of like this for the discontig project,
-but I called it /proc/discontig.  The patch just walked all the
-pgdata_t structures and did its best to find out where the memory was
-being used.  See http://sourceforge.net/projects/discontig for the
-patch.  The first column of the output should probably be called
-'region' or something, since it's not NUMA specific at all...
+On Mon, 22 Apr 2002 23:35:51 -0400 (EDT), 
+Alexander Viro <viro@math.psu.edu> wrote:
+>On Tue, 23 Apr 2002, Keith Owens wrote:
+>> When a module is loaded, it is marked !MOD_USED_ONCE.  An explicit
+>> rmmod will get rid of the module but rmmod -a will not.  rmmod -a will
+>> not remove a module unless __MOD_INC_USE_COUNT has been issued on the
+>> module at least once, or the module is loaded to satisfy unresolved
+>> symbols from another module.
+>
+>
+>Which is still racy - open()/close() bringing stuff from the same module
+>during the window in question and there we go.
+>
+>IOW, echo </dev/foo will merrily set MOD_USED_ONCE.
 
-Jesse
+Where is the race?
 
-On Tue, Apr 23, 2002 at 09:39:31AM +1000, Keith Owens wrote:
-> On Mon, 22 Apr 2002 10:05:19 -0700, 
-> "Martin J. Bligh" <Martin.Bligh@us.ibm.com> wrote:
-> >Below is a patch to /proc/meminfo to display free, used and total
-> >memory per node on a NUMA machine. It works fine on an ia32
-> >machine, but is not yet ready for submission until I make it generic.
-> >Before I go to the effort of doing that, I thought I'd seek some feedback.
-> >
-> >diff -urN virgin-2.4.18/fs/proc/proc_misc.c linux-2.4.18-meminfo/fs/proc/proc_misc.c
-> >--- virgin-2.4.18/fs/proc/proc_misc.c	Tue Nov 20 21:29:09 2001
-> >+++ linux-2.4.18-meminfo/fs/proc/proc_misc.c	Mon Apr 15 09:31:32 2002
-> >+#ifdef CONFIG_NUMA
-> >+	for (nid = 0; nid < numnodes; ++nid) {
-> >+		si_meminfo_node(&i, nid);
-> >+		len += sprintf(page+len, "\n"
-> >+			"Node %d MemTotal:     %8lu kB\n"
-> >+			"Node %d MemFree:     %8lu kB\n"
-> >+			"Node %d MemUsed:     %8lu kB\n"
-> >+			"Node %d HighTotal:    %8lu kB\n"
-> >+			"Node %d HighFree:     %8lu kB\n"
-> >+			"Node %d LowTotal:     %8lu kB\n"
-> >+			"Node %d LowFree:      %8lu kB\n",
-> >+			nid, K(i.totalram),
-> >+			nid, K(i.freeram),
-> >+			nid, K(i.totalram-i.freeram),
-> >+			nid, K(i.totalhigh),
-> >+			nid, K(i.freehigh),
-> >+			nid, K(i.totalram-i.totalhigh),
-> >+			nid, K(i.freeram-i.freehigh));
-> >+	}
-> >+#endif
+  open /dev/foo
+    request_module(foo)
+      load foo, mark !MOD_USED_ONCE.
+    continue with open, MOD_INC_USE_COUNT(foo), mark MOD_USED_ONCE.
+    return to use, module is locked down
+  User space closes /dev/foo
+    Release foo resources.
+      MOD_DEC_USE_COUNT(foo)
+        return to user space
+  rmmod -a cleans up.  Nothing is using foo, it is removed.	
+

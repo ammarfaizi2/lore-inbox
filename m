@@ -1,97 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267013AbTAPEhK>; Wed, 15 Jan 2003 23:37:10 -0500
+	id <S267011AbTAPEfH>; Wed, 15 Jan 2003 23:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267026AbTAPEhJ>; Wed, 15 Jan 2003 23:37:09 -0500
-Received: from holomorphy.com ([66.224.33.161]:6543 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267013AbTAPEhH>;
-	Wed, 15 Jan 2003 23:37:07 -0500
-Date: Wed, 15 Jan 2003 20:46:00 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lots of calls to __write/read_lock_failed
-Message-ID: <20030116044600.GN919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Hansen <haveblue@us.ibm.com>, linux-kernel@vger.kernel.org
-References: <3E263285.2000204@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E263285.2000204@us.ibm.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S267013AbTAPEfH>; Wed, 15 Jan 2003 23:35:07 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:1001 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP
+	id <S267011AbTAPEfG>; Wed, 15 Jan 2003 23:35:06 -0500
+Message-ID: <3E263833.EB1C45B3@verizon.net>
+Date: Wed, 15 Jan 2003 20:42:27 -0800
+From: "Randy.Dunlap" <randy.dunlap@verizon.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.54 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] update LOG BUF SIZE config.
+Content-Type: multipart/mixed;
+ boundary="------------0D17B7940E6287DFD0F63756"
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out003.verizon.net from [4.64.197.173] at Wed, 15 Jan 2003 22:43:56 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 15, 2003 at 08:18:13PM -0800, Dave Hansen wrote:
->  file_table:_raw_read_lock() 3300000
->  Call Trace:
->   [<c0152469>] fget+0x9d/0xa0
->   [<c0152b27>] sys_fsync+0x21/0xbe
->   [<c0151b53>] sys_writev+0x47/0x56
->   [<c010931f>] syscall_call+0x7/0xb
+This is a multi-part message in MIME format.
+--------------0D17B7940E6287DFD0F63756
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-read_lock(&file->files_lock);
+Hi,
 
+The current LOG_BUF size is a bit confusing the first
+time that "make oldconfig" is used.  It's difficult to
+select anything other than the default value.
 
-On Wed, Jan 15, 2003 at 08:18:13PM -0800, Dave Hansen wrote:
-> filemap:_raw_read_lock() 1450000
->  Call Trace:
->   [<c0136937>] do_generic_mapping_read+0x411/0x43e
->   [<c0136d98>] file_send_actor+0x0/0x74
->   [<c0136e74>] generic_file_sendfile+0x68/0x76
->   [<c0136d98>] file_send_actor+0x0/0x74
->   [<c0151d48>] do_sendfile+0x1e6/0x28a
->   [<c0136d98>] file_send_actor+0x0/0x74
->   [<c0151e50>] sys_sendfile+0x64/0xcc
->   [<c010931f>] syscall_call+0x7/0xb
+Also, you (Linus) expressed a desire to have this
+configurable only if DEBUG_KERNEL or "kernel hacking"
+was enabled, so I've changed it to accomplish that.
 
-read_lock(&mapping->page_lock);
+This patch also uses Kconfig in a way that Roman intended
+since a patch in 2.5.52 which enables default values if
+a prompt is not enabled, but lets values be chosen when
+the prompt is enabled.  You also asked for this in setting
+this config option.
 
-On Wed, Jan 15, 2003 at 08:18:13PM -0800, Dave Hansen wrote:
->  ip_output:_raw_read_lock() 2000000
->  Call Trace:
->   [<c02c90b2>] ip_finish_output2+0x154/0x226
->   [<c02c7466>] ip_queue_xmit+0x3dc/0x4ce
->   [<c011c71a>] default_wake_function+0x32/0x3e
->   [<c011c75e>] __wake_up_common+0x38/0x58
->   [<c02ddf24>] tcp_v4_send_check+0x54/0xe2
->   [<c02d81b6>] tcp_transmit_skb+0x2be/0x448
->   [<c02d54ca>] tcp_data_queue+0x23a/0x830
->   [<c02da693>] tcp_send_ack+0x81/0xb2
->   [<c02d68d1>] tcp_rcv_established+0x249/0x70e
->   [<c02defd1>] tcp_v4_do_rcv+0x12d/0x132
->   [<c02df452>] tcp_v4_rcv+0x47c/0x50c
->   [<c02c4363>] ip_local_deliver_finish+0x9f/0x19e
->   [<c02c4674>] ip_rcv_finish+0x212/0x29f
->   [<c02b410e>] netif_receive_skb+0xc2/0x17c
->   [<c02b4245>] process_backlog+0x7d/0x10c
->   [<c02b4395>] net_rx_action+0xc1/0x178
->   [<c01248e7>] do_softirq+0xb7/0xba
->   [<c010b390>] do_IRQ+0xec/0xf8
->   [<c0106eca>] default_idle+0x0/0x2e
+Please apply to 2.5.58.
 
-read_lock_bh(&hh->hh_lock);
+Thanks,
+~Randy
+--------------0D17B7940E6287DFD0F63756
+Content-Type: text/plain; charset=us-ascii;
+ name="lgbuf-2554bk4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="lgbuf-2554bk4.patch"
 
-On Wed, Jan 15, 2003 at 08:18:13PM -0800, Dave Hansen wrote:
-> time:_raw_write_lock() 1350000
-> Call Trace:
->  [<c010f321>] timer_interrupt+0x99/0x9c
->  [<c010b150>] handle_IRQ_event+0x38/0x5c
->  [<c010b330>] do_IRQ+0x8c/0xf8
->  [<c0106eca>] default_idle+0x0/0x2e
->  [<c0106eca>] default_idle+0x0/0x2e
->  [<c0109c8c>] common_interrupt+0x18/0x20
->  [<c0106eca>] default_idle+0x0/0x2e
->  [<c0106eca>] default_idle+0x0/0x2e
->  [<c0106ef4>] default_idle+0x2a/0x2e
->  [<c0106f6b>] cpu_idle+0x39/0x42
->  [<c01212a5>] printk+0x15d/0x190
+--- ./init/Kconfig%LGBUF	Mon Jan  6 16:01:55 2003
++++ ./init/Kconfig	Mon Jan  6 16:38:35 2003
+@@ -82,50 +82,21 @@
+ 	  building a kernel for install/rescue disks or your system is very
+ 	  limited in memory.
+ 
+-choice
+-	prompt "Kernel log buffer size"
+-	default LOG_BUF_SHIFT_17 if ARCH_S390
+-	default LOG_BUF_SHIFT_16 if X86_NUMAQ || IA64
+-	default LOG_BUF_SHIFT_15 if SMP
+-	default LOG_BUF_SHIFT_14
+-	help
+-	  Select kernel log buffer size from this list (power of 2).
+-	  Defaults:  17 (=> 128 KB for S/390)
+-		     16 (=> 64 KB for x86 NUMAQ or IA-64)
+-	             15 (=> 32 KB for SMP)
+-	             14 (=> 16 KB for uniprocessor)
+-
+-config LOG_BUF_SHIFT_17
+-	bool "128 KB"
+-	default y if ARCH_S390
+-
+-config LOG_BUF_SHIFT_16
+-	bool "64 KB"
+-	default y if X86_NUMAQ || IA64
+-
+-config LOG_BUF_SHIFT_15
+-	bool "32 KB"
+-	default y if SMP
+-
+-config LOG_BUF_SHIFT_14
+-	bool "16 KB"
+-
+-config LOG_BUF_SHIFT_13
+-	bool "8 KB"
+-
+-config LOG_BUF_SHIFT_12
+-	bool "4 KB"
+-
+-endchoice
+-
+ config LOG_BUF_SHIFT
+-	int
+-	default 17 if LOG_BUF_SHIFT_17=y
+-	default 16 if LOG_BUF_SHIFT_16=y
+-	default 15 if LOG_BUF_SHIFT_15=y
+-	default 14 if LOG_BUF_SHIFT_14=y
+-	default 13 if LOG_BUF_SHIFT_13=y
+-	default 12 if LOG_BUF_SHIFT_12=y
++	int "Kernel log buffer size" if DEBUG_KERNEL
++	default 17 if ARCH_S390
++	default 16 if X86_NUMAQ || IA64
++	default 15 if SMP
++	default 14
++	help
++	  Select kernel log buffer size as a power of 2.
++	  Defaults and Examples:
++	  	     17 => 128 KB for S/390
++		     16 => 64 KB for x86 NUMAQ or IA-64
++	             15 => 32 KB for SMP
++	             14 => 16 KB for uniprocessor
++		     13 =>  8 KB
++		     12 =>  4 KB
+ 
+ endmenu
+ 
 
-read_lock_irqsave(&xtime_lock, flags)
-or
-write_lock_irq(&xtime_lock);
+--------------0D17B7940E6287DFD0F63756--
 
-
-Bill

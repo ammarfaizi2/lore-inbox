@@ -1,59 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbTELXpn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 19:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbTELXpn
+	id S262930AbTELXnH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 19:43:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbTELXnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 19:45:43 -0400
-Received: from impact.colo.mv.net ([199.125.75.20]:714 "EHLO
-	impact.colo.mv.net") by vger.kernel.org with ESMTP id S262955AbTELXpl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 19:45:41 -0400
-Message-ID: <3EC0351D.2050601@bogonomicon.net>
-Date: Mon, 12 May 2003 18:58:21 -0500
-From: Bryan Andersen <bryan@bogonomicon.net>
-Organization: Bogonomicon
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
+	Mon, 12 May 2003 19:43:07 -0400
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:19407 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S262930AbTELXnF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 19:43:05 -0400
+Message-ID: <3EC03705.8040100@pacbell.net>
+Date: Mon, 12 May 2003 17:06:29 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+X-Accept-Language: en-us, en, fr
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: The disappearing sys_call_table export.
-References: <Pine.LNX.4.44.0305130138350.15817-100000@marcellos.corky.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Greg KH <greg@kroah.com>
+CC: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69-bk7: multiple definition of `usb_gadget_get_string'
+References: <20030512205848.GU1107@fs.tum.de> <20030512211159.GA29716@kroah.com>
+Content-Type: multipart/mixed;
+ boundary="------------020605000600000306000506"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You want it secure, never write it to disk.  If that is not an option, 
-then all that is written to a disk must be encrypted.  Anything less is 
-a placebo.  Anyways as Alan mentioned:
+This is a multi-part message in MIME format.
+--------------020605000600000306000506
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
- > 4. Even then data erasure is not guaranteed because of the drive logic
-
- From the write speed differences I've seen on my own system between 
-writing zero filled buffers and random data filled buffers it looks like 
-a good number of drives do zero filled block write optimizations.  From 
-the efective write rates on a couple of my drives it looks like they are 
-just marking the blocks as zero in a master table rather than really 
-writing zeros out to them.
-
-- Bryan
-
-Yoav Weiss wrote:
-> Until linux gets a real encrypted swap (the kind OpenBSD implements), you
-> can settle for encrypting your whole swap with one random key that gets
-> lost on reboot.  Encrypted loop dev with a key from /dev/random easily
-> gives you that.
-> 
-> Download the latest loop-AES from http://loop-aes.sourceforge.net/ and
-> follow the "Encrypting swap on 2.4 kernels" section in README.
+Greg KH wrote:
+> On Mon, May 12, 2003 at 10:58:48PM +0200, Adrian Bunk wrote:
+>>`usb_gadget_get_string':
+>>: multiple definition of `usb_gadget_get_string'
+>>drivers/usb/gadget/g_zero.o(.text+0x0): first defined here
+>>make[2]: *** [drivers/usb/gadget/built-in.o] Error 1
 > 
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> I don't think that g_zero and g_ether are allowed to be built into the
+> kernel at the same time.  David, want to send a patch to fix the Kconfig
+> file to prevent this?
 
+Yes, just one: there's only one upstream USB connector,
+it can only have one driver.  Patch attached.
+
+Seems like the xconfig/menuconfig coredumps I previously
+saw with tristate choice/endchoice are now gone ... or at
+least they don't show up with this many choices!
+
+- Dave
+
+
+
+--------------020605000600000306000506
+Content-Type: text/plain;
+ name="kconf.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kconf.patch"
+
+--- 1.2/drivers/usb/gadget/Kconfig	Tue May  6 05:34:53 2003
++++ edited/drivers/usb/gadget/Kconfig	Mon May 12 16:56:45 2003
+@@ -35,9 +35,8 @@
+ #
+ # USB Peripheral Controller Support
+ #
+-# FIXME convert to tristate choice when "choice" behaves as specified
+-#
+-comment "USB Peripheral Controller Support"
++choice
++	prompt "USB Peripheral Controller Support"
+ 	depends on USB_GADGET
+ 
+ config USB_NET2280
+@@ -55,19 +54,17 @@
+ 	   dynamically linked module called "net2280" and force all
+ 	   gadget drivers to also be dynamically linked.
+ 
++endchoice
++
+ #
+ # USB Gadget Drivers
+ #
+-# FIXME only one of these may be statically linked; choice/endchoice.
+-#
+-comment "USB Gadget Drivers"
++choice
++	prompt "USB Gadget Drivers"
+ 	depends on USB_GADGET
++	default USB_ETH
+ 
+-# FIXME want better dependency/config approach for drivers.  with only
+-# two knobs to tweak (driver y/m/n, and a hardware symbol) there's no
+-# good excuse for Kconfig to cause such trouble here.  there are clear
+-# bugs (coredumps, multiple choices enabled, and more) in its (boolean)
+-# "choice" logic too ...
++# FIXME want a cleaner dependency/config approach for drivers.
+ 
+ config USB_ZERO
+ 	tristate "Gadget Zero (DEVELOPMENT)"
+@@ -149,5 +146,7 @@
+ 	bool
+ 	depends on USB_ETH && USB_SA1100
+ 	default y
++
++endchoice
+ 
+ # endmenuconfig
+
+--------------020605000600000306000506--
 

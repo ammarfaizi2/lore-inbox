@@ -1,113 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268709AbUIXMRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268708AbUIXMQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268709AbUIXMRl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 08:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268711AbUIXMRl
+	id S268708AbUIXMQv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 08:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268709AbUIXMQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 08:17:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:38310 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268709AbUIXMRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 08:17:01 -0400
-Date: Fri, 24 Sep 2004 05:16:52 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: [time] add support for CLOCK_THREAD_CPUTIME_ID and
- CLOCK_PROCESS_CPUTIME_ID
-In-Reply-To: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
-Message-ID: <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com>
-References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com>
+	Fri, 24 Sep 2004 08:16:50 -0400
+Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:47776
+	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S268708AbUIXMQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 08:16:36 -0400
+Message-ID: <41541009.9080206@ppp0.net>
+Date: Fri, 24 Sep 2004 14:16:09 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+Subject: Re: Is there a user space pci rescan method?
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <200409241241.19654@bilbo.math.uni-mannheim.de> <4154083B.6040109@ppp0.net> <200409241412.45204@bilbo.math.uni-mannheim.de>
+In-Reply-To: <200409241412.45204@bilbo.math.uni-mannheim.de>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm .... some further refinement to properly handle the process clock. The
-new thread groups make that possible ...
+Rolf Eike Beer wrote:
+> Normally you will just remove and bring back one or two cards in the system 
+> (e.g. your NIC or sound card, depending on xmms or irc being on top of your 
+> priority list *g*). So from my point of view it's a good idea to keep the 
+> slot dirs on remove so you can just go back in your command history and 
+> replace 0 with 1 to get the device back. I don't see why bus structure or 
+> whatever may ever change so rescanning the whole bus is IMHO a bit overkill.
 
-Index: linus/kernel/posix-timers.c
-===================================================================
---- linus.orig/kernel/posix-timers.c	2004-09-23 15:12:01.000000000 -0700
-+++ linus/kernel/posix-timers.c	2004-09-24 05:07:42.000000000 -0700
-@@ -133,18 +133,10 @@
-  *	    resolution.	 Here we define the standard CLOCK_REALTIME as a
-  *	    1/HZ resolution clock.
-  *
-- * CPUTIME & THREAD_CPUTIME: We are not, at this time, definding these
-- *	    two clocks (and the other process related clocks (Std
-- *	    1003.1d-1999).  The way these should be supported, we think,
-- *	    is to use large negative numbers for the two clocks that are
-- *	    pinned to the executing process and to use -pid for clocks
-- *	    pinned to particular pids.	Calls which supported these clock
-- *	    ids would split early in the function.
-- *
-  * RESOLUTION: Clock resolution is used to round up timer and interval
-  *	    times, NOT to report clock times, which are reported with as
-  *	    much resolution as the system can muster.  In some cases this
-- *	    resolution may depend on the underlaying clock hardware and
-+ *	    resolution may depend on the underlying clock hardware and
-  *	    may not be quantifiable until run time, and only then is the
-  *	    necessary code is written.	The standard says we should say
-  *	    something about this issue in the documentation...
-@@ -162,7 +154,7 @@
-  *
-  *          At this time all functions EXCEPT clock_nanosleep can be
-  *          redirected by the CLOCKS structure.  Clock_nanosleep is in
-- *          there, but the code ignors it.
-+ *          there, but the code ignores it.
-  *
-  * Permissions: It is assumed that the clock_settime() function defined
-  *	    for each clock will take care of permission checks.	 Some
-@@ -198,6 +190,8 @@
- 	struct timespec *tp, struct timespec *mo);
- int do_posix_clock_monotonic_gettime(struct timespec *tp);
- int do_posix_clock_monotonic_settime(struct timespec *tp);
-+int do_posix_clock_process_gettime(struct timespec *tp);
-+int do_posix_clock_thread_gettime(struct timespec *tp);
- static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
+My point was, I load dummyphp with showunused=0 and only get dirs for the
+slots with devices in them. Now I decide to put a network card (or whatever
+I have to spare) in an empty slot, hope that the system doesn't reboot
+immediately, and voila I don't have any /sys/bus/pci/slots dir to enable
+the slot and have to reboot nevertheless. Or does the pci system a rescan
+if I reinsert the module?
 
- static inline void unlock_timer(struct k_itimer *timr, unsigned long flags)
-@@ -218,6 +212,14 @@
- 		.clock_get = do_posix_clock_monotonic_gettime,
- 		.clock_set = do_posix_clock_monotonic_settime
- 	};
-+	struct k_clock clock_thread = {.res = CLOCK_REALTIME_RES,
-+		.abs_struct = NULL,
-+		.clock_get = do_posix_clock_thread_gettime
-+	};
-+	struct k_clock clock_process = {.res = CLOCK_REALTIME_RES,
-+		.abs_struct = NULL,
-+		.clock_get = do_posix_clock_process_gettime
-+	};
+Thanks,
 
- #ifdef CONFIG_TIME_INTERPOLATION
- 	/* Clocks are more accurate with time interpolators */
-@@ -226,6 +228,8 @@
-
- 	register_posix_clock(CLOCK_REALTIME, &clock_realtime);
- 	register_posix_clock(CLOCK_MONOTONIC, &clock_monotonic);
-+	register_posix_clock(CLOCK_PROCESS_CPUTIME_ID, &clock_process);
-+	register_posix_clock(CLOCK_THREAD_CPUTIME_ID, &clock_thread);
-
- 	posix_timers_cache = kmem_cache_create("posix_timers_cache",
- 					sizeof (struct k_itimer), 0, 0, NULL, NULL);
-@@ -1227,6 +1231,18 @@
- 	return -EINVAL;
- }
-
-+int do_posix_clock_thread_gettime(struct timespec *tp)
-+{
-+	jiffies_to_timespec(get_jiffies_64()-current->start_time, tp);
-+	return 0;
-+}
-+
-+int do_posix_clock_process_gettime(struct timespec *tp)
-+{
-+	jiffies_to_timespec(get_jiffies_64()-current->group_leader->start_time, tp);
-+	return 0;
-+}
-+
- asmlinkage long
- sys_clock_settime(clockid_t which_clock, const struct timespec __user *tp)
- {
+Jan

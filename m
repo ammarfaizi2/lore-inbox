@@ -1,96 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTHYW4z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 18:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTHYW4y
+	id S262386AbTHYW6S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 18:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbTHYW6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 18:56:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57063 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262373AbTHYW4u (ORCPT
+	Mon, 25 Aug 2003 18:58:17 -0400
+Received: from gate.firmix.at ([80.109.18.208]:50625 "EHLO buffy.firmix.at")
+	by vger.kernel.org with ESMTP id S262386AbTHYW6K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 18:56:50 -0400
-Subject: Re: Linux 2.6.0-test4 (compile statistics)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org>
+	Mon, 25 Aug 2003 18:58:10 -0400
+Subject: Re: [PATCH] 2.6.0-test4: Trivial /sys/power/state patch, sleep
+	status report
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: "P. Christeas" <p_christ@hol.gr>
+Cc: acpi-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <200308260147.50968.p_christ@hol.gr>
+References: <200308260125.30194.p_christ@hol.gr>
+	<1061851218.12331.23.camel@gimli.at.home> 
+	<200308260147.50968.p_christ@hol.gr>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1061852209.32079.22.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 25 Aug 2003 15:56:49 -0700
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 26 Aug 2003 00:57:44 +0200
+Message-Id: <1061852265.8896.36.camel@gimli.at.home>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile statistics: 2.6.0-test4
-Compiler: gcc 3.2.2
-Script: http://developer.osdl.org/~cherry/compile/compregress.sh
+On Tue, 2003-08-26 at 00:47, P. Christeas wrote:
+> Bernd Petrovitsch wrote:
+> > On Tue, 2003-08-26 at 00:25, P. Christeas wrote:
+> > > Just found out that by 'echo sth_wrong > /sys/power/state' the kernel
+> > > would oops in a fatal way (no clean exit from there).
+> > > The oops suggested that the code would enter an invalid fn.
+> > >
+> > > You may apply the included patch to solve the bug. IMHO doing a clean
+> > > exit is much preferrable than having BUG() there.
+> >
+> > > diff -Bbur /diskb/users/panos/linux-off/kernel/power/main.c
+> > > /usr/src/linux/kernel/power/main.c ---
+> > > /diskb/users/panos/linux-off/kernel/power/main.c	2003-08-23
+> > > 12:13:17.000000000 +0300 +++
+> > > /usr/src/linux/kernel/power/main.c	2003-08-26 00:59:34.000000000 +0300 @@
+> > > -500,7 +514,7 @@
+> > >  		if (s->name && !strcmp(buf,s->name))
+> > >  			break;
+> > >  	}
+> > > -	if (s)
+> > > +	if ( (s) && (state < PM_SUSPEND_MAX) )
+> > >  		error = enter_state(state);
+> > >  	else
+> > >  		error = -EINVAL;
+> >
+> > What do you think about the attached patch to solve the bug and remove a
+> > warning?
+[...]
 
-               bzImage       bzImage        modules
-             (defconfig)  (allmodconfig) (allmodconfig)
+> Already tried that. If you look more closely, the s will receive the state 
+> *before* the name *in it* is strcmp()'ed. This means it won't be NULL anyway.
+> >               if (s->name && !strcmp(buf,s->name))
+> >                       break;
 
-2.6.0-test4  0 warnings     3 warnings   1016 warnings
-             0 errors       0 errors       34 errors
+*arrgl*, yes. Could only change somthing if the PM_SUSPEND_MAX == 0.
+Hmm, the check on `s != NULL' seems also pretty superflous since
+s loops over the elements in the array.
 
-2.6.0-test3  0 warnings     7 warnings    984 warnings
-             0 errors       9 errors       42 errors
+> I also thought of checking "( (s) && (s->name !=NULL) )" ,  but IMHO the 
+> 'state' check is cleaner (no dereference).
 
-2.6.0-test2  0 warnings     7 warnings   1201 warnings
-             0 errors       9 errors       43 errors
+Yup.
 
-2.6.0-test1  0 warnings     8 warnings   1319 warnings
-             0 errors       9 errors       38 errors
-
-
-
-Compile statistics for 2.5 kernels and 2.6 kernels are at:
-http://developer.osdl.org/~cherry/compile/
-
-
-Failure summary:
-
-   drivers/block: 2 warnings, 1 errors
-   drivers/isdn: 257 warnings, 6 errors
-   drivers/media: 5 warnings, 5 errors
-   drivers/mtd: 25 warnings, 1 errors
-   drivers/net: 208 warnings, 8 errors
-   drivers/net: 36 warnings, 8 errors
-   drivers/scsi/aic7xxx: 0 warnings, 3 errors
-   drivers/scsi: 97 warnings, 7 errors
-   drivers/video: 8 warnings, 3 errors
-   sound/oss: 49 warnings, 1 errors
-   sound/pcmcia: 0 warnings, 2 errors
-   sound: 0 warnings, 3 errors
-
-Warning summary:
-
-   drivers/atm: 12 warnings, 0 errors
-   drivers/cdrom: 26 warnings, 0 errors
-   drivers/char: 244 warnings, 0 errors
-   drivers/i2c: 3 warnings, 0 errors
-   drivers/ide: 30 warnings, 0 errors
-   drivers/md: 2 warnings, 0 errors
-   drivers/message: 1 warnings, 0 errors
-   drivers/pcmcia: 3 warnings, 0 errors
-   drivers/scsi/pcmcia: 4 warnings, 0 errors
-   drivers/scsi/sym53c8xx_2: 2 warnings, 0 errors
-   drivers/serial: 1 warnings, 0 errors
-   drivers/telephony: 5 warnings, 0 errors
-   drivers/usb: 5 warnings, 0 errors
-   drivers/video/aty: 3 warnings, 0 errors
-   drivers/video/console: 2 warnings, 0 errors
-   drivers/video/matrox: 5 warnings, 0 errors
-   drivers/video/sis: 1 warnings, 0 errors
-   fs/afs: 2 warnings, 0 errors
-   fs/intermezzo: 1 warnings, 0 errors
-   fs/smbfs: 2 warnings, 0 errors
-   net: 13 warnings, 0 errors
-   sound/isa: 3 warnings, 0 errors
-
-
-John
-
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 

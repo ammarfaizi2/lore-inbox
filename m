@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbUKVQlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbUKVQlA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbUKVQlA (ORCPT <rfc822;willy@w.ods.org>);
+	id S262150AbUKVQlA (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 11:41:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbUKVQhK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbUKVQiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:37:10 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12738 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262159AbUKVQHH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:07:07 -0500
-Date: Mon, 22 Nov 2004 16:07:05 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Ray Bryant <raybry@sgi.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>, holt@sgi.com,
-       Dean Roe <roe@sgi.com>, Brian Sumner <bls@sgi.com>,
-       John Hawkes <hawkes@tomahawk.engr.sgi.com>
-Subject: Re: scalability of signal delivery for Posix Threads
-Message-ID: <20041122160705.GG25636@parcelfarce.linux.theplanet.co.uk>
-References: <41A20AF3.9030408@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41A20AF3.9030408@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 22 Nov 2004 11:38:05 -0500
+Received: from dfw-gate2.raytheon.com ([199.46.199.231]:49128 "EHLO
+	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
+	id S262167AbUKVQHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 11:07:50 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OF73D7316A.42DF9BE5-ON86256F54.0057B6DC@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Mon, 22 Nov 2004 10:06:23 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/22/2004 10:07:16 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 09:51:15AM -0600, Ray Bryant wrote:
-> Since signals are sent much more often than sigaction() is called, it would
-> seem to make more sense to make sigaction() take a heavier weight lock of
-> some kind (to update the signal handler decription) and to have the signal
-> delivery mechanism take a lighter weight lock.  Making 
-> current->sighand->siglock a rwlock_t really doesn't improve the situation
-> much, since cache line contention is just a severe in that case (if not 
-> worse) than it is with the current definition.
+>i have released the -V0.7.30-2 Real-Time Preemption patch, which can be
+>downloaded from the usual place:
+>
+>            http://redhat.com/~mingo/realtime-preempt/
 
-What about RCU or seqlock?
+Just did a build with -V0.7.30-2 and was about to start testing when
+the system locked up (no keyboard response, display frozen, etc.). No
+response to Alt-SysRq keys. No messages on the serial console (other than
+those showing a normal boot / telinit 5). Kernel was PREEMPT_RT plus a
+patch to profile on NMI, not timer (been using this latter one for some
+time). Basically same .config as previously provided but can send if
+needed. Boot parameters included serial console, profile=2, nmi_watchdog.
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Will retry shortly, but the steps leading to the failure were:
+ - boot single user
+ - telinit 5
+ - su'd 3 times
+ - created directories to log data / moved some files around
+ - set IRQ threads, ksoftirqd/[01], events/[01] to RT fifo 99 priority
+ - started two monitoring scripts (looking at latency & profile data)
+ - cat /proc/sys/kernel/preempt_wakeup_timing (was 1)
+ - echo 0 > /proc/sys/kernel/preempt_wakeup_timing [entered, but display
+was frozen at this point and did not see newline nor any further output]
+
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319691AbSH3VgZ>; Fri, 30 Aug 2002 17:36:25 -0400
+	id <S317580AbSH3VyW>; Fri, 30 Aug 2002 17:54:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319679AbSH3Vfb>; Fri, 30 Aug 2002 17:35:31 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43275 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319681AbSH3Vew>; Fri, 30 Aug 2002 17:34:52 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH] 2.5.30-pcnet_cs
-Message-Id: <E17ktTy-000354-00@flint.arm.linux.org.uk>
-Date: Fri, 30 Aug 2002 22:39:10 +0100
+	id <S317582AbSH3VyW>; Fri, 30 Aug 2002 17:54:22 -0400
+Received: from web14004.mail.yahoo.com ([216.136.175.120]:21252 "HELO
+	web14004.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317580AbSH3VyV>; Fri, 30 Aug 2002 17:54:21 -0400
+Message-ID: <20020830215842.82762.qmail@web14004.mail.yahoo.com>
+Date: Fri, 30 Aug 2002 14:58:42 -0700 (PDT)
+From: Tony Spinillo <tspinillo@yahoo.com>
+Subject: Re: Linux 2.4.20-pre5-ac1
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch appears not to be in 2.5.32, but applies cleanly.
+Alan,
 
-This patch fixes a bug in handling the timeout in pcnet_cs.c, where
-it uses the following test to determine whether the timeout has
-expired:
+I just tried 2.4.20-pre5-ac1 on my Gigabyte 8IGX 845G chipset board.
+I have the same problem as reported previously. No IDE drives when
+booting 2.4.20pre5-ac1, but drives do appear when booting
+2.4.20-pre1-ac1. I don't know if
+you or Andre have begun to sort it out yet, but maybe someone else
+can 
+report in who is using another 845G board to see if my problem is 
+unique or not.
+Dmesg snippets below, full http links to dmesg,lspci, kernel 
+config at the end of the message. I will also  try on my 
+Gigabyte 8IEX 845E chipset board later.  If it works I will report
+in.
 
-        if (jiffies - dma_start > PCNET_RDC_TIMEOUT) {
+2.4.20pre1ac1 works great. (ide-scsi, DVD viewing etc)
 
-Unfortunately, PCNET_RDC_TIMEOUT is defined to be "0x02", so the
-length of the timeout is only two jiffy ticks, rather than being
-the expected 20ms.  This patch fixes this.
+I'm running stock RedHat 7.3 all updates. No binary proprietary
+drivers
+were built, intalled etc for 2.4.20pre5ac1.
 
-Also, the above (and one other place) should be converted to
-time_after().
+Thanks for all the work you and the rest of the IDE team are doing.
 
- drivers/net/pcmcia/pcnet_cs.c |    6 +++---
- 1 files changed, 3 insertions, 3 deletions
+Tony
+(If I'm doing something stupid let me know)
 
-diff -ur orig/drivers/net/pcmcia/pcnet_cs.c linux/drivers/net/pcmcia/pcnet_cs.c
---- orig/drivers/net/pcmcia/pcnet_cs.c	Mon Apr 15 00:05:03 2002
-+++ linux/drivers/net/pcmcia/pcnet_cs.c	Sun Aug  4 19:48:18 2002
-@@ -64,7 +64,7 @@
- #define SOCKET_START_PG	0x01
- #define SOCKET_STOP_PG	0xff
- 
--#define PCNET_RDC_TIMEOUT 0x02	/* Max wait in jiffies for Tx RDC */
-+#define PCNET_RDC_TIMEOUT (2*HZ/100)	/* Max wait in jiffies for Tx RDC */
- 
- static char *if_names[] = { "auto", "10baseT", "10base2"};
- 
-@@ -1183,7 +1183,7 @@
- 	}
- 	info->link_status = link;
-     }
--    if (info->pna_phy && (jiffies - info->mii_reset > 6*HZ)) {
-+    if (info->pna_phy && time_after(jiffies, info->mii_reset + 6*HZ)) {
- 	link = mdio_read(mii_addr, info->eth_phy, 1) & 0x0004;
- 	if (((info->phy_id == info->pna_phy) && link) ||
- 	    ((info->phy_id != info->pna_phy) && !link)) {
-@@ -1385,7 +1385,7 @@
- #endif
- 
-     while ((inb_p(nic_base + EN0_ISR) & ENISR_RDC) == 0)
--	if (jiffies - dma_start > PCNET_RDC_TIMEOUT) {
-+	if (time_after(jiffies, dma_start + PCNET_RDC_TIMEOUT)) {
- 	    printk(KERN_NOTICE "%s: timeout waiting for Tx RDC.\n",
- 		   dev->name);
- 	    pcnet_reset_8390(dev);
+***** DMESG on 2.4.20-pre5-ac1 - BIOS flagged correctly, but no
+devices in 
+/proc/ide.
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+ICH4: IDE controller at PCI slot 00:1f.1
+ICH4: chipset revision 1
+ICH4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdc:DMA, hdd:pio
+Floppy drive(s): fd0 is 1.44M
+***** DMESG on 2.4.20-pre1-ac1
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev f9
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xcc00-0xcc07, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xcc08-0xcc0f, BIOS settings: hdc:DMA, hdd:pio
+hda: LITE-ON LTR-48125W, ATAPI CD/DVD-ROM drive
+hdc: LITEON DVD-ROM LTD16, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: ATAPI 48X CD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+hdc: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
+Floppy drive(s): fd0 is 1.44M
+
+Full links below
+http://ac.marywood.edu/tspin/www/dmesg2420pre1ac1.txt
+http://ac.marywood.edu/tspin/www/dmesg2420pre5ac1.txt
+Lspci -vvv when running 2.4.20-pre1-ac1
+http://ac.marywood.edu/tspin/www/lspci.txt
+http://ac.marywood.edu/tspin/www/dotconfig.txt
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Finance - Get real-time stock quotes
+http://finance.yahoo.com

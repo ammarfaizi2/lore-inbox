@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262825AbUCJUtq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Mar 2004 15:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUCJUtq
+	id S262822AbUCJUtR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 15:49:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262824AbUCJUtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Mar 2004 15:49:46 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45028 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262825AbUCJUtn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Mar 2004 15:49:43 -0500
-Date: Wed, 10 Mar 2004 21:49:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Kenneth Chen <kenneth.w.chen@intel.com>, "'Andrew Morton'" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, thornber@redhat.com
-Subject: Re: [PATCH] backing dev unplugging
-Message-ID: <20040310204936.GJ15087@suse.de>
-References: <20040310115545.16cb387f.akpm@osdl.org> <200403102003.i2AK3qm16576@unix-os.sc.intel.com> <20040310202025.GH15087@suse.de> <20040310204532.GA10281@sgi.com>
+	Wed, 10 Mar 2004 15:49:17 -0500
+Received: from ncc1701.cistron.net ([62.216.30.38]:23277 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S262822AbUCJUtQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 15:49:16 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: [PATCH] 2.4.x Linux Medley RAID Version 7
+Date: Wed, 10 Mar 2004 20:49:15 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <c2nv0b$j5$1@news.cistron.nl>
+References: <200403101707.38595.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.40.0403101917170.2582-100000@jehova.dsm.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040310204532.GA10281@sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1078951755 613 62.216.29.200 (10 Mar 2004 20:49:15 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 10 2004, Jesse Barnes wrote:
-> On Wed, Mar 10, 2004 at 09:20:25PM +0100, Jens Axboe wrote:
-> > It'll be hard to apply the patch against anything but -mm, since it
-> > builds (or at least will conflict with) other changes in there. I
-> > deliberately made a -mm version this time though I usually make -linus
-> > and adapt if necessary, for Andrew to get some testing on this.
-> 
-> I tried applying to a BK tree (that was fresh as of a couple of hours
-> ago), and ignored the dm related changes, and it seemed to work ok after
-> I fixed up rejects in direct-io.c and blkdev.h (which didn't seem hard,
-> unless I'm missing something):
-> 
-> 10 qla2200 fc controllers, 64 cpus, 112 disks
-> 
-> stock BK tree: ~43945 I/Os per second
-> w/Jens' patch: ~47149 I/Os per second
+In article <Pine.LNX.4.40.0403101917170.2582-100000@jehova.dsm.dk>,
+Thomas Horsten  <thomas@horsten.com> wrote:
+>My Medley solution for 2.6 will be completely userspace (using dm), and
+>there it will be possible to "force detect" an array with non-matching PCI
+>ID by passing the devices as command line arguments, unfortunately it's
+>not that easy in 2.4 (the whole ataraid is a hack anyway, but a useful one
+>until something better is in place).
 
-Do you have a profile for both runs (what was the work load, btw)?
+Partitioning support was added to the MD software raid layer
+in 2.6 recently. Most of it is in Linus' latest tree, though a
+tiny part - boot support - is still missing. Hopefully that will
+be merged before 2.6.4. I'm running a system on 2 RAID1'ed SATA disks
+right now.
 
--- 
-Jens Axboe
+MD already has support for more than one type of superblock. I think
+if you just add medley (or intel, or ..) support to MD you're all set.
+
+Mike.
 

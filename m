@@ -1,92 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVBWXSm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVBWXoD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVBWXSm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 18:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVBWXPB
+	id S261720AbVBWXoD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 18:44:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVBWXTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 18:15:01 -0500
-Received: from gw.goop.org ([64.81.55.164]:36802 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S261680AbVBWXKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 18:10:07 -0500
-Message-ID: <421D0D3F.40902@goop.org>
-Date: Wed, 23 Feb 2005 15:09:51 -0800
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Always send siginfo for synchronous signals
-References: <421C25BE.1090700@goop.org> <20050223201903.GF21662@shell0.pdx.osdl.net>
-In-Reply-To: <20050223201903.GF21662@shell0.pdx.osdl.net>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Wed, 23 Feb 2005 18:19:16 -0500
+Received: from fire.osdl.org ([65.172.181.4]:3031 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261686AbVBWXPc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 18:15:32 -0500
+Date: Wed, 23 Feb 2005 15:20:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: linux-kernel@vger.kernel.org, helge.hafting@aitel.hist.no
+Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
+Message-Id: <20050223152038.08f7d7e0.akpm@osdl.org>
+In-Reply-To: <421D0582.9090100@free.fr>
+References: <20050223014233.6710fd73.akpm@osdl.org>
+	<421C7FC2.1090402@aitel.hist.no>
+	<20050223121207.412c7eeb.akpm@osdl.org>
+	<421D0582.9090100@free.fr>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-
->It's not quite inexplicable.  It means that task has hit its limit for
->pending signals ;-)  But I agree, this should be fixed.  I think I had
->tested this with broken test cases, thanks for catching.
->  
+Laurent Riffard <laurent.riffard@free.fr> wrote:
 >
-It's particularly confusing for users, because it's a per-user limit
-rather than a per-process one, and its not at all apparent which program
-is causing the problem (/proc/N/status will tell you that a process has
-a signal pending, but it won't tell you how many are pending).
+> Le 23.02.2005 21:12, Andrew Morton a écrit :
+> > Helge Hafting <helge.hafting@aitel.hist.no> wrote:
+> >
+> >>This kernel came up, but my boot script complained about no /dev/hdb3
+> >> when trying to mount /var.
+> >> (I have two IDE disks on the same cable, and an IDE cdrom on another.)
+> >> They are usually hda, hdb, and hdc.
+> >>
+> >> MAKEDEV hdq did not help.  Looking at sysfs, it turns out that
+> >> /dev/hdq1 is at major:3 minor:1025 if I interpret things right.
+> >> (/dev/hda1 is at 3:1, which is correct.)
+> >> These numbers did not work with my mknod, it created 7:1 instead.
+> >> So I didn't get to test this mysterious device.
+> >>
+> >> But I assume this is a mistake of some sort, I haven't heard about any
+> >> change in the IDE numbering coming up?  2.6.1-rc3-mm1 works as expected.
+> >>
+> >> It may be interesting to note that my root raid-1 came up fine,
+> >> consisting of hdq1 and hda1 instead of the usual hdb1 and hda1.
+> >
+> >
+> > I don't know what could be causing that.  Please send .config.  If you set
+> > CONFIG_BASE_FULL=n, try setting it to `y'.
+> >
+> 
+> this is just a "me too"...
 
-In fact, bugs with these symptoms have been reported against Valgrind
-from time to time for years, and its only recently I worked out what's
-going on (mostly because I introduced a bug which caused Valgrind to do
-it to itself).
+Confusing.  Are you saying that the hdd->hdq problem is happening even with
+CONFIG_BASE_FULL=y?
 
->>+static struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags, int always)
->>    
->>
->maybe force_info instead of always?
->  
->
-I suppose, but it doesn't "force" it really.  The allocation could still
-fail (it is GFP_ATOMIC after all), and you'd still get no siginfo.  I
-don't care much either way.
-
->> 	/*
->> 	 * fast-pathed signals for kernel-internal things like SIGSTOP
->>@@ -785,6 +793,13 @@ static int send_signal(int sig, struct s
->> 	if ((unsigned long)info == 2)
->> 		goto out_set;
->> 
->>+	/* Always attempt to send siginfo with an unblocked
->>+	   fault-generated signal. */
->>+	always = sig_kernel_sync(sig) &&
->>+		!sigismember(&t->blocked, sig) &&
->>    
->>
->Aren't these already unblocked?
->  
->
-I can't think of a case where they wouldn't be, but I wanted to make
-sure this couldn't be used to create a new DoS.
-
->>+		(unsigned long)info > 2 &&
->>+		info->si_code > SI_USER;
->>    
->>
->In what case is != SI_KERNEL OK?
->  
->
-Fault signals rarely have an si_code of SI_KERNEL (0x80); they generally
-have a small integer to describe what the fault was really about
-(SEGV_MAPERR, etc).  All si_codes > SI_USER (0) are defined to have come
-from the kernel.  Hm, I see there's a macro, SI_FROMKERNEL, for doing
-this test.
-
-Updated patch attached.
-
-    J

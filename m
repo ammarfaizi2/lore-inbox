@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316426AbSEXOnW>; Fri, 24 May 2002 10:43:22 -0400
+	id <S317054AbSEXOoA>; Fri, 24 May 2002 10:44:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317054AbSEXOnV>; Fri, 24 May 2002 10:43:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17413 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316426AbSEXOnV>; Fri, 24 May 2002 10:43:21 -0400
-Date: Fri, 24 May 2002 07:43:32 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-Subject: Re: negative dentries wasting ram
-In-Reply-To: <20020524071657.GI21164@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0205240737400.26171-100000@home.transmeta.com>
+	id <S317120AbSEXOoA>; Fri, 24 May 2002 10:44:00 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:17935 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317054AbSEXOn6> convert rfc822-to-8bit; Fri, 24 May 2002 10:43:58 -0400
+Message-ID: <3CEE42D0.8090004@evision-ventures.com>
+Date: Fri, 24 May 2002 15:40:32 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Oleg Drokin <green@namesys.com>, "Gryaznova E." <grev@namesys.botik.ru>,
+        martin@dalecki.de, Linux Kernel <linux-kernel@vger.kernel.org>,
+        Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: [reiserfs-dev] Re: IDE problem: linux-2.5.17
+In-Reply-To: <3CECF59B.D471F505@namesys.botik.ru> <3CECFC5B.3030701@evision-ventures.com> <20020523193959.A2613@namesys.com> <3CED004A.6000109@evision-ventures.com> <20020524005057.F27005@ucw.cz> <3CEE1DFE.4080500@evision-ventures.com> <20020524151536.C636@ucw.cz> <3CEE2EE2.1040407@evision-ventures.com> <20020524152054.F636@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+U¿ytkownik Vojtech Pavlik napisa³:
 
+>>Hey what I'm talking about is the "physics" of the hardware.
+>>But I would rather expect sane hardware to deal with it transparently
+>>to the programmer of the setup registers.
+> 
+> 
+> Well, when I hear "timer" I think "engineering", not "physics". And a
+> timer would have to be visible somewhere. I really don't think the
+> controller can tell how many drives it sees unless it measures the
+> termination resistance or somesuch.
 
-On Fri, 24 May 2002, Andrea Arcangeli wrote:
->
-> Negative dentries should be only temporary entities, for example between
-> the allocation of the dentry and the create of the inode, they shouldn't
-> be left around waiting the vm to collect them.
+Jak siê zwa³ tak siê zwa³, byle by siê dobrze mia³ :-).
 
-Wrong. Negative dentries are very useful for caching negative lookups:
-look at the average startup sequence of any program linked with glibc, and
-depending on your setup you will notice how it tries to open a _lot_ of a
-files that do not exist (the "depending on your setup" comes from the fact
-that it depends on things like how quickly it finds your "locale" setup
-from its locale path - you may have one of the setups that puts it in the
-first location glibc searches etc).
-
-If you don't cache those negative lookups, you will do a low-level
-filesystem lookup for each of those failures, which is _expensive_.
-
-However, you're right that it probably doesn't help to do this after
-"unlink()" - it's probably only worth doing when actually doing a
-"lookup()" that fails.
-
-		Linus
-
+Anyway measuring the termination resistance is rather trivial
+from the electrical point of view...
 

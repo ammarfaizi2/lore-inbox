@@ -1,56 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268289AbUHQPG5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268300AbUHQPL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268289AbUHQPG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 11:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268285AbUHQPG4
+	id S268300AbUHQPL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 11:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbUHQPLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 11:06:56 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:60421 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268277AbUHQPG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 11:06:26 -0400
-Date: Tue, 17 Aug 2004 16:06:21 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Markus Lidel <Markus.Lidel@shadowconnect.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Warren Togami <wtogami@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Merge I2O patches from -mm
-Message-ID: <20040817160621.A22892@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Markus Lidel <Markus.Lidel@shadowconnect.com>,
-	Warren Togami <wtogami@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <411F37CC.3020909@redhat.com> <20040817125303.A21238@infradead.org> <412208A6.7020104@shadowconnect.com> <1092751257.22793.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1092751257.22793.8.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Tue, Aug 17, 2004 at 03:00:59PM +0100
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 17 Aug 2004 11:11:24 -0400
+Received: from mo1.b-one.net ([195.47.247.27]:33683 "EHLO smtp1.b-one.net")
+	by vger.kernel.org with ESMTP id S268284AbUHQPIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 11:08:18 -0400
+Message-ID: <1218.80.62.167.105.1092755294.squirrel@80.62.167.105>
+Date: Tue, 17 Aug 2004 17:08:14 +0200 (CEST)
+Subject: 
+From: morten@team60.dk
+To: Hi@nowhere.in.space,
+       "Please CC to morten at team60 dot" <dk@nowhere.in.space>,
+       "as I'm not substribed.]"@/etc/mailname
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 03:00:59PM +0100, Alan Cox wrote:
-> On Maw, 2004-08-17 at 14:31, Markus Lidel wrote:
-> > > Now to i2o_scsi:
-> > >  - the logic of "demand-allocating" Scsi_Hosts looks rather bad to me,
-> > >    life would be much simpler with a Scsi_Host per i2o device.
-> > 
-> > But wouldn't it be a waste of resources to allocate a Scsi_Host 
-> > structure for every I2O device? Note that the i2o_scsi "sees" all disks 
-> > even if they are in a RAID array, so in most cases there are at least 3 
-> > Scsi_Host adapters...
-> 
-> Christoph the "I2O" device is a communication processor. You need to
-> preserve the real scsi busses in order to get sane results from scsi
-> tools. If EH is implemented you'll need this to do controlled resets
-> (although this gets quite umm 'interesting' if using i2o_block also)
 
-Okay, then we'll have to rething the data structures a little more.
-I was under the impression the scsi busses were completely faked for
-the OS.
+I have a 120GB Seagate SATA HDD on a nForce2 motherboard with the siI 3512A
+SATA controller. I use the sata_sil driver. Please ask for more" <specs@nowhere.in.space>,
+ ")
+
+A few days ago I installed Debian Sarge 3.1RC1 with the new Debian installer.
+FYI it has a 2.4.26 kernel. I proceeded to download the new 2.6.8.1 kernel
+from" <kernel.org@nowhere.in.space>,
+ "configuring and compiling it. Everything seemed to go smooth.
+Then I wanted to install modconf and ran apt-get install modconf. It fetched
+the package from the Internet as it was supposed" <to@nowhere.in.space>,
+ "but when it was about
+to unpack the" <package@nowhere.in.space>,
+ "command 0x35" <timeout@nowhere.in.space>,
+ "ERROR on" <channel@nowhere.in.space>,
+ id@nowhere.in.space,
+ lun@nowhere.in.space,
+ "I/O" <error@nowhere.in.space>,
+ "dev" <sda@nowhere.in.space>,
+ "abnormal status 0x58 on port 0xE181B087
+
+I" <rebooted@nowhere.in.space>,
+ "repeated - same result.
+I also tried the precompiled binaries of 2.6.7 from the Debian" <archives@nowhere.in.space>,
+ "but that too yielded the same result.
+I also tried that it froze during boot a few" <times@nowhere.in.space>,
+ "when initializing all
+the daemons.
+
+In between I used the 2.4.26 kernel that came with" <Sarge@nowhere.in.space>,
+ "and it worked
+perfectly fine. I also have Windows 2000 on dual" <boot@nowhere.in.space>,
+ "and there's no
+problems there" <either@nowhere.in.space>,
+ "so I don't think it's a hardware problem.
+
+I heard that there has been a lot of work on SATA in 2.6.7 and" <2.6.8@nowhere.in.space>,
+ "so
+could this be a bug?
+
+Thanks in" <advance@nowhere.in.space>,
+ linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+
+
+
+
+Hi,
+
+[Note: Please CC to morten at team60 dot dk, as I'm not substribed.]
+
+
+I have a 120GB Seagate SATA HDD on a nForce2 motherboard with the siI 3512A
+SATA controller. I use the sata_sil driver. Please ask for more specs, if
+you need them. :)
+
+A few days ago I installed Debian Sarge 3.1RC1 with the new Debian installer.
+FYI it has a 2.4.26 kernel. I proceeded to download the new 2.6.8.1 kernel
+from kernel.org, configuring and compiling it. Everything seemed to go
+smooth.
+Then I wanted to install modconf and ran apt-get install modconf. It fetched
+the package from the Internet as it was supposed to, but when it was about
+to unpack the package, linux froze and I got an error similar to the one
+below.
+
+ata1: command 0x35 timeout, stat 0x58 host_stat 0x1
+scsi: ERROR on channel 0, id 0, lun 0, CDB: 0x2a 00 0d 95 b9 9c 00 04 00 00
+current sda: sense = 70  3
+ASC= c ASCQ= 2
+Raw sense data:0x70 0x00 0x03 0x00 0x00 0x00 0x00 0x06 0x00 0x00 0x00 0x00
+0x0c 0x02
+end_request: I/O error, dev sda, sector 227916204
+ATA: abnormal status 0x58 on port 0xE181B087
+ATA: abnormal status 0x58 on port 0xE181B087
+ATA: abnormal status 0x58 on port 0xE181B087
+
+I rebooted, repeated - same result.
+I also tried the precompiled binaries of 2.6.7 from the Debian archives,
+but that too yielded the same result.
+I also tried that it froze during boot a few times, when initializing all
+the daemons.
+
+In between I used the 2.4.26 kernel that came with Sarge, and it worked
+perfectly fine. I also have Windows 2000 on dual boot, and there's no
+problems there either, so I don't think it's a hardware problem.
+
+I heard that there has been a lot of work on SATA in 2.6.7 and 2.6.8, so
+could this be a bug?
+
+Thanks in advance,
+
+Morten Bojsen-Hansen
+morten at team60 dot dk
 

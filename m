@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264618AbRFPMQ6>; Sat, 16 Jun 2001 08:16:58 -0400
+	id <S264619AbRFPMrx>; Sat, 16 Jun 2001 08:47:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264619AbRFPMQt>; Sat, 16 Jun 2001 08:16:49 -0400
-Received: from pD951C9A8.dip.t-dialin.net ([217.81.201.168]:24192 "EHLO
-	solo.franken.de") by vger.kernel.org with ESMTP id <S264618AbRFPMQd>;
-	Sat, 16 Jun 2001 08:16:33 -0400
-Date: Sat, 16 Jun 2001 14:11:40 +0200
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul Faure <paul@engsoc.org>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.0.35 limits
-Message-ID: <20010616141140.A1593@solo.franken.de>
-In-Reply-To: <Pine.LNX.4.33.0106151702300.22155-100000@stout.engsoc.carleton.ca> <E15B17v-000790-00@the-village.bc.nu>
+	id <S263357AbRFPMre>; Sat, 16 Jun 2001 08:47:34 -0400
+Received: from altair.alt.iph.ras.ru ([194.67.87.171]:36104 "EHLO
+	altair.office.altlinux.ru") by vger.kernel.org with ESMTP
+	id <S264619AbRFPMrW>; Sat, 16 Jun 2001 08:47:22 -0400
+Date: Sat, 16 Jun 2001 16:47:03 +0400
+From: Konstantin Volckov <goldhead@altlinux.ru>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <20010616164703.22d0a90f.goldhead@altlinux.ru>
+X-Mailer: Sylpheed version 0.4.66 (GTK+ 1.2.10; i586-alt-linux)
+Organization: ALT Linux
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15B17v-000790-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jun 15, 2001 at 10:27:35PM +0100
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sat__16_Jun_2001_16:47:03_+0400_08290ec0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 15, 2001 at 10:27:35PM +0100, Alan Cox wrote:
-> > Just this morning, our firewall get a kernel panic after 500 days of
-> > uptime.
-> 
-> Interesting very interesting in fact. There is a 497 day wrap on the kernel but
-> it should do nothing more than send the uptime back to zero. Im not sure
-> how the crash fits in to this but it could be significant that its about
-> the wrap time
+This is a multi-part message in MIME format.
 
-there is a division by zero possibilty in the 2.0.35 do_fast_gettimeoffset
-(there is a division by jiffies, which is 0 for one tick). Our department
-server got struck by this at the jiffies rollover some time ago.
+--Multipart_Sat__16_Jun_2001_16:47:03_+0400_08290ec0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Thomas.
+Hi!
+
+There're a problem in <linux/capatibility.h>. In this file included
+<linux/fs.h>, but this include is'nt ifdef'ed with __KERNEL__ and (for
+example) samba can't be compiled with kernel 2.4 headers. Here is the
+patch, that solve this problem.
 
 -- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessary a
-good idea.                                 [ Alexander Viro on linux-kernel ]
+Good luck,
+Konstantin
+
+--Multipart_Sat__16_Jun_2001_16:47:03_+0400_08290ec0
+Content-Type: application/octet-stream;
+ name="linux-2.4.5-ac15-lcap.patch"
+Content-Disposition: attachment;
+ filename="linux-2.4.5-ac15-lcap.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvY2FwYWJpbGl0eS5oX29sZAlUaHUgSnVuIDE0IDEzOjE5
+OjA4IDIwMDEKKysrIGxpbnV4L2luY2x1ZGUvbGludXgvY2FwYWJpbGl0eS5oCVRodSBKdW4gMTQg
+MjA6NDY6MDcgMjAwMQpAQCAtMTQsNyArMTQsNiBAQAogI2RlZmluZSBfTElOVVhfQ0FQQUJJTElU
+WV9ICiAKICNpbmNsdWRlIDxsaW51eC90eXBlcy5oPgotI2luY2x1ZGUgPGxpbnV4L2ZzLmg+CiAK
+IC8qIFVzZXItbGV2ZWwgZG8gbW9zdCBvZiB0aGUgbWFwcGluZyBiZXR3ZWVuIGtlcm5lbCBhbmQg
+dXNlcgogICAgY2FwYWJpbGl0aWVzIGJhc2VkIG9uIHRoZSB2ZXJzaW9uIHRhZyBnaXZlbiBieSB0
+aGUga2VybmVsLiBUaGUKQEAgLTI3OCw2ICsyNzcsNyBAQAogI2RlZmluZSBDQVBfTEVBU0UgICAg
+ICAgICAgICAyOAogCiAjaWZkZWYgX19LRVJORUxfXworI2luY2x1ZGUgPGxpbnV4L2ZzLmg+CiAv
+KiAKICAqIEJvdW5kaW5nIHNldAogICovCg==
+
+--Multipart_Sat__16_Jun_2001_16:47:03_+0400_08290ec0--

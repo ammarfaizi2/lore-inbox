@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312248AbSCUQiC>; Thu, 21 Mar 2002 11:38:02 -0500
+	id <S312387AbSCUQlW>; Thu, 21 Mar 2002 11:41:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312379AbSCUQhs>; Thu, 21 Mar 2002 11:37:48 -0500
-Received: from APuteaux-101-2-1-180.abo.wanadoo.fr ([193.251.40.180]:47876
-	"EHLO inet6.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S312248AbSCUQhD>; Thu, 21 Mar 2002 11:37:03 -0500
-Message-ID: <3C9A0C22.3090702@inet6.fr>
-Date: Thu, 21 Mar 2002 17:36:50 +0100
-From: Lionel Bouton <Lionel.Bouton@inet6.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020307
-X-Accept-Language: en-us, en
+	id <S312384AbSCUQlO>; Thu, 21 Mar 2002 11:41:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:61194 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S312387AbSCUQlA>; Thu, 21 Mar 2002 11:41:00 -0500
+Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
+To: dan@debian.org (Daniel Jacobowitz)
+Date: Thu, 21 Mar 2002 16:52:52 +0000 (GMT)
+Cc: vamsi@in.ibm.com (Vamsi Krishna S .),
+        mgross@unix-os.sc.intel.com (Mark Gross), pavel@suse.cz (Pavel Machek),
+        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+        marcelo@conectiva.com.br, tachino@jp.fujitsu.com, jefreyr@pacbell.net,
+        vamsi_krishna@in.ibm.com, richardj_moore@uk.ibm.com,
+        hanharat@us.ibm.com, bsuparna@in.ibm.com, bharata@in.ibm.com,
+        asit.k.mallick@intel.com, david.p.howell@intel.com,
+        tony.luck@intel.com, sunil.saxena@intel.com
+In-Reply-To: <20020321112722.A31634@nevyn.them.org> from "Daniel Jacobowitz" at Mar 21, 2002 11:27:22 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: nicholas black <dank@trellisinc.com>
-CC: linux-kernel@vger.kernel.org, marcelo@connectiva.com.br
-Subject: Re: sis 5591 ide in 2.4.19-pre3 consumes souls
-In-Reply-To: <20020321110412.A6558@fancypants.trellisinc.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16o5o5-0005gM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-nicholas black wrote:
+> We really need a non-signal-based way to tell the scheduler that a task
+> can not be scheduled.  A lot of the machinery is all there, but private to
+> sched.c; the rest is pretty straightforward.
 
->yesterday night i excitedly came home to my shiny new -pre3, to discover
->that on boot, all ide devices timeout on DMA requests.  i'm using the
->sis ide driver on my sis 5591 controller, which is integrated onto an
->amptron 810 motherboard.  
->
-
-There's definitely a problem with some UDMA 33 chipsets. I'll ask SiS 
-for 5591 chipset info RSN and look into this as soon as I find some time.
-
->
->i haven't had a chance to capture exact logs yet, but can do testing
->tonight.  exact behavior follows:
->
->rebooted with 2.4.19-pre3-jl11 (preemptive; jl11 is a patch to
->networking code that should play no role here).  hard drive hda and
->cdrom's hdc,hdd are detected.  upon partition check of hda1, the system
->hung for roughly 20 seconds, after which it was declared dma commands
->had timed out.  this was repeated for all other partitions on the drive,
->after which the kernel panicked, unable to mount the root fs.
->
->this behavior continued to manifest over any number of reboots.
->interestingly, i could get my old 2.4.18-jl11 (non-preempt) to work
->fine, but only after a hard power down.  reboots left it in the same
->situation, but not logging nearly so much to the console :).
->
-Could you send us the output of "lspci -vxxx" with 2.4.18-jl11 and boot 
-logs of 2.4.19-pre3-jl11 please ?
-
-Did you "make oldconfig" on the 2.4.19-pre3-jl11 sources with the your 
-old 2.4.18-jl11 .config or made a new config from scratch ?
-If so assuming you didn't modify your source trees could you send us the 
-result of :
-diff <2.4.18-jl11_tree>/.config <2.4.19-pre3-jl11_tree>/.config | grep  
-"^. CONFIG"
-
-LB.
+You need interrupts to handle this, even if you don't wrap it in the top
+layer of signals it will be able to use much of the code I agree. The nasty
+case is the "currently running on another cpu" one. Especially since you 
+can't just "trap it" - if you IPI that processor it might have moved by the
+time the IPI arrives 8)
 

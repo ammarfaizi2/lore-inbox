@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316969AbSGFAhG>; Fri, 5 Jul 2002 20:37:06 -0400
+	id <S317600AbSGFCbW>; Fri, 5 Jul 2002 22:31:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317497AbSGFAhF>; Fri, 5 Jul 2002 20:37:05 -0400
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:7946 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S316969AbSGFAhF>; Fri, 5 Jul 2002 20:37:05 -0400
-Date: Sat, 6 Jul 2002 02:39:25 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Sandy Harris <pashley@storm.ca>
-cc: Stephen Rothwell <sfr@canb.auug.org.au>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch,rfc] make depencies on header files explicit
-In-Reply-To: <3D253AAE.D73E1E07@storm.ca>
-Message-ID: <Pine.LNX.4.33.0207060233520.20192-100000@gans.physik3.uni-rostock.de>
+	id <S317601AbSGFCbV>; Fri, 5 Jul 2002 22:31:21 -0400
+Received: from kc.hitachisoftware.com ([205.158.62.105]:47755 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317600AbSGFCbU>; Fri, 5 Jul 2002 22:31:20 -0400
+Message-ID: <20020706023351.11868.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Anthony Spinillo" <tspinillo@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 06 Jul 2002 10:33:51 +0800
+Subject: Re: linnux 2.4.19-rc1 i845e ide not detected. dma doesn't work
+X-Originating-Ip: 24.49.74.187
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jul 2002, Sandy Harris wrote:
+Andre,
 
-> I thought conventional wisdom was that header files should never #include
-> other headers, and .c files should explicitly #include all headers they
-> need.
-> 
-> Googling on "nested header" turns up several style guides that agree:
-> http://www.cs.mcgill.ca/resourcepages/indian-hill.html
-> http://www.doc.ic.ac.uk/lab/secondyear/cstyle/node5.html
-> 
-> and others that say it is controversial, can be done either way:
-> http://www.eskimo.com/~scs/C-faq/q10.7.html
-> 
-> Am I just off base in relation to kernel coding style? Or would getting
-> rid of header file nesting be a useful objective.
+I just fired up 2.5.25. DMA was enabled upon boot on 
+my DVD drive and burner. (no IDE hard drive - SCSI)
+
+2.4.19pre10ac2 works for me also.
+
+I also turned in a Bugzilla for Limbo the new RedHat
+beta.
+
+Intel 845GBVL motherboard - 845G chipset.
+
+Thanks!
+
+Tony
+
+>Does it work in 2.5 ?
 
 
-Avoiding nested headers certainly results in the smallest set of header 
-files actually #included.
-However, I think it's just not feasible with the kernel: many files would
-start with a list of some hundred includes, and I can't imagine a 
-reasonable way to document the dependencies between them.
+On Thu, 4 Jul 2002, Nick Evgeniev wrote:
 
-Tim
+>> Well, anyway, 2.4.19-pre10-ac2 works for me :)
 
+-- 
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

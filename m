@@ -1,76 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266934AbRGMGZi>; Fri, 13 Jul 2001 02:25:38 -0400
+	id <S266935AbRGMG4h>; Fri, 13 Jul 2001 02:56:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266935AbRGMGZ1>; Fri, 13 Jul 2001 02:25:27 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:55706 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id <S266934AbRGMGZT>;
-	Fri, 13 Jul 2001 02:25:19 -0400
-Message-ID: <3B4E93E9.F6506CC0@alsa-project.org>
-Date: Fri, 13 Jul 2001 08:23:37 +0200
-From: Abramo Bagnara <abramo@alsa-project.org>
-Organization: Opera Unica
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i586)
-X-Accept-Language: it, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: neilb@cse.unsw.edu.au, nfs-devel@linux.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: [PATCH] Bug in NFS
-Content-Type: multipart/mixed;
- boundary="------------81C1B6873E2B8874ED9E1D76"
+	id <S266936AbRGMG40>; Fri, 13 Jul 2001 02:56:26 -0400
+Received: from rcum.uni-mb.si ([164.8.2.10]:19216 "EHLO rcum.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S266935AbRGMG4U>;
+	Fri, 13 Jul 2001 02:56:20 -0400
+Date: Fri, 13 Jul 2001 08:56:20 +0200
+From: David Balazic <david.balazic@uni-mb.si>
+Subject: kernel 2.4.6 compile failures in buz.c and htlmdocs
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3B4E9B94.616D0AFC@uni-mb.si>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------81C1B6873E2B8874ED9E1D76
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+kernel 2.4.6 , redhat 7.1 , gcc-2.96-85
 
 
-I have found a bug in NFSv2.
+Compilation of buz.c ( video grabberr stuff ) fails with some
+error ( sorry , don't have it noted down ) if both Zoran chipsets
+are selected as modules and "Support for IOMega Buz" is turned OFF.
 
-[root@igor /tmp]# mount igor:/u u
-[root@igor /tmp]# cd u
-[root@igor u]# umask 000
-[root@igor u]# ls -l q
-ls: q: File o directory inesistente
-[root@igor u]# touch q
-[root@igor u]# ls -l q
--rw-r--r--    1 root     root            0 lug 13 07:56 q
+and
 
-This seems to be caused by use of unitialized current->fs->umask via
-vfs_create called by nfsd_create.
+"make htmldcos" fails at the kernel-api.sgml point.
+It also fails for some other docs ( I found out by
+uncommenting kernel-api from the Makefile , so it tried to
+compile the next ones )
 
-Patch for 2.4.6 follows.
 
 -- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
-
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
-
-ALSA project               http://www.alsa-project.org
-It sounds good!
---------------81C1B6873E2B8874ED9E1D76
-Content-Type: text/plain; charset=us-ascii;
- name="nfs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nfs.diff"
-
---- linux-2.4/fs/nfsd/auth.c.~1~	Mon Jul 24 08:04:10 2000
-+++ linux-2.4/fs/nfsd/auth.c	Fri Jul 13 08:00:10 2001
-@@ -34,6 +34,7 @@
- 				cred->cr_groups[i] = exp->ex_anon_gid;
- 	}
- 
-+	current->fs->umask = 0;
- 	if (cred->cr_uid != (uid_t) -1)
- 		current->fsuid = cred->cr_uid;
- 	else
-
-
---------------81C1B6873E2B8874ED9E1D76--
-
+David Balazic
+--------------
+"Be excellent to each other." - Bill & Ted
+- - - - - - - - - - - - - - - - - - - - - -

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130386AbQLRF7p>; Mon, 18 Dec 2000 00:59:45 -0500
+	id <S129610AbQLRGVb>; Mon, 18 Dec 2000 01:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130379AbQLRF7g>; Mon, 18 Dec 2000 00:59:36 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:65033 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129610AbQLRF73>; Mon, 18 Dec 2000 00:59:29 -0500
-Date: Sun, 17 Dec 2000 23:28:46 -0600
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Monitoring filesystems / blockdevice for errors
-Message-ID: <20001217232846.W3199@cadcamlab.org>
-In-Reply-To: <20001217153453.O5323@marowsky-bree.de> <Pine.LNX.4.10.10012171314050.16143-100000@coffee.psychology.mcmaster.ca> <20001217194334.V5323@marowsky-bree.de>
-Mime-Version: 1.0
+	id <S129878AbQLRGVM>; Mon, 18 Dec 2000 01:21:12 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:22144 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S129610AbQLRGVH>;
+	Mon, 18 Dec 2000 01:21:07 -0500
+Message-ID: <3A3DA5B0.6BACE66E@pobox.com>
+Date: Sun, 17 Dec 2000 21:50:40 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting Group
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test10-ll i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test13-pre3 woes
+In-Reply-To: <Pine.LNX.4.10.10012171353270.2052-100000@penguin.transmeta.com> <3A3D4FB4.CBA887E4@bellsouth.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001217194334.V5323@marowsky-bree.de>; from lmb@suse.de on Sun, Dec 17, 2000 at 07:43:35PM +0100
-From: Peter Samuelson <peter@cadcamlab.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Similar problem here - with CONFIG_DRM_TDFX=m
+I have not gotten a tdfx.o module complied since the
+start of the test13-pre series...
 
-  [Mark Hahn]
-> > reinventing /proc/kmsg and klogd would be tre gross.
+So no quake 3 arena unless I want to play at < 1 fps...
 
-[Lars Marowsky-Bree]
-> Well, only one process can read kmsg and get notified about new
-> messages at any time, so that makes the monitoring depend on
-> klogd/syslogd working, which given a write error by syslog might not
-> be the case...
+:(
 
-So rewrite klogd to do something much simpler for serious errors (yes
-they will be tagged as such) before trying to pass them on to syslogd.
-Or does it already do this?  It's a userspace problem.
+jjs
 
-Peter
+Albert Cranford wrote:
+
+> With CONFIG_DRM_R128=m
+> we fail to produce module linux/drivers/char/drm/r128.o
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

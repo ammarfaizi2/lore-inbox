@@ -1,96 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279040AbRJ2GeM>; Mon, 29 Oct 2001 01:34:12 -0500
+	id <S279053AbRJ2Gvt>; Mon, 29 Oct 2001 01:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279051AbRJ2GeC>; Mon, 29 Oct 2001 01:34:02 -0500
-Received: from calais.pt.lu ([194.154.192.52]:8117 "EHLO calais.pt.lu")
-	by vger.kernel.org with ESMTP id <S279040AbRJ2Gdu>;
-	Mon, 29 Oct 2001 01:33:50 -0500
-Message-Id: <200110290634.f9T6YJD07642@hitchhiker.org.lu>
-To: Alexander Viro <viro@math.psu.edu>
-cc: ptb@it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
-Reply-To: alain@linux.lu
+	id <S279058AbRJ2Gvj>; Mon, 29 Oct 2001 01:51:39 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:45006 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S279053AbRJ2Gvc>; Mon, 29 Oct 2001 01:51:32 -0500
+Date: Mon, 29 Oct 2001 01:52:10 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Patch to make 2.4.13 compile on s390
+Message-ID: <20011029015210.A10144@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Re: Poor floppy performance in kernel 2.4.10 
-In-Reply-To: Your message of "Mon, 29 Oct 2001 01:07:23 EST."
-             <Pine.GSO.4.21.0110290101230.26445-100000@weyl.math.psu.edu> 
-Date: Mon, 29 Oct 2001 07:34:18 +0100
-From: Alain Knaff <Alain.Knaff@hitchhiker.org.lu>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->On Mon, 29 Oct 2001, Alain Knaff wrote:
->
->> Problem number 2 is not yet addressed, Alex Viro is working on a patch
->> (probably by having a variant of invalidate_bdev that just stops
->> transfers in progress, loudly warn about dirty pages, but without
->> killing clean cached pages)
->> 
->> Number 3 is fixed by making struct block_device "long
->> lived". Formerly, it only existed as long as there were active open
->> descriptors using it; now it exists as long as there are frontend
->> inodes referencing it.
->
->IMO that's bogus.
+Someone broke s390 and s390x, it did not even compile.
+Do we actually have a maintainer for that thing?
+Or do we blindly apply whatever IBM bestows?
 
-As far as I understood, the same logic is used for all other kinds of
-inodes, isn't it? I agree that it is suboptimal (might stay around
-longer than its pages), but at least it works in simple cases
-(i.e. stays cached normally, and is evicted from cache under memory
-pressure).
+MAINTAINERS lists some e-mails and lists for s390, but I did
+not receive any replies from those people. Must have
+been eaten by evil Lotus or something...
 
->Correct test is "do we have any data in page cache
->for this guy?" (combined with "... and if driver says that it goes
->away, we'd better drop them all").  See the patch I've just sent to you
->and Linus - right now I consider it as too dangerous for public testing, so...
+-- Pete
 
-Got the patch... but only after I sent that mail to Peter. I'll have a
-look at it, and try to test it. But due to other activities, I'm
-afraid I'll only be able to get around to it tomorrow evening.
-
->Notice that it _doesn't_ trust check_media_change() - it still has
->both detach_metadata() (needed in all cases) and truncate_inode_pages()
->(kills cache, needed only for drivers with b0rken ->check_media_change())
->in blkdev_put().  You'll need to make the latter call conditional
-
-With your patch, will making that call conditional still correctly
-stop any transfers which are already in progress? (a problem that has
-existed with my patches)? Or does this problem need to be addressed
-separately?
-
->to
->actually keep the cache around, but I'd really like to make sure that
->infrastructure changes are sane before doing that step.
-
-Ok, I'll give it a spin tomorrow evening.
-
-
-
-Btw, the more I think about the check_media_change issue, the more I
-come to the conclusion that the cases of broken media change detection
-are best dealt with from within the driver. Indeed, firstly why
-encumber the vast majority of drivers, which are non-broken, or which
-already deal with the situation, just in order to handle a few bad
-apples? Secondly, the broken drivers might have internal caches (track
-buffers, etc.), and just ignoring check_media_change _outside_ the
-driver won't fix all of the problem, as the internal caches will not
-be invalidated.
-
-Thus, may I suggest the following course of action in case a missed
-media change detection problem with a driver: make a good-faith effort
-to contact its maintainer, and have the problem fixed _in_the_driver_
-rather than to have media change ignored centrally. Same goes for
-other issues as well: work _with_ the device drivers, rather than
-_against_ them. I think, in the long run this will save all of us lots
-of grief.
-
-Yes, we can have can_trust_media_change type functions, but it just
-makes all drivers more complex, and eventually it will lead to a
-situation where bad device drivers might unconditionnally return true
-to it anyways, and we'd be back to square one.
-
-Alain
+diff -ur -X dontdiff linux-2.4.13-0.2/Makefile linux-2.4.13-0.2-t1/Makefile
+--- linux-2.4.13-0.2/Makefile	Mon Oct 29 04:28:50 2001
++++ linux-2.4.13-0.2-t1/Makefile	Mon Oct 29 05:00:08 2001
+diff -ur -X dontdiff linux-2.4.13-0.2/arch/s390/config.in linux-2.4.13-0.2-t1/arch/s390/config.in
+--- linux-2.4.13-0.2/arch/s390/config.in	Mon Oct 29 04:28:40 2001
++++ linux-2.4.13-0.2-t1/arch/s390/config.in	Mon Oct 29 06:22:48 2001
+@@ -10,6 +10,7 @@
+ define_bool CONFIG_RWSEM_GENERIC_SPINLOCK y
+ define_bool CONFIG_RWSEM_XCHGADD_ALGORITHM n
+ define_bool CONFIG_GENERIC_BUST_SPINLOCK n
++define_bool CONFIG_GENERIC_ISA_DMA y
+ 
+ mainmenu_name "Linux Kernel Configuration"
+ define_bool CONFIG_ARCH_S390 y
+diff -ur -X dontdiff linux-2.4.13-0.2/arch/s390/mm/fault.c linux-2.4.13-0.2-t1/arch/s390/mm/fault.c
+--- linux-2.4.13-0.2/arch/s390/mm/fault.c	Thu Oct 11 18:04:57 2001
++++ linux-2.4.13-0.2-t1/arch/s390/mm/fault.c	Mon Oct 29 07:19:03 2001
+@@ -30,6 +30,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/pgtable.h>
+ #include <asm/hardirq.h>
++#include <asm/setup.h>
+ 
+ #ifdef CONFIG_SYSCTL
+ extern int sysctl_userprocess_debug;
+@@ -38,7 +39,9 @@
+ extern void die(const char *,struct pt_regs *,long);
+ static void force_sigsegv(struct task_struct *tsk, int code, void *address);
+ 
++#if 0  /* #ifdef CONFIG_HWC_CONSOLE */	/* Ask IBM to fix XXX */
+ extern spinlock_t timerlist_lock;
++#endif
+ 
+ /*
+  * Unlock any spinlocks which will prevent us from getting the
+@@ -47,13 +50,18 @@
+  */
+ void bust_spinlocks(int yes)
+ {
+-	spin_lock_init(&timerlist_lock);
++#if 0  /* #ifdef CONFIG_HWC_CONSOLE */	/* Ask IBM to fix XXX */
++	spin_lock_init(&timerlist_lock);	/* Does not link... */
++#endif
+ 	if (yes) {
+ 		oops_in_progress = 1;
+ 	} else {
+ 		int loglevel_save = console_loglevel;
+ 		oops_in_progress = 0;
+-		console_unblank();
++#ifdef CONFIG_HWC_CONSOLE
++		if (CONSOLE_IS_HWC)
++			hwc_console_unblank();
++#endif
+ 		/*
+ 		 * OK, the message is on the console.  Now we call printk()
+ 		 * without oops_in_progress set so that printk will give klogd
+diff -ur -X dontdiff linux-2.4.13-0.2/fs/partitions/ibm.c linux-2.4.13-0.2-t1/fs/partitions/ibm.c
+--- linux-2.4.13-0.2/fs/partitions/ibm.c	Tue Oct  2 05:03:26 2001
++++ linux-2.4.13-0.2-t1/fs/partitions/ibm.c	Mon Oct 29 05:48:53 2001
+@@ -123,7 +123,7 @@
+ 					    GFP_KERNEL);
+ 	if ( geo == NULL )
+ 		return 0;
+-	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo);
++	if (ioctl_by_bdev(bdev, HDIO_GETGEO, (unsigned long)geo))
+ 		return 0;
+ 	blocksize = hardsect_size[MAJOR(dev)][MINOR(dev)];
+ 	if ( blocksize <= 0 ) {
+@@ -131,7 +131,7 @@
+ 	}
+ 	blocksize >>= 9;
+ 	
+-	data = read_dev_sector(bdev, inode->label_block*blocksize, &sect);
++	data = read_dev_sector(bdev, info->label_block*blocksize, &sect);
+ 	if (!data)
+ 		return 0;
+ 

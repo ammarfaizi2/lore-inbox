@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314340AbSGCA3g>; Tue, 2 Jul 2002 20:29:36 -0400
+	id <S314381AbSGCAeQ>; Tue, 2 Jul 2002 20:34:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314381AbSGCA3f>; Tue, 2 Jul 2002 20:29:35 -0400
-Received: from t10-201.gprs.mtsnet.ru ([213.87.10.201]:23168 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S314340AbSGCA3f>; Tue, 2 Jul 2002 20:29:35 -0400
-Date: Wed, 3 Jul 2002 04:31:19 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: =?koi8-r?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
-       jlnance@intrex.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-rc1 broke OSF binaries on alpha
-Message-ID: <20020703043119.A804@localhost.park.msu.ru>
-References: <Pine.LNX.4.44.0206281730160.12542-100000@freak.distro.conectiva> <E17O7yk-0007w5-00@the-village.bc.nu> <20020630035058.A884@localhost.park.msu.ru> <20020701090353.B1957@tricia.dyndns.org> <20020701180252.A15288@jurassic.park.msu.ru> <yw1xvg7z1bjz.fsf@gladiusit.e.kth.se> <20020702190544.A23788@jurassic.park.msu.ru> <20020702161322.A7642@twiddle.net>
+	id <S314395AbSGCAeP>; Tue, 2 Jul 2002 20:34:15 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:43012 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S314381AbSGCAeO>; Tue, 2 Jul 2002 20:34:14 -0400
+Date: Tue, 2 Jul 2002 17:36:36 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
+Message-ID: <20020702173636.A13790@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20020701130327.38962.qmail@web20506.mail.yahoo.com> <200207011316.g61DGxT18808@Port.imtp.ilyichevsk.odessa.ua> <20020702200005.GA29557@pcw.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020702161322.A7642@twiddle.net>; from rth@twiddle.net on Tue, Jul 02, 2002 at 04:13:22PM -0700
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20020702200005.GA29557@pcw.home.local>; from willy@w.ods.org on Tue, Jul 02, 2002 at 10:00:05PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 02, 2002 at 04:13:22PM -0700, Richard Henderson wrote:
-> Do we have any way of recognizing v4 vs v5 binaries?  I don't think
-> we do.
+On Tue, Jul 02, 2002 at 10:00:05PM +0200, Willy TARREAU wrote:
+> > Can you code up a "dummy" emulator (which just ignores
+> > any invalid opcode by doing eip+=3) and compare trap times
+> > of your emulator and dummy one for, say, CMOVC AL,AL?
+> > (with carry flag cleared)
+> 
+> The dummy emulator costs exactly 296 cycles (stable) on my
+> k6-2/450. It only adds 3 to eip then returns.
+> 
+> To check this, I compared 1 million iteriations of 10
+> consecutive cmove %eax,%eax with as much lea 0(%eax),%eax
+> (1 cycle, RAW dependancy, not parallelizable), and the
+> difference was exactly 660 ns/inst (297 cycles).
+> 
+> That said, I agree with you that it's worth optimizing a
+> bit, at least to stay closer to 300 cycles than to 450.
+> But that won't make emulated machines fast anyway.
+> 
+> One interesting note: I tested the prog on a VIA C3/533
+> Mhz. One native cmove %eax,%eax costs 56 cycles here ! (at
+> first, I even thought it was emulated). It's a shame to see
+> how these instructions have been implemented. May be they
+> flush the pipelines, write-backs, ... before the instruction.
+> BTW, cmov isn't reported in cpu_flags, perhaps to discourage
+> progs from using it ;-)
+> 
+> I will recode the stuff, and add two preventive messages:
+>  - at boot time : "warning: this kernel may emulate unsupported instructions. If you
+>    find it slow, please do dmesg."
+>  - at first emulation : "trap caught for instruction XXX, program XXX."
 
-Indeed. I've specially looked for this yesterday, and it seems that             
-we don't.                                                                       
+Too often the "it seems slow" complaint comes after weeks or
+even months of uptime.  How about the message every n times
+an emulation is required.
 
-> I'd be willing to call any ECOFF binary an OSF binary, and
-> ignore the fact that Linux used them in the distant past.
+	  if(!(emulation_count++ & 0xHHHH))
+		printk(...);
 
-Totally acceptable, I think.
+wouldn't add too much more overhead than
 
-> The minimum correct solution is to add a PER_OSF4 to personality.h
-> and put an osf_readv and osf_writev that, if PER_OSF4, read and frob
-> the data into kernel buffers and pass that on to the regular syscalls.
+	if (!emulation_notice)
+	{
+		emulation_notice = 1;
+		printk(...);
+	}
 
-It would be excellent.
+after all this is only supposed to happen under rescue
+situations.  That way it will be sure to be in the logs and
+maybe even on the console and we won't have to hunt for it.
 
-Ivan.
+Also, the message should say you are doing instruction
+emulation.  "wrong model cpu, emulating instruction XXX" I
+doubt indicating the program is helpful unless the tracking
+is done per task or the printk every time you emulate.
+
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

@@ -1,114 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311838AbSCOH3T>; Fri, 15 Mar 2002 02:29:19 -0500
+	id <S311855AbSCOHhJ>; Fri, 15 Mar 2002 02:37:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311855AbSCOH3J>; Fri, 15 Mar 2002 02:29:09 -0500
-Received: from [202.135.142.196] ([202.135.142.196]:16134 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S311838AbSCOH3D>; Fri, 15 Mar 2002 02:29:03 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Martin.Wirth@dlr.de
-Cc: torvalds@transmeta.com, "Hubertus Franke" <frankeh@watson.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
-In-Reply-To: Your message of "Wed, 13 Mar 2002 10:12:33 BST."
-             <3C8F1801.6070107@dlr.de> 
-Date: Fri, 15 Mar 2002 18:31:43 +1100
-Message-Id: <E16lmBj-0003v4-00@wagner.rustcorp.com.au>
+	id <S311872AbSCOHg7>; Fri, 15 Mar 2002 02:36:59 -0500
+Received: from idefix.linkvest.com ([194.209.53.99]:60936 "EHLO
+	idefix.linkvest.com") by vger.kernel.org with ESMTP
+	id <S311855AbSCOHgw>; Fri, 15 Mar 2002 02:36:52 -0500
+Message-ID: <3C91A488.3080602@linkvest.com>
+Date: Fri, 15 Mar 2002 08:36:40 +0100
+From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: UNIX bench better on 2.2 than 2.4?
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Mar 2002 07:36:41.0001 (UTC) FILETIME=[25D13190:01C1CBF4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3C8F1801.6070107@dlr.de> you write:
->  > > > On Tue, 12 Mar 2002, Rusty Russell wrote:
->  > > > > > > > You've convinced me.
->  > > > > > Damn.  Because now I've been playing with a different approach.
->  > > > I don't think your current patch is very useful.
-> 
->  > I agree.  But your "Applied" EMail rushed me into posting it.
-> 
-> 
-> The normal way to use multithreading under UNIX is the pthread
-> library. Here the condition variables are the equivalent to kernel
-> wait queues. So I think to really implement a fast pthread lib based
-> on futexes one needs some means to implement condition variables
-> (with synchronous futex release to implement  pthread_cond_wait(..)!).
+Hi,
+I ran UNIX bench on 4 of our machines. The results are below.
+What is strange is that 2.2 makes better than 2.4! Is it a known fact?
+And is the UNIX bench better with 2 CPU?
+-jec
 
-Discussions with Ulrich have reaffirmed my opinion that pthreads are
-crap.  Hence I'm not all that tempted to warp the (nice, clean,
-usable) futex code too far to meet pthreads' wierd needs.
+Results:
+Host1: 2xPIII 550MHz / 1Gb RAM / RAID5 SCSI
+      Result: 164.7
+Host2: 2xPIII 866MHz / 1Gb RAM / RAID1 soft IDE
+      Result: 195.7
+Host3: 1xPIII 800MHz / 512Mb RAM / IDE
+      Result: 208.6
+Host4: 1xPIII 600MHz / 256Mb RAM / IDE
+      Result: 153.6
 
-However, it's not too hard to implement condition variables using an
-unavailable mutex, if we go for "full" semaphores: ie. not just
-mutexes.  It requires a bit more of a stretch for kernel atomic ops...
 
-Yet another untested patch,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Host1:
+Dhrystone 2 using register variables        116700.0  1139475.0       97.6
+Double-Precision Whetstone                      55.0      295.2       53.7
+Execl Throughput                                43.0      697.7      162.3
+File Copy 1024 bufsize 2000 maxblocks         3960.0    83438.0      210.7
+File Copy 256 bufsize 500 maxblocks           1655.0    38613.0      233.3
+File Copy 4096 bufsize 8000 maxblocks         5800.0   121259.0      209.1
+Pipe Throughput                              12440.0   254518.7      204.6
+Process Creation                               126.0     1831.7      145.4
+Shell Scripts (8 concurrent)                     6.0      201.7      336.2
+System Call Overhead                         15000.0   251716.1      167.8
+                                                                  =========
+      FINAL SCORE                                                     164.7
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.7-pre1/kernel/futex.c working-2.5.7-pre1-sem/kernel/futex.c
---- linux-2.5.7-pre1/kernel/futex.c	Wed Mar 13 13:30:39 2002
-+++ working-2.5.7-pre1-sem/kernel/futex.c	Fri Mar 15 18:18:37 2002
-@@ -129,17 +129,18 @@
- 	return page;
- }
- 
--/* Try to decrement the user count to zero. */
--static int decrement_to_zero(struct page *page, unsigned int offset)
-+/* Try to decrement the user count to >= zero. */
-+static int decrement_futex(struct page *page, unsigned int offset)
- {
- 	atomic_t *count;
- 	int ret = 0;
- 
- 	count = kmap(page) + offset;
--	/* If we take the semaphore from 1 to 0, it's ours.  If it's
--           zero, decrement anyway, to indicate we are waiting.  If
--           it's negative, don't decrement so we don't wrap... */
--	if (atomic_read(count) >= 0 && atomic_dec_and_test(count))
-+	/* If we take one from the sem, and it's still >= 0, it's
-+           ours.  If it's zero, we decrement anyway to indicate we are
-+           waiting.  If it's negative, don't decrement so we don't
-+           wrap... */
-+	if (atomic_read(count) >= 0 && !atomic_add_negative(-1, count))
- 		ret = 1;
- 	kunmap(page);
- 	return ret;
-@@ -173,12 +174,36 @@
- 	return retval;
- }
- 
-+/* Atomically: Add 1 if already positive, otherwise set to 1. */
-+static void futex_make_positive(atomic_t *count)
-+{
-+	int old_count, new_count;
-+
-+#ifndef CONFIG_SMP
-+	preempt_disable();
-+	old_count = atomic_read(count);
-+	new_count = old_count > 0 ? old_count+1 : 1;
-+	atomic_set(count, new_count);
-+	preempt_enable();
-+#elif defined(__HAVE_ARCH_CMPXCHG)
-+	do {
-+		old_count = atomic_read(count);
-+		new_count = old_count > 0 ? old_count+1 : 1;
-+	} while (cmpxchg(count, old_count, new_count) != old_count);
-+#else
-+	/* Do this one at a time.  You will need to implement
-+	   atomic_add_positive(). */
-+	while (!atomic_add_positive(count, 1));
-+#endif
-+}
-+
- static int futex_up(struct list_head *head, struct page *page, int offset)
- {
- 	atomic_t *count;
- 
- 	count = kmap(page) + offset;
--	atomic_set(count, 1);
-+	/* set to MAX(count, 0) + 1 */
-+	futex_make_positive(count);
- 	smp_wmb();
- 	kunmap(page);
- 	wake_one_waiter(head, page, offset);
+
+
+Host2:
+Dhrystone 2 using register variables        116700.0  1837005.3      157.4
+Double-Precision Whetstone                      55.0      478.4       87.0
+Execl Throughput                                43.0      923.8      214.8
+File Copy 1024 bufsize 2000 maxblocks         3960.0    54663.0      138.0
+File Copy 256 bufsize 500 maxblocks           1655.0    18601.0      112.4
+File Copy 4096 bufsize 8000 maxblocks         5800.0    96807.0      166.9
+Pipe Throughput                              12440.0   399294.5      321.0
+Process Creation                               126.0     3503.8      278.1
+Shell Scripts (8 concurrent)                     6.0      277.0      461.7
+System Call Overhead                         15000.0   393738.7      262.5
+                                                                  =========
+      FINAL SCORE                                                     195.7
+
+
+
+Host3:
+Dhrystone 2 using register variables        116700.0  1506306.9      129.1
+Double-Precision Whetstone                      55.0      364.4       66.3
+Execl Throughput                                43.0     1103.3      256.6
+File Copy 1024 bufsize 2000 maxblocks         3960.0   110403.0      278.8
+File Copy 256 bufsize 500 maxblocks           1655.0    53065.0      320.6
+File Copy 4096 bufsize 8000 maxblocks         5800.0   151107.0      260.5
+Pipe Throughput                              12440.0   378679.6      304.4
+Pipe-based Context Switching                  4000.0   161272.9      403.2
+Process Creation                               126.0     7144.7      567.0
+Shell Scripts (8 concurrent)                     6.0       20.0       33.3
+System Call Overhead                         15000.0   412399.5      274.9
+                                                                  =========
+      FINAL SCORE                                                     208.6
+
+
+
+Host4:
+Dhrystone 2 using register variables        116700.0  1099714.7       94.2
+Double-Precision Whetstone                      55.0      328.1       59.7
+Execl Throughput                                43.0      692.1      161.0
+File Copy 1024 bufsize 2000 maxblocks         3960.0    56029.0      141.5
+File Copy 256 bufsize 500 maxblocks           1655.0    18783.0      113.5
+File Copy 4096 bufsize 8000 maxblocks         5800.0    96243.0      165.9
+Pipe Throughput                              12440.0   306228.7      246.2
+Process Creation                               126.0     3937.3      312.5
+Shell Scripts (8 concurrent)                     6.0      125.9      209.8
+System Call Overhead                         15000.0   282470.2      188.3
+                                                                  =========
+      FINAL SCORE                                                     153.6
+
+
+-- 
+Jean-Eric Cuendet
+Linkvest SA
+Av des Baumettes 19, 1020 Renens Switzerland
+Tel +41 21 632 9043  Fax +41 21 632 9090
+E-mail: jean-eric.cuendet@linkvest.com
+http://www.linkvest.com
+--------------------------------------------------------
+
+
+

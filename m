@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291633AbSBTEf1>; Tue, 19 Feb 2002 23:35:27 -0500
+	id <S291640AbSBTE7W>; Tue, 19 Feb 2002 23:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291631AbSBTEfS>; Tue, 19 Feb 2002 23:35:18 -0500
-Received: from c9mailgw.prontomail.com ([216.163.188.201]:52242 "EHLO
-	C9Mailgw05.amadis.com") by vger.kernel.org with ESMTP
-	id <S291633AbSBTEfC>; Tue, 19 Feb 2002 23:35:02 -0500
-Message-ID: <3C73272B.9BDE55CE@starband.net>
-Date: Tue, 19 Feb 2002 23:33:47 -0500
-From: Justin Piszcz <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
+	id <S291642AbSBTE7D>; Tue, 19 Feb 2002 23:59:03 -0500
+Received: from cs.unt.edu ([129.120.36.230]:62981 "HELO cs.unt.edu")
+	by vger.kernel.org with SMTP id <S291640AbSBTE65>;
+	Tue, 19 Feb 2002 23:58:57 -0500
+Date: Tue, 19 Feb 2002 22:58:53 -0600 (CST)
+From: Sandeep Gopal Nijsure <nijsure@cs.unt.edu>
+To: linux-kernel@vger.kernel.org
+Subject: About net part of the kernel
+Message-ID: <Pine.LNX.3.96.1020219225420.6940B-100000@csp05.csci.unt.edu>
 MIME-Version: 1.0
-To: Dale Amon <amon@vnl.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: make install doesn't work for kernel factories
-In-Reply-To: <20020220041413.GC29004@vnl.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you looked at http://www.installkernel.com/ ?
-ik -i does the install.
+Hi,
 
-Dale Amon wrote:
+I want to make, say, a machine 10.0.0.5 accept an IP packet with the
+destination address of 10.0.0.2. I hope I can do this by changing a bit of
+kernel networking code, where it's decided whether to accept an IP packet
+as a local packet.. I could not locate the code.. could anybody tell me
+where exactly the decision process take place?
 
-> The following does not work:
->
->         make DESTDIR=/my/target/root install
->
-> it calls
->
-> exec /sbin/installkernel 2.4.17 bzImage /my/source/directory/linux-2.4.17/System.map
->
-> and proceeds to drop it on top of the local machine's
-> kernel. installkernel should honor the selection of
-> a different root.
->
-> --
-> ------------------------------------------------------
->     Nuke bin Laden:           Dale Amon, CEO/MD
->   improve the global          Islandone Society
->      gene pool.               www.islandone.org
-> ------------------------------------------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks a lot..
+Sandeep 
+
 

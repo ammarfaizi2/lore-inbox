@@ -1,201 +1,195 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbTAEF37>; Sun, 5 Jan 2003 00:29:59 -0500
+	id <S262826AbTAEF2Q>; Sun, 5 Jan 2003 00:28:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263280AbTAEF37>; Sun, 5 Jan 2003 00:29:59 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:56417 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S263228AbTAEF3p>;
-	Sun, 5 Jan 2003 00:29:45 -0500
-From: <Hell.Surfers@cwctv.net>
-To: andre@linux-ide.org, andrew@indranet.co.nz, rms@gnu.org,
-       linux-kernel@vger.kernel.org
-Date: Sun, 5 Jan 2003 05:37:24 +0000
-Subject: RE:Re: Gauntlet Set NOW!
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041745044726"
-Message-ID: <0c58a2334050513DTVMAIL7@smtp.cwctv.net>
+	id <S263143AbTAEF1l>; Sun, 5 Jan 2003 00:27:41 -0500
+Received: from mail.webmaster.com ([216.152.64.131]:46335 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S263105AbTAEF1X> convert rfc822-to-8bit; Sun, 5 Jan 2003 00:27:23 -0500
+From: David Schwartz <davids@webmaster.com>
+To: <ml-linux-kernel@studentenwerk.mhn.de>
+CC: <linux-kernel@vger.kernel.org>, <rms@gnu.org>
+X-Mailer: PocoMail 2.63 (1077) - Licensed Version
+Date: Sat, 4 Jan 2003 21:35:55 -0800
+In-Reply-To: <200301050539.35205.ml-linux-kernel@studentenwerk.mhn.de>
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <20030105053556.AAA16557@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 5 Jan 2003 05:39:35 +0100, Wolfgang Walter wrote:
+>On Sunday 05 January 2003 01:17, David Schwartz wrote:
+>>On Sat, 04 Jan 2003 18:44:58 -0500, Richard Stallman wrote:
+>>>Defending shrink wrap licensing agreements, arguing to weaken
+>>>fair use and
+>>>first sale doctrines, and arguing that if you include a header
+>>>it's
+>>>a derived
+>>>work is a strange way to defend intellectual freedom.
+>>>
+>>>Those are not my views.  Are you confusing me with someone else?
+>>
+>>    Then please explain to me how the GPL comes to apply to a 
+person
+>>who
+>>did not agree to it as a condition of receiving a copyrighted work.
+>>Please explain to me why you think that the GPL should have applied
+>>to kernel modules that only include header files.
 
---1041745044726
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+>You seem not to understand copyright.
 
-It believes in GOD? :-)
+	I don't see what gives you this impression.
 
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
+>The GPL does not affect the user of the software. If you have bought
+>a copy of
+>Red Linux distribution cd i.a. it is not necessary to accept the GPL
+>(or BSD
+>or whatever license) to use the software. You may sell your received
+>copy
+>when ever you want to ever you want for whatever price you can get -
+>if you
+>do not keep a copy. As you can do with microsoft windows - if you
+>bought it
+>(and did not licensed it from microsoft). I.a. it is not necessary
+>to provide
+>source code because it is Red Hat which a) made the copy and b) did
+>so by
+>accepting the GPL.
 
-On 	Sat, 4 Jan 2003 21:31:39 -0800 (PST) 	Andre Hedrick <andre@linux-ide.org> wrote:
+	Right.
 
---1041745044726
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>But if you want to make and use or distribute copies of that CD or
+>distributed
+>works, well, then you must get explicit permission from the
+>copyright owners
+>- as you would have to for any copyrightable work. This is so
+>because of
+>copyright law. If you buy the software you only have the right to
+>use it. You
+>do not have by default the right to distribute copies, make or
+>distribute
+>derived works etc.
 
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sun, 5 Jan 2003 05:31:08 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262824AbTAEFYJ>; Sun, 5 Jan 2003 00:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262826AbTAEFYJ>; Sun, 5 Jan 2003 00:24:09 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:26377
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262824AbTAEFYH>; Sun, 5 Jan 2003 00:24:07 -0500
-Received: from localhost (andre@localhost)
-	by master.linux-ide.org (8.9.3/8.9.3) with ESMTP id VAA17948;
-	Sat, 4 Jan 2003 21:31:39 -0800
-Date: Sat, 4 Jan 2003 21:31:39 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andrew McGregor <andrew@indranet.co.nz>
-cc: rms@gnu.org, linux-kernel@vger.kernel.org
-Subject: Re: Gauntlet Set NOW!
-In-Reply-To: <635470000.1041743530@localhost.localdomain>
-Message-ID: <Pine.LNX.4.10.10301042123450.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+	You have those rights the law gives you and those rights that the 
+copyright holder chooses to give you in the transfer agreement.
 
-On Sun, 5 Jan 2003, Andrew McGregor wrote:
+>Now the authors of the software on the Red Hat CD make you an offer:
+>you may
+>accept the GPL. If you do so, they allow you to make and distribute
+>copies or
+>derived works under certain conditions. You don't have to accept the
+>GPL. If
+>you do not, you may try to negotiate for other terms with the
+>copyright
+>holders.
 
-> By the way, I'm principally a developer of communications standards and 
-> hardware, not so much software.
+	Sounds like every shrink wrap agreement in the world. You already 
+have the thing you want to license, the licensee simply refuses to 
+grant you the rights to that thing you already have unless you agree 
+to a license that you are not free to negotiate.
 
-I forgot to mention the template model on each side of the iSCSI protocol
-state machine we have developed is agnostic?
+>>    That's a lot better than trying to arm twist others in to
+>>providing
+>>our freedom to use their works. When you talk about forcing a
+>>person
+>>to distribute the source code to a derived work, you are only
+>>talking
+>>about their control over what they added. When a person creates a
 
-Initiator --- Transport --- Target --- Spindle
+>Do you understand? You are not allowed to produce derived works
+>without
+>permission of the copyright owner. He may do so under what
+>conditions he want
+>(or simply does not allow you to do so at all).
 
-		TCP			SCSI
-		Quads			ATA
-		SCI			SATA
-		Myrinet			MD
-		InfiniBand		LVM
-		TELCO			USB
-		CARRIER			1394
-					SAS
-					Fibre Channel
+	This is the same for use. If Microsoft wants to, they can impose any
+terms in the EULA that they want.
 
-					FLOPPY, for emergencies.
+>With the GPL the copyright owner(s) of the work grants you the right
+>to do so
+>under certain conditions described under the GPL. One right is to
+>produce
+>derived works at all and
 
-	Create Your Own		Create Your Own
+>Have you ever got permission from microsoft or adobe to produce
+>derived works
+>from windows 2000 or photoshop?
 
-Yeah, I am nutter than a fruitcake, but it works!
+	Microsoft doesn't try to argue that every document I write in 
+Windows 2000 is a derived work. Photoshop doesn't argue that every 
+image I create in photoshop is a derived work.
 
-This is for Larry McVoy, it is the closest thing you will ever see today
-which looks like a disk with an RJ-45 port.
+	All you can do with a header file is include it in your own code. 
+All you can do with photoshop is produce photoshop files. Adobe 
+doesn't argue that photoshop-created images are derived works. 
+Stallman *does* argue that Linux binary modules are derived works.
 
-Cheers,
+	To support the GPL's ability to regulate the distribution of derived
+works you would have to argue that Adobe's EULA could legitimately 
+prohibit you from distributing images you create with photoshop. Far 
+smarter for advocates of freedom to argue that this is fair use and 
+the argument that such works are derived is bullcrap.
 
-Andre Hedrick
-LAD Storage Consulting Group
+>>derived work of an open source work, all they have to offer is the
+>>value they added. In the name of freedom, you take their control
+>>over
+>>their work from them.
 
+>No, they allow you to do the work at all. By default you would not
+>be allowed
+>to add value at all.
 
-> --On Saturday, January 04, 2003 18:44:49 -0500 Richard Stallman 
-> <rms@gnu.org> wrote:
-> 
-> >     But sometimes we can't make things free, either because it comes to
-> > close      to core IP which we are legally bound to protect, or because
-> > it's a derived      work of something we bought and don't ourselves have
-> > the right to      redistribute.
-> >
-> > At this level of generality, I can only say that if the program is to
-> > be published as non-free software, it will not be available to people
-> > to use in freedom.  Its effect will be to tempt people to give up
-> > their freedom.  If I had a choice to develop that program or no
-> > program, I would develop no program.
-> 
-> Here is where we differ.  I do these things because, even though they do 
-> not promote software freedom, they can and, I hope, do promote other kinds 
-> of freedom in other ways.  I also always look to the maximally free way to 
-> do the software parts.  Sometimes it is not possible to acheive the other 
-> goals we have and keep the software entirely free.  I think, however, that 
-> the freedom given by very inexpensive and unconstrained (that is, free as 
-> in speech) telecommunications is somewhat more important than the absolute 
-> freedom of the specific software we use to acheive that.  In several cases, 
-> we have chosen proprietary solutions where they make the monetary cost to 
-> the end user dramatically lower, because one of our target problems is the 
-> lack of economic freedom in many parts of the world.  For those with an 
-> arbitrary hardware budget, there are or soon will be interoperable free 
-> software alternatives.  We make sure of that.  We make sure we use open 
-> standards with no closed extensions, so as to make sure this continues.
-> 
-> > I would rather look for constructive alternatives than just criticize.
-> > In such a situation, I would look for a way to make the program free.
-> 
-> I'm often focused on the case where the total hardware + software cost is 
-> the key factor between user of any communications and user of no 
-> communications.  I use free or partly free software wherever I can, because 
-> I am not hostile to that goal, but that is not my overriding concern.
-> 
-> I am also concerned that some of the zealots in the free software, not 
-> necessarily including yourself Richard, do not set precedents in the courts 
-> that, while possibly reinforcing the particular technicality of the GPL, 
-> undermine the freeness of kinds of speech other than software, such as 
-> scientific communication, cultural artefacts and political discussion.  In 
-> the long run that would be worse for freedom in general.
-> 
-> > This scenario is too general to get started on that.  (I explained in
-> > another message how the term "intellectual property" tends to obscure
-> > important distinctions; this is an example.)  In any specific case
-> > there is likely to be some way.
-> 
-> Here I'm using that term in the sense of 'copyrighted (and possibly 
-> patented) compilable information and its documentation', covering both 
-> software and hardware designs.  If I were to use it to cover anything else 
-> I'd be more specific, as is common usage where I come from.  I do 
-> understand the ambiguity and hidden conflations behind the term; I have 
-> been involved in both trademark and patenting (of hardware; software 
-> patents are evil, no question) work, and I'm cited as an inventor on one 
-> patent, so I have some firsthand experience.
-> 
-> > If there is no easy way to make the same program free, there may be a
-> > harder way.  People who value freedom strongly sometimes choose the
-> > hard path to freedom rather than the easy path that extends
-> > non-freedom.  That is how we extend freedom.
-> 
-> I'm principally concerned with other sorts of freedom, while attempting to 
-> forward the cause of software freedom to the extent I can, and attempting 
-> never to advance the cause of any sort of non-freedom.  It isn't easy at 
-> all, believe me.
-> 
-> > As an ultimate fallback, there is surely some other job you could do
-> > instead.
-> 
-> I could go back to being a musician or a scientist.  There are freedom 
-> issues there, too, believe me.  And I'd still be debating free software, 
-> because in those fields it's important too.  It would certainly be easier 
-> to tread the path of free software purity in those fields, but I suspect it 
-> would make less long-term impact for me to do so.
-> 
-> > I have no opinion yet about what Andre said, because I cannot form a
-> > clear picture of what he plans to do; I don't know whether it would
-> > violate the GPL, or whether the issue would involve the FSF.  We do
-> > not enforce the GPL for Linux in any case; that is the responsibility
-> > of the copyright holders of Linux.
-> 
-> I'm glad to hear that.  I'm also glad that the zealot who started the 
-> thread that has us talking about this does not appear to be one of those 
-> copyright holders; I suspect most of them have more sense.
-> 
-> Andrew
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	Yes, but this is *use*, which is what the GPL is *not* supposed to 
+stop. How can you use photoshop except to create images with it? How 
+can you use a header file except to include it in your own code. I 
+argue that we should take the position that this type of normal use 
+does not create a derived work any more than reading a novel makes 
+your brain a derived work of that novel.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041745044726--
+>>    This is the same "freedom" that socialism promises the workers.
+>>They
+>>call it the freedom to own the machinery they use to produce.
+>>Analogously, this "freedom" is really just the loss of the freedom
+>>of
+>>ownership.
+
+>No. The authors of the work has with your words - the "ownership" of
+>his work.
+>Law says that one facete of that "ownership" is that he may allow or
+>forbid
+>derived works. And if he allows someone to produce a derived work
+>its under
+>his conditions.
+
+	The argument is over what is a derived work, what constitutes 
+"using" a header file, and what constitutes agreement to a contract.
+
+>But you cant't argument that an author as owner of his work should
+>use a less
+>restrictive license than the GPL so you can make a derived work and
+>distribute it under a more restrictive license than GPL. Why should
+>he want
+>to allow that at all (a lot of peoply allow that choosing a BSD-
+>license -
+>nice gift)? Nobody can force him to do so. Its not the GPL which
+>restricts
+>your freedom, it is copyright law and the author(s) of the work you
+>want to
+>made a derived work from.
+
+	I guess I haven't made myself clear. My argument is not specifically
+with the GPL except in the sense that it requires people who support 
+it to take anti-freedom positions with respect to fair use, derived 
+works, first sale, and other important issues where actual 
+information freedom is at stake.
+
+	I'm afraid I'm too tired right now to respond to the rest of your 
+argument. I hope I didn't miss anything importasnt.
+
+	DS
+
 
 

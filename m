@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbSJEXAy>; Sat, 5 Oct 2002 19:00:54 -0400
+	id <S262789AbSJEXBS>; Sat, 5 Oct 2002 19:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262793AbSJEXAy>; Sat, 5 Oct 2002 19:00:54 -0400
-Received: from 25th.com ([12.109.132.50]:19979 "HELO 25th.com")
-	by vger.kernel.org with SMTP id <S261375AbSJEXAx>;
-	Sat, 5 Oct 2002 19:00:53 -0400
-Message-ID: <3D9F7169.8020008@dodinc.com>
-Date: Sat, 05 Oct 2002 19:10:33 -0400
-From: "Lawrence A. Wimble" <law@dodinc.com>
-Reply-To: law@dodinc.com
-Organization: Design On Demand, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262793AbSJEXBS>; Sat, 5 Oct 2002 19:01:18 -0400
+Received: from mailb.telia.com ([194.22.194.6]:18897 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id <S262789AbSJEXBR>;
+	Sat, 5 Oct 2002 19:01:17 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Linux v2.5.40 - and a feature freeze reminder
+References: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
+From: Peter Osterlund <petero2@telia.com>
+Date: 06 Oct 2002 01:06:39 +0200
+In-Reply-To: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
+Message-ID: <m2r8f47af4.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Bizarre network issue
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-Greetings.....
+> Merges with all the regular suspects - Al's partitioning, Andrew on VM, 
+> USB, networking, sparc, net drivers.
 
-I am working on a driver for generic serial-based radios (e.g, Coyote 
-Datacomm
-DR-915 and Microhard MHX-910, etc..), that basically allows the radio to 
-be used
-as a network interface, much in the spirit of STRIP.  Kernel is 2.4.8 
-(mandrake 8.1).
+My PCMCIA network card no longer works. During boot, I see this
+message:
 
-Given that the radios pose an "unknown", I have gone to a NULL-modem cable
+        ds: no socket drivers loaded
 
-until this issue is resolved.  Here's what *is* working across my interface:
+It worked in 2.5.39. Also this patch helps, although I don't
+understand why it is now needed:
 
-
-1. ARP ... tcpdump shows both the request AND reply.
-2. PING ... Getting approx 120ms round trip with the MHX-910s (23ms null 
-modem)
-3. UDP ... Works perfectly with netcat in both directions.
-
-Here's what *is not* working:
-
-4. TCP .... tcpdump shows the SYN packet, but no SYN/ACK ever appears
-5. ICMP 3/3 ... If I try a UDP session when there's no-body "listening" 
-on that
-    remote port, no "Port Unreachable" message is ever sent back to the 
-sending host.
-
-The fact that items 1 though 3 work, indicate that 4 and 5 should work 
-as well,
-but they don't.  I have added a debug statement to my driver's 
-"hard_start_xmit"
-routine to write to syslog when it's called.  The kernel does not even 
-appear to
-be calling the routine to respond to TCP SYN's or UDP packets headed for
-an unreachable port.
-
-The worst part of this is that TCP was working fine across this 
-interface about
-a month ago.  When I went to pick up where I left off from is when this 
-behavior
-started to exhibit itself.  Any ideas?
-
-Please CC me personally on responses as I am not subscribed to the list.
-
-TIA,
-Larry
+--- linux/drivers/pcmcia/ds.c.old	Sun Oct  6 01:00:38 2002
++++ linux/drivers/pcmcia/ds.c	Sun Oct  6 00:53:23 2002
+@@ -894,9 +894,9 @@
+      * Ugly. But we want to wait for the socket threads to have started up.
+      * We really should let the drivers themselves drive some of this..
+      */
+     current->state = TASK_INTERRUPTIBLE;
+-    schedule_timeout(HZ/10);
++    schedule_timeout(HZ/4);
+ 
+     pcmcia_get_card_services_info(&serv);
+     if (serv.Revision != CS_RELEASE_CODE) {
+ 	printk(KERN_NOTICE "ds: Card Services release does not match!\n");
 
 -- 
-Lawrence A. Wimble                          414 NE 3rd Street; Suite B
-Chief Software Engineer                     Crystal River, FL 34429
-Design On Demand, Inc.                      Phone 352-563-1225 x112
-law@dodinc.com                              Fax 352-563-2098
-
-
-
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

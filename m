@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131096AbRAKLlz>; Thu, 11 Jan 2001 06:41:55 -0500
+	id <S130807AbRAKLmf>; Thu, 11 Jan 2001 06:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131045AbRAKLlp>; Thu, 11 Jan 2001 06:41:45 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:58893 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130892AbRAKLlh>;
-	Thu, 11 Jan 2001 06:41:37 -0500
-Date: Thu, 11 Jan 2001 12:41:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
-        Nathan Walp <faceprint@faceprint.com>, Hans Grobler <grobh@sun.ac.za>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.4.0-ac5 
-In-Reply-To: <1605.979211755@redhat.com>
-Message-ID: <Pine.LNX.4.30.0101111238190.6227-100000@e2>
+	id <S131045AbRAKLmS>; Thu, 11 Jan 2001 06:42:18 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:16311 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S130807AbRAKLl5>; Thu, 11 Jan 2001 06:41:57 -0500
+Message-ID: <3A5D9D87.8A868F6A@uow.edu.au>
+Date: Thu, 11 Jan 2001 22:48:23 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Frank de Lange <frank@unternet.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware 
+ related?
+In-Reply-To: <20010110223015.B18085@unternet.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Frank de Lange wrote:
+> 
+> Hi'all,
+> 
+> Ever since I put two ethernet-cards (cheap Winbond W89C940 based PCI NE2K
+> clones) in my BP-6 system, I've been experiencing intermittent network hangs. A
+> hang manifests itself as a total failure to communicate through either network
+> card, and can only be solved by rebooting. Removing and reloading the modules
+> does not fix the problem, only a reboot works.
+> 
 
-On Thu, 11 Jan 2001, David Woodhouse wrote:
+Losing both NICs at the same time could be the elusive "APIC
+stops generating interrupts" problem.
 
-> The bug here seems to be that we're using the same bit
-> (X86_FEATURE_APIC) to report two _different_ features.
+Do you get any transmit timeout messages in the logs?  If
+so, send them.
 
-i think that the AMD APIC is truly 'compatible', but we are trying to
-enable the APIC and program performance counters in an Intel-way. The MSRs
-can be incompatible between steppings of the same CPU, so we should not
-mark something 'incompatible' on that basis.
+Does it happen with a uniprocessor build?
 
-so the correct statement is: the UP-P6-specific way of enabling APICs does
-not work on Athlons. It doesnt work on P5's either.
+Are you able to boot with the `noapic' LILO option?
+If so, does that make it stop?
 
-	Ingo
-
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129915AbRBYXLQ>; Sun, 25 Feb 2001 18:11:16 -0500
+	id <S129903AbRBYXJ0>; Sun, 25 Feb 2001 18:09:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129918AbRBYXLG>; Sun, 25 Feb 2001 18:11:06 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:59839 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129915AbRBYXKt>; Sun, 25 Feb 2001 18:10:49 -0500
-Message-ID: <3A9990EF.8D4ECF49@uow.edu.au>
-Date: Sun, 25 Feb 2001 23:10:39 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S129910AbRBYXJQ>; Sun, 25 Feb 2001 18:09:16 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55048 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129903AbRBYXJG>; Sun, 25 Feb 2001 18:09:06 -0500
+Subject: Re: Linux 2.4.2-ac4
+To: david@blue-labs.org (David)
+Date: Sun, 25 Feb 2001 23:12:07 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <3A998C19.7010403@blue-labs.org> from "David" at Feb 25, 2001 02:50:01 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: timing out on a semaphore
-In-Reply-To: <20010225224039.W13721@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14XAKn-0004cg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
-> 
-> I'm trying to chase down a semaphore time-out problem.  I want to
-> sleep on a semaphore until either
-> 
-> (a) it's signalled, or
-> (b) some amount of time has elapsed.
-> 
-> What I'm doing is calling add_timer, and then down_interruptible, and
-> finally del_timer.  The timer's function ups the semaphore.
-> 
-> The code is in parport_wait_event, in drivers/parport/ieee1284.c.
-> 
-> Can anyone see anything obviously wrong with it?  It seems to
-> sometimes get stuck.
+> Does this have any fixings for the RSS and CPU mis-allocations?  I put 
+> 2.4.2 ac3 on my notebook last night and Enlightenment is taking 9805% of 
+> the cpu and about 4 terabytes is resident.
+> That is the only process doing that.
 
-I think there might be a bogon in __down_interruptible's
-handling of the semaphore state in this case.  I remember
-spotting something a few months back but I can't immediately
-remember what it was :(
-
-I'd suggest you slot a
-
-	sema_init(&port->physport->ieee1284.irq, 1);
-
-into parport_wait_event() prior to adding the timer.  If that
-fixes it I'll go back through my patchpile, see if I can
-resurrect that grey cell.
-
--
+Not yet. Im waiting for the VM folks to fix it.

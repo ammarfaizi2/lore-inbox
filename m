@@ -1,52 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbTEGFil (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 01:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTEGFil
+	id S262820AbTEGGCU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTEGGCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 01:38:41 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:2241 "EHLO hermes.sc.intel.com")
-	by vger.kernel.org with ESMTP id S262874AbTEGFik convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 01:38:40 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780C8FDF57@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Greg KH'" <greg@kroah.com>,
-       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "'Max Krasnyansky'" <maxk@qualcomm.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
-       "'linux-usb-devel@lists.sourceforge.net'" 
-	<linux-usb-devel@lists.sourceforge.net>
-Subject: RE: [Bluetooth] HCI USB driver update. Support for SCO over HCI U
-	 SB.
-Date: Tue, 6 May 2003 22:51:07 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 7 May 2003 02:02:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:38381 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262820AbTEGGCR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:02:17 -0400
+Date: Tue, 06 May 2003 22:07:14 -0700 (PDT)
+Message-Id: <20030506.220714.35679546.davem@redhat.com>
+To: hch@infradead.org
+Cc: dwmw2@infradead.org, thomas@horsten.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
+ defined (trivial)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030507062613.A5318@infradead.org>
+References: <1052255946.7532.66.camel@imladris.demon.co.uk>
+	<20030506.200638.78728404.davem@redhat.com>
+	<20030507062613.A5318@infradead.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Christoph Hellwig <hch@infradead.org>
+   Date: Wed, 7 May 2003 06:26:13 +0100
+   
+   Look at e.g. the debian and redhat packages of ipsec-tools:  they all
+   have their local copy of theses headers.
+   
+You merely support my point, the situation is rediculious.
 
-> From: Greg KH [mailto:greg@kroah.com]
-> 
-> > If usb_init_urb() is already testing for !urb, why
-> > test it again? No doubt the compiler will probably
-> > catch it if inlining ... but I think the best is
-> > for usb_init_urb() to assume that urb is not NULL.
-> > Let the caller make that sure.
-> 
-> Because people other than usb_alloc_urb() can call usb_init_urb().
-> Yeah, I can remove the check, then any invalid caller will oops on the
+Why don't we copy headers into every app package that wants to use
+certain interfaces?
 
-Just documenting it should do :]
+#ifdef SARCASM
+Yeah, that sounds like an excellent idea.
+#endif /* SARCASM */
 
-> first line of usb_init_urb().  I don't mind, was just trying to program
-> a bit more defensibly.  You know, make it a "hardened driver"  :)
+This doesn't even consider the case where the ipsec-tools copy of the
+headers becomes out of date with the kernel copy.  This isn't a
+theoretical issue, this problem is real.
 
-Stab right in the heart :] I think we all agree we prefer "hardened
-coders".
+For example, I just changed the values of a few SADB_EALG_* values in
+pfkeyv2.h.  Now ipsec-tools is effectively broken.  Oops, when will
+the copy in ipsec-tools get updated?
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+What about applications, ie. normal ones, that want to pass IPSEC
+policies into the kernel via the socket options we have that allows
+per-socket IPSEC rules to be specified?  The copy in ipsec-tools
+doesn't help them at all.
+
+All of this is madness, and every suggestion to copy the headers
+all over the place is a non-solution.

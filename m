@@ -1,131 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311224AbSCLOsN>; Tue, 12 Mar 2002 09:48:13 -0500
+	id <S311221AbSCLO4F>; Tue, 12 Mar 2002 09:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311223AbSCLOsD>; Tue, 12 Mar 2002 09:48:03 -0500
-Received: from jalon.able.es ([212.97.163.2]:58778 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S311221AbSCLOrt>;
-	Tue, 12 Mar 2002 09:47:49 -0500
-Date: Tue, 12 Mar 2002 15:47:42 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Karsten Weiss <knweiss@gmx.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3
-Message-ID: <20020312144742.GA2036@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.44.0203121351070.3320-100000@addx.localnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0203121351070.3320-100000@addx.localnet>; from knweiss@gmx.de on mar, mar 12, 2002 at 14:01:28 +0100
-X-Mailer: Balsa 1.3.3
+	id <S311223AbSCLOzy>; Tue, 12 Mar 2002 09:55:54 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:21674 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S311221AbSCLOzp>; Tue, 12 Mar 2002 09:55:45 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: Rusty Russell <rusty@rustcorp.com.au>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+Date: Tue, 12 Mar 2002 09:56:42 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16kgaz-0007ry-00@wagner.rustcorp.com.au>
+In-Reply-To: <E16kgaz-0007ry-00@wagner.rustcorp.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020312145542.2C8613FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 12 March 2002 02:20 am, Rusty Russell wrote:
+> In message <Pine.LNX.4.33.0203111441120.17864-100000@penguin.transmeta.com>
+> you
+>
+>  write:
+> > On Sat, 9 Mar 2002, Rusty Russell wrote:
+> > > > So I would suggest making the size (and thus alignment check) of
+> > > > locks at least 8 bytes (and preferably 16). That makes it slightly
+> > > > harder to put locks on the stack, but gcc does support stack
+> > > > alignment, even if the cod
+>
+> e
+>
+> > > > sucks right now.
+> > >
+> > > Actually, I disagree.
+> > >
+> > > 1) We've left wiggle room in the second arg to sys_futex() to add
+> > > rwsems later if required.
+> > > 2) Someone needs to implement them and prove they are superior to the
+> > >    pure userspace solution.
+> >
+> > You've convinced me.
+>
+> Damn.  Because now I've been playing with a different approach.
+>
+> If we basically export "add_to_waitqueue", "del_from_waitqueue",
+> "wait_for_waitqueue" and "wakeup_waitqueue" syscalls, we have a more
+> powerful interface: the kernel need not touch userspace addresses at
+> all (no kmap/kunmap, no worried about spinlocks vs. rwlocks).
+>
+> The problem is that this fundamentally requires at least two syscalls
+> in the slow path (add_to_waitqueue, try for lock, wait_for_waitqueue).
+> My tests here show it's about 6% slower than the solution you accepted
+> for tdbtorture (which means the slow path is significantly slower).  I
+> can't imagine shaving that much more off it.
+>
+> There are variations on this: cookie could be replaces the page struct
+> and the offset, ala futexes.
+>
+> Thoughts?
+> Rusty.
+>
+> PS.  Kudos: it was Ben LaHaise's idea to export waitqueues, but I
+>      didn't see how to do it until Paul M made a bad joke about two
+>      syscalls....
 
-On 2002.03.12 Karsten Weiss wrote:
->On Mon, 11 Mar 2002, Marcelo Tosatti wrote:
->
->> Here goes -pre3, with the new IDE code. It has been stable enough time in
->
->I´m surprised that there are no descriptions for the following
->config options (after months of fights for inclusion of this
->patch):
->
->CONFIG_IDEDISK_STROKE
->CONFIG_IDE_TASK_IOCTL
->CONFIG_BLK_DEV_IDEDMA_FORCED
->CONFIG_IDEDMA_ONLYDISK
->CONFIG_BLK_DEV_ELEVATOR_NOOP
->
->Or did you simply forget to merge them?
->
+Rusty, aren't you now going back to the design that I implemented after Ben's 
+comments. 
+>From the get-go, I never touched the user address in the kernel, as I thought 
+it would require detailed knowledge of the user level locking strategy.
 
-This is the last version I grabbed fron the list:
+Could you explain, why you need add_to_waitqueue and wait_for_waitqueue as 
+separate calls ? Is it for resolving a race conditions ?
 
-diff -urN linux-2.4.17-pristine/Documentation/Configure.help linux-2.4.17/Documentation/Configure.help
---- linux-2.4.17-pristine/Documentation/Configure.help	Fri Dec 21 09:41:53 2001
-+++ linux-2.4.17/Documentation/Configure.help	Sat Jan 19 18:30:28 2002
-@@ -723,6 +723,59 @@
-   say M here and read <file:Documentation/modules.txt>.  The module
-   will be called ide-floppy.o.
- 
-+AWARD Bios Work-Around
-+CONFIG_IDEDISK_STROKE
-+  Should you have a system w/ an AWARD Bios and your drives are larger
-+  than 32GB and it will not boot, one is required to perform a few OEM
-+  operations first.  The option is called "STROKE" because it allows
-+  one to "soft clip" the drive to work around a barrier limit.  For
-+  Maxtor drives it is called "jumpon.exe".  Please search Maxtor's
-+  web-site for "JUMPON.EXE".  IBM has a similar tool at:
-+  <http://www.storage.ibm.com/hdd/support/download.htm>.
-+
-+  If you are unsure, say N here.
-+
-+Raw Access to Media
-+CONFIG_IDE_TASK_IOCTL
-+  This is a direct raw access to the media.  It is a complex but
-+  elegant solution to test and validate the domain of the hardware and
-+  perform below the driver data recover if needed.  This is the most
-+  basic form of media-forensics.
-+
-+  If you are unsure, say N here.
-+
-+Use Taskfile I/O
-+CONFIG_IDE_TASKFILE_IO
-+  This is the "Jewel" of the patch.  It will go away and become the new
-+  driver core.  Since all the chipsets/host side hardware deal w/ their
-+  exceptions in "their local code" currently, adoption of a
-+  standardized data-transport is the only logical solution.
-+  Additionally we packetize the requests and gain rapid performance and
-+  a reduction in system latency.  Additionally by using a memory struct
-+  for the commands we can redirect to a MMIO host hardware in the next
-+  generation of controllers, specifically second generation Ultra133
-+  and Serial ATA.
-+
-+  Since this is a major transition, it was deemed necessary to make the
-+  driver paths buildable in separtate models.  Therefore if using this
-+  option fails for your arch then we need to address the needs for that
-+  arch.
-+
-+  If you want to test this functionality, say Y here.
-+
-+Force DMA
-+CONFIG_BLK_DEV_IDEDMA_FORCED
-+  This is an old piece of lost code from Linux 2.0 Kernels.
-+
-+  Generally say N here.
-+
-+DMA Only on Disks
-+CONFIG_IDEDMA_ONLYDISK
-+  This is used if you know your ATAPI Devices are going to fail DMA
-+  Transfers.
-+
-+  Generally say N here.
-+
- SCSI emulation support
- CONFIG_BLK_DEV_IDESCSI
-   This will provide SCSI host adapter emulation for IDE ATAPI devices,
-@@ -747,6 +747,14 @@
-   If both this SCSI emulation and native ATAPI support are compiled
-   into the kernel, the native support will be used.
- 
-+Use the NOOP Elevator (WARNING)
-+CONFIG_BLK_DEV_ELEVATOR_NOOP
-+  If you are using a raid class top-level driver above the ATA/IDE core,
-+  one may find a performance boost by preventing a merging and re-sorting
-+  of the new requests.
-+
-+  If unsure, say N.
-+
- ISA-PNP EIDE support
- CONFIG_BLK_DEV_ISAPNP
-   If you have an ISA EIDE card that is PnP (Plug and Play) and
-
+One comment with respect to multiple wait queues and rwsems:
+Again it will allow you to do reader-pref and/or writer-pref, but not 
+something like FIFO, i.e. wake up a writer if first waiter or wake up all 
+readers if first ..... and so on.
+I don't know whether the latter is terrible important ...
 
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.19-pre3-jam1 #2 SMP Tue Mar 12 08:37:23 CET 2002 i686
+-- Hubertus Franke  (frankeh@watson.ibm.com)

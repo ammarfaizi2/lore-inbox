@@ -1,68 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266311AbUA2Ta3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 14:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUA2T2m
+	id S266314AbUA2Tao (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 14:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUA2Tan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 14:28:42 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:5794 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S266316AbUA2T2K (ORCPT
+	Thu, 29 Jan 2004 14:30:43 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:61322 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S266314AbUA2T3o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 14:28:10 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	Thu, 29 Jan 2004 14:29:44 -0500
+Date: Thu, 29 Jan 2004 20:29:37 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Guido Guenther <agx@sigxcpu.org>
+Cc: James Simmons <jsimmons@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.2-rc2, rivafb]: GeForce4 440 Go 64M overflows fb_fix_screeninfo.id
+Message-ID: <20040129192937.GI5681@vana.vc.cvut.cz>
+References: <20040129172511.GA959@bogon.ms20.nix>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16409.24257.589224.818006@napali.hpl.hp.com>
-Date: Thu, 29 Jan 2004 11:28:01 -0800
-To: Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com>
-Cc: davidm@hpl.hp.com, ak@suse.de (Andi Kleen), davidm@napali.hpl.hp.com,
-       iod00d@hp.com, ishii.hironobu@jp.fujitsu.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [RFC/PATCH, 1/4] readX_check() performance evaluation
-In-Reply-To: <200401290823.i0T8NTDi024477@mtv-vpn-hw-mfl-2.corp.sgi.com>
-References: <16408.3157.336306.812481@napali.hpl.hp.com>
-	<200401290823.i0T8NTDi024477@mtv-vpn-hw-mfl-2.corp.sgi.com>
-X-Mailer: VM 7.17 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20040129172511.GA959@bogon.ms20.nix>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 29 Jan 2004 09:23:20 +0100 ("CET), Matthias Fouquet-Lapar <mfl@kernel.paris.sgi.com> said:
+On Thu, Jan 29, 2004 at 06:25:11PM +0100, Guido Guenther wrote:
+> Hi,
+> fb_fix_screeninfo has space for 15 characters but riva/fbdev.c tries to
+> copy more into it in case of the above card (and therefore corrupts
+> memory). The result looks like:
+> rivafb: PCI nVidia NV20 framebuffer ver 0.9.5b (nVidiaGeForce4-4\224, 32MB @ 0x94000000)
+>                                                                ^^^^^
+> Possible fix attached. This also overwrites the initial "nVidia" in
+> rivafb_fix.id making the output the same as in 2.4 (and using strlcpy
+> makes sure we don't overflow again). With this patch:
+> 
+> rivafb: PCI nVidia NV20 framebuffer ver 0.9.5b (GeForce4-440-GO-M64, 32MB @ 0x94000000)
+> 
+> Can this go in?
 
-  Matthias> We have done a rather large study with DIMMs that had SBEs
-  Matthias> and have found no evidence that a SBE turns into a UCE,
-  Matthias> i.e. the fact that a SBE is reported, is no indication
-  Matthias> that the device might fail soon.
+No way. Second part (riva/fbdev.c) is OK, but first part is wrong. fb_fix_screeninfo
+is part of ABI, and as such cannot be changed. No fb application is going to work
+on your system - try 'fbset -i' (unless you rebuilt fbset binary after doing this change).
 
-  Matthias> As a matter of fact the soft error rates increases while
-  Matthias> parts use smaller process technologies and lower supply
-  Matthias> voltages. Cosmic rays are one source for soft
-  Matthias> errors. Another source are alpha particles emitted by the
-  Matthias> solder.
+You'll have to live with 'GeForce4-440-GO' name.
+							Petr Vandrovec
 
-Ehh, wait a second: you're saying that your study proved that if the
-device isn't failing, it isn't failing. ;-) Of course you'll get noise
-and perhaps even lots of it due to cosmic rays but this doesn't say
-anything about the error pattern you when a device _is_ failing (e.g.,
-due to overheating, over-clocking, or wrong voltage).  Or did your
-study cover the cases where a system is operated under "out-of-spec"
-situation?
+>  -- Guido
 
-  Matthias> Still I think it's important to log SBEs, but you probably
-  Matthias> will need a treshhold in case you hit a hard SBE. Also
-  Matthias> scrubbing the memory location (and re-read the location to
-  Matthias> check if the error was transient or not) might be a good
-  Matthias> idea if the memory controller supports this.  If it is a
-  Matthias> true, hard SBE it should be reported. It also might be a
-  Matthias> good idea to mark the page, so it does not get
-  Matthias> re-allocated.
+> --- ../benh-rsync-2.6-clean/include/linux/fb.h	2003-12-24 11:31:18.000000000 +0100
+> +++ include/linux/fb.h	2004-01-28 20:35:24.000000000 +0100
+> @@ -114,7 +114,7 @@
+>  
+>  
+>  struct fb_fix_screeninfo {
+> -	char id[16];			/* identification string eg "TT Builtin" */
+> +	char id[32];			/* identification string eg "TT Builtin" */
+>  	unsigned long smem_start;	/* Start of frame buffer mem */
+>  					/* (physical address) */
+>  	__u32 smem_len;			/* Length of frame buffer mem */
+> --- ../benh-rsync-2.6-clean/drivers/video/riva/fbdev.c	2003-12-24 08:30:11.000000000 +0100
+> +++ drivers/video/riva/fbdev.c	2004-01-28 21:04:29.000000000 +0100
+> @@ -1867,7 +1867,7 @@
+>  		goto err_out_kfree1;
+>  	memset(info->pixmap.addr, 0, 64 * 1024);
+>  
+> -	strcat(rivafb_fix.id, rci->name);
+> +	strlcpy(rivafb_fix.id, rci->name, sizeof(rivafb_fix.id));
+>  	default_par->riva.Architecture = rci->arch_rev;
+>  
+>  	default_par->Chipset = (pd->vendor << 16) | pd->device;
 
-Yes.  And once I finally received Andi's earlier mails (guess I have
-to thank MyDoom for that... ;-( ), it was clear that nobody argued for
-turning off the error reporting.  The issue was only whether or not to
-log a message via printk() (which, in this case, clearly isn't a good
-idea).  So I think we're all in violent agreement.
-
-	--david

@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261296AbSJ1PGV>; Mon, 28 Oct 2002 10:06:21 -0500
+	id <S261286AbSJ1PID>; Mon, 28 Oct 2002 10:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbSJ1PGV>; Mon, 28 Oct 2002 10:06:21 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:31539 "EHLO
-	poup.poupinou.org") by vger.kernel.org with ESMTP
-	id <S261296AbSJ1PGT>; Mon, 28 Oct 2002 10:06:19 -0500
-Date: Mon, 28 Oct 2002 16:12:38 +0100
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org,
-       ducrot@poupinou.org
-Subject: Re: cpufreq: Intel(R) SpeedStep(TM) for this processor not (yet) available
-Message-ID: <20021028151238.GB19467@poup.poupinou.org>
-References: <20021026105611.3d6a540c.gigerstyle@gmx.ch> <12722.1035652076@www50.gmx.net> <20021028162932.B888@brodo.de> <20021028160410.1d0f9a78.gigerstyle@gmx.ch>
+	id <S261298AbSJ1PHe>; Mon, 28 Oct 2002 10:07:34 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:60069 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261286AbSJ1PG4>;
+	Mon, 28 Oct 2002 10:06:56 -0500
+Date: Mon, 28 Oct 2002 15:13:09 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Andi Kleen <ak@suse.de>, eggert@twinsun.com, linux-kernel@vger.kernel.org
+Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
+Message-ID: <20021028151309.GB16546@bjl1.asuk.net>
+References: <20021028151533.D18441@wotan.suse.de> <Pine.GSO.3.96.1021028152012.977D-100000@delta.ds2.pg.gda.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021028160410.1d0f9a78.gigerstyle@gmx.ch>
-User-Agent: Mutt/1.3.28i
-From: Ducrot Bruno <ducrot@poupinou.org>
+In-Reply-To: <Pine.GSO.3.96.1021028152012.977D-100000@delta.ds2.pg.gda.pl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 04:04:10PM +0100, Marc Giger wrote:
-> Hi Dominik, Hi Bruno!
+Maciej W. Rozycki wrote:
+> > It's impossible. There is no space left in struct stat64
+> > And adding a new syscall just for that would be severe overkill.
 > 
-> Thank you for the information!
-> 
-> > Intel continues to withhold information on how to use SpeedStep on
-> > 440BX/MX chipsets (and even removes documentation which had been > publicly available ontheir servers)
-> 
-> I thought Intel is interessted in Linux and want to support it????
-> 
-> I'm willing to help you with tests if you want, so that the 440BX chipset will be supported.
-> 
+>  Well, possibly more stuff could benefit from new stat syscalls, like a
+> st_gen member for inode generations.  And as someone suggested, a version
+> number or a length could be specified by the calls this time to permit
+> less disturbing expansion in the future. 
 
-I don't know why Intel do not want to release informations on their
-speedstep technology.  I think that this is more likely a 'marketing'
-issue, or something like that.  I don't think that their techs
-want to withhold the specs for a proper support on SpeedStep
-under linux, or other free OS, also, and hope that one day
-Intel will release proper docs.  Well, we can dream...
+It's already there.  The kernel stat64() syscall has a flags argument,
+which is unused at the moment.  I presume it's for this purpose.
 
--- 
-Ducrot Bruno
-http://www.poupinou.org        Page profaissionelle
-http://toto.tu-me-saoules.com  Haume page
+Glibc aleady uses a version number for its stat() calls, to permit
+binary compatible extensions on the user side.
+
+So all the mechanism is there AFAIK.
+
+-- Jamie

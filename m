@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286242AbRLJMHU>; Mon, 10 Dec 2001 07:07:20 -0500
+	id <S286246AbRLJMOV>; Mon, 10 Dec 2001 07:14:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286244AbRLJMHL>; Mon, 10 Dec 2001 07:07:11 -0500
-Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:60855
-	"HELO fugmann.dhs.org") by vger.kernel.org with SMTP
-	id <S286242AbRLJMG6>; Mon, 10 Dec 2001 07:06:58 -0500
-Message-ID: <3C14A560.1020501@fugmann.dhs.org>
-Date: Mon, 10 Dec 2001 13:06:56 +0100
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Daniel Freedman <freedman@ccmr.cornell.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS stale mount after chroot...
-In-Reply-To: <20011209205707.A13073@ccmr.cornell.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S286247AbRLJMOL>; Mon, 10 Dec 2001 07:14:11 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46864 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S286246AbRLJMOA>; Mon, 10 Dec 2001 07:14:00 -0500
+Date: Mon, 10 Dec 2001 13:13:53 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Quinn Harris <quinn@nmt.edu>, linux-kernel@vger.kernel.org
+Subject: Re: File copy system call proposal
+Message-ID: <20011210131353.C19142@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011209153522.A138@toy.ucw.cz> <200112101150.fBABosS271828@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200112101150.fBABosS271828@saturn.cs.uml.edu>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see the same, though I have not tried to chroot.
+Hi!
 
-It happens when I have run mozilla from a NFS mounted fs.
-
-Both client and server is 2.4.16, but I have had this problem with older 
-kernels. NFSv3 support is compiled in both kernels.
-
-lsof and fuser reports that no files are in use, but I'm unable to 
-unmount the filesystem. Btw. The filesystem is mounted ro. (and exported 
-ro). The exported filesystem is a reiser-fs.
-
-I would really be greatfull if this issue was to be resolved.
-
-Thanks in advance
-
-Anders Fugmann
-
-On 12/10/2001 02:57 AM, Daniel Freedman wrote:
-
-> Hi,
+> >> I would like to propose implementing a file copy system call.
+> >> I expect the initial reaction to such a proposal would be "feature
+> >> bloat" but I believe some substantial benefits can be seen possibly
+> >> making it worthwhile, primarily the following:
+> >>
+> >> Copy on write:
+> >
+> > You want cowlink() syscall, not copy() syscall. If they are on different
+> > partitions, let userspace do the job.
 > 
-> It seems like I can generate reproducible stale NFS mounts by mounting
-> a partition, chroot'ing into that mount, immediately exiting the
-> chroot, and then finding myself unable to unmount the NFS partition.
-> I'm pretty sure I've confirmed that nothing is using the partition
-> (both with fuser and lsof) and even tried to force umount the
-> partition (which seems like it should definitely umount it, rather
-> than returning with the same "device is busy" errors), to no avail.
-> The only method which I've used that seems to be able to get rid of
-> this NFS mount, is to reboot the NFS client, and clearly that's not a
-> good one at all.  If I'm missing something obvious here, my apologies
-> in advance.  Also, if there's any further information I can provide,
-> I'd be happy to help.  The dump of my procedure follows this message.
-> 
-> Thanks again and take care,
-> Daniel
-> 
-> 
+> That looks like a knee-jerk reaction to stuff going in the kernel.
+> I want maximum survival of non-UNIX metadata and maximum performance
+> for this common operation. Let's say you are telecommuting, and...
 
-
+It would be very ugly if cp -a started behaving differently after you
+upgrade it to use copyfile(). Better preserve only metadata you
+"know".
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,95 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVBOHQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVBOHVH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261643AbVBOHQr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 02:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVBOHQq
+	id S261644AbVBOHVH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 02:21:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVBOHVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 02:16:46 -0500
-Received: from lyle.provo.novell.com ([137.65.81.174]:37429 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261643AbVBOHQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 02:16:42 -0500
-Date: Mon, 14 Feb 2005 23:14:51 -0800
-From: Greg KH <gregkh@suse.de>
-To: Harald Dunkel <harald.dunkel@t-online.de>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-Message-ID: <20050215071252.GA21616@suse.de>
-References: <20050211004033.GA26624@suse.de> <420D1050.3080405@t-online.de> <20050211210114.GA21314@suse.de> <420DBEBE.1060008@t-online.de> <20050214223613.GB13110@suse.de> <42118B19.8000106@t-online.de>
+	Tue, 15 Feb 2005 02:21:07 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:28804 "EHLO suse.cz")
+	by vger.kernel.org with ESMTP id S261644AbVBOHUw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 02:20:52 -0500
+Date: Tue, 15 Feb 2005 08:21:24 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Prarit Bhargava <prarit@sgi.com>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, dtor_core@ameritech.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC]: Clean up resource allocation in i8042 driver
+Message-ID: <20050215072124.GA1543@ucw.cz>
+References: <41F11C66.5000707@sgi.com> <d120d500050121074313788f99@mail.gmail.com> <20050121163540.GC4795@ucw.cz> <200501210847.04654.jbarnes@engr.sgi.com> <41F13924.50602@sgi.com> <4210D29E.9000808@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42118B19.8000106@t-online.de>
+In-Reply-To: <4210D29E.9000808@sgi.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 06:39:37AM +0100, Harald Dunkel wrote:
-> Greg KH wrote:
-> >On Sat, Feb 12, 2005 at 09:30:54AM +0100, Harald Dunkel wrote:
+On Mon, Feb 14, 2005 at 11:32:30AM -0500, Prarit Bhargava wrote:
+
+> I didn't see a final ACK on this patch -- just checking for one :)
+
+The patch was redone - we now check for error from the 'flush' command
+before sending CTL_TEST.
+
+> P.
+> 
+> Prarit Bhargava wrote:
+> 
+> >I've taken into account Dmitry's comments (thanks Dmitry!) and 
+> >generated a new patch.
 > >
+> >Thanks,
+> >
+> >P.
+> >Jesse Barnes wrote:
+> >
+> >>On Friday, January 21, 2005 8:35 am, Vojtech Pavlik wrote:
+> >> 
 > >>
-> >>If it is not possible to use klibc together with a non-Linux
-> >>system (e.g. FreeBSD or Mach), then I would suggest to make
-> >>klibc an optional kernel patch and drop it from udev and
-> >>hotplug.
+> >>>No. But vacant ports usually return 0xff. The problem here is that 0xff
+> >>>is a valid value for the status register, too. Fortunately this patch
+> >>>checks for 0xff only after the timeout failed.
+> >>>  
+> >>
+> >>
+> >>On PCs you'll get all 1s, but on some ia64 platforms and others, 
+> >>you'll take a hard machine check exception if you try to access 
+> >>non-existent memory (mmio, port space, or otherwise).
+> >>
+> >>Jesse
+> >>-
+> >>To unsubscribe from this list: send the line "unsubscribe 
+> >>linux-kernel" in
+> >>the body of a message to majordomo@vger.kernel.org
+> >>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >>Please read the FAQ at  http://www.tux.org/lkml/
+> >>
+> >> 
+> >>
+> >------------------------------------------------------------------------
 > >
+> >===== i8042.c 1.71 vs edited =====
+> >--- 1.71/drivers/input/serio/i8042.c	2005-01-03 08:11:49 -05:00
+> >+++ edited/i8042.c	2005-01-21 11:50:11 -05:00
+> >@@ -696,7 +696,10 @@
+> >		unsigned char param;
 > >
-> >But it is not possible to use udev or hotplug-ng on a non-Linux system,
-> >right?
+> >		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
+> >-			printk(KERN_ERR "i8042.c: i8042 controller self test 
+> >timeout.\n");
+> >+			if (i8042_read_status() != 0xFF)
+> >+				printk(KERN_ERR "i8042.c: i8042 controller 
+> >self test timeout.\n");
+> >+			else
+> >+				printk(KERN_ERR "i8042.c: no i8042 
+> >controller found.\n");
+> >			return -1;
+> >		}
+> >
+> >@@ -1016,16 +1019,22 @@
+> >	i8042_aux_values.irq = I8042_AUX_IRQ;
+> >	i8042_kbd_values.irq = I8042_KBD_IRQ;
+> >
+> >-	if (i8042_controller_init())
+> >+	if (i8042_controller_init()) {
+> >+		i8042_platform_exit();
+> >		return -ENODEV;
+> >+	}
+> >
+> >	err = driver_register(&i8042_driver);
+> >-	if (err)
+> >+	if (err) {
+> >+		i8042_platform_exit();
+> >		return err;
+> >+	}
+> >
+> >	i8042_platform_device = platform_device_register_simple("i8042", -1, 
+> >	NULL, 0);
+> >	if (IS_ERR(i8042_platform_device)) {
+> >		driver_unregister(&i8042_driver);
+> >+		i8042_platform_exit();
+> >+		del_timer_sync(&i8042_timer);
+> >		return PTR_ERR(i8042_platform_device);
+> >	}
+> >
+> > 
 > >
 > 
-> Thats not the point. The point is to remove the copy of the
-> klibc sources from packages like udev and hotplug-ng and
-> to use the existing klibc sources or binaries on the target
-> system instead. Just to keep it modular.
 
-Again, my point is I'll take klibc out of the udev and hotplug-ng trees
-when it is actually on people's systems because it is in the kernel
-source tree.  Until that happens I'll continue to keep it in the udev
-and hotplug-ng trees, ok?
-
-> >As far as "optional kernel patch"?  What do you mean?  People are
-> >working on adding klibc to the main kernel tree, nothing optional about
-> >that.
-> >
-> 
-> I do not know the internals of klibc that much. Is it possible
-> to use klibc on non-Linux systems, e.g. on Mach or FreeBSD?
-> Maybe by adding some #ifdefs to klibc's kernel interface?
-
-I don't know, and I really don't care :)
-
-> If yes, then making klibc an integrated part of the Linux
-> kernel source tree and dropping the independent development
-> tree would be a restriction to the use of klibc.
-
-Huh?  You are free to take klibc and do whatever you want to with it
-based on the license it has.  No one is restricting you from doing that,
-right?
-
-> AFAIK the plan for initramfs is to move as much functionality
-> as possible from kernel to user space.
-
-Yes.
-
-> Why not do the same
-> thing for the sources? Everything that is supposed to be run
-> in user space could be removed from the kernel source tree
-> and managed seperately, either in a set of userspace modules
-> like klibc, hotplug, udev, initramfs, etc., or in a monolithic
-> "userspace-tools" source tree.
-
-Because we still want to actually be able to boot a kernel, right?  :)
-
-Let's just get the early boot stuff building and working properly, and
-then we'll worry about ripping the stuff out of the kernel tree then.
-
-> Surely klibc belongs to the user space.
-
-Hm, like the other things in the kernel source tree that are also only
-in userspace?  :)
-
-thanks,
-
-greg k-h
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,81 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbUJ1Sic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262930AbUJ1SnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbUJ1Sic (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 14:38:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbUJ1SiX
+	id S262930AbUJ1SnS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 14:43:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbUJ1Sjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 14:38:23 -0400
-Received: from mail.murom.net ([213.177.124.17]:28849 "EHLO mail.murom.net")
-	by vger.kernel.org with ESMTP id S262920AbUJ1SgE (ORCPT
+	Thu, 28 Oct 2004 14:39:43 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:57244 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263038AbUJ1Sha (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 14:36:04 -0400
-Date: Thu, 28 Oct 2004 22:35:51 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Jason Baron <jbaron@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] 2.4.28-pre3 tty/ldisc fixes
-Message-ID: <20041028183551.GC3253@sirius.home>
+	Thu, 28 Oct 2004 14:37:30 -0400
+Date: Thu, 28 Oct 2004 20:38:36 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5.2
+Message-ID: <20041028183836.GF2951@elte.hu>
+References: <OF167DB04B.77CF149C-ON86256F3B.00529EAD-86256F3B.00529EE5@raytheon.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ctP54qlpMx3WjD+/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0409241340090.24358-100000@dhcp83-105.boston.redhat.com>
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
-X-yoursite-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.048,
-	required 6, autolearn=not spam, AWL -0.05, BAYES_44 -0.00)
-X-MailScanner-From: vsu@altlinux.ru
+In-Reply-To: <OF167DB04B.77CF149C-ON86256F3B.00529EAD-86256F3B.00529EE5@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ctP54qlpMx3WjD+/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-On Fri, 24 Sep 2004 13:49:33 -0400, Jason Baron wrote:
+> It did not take long to collect this information. These may be false
+> positives, here is the start of one example (note 00000000 for preempt
+> count in some of the lines).
+> 
+> preemption latency trace v1.0.7 on 2.6.9-mm1-RT-V0.5.1
+> -------------------------------------------------------
+>  latency: 1976 us, entries: 2148 (2148)   |   [VP:0 KP:1 SP:1 HP:1 #CPUS:2]
+>     -----------------
+>     | task: get_ltrace.sh/3673, uid:0 nice:0 policy:1 rt_prio:50
+>     -----------------
+>  => started at: try_to_wake_up+0x1cc/0x330 <c011c1cc>
+>  => ended at:   finish_task_switch+0x41/0xc0 <c011c7e1>
+> =======>
+> 80000000 0.000ms (+0.000ms): _spin_unlock (try_to_wake_up)
+> 80000000 0.000ms (+0.000ms): (105) ((140))
+> 80000000 0.000ms (+0.000ms): (6) ((0))
 
-> Here is a first attempt at bringing Alan's 2.6 tty/ldisc fixes to 2.4. =
-=20
-> I've done some testing with it, but was hoping for broader
-> testing/feedback while all the issues get ironed out. The most notable
-> change is the addition of a wakeup at the end of tty_set_ldisc, for
-> threads waiting for the TTY_LDISC bit to be set.
+here pid 6 got woken up and it's about to preempt pid 0 [the idle task].
 
-> +
-> +	/* Defer ldisc switch */
-> +	/* tty_deferred_ldisc_switch(N_TTY);
-> +
->  	read_lock(&tasklist_lock);
->   	for_each_task(p) {
->  		if ((tty->session > 0) && (p->session =3D=3D tty->session) &&
+> 80000000 0.000ms (+0.000ms): resched_task (try_to_wake_up)
+> 80000000 0.001ms (+0.000ms): _spin_unlock_irqrestore (try_to_wake_up)
+> 80000000 0.001ms (+0.000ms): preempt_schedule (try_to_wake_up)
+> 00000000 0.001ms (+0.000ms): preempt_schedule (cpu_idle)
+> 80000000 0.002ms (+0.000ms): __sched_text_start (preempt_schedule)
+> 80000000 0.002ms (+0.000ms): sched_clock (__sched_text_start)
+> 80000000 0.002ms (+0.000ms): _spin_lock_irq (__sched_text_start)
+> 80000000 0.003ms (+0.000ms): _spin_lock_irqsave (__sched_text_start)
+> 80000000 0.003ms (+0.000ms): dequeue_task (__sched_text_start)
+> 80000000 0.004ms (+0.000ms): recalc_task_prio (__sched_text_start)
+> 80000000 0.004ms (+0.000ms): effective_prio (recalc_task_prio)
+> 80000000 0.004ms (+0.000ms): enqueue_task (__sched_text_start)
+> 80000000 0.005ms (+0.000ms): __switch_to (__sched_text_start)
+> 80000000 0.005ms (+0.000ms): (0) ((6))
+> 80000000 0.005ms (+0.000ms): (140) ((105))
+> 80000000 0.006ms (+0.000ms): finish_task_switch (__sched_text_start)
+> 80000000 0.006ms (+0.000ms): trace_stop_sched_switched (finish_task_switch)
+> 80000000 0.006ms (+0.000ms): (6) ((105))
+> 80000000 0.006ms (+0.000ms): _spin_lock (trace_stop_sched_switched)
 
-Here the comment is unclosed; is this intentional?  Simply closing it
-at the same line gives a kernel which cannot complete the system boot
-process: it prints "init_dev but no ldisc", and then init hangs in
-uninterruptible sleep with this backtrace:
+the trace should have stopped here! We just successfully switched from
+pid 0 to pid 6 and called trace_stop_sched_switched() - the tracer
+should really have noticed it. But the trace goes on for eternity:
 
-Adhoc c0188ab7 <tty_ldisc_ref_wait+47/80>
-Adhoc c0199c30 <con_write+0/30>
-Adhoc c0189648 <tty_write+118/270>
-Adhoc c0139728 <chrdev_open+38/50>
-Adhoc c01386e3 <dentry_open+e3/190>
-Adhoc c0138f16 <sys_write+96/f0>
-Adhoc c01385eb <filp_open+4b/60>
-Adhoc c014246f <getname+5f/a0>
-Adhoc c0138937 <sys_open+57/80>
+> 00000000 1.862ms (+0.001ms): follow_mount (link_path_walk)
+> 00000000 1.863ms (+33179.004ms): dput (link_path_walk)
 
---ctP54qlpMx3WjD+/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+which is just wrong.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+i think the tracer is more broken on SMP systems than i thought. If we
+start tracing on one CPU and it goes over to another CPU [which might
+have happened in the above case - another task on another CPU took
+precedence over pid 6 on this CPU] ... but the tracing timestamp is
+per-CPU.
 
-iD8DBQFBgTwHW82GfkQfsqIRAtYJAJ9Rt09+vuxwJ58NxyYmoIcB7SZn/gCdFU0B
-4ezpj7oyEB3h/hmFDHDLoWc=
-=d1fJ
------END PGP SIGNATURE-----
+what needs to happen is some sort of 'handover' whenever the
+highest-prio task is migrated from one CPU to another. Until this is
+fixed i'd not suggest to use the wakeup latency tracer on SMP :-|
 
---ctP54qlpMx3WjD+/--
+	Ingo

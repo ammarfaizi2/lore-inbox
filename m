@@ -1,95 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284755AbRLZSLE>; Wed, 26 Dec 2001 13:11:04 -0500
+	id <S284731AbRLZSLO>; Wed, 26 Dec 2001 13:11:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284736AbRLZSKz>; Wed, 26 Dec 2001 13:10:55 -0500
-Received: from mail3.svr.pol.co.uk ([195.92.193.19]:34685 "EHLO
+	id <S284736AbRLZSLF>; Wed, 26 Dec 2001 13:11:05 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:47487 "EHLO
 	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S284731AbRLZSKj>; Wed, 26 Dec 2001 13:10:39 -0500
-Posted-Date: Wed, 26 Dec 2001 17:44:37 GMT
-Date: Wed, 26 Dec 2001 17:44:36 +0000 (GMT)
+	id <S284731AbRLZSK4>; Wed, 26 Dec 2001 13:10:56 -0500
+Posted-Date: Wed, 26 Dec 2001 16:22:44 GMT
+Date: Wed, 26 Dec 2001 16:22:44 +0000 (GMT)
 From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Rik van Riel <riel@conectiva.com.br>, Cameron Simpson <cs@zip.com.au>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-In-Reply-To: <20011223174608.A25335@thyrsus.com>
-Message-ID: <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX>
+Reply-To: Riley H Williams <rhw@MemAlpha.cx>
+To: David Lang <david.lang@digitalinsight.com>
+cc: Doug Ledford <dledford@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Assigning syscall numbers for testing
+In-Reply-To: <Pine.LNX.4.40.0112240951030.24605-100000@dlang.diginsite.com>
+Message-ID: <Pine.LNX.4.21.0112261601290.924-100000@Consulate.UFP.CX>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Eric, Rik.
+Hi David.
 
->> I take it this is your way of volunteering to always keep all
->> kernel documentation accurate as well as answer questions from
->> newbies who've never seen 'KiB' before ? ;)
+> so this just means that an eye needs to be kept on the non-dynamic
+> syscalls and up the starting point for dynamic syscalls
+> significantly before we run out of space for the non-dynamic ones.
 
-> One of the arguments for the KiB declaration, despite the ugliness
-> of "kibibytes", is that a newbie seeing "32KiB" is quite likely to
-> deduce what's meant from context.  Let's not exaggerate the
-> difficulties here.
+How far in advance do you call "significantly"? I know of dedicated
+systems still running Linux 1.2.12, and I use 2.0 series kernels on
+some of my systems, so your solution is a non-starter in my book.
 
-Alternatively, deal with this problem the same way the "This may also be
-built as a module..." comment is - either include it several thousand
-times in Configure.help or (better still) have the configuration tools
-spit it out automatically every time the need for it crops up. The
-following ruleset could easily be implemented even in the `make config`
-and `make menuconfig` parsers, and should be just as easy in CML2.
-Applying rule (1) will result in a considerable reduction in the size of
-the file Documentation/Configure.help as it currently stands.
+I'd say that there are only three options for safely dealing with
+this problem...
 
-Comments, anybody?
+ 1. Allocate a fixed range for dynamic syscalls that can NEVER be
+    used by static ones. If the static syscalls hit the bottom of
+    it, they skip it and restart just above its top.
+
+    Two variants of this have been proposed so far...
+
+ 	a.	Negative syscall numbers are dynamic.
+
+ 	b.	Syscall numbers with the MSB set are dynamic.
+
+    ...and these are essentially variants on the same thing.
+
+ 2. Each syscall includes a flag stating whether it's a static
+    or dynamic one, with separate jump tables for each. This
+    would be something that is currently always the same state
+    for existing static syscalls.
+
+    One variant of this would be to redefine the syscall number
+    as being two fields, with the MSB as the static/dynamic flag
+    and the rest as the syscall number. This would incorporate
+    option (1b) as a variant of this option.
+
+ 3. Have separate syscall entry points for static and dynamic
+    syscalls.
+
+...and anything else is at risk from the scenario referred to.
+
+> running software that depends on features in a new kernel on a
+> significantly older kernel is always questionable, if you software
+> really needs to do that you need to watch for a bunch of things.
+
+Very true, but not necessarily relevant.
+
+>>> you miss the point, the syscall numbers will not nessasarily be
+>>> consistant from boot to boot so if your code does not check for
+>>> them it's seriously broken (and remember this is only for stuff
+>>> in experimental status). The hope is that most if not all of the
+>>> real checking can end up being done in glibc
+
+>> No, I'm not missing the point. Try to follow with me here, this
+>> isn't rocket science. *NOT* *ALL* *SOFTWARE* *IS* *OR* *WILL* *BE*
+>> *USING* *DYNAMIC* *SYSCALLS*. Your scenario is fine if you want to
+>> convert all existing software to dynamic syscalls. However, my
+>> scenario specifically dealt with software that *DOES* *NOT* use
+>> dynamic syscalls (and which doesn't need to because the syscalls it
+>> *does* use have been allocated).
+>>
+>> Since people are having such a hard time with this, let me spell it
+>> out in more detail. Assume the following scenario:
+>>
+>> Linux 2.4.17 + dynamic syscall patch. Dynamic syscalls start at 240.
+
+Assume they finish at 255 for my comments below.
+
+>> Linux 2.4.18 comes out, and now there are two *new* *official*
+>> *statically* *allocated* syscalls at 240 and 241 (they are
+>> SYSGETAMIBLKHEAD and SYSSETAMIBLKHEAD).
+
+Preventing this would require that solution (1) has been implemented,
+in which case the new syscalls would be 256 and 257 as 240 through 255
+are reserved for the dynamic syscalls.
+
+>> A new piece of software (or an existing one, doesn't matter) is
+>> written to take advantage of the new syscalls. It uses the
+>> *predefined* syscall numbers and is compiled against 2.4.18. It
+>> relies upon -ENOSYS (as is typical for non-dynamic syscalls) to
+>> indicate if the kernel doesn't support the intended syscalls.
+>>
+>> Now, someone without realizing the implications of what's going
+>> on, runs this new program on a machine running the 2.4.17+dynamic
+>> syscall patch.
+>>
+>> BOOM!
+>>
+>> So, to reiterate my points. This *IS* *NOT* *SAFE* unless either
+>>
+>>  A) the dynamic syscall number range is officially allocated
+>>     *before* the patch goes into use to avoid these collisions
+>>     later or
+>>
+>>  B) you switch *all* software to using dynamic syscalls (which
+>>     does have a performance impact on the software and which
+>>     would also require lots of work).
 
 Best wishes from Riley.
-
-===============8<=============== CUT ===============>8===============
-
-RULE 1: If a particular symbol is defined using a command that
-	allows it to be selected as "Modular", then tack the
-	following to the end of the help description for that
-	symbol when a user requests help:
-
-		This driver is also available as a module( = code
-		which can be inserted in and removed from the
-		running kernel whenever you want). If you want to
-		compile it as a module, say M here and read
-		Documentation/modules.txt in the kernel source.
-
-RULE 2: If the help text for a particular symbol includes a word
-	matching either of the egrep patterns '[KkMmGgTt][Bb]' or
-	'[KkMmGgTt]i[Bb]' then tack the following to the end of
-	the help description for that symbol when a user requests
-	help:
-
-		Differing standards are used for the numeric
-		designators in the computing and engineering
-		worlds. For the purposes of this document, the
-		following designators are used with the stated
-		values:
-
-			Symbol	Designation	  Number of Bytes
-			~~~~~~	~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~
-			KiB	Decimal Kilobyte  1,000
-			KB	Binary Kilobyte   1,024
-
-			MiB	Decimal Megabyte  1,000,000
-			MB	Binary Megabyte   1,048,576
-
-			GiB	Decimal Gigabyte  1,000,000,000
-			GB	Binary Gigabyte   1,073,741,824
-
-			TiB	Decimal Terabyte  1,000,000,000,000
-			TB	Binary Terabyte   1,099,511,627,776
-
-		This difference has arisen as a direct consequence of
-		the fact that computers naturally talk in a binary
-		(base 2) number system rather than the decimal (base
-		10) system preferred by mere mortals.
-
-RULE 3: If more than one of the above rules apply, all configuration
-	systems shall agree on a common order in which to apply them.
 

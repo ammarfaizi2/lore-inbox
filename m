@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbULJW3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbULJW1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbULJW3w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:29:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbULJW2M
+	id S261858AbULJW1y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:27:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbULJW0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:28:12 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:61081 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S261846AbULJW0w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:26:52 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: Mach Speed motherboard w/onboard video
-Date: Fri, 10 Dec 2004 17:26:50 -0500
-User-Agent: KMail/1.7
-References: <200412081140.33199.gene.heskett@verizon.net> <200412082032.22619.gene.heskett@verizon.net> <1102711303.3271.64.camel@localhost.localdomain>
-In-Reply-To: <1102711303.3271.64.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Dec 2004 17:26:02 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46292 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261858AbULJWZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 17:25:18 -0500
+Date: Fri, 10 Dec 2004 17:24:55 -0500
+From: Dave Jones <davej@redhat.com>
+To: Miguel Angel Flores <maf@sombragris.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] aic7xxx driver warning
+Message-ID: <20041210222455.GE6648@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Miguel Angel Flores <maf@sombragris.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <41BA201C.9090103@sombragris.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412101726.50273.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.42.94] at Fri, 10 Dec 2004 16:26:51 -0600
+In-Reply-To: <41BA201C.9090103@sombragris.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 10 December 2004 15:41, Alan Cox wrote:
->> I did place the order for the board, and a cheap Chaintech Gforce
->> 5200 video card in case the onboard doesn't work out for this app.
->>  The existing card, a 4 meg rage based card, apparently is not
->> well supported by xorg's code, if the blanker is allowed to kick
->> in, the recovery when the mouse is moved or a key is hit, is to a
->> totally trashed screen & one must find the pager and switch
->> screens to effect a redraw.  Minor detail, but a pita anyway.
->
->An external video card will give you materially better performance
->anyway and if you are doing real time stuff help in a few other
-> ways.
->
+On Fri, Dec 10, 2004 at 11:15:56PM +0100, Miguel Angel Flores wrote:
+ > Hi all,
+ > 
+ > These are two possible patches for the 2.6.10rc3. The patches correct a 
+ > compiler warning when CONFIG_HIGHMEM64G is not defined.
+ > 
+ > Both patches works well. "Opt1" is the Alan Cox way and "Opt2" is the 
+ > MaF way :-)
 
-Thanks Alan, and I suspected as much.
+-       mask_39bit = 0x7FFFFFFFFFULL;
+        if (sizeof(dma_addr_t) > 4
+         && ahc_linux_get_memsize() > 0x80000000
+         && pci_set_dma_mask(pdev, mask_39bit) == 0) {
++               mask_39bit = (dma_addr_t)0x7FFFFFFFFFULL;
+                ahc->flags |= AHC_39BIT_ADDRESSING;
+                ahc->platform_data->hw_dma_mask = mask_39bit;
+        } else {
 
-I did order a chaintech knockoff of a gforce 5200 to go with it.
+How can this work ? You're using mask_39bit before you set it
+(See the pci_set_dma_mask call)
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+		Dave
 

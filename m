@@ -1,81 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUGTGiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265691AbUGTGue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbUGTGiC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 02:38:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbUGTGiC
+	id S265691AbUGTGue (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 02:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUGTGue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 02:38:02 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:45699 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265722AbUGTGh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 02:37:58 -0400
+	Tue, 20 Jul 2004 02:50:34 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:15742 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265691AbUGTGuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 02:50:32 -0400
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Input patches
-Date: Tue, 20 Jul 2004 01:37:54 -0500
+Subject: Re: Input patches
+Date: Tue, 20 Jul 2004 01:50:14 -0500
 User-Agent: KMail/1.6.2
 Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200407200137.56150.dtor_core@ameritech.net>
+In-Reply-To: <200407200137.56150.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407200137.56150.dtor_core@ameritech.net>
+Message-Id: <200407200150.14854.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech,
+On Tuesday 20 July 2004 01:37 am, Dmitry Torokhov wrote:
+> Vojtech,
+> 
+> Now that my driver core patches have been merged in Linus' tree I would
+> like finish merging input patches. Please do:
+> 
+>        bk pull bk//dtor.bkbits.net/input
+> 
+> You will pull the following patches (along with whatever was in Linus'
+> tree as of last evening):
+> 
 
-Now that my driver core patches have been merged in Linus' tree I would
-like finish merging input patches. Please do:
+Continuing as for some reason half of the letter went into limbo...
 
-       bk pull bk//dtor.bkbits.net/input
+09-mousedev-drop-attribute.packed
+        - drop __attribute__ ((packed)) from mousedev as we ca spare couple
+          of bytes to get better code readability
 
-You will pull the following patches (along with whatever was in Linus'
-tree as of last evening):
+10-i8042-platform-device.patch
+        - make i8042 a platform device (instead of system) device so its
+          ports have a proper parent
 
-01-drivers-makefile.patch
-	- move input/serio closer to the top of drivers/Makefile so
-	  serio_bus structure initialized early and is ready by the time
-	  sunzilog and sunsu register their serio ports.
+11-serio-platform-devices.patch
+        - integrate ct82c710, maceps2, q40kbd and rpckbd with sysfs
+          as platform devices so their serio ports have proper parents
 
-02-sunzilog-serio-register.patch
-	- Do not attempt to register serio ports while holding a spinlock
-          and with interrupts off. Fully initialize hardware first and
-	  only then register. Cures lockup reported by WLI.
+12-serio-bus-default-attr.patch
+        - qwitch to use bus' default device and driver attributes to
+          manage serio sysfs attributes
 
-03-i8042-broken-mux-workaround.patch
-	- Some MUXes get confused what AUX port the byte came from. Assume
-	  that is came from the same port previous byte came from if it
-	  arrived within HZ/10
+13-serio-manual-bind.patch
+        - allow marking serio ports (in addition to serio drivers)
+          as manual bind only, export the flag through sysfs:
+             echo -n "manual" > /sys/bus/serio/devices/serio0/bind_mode
+             echo -n "auto" > /sys/bus/serio/drivers/serio_raw/bind_mode
 
-04-serio-pause-rx.patch
-	- Add serio_pause_rx and serio_continue_rx that take serio->lock and
-	  can be used by drivers to protect their critical sections from
-	  interrupt handler.
+14-serio-use-driiver-find:
+        - use driver_find when doing manual binding, adjust refcounting as
+          driver_find takes a reference.
 
-05-psmouse-set-state.patch
-	- Use serio_pause_rx/serio_continue_rx when changing psmosuee state
-	  (active, ignore)
+I will not be sending individual patches as they have been posted couple times
+already and I'd hate spamming LKML once again.
 
-06-psmouse-initializing.patch
-	- Add a new state PSMOUSE_INITIALIZING and do not try to call protocol
-	  handler for mice in this state. Shoudl help with OOPS caused by USB
-	  Legacy emulation generating wierd data stream when probing for mouse
-
-07-synaptics-passthrough-handling.patch
-	- If data looks like a pass-through packet and tuchpad has pass-
-          through capability do not pass it to the main handler if child port
-          is disconnected. Let serio core sort it out and bind a proper driver
-	  to the port
-
-08-psmouse-reconnect.patch
-	- Instead of wierd rule that connect should not activate mouse if
-	  there is a pass-through port and have child do activation do the
-	  following:
-	  1. Connect/reconnect always activate port in question
-	  2. If port is a pass-through port connect/reconnect will
-             deactivate parent at the beginning of the probe and will
-             activate it after everything is done.
-	  This allows reliably reconnect children ports in response to user
-          request (echo -n "reconnect" > /sys/bus...)
+-- 
+Dmitry

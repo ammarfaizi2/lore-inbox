@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262658AbVA0Qrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVA0QsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262658AbVA0Qrm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 11:47:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVA0Qrl
+	id S262659AbVA0QsA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 11:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbVA0QsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 11:47:41 -0500
-Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:10482 "EHLO
-	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262658AbVA0Qrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 11:47:36 -0500
-Date: Thu, 27 Jan 2005 17:47:34 +0100
-From: Michael Gernoth <simigern@stud.uni-erlangen.de>
-To: linux-kernel@vger.kernel.org
-Subject: AT-Keyboard probing too strict in current bk?
-Message-ID: <20050127164734.GA12899@cip.informatik.uni-erlangen.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Thu, 27 Jan 2005 11:48:00 -0500
+Received: from alog0435.analogic.com ([208.224.222.211]:45440 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262659AbVA0Qrx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 11:47:53 -0500
+Date: Thu, 27 Jan 2005 11:47:08 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Rahul Karnik <deathdruid@gmail.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Flashing BIOS of a PCI IDE card (IT8212F)
+In-Reply-To: <5b64f7f050127081948af7a31@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0501271145340.22577@chaos.analogic.com>
+References: <5b64f7f050127081948af7a31@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 27 Jan 2005, Rahul Karnik wrote:
 
-since the introduction of libps2 in the mainline 2.6 kernel I had the
-issue that my keyboard[1] was no longer recognized.
-The cause of this is that my "keyboard" responds to all commands with
-an acknowledgement (0xFA), even if the command is not implemented. One
-of those not implemented commands is 0xF2 (ATKBD_GETID_CMD).
+> Hello,
+>
+> I was just wondering if it is possible to flash the BIOS of a PCI IDE
+> card from within Linux. I have an OEM IT8212 card with a really old
+> BIOS which the vendor does not support with a BIOS flashing tool. ITE
+> Tech's flashing tool appears to work, but it fails to verify that the
+> flash was successful and indeed the ROM is unchanged.
+>
+> How is the BIOS on such cards different from the firmware on other
+> cards? Is it possible to use the kernel firmware loader to load a
+> different image at runtime?
+>
+> Thanks for the help,
+> Rahul
+> -
 
-In drivers/input/keyboard/atkbd.c ATKBD_GETID_CMD is used to probe
-for the keyboard, and if this fails, another method of detecting
-the keyboard is used. It seems that in 2.6.10 atkbd_command
-indicated that my keyboard did not successfully execute the command,
-but in the current bk-version ps2_command is used, which indicates
-a successfull execution, leaving behind invalid keyboard-ids.
-This leads to the kernel ignoring my keyboard.
+Simple answer: forget it.
 
-I fixed the problem in my keyboard-converter, but I don't know if
-the checking in keyboard-probing shouldn't be changed to catch that
-case, too. I have included a patch which does that.
+But... If you know the part number of the flash-RAM,
+it is possible to use one of the flash-RAM writers
+that may exist in your version of the kernel or to
+write your own. Basically you write some unlock codes
+at specified offsets (0x55, 0xaa, etc.), then you
+write a command-code, then some data at its offset.
 
-Regards,
-  Michael
+Writing to flash requires erasing it first. Therefore
+if the write fails, you are in deep dodo. Typically
+flash RAM exists in 64k pages. Something as small as
+a BIOS probably uses only one 64k page, but you
+need to know what one inside the chip is actually
+used.
 
-[1] SUN Type 5 keyboard connected to a self-built sun->ps2 adapter
+There are other types of flash (micro-wire) that
+are accessed only one bit at a time. There is such
+code in several of the Ethernet Controllers. Although
+writing code to read/erase/write any of these devices
+is not difficult, you need to be able to experiment
+to get it right. Because of different implementation
+details, some flash can only be accessed in 32-bit
+longs, some in 16-bit shorts, etc. Some single-bit
+flash requires you to write an unused bit, with
+some, the extra bit goes on the end, some it
+goes first. Some require 16 bits written backwards,
+etc. Without a spare device to experiment with, you
+are in a world of hurt if your initial guess of
+the implementation details is wrong.
 
-
---- 1.73/drivers/input/keyboard/atkbd.c	2005-01-06 17:42:09 +01:00
-+++ edited/drivers/input/keyboard/atkbd.c	2005-01-27 17:27:03 +01:00
-@@ -512,7 +512,8 @@
-  */
- 
- 	param[0] = param[1] = 0xa5;	/* initialize with invalid values */
--	if (ps2_command(ps2dev, param, ATKBD_CMD_GETID)) {
-+	if (ps2_command(ps2dev, param, ATKBD_CMD_GETID) ||
-+	    (param[0] == 0xa5 && param[1] == 0xa5)) {
- 
- /*
-  * If the get ID command failed, we check if we can at least set the LEDs on
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

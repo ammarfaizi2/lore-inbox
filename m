@@ -1,65 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262631AbULPHzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262632AbULPH7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262631AbULPHzP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 02:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbULPHzP
+	id S262632AbULPH7V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 02:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbULPH7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 02:55:15 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:39387 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262631AbULPHzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 02:55:05 -0500
-Date: Thu, 16 Dec 2004 08:55:04 +0100
-From: Martin Waitz <tali@admingilde.org>
+	Thu, 16 Dec 2004 02:59:21 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:13193 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262632AbULPH7T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 02:59:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=ATZzvKugZ3EoaioI9mS/3qWYjfsZio0LmnnMRnODPKqwjgi47EIhE7CDABdbxgFwFfS/m1qWkBRZGt/xZJoz/MTqNT3myjtfTujZCLaxiNYOCrAHPyCq4fGte5TJ4LmBV3TuTlzGGkKyeZljx9DyxUvD0Oukl42UMx7EYRByj+w=
+Message-ID: <73e6204504121523591cb0874d@mail.gmail.com>
+Date: Thu, 16 Dec 2004 15:59:18 +0800
+From: zhan rongkai <zhanrk@gmail.com>
+Reply-To: zhan rongkai <zhanrk@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Online version of Documentation/DocBook
-Message-ID: <20041216075504.GK31835@admingilde.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Subject: About task->used_math and TIF_USEDFPU
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vk/v8fjDPiDepTtA"
-Content-Disposition: inline
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hi all,
 
---vk/v8fjDPiDepTtA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am a little confused about the task_struct member 'used_math', and
+thread_info flag TIF_USEDFPU.
 
-hoi :)
+What are their meaning, and what is the difference between them?
 
-for those interested: I created an online version of the Linux DocBook
-documentation.  It is automatically updated from the bkcvs gateway.
-
-It's available at http://tali.admingilde.org/linux-docbook/
-
---=20
-Martin Waitz
-
---vk/v8fjDPiDepTtA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFBwT9Yj/Eaxd/oD7IRAtNnAJ9nbMM8hWUD3ilFCtgNIsQZ/9llrACcCXkX
-/NfYujNUWIvbMLB9o3AT13k=
-=gxiA
------END PGP SIGNATURE-----
-
---vk/v8fjDPiDepTtA--
+thanks.

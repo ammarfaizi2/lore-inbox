@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131492AbRAXSGb>; Wed, 24 Jan 2001 13:06:31 -0500
+	id <S129842AbRAXSFV>; Wed, 24 Jan 2001 13:05:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132366AbRAXSGW>; Wed, 24 Jan 2001 13:06:22 -0500
-Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:45320 "EHLO
+	id <S131492AbRAXSFL>; Wed, 24 Jan 2001 13:05:11 -0500
+Received: from pine.parrswood.manchester.sch.uk ([213.205.138.155]:43528 "EHLO
 	parrswood.manchester.sch.uk") by vger.kernel.org with ESMTP
-	id <S131492AbRAXSFq>; Wed, 24 Jan 2001 13:05:46 -0500
-Date: Wed, 24 Jan 2001 18:05:43 +0000 (GMT)
+	id <S131412AbRAXSFG>; Wed, 24 Jan 2001 13:05:06 -0500
+Date: Wed, 24 Jan 2001 18:05:02 +0000 (GMT)
 From: Tim Fletcher <tim@parrswood.manchester.sch.uk>
-To: Gregory Maxwell <greg@linuxpower.cx>
-cc: Daniel Phillips <phillips@innominate.de>, <linux-kernel@vger.kernel.org>
+To: Daniel Phillips <phillips@innominate.de>
+cc: Shawn Starr <Shawn.Starr@Home.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
-In-Reply-To: <20010124082929.A1970@xi.linuxpower.cx>
-Message-ID: <Pine.LNX.4.30.0101241805120.30141-100000@pine.parrswood.manchester.sch.uk>
+In-Reply-To: <3A6ED16E.E8343678@innominate.de>
+Message-ID: <Pine.LNX.4.30.0101241803290.30141-100000@pine.parrswood.manchester.sch.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The kernel appears to run fine with this bug() removed.
+> > > kernel BUG at slab.c:1542!
 >
-> BTW- gimp and a few other apps also manage to trigger it..
+> The kernel should never oops, no matter what user space does to it.
 
-You can add sane with an advansys scsi card and various scsi scanners to
-that list
+What ever a none privilaged user space apps does witness:
+
+root@localhost# dd if=/dev/random of=/dev/mem
 
 -- 
    Tim Fletcher - Network manager   .~.

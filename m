@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUIEX3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUIEXiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267341AbUIEX3s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 19:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267346AbUIEX3s
+	id S267344AbUIEXiK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 19:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267345AbUIEXiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 19:29:48 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:26790 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S267341AbUIEX3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 19:29:47 -0400
-Date: Sun, 5 Sep 2004 16:29:36 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Lee Revell <rlrevell@joe-job.com>, Tim Fairchild <tim@bcs4me.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Sid Boyce <sboyce@blueyonder.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NVIDIA Driver 1.0-6111 fix
-Message-ID: <20040905232936.GA3781@taniwha.stupidest.org>
-References: <41390988.2010503@blueyonder.co.uk> <200409041954.05272.tim@bcs4me.com> <1094327788.6575.209.camel@krustophenia.net> <200409050702.29007.tim@bcs4me.com> <1094332949.6575.360.camel@krustophenia.net> <1094385894.1078.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094385894.1078.31.camel@localhost.localdomain>
+	Sun, 5 Sep 2004 19:38:10 -0400
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:12298 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S267344AbUIEXiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 19:38:06 -0400
+Message-ID: <413BA35C.8080705@superbug.demon.co.uk>
+Date: Mon, 06 Sep 2004 00:38:04 +0100
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alex Owen <owen@cus.org.uk>
+CC: glen.turner@aarnet.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: Linux serial console patch
+References: <20040905175037.O58184@cus.org.uk>
+In-Reply-To: <20040905175037.O58184@cus.org.uk>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 05, 2004 at 01:04:55PM +0100, Alan Cox wrote:
+Alex Owen wrote:
+> Glen Turner,
+> 
+> I have read your posts to lkml containing your serial console flow control
+> patches firstly for 2.4.x and then for 2.6.x kernels.
+> 
+> Rationale:
+>  "[PATCH] 0/3 Fix serial console flow control"
+>     http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1790.html
+> 2.4 patches:
+>  "[PATCH] 1/3 Fix serial console flow control, serial.c"
+>     http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1791.html
+>  "[PATCH] 2/3 Fix serial console flow control, serialP.h"
+>     http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1792.html
+>  "[PATCH] 3/3 Fix serial console flow control, serial-console.txt"
+>     http://www.ussg.iu.edu/hypermail/linux/kernel/0210.1/1793.html
+> 2.6 patch:
+>  "[PATCH] Fix CTS/RTS flow control in serial console"
+>     http://www.ussg.iu.edu/hypermail/linux/kernel/0310.2/1080.html
+> 
+> I have not been able to find any feedback on those patches in the lkml
+> archives. Also I can find no evidence that the patch made it into the
+> 2.6.8.1 kernel. This is a shame as I found your rationale very
+> persuasive.
+> 
+> Do you maintain an up-to-date version of this patch?
+> Did you get any feedback for this patch, positive or negative?
+> Do you need people (i.e. me) to test this patch?
+> 
+> Thanks
+> Alex Owen
+> -
 
-> The source code ones only go for R2xx series, not R300/R400. A
-> browse of the documentation would have told you that. Whether this
-> will change nobody knows. Perhaps as R3xx ceases to be leading edge
-> ATI will be nice to us.
+Does this fix junk being output from the serial console?
+If one is using Pentium 4 HT, it seems that both CPU cores try to send 
+characters to the serial port at the same time, resulting in lost 
+characters as one CPU over writes the output from the other.
 
-Having fill specs doesn't buy much, the amount of work required to get
-a high-performance workable driver is enormous.  I suspect any open
-effort along these lines would take so long at to be uninteresting.
-
-I'd much rather have ATI help work with the community in finding a
-solution to opening up their drivers (in whole or in part).  The same
-applies to nvidia of course, but much I'm much less optimistic there
-(which is a shame, because both vendors could gain a lot by working
-with the community rather than what feels like against it at times).
-
-
-  --cw

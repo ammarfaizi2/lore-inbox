@@ -1,93 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbSKSLX3>; Tue, 19 Nov 2002 06:23:29 -0500
+	id <S265230AbSKSLZJ>; Tue, 19 Nov 2002 06:25:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265192AbSKSLX3>; Tue, 19 Nov 2002 06:23:29 -0500
-Received: from gwsystems-4.d.gtn.com ([194.231.113.36]:46093 "EHLO
-	hydra.colinet.de") by vger.kernel.org with ESMTP id <S265201AbSKSLX0>;
-	Tue, 19 Nov 2002 06:23:26 -0500
-Subject: DAC960, 2.4.19 alpha problems
+	id <S265228AbSKSLZI>; Tue, 19 Nov 2002 06:25:08 -0500
+Received: from big-relay-1.ftel.co.uk ([192.150.140.123]:57226 "EHLO
+	old-callisto.ftel.co.uk") by vger.kernel.org with ESMTP
+	id <S265230AbSKSLZF>; Tue, 19 Nov 2002 06:25:05 -0500
+Date: Tue, 19 Nov 2002 11:32:04 +0000
+From: Ian G Batten <I.G.Batten@ftel.co.uk>
 To: linux-kernel@vger.kernel.org
-Cc: kirk@colinet.de
-Message-Id: <kirk-1021119120625.A0116470@hydra.colinet.de>
-X-Mailer: TkMail 4.0beta9
-From: "T. Weyergraf" <kirk@colinet.de>
-Date: Tue, 19 Nov 2002 12:06:25 +0100
+Subject: 2.5.47 compilation problem
+Message-ID: <20021119113204.GM3905@himalia.ftel.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+Organization: Fujitsu Telecommunications Europe Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-i failed to get a Mylex controller running in my alpha system.
-Details:
-Controller: Mylex eXtremeraid 3000 ( dual channel FC-AL )
-System: Alpha UP2000 ( dp264-machine, dual CPU, 2gig RAM )
-Kernels: 2.4.20-rc2 and 2.4.19
-Compiler: 2.95.2
-Debian potato with enhancements for the use of 2.4.x
-according to Documentation/Changes
+With CONFIG_IP_NF_TARGET_TCPMSS=m:
 
-Compiling the DAC960 driver on alpha, using 2.95.2 fails,
-since the optimizer apparently stumbles. In my naive/novice
-attempts to get the driver compiling, I changed all
-function declarations from "static inline" to "static"
-The driver then compiles and is linked to the kernel, rather
-than compiled as a module. ( Leaving some static inline 
-declarations avoid compile-time warnings, so no
-warnings are given ).
-Proper device-nodes exist.
+  gcc -Wp,-MD,net/ipv4/netfilter/.ipt_TCPMSS.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=ipt_TCPMSS   -c -o net/ipv4/netfilter/ipt_TCPMSS.o net/ipv4/netfilter/ipt_TCPMSS.c
+net/ipv4/netfilter/ipt_TCPMSS.c: In function `ipt_tcpmss_target':
+net/ipv4/netfilter/ipt_TCPMSS.c:95: structure has no member named `pmtu'
+make[3]: *** [net/ipv4/netfilter/ipt_TCPMSS.o] Error 1
+make[2]: *** [net/ipv4/netfilter] Error 2
+make[1]: *** [net/ipv4] Error 2
+make: *** [net] Error 2
 
-Upon boot, the driver emits the following message:
-DAC960: ***** DAC960 RAID Driver Version 2.4.11 of 11 October 2001 *****
-DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
-DAC960#0: Unable to Enable Memory Mailbox Interface for Controller at
-DAC960#0: PCI Bus 1 Device 8 Function 0 I/O Address N/A PCI Address 0xA000000
-
-This applies to 2.4.19 and 2.4.20-rc2
-
-In addition, I have tried the following, all with no change in result:
-- turn on/off Mylex' BIOS
-- move Mylex accoss PCI-buses ( the machine has two )
-- move Mylex from 64 to 32bit slot
-
-Additional info:
-PCI device database reports the following:
-PCI: dev Mylex Corporation eXtremeRAID 2000/3000 support Device type 64-bit
-
-/proc/pci reports the following:
-Bus  1, device   8, function  0:
-RAID bus controller: Mylex Corporation eXtremeRAID 2000/3000 support Device (rev 0).
-IRQ 27.
-Master Capable.  Latency=32.  
-Non-prefetchable 32 bit memory at 0xa000000 [0xbffffff].
-I/O at 0x9000 [0x907f].
-Prefetchable 64 bit memory at 0x10000000 [0x1fffffff].
-
-My questions:
-Are there any fixes to this problem ?
-Why does the driver report "I/O Adress N/A", while there seems to be
-a valid I/O range in /proc/pci ?
-Are there any fixes to the DAC960, which makes it compile using 2.95.2 ?
-
-Please note, that i am aware, that the alpha will not boot from that device,
-since it's firmware does not see the controller. It will not be used for
-booting. Upgrading to a newer/different distro ist problematic, since the system
-cannot be taken out of service easily ( I can reboot it for testing purposes ).
-
-I would have reported this problem the "proper way" to the maintainer of the
-driver, but in this case, it's Leonard Zubkoff, who unfortunatelt died in an
-accident.
-
-Thanks in advance for any advice/help. I am willing/happy to test any proposed
-patches. In order to avoid cluttering the list, i did not send any .config's and
-friends. I will on request, of course.
-
-Regards,
-T. Weyergraf
-
-
--- 
-Thomas Weyergraf                                                kirk@colinet.de
-My Favorite IA64 Opcode-guess ( see arch/ia64/lib/memset.S )
-"br.ret.spnt.few" - got back from getting beer, did not spend a lot.
-
-
+ian

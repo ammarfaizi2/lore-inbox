@@ -1,132 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279943AbRKFSnK>; Tue, 6 Nov 2001 13:43:10 -0500
+	id <S279968AbRKFSnJ>; Tue, 6 Nov 2001 13:43:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279944AbRKFSm7>; Tue, 6 Nov 2001 13:42:59 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:48909 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280015AbRKFSmp>; Tue, 6 Nov 2001 13:42:45 -0500
-Date: Tue, 6 Nov 2001 15:23:29 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S279943AbRKFSmu>; Tue, 6 Nov 2001 13:42:50 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:55468 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S279968AbRKFSmf>; Tue, 6 Nov 2001 13:42:35 -0500
+Date: Tue, 6 Nov 2001 13:42:34 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: out_of_memory() heuristic broken for different mem configurations
-In-Reply-To: <Pine.LNX.4.21.0111061217110.9867-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0111061519180.10244-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Using %cr2 to reference "current"
+Message-ID: <20011106134234.A27718@redhat.com>
+In-Reply-To: <20011106121313.B16245@redhat.com> <Pine.LNX.4.33.0111060918380.2194-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111060918380.2194-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Nov 06, 2001 at 09:49:15AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Nov 06, 2001 at 09:49:15AM -0800, Linus Torvalds wrote:
+> That said, how expensive is loading %cr2 anyway? We can do all the same
+> tricks with a 16kB stack and just playing games with using the higher bits
+> as the "offset", ie things like
 
+Here are some numbers:
 
-On Tue, 6 Nov 2001, Marcelo Tosatti wrote:
+read cr2 best: 11  av: 11.12
+write cr2 cr2 best: 61  av: 64.42
+read cr2 best: 11  av: 11.12
+write cr2 cr2 best: 61  av: 65.01
+read stk best: 10  av: 11.03
+write cr2 stk best: 61  av: 64.95
+read stk best: 10  av: 11.03
+write cr2 stk best: 61  av: 65.23
 
-> 
-> > With the more aggressive max_mapped, the oom failure count could be
-> > dropped to something smaller, as a false positive from shrink_caches
-> > should be fairly rare. I don't think it needs to be tunable on memory
-> > size, I just didn't even try any other values on my machines (I noticed
-> > that the old values were too high once max_mapped was upped and the swap
-> > cache reclaiming was re-done, but I didn't try if five seconds and ten
-> > failures was any better than 10 seconds and five failures, for example)
-> 
-> Ok, I'll take a careful look at shrink_cache()/try_to_free_pages() path
-> later and find out "saner" magic numbers for big/small memory workloads.
+Which come from insmod of the below two modules.  I didn't test writing to 
+the stack register, but I expect it's similarly expensive as it affects the 
+call return stack and other behind the scenes dependancies.  Suffice it to 
+say that reading %cr2 is essentially free on my box (athlon mp).  Maybe 
+we should use it as a pointer into a per-cpu area to avoid writing it?
 
-Ok, I found it. The problem is that swap_out() tries to scan the _whole_
-address space looking for pte's to deactivate, and try_to_swap_out() does
-not return a value indicating the lack of swap space, so at each
-swap_out() call we simply loop around the whole VM when there is no swap
-space available.
+		-ben
 
-Here goes the tested fix.
+----teststk_k.c----
+#define USE_STK 1
+#include "testcr2_k.c"
+----testcr2_k.c----
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <asm/errno.h>
+#include <linux/init.h>
 
+static inline long long rdtsc(void)
+{
+        unsigned int low,high;
+        __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high));
+        return low + (((long long)high)<<32);
+}
 
---- linux.orig/mm/vmscan.c	Sun Nov  4 22:54:44 2001
-+++ linux/mm/vmscan.c	Tue Nov  6 16:06:08 2001
-@@ -36,7 +36,8 @@
- /*
-  * The swap-out function returns 1 if it successfully
-  * scanned all the pages it was asked to (`count').
-- * It returns zero if it couldn't do anything,
-+ * It returns zero if it couldn't free the given pte or -1
-+ * if there was no swap space left.
-  *
-  * rss may decrease because pages are shared, but this
-  * doesn't count as having freed a page.
-@@ -142,7 +143,7 @@
- 	/* No swap space left */
- 	set_pte(page_table, pte);
- 	UnlockPage(page);
--	return 0;
-+	return -1;
- }
- 
- /* mm->page_table_lock is held. mmap_sem is not held */
-@@ -170,7 +171,12 @@
- 			struct page *page = pte_page(*pte);
- 
- 			if (VALID_PAGE(page) && !PageReserved(page)) {
--				count -= try_to_swap_out(mm, vma, address, pte, page, classzone);
-+				int ret = try_to_swap_out(mm, vma, address, pte, page, classzone);
-+				if (ret < 0)
-+					return ret;
-+
-+				count -= ret;
-+
- 				if (!count) {
- 					address += PAGE_SIZE;
- 					break;
-@@ -205,7 +211,11 @@
- 		end = pgd_end;
- 	
- 	do {
--		count = swap_out_pmd(mm, vma, pmd, address, end, count, classzone);
-+		int ret = swap_out_pmd(mm, vma, pmd, address, end, count, classzone);
-+
-+		if (ret < 0)
-+			return ret;
-+		count = ret;
- 		if (!count)
- 			break;
- 		address = (address + PMD_SIZE) & PMD_MASK;
-@@ -230,7 +240,10 @@
- 	if (address >= end)
- 		BUG();
- 	do {
--		count = swap_out_pgd(mm, vma, pgdir, address, end, count, classzone);
-+		int ret = swap_out_pgd(mm, vma, pgdir, address, end, count, classzone);
-+		if (ret < 0)
-+			return ret;
-+		count = ret;
- 		if (!count)
- 			break;
- 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
-@@ -287,7 +300,7 @@
- static int FASTCALL(swap_out(unsigned int priority, unsigned int gfp_mask, zone_t * classzone));
- static int swap_out(unsigned int priority, unsigned int gfp_mask, zone_t * classzone)
- {
--	int counter, nr_pages = SWAP_CLUSTER_MAX;
-+	int counter, nr_pages = SWAP_CLUSTER_MAX, ret;
- 	struct mm_struct *mm;
- 
- 	counter = mmlist_nr;
-@@ -311,9 +324,15 @@
- 		atomic_inc(&mm->mm_users);
- 		spin_unlock(&mmlist_lock);
- 
--		nr_pages = swap_out_mm(mm, nr_pages, &counter, classzone);
-+		ret = swap_out_mm(mm, nr_pages, &counter, classzone);
- 
- 		mmput(mm);
-+
-+		/* No more swap space ? */
-+		if (ret < 0)
-+			return nr_pages;
-+
-+		nr_pages = ret;
- 
- 		if (!nr_pages)
- 			return 1;
+long dummy;
 
+long doit(void)
+{
+	long long start, end;
+	long val;
+
+	start = rdtsc();
+#ifdef USE_STK
+#define WHICH	"stk"
+	__asm__ __volatile__(
+                "movl $0x0003c000,%%eax  \n" // 4 bits at bit 14
+                "movl $-16384,%%edx      \n" // remove low 14 bits
+                "andl %%esp,%%eax		\n"
+                "andl %%esp,%%edx		\n"
+                "shrl $7,%%eax           \n" // color it by 128 bytes
+                "addl %%edx,%%eax		\n"
+		: "=a" (val) :: "edx");
+#else
+#define WHICH "cr2"
+        __asm__ __volatile__("movl %%cr2,%0" : "=r" (val));
+#endif
+	val += 100;
+	dummy = val;
+	end = rdtsc();
+
+	return end - start;
+}
+
+long doit2(void)
+{
+	long long start, end;
+	long val;
+
+	start = rdtsc();
+	val = dummy;
+        __asm__ __volatile__("movl %0,%%cr2" : "=r" (val));
+	end = rdtsc();
+
+	return end - start;
+}
+
+int test_init (void)
+{
+	long min = 1000000000, av = 0;
+	int i;
+	for (i=0; i<100; i++) {
+		long dur = doit();
+		if (dur < min)
+			min = dur;
+		av += dur;
+	}
+	printk("read " WHICH " best: %ld  av: %ld.%02ld\n", min, av / 100, av % 100);
+
+	min = 10000000;
+	av = 0;
+	for (i=0; i<100; i++) {
+		long dur = doit2();
+		if (dur < min)
+			min = dur;
+		av += dur;
+	}
+	printk("write cr2 " WHICH " best: %ld  av: %ld.%02ld\n", min, av / 100, av % 100);
+	return -ENODEV;
+}
+
+void test_exit(void)
+{
+	return;
+}
+
+module_init(test_init);
+module_exit(test_exit);
+MODULE_LICENSE("GPL");
+---snip---

@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266516AbTGEWHu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 18:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbTGEWHu
+	id S266519AbTGEWSr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 18:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266520AbTGEWSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 18:07:50 -0400
-Received: from smtprelay02.ispgateway.de ([62.67.200.157]:59345 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S266516AbTGEWHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 18:07:49 -0400
-Message-ID: <3F074F74.2090308@hipac.org>
-Date: Sun, 06 Jul 2003 00:21:40 +0200
-From: Thomas Heinz <creatix@hipac.org>
-Reply-To: Thomas Heinz <creatix@hipac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: tc stack overflow
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Jul 2003 18:18:47 -0400
+Received: from [163.118.102.59] ([163.118.102.59]:24448 "EHLO
+	mail.drunkencodepoets.com") by vger.kernel.org with ESMTP
+	id S266519AbTGEWSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 18:18:46 -0400
+Date: Sat, 5 Jul 2003 18:23:59 -0400
+From: paterley <paterley@DrunkenCodePoets.com>
+To: paterley <paterley@DrunkenCodePoets.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.74-mm2
+Message-Id: <20030705182359.269b404d.paterley@DrunkenCodePoets.com>
+In-Reply-To: <20030705175830.4ccfead8.paterley@DrunkenCodePoets.com>
+References: <20030705132528.542ac65e.akpm@osdl.org>
+	<20030705175830.4ccfead8.paterley@DrunkenCodePoets.com>
+Organization: DrunkenCodePoets.com
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+This is a multi-part message in MIME format.
 
-Have you already crashed your kernel today? No? Well, try this one:
+--Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-# tc qdisc add dev eth0 root handle 1: prio \
-   for i in `seq 500` ; do tc qdisc add dev eth0 \
-       parent $i:1 handle `expr $i + 1`: prio ; done ; \
-   ping 1.2.3.4
+ok, I get 4 of a kernel oops during boot, but the kernel seems to stay happy.  I'm going to keep it going for fun to see if I can cause more oopses.  Attached is the first of the 4 oopses.
 
-[replace eth0 by a device of your choice]
+according to dmesg, immediately prior to the first oops, smbfs was unloaded due to unsafe usage.
 
+Exact Error:
+Module smbfs cannot be unloaded due to unsafe usage in include/linux/module.h:482
 
-I think some of you are aware of the problem but strangely I didn't
-find any mention on linux-kernel or linux-netdev or lartc.
+I'll be around for a few more hours if there is anything I can do to help answer questions.
 
-The problem is that the depth of the classification tree is not limited
-in any way and since for every qdisc the corresponding enqueue function
-is called we have a stack overflow here.
+Pat Erley 
 
-IMO the problem could be fixed by adding a depth parameter to the
-enqueue function. This way the function can decide whether it is save
-to go deeper down the tree (maybe subject to a global policy).
+--Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0
+Content-Type: application/octet-stream;
+ name="debug.log"
+Content-Disposition: attachment;
+ filename="debug.log"
+Content-Transfer-Encoding: base64
 
-So, what do you think about the issue? Do you care?
+VW5hYmxlIHRvIGhhbmRsZSBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1
+YWwgYWRkcmVzcyAwMDAwMDAwMAogcHJpbnRpbmcgZWlwOgowMDAwMDAwMAoqcGRlID0gMDAwMDAw
+MDAKT29wczogMDAwMCBbIzFdClNNUCAKQ1BVOiAgICAwCkVJUDogICAgMDA2MDpbPDAwMDAwMDAw
+Pl0gICAgTm90IHRhaW50ZWQgVkxJCkVGTEFHUzogMDAwMTAyODYKRUlQIGlzIGF0IDB4MAplYXg6
+IGMwMzgwYzIwICAgZWJ4OiBmZmZmZmZmNCAgIGVjeDogY2YwN2QzYTAgICBlZHg6IGNjODQ3ZjY4
+CmVzaTogY2YzYzI5NTAgICBlZGk6IGNmMDdkMmMwICAgZWJwOiBjYzg0N2YxOCAgIGVzcDogY2M4
+NDdlZmMKZHM6IDAwN2IgICBlczogMDA3YiAgIHNzOiAwMDY4ClByb2Nlc3MgcmMgKHBpZDogMTE5
+OCwgdGhyZWFkaW5mbz1jYzg0NjAwMCB0YXNrPWNmZDg2NmIwKQpTdGFjazogYzAxNjM3YWIgY2Yz
+YzI5NTAgY2YwN2QyYzAgY2M4NDdmNjggY2YzYzI5YzAgY2YzYzI5NTAgY2M4NDdmNjggY2M4NDdm
+NTAgCiAgICAgICBjMDE2M2ZmNyBjYzg0N2Y3MCBjZjA3ZDM4MCBjYzg0N2Y2OCBjYzg0N2Y0MCBj
+Yzg0N2Y3MCAwMDAwMDAwMSBjZjA3ZDM4MCAKICAgICAgIDAwMDAwMDAyIGNmYTI4ZjAwIDAwMDA4
+MjQxIDAwMDA4MjQxIGNmZDlhMDAwIGNjODQ3ZjljIGMwMTUzNzUxIGNmZDlhMDAwIApDYWxsIFRy
+YWNlOgogWzxjMDE2MzdhYj5dIF9fbG9va3VwX2hhc2grMHg5Yi8weGQwCiBbPGMwMTYzZmY3Pl0g
+b3Blbl9uYW1laSsweDJlNy8weDQyMAogWzxjMDE1Mzc1MT5dIGZpbHBfb3BlbisweDQxLzB4NzAK
+IFs8YzAxNTNiZDM+XSBzeXNfb3BlbisweDUzLzB4OTAKIFs8YzAxMDk0NWY+XSBzeXNjYWxsX2Nh
+bGwrMHg3LzB4YgoK
 
-
-Regards,
-
-Thomas
-
+--Multipart_Sat__5_Jul_2003_18:23:59_-0400_0823ceb0--

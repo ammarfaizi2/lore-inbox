@@ -1,55 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263102AbTLMDPN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 22:15:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTLMDPN
+	id S263125AbTLMD0P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 22:26:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTLMD0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 22:15:13 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:16324 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263102AbTLMDPJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 22:15:09 -0500
-Message-ID: <3FDA8435.3060205@colorfullife.com>
-Date: Sat, 13 Dec 2003 04:15:01 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [DOCUMENTATION] Revised Unreliable Kernel Locking Guide
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 12 Dec 2003 22:26:15 -0500
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:31168 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S263125AbTLMD0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 22:26:12 -0500
+Message-ID: <20031213032610.11839.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "surya prabhakar" <surya_prabhakar@linuxmail.org>
+To: "Stefan Smietanowski" <stesmi@stesmi.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Sat, 13 Dec 2003 08:26:10 +0500
+Subject: Re: Intel 82801EB chipset issue
+X-Originating-Ip: 203.200.54.66
+X-Originating-Server: ws5-1.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rusty,
+hi ,
+   thx for the suggestion .  The problem is I have some tools which are only supported by vendors on redhat 7.3 ( i mean with this kernel 2.4.18-3) . I cant change the kernel . So I am looking for a patch I mean add some support for 82801EB in piix.c or pci-irq.c , something like that . I have found some patches in kernelnewbies.org but they all cater to 2.4.20 , the structure of the kernel in drivers/ide is different . Further u go up to 2.4.21EL kernel there is no piix.c , it is replaced by ata_piix.c , I am not able to patch it .Further I have to make it working on 2.4.18-27.7.x also ( that is redhat upgraded kernel ) .
 
- From Chapter 4.1:
 
-> |spin_lock_irqsave()| (include/linux/spinlock.h) is a variant which 
-> saves whether interrupts were on or off in a flags word, which is 
-> passed to |spin_unlock_irqrestore()|. This means that the same code 
-> can be used inside an hard irq handler (where interrupts are already 
-> off) and in softirqs (where the irq disabling is required).
 
-Interrupts are typically on within the hard irq handler.
-spin_lock() is usually ok because an interrupt handler is never 
-reentered. Thus if a lock is only accessed from a single irq handler, 
-then spin_lock() is the faster approach. That's why many nic drivers use 
-spin_lock instead of spin_lock_irqsave() in their irq handlers.
-OTHO: if a driver lock is a global resource that is used from different 
-irqs, then it must either use _irqsave(), or set SA_INTERRUPT.
-Examples: rtc_lock relies on SA_INTERRUPT: it's touched from the rtc irq 
-and the timer irq path, and both rtc and timer set SA_INTERRUPT.
-I assume ide relies on _irqsave(), but the code is too difficult to follow.
+----- Original Message -----
+From: Stefan Smietanowski <stesmi@stesmi.com>
+Date: 	Sat, 13 Dec 2003 04:03:53 +0100
+To: surya prabhakar <surya_prabhakar@linuxmail.org>
+Subject: Re: Intel 82801EB chipset issue
 
-Btw, perhaps you could add the 2nd synchronization approach for 
-interrupts: if it's an extremely rare event, then no lock at all in the 
-irq handler (no reentrancy guaranteed by the kernel), and 
-spin_lock+disable_irq() in the softirq/tasklet. My network drivers use 
-that to synchronize packet rx with close.
+> surya prabhakar wrote:
+> 
+> > Dear All ,
+> >     I have an IBM Mpro with Intel 875p motherboard with SATA (ICH5 ) 82801EB chip on it . THe problem is this chipset is not recognised in redhat 7.3 , does not get installed ,it cannot find the neither harddrive or cdrom drives ( IDE only not SATA ) . I need it working on redhat 7.3 (2.4.18-3) . Any suggestive patch /work-around will be highly appreciated .
+> > 
+> > Thanks and regards
+> > 
+> > Surya Prabhakar N ,
+> > Technical Specialist ,
+> > Strategy & Deployment Team ,
+> > Wipro Limited ,
+> > Bangalore - India.
+> > 
+> 
+> You have a few options:
+> 
+> 1) Install on another drive, get latest kernel.org kernel, add
+> libata support to it. Recompile it, install it, run it.
+> Copy system to SATA drive. Use it.
+> 
+> 2) Install on another drive, get latest Fedora Core 1 kernel,
+> recompile it after disabling ntpl support in it. Install and run
+> kernel.Copy system to SATA drive. Use it.
+> 
+> 3) Install something else (For instance Fedora Core 1) that has
+> native support for that controller.
+> 
+> "Another drive" means "another machine" btw. One that is supported.
+> 
+> // Stefan
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---
-    Manfred
 
+
+Surya Prabhakar N ,
+Technical Specialist ,
+Strategy & Deployment Team ,
+Wipro Limited ,
+Bangalore - India.
+
+-- 
+______________________________________________
+Check out the latest SMS services @ http://www.linuxmail.org 
+This allows you to send and receive SMS through your mailbox.
+
+
+Powered by Outblaze

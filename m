@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316682AbSE3PLH>; Thu, 30 May 2002 11:11:07 -0400
+	id <S316684AbSE3POT>; Thu, 30 May 2002 11:14:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316683AbSE3PLG>; Thu, 30 May 2002 11:11:06 -0400
-Received: from port-213-20-228-54.reverse.qdsl-home.de ([213.20.228.54]:12814
+	id <S316686AbSE3POS>; Thu, 30 May 2002 11:14:18 -0400
+Received: from port-213-20-228-54.reverse.qdsl-home.de ([213.20.228.54]:13838
 	"EHLO drocklinux.dyndns.org") by vger.kernel.org with ESMTP
-	id <S316682AbSE3PLB> convert rfc822-to-8bit; Thu, 30 May 2002 11:11:01 -0400
-Date: Thu, 30 May 2002 17:09:48 +0200 (CEST)
-Message-Id: <20020530.170948.846933988.rene.rebe@gmx.net>
+	id <S316684AbSE3POQ> convert rfc822-to-8bit; Thu, 30 May 2002 11:14:16 -0400
+Date: Thu, 30 May 2002 17:13:11 +0200 (CEST)
+Message-Id: <20020530.171311.607952183.rene.rebe@gmx.net>
 To: dalecki@evision-ventures.com
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] 2.5.18 IDE 73
 From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <3CF630A5.40002@evision-ventures.com>
+In-Reply-To: <3CF62F2A.6030009@evision-ventures.com>
 X-Mailer: Mew version 2.2 on XEmacs 21.4.7 (Economic Science)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=iso-8859-1
@@ -23,15 +22,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-On: Thu, 30 May 2002 16:01:09 +0200,
+On: Thu, 30 May 2002 15:54:50 +0200,
     Martin Dalecki <dalecki@evision-ventures.com> wrote:
 
-> Well somehow I have partly to agree. But however having a way to
-> exclude network devices from mounting during mount -a is *very* usefull,
+> > You still need a way to talk all the disk devices. It might be that is
+> > devfs /dev/disk, but in case it hasn't permeated your skull yet, in such
+> > a situation then -devfs- would need such a list. We also have another
+> 
+> I don't use and don't care about devfs - it's a misconception in my opinnion.
+> What you are potining at is just another symptom of this simple fact.
+> After several years of beeing "official" it didn't develer up on
+> promises. There are some reasons why the Linux vendors out there get
+> well along without it. It is simple not necessary and even worser
+> introduces more problems that it promised to solve. No matter how
+> vigorous the propnents of it where before Linus give in. It's just another
+> try to work around the too narrow major/minor number spaces of Linux
+> and well see below:
 
-mount -a -t nonfs,nocoda,noproc,nodevfs,noshm"
-
-Ever worked for me ...
+DevFS is at least used by ROCK Linux and Mandrake. We never had any
+problem with it (and most users really like it's features). So please
+do not corrupt it. - I save my time not lising the feature list of
+devfs we use ...
 
 k33p h4ck1n6
   René

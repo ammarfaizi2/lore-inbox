@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbUBXVlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:41:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbUBXVlY
+	id S262486AbUBXVoO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUBXVoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:41:24 -0500
-Received: from mail.kroah.org ([65.200.24.183]:13221 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262480AbUBXVlS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:41:18 -0500
-Date: Tue, 24 Feb 2004 13:38:07 -0800
-From: Greg KH <greg@kroah.com>
-To: Pat Gefre <pfg@sgi.com>
-Cc: davidm@napali.hpl.hp.com, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [2.6 PATCH] Altix hotplug
-Message-ID: <20040224213807.GA2045@kroah.com>
-References: <20040223210448.GA22598@kroah.com> <Pine.SGI.3.96.1040224131328.43293F-100000@fsgi900.americas.sgi.com>
+	Tue, 24 Feb 2004 16:44:07 -0500
+Received: from lightning.hereintown.net ([141.157.132.3]:3999 "EHLO
+	prime.hereintown.net") by vger.kernel.org with ESMTP
+	id S262482AbUBXVmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 16:42:53 -0500
+Subject: Re: /proc/mounts "stuff"
+From: Chris Meadors <clubneon@hereintown.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0402241630500.4054@chaos>
+References: <Pine.LNX.4.53.0402241630500.4054@chaos>
+Content-Type: text/plain
+Message-Id: <1077658970.7783.62.camel@clubneon.priv.hereintown.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SGI.3.96.1040224131328.43293F-100000@fsgi900.americas.sgi.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 24 Feb 2004 16:42:50 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 24, 2004 at 01:16:14PM -0600, Pat Gefre wrote:
-> On Mon, 23 Feb 2004, Greg KH wrote:
-> 
-> + On Mon, Feb 23, 2004 at 08:55:14AM -0600, Pat Gefre wrote:
-> + > +#define SYSCTL_PCI_UNINITIALIZED	(SYSCTL_PCI_ERROR_BASE - 0)
-> + > +    { SYSCTL_PCI_UNINITIALIZED, "module not initialized" },
-> + 
-> + What are you going to do with this large table of strings?  I see where
-> + you copy them to somewhere, but don't see anything beyond that.
-> + 
-> + Are we missing a huge piece of the puzzle?
-> 
-> Greg,
-> 
-> They are used in sysctl_pci_error_lookup(), which is called
-> pcibr_slot_pwr(), which is the code to put a device on-line. It all
-> traces back to the slot_enable call that is made from the hot plug
-> driver (which is not included in this mod).
+On Tue, 2004-02-24 at 16:34, Richard B. Johnson wrote:
+> Linux version 2.2.24 (actually since pivot-root), have a
+> problem with what's in /proc/mounts vs. what's written
+> to /etc/mtab when mounting file-systems.
 
-Ok, as stated before, please post both pieces so we can see if it even
-makes sense for you to be splitting things up in this way (you realize
-that no other pci hotplug driver needs to do it in this manner, right?)
+[file contents snipped]
 
-thanks,
+> On that system /dev/root doesn't even exist!
+> Neither does rootfs in any accessible way. Therefore,
+> the shutdown routine(s) that read /proc/mounts will
+> fail, leaving improperly dismounted volumes.  Basically,
+> if I execute `init 0` from the console, everything's
+> fine, but executing 'reboot' from a network connection
+> will result in a long fsucking startup.
+> 
+> I think the two unusable entries should not show in
+> /proc/mounts,
+> 	rootfs / rootfs rw 0 0
+> 	/dev/root / ext2 rw 0 0
+> That would fix the problem because there is no way to
+> umount either of them. Try it, `umount rootfs` returns
+> ENOENT as does `umount /dev/root'`.
 
-greg k-h
+I have been considering making this same post for a while.
+
+I do have a /dev/root (a symlink to my actual root device), and it is no
+better.  At shutdown/reboot time rootfs is still tried to be umounted
+and fails leaving me with a dirty root at the next boot.
+
+
+-- 
+Chris
+

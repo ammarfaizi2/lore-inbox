@@ -1,79 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbTEANN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 09:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbTEANN3
+	id S261251AbTEANSy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 09:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbTEANSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 09:13:29 -0400
-Received: from gw.chygwyn.com ([62.172.158.50]:21263 "EHLO gw.chygwyn.com")
-	by vger.kernel.org with ESMTP id S261250AbTEANN2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 09:13:28 -0400
-From: Steven Whitehouse <steve@gw.chygwyn.com>
-Message-Id: <200305011327.OAA16943@gw.chygwyn.com>
-Subject: Remains of seq_file conversion for DECnet, plus fixes
-To: davem@redhat.com (David S. Miller)
-Date: Thu, 1 May 2003 14:27:08 +0100 (BST)
-Cc: linux-decnet-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20030421.234303.59654654.davem@redhat.com> from "David S. Miller" at Apr 21, 2003 11:43:03 PM
-Organization: ChyGywn Limited
-X-RegisteredOffice: 7, New Yatt Road, Witney, Oxfordshire. OX28 1NU England
-X-RegisteredNumber: 03887683
-Reply-To: Steve Whitehouse <Steve@ChyGwyn.com>
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 1 May 2003 09:18:54 -0400
+Received: from science.horizon.com ([192.35.100.1]:41019 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261251AbTEANSx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 09:18:53 -0400
+Date: 1 May 2003 13:31:10 -0000
+Message-ID: <20030501133110.7966.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] Faster generic_fls
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The Fount of Holy Pengun Pee expressed himself thus:
+> Yeah, except if you want best code generation you should probably use
+>
+>	static inline int fls(int x)
+>	{
+>		int bit;
+>		/* Only well-defined for non-zero */
+>		asm("bsrl %1,%0":"=r" (bit):"rm" (x));
+>		return x ? bit : 32;
+>	}
+>
+> which should generate (assuming you give "-march=xxxx" to tell gcc to use 
+> cmov):
+>
+>		movl    $32, %eax
+>		bsrl %edx,%ecx
+>		testl   %edx, %edx
+>		cmovne  %ecx, %eax
+>
+> which looks pretty optimal.
 
-My latest DECnet patch for 2.5 has the following features:
+Except that the testl is unnecessary.  The full semantics of
+bsrl are:
 
-  o Introduce kfree_release() in seq_file.c for use of DECnet and eventually
-    IP as well (and other things...?)
-  o Added proc_net_fops_create() like proc_net_create() but with file_operations
-    argument to use with seq_file code (cleans up some #ifdefs). If there are
-    no objections, I'll send a patch for IPv4/6 shortly.
-  o Removed blksize from decnet device parameters - use the device mtu like we
-    ought to.
-  o Removed /proc/net/decnet_route file - I don't think anybody ever used it
-    and it was lacking a full enough description of the routes to be useful.
-    ip -D route list is much better :-)
-  o Added rt_local_src entry to decnet routes so that we get the local source
-    address right when forwarding.
-  o Added netfilter subdir for decnet and add the routing grabulator
-  o Added correct proto argument to struct flowi for routing
-  o MSG_MORE in sendmsg (ignored, but accepted whereas before we'd error)
-  o /proc/net/decnet converted to seq_file
-  o /proc/net/decnet_dev converted to seq_file
-  o /proc/net/decnet_cache converted to seq_file
-  o Use pskb_may_pull() and add code to linearize skbs on the input path
-    except for those containing data.
-  o Fixed returned packet code (mostly - some left to do)
-  o update_pmtu() method for decnet dst entries (ip_gre device assumes this
-    method exists)
-  o Fixed bug in forwarding to get IE bit set correctly
-  o Fixed compile bugs with CONFIG_DECNET_ROUTE_FWMARK pointed out by Adrian
-    Bunk
-  o Fixed zero dest code to grab an address from loopback
-  o Fixed local routes in dn_route_output_slow()
-  o Fixed error case in dn_route_input/output_slow() pointed out by Rusty
+if (source != 0) {
+	destination = <index of most significant set bit in source>;
+	ZF = 0;
+} else {
+	destination = UNDEFINED;
+	ZF = 1;
+}
 
-Its got big again, so I've put it here, if you'd like it in bits rather than
-all one lump, just shout:
+Thus, there are two reasonable code sequences:
 
-http://www.chygwyn.com/~steve/kpatch/decnet/decnet-2.5.68-bk10-seqfile.diff
+asm("	bsrl	%2, %1"
+"\n	cmovne  %1, %0" : "=r" (bit), "=r" (temp) : "rm" (x), "0" (32));
 
-If you've been wondering when the routing in DECnet would reach the
-stage where its actually likely to be useful, now is that time :-) We
-don't yet have full automatic routing, but all the kernel infrastructure
-is now in place and the rest can be done in userspace. In the mean time,
-iproute2 can set up manual routes.
+and (if I've got the earlyclobber syntax right):
 
-I'm going to write some docs and post them somewhere in the next few weeks
-to give more detailed info on how to use the various features.
+asm("	bsrl	%1, %0"
+"\n	cmoveq  %2, %0" : "=&r,&r" (bit) : "0,rm" (x), "rm,rm" (32));
 
-Steve.
+Note that in this latter case, I have to list %1 == %0 as an explicit
+alternative, because otherwise the & on operand 0 would tell GCC to forbid
+that combination and it's only %0 == %2 that's forbidden.
 
+(The first alternative is listed first because it uses fewer registers
+and so is preferred, all other things being equal.)
+
+Unfortunately, I'm not sure how to let GCC choose between these two
+alternatives...

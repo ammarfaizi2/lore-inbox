@@ -1,32 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129886AbQLIXEE>; Sat, 9 Dec 2000 18:04:04 -0500
+	id <S129853AbQLIXEP>; Sat, 9 Dec 2000 18:04:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129853AbQLIXDz>; Sat, 9 Dec 2000 18:03:55 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29703 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129849AbQLIXDo>; Sat, 9 Dec 2000 18:03:44 -0500
-Subject: Re: 2.2.18-25 DELL Laptop Video Problems
-To: jmerkey@vger.timpanogas.org (Jeff V. Merkey)
-Date: Sat, 9 Dec 2000 22:34:30 +0000 (GMT)
-Cc: hwm@ns.newportharbornet.com (Bob Lorenzini), linux-kernel@vger.kernel.org
-In-Reply-To: <20001209160027.A15007@vger.timpanogas.org> from "Jeff V. Merkey" at Dec 09, 2000 04:00:27 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130393AbQLIXEF>; Sat, 9 Dec 2000 18:04:05 -0500
+Received: from ozob.net ([216.131.4.130]:385 "EHLO ozob.net")
+	by vger.kernel.org with ESMTP id <S129849AbQLIXEA>;
+	Sat, 9 Dec 2000 18:04:00 -0500
+Date: Sat, 9 Dec 2000 16:33:32 -0600 (CST)
+From: ebi4 <ebi4@ozob.net>
+Reply-To: ebi4 <ebi4@ozob.net>
+To: linux-kernel@vger.kernel.org
+Subject: parport0 problem
+In-Reply-To: <E1442DQ-0002VT-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1001209162326.3937C-100000@ozob.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E144sZd-0005q5-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Id there a workaround for this for DELL laptops.  Frame buffer needs
-> to be enabled because you don't really know what system you are on
-> until after it installs, and the X probing stuff needs it enabled in
-> order to properly detect the hardware.  Any ideas?
+I can't print and I found this in the logs:
 
-Hard to be sure. Without knowing precisely which board they have and which
-options you used I can't guess which code path changed
+Dec  9 16:10:49 ozob kernel: parport0: Nibble timeout at event 9 (0 bytes) 
+Dec  9 16:11:29 ozob last message repeated 4 times
+Dec  9 16:12:39 ozob last message repeated 7 times
+Dec  9 16:13:40 ozob last message repeated 6 times
+
+If I reboot, then I can print for a while and then this repeats.
+
+Can anyone tell me what this means and what to do about it?
+
+kernel: 2.4.0-test12-pre7 (same problem with pre3)
+cpu: intel 686
+printer: hp4500
+kernel setup:
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+# CONFIG_PARPORT_AMIGA is not set
+# CONFIG_PARPORT_MFC3 is not set
+# CONFIG_PARPORT_ATARI is not set
+# CONFIG_PARPORT_SUNBPP is not set
+# CONFIG_PARPORT_OTHER is not set
+CONFIG_PARPORT_1284=y
+
+CONFIG_PRINTER=y
+
+I can supply any information necessary.
+
+Thanks,
+
+::::: Gene Imes			     http://www.ozob.net :::::
 
 
 -

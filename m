@@ -1,26 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263891AbTLJTrY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 14:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTLJTrY
+	id S263893AbTLJTra (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 14:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263904AbTLJTra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 14:47:24 -0500
-Received: from mail.scitechsoft.com ([63.195.13.67]:37057 "EHLO
+	Wed, 10 Dec 2003 14:47:30 -0500
+Received: from mail.scitechsoft.com ([63.195.13.67]:37569 "EHLO
 	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S263891AbTLJTrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 14:47:23 -0500
+	id S263893AbTLJTr2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 14:47:28 -0500
 From: "Kendall Bennett" <KendallB@scitechsoft.com>
 Organization: SciTech Software, Inc.
 To: Linus Torvalds <torvalds@osdl.org>
 Date: Wed, 10 Dec 2003 11:48:45 -0800
 MIME-Version: 1.0
-Subject: RE: Linux GPL and binary module exception clause?
-CC: "'Andre Hedrick'" <andre@linux-ide.org>,
-       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+Subject: Re: Linux GPL and binary module exception clause?
+CC: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
        linux-kernel@vger.kernel.org
-Message-ID: <3FD7081D.31093.61FCFA36@localhost>
-References: <00af01c3bf41$2db12770$d43147ab@amer.cisco.com>
-In-reply-to: <Pine.LNX.4.58.0312100923370.29676@home.osdl.org>
+Message-ID: <3FD7081D.26876.61FCF97A@localhost>
+References: <20031210163425.GF6896@work.bitmover.com>
+In-reply-to: <Pine.LNX.4.58.0312100852210.29676@home.osdl.org>
 X-mailer: Pegasus Mail for Windows (v4.02)
 Content-type: text/plain; charset=US-ASCII
 Content-transfer-encoding: 7BIT
@@ -30,22 +30,20 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus Torvalds <torvalds@osdl.org> wrote:
 
-> In fact, a user program written in 1991 is actually still likely
-> to run, if it doesn't do a lot of special things. So user programs
-> really are a hell of a lot more insulated than kernel modules,
-> which have been known to break weekly. 
+> Just imagine: distributing a compiled binary-only kernel module
+> that can be loaded into the kernel is not like distributing a new
+> book: it's more like distributing a extra chapter to a book that
+> somebody else wrote, that uses all the same characters and the
+> plot, but more importantly it literally can only be read _together_
+> with the original work. It doesn't stand alone. 
 
-IMHO (and IANAL of course), it seems a bit tenuous to me the argument 
-that just because you deliberating break compatibility at the module 
-level on a regular basis, that they are automatically derived works. 
-Clearly the module interfaces could be stabilised and published, and if 
-you consider the instance of a single kernel version in time, that module 
-ABI *is* published and *is* stable *for that version*. Just because you 
-make an active effort to change things and actively *not* document the 
-ABI other than in the source code across kernel versions, doesn't 
-automatically make a module a derived work. 
+So what if the chapter you wrote was generic enough that it *could* be 
+used for different books? Maybe it couldn't be read alone (at least not 
+with a small book the link the chapters to make logical sense), but it 
+could be read as a whole along with lots of book.
 
-IMHO anyway.
+In that case you would believe such a book would not be a derivative 
+work, correct?
 
 Regards,
 

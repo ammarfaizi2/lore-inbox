@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310916AbSCHSvt>; Fri, 8 Mar 2002 13:51:49 -0500
+	id <S310995AbSCHSx2>; Fri, 8 Mar 2002 13:53:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310950AbSCHSvi>; Fri, 8 Mar 2002 13:51:38 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55046 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S310916AbSCHSvc>; Fri, 8 Mar 2002 13:51:32 -0500
-Message-ID: <3C89080D.8060503@zytor.com>
-Date: Fri, 08 Mar 2002 10:50:53 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Terje Eggestad <terje.eggestad@scali.com>,
-        Ben Greear <greearb@candelatech.com>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        george anzinger <george@mvista.com>
-Subject: Re: gettimeofday() system call timing curiosity
-In-Reply-To: <E16iz57-0002SW-00@the-village.bc.nu> <1015515815.4373.61.camel@pc-16.office.scali.no> <a68bo4$b18$1@cesium.transmeta.com> <20020308013222.B14779@kushida.apsleyroad.org> <3C88157E.5010106@zytor.com> <20020308015701.C14779@kushida.apsleyroad.org> <20020308183049.A18247@kushida.apsleyroad.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S310950AbSCHSxS>; Fri, 8 Mar 2002 13:53:18 -0500
+Received: from pc-62-31-78-67-ed.blueyonder.co.uk ([62.31.78.67]:15507 "EHLO
+	linux.local") by vger.kernel.org with ESMTP id <S310968AbSCHSxN>;
+	Fri, 8 Mar 2002 13:53:13 -0500
+Date: Fri, 8 Mar 2002 18:53:24 +0000
+From: rob@mur.org.uk
+To: linux-kernel@vger.kernel.org
+Subject: Re: strange hang with promise ide and 2.4.18
+Message-ID: <20020308185324.GF1043@mur.org.uk>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020302134523.GA1022@mur.org.uk> <20020303173341.GO28780@lan.berghof.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020303173341.GO28780@lan.berghof.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+On Sun, Mar 03, 2002 at 06:33:41PM +0100, Wolfram Schlich wrote:
+> Have you tried Andre Hedricks IDE-patch from
+> http://www.kernel.org/pub/linux/kernel/people/hedrick/ide-2.4.18/ ?
+
+Ok, I've tried it now, no difference. I can use 1 card but not 2. I
+can't test the 3 card case because I gave the other one away. 
 
 > 
-> On my laptop, the median of rdtsc+gettimeofday+rdtsc times is 470 cycles
-> for most runs of 1000, but is occasionally 453 cycles.
-> 
+> You could also try to enable CONFIG_PDC202XX_BURST, but I'm not
+> sure.
 
+I already had it enabled. Would disabling it make any difference? I
+don't have much time to debug this problem.
 
-What that indicates to me is that 1000 is way too small of a sample. 
-You're only talking a difference of 17,000 cycles, which could -- 
-especially with cache effects -- easily be the time spent in an 
-interrupt handler.
+I want to get an ata133 controller. Can anyone recommend one?
+Stability is the most important criteria. 
+> -- 
+> Mit freundlichen Gruessen / Yours sincerely
+> Wolfram Schlich; Berghof, D-56626 Andernach-Kell; +49-(0)2636-941194;
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-	-hpa
-
-
-
+-- 
+Rob Murray

@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVCOWWb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVCOWay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVCOWWb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:22:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVCOWUY
+	id S261990AbVCOWay (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVCOW33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:20:24 -0500
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:30368 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261925AbVCOWT6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:19:58 -0500
-Subject: [PATCH] Add freezer call in
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>
-Cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1110925280.6454.143.camel@desktop.cunningham.myip.net.au>
+	Tue, 15 Mar 2005 17:29:29 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26799 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261970AbVCOW1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:27:12 -0500
+Date: Tue, 15 Mar 2005 22:27:06 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] CON_BOOT
+Message-ID: <20050315222706.GI21986@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Wed, 16 Mar 2005 09:21:20 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a freezer call to the slow path in __alloc_pages. It
-thus avoids freezing failures in low memory situations. Like the other
-patches, it has been in Suspend2 for longer than I can remember.
 
-Signed-of-by: Nigel Cunningham <ncunningham@cyclades.com>
+New console flag: CON_BOOT
 
-diff -ruNp 213-missing-refrigerator-calls-old/mm/page_alloc.c 213-missing-refrigerator-calls-new/mm/page_alloc.c
---- 213-missing-refrigerator-calls-old/mm/page_alloc.c	2005-02-03 22:33:50.000000000 +1100
-+++ 213-missing-refrigerator-calls-new/mm/page_alloc.c	2005-03-16 09:01:28.000000000 +1100
-@@ -838,6 +838,7 @@ rebalance:
- 			do_retry = 1;
- 	}
- 	if (do_retry) {
-+		try_to_freeze(0);
- 		blk_congestion_wait(WRITE, HZ/50);
- 		goto rebalance;
- 	}
+CON_BOOT is like early printk in that it allows for output really
+early on.  It's better than early printk because it unregisters
+automatically when a real console is initialised.  So if you don't get
+consoles registering in console_init, there isn't a huge delay between
+the boot console unregistering and the real console starting.  This is
+the case on PA-RISC where we have serial ports that aren't discovered
+until the PCI bus has been walked.
+
+I think all the current early printk users could be converted to this
+scheme with a minimal amount of effort.
+
+diff -urpNX dontdiff linus-2.6/include/linux/console.h parisc-2.6/include/linux/console.h
+--- linus-2.6/include/linux/console.h	2005-03-02 04:35:07.000000000 -0700
++++ parisc-2.6/include/linux/console.h	2005-03-02 04:25:54.000000000 -0700
+@@ -84,6 +84,7 @@ void give_up_console(const struct consw 
+ #define CON_PRINTBUFFER	(1)
+ #define CON_CONSDEV	(2) /* Last on the command line */
+ #define CON_ENABLED	(4)
++#define CON_BOOT	(8)
  
+ struct console
+ {
+diff -urpNX dontdiff linus-2.6/kernel/printk.c parisc-2.6/kernel/printk.c
+--- linus-2.6/kernel/printk.c	2005-03-02 04:35:10.000000000 -0700
++++ parisc-2.6/kernel/printk.c	2005-03-15 09:20:32.339891098 -0700
+@@ -804,6 +804,11 @@ void register_console(struct console * c
+ 	if (!(console->flags & CON_ENABLED))
+ 		return;
+ 
++	if (console_drivers && (console_drivers->flags & CON_BOOT)) {
++		unregister_console(console_drivers);
++		console->flags &= ~CON_PRINTBUFFER;
++	}
++
+ 	/*
+ 	 *	Put this console in the list - keep the
+ 	 *	preferred driver at the head of the list.
 
 -- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
-
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
-
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

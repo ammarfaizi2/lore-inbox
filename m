@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135681AbRANWkp>; Sun, 14 Jan 2001 17:40:45 -0500
+	id <S135625AbRANWqQ>; Sun, 14 Jan 2001 17:46:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135718AbRANWkf>; Sun, 14 Jan 2001 17:40:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:15374 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135681AbRANWka>; Sun, 14 Jan 2001 17:40:30 -0500
-Date: Sun, 14 Jan 2001 14:40:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Gerhard Mack <gmack@innerfire.net>
-cc: Ingo Molnar <mingo@elte.hu>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <Pine.LNX.4.10.10101141349210.11765-100000@innerfire.net>
-Message-ID: <Pine.LNX.4.10.10101141436010.4613-100000@penguin.transmeta.com>
+	id <S135700AbRANWqH>; Sun, 14 Jan 2001 17:46:07 -0500
+Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:33669 "EHLO
+	mirai.cx") by vger.kernel.org with ESMTP id <S135625AbRANWp7>;
+	Sun, 14 Jan 2001 17:45:59 -0500
+Message-ID: <3A622C25.766F3BCE@pobox.com>
+Date: Sun, 14 Jan 2001 14:45:57 -0800
+From: J Sloan <jjs@pobox.com>
+Organization: Mirai Consulting
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac9 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.10.10101141436010.4613-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
+> Of course, you may be right on wuftpd. It obviously wasn't designed with
+> security in mind, other alternatives may be better.
 
-On Sun, 14 Jan 2001, Gerhard Mack wrote:
-> 
-> PS I wish someone would explain to me why distros insist on using WU
-> instead given it's horrid security record. 
+I run proftpd on all my ftp servers - it's fast, configurable
+and can do all the tricks I need - even red hat seems to
+agree that proftpd is the way to go.
 
-I think it's a case of "better the devil you know..".
+Visit any red hat ftp site and they are running proftpd -
 
-Think of all the security scares sendmail has historically had. But it's a
-pretty secure piece of work now - and people know if backwards and
-forward. Few people advocate switching from sendmail these days (sure,
-they do exist, but what I'm saying is that a long track record that
-includes security issues isn't necessarily bad, if it has gotten fixed).
+So, why do they keep shipping us wu-ftpd instead?
 
-Of course, you may be right on wuftpd. It obviously wasn't designed with
-security in mind, other alternatives may be better.
+That really frosts me.
 
-		Linus
+jjs
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292935AbSBVRZt>; Fri, 22 Feb 2002 12:25:49 -0500
+	id <S292939AbSBVRgx>; Fri, 22 Feb 2002 12:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292938AbSBVRZk>; Fri, 22 Feb 2002 12:25:40 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:2835 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S292935AbSBVRZ1>;
-	Fri, 22 Feb 2002 12:25:27 -0500
-Date: Fri, 22 Feb 2002 18:19:50 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, egberts@yahoo.com, lkml@secureone.com.au,
-        linux-kernel@vger.kernel.org, techsupport@itexinc.com
-Subject: Re: Dlink DSL PCI Card
-Message-Id: <20020222181950.2fa06bb3.skraw@ithnet.com>
-In-Reply-To: <20020222113600.F14673@redhat.com>
-In-Reply-To: <20020220185044.31163.qmail@web10502.mail.yahoo.com>
-	<E16dcnl-0004Wd-00@the-village.bc.nu>
-	<20020222113600.F14673@redhat.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S292938AbSBVRgd>; Fri, 22 Feb 2002 12:36:33 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:14865 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S292939AbSBVRg0>; Fri, 22 Feb 2002 12:36:26 -0500
+Message-Id: <200202221736.g1MHaMc04473@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3) 
+In-Reply-To: Message from "Stephen C. Tweedie" <sct@redhat.com> 
+   of "Fri, 22 Feb 2002 16:13:07 GMT." <20020222161307.H2424@redhat.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 22 Feb 2002 12:36:22 -0500
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Feb 2002 11:36:00 -0500
-Benjamin LaHaise <bcrl@redhat.com> wrote:
+sct@redhat.com said:
+> There is a get-out for ext3 --- we can submit new journal IOs without
+> waiting for the commit IO to complete, but hold back on writeback IOs.
+> That still has the desired advantage of allowing us to stream to the
+> journal, but only requires that the commit block be ordered with
+> respect to older, not newer, IOs.  That gives us most of the benefits
+> of tagged queuing without any problems in your scenario. 
 
-> I did some digging on the chipset used by the dlink card, and its made by the 
-> folks at http://www.itexinc.com/ .  They claim Linux support, but only in the 
-> form of an infrequently updated binary only module that is only available 
-> through OEMs.  Unfortunately, they're uncooperative in providing documentation 
-> for writing an open source driver.  It would be Really Nice if the guidelines 
-> on the use of the Linux trademark prevented claims of Linux support without 
-> driver source (ie, forcing binary only module drivers to be marketed as 
-> "partial Linux support through kernel specific binary modules").
+Actually, I intended the tagged queueing discussion to be discouraging.  The 
+amount of work that would have to be done to implement it is huge, touching, 
+as it does, every low level driver's interrupt routine.  For the drivers that 
+require scripting changes to the chip engine, it's even worse: only someone 
+with specialised knowledge can actually make the changes.
 
-I guess I would prefer the hard line: if it states "linux support" there has to be a driver source - or at least full docs for _any_ requesting parties. Otherwise the trademark should not be useable at all. If you provide several "stages" of support, poor "Aunt Tilly" user (is this already tm'ed? :-) won't be able to understand the difference - and you distro-guys (this is not meant to be a BadName) want this type of user to a certain extent.
-But this is a very purist point of view.
+It's feasible, but I think we'd have to demonstrate some quite significant 
+performance or other improvements before changes on this scale would fly.
 
-Beat me,
-Stephan
+Neither of you commented on the original suggestion.  What I was wondering is 
+if we could benchmark (or preferably improve on) it:
+
+James.Bottomley@SteelEye.com said:
+> The easy way out of the problem, I think, is to impose the barrier as
+> an  effective queue plug in the SCSI mid-layer, so that after the
+> mid-layer  recevies the barrier, it plugs the device queue from below,
+> drains the drive  tag queue, sends the barrier and unplugs the device
+> queue on barrier I/O  completion. 
+
+If you need strict barrier ordering, then the queue is double plugged since 
+the barrier has to be sent down and waited for on its own.  If you allow the 
+discussed permiability, the queue is only single plugged since the barrier can 
+be sent down along with the subsequent writes.
+
+I can take a look at implementing this in the SCSI mid-layer and you could see 
+what the benchmark figures look like with it in place.  If it really is the 
+performance pig it looks like, then we could go back to the linux-scsi list 
+with the tag change suggestions.
+
+James
 
 

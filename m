@@ -1,95 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272922AbTHEWIU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 18:08:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272923AbTHEWIU
+	id S272942AbTHEWRm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 18:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272950AbTHEWRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 18:08:20 -0400
-Received: from starcraft.mweb.co.za ([196.2.45.78]:21421 "EHLO
-	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
-	id S272922AbTHEWIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 18:08:13 -0400
-Subject: RE: [2.6] Perl weirdness with ext3 and HTREE
-From: Martin Schlemmer <azarah@gentoo.org>
-Reply-To: azarah@gentoo.org
-To: Christopher Li <chrisl@vmware.com>
-Cc: KML <linux-kernel@vger.kernel.org>, akpm@digeo.com, adilger@clusterfs.com,
-       ext3-users@redhat.com, x86-kernel@gentoo.org
-In-Reply-To: <68F326C497FDB743B5F844B776C9B1460976FD@pa-exch4.vmware.com>
-References: <68F326C497FDB743B5F844B776C9B1460976FD@pa-exch4.vmware.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UpCXs5oQSZ5bJWVtEP7D"
-Message-Id: <1060121303.8355.47.camel@nosferatu.lan>
+	Tue, 5 Aug 2003 18:17:42 -0400
+Received: from ns.tasking.nl ([195.193.207.2]:14092 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S272942AbTHEWRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 18:17:35 -0400
+To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 06 Aug 2003 00:08:23 +0200
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@xs4all.nl (Dick Streefland)
+Organization: none
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+From: spam@streefland.xs4all.nl (Dick Streefland)
+Subject: [PATCH] autofs4 doesn't expire
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <4b0c.3f302ca5.93873@altium.nl>
+Date: Tue, 05 Aug 2003 22:16:05 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In linux-2.6.0-test1, lookup_mnt() was changed to increment the ref
+count of the returned vfsmount struct. This breaks expiration of
+autofs4 mounts, because lookup_mnt() is called in check_vfsmnt()
+without decrementing the ref count afterwards. The following patch
+fixes this:
 
---=-UpCXs5oQSZ5bJWVtEP7D
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+--- linux-2.6.0-test2/fs/autofs4/expire.c.orig	2003-07-14 05:36:30.000000000 +0200
++++ linux-2.6.0-test2/fs/autofs4/expire.c	2003-08-05 20:51:57.000000000 +0200
+@@ -70,6 +70,7 @@
+ 	int ret = dentry->d_mounted;
+ 	struct vfsmount *vfs = lookup_mnt(mnt, dentry);
+ 
++	mntput(vfs);
+ 	if (vfs && is_vfsmnt_tree_busy(vfs))
+ 		ret--;
+ 	DPRINTK(("check_vfsmnt: ret=%d\n", ret));
 
-On Tue, 2003-08-05 at 23:53, Christopher Li wrote:
-
-> >=20
-> > I cannot really see that it is a Gentoo specific problem, but=20
-> > who knows.
-> > I will try to get a CD of another distro somewhere, and get that on a
-> > box to test - currently work/whatnot just keeps me pretty tied up :(
-> > Another reason why I posted, is now that 2.6 is more widely=20
-> > used/tested,
-> > its not only me that gets this, but other users as well - thus I hoped
-> > that somebody with more time wanted to have a crack at it.
->=20
-> I am not claiming it is a gentoo issue. I just want to duplicate
-> this bug with minimal damage to my box.
->=20
-
-Yep, I know, I just 'clarified' it in case somebody was wondering.
-
-> >=20
-> > If it works fine (with a 2.6 kernel), I will go and bang my=20
-> > head against
-> > a wall, and shutup until I can make time to try and track=20
-> > this - if not,
-> > any ideas as to creating it outside the perl install (or=20
-> > rather the man
-> > page part of the install process) would be great.
-> >=20
->=20
-> You can do a strace on the perl install, then grep for all
-> the file changes happen on that directory. There is a good
-> chance follow the strace log can duplicate the bug also.
-
-Yep, did that.  I had a simple c program once that tried to
-simulate all file operations on that file, and the 'real'
-man page that gets installed.  Did not have the same effect
-however.  Might be that I was off by something.  Don't have
-it however anymore, as it was some months before, just before
-I mailed the first time.
-
-
-Thanks,
-
---=20
-
-Martin Schlemmer
-
-
-
-
---=-UpCXs5oQSZ5bJWVtEP7D
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/MCrVqburzKaJYLYRAg8YAJ4sLI6CQde/sN1KuIs5cJRWpSZUMACfZQGf
-q6CKb6kXtbJQOaXoVkiGmUE=
-=GdY3
------END PGP SIGNATURE-----
-
---=-UpCXs5oQSZ5bJWVtEP7D--
+-- 
+Dick Streefland                    ////               De Bilt
+dick.streefland@xs4all.nl         (@ @)       The Netherlands
+------------------------------oOO--(_)--OOo------------------
 

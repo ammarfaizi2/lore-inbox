@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289670AbSBSJLi>; Tue, 19 Feb 2002 04:11:38 -0500
+	id <S290839AbSBSJRi>; Tue, 19 Feb 2002 04:17:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290779AbSBSJL3>; Tue, 19 Feb 2002 04:11:29 -0500
-Received: from dsl-213-023-040-169.arcor-ip.net ([213.23.40.169]:43158 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S289670AbSBSJLW>;
-	Tue, 19 Feb 2002 04:11:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Giacomo Catenazzi <cate@debian.org>
-Subject: Re: Disgusted with kbuild developers
-Date: Tue, 19 Feb 2002 10:15:16 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Michael Elizabeth Chastain <mec@shout.net>, jgarzik@mandrakesoft.com,
-        kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <fa.i8v9q2v.6g8h03@ifi.uio.no> <fa.hhvfopv.1f70hqv@ifi.uio.no> <3C7206FD.2050306@debian.org>
-In-Reply-To: <3C7206FD.2050306@debian.org>
+	id <S290843AbSBSJR2>; Tue, 19 Feb 2002 04:17:28 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35340 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290839AbSBSJRS>; Tue, 19 Feb 2002 04:17:18 -0500
+Subject: Re: readl/writel and memory barriers
+To: dmaas@dcine.com (Dan Maas)
+Date: Tue, 19 Feb 2002 09:31:32 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org,
+        benh@kernel.crashing.org (Benjamin Herrenschmidt),
+        bcollins@debian.org (Ben Collins)
+In-Reply-To: <092401c1b8e7$1d190660$1a01a8c0@allyourbase> from "Dan Maas" at Feb 18, 2002 08:45:29 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16d6Mn-00011Q-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16d6cW-0008OH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 19, 2002 09:04 am, Giacomo Catenazzi wrote:
-> Daniel Phillips wrote:
-> >>. A Microsoft engineer wrote scripts/Configure.  For three years, I have
-> >>  lived in fear that Microsoft would notice this fact and use it to attack
-> >>  Linux through public relations channels or legal means.  They haven't 
-> >>  yet, so I have been wrong so far.
-> > 
-> > Teehee.  I don't think you have anything to worry about, Microsoft would 
-> > be incredibly embarassed to admit they're contributing to 'problem number 
-> > 1'.
-> 
-> I agree, but we know some strange 'behaviour' of MS.
-> They have a lot of lawers, they can make us a lot of trouble.
-> (You will notice that there are no copyright statment on that file,
-> only the name of authors).
-> 
-> Remember the RMS (a flame with the word 'ESR' MUST have also the 'RMS' :-))
-> way to include 'free' patches: sign and send to FSF a piece of paper,
-> that the patches CAN be included.
+> In a quick survey of architectures that need explicit memory barriers to
+> enforce ordering of PCI accesses, it seems that alpha and PPC include memory
+> barriers inside readl() and writel(), whereas MIPS, sparc64, ia64, and s390
 
-Under the GPL Having exclusive copyright just means that you can relicense 
-later stuff if you want.  I'm not clear on why FSF considers it so important
-but for Linux it just means that nobody, not even Linus, can ever release
-under a new license (e.g., the BSD license).  So actually, having multiple 
-copyright holders is a good thing for you, it protects your investment in GPL 
-capital better.  I say, if Microsoft employees want to contribute to Linux, 
-the more the merrier.  Heck, even billg is going to wake up on day (with a 
-start, in the middle of the night) and realize which way the wind is blowing. 
-Steve Jobs did.
+Alpha and PPC include them, x86 its handled by the hardware. __raw_read/write*
+are bit more exciting.
 
-> I think nobody in Linux have done that,
+> do not include them. (I'm not intimately familiar with these architectures
+> so forgive me if I got some wrong...). What is the official story here?
 
-Great.
+To quote from the Documentation dir..
 
-> thus we can expect some more troubles and microsoft is a large 
-> troubles-maker
+      <para>
+        The read and write functions are defined to be ordered. That is the
+        compiler is not permitted to reorder the I/O sequence. When the
+        ordering can be compiler optimised, you can use <function>
+        __readb</function> and friends to indicate the relaxed ordering. Use
+        this with care. The <function>rmb</function> provides a read memory
+        barrier. The <function>wmb</function> provides a write memory barrier.
+      </para>
 
-Oh yes...
+      <para>
+        While the basic functions are defined to be synchronous with respect
+        to each other and ordered with respect to each other the busses the
+        devices sit on may themselves have asynchronocity. In paticular many
+        authors are burned by the fact that PCI bus writes are posted
+        asynchronously. A driver author must issue a read from the same
+        device to ensure that writes have occurred in the specific cases the
+        author cares. This kind of property cannot be hidden from driver
+        writers in the API.
+      </para>
 
--- 
-Daniel

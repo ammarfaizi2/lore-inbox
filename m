@@ -1,88 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAKLOI>; Thu, 11 Jan 2001 06:14:08 -0500
+	id <S129842AbRAKLR7>; Thu, 11 Jan 2001 06:17:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129842AbRAKLN7>; Thu, 11 Jan 2001 06:13:59 -0500
-Received: from barn.holstein.com ([198.134.143.193]:22026 "EHLO holstein.com")
-	by vger.kernel.org with ESMTP id <S129324AbRAKLNk>;
-	Thu, 11 Jan 2001 06:13:40 -0500
-Message-Id: <3A5D94B4.DD8511D1@holstein.com>
-Date: Thu, 11 Jan 2001 06:10:44 -0500
-From: "Todd M. Roy" <troy@holstein.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac6 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: scsi/zip mounting problem with 2.4.0-ac4/6 (at least)
-X-MIMETrack: Itemize by SMTP Server on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 01/11/2001 06:08:38 AM,
-	Serialize by Router on Imail/Holstein(Release 5.0.1b|September 30, 1999) at
- 01/11/2001 06:08:38 AM,
-	Serialize complete at 01/11/2001 06:08:38 AM
-X-Priority: 3 (Normal)
-Content-Transfer-Encoding: 7bit
+	id <S130370AbRAKLRu>; Thu, 11 Jan 2001 06:17:50 -0500
+Received: from passion.cambridge.redhat.com ([172.16.18.67]:60288 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129842AbRAKLRl>; Thu, 11 Jan 2001 06:17:41 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.30.0101101737240.30973-100000@devserv.devel.redhat.com> 
+In-Reply-To: <Pine.LNX.4.30.0101101737240.30973-100000@devserv.devel.redhat.com> 
+To: Ingo Molnar <mingo@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Keith Owens <kaos@ocs.com.au>,
+        Nathan Walp <faceprint@faceprint.com>, Hans Grobler <grobh@sun.ac.za>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.4.0-ac5 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 11 Jan 2001 11:15:55 +0000
+Message-ID: <1605.979211755@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan and All,
 
-I've detected a bug somewhere in 2.4.0-acX, at least in ac4,
-the first ac kernel I built.  It seems that I can't mount
-a scsi zip disk in, unless the following has occurred:
+mingo@redhat.com said:
+>  i prefer clear oopses and bug reports instead of ignoring them. A
+> failed MSR write is not something to be taken easily. MSR writes if
+> fail mean that there is a serious kernel bug - we want to stop the
+> kernel and complain ASAP. And correct code will be much more readable
+> that way.
 
-1.  There is a disk in the zip drive when I boot.
+The bug here seems to be that we're using the same bit (X86_FEATURE_APIC) to
+report two _different_ features. 
 
-2.  I fdisk the scsi block device and re-write the partition
-    table.  (I accidently discovered this).
+We don't represent X86_FEATURE_CXMMX and X86_FEATURE_MMX with the same bit, 
+even though they are supposed to provide the same functionality - because 
+they are in fact different. Likewise we shouldn't use the same bit for the 
+two different types of APIC, IMO.
 
-in other words I get this:
-mount: /dev/sda4 is not a valid block device.
-If I try to insert a zipdisk and mount it after I boot up.
+Index: include/asm-i386/cpufeature.h
+===================================================================
+RCS file: /inst/cvs/linux/include/asm-i386/Attic/cpufeature.h,v
+retrieving revision 1.1.2.1
+diff -u -r1.1.2.1 cpufeature.h
+--- include/asm-i386/cpufeature.h	2000/12/05 13:30:46	1.1.2.1
++++ include/asm-i386/cpufeature.h	2001/01/11 11:12:41
+@@ -62,6 +62,7 @@
+ #define X86_FEATURE_K6_MTRR	(3*32+ 1) /* AMD K6 nonstandard MTRRs */
+ #define X86_FEATURE_CYRIX_ARR	(3*32+ 2) /* Cyrix ARRs (= MTRRs) */
+ #define X86_FEATURE_CENTAUR_MCR	(3*32+ 3) /* Centaur MCRs (= MTRRs) */
++#define X86_FEATURE_AMD_APIC	(3*32+ 4) /* AMD Athlon CPU-local APIC */
+ 
+ #endif /* __ASM_I386_CPUFEATURE_H */
+ 
+Index: arch/i386/kernel/setup.c
+===================================================================
+RCS file: /inst/cvs/linux/arch/i386/kernel/setup.c,v
+retrieving revision 1.4.2.47
+diff -u -r1.4.2.47 setup.c
+--- arch/i386/kernel/setup.c	2001/01/01 12:56:13	1.4.2.47
++++ arch/i386/kernel/setup.c	2001/01/11 11:12:41
+@@ -1058,6 +1058,11 @@
+ 			break;
+ 
+ 		case 6:	/* An Athlon/Duron. We can trust the BIOS probably */
++			if (test_bit(X86_FEATURE_APIC, &c->x86_capability)) {
++				/* Not a compatible APIC */
++				clear_bit(X86_FEATURE_APIC, &c->x86_capability);
++				set_bit(X86_FEATURE_AMD_APIC, &c->x86_capability);
++			}
+ 			break;		
+ 	}
+ 
 
-This problem does NOT occur as late as 2.4.0-final.
+--
+dwmw2
 
-Specifics of my system:
 
-The SCSI board is a real cheap SYM810A based Fast SCSI-2 PCI board.
-
-I use the sym53c8xx driver built in, as is scsi disk support.
-The only thing I use the scsi board for is the external zip 100
-drive.
-
-It still occurs in ac6.  (I've only build ac4 and 6).
-
-Here is the specifics from a dmesg of 2.4.0 booting:
-(2.4.0-ac4 and 6) is the same.
-SCSI subsystem driver Revision: 1.00
-sym53c8xx: at PCI bus 0, device 13, function 0
-sym53c8xx: setting PCI_COMMAND_PARITY...(fix-up)
-sym53c8xx: 53c810a detected 
-sym53c810a-0: rev 0x12 on pci bus 0 device 13 function 0 irq 10
-sym53c810a-0: ID 7, Fast-10, Parity Checking
-sym53c810a-0: restart (scsi reset).
-scsi0 : sym53c8xx - version 1.6b
-  Vendor: IOMEGA    Model: ZIP 100           Rev: C.22
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-Detected scsi removable disk sda at scsi0, channel 0, id 5, lun 0
-sym53c810a-0-<5,*>: target did not report SYNC.
-sym53c810a-0-<5,*>: target did not report SYNC.
-sym53c810a-0-<5,*>: target did not report SYNC.
-sym53c810a-0-<5,*>: target did not report SYNC.
-sym53c810a-0-<5,*>: target did not report SYNC.
-sda : READ CAPACITY failed.
-sda : status = 1, message = 00, host = 0, driver = 28 
-sda : extended sense code = 2 
-sda : block size assumed to be 512 bytes, disk size 1GB.  
- sda: I/O error: dev 08:00, sector 0
- unable to read partition table
-
-Thanks,
-  Todd
-**********************************************************************
-This footnote confirms that this email message has been swept by 
-MIMEsweeper for the presence of computer viruses.
-**********************************************************************
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTKGCXh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 21:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbTKGCXh
+	id S261433AbTKGFKu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 00:10:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbTKGFKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 21:23:37 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:55312 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S261321AbTKGCXh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 21:23:37 -0500
-Date: Fri, 07 Nov 2003 11:23:45 +0900 (JST)
-Message-Id: <20031107.112345.72209310.yoshfuji@linux-ipv6.org>
-To: jeff.zheng@intel.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why size of sockaddr smaller than size of sockaddr_in6?
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <37FBBA5F3A361C41AB7CE44558C3448E07EC27@pdsmsx403.ccr.corp.intel.com>
-References: <37FBBA5F3A361C41AB7CE44558C3448E07EC27@pdsmsx403.ccr.corp.intel.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Fri, 7 Nov 2003 00:10:50 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:14551 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261433AbTKGFKt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 00:10:49 -0500
+Date: Thu, 6 Nov 2003 21:10:48 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel.bkbits.net off the air
+Message-ID: <20031107051048.GA6099@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+As many of you have figured out, I took kernel.bkbits.net (aka bk.kernel.org,
+cvs.kernel.org, and svn.kernel.org) of the air yesterday due to the breakin
+that attempted to add a trojan horse to the kernel source.
 
-In article <37FBBA5F3A361C41AB7CE44558C3448E07EC27@pdsmsx403.ccr.corp.intel.com> (at Fri, 7 Nov 2003 10:04:05 +0800), "Zheng, Jeff" <jeff.zheng@intel.com> says:
+I took it down after talking with Linus and Dave about it, the point was to
+shut down the disk drive so that we can go do forensics on it after the fact
+and see what we can figure out.  Maybe someone can track down who caused the
+problem.
 
-> I thought that sockaddr should hold sockaddr_in sockaddr_in6 and any other socket address (or at least sockaddr_in6). 
-
-No, we do not change sockaddr{}.
-use sockaddr_storage{} for that purpose.
-Please read RFC 3493.
-
+This means someone has to go down to the colo with a new disk and do
+an install and we've been too busy to do this.  Would anyone object if
+this wasn't done until this weekend?  We're pretty booked up here with
+other work.  Last I checked only about 6 IP addresses where using the CVS
+server, I've never checked on the SVN server (Ben?  You have any idea?).
 -- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

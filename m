@@ -1,134 +1,96 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312141AbSDXNdn>; Wed, 24 Apr 2002 09:33:43 -0400
+	id <S312178AbSDXNkq>; Wed, 24 Apr 2002 09:40:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312178AbSDXNdm>; Wed, 24 Apr 2002 09:33:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60427 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S312141AbSDXNdl>;
-	Wed, 24 Apr 2002 09:33:41 -0400
-Date: Wed, 24 Apr 2002 15:33:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: rwhron@earthlink.net
-Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
-Message-ID: <20020424133329.GA8988@suse.de>
-In-Reply-To: <20020424093021.A21652@rushmore>
+	id <S312194AbSDXNkp>; Wed, 24 Apr 2002 09:40:45 -0400
+Received: from h195202190178.med.cm.kabsi.at ([195.202.190.178]:45198 "EHLO
+	phobos.hvrlab.org") by vger.kernel.org with ESMTP
+	id <S312178AbSDXNko>; Wed, 24 Apr 2002 09:40:44 -0400
+Subject: Re: An IPsec tunnel implementation for Linux using CryptoAPI
+From: Herbert Valerio Riedel <hvr@hvrlab.org>
+To: Tobias Ringstrom <tori@ringstrom.mine.nu>
+Cc: linux-crypto@nl.linux.org, cryptoapi-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204232355060.32300-100000@boris.prodako.se>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-k+BRfHtZMgsQ24/nGtKP"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 24 Apr 2002 15:40:25 +0200
+Message-Id: <1019655625.8169.167.camel@janus.txd.hvrlab.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 24 2002, rwhron@earthlink.net wrote:
-> >> Oops on 2.5.9 at boot time.
-> 
-> > Could you please introduce two printk("BANG\n") printk("BOOM\n")
-> > aroung the ata_ar_get() in ide-cd? Just to see whatever the
-> > command queue is already up and initialized.
-> 
-> This may not be what you wanted:
-> 
-> 	printk("BANG\n");
->         ar = ata_ar_get(drive);
->         printk("BOOM\n");
-> 
-> If it is, neither BANG nor BOOM printed before oops.
 
-Look, the problem is easy. Backout the changes to ide_cdrom_do_request()
-and cdrom_start_read(), then re-add the
+--=-k+BRfHtZMgsQ24/nGtKP
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	HWGROUP(drive)->rq->special = NULL;
+hello!
 
-in cdrom_end_request() before calling ide_end_request()
+On Wed, 2002-04-24 at 00:17, Tobias Ringstrom wrote:
+> A little bit off-topic perhaps, but I'd like to congratulate you all on a=
+n
+> extremely useable piece of software!  When I decicided to make a
+> light-weight IPsec tunnel implementation some time ago I decided very
+> early on to use your CryptoAPI, and found it really easy to use.
+>=20
+> I now have a version of my IPsec tunnel implementation that seems to work
+> just fine, and I think it's time to let you guys have a peek at it.  You
+> can find the code and a first stab at actual documentation at
+>=20
+> 	http://ringstrom.mine.nu/ipsec_tunnel/
+>=20
+> Please remeber that this is an early version, and I do not guarantee
+> anything.  It does seem to interoperate with OpenBSD's IPsec though, and =
+I
+> have been using it for several weeks myself.
+>=20
+> And yes, I've heard about FreeS/WAN...  :-)
+>=20
+> I'm interested in any comments or questions!
 
-Something ala, completely untested (not even compiled). See the thread
-about the ide-cd changes being broken.
+I decided to CC this reply to the lkml, since IMO more people should
+know about this implementation of yours.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.558   -> 1.559  
-#	drivers/ide/ide-cd.c	1.35    -> 1.36   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/24	axboe@burns.home.kernel.dk	1.559
-# "fix" rq->special and ar usage, needs proper fixing
-# --------------------------------------------
-#
-diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
---- a/drivers/ide/ide-cd.c	Wed Apr 24 15:32:59 2002
-+++ b/drivers/ide/ide-cd.c	Wed Apr 24 15:32:59 2002
-@@ -558,10 +558,7 @@
- 	if ((rq->flags & REQ_CMD) && !rq->current_nr_sectors)
- 		uptodate = 1;
- 
--#if 0
--	/* FIXME --mdcki */
- 	HWGROUP(drive)->rq->special = NULL;
--#endif
- 	ide_end_request(drive, uptodate);
- }
- 
-@@ -1217,22 +1214,13 @@
- /*
-  * Start a read request from the CD-ROM.
-  */
--static ide_startstop_t cdrom_start_read(struct ata_device *drive, struct ata_request *ar, unsigned int block)
-+static ide_startstop_t cdrom_start_read(struct ata_device *drive, unsigned int block)
- {
- 	struct cdrom_info *info = drive->driver_data;
--	struct request *rq = ar->ar_rq;
--
--	if (ar->ar_flags & ATA_AR_QUEUED) {
--//		spin_lock_irqsave(DRIVE_LOCK(drive), flags);
--		blkdev_dequeue_request(rq);
--//		spin_unlock_irqrestore(DRIVE_LOCK(drive), flags);
--	}
--
-+	struct request *rq = HWGROUP(drive)->rq;
- 
- 	restore_request(rq);
- 
--	rq->special = ar;
--
- 	/* Satisfy whatever we can of this request from our cached sector. */
- 	if (cdrom_read_from_buffer(drive))
- 		return ide_stopped;
-@@ -1665,30 +1653,8 @@
- 		if (IDE_LARGE_SEEK(info->last_block, block, IDECD_SEEK_THRESHOLD) && drive->dsc_overlap)
- 			action = cdrom_start_seek (drive, block);
- 		else {
--			unsigned long flags;
--			struct ata_request *ar;
--
--			/*
--			 * get a new command (push ar further down to avoid grabbing lock here
--			 */
--			spin_lock_irqsave(DRIVE_LOCK(drive), flags);
--
--			ar = ata_ar_get(drive);
--
--			/*
--			 * we've reached maximum queue depth, bail
--			 */
--			if (!ar) {
--				spin_unlock_irqrestore(DRIVE_LOCK(drive), flags);
--
--				return ide_started;
--			}
--
--			ar->ar_rq = rq;
--			spin_unlock_irqrestore(DRIVE_LOCK(drive), flags);
--
- 			if (rq_data_dir(rq) == READ)
--				action = cdrom_start_read(drive, ar, block);
-+				action = cdrom_start_read(drive, block);
- 			else
- 				action = cdrom_start_write(drive, rq);
- 		}
+I've taken a quick look at your webpage and the source code itself...
+one thing I saw is, that your implementation doesn't require any
+modification to the main kernel -- i.e. no patching required -- it's a
+plugin... just like CIPE... (which btw uses cryptoapi as well in its
+latest code base)
+(thus you don't even need to reboot your system in order to enable
+lightweight IPSEC in your kernel...)
+-- this fits well with the cryptoapi, which can add modular crypto
+support without needing to patch or reboot your kernel...
 
--- 
-Jens Axboe
+I think, some people will like this lightweight IPSEC/IPv4
+implementation, since it doesn't have the eroute/route-filtering
+facility of frees/wan...=20
+
+on the other hand, it's not a complete IPSEC implementation (yet)... it
+only implements ESP for tunneling purposes, and lacks AH and IKE....
+and frees/wan offers some advanced features like compression and icmp
+handling, which ipsec_tunnel may still lack...
+
+regards,
+--=20
+Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
+Email: hvr@hvrlab.org       /    Finger hvr@gnu.org for GnuPG Public Key
+GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F
+4142
+
+--=-k+BRfHtZMgsQ24/nGtKP
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8xrXJSYHgZIg/QUIRAtMIAJ4lKT+WDq/lcHP7NIRZS49OsHFnhQCgp8jw
+t1idJYbMmMj9Ts9jUEr6Cq8=
+=4M/f
+-----END PGP SIGNATURE-----
+
+--=-k+BRfHtZMgsQ24/nGtKP--
 

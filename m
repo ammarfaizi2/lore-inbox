@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263567AbUFBQjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUFBQig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbUFBQjz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUFBQjz
+	id S263555AbUFBQig (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 12:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbUFBQig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:39:55 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:22408 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263567AbUFBQjr
+	Wed, 2 Jun 2004 12:38:36 -0400
+Received: from [209.101.250.228] ([209.101.250.228]:43913 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S263555AbUFBQic convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:39:47 -0400
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1/5: Device-mapper dm-io.c
-Date: Wed, 2 Jun 2004 11:39:22 -0500
-User-Agent: KMail/1.6
-Cc: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>
-References: <20040602154017.GN6302@agk.surrey.redhat.com>
-In-Reply-To: <20040602154017.GN6302@agk.surrey.redhat.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406021139.22822.kevcorry@us.ibm.com>
+	Wed, 2 Jun 2004 12:38:32 -0400
+Subject: Re: NFS client behavior on close
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Simon Kirby <sim@netnation.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040602154146.GA2481@netnation.com>
+References: <20040531213820.GA32572@netnation.com>
+	 <1086159327.10317.2.camel@lade.trondhjem.org>
+	 <20040602154146.GA2481@netnation.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1086194307.17378.106.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 02 Jun 2004 09:38:28 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 June 2004 10:40 am, Alasdair G Kergon wrote:
-> dm-io: device-mapper i/o library for kcopyd
+På on , 02/06/2004 klokka 08:41, skreiv Simon Kirby:
 
-Based on the dm-zero.c discussion, dm-io is going to need a similar patch.
+> In that case, is there any reason why we would ever want to wait
+> before sending data to the server, except for a minimal time to allow
+> merging into wsize blocks?  With no delay, avoiding the write to disk
+> for temporary files can still happen on the server side (async). 
 
-Andrew, are these incremental patches okay, or should we resubmit the whole 
-patch for these modules?
+NO! async is a stupidity that was introduced in order to get round the
+fact that NFSv2 had no server-side equivalent of the "fsync()" command.
+Async breaks O_SYNC writes, fsync(), sync(), ... Most importantly, it
+removes all the normal guarantees that clients can recover safely if the
+server reboots or crashes.
 
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/
+<RANT>I find it hard to understand how people, who would normally scream
+if you told them that "fsync()" on their desktop PC was broken and
+didn't actually flush data to disk, can find it quite acceptable as long
+as it's "only" their central storage units that are broken in the same
+way.</RANT>
 
+In any case, the performance benefit of using "async" should be very
+small these days.
 
---- diff/drivers/md/dm-io.c	2004-06-02 11:35:48.000000000 -0500
-+++ source/drivers/md/dm-io.c	2004-06-02 11:34:37.000000000 -0500
-@@ -341,7 +341,8 @@
- 	bio_for_each_segment(bv, bio, i) {
- 		char *data = bvec_kmap_irq(bv, &flags);
- 		memset(data, 0, bv->bv_len);
--		bvec_kunmap_irq(bv, &flags);
-+		flush_dcache_page(bv->bv_page);
-+		bvec_kunmap_irq(data, &flags);
- 	}
- }
- 
+> Mass file writes from a single thread should be faster if the client
+> write buffering is minimized.
+
+Not necessarily. Consider the case of a random workload in which you
+touch the same page more than once. Why then flush those same pages out
+to disk more than once?
+
+Cheers,
+  Trond

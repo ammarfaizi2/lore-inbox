@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284638AbRLEUE4>; Wed, 5 Dec 2001 15:04:56 -0500
+	id <S284648AbRLEUHg>; Wed, 5 Dec 2001 15:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284639AbRLEUEr>; Wed, 5 Dec 2001 15:04:47 -0500
-Received: from ns.suse.de ([213.95.15.193]:18955 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284636AbRLEUEc>;
-	Wed, 5 Dec 2001 15:04:32 -0500
-To: Vladimir Ivaschenko <hazard@francoudi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sendmsg() leaves Identification field in IP header empty
-In-Reply-To: <3C0E6F8B.A6C85AB6@francoudi.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Dec 2001 21:04:27 +0100
-In-Reply-To: Vladimir Ivaschenko's message of "5 Dec 2001 20:08:57 +0100"
-Message-ID: <p73d71t8md0.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S284645AbRLEUHU>; Wed, 5 Dec 2001 15:07:20 -0500
+Received: from mustard.heime.net ([194.234.65.222]:30870 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S284646AbRLEUGh>; Wed, 5 Dec 2001 15:06:37 -0500
+Date: Wed, 5 Dec 2001 21:06:04 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: James Stevenson <mail-lists@stev.org>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: /proc/sys/vm/(max|min)-readahead effect????
+In-Reply-To: <019401c17dc5$2e946130$0801a8c0@Stev.org>
+Message-ID: <Pine.LNX.4.30.0112052100470.3740-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Ivaschenko <hazard@francoudi.com> writes:
+> thats still does not mean they are sequential creating
+> large files almost always causes them to fragment.
 
-> Hi All,
-> 
-> I've been struggling to understand why an application which worked fine
-> on 2.2.X stopped working on 2.4.7 (RH72) and found out that sendmsg()
-> always leaves Identification field in IP header set to 0 (at least for
-> UDP sockets). This confuses Cisco devices when you're doing
-> WCCP negotiations with them. The application is "Oops!" proxy server -
-> http://zipper.paco.net/~igor/oops.eng/
+ok...
+mkfs /dev/hdb1
+dd if=/dev/zero of=some-file bs=x count=x
 
-Linux does that for all sockets with DF set.  Don't ask why it is a long story;
-in summary for some reason it gets rather expensive to compute ipid so it is
-avoided as far as possible and it is not strictly needed for packets with 
-DF set because the ipid should be only needed for defragmenting.
-
-For TCP it caused serious problems with buggy VJ header compression functions
-so a 'fake id' per socket is generated. This was not done for UDP however. 
-
-For UDP you could get an IPID by turning path mtu discovery off; i.e.
-using the IP_PMTU_DISCOVERY socket options. See ip(7) for more details.
-
-In theory the hack from TCP could be ported to UDP too, but I'm not sure if it is
-worth it for WCCP (to be honest I don't know what WCCP is so I cannot assess if 
-it's important enough to add a workaround for it) 
-
-Another way would be to switch back to traditional ipid computation, as the
-'secure' ipid does not seem to be worth the effort and problems it causes.
-
-> 
-> Sorry if I'm wrong but I think this is a kernel problem because
-> sendmsg() is a system call. On RH6.2 with 2.2.19 this doesn't happen,
-
-It's strictly not a bug because the RFCs don't require an IPID for !DF.
+		What can fragment this file????
 
 
--Andi
+after that - wget http://localhost/some-file - watch vmstat, and find it's
+pushing data at around 28 MB/s
+
+then - start ten wget's retrieving different files, and watch vmstat,
+finding the maximum thoughput I can get is ~ 10 MB/s - almost one third.
+
+If I could tell the kernel, the app (tux) or whatever, to do readahead -
+say some 4 megs per file, it'd work like hell! Seeks are reduced to a
+minimum and everyone's happy again
+
+> Actually does anyone know of an easy way to find out
+> if certin files are fragmented and by how much ?
+
+I beleive there used to be a utility called 'frag' or something, to check
+the fragmentation of files
+
+roy
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 

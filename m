@@ -1,55 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289606AbSCSSbF>; Tue, 19 Mar 2002 13:31:05 -0500
+	id <S289817AbSCSSgp>; Tue, 19 Mar 2002 13:36:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289817AbSCSSau>; Tue, 19 Mar 2002 13:30:50 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:33290 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S289606AbSCSSaI>;
-	Tue, 19 Mar 2002 13:30:08 -0500
-Date: Tue, 19 Mar 2002 19:30:17 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Martin Dalecki <dalecki@evision-ventures.com>
+	id <S290120AbSCSSgf>; Tue, 19 Mar 2002 13:36:35 -0500
+Received: from [65.103.169.59] ([65.103.169.59]:22476 "EHLO smp.paktronix.com")
+	by vger.kernel.org with ESMTP id <S289817AbSCSSg1>;
+	Tue, 19 Mar 2002 13:36:27 -0500
+Date: Tue, 19 Mar 2002 12:42:09 -0600 (CST)
+From: "Matthew G. Marsh" <mgm@paktronix.com>
+X-X-Sender: mgm@netmonster.pakint.net
+To: Vinolin <vinolin@nodeinfotech.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: oops at boot with 2.5.7 and i810
-In-Reply-To: <3C976AE4.5070309@evision-ventures.com>
-Message-ID: <Pine.LNX.4.44.0203191930060.26263-100000@Expansa.sns.it>
+Subject: Re: Routing table( main_table and local_table )
+In-Reply-To: <02031914472504.00884@Vinolin>
+Message-ID: <Pine.LNX.4.43.0203191241150.29613-100000@netmonster.pakint.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-that is: __get_hash_table
+On Tue, 19 Mar 2002, Vinolin wrote:
 
-
-
-
-On Tue, 19 Mar 2002, Martin Dalecki wrote:
-
-> Luigi Genoni wrote:
-> > HI,
-> >
-> > also with 2.5.7, as with 2.5.6, I have problems at boot.
-> > I get the usual oops while initialising IDE.
-> >
-> > my ide controller is:
-> >
-> > 00:1f.1 IDE interface: Intel Corporation 82801AA IDE (rev 02) (prog-if 80
-> > [Master])
-> >         Subsystem: Intel Corporation 82801AA IDE
-> >         Flags: bus master, medium devsel, latency 0
-> >         I/O ports at 2460 [size=16]
-> >
-> > unfortunatelly, I do not have even the time to write down oops message,
-> > but eip is c0135068, but then I do not find a similar entry in system.map
-> >
-> > any hint
+> Hi All,
 >
-> The entries found there are just the starting points of functions.
-> You can therefore look up the function where th oops happens
-> by looking at the nearest lower number in System.map.
+> In linux routing, 2 tables are maintained as main_table and local_table.
+> I need to know the difference between them.
+> I'll be thankful to you if  you clarify this.
+
+The following reference on Alexey's IPROUTE2 utilities has a section on
+the routing tables and the RPDB structure.
+
+http://www.linuxgrill.com/iproute2-toc.html
+
+> Thanks,
+> Vinolin.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
-> > my rootfs in reiserFS, but i do not even reach the mount ...
->
-> That should not matter.
->
+
+--------------------------------------------------
+Matthew G. Marsh,  President
+Paktronix Systems LLC
+1506 North 59th Street
+Omaha  NE  68104
+Phone: (402) 932-7250 x101
+Email: mgm@paktronix.com
+WWW:  http://www.paktronix.com
+--------------------------------------------------
 

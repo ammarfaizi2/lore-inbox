@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318256AbSGWUdg>; Tue, 23 Jul 2002 16:33:36 -0400
+	id <S318263AbSGWUqJ>; Tue, 23 Jul 2002 16:46:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318250AbSGWUdg>; Tue, 23 Jul 2002 16:33:36 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:32128 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S318256AbSGWUdG>;
-	Tue, 23 Jul 2002 16:33:06 -0400
-Date: Tue, 23 Jul 2002 13:34:37 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Dave Jones <davej@suse.de>
-cc: Markus Pfeiffer <profmakx@profmakx.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: CPU detection broken in 2.5.27?
-In-Reply-To: <20020723223456.C16446@suse.de>
-Message-ID: <Pine.LNX.4.44.0207231333330.954-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318296AbSGWUqJ>; Tue, 23 Jul 2002 16:46:09 -0400
+Received: from p3E9D3E54.dip.t-dialin.net ([62.157.62.84]:64773 "EHLO
+	tigra.home") by vger.kernel.org with ESMTP id <S318263AbSGWUqH>;
+	Tue, 23 Jul 2002 16:46:07 -0400
+Date: Tue, 23 Jul 2002 22:51:11 +0200
+From: Alex Riesen <fork0@users.sf.net>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: PATCH: 2.4.19-rc3-ac3: init_task.c: missing braces around initializer (trivial)
+Message-ID: <20020723205111.GA12072@steel>
+Reply-To: Alex Riesen <fork0@users.sf.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch fixes the INIT_THREAD initializer.
 
-> Which stepping do you have ?
+~/compile/steel/linux-2.4.19-rc3-ac3$ make bzImage modules -s
+init_task.c:23: warning: missing braces around initializer
+init_task.c:23: warning: (near initialization for `init_task_union.task.thread.io_bitmap')
+init_task.c:23: warning: braces around scalar initializer
+init_task.c:23: warning: (near initialization for `init_task_union.task.thread.io_bitmap[1]')
 
-2.
+It's a resend, previous was for rc2-ac2, rediffed again rc3-ac3.
+What about named initializers there, btw?
 
->  > Updated patch appended. This updated version hasn't been tested, as I
->  > don't have any of those processors at my disposal...
-> 
-> -ENOAPPENDAGE.
 
-Sorry, it was in the invisible charset. 
+--- a/include/asm-i386/processor.h	Tue Jul 23 22:41:37 2002
++++ b/include/asm-i386/processor.h	Tue Jul 23 22:45:34 2002
+@@ -393,7 +393,7 @@
+ 	{ [0 ... 7] = 0 },	/* debugging registers */	\
+ 	0, 0, 0,						\
+ 	{ { 0, }, },		/* 387 state */			\
+-	0,0,0,0,0,0,						\
++	0,0,0,0,0,						\
+ 	0,{~0,}			/* io permissions */		\
+ }
+ 
 
-	-pat
 
-===== arch/i386/kernel/cpu/intel.c 1.3 vs edited =====
---- 1.3/arch/i386/kernel/cpu/intel.c	Wed Jul 10 03:46:31 2002
-+++ edited/arch/i386/kernel/cpu/intel.c	Tue Jul 23 13:25:01 2002
-@@ -232,15 +232,19 @@
- 	if (c->x86 == 6) {
- 		switch (c->x86_model) {
- 		case 5:
--			if (l2 == 0)
--				p = "Celeron (Covington)";
--			if (l2 == 256)
--				p = "Mobile Pentium II (Dixon)";
-+			if (c->x86_mask == 0) {
-+				if (l2 == 0)
-+					p = "Celeron (Covington)";
-+				else if (l2 == 256)
-+					p = "Mobile Pentium II (Dixon)";
-+			}
- 			break;
- 			
- 		case 6:
- 			if (l2 == 128)
- 				p = "Celeron (Mendocino)";
-+			else if (c->x86_mask == 0 || c->x86_mask == 5)
-+				p = "Celeron-A";
- 			break;
- 			
- 		case 8:
-@@ -348,6 +352,26 @@
- 			  [4] "Pentium MMX",
- 			  [7] "Mobile Pentium 75 - 200", 
- 			  [8] "Mobile Pentium MMX"
-+		  }
-+		},
-+		{ X86_VENDOR_INTEL,     6,
-+		  { 
-+			  [0] "Pentium Pro A-step",
-+			  [1] "Pentium Pro", 
-+			  [3] "Pentium II (Klamath)", 
-+			  [4] "Pentium II (Deschutes)", 
-+			  [5] "Pentium II (Deschutes)", 
-+			  [6] "Mobile Pentium II",
-+			  [7] "Pentium III (Katmai)", 
-+			  [8] "Pentium III (Coppermine)", 
-+			  [10] "Pentium III (Cascades)",
-+			  [11] "Pentium III (Tualatin)",
-+		  }
-+		},
-+		{ X86_VENDOR_INTEL,     15,
-+		  {
-+			  [1] "Pentium 4 (Foster)",
-+			  [5] "Pentium 4 (Foster)",
- 		  }
- 		},
- 	},
 

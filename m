@@ -1,67 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274944AbTHRU35 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 16:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274969AbTHRU35
+	id S275004AbTHRUhv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 16:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274969AbTHRUgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 16:29:57 -0400
-Received: from fep19-0.kolumbus.fi ([193.229.0.45]:36233 "EHLO
-	fep19-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S274944AbTHRU3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 16:29:53 -0400
-Date: Mon, 18 Aug 2003 23:29:51 +0300 (EEST)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [BUG] slab debug vs. L1 alignement
-In-Reply-To: <1061141263.2139.33.camel@fuzzy>
-Message-ID: <Pine.LNX.4.56.0308182306320.2361@kai.makisara.local>
-References: <1061141263.2139.33.camel@fuzzy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Aug 2003 16:36:42 -0400
+Received: from trotter.ricis.com ([64.244.234.19]:20163 "EHLO
+	trotter.ricis.com") by vger.kernel.org with ESMTP id S275003AbTHRUf0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 16:35:26 -0400
+Date: Mon, 18 Aug 2003 15:35:23 -0500
+From: lee leahu <lee@ricis.com>
+To: linux-kernel@vger.kernel.org
+Subject: ioremap.c:30 kernel panic
+Message-Id: <20030818153523.36e5d0ac.lee@ricis.com>
+Reply-To: lee@ricis.com
+Organization: RICIS, Inc.
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Policy: TAG vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Aug 2003, James Bottomley wrote:
 
-...
-> As far as I/O from user land goes (especially to tape), the users
-> usually can work out the alignment constraints and act accordingly.  I'm
-> agnostic as to whether we should fail (with an error indicating
-> alignment problems) or rebuffer causing inefficiency in throughput in
-> the misaligned case.
->
-I think we should rebuffer so that we don't fail writes and reads that
-other systems can do.
+Hello all,
 
-However, I am not so optimistic about the users aligning the buffers.
-According to the info, glibc aligns at 8 bytes or 16 bytes (64 bit
-architectures). I made st fail writes if the test
+I just upgraded my kernel to the following version 2.4.18-4gb on a dell poweredge 2450 server with adaptec raid controller (perc3 using module aacraid).
 
-#define ST_DIO_ALIGN_OK(x) \
-  (((unsigned long)(x) & (L1_CACHE_BYTES - 1)) == 0)
+I am now getting a kernel panic.  
 
-fails on the buffer address. With a P4 kernel the result was that tar to
-tape failed ;-(
+Listed below is the output from the kernel on the serial port.
 
-A solution would be to define the address test for user buffers based on
-the configuration, for example:
+please take a look and give some suggestions about what can be done to resolve this?  
+i am not currently subscribed to this mailing list however, so please be sure to cc me on your replies.
 
-#if defined(CONFIG_XXX)
-#define ST_DIO_ALIGN_OK(x) \
-  (((unsigned long)(x) & (L1_CACHE_BYTES - 1)) == 0)
-#elif defined(CONFIG_YYY)
-#define ST_DIO_ALIGN_OK(x) \
-  (((unsigned long)(x) & 7) == 0)
-#else
-#define ST_DIO_ALIGN_OK(x) (1)
-#endif
 
-Of course, it would be better if this would be defined in a more general
-place than st.c (some scsi header, dma-mapping.h, ... ?).
+
+------snip-----
+Linux version 2.4.18-4GB (root@Gollum) (gcc version 2.95.3 20010315
+(SuSE)) #1 T
+hu Jul 17 18:35:14 GMT 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000007fffe000 (usable)
+ BIOS-e820: 000000007fffe000 - 0000000080000000 (reserved)
+ BIOS-e820: 00000000fec00000 - 00000000fec10000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee10000 (reserved)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+1151MB HIGHMEM available.
+896MB LOWMEM available.
+Advanced speculative caching feature not present
+On node 0 totalpages: 524286
+zone(0): 4096 pages.
+zone(1): 225280 pages.
+zone(2): 294910 pages.
+Building zonelist for node : 0
+Kernel command line: auto BOOT_IMAGE=linux ro root=802
+BOOT_FILE=/boot/vmlinuz c
+onsole=ttyS0,9600
+Initializing CPU#0
+Detected 993.400 MHz processor.
+Console: colour dummy device 80x25
+Calibrating delay loop... 1979.18 BogoMIPS
+Memory: 2069244k/2097144k available (1408k kernel code, 27516k reserved,
+421k da
+ta, 120k init, 1179640k highmem)
+Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+Inode cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
+Buffer-cache hash table entries: 131072 (order: 7, 524288 bytes)
+Page-cache hash table entries: 524288 (order: 9, 2097152 bytes)
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: Intel Pentium III (Coppermine) stepping 06
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+Checking for popad bug... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
+mtrr: detected mtrr type: Intel
+PCI: PCI BIOS revision 2.10 entry at 0xfc73e, last bus=2
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Unknown bridge resource 0: assuming transparent
+Unknown bridge resource 1: assuming transparent
+Unknown bridge resource 2: assuming transparent
+PCI: Discovered primary peer bus 01 [IRQ]
+PCI: Using IRQ router ServerWorks [1166/0200] at 00:0f.0
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+apm: BIOS not found.
+Starting kswapd
+allocated 32 pages and 32 bhs reserved for the highmem bounces
+kinoded started
+VFS: Diskquotas version dquot_6.5.0 initialized
+ACPI: Core Subsystem version [20011018]
+ACPI: Subsystem enabled
+remap_area_pte: page already exists
+kernel BUG at ioremap.c:30!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0113e81>]    Not tainted
+EFLAGS: 00010282
+eax: 00000024   ebx: 00400000   ecx: 00000001   edx: 00000001
+esi: 00000000   edi: ffffa000   ebp: 00013000   esp: c283bf3c
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c283b000)
+Stack: c0268f60 00400000 f8813000 fc000000 00000000 00000063 c0101f90 fc3ed000
+       ffffa000 00013000 fc3ed000 c0101f8c f8c13000 c0101f8c fffffff4 037ed000
+       c0114044 f8c00000 fc000000 00400000 00000000 00000000 c02e5508 00000000
+Call Trace: [<c0114044>] [<c0105023>] [<c0106ff8>]
+
+Code: 0f 0b 1e 00 53 8f 26 c0 83 c4 04 8b 44 24 18 25 00 f0 ff ff
+ <0>Kernel panic: Attempted to kill init!
+------snip-----
+
 
 -- 
-Kai
+Lee Leahu                           RICIS, Inc.
+Internet Technology Specialist      866-RICIS-77 Toll Free Voice (US)
+lee@ricis.com                       708-444-2690 Voice (International)
+http://www.ricis.com/               866-99-RICIS Toll Free Fax (US)
+                                    708-444-2697 Fax (International)
+
+RICIS, Inc. is a member of the Public Safety Alliance Group
+
+This email and any attachments that are included in it have been scanned
+for malicious or inappropriate content and are believed to be safe.

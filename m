@@ -1,30 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283211AbRK2MsI>; Thu, 29 Nov 2001 07:48:08 -0500
+	id <S283206AbRK2MsI>; Thu, 29 Nov 2001 07:48:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283206AbRK2MsA>; Thu, 29 Nov 2001 07:48:00 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:30403 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S283208AbRK2Mru>;
-	Thu, 29 Nov 2001 07:47:50 -0500
-Message-ID: <3C062E3B.70CEC5D4@mailnet.de>
-Date: Thu, 29 Nov 2001 13:46:51 +0100
-From: pil@mailnet.de
-X-Mailer: Mozilla 4.79C-pil. [en] (X11; U; Linux 2.4.16 i586)
-X-Accept-Language: en, en-US, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: About 2.4.16
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S283210AbRK2Mr6>; Thu, 29 Nov 2001 07:47:58 -0500
+Received: from h217n3fls22o974.telia.com ([213.64.105.217]:45035 "EHLO
+	milou.dyndns.org") by vger.kernel.org with ESMTP id <S283206AbRK2Mrv>;
+	Thu, 29 Nov 2001 07:47:51 -0500
+Message-Id: <200111291247.fATClEX23157@milou.dyndns.org>
+To: "gw boynton" <audio@crystal.cirrus.com>, linux-kernel@vger.kernel.org
+Subject: cs4281 dead after BIOS upgrade
+From: Anders Eriksson <aer-list@mailandnews.com>
+Date: Thu, 29 Nov 2001 13:47:13 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Congratulations,
 
-after 2.4.10 the next usable linux.
-So it wouldn't be unwise to do it 6 times slower IMHO.
+Hi,
+I just upgraded the BIOS on my Dell L400 laptop from rev A01 to A03. Now the cs4281 module refuses to load. I used to load perfectly.
 
-Kind regards
+Nov 29 13:19:40 devil kernel: cs4281: version v1.13.32 time 17:15:07 Nov 28 2001
+Nov 29 13:19:40 devil kernel: PCI: Found IRQ 10 for device 00:08.0
+Nov 29 13:19:41 devil kernel: cs4281: DLLRDY failed!
+Nov 29 13:19:41 devil kernel: cs4281: cs4281_hw_init() failed. Skipping part.
+Nov 29 13:19:41 devil kernel: cs4281: probe()- no device allocated
 
-Wolfgang Pichler
+Any suggestions as to how to track down the offending changes?
 
+/Anders

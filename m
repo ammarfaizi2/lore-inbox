@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264929AbSJVWO5>; Tue, 22 Oct 2002 18:14:57 -0400
+	id <S264939AbSJVWRL>; Tue, 22 Oct 2002 18:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264935AbSJVWO5>; Tue, 22 Oct 2002 18:14:57 -0400
-Received: from adsl-216-103-111-100.dsl.snfc21.pacbell.net ([216.103.111.100]:32132
-	"EHLO www.piet.net") by vger.kernel.org with ESMTP
-	id <S264929AbSJVWO4> convert rfc822-to-8bit; Tue, 22 Oct 2002 18:14:56 -0400
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
-From: Piet Delaney <piet@www.piet.net>
-To: Keith Owens <kaos@sgi.com>
-Cc: Christoph Hellwig <hch@sgi.com>, "Matt D. Robinson" <yakker@aparity.com>,
-       linux-kernel@vger.kernel.org, steiner@sgi.com,
-       jeremy@classic.engr.sgi.com
-In-Reply-To: <8948.1035287855@ocs3.intra.ocs.com.au>
-References: <8948.1035287855@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 22 Oct 2002 15:21:02 -0700
-Message-Id: <1035325262.6847.23.camel@www.piet.net>
+	id <S264944AbSJVWRL>; Tue, 22 Oct 2002 18:17:11 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:21921 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S264939AbSJVWRK>;
+	Tue, 22 Oct 2002 18:17:10 -0400
+Date: Wed, 23 Oct 2002 00:23:19 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: vm scenario tool / mincore(2) functionality for regular pages?
+Message-ID: <20021022222319.GA18272@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, Ingo Molnar <mingo@elte.hu>
+References: <20021022184313.GA12081@outpost.ds9a.nl> <3DB5BBFC.479BE5DD@digeo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB5BBFC.479BE5DD@digeo.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-22 at 04:57, Keith Owens wrote:
-> On Tue, 22 Oct 2002 14:47:45 -0400, 
-> Christoph Hellwig <hch@sgi.com> wrote:
-> >On Mon, Oct 21, 2002 at 03:06:59PM -0700, Piet Delaney wrote:
-> >> > Using volatile is almost always a bug.  USe atomic variables
-> >> > or bitops instead.
-> >> 
-> >> Yea, volatile is just being used to implement a simple atomic variable. 
-> >
-> >It just isn't guaranteed to be atomic.. Use atomic_t (for actual
-> >values) or unsigned long + set_bit/test_bit/ænd friends for bitmasks.
-> 
-> atomic_t is problematic for debugging code which can be invoked by an
-> error from any state.  On parisc, atomic_add is implemented using load
-> and clear on a hash of the lock address, so it is possible to get
-> collisions on locks when doing atomic ops from debugging code.
-> Especially when the parisc code in 2.5.44 has exactly one hash table
-> entry.  kdb has the same problem and tries to avoid atomic_t for the
-> same reason, the current state is unreliable.
-> 
-> The dump_in_progress flag is set in one place and cleared in another.
-> All the other uses of dump_in_progress are testing its state.  If
-> atomic_t cannot be used safely, then it must be defined as volatile.
+On Tue, Oct 22, 2002 at 01:58:36PM -0700, Andrew Morton wrote:
 
-atomic_read(v) and atomic_set(v,i) seem to be safe for most platforms.
+> mincore needs to be taught to walk pagetables and to look up
+> stuff in swapcache.
 
-Looks like your right, for parisc even these functions are using a
-spinlock. Is it really necessary for parisc to use spinlocks? Even
-Solaris doesn't use spinlocks for atomic set and reads of atomic
-variables.
+As mincore appears to be entirely unstandardized, we can get away with
+extending its functionality.
 
--piet
+> Also it currently assumes that vma->vm_file is mapped linearly,
+> so it will return incorrect results with Ingo's nonlinear mapping
+> extensions.
+
+It also appears to fail if the memory range it is offered lives in multiple
+vmas. I'm unsure if this is possible, but I recall reading about mozilla
+needing 'vma merging', which seems to imply that a process can have more of
+them.
+
+> But if we were to use Ingo's "file pte's" for all mmappings, mincore
+> only needs to do the pte->pagecache lookup, so it can lose the
+> "vma is linear" arithmetic.
+
+The pagetable walking and swapcache lookup is orthogonal to this? 
+
+By the way, version 0.1 which is mildly functional is on
+http://ds9a.nl/vmloader-0.1.tar.gz , it currently does mincore only for
+mmapped files. Use 'mkfile name 100' to create a 100mb file, 'map name' to
+map it.
+
+It is interesting to note that 2.4.20-pre9 allows me to allocate 250
+megabytes and touch it sequentially without dire behaviour on a 186 megabyte
+(or so) machine. RSS is a reasonable 153MB afterwards.
+
+Reading that 250 megabytes from the start again however causes massive
+swapping and takes way longer than the initial touching. Probably some kind
+of 'use once' heuristic that is suddenly disabled.
+
+Regards,
+
+bert
 
 -- 
-piet@www.piet.net
-
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,30 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S131982AbRC1QIW>; Wed, 28 Mar 2001 11:08:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131990AbRC1QIM>; Wed, 28 Mar 2001 11:08:12 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8970 "EHLO www.linux.org.uk") by vger.kernel.org with ESMTP id <S131982AbRC1QID>; Wed, 28 Mar 2001 11:08:03 -0500
-From: rmk@arm.linux.org.uk
-Message-Id: <200103281554.QAA01342@raistlin.arm.linux.org.uk>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132006AbRC1QUc>; Wed, 28 Mar 2001 11:20:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S131976AbRC1QUO>; Wed, 28 Mar 2001 11:20:14 -0500
+Received: from geos.coastside.net ([207.213.212.4]:49577 "EHLO geos.coastside.net") by vger.kernel.org with ESMTP id <S131988AbRC1QT5>; Wed, 28 Mar 2001 11:19:57 -0500
+Mime-Version: 1.0
+Message-Id: <p05100802b6e7be93e37d@[207.213.214.34]>
+In-Reply-To: <20010329013602.I10910@higherplane.net>
+References: <Pine.LNX.4.30.0103280225460.8046-100000@coredump.sh0n.net> <01032806093901.11349@tabby> <20010328151008.D8235@dev.sportingbet.com> <20010329013602.I10910@higherplane.net>
+Date: Wed, 28 Mar 2001 08:18:10 -0800
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
 Subject: Re: Disturbing news..
-To: pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard)
-Date: Wed, 28 Mar 2001 16:54:00 +0100 (BST)
-Cc: nwahofm@mi.uni-erlangen.de, spstarr@sh0n.net (Shawn Starr), linux-kernel@vger.kernel.org
-In-Reply-To: <200103281551.JAA49453@tomcat.admin.navo.hpc.mil> from "Jesse Pollard" at Mar 28, 2001 09:51:39 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard writes:
-> Absolutely true. The only help the checksumming etc stuff is good for is
-> detecting the fact afterward by external comparison.
+ john slee <indigoid@higherplane.net> says:
 
-Don't we already have that to some extent?  rpm -ya or rpm -y <package name>
-on a RedHat system?  I'm sure that there is a Debian equivalent.
+>On Wed, Mar 28, 2001 at 03:10:08PM +0100, Sean Hunter wrote:
+>> On Wed, Mar 28, 2001 at 06:08:15AM -0600, Jesse Pollard wrote:
+>> > Sure - very simple. If the execute bit is set on a file, don't allow
+>> > ANY write to the file. This does modify the permission bits slightly
+>> > but I don't think it is an unreasonable thing to have.
+>> >
+>>
+>> Are we not then in the somewhat zen-like state of having an "rm" which can't
+>> "rm" itself without needing to be made non-executable so that it can't execute?
+>
+>aiiiieee, my head hurts now, thanks :(
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+It shouldn't. rm is not prevented from removing an unwriteable file (though it complains by default). Directory permissions control operations on links.
 
+-- 
+/Jonathan Lundell.

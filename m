@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263576AbUEKUDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263589AbUEKUEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263576AbUEKUDU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 16:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbUEKUDU
+	id S263589AbUEKUEj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 16:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUEKUEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 16:03:20 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:37064 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S263576AbUEKUDT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 16:03:19 -0400
-Message-ID: <40A13127.80900@keyaccess.nl>
-Date: Tue, 11 May 2004 22:01:43 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6 IDE drive errors at boot time
-References: <200405112110.49192.l_allegrucci@despammed.com>
-In-Reply-To: <200405112110.49192.l_allegrucci@despammed.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Tue, 11 May 2004 16:04:39 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:26892 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263588AbUEKUEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 16:04:32 -0400
+Date: Tue, 11 May 2004 21:04:29 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] SCSI updates for 2.6.6
+Message-ID: <20040511210429.A19915@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0405112125150.3836-100000@poirot.grange> <1084305274.2570.12.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1084305274.2570.12.camel@mulgrave>; from James.Bottomley@steeleye.com on Tue, May 11, 2004 at 02:54:33PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lorenzo Allegrucci wrote:
+On Tue, May 11, 2004 at 02:54:33PM -0500, James Bottomley wrote:
+> On Tue, 2004-05-11 at 14:29, Guennadi Liakhovetski wrote:
+> > I hoped the tmscsim 64-bit bugfix would somehow find its way into the
+> > mainstream after 2.6. Does it still have a chance?
+> 
+> The DC390 is a maintained driver:
 
-> hda: Maxtor 6Y060L0, ATA DISK drive
+Well, I've pinged Kurt as few times on the driver, as did Guennadi.  He
+never responded although he's quite active on linux-scsi on other issues..
 
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: Write Cache FAILED Flushing!
-
-Yup, known, is being worked on by Bartlomiej Zolnierkiewicz/
-
-Rene.

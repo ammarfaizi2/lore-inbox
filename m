@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267661AbUJGRhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUJGRga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267661AbUJGRhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 13:37:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267585AbUJGRKa
+	id S267602AbUJGRga (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 13:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266308AbUJGRcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 13:10:30 -0400
-Received: from us1.server44secre01.de ([80.190.243.163]:63212 "EHLO
-	us1.server44secre01.de") by vger.kernel.org with ESMTP
-	id S267522AbUJGQym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 12:54:42 -0400
-Date: Thu, 7 Oct 2004 18:54:10 +0200
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: video_usercopy() enforces change of VideoText IOCTLs since 2.6.8
-Message-ID: <20041007165410.GA2306@t-online.de>
+	Thu, 7 Oct 2004 13:32:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34723 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267497AbUJGRMN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 13:12:13 -0400
+Date: Thu, 7 Oct 2004 12:15:18 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4] 0-order allocation failed
+Message-ID: <20041007151518.GA14614@logos.cnet>
+References: <200410071318.21091.mbuesch@freenet.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: linux@MichaelGeng.de (Michael Geng)
+In-Reply-To: <200410071318.21091.mbuesch@freenet.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Gerd,
+On Thu, Oct 07, 2004 at 01:18:13PM +0200, Michael Buesch wrote:
+> Hi all,
+> 
+> I'm running 2.4.28 bk snapshot of 2004.09.03
+> The machine has an uptime of 7 days, 23:46 now.
+> 
+> I was running several bittorrent clients inside of
+> a screen session. Suddenly they all died (including the
+> screen session).
+> dmesg sayed this:
+> 
+> __alloc_pages: 0-order allocation failed (gfp=0x1f0/0)
+> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> VM: killing process python
+> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> __alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+> VM: killing process screen
+> 
+> I already got this with kernel 2.4.27 vanilla after a
+> higher amount of uptime (I think it was over 10 days).
+> This was exactly the reason I updated to bk snapshot.
+> 
+> What can be the reason for this? Is it OOM? (I can't
+> really believe it is).
 
-from kernel 2.6.7 to 2.6.8 function video_usercopy() in 
-videodev.c was modified in a way that IOCTLs which do not
-use the _IO macros defined in linux/ioctl.h will get their
-driver's ioctl function called with arg = 0.
+Can you check how much swap space is there available when
+the OOM killer trigger? I bet this is the case.
 
-This means that the videotext drivers (saa5246a and saa5249)
-only produce segmentation faults in kernel version >= 2.6.8.
+If its not, we have a problem.
 
-Shall we change the IOCTL definitions in include/linux/videotext.h?
-This would mean that existing userspace programs will have to be 
-recompiled in order to work with the latest kernel version.
-
-Nevertheless I suggest changing these IOCTLs to the new method. 
-I will work out a patch if you agree.
-
-Below is the change I'm talking about:
-
-int
-video_usercopy(struct inode *inode, struct file *file,
-	       unsigned int cmd, unsigned long arg,
-	       int (*func)(struct inode *inode, struct file *file,
-			   unsigned int cmd, void *arg))
-{
-	char	sbuf[128];
-	void    *mbuf = NULL;
-	void	*parg = NULL;
-	int	err  = -EINVAL;
-
-	cmd = video_fix_command(cmd);
-
-	/*  Copy arguments into temp kernel buffer  */
-	switch (_IOC_DIR(cmd)) {
-	case _IOC_NONE:
-===> 2.6.7:
-		parg = (void *)arg;
-===> 2.6.8:
-		parg = NULL;
-        ...
-
-	/* call driver */
-	err = func(inode, file, cmd, parg);
-
-Bye,
-Michael
+> Is it a kernel memory leak?
+> 
+> With 2.4.26 I never got these errors. And I ran uptimes
+> up to 50 days.

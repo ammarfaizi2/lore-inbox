@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271813AbRHWMDq>; Thu, 23 Aug 2001 08:03:46 -0400
+	id <S272229AbRHWMKp>; Thu, 23 Aug 2001 08:10:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272241AbRHWMDg>; Thu, 23 Aug 2001 08:03:36 -0400
-Received: from pD9508DD0.dip.t-dialin.net ([217.80.141.208]:9220 "EHLO
-	neon.hh59.org") by vger.kernel.org with ESMTP id <S271813AbRHWMDS>;
-	Thu, 23 Aug 2001 08:03:18 -0400
-Date: Thu, 23 Aug 2001 14:04:15 +0200 (CEST)
-From: Axel <axel@rayfun.org>
-X-X-Sender: <axel@neon.hh59.org>
-To: Kernel Ml <linux-kernel@vger.kernel.org>, Realtek Ml <realtek@scyld.com>
-Subject: Realtek 8139C: NETDEV WATCHDOG transmit timeout
-Message-ID: <Pine.LNX.4.33.0108231355260.15344-100000@neon.hh59.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272244AbRHWMKf>; Thu, 23 Aug 2001 08:10:35 -0400
+Received: from pk.nord-com.net ([213.168.202.34]:5369 "EHLO pk.nord-com.de")
+	by vger.kernel.org with ESMTP id <S272229AbRHWMKU>;
+	Thu, 23 Aug 2001 08:10:20 -0400
+Date: Thu, 23 Aug 2001 14:05:55 +0200
+From: Roland Bauerschmidt <rb@debian.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
+Message-ID: <20010823140555.A1077@newton.bauerschmidt.eu.org>
+Mail-Followup-To: Roland Bauerschmidt <rb@debian.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010822030807.N120@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010822030807.N120@pervalidus>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
+Fr?d?ric L. W. Meunier wrote:
+> Am I the only one afraid that the Python requirement can turn
+> into a problem ? You can develop anything on Linux without
+> Python. I'd compare Python to Tcl - you only install it to
+> waste space, develop, or run applications that use it. Perl
+> is very different. It's required by GNU Automake and more.
+> 
+> I'm really surprised by the fact that nobody noticed what a
+> nightmare 2.6 will be with such a requirement. You can't
+> expect everybody to install something that's of no use for
+> most.
 
-again I get those messages, that I had as well with older 8139too in
-2.4. I thought that network problem was solved with the new 8139too? I'm
-running kernel 2.4.8.
-It's connected to an ADSL Modem, so my connection gets disconnected due to
-the transmit timeouts.. it doesnt need so much traffic to cause it. just a
-little network traffic and there it goes..
+Well, I don't know the details of the plans, but IMHO is a dependency to
+python for configuring the kernel not unreasonable. Nowadays a lot of
+people don't even compile their kernels themselves, and thus not
+_everybody_ is required to have python installed. When using make
+menuconfig you are also required to have curses development files
+installed even if you don't need them for anything else. Python also is
+of (fast) growing popularity, and for example in Debian (I don't know
+about other distributions, but I suppose it's similar there) Python is
+Priority: standard (whereas libncurses5-dev surely isn't). 
 
-Axel
+You my 0.02$, Roland
 
-Aug 23 13:40:31 bello kernel: NETDEV WATCHDOG: eth1: transmit timed out
-Aug 23 13:40:31 bello kernel: eth1: Tx queue start entry 191  dirty entry
-187.
-Aug 23 13:40:31 bello kernel: eth1:  Tx descriptor 0 is 00002000.
-Aug 23 13:40:31 bello kernel: eth1:  Tx descriptor 1 is 00002000.
-Aug 23 13:40:31 bello kernel: eth1:  Tx descriptor 2 is 00002000.
-Aug 23 13:40:31 bello kernel: eth1:  Tx descriptor 3 is 00002000. (queue
-head)
-Aug 23 13:40:31 bello kernel: eth1: Setting half-duplex based on
-auto-negotiated
-
-rtl8139-diag.c:v1.01 4/30/99 Donald Becker (becker@cesdis.gsfc.nasa.gov)
-Index #1: Found a RealTek RTL8139 adapter at 0xf800.
-RealTek chip registers at 0xf800
- 0x000: 26843000 0000470b 80040000 40000000 9008a054 9008a03c 9008a054
-9008a054
- 0x020: 03096000 03096600 03096c00 03097200 02f80000 0d0a0000 28702860
-0000c07f
- 0x040: 74000600 0e00f78e f851a9c5 00000000 000d10c6 00000000 008cd108
-00100000
- 0x060: 1000f00f 01e1782d 00000000 00000000 00000005 000f77c0 b0f243b9
-7a36d743.  No interrupt sources are pending.
- The chip configuration is 0x10 0x0d, MII half-duplex mode.
- The RTL8139 does not use a MII transceiver.
- It does have internal MII-compatible registers:
-   Basic mode control register   0x782d.
-   Basic mode status register    0x1000.
-   Autonegotiation Advertisement 0x01e1.
-   Link Partner Ability register 0x0000.
-   Autonegotiation expansion     0x0000.
-   Disconnects                   0x0000.
-   False carrier sense counter   0x0000.
-   NWay test register            0x0005.
-   Receive frame error count     0x0000.
-
-
+-- 
+Roland Bauerschmidt

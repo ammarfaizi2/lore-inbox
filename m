@@ -1,84 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286301AbRLTRyR>; Thu, 20 Dec 2001 12:54:17 -0500
+	id <S286310AbRLTSHk>; Thu, 20 Dec 2001 13:07:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286309AbRLTRyH>; Thu, 20 Dec 2001 12:54:07 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:20390 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S286301AbRLTRxw>; Thu, 20 Dec 2001 12:53:52 -0500
-Date: Thu, 20 Dec 2001 17:55:26 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj4
-Message-ID: <20011220175526.A22717@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S286311AbRLTSHR>; Thu, 20 Dec 2001 13:07:17 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:5555 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S286310AbRLTSHQ>; Thu, 20 Dec 2001 13:07:16 -0500
+Message-Id: <200112201721.KAA05522@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <scole@lanl.gov>
+Reply-To: scole@lanl.gov
+To: esr@thyrsus.com
+Subject: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+Date: Thu, 20 Dec 2001 11:02:28 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a resync patch this time. All is quiet, all is calm..
+Greetings all,
 
-Patch is available from:
-http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj4.diff.bz2
+I see that in the very latest Configure.help version, 2.76, available at http://www.tuxedo.org/~esr/cml2/
+Eric has decided to follow the following standard:
+IEC 60027-2, Second edition, 2000-11, Letter symbols to be used in electrical technology - Part 2: Telecommunications and electronics.
+and has changed all the abbreviations for Kilobyte (KB) to KiB, Megabyte (MB) to MiB, etc, etc.
 
-Some of these fixes still haven't found their way back to Marcelo yet
-but should show up in 2.4.17-rc3 / 2.4.18pre1 with any luck.
+Now, granted that this is the "standard", should there be some discussion related to this
+change, or is everyone comfortable with this?  It certainly made me do a double take.
 
+Here is a snippet from the diff between versions 2.75 and 2.76 of Configure.help:
 
-2.5.1-dj4
-o   Merge with 2.4.17-rc2
-    | Most was already here, more or less just fixes for
-	| reiserfs & netfilter, and some VM changes.
+@@ -344,8 +344,8 @@
+   If you are compiling a kernel which will never run on a machine with
+   more than 960 megabytes of total physical RAM, answer "off" here
+   (default choice and suitable for most users). This will result in a
+-  "3GB/1GB" split: 3GB are mapped so that each process sees a 3GB
+-  virtual memory space and the remaining part of the 4GB virtual memory
++  "3GiB/1GiB" split: 3GiB are mapped so that each process sees a 3GiB
++  virtual memory space and the remaining part of the 4GiB virtual memory
+   space is used by the kernel to permanently map as much physical memory
+   as possible.
 
-2.5.1-dj3
-o   Drop Manfreds multithread coredump changes		(Me)
-    | They caused ltp waitpid05 regression on 2.5
-    | (Same patch is fine for 2.4)
-o   Intermezzo compile fix.				(Chris Wright)
-o   Fix ymfpci & hisax merge errors.			(Me)
-o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
-o   Make hpfs work again.				(Al Viro)
-o   Alpha Jensen compile fixes.				(Ronald Lembcke)
-o   Make NCR5380 compile non modularly.			(Erik Andersen)
-
-
-2.5.1-dj2
-o   bio fixes for qlogicfas.			(brett@bad-sports.com)
-o   Correct x86 CPU helptext.			(Me)
-o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
-o   Use better ide-floppy fixes.		(Jens Axboe)
-o   Make NFS 'fsx' proof.			(Trond Mykelbust)
-    | 2 races & 4 bugs, hopefully this is all.
-o   devfs update				(Richard Gooch)
-o   Backout early CPU init, needs more work.	(Me)
-    | This should fix several strange reports.
-o   drop new POSIX kill semantics for now	(Me)
-
-
-2.5.1-dj1
-o   Resync with 2.5.1
-    | drop reiserfs changes. 2.4's look to be more complete.
-o   Fix potential sysvfs oops.				(Christoph Hellwig)
-o   Loopback driver deadlock fix.			(Andrea Arcangeli)
-o   __devexit cleanups in drivers/net/			(Daniel Chen,
-    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
-o   Configure.help updates				(Eric S. Raymond)
-o   Make reiserfs compile again.				(Me)
-o   bio changes for ide floppy					(Me)
-    | handle with care, compiles, but is unfinished.
-o   Make x86 identify_cpu() happen earlier			(Me)
-    | PPro errata workaround & APIC setup got a little
-    | cleaner as a result.
-o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
-o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
-o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
-    atyfb & fbmem.
-
-
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+Steven

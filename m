@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319085AbSIJJHf>; Tue, 10 Sep 2002 05:07:35 -0400
+	id <S319083AbSIJJJ4>; Tue, 10 Sep 2002 05:09:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319086AbSIJJHe>; Tue, 10 Sep 2002 05:07:34 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64523 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319085AbSIJJHe>; Tue, 10 Sep 2002 05:07:34 -0400
-Date: Tue, 10 Sep 2002 10:12:15 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disabled kernel.org accounts
-Message-ID: <20020910101215.A11778@flint.arm.linux.org.uk>
-References: <18629.1031548515@kao2.melbourne.sgi.com> <alhvk4$obf$1@forge.intermeta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <alhvk4$obf$1@forge.intermeta.de>; from hps@intermeta.de on Mon, Sep 09, 2002 at 11:11:00AM +0000
+	id <S319084AbSIJJJ4>; Tue, 10 Sep 2002 05:09:56 -0400
+Received: from dsl-213-023-021-153.arcor-ip.net ([213.23.21.153]:21705 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319083AbSIJJJz>;
+	Tue, 10 Sep 2002 05:09:55 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Subject: Re: Question about pseudo filesystems
+Date: Tue, 10 Sep 2002 11:15:54 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Alexander Viro <viro@math.psu.edu>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+References: <20020907192736.A22492@kushida.apsleyroad.org> <E17oUnq-0006tg-00@starship> <20020910014459.B5875@kushida.apsleyroad.org>
+In-Reply-To: <20020910014459.B5875@kushida.apsleyroad.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17oh7j-00079w-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 09, 2002 at 11:11:00AM +0000, Henning P. Schmiedehausen wrote:
-> Well, the reason for this are missing NS records:
+On Tuesday 10 September 2002 02:44, Jamie Lokier wrote:
+> Typically, your module's resources are protected by a lock or so.
+> cleanup_module() could take this lock, check any private reference
+> counts, and (because it has the lock) decide whether to proceed with
+> unregistering the module's resources.
 
-Works fine for me.
+Actually, there did turn out to be a problem with the code I showed
+yesterday, resulting from the fact that cleanup_module wants to be able to 
+sleep.  Because of this, there is no good way for module.c to protect 
+module->count from try_inc_mod_count, not without changing the spinlock in 
+try_inc_mod_count into a semaphore, which isn't nice either, because 
+try_inc_mod_count is taken under at least one other spinlock in super.c.
 
-> So they're a really, really crappy ISP. Maybe they're cheap so
-> everyone uses them...
+There's a simple solution though: examine the module->count under the same 
+spinlock as try_inc_mod_count, which is what sys_delete_module does.  We just 
+encapsulate that check in a handy wrapper and define it as part of the 
+try_inc_mod_count interface.  At this point the thing is generalized to the 
+point where the module count isn't used at all by module.c, so the same 
+interface will also accomodate the still-under-construction magic wait for 
+quiescent state(), needed for modules that don't fit the mod_count model.
 
-Actually, its a result of new bind9 behaviour.  Previous versions of
-bind used the glue records from the upper level DNS servers.  bind9
-no longer trusts this glue information and will go looking for the
-records in the right zone.
-
-I've been bitten by this when trying to mail someone (their domain
-had the NS records but not the corresponding A records for their name
-servers.)  BTinternet have also been bitten by this when they upgraded
-to bind9.  Welcome to bind9. 8)
-
-And the annoying thing is that people running the domains with the
-problems will normally point you at some web based DNS checker that
-only tests for half the things it should do, and they completely
-believe its output as being 100% correct.  The typical response you
-get is "It passes www.xyz.com's DNS tests, its your problem."
-
-Its in the same problem space as getting everyone to accept ICMP
-fragmentation needed messages, or getting ECN to work.
+The nice thing is, hardly any work is required to accomplish this, though 
+it's hard to look at module.c for more than a few seconds without seeing more 
+things that want cleaning up.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Daniel

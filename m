@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264958AbRGEMLm>; Thu, 5 Jul 2001 08:11:42 -0400
+	id <S264959AbRGEMNm>; Thu, 5 Jul 2001 08:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264973AbRGEMLd>; Thu, 5 Jul 2001 08:11:33 -0400
-Received: from gherkin.sa.wlk.com ([192.158.254.49]:516 "HELO
-	gherkin.sa.wlk.com") by vger.kernel.org with SMTP
-	id <S264958AbRGEMLW>; Thu, 5 Jul 2001 08:11:22 -0400
-Message-Id: <m15I7yD-0005khC@gherkin.sa.wlk.com>
-From: rct@gherkin.sa.wlk.com (Bob_Tracy)
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-In-Reply-To: <E15I79i-0002NI-00@the-village.bc.nu> "from Alan Cox at Jul 5, 2001
- 12:18:46 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Thu, 5 Jul 2001 07:10:57 -0500 (CDT)
-CC: Mircea Damian <dmircea@kappa.ro>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S264968AbRGEMNc>; Thu, 5 Jul 2001 08:13:32 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:4996 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S264959AbRGEMNQ>; Thu, 5 Jul 2001 08:13:16 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Peter Zaitsev <pz@spylog.ru>
+Date: Thu, 5 Jul 2001 22:13:00 +1000 (EST)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <15172.22988.643481.421716@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is  Swapping on software RAID1 possible  in linux 2.4 ?
+In-Reply-To: message from Peter Zaitsev on Thursday July 5
+In-Reply-To: <1011478953412.20010705152412@spylog.ru>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > This bug hits me since 2.4.6-pre5 but nobody answered to my emails... The
-> > code line is identical (and the softirq.c:206 ofc).
-> > 
-> > Anyone, any idea?
+On Thursday July 5, pz@spylog.ru wrote:
+> Hello linux-kernel,
 > 
-> None at all. There are odd items in your config - like khttpd which if 
-> involved might explain why there are not more reports.
+>   Does anyone have information on this subject ?  I have the constant
+>   failures with system swapping on RAID1, I just wanted to be shure
+>   this may be the problem or not.   It works without any problems with
+>   2.2 kernel.
 
-Add me to the list :-(.  Like the other folks reporting the softirq.c:206
-panic problem, I've got a Cyrix.  Mine's a MII 300 (233 MHz).  Works fine
-with 2.4.5 and prior kernels.  Didn't try any of the pre-2.4.6 or -ac
-kernels.  Oops report available on request, but it's similar if not
-identical to one I saw posted earlier.
+It certainly should work in 2.4.  What sort of "constant failures" are
+you experiencing?
 
---Bob Tracy
-rct@frus.com
+Though it does appear to work in 2.2, there is a possibility of data
+corruption if you swap onto a raid1 array that is resyncing.  This
+possibility does not exist in 2.4.
+
+NeilBrown

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129784AbQLOADf>; Thu, 14 Dec 2000 19:03:35 -0500
+	id <S132910AbQLOAGF>; Thu, 14 Dec 2000 19:06:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131370AbQLOAD0>; Thu, 14 Dec 2000 19:03:26 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14087 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129784AbQLOADQ>; Thu, 14 Dec 2000 19:03:16 -0500
+	id <S131370AbQLOAFz>; Thu, 14 Dec 2000 19:05:55 -0500
+Received: from otitsun.oulu.fi ([130.231.48.144]:16626 "EHLO otitsun.oulu.fi")
+	by vger.kernel.org with ESMTP id <S132910AbQLOAFj>;
+	Thu, 14 Dec 2000 19:05:39 -0500
+Date: Fri, 15 Dec 2000 01:34:56 +0200
+From: Tuomas Haarala <tuoppi@otitsun.oulu.fi>
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: test13-pre1 changelog
-Date: 14 Dec 2000 15:31:54 -0800
-Organization: Transmeta Corporation
-Message-ID: <91bl9a$cc4$1@penguin.transmeta.com>
-In-Reply-To: <3A392852.B9B64C7F@the-rileys.net>
+Subject: Re: NFS v2 attribute problem with 2.2.18?
+Message-ID: <20001215013456.A25278@otitsun.oulu.fi>
+In-Reply-To: <200012121103.MAA01248@isis.helios.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200012121103.MAA01248@isis.helios.de>; from jum@helios.de on Tue, Dec 12, 2000 at 12:03:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A392852.B9B64C7F@the-rileys.net>,
-David Riley  <oscar@the-rileys.net> wrote:
->Did I miss a post from Linus on the list, or is there no posted
->changelog for test13-pre1?  Nothing's posted at kernel.org yet, either.
+On Tue, Dec 12, 2000 at 12:03:35PM +0100, Jens-Uwe Mager wrote:
+> ramses$ /bin/mkdir yyy; /bin/touch yyy/xxx 
+> /bin/touch: yyy/xxx: Permission denied
 
-The test13-pre1 changes are almost exclusively a radical Makefile
-cleanup, and it's been discussed mainly on the kbuild mailing list.  It
-doesn't actually contain any actual _code_ changes apart from some very
-minor details (one of which was the "swapoff()" fix, but I doubt
-"swapoff()" not working is all that big of an issue)
+	I've had similar problems with previous kernels, altough not at
+	the same situation.
 
-I'm hoping that most of the fall-out from switching over exclusively to
-the new-style Makefiles will be over in a day or two, at which point
-I'll make a pre2 that is worth announcing.
+	If I try to touch a file which is on NFS mounted directory,
+	I get "Permission denied" despite group I belong to has full
+	access to this file. I can edit and remove the file with no
+	problems, but touch doesn't work.
 
-Especially if we get that netfilter problem sorted out (see the other
-thread about the IP fragmentation issues associated with that one), and
-if we figure out why apparently some people have trouble with external
-modules (at least one person has trouble with loading alsa modules). 
+	This is rather tricky situation, as compiling code gets quite
+	difficult for this group, as only the owned can touch the file
+	despite the effective permissions on file (and previous directories).
 
-		Linus
+-Tuoppi-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

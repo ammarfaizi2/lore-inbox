@@ -1,160 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbUEJXy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUEKAHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbUEJXy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 19:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUEJXy2
+	id S261779AbUEKAHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 20:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbUEKAHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 19:54:28 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39912 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261752AbUEJXxq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 19:53:46 -0400
-Date: Tue, 11 May 2004 01:53:43 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Oliver Feiler <kiza@gmx.net>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: [2.4 patch] Re: CONFIG_ATALK cannot be compiled as a module
-Message-ID: <20040510235343.GD18093@fs.tum.de>
+	Mon, 10 May 2004 20:07:09 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:17291 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261779AbUEKAHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 20:07:00 -0400
+Date: Mon, 10 May 2004 17:05:11 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: akpm@osdl.org
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+Subject: [PATCH] PPC32: Fix __flush_dcache_icache_phys() for Book E
+Message-ID: <20040510170511.A26495@home.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(2.4.24)
-Reply-To: 
-In-Reply-To: <200404242155.06101.kiza@gmx.net>
-
-On Sat, Apr 24, 2004 at 09:55:06PM +0200, Oliver Feiler wrote:
-> Hi Adrian,
-> 
-> On Saturday 24 April 2004 20:23, Adrian Bunk wrote:
-> 
-> > > when selecting CONFIG_ATALK as a module the symbols register_snap_client
-> > > and unregister_snap_client will be unresolved. As I understand it they
-> > > are in net/802/psnap.c which does not get compiled when Appletalk is
-> > > selected as a module. Compiling into the kernel works fine.
-> > >...
-> >
-> > thanks for this report and sorry for the late answer.
-> >
-> > I wasn't able to reproduce your problem.
-> >
-> > Please send your .config.
-> 
-> Attached. Upgraded the server to 2.4.26 in the meantime and threw out 
-> appletalk again since we didn't need it in the end.
-> 
-> A quick test with compiling it as a module produced the same unresolved 
-> symbols. Unless I missed another config option to set?
-> 
-> I don't need to set CONFIG_DEV_APPLETALK as well, right? Regardless, just 
-> tried, same effect.
-> 
-> Btw, I think I didn't mention earlier, the kernel is patched with i2c-2.8.3. 
-> Patch generated with mkpatch from the package and applied.
-
-
-The patch below that should fix it.
-
-diffstat output:
- net/802/Makefile |   60 ++++++++++++++---------------------------------
- net/Makefile     |    2 -
- 2 files changed, 20 insertions(+), 42 deletions(-)
-
-patch description:
-- net/Makefile: there might be modules in net/802/
-- net/802/Makefile: deuglyfy it and make it more similar to the
-                    2.6 version
-
-
-> Thanks!
-> 
-> 	Oliver
-
-
-cu
-Adrian
-
---- linux-2.4.27-pre2-full/net/802/Makefile.old	2004-05-11 01:09:46.000000000 +0200
-+++ linux-2.4.27-pre2-full/net/802/Makefile	2004-05-11 01:17:00.000000000 +0200
-@@ -11,48 +11,26 @@
+This patch implements/uses __flush_dcache_icache_page() which
+kmaps on a Book E part, but keeps the existing behavior on other
+PowerPCs which can disable the MMU. Please apply.
  
- export-objs = llc_macinit.o p8022.o psnap.o fc.o
+-Matt
+
+diff -Nru a/arch/ppc/mm/fault.c b/arch/ppc/mm/fault.c
+--- a/arch/ppc/mm/fault.c	Mon May 10 15:25:17 2004
++++ b/arch/ppc/mm/fault.c	Mon May 10 15:25:17 2004
+@@ -227,8 +227,7 @@
+ 			struct page *page = pte_page(*ptep);
  
--obj-y	= p8023.o
-+obj-y			:= p8023.o
-+
-+obj-$(CONFIG_SYSCTL)	+= sysctl_net_802.o
-+
-+subdir-$(CONFIG_LLC)	+= transit
-+obj-$(CONFIG_LLC)	+= llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o
-+obj-$(CONFIG_LLC)	+= p8022.o psnap.o
-+
-+obj-$(CONFIG_TR)	+= p8022.o psnap.o tr.o
-+
-+obj-$(CONFIG_NET_FC)	+=                 fc.o
-+
-+obj-$(CONFIG_FDDI)	+=                 fddi.o
-+
-+obj-$(CONFIG_HIPPI)	+=                 hippi.o
-+
-+obj-$(CONFIG_IPX)	+= p8022.o psnap.o
-+
-+obj-$(CONFIG_ATALK)	+= p8022.o psnap.o
+ 			if (! test_bit(PG_arch_1, &page->flags)) {
+-				unsigned long phys = page_to_pfn(page) << PAGE_SHIFT;
+-				__flush_dcache_icache_phys(phys);
++				flush_dcache_icache_page(page);
+ 				set_bit(PG_arch_1, &page->flags);
+ 			}
+ 			pte_update(ptep, 0, _PAGE_HWEXEC);
+diff -Nru a/arch/ppc/mm/init.c b/arch/ppc/mm/init.c
+--- a/arch/ppc/mm/init.c	Mon May 10 15:25:17 2004
++++ b/arch/ppc/mm/init.c	Mon May 10 15:25:17 2004
+@@ -572,6 +572,16 @@
+ 	clear_bit(PG_arch_1, &page->flags);
+ }
  
--obj-$(CONFIG_SYSCTL) += sysctl_net_802.o
--obj-$(CONFIG_LLC) += llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o
--ifeq ($(CONFIG_SYSCTL),y)
--obj-y += sysctl_net_802.o
--endif
--
--ifeq ($(CONFIG_LLC),y)
--subdir-y += transit
--obj-y += llc_sendpdu.o llc_utility.o cl2llc.o llc_macinit.o
--SNAP = y
--endif
--
--ifdef CONFIG_TR
--obj-y += tr.o
--	SNAP=y
--endif
--
--ifdef CONFIG_NET_FC
--obj-y += fc.o
--endif
--
--ifdef CONFIG_FDDI
--obj-y += fddi.o
--endif
--
--ifdef CONFIG_HIPPI
--obj-y += hippi.o
--endif
--
--ifdef CONFIG_IPX
--	SNAP=y
--endif
--
--ifdef CONFIG_ATALK
--	SNAP=y
--endif
--
--ifeq ($(SNAP),y)
--obj-y += p8022.o psnap.o
--endif
++void flush_dcache_icache_page(struct page *page)
++{
++#ifdef CONFIG_BOOKE
++	__flush_dcache_icache(kmap(page));
++	kunmap(page);
++#else
++	__flush_dcache_icache_phys(page_to_pfn(page) << PAGE_SHIFT);
++#endif
++
++}
+ void clear_user_page(void *page, unsigned long vaddr, struct page *pg)
+ {
+ 	clear_page(page);
+@@ -614,7 +624,7 @@
+ 			if (vma->vm_mm == current->active_mm)
+ 				__flush_dcache_icache((void *) address);
+ 			else
+-				__flush_dcache_icache_phys(pfn << PAGE_SHIFT);
++				flush_dcache_icache_page(page);
+ 			set_bit(PG_arch_1, &page->flags);
+ 		}
+ 	}
+diff -Nru a/include/asm-ppc/cacheflush.h b/include/asm-ppc/cacheflush.h
+--- a/include/asm-ppc/cacheflush.h	Mon May 10 15:25:17 2004
++++ b/include/asm-ppc/cacheflush.h	Mon May 10 15:25:17 2004
+@@ -41,6 +41,6 @@
  
- include $(TOPDIR)/Rules.make
- 
---- linux-2.4.27-pre2-full/net/Makefile.old	2004-05-11 01:43:31.000000000 +0200
-+++ linux-2.4.27-pre2-full/net/Makefile	2004-05-11 01:44:02.000000000 +0200
-@@ -7,7 +7,7 @@
- 
- O_TARGET :=	network.o
- 
--mod-subdirs :=	ipv4/netfilter ipv6/netfilter ipx irda bluetooth atm netlink sched core sctp
-+mod-subdirs :=	ipv4/netfilter ipv6/netfilter ipx irda bluetooth atm netlink sched core sctp 802
- export-objs :=	netsyms.o
- 
- subdir-y :=	core ethernet
+ extern void __flush_dcache_icache(void *page_va);
+ extern void __flush_dcache_icache_phys(unsigned long physaddr);
+-
++extern void flush_dcache_icache_page(struct page *page);
+ #endif /* _PPC_CACHEFLUSH_H */
+ #endif /* __KERNEL__ */

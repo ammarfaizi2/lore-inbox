@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbUDLQnq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 12:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUDLQnq
+	id S262963AbUDLQo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 12:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUDLQo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 12:43:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64747 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262974AbUDLQnn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 12:43:43 -0400
-Message-ID: <407AC732.1090000@pobox.com>
-Date: Mon, 12 Apr 2004 12:43:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeremy Martin <martinjd@csc.uvic.ca>
-CC: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix tuntap oversight
-References: <20040412065947.GC18810@net-ronin.org> <20040412001551.05476658.davem@redhat.com> <20040412162916.GA5046@net-ronin.org>
-In-Reply-To: <20040412162916.GA5046@net-ronin.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Apr 2004 12:44:26 -0400
+Received: from astra.telenet-ops.be ([195.130.132.58]:8327 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S262963AbUDLQoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 12:44:23 -0400
+Date: Mon, 12 Apr 2004 18:43:59 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] v2.6.5 drivers/char/isicom.c
+Message-ID: <20040412184359.D30061@infomag.infomag.iguana.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Martin wrote:
-> On Mon, Apr 12, 2004 at 12:15:51AM -0700, David S. Miller wrote:
-> 
->>This netif_running() check is not necessary, and in fact
->>wrong.
->>
->>In fact, if ethernet drivers erroneously do this, this causes
->>them to fail to support the ALB bonding driver modes which
->>require on-the-fly MAC address changes while the interface is
->>up.
->>
-> 
-> 
-> I just took a look in drivers/net/
-> and 
-> 	acenic.c
-> 	atarilance.c
-> 	b44.c
-> 	cs89x0.c
-> 	net_init.c
-> 	typhoon.c
-> 
-> all use that netif_running() check when setting the MAC.  I actually just pulled
-> the function from net_init.c for the tun change.  Are these broken?
-> (I'm asking in total ignorance so be gentle :).
+Hi Linus, Andrew,
 
-It's different for a driver that drives real hardware.
+A small fix for drivers/char/isicom.c .
+It's untested since I don't have this hardware myself.
 
-struct net_device::set_mac_address() is called inside rtnl_lock().  The 
-safe thing to do is
-1) read MAC address from eeprom on probe
-2) write MAC address to hardware upon each dev->open()
-3) use default eth_mac_addr() from net_init.c
+Greetings,
+Wim.
 
-And the netif_running() check in eth_mac_addr() is correct, because it 
-does not update the hardware MAC address (which in this API would be 
-impossible).
-
-Normally the netif_running() check is for hardware that cannot update 
-its MAC address safely during operation.
-
-	Jeff
-
-
-
+================================================================================
+diff -Nru a/drivers/char/isicom.c b/drivers/char/isicom.c
+--- a/drivers/char/isicom.c	Thu Mar 11 03:55:21 2004
++++ b/drivers/char/isicom.c	Mon Apr 12 18:30:21 2004
+@@ -1312,7 +1312,6 @@
+ 			   unsigned int set, unsigned int clear)
+ {
+ 	struct isi_port * port = (struct isi_port *) tty->driver_data;
+-	unsigned int arg;
+ 	unsigned long flags;
+ 	
+ 	if (isicom_paranoia_check(port, tty->name, "isicom_ioctl"))
+@@ -1650,7 +1649,7 @@
+ static void unregister_drivers(void)
+ {
+ 	int error;
+-	if (tty_unregister_driver(isicom_normal))
++	if ((error = tty_unregister_driver(isicom_normal)))
+ 		printk(KERN_DEBUG "ISICOM: couldn't unregister normal driver error=%d.\n",error);
+ 	put_tty_driver(isicom_normal);
+ }

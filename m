@@ -1,79 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbRBLLfX>; Mon, 12 Feb 2001 06:35:23 -0500
+	id <S129094AbRBLLvq>; Mon, 12 Feb 2001 06:51:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130342AbRBLLfN>; Mon, 12 Feb 2001 06:35:13 -0500
-Received: from sanrafael.dti2.net ([195.57.112.5]:9233 "EHLO dti2.net")
-	by vger.kernel.org with ESMTP id <S129094AbRBLLfB>;
-	Mon, 12 Feb 2001 06:35:01 -0500
-Message-ID: <000b01c094e8$12075d90$067039c3@cintasverdes>
-From: "Jorge Boncompte \(DTI2\)" <jorge@dti2.net>
-To: "Arjan van de Ven" <arjan@fenrus.demon.nl>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <m14SFN4-000OaIC@amadeus.home.nl>
-Subject: RE: RAID1 read balancing
-Date: Mon, 12 Feb 2001 12:36:21 +0100
-Organization: DTI2 - Desarrollo de la Tecnología de las Comunicaciones
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129107AbRBLLvg>; Mon, 12 Feb 2001 06:51:36 -0500
+Received: from ns.suse.de ([213.95.15.193]:774 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129094AbRBLLvV>;
+	Mon, 12 Feb 2001 06:51:21 -0500
+Date: Mon, 12 Feb 2001 12:51:15 +0100
+From: Olaf Hering <olh@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: "H. Peter Anvin" <hpa@transmeta.com>, autofs@linux.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: race in autofs / nfs
+Message-ID: <20010212125115.B30552@suse.de>
+In-Reply-To: <20010211211701.A7592@suse.de> <3A86F6AA.1416F479@transmeta.com> <shsbss8i8iq.fsf@charged.uio.no> <20010212111448.A28932@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010212111448.A28932@suse.de>; from olh@suse.de on Mon, Feb 12, 2001 at 11:14:48AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi!
+On Mon, Feb 12, Olaf Hering wrote:
 
-    Could you provide an URL to that patch? I would like to test it.
+> On Mon, Feb 12, Trond Myklebust wrote:
+> 
+> > >>>>> " " == H Peter Anvin <hpa@transmeta.com> writes:
+> > 
+> >      > Olaf Hering wrote:
+> >     >>
+> >     >> Hi,
+> >     >>
+> >     >> there is a race in 2.4.1 and 2.4.2-pre3 in autofs/nfs.  When
+> >     >> the cwd is on the nfs mounted server (== busy) and you try to
+> >     >> reboot the shutdown hangs in "rcautofs stop". I can reproduce
+> >     >> it everytime.
+> >     >>
+> > 
+> >      > Sounds like an NFS bug in umount.
+> > 
+> > Or a dcache bug: the above points to a corruption of the mnt_count
+> > which is supposed to be > 0 if the partition is in use. I'm seeing a
+> > similar leak for ext2 partitions (not involving autofs or NFS).
+> 
+> (hmm, it loads autofs and not autofs4 on 7.0?)
 
-    Regards.
+The autofs4.o is the culprit, it works perfect with autofs.o.
 
-    -Jorge
-
-==============================================================
-Jorge Boncompte - Técnico de sistemas
-DTI2 - Desarrollo de la Tecnología de las Comunicaciones
---------------------------------------------------------------
-C/ Abogado Enriquez Barrios, 5   14004 CORDOBA (SPAIN)
-Tlf: +34 957 761395 / FAX: +34 957 450380
---------------------------------------------------------------
-jorge@dti2.net _-_-_-_-_-_-_-_-_-_-_-_-_-_ http://www.dti2.net
-==============================================================
-Without wicker a basket cannot be done.
-==============================================================
-
------ Mensaje original -----
-De: "Arjan van de Ven" <arjan@fenrus.demon.nl>
-Para: "Petru Paler" <ppetru@ppetru.net>
-CC: <linux-kernel@vger.kernel.org>
-Enviado: lunes, 12 de febrero de 2001 10:34
-Asunto: Re: RAID1 read balancing
+What would happen if I stick with autofs.o now?
+The docu recommends autofs4 in modules.conf.
 
 
-> In article <20010211161242.A949@ppetru.net> you wrote:
->
-> > For a RAID1 array built of two disks on two separate SCSI controllers,
-> > are the reads balanced between the two controllers (for higher speed) ?
->
-> With the current RAID1 setup, you will NOT get a speed increase for
-> single-threaded, sequential reading programs (read: benchmarks like hdparm
-> and tiobench)[1]. You will get improvents in all other cases.
->
-> Greetings,
->    Arjan van de Ven
->
->
-> [1] This can be fix by a 10 line patch, however this changes the on-disk
-> layout.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
 
+Gruss Olaf
+
+-- 
+ $ man clone
+
+BUGS
+       Main feature not yet implemented...
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

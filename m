@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129304AbQKCGGj>; Fri, 3 Nov 2000 01:06:39 -0500
+	id <S129353AbQKCGUD>; Fri, 3 Nov 2000 01:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129353AbQKCGG3>; Fri, 3 Nov 2000 01:06:29 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:44712 "EHLO
+	id <S129439AbQKCGTn>; Fri, 3 Nov 2000 01:19:43 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:46760 "EHLO
 	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129304AbQKCGGR>; Fri, 3 Nov 2000 01:06:17 -0500
-Message-ID: <3A0255CC.BC1441AE@linux.com>
-Date: Thu, 02 Nov 2000 22:06:04 -0800
+	id <S129353AbQKCGTn>; Fri, 3 Nov 2000 01:19:43 -0500
+Message-ID: <3A0258E9.87EBF9A0@linux.com>
+Date: Thu, 02 Nov 2000 22:19:21 -0800
 From: David Ford <david@linux.com>
 Organization: Blue Labs
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [bug] NETDEV WATCHDOG: eth0: transmit timed out
+To: Dan Hollis <goemon@anime.net>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [bug] NETDEV WATCHDOG: eth0: transmit timed out
+In-Reply-To: <Pine.LNX.4.21.0011022211350.30435-100000@anime.net>
 Content-Type: multipart/mixed;
- boundary="------------DF9AB5FD46913B9146997E63"
+ boundary="------------B427AAEB88B94602F8DFA10F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------DF9AB5FD46913B9146997E63
+--------------B427AAEB88B94602F8DFA10F
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Ok, something happend to the tulip driver in the recent testN kernels.
-I haven't found a reason why it happens and I can't easily reproduce it
-but what happens is noted on the subject line.
+Dan Hollis wrote:
 
-I have three machines now that do this.  It's unfixable until reboot (I
-don't have these as modules).
+> On Thu, 2 Nov 2000, David Ford wrote:
+> > Ok, something happend to the tulip driver in the recent testN kernels.
+> > I haven't found a reason why it happens and I can't easily reproduce it
+> > but what happens is noted on the subject line.
+> > I have three machines now that do this.  It's unfixable until reboot (I
+> > don't have these as modules).
+>
+> What card, linksys lne100tx?
+>
+> -Dan
 
-I have a suspicion that it's triggered by large amounts of traffic.  My
-brother feels he is able to trigger it repeatedly by doing big transfers
-between a w9x box and a linux box.
+yep
+
+00:13.0 Ethernet controller: Lite-On Communications Inc LNE100TX (rev 20)
+        Subsystem: Netgear FA310TX
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 set
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at 6200 [size=256]
+        Region 1: Memory at e4001000 (32-bit, non-prefetchable) [size=256]
+        Expansion ROM at <unassigned> [disabled] [size=256K]
+
 
 -d
 
@@ -45,7 +63,7 @@ eggs-and-ham breakfast: the chicken was 'involved' - the pig was
 
 
 
---------------DF9AB5FD46913B9146997E63
+--------------B427AAEB88B94602F8DFA10F
 Content-Type: text/x-vcard; charset=us-ascii;
  name="david.vcf"
 Content-Transfer-Encoding: 7bit
@@ -65,7 +83,7 @@ x-mozilla-cpt:;-12480
 fn:David Ford
 end:vcard
 
---------------DF9AB5FD46913B9146997E63--
+--------------B427AAEB88B94602F8DFA10F--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

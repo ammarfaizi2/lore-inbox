@@ -1,92 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbTIOGMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 02:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbTIOGMZ
+	id S262424AbTIOGJs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 02:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTIOGJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 02:12:25 -0400
-Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:61056
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id S262440AbTIOGMW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 02:12:22 -0400
-Date: Mon, 15 Sep 2003 02:12:21 -0400 (EDT)
-From: Shawn Starr <spstarr@sh0n.net>
-To: linux-kernel@vger.kernel.org
-Subject: Keyboard problems: magic key + h stuck, and keyboard errors,stuck
- keys with 2.6.0-test5-bk3
-Message-ID: <Pine.LNX.4.44.0309150159030.389-100000@coredump.sh0n.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Sep 2003 02:09:48 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35065 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262424AbTIOGJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 02:09:47 -0400
+Date: Mon, 15 Sep 2003 08:09:42 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>, Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: remove __ALIGN from pnpbios/bioscalls.c?
+Message-ID: <20030915060941.GA126@fs.tum.de>
+References: <200309131104.h8DB4WqV021726@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309131104.h8DB4WqV021726@harpo.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two systems, When I turn the system next to me on the machine thats
-currently powered on spews out this each time, why is the magic key
-(alt+sysrq h) being dumped?
+On Sat, Sep 13, 2003 at 01:04:32PM +0200, Mikael Pettersson wrote:
+> On Sat, 13 Sep 2003 00:51:39 +0200, Adrian Bunk <bunk@fs.tum.de> wrote:
+> >> > > - Which CPUs exactly need X86_ALIGNMENT_16?
+> >> >
+> >> >Unsure. This could use testing on a few systems.
+> >> 
+> >> K7s and P5s (and 486s too if I remember correctly) strongly prefer
+> >> code entry points and loop labels to be 16-byte aligned. This is
+> >> due to the way code is fetched from L1.
+> >>...
+> >
+> >Hm, that's pretty different from the definition in -test5:
+> >
+> >config X86_ALIGNMENT_16
+> >        bool
+> >        depends on MWINCHIP3D || MWINCHIP2 || MWINCHIPC6 || MCYRIXIII || 
+> >          MELAN || MK6 || M586MMX || M586TSC || M586 || M486 || MVIAC3_2
+> >        default y
+> 
+> My comment referred to data from Intel and AMD code optimisation
+> guides.
+> 
+> The kernel only uses X86_ALIGNMENT_16 to derive two __ALIGN macros
+> for assembly code, but it doesn't use them except in one place in
+> the pnpbios code.
 
-They are both connected via serial.
+It seems thoe only architecture really using the __ALIGN macros is m68k. 
+This is irrelevant in this case since X86_ALIGNMENT_16 only affects 
+i386.
 
-SysRq : HELP : loglevel0-8 reBoot Dumpmsgs tErm kIll saK showMem powerOff
-showPc unRaw Sync showTasks Unmount
-SysRq : HELP : loglevel0-8 reBoot Dumpmsgs tErm kIll saK showMem powerOff
-showPc unRaw Sync showTasks Unmount
-SysRq : HELP : loglevel0-8 reBoot Dumpmsgs tErm kIll saK showMem powerOff
-showPc unRaw Sync showTasks Unmount
-SysRq : HELP : loglevel0-8 reBoot Dumpmsgs tErm kIll saK showMem powerOff
-showPc unRaw Sync showTasks Unmount
-SysRq : HELP : loglevel0-8 reBoot Dumpmsgs tErm kIll saK showMem powerOff
-showPc unRaw Sync showTasks Unmount
-SysRq : HELP : loglevel0-8 reBoot Dumpmsgs tErm kIll saK showMem powerOff
-showPc unRaw Sync showTasks Unmount
-SysRq : HELP : loglevel0-8 reBoot Dumpmsgs tErm kIll saK showMem powerOff
-showPc unRaw Sync showTasks Unmount
+> gcc -march=<cpu type> should generate appropriate alignment for
+> function entries and loop labels.
+> 
+> I suspect X86_ALIGNMENT_16 is a left-over from old code.
+> Perhaps its time to retire it.
 
-I have run into race conditions with the two machines and serial
-connectivity in the past (see previous emails on that).
+Thomas, what exactly do you need __ALIGN_STR in the function 
+pnp_bios_callfunc in drivers/pnp/pnpbios/bioscalls.c for?
 
-What would be the best way to determine why my systems cause so much
-problems wrt to serial connectivity?
+> /Mikael
 
-Also, what is the best way to debug a kernel over serial when the system
-on the other end is completely locked?
+cu
+Adrian
 
-The other issue is:
+-- 
 
-Dec  8 17:56:45 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
-Dec  8 17:56:45 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Feb 12 23:25:29 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xae, on isa0060/serio0) pressed.
-Feb 17 02:09:26 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
-Feb 20 23:06:04 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.Feb 22 01:45:55 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Feb 24 18:33:37 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xa0, on isa0060/serio0) pressed.
-Feb 27 00:09:52 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Mar  5 00:49:59 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xb8, on isa0060/serio0) pressed.
-Mar  5 00:49:59 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-..........................
-
-Sep  1 23:38:58 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xc0, on isa0060/serio0) pressed.
-Sep  1 23:38:59 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Sep  1 23:39:04 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xc0, on isa0060/serio0) pressed.
-Sep  1 23:39:35 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Sep 10 20:25:57 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0xa0, on isa0060/serio0) pressed.
-Sep 10 21:50:22 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Sep 11 22:57:07 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
-Sep 13 16:16:24 coredump kernel: atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
-
-I have a small 4 port KVM switch from Startech, Is this KVM causing
-keyboard issues that the keyboard driver cannot interpret properly?
-
-Why is this occuring so often? I can usually trigger this if I start using
-certain key combinations.
-
-What also happens is a key will get 'stuck' and then repeat itself until I
-stop it from repeating the letter.
-
-The keyboard is a Microsoft Internet keyboard PS/2 style plugged into the
-KVM.
-
-If you want me to catch any debug output let me know and I will do this.
-
-Thanks,
-
-Shawn S.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

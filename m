@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUHRG65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUHRHFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbUHRG65 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 02:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262380AbUHRG65
+	id S262380AbUHRHFX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 03:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUHRHFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 02:58:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:32178 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261474AbUHRG64 (ORCPT
+	Wed, 18 Aug 2004 03:05:23 -0400
+Received: from gate.crashing.org ([63.228.1.57]:31913 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262380AbUHRHFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 02:58:56 -0400
-Date: Wed, 18 Aug 2004 09:00:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jens Maurer <Jens.Maurer@gmx.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [PATCH] Use x86 SSE instructions for clear_page, copy_page
-Message-ID: <20040818070013.GA11048@elte.hu>
-References: <4121A211.8080902@gmx.net>
+	Wed, 18 Aug 2004 03:05:19 -0400
+Subject: Re: [patch] enums to clear suspend-state confusion
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       David Brownell <david-b@pacbell.net>
+In-Reply-To: <20040818061227.GA7854@elf.ucw.cz>
+References: <20040812120220.GA30816@elf.ucw.cz>
+	 <20040817212510.GA744@elf.ucw.cz> <20040817152742.17d3449d.akpm@osdl.org>
+	 <20040817223700.GA15046@elf.ucw.cz> <20040817161245.50dd6b96.akpm@osdl.org>
+	 <20040818002711.GD15046@elf.ucw.cz> <1092794687.10506.169.camel@gaston>
+	 <20040818061227.GA7854@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1092812149.9932.180.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4121A211.8080902@gmx.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 18 Aug 2004 16:55:50 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Jens Maurer <Jens.Maurer@gmx.net> wrote:
+> Yes, that's exactly what I did... Unfortunately typedef means ugly
+> code. So I'll just switch it back to enum system_state, and lets care
+> about device power managment when it hits us, okay?
 
-> The attached patch (against kernel 2.6.8.1) enables using SSE
-> instructions for copy_page and clear_page.
+I don't agree... with this approach, we'll have to change all drivers
+_twice_ when we move to something more descriptive than a scalar
 
-besides the cache arguments Arjan raised, you are also corrupting SSE
-registers big way. You are saving/clearing/restoring the TS but that's
-not enough - what if e.g. a pagefault happened while userspace code
-executed SSE code? You are corrupting those registers.
+Ben.
 
-check out raid6_before_sse()/raid6_after_sse() how to write proper SSE
-code for the kernel.
 
-	Ingo

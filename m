@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266507AbUH1UDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267666AbUH1UGz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266507AbUH1UDD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 16:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUH1UDD
+	id S267666AbUH1UGz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 16:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267756AbUH1UGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 16:03:03 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:43976 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266507AbUH1UCu (ORCPT
+	Sat, 28 Aug 2004 16:06:54 -0400
+Received: from holomorphy.com ([207.189.100.168]:63400 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267666AbUH1UFu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 16:02:50 -0400
-Date: Sat, 28 Aug 2004 22:04:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Mark_H_Johnson@raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q2
-Message-ID: <20040828200412.GA29263@elte.hu>
-References: <20040823221816.GA31671@yoda.timesys> <20040824061459.GA29630@elte.hu> <20040828120309.GA17121@elte.hu> <200408281818.28159.lkml@felipe-alfaro.com> <4130B7BD.5070801@cybsft.com> <1093715573.8611.38.camel@krustophenia.net> <20040828194449.GA25732@elte.hu> <1093723276.8611.60.camel@krustophenia.net>
+	Sat, 28 Aug 2004 16:05:50 -0400
+Date: Sat, 28 Aug 2004 13:05:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [0/5] standardized waitqueue hashing
+Message-ID: <20040828200549.GR5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093723276.8611.60.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patch series consolidates the various instances of 
+waitqueue hashing to use a uniform structure and share the per-zone
+hashtable among all waitqueue hashers. This is expected to increase the
+number of hashtable buckets available for waiting on bh's and inodes
+and eliminate statically allocated kernel data structures for greater
+node locality and reduced kernel image size. Some attempt was made to
+look similar to Oleg Nesterov's suggested API in order to provide some
+kind of credit for independent invention of something very similar (the
+original versions of these patches predated my public postings on the
+subject of filtered waitqueues).
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+These patches have the further benefit and intention of enabling aio
+to use filtered wakeups by standardizing the data structure passed to
+wake functions so that embedded waitqueue elements in aio structures
+may be succesfully passed to the filtered wakeup wake functions, though
+this patch series doesn't implement that particular functionality.
 
-> On Sat, 2004-08-28 at 15:44, Ingo Molnar wrote:
-> 
-> > there's a Kconfig chunk missing from the Q0/Q1 patches, i've uploaded Q2
-> 
-> Still not quite right:
-> 
->   HOSTLD  scripts/mod/modpost
->   CC      arch/i386/kernel/asm-offsets.s
-> In file included from arch/i386/kernel/asm-offsets.c:7:
-> include/linux/sched.h: In function `lock_need_resched':
-> include/linux/sched.h:983: error: structure has no member named `break_lock'
-> make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
-> make: *** [arch/i386/kernel/asm-offsets.s] Error 2
+Successfully stress-tested on x86-64, and ia64 in recent prior versions.
 
-you probably have CONFIG_PREEMPT_VOLUNTARY disabled in the .config?
 
-	Ingo
+-- wli

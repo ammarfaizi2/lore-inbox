@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264217AbTDJVys (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264218AbTDJVys (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 17:54:48 -0400
-Received: from crack.them.org ([65.125.64.184]:45451 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id S264217AbTDJVyr (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 17:54:47 -0400
-Date: Thu, 10 Apr 2003 18:06:27 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Ranga Iyengar <ambuga@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: siginfo of traced child to parent process
-Message-ID: <20030410220626.GA32489@nevyn.them.org>
-Mail-Followup-To: Ranga Iyengar <ambuga@yahoo.com>,
-	linux-kernel@vger.kernel.org
-References: <20030410214141.67857.qmail@web40601.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030410214141.67857.qmail@web40601.mail.yahoo.com>
-User-Agent: Mutt/1.5.1i
+	id S264199AbTDJV6T (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:58:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbTDJV6T (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 17:58:19 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:50894 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264188AbTDJV6R (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 17:58:17 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Fri, 11 Apr 2003 00:09:51 +0200 (MEST)
+Message-Id: <UTC200304102209.h3AM9pf11795.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       pbadari@us.ibm.com
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 10, 2003 at 02:41:41PM -0700, Ranga Iyengar wrote:
-> I wanted to know if there is a way to get the
-> siginfo_t of a child process from a parent process.
-> The child process is traced by the parent process
-> using ptrace system call and if the child is stopped
-> because of SIGSEGV or SIGFPE, the address of the
-> instruction that caused the exception is available to
-> the child from the signal handler thro' the siginfo
-> structure. Is there any way of getting this
-> info(siginfo) to the parent. The parent attaches to
-> the child in the same way 'gdb' attaches to the
-> debugged programs.
-> 
-> I'm using linux kernel 2.4.18
+[I noticed that I have been unsubscribed for a day or so,
+so may not have seen earlier mail.]
 
-There is in 2.5 - it's called PTRACE_GETSIGINFO.  There isn't in 2.4.18
-though.
+	From: Badari Pulavarty <pbadari@us.ibm.com>
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+	--- linux-2.5.67/drivers/scsi/sd.c	Wed Apr  9 13:12:38 2003
+	+++ linux-2.5.67.new/drivers/scsi/sd.c	Thu Apr 10 13:23:49 2003
+	@@ -56,7 +56,9 @@
+	  * Remaining dev_t-handling stuff
+	  */
+	 #define SD_MAJORS	16
+	-#define SD_DISKS	(SD_MAJORS << 4)
+	+#define SD_DISKS	((SD_MAJORS - 1) << 4)
+	+#define LAST_MAJOR_DISKS	(1 << (KDEV_MINOR_BITS - 4))
+	+#define TOTAL_SD_DISKS	(SD_DISKS + LAST_MAJOR_DISKS)
+	 
+	-static unsigned long sd_index_bits[SD_DISKS / BITS_PER_LONG];
+	+static unsigned long sd_index_bits[TOTAL_SD_DISKS / BITS_PER_LONG];
+
+I try to make sure there are no assumptions about the
+size or structure of device numbers anywhere outside kdev_t.h.
+In particular I object to the use of KDEV_MINOR_BITS.
+
+Apart from this formal point, there is also the practical point:
+suppose 64 = 32+32 is used, so that KDEV_MINOR_BITS equals 32.
+Then LAST_MAJOR_DISKS is 2^28 and sd_index_bits[] would be 32 MB array.
+Unreasonable.
+
+The conclusion is that the easy way out is to define MAX_NR_DISKS.
+A different way out, especially when we use 32+32, is to kill this
+sd_index_bits[] array, and give each disk a new number: replace
+	index = find_first_zero_bit(sd_index_bits, SD_DISKS);
+by
+	index = next_index++;
+
+Andries

@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129227AbRBTNwA>; Tue, 20 Feb 2001 08:52:00 -0500
+	id <S129212AbRBTN4K>; Tue, 20 Feb 2001 08:56:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129402AbRBTNvu>; Tue, 20 Feb 2001 08:51:50 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:49416 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129227AbRBTNve>; Tue, 20 Feb 2001 08:51:34 -0500
-Subject: Re: [PATCH] new setprocuid syscall
-To: peter@cadcamlab.org (Peter Samuelson)
-Date: Tue, 20 Feb 2001 13:52:03 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <14994.27891.171934.348706@wire.cadcamlab.org> from "Peter Samuelson" at Feb 20, 2001 07:11:15 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129551AbRBTN4A>; Tue, 20 Feb 2001 08:56:00 -0500
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:10244 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S129212AbRBTNzv>; Tue, 20 Feb 2001 08:55:51 -0500
+Date: Tue, 20 Feb 2001 14:55:23 +0100
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: "Butter, Frank" <Frank.Butter@otto.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel params
+Message-ID: <20010220145523.G8042@arthur.ubicom.tudelft.nl>
+In-Reply-To: <4B6025B1ABF9D211B5860008C75D57CC0271B905@NTOVMAIL04>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14VDD2-0006ha-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4B6025B1ABF9D211B5860008C75D57CC0271B905@NTOVMAIL04>; from Frank.Butter@otto.de on Tue, Feb 20, 2001 at 01:54:04PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Fair enough but could you explain the potential problems?  And how is
-> it different from sys_setpriority?
+On Tue, Feb 20, 2001 at 01:54:04PM +0100, Butter, Frank wrote:
+> Is there any possibility to set the values for IPC-ressources
+> (SHM/SEM) other than by changing the headerfiles?
 
-Suppose you change a tasks uid in parallel with the set of conditionals
-in setuid - just as one example. Or you change uid _during_ a quota operation.
-Or during sys5 ipc ops.
+Sure, that's what sysctl is for. See sysctl(8) or /proc/sys/kernel/ .
 
-All of these and more make assumptions. The idea of locking uid changes with
-semaphores would produce some truely horrible performance impacts
 
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

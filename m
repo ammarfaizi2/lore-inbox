@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbUKSBOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263040AbUKSBO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbUKSBOa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 20:14:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbUKSBO3
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S263040AbUKSBO3 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 18 Nov 2004 20:14:29 -0500
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:55664 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263034AbUKSBOO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 20:14:14 -0500
-Message-ID: <419D48DE.6030703@yahoo.com.au>
-Date: Fri, 19 Nov 2004 12:14:06 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: ak@suse.de, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: let x86_64 no longer define X86
-References: <20041119005117.GM4943@stusta.de>
-In-Reply-To: <20041119005117.GM4943@stusta.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263023AbUKSBNO
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 18 Nov 2004 20:13:14 -0500
+Received: from www.ssc.unict.it ([151.97.230.9]:52230 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S262864AbUKSBMJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 20:12:09 -0500
+Subject: [patch 4/4] Uml: fix __wrap_free comment.
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Fri, 19 Nov 2004 02:13:42 +0100
+Message-Id: <20041119011343.937D97B9AA@zion.localdomain>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.18; VDF: 6.28.0.80; host: ssc.unict.it)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
 
-> And if you want to support both older and more recent kernels, the 
-> following dependencies will be correct both before and after this 
-> change:
-> - (X86 && !X86_64)
-> - (X86 && X86_64)
-> 
+Reworded the comment about __wrap_free detection of the allocator used to
+allocate the pointer (it can free a pointer created by either the host
+malloc(), kmalloc() or vmalloc()).
 
-This last one surely can't be correct before *and* afterwards. But even in
-the current system, it is a pretty perverse thing to check for. I guess you
-meant:
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
 
-(X86 || X86_64)
+ linux-2.6.10-rc-paolo/arch/um/kernel/main.c |    9 ++++++---
+ 1 files changed, 6 insertions(+), 3 deletions(-)
+
+diff -puN arch/um/kernel/main.c~uml-wrap_free arch/um/kernel/main.c
+--- linux-2.6.10-rc/arch/um/kernel/main.c~uml-wrap_free	2004-11-16 02:19:08.289619800 +0100
++++ linux-2.6.10-rc-paolo/arch/um/kernel/main.c	2004-11-16 02:19:08.292619344 +0100
+@@ -222,13 +222,16 @@ void __wrap_free(void *ptr)
+ 	 * 	physical memory - kmalloc/kfree
+ 	 *	kernel virtual memory - vmalloc/vfree
+ 	 * 	anywhere else - malloc/free
+-	 * If kmalloc is not yet possible, then the kernel memory regions
+-	 * may not be set up yet, and the variables not initialized.  So,
+-	 * free is called.
++	 * If kmalloc is not yet possible, then either high_physmem and/or
++	 * end_vm are still 0 (as at startup), in which case we call free, or
++	 * we have set them, but anyway addr has not been allocated from those
++	 * areas. So, in both cases __real_free is called.
+ 	 *
+ 	 * CAN_KMALLOC is checked because it would be bad to free a buffer
+ 	 * with kmalloc/vmalloc after they have been turned off during
+ 	 * shutdown.
++	 * XXX: However, we sometimes shutdown CAN_KMALLOC temporarily, so
++	 * there is a possibility for memory leaks.
+ 	 */
+ 
+ 	if((addr >= uml_physmem) && (addr < high_physmem)){
+_

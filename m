@@ -1,49 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318162AbSIAXfG>; Sun, 1 Sep 2002 19:35:06 -0400
+	id <S318169AbSIAXjW>; Sun, 1 Sep 2002 19:39:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318165AbSIAXfF>; Sun, 1 Sep 2002 19:35:05 -0400
-Received: from dsl-213-023-021-067.arcor-ip.net ([213.23.21.67]:49794 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S318162AbSIAXfF>;
-	Sun, 1 Sep 2002 19:35:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [RFC] [PATCH] Include LRU in page count
-Date: Mon, 2 Sep 2002 01:19:38 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org
-References: <3D644C70.6D100EA5@zip.com.au> <E17ld5N-0004cg-00@starship> <3D729DD3.AE3681C9@zip.com.au>
-In-Reply-To: <3D729DD3.AE3681C9@zip.com.au>
+	id <S318166AbSIAXjW>; Sun, 1 Sep 2002 19:39:22 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:52440 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S318165AbSIAXjU>; Sun, 1 Sep 2002 19:39:20 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Mon, 2 Sep 2002 09:43:33 +1000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17le0J-0004d1-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15730.42533.481161.627180@notabene.cse.unsw.edu.au>
+cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: PATCH - change to blkdev->queue calling triggers BUG in md.c
+X-Mailer: VM 7.07 under Emacs 21.2.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 September 2002 01:08, Andrew Morton wrote:
-> Daniel Phillips wrote:
-> It would be great to make presence on the LRU contribute to page->count, because
-> that would permit the removal of a ton of page_cache_get/release operations inside
-> the LRU lock, perhaps doubling throughput in there.
 
-It's pretty much done, it just needs some torture testing:
+Changeset 1.573 (just prior to 2.5.33 release) changed the calling
+sequence for blk_dev[major].queue so that it is now called before the 
+bd_op->open function is called.
+This triggers a BUG in md.c which checked that the device was open
+whenever ->queue was called.  Patch below removes the BUG.
 
-   http://people.nl.linux.org/~phillips/patches/lru.race-2.4.19
+I'm actually a little disappointed by this change.  I was hoping that
+the ->queue might get changed to be passed a 'struct block_device *'
+instead of a 'kdev_t' so that the device driver would only have to
+interpret the device number in one place: the open.  But now that
+->queue is called before ->open, that wouldn't help.
 
-The handy /proc/mmstat ad hoc statistics are still in there.  The patch supports
-both zero and one-flavors of lru contribution to page count for the time being,
-with the latter as the default.
+I don't suppose it would make sense to do the default:
+	if (!bdev->bd_queue) {
+		struct blk_dev_struct *p = blk_dev + major(dev);
+		bdev->bd_queue = &p->request_queue;
+	}
+bit where it is now, and leave the:
+		if (p->queue)
+			bdev->bd_queue =  p->queue(dev);
 
-> Guess I should get off my
-> lazy butt and see what you've done (will you for heaven's sake go and buy an IDE
-> disk and compile up a 2.5 kernel? :))
+bit until after the open?  It would keep floppy happy, and make me
+happy too, but I'm not sure that it is actually 'right'...
 
-I was just thinking about that, time to go poke at the DAC960 again.  Yes I do
-remember Jens and Bill offered to help :-)
+Anyway, here is the patch that stops md from BUGging out.
 
--- 
-Daniel
+NeilBrown
+
+### Comments for ChangeSet
+Remove BUG in md.c that change in 2.5.33 triggers.
+
+Since 2.5.33, the blk_dev[].queue is called without
+the device open, so md_queue_proc can no-longer assume
+that the device is open.
+
+
+ ----------- Diffstat output ------------
+ ./drivers/md/md.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
+
+--- ./drivers/md/md.c	2002/09/01 23:27:10	1.1
++++ ./drivers/md/md.c	2002/09/01 23:28:27	1.2
+@@ -3157,11 +3157,11 @@ request_queue_t * md_queue_proc(kdev_t d
+ {
+ 	mddev_t *mddev = mddev_find(minor(dev));
+ 	request_queue_t *q = BLK_DEFAULT_QUEUE(MAJOR_NR);
+-	if (!mddev || atomic_read(&mddev->active)<2)
+-		BUG();
+-	if (mddev->pers)
+-		q = &mddev->queue;
+-	mddev_put(mddev); /* the caller must hold a reference... */
++	if (mddev) {
++		if (mddev->pers)
++			q = &mddev->queue;
++		mddev_put(mddev);
++	}
+ 	return q;
+ }
+ 

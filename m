@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293203AbSENASR>; Mon, 13 May 2002 20:18:17 -0400
+	id <S293510AbSENATj>; Mon, 13 May 2002 20:19:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293510AbSENASQ>; Mon, 13 May 2002 20:18:16 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:18840 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S293203AbSENASQ>; Mon, 13 May 2002 20:18:16 -0400
-Subject: Compilation problems in sysinfo.c
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFB2C907A6.9EB8BB42-ON85256BB9.0000494B@raleigh.ibm.com>
-From: "Isabelle Poueriet" <ipouerie@us.ibm.com>
-Date: Mon, 13 May 2002 17:18:19 -0700
-X-MIMETrack: Serialize by Router on D04NM207/04/M/IBM(Release 5.0.9a |January 7, 2002) at
- 05/13/2002 08:18:16 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S311871AbSENATi>; Mon, 13 May 2002 20:19:38 -0400
+Received: from inet-mail1.oracle.com ([148.87.2.201]:48046 "EHLO
+	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
+	id <S293510AbSENATg>; Mon, 13 May 2002 20:19:36 -0400
+Subject: Re: InfiniBand BOF @ LSM - topics of interest
+From: Joel Becker <joel.becker@oracle.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
+        zaitcev@redhat.com
+In-Reply-To: <E177PSB-0006bH-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 13 May 2002 17:19:26 -0700
+Message-Id: <1021335567.2455.9.camel@insight>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mon, 2002-05-13 at 16:42, Alan Cox wrote:
+> > There are at least 2 that I thought might be good discussion topics;
+> > 	Sockets Direct Protocol for InfiniBand
+> > 	User Mode Access to the InfiniBand network
+> 
+> Surely these are the same topic ?
 
-The Kernel level is: 2.4.9-31 for Red Hat Linux 7.2:
+	Nope.  There are three issues here, really.  The second item, "User
+Mode Access" is probably one or both of two things.  A "native" IBA
+interface (aka Verbs).  These are the actual IBA work elements.  Things
+like Subnet Managers need access to this.  The other is uDAPL (user
+Direct Access Programming Library).  uDAPL (and kDAPL) are emerging
+standards for high-speed messaging systems (VIA/IBA/Myrinet type
+things).  uDAPL is likely the protocol most of userspace will want to
+program to.
 
-Has anyone had  trouble compiling the modules - especifically in sysinfo.c.
-I was trying to build the kernel modules and the compiler found errors when
-it got to sysinfo.c.
-I re-installed my kernel source code and headers and started from scratch.
-I still had the same problem (see output below).
+Joel 
 
-I changed line 11 to "include <compiler.h>", replaced line 86 with
-"return_string=system_utsname.version".
-Everything worked after that.
+-- 
 
-I'm wondering if I should report this as a bug or whether I was the only
-one w/ the problem.
-The source pkg that installed was kernel-source-2.4.9-31.i386.rpm, and
-kernel-headers-2.4.9-31.i386.rpm.
+ "I'm living so far beyond my income that we may almost be said
+ to be living apart."
+         - e e cummings
 
-Output from 'make modules':
-=========================
-
-make[2]: Entering directory `/usr/src/linux-2.4.9-31/abi/sco'
-ld -m elf_i386 -r -o abi-sco.o sysent.o misc.o ptrace.o secureware.o
-ioctl.o termios.o tapeio.o vtkbd.o
-make[2]: Leaving directory `/usr/src/linux-2.4.9-31/abi/sco'
-make -C svr4 modules
-make[2]: Entering directory `/usr/src/linux-2.4.9-31/abi/svr4'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.9-31/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -Wno-unused -pipe
--mpreferred-stack-boundary=2 -march=i386 -DMODULE -DMODVERSIONS -include
-/usr/src/linux-2.4.9-31/include/linux/modversions.h   -c -o sysinfo.o
-sysinfo.c
-sysinfo.c:11:27: linux/compile.h: No such file or directory
-sysinfo.c: In function `svr4_sysinfo':
-sysinfo.c:86: `UTS_VERSION' undeclared (first use in this function)
-sysinfo.c:86: (Each undeclared identifier is reported only once
-sysinfo.c:86: for each function it appears in.)
-make[2]: *** [sysinfo.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.9-31/abi/svr4'
-make[1]: *** [_modsubdir_svr4] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.9-31/abi'
-make: *** [_mod_abi] Error 2
-
-Isabelle Poueriet
-
- Tivoli Storage Manager
- Software Engineer
- Office 9062/2123
- T/L: 8-321-2889
-
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

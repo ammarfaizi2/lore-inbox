@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129385AbQKVXzY>; Wed, 22 Nov 2000 18:55:24 -0500
+        id <S129434AbQKWABG>; Wed, 22 Nov 2000 19:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129434AbQKVXzO>; Wed, 22 Nov 2000 18:55:14 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:22027 "HELO mail.ocs.com.au")
-        by vger.kernel.org with SMTP id <S129385AbQKVXzB>;
-        Wed, 22 Nov 2000 18:55:01 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Modutils 2.3.14 / Kernel 2.4.0-test11 incompatibility 
-In-Reply-To: Your message of "Wed, 22 Nov 2000 23:12:25 -0000."
-             <200011222312.eAMNCQ613184@flint.arm.linux.org.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 23 Nov 2000 10:24:47 +1100
-Message-ID: <4589.974935487@ocs3.ocs-net>
+        id <S132187AbQKWAA5>; Wed, 22 Nov 2000 19:00:57 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:38017 "EHLO
+        vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+        id <S129434AbQKWAAs>; Wed, 22 Nov 2000 19:00:48 -0500
+Date: Wed, 22 Nov 2000 16:30:27 -0700
+Message-Id: <200011222330.eAMNURI08246@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Jes Sorensen <jes@linuxcare.com>
+Cc: Miles Lane <miles@speakeasy.org>, linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox's e-mail address is hosed?
+In-Reply-To: <d3bsv7ll0k.fsf@lxplus015.cern.ch>
+In-Reply-To: <3A1CEBC9.8010109@speakeasy.org>
+        <d3bsv7ll0k.fsf@lxplus015.cern.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000 23:12:25 +0000 (GMT), 
-Russell King <rmk@arm.linux.org.uk> wrote:
->        if (copy_from_user(mod+1, mod_user+1, mod->size-sizeof(*mod))) {
+Jes Sorensen writes:
+> >>>>> "Miles" == Miles Lane <miles@speakeasy.org> writes:
+> 
+> Miles> I attempted to reply to a message from Alan and got the
+> Miles> following response.
+> 
+> No it isn't, Alan uses ORBS and you are obviously black listed there
+> (www.orbs.org).
+> 
+> This one seems to come up every now and then, and always turns into a
+> flamewar. Now it's Alan's choice so if you want to argue over this,
+> take it somewhere else please.
+> 
+> Who is maintaining the FAQ? this might be a good idea to add to
+> under the mailing list section.
 
-Using sizeof(struct module) is a nono in sys_init_module(), the code
-has to use the user space size.  Does this untested patch fix the
-problem?  Against 2.4.0-test11-pre6 but should fit test11.
+[Raises hand] Send me a patch. And see section 5.14, which has been
+there for some time.
 
+BTW: you never did get around to sending me a patch for why C++ in the
+kernel was evil ;-)
 
-Index: 0-test11-pre6.1/kernel/module.c
---- 0-test11-pre6.1/kernel/module.c Wed, 08 Nov 2000 11:52:15 +1100 kaos (linux-2.4/j/28_module.c 1.1.2.1.1.1.7.1.1.1 644)
-+++ 0-test11-pre6.1(w)/kernel/module.c Thu, 23 Nov 2000 10:22:26 +1100 kaos (linux-2.4/j/28_module.c 1.1.2.1.1.1.7.1.1.1 644)
-@@ -480,7 +480,9 @@ sys_init_module(const char *name_user, s
- 
- 	/* Ok, that's about all the sanity we can stomach; copy the rest.  */
- 
--	if (copy_from_user(mod+1, mod_user+1, mod->size-sizeof(*mod))) {
-+	if (copy_from_user((char *)mod+mod_user_size,
-+			   (char *)mod_user+mod_user_size,
-+			   mod->size-mod_user_size)) {
- 		error = -EFAULT;
- 		goto err3;
- 	}
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,83 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266435AbTABTom>; Thu, 2 Jan 2003 14:44:42 -0500
+	id <S266356AbTABTmC>; Thu, 2 Jan 2003 14:42:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266438AbTABTol>; Thu, 2 Jan 2003 14:44:41 -0500
-Received: from 177-2.SPEEDe.golden.net ([216.75.177.2]:51464 "EHLO
-	thebeever.com") by vger.kernel.org with ESMTP id <S266435AbTABTok>;
-	Thu, 2 Jan 2003 14:44:40 -0500
-Date: Thu, 2 Jan 2003 14:53:46 -0500
-From: Richard Baverstock <beaver@gto.net>
-To: linux-kernel@vger.kernel.org
-Cc: marcelo@conectiva.com.br
-Subject: [PATCH] AGPGART for VIA vt8235, kernel 2.4.21-pre2
-Message-Id: <20030102145346.27a21ed9.beaver@gto.net>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S266363AbTABTmC>; Thu, 2 Jan 2003 14:42:02 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:9411 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266356AbTABTmB>; Thu, 2 Jan 2003 14:42:01 -0500
+Date: Thu, 2 Jan 2003 20:50:24 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] top-level config menu dependencies
+Message-ID: <20030102195024.GC17053@louise.pinerecords.com>
+References: <20030101162519.GF15200@louise.pinerecords.com> <3E143F74.434AD08B@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E143F74.434AD08B@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a patch that enables AGPGART for the VIA vt8235 chipset on P4X400 motherboards. Rather trivial, adds the pci id, then a few lines in the agp sources to get it identified. I've only been able to test this on my computer, where it works.
+> [zippel@linux-m68k.org]
+> 
+> > While converting the way submenus appear in menuconfig depending on
+> > their main, parent config option, I stumbled upon certain subsystems
+> > (such as MTD or IrDA) that should clearly have an on/off switch directly
+> > in the main menu so that one doesn't have to enter the corresponding
+> > submenus to even see if they're enabled or disabled.
+> > 
+> > Since the new kernel configurator would have no problems with such
+> > a setup, I'm posting this RFC to get the general opinion on whether
+> > this should be carried on with.  I'm willing to create and send in
+> > the patches.
+> 
+> While all config programs should be able to handle this, it might look a
+> bit strange. Especially the split view of xconfig relies a bit on the
+> current organisation of the config data.
+> My idea to handle this would be to turn e.g.:
+> 
+> menu "Memory Technology Devices (MTD)"
+> 
+> config MTD
+> 	tristate "Memory Technology Device (MTD) support"
+> 
+> into something like this:
+> 
+> menuconfig MTD
+> 	tristate "Memory Technology Device (MTD) support"
+> 
+> This would give the front ends the most flexibility. The required
+> changes are quite small, so it should be doable for 2.6. I'm not
+> completely sure about the syntax yet, but above is the most likely
+> version.
 
-Rich
+If I understand you correctly, what you are proposing is equivalent
+to how the following currently works:
 
+config MTD
+	tristate "Memory Technology Device (MTD) support"
 
---BEGIN--
+menu "Memory Technology Device (MTD) support"
+	depends on MTD
 
-diff -ur linux/drivers/char/agp/agp.h linux-2.4.21-pre2/drivers/char/agp/agp.h
---- linux/drivers/char/agp/agp.h 2003-01-02 14:36:15.000000000 -0500
-+++ linux-2.4.21-pre2/drivers/char/agp/agp.h 2003-01-02 14:35:02.000000000 -0500
-@@ -157,6 +157,9 @@
+...
 
- #define PGE_EMPTY(p) (!(p) || (p) == (unsigned long) agp_bridge.scratch_page)
+endmenu
 
-+#ifndef PCI_DEVICE_ID_VIA_8235_0
-+#define PCI_DEVICE_ID_VIA_8235_0       0x3168
-+#endif
- #ifndef PCI_DEVICE_ID_VIA_82C691_0
- #define PCI_DEVICE_ID_VIA_82C691_0      0x0691
- #endif
-diff -ur linux/drivers/char/agp/agpgart_be.c linux-2.4.21-pre2/drivers/char/agp/agpgart_be.c
---- linux/drivers/char/agp/agpgart_be.c   2003-01-02 14:36:15.000000000 -0500
-+++ linux-2.4.21-pre2/drivers/char/agp/agpgart_be.c   2003-01-02 14:35:02.000000000 -0500
-@@ -4640,6 +4640,12 @@
- #endif /* CONFIG_AGP_SIS */
+It seems to me the infrastructure you've provided by kconfig
+is completely sufficient -- it's the config frontends that would
+require minor updates (xconfig mainly, menuconfig seems to be
+working nicely -- at least with the setup I outlined above).
 
- #ifdef CONFIG_AGP_VIA
-+  { PCI_DEVICE_ID_VIA_8235_0,
-+     PCI_VENDOR_ID_VIA,
-+     VIA_P4X400,
-+     "Via",
-+     "P4X400",
-+     via_generic_setup },
-   { PCI_DEVICE_ID_VIA_8501_0,
-      PCI_VENDOR_ID_VIA,
-      VIA_MVP4,
-diff -ur linux/drivers/pci/pci.ids linux-2.4.21-pre2/drivers/pci/pci.ids
---- linux/drivers/pci/pci.ids 2003-01-02 14:36:16.000000000 -0500
-+++ linux-2.4.21-pre2/drivers/pci/pci.ids 2003-01-02 14:35:02.000000000 -0500
-@@ -2751,6 +2751,7 @@
-   3147  VT8233A ISA Bridge
-   3148  P4M266 Host Bridge
-   3156  P/KN266 Host Bridge
-+  3168  VT8235 [P4X400 AGP]
-   3177  VT8233A ISA Bridge
-      1458 5001 GA-7VAX Mainboard
-   3189  VT8377 [KT400 AGP] Host Bridge
-diff -ur linux/include/linux/agp_backend.h linux-2.4.21-pre2/include/linux/agp_backend.h
---- linux/include/linux/agp_backend.h  2003-01-02 14:36:17.000000000 -0500
-+++ linux-2.4.21-pre2/include/linux/agp_backend.h  2003-01-02 14:35:02.000000000 -0500
-@@ -54,6 +54,7 @@
-   INTEL_I850,
-   INTEL_I860,
-   VIA_GENERIC,
-+  VIA_P4X400,
-   VIA_VP3,
-   VIA_MVP3,
-   VIA_MVP4,
-
---END--
-
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

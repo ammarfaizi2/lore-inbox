@@ -1,77 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbTDKVnJ (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbTDKVnJ (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 17:43:09 -0400
-Received: from [195.82.114.197] ([195.82.114.197]:63494 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id S261829AbTDKVnH (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 17:43:07 -0400
-Date: Fri, 11 Apr 2003 22:54:49 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Nicholas Berry <nikberry@med.umich.edu>, john@grabjohn.com,
-       freesoftwaredeveloper@web.de
-Cc: linux-kernel@vger.kernel.org,
-       Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+	id S261760AbTDKVnz (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 17:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTDKVnz (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 17:43:55 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:31655 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261760AbTDKVnv (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 17:43:51 -0400
+Date: Fri, 11 Apr 2003 14:57:55 -0700
+From: Greg KH <greg@kroah.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [ANNOUNCE] udev 0.1 release
-Message-ID: <290044411.1050101689@[192.168.100.8]>
-In-Reply-To: <se96cd49.002@mail-01.med.umich.edu>
-References: <se96cd49.002@mail-01.med.umich.edu>
-X-Mailer: Mulberry/2.2.1 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20030411215755.GX1821@kroah.com>
+References: <20030411204329.GT1821@kroah.com> <200304112111.h3BLBWgu025834@post.webmailer.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200304112111.h3BLBWgu025834@post.webmailer.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Each poewr connector adds 2 more (turning 1 into 3), you have 5,
-you thus need to add 3995 more, and thus it seems to me you need
-1998 such connectors.
+On Fri, Apr 11, 2003 at 11:09:03PM +0200, Arnd Bergmann wrote:
+> 
+> - Someone accidentally removes the cable that connects a few hundred 
+>   (mounted) disks
+> - The cable is replaced, but - oops - to the wrong socket
+> - The person notices the error and now places the cable into the right
+>   socket.
+> 
+> At this time we have four concurrent hotplug events for every single
+> disks that we want to be finished in order and we want every disk
+> to end up with its original minor number in the end. If this is not
+> possible, the system still needs to be in a sensible state after this.
 
-A
+No, you want to make sure you have the same "name" after that.  As any
+userspace apps that had a open file on the original disks are basically
+screwed anyway, we want a way to enable them to recover nicely.
 
---On 11 April 2003 14:12 -0400 Nicholas Berry <nikberry@med.umich.edu> 
-wrote:
+And no, I don't want to go into the whole, remove a device and plug it
+back in, and userspace never noticed the difference while it held an
+open file handle.  That's a problem I don't want to even go near right
+now, and is totally different from what udev is trying to do :)
 
->
-> Hit hit hit.
->
-> Could be wrong, but I make it 1939.
->
-> Nik
->
->>>> Michael Buesch <freesoftwaredeveloper@web.de> 04/11/03 02:03PM >>>
-> On Friday 11 April 2003 19:46, John Bradford wrote:
->> [Puzzle]
->> Say the power supply had five 5.25" drive power connecters, how many 1
->> into 3 power cable splitters would you need to connect all 4000 disks?
->
-> 400 (hit me if this is wrong :)
->
-> Regards
-> Michael Buesch.
->
->
-> --
-> My homepage: http://www.8ung.at/tuxsoft
-> fighting for peace is like fu**ing for virginity
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+thanks,
 
-
-
---
-Alex Bligh
+greg k-h

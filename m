@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264488AbTDPQjt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbTDPQjt
+	id S264482AbTDPQhg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264483AbTDPQhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:39:49 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:24301 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264488AbTDPQje (ORCPT
+	Wed, 16 Apr 2003 12:37:36 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:32270
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S264482AbTDPQhI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:39:34 -0400
-Subject: Re: [Ltp-coverage] 2.5.67-gcov and 2.4.20-gcov
-From: Paul Larson <plars@linuxtestproject.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: ltp-coverage@lists.sourceforge.net,
-       lse-tech <lse-tech@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030416164440.GB2305@wohnheim.fh-wedel.de>
-References: <1050502803.8637.1094.camel@plars> 
-	<20030416164440.GB2305@wohnheim.fh-wedel.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-AcDhTVW/OBLS1AT5hLQT"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 16 Apr 2003 11:51:09 -0500
-Message-Id: <1050511870.10732.1277.camel@plars>
+	Wed, 16 Apr 2003 12:37:08 -0400
+Subject: Re: RedHat 9 and 2.5.x support
+From: Robert Love <rml@tech9.net>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030416165408.GD30098@wind.cocodriloo.com>
+References: <20030416165408.GD30098@wind.cocodriloo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050511742.15637.24.camel@localhost>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 16 Apr 2003 12:49:02 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-04-16 at 12:54, Antonio Vargas wrote:
 
---=-AcDhTVW/OBLS1AT5hLQT
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+> I've just installed RedHat 9 on my desktop machine and I'd like
+> if it will support running under 2.5.65+ instead of his usual
+> 2.4.19+.
 
-On Wed, 2003-04-16 at 11:44, J=F6rn Engel wrote:
-> Excuse me for being lazy. Does this already cover ppc? I submitted a
-> patch over some other channels some time ago.
-No, not yet.  And I havn't seen that patch, could you send it to me, or
-to the ltp-coverage mailing list?
+Other than modutils(*) there are no issues with RH9 and 2.5.  I am
+running RH9 with 2.5 on my daily workstation.
 
-Thanks,
-Paul Larson
+Even NPTL, sysenter, and all the other goodies work flawlessly.  It is
+quite nice.
 
---=-AcDhTVW/OBLS1AT5hLQT
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+(*) modutils may even work if RH ships the compatibility layer and the
+new module tools.  I have no idea, I do not use modules.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAj6difwACgkQbkpggQiFDqca/QCdGwbsVsLH6KM/GTXkiNoOLprb
-HKoAniR0rFE/Az1Pob/MGlihi/ZJJUS/
-=aUw7
------END PGP SIGNATURE-----
-
---=-AcDhTVW/OBLS1AT5hLQT--
+	Robert Love
 

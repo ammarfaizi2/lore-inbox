@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317171AbSGVNnz>; Mon, 22 Jul 2002 09:43:55 -0400
+	id <S316589AbSGVInS>; Mon, 22 Jul 2002 04:43:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSGVNnk>; Mon, 22 Jul 2002 09:43:40 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:47889 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S317171AbSGVNm0>;
-	Mon, 22 Jul 2002 09:42:26 -0400
-Date: Mon, 22 Jul 2002 09:45:05 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Christoph Hellwig <hch@lst.de>,
-       Thunder from the hill <thunder@ngforever.de>, Val Henson <val@nmt.edu>,
-       Andreas Schuldei <andreas@schuldei.org>, linux-kernel@vger.kernel.org
-Subject: Re: using bitkeeper to backport subsystems?
-Message-ID: <20020722094505.A20319@mark.mielke.cc>
-References: <20020722102930.A14802@lst.de> <Pine.LNX.4.44.0207220443230.3309-100000@hawkeye.luckynet.adm> <20020722124627.A16636@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020722124627.A16636@lst.de>; from hch@lst.de on Mon, Jul 22, 2002 at 12:46:27PM +0200
+	id <S316591AbSGVInS>; Mon, 22 Jul 2002 04:43:18 -0400
+Received: from mons.uio.no ([129.240.130.14]:10180 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S316589AbSGVInR> convert rfc822-to-8bit;
+	Mon, 22 Jul 2002 04:43:17 -0400
+To: "Nils O. =?iso-8859-1?q?Sel=E5sdal?=" <noselasd@Utel.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: NFS unlink race?
+References: <200207220754.g6M7sJ429182@localhost.localdomain>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 22 Jul 2002 10:46:19 +0200
+In-Reply-To: <200207220754.g6M7sJ429182@localhost.localdomain>
+Message-ID: <shswurop2uc.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 12:46:27PM +0200, Christoph Hellwig wrote:
-> On Mon, Jul 22, 2002 at 04:43:58AM -0600, Thunder from the hill wrote:
-> > On Mon, 22 Jul 2002, Christoph Hellwig wrote:
-> > > 2.5 _is_ cloned from 2.4..
-> > Not exactly.
-> Yes, _exactly_.  With BK trees are either cloned or completly separate.
+>>>>> " " == Nils O Selåsdal <noselasd@Utel.no> writes:
 
-It would have been very foolish to not clone 2.4. Worst case would have
-2.5 cloned from 2.3 or 2.2, but the version tree would still be intact,
-just a little indirect. (As far as I am aware, 2.5 is cloned from 2.4)
+     > Seems like there went some patches into 2.5 to fix some nfs
+     > unlink races
+     > (http://linux.bkbits.net:8080/linux-2.5/cset@1.681.1.1?nav=index.html|ChangeSet@-1d)
+     > Does this race apply to 2.4 as well? And might that explain why
 
-> > Several things have been moved around, note e.g. the 
-> > additional "sound" directory...
-> What does the movearound of files/directories change?
+A race exists, but it won't explain your problem. The nature of the
+race is rather that it will cause a program to crash with ESTALE
+errors if it tries to open the file at the exact same time as somebody
+else is trying to erase it.
 
-Nothing, assuming BK is a proper soure management system, which it should be.
-
-In CVS? It would be big problems. But this is one reason why CVS is not
-used for real projects such as the Linux Kernel.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Cheers,
+  Trond

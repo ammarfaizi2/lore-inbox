@@ -1,178 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbVCLXSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVCLXVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbVCLXSu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 18:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVCLXSu
+	id S262064AbVCLXVo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 18:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVCLXVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 18:18:50 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:38857 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262052AbVCLXSC (ORCPT
+	Sat, 12 Mar 2005 18:21:43 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:43977 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262064AbVCLXS5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 18:18:02 -0500
-Date: Sun, 13 Mar 2005 00:17:55 +0100 (MET)
-Message-Id: <200503122317.j2CNHtU3028784@harpo.it.uu.se>
+	Sat, 12 Mar 2005 18:18:57 -0500
+Date: Sun, 13 Mar 2005 00:18:50 +0100 (MET)
+Message-Id: <200503122318.j2CNIome028876@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH][2.6.11-mm3] perfctr API update 1/9: physical indexing, x86
+Subject: [PATCH][2.6.11-mm3] perfctr API update 2/9: physical indexing, ppc32
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Switch x86 driver to use physically-indexed control data.
+- Switch ppc32 driver to use physically-indexed control data.
 - Rearrange struct perfctr_cpu_control. Remove _reserved fields.
-- On P5 and P5 clones users must now format the two counters'
-  control data into a single CESR image.
-- On P4 check ESCR value after retrieving the counter's ESCR number.
+- ppc_mmcr[] array in struct perfctr_cpu_state is no longer needed.
+- In perfctr_cpu_update_control, call check_ireset after check_control,
+  since check_ireset now needs to use the virtual-to-physical map.
+- Users must now format the 2-6 event selector values into the
+  MMCR0/MMCR1 images.
+- Verify that unused/non-existent parts of MMCR images are zero.
 
 Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
 /Mikael
 
- drivers/perfctr/x86.c      |   73 ++++++++++++++++++++++++---------------------
- include/asm-i386/perfctr.h |   14 ++------
- 2 files changed, 43 insertions(+), 44 deletions(-)
+ drivers/perfctr/ppc.c     |   90 +++++++++++++++++++++++-----------------------
+ include/asm-ppc/perfctr.h |   21 +++-------
+ 2 files changed, 52 insertions(+), 59 deletions(-)
 
-diff -rupN linux-2.6.11-mm3/drivers/perfctr/x86.c linux-2.6.11-mm3.perfctr-physical-indexing/drivers/perfctr/x86.c
---- linux-2.6.11-mm3/drivers/perfctr/x86.c	2005-03-12 19:26:25.000000000 +0100
-+++ linux-2.6.11-mm3.perfctr-physical-indexing/drivers/perfctr/x86.c	2005-03-12 19:55:52.000000000 +0100
-@@ -224,9 +224,6 @@ static inline void clear_isuspend_cpu(st
-  * - One TSC and two 40-bit PMCs.
-  * - A single 32-bit CESR (MSR 0x11) controls both PMCs.
-  *   CESR has two halves, each controlling one PMC.
-- *   To keep the API reasonably clean, the user puts 16 bits of
-- *   control data in each counter's evntsel; the driver combines
-- *   these to a single 32-bit CESR value.
-  * - Overflow interrupts are not available.
-  * - Pentium MMX added the RDPMC instruction. RDPMC has lower
-  *   overhead than RDMSR and it can be used in user-mode code.
-@@ -247,11 +244,15 @@ static int p5_like_check_control(struct 
- 	cesr_half[0] = 0;
- 	cesr_half[1] = 0;
- 	for(i = 0; i < state->control.nractrs; ++i) {
--		pmc = state->control.pmc[i].map;
-+		pmc = state->control.pmc_map[i];
- 		state->pmc[i].map = pmc;
- 		if (pmc > 1 || cesr_half[pmc] != 0)
- 			return -EINVAL;
--		evntsel = state->control.pmc[i].evntsel;
-+		evntsel = state->control.evntsel[0];
-+		if (pmc == 0)
-+			evntsel &= 0xffff;
-+		else
-+			evntsel >>= 16;
- 		/* protect reserved bits */
- 		if ((evntsel & reserved_bits) != 0)
- 			return -EPERM;
-@@ -413,12 +414,12 @@ static int p6_like_check_control(struct 
+diff -rupN linux-2.6.11-mm3/drivers/perfctr/ppc.c linux-2.6.11-mm3.perfctr-physical-indexing/drivers/perfctr/ppc.c
+--- linux-2.6.11-mm3/drivers/perfctr/ppc.c	2005-03-12 19:26:25.000000000 +0100
++++ linux-2.6.11-mm3.perfctr-physical-indexing/drivers/perfctr/ppc.c	2005-03-12 19:55:49.000000000 +0100
+@@ -41,11 +41,6 @@ enum pm_type {
+ };
+ static enum pm_type pm_type;
+ 
+-/* Bits users shouldn't set in control.ppc.mmcr0:
+- * - PMC1SEL/PMC2SEL because event selectors are in control.evntsel[]
+- */
+-#define MMCR0_RESERVED		(MMCR0_PMC1SEL | MMCR0_PMC2SEL)
+-
+ static unsigned int new_id(void)
+ {
+ 	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
+@@ -297,9 +292,15 @@ static int ppc_check_control(struct perf
  
  	pmc_mask = 0;
+ 	pmi_mask = 0;
+-	memset(evntsel, 0, sizeof evntsel);
++	evntsel[1-1] = (state->control.mmcr0 >> (31-25)) & 0x7F;
++	evntsel[2-1] = (state->control.mmcr0 >> (31-31)) & 0x3F;
++	evntsel[3-1] = (state->control.mmcr1 >> (31- 4)) & 0x1F;
++	evntsel[4-1] = (state->control.mmcr1 >> (31- 9)) & 0x1F;
++	evntsel[5-1] = (state->control.mmcr1 >> (31-14)) & 0x1F;
++	evntsel[6-1] = (state->control.mmcr1 >> (31-20)) & 0x3F;
++
  	for(i = 0; i < nrctrs; ++i) {
 -		pmc = state->control.pmc[i].map;
 +		pmc = state->control.pmc_map[i];
  		state->pmc[i].map = pmc;
- 		if (pmc >= (is_k7 ? 4 : 2) || (pmc_mask & (1<<pmc)))
+ 		if (pmc >= nr_pmcs || (pmc_mask & (1<<pmc)))
  			return -EINVAL;
- 		pmc_mask |= (1<<pmc);
--		evntsel = state->control.pmc[i].evntsel;
-+		evntsel = state->control.evntsel[pmc];
- 		/* protect reserved bits */
- 		if (evntsel & P6_EVNTSEL_RESERVED)
- 			return -EPERM;
-@@ -555,8 +556,8 @@ static void p6_like_write_control(const 
- 		return;
- 	nrctrs = perfctr_cstatus_nrctrs(state->cstatus);
- 	for(i = 0; i < nrctrs; ++i) {
--		unsigned int evntsel = state->control.pmc[i].evntsel;
- 		unsigned int pmc = state->pmc[i].map;
-+		unsigned int evntsel = state->control.evntsel[pmc];
- 		if (evntsel != cache->control.evntsel[pmc]) {
- 			cache->control.evntsel[pmc] = evntsel;
- 			wrmsr(msr_evntsel0+pmc, evntsel, 0);
-@@ -639,12 +640,12 @@ static int vc3_check_control(struct perf
- 	if (state->control.nrictrs || state->control.nractrs > 1)
- 		return -EINVAL;
- 	if (state->control.nractrs == 1) {
--		if (state->control.pmc[0].map != 1)
-+		if (state->control.pmc_map[0] != 1)
+@@ -308,11 +309,15 @@ static int ppc_check_control(struct perf
+ 		if (i >= nractrs)
+ 			pmi_mask |= (1<<pmc);
+ 
+-		evntsel[pmc] = state->control.pmc[i].evntsel;
+ 		if (evntsel[pmc] > pmc_max_event(pmc))
  			return -EINVAL;
- 		state->pmc[0].map = 1;
--		if (state->control.pmc[0].evntsel & VC3_EVNTSEL1_RESERVED)
-+		if (state->control.evntsel[1] & VC3_EVNTSEL1_RESERVED)
- 			return -EPERM;
--		state->k1.id = state->control.pmc[0].evntsel;
-+		state->k1.id = state->control.evntsel[1];
- 	} else
- 		state->k1.id = 0;
- 	return 0;
-@@ -766,13 +767,13 @@ static int p4_check_control(struct perfc
- 		/* check that pmc_map[] is well-defined;
- 		   pmc_map[i] is what we pass to RDPMC, the PMC itself
- 		   is extracted by masking off the FAST_RDPMC flag */
--		pmc = state->control.pmc[i].map & ~P4_FAST_RDPMC;
--		state->pmc[i].map = state->control.pmc[i].map;
-+		pmc = state->control.pmc_map[i] & ~P4_FAST_RDPMC;
-+		state->pmc[i].map = state->control.pmc_map[i];
- 		if (pmc >= 18 || (pmc_mask & (1<<pmc)))
- 			return -EINVAL;
- 		pmc_mask |= (1<<pmc);
- 		/* check CCCR contents */
--		cccr_val = state->control.pmc[i].evntsel;
-+		cccr_val = state->control.evntsel[pmc];
- 		if (cccr_val & P4_CCCR_RESERVED)
- 			return -EPERM;
- 		if (cccr_val & P4_CCCR_EXTENDED_CASCADE) {
-@@ -789,18 +790,12 @@ static int p4_check_control(struct perfc
- 			if (i < nractrs)
- 				return -EINVAL;
- 			if ((cccr_val & P4_CCCR_FORCE_OVF) &&
--			    state->control.pmc[i].ireset != -1)
-+			    state->control.ireset[pmc] != -1)
- 				return -EINVAL;
- 		} else {
- 			if (i >= nractrs)
- 				return -EINVAL;
- 		}
--		/* check ESCR contents */
--		escr_val = state->control.pmc[i].p4_escr;
--		if (escr_val & P4_ESCR_RESERVED)
--			return -EPERM;
--		if ((escr_val & P4_ESCR_CPL_T1) && (!p4_is_ht || !is_global))
--			return -EINVAL;
- 		/* compute and cache ESCR address */
- 		escr_addr = p4_escr_addr(pmc, cccr_val);
- 		if (!escr_addr)
-@@ -811,6 +806,12 @@ static int p4_check_control(struct perfc
- 		/* XXX: Two counters could map to the same ESCR. Should we
- 		   check that they use the same ESCR value? */
- 		state->p4_escr_map[i] = escr_addr - MSR_P4_ESCR0;
-+		/* check ESCR contents */
-+		escr_val = state->control.p4.escr[escr_addr - MSR_P4_ESCR0];
-+		if (escr_val & P4_ESCR_RESERVED)
-+			return -EPERM;
-+		if ((escr_val & P4_ESCR_CPL_T1) && (!p4_is_ht || !is_global))
-+			return -EINVAL;
  	}
- 	/* check ReplayTagging control (PEBS_ENABLE and PEBS_MATRIX_VERT) */
- 	if (state->control.p4.pebs_enable) {
-@@ -855,14 +856,14 @@ static void p4_write_control(const struc
- 	nrctrs = perfctr_cstatus_nrctrs(state->cstatus);
- 	for(i = 0; i < nrctrs; ++i) {
- 		unsigned int escr_val, escr_off, cccr_val, pmc;
--		escr_val = state->control.pmc[i].p4_escr;
- 		escr_off = state->p4_escr_map[i];
-+		escr_val = state->control.p4.escr[escr_off];
- 		if (escr_val != cache->control.escr[escr_off]) {
- 			cache->control.escr[escr_off] = escr_val;
- 			wrmsr(MSR_P4_ESCR0+escr_off, escr_val, 0);
- 		}
--		cccr_val = state->control.pmc[i].evntsel;
- 		pmc = state->pmc[i].map & P4_MASK_FAST_RDPMC;
-+		cccr_val = state->control.evntsel[pmc];
- 		if (cccr_val != cache->control.evntsel[pmc]) {
- 			cache->control.evntsel[pmc] = cccr_val;
- 			wrmsr(MSR_P4_CCCR0+pmc, cccr_val, 0);
-@@ -994,18 +995,18 @@ void perfctr_cpu_ireload(struct perfctr_
- static int lvtpc_reinit_needed;
+ 
++	/* unused event selectors must be zero */
++	for(i = 0; i < ARRAY_SIZE(evntsel); ++i)
++		if (!(pmc_mask & (1<<i)) && evntsel[i] != 0)
++			return -EINVAL;
++
+ 	/* XXX: temporary limitation */
+ 	if ((pmi_mask & ~1) && (pmi_mask & ~1) != (pmc_mask & ~1))
+ 		return -EINVAL;
+@@ -320,30 +325,23 @@ static int ppc_check_control(struct perf
+ 	switch (pm_type) {
+ 	case PM_7450:
+ 	case PM_7400:
+-		if (state->control.ppc.mmcr2 & MMCR2_RESERVED)
++		if (state->control.mmcr2 & MMCR2_RESERVED)
+ 			return -EINVAL;
+-		state->ppc_mmcr[2] = state->control.ppc.mmcr2;
+ 		break;
+ 	default:
+-		if (state->control.ppc.mmcr2)
++		if (state->control.mmcr2)
+ 			return -EINVAL;
+-		state->ppc_mmcr[2] = 0;
+ 	}
+ 
++	/* check MMCR1; non-existent event selectors are taken care of
++	   by the "unused event selectors must be zero" check above */
++	if (state->control.mmcr1 & MMCR1__RESERVED)
++		return -EINVAL;
++
+ 	/* We do not yet handle TBEE as the only exception cause,
+ 	   so PMXE requires at least one interrupt-mode counter. */
+-	if ((state->control.ppc.mmcr0 & MMCR0_PMXE) && !state->control.nrictrs)
+-		return -EINVAL;
+-	if (state->control.ppc.mmcr0 & MMCR0_RESERVED)
++	if ((state->control.mmcr0 & MMCR0_PMXE) && !state->control.nrictrs)
+ 		return -EINVAL;
+-	state->ppc_mmcr[0] = (state->control.ppc.mmcr0
+-			      | (evntsel[0] << (31-25))
+-			      | (evntsel[1] << (31-31)));
+-
+-	state->ppc_mmcr[1] = ((  evntsel[2] << (31-4))
+-			      | (evntsel[3] << (31-9))
+-			      | (evntsel[4] << (31-14))
+-			      | (evntsel[5] << (31-20)));
+ 
+ 	state->k1.id = new_id();
+ 
+@@ -356,14 +354,14 @@ static int ppc_check_control(struct perf
+ 	switch (pm_type) {
+ 	case PM_7450:
+ 	case PM_7400:
+-		if (state->ppc_mmcr[0] & (MMCR0_FCECE | MMCR0_TRIGGER))
++		if (state->control.mmcr0 & (MMCR0_FCECE | MMCR0_TRIGGER))
+ 			state->cstatus = perfctr_cstatus_set_mmcr0_quirk(state->cstatus);
+ 	default:
+ 		;
+ 	}
+ 
+ 	/* The MMCR0 handling for FCECE and TRIGGER is also needed for PMXE. */
+-	if (state->ppc_mmcr[0] & (MMCR0_PMXE | MMCR0_FCECE | MMCR0_TRIGGER))
++	if (state->control.mmcr0 & (MMCR0_PMXE | MMCR0_FCECE | MMCR0_TRIGGER))
+ 		state->cstatus = perfctr_cstatus_set_mmcr0_quirk(state->cstatus);
+ 
+ 	return 0;
+@@ -466,17 +464,17 @@ static void ppc_write_control(const stru
+ 	 * cache and the state indicate the same value for it,
+ 	 * preventing any actual mtspr to it. Ditto for MMCR1.
+ 	 */
+-	value = state->ppc_mmcr[2];
++	value = state->control.mmcr2;
+ 	if (value != cache->ppc_mmcr[2]) {
+ 		cache->ppc_mmcr[2] = value;
+ 		mtspr(SPRN_MMCR2, value);
+ 	}
+-	value = state->ppc_mmcr[1];
++	value = state->control.mmcr1;
+ 	if (value != cache->ppc_mmcr[1]) {
+ 		cache->ppc_mmcr[1] = value;
+ 		mtspr(SPRN_MMCR1, value);
+ 	}
+-	value = state->ppc_mmcr[0];
++	value = state->control.mmcr0;
+ 	if (value != cache->ppc_mmcr[0]) {
+ 		cache->ppc_mmcr[0] = value;
+ 		mtspr(SPRN_MMCR0, value);
+@@ -546,7 +544,7 @@ static void perfctr_cpu_iresume(const st
+    bypass internal caching and force a reload if the I-mode PMCs. */
+ void perfctr_cpu_ireload(struct perfctr_cpu_state *state)
+ {
+-	state->ppc_mmcr[0] |= MMCR0_PMXE;
++	state->control.mmcr0 |= MMCR0_PMXE;
+ #ifdef CONFIG_SMP
+ 	clear_isuspend_cpu(state);
+ #else
+@@ -557,20 +555,20 @@ void perfctr_cpu_ireload(struct perfctr_
+ /* PRE: the counters have been suspended and sampled by perfctr_cpu_suspend() */
  unsigned int perfctr_cpu_identify_overflow(struct perfctr_cpu_state *state)
  {
 -	unsigned int cstatus, nrctrs, pmc, pmc_mask;
@@ -182,73 +182,108 @@ diff -rupN linux-2.6.11-mm3/drivers/perfctr/x86.c linux-2.6.11-mm3.perfctr-physi
 -	pmc = perfctr_cstatus_nractrs(cstatus);
  	nrctrs = perfctr_cstatus_nrctrs(cstatus);
 -
- 	state->pending_interrupt = 0;
 -	for(pmc_mask = 0; pmc < nrctrs; ++pmc) {
--		if ((int)state->pmc[pmc].start >= 0) { /* XXX: ">" ? */
+-		if ((int)state->pmc[pmc].start < 0) { /* PPC-specific */
 +	pmc_mask = 0;
 +	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
-+		if ((int)state->pmc[i].start >= 0) { /* XXX: ">" ? */
-+			unsigned int pmc = state->pmc[i].map & P4_MASK_FAST_RDPMC;
++		if ((int)state->pmc[i].start < 0) { /* PPC-specific */
++			unsigned int pmc = state->pmc[i].map;
  			/* XXX: "+=" to correct for overshots */
 -			state->pmc[pmc].start = state->control.pmc[pmc].ireset;
 -			pmc_mask |= (1 << pmc);
 +			state->pmc[i].start = state->control.ireset[pmc];
 +			pmc_mask |= (1 << i);
- 			/* On a P4 we should now clear the OVF flag in the
- 			   counter's CCCR. However, p4_isuspend() already
- 			   did that as a side-effect of clearing the CCCR
-@@ -1023,9 +1024,11 @@ static inline int check_ireset(const str
+ 		}
+ 	}
+-	if (!pmc_mask && (state->ppc_mmcr[0] & MMCR0_TBEE))
++	if (!pmc_mask && (state->control.mmcr0 & MMCR0_TBEE))
+ 		pmc_mask = (1<<8); /* fake TB bit flip indicator */
+ 	return pmc_mask;
+ }
+@@ -581,9 +579,11 @@ static inline int check_ireset(const str
  
  	i = state->control.nractrs;
  	nrctrs = i + state->control.nrictrs;
 -	for(; i < nrctrs; ++i)
--		if (state->control.pmc[i].ireset >= 0)
+-		if (state->control.pmc[i].ireset < 0)	/* PPC-specific */
 +	for(; i < nrctrs; ++i) {
-+		unsigned int pmc = state->pmc[i].map & P4_MASK_FAST_RDPMC;
-+		if ((int)state->control.ireset[pmc] >= 0)
++		unsigned int pmc = state->pmc[i].map;
++		if ((int)state->control.ireset[pmc] < 0) /* PPC-specific */
  			return -EINVAL;
 +	}
  	return 0;
  }
  
-@@ -1035,8 +1038,10 @@ static inline void setup_imode_start_val
+@@ -593,8 +593,10 @@ static inline void setup_imode_start_val
  
  	cstatus = state->cstatus;
  	nrctrs = perfctr_cstatus_nrctrs(cstatus);
 -	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i)
 -		state->pmc[i].start = state->control.pmc[i].ireset;
 +	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
-+		unsigned int pmc = state->pmc[i].map & P4_MASK_FAST_RDPMC;
++		unsigned int pmc = state->pmc[i].map;
 +		state->pmc[i].start = state->control.ireset[pmc];
 +	}
  }
  
- #else	/* CONFIG_X86_LOCAL_APIC */
-diff -rupN linux-2.6.11-mm3/include/asm-i386/perfctr.h linux-2.6.11-mm3.perfctr-physical-indexing/include/asm-i386/perfctr.h
---- linux-2.6.11-mm3/include/asm-i386/perfctr.h	2005-03-12 19:26:26.000000000 +0100
-+++ linux-2.6.11-mm3.perfctr-physical-indexing/include/asm-i386/perfctr.h	2005-03-12 19:55:52.000000000 +0100
-@@ -34,20 +34,14 @@ struct perfctr_cpu_control {
+ #else	/* CONFIG_PERFCTR_INTERRUPT_SUPPORT */
+@@ -621,10 +623,10 @@ int perfctr_cpu_update_control(struct pe
+ 	    && state->control.nrictrs)
+ 		return -EPERM;
+ 
+-	err = check_ireset(state);
++	err = check_control(state); /* may initialise state->cstatus */
+ 	if (err < 0)
+ 		return err;
+-	err = check_control(state); /* may initialise state->cstatus */
++	err = check_ireset(state);
+ 	if (err < 0)
+ 		return err;
+ 	state->cstatus |= perfctr_mk_cstatus(state->control.tsc_on,
+@@ -643,7 +645,7 @@ void perfctr_cpu_suspend(struct perfctr_
+ 		unsigned int mmcr0 = mfspr(SPRN_MMCR0);
+ 		mtspr(SPRN_MMCR0, mmcr0 | MMCR0_FC);
+ 		get_cpu_cache()->ppc_mmcr[0] = mmcr0 | MMCR0_FC;
+-		state->ppc_mmcr[0] = mmcr0;
++		state->control.mmcr0 = mmcr0;
+ 	}
+ 	if (perfctr_cstatus_has_ictrs(state->cstatus))
+ 		perfctr_cpu_isuspend(state);
+diff -rupN linux-2.6.11-mm3/include/asm-ppc/perfctr.h linux-2.6.11-mm3.perfctr-physical-indexing/include/asm-ppc/perfctr.h
+--- linux-2.6.11-mm3/include/asm-ppc/perfctr.h	2005-03-12 19:26:26.000000000 +0100
++++ linux-2.6.11-mm3.perfctr-physical-indexing/include/asm-ppc/perfctr.h	2005-03-12 19:55:49.000000000 +0100
+@@ -23,20 +23,12 @@ struct perfctr_cpu_control {
  	unsigned int tsc_on;
  	unsigned int nractrs;		/* # of a-mode counters */
  	unsigned int nrictrs;		/* # of i-mode counters */
-+	unsigned int evntsel[18];	/* primary control registers, physical indices */
-+	unsigned int ireset[18];	/* >= 2^31, for i-mode counters, physical indices */
- 	struct {
-+		unsigned int escr[0x3E2-0x3A0];	/* secondary controls, physical indices */
- 		unsigned int pebs_enable;	/* for replay tagging */
- 		unsigned int pebs_matrix_vert;	/* for replay tagging */
- 	} p4;
+-	struct {
+-		unsigned int mmcr0;	/* sans PMC{1,2}SEL */
+-		unsigned int mmcr2;	/* only THRESHMULT */
+-		/* IABR/DABR/BAMR not supported */
+-	} ppc;
 -	unsigned int _reserved1;
 -	unsigned int _reserved2;
 -	unsigned int _reserved3;
 -	unsigned int _reserved4;
 -	struct {
--		unsigned int map;	/* for rdpmc */
--		unsigned int evntsel;	/* one per counter, even on P5 */
--		unsigned int p4_escr;
--		int ireset;		/* < 0, for i-mode counters */
--	} pmc[18];
-+	unsigned int pmc_map[18];	/* virtual to physical (rdpmc) index map */
+-		unsigned int map;	/* physical counter to use */
+-		unsigned int evntsel;
+-		int ireset;		/* [0,0x7fffffff], for i-mode counters */
+-	} pmc[8];
++	unsigned int mmcr0;
++	unsigned int mmcr1;
++	unsigned int mmcr2;
++	/* IABR/DABR/BAMR not supported */
++	unsigned int ireset[8];		/* [0,0x7fffffff], for i-mode counters, physical indices */
++	unsigned int pmc_map[8];	/* virtual to physical index map */
  };
  
  struct perfctr_cpu_state {
+@@ -55,7 +47,6 @@ struct perfctr_cpu_state {
+ 		unsigned long long sum;
+ 	} pmc[8];	/* the size is not part of the user ABI */
+ #ifdef __KERNEL__
+-	unsigned int ppc_mmcr[3];
+ 	struct perfctr_cpu_control control;
+ #endif
+ };

@@ -1,62 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265487AbTFMSwl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 14:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbTFMSwl
+	id S265490AbTFMTAc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 15:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265491AbTFMTAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 14:52:41 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:58752 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265487AbTFMSwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 14:52:40 -0400
-Date: Fri, 13 Jun 2003 12:02:10 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Steven Dake <sdake@mvista.com>
-Cc: Patrick Mochel <mochel@osdl.org>, Oliver Neukum <oliver@neukum.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] udev enhancements to use kernel event queue
-Message-ID: <20030613120210.A23314@beaverton.ibm.com>
-References: <Pine.LNX.4.44.0306130942040.908-100000@cherise> <3EEA0577.8050200@mvista.com>
+	Fri, 13 Jun 2003 15:00:32 -0400
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:13952 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S265490AbTFMTAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 15:00:30 -0400
+Date: Fri, 13 Jun 2003 21:14:05 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.21 released
+Message-Id: <20030613211405.16faa9f6.us15@os.inf.tu-dresden.de>
+In-Reply-To: <200306131453.h5DErX47015940@hera.kernel.org>
+References: <200306131453.h5DErX47015940@hera.kernel.org>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Fiasco-Rulez: Yes
+X-Mailer: X-Mailer 5.0 Gold
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3EEA0577.8050200@mvista.com>; from sdake@mvista.com on Fri, Jun 13, 2003 at 10:10:15AM -0700
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.?Sh4O2GsXGpbgV"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 13, 2003 at 10:10:15AM -0700, Steven Dake wrote:
+--=.?Sh4O2GsXGpbgV
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> I propose the following test:
-> Create 3 partitions on all 50 disks. Create system to boot kernel.org 
-> 2.5.70 with initramdisk. Try greg's original udev without kernel aptch, 
-> try modified udev with kernel patch, time each system's startup time.
-> 
-> Do you agree with the test methodology? If so, then we can proceed with 
-> gathering real data.
+On Fri, 13 Jun 2003 07:53:33 -0700 Marcelo Tosatti (MT) wrote:
 
-I've seen a large variance on detect/probe/scan for fibre disks depending
-on whether the feral or qlogic drive is used.
+MT> final:
+MT> 
+MT> - 2.4.21-rc8 was released as 2.4.21 with no changes.
 
-This is with switch attached fibre storage.
+Hi Marcelo,
 
-The qlogic takes more time to probe, but has shorter timeouts when trying
-to detect disabled or disconnected ports. On my system (where I have a few
-unconnected fibre cards), the insmod of the qlogic and feral seem to be
-about equal (I haven't timed the actual differences, I normally don't
-build a kernel or modules with both feral and qlogic available, they are
-both available only outside of the mainline kernel). If I removed or
-connected the unconnected cards, the feral driver would be faster.
+I just tried 2.4.21. It reports -2412k data, which doesn't look right.
 
-You could probably improve boot time (or modprobe time) more by speeding
-up the qlogic driver or using the feral driver rather than trying to speed
-up the hotplug/whatever.
+Regards,
+-Udo.
 
-Note that scsi_debug driver has a default IO response time of 1 tick
-(scsi_debug_delay), you can set it to zero, but then it has to wakeup the
-softirqd to complete the IO. So you you either rely on a timeout to
-complete an IO, or a wakeup of the ksoftirqd. I was trying to measure IO
-latencies at one point using scsi_debug, but I seemed to end up measuring
-context switch times instead.
+Linux version 2.4.21 (root@Hell) (gcc version 3.3) #1 Fri Jun 13 21:06:00 CEST 2003
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000002fff0000 (usable)
+ BIOS-e820: 000000002fff0000 - 000000002fff8000 (ACPI data)
+ BIOS-e820: 000000002fff8000 - 0000000030000000 (ACPI NVS)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+767MB LOWMEM available.
+On node 0 totalpages: 196592
+zone(0): 4096 pages.
+zone(1): 192496 pages.
+zone(2): 0 pages.
+Kernel command line: auto BOOT_IMAGE=Linux ro root=805 parport=auto nmi_watchdog=2
+Local APIC disabled by BIOS -- reenabling.
+Found and enabled local APIC!
+Initializing CPU#0
+Detected 704.950 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 1405.74 BogoMIPS
+Memory: 774608k/786368k available (1939k kernel code, 11372k reserved, -2412k data, 284k init, 0k highmem)
 
--- Patrick Mansfield
+--=.?Sh4O2GsXGpbgV
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.1 (GNU/Linux)
+
+iD8DBQE+6iJ9nhRzXSM7nSkRApVQAJ0X+nQy25BUAsdr6fw7ft2fknKfiACfXJcj
+qJk/Pt4hxTujEC17mxaS9pk=
+=wwFE
+-----END PGP SIGNATURE-----
+
+--=.?Sh4O2GsXGpbgV--

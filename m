@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266851AbUHWTtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266858AbUHWTsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266851AbUHWTtH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267526AbUHWTsi
+	id S266858AbUHWTsA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267527AbUHWTqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 15:48:38 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50883 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266851AbUHWSgX convert rfc822-to-8bit
+	Mon, 23 Aug 2004 15:46:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:51907 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266858AbUHWSgY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:36:23 -0400
+	Mon, 23 Aug 2004 14:36:24 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <10932860832487@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:43 -0700
-Message-Id: <1093286083974@kroah.com>
+In-Reply-To: <1093286082458@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:42 -0700
+Message-Id: <10932860824138@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,50 +23,40 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1790.2.12, 2004/08/02 15:37:32-07:00, greg@kroah.com
+ChangeSet 1.1790.2.8, 2004/08/02 15:35:52-07:00, nacc@us.ibm.com
 
-[PATCH] PCI Hotplug: fix build warnings due to msleep() patches.
+[PATCH] PCI Hotplug: ibmphp_core: replace long_delay() with msleep()
 
+Replace long_delay() with msleep() to guarantee the task
+delays as desired.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/hotplug/cpci_hotplug_core.c |    1 +
- drivers/pci/hotplug/ibmphp_hpc.c        |    1 +
- drivers/pci/hotplug/shpchp_hpc.c        |    1 +
- 3 files changed, 3 insertions(+)
+ drivers/pci/hotplug/ibmphp_core.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/pci/hotplug/cpci_hotplug_core.c b/drivers/pci/hotplug/cpci_hotplug_core.c
---- a/drivers/pci/hotplug/cpci_hotplug_core.c	2004-08-23 11:07:48 -07:00
-+++ b/drivers/pci/hotplug/cpci_hotplug_core.c	2004-08-23 11:07:48 -07:00
-@@ -33,6 +33,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/smp_lock.h>
-+#include <linux/delay.h>
- #include "pci_hotplug.h"
- #include "cpci_hotplug.h"
+diff -Nru a/drivers/pci/hotplug/ibmphp_core.c b/drivers/pci/hotplug/ibmphp_core.c
+--- a/drivers/pci/hotplug/ibmphp_core.c	2004-08-23 11:08:11 -07:00
++++ b/drivers/pci/hotplug/ibmphp_core.c	2004-08-23 11:08:11 -07:00
+@@ -190,7 +190,7 @@
+ 		err ("command not completed successfully in power_on\n");
+ 		return -EIO;
+ 	}
+-	long_delay (3 * HZ); /* For ServeRAID cards, and some 66 PCI */
++	msleep(3000);	/* For ServeRAID cards, and some 66 PCI */
+ 	return 0;
+ }
  
-diff -Nru a/drivers/pci/hotplug/ibmphp_hpc.c b/drivers/pci/hotplug/ibmphp_hpc.c
---- a/drivers/pci/hotplug/ibmphp_hpc.c	2004-08-23 11:07:48 -07:00
-+++ b/drivers/pci/hotplug/ibmphp_hpc.c	2004-08-23 11:07:48 -07:00
-@@ -29,6 +29,7 @@
- 
- #include <linux/wait.h>
- #include <linux/time.h>
-+#include <linux/delay.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include <linux/smp_lock.h>
-diff -Nru a/drivers/pci/hotplug/shpchp_hpc.c b/drivers/pci/hotplug/shpchp_hpc.c
---- a/drivers/pci/hotplug/shpchp_hpc.c	2004-08-23 11:07:48 -07:00
-+++ b/drivers/pci/hotplug/shpchp_hpc.c	2004-08-23 11:07:48 -07:00
-@@ -35,6 +35,7 @@
- #include <linux/vmalloc.h>
- #include <linux/interrupt.h>
- #include <linux/spinlock.h>
-+#include <linux/delay.h>
- #include <linux/pci.h>
- #include <asm/system.h>
- #include "shpchp.h"
+@@ -913,7 +913,7 @@
+ 	}
+ 	/* This is for x440, once Brandon fixes the firmware, 
+ 	will not need this delay */
+-	long_delay (1 * HZ);
++	msleep(1000);
+ 	debug ("%s -Exit\n", __FUNCTION__);
+ 	return 0;
+ }
 

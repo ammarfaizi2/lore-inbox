@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291074AbSCSSwz>; Tue, 19 Mar 2002 13:52:55 -0500
+	id <S291088AbSCSS6p>; Tue, 19 Mar 2002 13:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290796AbSCSSwi>; Tue, 19 Mar 2002 13:52:38 -0500
-Received: from web20505.mail.yahoo.com ([216.136.226.140]:38921 "HELO
-	web20505.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S290797AbSCSSwK>; Tue, 19 Mar 2002 13:52:10 -0500
-Message-ID: <20020319185209.2308.qmail@web20505.mail.yahoo.com>
-Date: Tue, 19 Mar 2002 19:52:09 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: Linux 2.4.19pre3-ac2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
+	id <S291102AbSCSS6f>; Tue, 19 Mar 2002 13:58:35 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:5902 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S291088AbSCSS6W>; Tue, 19 Mar 2002 13:58:22 -0500
+Subject: Re: 2.5.7 make modules_install error (oss)
+To: jjs@lexus.com (J Sloan)
+Date: Tue, 19 Mar 2002 19:14:15 +0000 (GMT)
+Cc: Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3C97889B.6060301@lexus.com> from "J Sloan" at Mar 19, 2002 10:51:07 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16nP3n-0008Uv-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+> Agreed, the oss drivers should _at least_
+> be maintained as an alternative, e.g. for
+> those of us who want reliable sound with
+> *low latency*
 
-I cannot compile shm.c unless I apply this
-patch. I hope it's correct, I put 0 in the acct
-field just because there was 0 at the
-do_mmap() line.
+Not really. Well not unless you wish to volunteer.
 
-I'm really sorry this patch will be mangled
-by my mail client here, but it's a one liner,
-self-explanatory.
+> I haven't checked lately, but not too long
+> ago the alsa drivers were found to be one
+> of the worst sources of latency in the kernel.
 
-Regards,
-Willy
-
---- linux/ipc/shm.c-orig        Tue Mar 19 19:45:52
-2002
-+++ linux/ipc/shm.c     Tue Mar 19 19:46:17 2002
-@@ -679,7 +679,7 @@
-                shmdnext = shmd->vm_next;
-                if (shmd->vm_ops == &shm_vm_ops
-                    && shmd->vm_start -
-(shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
--                       do_munmap(mm, shmd->vm_start,
-shmd->vm_end - shmd->vm_start);
-+                       do_munmap(mm, shmd->vm_start,
-shmd->vm_end - shmd->vm_start, 0);
-                        retval = 0;
-                }
-        }
-
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+So fix it. On an SMP box the mess the oss drivers make is very visible
+because its all running under lock_kernel

@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288780AbSA3HlF>; Wed, 30 Jan 2002 02:41:05 -0500
+	id <S288759AbSA3Hlx>; Wed, 30 Jan 2002 02:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288761AbSA3Hky>; Wed, 30 Jan 2002 02:40:54 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:38309 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S288759AbSA3Hkj>; Wed, 30 Jan 2002 02:40:39 -0500
-Date: 30 Jan 2002 08:30:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8HqO$qTmw-B@khms.westfalen.de>
-In-Reply-To: <20020130031528.GF973@conectiva.com.br>
+	id <S288761AbSA3Hle>; Wed, 30 Jan 2002 02:41:34 -0500
+Received: from waste.org ([209.173.204.2]:15510 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S288759AbSA3HlZ>;
+	Wed, 30 Jan 2002 02:41:25 -0500
+Date: Wed, 30 Jan 2002 01:41:22 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: A modest proposal -- We need a patch penguin
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+In-Reply-To: <E16VgQ0-0000AS-00@starship.berlin>
+Message-ID: <Pine.LNX.4.44.0201300136430.25123-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <8Ho-eesXw-B@khms.westfalen.de> <20020129145344.GC2611@hydra> <8Ho-eesXw-B@khms.westfalen.de> <20020130031528.GF973@conectiva.com.br>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-acme@conectiva.com.br (Arnaldo Carvalho de Melo)  wrote on 30.01.02 in <20020130031528.GF973@conectiva.com.br>:
+On Tue, 29 Jan 2002, Daniel Phillips wrote:
 
-> Em Tue, Jan 29, 2002 at 10:03:00PM +0200, Kai Henningsen escreveu:
-> > oxygene@studentenbude.ath.cx (Patrick Mauritz)  wrote on 29.01.02 in
-> > <20020129145344.GC2611@hydra>:
-> >
-> > > On Tue, Jan 29, 2002 at 05:47:27PM +0100, Ingo Molnar wrote:
-> > > > -M:	p2@ace.ulyssis.sutdent.kuleuven.ac.be
->                                 ^^
-> > > > +M:	p2@ace.ulyssis.student.ac.be
-> > > fixing the fix:
-> > > +M:	p2@ace.ulyssis.student.kuleuven.ac.be
->                         ^^
-> > I thought that was the bouncing address?!
->
-> got it? :)
+> Exactly.  The successor patch to the 'kind of gross' patch got rid of the
+> double-pointers, it was the proper fix, though there is still no excuse for
+> leaving the bug hanging around while coming up with the better version.
 
-Now. I certainly looked at those lines for several minutes without ...
+The gross fixes tend to get dropped because if they're in, the proper fix
+loses priority. FIXMEs can take many years to fix. The problem seems not
+to be the dropping of the patch so much as the dropping of the bug report
+and bug tracking is an altogether different problem.
 
-Sometimes a wdiff would be better, it seems :-)
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-
-MfG Kai

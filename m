@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269551AbRHHVKC>; Wed, 8 Aug 2001 17:10:02 -0400
+	id <S269542AbRHHVQm>; Wed, 8 Aug 2001 17:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269549AbRHHVJz>; Wed, 8 Aug 2001 17:09:55 -0400
-Received: from staff.zeelandnet.nl ([212.115.193.238]:40302 "EHLO
-	staff.zeelandnet.nl") by vger.kernel.org with ESMTP
-	id <S269542AbRHHVJ0> convert rfc822-to-8bit; Wed, 8 Aug 2001 17:09:26 -0400
-Content-Class: urn:content-classes:message
+	id <S269546AbRHHVQc>; Wed, 8 Aug 2001 17:16:32 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:51985 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269545AbRHHVQV>; Wed, 8 Aug 2001 17:16:21 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+Date: 8 Aug 2001 14:16:03 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ksa6j$jo7$1@cesium.transmeta.com>
+In-Reply-To: <E15UC9a-0003kt-00@the-village.bc.nu> <Pine.GSO.4.21.0108071510390.18565-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: x86 SMP and RPC/NFS problems
-X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
-Date: Wed, 8 Aug 2001 23:09:21 +0200
-Message-ID: <1C48875BDE7ED0469485A5FD49925C4AF01265@zmx.staff.zeelandnet.nl>
-Thread-Topic: x86 SMP and RPC/NFS problems
-Thread-Index: AcEgTmPgqd/HUFF2QZu9VU46ksKXNA==
-From: "Alex Kerkhove" <alex.kerkhove@staff.zeelandnet.nl>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Followup to:  <Pine.GSO.4.21.0108071510390.18565-100000@weyl.math.psu.edu>
+By author:    Alexander Viro <viro@math.psu.edu>
+In newsgroup: linux.dev.kernel
+> 
+> It is not reliable. E.g. on NFS inumbers are not unique - 32 bits is
+> not enough.
+> 
 
+Unfortunately there is a whole bunch of other things too that rely on
+it, and *HAVE* to rely on it -- (st_dev, st_ino) are defined to
+specify the identity of a file, and if the current types aren't large
+enough we *HAVE* to go to new types.  THERE IS NO OTHER WAY TO TEST
+FOR FILE IDENTITY IN UNIX, and being able to perform such a test is
+vital for many things, including security and hard link detection
+(think tar, cpio, cp -a.)
 
-We're running a quite busy mailserver (50.000 mailboxes, 170000+ msgs a
-day) with maildir 'mailboxes' on an NFS volume. The server was running
-redhat 7.1 with i686 2.4.3-12smp kernel.
+	-hpa
 
-Ever since the machine came into full production we've had big problems
-on our dell 2540 dual p3-733, 1Gb RAM machine. At least twice a day we
-would see nfs server timeouts, followed by "can't get request slot"
-messages completeley hanging the machine and only a reboot could get the
-system going again. We've tried every cure known to man to fix this
-problem (changing nics, mount params, interal buffers, etc) no luck.
-
-
-But when I switched to a Single processor kernel (RH 2.4.3-12) on the
-same machine the problems where instantly solved! (13 days without
-problems so far)
-
-
-So my (blunt?) conclusion is that there must be some serious problems
-with RPC/NFS (I guess RPC) and 2.4 SMP kernels! (and lots of processes
-doing NFS stuff)
-
-
-Anyone any thoughts on this?  My kernel hacking knowledge is limited,
-but I'm willing to test patches :)
-
-Thanks,
-
-Alex
-
-
-Please CC: me as I'm not subscribed to this list.
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

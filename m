@@ -1,77 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264369AbUD0V7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264370AbUD0WOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264369AbUD0V7i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 17:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUD0V7h
+	id S264370AbUD0WOv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 18:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbUD0WOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 17:59:37 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:16521 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S264369AbUD0V7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 17:59:35 -0400
-Date: Tue, 27 Apr 2004 23:59:26 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-bk3 (and earlier?) mount problem (?
-In-Reply-To: <20040427213549.GC17014@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0404272342150.13077@alpha.polcom.net>
-References: <Pine.LNX.4.58.0404261758230.19703@ppc970.osdl.org>
- <20040427010748.GY17014@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0404271106500.22815@alpha.polcom.net> <1083070293.30344.116.camel@watt.suse.com>
- <Pine.LNX.4.58.0404271500210.27538@alpha.polcom.net> <20040427140533.GI14129@stingr.net>
- <20040427183410.GZ17014@parcelfarce.linux.theplanet.co.uk>
- <20040427200459.GJ14129@stingr.net> <20040427202813.GA17014@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0404272232030.9618@alpha.polcom.net>
- <20040427213549.GC17014@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Apr 2004 18:14:51 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:8601 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S264370AbUD0WOs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 18:14:48 -0400
+Date: Tue, 27 Apr 2004 15:14:46 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Ken Ashcraft <ken@coverity.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] Implementation inconsistencies in 2.6.3
+Message-ID: <20040427221446.GA2662@one-eyed-alien.net>
+Mail-Followup-To: Ken Ashcraft <ken@coverity.com>,
+	linux-kernel@vger.kernel.org
+References: <4448.171.64.70.113.1083102442.spork@webmail.coverity.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Content-Disposition: inline
+In-Reply-To: <4448.171.64.70.113.1083102442.spork@webmail.coverity.com>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> On Tue, Apr 27, 2004 at 10:39:09PM +0200, Grzegorz Kulewski wrote:
-> > > 	c) nobody sane should put that as default.  Oh, wait, it's gentoo
-> > > we are talking about?  Nevermind, then.
-> > 
-> > But what default? Gentoo just calls evms_activate before mounting 
-> > filesystems to check if there are evms volumes (because filesystems can 
-> > reside on it). And, according to man page, this is the right usage of 
-> > evms_activate.
-> 
-> And that usage of evms_activate takes over all normally partitioned devices
-> and shoves equivalents of partitions under /dev/evms, right?  So in which
-> universe would that be the right thing to do without a big fat warning and
-> update of /etc/fstab?
 
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->From evms_activate man page:
+On Tue, Apr 27, 2004 at 02:47:22PM -0700, Ken Ashcraft wrote:
+> I'm trying to cross check implementations of the same interface for
+> errors.  I assume that if functions are assigned to the same function
+> pointer, they are implementations of a common interface and should be
+> consistent with each other.  For example, if one implementation checks one
+> of its arguments for NULL, the other implementation should also check that
+> argument for NULL.
+>=20
+> In this case, I'm looking at which arguments are referenced at all in the
+> implementation.  If we have 10 implementations and 9 of them read argument
+> 1 and the 10th fails to read argument 1, the 10th implementation may be
+> missing some code.  In each of the reports below, I give an example
+> implementation that does read the argument.  That is followed by an
+> implementation that fails to read the argument.
+>=20
 
-DESCRIPTION
-       The  evms_activate  command  discovers  all EVMS volumes and 
-activates kernel devices for all volumes
-       that are not yet active. The command should be run at boot time so 
-the file systems  that  reside  on
-       the volumes can be mounted. If EVMS volumes are listed in the 
-/etc/fstab, evms_activate should be run
-       before /etc/fstab is processed (which is distribution specific). If 
-the root file  system  is  on  an
-       EVMS volume, evms_activate should be run from the init-ramdisk.
- 
+> ---------------------------------------------------------
+> [BUG] (mdharm-usb@one-eyed-alien.net) looks like it should return count
+> instead of strlen(buf), but this is in scsiglue.c, so is it special code?
+>=20
+> example:
+> /home/kash/linux/2.6.3/linux-2.6.3/drivers/scsi/scsi_sysfs.c:274:store_re=
+scan_field:
+> NOTE:READ: Checking arg count [EXAMPLE=3Ddevice_attribute.store-2]
+>=20
+> /home/kash/linux/2.6.3/linux-2.6.3/drivers/usb/storage/scsiglue.c:321:sto=
+re_max_sectors:
+> ERROR:READ: Not checking arg [COUNTER=3Ddevice_attribute.store-2]  [fit=
+=3D1]
+> [fit_fn=3D1] [fn_ex=3D0] [fn_counter=3D1] [ex=3D233] [counter=3D1] [z =3D
+> 3.20943839741638] [fn-z =3D -4.35889894354067]
+>=20
+> 	return sprintf(buf, "%u\n", sdev->request_queue->max_sectors);
+> }
+>=20
+> /* Input routine for the sysfs max_sectors file */
+>=20
+> Error --->
+> static ssize_t store_max_sectors(struct device *dev, const char *buf,
+> 		size_t count)
+> {
+> 	struct scsi_device *sdev =3D to_scsi_device(dev);
 
-And where is the big fat warning that you can not use your normal devices 
-anymore?
+My understanding was that I was supposed to return the number of bytes in
+the buffer that I actually used.  I thought 'count' was the maximum size I
+could use.
 
-And I still do not understand why my old device names that every script / 
-program on the Eartch uses cannot be used anymore... And if I really can 
-not use them why their device files in dev do not disappear? (I am using 
-udev.)
+Is that not the case?
 
-And can I use fdisk to modify and then reload partition table in this new 
-approach? And will mount that is searching for filesystem with specified 
-label find it on new device? And should not the kernel warn in case 
-someone is touching the old device?
+Matt
 
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Grzegorz Kulewski
+Oh great modem, why hast thou forsaken me?
+					-- Dust Puppy
+User Friendly, 3/2/1998
 
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAjttWIjReC7bSPZARAl/WAKC5HQMB6udjJzukNpZAOJJT6t/z/QCghUAO
+b1ZiZeimWGeqUYS/7tzDn/w=
+=DCeb
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--

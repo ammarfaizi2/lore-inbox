@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129084AbRBQM0w>; Sat, 17 Feb 2001 07:26:52 -0500
+	id <S130962AbRBQM2c>; Sat, 17 Feb 2001 07:28:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129136AbRBQM0n>; Sat, 17 Feb 2001 07:26:43 -0500
-Received: from colorfullife.com ([216.156.138.34]:2577 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129084AbRBQM00>;
-	Sat, 17 Feb 2001 07:26:26 -0500
-Message-ID: <3A8E6E0C.2F205328@colorfullife.com>
-Date: Sat, 17 Feb 2001 13:26:52 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-14 i586)
-X-Accept-Language: en
+	id <S131004AbRBQM2W>; Sat, 17 Feb 2001 07:28:22 -0500
+Received: from [132.69.253.254] ([132.69.253.254]:31758 "HELO
+	vipe.technion.ac.il") by vger.kernel.org with SMTP
+	id <S130962AbRBQM2G>; Sat, 17 Feb 2001 07:28:06 -0500
+Date: Sat, 17 Feb 2001 14:20:03 +0200 (IST)
+From: Igor Yanover <yanover@vipe.technion.ac.il>
+To: linux-kernel@vger.kernel.org
+Subject: More on IO-APIC trouble
+Message-ID: <Pine.LNX.4.10.10102171401540.7724-100000@vipe.technion.ac.il>
 MIME-Version: 1.0
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-CC: linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] a more efficient BUG() macro
-In-Reply-To: <3A8E3BA5.4B98E94E@yahoo.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Gortmaker wrote:
-> 
-> Anyway this small patch makes sure there is only one "kernel BUG..." string,
-> and dumps __FILE__ in favour of an address value since System.map data is
-> needed to make full use of the BUG() dump anyways.  The memory stats of two
-> otherwise identical kernels:
->
+    Recently I came across two more things, that are possibly related to
+IO-APIC problems:
+1)http://xfree86.org/pipermail/xpert/2001January/004751.html
+    Someone with SMP that has problem with interrupt delivery (stuck
+interrupt). Only in SMP mode and this is not NE2000 related.
+2)http://developer.intel.com/software/idap/media/pdf/copy.pdf ( Page 8
+footer)
+   It turns out, that there's an errata in early Pentium III revisions,
+that could corrupt data written to IO-APIC. ( Only if SSE write is
+followed by an APIC write)
+                                    Igor
 
-Shouldn't the linker drop duplicate strings?
-
-info gcc mentions that gcc merges duplicate strings, but it seems that
-it doesn't work (gcc-2.96-69, binutils-2.10.0.18-1).
-
---
-	Manfred

@@ -1,74 +1,147 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276743AbRJHBWX>; Sun, 7 Oct 2001 21:22:23 -0400
+	id <S276745AbRJHB2N>; Sun, 7 Oct 2001 21:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276745AbRJHBWP>; Sun, 7 Oct 2001 21:22:15 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:23993 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S276743AbRJHBWH>;
-	Sun, 7 Oct 2001 21:22:07 -0400
-Date: Mon, 8 Oct 2001 12:22:02 +1100
-From: Nathan Scott <nathans@sgi.com>
-To: monkeyiq <monkeyiq@users.sourceforge.net>
-Cc: Andreas Gruenbacher <ag@bestbits.at>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: ENOATTR and other error enums
-Message-ID: <20011008122201.W472533@wobbly.melbourne.sgi.com>
-In-Reply-To: <200110060624.f966OeV30354@monkeyiq.dnsalias.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110060624.f966OeV30354@monkeyiq.dnsalias.org>; from monkeyiq@users.sourceforge.net on Sat, Oct 06, 2001 at 04:24:40PM +1000
+	id <S276746AbRJHB1z>; Sun, 7 Oct 2001 21:27:55 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:20623 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S276745AbRJHB1g>; Sun, 7 Oct 2001 21:27:36 -0400
+Date: Sun, 7 Oct 2001 21:28:01 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200110080128.f981S1P32470@devserv.devel.redhat.com>
+To: Tim.Stadelmann@physics.ox.ac.uk, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dell Latitude C600 suspend problem
+In-Reply-To: <mailman.1002472081.27755.linux-kernel2news@redhat.com>
+In-Reply-To: <20011007115712.A4357@univn10.univ.ox.ac.uk> <E15qEdC-0005tB-00@the-village.bc.nu> <20011007170957.A536@univn10.univ.ox.ac.uk> <mailman.1002472081.27755.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi there,
+> From: Tim Stadelmann
 
-On Sat, Oct 06, 2001 at 04:24:40PM +1000, monkeyiq wrote:
-> Hi,
->   Anyone know where these are defined in Linux? I dont seem
-> to be able to find them, even with find/grep in /usr/include.
+> In any case, here's the patch:
 
-ENOATTR is not a blessed errno in Linux.  In XFS we have simply
-defined it to be the same as ENODATA for the time being.  The
-ext2 extended attributes project define it to be EDOM, also as
-a stop-gap solution I imagine.
+Looks good, but I'd prefer just a tiny bit better.
 
-A similar problem exists with ENOTSUP (defined by POSIX 1003.1b?)
-- this is only supported via linux/asm-parisc/errno.h as a real
-errno, among all the architectures.  Both the XFS and ext2 extended
-attributes implementations define this errno to be EOPNOTSUPP as an
-interim solution.  Ah, wait - from a quick test, glibc does seem to
-do exactly this also, so this one is not a problem (except perhaps
-on the parisc port? -- hmm, that could actually be a bug on parisc).
+1. asm-i386 instead of asm in filenames
+2. replace space with tabs - Arjan used xterm paste or something?
+3. I hate too long lines
 
-On a related topic, but not specific to extended attributes - for
-XFS in general, we needed one other errno - EFSCORRUPTED.  This is
-used when XFS goes into forced shutdown mode for a filesystem that
-has been detected as on-disk corrupt, to stop making the situation
-any worse (user must umount/xfs_repair).  We couldn't find any pre-
-existing Linux errno vaguely similar to this one, so it was defined
-to "990" until a real solution could be found.
+The root of the evil is that the declaration of an external was
+not in any header (because it would make a header dependent on
+pm.h, and for the benefit of some obscure broken BIOS), and
+sooner or later a mismatch happened.
+Unfortunately, I see no good way to correct that.
 
-Obviously, these are not the correct long-term solutions ... they
-need to become real Linux errno's, I think, and ENOTSUP could be
-defined to EOPNOTSUPP? - EWOULDBLOCK, EDEADLOCK seem to do this.
-I'm not sure how to reach that point though (CC'ing linux-kernel
-for any advice) - for reference, in IRIX these errnos are defined
-as follows:
+-- Pete
 
-ENOATTR = Attribute not found
-EFSCORRUPTED = Filesystem is corrupted
-
-> Also, is there a function to get a string rep of the error
-> that occured in the attr code?
-
-Someday it should become a part of asm-XXXXX/errno.h (errno's are
-architecture specific) and the libc strerror(3) routine should be
-able to provide a meaningful string.  But currently that does not
-happen.
-
-cheers.
-
--- 
-Nathan
+diff -ur -X dontdiff linux-2.4.10/arch/i386/kernel/dmi_scan.c linux-2.4.10-e/arch/i386/kernel/dmi_scan.c
+--- linux-2.4.10/arch/i386/kernel/dmi_scan.c	Mon Sep 17 22:52:35 2001
++++ linux-2.4.10-e/arch/i386/kernel/dmi_scan.c	Sun Oct  7 18:02:46 2001
+@@ -369,15 +369,14 @@
+  * was disabled before the suspend. Linux gets terribly confused by that.
+  */
+ 
+-typedef void (pm_kbd_func) (void);
+-extern pm_kbd_func *pm_kbd_request_override;
++extern pm_callback pm_kbd_request_override;
+ 
+ static __init int broken_ps2_resume(struct dmi_blacklist *d)
+ {
+ #ifdef CONFIG_VT
+ 	if (pm_kbd_request_override == NULL)
+ 	{
+-		pm_kbd_request_override = pckbd_pm_resume;
++		pm_kbd_request_override = pckbd_pm_callback;
+ 		printk(KERN_INFO "%s machine detected. Mousepad Resume Bug workaround enabled.\n", d->ident);
+ 	}
+ #endif	
+diff -ur -X dontdiff linux-2.4.10/drivers/char/keyboard.c linux-2.4.10-e/drivers/char/keyboard.c
+--- linux-2.4.10/drivers/char/keyboard.c	Tue Sep 18 13:39:51 2001
++++ linux-2.4.10-e/drivers/char/keyboard.c	Sun Oct  7 18:12:45 2001
+@@ -911,8 +911,6 @@
+ EXPORT_SYMBOL(keyboard_tasklet);
+ DECLARE_TASKLET_DISABLED(keyboard_tasklet, kbd_bh, 0);
+ 
+-typedef void (pm_kbd_func) (void);
+-
+ pm_callback pm_kbd_request_override = NULL;
+ 
+ int __init kbd_init(void)
+@@ -937,7 +935,7 @@
+ 
+ 	tasklet_enable(&keyboard_tasklet);
+ 	tasklet_schedule(&keyboard_tasklet);
+-	
++
+ 	pm_kbd = pm_register(PM_SYS_DEV, PM_SYS_KBC, pm_kbd_request_override);
+ 
+ 	return 0;
+diff -ur -X dontdiff linux-2.4.10/drivers/char/pc_keyb.c linux-2.4.10-e/drivers/char/pc_keyb.c
+--- linux-2.4.10/drivers/char/pc_keyb.c	Mon Sep 17 22:52:35 2001
++++ linux-2.4.10-e/drivers/char/pc_keyb.c	Sun Oct  7 17:57:43 2001
+@@ -397,29 +397,33 @@
+ 	    return 0200;
+ }
+ 
+-void pckbd_pm_resume(void)
++int pckbd_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data)
+ {
+ #if defined CONFIG_PSMOUSE
+        unsigned long flags;
+ 
+-       if (queue) {                    /* Aux port detected */
+-               if (aux_count == 0) {   /* Mouse not in use */ 
+-                       spin_lock_irqsave(&kbd_controller_lock, flags);
+-                       /*
+-                        * Dell Lat. C600 A06 enables mouse after resume.
+-                        * When user touches the pad, it posts IRQ 12
+-                        * (which we do not process), thus holding keyboard.
+-                        */
+-                       kbd_write_command(KBD_CCMD_MOUSE_DISABLE);
+-                       /* kbd_write_cmd(AUX_INTS_OFF); */ /* Config & lock */
+-                       kb_wait();
+-                       kbd_write_command(KBD_CCMD_WRITE_MODE);
+-                       kb_wait();
+-                       kbd_write_output(AUX_INTS_OFF);
+-                       spin_unlock_irqrestore(&kbd_controller_lock, flags);
+-               }
+-       }
+-#endif       
++	if (rqst != PM_RESUME)
++		return 0;
++
++	if (queue) {			/* Aux port detected */
++		if (aux_count == 0) {	/* Mouse not in use */ 
++			spin_lock_irqsave(&kbd_controller_lock, flags);
++			/*
++			 * Dell Lat. C600 A06 enables mouse after resume.
++			 * When user touches the pad, it posts IRQ 12
++			 * (which we do not process), thus holding keyboard.
++			 */
++			kbd_write_command(KBD_CCMD_MOUSE_DISABLE);
++			/* kbd_write_cmd(AUX_INTS_OFF); */ /* Config & lock */
++			kb_wait();
++			kbd_write_command(KBD_CCMD_WRITE_MODE);
++			kb_wait();
++			kbd_write_output(AUX_INTS_OFF);
++			spin_unlock_irqrestore(&kbd_controller_lock, flags);
++		}
++	}
++#endif
++	return 0;
+ }
+ 
+ 
+diff -ur -X dontdiff linux-2.4.10/include/asm-i386/keyboard.h linux-2.4.10-e/include/asm-i386/keyboard.h
+--- linux-2.4.10/include/asm-i386/keyboard.h	Sun Sep 23 10:31:59 2001
++++ linux-2.4.10-e/include/asm-i386/keyboard.h	Sun Oct  7 17:53:28 2001
+@@ -28,7 +28,7 @@
+ extern char pckbd_unexpected_up(unsigned char keycode);
+ extern void pckbd_leds(unsigned char leds);
+ extern void pckbd_init_hw(void);
+-extern void pckbd_pm_resume(void);
++extern int pckbd_pm_callback(struct pm_dev *dev, pm_request_t rqst, void *data);
+ extern unsigned char pckbd_sysrq_xlate[128];
+ 
+ #define kbd_setkeycode		pckbd_setkeycode

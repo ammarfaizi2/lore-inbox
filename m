@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVAOC6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVAOC73@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVAOC6L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 21:58:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVAOC6L
+	id S262175AbVAOC73 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 21:59:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbVAOC72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 21:58:11 -0500
-Received: from evtexc08.relay.danahertm.com ([129.196.229.155]:19132 "EHLO
-	evtexc08.relay.danahertm.com") by vger.kernel.org with ESMTP
-	id S262169AbVAOC6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 21:58:00 -0500
-Date: Fri, 14 Jan 2005 18:58:11 -0800 (PST)
-From: David Dyck <david.dyck@fluke.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Steffen Moser <lists@steffen-moser.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.29-rc2
-In-Reply-To: <20050114231712.GH3336@logos.cnet>
-Message-ID: <Pine.LNX.4.51.0501141853270.222@dd.tc.fluke.com>
-References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de>
- <20050114231712.GH3336@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 15 Jan 2005 03:02:14.0659 (UTC) FILETIME=[9D7B8D30:01C4FAAE]
+	Fri, 14 Jan 2005 21:59:28 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:37306 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262175AbVAOC6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 21:58:22 -0500
+Date: Fri, 14 Jan 2005 21:58:18 -0500
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+Message-ID: <20050115025818.GA28422@bittwiddlers.com>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
+	<200501122242.51686.dtor_core@ameritech.net>
+	<20050114230637.GA32061@bittwiddlers.com>
+	<200501142031.10119.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501142031.10119.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6+20040907i
+X-Delivery-Agent: TMDA/1.0.3 (Seattle Slew)
+From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
+X-Primary-Address: mharrell@bittwiddlers.com
+Reply-To: Matthew Harrell 
+	  <mharrell-dated-1106189901.f84b08@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005 at 21:17 -0200, Marcelo Tosatti <marcelo.tosatti@cyclad...:
+: Also, there is a patch my Alan Cox dealing with legacy emulation (but note
+: that first part (udelay(50)) has already been applied:
+: 
+: http://marc.theaimsgroup.com/?l=linux-kernel&m=109096903809223&q=raw
 
-> David, this also fix your problem.
+Well acpipnp didn't have any effect.
 
+I tried the patch above but there's an undefined function, pci_find_class,
+in i8042_spank_usb.  Did it change names?
 
-Sorry, no
-
-I tried your patch to drivers/char/tty_io.c
-(using EXPORT_SYMBOL instead of EXPORT_SYMBOL_GPL)
-
-My first test (apply the patch, make bzImage and modules again
-results in the same errors as before
-
-# insmod $PWD/cyclades.o
-/lib/modules/2.4.29-rc2/kernel/drivers/char/cyclades.o: unresolved symbol tty_ldisc_flush
-/lib/modules/2.4.29-rc2/kernel/drivers/char/cyclades.o: unresolved symbol tty_wakeup
-
-$ grep tty_ldisc_flush /proc/ksyms
-c01db0dc tty_ldisc_flush_R__ver_tty_ldisc_flush
-
-
- heading back to 2.4.29-pre2...
-     David
-
+-- 
+  Matthew Harrell                          All science is either physics or
+  Bit Twiddlers, Inc.                       stamp collecting.
+  mharrell@bittwiddlers.com     

@@ -1,18 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267136AbSLREnT>; Tue, 17 Dec 2002 23:43:19 -0500
+	id <S267132AbSLREk3>; Tue, 17 Dec 2002 23:40:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267137AbSLREnT>; Tue, 17 Dec 2002 23:43:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54800 "EHLO
+	id <S267134AbSLREk3>; Tue, 17 Dec 2002 23:40:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44304 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267136AbSLREnS>; Tue, 17 Dec 2002 23:43:18 -0500
-Date: Tue, 17 Dec 2002 20:52:19 -0800 (PST)
+	id <S267132AbSLREk2>; Tue, 17 Dec 2002 23:40:28 -0500
+Date: Tue, 17 Dec 2002 20:49:17 -0800 (PST)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Ulrich Drepper <drepper@redhat.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
 Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <20021218154023.29726d09.sfr@canb.auug.org.au>
-Message-ID: <Pine.LNX.4.44.0212172049410.1749-100000@home.transmeta.com>
+In-Reply-To: <3DFFFBF1.7000507@transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212172043540.1749-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,32 +23,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 18 Dec 2002, Stephen Rothwell wrote:
+On Tue, 17 Dec 2002, H. Peter Anvin wrote:
 >
-> It would help to know what "unhappy" means :-)
+> This confuses me -- there seems to be no reason this shouldn't work as
+> long as %esp == %ebp on sysexit.  The SYSEXIT-trashed GPRs seem like a
+> bigger problem.
 
-Andrew reported an oops in the BIOS. I ahev the full oops info somewhere,
-but quite frankly it isn't that readable. It shows
+The thing is, the argument save area == the kernel stack frame. This is
+part of the reason why Linux has very fast system calls - there is
+absolutely _zero_ extraneous setup. No argument fetching and marshalling,
+it's all part of just setting up the regular kernel stack.
 
-	EIP:    00b8:[<000044d7>]    Not tainted
-	ds: 0000   es: 0000   ss: 0068
-	Call Trace:
-	 [<c0112739>] apm_bios_call+0x75/0xf4
-	 [<c0130000>] cache_init_objs+0x34/0xd8
-	 [<c0112b72>] apm_get_power_status+0x42/0x84
-	 [<c012d843>] __alloc_pages+0x77/0x244
-	 [<c0113828>] apm_get_info+0x38/0xe4
-	 [<c016982d>] proc_file_read+0xa9/0x1ac
-	 [<c0141b53>] vfs_read+0xb7/0x138
-	 [<c0141dee>] sys_read+0x2a/0x40
-	 [<c0108e67>] syscall_call+0x7/0xb
+So to get the right argument in arg6, the argument _needs_ to be saved in
+the %ebp entry on the kernel stack. Which means that on return from the
+system call (which may not actually be through a "sysenter" at all, if
+signals happen it will go through the generic paths), %ebp will have been
+updated as part of the kernel stack unwinding.
 
-and I suspect the problem is that 0 in ds/es..
+Which is ok for a regular fast system call (ebp will get restored
+immediately), but it is NOT ok for the system call restart case, since in
+that case we want %ebp to contain the old stack pointer, not the sixth
+argument.
 
-> Does the following fix it for you? Untested, assumes cache lines are 32
-> bytes.
-
-Andrew?
+If we just save the stack pointer value (== the initial %ebx value), the
+right thing will get restored, but then system calls will see the stack
+pointer value as arg6 - because of the 1:1 relationship between arguments
+and stack save.
 
 		Linus
 

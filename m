@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270452AbRHHK7y>; Wed, 8 Aug 2001 06:59:54 -0400
+	id <S270451AbRHHLEO>; Wed, 8 Aug 2001 07:04:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270454AbRHHK7s>; Wed, 8 Aug 2001 06:59:48 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56670 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S270451AbRHHK71>; Wed, 8 Aug 2001 06:59:27 -0400
-To: ankry@green.mif.pg.gda.pl
-Cc: rhw@MemAlpha.CX (Riley Williams), mra@pobox.com (Mark Atwood),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-In-Reply-To: <200108080841.KAA26569@sunrise.pg.gda.pl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Aug 2001 04:52:51 -0600
-In-Reply-To: <200108080841.KAA26569@sunrise.pg.gda.pl>
-Message-ID: <m11ymmvn5o.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S270453AbRHHLEF>; Wed, 8 Aug 2001 07:04:05 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50183 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270451AbRHHLEA>; Wed, 8 Aug 2001 07:04:00 -0400
+Subject: Re: is this a bug?
+To: kernel@blackhole.compendium-tech.com (Dr. Kelsey Hudson)
+Date: Wed, 8 Aug 2001 12:05:54 +0100 (BST)
+Cc: thodoris@cs.teiher.gr (Thodoris Pitikaris), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108071916100.23797-100000@sol.compendium-tech.com> from "Dr. Kelsey Hudson" at Aug 07, 2001 07:19:16 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15UR9v-000546-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz <ankry@pg.gda.pl> writes:
+> > cputype=Athlon I continiusly experienced this crash.When I compiled with
+> > cputype=i686 everything went smooth (OS is Redhat 7.1)
+> 
+> It's a bug in that screwed up compiler redhat shipped with 7.1. AFAIK, the
+> only difference between an athlon-specific kernel and an i686-specific
+> kernel are the options in the compiler command line when compiling the
+> kernel.
 
-> 1. NFS-root needs to have RARP/NFS servers on eth0.
->    How can you deal with it if you have two boards supported by a single
->    driver and, unfortunately, the one you need is detected as eth1 ?
->    Assume that you cannot switch them as they use different media type...
+Please stop deliberately spreading misinformation. The last thing an end
+user with a problem needs is a bigot with an axe to grind lying to them to
+make a political point.
 
-Hmm.  Then my system that does DHCP/NFS root with 2.4.7 and comes up
-on eth2 is doesn't work?  Hmm it looks like it works to me.
+Its the classic 'bought the wrong VIA chipset mainboard' problem
 
-Eric
+Alan

@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261829AbSLMJuW>; Fri, 13 Dec 2002 04:50:22 -0500
+	id <S261847AbSLMJ5d>; Fri, 13 Dec 2002 04:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261839AbSLMJuW>; Fri, 13 Dec 2002 04:50:22 -0500
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:33289 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261829AbSLMJuV>; Fri, 13 Dec 2002 04:50:21 -0500
-Message-ID: <094501c2a296$567b4af0$6400a8c0@sawamu>
-From: "Alexandre Pires" <linux_kernel_br@yahoo.com.br>
-To: <linux-kernel@vger.kernel.org>
-Subject: Memory Manager Subsystem
-Date: Fri, 13 Dec 2002 07:56:45 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261857AbSLMJ5c>; Fri, 13 Dec 2002 04:57:32 -0500
+Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:38088
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261842AbSLMJ5c>; Fri, 13 Dec 2002 04:57:32 -0500
+Subject: Re: 2.5.51 ide module problem (fwd)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Jeff Chua <jchua@fedex.com>, "Adam J. Richter" <adam@yggdrasil.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, axboe@suse.de,
+       linux-ide@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
+In-Reply-To: <20021213013637.4F2652C0ED@lists.samba.org>
+References: <20021213013637.4F2652C0ED@lists.samba.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 13 Dec 2002 10:42:46 +0000
+Message-Id: <1039776166.25121.15.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Sir,
+On Fri, 2002-12-13 at 01:35, Rusty Russell wrote:
+> Also, my stress_modules script gave the following warning then oops
+> from ide-cd on 2.5.51 SMP x86 (IDE is built-in):
 
-Somebody could indicate me some material about Memory Manager subsystem and
-Memory Map ?
+Yes. This mysteriously stsrted happening. I don't know if its now
+trapping a long standing IDE bug or its of the other changes people did
+to IDE to make it actually follow the devices model properly. I've got a
+slightly similar looking 2.4 bug to chase down which makes me suspect
+the former.
 
-Many thanks in advance.
-Alexandre R. Pires
-Brasil
-
-_______________________________________________________________________
-Yahoo! Encontros
-O lugar certo para encontrar a sua alma gêmea.
-http://br.encontros.yahoo.com/

@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbQK3WrU>; Thu, 30 Nov 2000 17:47:20 -0500
+	id <S130343AbQK3Wsk>; Thu, 30 Nov 2000 17:48:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130467AbQK3WrL>; Thu, 30 Nov 2000 17:47:11 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:60659 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S129257AbQK3WrC>; Thu, 30 Nov 2000 17:47:02 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Arnaud Installe <a.installe@ieee.org>
-Cc: linux-kernel@vger.kernel.org, ainstalle@filepool.com
-Date: Thu, 30 Nov 2000 15:00:10 -0800 (PST)
-Subject: Re: high load & poor interactivity on fast thread creation
-In-Reply-To: <20001130081443.A8118@bach.iverlek.kotnet.org>
-Message-ID: <Pine.LNX.4.21.0011301459250.17363-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130467AbQK3Wsa>; Thu, 30 Nov 2000 17:48:30 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:15942 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130343AbQK3WsP>; Thu, 30 Nov 2000 17:48:15 -0500
+Date: Thu, 30 Nov 2000 23:17:16 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andreas Dilger <adilger@turbolinux.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>,
+        Linus Torvalds <torvalds@transmeta.com>, V Ganesh <ganesh@veritas.com>,
+        linux-kernel@vger.kernel.org, linux-LVM@sistina.com, mingo@redhat.com
+Subject: Re: [PATCH] Re: [bug] infinite loop in generic_make_request()
+Message-ID: <20001130231716.H18804@athlon.random>
+In-Reply-To: <20001130214121.D18804@athlon.random> <200011302154.eAULsJZ02315@webber.adilger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200011302154.eAULsJZ02315@webber.adilger.net>; from adilger@turbolinux.com on Thu, Nov 30, 2000 at 02:54:19PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-try the 2.4 test kernels. I had a situation of poor performance with lots
-of processes and saw a dramatic improvement with the 2.4 kernel.
+On Thu, Nov 30, 2000 at 02:54:19PM -0700, Andreas Dilger wrote:
+> Andrea writes:
+> > On Thu, Nov 30, 2000 at 01:05:53PM -0700, Andreas Dilger wrote:
+> > > the RAID and LVM make_request functions should be changed to do that
+> > > instead (i.e. 0 on success, -ve on error, and maybe "1" if they do their
+> > > own recursion to break the loop)?
+> > 
+> > We preferred to let the lowlevel drivers to handle error themselfs to
+> > simplify the interface. The lowlevel driver needs to call buffer_IO_error
+> > before returning in case of error.
+> 
+> Even if the lowlevel driver handles the error case, it would still
+> make more sense to stick with the normal kernel practise of -ERROR,
+> and 0 for success.  Then, if in the future we can do something with the
+> error codes, at least we don't have to change the interface yet again.
 
-David Lang
+You shouldn't see the fact that a storage management driver returns 0 as an
+error. It has a different semantic, it only means: "the make_request callback
+completed the request, it wasn't a remap". That's all. As said the highlevel
+layer doesn't know anything about errors anymore, it only need to know when the
+request is completed.
 
-On Thu, 30 Nov 2000, Arnaud Installe wrote:
+Of course if there's an error during a remap you can't continue so you have to
+say "this request is completed" and to tell this you currently have to return
+0. But 0 from the point of view of the highlevel layer doesn't mean "error".
 
-> Date: Thu, 30 Nov 2000 08:14:43 +0100
-> From: Arnaud Installe <arnaud@bach.kotnet.org>
-> Reply-To: Arnaud Installe <a.installe@ieee.org>
-> To: linux-kernel@vger.kernel.org
-> Cc: ainstalle@filepool.com
-> Subject: high load & poor interactivity on fast thread creation
-> 
-> Hello,
-> 
-> When creating a lot of Java threads per second linux slows down to a
-> crawl.  I don't think this happens on NT, probably because NT doesn't
-> create new threads as fast as Linux does.
-> 
-> Is there a way (setting ?) to solve this problem ?  Rate-limit the number
-> of threads created ?  The problem occurred on linux 2.2, IBM Java 1.1.8.
-> 
-> Thanks,
-> 
-> 							Arnaud
-> 
-> -- 
-> Arnaud Installe                                             a.installe@ieee.org
-> 
-> Look, we trade every day out there with hustlers, deal-makers, shysters,
-> con-men.  That's the way businesses get started.  That's the way this
-> country was built.
-> 		-- Hubert Allen
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+I'd suggest to take a third way that is to define only two retvals:
+
+	BLKDEV_IO_REQ_COMPLETED
+	BLKDEV_IO_REQ_REMAPPED
+
+Then it doesn't matter anymore what number they're defined to.
+generic_make_request simply keeps looping as far as it gets
+BLKDEV_IO_REQ_REMAPPED as retval.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293489AbSB1WDo>; Thu, 28 Feb 2002 17:03:44 -0500
+	id <S293686AbSB1Wqj>; Thu, 28 Feb 2002 17:46:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310148AbSB1WCO>; Thu, 28 Feb 2002 17:02:14 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:56850 "EHLO
+	id <S293349AbSB1WpC>; Thu, 28 Feb 2002 17:45:02 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60178 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S310142AbSB1V72>; Thu, 28 Feb 2002 16:59:28 -0500
-Date: Thu, 28 Feb 2002 16:58:03 -0500 (EST)
+	id <S310193AbSB1Wka>; Thu, 28 Feb 2002 17:40:30 -0500
+Date: Thu, 28 Feb 2002 17:38:31 -0500 (EST)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Rick Stevens <rstevens@vitalstream.com>
-cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Big file support
-In-Reply-To: <3C7D3587.8080609@vitalstream.com>
-Message-ID: <Pine.LNX.3.96.1020228165550.2006C-100000@gatekeeper.tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Submissions for 2.4.19-pre [sdmany (Richard Gooch)] [Discuss :) ]
+In-Reply-To: <E16fdvk-0008S7-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020228173303.2006G-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Feb 2002, Rick Stevens wrote:
+On Tue, 26 Feb 2002, Alan Cox wrote:
 
-> I'm not certain if this is the right place, but are there plans to
-> have big file support (files >2GB) anytime soon?  I ask, as we use
-> Linux to serve LOTS of streaming media and the logs for popular sites
-> often exceed 2GB.  I'd like to see the ability to handle at least 16GB
-> files, possibly more.
+> Even if your hack reflected the newer table it would still be an ugly hack
+> for a few special case situations rather than any notion of release quality.
+> Its a very clever devfs hack, but its still an ugly hack
 > 
-> Please cc: me on any replies if possible.  I've been REALLY busy and
-> am finding it hard to keep up with l-k traffic.
+> Do it right, and do it in 2.5
 
-You must be really behind, large file support has been in the current
-kernel for ~14 months. Of course if your application isn't compiled with
-LFS enabled it doesn't matter, or if it keeps offsets in long instead of
-offset types...
+Hate to say it but 2.5 is not ready for any kind of production use, and
+some people really need to connect more SCSI devices than are currently
+supported. That's NOT ivory tower, it's real world "do it with Linux"
+problem solving.
+
+If you have a "do it right" solution which is stable, for a stable kernel,
+please let us know. This isn't a theoretical problem.
 
 -- 
 bill davidsen <davidsen@tmr.com>

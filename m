@@ -1,51 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUG0E7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266316AbUG0FKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUG0E7S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 00:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUG0E7S
+	id S266316AbUG0FKU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 01:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUG0FKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 00:59:18 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:61929 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S266252AbUG0E7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 00:59:14 -0400
-Date: Tue, 27 Jul 2004 01:02:42 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Ilyak Kasnacheev <ilyak@office.uw.ru>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic (reiserfs), some hangs - bad hardware?.
-In-Reply-To: <4104E587.1050606@office.uw.ru>
-Message-ID: <Pine.LNX.4.58.0407262300280.25781@montezuma.fsmlabs.com>
-References: <4104E587.1050606@office.uw.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Jul 2004 01:10:20 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:52368 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266316AbUG0FKB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 01:10:01 -0400
+Subject: Re: [patch] kernel events layer
+From: Daniel Stekloff <dsteklof@us.ibm.com>
+To: Robert Love <rml@ximian.com>
+Cc: Tim Hockin <thockin@hockin.org>, dsaxena@plexity.net,
+       Michael Clark <michael@metaparadigm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1090782501.25479.23.camel@lucy>
+References: <1090604517.13415.0.camel@lucy>
+	 <4101D14D.6090007@metaparadigm.com> <1090638881.2296.14.camel@localhost>
+	 <20040724150838.GA24765@plexity.net> <1090683953.2296.78.camel@localhost>
+	 <20040724174636.GA29367@hockin.org> <1090693183.12088.21.camel@localhost>
+	 <20040725181139.GC1269@hockin.org>  <1090782501.25479.23.camel@lucy>
+Content-Type: text/plain
+Message-Id: <1090904941.1753.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Mon, 26 Jul 2004 22:09:30 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jul 2004, Ilyak Kasnacheev wrote:
+On Sun, 2004-07-25 at 12:08, Robert Love wrote:
+> On Sun, 2004-07-25 at 11:11 -0700, Tim Hockin wrote:
+> > So, when I was at Sun (no, I'm not at Sun anymore) there was lots of talk
+> > of driver hardening and fault management.  At the time, the team in
+> > question looked at the various event systems that currently exist in the
+> > kernel or in some patches.  This list might be incomplete, but it's off
+> > the top of my head.
+> > 
+> > - Netlink
+> > - ACPI (/proc/acpi/event)
+> > - hotplug
+> > - IPMI (not merged maybe?)
+> > - relayfs (not merged)
+> > - evlog (last I saw, this was in big flux)
+> > 
+> > Now you're proposing netlink as the kevent subsystem.
+> > 
+> > Wouldn't it be nice if everything could converge?  Ok maybe not
+> > EVERYTHING, but some of these?
+> 
+> Yup.
+> 
+> So the last two are not being merged.  It seems unlikely that they will
+> be, but if they were, we could use them as the backbone of the event
+> system.  The medium is not really what interests me (or you, either - I
+> think we both are interested in the results, right?).  Technically
+> speaking, though, netlink does seem the best choice.  I look at kevent
+> as serving the same purpose as these last two.
+> 
+> I don't know much about IPMI, but I thought it was a hardware spec.  I'm
+> not sure it counts here.  If it communicates with user-space, it would
+> be nice if it used netlink or /proc or even kevent and not its own
+> thing.
+> 
+> So that leaves ACPI and hotplug.  ACPI absolutely should switch to using
+> kevent.  It is the perfect user, right?  Send the ACPI events out via
+> kevent.  You wouldn't even need acpid - just have policy agents
+> listening on D-BUS or directly on the netlink socket or whatever.
+> 
+> As for hotplug, I'll leave that one to Greg.  He has some thoughts here.
+> 
+> > These are the things I can see kevents being used for:
+> > 
+> > - Stateless messages which only matter if someone is listening.  Examples
+> >   of this are "media changed" and stuff like that.
+> > 
+> > - Fault and error that matter no matter what, and can not afford to be
+> >   dropped.  Examples are things like ECC errors, significant
+> >   driver/subsystem errors, etc.
+> > 
+> > - System state messages, which really do want someone to be listening, but
+> >   are otherwise discoverable.  Examples of this are "disk full" and
+> >   similar.
+> > 
+> > So can kevents be used for all of these?  The fact that netlink does not
+> > buffer events if there are no listeners (not saying it should..) makes it
+> > unreliable for fault events.  Can these all be converged?
+> 
+> I think kevents can (and should) be used for all of these.  But the lack
+> of buffering is something we need to look into.
 
-> I have following problems:
->
-> Am i crazy? 2) With bad interface cable, my system used to just hang.
-> With better?/40pin cable, it do this very rare. Memtest86 and burncpu do
-> not produce errors, and windows works fine on same box. Both 2.4.x and
-> 2.6.7 kernels. 3) Main. I have got a reiserfs partition with some errors
-> (due to 2)), and kernel panics on it when i do 'find /'. with these
-> errors: == double fault, gdt at c03d2000 [255 bytes] double fault, tss
-> at c030e80 eip = c0115116 esp = cd0e98b0768 eax = 00000a96 ebx =
-> cf2a547c ecx = 0f0001e3 edx = 0f000000 esi = 00000000 edi = c0115030
->  *OR*
-> EFLAGS: 0010007 (2.6.7)
-> EIP is at scheduler_tick+0x108/0x400
-> eax: 00000000 ebx: 00000001 ecx: 0000023d edx: 00000000
-> esi: ca0a9750 edi: c0343520 ebp: ca0a7d4c esp: ca0a7d30
-> ds: 007b es: 007b ss: 0068
-> Process (pid: -1048345824, threadinfo = ca0a6000, task=ca0a9750)
-> Stack: c188a23c 00145ad7 00000000 3d108500 00000000 00000001 00000000
->        ca0a7dd4 c0121606 00000000 00000001 00000001 00000000 ca0a6000
->        ca0a7dd4 c0121834 00000000 ca0a6000 c010a2ce ca0a7dd4 c02d51c4
->        20000001 00000000 c010632a
 
-Perhaps a stack overflow? Change THREAD_SIZE in
-include/asm-i386/thread_info.h to 16384.
+There are other issues that we may need to look into as well, like:
+
+1) How do we handle events that occur in a hardware interrupt context?
+One thing that has been suggested in the past was to delay broadcast and
+schedule a tasklet to do the broadcast. Or, can we make the netlink
+broadcast interrupt safe?
+
+2) What about the recent thread on firmware errors for ppc64 systems?
+They have errors at early boot and those error messages may be in binary
+format? Should we buffer messages until netlink becomes available and
+then send the messages and remove the buffer? As for the binary format,
+should we change kevents so format and args are kept separate to User
+Space? This would have other benefits as well.
+
+Just some thoughts....
+
+Thanks,
+
+Dan
 

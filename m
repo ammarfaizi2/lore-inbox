@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbULBGjK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbULBGsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbULBGjK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 01:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbULBGjJ
+	id S261562AbULBGsn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 01:48:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbULBGsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 01:39:09 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:33191 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261559AbULBGjH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 01:39:07 -0500
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: What if?
-Date: Thu, 2 Dec 2004 07:39:04 +0100
-User-Agent: KMail/1.6.2
-References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>
-In-Reply-To: <20041202044034.GA8602@thunk.org>
+	Thu, 2 Dec 2004 01:48:43 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12452 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261509AbULBGsk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 01:48:40 -0500
+Message-ID: <41AEBAB9.3050705@pobox.com>
+Date: Thu, 02 Dec 2004 01:48:25 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: torvalds@osdl.org, clameter@sgi.com, hugh@veritas.com,
+       benh@kernel.crashing.org, nickpiggin@yahoo.com.au, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V12 [0/7]: Overview and performance
+ tests
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>	<Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>	<Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>	<Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>	<Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>	<Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>	<Pine.LNX.4.58.0412011608500.22796@ppc970.osdl.org>	<41AEB44D.2040805@pobox.com> <20041201223441.3820fbc0.akpm@osdl.org>
+In-Reply-To: <20041201223441.3820fbc0.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200412020739.04599.Norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 December 2004 05:40, Theodore Ts'o wrote:
-> On Thu, Dec 02, 2004 at 05:34:08AM +0530, Imanpreet Singh Arora wrote:
-> >    I realize most of the unhappiness lies with C++ compilers being
-> > slow. Also the fact that a lot of Hackers around here are a lot more
-> > familiar with C, rather than C++. However other than that what are the
-> > _implementation_  issues that you hackers might need to consider if it
-> > were to be implemented in C++.
->
-> The suckitude of C++ compilers is only part of the issues.
->
-> > My question is regarding how will kernel
-> > deal with C++ doing too much behind the back, Calling constructors,
-> > templates exceptions and other. What are the possible issues of such an
-> > approach while writing device drivers?  What sort of modifications do
-> > you reckon might be needed if such a move were to be made?
->
-> The way the kernel will deal with C++ language being a complete
-> disaster (where something as simple as "a = b + c + d +e" could
-> involve a dozen or more memory allocations, implicit type conversions,
-> and overloaded operators) is to not use it.  Think about the words of
-> wisdom from the movie Wargames: "The only way to win is not to play
-> the game".
-
-Let us do it all in assembler. Real optimization for every CPU.
-
-BTW, that sparks a question: 
-Did anybody already do a benchmark to see what happens if you address an AMD 
-cpu not with x86 instructions but with it's native code, so to circumvent the 
-internal translation in the CPU?
+Andrew Morton wrote:
+> We need to be be achieving higher-quality major releases than we did in
+> 2.6.8 and 2.6.9.  Really the only tool we have to ensure this is longer
+> stabilisation periods.
 
 
->
-> 					- Ted
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'm still hoping that distros (like my employer) and orgs like OSDL will 
+step up, and hook 2.6.x BK snapshots into daily test harnesses.
+
+Something like John Cherry's reports to lkml on warnings and errors 
+would be darned useful.  His reports are IMO an ideal model:  show 
+day-to-day _changes_ in test results.  Don't just dump a huge list of 
+testsuite results, results which are often clogged with expected 
+failures and testsuite bug noise.
+
+	Jeff
+
+

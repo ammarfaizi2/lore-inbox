@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317286AbSGCXzh>; Wed, 3 Jul 2002 19:55:37 -0400
+	id <S317287AbSGCX57>; Wed, 3 Jul 2002 19:57:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317282AbSGCXzg>; Wed, 3 Jul 2002 19:55:36 -0400
-Received: from [24.114.147.133] ([24.114.147.133]:50307 "EHLO starship")
-	by vger.kernel.org with ESMTP id <S317277AbSGCXze>;
-	Wed, 3 Jul 2002 19:55:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Pavel Machek <pavel@ucw.cz>,
-       "Richard B. Johnson" <root@chaos.analogic.com>
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-Date: Thu, 4 Jul 2002 01:46:57 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Bill Davidsen <davidsen@tmr.com>,
-       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020702123718.A4711@redhat.com> <Pine.LNX.3.95.1020702075957.24872A-100000@chaos.analogic.com> <20020703034809.GI474@elf.ucw.cz>
-In-Reply-To: <20020703034809.GI474@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17PtqU-0000RJ-00@starship>
+	id <S317277AbSGCX56>; Wed, 3 Jul 2002 19:57:58 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:37125 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317287AbSGCX55>;
+	Wed, 3 Jul 2002 19:57:57 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Diego Calleja <diegocg@teleline.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal 
+In-reply-to: Your message of "Thu, 04 Jul 2002 00:26:36 +0200."
+             <20020704002636.59071208.diegocg@teleline.es> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Date: Thu, 04 Jul 2002 10:00:19 +1000
+Message-ID: <9261.1025740819@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 July 2002 05:48, Pavel Machek wrote:
-> Hi!
-> 
-> Okay. So we want modules and want them unload. And we want it bugfree.
-> 
-> So... then its okay if module unload is *slow*, right?
-> 
-> I believe you can just freeze_processes(), unload module [now its
-> safe, you *know* noone is using that module, because all processes are
-> in your refrigerator], thaw_processes().
-> 
-> That's going to take *lot* of time, but should be very simple and very
-> effective.
+On Thu, 4 Jul 2002 00:26:36 +0200, 
+Diego Calleja <diegocg@teleline.es> wrote:
+>On Tue, 2 Jul 2002 17:50:19 -0400 (EDT)
+>Ryan Anderson <ryan@michonline.com> escribió:
+>
+>> In a single processor, no preempt kernel, there is no race.
+>> Turn on SMP or preempt and there is one.
+>
+>So we _can't_ talk about remove module removal, but _disabling_ module
+>removal in the worst case.
+>
+>Because if the above is correct, single processors without preempt works
+>well and can use module removal safely...
 
-Hi Pavel,
+Module removal is not safe even on UP without preempt.  UP with no
+preempt only removes this race
 
-Is it just the mod_dec_use_count; return/unload race we're worried about?  
-I'm not clear on why this is hard.  I'd think it would be sufficient just to 
-walk all runnable processes to ensure none has an execution address inside the
-module.  For smp, an ipi would pick up the current process on each cpu.
+Read usecount
+                        Enter module
+                        Increment usecount
+Check usecount == 0
+Clean up module
 
-At this point the use count must be zero and the module deregistered, so all 
-we're interested in is that every process that dec'ed the module's use count 
-has succeeded in executing its way out of the module.  If not, we try again 
-later, or if we're impatient, also bump any processes still inside the module 
-to the front of the run queue.
+There are other race conditions on module unload, which is why the
+problem is so "interesting".
 
-I'm sure I must have missed something.
-
--- 
-Daniel

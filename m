@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbTEKIwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 04:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTEKIwQ
+	id S261188AbTEKIzL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 04:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbTEKIzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 04:52:16 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:38813 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id S261189AbTEKIwO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 04:52:14 -0400
-Date: Sun, 11 May 2003 11:04:29 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: david-b@pacbell.net
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kbuild/kbuild for USB Gadgets (6/6)
-In-Reply-To: <200305110609.h4B69Iko000763@hera.kernel.org>
-Message-ID: <Pine.GSO.4.21.0305111102530.11279-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 11 May 2003 04:55:11 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:24558 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261188AbTEKIzJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 04:55:09 -0400
+Subject: Re: irq balancing: performance disaster
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Jos Hulzink <josh@stack.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200305110118.10136.josh@stack.nl>
+References: <200305110118.10136.josh@stack.nl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-w+ycHDmHaisHxQoP0Kyx"
+Organization: Red Hat, Inc.
+Message-Id: <1052644067.1371.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 11 May 2003 11:07:47 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 May 2003, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1078.4.6, 2003/05/08 11:34:56-07:00, david-b@pacbell.net
-> 
-> 	[PATCH] kbuild/kbuild for USB Gadgets (6/6)
 
-> +	   USB is a master/slave protocol, organized with with one master
-                                                     ^^^^^^^^^
-with with
+--=-w+ycHDmHaisHxQoP0Kyx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> +	  Make this be the first driver you try using on top of any new
-          ^^^^^^^^^^^^
-Shouldn't the `be' be removed?
+On Sun, 2003-05-11 at 01:18, Jos Hulzink wrote:
+> Hi,
+>=20
+> While tackling bug 699, it became clear to me that irq balancing is the c=
+ause=20
+> of the performance problems I, and all people using the SMP kernel Mandra=
+ke=20
+> 9.1 ships, are dealing with. I got the problems with 2.5.69 too. After=20
+> disabling irq balancing, the system is remarkably faster, and much more=20
+> responsive.=20
+>=20
+> For those interested in the issue, please look at bug 699.
 
-> +	  but is widely suppored by firmware for smart network devices.
-                        ^^^^^^^^
-supported
+please try the following app instead:
 
-Gr{oetje,eeting}s,
+http://people.redhat.com/arjanv/irqbalance/
 
-						Geert
+the in kernel irqbalancer in 2.4 kernels has some worst case behaviors
+at least, and the userspace implementation avoids those.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+--=-w+ycHDmHaisHxQoP0Kyx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQA+vhLjxULwo51rQBIRAoGsAJ93UZYFqryuQuOhvQO2bBaJTVFFxgCfRt4G
+uYMdAmRZ9FLBJgbPmfbtxlY=
+=DBNa
+-----END PGP SIGNATURE-----
+
+--=-w+ycHDmHaisHxQoP0Kyx--

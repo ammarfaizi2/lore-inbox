@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263336AbUCNIst (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 03:48:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbUCNIst
+	id S263337AbUCNI5x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 03:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263335AbUCNI5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 03:48:49 -0500
-Received: from holomorphy.com ([207.189.100.168]:57612 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263334AbUCNIsr (ORCPT
+	Sun, 14 Mar 2004 03:57:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45974 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261710AbUCNI5u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 03:48:47 -0500
-Date: Sun, 14 Mar 2004 00:48:25 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
+	Sun, 14 Mar 2004 03:57:50 -0500
+Date: Sun, 14 Mar 2004 00:57:37 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Ray Bryant <raybry@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+Cc: ak@suse.de, lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory machines.......
-Message-ID: <20040314084825.GQ655@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Ray Bryant <raybry@sgi.com>, Andrew Morton <akpm@osdl.org>,
-	Andi Kleen <ak@suse.de>, lse-tech@lists.sourceforge.net,
-	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <40528383.10305@sgi.com> <20040313034840.GF4638@wotan.suse.de> <20040313184547.6e127b51.akpm@osdl.org> <40541A09.3050600@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory
+ machines.......
+Message-Id: <20040314005737.7f57b8ad.akpm@osdl.org>
 In-Reply-To: <40541A09.3050600@sgi.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+References: <40528383.10305@sgi.com>
+	<20040313034840.GF4638@wotan.suse.de>
+	<20040313184547.6e127b51.akpm@osdl.org>
+	<40541A09.3050600@sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 14, 2004 at 02:38:33AM -0600, Ray Bryant wrote:
+Ray Bryant <raybry@sgi.com> wrote:
+>
+> 
+> I agree with the compatibility concern, but the other part of the problem
+> is that while hugetlb_prefault() is running, it holds both the mm->mmap_sem in
 > write mode and the mm->page_table_lock.  So not only does it take 500 s for
 > the mmap() to return on our test system, but ps, top, etc all freeze for the
 > duration.  Very irritating, especially on a 64 or 128 P system.
-> My preference would be to do away with bugetlb_prefault() altogether.
-> (If there was a MAP_NO_PREFAULT, we would have to make this the default on
-> Altix to avoid the freeze problem mentioned above.  Can't have an arbitrary
-> user locking up the system.)  As Andi pointed out, perhaps we can do some
-> prereservation of huge pages so that we can return a ENONMEM to the mmap()
-> if there are not enough huge pages to (lazily) be allocated to satisfy the
-> request, but then still allocate the pages at fault time.  A simple count
-> would suffice.
 
-There is a patch which arranges to keep statistics ready in the mm so that
-the mmap_sem need not be taken for /proc/ and furthermore renders
-proc_pid_statm() nothing more than copying integers out of the mm that
-I forward ported to 2.6.0-test*, originally by Ben LaHaise, that may
-also be of interest to those concerned about tripping over other processes'
-mmap_sem's in /proc/.
+Well that's just a dumb implementation.  hugetlb_prefault() doesn't need
+page_table_lock while it is zeroing the page: just drop it, test for
+-EEXIST returned from add_to_page_cache().
 
+In fact we need to do that anyway: the current code is buggy if some other
+process with a different mm gets in there and instantiates the page in the
+pagecache before this process does: hugetlb_prefault() will return -EEXIST
+instead of simply accepting the race and using the page which someone else
+put there.
 
--- wli
+After we have the page in pagecache we need to retake page_table_lock and
+check that the target pte is still pte_none().  If it is not, you know that
+some other thread has already instantiated a pte there so the new ref to
+the pagecache page can simply be dropped.  See how do_no_page() handles it.
+Of course, this only applies if mmap_sem is no longer held in there.
+
+As for holding mmap_sem for too long, well, that can presumably be worked
+around by not mmapping the whole lot in one hit?
+

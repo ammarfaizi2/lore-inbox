@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUIHM5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUIHNFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUIHM5P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 08:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266250AbUIHM4d
+	id S267411AbUIHNFf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 09:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267372AbUIHNCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 08:56:33 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:9126 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S267566AbUIHMva (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 08:51:30 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fw: 2.6.9-rc1-mm4: swsusp + AMD64 = LOCKUP on CPU0
-Date: Wed, 8 Sep 2004 14:51:55 +0200
-User-Agent: KMail/1.6.2
-Cc: Andi Kleen <ak@suse.de>, Pavel Machek <pavel@ucw.cz>
-References: <20040908021637.57525d43.akpm@osdl.org.suse.lists.linux.kernel> <20040908102652.GA2921@atrey.karlin.mff.cuni.cz.suse.lists.linux.kernel> <p73acw1hsvv.fsf@brahms.suse.de>
-In-Reply-To: <p73acw1hsvv.fsf@brahms.suse.de>
-MIME-Version: 1.0
+	Wed, 8 Sep 2004 09:02:09 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:33772 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S267238AbUIHNAH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 09:00:07 -0400
+Date: Wed, 8 Sep 2004 15:01:36 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] preempt-smp.patch, 2.6.9-rc1-bk14
+Message-ID: <20040908130136.GB20132@elte.hu>
+References: <20040908111751.GA11507@elte.hu> <Pine.LNX.4.53.0409080814570.15087@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409081451.55531.rjw@sisk.pl>
+In-Reply-To: <Pine.LNX.4.53.0409080814570.15087@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 of September 2004 14:01, Andi Kleen wrote:
-> Pavel Machek <pavel@ucw.cz> writes:
+
+* Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+
+> > In addition to the preemption latency problems, the _irq() variants in
+> > the above list didnt do any IRQ-enabling while spinning - possibly
+> > resulting in excessive irqs-off sections of code!
 > 
-> > Hi!
-> > 
-> > > One for you guys on lkml ;)
-> > 
-> > It simply takes long to count pages (O(n^2) algorithm), so watchdog
-> > triggers. I have better algorithm locally, but would like merge to
-> > linus first. (I posted it to lkml some days ago, I can attach the
-> > bigdiff).
-> > 
-> > Just disable the watchdog. Suspend *is* going to take time with
-> > disabled interrupts.
-> 
-> 
-> As a short term workaround you could also add touch_nmi_watchdog()s
-> in that loop.
+> I had a patch for this
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0405.3/0578.html and it
+> has been running for about 3 months now on a heavily used 4 processor
+> box.  It's all a matter of whether Andrew is feeling brave ;)
 
-You mean like that:
+at a quick glance your patch doesnt seem to cover the following locking
+primitives: read_lock_irqsave(), read_lock_irq(), write_lock_irqsave,
+write_lock_irq(). Also, i think your 2.6.6 patch doesnt apply anymore
+because it clashes with your very nice out-of-line spinlocks patch that
+went into -BK recently ;)
 
---- swsusp.c.orig	2004-09-08 14:30:29.049656984 +0200
-+++ swsusp.c	2004-09-08 14:41:42.133332712 +0200
-@@ -38,6 +38,7 @@
- 
- #include <linux/module.h>
- #include <linux/mm.h>
-+#include <linux/nmi.h>
- #include <linux/suspend.h>
- #include <linux/smp_lock.h>
- #include <linux/file.h>
-@@ -561,6 +562,7 @@
- 
- 	for_each_zone(zone) {
- 		if (!is_highmem(zone)) {
-+			touch_nmi_watchdog();
- 			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
- 				nr_copy_pages += saveable(zone, &zone_pfn);
- 		}
-@@ -576,6 +578,7 @@
- 	
- 	for_each_zone(zone) {
- 		if (!is_highmem(zone))
-+			touch_nmi_watchdog();
- 			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
- 				if (saveable(zone, &zone_pfn)) {
- 					struct page * page;
----
+anyway, the preempt-smp.patch is a complete and systematic solution that
+has been tested, measured and traced quite heavily.
 
-Just guessing. :-)
-
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+	Ingo

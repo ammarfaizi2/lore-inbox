@@ -1,100 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTKGWZL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:25:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbTKGWYq
+	id S261875AbTKGWd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTKGW1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:24:46 -0500
-Received: from mail.kroah.org ([65.200.24.183]:49320 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264600AbTKGT2m convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 14:28:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1068233275468@kroah.com>
-Subject: Re: [PATCH] More fixes for 2.6.0-test9
-In-Reply-To: <1068233275660@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Nov 2003 11:27:55 -0800
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+	Fri, 7 Nov 2003 17:27:43 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:15062 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S264540AbTKGV7j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 16:59:39 -0500
+Subject: Re: [Bug 1412] Copy from USB1 CF/SM reader stalls, no actual
+	content is read (only directory structure)
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1068197144.21576.32.camel@ulysse.olympe.o2t>
+References: <20031105084002.GX1477@suse.de>
+	 <Pine.LNX.4.44L0.0311051013190.828-100000@ida.rowland.org>
+	 <20031107082439.GB504@suse.de> <1068195038.21576.1.camel@ulysse.olympe.o2t>
+	 <20031107090924.GB616@suse.de>
+	 <1068197144.21576.32.camel@ulysse.olympe.o2t>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-S0Ak7LjWNGE5bkAVFq87"
+Organization: Adresse personelle
+Message-Id: <1068238928.4088.2.camel@m70.net81-64-235.noos.fr>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 07 Nov 2003 22:02:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1420, 2003/11/07 10:19:35-08:00, david-b@pacbell.net
 
-[PATCH] USB: usb ignores 64bit dma
+--=-S0Ak7LjWNGE5bkAVFq87
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-The dma hooks whereby EHCI can pass 64bit DMA support
-up the driver stack (to avoid buffer copies) turn out
-to broken on most architectures(*).  This patch just
-disables them all, since it looks like those mechanisms
-won't get fixed before 2.6.0-final.  For now it'd only
-matter on a few big Intel boxes anyway.
+Le ven 07/11/2003 =E0 10:25, Nicolas Mailhot a =E9crit :
+> Le ven 07/11/2003 =E0 10:09, Jens Axboe a =E9crit :
 
-Please merge.
+> > Try with this debug patch then, does it work now?
+> >=20
+> > =3D=3D=3D=3D=3D drivers/scsi/scsi_lib.c 1.77 vs edited =3D=3D=3D=3D=3D
+> > --- 1.77/drivers/scsi/scsi_lib.c	Tue Oct 14 09:28:06 2003
+> > +++ edited/drivers/scsi/scsi_lib.c	Fri Nov  7 10:08:52 2003
+> > @@ -1215,6 +1215,7 @@
+> > =20
+> >  u64 scsi_calculate_bounce_limit(struct Scsi_Host *shost)
+> >  {
+> > +#if 0
+> >  	struct device *host_dev;
+> > =20
+> >  	if (shost->unchecked_isa_dma)
+> > @@ -1229,6 +1230,9 @@
+> >  	 * hardware have no practical limit.
+> >  	 */
+> >  	return BLK_BOUNCE_ANY;
+> > +#else
+> > +	return BLK_BOUNCE_HIGH;
+> > +#endif
+> >  }
+> > =20
+> >  struct request_queue *scsi_alloc_queue(struct scsi_device *sdev)
+>=20
+> Will try this evening when I have physical access to the system. (It's
+> difficult to plug a USB device via ssh;)
 
-- Dave
+Well, it does work now (couldn't believe my eyes, tried three times in a
+row just to be sure). Is this supposed to be a definitive fix that will
+be in the next bk snapshots or should I wait for something else ?
 
-(*) On x86, mips, and arm dma_supported() doesn't
-     even compare with the device's mask.  On several
-     other architectures (reported on ppc, alpha,
-     and sparc64), asking that question for non-PCI
-     devices will just BUG() -- even though all info
-     needed to answer the question is right at hand.
+Regards,
 
+--=20
+Nicolas Mailhot
 
- drivers/usb/host/ehci-hcd.c |    3 +++
- drivers/usb/net/kaweth.c    |    3 +++
- drivers/usb/net/usbnet.c    |    3 +++
- 3 files changed, 9 insertions(+)
+--=-S0Ak7LjWNGE5bkAVFq87
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e=2E?=
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-diff -Nru a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
---- a/drivers/usb/host/ehci-hcd.c	Fri Nov  7 11:22:04 2003
-+++ b/drivers/usb/host/ehci-hcd.c	Fri Nov  7 11:22:04 2003
-@@ -426,8 +426,11 @@
- 	 */
- 	if (HCC_64BIT_ADDR (hcc_params)) {
- 		writel (0, &ehci->regs->segment);
-+#if 0
-+// this is deeply broken on almost all architectures
- 		if (!pci_set_dma_mask (ehci->hcd.pdev, 0xffffffffffffffffULL))
- 			ehci_info (ehci, "enabled 64bit PCI DMA\n");
-+#endif
- 	}
- 
- 	/* help hc dma work well with cachelines */
-diff -Nru a/drivers/usb/net/kaweth.c b/drivers/usb/net/kaweth.c
---- a/drivers/usb/net/kaweth.c	Fri Nov  7 11:22:04 2003
-+++ b/drivers/usb/net/kaweth.c	Fri Nov  7 11:22:04 2003
-@@ -1120,8 +1120,11 @@
- 
- 	usb_set_intfdata(intf, kaweth);
- 
-+#if 0
-+// dma_supported() is deeply broken on almost all architectures
- 	if (dma_supported (&intf->dev, 0xffffffffffffffffULL))
- 		kaweth->net->features |= NETIF_F_HIGHDMA;
-+#endif
- 
- 	SET_NETDEV_DEV(netdev, &intf->dev);
- 	if (register_netdev(netdev) != 0) {
-diff -Nru a/drivers/usb/net/usbnet.c b/drivers/usb/net/usbnet.c
---- a/drivers/usb/net/usbnet.c	Fri Nov  7 11:22:04 2003
-+++ b/drivers/usb/net/usbnet.c	Fri Nov  7 11:22:04 2003
-@@ -2972,9 +2972,12 @@
- 	strcpy (net->name, "usb%d");
- 	memcpy (net->dev_addr, node_id, sizeof node_id);
- 
-+#if 0
-+// dma_supported() is deeply broken on almost all architectures
- 	// possible with some EHCI controllers
- 	if (dma_supported (&udev->dev, 0xffffffffffffffffULL))
- 		net->features |= NETIF_F_HIGHDMA;
-+#endif
- 
- 	net->change_mtu = usbnet_change_mtu;
- 	net->get_stats = usbnet_get_stats;
+iD8DBQA/rAhQI2bVKDsp8g0RArTkAKCnOc8VacZVHdHkdBCRMahWq3qdWwCfRKfu
+Rbrj1xy6D29QUGhqG6Q3gno=
+=ZPZ6
+-----END PGP SIGNATURE-----
+
+--=-S0Ak7LjWNGE5bkAVFq87--
 

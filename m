@@ -1,59 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVATTsI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVATTvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261777AbVATTsI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 14:48:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVATTsI
+	id S261383AbVATTvf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 14:51:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVATTve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 14:48:08 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26770 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261777AbVATTsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 14:48:04 -0500
-Date: Thu, 20 Jan 2005 11:35:45 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com
-Subject: Re: usbmon, usb core, ARM
-Message-ID: <20050120113545.58ce18a3@localhost.localdomain>
-In-Reply-To: <200501190908.35210.david-b@pacbell.net>
-References: <20050118212033.26e1b6f0@localhost.localdomain>
-	<200501182214.25273.david-b@pacbell.net>
-	<20050119074208.3bfa6458@localhost.localdomain>
-	<200501190908.35210.david-b@pacbell.net>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Thu, 20 Jan 2005 14:51:34 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:41416 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S261383AbVATTvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 14:51:33 -0500
+Subject: LVM2
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 20 Jan 2005 12:51:27 -0700
+Message-Id: <1106250687.3413.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Jan 2005 09:08:34 -0800, David Brownell <david-b@pacbell.net> wrote:
+I recently saw Alan Cox say on this list that LVM won't handle more than
+2 terabytes. Is this LVM2 or LVM? What is the maximum amount of disk
+space LVM2 (or any other RAID/MIRROR capable technology that is in
+Linus's kernel) handle? I am talking with various people and we are
+looking at Samba on Linux to do several different namespaces (obviously
+one tree), most averaging about 3 terabytes, but one would have in
+excess of 20 terabytes. We are looking at using 320 to 500 gigabyte
+drives in these arrays. (How? IEEE-1394. Which brings a question I will
+ask in a second email.)
 
-> On Wednesday 19 January 2005 7:42 am, Pete Zaitcev wrote:
-> > 		Relying on pipe makes
-> > tests dependant on URB only. No references to bus or HCD, therefore no
-> > extra refcounts or worries about oopses. Also, HC drivers zero out the
-> > urb->dev in giveback sequence which is a royal pain when trying to identify
-> > a root hub.
-> 
-> That was a 2.4-ism, it should now be gone.  So an inlined function to
-> test whether urb->dev is the root hub should suffice; I know there's
-> code that does that already.
+Is RAID 5 all that bad using this software method? Is RAID 5 available?
 
-I do not like to refer to a dev because I do not quite understand where
-the necessary usb_dev_get/_put are now. But if you guarantee that the
-urb->dev is refcounted properly while urb is processed by usb_hcd_giveback_urb,
-I do not mind an extra indirection.
+Trever Adams
+--
+"They that can give up essential liberty to obtain a little temporary
+safety deserve neither liberty nor safety." -- Benjamin Franklin, 1759
 
-What would be the right test in usb_hcd_giveback_urb, then?
-It looks to me that you want me to use this:
-
-urb_is_for_root_hub(urb) {
-     return urb->dev == urb->dev->bus->hcpriv->self.root_hub;
-}
-
-This is just ... ewwwww. Can we use pipe for now or do you have
-a better idea?
-
--- Pete

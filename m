@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280162AbRKEDdr>; Sun, 4 Nov 2001 22:33:47 -0500
+	id <S280167AbRKEDhH>; Sun, 4 Nov 2001 22:37:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280165AbRKEDdj>; Sun, 4 Nov 2001 22:33:39 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:15504 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S280162AbRKEDdS>; Sun, 4 Nov 2001 22:33:18 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Date: Mon, 5 Nov 2001 04:34:19 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: tim@tjansen.de, linux-kernel@vger.kernel.org
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011104013951Z16981-4784+741@humbolt.nl.linux.org> <20011105111239.3403b162.rusty@rustcorp.com.au>
-In-Reply-To: <20011105111239.3403b162.rusty@rustcorp.com.au>
+	id <S280164AbRKEDg5>; Sun, 4 Nov 2001 22:36:57 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:11278 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S280163AbRKEDgp>; Sun, 4 Nov 2001 22:36:45 -0500
+Message-ID: <3BE60814.771CA196@zip.com.au>
+Date: Sun, 04 Nov 2001 19:31:32 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011105033316Z16051-18972+45@humbolt.nl.linux.org>
+To: "Mohammad A. Haque" <mhaque@haque.net>
+CC: lkml <linux-kernel@vger.kernel.org>, ext2-devel@lists.sourceforge.net
+Subject: Re: disk throughput
+In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au> <00C9ED52-D19C-11D5-8744-00306569F1C6@haque.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 5, 2001 01:12 am, Rusty Russell wrote:
-> On Sun, 4 Nov 2001 02:40:51 +0100
-> Daniel Phillips <phillips@bonn-fries.net> wrote:
+"Mohammad A. Haque" wrote:
 > 
-> > On November 2, 2001 03:20 am, Rusty Russell wrote:
-> > > I agree with the "one file, one value" idea.
-> > 
-> > So cat /proc/partitions goes from being a nice, easy to read and use human 
-> > interface to something other than that.  Lets not go overboard.
+> On Sunday, November 4, 2001, at 09:13 PM, Andrew Morton wrote:
 > 
-> Firstly, do not perpetuate the myth of /proc being "human readable".  (Hint:
-> what language do humans speak?)  It supposed to be "admin readable" and
-> "machine readable".
+> > The time to create 100,000 4k files (10 per directory) has fallen
+> > from 3:09 (3min 9second) down to 0:30.  A six-fold speedup.
+> 
+> Nice.
+> 
+> How long before you release a patch? I have a couple of tasks we execute
+> at work I'd like to throw at it.
+> 
 
-You're letting me out as a human, fair enough ;-)
+Try the one-liner against ialloc.c.  You'll need to rebuild
+each filesystem to remove the inter-file fragmentation which
+ext2 put in there though.
 
-> Secondly, it is possible to implement a table formatter which kicks in
-> when someone does a read() on a directory.  This is not a desirable format:
-> look at /proc/mounts when you have a mount point with a space in it for a
-> good example.
+Fortunately I made all the partitions on my laptop the same size,
+and there is a spare one.  So I'm busily doing a `cp -a' of each
+filesystem onto a newly created one, then mke2fs -j'ing the old one,
+then moving on to the next one.  It's boring.
 
-Yes, sold, if implementing the formatter is part of the plan.
-
-Caveat: by profiling I've found that file ops on proc functions are already
-eating a significant amount of cpu, going to one-value-per-file is going to 
-make that worse.  But maybe this doesn't bother you.
-
---
-Daniel
+All the other changes make basically no difference once the ialloc.c
+change is made.  With that workload.  It's all a matter of utilisation
+of device-level readahead.

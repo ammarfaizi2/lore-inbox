@@ -1,81 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313358AbSDOXUj>; Mon, 15 Apr 2002 19:20:39 -0400
+	id <S313366AbSDOXY7>; Mon, 15 Apr 2002 19:24:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313365AbSDOXUi>; Mon, 15 Apr 2002 19:20:38 -0400
-Received: from pacman.mweb.co.za ([196.2.45.77]:27802 "EHLO pacman.mweb.co.za")
-	by vger.kernel.org with ESMTP id <S313358AbSDOXUh>;
-	Mon, 15 Apr 2002 19:20:37 -0400
-Subject: Re: [Patch] Compilation error on 2.5.8
-From: Bongani <bonganilinux@mweb.co.za>
-To: Robert Love <rml@tech9.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1018910754.3402.33.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 16 Apr 2002 01:34:14 +0200
-Message-Id: <1018913727.2688.118.camel@localhost.localdomain>
+	id <S313377AbSDOXY6>; Mon, 15 Apr 2002 19:24:58 -0400
+Received: from holomorphy.com ([66.224.33.161]:10381 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S313366AbSDOXY5>;
+	Mon, 15 Apr 2002 19:24:57 -0400
+Date: Mon, 15 Apr 2002 16:20:58 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] for_each_zone / for_each_pgdat
+Message-ID: <20020415232058.GO21206@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com> <Pine.LNX.4.33.0204151415110.15353-100000@penguin.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-04-16 at 00:45, Robert Love wrote:
-> On Mon, 2002-04-15 at 18:53, Bongani wrote:
-> > I get the following error when I try to compile 2.5.8
-> > init/main.o: In function `start_kernel':
-> > init/main.o(.text.init+0x5e2): undefined reference to
-> > `setup_per_cpu_areas'
-> > 
-> > Looking at the code it looks like someone got confused ;)
-> > around the ifdefs.I'm  under the assumption that setup_per_cpu_areas()
-> > does nothing on a uniprocessor. The patch compile fine on 
-> > my PC. 
-> 
-> A better approach would probably be to define setup_per_cpu_areas to
-> nothing when CONFIG_SMP is not set so as not to have #ifdefs in the code
-> itself ...  for example,
-> 
-> diff -urN linux-2.5.8/init/main.c linux/init/main.c
-> --- linux-2.5.8/init/main.c	Sun Apr 14 15:18:46 2002
-> +++ linux/init/main.c	Mon Apr 15 18:41:54 2002
-> @@ -272,6 +272,8 @@
->  #define smp_init()	do { } while (0)
->  #endif
->  
-> +#define setup_per_cpu_areas()	do { } while(0)
-> +
->  #else
->  
->  #ifdef __GENERIC_PER_CPU
-> 
+On Mon, 15 Apr 2002, Linus Torvalds wrote:
+>> Which requires the user to use something like
+>> 
+>> 	for_each_zone(zone) {
+>> 		...
+>> 	} end_zone;
 
-Does this also look cleaner ?
-
---- init/main.c Tue Apr 16 01:31:29 2002
-+++ init/main.c_new     Tue Apr 16 01:30:13 2002
-@@ -272,6 +272,8 @@
- #define smp_init()     do { } while (0)
- #endif
-
-+#define setup_per_cpu_areas()  do { } while(0)
-+
- #else
-
- #ifdef __GENERIC_PER_CPU
-@@ -297,9 +299,9 @@
-        }
- }
- #else
--static inline void setup_per_cpu_areas(void)
--{
--}
-+
-+#define setup_per_cpu_areas()  do { } while(0)
-+
- #endif /* !__GENERIC_PER_CPU */
-
- /* Called by boot processor to activate the rest. */
+Ow... this is exactly what I was trying to avoid.
 
 
+On Mon, Apr 15, 2002 at 02:17:22PM -0700, Linus Torvalds wrote:
+> Side note: I should probably have made this the standard notation for the 
+> "for_each_xxx ()" macros, because having an "end_xxx" macro means that you 
+> can start using things like "do { ... } while (x)" loops for the control 
+> flow, which is often easier for the compiler to optimize (ie if the first 
+> element is always valid, and you don't need a condition going in, which is 
+> often true).
+> It does, of course, end up polluting the name-space a bit more.
+> 		Linus
 
+This is typically either the outer loop or used in things that just aren't
+time critical (at least not in comparison to deeper loop nesting levels).
+This isn't my magnum opus by a longshot (or at least I hope it isn't) so
+I won't scream too loud, but I think it's pretty much done right as is.
+
+
+Cheers,
+Bill

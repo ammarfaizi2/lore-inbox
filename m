@@ -1,35 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262883AbVAKVqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262893AbVAKVq0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262883AbVAKVqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262892AbVAKVp6
+	id S262893AbVAKVq0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:46:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVAKVp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:45:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27061 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262883AbVAKVmr (ORCPT
+	Tue, 11 Jan 2005 16:45:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49822 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262895AbVAKVng (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:42:47 -0500
-Date: Tue, 11 Jan 2005 22:41:52 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Matt Mackall <mpm@selenic.com>, Chris Wright <chrisw@osdl.org>,
-       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
-       mingo@elte.hu, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050111214152.GA17943@devserv.devel.redhat.com>
-References: <87mzvkxxck.fsf@sulphur.joq.us> <20050110212019.GG2995@waste.org> <87d5wc9gx1.fsf@sulphur.joq.us> <20050111195010.GU2940@waste.org> <871xcr3fjc.fsf@sulphur.joq.us> <20050111200549.GW2940@waste.org> <1105475349.4295.21.camel@krustophenia.net> <20050111124707.J10567@build.pdx.osdl.net> <20050111212823.GX2940@waste.org> <1105479495.4295.61.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105479495.4295.61.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
+	Tue, 11 Jan 2005 16:43:36 -0500
+Date: Tue, 11 Jan 2005 13:43:33 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: DHollenbeck <dick@softplc.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       magnus.damm@gmail.com
+Subject: Re: yenta_socket rapid fires interrupts
+In-Reply-To: <41E44738.2050606@softplc.com>
+Message-ID: <Pine.LNX.4.58.0501111340570.2373@ppc970.osdl.org>
+References: <41E2BC77.2090509@softplc.com> <Pine.LNX.4.58.0501101857330.2373@ppc970.osdl.org>
+ <41E42691.3060102@softplc.com> <Pine.LNX.4.58.0501111143370.2373@ppc970.osdl.org>
+ <41E44738.2050606@softplc.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 04:38:14PM -0500, Lee Revell wrote:
-> Yes but a bug in an app running as root can trash the filesystem.  The
-> worst you can do with RT privileges is lock up the machine.
 
-several filesystem and IO threads run at prio -10 but not RT.
-That makes me a bit less sure of your statement....
+
+On Tue, 11 Jan 2005, DHollenbeck wrote:
+>
+> Add to my last post, the information that IRQ 11 is only being used by
+> the two yenta sockets. So the "toggling" is not really toggling, but the
+> printing of the two card sockets which are both on the same IRQ?
+
+Ahh. Good catch, silly me. No toggling, so you can ignore my last post. 
+There's no cycle going on, and the ports are stable, and the interrupt is 
+coming from somewhere else entirely.
+
+You could still enable debugging, but at that point I'd actually be 
+interested in the _first_ part of the debug output, not the long tail of 
+dead interrupts. You'd need a serial console or netconsole to catch it, 
+I'm afraid.
+
+		Linus

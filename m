@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVBRSmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVBRTBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVBRSmb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 13:42:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVBRSmb
+	id S261450AbVBRTBO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 14:01:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVBRTBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 13:42:31 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37034 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261433AbVBRSmQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 13:42:16 -0500
-Date: Fri, 18 Feb 2005 18:42:03 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.6.10 patch to export kallsyms_lookup_name()
-Message-ID: <20050218184203.GA23792@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Badari Pulavarty <pbadari@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1108751348.20053.1756.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
+	Fri, 18 Feb 2005 14:01:14 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:23743 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261448AbVBRTBM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 14:01:12 -0500
+Date: Fri, 18 Feb 2005 20:01:11 +0100
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Mailer: The Bat! (v3.0) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <173098725.20050218200111@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: eepro100 or e100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108751348.20053.1756.camel@dyn318077bld.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 18, 2005 at 10:29:08AM -0800, Badari Pulavarty wrote:
-> Hi,
-> 
-> Trivial patch to export kallsyms_lookup_name() for
-> kprobe/jprobe module use.
-> 
-> Please apply. 
-> 
-> (BTW, I personally don't care if it should be
-> EXPORT_SYMBOL_GPL or EXPORT_SYMBOL).
+Hello,
 
-Certainly should be _GPL.  And where's the example user?
+Can anyone shed some light upon the state of development
+of these drivers?
+I mean: the set of supported both NIC and kernel features.
+Are both drivers supported by their authors, etc.
+
+Looking for answers that would lead to a conclusion which to use.
+
+Regards,
+Maciej
+
+

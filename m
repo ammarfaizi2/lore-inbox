@@ -1,72 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286316AbSAAWQq>; Tue, 1 Jan 2002 17:16:46 -0500
+	id <S285630AbSAAWV1>; Tue, 1 Jan 2002 17:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286311AbSAAWQh>; Tue, 1 Jan 2002 17:16:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40210 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285632AbSAAWQ3>; Tue, 1 Jan 2002 17:16:29 -0500
-Date: Tue, 1 Jan 2002 14:15:58 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Neil Brown <neilb@cse.unsw.edu.au>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: NFS "dev_t" issues..
-Message-ID: <Pine.LNX.4.33.0201011402560.13397-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S285632AbSAAWVQ>; Tue, 1 Jan 2002 17:21:16 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:58130 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S285630AbSAAWVD>; Tue, 1 Jan 2002 17:21:03 -0500
+Date: Tue, 1 Jan 2002 23:20:22 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
+Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
+Message-ID: <20020101232022.A7608@suse.cz>
+In-Reply-To: <Pine.LNX.4.21.0201012256570.2782-100000@nieuw3.stempel.dhs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0201012256570.2782-100000@nieuw3.stempel.dhs.org>; from eazstempel@cal009001.student.utwente.nl on Tue, Jan 01, 2002 at 11:03:52PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 01, 2002 at 11:03:52PM +0100, Edward Stempel wrote:
+> In my BIOS-setup there is an option "PCI latency" which defaults to
+> 32. First I changed it to 128. That worked perfect. Later I have decreased
+> it to 64, 48 and 40. But 40 still gave some problems (a little bit
+> distortion of my sound). After that I tried 44, but the disk was to slow
+> with this setting (30 MB/s instead of 40 MB/s). So now I have a PCI
+> latency of 48. The strange thing is that it seems not to work
+> directly. After the system boot when I do hdparm -t, I get about 5
+> MB/s. But then when I switch using_dma off and on again using hdparm, I
+> get the full 40 MB/s and no distortion of my es1371. Any ideas what might
+> cause this?
 
-I made a pre6, which contains a new-and-anal "kdev_t".
+You'd have to tell me all other settings in your setup first so I can
+guess the cause. What options do you use? Is DMA enabled automatically?
+Etc, etc ...
 
-The format of the thing is the same as it used to be, ie 16 bits of
-information, but I made it a structure so that you _couldn't_ mix up
-"dev_t" and "kdev_t", or use the "kdev_t" as a number (so when kdev_t
-expands to 12+20 bits later in 2.5.x you shouldn't get surprises)
+> 
+> Regards,
+> 
+> Edward  
+>  
+> 
+> 
+> 
+> ---------- Forwarded message ----------
+> Date: Tue, 1 Jan 2002 18:14:41 +0100
+> From: Vojtech Pavlik <vojtech@suse.cz>
+> To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
+> Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
+> Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
+> 
+> On Fri, Dec 28, 2001 at 05:10:43PM +0100, Edward Stempel wrote:
+> 
+> > Excellent! That solved my problem.
+> 
+> What exactly did you have to change? It might be worth to include the
+> changing of the latency setting in the kernel.
+> 
+> > 
+> > Thankx
+> > 
+> > Edward
+> > 
+> > 
+> > 
+> > 
+> > Date: Fri, 28 Dec 2001 10:15:05 +0100
+> > From: Vojtech Pavlik <vojtech@suse.cz>
+> > To: Edward Stempel <eazstempel@cal009001.student.utwente.nl>
+> > Cc: linux-kernel mailinglist <linux-kernel@vger.kernel.org>
+> > Subject: Re: DMA conflicts with soundcard for ide driver via82cxxx
+> > 
+> > On Fri, Dec 28, 2001 at 03:32:34AM +0100, Edward Stempel wrote:
+> > 
+> > > I have an Asus a7v266 mother board and an Ensoniq sound card in it. 
+> > > The ide chipset is a VIA VT8233 that is capable of UDMA100. So I built a
+> > > kernel with the es1371 sound driver and the via82cxxx ide driver
+> > > configured in it. Actually I tried the kernel 2.4.17 first, and the latest
+> > > I tried is 4.5.1 with the latest patch (patch-2.5.2-pre3) applied to it.
+> > > I also tried the kernel 2.5.1 with Vojtech  patch (via-3.33.diff from
+> > > his email dated 2001-12-23 23:20:48) applied to it, with the same
+> > > (negative) results.
+> > > 
+> > > The good thing is that hdparm reports appr. 40 MB/sec when using DMA and
+> > > about 6 MB/sec when not using DMA.
+> > > Unfortunately using DMA for ide results in some ugly distortion of the
+> > > sound from my soundcard whenever some IO to the disk is done.  :((
+> > > 
+> > > I have assigned different interrupts to the PCI-cards (ide is 
+> > > on-board) and I even changed the sound card's PCI slot, so it shared
+> > > its interrupt with another device (acpi instead of USB). It did not solve
+> > > the problem. Because the problem only occurs when switching on using_dma
+> > > on the ide driver, I think it is a DMA problem with the ide driver. It may
+> > > be the es1371 driver as well off course, but I suspect it is the ide
+> > > driver (or chipset).
+> > >   
+> > > Reading the list archive from linux-kernel, I discovered there have been
+> > > more problems with DMA using this chipset, but I did not find anyone
+> > > having the same problem as I have now.
+> > > 
+> > > Has someone also dealt with these problems, or can someone help me
+> > > solving this problem? Please help!  
+> > > 
+> > > Below are some outputs using kernel 5.1 with patch-2.5.2-pre3.
+> > 
+> > You may try changing the PCI latency settings on either the IDE
+> > controller or the sound card. Other than that, I don't know how to help.
+> > 
+> > -- 
+> > Vojtech Pavlik
+> > SuSE Labs
+> 
+> -- 
+> Vojtech Pavlik
+> SuSE Labs
 
-I fixed up the stuff I use and which showed up in compiles (on a source
-level, it's so far totally untested), but I'd really like people to check
-out their own subsystems. _Especially_ NFS and NFSD, which had several
-cases of mixing the two dev_t's around, and which also used them as
-numbers. Trond, Neil?
-
-Because the types aren't at all compatible any more, the macros that are
-used for user-level "dev_t" are no longer working for a kdev_t. So we have
-
-	dev_t			kdev_t
-
-	MKDEV(major,minor)	mk_kdev(major, minor)
-	MAJOR(dev)		major(dev)
-	MINOR(dev)		minor(dev)
-	dev == dev2		kdev_same(dev, dev2)
-	!dev			kdev_none(dev)
-
-and _most_ of the time the fixes are trivial - just translate as above. It
-only gets interesting when you have code that looks at the value or starts
-mixing the two and compares a "dev_t" against a "kdev_t", which can be
-quite interesting.
-
-The knfsd file handle thing is also an issue - Neil, please check out that
-what I did looks sane, and would be on-the-wire-compatible with the old
-behaviour, even when we expand kdev_t to 12+20 bits, ok?
-
-(Marcelo, for easier backporting of drivers to 2.4.x, we'll probably want
-to eventually add
-
-	#define mk_kdev(a,b) MKDEV(a,b)
-	#define major(d) MAJOR(d)
-	...
-
-to the 2.4.x <linux/kdev_t.h> so that you can move drivers back and
-forth).
-
-Apart from some knfsd issues, most of the kdev_t users were proper. The
-strict type-checking found one bug in the SCSI layer (which I knew about,
-and was one of the impetuses for doing it in the first place), and found a
-lot of small "works-but-will-break-with-a-bigger-kdev_t" issues).
-
-			Linus
-
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261826AbTCLSQs>; Wed, 12 Mar 2003 13:16:48 -0500
+	id <S261811AbTCLSKJ>; Wed, 12 Mar 2003 13:10:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261832AbTCLSQs>; Wed, 12 Mar 2003 13:16:48 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:60843 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261826AbTCLSQr>; Wed, 12 Mar 2003 13:16:47 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 12 Mar 2003 10:36:43 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Martin Waitz <tali@admingilde.org>
-cc: Niels Provos <provos@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marius Aamodt Eriksen <marius@citi.umich.edu>
-Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-In-Reply-To: <20030312180550.GA27366@admingilde.org>
-Message-ID: <Pine.LNX.4.50.0303121031400.991-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
- <20030311043202.GK2225@citi.citi.umich.edu> <20030312180550.GA27366@admingilde.org>
+	id <S261819AbTCLSKJ>; Wed, 12 Mar 2003 13:10:09 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:995 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261811AbTCLSJi>;
+	Wed, 12 Mar 2003 13:09:38 -0500
+Message-ID: <3E6F7A49.50709@colorfullife.com>
+Date: Wed, 12 Mar 2003 19:19:53 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
+Subject: Re: bio too big device
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Mar 2003, Martin Waitz wrote:
+Jens wrote:
 
-> On Mon, Mar 10, 2003 at 11:32:02PM -0500, Niels Provos wrote:
-> > It seems that option 3) which implements both "edge" and "level"
-> > triggered behavior is the best solution.  This is similar to kqueue
-> > which supports both triggering modes.
-> imho the kqueue api is a lot nicer anyway.
+>On Wed, Mar 12 2003, Andre Hedrick wrote:
+>> 
+>> So lets dirty list the one drive by Paul G. and be done.
+>> Can we do that?
 >
-> what about simply implementing kqueue?
-> it's already available in other OS's,
-> so it's easier for application developers to adopt it, too.
+>Who cares, really? There's not much point in doing it, we're talking 248
+>vs 256 sectors in reality. I think it's a _bad_ idea, lets just keep it
+>at 255 and avoid silly drive bugs there.
+>  
+>
+I think a black list would be the right thing:
 
-See opinions about APIs are strictly personal. IMO kqueue is overbloated
-for example. The epoll API is extremely easy to use and very much remember
-the poll one, that many developers are used to. If you want to make your
-software completely abstract, you can use Niels's libevent library for
-example, that supports poll/select/epoll/kqueue.
+linux/drivers/ide/ide-probe.c:
 
+>#ifdef CONFIG_BLK_DEV_PDC4030
+>	max_sectors = 127;
+>#else
+>	max_sectors = 255;
+>#endif
+>	blk_queue_max_sectors(q, max_sectors);
+>
+>  
+>
+IDE uses 127 sector requests if support for PDC4030 is compiled it, 
+otherwise 255. It seems someone started with a blacklist, but never 
+completed it.
+Does any distro enable PDC4030 support?
 
-
-- Davide
+--
+    Manfred
 

@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136138AbRD0RkC>; Fri, 27 Apr 2001 13:40:02 -0400
+	id <S136145AbRD0RnM>; Fri, 27 Apr 2001 13:43:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136139AbRD0Rj4>; Fri, 27 Apr 2001 13:39:56 -0400
-Received: from www.wen-online.de ([212.223.88.39]:55824 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S136138AbRD0Rjb>;
-	Fri, 27 Apr 2001 13:39:31 -0400
-Date: Fri, 27 Apr 2001 19:38:34 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0104260526020.2416-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0104271930070.225-100000@mikeg.weiden.de>
+	id <S136139AbRD0RnC>; Fri, 27 Apr 2001 13:43:02 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:34558 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S136145AbRD0Rmz>; Fri, 27 Apr 2001 13:42:55 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200104271742.TAA17691@sunrise.pg.gda.pl>
+Subject: Re: 2.4.4-pre7 build failure w/ IP NAT and ipchains
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Fri, 27 Apr 2001 19:42:42 +0200 (MET DST)
+Cc: linux-kernel@vger.kernel.org (Linux-Kernel mailing list)
+In-Reply-To: <20010427115548.A16249@emma1.emma.line.org> from "Matthias Andree" at Apr 27, 2001 11:55:48 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Linus Torvalds wrote:
+"Matthias Andree wrote:"
+> On Fri, 27 Apr 2001, David S. Miller wrote:
+> > Your configuration seems impossible, somehow the config system allowed
+> > you to set CONFIG_IP_NF_COMPAT_IPCHAINS without setting
+> > CONFIG_IP_NF_CONNTRACK.
 
-> Have you looked at "free_pte()"? I don't like that function, and it might
-> make a difference. There are several small nits with it:
+Just quick look at net/ipv4/netfilter/Config.in explains everything:
 
-snip
+: if [ "$CONFIG_IP_NF_CONNTRACK" != "y" ]; then
+:   if [ "$CONFIG_IP_NF_IPTABLES" != "y" ]; then
+:     tristate 'ipchains (2.2-style) support' CONFIG_IP_NF_COMPAT_IPCHAINS
 
-> I _think_ the logic should be something along the lines of: "freeing the
-> page amounts to a implied down-aging of the page, but the 'accessed' bit
-> would have aged it up, so the two take each other out". But if so, the
-> free_pte() logic should have something like
->
-> 	if (page->mapping) {
-> 		if (!pte_young(pte) || PageSwapCache(page))
-> 			age_page_down_ageonly(page);
-> 		if (!page->age)
-> 			deactivate_page(page);
-> 	}
+CONFIG_IP_NF_COMPAT_IPCHAINS depends on CONFIG_IP_NF_CONNTRACK being
+disabled. And it seems to be intentional...
 
-Hi,
+> Now, if I set "connection tracking" to "y", the ipchains option
+> disappears (make menuconfig). Are things supposed to behave this way?
+> I'd like to stick to ipchains for a while, rather than switch to
+> iptables. (Administrator laziness, of course.)
 
-I tried this out today after some more reading.
-
-virgin pre7 +Rik
-real    11m44.088s
-user    7m57.720s
-sys     0m36.420s
-
-+Rik +Linus
-real    11m48.597s
-user    7m55.620s
-sys     0m37.860s
-
-+Rik +Linus +HarshAging
-real    11m17.758s
-user    7m57.650s
-sys     0m36.350s
-
-None of them make much difference.
-
-	-Mike
-
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

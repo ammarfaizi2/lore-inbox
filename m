@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319147AbSIDL4u>; Wed, 4 Sep 2002 07:56:50 -0400
+	id <S319148AbSIDL62>; Wed, 4 Sep 2002 07:58:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319148AbSIDL4u>; Wed, 4 Sep 2002 07:56:50 -0400
-Received: from employees.nextframe.net ([212.169.100.200]:35055 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S319147AbSIDL4t>; Wed, 4 Sep 2002 07:56:49 -0400
-Date: Wed, 4 Sep 2002 14:02:41 +0200
-From: Morten Helgesen <morten.helgesen@nextframe.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: writing OOPS/panic info to nvram?
-Message-ID: <20020904140241.A123@sexything>
-Reply-To: morten.helgesen@nextframe.net
-References: <200209041350.21358.roy@karlsbakk.net>
-Mime-Version: 1.0
+	id <S319149AbSIDL62>; Wed, 4 Sep 2002 07:58:28 -0400
+Received: from dp.samba.org ([66.70.73.150]:55695 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319148AbSIDL61>;
+	Wed, 4 Sep 2002 07:58:27 -0400
+From: Paul Mackerras <paulus@au1.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209041350.21358.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+Content-Transfer-Encoding: 7bit
+Message-ID: <15733.62920.624689.922248@argo.ozlabs.ibm.com>
+Date: Wed, 4 Sep 2002 22:00:08 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix create_elf_tables on PPC
+X-Mailer: VM 6.75 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, Roy
+Linus,
 
-On Wed, Sep 04, 2002 at 01:50:21PM +0200, Roy Sigurd Karlsbakk wrote:
-> hi
-> 
-> I just read in the OS X.2 technote 
+As you know, create_elf_tables in fs/binfmt_elf.c now sets up the list
+of aux table entries in a buffer on the kernel stack before copying it
+to the user stack.  Unfortunately, while the buffer is big enough for
+most architectures, it isn't big enough on PPC, which uses 5 extra aux
+table entries (put on with ARCH_DLINFO).  The following patch
+increases the buffer to be big enough for PPC.  (Note that each aux
+table entry uses two elements of the elf_info array.)
 
-So did I :)
+Please apply this to your tree.
 
-> (http://developer.apple.com/technotes/tn2002/tn2053.html#TN001016) that 
-> they're writing the panic dump to nvram.
-> 
-> Is it hard to implement this on Linux?
+Thanks,
+Paul.
 
-Doesn`t look like too much work. As far as I can see, from a quick
-glance, we have everything we need at hand - just have to write a snippet
-of code in traps.c. I`ll give it a whirl now.
-
-> 
-> roy
-> -- 
-> Roy Sigurd Karlsbakk, Datavaktmester
-> ProntoTV AS - http://www.pronto.tv/
-> Tel: +47 9801 3356
-> 
-
-== Morten
-
--- 
-
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
-
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
+diff -urN linux-2.5/fs/binfmt_elf.c pmac-2.5/fs/binfmt_elf.c
+--- linux-2.5/fs/binfmt_elf.c	Fri Aug 30 09:26:19 2002
++++ pmac-2.5/fs/binfmt_elf.c	Tue Sep  3 16:54:13 2002
+@@ -132,7 +132,7 @@
+ 	elf_addr_t *sp, *u_platform;
+ 	const char *k_platform = ELF_PLATFORM;
+ 	int items;
+-	elf_addr_t elf_info[30];
++	elf_addr_t elf_info[40];
+ 	int ei_index = 0;
+ 
+ 	/*

@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265352AbTFZC4p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 22:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265358AbTFZC4o
+	id S265358AbTFZDCG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 23:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbTFZDCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 22:56:44 -0400
-Received: from ajax.cs.uga.edu ([128.192.251.3]:7145 "EHLO ajax.cs.uga.edu")
-	by vger.kernel.org with ESMTP id S265352AbTFZC4o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 22:56:44 -0400
-Date: Wed, 25 Jun 2003 23:16:49 -0400
-From: Ed L Cashin <ecashin@uga.edu>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: compile error in drivers/perfctr/x86.c (Re: 2..5.73-osdl2)
-Message-ID: <20030625231649.A15998@atlas.cs.uga.edu>
-References: <20030625174048.221471a0.shemminger@osdl.org> <20030625224707.A15559@atlas.cs.uga.edu>
+	Wed, 25 Jun 2003 23:02:06 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:52701 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S265358AbTFZDCF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 23:02:05 -0400
+Date: Wed, 25 Jun 2003 20:16:14 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: David Schwartz <davids@webmaster.com>
+Cc: Larry McVoy <lm@bitmover.com>, Robert White <rwhite@casabyte.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030626031614.GA17623@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	David Schwartz <davids@webmaster.com>,
+	Larry McVoy <lm@bitmover.com>, Robert White <rwhite@casabyte.com>,
+	linux-kernel@vger.kernel.org
+References: <20030626011440.GB17417@work.bitmover.com> <MDEHLPKNGKAHNMBLJOLKAEPFDOAA.davids@webmaster.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030625224707.A15559@atlas.cs.uga.edu>; from ecashin@uga.edu on Wed, Jun 25, 2003 at 10:47:07PM -0400
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEPFDOAA.davids@webmaster.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also, it looks like the EXTRAVERSION wasn't updated 
-to -osdl2.
+On Wed, Jun 25, 2003 at 07:45:48PM -0700, David Schwartz wrote:
+> We have no access to
+> your experiences nor any way to validate them or debate them. 
 
+Exactly.  What I'm figuring out is that discussing business models here
+is a lot like trying to tell a teenager that he is mortal right before
+he goes out for a drive.  I didn't listen, he's not going to listen,
+and you aren't listening.  So I've tried about a half dozen times
+to gracefully bow out and you keep coming back with more.  No thanks.
+I figured it out, you go figure it out, then we can have a fun discussion
+about how to move things in a more positive direction.  Baiting me isn't
+going to work, the fish aren't biting.
 -- 
---Ed L Cashin            |   PGP public key:
-  ecashin@uga.edu        |   http://noserose.net/e/pgp/
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

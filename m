@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbTCQHbN>; Mon, 17 Mar 2003 02:31:13 -0500
+	id <S262044AbTCQHef>; Mon, 17 Mar 2003 02:34:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262044AbTCQHbN>; Mon, 17 Mar 2003 02:31:13 -0500
-Received: from holomorphy.com ([66.224.33.161]:2521 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262038AbTCQHbM>;
-	Mon, 17 Mar 2003 02:31:12 -0500
-Date: Sun, 16 Mar 2003 23:41:49 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, Mark Haverkamp <markh@osdl.org>
-Subject: Re: [Lse-tech] [PATCH][ANNOUNCE] 32way/8quad NUMAQ booting with 16 IOAPICs, 223 IRQs
-Message-ID: <20030317074149.GO5891@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@holomorphy.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	LSE <lse-tech@lists.sourceforge.net>,
-	Mark Haverkamp <markh@osdl.org>
-References: <Pine.LNX.4.50.0303071148150.18716-100000@montezuma.mastecende.com> <20030317055415.GM5891@holomorphy.com> <Pine.LNX.4.50.0303170107560.2229-100000@montezuma.mastecende.com> <20030317062838.GN5891@holomorphy.com> <Pine.LNX.4.50.0303170226180.2229-100000@montezuma.mastecende.com>
+	id <S262062AbTCQHef>; Mon, 17 Mar 2003 02:34:35 -0500
+Received: from proxy.povodiodry.cz ([62.77.115.11]:39608 "HELO pc11.op.pod.cz")
+	by vger.kernel.org with SMTP id <S262044AbTCQHee>;
+	Mon, 17 Mar 2003 02:34:34 -0500
+From: "Vitezslav Samel" <samel@mail.cz>
+Date: Mon, 17 Mar 2003 08:45:26 +0100
+To: Matthew Wilcox <willy@debian.org>
+Cc: Eric Piel <Eric.Piel@Bull.Net>, davidm@hpl.hp.com,
+       linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
+Subject: Re: [Linux-ia64] Re: [BUG] nanosleep() granularity bumps up in 2.5.64 (was: [PATCH] settimeofday() not synchronised with gettimeofday())
+Message-ID: <20030317074526.GA21969@pc11.op.pod.cz>
+Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
+	Eric Piel <Eric.Piel@Bull.Net>, davidm@hpl.hp.com,
+	linux-ia64@linuxia64.org, linux-kernel@vger.kernel.org
+References: <3E70B797.DFC260B@Bull.Net> <15984.58358.499539.299000@napali.hpl.hp.com> <3E71E87C.10CBC8F7@Bull.Net> <20030314144859.GJ29631@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0303170226180.2229-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20030314144859.GJ29631@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Mar 2003, William Lee Irwin III wrote:
->> Well, I tried it in my prior attempt and didn't have problems in that
->> area. AFAICT it "just works" if you jack up the numbers.
+On Fri, Mar 14, 2003 at 02:48:59PM +0000, Matthew Wilcox wrote:
+> On Fri, Mar 14, 2003 at 03:34:36PM +0100, Eric Piel wrote:
+> > I think lines like that from patch-2.5.64 are very suspicious to be
+> > related to the bug:
+> > +	base->timer_jiffies = INITIAL_JIFFIES;
+> > +	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
+> > +	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
+> > +	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) & TVN_MASK;
+> > +	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) &
+> > TVN_MASK;
+> > +	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) &
+> > TVN_MASK;
+> 
+> No, I don't think so.  Those lines are for starting `jiffies' at a very
+> high number so we spot jiffie-wrap bugs early on.
 
-On Mon, Mar 17, 2003 at 02:28:26AM -0500, Zwane Mwaikambo wrote:
-> Cool i'm trying to get hold of some more SCSI HBAs and disks to put on 
-> other nodes (plenty of FC but no drivers), i'll let you know how it goes.
+  The nanosleep() bug narrowed down to 2.5.63-bk2. That's version, the "initial
+jiffies" patch went in. And yes, it's on i686 machine.
 
-On Sun, 16 Mar 2003, William Lee Irwin III wrote:
->> Also, NUMA-Q's max at 640 routeable RTE's with 16 quads so you'll only
->> need to add 1 to HARDIRQ_BITS.
->> The cpu count issue I've fixed in a separate patch.
-
-On Mon, Mar 17, 2003 at 02:28:26AM -0500, Zwane Mwaikambo wrote:
-> I'd have to rob a couple more poor souls to get 16 quads ;)
-
-Getting them together in one place involves extreme pain/hassles.
-
-
--- wli
+	Cheers,
+		Vita

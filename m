@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262323AbSJENE7>; Sat, 5 Oct 2002 09:04:59 -0400
+	id <S262324AbSJENGc>; Sat, 5 Oct 2002 09:06:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262324AbSJENE7>; Sat, 5 Oct 2002 09:04:59 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:57867 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262323AbSJENE6>; Sat, 5 Oct 2002 09:04:58 -0400
-Message-ID: <3D9EE4C9.4090604@namesys.com>
-Date: Sat, 05 Oct 2002 17:10:33 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tom_gall@mac.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S262325AbSJENGc>; Sat, 5 Oct 2002 09:06:32 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:40443 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262324AbSJENGb>; Sat, 5 Oct 2002 09:06:31 -0400
+Subject: Re: Why does x86_64 support a SuSE-specific ioctl?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+In-Reply-To: <p73adltqz9g.fsf@oldwotan.suse.de>
+References: <Pine.NEB.4.44.0210041654570.11119-100000@mimas.fachschaften.tu-muenchen.de.
+	 suse.lists.linux.kernel>  <p73adltqz9g.fsf@oldwotan.suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Oct 2002 14:20:43 +0100
+Message-Id: <1033824043.3425.0.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tom_gall@mac.com wrote:
+On Sat, 2002-10-05 at 05:35, Andi Kleen wrote:
+>  		 */
+> diff -urN linux-2.4.18.tmp/include/asm-alpha/ioctls.h linux-2.4.18.SuSE/include/asm-alpha/ioctls.h
+> --- linux-2.4.18.tmp/include/asm-alpha/ioctls.h	Sat May  4 11:37:28 2002
+> +++ linux-2.4.18.SuSE/include/asm-alpha/ioctls.h	Sat May  4 11:37:56 2002
+> @@ -92,6 +92,7 @@
+>  #define TIOCGSID	0x5429  /* Return the session ID of FD */
+>  #define TIOCGPTN	_IOR('T',0x30, unsigned int) /* Get Pty Number (of pty-mux device) */
+>  #define TIOCSPTLCK	_IOW('T',0x31, int)  /* Lock/unlock Pty */
+> +#define TIOCGDEV	_IOR('T',0x32, unsigned int) /* Get real dev no below /dev/console */
+>  
 
-> Greetings all,
->
-> I noticed Larry recently changed the license on bk.  Once clause in 
-> particular struck me and I thought I'd better point it out for your 
-> reactions...
->
-> Specifically from Section 3:
->
->        (d)  Notwithstanding any other terms in this License, this
->             License is not available to You if  You  and/or  your
->             employer  develop,  produce,  sell,  and/or  resell a
->             product which contains substantially similar capabil-
->             ities  of  the BitKeeper Software, or, in the reason-
->             able opinion of BitMover, competes with the BitKeeper
->             Software.
->
-Seems like a pretty straightforward violation of the anti-trust laws, 
-and a conspiracy to restrain trade.  Hope Larry votes for Bush's 
-reelection, cause Bush judges will keep Larry safe from the law on this 
-for sure.
-
-Hans
+Shouldn't these values be reserved in 2.5 before anything goes into 2.4
+for this - the values finally used might be different
 

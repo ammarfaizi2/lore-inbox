@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262721AbSJPS3r>; Wed, 16 Oct 2002 14:29:47 -0400
+	id <S262783AbSJPSdw>; Wed, 16 Oct 2002 14:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262735AbSJPS3r>; Wed, 16 Oct 2002 14:29:47 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:48372 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S262721AbSJPS32>; Wed, 16 Oct 2002 14:29:28 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 16 Oct 2002 12:32:55 -0600
-To: Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>
-Cc: "Theodore Ts'o" <tytso@mit.edu>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] Add extended attributes to ext2/3
-Message-ID: <20021016183255.GB1201@clusterfs.com>
-Mail-Followup-To: Lorenzo Allegrucci <l.allegrucci@tiscalinet.it>,
-	Theodore Ts'o <tytso@mit.edu>,
-	"Henning P. Schmiedehausen" <hps@intermeta.de>,
-	linux-kernel@vger.kernel.org
-References: <E181a3S-0006Nq-00@snap.thunk.org> <aojc1q$l37$1@forge.intermeta.de> <20021016161620.GC8210@think.thunk.org> <200210161950.54993.l.allegrucci@tiscalinet.it>
+	id <S262786AbSJPSdw>; Wed, 16 Oct 2002 14:33:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18448 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262783AbSJPSdv>;
+	Wed, 16 Oct 2002 14:33:51 -0400
+Date: Wed, 16 Oct 2002 19:39:49 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add PER_HPUX
+Message-ID: <20021016193949.N15163@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200210161950.54993.l.allegrucci@tiscalinet.it>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 16, 2002  19:50 +0200, Lorenzo Allegrucci wrote:
-> On Wednesday 16 October 2002 18:16, Theodore Ts'o wrote:
-> > We already have different block sizes for ext2/3; we support 1k, 2k,
-> > and 4k block sizes.
-> 
-> BTW, why doesn't ext2/3 support 512 byte block sizes?
 
-Too inefficient, and impose too many limitations on the filesystem
-(which sets up some filesystem structures based on the blocksize).
-Already, 1kB block size is too small for many things, and 4kB is
-preferred.  It would probably support larger blocksizes already on
-ia32 if the page size was larger.
+Allocate a personality number for HPUX binaries
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+diff -urpNX build-tools/dontdiff linus-2.5/include/linux/personality.h parisc-2.5/include/linux/personality.h
+--- linus-2.5/include/linux/personality.h	Fri Aug 30 10:22:04 2002
++++ parisc-2.5/include/linux/personality.h	Fri Aug 30 14:00:40 2002
+@@ -63,6 +63,7 @@ enum {
+ 	PER_SOLARIS =		0x000d | STICKY_TIMEOUTS,
+ 	PER_UW7 =		0x000e | STICKY_TIMEOUTS | MMAP_PAGE_ZERO,
+ 	PER_OSF4 =		0x000f,			 /* OSF/1 v4 */
++	PER_HPUX =		0x0010,
+ 	PER_MASK =		0x00ff,
+ };
+ 
 
+-- 
+Revolutions do not require corporate support.

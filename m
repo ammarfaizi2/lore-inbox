@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbUCLQrb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 11:47:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbUCLQrb
+	id S262328AbUCLQzK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 11:55:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUCLQzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 11:47:31 -0500
-Received: from mill.mtholyoke.edu ([138.110.30.76]:20868 "EHLO
-	mill.mtholyoke.edu") by vger.kernel.org with ESMTP id S262309AbUCLQr3
+	Fri, 12 Mar 2004 11:55:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6552 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262328AbUCLQzG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 11:47:29 -0500
-From: Ron Peterson <rpeterso@mtholyoke.edu>
-Date: Fri, 12 Mar 2004 11:47:04 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: network/performance problem
-Message-ID: <20040312164704.GA17969@mtholyoke.edu>
-References: <20040311152728.GA11472@mtholyoke.edu> <20040311151559.72706624.akpm@osdl.org> <20040311233525.GA14065@mtholyoke.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040311233525.GA14065@mtholyoke.edu>
-User-Agent: Mutt/1.3.28i
-Organization: Mount Holyoke College
-X-Operating-System: Debian GNU/Linux
+	Fri, 12 Mar 2004 11:55:06 -0500
+Message-ID: <4051EB5E.3060901@pobox.com>
+Date: Fri, 12 Mar 2004 11:54:54 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Eric Brower <ebrower@usa.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ethtool.h should use userspace-accessible types
+References: <40511868.4060109@usa.net>
+In-Reply-To: <40511868.4060109@usa.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Patrick.
+Eric Brower wrote:
+> Attached is a patch to 2.4's ethtool.h to use appropriate, 
+> userspace-accessible data types (__u8 and friends, rather than u8 and 
+> friends).
 
-(I'm all set now.  Someone kindly sent me a critical network patch via
-email... :)
+I'm happy with u8/u16/u32, so it stays that way :)
 
-I'm not subscribed to lkml, but am following along in fa.kernel.linux.
-I'm replying to my own mail to keep the thread somewhat intact...
+	Jeff
 
-Anyway, sam's .config can be found here:
 
-http://depot.mtholyoke.edu:8080/tmp/sam-profile/sam-config-2.4.21
 
-On sam, I just did:
-
-1002# cat /proc/net/ip_conntrack > ip_conntrack
-
-..and it wiped the machine out.  I can't ping it, ssh to it, nothing.  I
-need to go walk over to the machine room...  :(
-
-After lunch I'm stuck in meetings for awhile...
-
-Thanks.
-
--- 
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-http://www.mtholyoke.edu/~rpeterso

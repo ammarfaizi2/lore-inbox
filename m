@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129742AbRALAkh>; Thu, 11 Jan 2001 19:40:37 -0500
+	id <S130026AbRALAm0>; Thu, 11 Jan 2001 19:42:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130026AbRALAk0>; Thu, 11 Jan 2001 19:40:26 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14088 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129742AbRALAkJ>; Thu, 11 Jan 2001 19:40:09 -0500
-Message-ID: <3A5E5248.DD7CA9AE@transmeta.com>
-Date: Thu, 11 Jan 2001 16:39:36 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
+	id <S131310AbRALAmQ>; Thu, 11 Jan 2001 19:42:16 -0500
+Received: from d-dialin-1397.addcom.de ([62.96.164.205]:22001 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130026AbRALAl7>; Thu, 11 Jan 2001 19:41:59 -0500
+Date: Fri, 12 Jan 2001 01:35:14 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix nfs as module on 2.4.0-pre2
+Message-ID: <Pine.LNX.4.30.0101120132570.1288-100000@vaio>
 MIME-Version: 1.0
-To: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
-CC: rdunlap <randy.dunlap@intel.com>, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@redhat.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Re: That horrible hack from hell called A20
-In-Reply-To: <Pine.LNX.4.30.0101120130350.1288-100000@vaio>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the way to go is to do the INT 15-first; possibly augmented with
-a "test before even doing INT 15"...
 
-	-hpa
+Obvious, I guess.
+
+--Kai
+
+diff -ur linux-2.4.1-pre2/net/sunrpc/sunrpc_syms.c linux-2.4.1-pre2-makefixes-3/net/sunrpc/sunrpc_syms.c
+--- linux-2.4.1-pre2/net/sunrpc/sunrpc_syms.c	Sat Apr 22 01:08:52 2000
++++ linux-2.4.1-pre2-makefixes-3/net/sunrpc/sunrpc_syms.c	Fri Jan 12 01:00:40 2001
+@@ -35,6 +35,7 @@
+ EXPORT_SYMBOL(rpciod_down);
+ EXPORT_SYMBOL(rpciod_up);
+ EXPORT_SYMBOL(rpc_new_task);
++EXPORT_SYMBOL(rpc_release_task);
+ EXPORT_SYMBOL(rpc_wake_up_status);
+
+ /* RPC client functions */
 
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317906AbSHCVxF>; Sat, 3 Aug 2002 17:53:05 -0400
+	id <S317904AbSHCVyw>; Sat, 3 Aug 2002 17:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317907AbSHCVxF>; Sat, 3 Aug 2002 17:53:05 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:27575 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317906AbSHCVxE>; Sat, 3 Aug 2002 17:53:04 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: large page patch (fwd) (fwd)
-Date: Sat, 3 Aug 2002 17:54:30 -0400
-User-Agent: KMail/1.4.1
-Cc: davidm@hpl.hp.com, "David S. Miller" <davem@redhat.com>,
-       <davidm@napali.hpl.hp.com>, <gh@us.ibm.com>, <Martin.Bligh@us.ibm.com>,
-       <wli@holomorpy.com>, <linux-kernel@vger.kernel.org>
-References: <15692.12093.514064.496253@napali.hpl.hp.com> <Pine.LNX.4.44.0208031240270.9758-100000@home.transmeta.com> <15692.18584.1391.30730@napali.hpl.hp.com>
-In-Reply-To: <15692.18584.1391.30730@napali.hpl.hp.com>
+	id <S317911AbSHCVyw>; Sat, 3 Aug 2002 17:54:52 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38889 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317904AbSHCVyu>; Sat, 3 Aug 2002 17:54:50 -0400
+Date: Sat, 3 Aug 2002 23:58:03 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pawel Kot <pkot@linuxnews.pl>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: No Subject
+In-Reply-To: <1028411118.1760.30.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.SOL.4.30.0208032341220.24539-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208031754.30337.frankeh@watson.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 03 August 2002 05:18 pm, David Mosberger wrote:
-> >>>>> On Sat, 3 Aug 2002 12:43:47 -0700 (PDT), Linus Torvalds
-> >>>>> <torvalds@transmeta.com> said:
->   >>
->   >> You don't need separate system calls for that: with a transparent
->   >> superpage framework and a privileged & reserved giant-page pool,
->   >> it's trivial to set up things such that your favorite data base
->   >> will always be able to get the giant pages (and hence the giant
->   >> TLB mappings) it wants.  The only thing you lose in the
->   >> transparent case is control over _which_ pages need to use the
->   >> pinned giant pages.  I can certainly imagine cases where this
->   >> would be an issue, but I kind of doubt it would be an issue for
->   >> databases.
->
->   Linus> That's _probably_ true. There aren't that many allocations
->   Linus> that ask for megabytes of consecutive memory that wouldn't
->   Linus> want to do it. However, there might certainly be non-critical
->   Linus> maintenance programs (with the same privileges as the
->   Linus> database program proper) that _do_ do large allocations, and
->   Linus> that we don't want to give large pages to.
->
->   Linus> Guessing is always bad, especially since the application
->   Linus> certainly does know what it wants.
->
-> Yes, but that applies even to a transparent superpage scheme: in those
-> instances where an application knows what page size is optimal, it's
-> better if the application can express that (saves time
-> promoting/demoting pages needlessly).  It's not unlike madvise() or
-> the readahead() syscall: use reasonable policies for the ordinary
-> apps, and provide the means to let the smart apps tell the kernel
-> exactly what they need.
->
-> 	--david
 
-So that's what is/can-be done through the madvice call or a flag on MMAP().
-Force a specific size and policy. Why do you need a new system call.
+On 3 Aug 2002, Alan Cox wrote:
 
-The Rice paper solved this reasonably elegant. Reservation and check 
-after a while. If you didn't use reserved memory, you loose it, this is the 
-auto promotion/demotion.
+> On Sat, 2002-08-03 at 20:26, Pawel Kot wrote:
+> > What helped me was using fixup_device_piix() from -ac in
+> > ide_scan_pcidev(). My controler's ID is DEVID_ICH3M.
+> > It is used in a different, more generic way in -ac, so I don't post the
+> > patch.
+> >
+> > Alan, Marcelo: is there any chance that this change will be ported from
+> > -ac in 2.4.20?
+>
+> I plan to send Marcelo all the IDE updates. Note btw the checking of the
+> return value on pci_enable_device is critical - some old kernels hang on
+> boot with crappy bioses through not checking.
 
-For special apps one provides the interface using madvice().
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+Of course it is critical :-).
+
+> What I begin to the think the right answer is, is to relax the IDE fixup
+> block in the i386 kernel boot up. Right now we avoid assigning
+> unassigned resources for IDE controllers. Clearly we should be doing so.
+
+I think so.
+Andre what do you think?
+
+And one more thing in ide-pci.c:ide_setup_pci_device() after explicitly
+enabling device's IOs we may need to update dev->resource and we don't
+do this (we place chipset in native mode so i.e. on VIA base addresses
+are just showing up). How to update them?
+
+Regards
+--
+Bartlomiej
+

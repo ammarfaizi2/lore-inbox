@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129211AbQKMQKE>; Mon, 13 Nov 2000 11:10:04 -0500
+	id <S129060AbQKMQNy>; Mon, 13 Nov 2000 11:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129069AbQKMQJy>; Mon, 13 Nov 2000 11:09:54 -0500
-Received: from thalia.fm.intel.com ([132.233.247.11]:522 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S129211AbQKMQJf>; Mon, 13 Nov 2000 11:09:35 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDCCD@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: Steven_Snyder@3com.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: State of Posix compliance in v2.2/v2.4 kernel?
-Date: Mon, 13 Nov 2000 08:09:19 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S129069AbQKMQNo>; Mon, 13 Nov 2000 11:13:44 -0500
+Received: from devserv.devel.redhat.com ([207.175.42.156]:64528 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129060AbQKMQN2>; Mon, 13 Nov 2000 11:13:28 -0500
+Date: Mon, 13 Nov 2000 11:13:19 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Steven_Snyder@3com.com, linux-kernel@vger.kernel.org
+Subject: Re: State of Posix compliance in v2.2/v2.4 kernel?
+Message-ID: <20001113111319.E1514@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <88256996.00577D9E.00@hqoutbound.ops.3com.com> <3A101009.5F05DA18@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A101009.5F05DA18@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Nov 13, 2000 at 11:00:09AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Mon, Nov 13, 2000 at 11:00:09AM -0500, Jeff Garzik wrote:
 > Steven_Snyder@3com.com wrote:
 > > Sorry if this is a FAQ, but I've searched the archives for this list
-> > (http://www.uwsg.iu.edu/hypermail/linux/kernel/) and only 
-> come with references
+> > (http://www.uwsg.iu.edu/hypermail/linux/kernel/) and only come with references
 > > from 1996!
 > > 
-> > What is the state of Posix-compliant services (threads, 
-> semaphores, timers,
+> > What is the state of Posix-compliant services (threads, semaphores, timers,
 > > etc.) in the current (v2.2/v2.4) Linux kernels?
 > 
-> IMHO this is a question better asked of glibc people, not 
-> kernel people.
+> IMHO this is a question better asked of glibc people, not kernel people.
 > 
-> The kernel does its best to facilitate POSIX compliances, but in some
-> cases the kernel developers have said "POSIX is braindead here!" and
-> solved a particular problem in a non-POSIX way.  [and leaves glibc to
-> pick up the pieces, and enforce POSIX compliancy]
-> 
-> Also, from what I've seen lately on IRC and lkml, the Single Unix
-> Specification ("SuS") is generally held in higher regard than 
-> POSIX; and
-> when spec questions arise, kernel developers tend to check SuS before
-> POSIX (if POSIX is checked at all).
-> 
-> 	Jeff
+> The kernel does its best to facilitate POSIX compliances,
 
-and there's some useful info about libc, threads, etc.,
-at the Linux Standard Base CVS (http://www.linuxbase.org/
-plus its sf.net project page + CVS links).
+Well, it does not do its best. There are several areas where kernel should
+help, things like POSIX semaphores would be much faster with kernel support,
+likewise threads if some things Ulrich stated here a couple of months
+ago were done in the kernel, POSIX message queue passing is not doable in
+userland without kernel help either (I have a message queue filesystem
+kernel patch for this, but it is a 2.5 thing).
 
-~Randy
-
+	Jakub
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292223AbSBYTnK>; Mon, 25 Feb 2002 14:43:10 -0500
+	id <S293478AbSBYToA>; Mon, 25 Feb 2002 14:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293471AbSBYTnB>; Mon, 25 Feb 2002 14:43:01 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:25100 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S292223AbSBYTmo>; Mon, 25 Feb 2002 14:42:44 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 25 Feb 2002 11:45:24 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Larry McVoy <lm@bitmover.com>
-cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Erich Focht <focht@ess.nec.de>, Mike Kravetz <kravetz@us.ibm.com>,
-        Jesse Barnes <jbarnes@sgi.com>, Peter Rival <frival@zk3.dec.com>,
-        <lse-tech@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] NUMA scheduling
-In-Reply-To: <Pine.LNX.4.44.0202251121390.1499-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.LNX.4.44.0202251144290.1499-100000@blue1.dev.mcafeelabs.com>
+	id <S293476AbSBYTn4>; Mon, 25 Feb 2002 14:43:56 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10501 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293474AbSBYTnl>;
+	Mon, 25 Feb 2002 14:43:41 -0500
+Message-ID: <3C7A939D.FCAE9096@zip.com.au>
+Date: Mon, 25 Feb 2002 11:42:21 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Lord <lord@sgi.com>
+CC: Jens Axboe <axboe@suse.de>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] only irq-safe atomic ops
+In-Reply-To: <1014449389.1003.149.camel@phantasy.suse.lists.linux.kernel> <3C774AC8.5E0848A2@zip.com.au.suse.lists.linux.kernel> <3C77F503.1060005@sgi.com.suse.lists.linux.kernel> <p73y9hjq5mw.fsf@oldwotan.suse.de> <3C78045C.668AB945@zip.com.au> <3C780702.9060109@sgi.com> <3C780CDA.FEAF9CB4@zip.com.au> <3C781362.7070103@sgi.com> <3C781909.F69D8791@zip.com.au> <3C7A35FF.5040508@sgi.com> <20020225131218.GO11837@suse.de> <3C7A398A.1060300@sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Feb 2002, Davide Libenzi wrote:
+Stephen Lord wrote:
+> 
+> Yep, bio just made it easier to get larger requests.
+> 
 
-> On Mon, 25 Feb 2002, Larry McVoy wrote:
->
-> > On Mon, Feb 25, 2002 at 10:55:03AM -0800, Martin J. Bligh wrote:
-> > > > - The load_balancing() concept is different:
-> > > > 	- there are no special time intervals for balancing across pool
-> > > > 	boundaries, the need for this can occur very quickly and I
-> > > > 	have the feeling that 2*250ms is a long time for keeping the
-> > > > 	nodes unbalanced. This means: each time load_balance() is called
-> > > > 	it _can_ balance across pool boundaries (but doesn't have to).
-> > >
-> > > Imagine for a moment that there's a short spike in workload on one node.
-> > > By agressively balancing across nodes, won't you incur a high cost
-> > > in terms of migrating all the cache data to the remote node (destroying
-> > > the cache on both the remote and local node), when it would be cheaper
-> > > to wait for a few more ms, and run on the local node?
-> >
-> > Great question!  The answer is that you are absolutely right.  SGI tried
-> > a pile of things in this area, both on NUMA and on traditional SMPs (the
-> > NUMA stuff was more page migration and the SMP stuff was more process
-> > migration, but the problems are the same, you screw up the cache).  They
-> > never got the page migration to give them better performance while I was
-> > there and I doubt they have today.  And the process "migration" from CPU
-> > to CPU didn't work either, people tended to lock processes to processors
-> > for exactly the reason you alluded to.
-> >
-> > If you read the early hardware papers on SMP, they all claim "Symmetric
-> > Multi Processor", i.e., you can run any process on any CPU.  Skip forward
-> > 3 years, now read the cache affinity papers from the same hardware people.
-> > You have to step back and squint but what you'll see is that these papers
-> > could be summarized on one sentence:
-> >
-> > 	"Oops, we lied, it's not really symmetric at all"
-> >
-> > You should treat each CPU as a mini system and think of a process reschedule
-> > someplace else as a checkpoint/restart and assume that is heavy weight.  In
-> > fact, I'd love to see the scheduler code forcibly sleep the process for
-> > 500 milliseconds each time it lands on a different CPU.  Tune the system
-> > to work well with that, then take out the sleep, and you'll have the right
-> > answer.
->
-> I made this test on 8 way NUMA machines ( thx to OSDLAB ). When a CPUs
+Which promptly go kersplat when you feed them into
+submit_bio():
 
-s/NUMA/SMP/
+     BUG_ON(bio_sectors(bio) > q->max_sectors);
+
+Given that I'm hand-rolling a monster bio, I need to know
+when to wrap it up and send it off, to avoid creating a bio
+which is larger than the target device will accept.  I'm currently
+using the below patch.   Am I right that this is missing API
+functionality, or did I miss something?
+
+Also, I could not find a way of querying the size of the vector
+at *bi_io_vec.  This is also information which would be helpful
+when building large scatter/gather lists.
 
 
 
-- Davide
+--- 2.5.5/drivers/block/ll_rw_blk.c~mpio-10-biobits	Mon Feb 25 00:28:21 2002
++++ 2.5.5-akpm/drivers/block/ll_rw_blk.c	Mon Feb 25 00:28:21 2002
+@@ -1350,6 +1350,28 @@ static void end_bio_bh_io_sync(struct bi
+ }
+ 
+ /**
++ * bio_max_bytes: return the maximum number of bytes which can be
++ * placed in a single bio for a particular device.
++ *
++ * @dev: the device's kdev_t
++ *
++ * Each device has a maximum permissible queue size, and bios may
++ * not cover more data than that.
++ *
++ * Returns -ve on error.
++ */
++int bio_max_bytes(kdev_t dev)
++{
++	request_queue_t *q;
++	int ret = -1;
++
++	q = blk_get_queue(dev);
++	if (q)
++		ret = (q->max_sectors << 9);
++	return ret;
++}
++
++/**
+  * submit_bio: submit a bio to the block device layer for I/O
+  * @rw: whether to %READ or %WRITE, or maybe to %READA (read ahead)
+  * @bio: The &struct bio which describes the I/O
+--- 2.5.5/include/linux/bio.h~mpio-10-biobits	Mon Feb 25 00:28:21 2002
++++ 2.5.5-akpm/include/linux/bio.h	Mon Feb 25 00:28:21 2002
+@@ -204,5 +204,6 @@ extern struct bio *bio_copy(struct bio *
+ extern inline void bio_init(struct bio *);
+ 
+ extern int bio_ioctl(kdev_t, unsigned int, unsigned long);
++extern int bio_max_bytes(kdev_t dev);
+ 
+ #endif /* __LINUX_BIO_H */
 
 
+-

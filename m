@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318076AbSFTAkh>; Wed, 19 Jun 2002 20:40:37 -0400
+	id <S318075AbSFTAj4>; Wed, 19 Jun 2002 20:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318077AbSFTAkg>; Wed, 19 Jun 2002 20:40:36 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:54516 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S318076AbSFTAkb>;
-	Wed, 19 Jun 2002 20:40:31 -0400
-Message-ID: <3D11245F.DB13A07C@mvista.com>
-Date: Wed, 19 Jun 2002 17:39:59 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+	id <S318076AbSFTAjz>; Wed, 19 Jun 2002 20:39:55 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42763 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318075AbSFTAjz>;
+	Wed, 19 Jun 2002 20:39:55 -0400
+Message-ID: <3D112401.6975E890@zip.com.au>
+Date: Wed, 19 Jun 2002 17:38:25 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: kuznet@ms2.inr.ac.ru
+To: William Lee Irwin III <wli@holomorphy.com>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace timer_bh with tasklet
-References: <200206181829.WAA13590@sex.inr.ac.ru>
+Subject: Re: [BUG] 2.5.23 mpage io vs queue_max_sectors
+References: <20020620002105.GL25360@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kuznet@ms2.inr.ac.ru wrote:
+William Lee Irwin III wrote:
 > 
-> Hello!
+> This has been haunting me for a while on a 4 cpu Sequent S-quad with
+> 4GB of RAM, and a tray of 12 9GB DCHS09X's attached to a QLogicISP1020.
+> People keep saying "hands off" ... so here I am passing the buck.
 > 
-> > > But this is impossible, timers must not race with another BHs,
-> > > all the code using BHs depends on this. That's why they are BHs.
-> >
-> > If indeed they do "race" the old code had the timer_bh being first.
-> > So does this patch.
-> 
-> I do not understand what you mean here.
-> 
-> I feel you misunderstand my comment. I said the patch is one pure big bug,
-> because tasklets are not serialized wrt BHs. Timer MUST. If you are going
-> to get rid of this must, start from editing all the code which makes this
-> assumption.
+> Kernel BUG at ll_rw_blk.c:1639
 
-At this point I am only aware of one place in the kernel where timers and 
-other BH code interact, that being deliver_to_old_ones() in net/core/dev.c.
-Even there, it appears that the interaction is not with another BH but with
-code that at one time was BH code.  As I understand it, BH and all of its
-support stuff is being removed from the kernel.  That is why I was asked to
-submit this patch.  So far, this is the only area that has come up as a 
-locking or serialization problem.
+This is happening because we have BIO_MAX_SIZE = 64k,
+but that particular driver doesn't like requests which are
+that big.
 
-As to this bit of code, it appears that changing it to do much the same as 
-it did to the timer_bh to the new timer softirq should resolve the issue.
+This is the issuewhich Adam, Jens and I have been discussing.
+Looks like the preferred solution is an add_page_to_bio() API
+in the block layer.
 
-If you have additional input on this or other problems that need to be addressed,
-I welcome it.
+But it's not there yet, so in the short-term, please just do
 
-Correct me if I am wrong, but it looks like the network code has already left
-the BH playing field.
-> 
-~snip
-> 
-> > Not really.  One REALLY expects timers to expire in timed order :)  Using
-> > a separate procedure to deliver a timer just because it is of a different
-> > resolution opens one up to a world of pathology.
-> 
-> Are you going to mix use of hires and lores timers for one task?  
+-#define MPAGE_BIO_MAX_SIZE BIO_MAX_SIZE
++#define MPAGE_BIO_MAX_SIZE 16384
 
-Of course.  Why use high-res when you don't need it?  There is additional
-overhead for high-res.  To require all timers to be high-res when only one
-is needed is a waste.
+in fs/mpage.c
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+-

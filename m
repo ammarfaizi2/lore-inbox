@@ -1,96 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUFARjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264921AbUFAR5j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUFARjo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 13:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbUFARjo
+	id S264921AbUFAR5j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 13:57:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUFAR5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 13:39:44 -0400
-Received: from mxfep02.bredband.com ([195.54.107.73]:29179 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S264881AbUFARjl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 13:39:41 -0400
-Message-ID: <40BCBF2E.7030802@minimum.se>
-Date: Tue, 01 Jun 2004 19:38:54 +0200
-From: Martin Olsson <mnemo@minimum.se>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all? (what the user feels)
+	Tue, 1 Jun 2004 13:57:39 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:3780 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265099AbUFAR5f (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 13:57:35 -0400
+Message-Id: <200406011757.i51HvBUB010879@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Martin Olsson <mnemo@minimum.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why swap at all? (what the user feels) 
+In-Reply-To: Your message of "Tue, 01 Jun 2004 19:38:54 +0200."
+             <40BCBF2E.7030802@minimum.se> 
+From: Valdis.Kletnieks@vt.edu
 References: <200405290037.17775.vda@port.imtp.ilyichevsk.odessa.ua> <E1BTpqM-0005LZ-00@calista.eckenfels.6bone.ka-ip.net> <20040531104928.GA1465@ncsu.edu> <40BC6F0C.7000602@vision.ee> <20040601164946.GA22798@ncsu.edu>
-In-Reply-To: <20040601164946.GA22798@ncsu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+            <40BCBF2E.7030802@minimum.se>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_258973221P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 01 Jun 2004 13:57:11 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--==_Exmh_258973221P
+Content-Type: text/plain; charset=us-ascii
 
- From a pure *users* perspective the most evil part of my computer is 
-the harddrive, because it has three bad properties;
+On Tue, 01 Jun 2004 19:38:54 +0200, Martin Olsson <mnemo@minimum.se>  said:
 
--- its slowing stuff down
--- its very noisy
--- its sucks my battery dry (on laptops)
-
-I dont care as much about how fast or efficient the swapping system 
-really is, what does annoy me is when it lets me down. Say I do some 
-action repeatedly every once in a while and it always takes about X 
-milliseconds, when after a while that same action takes 2*X 
-milliseconds. Now I'm DISAPPOINTED and I got a grudge with kswapd.
-
-Its *emotionally* more 'okay' for the harddrive to its thing when I 
-initiate it through some action (launching program, copying files) 
-because then I expect it.
-
- From what I've read previously in this thread, it seems to me that the 
-only major problem with swapping that not all users want file system 
-cache to swap out actual applications (thus making that somewhat aged 
-mozilla window abit laggy).
-
-Maybe we could just have a "Allow file system cache to swap out 
-applications checkbox somewhere"?
-
-Or, Am I missing something?
-
-
-
-
-Sincerly,
-/m
-
-jlnance@unity.ncsu.edu wrote:
-> On Tue, Jun 01, 2004 at 02:57:00PM +0300, Lenar L?hmus wrote:
+> Maybe we could just have a "Allow file system cache to swap out 
+> applications checkbox somewhere"?
 > 
->>jlnance@unity.ncsu.edu wrote:
->>
->>
->>>I'm not sure.  Copying a file is a pretty good indication that you
->>>are about to do something with either the new or the old file.
->>>
->>
->>Like taking the new file with me on USB dongle and deleting old one? 
->>Caching the file really doesn't help in this case.
-> 
-> 
-> No, it does not help in this case.
-> 
-> Not putting things in cache is a solution for the problem of
-> having useful stuff pushed out of the cache.  However, fixing
-> the problem this way may create other problems if it causes
-> us to fail to put useful things into the cache.
-> 
-> The point I was trying (perhaps unsuccessfully) to make, is
-> that we should be careful about not caching things.  We are
-> likely to break other corner cases by fixing the ones we
-> are discussing.
-> 
-> Thanks,
-> 
-> Jim
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Or, Am I missing something?
+
+Isn't that what /proc/sys/vm/swappiness is for? (And yes, I know that it's not
+a total solution to the whole range of conflicting requirements that we have -
+I suspect that it's really difficult to make it work much better than it is
+without adding a lot more history-tracking instrumentation).
+
+
+--==_Exmh_258973221P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAvMN3cC3lWbTT17ARAoA9AKDaVLvZRqJPFVBA5jqhj5CmqgO/bQCg2L6f
+0zzo2PfTvO44TcsYRd180l0=
+=BRdc
+-----END PGP SIGNATURE-----
+
+--==_Exmh_258973221P--

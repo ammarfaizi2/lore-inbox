@@ -1,88 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317481AbSFDLyS>; Tue, 4 Jun 2002 07:54:18 -0400
+	id <S317486AbSFDL4P>; Tue, 4 Jun 2002 07:56:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317486AbSFDLyR>; Tue, 4 Jun 2002 07:54:17 -0400
-Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:10728 "HELO
-	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S317481AbSFDLyQ>; Tue, 4 Jun 2002 07:54:16 -0400
-Message-ID: <20020604115412.15774.qmail@linuxmail.org>
-Content-Type: multipart/mixed; boundary="----------=_1023191652-14254-0"
-Content-Transfer-Encoding: binary
+	id <S317487AbSFDL4O>; Tue, 4 Jun 2002 07:56:14 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:2269 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S317486AbSFDL4N>; Tue, 4 Jun 2002 07:56:13 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jens Axboe <axboe@suse.de>
+Date: Tue, 4 Jun 2002 21:56:06 +1000 (EST)
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Anthony Spinillo" <tspinillo@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Tue, 04 Jun 2002 19:54:12 +0800
-Subject: Test Result #2 INTEL 845G Chipset IDE
-X-Originating-Ip: 192.159.104.202
-X-Originating-Server: ws4-4.us4.outblaze.com
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15612.43734.121255.771451@notabene.cse.unsw.edu.au>
+Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.20 RAID5 compile error
+In-Reply-To: message from Jens Axboe on Tuesday June 4
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
+On Tuesday June 4, axboe@suse.de wrote:
+> On Mon, Jun 03 2002, Mike Black wrote:
+> > RAID5 still doesn't compile....sigh....
+> 
+> [snip]
+> 
+> Some people do nothing but complain instead of trying to fix things.
+> Sigh...
 
-------------=_1023191652-14254-0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+I've got fixes.... but I want to suggest some changes to the plugging
+mechanism, and as it seems to have changed a bit since 2.5.20, I'll
+have to sync up my patch before I show it to you...
 
-I tried another small patch that was sent to me
-yesterday by JeffN. I applied it on top of 
-the recent 2.4.19-pre10. The hunk did not 
-match up, so I just entered the line
-with 0x24cb in it, into pci-pc.c. I also added
-ide0=ata66 ide1=ata66 into my lilo.conf.
-
-DMA worked. Xine played a DVD with no jerkiness.
-
-As stated yesterday, Andre's patch also worked on
-2.4.19-pre9ac3. I will eyeball Andre's patch after
-work and see if I can get it to work with -pre10.
-
-Thanks for the help!
-
-Tony
-patch is attached and also listed below (forgive the line wraps)
-
---- linux/arch/i386/kernel/pci-pc.c~	Thu May 16 20:37:30 2002
-+++ linux/arch/i386/kernel/pci-pc.c	Sat May 25 16:44:58 2002
-@@ -1145,6 +1145,7 @@
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5513,		pci_fixup_ide_trash },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SERVERWORKS,	PCI_DEVICE_ID_SERVERWORKS_CSB5IDE,	pci_fixup_ide_trash },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801CA_11,	pci_fixup_ide_trash },
-+	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_INTEL,	0x24cb,	pci_fixup_ide_trash },
- 	{ PCI_FIXUP_HEADER,	PCI_ANY_ID,		PCI_ANY_ID,			pci_fixup_ide_bases },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5597,		pci_fixup_latency },
- 	{ PCI_FIXUP_HEADER,	PCI_VENDOR_ID_SI,	PCI_DEVICE_ID_SI_5598,		pci_fixup_latency },
-
--- 
-Get your free email from www.linuxmail.org 
-
-
-Powered by Outblaze
-
-------------=_1023191652-14254-0
-Content-Type: application/octet-stream; name="845e.patch"
-Content-Disposition: attachment; filename="845e.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvcGNpLXBjLmN+CVRodSBNYXkg
-MTYgMjA6Mzc6MzAgMjAwMg0KKysrIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwv
-cGNpLXBjLmMJU2F0IE1heSAyNSAxNjo0NDo1OCAyMDAyDQpAQCAtMTE0NSw2
-ICsxMTQ1LDcgQEANCiAJeyBQQ0lfRklYVVBfSEVBREVSLAlQQ0lfVkVORE9S
-X0lEX1NJLAlQQ0lfREVWSUNFX0lEX1NJXzU1MTMsCQlwY2lfZml4dXBfaWRl
-X3RyYXNoIH0sDQogCXsgUENJX0ZJWFVQX0hFQURFUiwJUENJX1ZFTkRPUl9J
-RF9TRVJWRVJXT1JLUywJUENJX0RFVklDRV9JRF9TRVJWRVJXT1JLU19DU0I1
-SURFLAlwY2lfZml4dXBfaWRlX3RyYXNoIH0sDQogCXsgUENJX0ZJWFVQX0hF
-QURFUiwJUENJX1ZFTkRPUl9JRF9JTlRFTCwJUENJX0RFVklDRV9JRF9JTlRF
-TF84MjgwMUNBXzExLAlwY2lfZml4dXBfaWRlX3RyYXNoIH0sDQorCXsgUENJ
-X0ZJWFVQX0hFQURFUiwJUENJX1ZFTkRPUl9JRF9JTlRFTCwJMHgyNGNiLAlw
-Y2lfZml4dXBfaWRlX3RyYXNoIH0sDQogCXsgUENJX0ZJWFVQX0hFQURFUiwJ
-UENJX0FOWV9JRCwJCVBDSV9BTllfSUQsCQkJcGNpX2ZpeHVwX2lkZV9iYXNl
-cyB9LA0KIAl7IFBDSV9GSVhVUF9IRUFERVIsCVBDSV9WRU5ET1JfSURfU0ks
-CVBDSV9ERVZJQ0VfSURfU0lfNTU5NywJCXBjaV9maXh1cF9sYXRlbmN5IH0s
-DQogCXsgUENJX0ZJWFVQX0hFQURFUiwJUENJX1ZFTkRPUl9JRF9TSSwJUENJ
-X0RFVklDRV9JRF9TSV81NTk4LAkJcGNpX2ZpeHVwX2xhdGVuY3kgfSwNCg==
-
-------------=_1023191652-14254-0--
+NeilBrown

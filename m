@@ -1,60 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273027AbTHRT10 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 15:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274964AbTHRT1Z
+	id S272291AbTHRTcw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 15:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272307AbTHRTcw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 15:27:25 -0400
-Received: from dsl093-172-017.pit1.dsl.speakeasy.net ([66.93.172.17]:34956
-	"EHLO nevyn.them.org") by vger.kernel.org with ESMTP
-	id S273027AbTHRT1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 15:27:18 -0400
-Date: Mon, 18 Aug 2003 15:27:09 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make modules work in Linus' tree on ARM
-Message-ID: <20030818192709.GA25121@nevyn.them.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Russell King <rmk@arm.linux.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <20030814130810.A332@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308140917350.8148-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308140917350.8148-100000@home.osdl.org>
-User-Agent: Mutt/1.5.1i
+	Mon, 18 Aug 2003 15:32:52 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:15122 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S272291AbTHRTct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 15:32:49 -0400
+Message-ID: <3F412D9E.4070807@techsource.com>
+Date: Mon, 18 Aug 2003 15:48:46 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       gaxt <gaxt@rogers.com>, Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] O16int for interactivity
+References: <200308160149.29834.kernel@kolivas.org> <3F3D25D0.7010701@techsource.com> <200308161231.50661.kernel@kolivas.org> <3F40F4DA.5050705@techsource.com> <3F40F43A.4050709@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 09:19:17AM -0700, Linus Torvalds wrote:
-> 
-> On Thu, 14 Aug 2003, Russell King wrote:
-> > 
-> > After reviewing the /proc/kcore and kclist issues, I've decided that I'm
-> > no longer prepared to even _think_ about supporting /proc/kcore on ARM -
-> 
-> I suspect we should just remove it altogether.
-> 
-> Does anybody actually _use_ /proc/kcore? It was one of those "cool 
-> feature" things, but I certainly haven't ever used it myself except for 
-> testing, and it's historically often been broken after various kernel 
-> infrastructure updates, and people haven't complained..
-> 
-> Comments?
 
-Speaking only for me, and all that.
 
-I use it.  It's actually pretty handy sometimes, because it lets me
-peek at task structures et cetera from userspace; so when I have a
-problem with the kernel accessing the wrong memory, I can go figure out
-what it's actually looking at.
+Nick Piggin wrote:
 
-This is a sort of poor-man's-kgdb.  I don't think there's much need for
-/proc/kcore if you have a working kgdb, which I'd still like to see
-cleaned up and integrated.
+>>   If another task exists at a higher priority, then it gets run at 
+>> that point.
+> 
+> 
+> 
+> Well loosely, yes. Actually, it happens if the task exists and is 
+> "running",
+> and has timeslice left. 
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+> That only happens in scheduler_tick when the 
+> current
+> task has finished its timeslice and the priority arrays are about to be
+> switched. 
+
+What only happens then?
+
+I'm confused again.  Are you talking about swapping the active and 
+expired arrays?
+
+Of course, all bets are off if the current task actually uses up it 
+whole timeslice.  Then it's not being preempted in quite the same way.
+
+So, then, if there are not tasks left in the active array, naturally, 
+the highest priority task from what was once the expired array will be 
+run, and that may be of higher priority.
+
+Is that what you're saying?
+
+
+ > The required conditions for preemption can also occur when a task
+> is being woken up, (after sleeping or newly forked).
+
+This is the case that I was thinking of.  No swapping of queues.  It's 
+just that a higher priority task was sleeping (or not existing) which 
+could cause the current task to be preempted before its timeslice ends.
+

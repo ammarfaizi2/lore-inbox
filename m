@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293648AbSCFQ27>; Wed, 6 Mar 2002 11:28:59 -0500
+	id <S293030AbSCFQ2R>; Wed, 6 Mar 2002 11:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293651AbSCFQ2s>; Wed, 6 Mar 2002 11:28:48 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:16401 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293648AbSCFQ2f>;
-	Wed, 6 Mar 2002 11:28:35 -0500
-Date: Wed, 6 Mar 2002 13:26:06 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Cc: Petro <petro@auctionwatch.com>, "Paul G. Allen" <pgallen@randomlogic.com>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
+	id <S293648AbSCFQ2H>; Wed, 6 Mar 2002 11:28:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59153 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293030AbSCFQ1w>; Wed, 6 Mar 2002 11:27:52 -0500
 Subject: Re: SSSCA: We're in trouble now
-In-Reply-To: <1015389666.1228.20.camel@aurora>
-Message-ID: <Pine.LNX.4.44L.0203061325360.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+To: petro@auctionwatch.com (Petro)
+Date: Wed, 6 Mar 2002 16:42:14 +0000 (GMT)
+Cc: jurgen@botz.org (Jurgen Botz), jdthood@mail.com (Thomas Hood),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020306050010.GK22934@auctionwatch.com> from "Petro" at Mar 05, 2002 09:00:10 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16ieUY-0007MG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Mar 2002, Trever L. Adams wrote:
-> On Tue, 2002-03-05 at 23:26, Petro wrote:
-> >     Do what they tell you, or go to jail. (Well, there is a third
-> >     choice, but it would best not be discussed here).
->
-> And for the safety of those in the USA and around the world,
-> particularly on this list... it is best not to even think about it...
+>     Just about every company big enough to have a corporate lawyer, and
+>     many even smaller do have "media" they need or want to track and
+>     control. 
 
-Wasn't the second amendment created for this purpose ?
+One thing the SSSCA people must consider here is security impact. If a 
+document can be traced through its users then the ability of agencies to
+work against organised crime will be crippled. The SSSCA appears to have no
+provision to allow the FBI to remove watermarks, and makes it illegalf or
+other people to be subcontracted to write the tools
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Goodbye corporate whistleblowers, goodbye FBI plants in organised crime 
+bodies..

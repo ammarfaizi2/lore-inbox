@@ -1,124 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262371AbVADVvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVADWET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262371AbVADVvg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 16:51:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVADVsJ
+	id S262384AbVADWET (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 17:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVADWEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:48:09 -0500
-Received: from out007pub.verizon.net ([206.46.170.107]:26839 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S262274AbVADVkm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:40:42 -0500
-From: James Nelson <james4765@cwazy.co.uk>
-To: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Cc: paulus@samba.org, James Nelson <james4765@cwazy.co.uk>
-Message-Id: <20050104214101.21749.2512.96532@localhost.localdomain>
-In-Reply-To: <20050104214048.21749.85722.89116@localhost.localdomain>
-References: <20050104214048.21749.85722.89116@localhost.localdomain>
-Subject: [PATCH 2/7] ppc: remove cli()/sti() in arch/ppc/8xx_io/cs4218_tdm.c
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [209.158.220.243] at Tue, 4 Jan 2005 15:40:41 -0600
-Date: Tue, 4 Jan 2005 15:40:42 -0600
+	Tue, 4 Jan 2005 17:04:06 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:31752 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S262378AbVADWC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 17:02:56 -0500
+Date: Tue, 4 Jan 2005 23:01:44 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       Willy Tarreau <willy@w.ods.org>, davidsen@tmr.com,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050104220144.GA2901@pclin040.win.tue.nl>
+References: <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com> <20050104150810.GD3097@stusta.de> <20050104153445.GH2708@holomorphy.com> <20050104165301.GF3097@stusta.de> <20050104195725.GQ2708@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050104195725.GQ2708@holomorphy.com>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: James Nelson <james4765@gmail.com>
+On Tue, Jan 04, 2005 at 11:57:25AM -0800, William Lee Irwin III wrote ...
 
-diff -urN --exclude='*~' linux-2.6.10-mm1-original/arch/ppc/8xx_io/cs4218_tdm.c linux-2.6.10-mm1/arch/ppc/8xx_io/cs4218_tdm.c
---- linux-2.6.10-mm1-original/arch/ppc/8xx_io/cs4218_tdm.c	2004-12-24 16:33:51.000000000 -0500
-+++ linux-2.6.10-mm1/arch/ppc/8xx_io/cs4218_tdm.c	2005-01-03 19:58:01.881032015 -0500
-@@ -1206,7 +1206,7 @@
- 	volatile cbd_t	*bdp;
- 	volatile cpm8xx_t *cp;
- 
--	save_flags(flags); cli();
-+	local_irq_save(flags);
- #if 0
- 	if (awacs_beep_state) {
- 		/* sound takes precedence over beeps */
-@@ -1263,7 +1263,7 @@
- 
- 		++sq.active;
- 	}
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- 
-@@ -1275,7 +1275,7 @@
- 	if (read_sq.active)
- 		return;
- 
--	save_flags(flags); cli();
-+	local_irq_save(flags);
- 
- 	/* This is all we have to do......Just start it up.
- 	*/
-@@ -1284,7 +1284,7 @@
- 
- 	read_sq.active = 1;
- 
--        restore_flags(flags);
-+        local_irq_restore(flags);
- }
- 
- 
-@@ -1365,14 +1365,14 @@
- {
- 	unsigned long flags;
- 
--	save_flags(flags); cli();
-+	local_irq_save(flags);
- 	if (beep_playing) {
- #if 0
- 		st_le16(&beep_dbdma_cmd->command, DBDMA_STOP);
- #endif
- 		beep_playing = 0;
- 	}
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- static struct timer_list beep_timer = TIMER_INITIALIZER(cs_nosound, 0, 0);
-@@ -1401,21 +1401,21 @@
- 		return;
- #endif
- 	}
--	save_flags(flags); cli();
-+	local_irq_save(flags);
- 	del_timer(&beep_timer);
- 	if (ticks) {
- 		beep_timer.expires = jiffies + ticks;
- 		add_timer(&beep_timer);
- 	}
- 	if (beep_playing || sq.active || beep_buf == NULL) {
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		return;		/* too hard, sorry :-( */
- 	}
- 	beep_playing = 1;
- #if 0
- 	st_le16(&beep_dbdma_cmd->command, OUTPUT_MORE + BR_ALWAYS);
- #endif
--	restore_flags(flags);
-+	local_irq_restore(flags);
- 
- 	if (hz == beep_hz_cache && beep_volume == beep_volume_cache) {
- 		nsamples = beep_nsamples_cache;
-@@ -1442,7 +1442,7 @@
- 	st_le32(&beep_dbdma_cmd->phy_addr, virt_to_bus(beep_buf));
- 	awacs_beep_state = 1;
- 
--	save_flags(flags); cli();
-+	local_irq_save(flags);
- 	if (beep_playing) {	/* i.e. haven't been terminated already */
- 		out_le32(&awacs_txdma->control, (RUN|WAKE|FLUSH|PAUSE) << 16);
- 		out_le32(&awacs->control,
-@@ -1453,7 +1453,7 @@
- 		out_le32(&awacs_txdma->control, RUN | (RUN << 16));
- 	}
- #endif
--	restore_flags(flags);
-+	local_irq_restore(flags);
- }
- 
- static MACHINE mach_cs4218 = {
+> > ... An example is CONFIG_BLK_DEV_UB in 2.6.9, which ...
+> 
+> PEBKAC is entirely out of the scope of any program not making direct
+> efforts at HCI. CONFIG_BLK_DEV_UB was documented for what it was, and
+> users configuring kernels are not assumed to be naive.
+
+Hmm. Let me disagree again.
+The kernel configuration process is intended for the average person
+who configures kernels. When there are many complaints (as I recall
+from 2.5 times, where one needed to figure out how to get keyboard
+and mouse configured) then it is no good to tell the world
+"you are all stupid, just read the docs" - one needs to think about
+how the setup can be improved so that fewer people have difficulties.
+
+
+-----
+This was part of a discussion about 2.6 vs 2.7. Every single
+user-visible change will cause problems for some people.
+
+Earlier we talked about fixing bugs. You sounded as if you
+considered fixing one particular bug a point event, while
+I preferred to regard it as a process of unknown duration.
+A problem is noticed, a fix is made, somewhat later one finds
+that the fix has unintended side effects and the fix is
+modified slightly, etc. One consequence of this is that
+the bug fixing process for a rare bug that affects few people
+may affect many.
+
+What users hope for is a situation like with TeX.
+It has version numbers like 3.14159, tending to pi.
+This conveys the intention: in principle TeX is fixed,
+but flaws are corrected.
+A kernel like 2.2 should converge to a limit, with big changes
+in the beginning, and only tiny changes later on.
+
+If on the other hand there is continuous development, and
+continuous bug fixing, there is continuous instability -
+I do not mean instability in the sense of kernel crashes,
+but instability in the sense of user-visible changes,
+user setups that are broken. This makes users unhappy.
+
+
+Andries

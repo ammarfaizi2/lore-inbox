@@ -1,137 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264196AbUFSQVB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUFSQVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264196AbUFSQVB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 12:21:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264211AbUFSQUq
+	id S264211AbUFSQVC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 12:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264382AbUFSQTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 12:20:46 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:7076 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264304AbUFSQQA
+	Sat, 19 Jun 2004 12:19:03 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5028 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264346AbUFSQPp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 12:16:00 -0400
+	Sat, 19 Jun 2004 12:15:45 -0400
 From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-ide@vger.kernel.org
-Subject: [PATCH] ide-taskfile.c fixups/cleanups [11/11]
-Date: Sat, 19 Jun 2004 18:15:06 +0200
+Subject: [PATCH] ide-taskfile.c fixups/cleanups [6/11]
+Date: Sat, 19 Jun 2004 18:11:53 +0200
 User-Agent: KMail/1.5.3
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200406191811.30819.bzolnier@elka.pw.edu.pl>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406191815.06060.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH] ide: PIO-out setup fixes (CONFIG_IDE_TASKFILE_IO=n)
+[PATCH] ide: remove DTF() debugging printks from ide-taskfile.c
 
-- setup hwgroup->handler/timer in ->prehandler() (after checking
-  drive status) and in do_rw_taskfile() only send a command
-- make pre_task_mulout_intr() transfer first datablock itself
-  instead of calling ->handler() so we don't have to play tricks
-  with hwgroup->handler/timer in task_mulout_intr()
+They are off by default and conflict with the future changes.
 
 Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
- linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c |   39 ++++++------------------
- 1 files changed, 10 insertions(+), 29 deletions(-)
+ linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c |   34 ------------------------
+ 1 files changed, 34 deletions(-)
 
-diff -puN drivers/ide/ide-taskfile.c~ide_tf_pio_out_handler drivers/ide/ide-taskfile.c
---- linux-2.6.7/drivers/ide/ide-taskfile.c~ide_tf_pio_out_handler	2004-06-19 03:13:11.956953632 +0200
-+++ linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c	2004-06-19 03:18:09.543713568 +0200
-@@ -159,7 +159,7 @@ ide_startstop_t do_rw_taskfile (ide_driv
- 	hwif->OUTB(taskfile->high_cylinder, IDE_HCYL_REG);
+diff -puN drivers/ide/ide-taskfile.c~ide_taskfile_DTF drivers/ide/ide-taskfile.c
+--- linux-2.6.7/drivers/ide/ide-taskfile.c~ide_taskfile_DTF	2004-06-19 02:57:51.953815368 +0200
++++ linux-2.6.7-bzolnier/drivers/ide/ide-taskfile.c	2004-06-19 02:57:51.959814456 +0200
+@@ -53,12 +53,6 @@
  
- 	hwif->OUTB((taskfile->device_head & HIHI) | drive->select.all, IDE_SELECT_REG);
--#ifdef CONFIG_IDE_TASKFILE_IO
-+
- 	if (task->handler != NULL) {
- 		if (task->prehandler != NULL) {
- 			hwif->OUTBSYNC(drive, taskfile->command, IDE_COMMAND_REG);
-@@ -169,14 +169,6 @@ ide_startstop_t do_rw_taskfile (ide_driv
- 		ide_execute_command(drive, taskfile->command, task->handler, WAIT_WORSTCASE, NULL);
- 		return ide_started;
- 	}
+ #define DEBUG_TASKFILE	0	/* unset when fixed */
+ 
+-#if DEBUG_TASKFILE
+-#define DTF(x...) printk(x)
 -#else
--	if (task->handler != NULL) {
--		ide_execute_command(drive, taskfile->command, task->handler, WAIT_WORSTCASE, NULL);
--		if (task->prehandler != NULL)
--			return task->prehandler(drive, task->rq);
--		return ide_started;
--	}
+-#define DTF(x...)
 -#endif
- 
- 	if (!drive->using_dma)
- 		return ide_stopped;
-@@ -395,7 +387,9 @@ ide_startstop_t pre_task_out_intr (ide_d
- 		return startstop;
- 	}
- 	/* For Write_sectors we need to stuff the first sector */
-+	ide_set_handler(drive, &task_out_intr, WAIT_WORSTCASE, NULL);
- 	task_buffer_sectors(drive, rq, 1, IDE_PIO_OUT);
-+
- 	return ide_started;
- }
- 
-@@ -433,7 +427,6 @@ EXPORT_SYMBOL(task_out_intr);
- 
- ide_startstop_t pre_task_mulout_intr (ide_drive_t *drive, struct request *rq)
- {
--	ide_task_t *args = rq->special;
- 	ide_startstop_t startstop;
- 
- 	if (ide_wait_stat(&startstop, drive, DATA_READY,
-@@ -451,19 +444,16 @@ ide_startstop_t pre_task_mulout_intr (id
- 		}
- 	}
- 
--	/*
--	 * WARNING :: if the drive as not acked good status we may not
--	 * move the DATA-TRANSFER T-Bar as BSY != 0. <andre@linux-ide.org>
--	 */
--	return args->handler(drive);
-+	ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
-+	task_buffer_multi_sectors(drive, rq, IDE_PIO_OUT);
-+
-+	return ide_started;
- }
- 
- EXPORT_SYMBOL(pre_task_mulout_intr);
- 
- /*
-  * Handler for command write multiple
-- * Called directly from execute_drive_cmd for the first bunch of sectors,
-- * afterwards only by the ISR
-  */
- ide_startstop_t task_mulout_intr (ide_drive_t *drive)
- {
-@@ -481,22 +471,13 @@ ide_startstop_t task_mulout_intr (ide_dr
- 			return ide_stopped;
- 		}
- 		/* no data yet, so wait for another interrupt */
--		if (HWGROUP(drive)->handler == NULL)
--			ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
-+		ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
- 		return ide_started;
- 	}
- 
--	if (HWGROUP(drive)->handler != NULL) {
--		unsigned long lflags;
--		spin_lock_irqsave(&ide_lock, lflags);
--		HWGROUP(drive)->handler = NULL;
--		del_timer(&HWGROUP(drive)->timer);
--		spin_unlock_irqrestore(&ide_lock, lflags);
--	}
 -
- 	task_buffer_multi_sectors(drive, rq, IDE_PIO_OUT);
--	if (HWGROUP(drive)->handler == NULL)
--		ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
-+	ide_set_handler(drive, &task_mulout_intr, WAIT_WORSTCASE, NULL);
-+
- 	return ide_started;
- }
+ static void ata_bswap_data (void *buffer, int wcount)
+ {
+ 	u16 *p = buffer;
+@@ -283,8 +277,6 @@ ide_startstop_t task_no_data_intr (ide_d
+ 
+ 	local_irq_enable();
+ 	if (!OK_STAT(stat = hwif->INB(IDE_STATUS_REG),READY_STAT,BAD_STAT)) {
+-		DTF("%s: command opcode 0x%02x\n", drive->name,
+-			args->tfRegister[IDE_COMMAND_OFFSET]);
+ 		return DRIVER(drive)->error(drive, "task_no_data_intr", stat);
+ 		/* calls ide_end_drive_cmd */
+ 	}
+@@ -316,15 +308,12 @@ ide_startstop_t task_in_intr (ide_drive_
+ 			return DRIVER(drive)->error(drive, "task_in_intr", stat);
+ 		}
+ 		if (!(stat & BUSY_STAT)) {
+-			DTF("task_in_intr to Soon wait for next interrupt\n");
+ 			ide_set_handler(drive, &task_in_intr, WAIT_WORSTCASE, NULL);
+ 			return ide_started;  
+ 		}
+ 	}
+ 
+ 	pBuf = rq->buffer + task_rq_offset(rq);
+-	DTF("Read: %p, rq->current_nr_sectors: %d, stat: %02x\n",
+-		pBuf, (int) rq->current_nr_sectors, stat);
+ 	taskfile_input_data(drive, pBuf, SECTOR_WORDS);
+ 
+ 	/* FIXME: check drive status */
+@@ -363,9 +352,6 @@ ide_startstop_t task_mulin_intr (ide_dri
+ 		if (nsect > msect)
+ 			nsect = msect;
+ 		pBuf = rq->buffer + task_rq_offset(rq);
+-		DTF("Multiread: %p, nsect: %d, msect: %d, " \
+-			" rq->current_nr_sectors: %d\n",
+-			pBuf, nsect, msect, rq->current_nr_sectors);
+ 		taskfile_input_data(drive, pBuf, nsect * SECTOR_WORDS);
+ 		rq->errors = 0;
+ 		rq->current_nr_sectors -= nsect;
+@@ -431,8 +417,6 @@ ide_startstop_t task_out_intr (ide_drive
+ 	if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
+ 		rq = HWGROUP(drive)->rq;
+ 		pBuf = rq->buffer + task_rq_offset(rq);
+-		DTF("write: %p, rq->current_nr_sectors: %d\n",
+-			pBuf, (int) rq->current_nr_sectors);
+ 		taskfile_output_data(drive, pBuf, SECTOR_WORDS);
+ 		rq->errors = 0;
+ 		rq->current_nr_sectors--;
+@@ -514,9 +498,6 @@ ide_startstop_t task_mulout_intr (ide_dr
+ 		if (nsect > msect)
+ 			nsect = msect;
+ 		pBuf = rq->buffer + task_rq_offset(rq);
+-		DTF("Multiwrite: %p, nsect: %d, msect: %d, " \
+-			"rq->current_nr_sectors: %ld\n",
+-			pBuf, nsect, msect, rq->current_nr_sectors);
+ 		msect -= nsect;
+ 		taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
+ 		rq->current_nr_sectors -= nsect;
+@@ -1338,8 +1319,6 @@ ide_startstop_t flagged_task_in_intr (id
+ 	}
+ 
+ 	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
+-	DTF("Read - rq->current_nr_sectors: %d, status: %02x\n", (int) rq->current_nr_sectors, stat);
+-
+ 	taskfile_input_data(drive, pBuf, SECTOR_WORDS);
+ 
+ 	if (--rq->current_nr_sectors != 0) {
+@@ -1387,10 +1366,6 @@ ide_startstop_t flagged_task_mulin_intr 
+ 
+ 	nsect = (rq->current_nr_sectors > msect) ? msect : rq->current_nr_sectors;
+ 	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
+-
+-	DTF("Multiread: %p, nsect: %d , rq->current_nr_sectors: %ld\n",
+-	    pBuf, nsect, rq->current_nr_sectors);
+-
+ 	taskfile_input_data(drive, pBuf, nsect * SECTOR_WORDS);
+ 
+ 	rq->current_nr_sectors -= nsect;
+@@ -1459,9 +1434,6 @@ ide_startstop_t flagged_task_out_intr (i
+ 	}
+ 
+ 	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
+-	DTF("Write - rq->current_nr_sectors: %d, status: %02x\n",
+-		(int) rq->current_nr_sectors, stat);
+-
+ 	taskfile_output_data(drive, pBuf, SECTOR_WORDS);
+ 	--rq->current_nr_sectors;
+ 
+@@ -1490,9 +1462,6 @@ ide_startstop_t flagged_pre_task_mulout_
+ 
+ 	nsect = (rq->current_nr_sectors > msect) ? msect : rq->current_nr_sectors;
+ 	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
+-	DTF("Multiwrite: %p, nsect: %d , rq->current_nr_sectors: %ld\n",
+-	    pBuf, nsect, rq->current_nr_sectors);
+-
+ 	taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
+ 
+ 	rq->current_nr_sectors -= nsect;
+@@ -1530,9 +1499,6 @@ ide_startstop_t flagged_task_mulout_intr
+ 
+ 	nsect = (rq->current_nr_sectors > msect) ? msect : rq->current_nr_sectors;
+ 	pBuf = rq->buffer + ((rq->nr_sectors - rq->current_nr_sectors) * SECTOR_SIZE);
+-	DTF("Multiwrite: %p, nsect: %d , rq->current_nr_sectors: %ld\n",
+-	    pBuf, nsect, rq->current_nr_sectors);
+-
+ 	taskfile_output_data(drive, pBuf, nsect * SECTOR_WORDS);
+ 	rq->current_nr_sectors -= nsect;
  
 
 _

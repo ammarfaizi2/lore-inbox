@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263748AbRGSQEo>; Thu, 19 Jul 2001 12:04:44 -0400
+	id <S264964AbRGSQNy>; Thu, 19 Jul 2001 12:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbRGSQEd>; Thu, 19 Jul 2001 12:04:33 -0400
-Received: from mail.spylog.com ([194.67.35.220]:19688 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S263748AbRGSQEV>;
-	Thu, 19 Jul 2001 12:04:21 -0400
-Date: Thu, 19 Jul 2001 20:06:18 +0400
-From: Peter Zaitsev <pz@spylog.ru>
-X-Mailer: The Bat! (v1.52f)
-Reply-To: Peter Zaitsev <pz@spylog.ru>
-Organization: SpyLOG
-X-Priority: 3 (Normal)
-Message-ID: <59-1589488063.20010719200618@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: __alloc_pages X-order allocation failed.
+	id <S264927AbRGSQNp>; Thu, 19 Jul 2001 12:13:45 -0400
+Received: from [208.187.172.194] ([208.187.172.194]:25363 "HELO
+	odin.oce.srci.oce.int") by vger.kernel.org with SMTP
+	id <S264933AbRGSQN3> convert rfc822-to-8bit; Thu, 19 Jul 2001 12:13:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Joshua Schmidlkofer <menion@srci.iwpsd.org>
+To: Wakko Warner <wakko@animx.eu.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6 and netboot
+Date: Thu, 19 Jul 2001 10:10:51 -0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010719082650.A26980@animx.eu.org>
+In-Reply-To: <20010719082650.A26980@animx.eu.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <01071910105102.01826@widmers.oce.srci.oce.int>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello linux-kernel,
+On Thursday 19 July 2001 06:26 am, Wakko Warner wrote:
+> I'm using a kernel that is dd'd to a floppy to net boot linux on random
+> machines.  I noticed that 2.4.6 won't get it's IP from the server (it won't
+> even attempt it).  2.4.4 works
+>
+> If any more info is needed, just ask.
 
-  I'm trying to get stable running kernel from 2.4 series for about 3
-  months now, I thought it should become stable up to this time but it
-  still not at least in VM area.
+Sine 2.4.4 I have been unable to make ipconfig automagically go, and I think 
+that this configuration is not supported.   At least, with my limited 
+knowledge of how ipconfig works  you must to pass: 'ipconfig=dhcp', or 
+ipconfig='bootp' to the kernel at boot time.  I built a LILO disk, but
+I think that syslinux would work.  Also, I did eventually successfully get an 
+Xterminal running.
 
-  I'm Testing various kernels from  Linus, Alan, Andrea as well as
-  some other patches provided but still:  I have no kernel which runs
-  stable - I always have __alloc_pages errors in kernel logs and after
-  while system completely dies with different things.
+After 2.4.4 ipconfig was changed to the ipconfig= style of behaviour.  I 
+don't know why, but someone does.  I think it has to do with implementation 
+cahnges to allow for modularized NIC's to use ipautoconfig.   This seems 
+insane that functionality was cut in order to do this.
 
-  I have about 30 systems I try to kernel start to work. They contain
-  1-2GB of memory, some of them are SMP. Some have swapping on
-  software raid1, which I thought is the reason, but it's not even
-  putting swap on a raw partition does not help.
+Also, I have been unable to make bootp work for nfsboot, but I suspect my 
+bootp server - not the kernel.
 
-  Traces show quit different places for __alloc_pages to fail there is
-  really NO out of memory condition - several hundreds of megabytes
-  are in cache.
+BACK to the point.  Since 2.4.5 I have had to use lilo, and add a line that 
+says 'nfs=[all that stuff] ipconfig=dhcp'
 
-  The main purpose for these systems is MYSQL database.
+good luck.
 
-  So I'm asking if there is any way to make kernel running more
-  stable?
-
-  May be some workarounds exists - For example may be I can increase
-  number of reserved buffers and so on ?
-
--- 
-Best regards,
- Peter                          mailto:pz@spylog.ru
+js
 

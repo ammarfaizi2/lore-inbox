@@ -1,136 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130168AbRAKARj>; Wed, 10 Jan 2001 19:17:39 -0500
+	id <S129431AbRAKAVV>; Wed, 10 Jan 2001 19:21:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130338AbRAKAR3>; Wed, 10 Jan 2001 19:17:29 -0500
-Received: from typhoon.mail.pipex.net ([158.43.128.27]:25320 "HELO
-	typhoon.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S130168AbRAKARQ>; Wed, 10 Jan 2001 19:17:16 -0500
-From: Chris Rankin <rankinc@zip.com.au>
-Message-Id: <200101110012.f0B0CAM00883@wittsend.ukgateway.net>
-Subject: [PATCH]: Keep sound-module usage correct, even if audio_open fails
-To: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
-Date: Thu, 11 Jan 2001 00:12:10 +0000 (GMT)
-Reply-To: rankinc@zip.com.au
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129584AbRAKAVL>; Wed, 10 Jan 2001 19:21:11 -0500
+Received: from uclink4.Berkeley.EDU ([128.32.25.39]:36104 "EHLO
+	uclink4.berkeley.edu") by vger.kernel.org with ESMTP
+	id <S129431AbRAKAVB>; Wed, 10 Jan 2001 19:21:01 -0500
+Message-ID: <3A5CFE41.D6064638@uclink4.berkeley.edu>
+Date: Wed, 10 Jan 2001 16:28:49 -0800
+From: Jeremy Huddleston <jeremyhu@uclink4.berkeley.edu>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with module versioning in 2.4.0
+In-Reply-To: <E14GVR1-0001J9-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I noticed that if you try to (e.g.) play two WAV file simultaneously,
-then not only does the second one fail ("Device or resource busy", of
-course) but the sound-card module's usage count breaks.
+Well in any case, the problem was solved by my turning off module
+versioning.  Regardless of how and why.  All other things being equal
+(as in the .config I provided) CONFIG_MODVERSIONS=y produces the errors
+reported (PCMCIA not working, and unix.o not loading) and when it is not
+defined, everything works smoothly.
 
-Here is a patch. And Alan, since you seem to be the person collecting
-these sound patches, I should point out that this patch to
-drivers/sound/audio.c completely replaces the patch to audio.c that I
-submitted earlier. That patch was related to the coprocessor module
-locking, but this new patch has reworked the way that audio_open()
-cleans up after itself anyway. This clean-up now includes the
-coprocessor too.
+Alan Cox wrote:
+> 
+> > See below for my origional problem.  It seems the problem lies in the
+> > module versioning option.
+> 
+> Not quite
+> 
+> > When the system boots, I am spammed with the following line:
+> > insmod: /lib/modules/2.4.0/kernel/net/unix/unix.o: insmod net-pf-1
+> > failed
+> 
+> What happens is this
+> 
+> kernel needs unix sockets
+> kernel invokes modprobe
+> modprobe opens a unix socket
+>         kernel needs unix sockets
+>         kernel invokes modprobe
+>                 .....
 
-Cheers,
-Chris
+-- 
 
---- linux-vanilla/drivers/sound/audio.c	Fri Aug 11 16:26:43 2000
-+++ linux-2.4.0-ac3/drivers/sound/audio.c	Wed Jan 10 23:53:23 2001
-@@ -21,6 +21,9 @@
-  * Daniel Rodriksson: reworked the use of the device specific copy_user
-  *                    still generic
-  * Horst von Brand:  Add missing #include <linux/string.h>
-+ * Chris Rankin    : Update the module-usage counter for the coprocessor,
-+ *                   and decrement the counters again if we cannot open
-+ *                   the audio device.
-  */
- 
- #include <linux/stddef.h>
-@@ -71,6 +74,8 @@
- 	int bits;
- 	int dev_type = dev & 0x0f;
- 	int mode = translate_mode(file);
-+	const struct audio_driver *driver;
-+	const struct coproc_operations *coprocessor;
- 
- 	dev = dev >> 4;
- 
-@@ -82,18 +87,20 @@
- 	if (dev < 0 || dev >= num_audiodevs)
- 		return -ENXIO;
- 
--	if (audio_devs[dev]->d->owner)
--		__MOD_INC_USE_COUNT (audio_devs[dev]->d->owner);
-+	driver = audio_devs[dev]->d;
-+	if (driver->owner)
-+		__MOD_INC_USE_COUNT(driver->owner);
- 
- 	if ((ret = DMAbuf_open(dev, mode)) < 0)
--		return ret;
-+		goto error_1;
- 
--	if (audio_devs[dev]->coproc) {
--		if ((ret = audio_devs[dev]->coproc->
--			open(audio_devs[dev]->coproc->devc, COPR_PCM)) < 0) {
--			audio_release(dev, file);
-+	if ( (coprocessor = audio_devs[dev]->coproc) != NULL ) {
-+		if (coprocessor->owner)
-+			__MOD_INC_USE_COUNT(coprocessor->owner);
-+
-+		if ((ret = coprocessor->open(coprocessor->devc, COPR_PCM)) < 0) {
- 			printk(KERN_WARNING "Sound: Can't access coprocessor device\n");
--			return ret;
-+			goto error_2;
- 		}
- 	}
- 	
-@@ -106,6 +113,20 @@
- 
- 	audio_devs[dev]->audio_mode = AM_NONE;
- 
-+	return 0;
-+
-+	/*
-+	 * Clean-up stack: this is what needs (un)doing if
-+	 * we can't open the audio device ...
-+	 */
-+	error_2:
-+	if (coprocessor->owner)
-+		__MOD_DEC_USE_COUNT(coprocessor->owner);
-+	DMAbuf_release(dev, mode);
-+
-+	error_1:
-+	if (driver->owner)
-+		__MOD_DEC_USE_COUNT(driver->owner);
- 
- 	return ret;
- }
-@@ -156,7 +177,8 @@
- 
- void audio_release(int dev, struct file *file)
- {
--	int             mode = translate_mode(file);
-+	const struct coproc_operations *coprocessor;
-+	int mode = translate_mode(file);
- 
- 	dev = dev >> 4;
- 
-@@ -176,8 +198,12 @@
- 	if (mode & OPEN_WRITE)
- 		sync_output(dev);
- 
--	if (audio_devs[dev]->coproc)
--		audio_devs[dev]->coproc->close(audio_devs[dev]->coproc->devc, COPR_PCM);
-+	if ( (coprocessor = audio_devs[dev]->coproc) != NULL ) {
-+		coprocessor->close(coprocessor->devc, COPR_PCM);
-+
-+		if (coprocessor->owner)
-+			__MOD_DEC_USE_COUNT(coprocessor->owner);
-+	}
- 	DMAbuf_release(dev, mode);
- 
- 	if (audio_devs[dev]->d->owner)
+---- A notice to spammers ----
+Unsolicited electronic mail advertisements to my email address is
+strictly prohibited. Pursuant to California Business and Professions
+Code, Section 17538.45, senders of unsolicited electronic mail
+advertisements to me may be subject to a civil penalty of $50 per
+message plus attorney's fees.
+
+CBPC 17538.45 provides that 
+(c)  No individual, corporation, or other entity shall use or cause to
+be used, by initiating an unsolicited electronic mail advertisement, an
+electronic mail service provider's equipment located in this state in
+violation of that electronic mail service provider's policy prohibiting
+or restricting the use of its equipment to deliver unsolicited
+electronic mail advertisements to its registered users. [...] 
+
+(f) (1) In addition to any other action available under law, any
+electronic mail service provider whose policy on unsolicited electronic
+mail advertisements is violated as provided in this section may bring a
+civil action to recover the actual monetary loss suffered by that
+provider by reason of that violation, or liquidated damages of fifty
+dollars ($50) for each electronic mail message initiated or delivered in
+violation of this section, up to a maximum of twenty-five thousand
+dollars ($25,000) per day, whichever amount is greater. 
+    (2) In any action brought pursuant to paragraph (1), the court may
+award reasonable attorney's fees to a prevailing party. 
+
+The computer equipment which host my email server are located the State
+of California, and CBPC 17538.45 is applicable to them.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

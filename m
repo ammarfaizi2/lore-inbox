@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbVBIGOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVBIGhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbVBIGOl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 01:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVBIGOl
+	id S261795AbVBIGhd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 01:37:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBIGhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 01:14:41 -0500
-Received: from nabe.tequila.jp ([211.14.136.221]:33932 "HELO nabe.tequila.jp")
-	by vger.kernel.org with SMTP id S261793AbVBIGOj (ORCPT
+	Wed, 9 Feb 2005 01:37:33 -0500
+Received: from fsmlabs.com ([168.103.115.128]:63210 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261795AbVBIGh2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 01:14:39 -0500
-Message-ID: <4209AA42.1030606@tequila.co.jp>
-Date: Wed, 09 Feb 2005 15:14:26 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: TEQUILA\Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041220 Thunderbird/1.0 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
+	Wed, 9 Feb 2005 01:37:28 -0500
+Date: Tue, 8 Feb 2005 23:38:12 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: John Levon <levon@movementarian.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] OProfile: exit.text referenced in init.text
+Message-ID: <Pine.LNX.4.61.0502082312010.26742@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc3-mm1: two oops on startup
-References: <20050204103350.241a907a.akpm@osdl.org>	<4209A6DA.109@tequila.co.jp> <20050208220903.190c02af.akpm@osdl.org>
-In-Reply-To: <20050208220903.190c02af.akpm@osdl.org>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The linker doesn't complain, but i got this error on ARM which has 
+similar code.
 
-On 02/09/2005 03:09 PM, Andrew Morton wrote:
-> Clemens Schwaighofer <cs@tequila.co.jp> wrote:
-> 
->>during startup I get too oops on my Box
-> 
-> 
-> Yes, it is being worked on.  You'll need to CONFIG_INOTIFY=n, thanks.
+oprofile_arch_exit: discarded in section `.exit.text' from arch/arm/oprofile/built-in.o
+arch/arm/oprofile/built-in.o(.init.text+0x4c): In function `oprofile_init':
+: relocation truncated to fit: R_ARM_PC24 oprofile_arch_exit
 
-okay, thanks.
+oprofile_arch_init()
+	<error path>
+	oprofile_arch_exit()
+		__exit nmi_exit()
+			__exit exit_driverfs()
 
-- --
-[ Clemens Schwaighofer                      -----=====:::::~ ]
-[ TBWA\ && TEQUILA\ Japan IT Group                           ]
-[                6-17-2 Ginza Chuo-ku, Tokyo 104-0061, JAPAN ]
-[ Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343 ]
-[ http://www.tequila.co.jp        http://www.tbwajapan.co.jp ]
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
-iD8DBQFCCapCjBz/yQjBxz8RAmcKAJ4oYmg9aLy07R7bXfOVjRza+9N9FACgty/B
-LiRsNye+unxwpJXzc/PYyTw=
-=HP/o
------END PGP SIGNATURE-----
+===== arch/i386/oprofile/nmi_int.c 1.27 vs edited =====
+--- 1.27/arch/i386/oprofile/nmi_int.c	2005-01-30 23:33:47 -07:00
++++ edited/arch/i386/oprofile/nmi_int.c	2005-02-08 23:08:33 -07:00
+@@ -70,7 +70,7 @@ static int __init init_driverfs(void)
+ }
+ 
+ 
+-static void __exit exit_driverfs(void)
++static void exit_driverfs(void)
+ {
+ 	sysdev_unregister(&device_oprofile);
+ 	sysdev_class_unregister(&oprofile_sysclass);
+@@ -420,7 +420,7 @@ int __init nmi_init(struct oprofile_oper
+ }
+ 
+ 
+-void __exit nmi_exit(void)
++void nmi_exit(void)
+ {
+ 	if (using_nmi)
+ 		exit_driverfs();

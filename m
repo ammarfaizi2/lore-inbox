@@ -1,65 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbTBABNz>; Fri, 31 Jan 2003 20:13:55 -0500
+	id <S264646AbTBABOL>; Fri, 31 Jan 2003 20:14:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264646AbTBABNy>; Fri, 31 Jan 2003 20:13:54 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:20751 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264644AbTBABNy>; Fri, 31 Jan 2003 20:13:54 -0500
-Date: Sat, 1 Feb 2003 02:22:38 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>, <jgarzik@pobox.com>
-Subject: Re: [PATCH] Module alias and device table support.
-In-Reply-To: <Pine.LNX.4.44.0301311842140.16486-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0302010157530.6646-100000@serv>
-References: <Pine.LNX.4.44.0301311842140.16486-100000@chaos.physics.uiowa.edu>
+	id <S264654AbTBABOL>; Fri, 31 Jan 2003 20:14:11 -0500
+Received: from dial-ctb0572.webone.com.au ([210.9.245.72]:41988 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S264646AbTBABOI>;
+	Fri, 31 Jan 2003 20:14:08 -0500
+Message-ID: <3E3B2187.1000203@cyberone.com.au>
+Date: Sat, 01 Feb 2003 12:23:19 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Con Kolivas <conman@kolivas.net>
+CC: Andrew Morton <akpm@digeo.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Aggelos Economopoulos <aoiko@cc.ece.ntua.gr>
+Subject: Re: [BENCHMARK] 2.5.59-mm7 with contest
+References: <200302010930.54538.conman@kolivas.net> <200302011144.54554.conman@kolivas.net> <3E3B1B1E.7050800@cyberone.com.au> <200302011209.49692.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Con Kolivas wrote:
 
-On Fri, 31 Jan 2003, Kai Germaschewski wrote:
+>On Saturday 01 Feb 2003 11:55 am, Nick Piggin wrote:
+>
+>>Con Kolivas wrote:
+>>
+>>>On Saturday 01 Feb 2003 11:37 am, Nick Piggin wrote:
+>>>
+>>>>Con Kolivas wrote:
+>>>>
+>>>>>Seems the fix for "reads starves everything" works. Affected the tar
+>>>>>loads too?
+>>>>>
+>>>>Yes, at the cost of throughput, however for now it is probably
+>>>>the best way to go. Hopefully anticipatory scheduling will provide
+>>>>as good or better kernel compile times and better throughput.
+>>>>
+>>>>Con, tell me, are "Loads" normalised to the time they run for?
+>>>>Is it possible to get a finer grain result for the load tests?
+>>>>
+>>>No, the load is the absolute number of times the load successfully
+>>>completed. We battled with the code for a while to see if there were ways
+>>>to get more accurate load numbers but if you write a 256Mb file you can
+>>>only tell if it completes the write or not; not how much has been written
+>>>when you stop the write. Same goes with read etc. The load rate is a more
+>>>meaningful number but we haven't gotten around to implementing that in
+>>>the result presentation.
+>>>
+>>I don't know how the contest code works, but if you split that into
+>>a number of smaller writes it should work?
+>>
+>
+>Yes it would but the load effect is significantly diminished. By writing a 
+>file the size==physical ram the load effect is substantial.
+>
+Oh yes of course, but I meant just break up the writing of that big file
+into smaller write(2)s.
 
-> > > missing 
-> > > EXPORT_SYMBOL()s tend to go unnoticed quite often otherwise.
-> > 
-> > The problem here is that we use System.map, it's not that difficult to 
-> > extract the exported symbols:
-> > objcopy -j .kstrtab -O binary vmlinux .export.tmp
-> > tr \\0 \\n < .export.tmp > Export.map
-> 
-> What you say is right (except that it misses symbols exported from 
-> modules), but I don't see what you mean the problem is?
+>
+>
+>>>Load rate would be:
+>>>
+>>>loads / ( load_compile_time - no_load_compile_time )
+>>>
+>>I think loads / time_load_ran_for should be ok (ie, give you loads per time
+>>interval). This would be more useful if your loads were getting more
+>>efficient
+>>or less because it is possible that an improvement would lower compile time
+>>_and_ loads, but overall the loads were getting done quicker.
+>>
+>
+>I found the following is how loads occur almost always:
+>noload time: 60
+>load time kernal a: 80, loads 20
+>load time kernel b: 100, loads 40
+>load time kernel c: 90, loads 30
+>
+>and loads/total time wouldnt show this effect as kernel c would appear to have 
+>a better load rate 
+>
+Kernel a would have a rate of .25 l/s, b: .4 l/s, c: .33~ l/s so I b would
+be better.
 
-See above, maybe I quoted to much. The other exported symbols are 
-already extracted by depmod, so it had exactly the information it needs 
-and would give more correct warnings.
+>
+>
+>if there was
+>load time kernel d: 80, loads 40
+>
+>that would be more significant no?
+>
+It would, yes... but it would measure .5 loads per second done.
 
-> > It makes sense to keep depmod close to the linker, as both need the same 
-> > knowledge about resolving symbols, but I still don't know why that would 
-> > be a reason to put it into the kernel.
-> 
-> Well, I hope you mean into the kernel tree, it sure doesn't make sense to 
-> put it into the kernel itself.
-> 
-> Anyway, I think rusty's approach is to deal with the kernel-internal data 
-> structures from inside the kernel tree (during the build, that is) and 
-> generate data in a fixed format (.modalias) for depmod to read. Since 
-> depmod is external, it needs a fixed interface. Makes sense to me.
-
-You have to define a fixed format somewhere anyway, either you have to do 
-it for depmod or for modprobe. This only moves the problem around and if 
-we already break interfaces, we should look at all the possibilities.
-What I'm really missing is an analysis of the problem(s) and a description 
-of how the solution solves it. After reading most of the patches I think I 
-understand what Rusty is trying to do, but I still think there are better 
-solutions, unfortunately Rusty doesn't talk with me anymore :(, if anyone 
-else knows what I'm doing wrong, I'd be really happy to know about it.
-
-bye, Roman
+The noload time is basically constant anyway so I don't think it would add
+much value if it were incorporated into the results, but would make the
+metric harder to follow than simple "loads per second".
 

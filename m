@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264614AbTFKWPs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 18:15:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264618AbTFKWPs
+	id S264516AbTFKWVN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 18:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264605AbTFKWVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 18:15:48 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:28115 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264614AbTFKWPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 18:15:39 -0400
-Date: Wed, 11 Jun 2003 15:31:07 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: sysfs: Initialization order and system devices
-In-Reply-To: <1055369924.4071.19.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0306111529260.11379-100000@cherise>
+	Wed, 11 Jun 2003 18:21:12 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:22448 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S264516AbTFKWVC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 18:21:02 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Artemio" <artemio@artemio.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: SMP question
+Date: Wed, 11 Jun 2003 15:34:44 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEKNDJAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <200306112313.30903.artemio@artemio.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 11 Jun 2003, Jeremy Fitzhardinge wrote:
+> Hello!
 
-> With the current system device changes (I picked them up in 2.5.70-mm8),
-> the system device class assumes that all system device drivers are
-> registered before any system devices are registered.
-> 
-> Unfortunately, this is often not the case.  CPU devices are registered
-> very early, but cpufreq registers drivers for them; since cpufreq
-> drivers can be loaded as modules, they clearly can't be registered
-> before the device is.
-> 
-> This patch keeps a list of all registered devices hanging off the system
-> device class.  When a new driver is registered, it calls the driver's
-> add() function with all existing devices.
-> 
-> Conversely, when a driver is unregistered, it calls the driver's
-> remove() function for all existing devices so the driver can clean up.
+> > > How much performance will I loose this way? Is SMP *THAT* critical?
+> >
+> > 	You will lose about half your CPU power.
 
-D'oh. I meant to add this piece for precisely this reason. Thanks, though 
-there is one thing: 
+> Hmmm... So, you mean uni-processor Linux kernel can't see two
+> processors as
+> one "big" processor?
 
-+
-+       /* If devices of this class already exist, tell the driver */
-+       if (drv->add) {
-+               struct sys_device *dev;
-+               list_for_each_entry(dev, &cls->devices, entry)
-+                       drv->add(dev);
-+       }
-+
+	Don't we wish. No, two processors is two processors.
 
-in sysdev_driver_register(). You must check that cls is not NULL. I've 
-fixed it up and applied it.
+> > > Also, if I turn hyperthreading off, how will it influence the
+> > > system with SMP
+> > > support? Without SMP support?
 
-Thanks,
+> > 	In a system with more than one physical CPU, hyperthreading
+> > is not that
+> > big of a performance boost.
 
+> Okay, I will try turning hyperthreding off and see if RTLinux
+> keeps hanging
+> the machine.
 
-	-pat
+	It sounds like you're experiencing a bug. You can do this kind of testing
+to help determine the 'envelope' of the bug (that is, under what
+circumstances it appears and under what circumstances it doesn't appear),
+however this is not a substitute for fixing the bug. ;)
+
+	Even if you find a configuration that doesn't show the bug, you still
+should work with the RTLinux guys to track down the bug and get it fixed.
+If, for example, it's due to unreliable hardware, turning off hyperthreading
+might hide it but it will still be lurking there.
+
+	RTLinux might be hanging because of problems with the code you're running.
+Thinks like deadlock and priority inversion can become much more obvious in
+an SMP machine, but can definitely still happen in a UP machine, just much
+less often.
+
+	DS
+
 

@@ -1,99 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261662AbSJGRlz>; Mon, 7 Oct 2002 13:41:55 -0400
+	id <S262012AbSJGRm4>; Mon, 7 Oct 2002 13:42:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261687AbSJGRlz>; Mon, 7 Oct 2002 13:41:55 -0400
-Received: from pop.gmx.net ([213.165.64.20]:47945 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261662AbSJGRlV>;
-	Mon, 7 Oct 2002 13:41:21 -0400
-Message-Id: <5.1.0.14.2.20021007191310.00b4e268@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 07 Oct 2002 19:44:10 +0200
-To: Amol Lad <dal_loma@yahoo.com>, Arjan van de Ven <arjanv@redhat.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: wake_up from interrupt handler
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021007142520.56164.qmail@web12406.mail.yahoo.com>
-References: <1033995858.2798.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262264AbSJGRm4>; Mon, 7 Oct 2002 13:42:56 -0400
+Received: from dsl-213-023-021-129.arcor-ip.net ([213.23.21.129]:42410 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S262012AbSJGRmx>;
+	Mon, 7 Oct 2002 13:42:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Oliver Neukum <oliver@neukum.name>,
+       Andrew Morton <akpm@digeo.com>, Rob Landley <landley@trommello.org>
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
+Date: Mon, 7 Oct 2002 19:43:17 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+References: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE> <1281002684.1033892373@[10.10.2.3]>
+In-Reply-To: <1281002684.1033892373@[10.10.2.3]>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17ybuZ-0003tz-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:25 AM 10/7/2002 -0700, Amol Lad wrote:
->In this code too.. lost-wakeup problem is not solved
->
->if (event_occured)
->   else
->     schedule();
->
->what if in check ' if(event_occured) ' goes to 'else'
->and before calling schedule() my ISR interrupted this
->thread and set the event..
+On Sunday 06 October 2002 17:19, Martin J. Bligh wrote:
+> > Then there's the issue of application startup. There's not enough
+> > read ahead. This is especially sad, as the order of page faults is 
+> > at least partially predictable.
+> 
+> Is the problem really, fundamentally a lack of readahead in the
+> kernel? Or is it that your application is huge bloated pig? 
 
-(yes, this is what I was thinking about)
+Readahead isn't the only problem, but it is a huge problem.  The current 
+readahead model is per-inode, which is very little help with lots of small 
+files, especially if they are fragmented or out of order.  There are various 
+ways to fix this; they are all difficult[1].  Fortunately, we can call this 
+"tuning work" so it can be done during the stable series.
 
->Also Mike told to disable the interrupt before
->checking for event... So When to enable interrupts
->then ??
+[1] We could teach each filesystem how to read ahead across directories, or 
+we could teach the vfs how to do physical readahead.  Choose your poison.
 
-(this mike)
-
-Well, disabling interrupts as a solution aside :), why are you checking for 
-event in the kthread?  It seems to me that receipt of wakeup has to be the 
-sole knowledge that the event happened, else a race is a done deal. (no?)
-
-         -Mike
-
->
->--- Arjan van de Ven <arjanv@redhat.com> wrote:
-> > On Mon, 2002-10-07 at 14:41, Amol Lad wrote:
-> > > Hi,
-> > >  I have a kernel thread which did
-> > add_to_wait_queue()
-> > > to wait for an event.
-> > > The event for which above thread is waiting occurs
-> > in
-> > > an interrupt handler that calls wake_up() to wake
-> > the
-> > > above thread.
-> > > Now I am faced with a 'lost wakeup' problem, in
-> > which
-> > > the
-> > > kernel thread checks whether event occured, he
-> > finds
-> > > it to be 'not-occured' but before calling
-> > > add_to_wait_queue(), interrupt handler detects
-> > that
-> > > the event has occured and calls wake_up().
-> > > My thread sleeps forever.
-> >
-> > set_current_state(TASK_INTERRUPTIBLE);
-> > add_to_wait_queue(...);
-> > if (even_occured) { ...}
-> >   else
-> >      schedule();
-> >
-> > remove_from_wait_queue(..);
-> > set_current_state(TASK_RUNNABLE);
-> >
-> >
-> > >
-> >
-> >
->
-> > ATTACHMENT part 2 application/pgp-signature
->name=signature.asc
->
->
->
->__________________________________________________
->Do you Yahoo!?
->Faith Hill - Exclusive Performances, Videos & More
->http://faith.yahoo.com
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Daniel

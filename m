@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284289AbRLBTjl>; Sun, 2 Dec 2001 14:39:41 -0500
+	id <S284298AbRLBTkx>; Sun, 2 Dec 2001 14:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284288AbRLBTjV>; Sun, 2 Dec 2001 14:39:21 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:18194 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284286AbRLBTjQ>; Sun, 2 Dec 2001 14:39:16 -0500
-Date: Sun, 2 Dec 2001 11:49:53 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] task_struct colouring ...
-In-Reply-To: <008001c17b42$e2fa5880$30d8fea9@ecce>
-Message-ID: <Pine.LNX.4.40.0112021148540.7375-100000@blue1.dev.mcafeelabs.com>
+	id <S284295AbRLBTkl>; Sun, 2 Dec 2001 14:40:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:787 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284286AbRLBTkd>; Sun, 2 Dec 2001 14:40:33 -0500
+Subject: Re: IBM Thinkpad T21: Hotplugging of cdrom and floppy devices
+To: klink@clouddancer.com
+Date: Sun, 2 Dec 2001 19:49:23 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011202193450.B36E77843A@phoenix.clouddancer.com> from "Colonel" at Dec 02, 2001 11:34:50 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16Acc7-0004Ku-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Dec 2001, [MOc]cda*mirabilos wrote:
+> I suspect there is a BIOS function that handles the device change,
+> since that is where the suspend actually occurs.  Windows must call it
+> directly.  Hotplugging is for the standard interfaces, the thinkpad
+> Ultrabay is unique.  You should probably be asking the IBM linux
+> group.
 
-> > > > movl %esp, %eax
-> > > > andl $-8192, %eax
-> > > > movl (%eax), %eax
-> > >
-> > > Although I'm good in assembly but bad in gas,
-> > > do you consider the middle line good style?
-> > >
-> > > Binary AND with a negative decimal number?
-> >
-> > ~N = -(N + 1)
->
-> I know, but I don't consider this good style, as
-> decimal arithmetic is for humans, and binary
-> {arithmetic,ops} are for the PC.
-
-The better solution would be (STACK_SIZE - 1) but it's still decimal.
-
-
-
-- Davide
-
-
+My first guess would be that you want to look at the PNPBIOS support from
+the -ac tree and see if you get PNPBIOS events.

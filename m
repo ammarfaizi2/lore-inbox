@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310783AbSCMQkd>; Wed, 13 Mar 2002 11:40:33 -0500
+	id <S310790AbSCMQlx>; Wed, 13 Mar 2002 11:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310790AbSCMQkY>; Wed, 13 Mar 2002 11:40:24 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:47262 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S310783AbSCMQkL>; Wed, 13 Mar 2002 11:40:11 -0500
-Date: Wed, 13 Mar 2002 08:40:26 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Kurt Garloff <garloff@suse.de>,
-        Linux kernel list <linux-kernel@vger.kernel.org>,
-        "S. Chandra Sekharan" <sekharan@us.ibm.com>
-Subject: Re: [PATCH] Support for assymmetric SMP
-Message-ID: <467625960.1016008825@[10.10.2.3]>
-In-Reply-To: <E16lBRo-0006jU-00@the-village.bc.nu>
-In-Reply-To: <E16lBRo-0006jU-00@the-village.bc.nu>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S310796AbSCMQlp>; Wed, 13 Mar 2002 11:41:45 -0500
+Received: from idefix.linkvest.com ([194.209.53.99]:36879 "EHLO
+	idefix.linkvest.com") by vger.kernel.org with ESMTP
+	id <S310790AbSCMQlf>; Wed, 13 Mar 2002 11:41:35 -0500
+Message-ID: <3C8F8131.7070606@linkvest.com>
+Date: Wed, 13 Mar 2002 17:41:21 +0100
+From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rework of /proc/stat
+In-Reply-To: <E16lBe4-0006ly-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 13 Mar 2002 16:41:21.0534 (UTC) FILETIME=[E81B49E0:01C1CAAD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Actually I know of at least one dual P4 Xeon board where I 
->> haven't seen anything except IPI go to the second cpu.
-> 
-> Expect that to occur. The random distribution stuff doesn't seem to be a
-> feature of all pentium IV systems. Ie this bug does want fixing
 
-Dave Olien published a patch which will make this issue much
-better for P4 - setting the TPR so we route interrupts according 
-to how important the processors current work is. Should alleviate
-the "dump everything on one CPU" P4ness.
+Alan Cox wrote:
 
-Would still be nice to fix this though.
+>Normal for md (/proc/mdstat). Interesting question whether they should be
+>there - see what Ingo thinks
+>
+Ingo? What do you think?
 
-M.
+When I cat /proc/partitions, all partitions are there with IO stats but 
+MD or LVM have no IO stats.
+Shouldn't it be there?
+
+-- 
+Jean-Eric Cuendet
+Linkvest SA
+Av des Baumettes 19, 1020 Renens Switzerland
+Tel +41 21 632 9043  Fax +41 21 632 9090
+E-mail: jean-eric.cuendet@linkvest.com
+http://www.linkvest.com
+--------------------------------------------------------
+
+
 

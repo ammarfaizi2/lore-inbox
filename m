@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130256AbQJ1PGa>; Sat, 28 Oct 2000 11:06:30 -0400
+	id <S130378AbQJ1Po2>; Sat, 28 Oct 2000 11:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130313AbQJ1PGV>; Sat, 28 Oct 2000 11:06:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45061 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130256AbQJ1PGL>;
-	Sat, 28 Oct 2000 11:06:11 -0400
-Date: Sat, 28 Oct 2000 16:05:37 +0100
-From: Philipp Rumpf <prumpf@parcelfarce.linux.theplanet.co.uk>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Andrew Morton <andrewm@uow.edu.au>,
-        Patrick van de Lageweg <patrick@bitwizard.nl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rogier Wolff <wolff@bitwizard.nl>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PROPOSED PATCH] ATM refcount + firestream
-Message-ID: <20001028160537.C2272@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <Pine.LNX.4.21.0010270945510.13233-200000@panoramix.bitwizard.nl> <39F96BE1.B9C97C20@uow.edu.au> <20001028141518.A2272@parcelfarce.linux.theplanet.co.uk> <39FAD698.2FF9C8C8@didntduck.org> <20001028145312.B2272@parcelfarce.linux.theplanet.co.uk> <39FADAC9.DC1255D1@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <39FADAC9.DC1255D1@didntduck.org>; from bgerst@didntduck.org on Sat, Oct 28, 2000 at 09:55:21AM -0400
+	id <S130410AbQJ1PoS>; Sat, 28 Oct 2000 11:44:18 -0400
+Received: from [195.180.174.143] ([195.180.174.143]:16000 "EHLO
+	ghanima.neukum.org") by vger.kernel.org with ESMTP
+	id <S130378AbQJ1PoH>; Sat, 28 Oct 2000 11:44:07 -0400
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Date: Sat, 28 Oct 2000 17:42:50 +0200
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="US-ASCII"
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10010281042130.8717-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10010281042130.8717-100000@coffee.psychology.mcmaster.ca>
+Subject: Re: question on SMP and read()/write()
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <00102817425009.00773@ghanima>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 28, 2000 at 09:55:21AM -0400, Brian Gerst wrote:
-> Yes, but they can be called (and sleep) with module refcount == 0.  This
-> is because the file descripter used to perform the ioctl isn't directly
-> associated with the network device, thereby not incrementing the
-> refcount on open.
+On Saturday 28 October 2000 16:43, you wrote:
+> > I've noticed that sys_read() and sys_write() don't grab the big kernel
+> > lock. As file descriptors may be shared, must device drivers provide SMP
+> > safe read() and write() methods ?
+>
+> no.  FD's refer to files; block drivers don't, and the nontrivial
+> code between sys_* and drivers deals with this sort of thing.
 
-According to my proposal, it is perfectly safe to call a function in a module
-while the module's use count is 0.  This function would typically look like this:
+Sure block drivers need not do this, but how about drivers for character 
+devices ? It seems that sys_read() calls a function provided by the
+f_op table without any locking. Isn't this the function a driver for a 
+character device must provide to the VFS ?
 
-foo()
-{
-	MOD_INC_USE_COUNT;
-
-	copy_*_user() (or anything else that sleeps);
-	
-	MOD_DEC_USE_COUNT;
-
-	return bar;
-}
-
-The only difference to the "old" module scheme is that the above currently isn't
-safe on SMP systems.
+	TIA
+		Oliver
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

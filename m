@@ -1,72 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265254AbTLLP7y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 10:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265250AbTLLP7y
+	id S265287AbTLLQGO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 11:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbTLLQGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 10:59:54 -0500
-Received: from waste.org ([209.173.204.2]:18328 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265254AbTLLP7v (ORCPT
+	Fri, 12 Dec 2003 11:06:14 -0500
+Received: from vana.vc.cvut.cz ([147.32.240.58]:50820 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S265287AbTLLQGC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 10:59:51 -0500
-Date: Fri, 12 Dec 2003 09:59:48 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] -tiny tree for small systems (2.6.0-test11)
-Message-ID: <20031212155948.GK23787@waste.org>
-References: <20031212033734.GG23787@waste.org> <20031212154443.GN23731@stop.crashing.org>
+	Fri, 12 Dec 2003 11:06:02 -0500
+Date: Fri, 12 Dec 2003 17:05:46 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: M?ns Rullg?rd <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+Message-ID: <20031212160546.GA6363@vana.vc.cvut.cz>
+References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se> <Pine.LNX.4.53.0312121000150.10423@chaos> <yw1xy8tixe96.fsf@kth.se> <Pine.LNX.4.53.0312121018450.10945@chaos> <yw1xr7zaxd7e.fsf@kth.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031212154443.GN23731@stop.crashing.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <yw1xr7zaxd7e.fsf@kth.se>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 08:44:43AM -0700, Tom Rini wrote:
-> On Thu, Dec 11, 2003 at 09:37:34PM -0600, Matt Mackall wrote:
+On Fri, Dec 12, 2003 at 04:33:57PM +0100, M?ns Rullg?rd wrote:
+> "Richard B. Johnson" <root@chaos.analogic.com> writes:
 > 
-> > This is the first release of a new kernel tree dubbed '-tiny' (someone
-> > already took -mm). The aim of this tree is to collect patches that
-> > reduce kernel disk and memory footprint as well as tools for working
-> > on small systems, an area Linux mainstream has been moving away from
-> > since Linus got a real job. Target users are things like embedded
-> > systems, small or legacy desktop folks, and handhelds.
-> > 
-> > To get the ball rolling, I've thrown in about 50 patches that trim
-> > various bits of the kernel, almost all configurable, and a fair number
-> > may eventually be appropriate for mainline. All the config options are
-> > currently thrown under CONFIG_EMBEDDED and many of the minor tweaks
-> > are covered under a set of config options called CONFIG_CORE_SMALL,
-> > CONFIG_NET_SMALL, and CONFIG_CONSOLE_SMALL.
-> > 
-> > Nifty things I've included:
-> >  - building with -Os
-> >  - 4k process stacks (via -wli)
-> >  - configurable removal of printk, BUG, and panic() strings
-> >  - configurable HZ
-> >  - configurable support for vm86, core dumps, kcore, sysfs, aio, etc.
-> >  - a very nice kmalloc auditing system via /proc/kmalloc
-> >  - auditing of bootmem usage
-> >  - a system for counting inline instantiations
-> >  - my netpoll/netconsole patches
-> >  - my drivers/char/random fixups
+> > On Fri, 12 Dec 2003, [iso-8859-1] M?ns Rullg?rd wrote:
+> >
+> >> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+> >>
+> >> > It is not a broken BIOS! The BIOS timer that ticks 18.206 times
+> >> > per second has an ISR that, in addition to keeping time, turns
+> >> > OFF the FDC motor after two seconds of inactivity.
 > 
-> I'd like to suggest you check out the "tweaks" idea I tossed out here:
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0211.0/2229.html
-> If this sounds interesting, I've got a version of the patch (albeit old
-> and not applying directly right now I bet) that moved things into header
-> files and got all of the dependancy stuff correct except for the initial
-> run (so I think I was forcing an update with any make invocation, but
-> there were no spurious recompiles).
+> IMHO a ridiculous design, as is most of the PC.
+> 
+> >> > This ISR is taken away by Linux. Therefore Linux must turn off
+> >> > that motor! It is a Linux bug, not a BIOS bug. Linux took control
+> >> > away from the BIOS during boot.
+> >>
+> >> OK, but why doesn't it affect all machines?
+> >>
+> > If you leave the FDC software in the kernel, the FDC software
+> > sets up everything and turns off the motor. If you have the
+> > FDC as a module, you have nothing in there to turn off the
+> > motor until you install the module.
+> 
+> I'm running 2.6.0-test11 on a machine with modular floppy driver,
+> without any spinning motors.  I think it boots from floppy before HD,
+> but I'm not certain (can't check right now).
 
-Looks cool. My only worry is that to do it right, it has to make some
-fairly sweeping changes. I'm trying to keep the stuff in -tiny fairly
-small and independent so that stuff can be cherry-picked, but if we
-can get a consensus that "tweaks" is a good direction for mainline, it
-might prove useful for some of the stuff I'm doing with
-CONFIG_CORE_SMALL and friends now. 
+Maybe because you run patched LILO which works around this 2.6.x
+brokeness. Debian's #221967 says that 'reset disk subsystem' should
+stop floppy motor. I'd like to see this black on white...
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+Fortunately Andreas Roland accepted patch instead of reassigning
+bug to 2.6.x kernel package where it belongs - if kernel does
+not pass timer IRQ to the BIOS, it is kernel's responsibility
+to do tasks which BIOS scheduled for future...
+
+
+lilo (1:22.5.8-6) unstable; urgency=low
+
+  * Now LILO can disable FDC on (weird?) BIOS using 2.6 kernel.
+    (closes: #221967)
+
+						Petr Vandrovec
+

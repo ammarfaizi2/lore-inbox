@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVCCCA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVCCCAb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVCCCA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 21:00:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVCCB7D
+	id S261318AbVCCCAb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 21:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVCCB6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 20:59:03 -0500
-Received: from cgk192.neoplus.adsl.tpnet.pl ([83.30.238.192]:29319 "EHLO
-	wenus.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
-	id S261278AbVCCBxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 20:53:42 -0500
-Date: Thu, 3 Mar 2005 02:53:41 +0100
-From: Damian Kolkowski <damian@kolkowski.no-ip.org>
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] - SATA / ioctl(). (HDIO_GET_IDENTITY failed...)
-Message-ID: <20050303015341.GENTOO-LINUX-ROX.B8468@kolkowski.no-ip.org>
+	Wed, 2 Mar 2005 20:58:41 -0500
+Received: from fire.osdl.org ([65.172.181.4]:60308 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261407AbVCCBpg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 20:45:36 -0500
+Date: Wed, 2 Mar 2005 17:45:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+Message-Id: <20050302174507.7991af94.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+	<Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
-X-Girl: 1 will be enough!
-X-Age: 24 (1980.09.27 - libra)
-X-IM: JID:deimos@chrome.pl ICQ:59367544 GG:88988
-X-Operating-System: Gentoo Linux, kernel 2.6.11-gentoo, up 1 min
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Christoph Lameter <clameter@sgi.com> wrote:
+>
+> ...
+>  static int do_wp_page(struct mm_struct *mm, struct vm_area_struct * vma,
+>  	unsigned long address, pte_t *page_table, pmd_t *pmd, pte_t pte)
+> @@ -1306,22 +1308,25 @@ static int do_wp_page(struct mm_struct *
+>  			flush_cache_page(vma, address);
+>  			entry = maybe_mkwrite(pte_mkyoung(pte_mkdirty(pte)),
+>  					      vma);
+> -			ptep_set_access_flags(vma, address, page_table, entry, 1);
+> -			update_mmu_cache(vma, address, entry);
+> +			/*
+> +			 * If the bits are not updated then another fault
+> +			 * will be generated with another chance of updating.
+> +			 */
+> +			if (ptep_cmpxchg(page_table, pte, entry))
+> +				update_mmu_cache(vma, address, entry);
+> +			else
+> +				inc_page_state(cmpxchg_fail_flag_reuse);
+>  			pte_unmap(page_table);
+> -			spin_unlock(&mm->page_table_lock);
+> +			page_table_atomic_stop(mm);
+>  			return VM_FAULT_MINOR;
+>  		}
+>  	}
+>  	pte_unmap(page_table);
+> +	page_table_atomic_stop(mm);
+> 
+>  	/*
+>  	 * Ok, we need to copy. Oh, well..
+>  	 */
+> -	if (!PageReserved(old_page))
+> -		page_cache_get(old_page);
 
-Is there any patch to correct libata working with ioctl()?
+hm, this seems to be an unrelated change.  You're saying that this page is
+protected from munmap() by munmap()'s down_write(mmap_sem), yes?  What
+stops memory reclaim from freeing old_page?
 
-For example:
+>  static int do_swap_page(struct mm_struct * mm,
+>  	struct vm_area_struct * vma, unsigned long address,
+> @@ -1727,12 +1733,11 @@ static int do_swap_page(struct mm_struct
+>  		grab_swap_token();
+>  	}
+> 
+> -	mark_page_accessed(page);
+> +	SetPageReferenced(page);
 
-.~. # hdparm -t /dev/hda /dev/sda
-/dev/hda:
- Timing buffered disk reads:  174 MB in  3.03 seconds =  57.36 MB/sec
-/dev/sda:
- Timing buffered disk reads:  152 MB in  3.03 seconds =  50.11 MB/sec
-HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
-.~. #
+Another unrelated change.  IIRC, this is indeed equivalent, but I forget
+why.  Care to remind me?
 
-I can attach addition: dmesg, kernel.config, lspci, etc...
 
-take care.
+Overall, do we know which architectures are capable of using this feature? 
+Would ppc64 (and sparc64?) still have a problem with page_table_lock no
+longer protecting their internals?
 
--- 
-### Damian Ko³kowski (dEiMoS) ## http://kolkowski.no-ip.org/ ###
-# echo teb.cv-ba.vxfjbxybx.anvznq | rot13 | rev | sed s/\\./@/ #
+I'd really like to see other architecture maintainers stand up and say
+"yes, we need this".
+
+Did you consider doing the locking at the pte page level?  That could be
+neater than all those games with atomic pte operattions.
+
+We need to do the big page-table-walker code consolidation/cleanup.  That
+might have some overlap.

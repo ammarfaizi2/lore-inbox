@@ -1,112 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVBUNGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVBUNVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261965AbVBUNGf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 08:06:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVBUNGf
+	id S261966AbVBUNVz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 08:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbVBUNVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 08:06:35 -0500
-Received: from smtp-out.fr.clara.net ([212.43.194.59]:9375 "EHLO
-	smtp-out.fr.clara.net") by vger.kernel.org with ESMTP
-	id S261965AbVBUNGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 08:06:30 -0500
-Message-ID: <4219DCCA.1090509@idtect.com>
-Date: Mon, 21 Feb 2005 14:06:18 +0100
-From: Charles-Edouard Ruault <ce@idtect.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050117)
-X-Accept-Language: en-us, en
+	Mon, 21 Feb 2005 08:21:55 -0500
+Received: from psyche.piasta.pl ([83.175.144.5]:46567 "EHLO psyche.piasta.pl")
+	by vger.kernel.org with ESMTP id S261966AbVBUNVx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 08:21:53 -0500
+Message-ID: <4219E06E.6030700@koba.pl>
+Date: Mon, 21 Feb 2005 14:21:50 +0100
+From: Piotr Kowalczyk <poe@koba.pl>
+Reply-To: poe@koba.pl
+Organization: KoBa ISP
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041208)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Reserve only needed regions for PC timers on i386 and x86_64
-References: <420734DC.4020900@idtect.com> <1108487045.4618.12.camel@localhost.localdomain>
-In-Reply-To: <1108487045.4618.12.camel@localhost.localdomain>
-X-Enigmail-Version: 0.90.0.0
+To: linux-kernel@vger.kernel.org
+Subject: dst cache overflow, again
+X-Enigmail-Version: 0.89.5.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------020503000707020002010103"
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020503000707020002010103
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi all,
 
-Alan Cox wrote:
+I'm suffering from destination cache overflow on router running kernel 
+2.6.10. This wouldn't be anything special if not different numbers 
+reported by slabinfo and the real state. It's worth to mention that 
+there was no problems with old 2.4.x here.
 
->On Llu, 2005-02-07 at 09:29, Charles-Edouard Ruault wrote:
->  
->
->>- Why is the generic timer using this address ? isn't it reserving a too 
->>wide portion of IO ports ? Should it be modified for this board ?
->>    
->>
->
->It just reserved the entire chip space since way back when.
->
->  
->
->>-  If there's a good reason for the timer to request this address, is  
->>there a clean way to share it with the timer ?
->>    
->>
->
->Submit a small patch to Linus/Andrew to make the generic code only
->reserve the ports it should. It's just a historical oversight
->
->  
->
-Linus, Andrew,
-As suggested by Alan, here's a small patch against kernel 2.4.29 to 
-split the IO addresses reserved for the  PC timer into two regions 
-instead of a large one.
-It mimics what has been done in kernel 2.6.
-Instead of reserving 0x40 through 0x5f it reserves only what the two 
-timers need, i.e 0x40-0x43 and 0x50-0x53.
-It patches both i386 and x86_64 architecture.
+user@somemachine:~$ cat /proc/slabinfo | grep ip_dst_cache; \
+ > cat /proc/net/rt_cache | wc -l; \
+ > /sbin/ip ro sh cache | grep cache | wc -l;
+ip_dst_cache      153870 154530    256   15    1 : tunables  120   60 
+  8 : slabdata  10302  10302      0
+2159
+2247
 
-Please CC me in replies since i did not subscribe to the list.
-
--- 
-Charles-Edouard Ruault
-Idtect SA
-115 rue Reaumur - 75002, Paris, France
-Tel: +33-1-55-34-76-65
-Fax: +33-1-55-34-76-75
-Web: http://www.idtect.com
+I'm increasing /proc/sys/net/ipv4/route/max_size, but the value reported 
+by slabinfo also slowly but steady is going up.
+There is similar issue here (maybe even more), 
+http://www.uwsg.iu.edu/hypermail/linux/net/0312.3/0000.html, but 
+unfortunatelly stayed without answer.
+Please give some hints about that, or if I'm wrong (meaning that is not 
+a bug), tell me what to do - I don't want to reboot this router every 
+week and CC: me (I'm not subscribed to the list).
+I'm also wondering if tuning of rhash_entries= boot parameter could help?
+Thank you,
+Piotr Kowalczyk
 
 
---------------020503000707020002010103
-Content-Type: text/plain;
- name="i386-x86_64-timer.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i386-x86_64-timer.patch"
+ps.
+Output of rtstat, in case it would help:
 
---- linux/arch/i386/kernel/setup.c.orig	Fri Feb 18 18:46:55 2005
-+++ linux/arch/i386/kernel/setup.c	Mon Feb 21 11:19:45 2005
-@@ -354,7 +354,8 @@
- struct resource standard_io_resources[] = {
- 	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
- 	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
--	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
-+	{ "timer0", 0x40, 0x43, IORESOURCE_BUSY },
-+	{ "timer1", 0x50, 0x53, IORESOURCE_BUSY },
- 	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
- 	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
- 	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
---- linux/arch/x86_64/kernel/setup.c.orig	Mon Feb 21 11:56:11 2005
-+++ linux/arch/x86_64/kernel/setup.c	Mon Feb 21 11:54:41 2005
-@@ -93,7 +93,8 @@
- struct resource standard_io_resources[] = {
- 	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
- 	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
--	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
-+	{ "timer0", 0x40, 0x43, IORESOURCE_BUSY },
-+	{ "timer1", 0x50, 0x53, IORESOURCE_BUSY },
- 	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
- 	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
- 	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
-
---------------020503000707020002010103--
+user@somemachine:~$ ./rtstat
+  size   IN: hit     tot    mc no_rt bcast madst masrc  OUT: hit     tot 
+     mc GC: tot ignored goal_miss ovrf HASH: in_search out_search
+152294      5094    5563     0    98     0     0     0       153      26 
+      0    5687    5685         2    0            3199         27
+152377      4902    5851     0   108     0     0     0       153      20 
+      0    5980    5978         2    0            3284         39
+152416      4932    5526     0    76     0     0     0       128      26 
+      0    5629    5627         2    0            3080         22

@@ -1,123 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129219AbQKXC2W>; Thu, 23 Nov 2000 21:28:22 -0500
+        id <S129255AbQKXCaW>; Thu, 23 Nov 2000 21:30:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129255AbQKXC2M>; Thu, 23 Nov 2000 21:28:12 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:41691 "EHLO hera.cwi.nl")
-        by vger.kernel.org with ESMTP id <S129219AbQKXC16>;
-        Thu, 23 Nov 2000 21:27:58 -0500
-Date: Fri, 24 Nov 2000 02:57:45 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200011240157.CAA140709.aeb@aak.cwi.nl>
-To: alan@lxorguk.ukuu.org.uk, bernds@redhat.com, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: gcc 2.95.2 is buggy
+        id <S130373AbQKXCaM>; Thu, 23 Nov 2000 21:30:12 -0500
+Received: from [209.249.10.20] ([209.249.10.20]:34780 "EHLO
+        freya.yggdrasil.com") by vger.kernel.org with ESMTP
+        id <S129255AbQKXC35>; Thu, 23 Nov 2000 21:29:57 -0500
+Date: Thu, 23 Nov 2000 17:59:55 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH: More PCI ID's for linux-2.4.0-test11/include/linux/pci_ids.h
+Message-ID: <20001123175955.A7314@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="DocE+STaALJfprDB"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yesterday night I wrote
 
-> Note: this is not yet a confirmed compiler bug
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-but in the meantime there is good confirmation.
-This really is a bug in gcc 2.95.2.
+	The following patch adds some missing PCI_VENDOR_ID's and
+PCI_DEVICE_ID's that are scattered throughout a bunch of .c files in
+drivers/isdn/hisax/.  The definitions in the .c files are protected
+by '#ifndef PCI_VENDOR_ID_...', so it is not necessary to remove
+those declarations from the .c files during the code freeze unless
+you want to (and I would be happy to provide a patch for that too).
 
->From bernds@redhat.com Thu Nov 23 10:45:07 2000
-> Please, could you send me ...
+	I would like you to incorporate this patch, because it simplifies
+a change that I have already made adding a PCI MODULE_DEVICE_TABLE
+declaration to the hisax driver, needs to reference all of these values
+in a single .c file (because all of those disparate .c files are currently
+linked into a single module).
 
->From torvalds@transmeta.com Thu Nov 23 18:00:48 2000
-> Can we get a show of hands?
+	Anyhow, it is a harmless patch.  Will you please apply it?
+Please let me know if you have any questions.  Thank you.
 
-Below a demo program.
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
-Andries
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pci.diffs"
 
--------------------- bug.c -----------------------------
-/*
- * bug.c - aeb, 001124
- *
- * This program shows a bug in gcc 2.95.2.
- * It should print 0x0 and exit.
- * For me it prints 0x84800000.
- *
- * Compile with:
- *    gcc -Wall -O2 -o bug bug.c
- */
-#include <stdio.h>
-
-struct inode {
-	long long		i_size;
-	struct super_block	*i_sb;
-};
-
-struct file {
-	long long		f_pos;
-};
-
-struct super_block {
-	int			s_blocksize;
-	unsigned char		s_blocksize_bits;
-	int			s_hs;
-};
-
-static char *
-isofs_bread(unsigned int block)
-{
-	printf("0x%x\n", block);
-	exit(0);
-}
-
-static int
-do_isofs_readdir(struct inode *inode, struct file *filp)
-{
-	int bufsize = inode->i_sb->s_blocksize;
-	unsigned char bufbits = inode->i_sb->s_blocksize_bits;
-	unsigned int block, offset;
-	char *bh = NULL;
-	int hs;
-
- 	if (filp->f_pos >= inode->i_size)
-		return 0;
+--- linux-2.4.0-test11/include/linux/pci_ids.h	Wed Nov  8 17:15:13 2000
++++ linux/include/linux/pci_ids.h	Thu Nov 23 17:49:57 2000
+@@ -119,6 +119,9 @@
  
-	offset = filp->f_pos & (bufsize - 1);
-	block = filp->f_pos >> bufbits;
-	hs = inode->i_sb->s_hs;
+ /* Vendors and devices.  Sort key: vendor first, device next. */
+ 
++#define PCI_VENDOR_ID_ASUSCOM		0x0675
++#define PCI_DEVICE_ID_ASUSCOM_TA1	0x1702
++
+ #define PCI_VENDOR_ID_COMPAQ		0x0e11
+ #define PCI_DEVICE_ID_COMPAQ_TOKENRING	0x0508
+ #define PCI_DEVICE_ID_COMPAQ_1280	0x3033
+@@ -380,6 +383,10 @@
+ #define PCI_DEVICE_ID_OPTI_82C861	0xc861
+ #define PCI_DEVICE_ID_OPTI_82C825	0xd568
+ 
++#define PCI_VENDOR_ID_ELSA		0x1048
++#define PCI_DEVICE_ID_ELSA_MIRCOLINK	0x1000
++#define PCI_DEVICE_ID_ELSA_QS3000	0x3000
++
+ #define PCI_VENDOR_ID_SGS		0x104a
+ #define PCI_DEVICE_ID_SGS_2000		0x0008
+ #define PCI_DEVICE_ID_SGS_1764		0x0009
+@@ -561,15 +568,20 @@
+ #define PCI_DEVICE_ID_WINBOND_83769	0x0001
+ #define PCI_DEVICE_ID_WINBOND_82C105	0x0105
+ #define PCI_DEVICE_ID_WINBOND_83C553	0x0565
++#define PCI_DEVICE_ID_WINBOND_6692	0x6692
+ 
+ #define PCI_VENDOR_ID_DATABOOK		0x10b3
+ #define PCI_DEVICE_ID_DATABOOK_87144	0xb106
+ 
+ #define PCI_VENDOR_ID_PLX		0x10b5
++#define PCI_DEVICE_ID_SATSAGEM_NICCY	0x1016
++#define PCI_DEVICE_ID_PLX_R685		0x1030
+ #define PCI_VENDOR_ID_PLX_ROMULUS	0x106a
+ #define PCI_DEVICE_ID_PLX_SPCOM800	0x1076
+ #define PCI_DEVICE_ID_PLX_1077		0x1077
+ #define PCI_DEVICE_ID_PLX_SPCOM200	0x1103
++#define PCI_DEVICE_ID_PLX_DJINN_ITOO	0x1151
++#define PCI_DEVICE_ID_PLX_R753		0x1152
+ #define PCI_DEVICE_ID_PLX_9050		0x9050
+ #define PCI_DEVICE_ID_PLX_9060		0x9060
+ #define PCI_DEVICE_ID_PLX_9060ES	0x906E
+@@ -798,6 +810,11 @@
+ #define PCI_DEVICE_ID_PHILIPS_SAA7145	0x7145
+ #define PCI_DEVICE_ID_PHILIPS_SAA7146	0x7146
+ 
++#define PCI_VENDOR_ID_EICON		0x1133
++#define PCI_DEVICE_ID_EICON_DIVA20	0xe002
++#define PCI_DEVICE_ID_EICON_DIVA20_U	0xe004
++#define PCI_DEVICE_ID_EICON_DIVA201	0xe005
++
+ #define PCI_VENDOR_ID_CYCLONE		0x113c
+ #define PCI_DEVICE_ID_CYCLONE_SDK	0x0001
+ 
+@@ -1328,6 +1345,7 @@
+ 
+ #define PCI_VENDOR_ID_TIGERJET		0xe159
+ #define PCI_DEVICE_ID_TIGERJET_300	0x0001
++#define PCI_DEVICE_ID_TIGERJET_100	0x0002
+ 
+ #define PCI_VENDOR_ID_ARK		0xedd8
+ #define PCI_DEVICE_ID_ARK_STING		0xa091
 
-	while (filp->f_pos < inode->i_size) {
-		if (!bh)
-			bh = isofs_bread(block);
-
-		hs += block << bufbits;
-
-		if (hs == 0)
-			filp->f_pos++;
-
-		if (offset >= bufsize)
-			offset &= bufsize - 1;
-
-		if (*bh)
-			filp->f_pos++;
-
-		filp->f_pos++;
-	}
-	return 0;
-}
-
-struct super_block s;
-struct inode i;
-struct file f;
-
-int
-main(int argc, char **argv){
-	s.s_blocksize = 512;
-	s.s_blocksize_bits = 9;
-	i.i_size = 2048;
-	i.i_sb = &s;
-	f.f_pos = 0;
-
-	do_isofs_readdir(&i,&f);
-	return 0;
-}
+--DocE+STaALJfprDB--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

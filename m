@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUIUIKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUIUINX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266741AbUIUIKb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 04:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUIUIKb
+	id S267391AbUIUINX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 04:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267180AbUIUINW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 04:10:31 -0400
-Received: from styx.suse.cz ([82.119.242.94]:62080 "EHLO shadow.ucw.cz")
-	by vger.kernel.org with ESMTP id S266741AbUIUIK3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 04:10:29 -0400
-Date: Tue, 21 Sep 2004 10:10:47 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Boot failure with 2.6.9-rc2-bk latest in usb/hid-core.c
-Message-ID: <20040921081047.GA10757@ucw.cz>
-References: <1095610092.10887.16.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 21 Sep 2004 04:13:22 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:56592 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267391AbUIUINP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Sep 2004 04:13:15 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: help with next generation bkbits please
+Date: Tue, 21 Sep 2004 11:13:05 +0300
+User-Agent: KMail/1.5.4
+References: <20040921012208.GA16008@work.bitmover.com>
+In-Reply-To: <20040921012208.GA16008@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1095610092.10887.16.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200409211113.05614.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 19, 2004 at 12:08:04PM -0400, James Bottomley wrote:
+On Tuesday 21 September 2004 04:22, Larry McVoy wrote:
+> Hi,
+> 
+> we're trying to upgrade bkbits.net for your pushing&pulling pleasure
+> and we're having some problems.
+> 
+> We wanted to throw lots of memory at the problem so we went with an
+> ASUS SK8V motherboard, opteron 148, 4 x 1GB registered / ECC dimms.
+> We thought we would be careful so we bought dimms that ASUS claims works.
+> 
+> We can't get the system to stabilize and we're looking for either 
+>     a) information on how to do that or
+>     b) a suggestion for a machine which will support 4GB or more
+> 
+> What we are currently seeing looks like a cache writeback problem.
+> I have a simple memory scrubber, see below, which just cycles through a
+> series of patterns, verifying the previous one and writing a new one,
+> switch pattern, repeat until pattern list is exhausted, then loop.
+> We cycle through the offset into the array, 0xdeadbeef, 0x50505050,
+> 0x0a0a0a0a, 0x55555555, 0xaaaaaaaa, 0, 0xffffffff.
+> 
+> What we see is that for 16x4 bytes in a row we will get errors where
+> what we get is the previous value.  In other words, we just went through
 
-> I get this out of the machine (an ia64 zx2000 with connected USB
-> keyboard and mouse):
+Show the output of scrubber. Does it happen on random addresses?
+Same address? With which sizes (L1/L2/main RAM) does it happen? etc...
 
-> usb usb1: Product: NEC Corporation USB
-> usb usb1: Manufacturer: Linux 2.6.9-rc2 ohci_hcd
-> usb usb2: Product: NEC Corporation USB (#2)
-> usb usb2: Manufacturer: Linux 2.6.9-rc2 ohci_hcd
-> usb 1-2: Product: Standard USB Keyboard 
-> usb 1-2: Manufacturer: Silitek
-> usbcore: registered new driver hiddev
-> input: USB HID v1.00 Keyboard [Silitek Standard USB Keyboard ] on usb-0000:a0:01.0-2
-> usb 2-2: Product: N48
-> usb 2-2: Manufacturer: Logitech
-> input: USB HID v1.00 Mouse [Logitech N48] on usb-0000:a0:01.1-2
+> a loop that verified that all the data is 0xdeadbeef and then set it
+> to 0x50505050, and then in the next loop 16 values will be 0xdeadbeef.
+> In other words, it looks like the cache writeback didn't work, it's as
+> if the dirty bits were cleared for some reason.
 
-> ACPI: PCI interrupt 0000:a0:01.2[C] -> GSI 40 (level, low) -> IRQ 59
-> ehci_hcd 0000:a0:01.2: NEC Corporation USB 2.0
-> ehci_hcd 0000:a0:01.2: USB 2.0 enabled, EHCI 0.95, driver 2004-May-10
-> drivers/usb/input/hid-core.c: input irq status -110 received
-> drivers/usb/input/hid-core.c: input irq status -110 received
-> [the last message repeats forever]
+64 bytes is a cacheline size for Opteron. You may have a faulty CPU.
+--
+vda
 
-> It boots just fine with 2.6.9-rc2 and the only difference to the usb
-> input subsystem appears to be your latest merge.
-
-There were changes in the function that prints the above message,
-however they were indentation only. I really doubt it could be the HID
-changes I did.
-
-It looks like there is either a problem with ACPI IRQ routing that when
-enabling the EHCI controller IRQ does something bad to the OHCI
-controllers, or the EHCI driver itself does something bad to the OHCI
-controllers. (Afte all, the controllers share their ports.)
-
-Try disabling EHCI in your config to confirm my theory.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

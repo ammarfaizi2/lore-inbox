@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUEPLNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263565AbUEPLac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUEPLNy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 07:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUEPLNy
+	id S263565AbUEPLac (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 07:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263557AbUEPLac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 07:13:54 -0400
-Received: from pop.gmx.de ([213.165.64.20]:49594 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263540AbUEPLNx (ORCPT
+	Sun, 16 May 2004 07:30:32 -0400
+Received: from [62.38.236.120] ([62.38.236.120]:31180 "EHLO pfn1.pefnos")
+	by vger.kernel.org with ESMTP id S263574AbUEPLaa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 07:13:53 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Daniele Venzano <webvenza@libero.it>
-Subject: Re: problem with sis900
-Date: Sun, 16 May 2004 13:21:49 +0200
+	Sun, 16 May 2004 07:30:30 -0400
+From: "P. Christeas" <p_christ@hol.gr>
+To: Jan De Luyck <lkml@kcore.org>
+Subject: [2.6.6] Synaptics driver is 'jumpy'
+Date: Sun, 16 May 2004 14:27:44 +0300
 User-Agent: KMail/1.6.2
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <1084300104.24569.8.camel@datacontrol> <200405151412.09233.dominik.karall@gmx.net> <20040515165641.GA1608@gateway.milesteg.arr>
-In-Reply-To: <20040515165641.GA1608@gateway.milesteg.arr>
+Cc: lkml <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405161321.50052.dominik.karall@gmx.net>
+Message-Id: <200405161427.44859.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 15 May 2004 18:56, Daniele Venzano wrote:
-> On Sat, May 15, 2004 at 02:12:08PM +0200, Dominik Karall wrote:
-> > But the patch did not apply, so I patched it by hand. To be sure that the
-> > file was correctly patched by me, I attached it here.
->
-> Applying the patch by hand, you forgot a piece, try to apply the patch
-> to a clean, unmodified 2.6.6 sis900.c.
+> Hello List,
+> 
+> Since installing 2.6.6 on my trusty laptop, I can't use the built-in 
+synaptics
+> touchpad anymore. The tracking is totally broken:
+> 
+> When you touch-drag on the touchpad, the mouse cursor will jump to where you
+> stopped your action approx. 1/1.5 seconds _after_ your move. This makes 
+using
+> the touchpad virtually impossible.
+> 
+> This problem is not present under 2.6.5, which I'm running right now.
+> Same .config.
+> 
+> Nothing seems to show up in the logs that could reflect any problem.
+> 
+> Any pointers?
+> 
+> Jan
+> 
 
-Same error messages again. I used an unmodified sis900.c from the 2.6.6 kernel 
-and applied the diff successfully. But it does not help.
+Under normal load this shouldn't happen. It could only have to do with 
+interrupts from PS/2 port.
+However, this shows the actual problem with using Synaptics' absolute mode. I 
+vote against having this as the default setting.
+In the absolute mode, the CPU must process the absolute movements of the 
+finger in order to translate them to mouse movements. That means that, under 
+some system load, the mouse will not respond smoothly any more. I wouldn't 
+like to have increased priority or so just for the mouse.
+In the relative mode, the touchpad processor calculates the movements and 
+queues them as mouse events to the PS/2. This buffering provides smooth 
+movement even under heavy CPU usage. The downside is that in relative mode, 
+the touchpad has no adjustments (only default ones) and no extra features 
+(Z-axis, scroll zones). It may even not have the middle button (which I'm 
+missing most)
+Perhaps we should ask Synaptics for a better relative mode. AFAIK the PIC 
+processor inside the touchpad is not upgradeable, but future models could 
+offer better code..
 
-> Also, did you try to boot with the network cable plugged in ? The
-> probing code has special case for transciever with link status on.
-> If you want to try this, please use an unpatched kernel.
+Try running the touchpad in relative mode, with 'options psmouse proto=exps' 
+at /etc/modprobe.conf, which disables the Synaptics (i.e. absolute mode).
 
-My network cable is plugged in all the time, connected to a switch.
-
-> Thanks for testing.
-
-Thanks for help!

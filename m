@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266302AbUFUQWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266303AbUFUQ1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266302AbUFUQWL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 12:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266299AbUFUQWL
+	id S266303AbUFUQ1N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 12:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264191AbUFUQ1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 12:22:11 -0400
-Received: from [80.72.36.106] ([80.72.36.106]:21126 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S266302AbUFUQWI (ORCPT
+	Mon, 21 Jun 2004 12:27:13 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:44687 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S266303AbUFUQ1L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 12:22:08 -0400
-Date: Mon, 21 Jun 2004 18:22:02 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Memory and rsync problem with vanilla 2.6.7
-In-Reply-To: <40D5A305.80807@yahoo.com.au>
-Message-ID: <Pine.LNX.4.58.0406211815560.16728@alpha.polcom.net>
-References: <20040426013944.49a105a8.akpm@osdl.org>
- <Pine.LNX.4.58.0404270105200.2304@donald.themaw.net>
- <Pine.LNX.4.58.0404261917120.24825@alpha.polcom.net>
- <Pine.LNX.4.58.0404261102280.19703@ppc970.osdl.org>
- <Pine.LNX.4.58.0404262350450.3003@alpha.polcom.net>
- <Pine.LNX.4.58.0406191841050.6160@alpha.polcom.net>
- <Pine.LNX.4.58.0406191040170.6178@ppc970.osdl.org> <40D508E8.2050407@yahoo.com.au>
- <Pine.LNX.4.58.0406201543520.22369@alpha.polcom.net>
- <Pine.LNX.4.58.0406201636380.29262@alpha.polcom.net> <40D5A305.80807@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jun 2004 12:27:11 -0400
+X-Sender-Authentication: net64
+Date: Mon, 21 Jun 2004 18:27:09 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Patch for 2.4 orinoco_pci.c for device 0x3872
+Message-Id: <20040621182709.5e2553df.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jun 2004, Nick Piggin wrote:
+Hello,
 
-> Grzegorz Kulewski wrote:
-> >>>Well it doesn't seem to have caused too much trouble as yet... But it
-> >>>is the obvious candidate if your problems continue. If you are not a
-> >>>bk user, the attached patch will also revert that change.
-> >>
-> >>Thanks, I will test it soon and I will report results. But I am not saying 
-> >>it is a bug - maybe it is simply change that can lead to problems with 
-> >>insane debug options but itself is good?
+the attached patch makes a Harris Semiconductor wireless device (3872) work,
+which is built into some series of Acer notebooks. It is tested for months and
+known to work (and obviously plain and simple).
 
-It maybe helps but very little. I can sync now one time. The second time I 
-always get timeouts. Without this patch I nearly never can do this one 
-time.
-
-Why the kernel keeps inodes and dentries even if it completly runs out of 
-memory?
+Regards,
+Stephan
 
 
-Thanks,
-
-Grzegorz Kulewski
-
+--- linux-2.4.27-rc1/drivers/net/wireless/orinoco_pci.c	2003-08-25 13:44:42.000000000 +0200
++++ linux-2.4.27-skraw/drivers/net/wireless/orinoco_pci.c	2004-06-18 22:27:52.000000000 +0200
+@@ -360,6 +360,7 @@
+ 
+ static struct pci_device_id orinoco_pci_pci_id_table[] __devinitdata = {
+ 	{0x1260, 0x3873, PCI_ANY_ID, PCI_ANY_ID,},
++	{0x1260, 0x3872, PCI_ANY_ID, PCI_ANY_ID,},
+ 	{0,},
+ };
+ 

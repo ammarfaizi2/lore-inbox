@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129164AbRCPMeu>; Fri, 16 Mar 2001 07:34:50 -0500
+	id <S129282AbRCPMvk>; Fri, 16 Mar 2001 07:51:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129282AbRCPMel>; Fri, 16 Mar 2001 07:34:41 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:29715 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129164AbRCPMe0>; Fri, 16 Mar 2001 07:34:26 -0500
-Date: Fri, 16 Mar 2001 08:50:25 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: george anzinger <george@mvista.com>, Alexander Viro <viro@math.psu.edu>,
-        linux-mm@kvack.org, bcrl@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: changing mm->mmap_sem  (was: Re: system call for process
- information?)
-In-Reply-To: <20010316094918.F30889@redhat.com>
-Message-ID: <Pine.LNX.4.21.0103160844300.5790-100000@imladris.rielhome.conectiva>
+	id <S129321AbRCPMva>; Fri, 16 Mar 2001 07:51:30 -0500
+Received: from ecstasy.ksu.ru ([193.232.252.41]:59048 "EHLO ecstasy.ksu.ru")
+	by vger.kernel.org with ESMTP id <S129282AbRCPMvR>;
+	Fri, 16 Mar 2001 07:51:17 -0500
+X-Pass-Through: Kazan State University network
+Message-ID: <3AB20865.2070804@ksu.ru>
+Date: Fri, 16 Mar 2001 15:34:45 +0300
+From: Art Boulatov <art@ksu.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test10-pre5-reiserfs-3.6.18-acpi-i2c i686; en-US; 0.7) Gecko/20010203
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mike Galbraith <mikeg@wen-online.de>
+CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: pivot_root & linuxrc problem
+In-Reply-To: <Pine.LNX.4.33.0103160822350.1057-100000@mikeg.weiden.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Mar 2001, Stephen C. Tweedie wrote:
-> On Thu, Mar 15, 2001 at 09:24:59AM -0300, Rik van Riel wrote:
-> > On Wed, 14 Mar 2001, Rik van Riel wrote:
+Mike Galbraith wrote:
+
+........
+
 > 
-> > The mmap_sem is used in procfs to prevent the list of VMAs
-> > from changing. In the page fault code it seems to be used
-> > to prevent other page faults to happen at the same time with
-> > the current page fault (and to prevent VMAs from changing
-> > while a page fault is underway).
+> Aha.. so that's it.  I've never been able to get /linuxrc to execute
+> automagically.  I wonder why /linuxrc executes on Art's system, but
+> not on mine.  I can call it whatever I want and it doesn't run unless
+> I explicitly start it with init=whatever.
 > 
-> The page table spinlock should be quite sufficient to let us avoid
-> races in the page fault code.
-
-> > Write locks would be used in the code where we actually want
-> > to change the VMA list and page faults would use an extra lock
-> > to protect against each other (possibly a per-pagetable lock
+> If it does execute though, that explains init complaining.. pid is
+> going to be whatever comes after the last thread started (would be
+> 8 here).  It looks like you're only supposed to do setup things in
+> magic filename /linuxrc and not exec /sbin/init from there.
 > 
-> Why do we need another lock?  The critical section where we do the
-> final update on the pte _already_ takes the page table spinlock to
-> avoid races against the swapper.
+> In any case, it looks like renaming linuxrc to whatever.sh and booting
+> with init=/whatever.sh instead will likely make init happy.
+> 
+> 	-Mike
+> 
+> 
+Thank you for your answers, Mike and Russell.
 
-The problem is that mmap_sem seems to be protecting the list
-of VMAs, so taking _only_ the page_table_lock could let a VMA
-change under us while a page fault is underway ...
+They made me sure something weird going on with my setup.
+And I think a have figured the problem.
+I was using etherboot to boot the kernel and initrd.
+I should have told you that before, and I'm sorry I did not.
 
-Then again, I guess just making mmap_sem a R/W lock should fix
-our problems ... and maybe even make it possible (in 2.5?) to
-let multithreaded programs have pagefaults at the same time,
-instead of having all threads queue up behind mmap_sem.
+Bootin' localy, with lilo,  seems to  solve the "PID problem".
 
-regards,
+I guess that's more of mknbi from etherboot question than kernel-related...
+I  have to check more in depth the etherboot documenation/sources.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Art.
 

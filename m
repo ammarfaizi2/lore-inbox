@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTENCTw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 22:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTENCTw
+	id S262805AbTENCTs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 22:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263212AbTENCTs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 22:19:52 -0400
-Received: from dsl081-085-006.lax1.dsl.speakeasy.net ([64.81.85.6]:64182 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id S263212AbTENCTu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 22:19:50 -0400
-Message-ID: <3EC1AAC4.1010104@tmsusa.com>
-Date: Tue, 13 May 2003 19:32:36 -0700
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shawn <core@enodev.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: odd db4 error with 2.5.69-mm4 [was Re: Huraaa for 2.5]
-References: <1052866461.23191.4.camel@www.enodev.com>	 <20030514012731.GF8978@holomorphy.com> <1052877161.3569.17.camel@www.enodev.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 May 2003 22:19:48 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43886 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262805AbTENCTr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 22:19:47 -0400
+Date: Tue, 13 May 2003 22:32:33 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200305140232.h4E2WXF15208@devserv.devel.redhat.com>
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+In-Reply-To: <mailman.1052866140.9783.linux-kernel2news@redhat.com>
+References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk> <20030513163854.A27407@infradead.org> <20030513131754.7f96d4d0.akpm@digeo.com> <mailman.1052866140.9783.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn wrote:
+> On Tue, May 13, 2003 at 01:17:54PM -0700, Andrew Morton wrote:
+> > But I do not view non-ia32 support as being a 2.6.0 requirement.  I'd be OK
+> > with 2.6.0 working _only_ on ia32.  Other architectures will catch up when
+> > they can.  The only core requirement is that 2.6.0 not contain gross
+> > x86isms which make other ports impossible.
 
->Not to get away from the praise too much, but I have a rpm/db4 problem
->that seems to be related to the kernel. before I started backing out
->parts of 69-mm4, I just wanted to figure out /which/ parts to try
->backing out.
->
->As root, I basically can't use rpm at all. I think it's select() related
->as strace shows it timing out. The odd thing is that it works great as a
->non-privileged user.
->
->2.5.69-mm4, otherwise mostly stock rh90 setup.
->
+> Once we're into 2.6.x though, would it be unfeasable to hold off on
+> final point releases until arch maintainers have sent in a 'make things
+> work for this release' diff ? Ie, make rc's "strict bugfixes only, and
+> arch updates" [...]
 
-Just out of curiosity, have you tried:
+> Though, for some archs (sparc32 springs to mind), we may end up waiting
+> quite a while, so perhaps just settle on a handful of 'to be kept
+> up-to-date' archs ?
 
-LD_KERNEL_ASSUME=2.4.1 rpm -qi iptables
+Why does the sparc(32) spring to mind, in particular?
+It is likely to be in better shape than sh or mips.
+I'm injured (not that anyone cares, but just for the record).
 
-OTOH, rpm-4.2-1 seems to "just work" here -
+I agree with Andrew on the whole though. More, it's not about
+being first tier architecture, or a second tier architecture.
+It's about being up to date. I know at least one first tier
+architecture which is fond of taking removed features and
+reimplementing them inder arch/foo, inventing wheels (sometimes
+square) and generally being not up to date.
 
-where "here" is of the form:
-
-2.5.6x on RH9
-
-Joe
-
-
-
+-- Pete

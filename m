@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbUKDEwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262068AbUKDEzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbUKDEwM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 23:52:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbUKDEwL
+	id S262068AbUKDEzi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 23:55:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbUKDEzi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 23:52:11 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:39678 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262064AbUKDEwD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 23:52:03 -0500
-Date: Thu, 4 Nov 2004 10:30:39 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 0/6] AIO wait bit support
-Message-ID: <20041104050039.GA4087@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20041103091036.GA4041@in.ibm.com> <20041103092311.GB2583@holomorphy.com>
+	Wed, 3 Nov 2004 23:55:38 -0500
+Received: from ozlabs.org ([203.10.76.45]:38105 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262068AbUKDEzc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 23:55:32 -0500
+Subject: Re: [PATCH] [CPU-HOTPLUG] convert cpucontrol to be a rwsem
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Dominik Brodowski <linux@dominikbrodowski.de>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041102222819.GA16414@dominikbrodowski.de>
+References: <20041101084337.GA7824@dominikbrodowski.de>
+	 <Pine.LNX.4.61.0411010656380.19123@musoma.fsmlabs.com>
+	 <20041102222819.GA16414@dominikbrodowski.de>
+Content-Type: text/plain
+Date: Thu, 04 Nov 2004 12:57:17 +1100
+Message-Id: <1099533437.7143.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041103092311.GB2583@holomorphy.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 01:23:11AM -0800, William Lee Irwin III wrote:
-> On Wed, Nov 03, 2004 at 02:40:36PM +0530, Suparna Bhattacharya wrote:
-> > The series of patches that follow integrate AIO with 
-> > William Lee Irwin's wait bit changes, to support asynchronous
-> > page waits.
-> 
-> Thank you for pursuing this. I apologize for not participating more
-> directly in the follow-up.
-> 
-> I also apologize for mentioning this, but I'm disturbed by current
-> events right now, so I won't be evaluating these in any technical
-> sense for at least a few days.
+On Tue, 2004-11-02 at 23:28 +0100, Dominik Brodowski wrote:
+> Except that we don't want to (and can't[*]) disable preemption in the
+> cpufreq case. Therefore, we __need__ to disable CPU hotplug specifically,
+> and not meddle with other issues like preemption, scheduling, CPUs which are
+> in the allowed_map, and so on. So back to the original patch: Rusty, do you
+> agree with it?
 
-The main change to the wait bit code is the addition of a wait queue
-argument to the action routine, and abstracting the wait bit key
-check into a separate function. Rest of the stuff is mostly in aioland.
+Sure.  I consider it a trivial change.  The reason it wasn't a rwsem in
+the first place is that there weren't many places which needed to grab
+it, and none were time-sensitive.
 
-Regards
-Suparna
-
-> 
-> 
-> -- wli
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-aio' in
-> the body to majordomo@kvack.org.  For more info on Linux AIO,
-> see: http://www.kvack.org/aio/
-> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
-
+Thanks!
+Rusty.
 -- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

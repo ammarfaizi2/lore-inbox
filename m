@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265270AbSKRW2s>; Mon, 18 Nov 2002 17:28:48 -0500
+	id <S265125AbSKRWGr>; Mon, 18 Nov 2002 17:06:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbSKRW0x>; Mon, 18 Nov 2002 17:26:53 -0500
-Received: from gasko.hitnet.RWTH-Aachen.DE ([137.226.181.85]:62737 "EHLO
-	moria.gondor.com") by vger.kernel.org with ESMTP id <S265270AbSKRW03>;
-	Mon, 18 Nov 2002 17:26:29 -0500
-Date: Mon, 18 Nov 2002 23:33:30 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: Rashmi Agrawal <rashmi.agrawal@wipro.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Failover in NFS
-Message-ID: <20021118223330.GA751@gondor.com>
-References: <3DD90197.4DDEEE61@wipro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DD90197.4DDEEE61@wipro.com>
-User-Agent: Mutt/1.4i
+	id <S265171AbSKRWGq>; Mon, 18 Nov 2002 17:06:46 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29453 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265125AbSKRWGC>;
+	Mon, 18 Nov 2002 17:06:02 -0500
+Message-ID: <3DD965EE.5010008@pobox.com>
+Date: Mon, 18 Nov 2002 17:13:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mike Dresser <mdresser_l@windsormachine.com>
+CC: list linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RTL8139D support for 2.4?
+References: <Pine.LNX.4.33.0211181657310.27512-100000@router.windsormachine.com>
+In-Reply-To: <Pine.LNX.4.33.0211181657310.27512-100000@router.windsormachine.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 08:34:55PM +0530, Rashmi Agrawal wrote:
-> 2. If nfs server node crashes, I need to failover to another node
-> wherein I need to have access
-> to the lock state of the previous server and I need to tell the clients
-> that the IP address of the
-> nfs server node has changed. IS IT POSSIBLE or what can be done to
-> implement it?
+grrr, Mozilla cannot seem to quote your message properly.  anyway...
 
-Have a look at drbd, http://www.complang.tuwien.ac.at/reisner/drbd/.
-Using that, together with heartbeat, you can build a nice failover nfs
-server.
+Given the output you just provided, 8139too is indeed the only driver 
+that will work for you.
 
-Jan
+WRT pci-skeleton.c I think that is a red herring for you... 8139cp 
+support is available from 8139cp.c.  But given the lspci output, it will 
+not work for you...
+
+thanks!
+
+	Jeff
+
+
 

@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270766AbTHDL4S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 07:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271707AbTHDL4S
+	id S271389AbTHDMKp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 08:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271707AbTHDMKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 07:56:18 -0400
-Received: from mail-8.tiscali.it ([195.130.225.154]:60349 "EHLO
-	mail-8.tiscali.it") by vger.kernel.org with ESMTP id S270766AbTHDL4P convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 07:56:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniele Bellucci <bellucda@tiscali.it>
-Reply-To: bellucda@tiscali.it
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.6.0-test2-mm4
-Date: Mon, 4 Aug 2003 13:56:03 +0200
-User-Agent: KMail/1.4.3
-References: <20030804013036.16d9fa3a.akpm@osdl.org>
-In-Reply-To: <20030804013036.16d9fa3a.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308041356.03739.bellucda@tiscali.it>
+	Mon, 4 Aug 2003 08:10:45 -0400
+Received: from uni03du.unity.ncsu.edu ([152.1.13.103]:11904 "EHLO
+	uni03du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S271389AbTHDMKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 08:10:44 -0400
+From: jlnance@unity.ncsu.edu
+Date: Mon, 4 Aug 2003 08:10:43 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm3
+Message-ID: <20030804121043.GA1269@ncsu.edu>
+References: <20030802152202.7d5a6ad1.akpm@osdl.org> <20030802223140.GA25501@outpost.ds9a.nl> <20030802164205.5cc42edc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030802164205.5cc42edc.akpm@osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 02, 2003 at 04:42:05PM -0700, Andrew Morton wrote:
 
-make all:
+> Bolting 64G of memory onto a 32-bit CPU is tasteless too...
+> 
+> We already have a bucketload of highmem hacks in the kernel, and they are
+> not sufficient for some people.  We have several more (large) highmem hacks
+> being proposed.
 
-mm/usercopy.c: In function `pin_page':
-mm/usercopy.c:55: warning: implicit declaration of function `in_atomic'
-mm/built-in.o: In function `rw_vm':
-/usr/src/linux-2.6.0-test2-mm4/mm/usercopy.c:55: undefined reference to `in_atomic'
-make: *** [.tmp_vmlinux1] Error 1
+Do you see us removing the other highmem hacks if we add the 4G/4G patch?
 
-seems like #include <linux/interrupt.h> is missing.
+Thanks,
 
-
-diff -urN 1.0/mm/usercopy.c 1.1/mm/usercopy.c
---- 1.0/mm/usercopy.c	2003-08-04 13:46:22.000000000 +0200
-+++ 1.1/mm/usercopy.c	2003-08-04 13:46:39.000000000 +0200
-@@ -15,6 +15,7 @@
- #include <linux/pagemap.h>
- #include <linux/smp_lock.h>
- #include <linux/ptrace.h>
-+#include <linux/interrupt.h>
- 
- #include <asm/pgtable.h>
- #include <asm/uaccess.h>
-
-
+Jim

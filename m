@@ -1,41 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKHWkH>; Wed, 8 Nov 2000 17:40:07 -0500
+	id <S129145AbQKHWm5>; Wed, 8 Nov 2000 17:42:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129145AbQKHWj6>; Wed, 8 Nov 2000 17:39:58 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:18696 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129097AbQKHWjs>;
-	Wed, 8 Nov 2000 17:39:48 -0500
-Message-ID: <3A09D60F.2A5C1990@mandrakesoft.com>
-Date: Wed, 08 Nov 2000 17:39:11 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129295AbQKHWmr>; Wed, 8 Nov 2000 17:42:47 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:14907 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129145AbQKHWmc>; Wed, 8 Nov 2000 17:42:32 -0500
+Subject: Re: Pentium IV-summary##
+To: fdavis112@juno.com (Frank Davis)
+Date: Wed, 8 Nov 2000 22:43:33 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@orguk.ukuu.org.uk, fdavis112@juno.com
+In-Reply-To: <390875121.973714466615.JavaMail.root@web694-wra.mail.com> from "Frank Davis" at Nov 08, 2000 03:14:21 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: David Feuer <David_Feuer@brown.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia
-In-Reply-To: <4.3.2.7.2.20001108172304.00adb270@postoffice.brown.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E13tdwN-0000Vh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Feuer wrote:
-> 
-> What is the current status of PC-card support?  I've seen ominous signs on
-> this list about the state of support....  I have a laptop with a PCMCIA
-> network card (a 3com thing). Will it work?
+> that overwrites the capability state. It will be fixed in 2.2.18  by Dave Jones. Should we also look at Peter Anvin's fix for the problem that Linus mentioned? What are the other features of the Pentium IV should be included in the kernel pending the capability state fix?
 
-It should, yes.  Enable hotplug, cardbus, and 3com vortex/boomerang
-support...
+I'll send Linus the 2.2.18pre equivalent fix
 
--- 
-Jeff Garzik             | "When I do this, my computer freezes."
-Building 1024           |          -user
-MandrakeSoft            | "Don't do that."
-                        |          -level 1
+Alan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

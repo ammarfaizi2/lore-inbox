@@ -1,30 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281092AbRKEMYK>; Mon, 5 Nov 2001 07:24:10 -0500
+	id <S281090AbRKEMXk>; Mon, 5 Nov 2001 07:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281095AbRKEMYB>; Mon, 5 Nov 2001 07:24:01 -0500
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:2323 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S281092AbRKEMXs>; Mon, 5 Nov 2001 07:23:48 -0500
-Date: Mon, 5 Nov 2001 13:23:46 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: disk throughput
-Message-ID: <20011105132346.B5805@emma1.emma.line.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>
-User-Agent: Mutt/1.3.22.1i
+	id <S281095AbRKEMXa>; Mon, 5 Nov 2001 07:23:30 -0500
+Received: from router.idknet.com ([193.41.117.4]:53911 "EHLO router.idknet.com")
+	by vger.kernel.org with ESMTP id <S281092AbRKEMXL>;
+	Mon, 5 Nov 2001 07:23:11 -0500
+Message-ID: <015001c165f4$c7f0fed0$05dda8c0@maxim>
+From: "MaxiM Basunov" <maxim@idknet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Page cache
+Date: Mon, 5 Nov 2001 14:24:12 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 04 Nov 2001, Andrew Morton wrote:
+Hello.
 
-> Numbers.  The machine has 768 megs; the disk is IDE with a two meg cache.
-> The workload consists of untarring, tarring, diffing and removing kernel
-> trees. This filesystem is 21 gigs, and has 176 block groups.
+I have server with 1G RAM.
+And i want to run Oracle WITHOUT swapping it to disk...
 
-Does that IDE disk run with its write cache enabled or disabled?
+how to reduce desires of a kernel about page cache?
+Mem:  1028692K av, 1023600K used,    5092K free, 678340K cached...
+
+if i disable swap, linux runs kswapd with "load average 35"...
+
+Kernel 2.4.9
+
+System administrator Maxim Basunov
+Tiraspol, Interdnestrcom
+

@@ -1,75 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbUJ1OZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbUJ1OZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbUJ1OZq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 10:25:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbUJ1OXb
+	id S261305AbUJ1OZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 10:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUJ1OWv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 10:23:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8323 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261609AbUJ1OVl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 10:21:41 -0400
-Message-ID: <41810066.5000705@pobox.com>
-Date: Thu, 28 Oct 2004 10:21:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: [PATCH] Fix e100 suspend/resume w/ 2.6.10-rc1 and above (due
- to pci_save_state change)
-References: <20041028025536.5d9b1067.akpm@osdl.org>
-In-Reply-To: <20041028025536.5d9b1067.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 10:22:51 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:49056 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261305AbUJ1OTF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 10:19:05 -0400
+Date: Thu, 28 Oct 2004 16:20:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+Message-ID: <20041028142016.GA27593@elte.hu>
+References: <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041027130359.GA6203@elte.hu> <4180FEBB.5020802@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4180FEBB.5020802@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> Begin forwarded message:
-> 
-> Date: Thu, 28 Oct 2004 17:34:19 +0800 (CST)
-> From: "Zhu, Yi" <yi.zhu@intel.com>
-> To: Andrew Morton <akpm@osdl.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: [PATCH] Fix e100 suspend/resume w/ 2.6.10-rc1 and above (due to pci_save_state change)
-> 
-> 
-> 
-> Hi,
-> 
-> Recent 2.6.10-rc1 merged the pci_save_state change. This prevents some
-> drivers from working with suspend/resume. The reason is the
-> pci_save_state() called in driver's ->suspend doesn't take effect any more,
-> since pci bus ->suspend will override it. And the two states might be
-> different in some drivers, i.e. e100. I don't know if there are other
-> drivers also suffer from it.
-> 
-> Thanks,
-> -yi
-> 
-> 
-> Signed-off-by: Zhu Yi <yi.zhu@intel.com>
-> 
-> --- /tmp/e100.c	2004-10-28 16:31:41.000000000 +0800
-> +++ drivers/net/e100.c	2004-10-28 16:33:14.000000000 +0800
-> @@ -2309,9 +2309,7 @@ static int e100_suspend(struct pci_dev *
->  
-> -	pci_save_state(pdev);
->  	pci_enable_wake(pdev, state, nic->flags & (wol_magic | e100_asf(nic)));
-> -	pci_disable_device(pdev);
->  	pci_set_power_state(pdev, state);
 
+* K.R. Foley <kr@cybsft.com> wrote:
 
-I'm waiting for Greg to respond to the serious concerns raised by 
-BenH[1] and me[2].
+> I have been having problems on my UP system at home with all of the
+> more recent patches (since U10.X). Some would boot and then the
+> networking was severely busted (slowdowns, hangs, etc.), some would
+> not even boot.  V0.4.3 was of the no boot variety. Just for grins I
+> disabled kudzu, and the thing boots fine with no networking or other
+> problems. This very well may have been a fluke, but I have
+> successfully booted this kernel twice now. It did hang on a reboot at
+> the point when it should have been doing the actual reboot and I had
+> to press the button. I didn't have time this morning to turn kudzu
+> back on to see if was just a fluke that it didn't boot the first time.
+> Not sure what, if anything, this means, but V0.4.3 is running very
+> nicely on my UP system with no lag or noticeable problems.
 
-AFAICS, Greg has broken the standard Linux "driver knows it, driver does 
-it" model.
+just to make sure - could try to run kudzu manually after bootup and
+observe what happens? Do you have a udev based system? I recently
+corrupted my udev database via a crash and had to remove the
+/dev/.udev.tdb file and had to regenerate it via 'udevstart'. (be
+careful doing that though, it might mess up your system.) The symtoms
+were a hung kudzu - while in reality it 'hung' because udev and udevinfo
+processes looped in userspace forever. Weirdly, the stock Fedora kernel
+didnt hang in this same phase, so there might still be a
+PREEMPT_REALTIME bug here.
 
-	Jeff
-
-
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=109867742404637&w=2
-[2] http://marc.theaimsgroup.com/?l=linux-kernel&m=109868495426108&w=2
+	Ingo

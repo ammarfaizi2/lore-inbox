@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbUBWDMc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 22:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbUBWDMc
+	id S261777AbUBWDSG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 22:18:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUBWDSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 22:12:32 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60358 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261755AbUBWDMa (ORCPT
+	Sun, 22 Feb 2004 22:18:06 -0500
+Received: from gate.crashing.org ([63.228.1.57]:34992 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261777AbUBWDSD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 22:12:30 -0500
-Date: Sun, 22 Feb 2004 19:13:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Steven J. Hill" <sjhill@realitydiluted.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] 2.6.2, Partition support for SCSI CDROM...
-Message-Id: <20040222191313.19231879.akpm@osdl.org>
-In-Reply-To: <40396E8F.4050307@realitydiluted.com>
-References: <40396134.6030906@realitydiluted.com>
-	<20040222190047.01f6f024.akpm@osdl.org>
-	<40396E8F.4050307@realitydiluted.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 22 Feb 2004 22:18:03 -0500
+Subject: [PATCH] Disable debugging verbosity in macio_asic.c
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1077505858.5942.31.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 23 Feb 2004 14:10:58 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Steven J. Hill" <sjhill@realitydiluted.com> wrote:
->
-> Andrew Morton wrote:
-> > 
-> >>+config BLK_DEV_SR_PARTITIONS
-> >>+config BLK_DEV_SR_PARTITIONS_PER_DEVICE
-> > 
-> > 
-> > Do we actually need these config options?  Why not hardwire it to some
-> > reasonable upper bound and be done with it?
-> >
-> I have no problem hardwiring the number of partitions, but the
-> BLK_DEV_SR_PARTITIONS should still be an option to allow the
-> user to decided if they want partitioning support for their
-> SCSI CDROMs. Or are you suggesting that from now on partitions
-> will be supported by default?
+Hi !
 
-Well we need to be able to handle both types at runtime anyway, and the
-amount of added code is tiny.
+This patch undef's DEBUG by default in macio_asic, this is now
+working fairly well, and the actual output isn't really useful
+anyway.
+
+===== drivers/macintosh/macio_asic.c 1.16 vs edited =====
+--- 1.16/drivers/macintosh/macio_asic.c	Fri Feb 13 10:18:00 2004
++++ edited/drivers/macintosh/macio_asic.c	Mon Feb 23 14:09:16 2004
+@@ -23,7 +23,7 @@
+ #include <asm/prom.h>
+ #include <asm/pci-bridge.h>
+ 
+-#define DEBUG
++#undef DEBUG
+ 
+ #define MAX_NODE_NAME_SIZE (BUS_ID_SIZE - 12)
+ 
+
 

@@ -1,76 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbUB0M1s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 07:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbUB0MZx
+	id S261813AbUB0M2F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 07:28:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUB0M2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 07:25:53 -0500
-Received: from darwin.snarc.org ([81.56.210.228]:10889 "EHLO darwin.snarc.org")
-	by vger.kernel.org with ESMTP id S262463AbUB0MXO (ORCPT
+	Fri, 27 Feb 2004 07:28:03 -0500
+Received: from unthought.net ([212.97.129.88]:8926 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262614AbUB0M1Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 07:23:14 -0500
-Date: Fri, 27 Feb 2004 13:23:11 +0100
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: about runqueues locking
-Message-ID: <20040227122311.GA28181@snarc.org>
+	Fri, 27 Feb 2004 07:27:16 -0500
+Date: Fri, 27 Feb 2004 13:27:14 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.25 - large inode_cache
+Message-ID: <20040227122714.GT29776@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+References: <20040226013313.GN29776@unthought.net> <20040226111912.GB4554@core.home> <Pine.LNX.4.58L.0402261004310.5003@logos.cnet> <20040226130344.GP29776@unthought.net> <Pine.LNX.4.58L.0402261109190.5003@logos.cnet> <20040226174338.GP1257@schnapps.adilger.int> <Pine.LNX.4.58L.0402261742090.8840@logos.cnet>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Email may contain unsmilyfied humor and/or satire.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Vincent Hanquez <tab@snarc.org>
+In-Reply-To: <Pine.LNX.4.58L.0402261742090.8840@logos.cnet>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 26, 2004 at 05:43:49PM -0300, Marcelo Tosatti wrote:
+> 
+...
+> > > Any allocator will cause VM pressure.
+> >
+> > But won't all of the knfsd allocations be by necessity GFP_NOFS to avoid
+> > deadlocks, so they will be unable to clear inodes or dentries?  Both
+> > shrink_icache_memory() and shrink_dcache_memory() do nothing if __GFP_FS
+> > isn't set so if there is no user-space allocation pressure we will never
+> > get into the dcache/icache freeing paths from knfsd allocations.
+> 
+> Hi Andreas,
+> 
+> AFAICS knfsd does not allocate using GFP_NOFS.
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+So far, it looks like the vm_vfs_scan_ratio setting of '3' (instead of
+'6' which was the default) made a big difference.
 
-	Hi LKML,
+Currently the machine is using about ~600MB for cache (up from ~100MB),
+and about 150MB for buffers (up from 80-100MB).
 
-I've got a code for 2.4 which do:
+I'm going to let it run a little longer just with this setting, before
+experimenting further.
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-spin_lock_irqsave(&runqueue_lock, flags)
-for_each_process(p)
-{
-	// modify p attributes
-}
-spin_unlock_irqrestore(&runqueue_lock, flags)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+I'll ask around about the perceived performance of the machine, and pay
+attention to it myself.  I'll post the results monday or tuesday (not a
+lot of interactive users during the weekend  ;)
 
-and I need to translate it to 2.6.
-What is exactly the best solution since runqueues are per cpu now ?
+Again, thanks a lot for the quick feedback!
 
-Is there a way to lock and browse each runqueues ?
-or if not, is tasklist_lock can be use to lock all runqueues at once ?
+/ jakob
 
-and one another question, what is the difference between
-local_irq_disable() and local_irq_save() ?
-irq_save push eflags register on the stack, but why for ?
-
-Thanks for any comments.
---=20
-Tab
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAPzavzKe/MInoaQARAtdeAJ4iuXY9ERtKJzoe2WwZye5X7V8i3QCdG4og
-P+GB4so+RbnGdbyYHzwl2oE=
-=QmaX
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--

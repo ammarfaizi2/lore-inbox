@@ -1,40 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbVAQTMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262836AbVAQTQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262617AbVAQTMp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 14:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVAQTMp
+	id S262836AbVAQTQn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 14:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbVAQTQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 14:12:45 -0500
-Received: from speedy.student.utwente.nl ([130.89.163.131]:26846 "EHLO
-	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
-	id S262617AbVAQTMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 14:12:44 -0500
-Date: Mon, 17 Jan 2005 20:12:41 +0100
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/13] FAT: Lindent fs/vfat/namei.c
-Message-ID: <20050117191241.GD25205@speedy.student.utwente.nl>
-References: <87pt04oszi.fsf@devron.myhome.or.jp> <87llasosxu.fsf@devron.myhome.or.jp> <87hdlgoswe.fsf_-_@devron.myhome.or.jp> <87d5w4osuv.fsf_-_@devron.myhome.or.jp> <878y6sostl.fsf_-_@devron.myhome.or.jp> <874qhgosrf.fsf_-_@devron.myhome.or.jp> <87zmz8ne5p.fsf_-_@devron.myhome.or.jp> <877jmcne0o.fsf_-_@devron.myhome.or.jp> <873bx0ndze.fsf_-_@devron.myhome.or.jp> <87y8eslzdq.fsf_-_@devron.myhome.or.jp>
+	Mon, 17 Jan 2005 14:16:43 -0500
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:58639 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262836AbVAQTQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 14:16:29 -0500
+Date: Mon, 17 Jan 2005 20:19:01 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Simone Piunno <pioppo@ferrara.linux.it>
+Cc: djg@pdp8.net, LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.10-mm2: it87 sensor driver stops CPU fan
+Message-Id: <20050117201901.3e712cfa.khali@linux-fr.org>
+In-Reply-To: <200501162332.14324.pioppo@ferrara.linux.it>
+References: <g7Idbr9m.1105713630.9207120.khali@localhost>
+	<200501151654.46412.pioppo@ferrara.linux.it>
+	<20050115175545.743a39f9.khali@linux-fr.org>
+	<200501162332.14324.pioppo@ferrara.linux.it>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87y8eslzdq.fsf_-_@devron.myhome.or.jp>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 02:49:21AM +0900, OGAWA Hirofumi wrote:
-> diff -puN fs/vfat/namei.c~fat_lindent-vfat fs/vfat/namei.c
-> --- linux-2.6.10/fs/vfat/namei.c~fat_lindent-vfat	2005-01-10 01:57:31.000000000 +0900
-> +++ linux-2.6.10-hirofumi/fs/vfat/namei.c	2005-01-10 01:57:44.000000000 +0900
-> @@ -12,7 +12,7 @@
->   *  Short name translation 1999, 2001 by Wolfram Pienkoss <wp@bszh.de>
->   *
->   *  Support Multibyte character and cleanup by
-                                ^^^ Shouldn't that be 'characters'?
+Hi Simone,
 
-Yup, that was it.. sorry if I'm nitpicking :-P
+> While we're at it, the fan speed sensor reports an absurd speed when
+> the fan  is driven with very low but non-zero pwm values.  For
+> example, driving it  with pwm=2 I get speeds over 50K rpms, while of
+> course the fan is stopped  (almost?).  This could be just an hardware
+> sensitivity problem in the sensor  chip, or a false measure triggered
+> by fan vibration, but maybe you know  better.
 
-Sytse
+This is a frequent problem with PWM. In order to estimate the fan
+rotation speed, chips sample a signal that comes from the fan on its
+third wire (typically two pulses per revolution). Since the fan is not a
+power source by itself, the pulses are powered from the fan header's
++12V pin. When you start using PWM, you affect the +12V pin duty cycle,
+and as a result you affect the speed signal duty cycle. The lower the
+duty cycle, the harder for the chip to correctly determine the speed.
+
+Newer chips have the capability to correct the effects of PWM at
+reasonable duty cycles. It however supposes that it knows which fan
+corresponds to which PWM output. Motherboard manufacturers will have to
+take this information into account when designing their boards. And at
+any rate, very low PWM duty cycles cannot possibly corrected.
+
+It is possible to affect the fan speed vs. PWM curve by changing the
+base frequency of the PWM signal. This can help achieve lower fan speeds
+with higher PWM duty cycles (and thus better speed readings). Most chips
+support frequency adjustment, but our drivers don't, because it wasn't
+realized until very recently that this could be of any benefit to the
+user.
+
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

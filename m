@@ -1,44 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129329AbRB0Ao1>; Mon, 26 Feb 2001 19:44:27 -0500
+	id <S129350AbRB0At0>; Mon, 26 Feb 2001 19:49:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129350AbRB0AoQ>; Mon, 26 Feb 2001 19:44:16 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:25819 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129329AbRB0AoG>; Mon, 26 Feb 2001 19:44:06 -0500
-Message-ID: <3A9AF846.A2A223D@uow.edu.au>
-Date: Tue, 27 Feb 2001 00:43:50 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vibol Hou <vhou@khmer.cc>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Sytem slowdown on 2.4.1-ac20 (recurring from 2.4.0)
-In-Reply-To: <NDBBKKONDOBLNCIOPCGHCEOGEPAA.vhou@khmer.cc>
+	id <S129354AbRB0AtQ>; Mon, 26 Feb 2001 19:49:16 -0500
+Received: from itaipu.nitnet.com.br ([200.255.111.241]:784 "HELO
+	itaipu.nitnet.com.br") by vger.kernel.org with SMTP
+	id <S129350AbRB0AtE>; Mon, 26 Feb 2001 19:49:04 -0500
+Date: Mon, 26 Feb 2001 21:49:00 -0300
+To: linux-kernel@vger.kernel.org
+Subject: CPU name for "pure" i386 missing
+Message-ID: <20010226214900.A11142@flower.cesarb>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+From: Cesar Eduardo Barros <cesarb@nitnet.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vibol Hou wrote:
-> 
-> I've reported this problem a long while ago, but no one answered my pleas.
-> To tell you the honest truth, I don't know where to begin looking.  It's
-> difficult to poke around when the serial console is unresponsive :/
-> 
 
-Sounds like a network driver problem.
+Looks like every time the CPU detection code is rewritten, the printing of the
+CPU name for "pure" (i.e. "original") 386s suffer. Last time, the "\n" after
+the "CPU: 386" line was missing.
 
-Are you still getting the "hordes" of Tx timeouts with the
-3c905B which you reported a week ago?
+This time it's worse. It's tripping the "unknown CPU" code path:
 
-If so, do they only start coming out when the slowdown occurs?
+CPU: Before vendor init, caps: 00000000 00000000 00000000, vendor = 255
+[...]
+CPU: ff/00
 
-You are probably a victim of the APIC bug.  A
-workaround for this is present in 2.4.2-ac5.  Alternatively,
-boot the kernel with the `noapic' LILO option.
+and looking at /proc/cpuinfo:
 
-Please let us know the outcome.
+processor       : 0
+vendor_id       : unknown
+cpu family      : 3
+model           : 0
+model name      : ff/00
+stepping        : unknown
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : no
+fpu_exception   : no
+cpuid level     : -1
+wp              : no
+flags           :
+bogomips        : 3.62
 
--
+
+Shouldn't the code be supposed to figure that, since there is no cpuid, it
+should be a 386 or an early 486?
+
+I think that table_lookup_model in arch/i386/kernel/setup.c should code a
+vendor of 255 as a special case and return "386" or something like that instead
+of bailing out. If everybody agrees, I'll make a patch for Linus.
+
+-- 
+Cesar Eduardo Barros
+cesarb@nitnet.com.br
+cesarb@dcc.ufrj.br

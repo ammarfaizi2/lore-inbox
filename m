@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276643AbRJKSPL>; Thu, 11 Oct 2001 14:15:11 -0400
+	id <S276650AbRJKSQv>; Thu, 11 Oct 2001 14:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276650AbRJKSPC>; Thu, 11 Oct 2001 14:15:02 -0400
-Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:6546 "EHLO
-	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
-	id <S276643AbRJKSOo>; Thu, 11 Oct 2001 14:14:44 -0400
-Message-ID: <3BC5E0BB.C12861A2@bigfoot.com>
-Date: Thu, 11 Oct 2001 11:11:07 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
-X-Accept-Language: en
+	id <S276653AbRJKSQh>; Thu, 11 Oct 2001 14:16:37 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:4603 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276650AbRJKSPl>;
+	Thu, 11 Oct 2001 14:15:41 -0400
+Date: Thu, 11 Oct 2001 14:16:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Christian Ullrich <chris@chrullrich.de>
+cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: [reiserfs-list] Can't mount reiserfs with 2.4.11, 2.4.10 works
+ fine
+In-Reply-To: <20011011200349.A3818@christian.chrullrich.de>
+Message-ID: <Pine.GSO.4.21.0110111414000.24742-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: jkp@riker.nailed.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Which kernel (Linus or ac)?
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jkp@riker.nailed.org wrote:
-> 
-> I'm presently running 2.4.8 on a machine. The VM on this is not terribly
-> good (swaps a lot with seemlingly plenty of physical memory).
-> I'm considering going to an -ac kernel, but I need recent iptables. Is the
-> iptables code up to date in -ac?
-> Also, which -ac do people recommend? I've beent trying to follow lkm, but
-> I'm somewhat confused at this point.
-> 
-> The box:
-> 
-> P200MMX 64MB
-> 
-> It's used as a firewall and a ssh login/through server for external connections.
 
-Any reason not to stick with 2.2.20preX?  Especially where stability is
-important.
 
-rgds,
-tim.
---
+On Thu, 11 Oct 2001, Christian Ullrich wrote:
+
+> > > kernel: read_super_block: bread failed (dev 03:46, block 64, size 1024)
+> > > kernel: hdb6: bad access: block=16, count=2
+
+fdisk output, please.
+

@@ -1,83 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273261AbRKNSe7>; Wed, 14 Nov 2001 13:34:59 -0500
+	id <S274789AbRKNSgt>; Wed, 14 Nov 2001 13:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274789AbRKNSej>; Wed, 14 Nov 2001 13:34:39 -0500
-Received: from 208-58-239-45.s45.tnt1.atnnj.pa.dialup.rcn.com ([208.58.239.45]:50158
-	"EHLO trianna.2y.net") by vger.kernel.org with ESMTP
-	id <S273261AbRKNSe3>; Wed, 14 Nov 2001 13:34:29 -0500
-Date: Wed, 14 Nov 2001 13:32:36 -0500
-From: Malcolm Mallardi <magamo@ranka.2y.net>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] pdc202xx.c, adds another quirk drive to the list
-Message-ID: <20011114133236.A440@trianna.upcommand.net>
-In-Reply-To: <20011113105543.A392@trianna.upcommand.net> <200111141724.fAEHO5102013@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="wRRV7LY7NUeQGEoC"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200111141724.fAEHO5102013@adsl-209-76-109-63.dsl.snfc21.pacbell.net>; from whitney@math.berkeley.edu on Wed, Nov 14, 2001 at 09:24:05AM -0800
+	id <S274368AbRKNSgj>; Wed, 14 Nov 2001 13:36:39 -0500
+Received: from lydys.sc-uni.ktu.lt ([193.219.61.26]:22658 "EHLO
+	lydys.sc-uni.ktu.lt") by vger.kernel.org with ESMTP
+	id <S274789AbRKNSg1>; Wed, 14 Nov 2001 13:36:27 -0500
+Date: Wed, 14 Nov 2001 20:36:20 +0200 (GMT-2)
+From: zolia <zolia@lydys.sc-uni.ktu.lt>
+To: <debian-user@lists.debian.org>, <linux-kernel@vger.kernel.org>
+Subject: Samba-2.07 (nmbd) crashes system
+In-Reply-To: <E163kfB-0002op-00@marge.haeslernet>
+Message-ID: <Pine.LNX.4.33.0111142029070.3170-100000@lydys.sc-uni.ktu.lt>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+installing samba packages from potato distribution server crashes. It
+seams that crash happens when nmbd is started. Besides, this is only on
+"sertain" kernel versions (2.2.19, 2.2.20 - crashes, 2.2.18 - doesn't).
+I'm not sure if its kernel problem (maybe some modules only), i use
+firewalling masquarading enabling modules.
 
-On Wed, Nov 14, 2001 at 09:24:05AM -0800, Wayne Whitney wrote:
-> In mailing-lists.linux-kernel, you wrote:
-> 
-> > I seem to recall when I once looked at the promise driver that there
-> > was what appeared to be some form of exclusion list which included
-> > several models of Quantum FireballP harddrives, but mine was not on
-> > the list.
-> >  
-> > I suspected then (I think that was sometime around 2.4.9) that if I
-> > added the drive to that list that it would work, but I never tried it,
-> > due to the fact that I don't know C, and was afraid of breaking it
-> > more. :)
-> 
-> OK, I'll help you try this, it is really dead easy:
-> 
-> In the kernel tree of your choice, go the directory drivers/ide.
-> 
-> Load pdc202xx.c in the editor of your choice.
-> 
-> 
-> Recompile your kernel, try it out, and let us know if it works now.
-> If it does, submit a patch.  See Documentation/SubmittingPatches, and
-> ask me if that is not clear.
-> 
-> 
+can anyone help this this?
 
-First off, I'd like to thank you, Wayne.  You've been a big help.
-Attached is a patch that adds the Quantum FireballP KX27.3 harddrive to
-the quirk_drives list in the Promise 202xx driver (pdc202xx.c) patches
-is based off 2.4.15-pre1
+====================================================================
+Antanas Masevicius             Kaunas University of Technology
+Studentu 48a-101               Computer Center
+LT-3028 Kaunas                 LITNET NOC UNIX Systems Administrator
+Lithuania                      E-mail: zolia@sc.ktu.lt
 
-Thanks folks, things work wonderfully now.
 
---
-Malcolm D. Mallardi - Dark Freak At Large
-"Captain, we are receiving two-hundred eighty-five THOUSAND hails."
-AOL: Nuark  UIN: 11084092 Y!: Magamo Jabber: Nuark@jabber.com
-http://ranka.2y.net/~magamo/index.htm
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch
-
---- drivers/ide/pdc202xx.c.orig	Fri Nov  9 09:55:38 2001
-+++ drivers/ide/pdc202xx.c	Wed Nov 14 12:52:05 2001
-@@ -230,6 +230,7 @@
- 	"QUANTUM FIREBALLP KA6.4",
- 	"QUANTUM FIREBALLP LM20.4",
- 	"QUANTUM FIREBALLP KX20.5",
-+	"QUANTUM FIREBALLP KX27.3",
- 	"QUANTUM FIREBALLP LM20.5",
- 	NULL
- };
-
---wRRV7LY7NUeQGEoC--

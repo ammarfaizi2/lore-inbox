@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUILG3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268488AbUILGhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268490AbUILG3g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 02:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268488AbUILG3g
+	id S268488AbUILGhK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 02:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUILGhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 02:29:36 -0400
-Received: from mailgate2.mysql.com ([213.136.52.47]:43214 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S268490AbUILG3d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 02:29:33 -0400
-Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local (probable Remote) Denial
-	of Service
-From: Peter Zaitsev <peter@mysql.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Wolfpaw - Dale Corse <admin@wolfpaw.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040911204710.4aa7abed.davem@davemloft.net>
-References: <022601c49866$9e8aa8f0$0300a8c0@s>
-	 <000001c49872$99333460$0200a8c0@wolf>
-	 <20040911204710.4aa7abed.davem@davemloft.net>
-Content-Type: text/plain
-Message-Id: <1094970424.29211.489.camel@sphere.site>
+	Sun, 12 Sep 2004 02:37:10 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:23820 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S268488AbUILGhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 02:37:06 -0400
+Date: Sun, 12 Sep 2004 08:36:55 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nigel Kukard <nkukard@lbsd.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: CPU Context corruption
+Message-ID: <20040912063655.GB1444@alpha.home.local>
+References: <4142DF44.7010900@lbsd.net> <1094906455.21088.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 11 Sep 2004 23:27:05 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094906455.21088.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-11 at 20:47, David S. Miller wrote:
-
-> If the application doesn't close it's file descriptors there is
-> absolutely nothing the kernel can do about it.
+On Sat, Sep 11, 2004 at 01:40:55PM +0100, Alan Cox wrote:
+> On Sad, 2004-09-11 at 12:19, Nigel Kukard wrote:
+> > What does this error mean?
+> > 
+> > 
+> > CPU 0: Machine Check Exception: 0000000000000004
+> > Bank 0: 820000001040080F
+> > 
+> > 
+> > I have a Matsonic 9097c motherboard, 2.4Ghz prescott celeron cpu. This 
+> > error seems to be random. We have replaced the motherboard & cpu to no 
+> > avail.
 > 
-> It's a resource leak, plain and simple.
-> 
-> > That being said - below is a the proper description, and the code
-> > used to exploit it. Hope it helps. This version is not the one
-> > which invokes the CLOSE_WAIT state, but rather the TIME_WAIT one,
-> > I am not able to publish the source code for the CLOSE_WAIT bug.
-> 
-> There is nothing wrong with creating tons of TIME_WAIT sockets,
-> they simply time out after 60 seconds (unless hit by a RESET
-> packet or similar).  This is how TCP works.
-> 
+> It normally indicates a hardware problem. The precise meaning of all the
+> bits is in the Intel chip docs (volume 3). If you've swapped the
+> mainboard/cpu it might just be bad RAM.
 
-Hm,
+He can also get precise info with Dave Jones' parsemce tool :
 
-As this question arose may I ask where this timeout is configured ?
+    http://www.kernel.org/pub/linux/kernel/people/davej/tools/
 
-There is tcp_fin_timeout  configuration but I found nothing
-corresponding to TIME_WAIT.
+It currently says :
 
-Here is how it bothers me.  On the Web sites using Apache/PHP and MySQL 
-on different hosts I often see  "Sleep" connections hanging for many
-minutes on MySQL hosts.    Tracking remote host and port shows this
-connection is not assigned to any process on other end any more but
-rather being in TIME_WAIT state. 
+	Status: (4) Machine Check in progress.
+	Restart IP invalid.
+	parsebank(0): 820000001040080f @ 0
+		External tag parity error
+		CPU state corrupt. Restart not possible
+		Bus and interconnect error
+		Participation: Local processor originated request
+		Timeout: Request did not timeout
+		Request: Generic error
+		Transaction type : Invalid
+		Memory/IO : Other
 
-I do not care about TIME_WAIT  connection on client site itself, what
-concerns me is, until connection is not fully closed server side does
-not seems to be informed connection is dead and so  server resources are
-not deallocated.    
+Since it says it's neither memory nor I/O, I think it might be related to
+a PCI parity error with some card, either during transfers or config access.
 
-Any ideas ? 
-
-
-
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-
+Regards,
+Willy
 

@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131592AbRAGNFK>; Sun, 7 Jan 2001 08:05:10 -0500
+	id <S131732AbRAGNGK>; Sun, 7 Jan 2001 08:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131775AbRAGNFA>; Sun, 7 Jan 2001 08:05:00 -0500
-Received: from enst.enst.fr ([137.194.2.16]:61906 "HELO enst.enst.fr")
-	by vger.kernel.org with SMTP id <S131592AbRAGNEp>;
-	Sun, 7 Jan 2001 08:04:45 -0500
-Date: Sun, 7 Jan 2001 14:04:40 +0100
-From: Nicolas Mailhot <Nicolas.Mailhot@email.enst.fr>
-To: mdharm-usb@one-eyed-alien.net
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        jerdfelt@valinux.com
-Subject: [Patch] [linux-2.4.0] drivers/usb/Config.in
-Message-ID: <20010107140440.E1468@rousalka.maisel2.rezel.enst.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Mailer: Balsa 1.0.1
+	id <S131740AbRAGNGA>; Sun, 7 Jan 2001 08:06:00 -0500
+Received: from mx3.sac.fedex.com ([199.81.208.11]:28173 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S131732AbRAGNFn>; Sun, 7 Jan 2001 08:05:43 -0500
+Date: Sun, 7 Jan 2001 21:02:00 +0800
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Message-Id: <200101071302.f07D20102863@silk.corp.fedex.com>
+To: cw@f00f.org, sourav@cs.cmu.edu
+Subject: Re: Speed of the network card
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Re-send without the mime stuff, sorry about this one]
-
-Hi,
-
- Here is a patchlet to stop people searching for the
-mysteriously hidden USB Mass Storage driver (in case they
-didn't make the connection with SCSI at once like me).
-
- Seems to work, and anyway I don't see how I could have
-messed up this one:)
-
- Regards,
-
---- linux-2.4.0/drivers/usb/Config.in	Tue Nov 28 03:10:35 2000
-+++ linux-2.4.0-nim1/drivers/usb/Config.in	Sat Jan  6 18:04:26 2001
-@@ -28,10 +28,14 @@
-    comment 'USB Device Class drivers'
-    dep_tristate '  USB Audio support' CONFIG_USB_AUDIO $CONFIG_USB $CONFIG_SOUND
-    dep_tristate '  USB Bluetooth support (EXPERIMENTAL)' CONFIG_USB_BLUETOOTH $CONFIG_USB $CONFIG_EXPERIMENTAL
--   dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
--   if [ "$CONFIG_USB_STORAGE" != "n" ]; then
--      bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
--      bool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM
-+   if [ "$CONFIG_SCSI" = "n" ]; then
-+      comment '  SCSI support is needed for USB Mass Storage'
-+   else
-+      dep_tristate '  USB Mass Storage support' CONFIG_USB_STORAGE $CONFIG_USB $CONFIG_SCSI
-+      if [ "$CONFIG_USB_STORAGE" != "n" ]; then
-+         bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
-+         bool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FREECOM
-+      fi
-    fi
-    dep_tristate '  USB Modem (CDC ACM) support' CONFIG_USB_ACM $CONFIG_USB
-    dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
+from pcmcia-cs-3.1.22/PCMCIA-HOWTO
+4.3.2.  Comments about specific cards
+  o  16-bit PCMCIA cards have a maximum performance of 1.5-2 MB/sec.
+     That means that any 16-bit 100baseT card (i.e., any card that uses
+     the pcnet_cs, 3c574_cs, smc91c92_cs, or xirc2ps_cs driver) will
+     never achieve full 100baseT throughput.  Only CardBus network
+     adapters can fully exploit 100baseT data rates.
 
 
--- 
-Nicolas Mailhot
+Jeff
 
+
+On Sun, Jan 07, 2001 at 04:30:30AM -0500, Sourav Ghosh wrote:
+
+    I would like to determine the banwidth the card is getting from
+    the network.
+
+/proc/net/dev exports counters; you can monitor those -- I'm sure
+there are perfomance program that do exactly this.
+
+    For an ethernet, it could be either 10Mbps or 100Mbps, is there
+    any way of knowing from inside the kernel how much is the
+    bandwidth the card is actually receiving from the network,
+    especially when it is capable of getting either 10Mbps or
+    100Mbps?
+
+The kernel counts packets and bytes; you need to work out bandwidth
+in userland from that.
+
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

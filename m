@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbTEMOLt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 10:11:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTEMOLt
+	id S261265AbTEMOJs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 10:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbTEMOJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 10:11:49 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3712 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261309AbTEMOLr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 10:11:47 -0400
-Date: Tue, 13 May 2003 10:24:19 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stephan von Krawczynski <skraw@ithnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: What exactly does "supports Linux" mean?
-In-Reply-To: <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.53.0305131016180.238@chaos>
-References: <20030513151630.75ad4028.skraw@ithnet.com>
- <1052830415.432.2.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 May 2003 10:09:48 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:30980 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S261265AbTEMOJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 10:09:47 -0400
+Date: Tue, 13 May 2003 11:24:06 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [COMPILATION ERROR] 2.5.69-bk7 wireless.c:488: `THIS_MODULE' undeclared here
+Message-ID: <20030513142406.GF23005@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <1052834757.2268.13.camel@nalesnik> <1052835040.2227.18.camel@nalesnik>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052835040.2227.18.camel@nalesnik>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 May 2003, Alan Cox wrote:
+Em Tue, May 13, 2003 at 03:10:48PM +0100, Grzegorz Jaskiewicz escreveu:
+> On Tue, 2003-05-13 at 15:06, Grzegorz Jaskiewicz wrote:
+> > net/core/wireless.c:488: `THIS_MODULE' undeclared here (not in a
+> > function)
+> > 
+> > this bug was added with -bk7 patch
+> solved : looks like #include <linux/modules.h> was missing in this file
 
-> On Maw, 2003-05-13 at 14:16, Stephan von Krawczynski wrote:
-> > I bought a card from some vendor, claiming "support for Linux". I tried
-> to make
-> > it work in a configuration with a standard 2.4.20 kernel from kernel.org.
-> The
-> > drivers (kernel modules) are binary-only. They did not load because of a
-> > version mismatch. Asking for versions loadable with standard kernels,
-> I got the
-> > response that they only support kernels from Red Hat and SuSE, but
-> no standard
-> > kernels.
->
+Its already fixed in Linus tree and in the 2.5.69-bk snapshots.
 
-If you really want it to work, try `insmod -f modulename.o`. See of it
-works. RedHat supplies kernels with "intermediate" version numbers
-like linux-2.4.18-24. A perfectly-good module from linux-2.4.18
-may fail to load without the '-f' option, even though it is probably
-compatible. Try it, it may work fine. You can modify /etc/rc.d/rc.local
-to insert the module during startup so you don't have to muck with
-/etc/modules.conf (and having other startup-code change it when it
-"finds" new hardware.
+Ditto for net/wanrouter/wanproc.c that I fixed yesterday.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+- Arnaldo

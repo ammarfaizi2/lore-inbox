@@ -1,47 +1,81 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312401AbSDXRZi>; Wed, 24 Apr 2002 13:25:38 -0400
+	id <S312419AbSDXRbe>; Wed, 24 Apr 2002 13:31:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312418AbSDXRZh>; Wed, 24 Apr 2002 13:25:37 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:47599 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S312401AbSDXRZh>; Wed, 24 Apr 2002 13:25:37 -0400
-Date: Wed, 24 Apr 2002 19:25:39 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andi Kleen <ak@suse.de>
-cc: george anzinger <george@mvista.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <20020423213559.A24389@wotan.suse.de>
-Message-ID: <Pine.GSO.3.96.1020424191233.23744A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S312426AbSDXRbd>; Wed, 24 Apr 2002 13:31:33 -0400
+Received: from ip68-3-16-134.ph.ph.cox.net ([68.3.16.134]:61320 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S312419AbSDXRbc>;
+	Wed, 24 Apr 2002 13:31:32 -0400
+Message-ID: <3CC6EBF1.9060902@candelatech.com>
+Date: Wed, 24 Apr 2002 10:31:29 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "David S. Miller" <davem@redhat.com>
+CC: jd@epcnet.de, linux-kernel@vger.kernel.org
+Subject: Re: AW: Re: AW: Re: VLAN and Network Drivers 2.4.x
+In-Reply-To: <20020424.093515.82125943.davem@redhat.com>	<721506265.avixxmail@nexxnet.epcnet.de> <20020424.095951.43413800.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Apr 2002, Andi Kleen wrote:
 
-> That's the local APIC timer. Pretty much all modern x86 have it.
-> But at least microsoft warns from using them for high precision 
-> tim ekeeping on their mmtimer page "due to inaccuracy and 
-> frequent silicon bugs" (and I guess they have the data for that) 
 
- That's nothing new -- I recall a problem of missing half a tick each
-time when hardware reloads the timer after reaching zero with certain
-revisions of Pentium CPUs.  It is documented in the specification update.
+David S. Miller wrote:
 
-> The linux local APIC timer setup could be probably also improved, for 
-> example the 16 multiplier is a bit dubious and the calibration does not
-> look very robust.
+>    From: jd@epcnet.de
+>    Date: Wed, 24 Apr 2002 19:03:19 +0200
+> 
+>    Oh. Even in 2.4 ?
+> 
+> Yes, the "cannot do VLAN" flag is there in 2.4.x
+>     
+>    That's a good idea. So vconfig could check, if its possible to
+>    create a VLAN on top of such a driver - and issue a message if
+>    not.
+>    
+> VLAN layer checks this and fails to bring up VLAN if
+> flag is set for the device being configured.  I'm way
+> ahead of you.
 
- When fiddling with the predivider, please keep in mind the i82489DX only
-supports 2, 4, 8 and 16 as dividers and you may set up 1 (i.e. no
-division) but in a different way -- by setting LVTT appropriately (use
-SET_APIC_TIMER_BASE(APIC_TIMER_BASE_CLKIN)).
+
+Maybe it could just WARN and still bring it up, if it's just
+an MTU issue?  (Or is this a total failure of VLAN support you
+are talking about?)
+
+Also, is there any good reason that we can't get at least a compile
+time change into some of the drivers like tulip where we know we can
+get at least MOST of the cards supported with a small change?
+
+I know the driver writers hate cruft in the drivers, but we have had
+ppl using the patches in production machines for months, if not years,
+with no ill effects.
+
+The same argument applies to the EEPRO driver (we know a cure, but it's
+a magic register number, and no one will accept the patch).
+
+Ben
+
+
+> 
+> Franks a lot,
+> David S. Miller
+> davem@redhat.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

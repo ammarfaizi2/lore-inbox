@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318379AbSHEL2s>; Mon, 5 Aug 2002 07:28:48 -0400
+	id <S318381AbSHELcH>; Mon, 5 Aug 2002 07:32:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318381AbSHEL2s>; Mon, 5 Aug 2002 07:28:48 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:34029 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S318379AbSHEL2r> convert rfc822-to-8bit; Mon, 5 Aug 2002 07:28:47 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <mcp@linux-systeme.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.19' drivers/block/ll_rw_blk.c
-Date: Mon, 5 Aug 2002 12:23:29 +0200
-X-Mailer: KMail [version 1.4]
-Organization: Linux-Systeme GmbH
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Adrian Bunk <bunk@fs.tum.de>
-X-PRIORITY: 2 (High)
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208051223.29329.mcp@linux-systeme.de>
+	id <S318384AbSHELcH>; Mon, 5 Aug 2002 07:32:07 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1277 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318381AbSHELcG>; Mon, 5 Aug 2002 07:32:06 -0400
+Subject: Re: i810 sound broken...
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thomas Munck Steenholdt <tmus@get2net.dk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200208051127.g75BRgX27554@eday-fe5.tele2.ee>
+References: <200208051127.g75BRgX27554@eday-fe5.tele2.ee>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 05 Aug 2002 13:54:17 +0100
+Message-Id: <1028552057.18130.6.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Mon, 2002-08-05 at 12:27, Thomas Munck Steenholdt wrote:
+> I've noticed some writing on lkml on how i810(AC97) sound was broken. 
+> Aparantly a couple of fixes have been posted, but I couldn't see
+> where(if at all) those patches have gone... 2.4.19 still does not work
+> and 2.4.19-ac3 won't even load the i810 module.
+> 
+> Does anybody know if the known i810 sound issue has, in fact, been fixed, and if so - in what kernel/patch?
 
-could you please consider changing those very slow behaviour in 
-"drivers/block/ll_rw_blk.c"? ... Benchmarked against 2.4.18 this is horribly 
-slower ... Doing some heavy disk i/o, want to start another thing, system 
-freeze for some seconds ... Opening a xterm , Ctrl-D to leave, this takes 
-about 5 seconds and somewhat is doing flushing to the disk.
+Its working nicely for me in 2.4.19 and 2.4.19-ac1. The 2.4.19-ac3 tree
+has a bug in pci_enable_device which will stop it working if built with
+some compilers (by chance it works ok the way I tested it). Thats fixed
+in ac4.
 
-Maybe req_finished_io ?
+The changes in the recent i810 audio are
+- Being more pessimistic in our interpretation of codec power up
+- Turning on EAPD in case the BIOS didn't do so at boot up
 
-Adrian, could this be the problem you've experienced?
+Longer term full EAPD control as we do with the cs46xx is on my list,
+paticularly as i8xx laptops are becoming common . (EAPD is the amplifier
+power controller)
 
-Afaik this was changed for 2.4.19-pre7 and above.
-
--- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/408B2D54947750EC
-Fingerprint: 8602 69E0 A9C2 A509 8661 2B0B 408B 2D54 9477 50EC
-Key available at www.keyserver.net. Encrypted e-mail preferred.

@@ -1,41 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265706AbUFSNsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265722AbUFSNuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265706AbUFSNsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 09:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265722AbUFSNsZ
+	id S265722AbUFSNuB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 09:50:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUFSNuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 09:48:25 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:20899 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S265706AbUFSNsY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 09:48:24 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Ian Morgan <imorgan@webcon.ca>
-Subject: Re: [linux-usb-devel] Re: USBDEVFS_RESET deadlocks USB bus.
-Date: Sat, 19 Jun 2004 15:48:21 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-usb-devel@lists.sourceforge.net,
-       "Zephaniah E. Hull" <warp@mercury.d2dc.net>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David A. Desrosiers" <desrod@gnu-designs.com>
-References: <20040604193911.GA3261@babylon.d2dc.net> <200406082219.41213.baldrick@free.fr> <Pine.LNX.4.60.0406181529370.4796@light.int.webcon.net>
-In-Reply-To: <Pine.LNX.4.60.0406181529370.4796@light.int.webcon.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 19 Jun 2004 09:50:00 -0400
+Received: from main.gmane.org ([80.91.224.249]:56041 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265722AbUFSNtn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 09:49:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Gabriel Lavoie <exibis@hotmail.com>
+Subject: Re: linux 2.6.6 and keyboard freezes
+Date: Sat, 19 Jun 2004 09:49:36 -0400
+Message-ID: <cb1g9g$fik$1@sea.gmane.org>
+References: <20040603161748.141C61DC040@bromo.msbb.uc.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200406191548.21989.baldrick@free.fr>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: modemcable185.89-201-24.mc.videotron.ca
+User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
+X-Accept-Language: en-us, en
+In-Reply-To: <20040603161748.141C61DC040@bromo.msbb.uc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't know for sure that the problem I'm having is related, but it sure
-> sound like it:
+The same problem appeared here with a laptop keyboard, on a Toshiba 
+Satellite A20. No problem with 2.5.5.
 
-Hi Ian, I was talking about the problem in usbfs where only one bulk or
-control message can be in flight at any one time.  Your problem seems
-quite different to this, sorry!
+Jack Howarth wrote:
+>      Is anyone else seeing this behavior? On Fedora Core 2 using the
+> their kernel-smp-2.6.6-1.403 and kernel-smp-2.6.6-1.406 kernels I 
+> am seeing a problem with a PS/2 Logitech keyboard becoming
+> non-functional after overnight. In particular the keyboard is
+> initially usable after the machine is woken the next morning
+> under X windows. Shortly afterwards (~15 minutes) the keyboard
+> stops responding. The PS/2 mouse still works however and one
+> can log out of the X windows session to restart the X server.
+> This however doesn't bring back the keyboard. Also unplugging
+> and replugging the keyboard doesn't help. Only a full reboot
+> will restore the keyboard to working condition. There is no
+> errors appearing in /var/log/messages that indicate any 
+> errors related to the keyboard. I have heard from at least
+> one other Fedora user who has seen the same thing under Core 2.
+> Is this perhaps related to acpi somehow and how can I work
+> around it since rebooting everyday is unacceptable.
+>                         Jack Howarth
 
-All the best,
-
-Duncan.

@@ -1,904 +1,356 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266936AbTBHAsc>; Fri, 7 Feb 2003 19:48:32 -0500
+	id <S266938AbTBHAvv>; Fri, 7 Feb 2003 19:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266938AbTBHAsc>; Fri, 7 Feb 2003 19:48:32 -0500
-Received: from covert.brown-ring.iadfw.net ([209.196.123.142]:29700 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S266936AbTBHAsT>; Fri, 7 Feb 2003 19:48:19 -0500
-Date: Fri, 7 Feb 2003 18:57:53 -0600
-From: Art Haas <ahaas@airmail.net>
+	id <S266939AbTBHAvv>; Fri, 7 Feb 2003 19:51:51 -0500
+Received: from 12-252-67-253.client.attbi.com ([12.252.67.253]:21389 "EHLO
+	morningstar.nowhere.lie") by vger.kernel.org with ESMTP
+	id <S266938AbTBHAvo>; Fri, 7 Feb 2003 19:51:44 -0500
+From: "John W. M. Stevens" <john@betelgeuse.us>
+Date: Fri, 7 Feb 2003 18:01:24 -0700
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Switch kernel/sysctl.c to use C99 initializers
-Message-ID: <20030208005753.GA4386@debian>
+Subject: Bug Report (more information)
+Message-ID: <20030208010124.GA30737@morningstar.nowhere.lie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-This patch converts the file to used C99 named initializers. I've left
-in the lines like ".foo = NULL,", but they can be removed if desired.
-This patch silences warnings that would appear if '-W' was added to the
-compile flags. If this patches like this are thought worthwhile, I'll
-start switching some of the other files that also produced warnings.
+This is a repeat of an earlier bug report, with more information about
+how to reproduce it.
 
-The patched file was compiled, but I'm not running a kernel with it yet.
-The patch is against linus-2.5 BK from this morning.
+[1.] One line summary of the problem:
 
-Art Haas
+   Defect is kernel hang on Dual Processor, Athlon MP system.
 
-===== sysctl.c 1.37 vs edited =====
---- 1.37/kernel/sysctl.c	Thu Dec  5 10:06:54 2002
-+++ edited/sysctl.c	Fri Feb  7 18:12:14 2003
-@@ -147,121 +147,458 @@
- /* The default sysctl tables: */
+[2.] Full description of the problem/report:
+
+   The system regularly experiences short (from 1 to 5 seconds)
+   hangs where both processors appear to be "hung".  Most often,
+   the system will recover, but in three different cases the
+   system has hung "permanently" (for values of "permanently"
+   ranging from 10 minutes, to at most four hours before I gave
+   up and hit reset).
+
+[3.] Keywords (i.e., modules, networking, kernel):
+
+   Hard freeze.
+
+[4.] Kernel version (from /proc/version):
+
+   Linux version 2.4.20 (root@morningstar)
+   (gcc version 2.95.4 20011002 (Debian prerelease))
+   #20 SMP Thu Feb 6 20:35:14 MST 2003
+
+[5.] Output of Oops.
+
+   Sorry, but since the system hung, there was no Oops.
+
+[6.] A small shell script or example program which triggers the
+	      problem (if possible)
+
+   Two steps: 1) enable support for AMD Viper chipset and using
+   DMA by default.  2) Using IDE-SCSI, attemp to burn a CD.
+
+   After several seconds, system will lock up.
+
+[7.] Environment
+
+   Memory      : 512 MBytes, ECC, 266 MHz FSB.
+   Disk        : All SCSI.  See below.
+   Mother Board: Tyan Tiger MPX S2466N
+   Networking  : Two ethernet cards, one 10 Mbps, one 100 Mbps.
+   Removable   : Samsung CDRW drive.
+
+   Adquate cooling and power.
+
+[7.1.] Software (add the output of the ver_linux script here)
+
+
+If some fields are empty or look unusual you may have an old version.
+   Compare to the current minimal requirements in Documentation/Changes.
  
- static ctl_table root_table[] = {
--	{CTL_KERN, "kernel", NULL, 0, 0555, kern_table},
--	{CTL_VM, "vm", NULL, 0, 0555, vm_table},
-+	{
-+		.ctl_name	= CTL_KERN,
-+		.procname	= "kernel",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= kern_table
-+	},
-+	{
-+		.ctl_name	= CTL_VM,
-+		.procname	= "vm",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= vm_table
-+	},
- #ifdef CONFIG_NET
--	{CTL_NET, "net", NULL, 0, 0555, net_table},
--#endif
--	{CTL_PROC, "proc", NULL, 0, 0555, proc_table},
--	{CTL_FS, "fs", NULL, 0, 0555, fs_table},
--	{CTL_DEBUG, "debug", NULL, 0, 0555, debug_table},
--        {CTL_DEV, "dev", NULL, 0, 0555, dev_table},
--	{0}
-+	{
-+		.ctl_name	= CTL_NET,
-+		.procname	= "net",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= net_table
-+	},
-+#endif
-+	{
-+		.ctl_name	= CTL_PROC,
-+		.procname	= "proc",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= proc_table
-+	},
-+	{
-+		.ctl_name	= CTL_FS,
-+		.procname	= "fs",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= fs_table
-+	},
-+	{
-+		.ctl_name	= CTL_DEBUG,
-+		.procname	= "debug",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= debug_table
-+	},
-+        {
-+		.ctl_name	= CTL_DEV,
-+		.procname	= "dev",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= dev_table
-+	},
-+	{ .ctl_name = 0 }
- };
+   Linux morningstar 2.4.18 #13 SMP Sat Jan 18 13:21:01 MST 2003 i686 unknown
  
- static ctl_table kern_table[] = {
--	{KERN_OSTYPE, "ostype", system_utsname.sysname, 64,
--	 0444, NULL, &proc_doutsstring, &sysctl_string},
--	{KERN_OSRELEASE, "osrelease", system_utsname.release, 64,
--	 0444, NULL, &proc_doutsstring, &sysctl_string},
--	{KERN_VERSION, "version", system_utsname.version, 64,
--	 0444, NULL, &proc_doutsstring, &sysctl_string},
--	{KERN_NODENAME, "hostname", system_utsname.nodename, 64,
--	 0644, NULL, &proc_doutsstring, &sysctl_string},
--	{KERN_DOMAINNAME, "domainname", system_utsname.domainname, 64,
--	 0644, NULL, &proc_doutsstring, &sysctl_string},
--	{KERN_PANIC, "panic", &panic_timeout, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_CORE_USES_PID, "core_uses_pid", &core_uses_pid, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_CORE_PATTERN, "core_pattern", core_pattern, 64,
--	 0644, NULL, &proc_dostring, &sysctl_string},
--	{KERN_TAINTED, "tainted", &tainted, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_CAP_BSET, "cap-bound", &cap_bset, sizeof(kernel_cap_t),
--	 0600, NULL, &proc_dointvec_bset},
-+	{
-+		.ctl_name	= KERN_OSTYPE,
-+		.procname	= "ostype",
-+		.data		= system_utsname.sysname,
-+		.maxlen		= 64,
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_doutsstring,
-+		.strategy	= &sysctl_string
-+	},
-+	{
-+		.ctl_name	= KERN_OSRELEASE,
-+		.procname	= "osrelease",
-+		.data		= system_utsname.release,
-+		.maxlen		= 64,
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_doutsstring,
-+		.strategy	= &sysctl_string
-+	},
-+	{
-+		.ctl_name	= KERN_VERSION,
-+		.procname	= "version",
-+		.data		= system_utsname.version,
-+		.maxlen		= 64,
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_doutsstring,
-+		.strategy	= &sysctl_string
-+	},
-+	{
-+		.ctl_name	= KERN_NODENAME,
-+		.procname	= "hostname",
-+		.data		= system_utsname.nodename,
-+		.maxlen		= 64,
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_doutsstring,
-+		.strategy	= &sysctl_string
-+	},
-+	{
-+		.ctl_name	= KERN_DOMAINNAME,
-+		.procname	= "domainname",
-+		.data		= system_utsname.domainname,
-+		.maxlen		= 64,
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_doutsstring,
-+		.strategy	= &sysctl_string
-+	},
-+	{
-+		.ctl_name	= KERN_PANIC,
-+		.procname	= "panic",
-+		.data		= &panic_timeout,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_CORE_USES_PID,
-+		.procname	= "core_uses_pid",
-+		.data		= &core_uses_pid,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_CORE_PATTERN,
-+		.procname	= "core_pattern",
-+		.data		= core_pattern,
-+		.maxlen		= 64,
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dostring,
-+		.strategy	= &sysctl_string
-+	},
-+	{
-+		.ctl_name	= KERN_TAINTED,
-+		.procname	= "tainted",
-+		.data		= &tainted,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_CAP_BSET,
-+		.procname	= "cap-bound",
-+		.data		= &cap_bset,
-+		.maxlen		= sizeof(kernel_cap_t),
-+		.mode		= 0600,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_bset
-+	},
- #ifdef CONFIG_BLK_DEV_INITRD
--	{KERN_REALROOTDEV, "real-root-dev", &real_root_dev, sizeof(int),
--	 0644, NULL, &proc_dointvec},
-+	{
-+		.ctl_name	= KERN_REALROOTDEV,
-+		.procname	= "real-root-dev",
-+		.data		= &real_root_dev,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
- #endif
- #ifdef __sparc__
--	{KERN_SPARC_REBOOT, "reboot-cmd", reboot_command,
--	 256, 0644, NULL, &proc_dostring, &sysctl_string },
--	{KERN_SPARC_STOP_A, "stop-a", &stop_a_enabled, sizeof (int),
--	 0644, NULL, &proc_dointvec},
-+	{
-+		.ctl_name	= KERN_SPARC_REBOOT,
-+		.procname	= "reboot-cmd",
-+		.data		= reboot_command,
-+		.maxlen		= 256,
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dostring,
-+		.strategy	= &sysctl_string
-+	},
-+	{
-+		.ctl_name	= KERN_SPARC_STOP_A,
-+		.procname	= "stop-a",
-+		.data		= &stop_a_enabled,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
- #endif
- #if defined(CONFIG_PPC32) && defined(CONFIG_6xx)
--	{KERN_PPC_POWERSAVE_NAP, "powersave-nap", &powersave_nap, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_PPC_L2CR, "l2cr", NULL, 0,
--	 0644, NULL, &proc_dol2crvec},
--#endif
--	{KERN_CTLALTDEL, "ctrl-alt-del", &C_A_D, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_PRINTK, "printk", &console_loglevel, 4*sizeof(int),
--	 0644, NULL, &proc_dointvec},
-+	{
-+		.ctl_name	= KERN_PPC_POWERSAVE_NAP,
-+		.procname	= "powersave-nap",
-+		.data		= &powersave_nap,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_PPC_L2CR,
-+		.procname	= "l2cr",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dol2crvec
-+	},
-+#endif
-+	{
-+		.ctl_name	= KERN_CTLALTDEL,
-+		.procname	= "ctrl-alt-del",
-+		.data		= &C_A_D,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_PRINTK,
-+		.procname	= "printk",
-+		.data		= &console_loglevel,
-+		.maxlen		= 4*sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
- #ifdef CONFIG_KMOD
--	{KERN_MODPROBE, "modprobe", &modprobe_path, 256,
--	 0644, NULL, &proc_dostring, &sysctl_string },
-+	{
-+		.ctl_name	= KERN_MODPROBE,
-+		.procname	= "modprobe",
-+		.data		= &modprobe_path,
-+		.maxlen		= 256,
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dostring,
-+		.strategy	= &sysctl_string
-+	},
- #endif
- #ifdef CONFIG_HOTPLUG
--	{KERN_HOTPLUG, "hotplug", &hotplug_path, 256,
--	 0644, NULL, &proc_dostring, &sysctl_string },
-+	{
-+		.ctl_name	= KERN_HOTPLUG,
-+		.procname	= "hotplug",
-+		.data		= &hotplug_path,
-+		.maxlen		= 256,
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dostring,
-+		.strategy	= &sysctl_string
-+	},
- #endif
- #ifdef CONFIG_CHR_DEV_SG
--	{KERN_SG_BIG_BUFF, "sg-big-buff", &sg_big_buff, sizeof (int),
--	 0444, NULL, &proc_dointvec},
-+	{
-+		.ctl_name	= KERN_SG_BIG_BUFF,
-+		.procname	= "sg-big-buff",
-+		.data		= &sg_big_buff,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
- #endif
- #ifdef CONFIG_BSD_PROCESS_ACCT
--	{KERN_ACCT, "acct", &acct_parm, 3*sizeof(int),
--	0644, NULL, &proc_dointvec},
--#endif
--	{KERN_RTSIGNR, "rtsig-nr", &nr_queued_signals, sizeof(int),
--	 0444, NULL, &proc_dointvec},
--	{KERN_RTSIGMAX, "rtsig-max", &max_queued_signals, sizeof(int),
--	 0644, NULL, &proc_dointvec},
-+	{
-+		.ctl_name	= KERN_ACCT,
-+		.procname	= "acct",
-+		.data		= &acct_parm,
-+		.maxlen		= 3*sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+#endif
-+	{
-+		.ctl_name	= KERN_RTSIGNR,
-+		.procname	= "rtsig-nr",
-+		.data		= &nr_queued_signals,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_RTSIGMAX,
-+		.procname	= "rtsig-max",
-+		.data		= &max_queued_signals,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
- #ifdef CONFIG_SYSVIPC
--	{KERN_SHMMAX, "shmmax", &shm_ctlmax, sizeof (size_t),
--	 0644, NULL, &proc_doulongvec_minmax},
--	{KERN_SHMALL, "shmall", &shm_ctlall, sizeof (size_t),
--	 0644, NULL, &proc_doulongvec_minmax},
--	{KERN_SHMMNI, "shmmni", &shm_ctlmni, sizeof (int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_MSGMAX, "msgmax", &msg_ctlmax, sizeof (int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_MSGMNI, "msgmni", &msg_ctlmni, sizeof (int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_MSGMNB, "msgmnb", &msg_ctlmnb, sizeof (int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_SEM, "sem", &sem_ctls, 4*sizeof (int),
--	 0644, NULL, &proc_dointvec},
-+	{
-+		.ctl_name	= KERN_SHMMAX,
-+		.procname	= "shmmax",
-+		.data		= &shm_ctlmax,
-+		.maxlen		= sizeof (size_t),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_doulongvec_minmax
-+	},
-+	{
-+		.ctl_name	= KERN_SHMALL,
-+		.procname	= "shmall",
-+		.data		= &shm_ctlall,
-+		.maxlen		= sizeof (size_t),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_doulongvec_minmax
-+	},
-+	{
-+		.ctl_name	= KERN_SHMMNI,
-+		.procname	= "shmmni",
-+		.data		= &shm_ctlmni,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_MSGMAX,
-+		.procname	= "msgmax",
-+		.data		= &msg_ctlmax,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_MSGMNI,
-+		.procname	= "msgmni",
-+		.data		= &msg_ctlmni,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_MSGMNB,
-+		.procname	=  "msgmnb",
-+		.data		= &msg_ctlmnb,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_SEM,
-+		.procname	= "sem",
-+		.data		= &sem_ctls,
-+		.maxlen		= 4*sizeof (int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
- #endif
- #ifdef CONFIG_MAGIC_SYSRQ
--	{KERN_SYSRQ, "sysrq", &sysrq_enabled, sizeof (int),
--	 0644, NULL, &proc_dointvec},
--#endif	 
--	{KERN_CADPID, "cad_pid", &cad_pid, sizeof (int),
--	 0600, NULL, &proc_dointvec},
--	{KERN_MAX_THREADS, "threads-max", &max_threads, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{KERN_RANDOM, "random", NULL, 0, 0555, random_table},
--	{KERN_OVERFLOWUID, "overflowuid", &overflowuid, sizeof(int), 0644, NULL,
--	 &proc_dointvec_minmax, &sysctl_intvec, NULL,
--	 &minolduid, &maxolduid},
--	{KERN_OVERFLOWGID, "overflowgid", &overflowgid, sizeof(int), 0644, NULL,
--	 &proc_dointvec_minmax, &sysctl_intvec, NULL,
--	 &minolduid, &maxolduid},
-+	{
-+		.ctl_name	= KERN_SYSRQ,
-+		.procname	= "sysrq",
-+		.data		= &sysrq_enabled,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+#endif
-+	{
-+		.ctl_name	= KERN_CADPID,
-+		.procname	= "cad_pid",
-+		.data		= &cad_pid,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0600,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_MAX_THREADS,
-+		.procname	= "threads-max",
-+		.data		= &max_threads,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= KERN_RANDOM,
-+		.procname	= "random",
-+		.data		= NULL,
-+		.maxlen		= 0,
-+		.mode		= 0555,
-+		.child		= random_table
-+	},
-+	{
-+		.ctl_name	= KERN_OVERFLOWUID,
-+		.procname	= "overflowuid",
-+		.data		= &overflowuid,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &minolduid,
-+		.extra2		= &maxolduid
-+	},
-+	{
-+		.ctl_name	= KERN_OVERFLOWGID,
-+		.procname	= "overflowgid",
-+		.data		= &overflowgid,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &minolduid,
-+		.extra2		= &maxolduid
-+	},
- #ifdef CONFIG_ARCH_S390
- #ifdef CONFIG_MATHEMU
--	{KERN_IEEE_EMULATION_WARNINGS,"ieee_emulation_warnings",
--	 &sysctl_ieee_emulation_warnings,sizeof(int),0644,NULL,&proc_dointvec},
--#endif
--	{KERN_S390_USER_DEBUG_LOGGING,"userprocess_debug",
--	 &sysctl_userprocess_debug,sizeof(int),0644,NULL,&proc_dointvec},
--#endif
--	{KERN_PIDMAX, "pid_max", &pid_max, sizeof (int),
--	 0600, NULL, &proc_dointvec},
--	{0}
-+	{
-+		.ctl_name	= KERN_IEEE_EMULATION_WARNINGS,
-+		.procname	= "ieee_emulation_warnings",
-+		.data		= &sysctl_ieee_emulation_warnings,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+#endif
-+	{
-+		.ctl_name	= KERN_S390_USER_DEBUG_LOGGING,
-+		.procname	= "userprocess_debug",
-+		.data		= &sysctl_userprocess_debug,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+#endif
-+	{
-+		.ctl_name	= KERN_PIDMAX,
-+		.procname	= "pid_max",
-+		.data		= &pid_max,
-+		.maxlen		= sizeof (int),
-+		.mode		= 0600,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{ .ctl_name = 0 }
- };
- 
- /* Constants for minimum and maximum testing in vm_table.
-@@ -272,23 +609,69 @@
- 
- 
- static ctl_table vm_table[] = {
--	{VM_OVERCOMMIT_MEMORY, "overcommit_memory", &sysctl_overcommit_memory,
--	 sizeof(sysctl_overcommit_memory), 0644, NULL, &proc_dointvec},
--	{VM_OVERCOMMIT_RATIO, "overcommit_ratio",
--	 &sysctl_overcommit_ratio, sizeof(sysctl_overcommit_ratio), 0644,
--	 NULL, &proc_dointvec},
--	{VM_PAGE_CLUSTER, "page-cluster", 
--	 &page_cluster, sizeof(int), 0644, NULL, &proc_dointvec},
--	{VM_DIRTY_BACKGROUND, "dirty_background_ratio",
--	 &dirty_background_ratio, sizeof(dirty_background_ratio),
--	 0644, NULL, &proc_dointvec_minmax,  &sysctl_intvec, NULL,
--	 &zero, &one_hundred },
--	{VM_DIRTY_RATIO, "dirty_ratio", &vm_dirty_ratio,
--	 sizeof(vm_dirty_ratio), 0644, NULL, &proc_dointvec_minmax,
--	 &sysctl_intvec, NULL, &zero, &one_hundred },
--	{VM_DIRTY_WB_CS, "dirty_writeback_centisecs",
--	 &dirty_writeback_centisecs, sizeof(dirty_writeback_centisecs), 0644,
--	 NULL, &proc_dointvec_minmax, &sysctl_intvec, NULL,
-+	{
-+		.ctl_name	= VM_OVERCOMMIT_MEMORY,
-+		.procname	= "overcommit_memory",
-+		.data		= &sysctl_overcommit_memory,
-+		.maxlen		= sizeof(sysctl_overcommit_memory),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= VM_OVERCOMMIT_RATIO,
-+		.procname	= "overcommit_ratio",
-+		.data		= &sysctl_overcommit_ratio,
-+		.maxlen		= sizeof(sysctl_overcommit_ratio),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= VM_PAGE_CLUSTER,
-+		.procname	= "page-cluster", 
-+		.data		= &page_cluster,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= VM_DIRTY_BACKGROUND,
-+		.procname	= "dirty_background_ratio",
-+		.data		= &dirty_background_ratio,
-+		.maxlen		= sizeof(dirty_background_ratio),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &zero,
-+		.extra2		= &one_hundred
-+	},
-+	{
-+		.ctl_name	= VM_DIRTY_RATIO,
-+		.procname	= "dirty_ratio",
-+		.data		= &vm_dirty_ratio,
-+		.maxlen		= sizeof(vm_dirty_ratio),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &zero,
-+		.extra2		= &one_hundred
-+	},
-+	{
-+		.ctl_name	= VM_DIRTY_WB_CS,
-+		.procname	= "dirty_writeback_centisecs",
-+		.data		= &dirty_writeback_centisecs,
-+		.maxlen		= sizeof(dirty_writeback_centisecs),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
- 	 /* Here, we define the range of possible values for
- 	    dirty_writeback_centisecs.
- 
-@@ -301,63 +684,179 @@
- 	    some nicely documented throttling code in wb_kupdate().
- 
- 	    There is no maximum legal value for dirty_writeback. */
--	 &one , NULL},
--	{VM_DIRTY_EXPIRE_CS, "dirty_expire_centisecs",
--	 &dirty_expire_centisecs, sizeof(dirty_expire_centisecs), 0644,
--	 NULL, &proc_dointvec},
--	{ VM_NR_PDFLUSH_THREADS, "nr_pdflush_threads",
--	  &nr_pdflush_threads, sizeof nr_pdflush_threads,
--	  0444 /* read-only*/, NULL, &proc_dointvec},
--	{VM_SWAPPINESS, "swappiness", &vm_swappiness, sizeof(vm_swappiness),
--	 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec, NULL, &zero,
--	 &one_hundred },
-+	 	.extra1		= &one,
-+		.extra2		= NULL
-+	},
-+	{
-+		.ctl_name	= VM_DIRTY_EXPIRE_CS,
-+		.procname	= "dirty_expire_centisecs",
-+		.data		= &dirty_expire_centisecs,
-+		.maxlen		= sizeof(dirty_expire_centisecs),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= VM_NR_PDFLUSH_THREADS,
-+		.procname	= "nr_pdflush_threads",
-+		.data		= &nr_pdflush_threads,
-+		.maxlen		= sizeof nr_pdflush_threads,
-+		.mode		= 0444 /* read-only*/,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= VM_SWAPPINESS,
-+		.procname	= "swappiness",
-+		.data		= &vm_swappiness,
-+		.maxlen		= sizeof(vm_swappiness),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &zero,
-+		.extra2		= &one_hundred
-+	},
- #ifdef CONFIG_HUGETLB_PAGE
--	 {VM_HUGETLB_PAGES, "nr_hugepages", &htlbpage_max, sizeof(int), 0644,
--	  NULL, &hugetlb_sysctl_handler},
--#endif
--	{VM_LOWER_ZONE_PROTECTION, "lower_zone_protection",
--	 &sysctl_lower_zone_protection, sizeof(sysctl_lower_zone_protection),
--	 0644, NULL, &proc_dointvec_minmax, &sysctl_intvec, NULL, &zero,
--	 NULL, },
--	{0}
-+	 {
-+		.ctl_name	= VM_HUGETLB_PAGES,
-+		.procname	= "nr_hugepages",
-+		.data		= &htlbpage_max,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &hugetlb_sysctl_handler
-+	 },
-+#endif
-+	{
-+		.ctl_name	= VM_LOWER_ZONE_PROTECTION,
-+		.procname	= "lower_zone_protection",
-+		.data		= &sysctl_lower_zone_protection,
-+		.maxlen		= sizeof(sysctl_lower_zone_protection),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &zero,
-+		.extra2		= NULL
-+	},
-+	{ .ctl_name = 0 }
- };
- 
- static ctl_table proc_table[] = {
--	{0}
-+	{ .ctl_name = 0 }
- };
- 
- static ctl_table fs_table[] = {
--	{FS_NRINODE, "inode-nr", &inodes_stat, 2*sizeof(int),
--	 0444, NULL, &proc_dointvec},
--	{FS_STATINODE, "inode-state", &inodes_stat, 7*sizeof(int),
--	 0444, NULL, &proc_dointvec},
--	{FS_NRFILE, "file-nr", &files_stat, 3*sizeof(int),
--	 0444, NULL, &proc_dointvec},
--	{FS_MAXFILE, "file-max", &files_stat.max_files, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{FS_DENTRY, "dentry-state", &dentry_stat, 6*sizeof(int),
--	 0444, NULL, &proc_dointvec},
--	{FS_OVERFLOWUID, "overflowuid", &fs_overflowuid, sizeof(int), 0644, NULL,
--	 &proc_dointvec_minmax, &sysctl_intvec, NULL,
--	 &minolduid, &maxolduid},
--	{FS_OVERFLOWGID, "overflowgid", &fs_overflowgid, sizeof(int), 0644, NULL,
--	 &proc_dointvec_minmax, &sysctl_intvec, NULL,
--	 &minolduid, &maxolduid},
--	{FS_LEASES, "leases-enable", &leases_enable, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{FS_DIR_NOTIFY, "dir-notify-enable", &dir_notify_enable,
--	 sizeof(int), 0644, NULL, &proc_dointvec},
--	{FS_LEASE_TIME, "lease-break-time", &lease_break_time, sizeof(int),
--	 0644, NULL, &proc_dointvec},
--	{0}
-+	{
-+		.ctl_name	= FS_NRINODE,
-+		.procname	= "inode-nr",
-+		.data		= &inodes_stat,
-+		.maxlen		= 2*sizeof(int),
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= FS_STATINODE,
-+		.procname	= "inode-state",
-+		.data		= &inodes_stat,
-+		.maxlen		= 7*sizeof(int),
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= FS_NRFILE,
-+		.procname	= "file-nr",
-+		.data		= &files_stat,
-+		.maxlen		= 3*sizeof(int),
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= FS_MAXFILE,
-+		.procname	= "file-max",
-+		.data		= &files_stat.max_files,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= FS_DENTRY,
-+		.procname	= "dentry-state",
-+		.data		= &dentry_stat,
-+		.maxlen		= 6*sizeof(int),
-+		.mode		= 0444,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= FS_OVERFLOWUID,
-+		.procname	= "overflowuid",
-+		.data		= &fs_overflowuid,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &minolduid,
-+		.extra2		= &maxolduid
-+	},
-+	{
-+		.ctl_name	= FS_OVERFLOWGID,
-+		.procname	= "overflowgid",
-+		.data		= &fs_overflowgid,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec_minmax,
-+		.strategy	= &sysctl_intvec,
-+		.de		= NULL,
-+		.extra1		= &minolduid,
-+		.extra2		= &maxolduid
-+	},
-+	{
-+		.ctl_name	= FS_LEASES,
-+		.procname	= "leases-enable",
-+		.data		= &leases_enable,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= FS_DIR_NOTIFY,
-+		.procname	= "dir-notify-enable",
-+		.data		= &dir_notify_enable,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-+		.ctl_name	= FS_LEASE_TIME,
-+		.procname	= "lease-break-time",
-+		.data		= &lease_break_time,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.child		= NULL,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{ .ctl_name = 0 }
- };
- 
- static ctl_table debug_table[] = {
--	{0}
-+	{ .ctl_name = 0 }
- };
- 
- static ctl_table dev_table[] = {
--	{0}
-+	{ .ctl_name = 0 }
- };  
- 
- extern void init_irq_proc (void);
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759
+   Gnu C                  2.95.4
+   Gnu make               3.79.1
+   util-linux             2.11n
+   mount                  2.11n
+   modutils               2.4.15
+   e2fsprogs              1.27
+   PPP                    2.4.1
+   Linux C Library        2.2.5
+   Dynamic linker (ldd)   2.2.5
+   Procps                 2.0.7
+   Net-tools              1.60
+   Console-tools          0.2.3
+   Sh-utils               2.0.11
+   Modules Loaded         
+
+[7.2.] Processor information (from /proc/cpuinfo):
+
+   processor	: 0
+   vendor_id	: AuthenticAMD
+   cpu family	: 6
+   model		: 6
+   model name	: AMD Athlon(tm) MP 1900+
+   stepping	: 2
+   cpu MHz		: 1600.063
+   cache size	: 256 KB
+   fdiv_bug	: no
+   hlt_bug		: no
+   f00f_bug	: no
+   coma_bug	: no
+   fpu		: yes
+   fpu_exception	: yes
+   cpuid level	: 1
+   wp		: yes
+   flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+   bogomips	: 3191.60
+
+   processor	: 1
+   vendor_id	: AuthenticAMD
+   cpu family	: 6
+   model		: 6
+   model name	: AMD Athlon(tm) Processor
+   stepping	: 2
+   cpu MHz		: 1600.063
+   cache size	: 256 KB
+   fdiv_bug	: no
+   hlt_bug		: no
+   f00f_bug	: no
+   coma_bug	: no
+   fpu		: yes
+   fpu_exception	: yes
+   cpuid level	: 1
+   wp		: yes
+   flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse syscall mmxext 3dnowext 3dnow
+   bogomips	: 3198.15
+
+[7.3.] Module information (from /proc/modules):
+
+   This is an entirely static system . . . no modules.
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(set)
+0cf8-0cff : PCI conf1
+1010-1013 : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller
+2000-2fff : PCI Bus #02
+  2000-20ff : Adaptec AHA-2940U2/U2W
+  2400-247f : Digital Equipment Corporation DECchip 21041 [Tulip Pass 3]
+    2400-247f : tulip
+  2480-24ff : 3Com Corporation 3c905C-TX/TX-M [Tornado]
+    2480-24ff : 02:08.0
+  2800-283f : Ensoniq ES1371 [AudioPCI-97]
+    2800-283f : es1371
+f000-f00f : Advanced Micro Devices [AMD] AMD-768 [Opus] IDE
+  f000-f007 : ide0
+  f008-f00f : ide1
+
+00000000-0009f7ff : System RAM
+0009f800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000cc800-000ccfff : Extension ROM
+000cd000-000d27ff : Extension ROM
+000e0000-000effff : Extension ROM
+000f0000-000fffff : System ROM
+00100000-1feeffff : System RAM
+  00100000-002c4c3b : Kernel code
+  002c4c3c-003817bf : Kernel data
+1fef0000-1fefefff : ACPI Tables
+1feff000-1fefffff : ACPI Non-volatile Storage
+1ff00000-1ff7ffff : System RAM
+1ff80000-1fffffff : reserved
+e0000000-e0ffffff : PCI Bus #01
+  e0000000-e0ffffff : nVidia Corporation NV11 [GeForce2 MX]
+e1000000-e10fffff : PCI Bus #02
+  e1000000-e1000fff : Advanced Micro Devices [AMD] AMD-768 [Opus] USB
+    e1000000-e1000fff : usb-ohci
+  e1001000-e1001fff : Adaptec AHA-2940U2/U2W
+    e1001000-e1001fff : aic7xxx
+  e1002000-e100207f : Digital Equipment Corporation DECchip 21041 [Tulip Pass 3]
+    e1002000-e100207f : tulip
+  e1002400-e100247f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
+e1300000-e1300fff : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller
+e8000000-efffffff : Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller
+f0000000-f7ffffff : PCI Bus #01
+  f0000000-f7ffffff : nVidia Corporation NV11 [GeForce2 MX]
+fec00000-fec03fff : reserved
+fee00000-fee00fff : reserved
+fff80000-ffffffff : reserved
+
+[7.5.] PCI information ('lspci -vvv' as root)
+
+00:00.0 Host bridge: Advanced Micro Devices [AMD]: Unknown device 700c (rev 11)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=128M]
+	Region 1: Memory at e1300000 (32-bit, prefetchable) [size=4K]
+	Region 2: I/O ports at 1010 [disabled] [size=4]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=15 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA+ AGP+ 64bit- FW- Rate=<none>
+
+00:01.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 700d (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 99
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=68
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: e0000000-e0ffffff
+	Prefetchable memory behind bridge: f0000000-f7ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:07.0 ISA bridge: Advanced Micro Devices [AMD]: Unknown device 7440 (rev 05)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:07.1 IDE interface: Advanced Micro Devices [AMD]: Unknown device 7441 (rev 04) (prog-if 8a [Master SecP PriP])
+	Subsystem: Advanced Micro Devices [AMD]: Unknown device 7441
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Region 4: I/O ports at f000 [size=16]
+
+00:07.3 Bridge: Advanced Micro Devices [AMD]: Unknown device 7443 (rev 03)
+	Subsystem: Advanced Micro Devices [AMD]: Unknown device 7443
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:10.0 PCI bridge: Advanced Micro Devices [AMD]: Unknown device 7448 (rev 05) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Bus: primary=00, secondary=02, subordinate=02, sec-latency=168
+	I/O behind bridge: 00002000-00002fff
+	Memory behind bridge: e1000000-e10fffff
+	Prefetchable memory behind bridge: fff00000-000fffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+01:05.0 VGA compatible controller: nVidia Corporation NV11 (GeForce2 MX) (rev b2) (prog-if 00 [VGA])
+	Subsystem: VISIONTEK: Unknown device 0023
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 18
+	Region 0: Memory at e0000000 (32-bit, non-prefetchable) [size=16M]
+	Region 1: Memory at f0000000 (32-bit, prefetchable) [size=128M]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [44] AGP version 2.0
+		Status: RQ=31 SBA- 64bit- FW+ Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+02:00.0 USB Controller: Advanced Micro Devices [AMD]: Unknown device 7449 (rev 07) (prog-if 10 [OHCI])
+	Subsystem: Advanced Micro Devices [AMD]: Unknown device 7449
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+	Latency: 64 (20000ns max)
+	Interrupt: pin D routed to IRQ 19
+	Region 0: Memory at e1000000 (32-bit, non-prefetchable) [size=4K]
+
+02:04.0 SCSI storage controller: Adaptec AHA-2940U2/W
+	Subsystem: Adaptec: Unknown device a180
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (9750ns min, 6250ns max), cache line size 10
+	Interrupt: pin A routed to IRQ 16
+	BIST result: 00
+	Region 0: I/O ports at 2000 [disabled] [size=256]
+	Region 1: Memory at e1001000 (64-bit, non-prefetchable) [size=4K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:05.0 Ethernet controller: Digital Equipment Corporation DECchip 21041 [Tulip Pass 3] (rev 21)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Interrupt: pin A routed to IRQ 17
+	Region 0: I/O ports at 2400 [size=128]
+	Region 1: Memory at e1002000 (32-bit, non-prefetchable) [size=128]
+	Expansion ROM at <unassigned> [disabled] [size=256K]
+
+02:07.0 Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 08)
+	Subsystem: Ensoniq Creative Sound Blaster AudioPCI64V, AudioPCI128
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort+ <MAbort- >SERR- <PERR-
+	Latency: 64 (3000ns min, 32000ns max)
+	Interrupt: pin A routed to IRQ 19
+	Region 0: I/O ports at 2800 [size=64]
+	Capabilities: [dc] Power Management version 1
+		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:08.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 78)
+	Subsystem: Tyan Computer: Unknown device 2466
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 80 (2500ns min, 2500ns max), cache line size 10
+	Interrupt: pin A routed to IRQ 19
+	Region 0: I/O ports at 2480 [size=128]
+	Region 1: Memory at e1002400 (32-bit, non-prefetchable) [size=128]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS10K2-TY092L Rev: DA40
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS10K2-TY092L Rev: DA40
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi0 Channel: 00 Id: 02 Lun: 00
+  Vendor: QUANTUM  Model: ATLAS10K2-TY092L Rev: DA40
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi1 Channel: 00 Id: 00 Lun: 00
+  Vendor: SAMSUNG  Model: CD-R/RW SW-240B  Rev: R401
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+[7.7.] Other information that might be relevant to the problem
+(please look in /proc and include all information that you
+think to be relevant):
+
+   A CD burn starts up, gets about 7 MBytes into the operation,
+   then the system hangs, hard!
+
+   The system will hang when the "use DMA by default" is turned
+   on, but the AMD Viper support is not compiled in, and when
+   the AMD Viper support is compiled in, but "use DMA by default"
+   is not enabled.
+
+   No surprise, since the exact same hardware is involved.
+
+   In short, the best guess here is that it's a DMA issue on
+   AMD Viper chipsets.
+
+Thanks,
+John S.

@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263018AbTDBOvC>; Wed, 2 Apr 2003 09:51:02 -0500
+	id <S263020AbTDBOvv>; Wed, 2 Apr 2003 09:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263019AbTDBOvC>; Wed, 2 Apr 2003 09:51:02 -0500
-Received: from mail.probe-networks.de ([81.2.144.6]:523 "HELO
-	server3.probe-networks.de") by vger.kernel.org with SMTP
-	id <S263018AbTDBOvC>; Wed, 2 Apr 2003 09:51:02 -0500
-Subject: SiS648 Problems
-From: Jonas "Frey (Probe Networks)" <jf@probe-networks.de>
+	id <S263021AbTDBOvv>; Wed, 2 Apr 2003 09:51:51 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:32387 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S263020AbTDBOve>; Wed, 2 Apr 2003 09:51:34 -0500
+Date: Wed, 2 Apr 2003 17:02:54 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 02 Apr 2003 17:02:27 +0200
-Message-Id: <1049295747.15732.132.camel@jonas>
-Mime-Version: 1.0
+Subject: my linux does not accept redirects
+Message-ID: <Pine.LNX.4.51.0304021657090.2465@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-we got some Elitegroup P4S8AG Boards here, featuring SiS648/SiS963
-Chipsets. They work fine as far as it comes to the onboard SiS900
-onboard lan/network PCI cards.
-No matter what kernel version (we tried 2.4.20, 2.4.20-ac2,
-2.4.21-pre5-ac3) and no matter what network card (we tried some RealTek
-8139C and the onboard card).
-Using the onboard card the Kernel reports while trying to ping anything:
-eth0: Unknown PHY transceiver found at address 1.
-eth0: Using transceiver found at address 1 as default
-eth0: SiS 900 PCI Fast Ethernet at 0xdc00, IRQ 10, 00:0a:e6:6e:cd:6a.
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: Transmit timeout, status 00000004 00000249
+There are 2 routers on my network.
+Router A routes to other internal networks
+Router B routes to the Internet
 
-We tried all possible BIOS settings like PnP OS off/on etc. No go.
+My box has A as the default gateway.
+It should get redirects for the Internet hosts and it does.
+But despite icmp redirects are not filtered and
+/proc/sys/net/ipv4/conf/eth1/accept_redirects is 1 it does not learn
+the paths and i simply get flooded by the router with redirects about
+every single packet that is sent.
 
-Has anyone gotten this board successfully running with the onboard lan?
-I have seen these errors on some older boards, an update to the newest
-kernel usually fixed them, so i guess its something with the SiS648's
-PCIbus not beeing initialized correctly.
+What could be wrong?
 
-Cheers,
-Jonas Frey
-
-
+Regards,
+Maciej Soltysiak

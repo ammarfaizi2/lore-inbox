@@ -1,93 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVAZBj6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbVAZBln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVAZBj6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 20:39:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVAZBj6
+	id S262045AbVAZBln (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 20:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVAZBlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 20:39:58 -0500
-Received: from fmr13.intel.com ([192.55.52.67]:471 "EHLO
-	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261918AbVAZBjy convert rfc822-to-8bit (ORCPT
+	Tue, 25 Jan 2005 20:41:31 -0500
+Received: from sulu.mmm.com ([192.28.4.21]:7385 "EHLO torres4.mmm.com")
+	by vger.kernel.org with ESMTP id S262045AbVAZBlQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 20:39:54 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 25 Jan 2005 20:41:16 -0500
+Subject: Fw: How to submit device ID into hid blacklist.
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF0CB4FB74.DC0C23B0-ON86256F95.0009A35A-85256F95.000944BB@mmm.com>
+From: dsuljic@mmm.com
+Date: Tue, 25 Jan 2005 20:45:27 -0500
+X-MIMETrack: Serialize by Router on US-Mail-22/US-Corporate/3M/US(Release 6.0.2CF1|June
+ 9, 2003) at 01/25/2005 07:45:28 PM
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: possible CPU bug and request for Intel contacts
-Date: Tue, 25 Jan 2005 17:38:48 -0800
-Message-ID: <01EF044AAEE12F4BAAD955CB7506494302E88991@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: possible CPU bug and request for Intel contacts
-Thread-Index: AcUC50DjRAX3Ue7FSIGH4j/hhkFOTwAXCs4w
-From: "Seth, Rohit" <rohit.seth@intel.com>
-To: "Kirill Korotaev" <dev@sw.ru>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Andrey Savochkin" <saw@sawoct.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jan 2005 01:38:50.0049 (UTC) FILETIME=[C90BEB10:01C50347]
+Content-type: text/plain; charset=US-ASCII
+X-Spam-Score: 1.028 (*) NO_REAL_NAME,UPPERCASE_25_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <mailto:dev@sw.ru> wrote on Tuesday, January 25, 2005
-6:12 AM:
 
-> Hello Rohit,
-> 
->>> BTW, can you explain why making pages non-global is the cure? Is it
->>> safe workaround for this bug?
 
->> There is a boundary condition that can have non-global pages
->> containing the CR3 load to also hit this issue on affected PIII. 
->> Though for this to happen, mov to cr3 has to be the very last
->> instruction on a page. And the page following that page (containing
->> CR3 load) has to have different mapping between user and kernel
->> spaces. 
 
-> but in our case "mov %edx, %cr3" is not the last instruction on a
-> page. 
-> It is in the middle of it.
 
-So, in this scenario (where trampoline code is mapped by non global
-page), we will not hit this issue.
+Hi,
+I work for 3M Touch Systems (former MicroTouch) as software engineer and
+our main product is touchscreen as input device.
+Recently, we have released hid compliant devices (they work perfectly under
+Windows OS), but Linux hid driver does not support us correctly. In kernel
+2.4 hid driver recognizes our devices and tries to interpret events in best
+manner, but since we are absolute pointing device it was a bit tricky with
+hid mouse on same system. I kernel 2.6 hid core driver grubs our devices
+but does not recognize us as hid device. So we decided, for now, to disable
+hid driver of recognizing our hid devices.
+My question is how can we submit changes to kernel tree.
 
-> Well, another remark is that after cr3 load there are only few
-> instructions before the "call system_call_table(%edx)" which
-> references 
-> the page with different user and kernel mappings.
-> 
-> also, this bug can be cured via inserting about 20 simple operations
-> between cr3 load and call to the page with overlapping mappings.
-> 
+Here is example of patch for kernel 2.6.10 hid-core.c:
 
-This is not a recommended solution.
+--- drivers/usb/input/hid-core.c    2004-12-24 16:34:58.000000000 -0500
++++ drivers/usb/input/hid-core.c    2005-01-13 17:19:26.477523912 -0500
+@@ -1469,6 +1469,12 @@
+ #define USB_VENDOR_ID_DELORME            0x1163
+ #define USB_DEVICE_ID_DELORME_EARTHMATE 0x0100
 
-> I'm just trying to understand is it the bug referenced in E80 or not
-> and 
-> is it safe to use non-global mappings as a cure.
++#define USB_VENDOR_ID_MICROTOUCH   0x0596
++#define USB_DEVICE_ID_MICROTOUCH_SC_4_8  0x0100
++#define USB_DEVICE_ID_MICROTOUCH_SC_5    0x0102
++#define USB_DEVICE_ID_MICROTOUCH_NFI5    0x0200
++#define USB_DEVICE_ID_MICROTOUCH_DST     0x0300
++
+ static struct hid_blacklist {
+      __u16 idVendor;
+      __u16 idProduct;
+@@ -1559,6 +1565,10 @@
 
-Our analysis has shown that this is E80 issue.  In this 4G-4G kernel
-context, we are safe to use non-global mapping as a workaround for this
-issue. (Or we can use any of the other recommendations given in the spec
-update except rdtsc with global pages).
+      { USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE,
+HID_QUIRK_IGNORE },
 
-We have also seen that inserting rdtsc instruction is not a workaround.
-We will update the spec update with this information.
++     { USB_VENDOR_ID_MICROTOUCH, USB_DEVICE_ID_MICROTOUCH_SC_4_8,
+HID_QUIRK_IGNORE },
++     { USB_VENDOR_ID_MICROTOUCH, USB_DEVICE_ID_MICROTOUCH_SC_5,
+HID_QUIRK_IGNORE },
++     { USB_VENDOR_ID_MICROTOUCH, USB_DEVICE_ID_MICROTOUCH_NFI5,
+HID_QUIRK_IGNORE },
++     { USB_VENDOR_ID_MICROTOUCH, USB_DEVICE_ID_MICROTOUCH_DST,
+HID_QUIRK_IGNORE },
+      { 0, 0 }
+ };
 
-On a little different note, while running the 4G-4G kernel on our
-machine, we saw occasional hangs.  Those are root caused to the fact
-that this kernel was first chaging the stack pointer from virtual stack
-to kernel and then changing the CR3 to that of kernel.  Any interrupt
-between these two instructions will result in those hangs as the
-interruption handler will execute with user's CR3(as the kernel thinks
-that it is already in kernel because of the value of esp).  Swapping the
-order, first loading the CR3 with kernel and then switching the stack to
-kernel fixes this issue.  Venki will generate that patch and send to
-lkml.
+Best regards,
 
-Thanks, rohit
+Damir Suljic
+3M Touch Systems
+3M Optical Systems Division
+300 Griffin Brook Park Drive
+Methuen, MA 01844
+978-659-9386
+dsuljic@mmm.com
+www.3Mtouch.com
+www.touchshowcase.com
 

@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279112AbRJVX5v>; Mon, 22 Oct 2001 19:57:51 -0400
+	id <S279113AbRJVX6l>; Mon, 22 Oct 2001 19:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279113AbRJVX5l>; Mon, 22 Oct 2001 19:57:41 -0400
-Received: from host213-1-125-109.dialup.lineone.co.uk ([213.1.125.109]:260
-	"EHLO hoffman.vilain.net") by vger.kernel.org with ESMTP
-	id <S279112AbRJVX5c>; Mon, 22 Oct 2001 19:57:32 -0400
-Date: Tue, 23 Oct 2001 00:57:42 +0100
-From: Sam Vilain <sam@vilain.net>
-To: brian@worldcontrol.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <20011022122722.A369@top.worldcontrol.com>
-In-Reply-To: <20011022140644.A31530@emma1.emma.line.org>
-	<E15veCh-0001nf-00@the-village.bc.nu>
-	<20011022122722.A369@top.worldcontrol.com>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i386-debian-linux-gnu)
-X-Face: NErb*2NY4\th?$s.!!]_9le_WtWE'b4;dk<5ot)OW2hErS|tE6~D3errlO^fVil?{qe4Lp_m\&Ja!;>%JqlMPd27X|;b!GH'O.,NhF*)e\ln4W}kFL5c`5t'9,(~Bm_&on,0Ze"D>rFJ$Y[U""nR<Y2D<b]&|H_C<eGu?ncl.w'<
+	id <S279114AbRJVX6b>; Mon, 22 Oct 2001 19:58:31 -0400
+Received: from intranet.resilience.com ([209.245.157.33]:38863 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S279113AbRJVX6W>; Mon, 22 Oct 2001 19:58:22 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vowx-0000RS-00@hoffman.vilain.net>
+Message-Id: <p05100308b7fa612b047e@[10.128.7.49]>
+In-Reply-To: <20011022184738.D29445@hapablap.dyn.dhs.org>
+In-Reply-To: <20011022122722.A369@top.worldcontrol.com>
+ <E15vlmG-0003Ff-00@the-village.bc.nu>
+ <20011022174502.B29445@hapablap.dyn.dhs.org>
+ <p05100305b7fa574fb379@[10.128.7.49]>
+ <20011022184738.D29445@hapablap.dyn.dhs.org>
+Date: Mon, 22 Oct 2001 16:58:48 -0700
+To: Steven Walter <srwalter@yahoo.com>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Linux 2.2.20pre10
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 12:27:22 -0700
-brian@worldcontrol.com wrote:
+At 6:47 PM -0500 10/22/01, Steven Walter wrote:
+>  > That seems like a willful misreading of the original. Where did you
+>>  get "consent"? Alan suggests that non-rebellion implies lack of
+>>  consciousness, which doesn't imply consent.
+>
+>Seems like, but isn't.  It's every citizen's responsibility to be aware
+>of the matters concerning the State.  If they aren't, then again it is
+>their own fault.
 
-> On Mon, Oct 22, 2001 at 01:29:14PM +0100, Alan Cox wrote:
-> >    "Until they become conscious they will never rebel, and until after
-> >     they have rebelled they cannot become conscious."
-> While I've been generally saddened by Alan Cox's and others
-> anti-America attitude,  I am somewhat surprised to find that
-> Alan believes the US bombing of Afghanistan is justified and so
-> is the collateral damage as they call it.
+I don't quarrel with the fact that you assert that. However, it does 
+not follow from Alan's statement.
 
-*plonk*
+And if non-rebellion by a citizenry against immoral behavior by its 
+government justifies the slaughter of that citizenry, then, to quote 
+Jefferson in a slightly different context, " Indeed I tremble for my 
+country when I reflect that God is just, that his justice cannot 
+sleep forever."
+-- 
+/Jonathan Lundell.

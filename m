@@ -1,42 +1,190 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbUBKDQa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 22:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUBKDQa
+	id S262360AbUBKDaj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 22:30:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbUBKDaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 22:16:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44940 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262030AbUBKDQ3 (ORCPT
+	Tue, 10 Feb 2004 22:30:39 -0500
+Received: from smtp2.dei.uc.pt ([193.137.203.229]:21391 "EHLO smtp2.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S262360AbUBKDae (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 22:16:29 -0500
-Date: Tue, 10 Feb 2004 19:19:11 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 10 Feb 2004 22:30:34 -0500
+Date: Wed, 11 Feb 2004 03:30:17 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Critical problem in 2.6.2 and up
-Message-Id: <20040210191911.4d6e1308.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402110250580.28596@student.dei.uc.pt>
+In-Reply-To: <20040210191911.4d6e1308.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0402110325050.28596@student.dei.uc.pt>
 References: <Pine.LNX.4.58.0402110250580.28596@student.dei.uc.pt>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <20040210191911.4d6e1308.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="17432832-314012719-1076470217=:28596"
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Marcos D. Marado Torres" <marado@student.dei.uc.pt> wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+--17432832-314012719-1076470217=:28596
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Tue, 10 Feb 2004, Andrew Morton wrote:
+
+> "Marcos D. Marado Torres" <marado@student.dei.uc.pt> wrote:
+> >
+> > # lilo
+> >
+> >  Warning: '/proc/partitions' does not match '/dev' directory structure.
+> >      Name change: '/dev/nbd0' -> '/tmp/dev.0'
+> >  Warning: '/dev' directory structure is incomplete; device (43, 0) is missing.
+> >  Warning: '/dev' directory structure is incomplete; device (43, 1) is missing.
+> >  Warning: '/dev' directory structure is incomplete; device (43, 2) is missing.
+> >  Warning: '/dev' directory structure is incomplete; device (43, 3) is missing.
 >
-> # lilo
-> 
->  Warning: '/proc/partitions' does not match '/dev' directory structure.
->      Name change: '/dev/nbd0' -> '/tmp/dev.0'
->  Warning: '/dev' directory structure is incomplete; device (43, 0) is missing.
->  Warning: '/dev' directory structure is incomplete; device (43, 1) is missing.
->  Warning: '/dev' directory structure is incomplete; device (43, 2) is missing.
->  Warning: '/dev' directory structure is incomplete; device (43, 3) is missing.
+> Please send us your /proc/partitions with, and without that patch.
 
-Please send us your /proc/partitions with, and without that patch.
+Follows as attachment.
 
-If you disable nbd in config, does it help?
+> If you disable nbd in config, does it help?
 
-Are you using devfs?
+I'm going to try it next.
+
+> Are you using devfs?
+
+No.
+
+- --
+==================================================
+Marcos Daniel Marado Torres AKA Mind Booster Noori
+/"\               http://student.dei.uc.pt/~marado
+\ /                       marado@student.dei.uc.pt
+ X   ASCII Ribbon Campaign
+/ \  against HTML e-mail and Micro$oft attachments
+==================================================
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFAKaHOmNlq8m+oD34RAkzWAJ92MDzrtJFg024miQjtd1VS71ji6QCgs+9Q
+ofQipvRJOPHGaZfy6zVYwVQ=
+=wDE4
+-----END PGP SIGNATURE-----
+
+--17432832-314012719-1076470217=:28596
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=partitions_without_patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0402110330170.28596@student.dei.uc.pt>
+Content-Description: 
+Content-Disposition: attachment; filename=partitions_without_patch
+
+bWFqb3IgbWlub3IgICNibG9ja3MgIG5hbWUNCg0KICAgMyAgICAgMCAgIDM5
+MDcwMDgwIGhkYQ0KICAgMyAgICAgMSAgIDMwNzI0MjgxIGhkYTENCiAgIDMg
+ICAgIDIgICAgICAgICAgMSBoZGEyDQogICAzICAgICAzICAgIDEwNTIyNTcg
+aGRhMw0KICAgMyAgICAgNSAgICAgNTYyMjQzIGhkYTUNCiAgIDMgICAgIDYg
+ICAgNjczMTIwMyBoZGE2DQo=
+
+--17432832-314012719-1076470217=:28596
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=partitions_with_patch
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.58.0402110330171.28596@student.dei.uc.pt>
+Content-Description: 
+Content-Disposition: attachment; filename=partitions_with_patch
+
+bWFqb3IgbWlub3IgICNibG9ja3MgIG5hbWUNCg0KICA0MyAgICAgMCAgICAy
+MDk3MTUxIG5iZDANCiAgNDMgICAgIDEgICAgMjA5NzE1MSBuYmQxDQogIDQz
+ICAgICAyICAgIDIwOTcxNTEgbmJkMg0KICA0MyAgICAgMyAgICAyMDk3MTUx
+IG5iZDMNCiAgNDMgICAgIDQgICAgMjA5NzE1MSBuYmQ0DQogIDQzICAgICA1
+ICAgIDIwOTcxNTEgbmJkNQ0KICA0MyAgICAgNiAgICAyMDk3MTUxIG5iZDYN
+CiAgNDMgICAgIDcgICAgMjA5NzE1MSBuYmQ3DQogIDQzICAgICA4ICAgIDIw
+OTcxNTEgbmJkOA0KICA0MyAgICAgOSAgICAyMDk3MTUxIG5iZDkNCiAgNDMg
+ICAgMTAgICAgMjA5NzE1MSBuYmQxMA0KICA0MyAgICAxMSAgICAyMDk3MTUx
+IG5iZDExDQogIDQzICAgIDEyICAgIDIwOTcxNTEgbmJkMTINCiAgNDMgICAg
+MTMgICAgMjA5NzE1MSBuYmQxMw0KICA0MyAgICAxNCAgICAyMDk3MTUxIG5i
+ZDE0DQogIDQzICAgIDE1ICAgIDIwOTcxNTEgbmJkMTUNCiAgNDMgICAgMTYg
+ICAgMjA5NzE1MSBuYmQxNg0KICA0MyAgICAxNyAgICAyMDk3MTUxIG5iZDE3
+DQogIDQzICAgIDE4ICAgIDIwOTcxNTEgbmJkMTgNCiAgNDMgICAgMTkgICAg
+MjA5NzE1MSBuYmQxOQ0KICA0MyAgICAyMCAgICAyMDk3MTUxIG5iZDIwDQog
+IDQzICAgIDIxICAgIDIwOTcxNTEgbmJkMjENCiAgNDMgICAgMjIgICAgMjA5
+NzE1MSBuYmQyMg0KICA0MyAgICAyMyAgICAyMDk3MTUxIG5iZDIzDQogIDQz
+ICAgIDI0ICAgIDIwOTcxNTEgbmJkMjQNCiAgNDMgICAgMjUgICAgMjA5NzE1
+MSBuYmQyNQ0KICA0MyAgICAyNiAgICAyMDk3MTUxIG5iZDI2DQogIDQzICAg
+IDI3ICAgIDIwOTcxNTEgbmJkMjcNCiAgNDMgICAgMjggICAgMjA5NzE1MSBu
+YmQyOA0KICA0MyAgICAyOSAgICAyMDk3MTUxIG5iZDI5DQogIDQzICAgIDMw
+ICAgIDIwOTcxNTEgbmJkMzANCiAgNDMgICAgMzEgICAgMjA5NzE1MSBuYmQz
+MQ0KICA0MyAgICAzMiAgICAyMDk3MTUxIG5iZDMyDQogIDQzICAgIDMzICAg
+IDIwOTcxNTEgbmJkMzMNCiAgNDMgICAgMzQgICAgMjA5NzE1MSBuYmQzNA0K
+ICA0MyAgICAzNSAgICAyMDk3MTUxIG5iZDM1DQogIDQzICAgIDM2ICAgIDIw
+OTcxNTEgbmJkMzYNCiAgNDMgICAgMzcgICAgMjA5NzE1MSBuYmQzNw0KICA0
+MyAgICAzOCAgICAyMDk3MTUxIG5iZDM4DQogIDQzICAgIDM5ICAgIDIwOTcx
+NTEgbmJkMzkNCiAgNDMgICAgNDAgICAgMjA5NzE1MSBuYmQ0MA0KICA0MyAg
+ICA0MSAgICAyMDk3MTUxIG5iZDQxDQogIDQzICAgIDQyICAgIDIwOTcxNTEg
+bmJkNDINCiAgNDMgICAgNDMgICAgMjA5NzE1MSBuYmQ0Mw0KICA0MyAgICA0
+NCAgICAyMDk3MTUxIG5iZDQ0DQogIDQzICAgIDQ1ICAgIDIwOTcxNTEgbmJk
+NDUNCiAgNDMgICAgNDYgICAgMjA5NzE1MSBuYmQ0Ng0KICA0MyAgICA0NyAg
+ICAyMDk3MTUxIG5iZDQ3DQogIDQzICAgIDQ4ICAgIDIwOTcxNTEgbmJkNDgN
+CiAgNDMgICAgNDkgICAgMjA5NzE1MSBuYmQ0OQ0KICA0MyAgICA1MCAgICAy
+MDk3MTUxIG5iZDUwDQogIDQzICAgIDUxICAgIDIwOTcxNTEgbmJkNTENCiAg
+NDMgICAgNTIgICAgMjA5NzE1MSBuYmQ1Mg0KICA0MyAgICA1MyAgICAyMDk3
+MTUxIG5iZDUzDQogIDQzICAgIDU0ICAgIDIwOTcxNTEgbmJkNTQNCiAgNDMg
+ICAgNTUgICAgMjA5NzE1MSBuYmQ1NQ0KICA0MyAgICA1NiAgICAyMDk3MTUx
+IG5iZDU2DQogIDQzICAgIDU3ICAgIDIwOTcxNTEgbmJkNTcNCiAgNDMgICAg
+NTggICAgMjA5NzE1MSBuYmQ1OA0KICA0MyAgICA1OSAgICAyMDk3MTUxIG5i
+ZDU5DQogIDQzICAgIDYwICAgIDIwOTcxNTEgbmJkNjANCiAgNDMgICAgNjEg
+ICAgMjA5NzE1MSBuYmQ2MQ0KICA0MyAgICA2MiAgICAyMDk3MTUxIG5iZDYy
+DQogIDQzICAgIDYzICAgIDIwOTcxNTEgbmJkNjMNCiAgNDMgICAgNjQgICAg
+MjA5NzE1MSBuYmQ2NA0KICA0MyAgICA2NSAgICAyMDk3MTUxIG5iZDY1DQog
+IDQzICAgIDY2ICAgIDIwOTcxNTEgbmJkNjYNCiAgNDMgICAgNjcgICAgMjA5
+NzE1MSBuYmQ2Nw0KICA0MyAgICA2OCAgICAyMDk3MTUxIG5iZDY4DQogIDQz
+ICAgIDY5ICAgIDIwOTcxNTEgbmJkNjkNCiAgNDMgICAgNzAgICAgMjA5NzE1
+MSBuYmQ3MA0KICA0MyAgICA3MSAgICAyMDk3MTUxIG5iZDcxDQogIDQzICAg
+IDcyICAgIDIwOTcxNTEgbmJkNzINCiAgNDMgICAgNzMgICAgMjA5NzE1MSBu
+YmQ3Mw0KICA0MyAgICA3NCAgICAyMDk3MTUxIG5iZDc0DQogIDQzICAgIDc1
+ICAgIDIwOTcxNTEgbmJkNzUNCiAgNDMgICAgNzYgICAgMjA5NzE1MSBuYmQ3
+Ng0KICA0MyAgICA3NyAgICAyMDk3MTUxIG5iZDc3DQogIDQzICAgIDc4ICAg
+IDIwOTcxNTEgbmJkNzgNCiAgNDMgICAgNzkgICAgMjA5NzE1MSBuYmQ3OQ0K
+ICA0MyAgICA4MCAgICAyMDk3MTUxIG5iZDgwDQogIDQzICAgIDgxICAgIDIw
+OTcxNTEgbmJkODENCiAgNDMgICAgODIgICAgMjA5NzE1MSBuYmQ4Mg0KICA0
+MyAgICA4MyAgICAyMDk3MTUxIG5iZDgzDQogIDQzICAgIDg0ICAgIDIwOTcx
+NTEgbmJkODQNCiAgNDMgICAgODUgICAgMjA5NzE1MSBuYmQ4NQ0KICA0MyAg
+ICA4NiAgICAyMDk3MTUxIG5iZDg2DQogIDQzICAgIDg3ICAgIDIwOTcxNTEg
+bmJkODcNCiAgNDMgICAgODggICAgMjA5NzE1MSBuYmQ4OA0KICA0MyAgICA4
+OSAgICAyMDk3MTUxIG5iZDg5DQogIDQzICAgIDkwICAgIDIwOTcxNTEgbmJk
+OTANCiAgNDMgICAgOTEgICAgMjA5NzE1MSBuYmQ5MQ0KICA0MyAgICA5MiAg
+ICAyMDk3MTUxIG5iZDkyDQogIDQzICAgIDkzICAgIDIwOTcxNTEgbmJkOTMN
+CiAgNDMgICAgOTQgICAgMjA5NzE1MSBuYmQ5NA0KICA0MyAgICA5NSAgICAy
+MDk3MTUxIG5iZDk1DQogIDQzICAgIDk2ICAgIDIwOTcxNTEgbmJkOTYNCiAg
+NDMgICAgOTcgICAgMjA5NzE1MSBuYmQ5Nw0KICA0MyAgICA5OCAgICAyMDk3
+MTUxIG5iZDk4DQogIDQzICAgIDk5ICAgIDIwOTcxNTEgbmJkOTkNCiAgNDMg
+ICAxMDAgICAgMjA5NzE1MSBuYmQxMDANCiAgNDMgICAxMDEgICAgMjA5NzE1
+MSBuYmQxMDENCiAgNDMgICAxMDIgICAgMjA5NzE1MSBuYmQxMDINCiAgNDMg
+ICAxMDMgICAgMjA5NzE1MSBuYmQxMDMNCiAgNDMgICAxMDQgICAgMjA5NzE1
+MSBuYmQxMDQNCiAgNDMgICAxMDUgICAgMjA5NzE1MSBuYmQxMDUNCiAgNDMg
+ICAxMDYgICAgMjA5NzE1MSBuYmQxMDYNCiAgNDMgICAxMDcgICAgMjA5NzE1
+MSBuYmQxMDcNCiAgNDMgICAxMDggICAgMjA5NzE1MSBuYmQxMDgNCiAgNDMg
+ICAxMDkgICAgMjA5NzE1MSBuYmQxMDkNCiAgNDMgICAxMTAgICAgMjA5NzE1
+MSBuYmQxMTANCiAgNDMgICAxMTEgICAgMjA5NzE1MSBuYmQxMTENCiAgNDMg
+ICAxMTIgICAgMjA5NzE1MSBuYmQxMTINCiAgNDMgICAxMTMgICAgMjA5NzE1
+MSBuYmQxMTMNCiAgNDMgICAxMTQgICAgMjA5NzE1MSBuYmQxMTQNCiAgNDMg
+ICAxMTUgICAgMjA5NzE1MSBuYmQxMTUNCiAgNDMgICAxMTYgICAgMjA5NzE1
+MSBuYmQxMTYNCiAgNDMgICAxMTcgICAgMjA5NzE1MSBuYmQxMTcNCiAgNDMg
+ICAxMTggICAgMjA5NzE1MSBuYmQxMTgNCiAgNDMgICAxMTkgICAgMjA5NzE1
+MSBuYmQxMTkNCiAgNDMgICAxMjAgICAgMjA5NzE1MSBuYmQxMjANCiAgNDMg
+ICAxMjEgICAgMjA5NzE1MSBuYmQxMjENCiAgNDMgICAxMjIgICAgMjA5NzE1
+MSBuYmQxMjINCiAgNDMgICAxMjMgICAgMjA5NzE1MSBuYmQxMjMNCiAgNDMg
+ICAxMjQgICAgMjA5NzE1MSBuYmQxMjQNCiAgNDMgICAxMjUgICAgMjA5NzE1
+MSBuYmQxMjUNCiAgNDMgICAxMjYgICAgMjA5NzE1MSBuYmQxMjYNCiAgNDMg
+ICAxMjcgICAgMjA5NzE1MSBuYmQxMjcNCiAgIDMgICAgIDAgICAzOTA3MDA4
+MCBoZGENCiAgIDMgICAgIDEgICAzMDcyNDI4MSBoZGExDQogICAzICAgICAy
+ICAgICAgICAgIDEgaGRhMg0KICAgMyAgICAgMyAgICAxMDUyMjU3IGhkYTMN
+CiAgIDMgICAgIDUgICAgIDU2MjI0MyBoZGE1DQogICAzICAgICA2ICAgIDY3
+MzEyMDMgaGRhNg0K
+
+--17432832-314012719-1076470217=:28596--

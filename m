@@ -1,63 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318085AbSG2Ufv>; Mon, 29 Jul 2002 16:35:51 -0400
+	id <S317639AbSG2Uin>; Mon, 29 Jul 2002 16:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318088AbSG2Ufv>; Mon, 29 Jul 2002 16:35:51 -0400
-Received: from grendel.firewall.com ([66.28.56.41]:44739 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id <S318085AbSG2Ufu>; Mon, 29 Jul 2002 16:35:50 -0400
-Date: Mon, 29 Jul 2002 22:39:10 +0200
-From: Marek Habersack <grendel@caudium.net>
-To: Stefan Kleyer <kleyer@foni.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc3-ac4 parse error
-Message-ID: <20020729203910.GA1722@thanes.org>
-Reply-To: grendel@caudium.net
-References: <20020729221759.1576dd0d.kleyer@foni.net>
+	id <S317849AbSG2Uin>; Mon, 29 Jul 2002 16:38:43 -0400
+Received: from email.careercast.com ([216.39.101.233]:22464 "HELO
+	email.careercast.com") by vger.kernel.org with SMTP
+	id <S317639AbSG2Uim>; Mon, 29 Jul 2002 16:38:42 -0400
+Subject: error: select: Bad file descriptor
+From: Matt Simonsen <matt@careercast.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
+Date: 29 Jul 2002 13:44:21 -0700
+Message-Id: <1027975461.1315.31.camel@mattlaptop.careercast.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-Content-Disposition: inline
-In-Reply-To: <20020729221759.1576dd0d.kleyer@foni.net>
-User-Agent: Mutt/1.4i
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got the following line a couple times over 2 days in /var/log/messages
+on one of my servers. The machine preforms perfectly and I am having a
+hard time figuring out what happened and if I should do anything on this
+machine to prevent/fix problems. 
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ Jul 28 10:22:36 skip sshd[14649]: error: select: Bad file descriptor
 
-On Mon, Jul 29, 2002 at 10:17:59PM +0200, Stefan Kleyer scribbled:
-> Hi,
->=20
-> I get this error while compiling:=20
-My guess is that you're using gcc 2.95 possibly from Debian? (Other distros
-might be affected too, I don't know). The cpp shipped with the Debian's gcc
-2.95-15 doesn't parse the ##arg part of the varargs macro DRM_ERROR (or any
-other) for that matter. It is supposed, per docs, to remove the comma should
-the variable args (the "rest") be empty - it leaves the comma there instead,
-which renders incorrect C code. I have submitted the bug to the Debian
-gcc maintainers.
+Any tips where to go from here?
 
-greetings,
+Thanks
+Matt
 
-marek
 
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9Raftq3909GIf5uoRAko8AJ4mjiJzykrSDeahkxz5Rst1InPSegCfc3y4
-3PAuqg6Sx+klkUbMReV3mF4=
-=Aipg
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--

@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271898AbRIDHWq>; Tue, 4 Sep 2001 03:22:46 -0400
+	id <S271903AbRIDHuD>; Tue, 4 Sep 2001 03:50:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271899AbRIDHW1>; Tue, 4 Sep 2001 03:22:27 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:4102 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S271898AbRIDHWP>; Tue, 4 Sep 2001 03:22:15 -0400
+	id <S271902AbRIDHtx>; Tue, 4 Sep 2001 03:49:53 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:5892 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S271919AbRIDHti>; Tue, 4 Sep 2001 03:49:38 -0400
+Date: Tue, 4 Sep 2001 10:48:35 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <1067845821.20010904104835@port.imtp.ilyichevsk.odessa.ua>
 To: linux-kernel@vger.kernel.org
-Subject: Re: lcs ethernet driver source
-In-Reply-To: <OFD37F6EF4.433973B0-ONC1256AB8.005BE510@de.ibm.com>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 04 Sep 2001 09:22:01 +0200
-In-Reply-To: <OFD37F6EF4.433973B0-ONC1256AB8.005BE510@de.ibm.com> ("Ulrich Weigand"'s message of "Thu, 30 Aug 2001 18:58:53 +0200")
-Message-ID: <tgu1yje7za.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
-MIME-Version: 1.0
+Subject: Re: nfs client serious problems under 2.2.20pre8/9
+In-Reply-To: <20010903191849.D14519@plato.local.lan>
+In-Reply-To: <20010903191849.D14519@plato.local.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ulrich Weigand" <Ulrich.Weigand@de.ibm.com> writes:
+Tuesday, September 04, 2001, 6:18:49 AM, Ethan Benson <erbenson@alaska.net> wrote:
+EB> I have encountered a serious problem with nfs under 2.2.20pre8 and
+EB> pre9.
+EB> after some ammount of time (2 weeks under pre8, only a few hours under
+EB> pre9) most/all processes accessing an nfs filesystem go into
+EB> unkillable disk sleep, and the kernel starts spewing:
+EB>
+EB> kernel: nfs: task 22509 can't get a request slot
+EB>
+EB> over and over again endlessly.  since processes using the filesystem
+EB> are unkillable i am unable to even forcabily umount the problematic
+EB> filesystem, seemingly the only way restore order is shutdown -r now :(
 
-> If you are running Linux native on the S/390 (not in a virtual machine)
-> and have *only* physical LCS or QETH devices, you must use the binary-only
-> modules; but this doesn't appear to be fundamentally different from other
-> devices where only binary drivers exist ...
-
-Well, it's unsual for such companies to be Patrons of the FSF.
-
-SCNR.
-
+Looks like another argument against hard NFS mounts to me.
+Does anybody knows why NFS hard mounts exist?
+Is there any case when intr mounts is worse than hard ones?
 -- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+Best regards,
+VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+http://port.imtp.ilyichevsk.odessa.ua/vda/
+
+

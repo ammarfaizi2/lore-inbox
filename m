@@ -1,44 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316994AbSFKKfg>; Tue, 11 Jun 2002 06:35:36 -0400
+	id <S316996AbSFKKgl>; Tue, 11 Jun 2002 06:36:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316995AbSFKKff>; Tue, 11 Jun 2002 06:35:35 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:55725 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S316994AbSFKKfe>; Tue, 11 Jun 2002 06:35:34 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "jeff millar" <wa1hco@adelphia.net>
-Date: Tue, 11 Jun 2002 20:36:05 +1000 (EST)
-MIME-Version: 1.0
+	id <S316995AbSFKKgk>; Tue, 11 Jun 2002 06:36:40 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29199 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S316996AbSFKKgf>; Tue, 11 Jun 2002 06:36:35 -0400
+Date: Tue, 11 Jun 2002 11:36:29 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
+Message-ID: <20020611113629.A3081@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D048CFD.2090201@evision-ventures.com> <20020611004000.GH5202@kroah.com> <3D0599AE.7080809@evision-ventures.com> <20020611092637.C1346@flint.arm.linux.org.uk> <3D05B61F.4010609@evision-ventures.com> <20020611100634.D1346@flint.arm.linux.org.uk> <3D05BE5B.1000705@evision-ventures.com> <20020611102859.F1346@flint.arm.linux.org.uk> <3D05C61B.1090809@evision-ventures.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15621.53909.485050.238663@notabene.cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Raid _still_ not compiling in v2.5.21
-In-Reply-To: message from jeff millar on Sunday June 9
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday June 9, wa1hco@adelphia.net wrote:
-> This bug just keeps on bugging me...
-> 
->     raid5.c: In function 'raid5_plug_device':
->     raid5.c:1247: 'tq_disk' undeclared (first use in this function)
-> 
-> Some patches show up in a search of lkml but I figured such a simple fix
-> would make it into the Linus tree quickly.
-> 
-> Did I miss something?  What's the issue here?
-> 
+On Tue, Jun 11, 2002 at 11:42:51AM +0200, Martin Dalecki wrote:
+> Well I surely understand what a pointer to the local variable set is.
+> I know pascal and gdb well enough :-). However what I may have
+> missed is that ARM is using some other task switch mechanism.
+> I would be courious to see what it is?
 
-The issue?  
-  Time.  Priorities.  Coversations across time zones.  Public
-  holidays.
+Frame pointer - used to reference the function return state, and function
+arguments.  Optional.
 
-It'll get there.
+Stack pointer - used to reference the function local variables.  In the
+absence of the frame pointer, this is also used to reference the function
+return state and the function arguments.
 
-NeilBrown
+As you can see, it has nothing to do with task switch mechanisms.
+
+I suggest you revise your "pascal and gdb" and "task switch mechanism"
+knowledge.  I don't believe ARM is special in doing the above.  In fact,
+the above is probably very common indeed.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

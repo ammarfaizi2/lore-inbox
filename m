@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261760AbSJMMsy>; Sun, 13 Oct 2002 08:48:54 -0400
+	id <S261532AbSJMPTd>; Sun, 13 Oct 2002 11:19:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261761AbSJMMsy>; Sun, 13 Oct 2002 08:48:54 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:63876 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261760AbSJMMsx>;
-	Sun, 13 Oct 2002 08:48:53 -0400
-Date: Sun, 13 Oct 2002 14:54:39 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: sean darcy <seandarcy@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA KT400 & VT8235 support
-Message-ID: <20021013145439.A2404@ucw.cz>
-References: <F221dD9WJPNn0pt61mo00016a29@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261535AbSJMPTd>; Sun, 13 Oct 2002 11:19:33 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:18158 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261532AbSJMPTc>; Sun, 13 Oct 2002 11:19:32 -0400
+Message-ID: <20021013152510.13283.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F221dD9WJPNn0pt61mo00016a29@hotmail.com>; from seandarcy@hotmail.com on Sat, Oct 12, 2002 at 04:40:15PM -0400
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Sun, 13 Oct 2002 23:25:10 +0800
+Subject: Re:Benchmark results from resp1 trivial response time test
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 12, 2002 at 04:40:15PM -0400, sean darcy wrote:
+From: Bill Davidsen <davidsen@tmr.com>
+> On Sun, 13 Oct 2002, Paolo Ciarrocchi wrote:
+> 
+> > Hi David,
+>   thanks for the quick results, but it's Bill...
+Ops... sorry ;-)
+ 
+> > I think your benchmark is very intersting.
+> > Here goes my results:
+> 
+> > It seems that 2.5.42-mm2 is the "winner".
+> 
+> > Comments ?
+> 
+> This mirrors my results, which is encouraging. The -mm2 patch seems to
+> improve performance under write pressure quite a bit. I am attaching Con
+> Kolivas' patch to 41-mm2 in case you missed it, as you can note from the
+> results on the website, it improves things beyond -mm2. If you decide to
+> run this version I'd like to see the result. I believe I had to use the
+> "-l" patch option to ignore blank mismatches to get this to work, and I've
+> cleaned up another mailing funny as well. 
 
-> Before spending money on a new VIA motherboard with the KT400 and VT8235 
-> south bridge, I'd like to know if they're supported in 2.4 and 2.5. Are 
-> they?
+Ok, thanks for the patch. 
+I try it and I back with the result.
 
-2.5 supports it, 2.4 needs a patch.
-
+Ciao,
+         Paolo
 -- 
-Vojtech Pavlik
-SuSE Labs
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

@@ -1,79 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265283AbTLLQFY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 11:05:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTLLQFY
+	id S265280AbTLLQDa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 11:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265282AbTLLQD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 11:05:24 -0500
-Received: from fed1mtao02.cox.net ([68.6.19.243]:47862 "EHLO
-	fed1mtao02.cox.net") by vger.kernel.org with ESMTP id S265283AbTLLQFK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 11:05:10 -0500
-Date: Fri, 12 Dec 2003 09:05:08 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] -tiny tree for small systems (2.6.0-test11)
-Message-ID: <20031212160508.GO23731@stop.crashing.org>
-References: <20031212033734.GG23787@waste.org> <20031212154443.GN23731@stop.crashing.org> <20031212155948.GK23787@waste.org>
+	Fri, 12 Dec 2003 11:03:29 -0500
+Received: from mail.fh-wedel.de ([213.39.232.194]:12483 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S265280AbTLLQD1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 11:03:27 -0500
+Date: Fri, 12 Dec 2003 17:03:25 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Message-ID: <20031212160325.GI6112@wohnheim.fh-wedel.de>
+References: <20031211125806.B2422@hexapodia.org> <017c01c3c01b$232bd130$d43147ab@amer.cisco.com> <20031211194815.GA10029@wohnheim.fh-wedel.de> <20031211135854.A29359@hexapodia.org> <20031212121824.GA6112@wohnheim.fh-wedel.de> <20031212094031.B1303@hexapodia.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20031212155948.GK23787@waste.org>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031212094031.B1303@hexapodia.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 09:59:48AM -0600, Matt Mackall wrote:
-> On Fri, Dec 12, 2003 at 08:44:43AM -0700, Tom Rini wrote:
-> > On Thu, Dec 11, 2003 at 09:37:34PM -0600, Matt Mackall wrote:
-> > 
-> > > This is the first release of a new kernel tree dubbed '-tiny' (someone
-> > > already took -mm). The aim of this tree is to collect patches that
-> > > reduce kernel disk and memory footprint as well as tools for working
-> > > on small systems, an area Linux mainstream has been moving away from
-> > > since Linus got a real job. Target users are things like embedded
-> > > systems, small or legacy desktop folks, and handhelds.
-> > > 
-> > > To get the ball rolling, I've thrown in about 50 patches that trim
-> > > various bits of the kernel, almost all configurable, and a fair number
-> > > may eventually be appropriate for mainline. All the config options are
-> > > currently thrown under CONFIG_EMBEDDED and many of the minor tweaks
-> > > are covered under a set of config options called CONFIG_CORE_SMALL,
-> > > CONFIG_NET_SMALL, and CONFIG_CONSOLE_SMALL.
-> > > 
-> > > Nifty things I've included:
-> > >  - building with -Os
-> > >  - 4k process stacks (via -wli)
-> > >  - configurable removal of printk, BUG, and panic() strings
-> > >  - configurable HZ
-> > >  - configurable support for vm86, core dumps, kcore, sysfs, aio, etc.
-> > >  - a very nice kmalloc auditing system via /proc/kmalloc
-> > >  - auditing of bootmem usage
-> > >  - a system for counting inline instantiations
-> > >  - my netpoll/netconsole patches
-> > >  - my drivers/char/random fixups
-> > 
-> > I'd like to suggest you check out the "tweaks" idea I tossed out here:
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0211.0/2229.html
-> > If this sounds interesting, I've got a version of the patch (albeit old
-> > and not applying directly right now I bet) that moved things into header
-> > files and got all of the dependancy stuff correct except for the initial
-> > run (so I think I was forcing an update with any make invocation, but
-> > there were no spurious recompiles).
+On Fri, 12 December 2003 09:40:31 -0600, Andy Isaacson wrote:
 > 
-> Looks cool. My only worry is that to do it right, it has to make some
-> fairly sweeping changes. I'm trying to keep the stuff in -tiny fairly
-> small and independent so that stuff can be cherry-picked, but if we
-> can get a consensus that "tweaks" is a good direction for mainline, it
-> might prove useful for some of the stuff I'm doing with
-> CONFIG_CORE_SMALL and friends now. 
+> A related idea was reportedly used in the Venti filesystem, which was
+> discussed on linux-kernel back in October; look for the thread
+> "Transparent compression in the FS".
+> 
+> The downsides are pretty substantial (but the upsides are too).  You
+> don't know how many blocks are available on the filesystem for you to
+> write, because when you write you might not allocate blocks.  And you
+> lose disk-streaming-perfomance, because you're going to be seeking all
+> over the disk picking up the blocks for your files.
 
-Well part of the problem that came up when this was brought up during
-2.5 is that adding a whole bunch of CONFIG options for things Just Won't
-Happen (too complex, PITA, etc).  OTOH however, lots of stuff like that
-keeps getting in.
+Right - to some degree.  I'm sure many problems can be dealt with, but
+it takes a lot of time to sort out the details.  For streaming
+performance, I guess in most cases you will get the same performance
+because you won't find a single duplicate block in those files.  Two
+competing readers should be a much bigger problem.
+
+Still, there are more problems, no doubt.
+
+> > But we should get there some day.  Having 15 nearly identical copies
+> > of the kernel on my notebook is a pain and hard links simply have the
+> > wrong semantics.
+> 
+> I don't know about you, but I don't have 15 nearly identical copies of
+> the kernel; I have 30 copies that have almost no text in common, and
+> certainly have no blocks in common -- they result from independent
+> compilations, and the resulting bzImage files are not duplicates.
+
+s/kernel/kernel source/
+
+If it was just the images, I couldn't care less.  But 15x 200-300 Megs
+does hurt a bit. :)
+grep -r over multiple trees hurts even more, when RAM spills over.
+
+Jörn
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+And spam is a useful source of entropy for /dev/random too!
+-- Jasmine Strong

@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267103AbTA0Oys>; Mon, 27 Jan 2003 09:54:48 -0500
+	id <S267131AbTA0PDB>; Mon, 27 Jan 2003 10:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267131AbTA0Oys>; Mon, 27 Jan 2003 09:54:48 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:31616 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S267103AbTA0Oyr>; Mon, 27 Jan 2003 09:54:47 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15925.19044.837892.463363@laputa.namesys.com>
-Date: Mon, 27 Jan 2003 18:04:04 +0300
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Cc: Andrew Morton <AKPM@Digeo.COM>, Alexander Viro <viro@math.psu.edu>
+	id <S267184AbTA0PDB>; Mon, 27 Jan 2003 10:03:01 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18183 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267131AbTA0PDA>; Mon, 27 Jan 2003 10:03:00 -0500
+Date: Mon, 27 Jan 2003 15:12:13 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
+       Andrew Morton <AKPM@Digeo.COM>, Alexander Viro <viro@math.psu.edu>
 Subject: Re: possible deadlock in sys_pivot_root()?
-In-Reply-To: <15925.15947.576552.209252@laputa.namesys.com>
+Message-ID: <20030127151213.B28375@flint.arm.linux.org.uk>
+Mail-Followup-To: Nikita Danilov <Nikita@Namesys.COM>,
+	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
+	Andrew Morton <AKPM@Digeo.COM>, Alexander Viro <viro@math.psu.edu>
 References: <15925.15947.576552.209252@laputa.namesys.com>
-X-Mailer: VM 7.07 under 21.5  (beta9) "brussels sprouts" XEmacs Lucid
-Emacs: no job too big... no job.
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <15925.15947.576552.209252@laputa.namesys.com>; from Nikita@Namesys.COM on Mon, Jan 27, 2003 at 05:12:27PM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov writes:
- > Hello,
- > 
- > sys_pivot_root() first takes BKL, then ->i_sem on the old root
- > directory. On the other hand, vfs_readdir() first takes ->i_sem on a
- > directory and then calls file system ->readdir() method, that usually
- > takes BKL. Isn't there a deadlock possibility? Of course,
+On Mon, Jan 27, 2003 at 05:12:27PM +0300, Nikita Danilov wrote:
+> sys_pivot_root() first takes BKL, then ->i_sem on the old root
+> directory. On the other hand, vfs_readdir() first takes ->i_sem on a
+> directory and then calls file system ->readdir() method, that usually
+> takes BKL. Isn't there a deadlock possibility? Of course,
+> sys_pivot_root() is probably not supposed to be called frequently, but
+> still.
 
-Should think more before posting. Special treatment of BKL by scheduler
-makes this impossible.
+No, you can't deadlock here.  When you get contention on the i_sem,
+one thread will be put to sleep, and when that happens, the BKL will
+be automatically released.
 
-Nikita.
+So:
+
+  CPU0				CPU1
+
+  BKL
+				i_sem
+				BKL (spins, waiting for BKL to be released)
+
+  i_sem (finds it locked,
+       and sleeps, which
+       releases the BKL)
+                                (BKL is now released, CPU1 continues)
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

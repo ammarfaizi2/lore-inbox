@@ -1,75 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263957AbUDFSoS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 14:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263967AbUDFSoS
+	id S263962AbUDFSrp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 14:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263951AbUDFSrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 14:44:18 -0400
-Received: from sinfonix.rz.tu-clausthal.de ([139.174.2.33]:64413 "EHLO
-	sinfonix.rz.tu-clausthal.de") by vger.kernel.org with ESMTP
-	id S263957AbUDFSoL convert rfc822-to-8bit (ORCPT
+	Tue, 6 Apr 2004 14:47:45 -0400
+Received: from smtp.mailix.net ([216.148.213.132]:8074 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S263975AbUDFSrm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 14:44:11 -0400
-From: "Hemmann, Volker Armin" <volker.hemmann@heim9.tu-clausthal.de>
-To: Dave Jones <davej@redhat.com>, Bjoern Michaelsen <bmichaelsen@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
-Date: Tue, 6 Apr 2004 20:44:06 +0200
-User-Agent: KMail/1.6.1
-References: <20040406031949.GA8351@lord.sinclair> <200404062004.34413.volker.hemmann@heim10.tu-clausthal.de> <20040406181146.GH6930@redhat.com>
-In-Reply-To: <20040406181146.GH6930@redhat.com>
-MIME-Version: 1.0
+	Tue, 6 Apr 2004 14:47:42 -0400
+Date: Tue, 6 Apr 2004 20:47:36 +0200
+From: Alex Riesen <fork0@users.sourceforge.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <20040406184736.GA1413@steel.home>
+Reply-To: Alex Riesen <fork0@users.sourceforge.net>
+Mail-Followup-To: Alex Riesen <fork0@users.sourceforge.net>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	USB development list <linux-usb-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0404061036480.1042-100000@ida.rowland.org> <Pine.LNX.4.44L0.0404061247490.1042-100000@ida.rowland.org>
+Mime-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404062044.06533.volker.hemmann@heim10.tu-clausthal.de>
+In-Reply-To: <Pine.LNX.4.44L0.0404061247490.1042-100000@ida.rowland.org>
+User-Agent: Mutt/1.5.6i
+X-SA-Exim-Mail-From: fork0@users.sourceforge.net
+Subject: Re: Oops with bluetooth dongle
+Content-Type: text/plain; charset=us-ascii
+X-Spam-Report: *  0.5 RCVD_IN_NJABL_DIALUP RBL: NJABL: dialup sender did non-local SMTP
+	*      [80.140.246.71 listed in dnsbl.njabl.org]
+	*  0.1 RCVD_IN_SORBS RBL: SORBS: sender is listed in SORBS
+	*      [80.140.246.71 listed in dnsbl.sorbs.net]
+	*  0.1 RCVD_IN_NJABL RBL: Received via a relay in dnsbl.njabl.org
+	*      [80.140.246.71 listed in dnsbl.njabl.org]
+	*  2.5 RCVD_IN_DYNABLOCK RBL: Sent directly from dynamic IP address
+	*      [80.140.246.71 listed in dnsbl.sorbs.net]
+X-SA-Exim-Version: 3.1 (built Thu Oct 23 13:26:47 PDT 2003)
+X-SA-Exim-Scanned: Yes
+X-uvscan-result: clean (1BAvbp-0006DV-3O)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 April 2004 20:11, Dave Jones wrote:
-> On Tue, Apr 06, 2004 at 08:04:34PM +0200, Hemmann, Volker Armin wrote:
->  > Now I did, what I should have done at the first place, dmesg:
->  >
->  > Linux agpgart interface v0.100 (c) Dave Jones
->  > agpgart: Detected SiS 746 chipset
->  > agpgart: Maximum main memory to use for agp memory: 439M
->  > agpgart: unable to determine aperture size.
->  > agpgart: agp_backend_initialize() failed.
->  > agpgart-sis: probe of 0000:00:00.0 failed with error -22
->
-> something isn't right here. this takes us right back to where we
-> were before your first email about this problem.
-> Did the patch definitly apply to the tree you compiled ?
-> Not booted into the wrong kernel by mistake ?
+Alan Stern, Tue, Apr 06, 2004 18:49:51 +0200:
+> I've seen a couple of different problems coming up with this bluetooth 
+> stuff.  One of them may be fixed by a recent patch, as David Brownell 
+> mentioned.  Below is the relevant part excerpted from that patch; maybe it 
+> will help some of you.
+> 
+> --- 1.47/drivers/usb/core/message.c	Tue Mar 30 01:04:29 2004
+> +++ edited/drivers/usb/core/message.c	Tue Mar 30 17:34:54 2004
 
-I made sure, that I am booted 2.6.5, removed /usr/src/linux-2.6.5, 
-and /lib/modules/2.6.5, unpacked the tarball by hand, in case the ebuild did 
-some patching, made a symlink with ln -s linux-2.6.5 linux and cd'ed into 
-linux.
-There I copied agpgart-2004-04-06.diff into /usr/src/linux and applied it with 
-patch -p1 < agpgart-2004-04-06.diff
+no change for me. Still oopses.
 
-It said, that it was applied against sis, intel, efficion and via (not this 
-order..) and I found no *.rej files, while the supposed to be patched files 
-had an actual timestamp.
-
-After that I copied over my .config from 2.6.5-rc3, made make oldconfig, 
-without any problems, and make all modules_install install after that.
-Grub points to vmlinuz, so everything fine there.
-
-I rebooted.
-Same error, uname -r:
-Linux energy.heim10.tu-clausthal.de 2.6.5 #1 Tue Apr 6 20:26:45 CEST 2004 i686 
-AMD Athlon(tm) XP 2000+ AuthenticAMD GNU/Linux
-
-So yes, I am pretty sure, that I am innocent ;o)
-
-Glück Auf
-Volker
-
--- 
-Conclusions 
- In a straight-up fight, the Empire squashes the Federation like a bug. Even 
-with its numerical advantage removed, the Empire would still squash the 
-Federation like a bug. Accept it. -Michael Wong 

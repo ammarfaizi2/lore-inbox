@@ -1,44 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVCIKKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVCIKLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbVCIKKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVCIKKP
+	id S262232AbVCIKLU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVCIKLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:10:15 -0500
-Received: from web51402.mail.yahoo.com ([206.190.38.181]:60593 "HELO
-	web51402.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262234AbVCIKKL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:10:11 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=yuq7/7sGopAv8jEFsccgqXUatBTip+cu+aL3HWhfvarZunPAnUEe1vJDJvHLNK0NL0ce777ytB1N5kxI7125M8atknBg2aAWGe7qAjG5DfmX/mJvKXlL2vtEZFOB1oCwF5Ifxi0RtsL69ZRl2yCJ+F6aJa4xPIEbbrOSq99ili4=  ;
-Message-ID: <20050309101010.93190.qmail@web51402.mail.yahoo.com>
-Date: Wed, 9 Mar 2005 11:10:10 +0100 (CET)
-From: Joerg Pommnitz <pommnitz@yahoo.com>
-Subject: Re: select(2), usbserial, tty's and disconnect
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 9 Mar 2005 05:11:19 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:7911 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262232AbVCIKLK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 05:11:10 -0500
+Subject: Re: [RFC] -stable, how it's going to work.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
+       torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m1sm35w3am.fsf@muc.de>
+References: <20050309072833.GA18878@kroah.com>  <m1sm35w3am.fsf@muc.de>
+Content-Type: text/plain
+Date: Wed, 09 Mar 2005 11:10:59 +0100
+Message-Id: <1110363060.6280.74.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Hancock wrote:
-> I thought this (hangup on remove [jpo]) had been merged, but I could be
-> wrong.
+On Wed, 2005-03-09 at 10:56 +0100, Andi Kleen wrote:
+> One rule I'm missing:
+> 
+> - It must be accepted to mainline. 
+> 
 
-I just checked bitkeeper. The patch went in some time ago:
-
-4 months eolson 1.126 usb-serial: add tty_hangup on disconnect
-
-Regards
-  Joerg
+I absolutely agree with Andi on this one.
 
 
-	
+> If a mainline patch violates too many of your other rules
+> ("Fixes one thing; doesn't do cosmetic changes etc.") perhaps
+> the mainline patch just needs to be improved.
+> 
 
-	
-		
-___________________________________________________________ 
-Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+I can see this as getting an exception occasionally, but it should be a
+well thought out exception and not a general rule
+
+> >  - Security patches will be accepted into the -stable tree directly from
+> >    the security kernel team, and not go through the normal review cycle.
+> >    Contact the kernel security team for more details on this procedure.
+> 
+> This also sounds like a bad rule. How come the security team has more
+> competence to review patches than the subsystem maintainers?  I can
+> see the point of overruling maintainers on security issues when they
+> are not responsive, but if they are I think the should be still the
+> main point of contact.
+
+yeah; the security patch is public anyway, so why not have the regular
+review on it as well? Why would such a patch be special?
+
+

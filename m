@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284318AbRLXBDC>; Sun, 23 Dec 2001 20:03:02 -0500
+	id <S284285AbRLXBMx>; Sun, 23 Dec 2001 20:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284314AbRLXBCw>; Sun, 23 Dec 2001 20:02:52 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:19727 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S284304AbRLXBCm>;
-	Sun, 23 Dec 2001 20:02:42 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Benjamin LaHaise <bcrl@redhat.com>
+	id <S284300AbRLXBMe>; Sun, 23 Dec 2001 20:12:34 -0500
+Received: from mail.gmx.net ([213.165.64.20]:64295 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S284285AbRLXBM0>;
+	Sun, 23 Dec 2001 20:12:26 -0500
+Date: Mon, 24 Dec 2001 02:12:17 +0100
+From: Christian Ohm <chr.ohm@gmx.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Assigning syscall numbers for testing 
-In-Reply-To: Your message of "Sun, 23 Dec 2001 12:06:04 CDT."
-             <20011223120604.B19863@redhat.com> 
+Subject: Re: file corruption in 2.4.16/17
+Message-ID: <20011224011216.GC1482@moongate.thevoid.net>
+In-Reply-To: <Pine.LNX.4.10.10112222218220.8976-100000@master.linux-ide.org> <E16I8qJ-0000bm-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 24 Dec 2001 12:01:12 +1100
-Message-ID: <26616.1009155672@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <E16I8qJ-0000bm-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.24i
+Organization: theVoid
+X-Operating-System: Linux moongate 2.4.17 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Dec 2001 12:06:04 -0500, 
-Benjamin LaHaise <bcrl@redhat.com> wrote:
->On Sun, Dec 23, 2001 at 04:10:21PM +1100, Keith Owens wrote:
->> I'm glad somebody understands the code :).
->
->There are two directions of binary compatibility: forwads and backwards.  
->Your patch breaks forwards compatibility if used outside the main tree.  Try 
->to understand this.
+> I don't think its remotely related to the IDE layer
+> 
+> A number of VIA boards have hardware/bios problems that cause corruption
+> under certain very high PCI loads. Current 2.4 should set the registers
+> to do the work arounds needed on the various boards we know have the 
+> problems as do the VIA 4in1 drivers for windows in most afflicted cases.
+> 
+> The description sounds extremely like that is the problem with this board.
 
-Too vague, give me an example with real code and effects.
+hmmm, could be... i had a problem with ide before... i connected an old 4x
+cdrom drive, and when accessing it, the sound slowed down (soundblaster
+awe64 pnp, alsa driver). and most corruption could be caused during a high
+pci load, so this could be a hardware problem. anything you might want to
+know aboiut the board?
 
+bye
+christian ohm

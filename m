@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263740AbRFMODk>; Wed, 13 Jun 2001 10:03:40 -0400
+	id <S263496AbRFMOCA>; Wed, 13 Jun 2001 10:02:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263747AbRFMODa>; Wed, 13 Jun 2001 10:03:30 -0400
-Received: from max.phys.uu.nl ([131.211.32.73]:8979 "EHLO max.phys.uu.nl")
-	by vger.kernel.org with ESMTP id <S263740AbRFMODS>;
-	Wed, 13 Jun 2001 10:03:18 -0400
-Date: Wed, 13 Jun 2001 16:03:15 +0200 (MET DST)
-From: Marijn Ros <J.M.Ros@phys.uu.nl>
-To: "'mosix-list@cs.huji.ac.il'" <mosix-list@cs.huji.ac.il>
-cc: <linux-kernel@vger.kernel.org>
-Subject: linux 2.4.5: initrd problems: /sbin/init not found (Was: Re: mosix
- and nt)
-In-Reply-To: <01061122510500.00353@snoopy>
-Message-ID: <Pine.OSF.4.33.0106131528360.22133-100000@ruunat.phys.uu.nl>
+	id <S263740AbRFMOBu>; Wed, 13 Jun 2001 10:01:50 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:59813 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263496AbRFMOBl>;
+	Wed, 13 Jun 2001 10:01:41 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15143.29246.712747.936864@pizda.ninka.net>
+Date: Wed, 13 Jun 2001 07:01:34 -0700 (PDT)
+To: Keith Owens <kaos@ocs.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.6-pre3 unresolved symbol do_softirq 
+In-Reply-To: <9878.992440685@ocs4.ocs-net>
+In-Reply-To: <15143.22734.747077.588558@pizda.ninka.net>
+	<9878.992440685@ocs4.ocs-net>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Jun 2001, Matthias Papesch wrote:
 
-> Hi,
->
-> I'm wondering what kind of filesystem do you exactly need on the cluster
-> nodes?
->
-> The way I understand it (correct me if I'm wrong) is, that MOSIX starts
-> the process on the local node and then migrates the contents of the
-> memory. So it should actually be enough if there is MOSIX kernel running
-> with the user space tools available. This should be small enough (<8MB) to
-> be used as a ramdisk.
+Keith Owens writes:
+ > It works for integers but call do_softirq is more of a problem.  I
+ > could not find an asm constraint that generated correct code in a
+ > single instruction.  The closest I could get was
+ >   __asm__("call *%%eax" : : "a" (do_softirq));
+ > The 'obvious'
+ >   __asm__("call %0" : : "m" (do_softirq));
+ > calls to a location that contains the address of do_softirq, oops.
+ > 
+ > Any other architectures that call do_softirq inside asm would need
+ > similar hard coding of indirect branches.  It is simpler to export
+ > do_softirq with no version, and have cleaner asm.
 
-This is the way I use it at home; a boot-floppy with a MOSIX-enabled linux
-kernel (1.0.1/2.4.4 at the moment), and a ROMFS initrd image with a small
-statically compiled /sbin/init C-program that sets up the network
-interface and MOSIX. The kernel is about 450kb, the compressed initrd
-image about 100kb.
+Why doesn't this work on x86?
 
-However, when I try the same initrd image with linux 2.4.5 (with or
-without the MOSIX-patch, enabled or not, compiled with gcc 2.95.2 on a
-P75, run on a 486DX/33), it won't work. The kernel complains that
-/sbin/init can not be found. It seems that the initialisation
-restructuring broke automatic remounting of the initial ramdisk as
-root-device (with root=/dev/rd/0). I had some luck when I copied my
-/sbin/init to /linuxrc, as that file is run on the inial ramdisk. However,
-I don't like that workaround.
+#define my_symbol	my_symbol_versioned
+extern void my_symbol(void);
 
-Note that I have not filed a bugreport against kernel 2.4.5 (yet?), as I
-don't trust my analysis of the problem, and also don't understand who
-maintains the file init/main.c. However, I send a copy of this mail to the
-linux-kernel mailing-list. Please send (a copy of) your reply to either
-the mosix-list or my personal mail-address, as I follow linux-kernel only
-through the KT summaries.
+__asm__("call %0" : : "i" (my_symbol));
 
-Bye,
-	Marijn
-
--- 
--------------------------------------------------------------
- April 15 1998: fys.ruu.nl -> phys.uu.nl
--------------------------------------------------------------
- Commercial and/or unsollicited email and/or spam will be
- processed for a DFL100 handling fee. Unsolicited sending
- constitutes acceptance.
--------------------------------------------------------------
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266436AbUHBKHr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUHBKNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266436AbUHBKHr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 06:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266425AbUHBKHq
+	id S266427AbUHBKNb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 06:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266434AbUHBKNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 06:07:46 -0400
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:5136
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S266436AbUHBKHm
+	Mon, 2 Aug 2004 06:13:31 -0400
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:21000 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S266427AbUHBKJs convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 06:07:42 -0400
-Date: Mon, 2 Aug 2004 03:07:01 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Randall Nortman <linuxkernellist@wonderclown.com>
+	Mon, 2 Aug 2004 06:09:48 -0400
+To: arjanv@redhat.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: MSI K8N Neo + powernow-k8: ACPI info is worse than BIOS PST
-Message-ID: <20040802100658.GC10412@atomide.com>
-References: <20040731140008.GJ4108@li2-47.members.linode.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040731140008.GJ4108@li2-47.members.linode.com>
-User-Agent: Mutt/1.5.6i
+Subject: Re: Oops in register_chrdev, what did I do?
+References: <yw1xwu0i1vcp.fsf@kth.se> <yw1xllgxg9v4.fsf@kth.se>
+	<1091439574.2826.3.camel@laptop.fenrus.com>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Date: Mon, 02 Aug 2004 12:09:43 +0200
+In-Reply-To: <1091439574.2826.3.camel@laptop.fenrus.com> (Arjan van de Ven's
+ message of "Mon, 02 Aug 2004 11:39:35 +0200")
+Message-ID: <yw1xd629g8bc.fsf@kth.se>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Randall Nortman <linuxkernellist@wonderclown.com> [040731 07:01]:
-> 
-> If anybody qualified to hack this code is interested in creating a
-> real workaround for BIOSes like this, I offer my system (and my time,
-> as I cannot give remote access) for testing.  I would suggest adding a
-> compile-time or load-time option to prefer the BIOS over ACPI (as in
-> powernow-k7, I think), and maybe a compile-time option to use Tony's
-> hardcoded tables.
+Arjan van de Ven <arjanv@redhat.com> writes:
 
-Just to clarify a bit, my patch only uses the 800MHz hardcoded, which
-should work on all AMD64 processors. The max value used is the current
-running value.
+>> OTOH, wouldn't it be a good idea to refuse loading modules not
+>> matching the running kernel?
+>
+> we do that already... provided you use the kbuild infrastructure instead
+> of a broken self-made makefile hack....
 
-Tony
+I used "make -C /lib/modules/`uname -r` SUBDIRS=$PWD modules".  Is
+that not correct?  The breakage was my fault, though.
+
+The problem I see is that a modules contain information about certain
+compiler flags used, e.g. -mregparm, but insmod still attempts to load
+them even they do not match the kernel.  This is independent of what
+build system you used.
+
+-- 
+Måns Rullgård
+mru@kth.se

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264940AbTAIKeM>; Thu, 9 Jan 2003 05:34:12 -0500
+	id <S262528AbTAIKcS>; Thu, 9 Jan 2003 05:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264944AbTAIKeL>; Thu, 9 Jan 2003 05:34:11 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:3090 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S264940AbTAIKeC>;
-	Thu, 9 Jan 2003 05:34:02 -0500
-Date: Thu, 9 Jan 2003 11:42:47 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: MB without keyboard controller / USB-only keyboard ?
-Message-Id: <20030109114247.211f7072.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S262620AbTAIKcS>; Thu, 9 Jan 2003 05:32:18 -0500
+Received: from home.wiggy.net ([213.84.101.140]:17051 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S262528AbTAIKcR>;
+	Thu, 9 Jan 2003 05:32:17 -0500
+Date: Thu, 9 Jan 2003 11:40:57 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: ipv6 stack seems to forget to send ACKs
+Message-ID: <20030109104057.GM22951@wiggy.net>
+Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+References: <20030108224339.GO22951@wiggy.net> <Pine.LNX.4.44.0301091131370.29527-100000@dns.toxicfilms.tv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301091131370.29527-100000@dns.toxicfilms.tv>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Previously Maciej Soltysiak wrote:
+> What other linux clients support streaming on ip6 ? patched mpg123 maybe?
 
-how do I work with a mb that contains no keyboard controller, but has only USB
-for keyboard and mouse?
-While booting the kernel I get:
+The xmms patch can be adopted to work for mpg123 I suspect, I haven't
+tried that.
 
-pc_keyb: controller jammed (0xFF)
+> What XP client are you using ?
 
-(a lot of these :-)
+Iirc mediaplayer was used.
 
-and afterwards I cannot use the USB keyboard.
-Everything works with a mb that contains a keyboard-controller, but where I use a
-USB keyboard.
+> Maybe it is a client issue, you say the client stops sending ACKs, maybe
+> the client code is buggy.
+
+I don't think a userspace tool can cause ACKs to stop being send.
+
+Wichert.
 
 -- 
-Regards,
-Stephan
+Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
+A random hacker

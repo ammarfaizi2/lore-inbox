@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270017AbRHNDEx>; Mon, 13 Aug 2001 23:04:53 -0400
+	id <S270131AbRHNDOD>; Mon, 13 Aug 2001 23:14:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270018AbRHNDEo>; Mon, 13 Aug 2001 23:04:44 -0400
-Received: from mailgate.indstate.edu ([139.102.15.118]:48366 "EHLO
-	mailgate.indstate.edu") by vger.kernel.org with ESMTP
-	id <S270017AbRHNDEj>; Mon, 13 Aug 2001 23:04:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rich Baum <richbaum@acm.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix 2.4.8 compile errors
-Date: Mon, 13 Aug 2001 21:47:28 -0500
-X-Mailer: KMail [version 1.2.9]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S270018AbRHNDNy>; Mon, 13 Aug 2001 23:13:54 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:61706 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S266158AbRHNDNq>; Mon, 13 Aug 2001 23:13:46 -0400
+Date: Mon, 13 Aug 2001 22:45:03 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.8: error on dasd.c 
+Message-ID: <Pine.LNX.4.21.0108132243330.19368-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <100C620A6B75@coral.indstate.edu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes two compile errors I get when compiling 2.4.8 on my K6-2.  
-Both of these errors are caused by compiling drivers for other architectures. 
- I've changed the Config.in files to keep these options from being selected 
-on the wrong architecture.
 
-Let me know if you have any questions about this patch.
+Hi, 
 
-Rich
+I got some errors while trying to compile stock 2.4.8 on S390:
 
-diff -urN -X dontdiff linux-2.4.8/drivers/net/Config.in 
-rb/drivers/net/Config.in
---- linux-2.4.8/drivers/net/Config.in	Sat Aug 11 11:10:07 2001
-+++ rb/drivers/net/Config.in	Mon Aug 13 20:43:41 2001
-@@ -28,7 +28,8 @@
- 
- bool 'Ethernet (10 or 100Mbit)' CONFIG_NET_ETHERNET
- if [ "$CONFIG_NET_ETHERNET" = "y" ]; then
--   dep_bool '  ARM EBSA110 AM79C961A support' CONFIG_ARM_AM79C961A 
-$CONFIG_ARCH_EBSA110
-+   if [ "$ARCH" = "arm" ]; then
-+      dep_bool '  ARM EBSA110 AM79C961A support' CONFIG_ARM_AM79C961A 
-$CONFIG_ARCH_EBSA110
-    if [ "$CONFIG_ARCH_ACORN" = "y" ]; then
-       source drivers/acorn/net/Config.in
-    fi
-diff -urN -X dontdiff linux-2.4.8/drivers/video/Config.in 
-rb/drivers/video/Config.in
---- linux-2.4.8/drivers/video/Config.in	Sat Aug 11 11:10:30 2001
-+++ rb/drivers/video/Config.in	Mon Aug 13 20:43:46 2001
-@@ -103,7 +103,8 @@
-    fi
-    tristate '  NEC PowerVR 2 display support' CONFIG_FB_PVR2
-    dep_bool '    Debug pvr2fb' CONFIG_FB_PVR2_DEBUG $CONFIG_FB_PVR2
--   bool '  Epson 1355 framebuffer support' CONFIG_FB_E1355
-+   if [ "$ARCH" = "sh" ]; then
-+      bool '  Epson 1355 framebuffer support' CONFIG_FB_E1355
-    if [ "$CONFIG_FB_E1355" = "y" ]; then
-       hex '    Register Base Address' CONFIG_E1355_REG_BASE a8000000
-       hex '    Framebuffer Base Address' CONFIG_E1355_FB_BASE a8200000
+dasd.c: In function `dasd_alloc_request':
+dasd.c:1069: warning: unused variable `flags'
+dasd.c:1068: warning: unused variable `i'
+dasd.c: In function `dasd_default_erp_action':
+dasd.c:1952: warning: assignment makes pointer from integer without a cast
+dasd.c: In function `dasd_revalidate':
+dasd.c:2151: warning: implicit declaration of function `dasd_destroy_partitions'
+dasd.c: In function `dasd_disable_volume':
+dasd.c:2660: warning: unused variable `part'
+dasd.c: In function `dasd_state_del_to_new':
+dasd.c:2954: warning: label `noidal' defined but not used
+dasd.c: At top level:
+dasd.c:3258: warning: `dasd_destroy_partitions' was declared implicitly `extern' and later `static'
+dasd.c:2151: warning: previous declaration of `dasd_destroy_partitions'
+dasd.c:3258: warning: type mismatch with previous implicit declaration
+dasd.c:2151: warning: previous implicit declaration of `dasd_destroy_partitions'
+dasd.c:3258: warning: `dasd_destroy_partitions' was previously implicitly declared to return `int'
+dasd.c: In function `dasd_destroy_partitions':
+dasd.c:3260: warning: unused variable `major'
+dasd.c: In function `cleanup_dasd':
+dasd.c:4048: warning: implicit declaration of function `list_for_each_safe'
+dasd.c:4048: parse error before `{'
+dasd.c:4017: warning: unused variable `range'
+dasd.c: At top level:
+dasd.c:4070: parse error before `&'
+...
+
+2.4.9-pre3 does not have any change to dasd.c 
 

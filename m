@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbTK1BDw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 20:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbTK1BDw
+	id S261775AbTK1BBx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 20:01:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbTK1BBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 20:03:52 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:24224 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261776AbTK1BDv (ORCPT
+	Thu, 27 Nov 2003 20:01:53 -0500
+Received: from pat.uio.no ([129.240.130.16]:5275 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261775AbTK1BBw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 20:03:51 -0500
-Date: Thu, 27 Nov 2003 17:03:37 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: "YOSHIFUJI Hideaki / _$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org,
-       felix-kernel@fefe.de
-Subject: Re: ipv4-mapped ipv4 connect() for UDP broken in test10
-Message-Id: <20031127170337.7210df24.davem@redhat.com>
-In-Reply-To: <20031127.211135.09649297.yoshfuji@linux-ipv6.org>
-References: <20031126081745.GA31415@codeblau.de>
-	<20031126.190407.102714104.yoshfuji@linux-ipv6.org>
-	<20031127.211135.09649297.yoshfuji@linux-ipv6.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 27 Nov 2003 20:01:52 -0500
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Locking over NFS
+References: <20031127230937.GA23147@werewolf.able.es>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 27 Nov 2003 20:01:43 -0500
+In-Reply-To: <20031127230937.GA23147@werewolf.able.es>
+Message-ID: <shsu14pz4p4.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Nov 2003 21:11:35 +0900 (JST)
-YOSHIFUJI Hideaki / _$B5HF#1QL@ <yoshfuji@linux-ipv6.org> wrote:
+>>>>> " " == J A Magallon <J.A.> writes:
 
-> In article <20031126.190407.102714104.yoshfuji@linux-ipv6.org> (at Wed, 26 Nov 2003 19:04:07 +0900 (JST)), YOSHIFUJI Hideaki / _$B5HF#1QL@ <yoshfuji@linux-ipv6.org> says:
-> 
-> I'm sure the original code has a bug.
-> I do think that it is related to your report 
-> (but I don't have time to confirm it.)
-> 
-> s6_addr[3] should be s6_addr32[3] because the code is intended to extract 
-> IPv4 address from the IPv4-mapped address (::ffff:0.0.0.0/96)
-> to convert sockaddr_in6{} to sockaddr_in{}.
+     > Hi all...  Is locking via lockf/fcntl supposed to work over NFS
+     > mounted volumes in 2.4 ?  I can't get it to work, even if
 
-I know, I know.
+Yes, it works just fine.
 
-I did apply your patch already, sorry for not telling you this.
+You're probably failing to run rpc.statd or something like that. See
+the NFS FAQ & HOWTO on http://nfs.sourceforge.net
 
-Thanks.
+Cheers,
+  Trond

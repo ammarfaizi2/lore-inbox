@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266308AbTBTRad>; Thu, 20 Feb 2003 12:30:33 -0500
+	id <S266368AbTBTRdm>; Thu, 20 Feb 2003 12:33:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266347AbTBTRac>; Thu, 20 Feb 2003 12:30:32 -0500
-Received: from [202.41.99.9] ([202.41.99.9]:60115 "EHLO
-	mail-relay-vsat2.ernet.in") by vger.kernel.org with ESMTP
-	id <S266308AbTBTRab>; Thu, 20 Feb 2003 12:30:31 -0500
-Date: Thu, 20 Feb 2003 23:16:10 +0500 (GMT)
-From: Sahani Himanshu <honeyuee@iitr.ernet.in>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Adaptec drivers causing problem in RHL 8.0
-In-Reply-To: <1045755948.1599.0.camel@laptop.fenrus.com>
-Message-ID: <Pine.GSO.4.05.10302202313230.8463-100000@iitr.ernet.in>
+	id <S266356AbTBTRdm>; Thu, 20 Feb 2003 12:33:42 -0500
+Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:30593
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266368AbTBTRcv> convert rfc822-to-8bit; Thu, 20 Feb 2003 12:32:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Buchanan <jamesbuch@iprimus.com.au>
+Reply-To: jamesbuch@iprimus.com.au
+To: Tomas Szepe <szepe@pinerecords.com>
+Subject: Re: Linux kernel rant
+Date: Fri, 21 Feb 2003 16:42:31 +1100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200302211551.28222.jamesbuch@iprimus.com.au> <20030220172606.GO1426@louise.pinerecords.com>
+In-Reply-To: <20030220172606.GO1426@louise.pinerecords.com>
+X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
+X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
+X-Location: Australia, NSW
+X-Religion: Athiest, Secular
+X-Operating-System: RedHat Linux/GNU
+X-Message: The Truth Is Out There
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302211642.31669.jamesbuch@iprimus.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Feb 2003, Arjan van de Ven wrote:
+On Fri, 21 Feb 2003 04:26 am, Tomas Szepe wrote:
+> Don't be naive, BSD people have to sign NDA's too if they want to
+> have decent drivers for cheap hardware.
 
-> On Thu, 2003-02-20 at 16:20, Justin T. Gibbs wrote:
-> > > Hi All,
-> > > 
-> > > May be you will say that this has been answered somewhere, but I am not
-> > > really able to understand what to do?
-> > > 
-> > > I recently installed RHL 8.0 on a SGI1200 server. The server has 
-> > > "Adaptec AIC-7896 SCSI BIOS v2.20S1B1" installed.
-> 
-> iirc this is a 440GX-box-from-hell; you HAVE to use the SMP kernel on
-> those.. the UP kernel doesn't have working irq routing.
-
-This m/c is a single processor m/c. It seems that the smp kernel with RHL
-8.0 is only for multi processor machine.
-
-Regards
-HimS
-
+I'm not - Theo De Raadt refuses to sign them.

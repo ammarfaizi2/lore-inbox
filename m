@@ -1,36 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278364AbRJ1N2n>; Sun, 28 Oct 2001 08:28:43 -0500
+	id <S278381AbRJ1NsF>; Sun, 28 Oct 2001 08:48:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278375AbRJ1N2e>; Sun, 28 Oct 2001 08:28:34 -0500
-Received: from cogito.cam.org ([198.168.100.2]:44548 "EHLO cogito.cam.org")
-	by vger.kernel.org with ESMTP id <S278364AbRJ1N20>;
-	Sun, 28 Oct 2001 08:28:26 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@CAM.ORG>
-Organization: me
-To: Dan <dphoenix@bravenet.com>
-Subject: Re: [reiserfs-list] 2.4.14-pre3 and umount
-Date: Sun, 28 Oct 2001 08:24:22 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: <linux-kernel@vger.kernel.org>, <reiserfs-list@namesys.com>
-In-Reply-To: <20011027222520.U97690-100000@gandalf.bravenet.com>
-In-Reply-To: <20011027222520.U97690-100000@gandalf.bravenet.com>
+	id <S278382AbRJ1Nrp>; Sun, 28 Oct 2001 08:47:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:52747 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S278381AbRJ1Nrl>; Sun, 28 Oct 2001 08:47:41 -0500
+Subject: Re: [PATCH] linux-2.4.13 - i8xx series chipsets patches
+To: wim@iguana.be (Wim Van Sebroeck)
+Date: Sun, 28 Oct 2001 13:54:45 +0000 (GMT)
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20011028123941.A24412@medelec.uia.ac.be> from "Wim Van Sebroeck" at Oct 28, 2001 12:39:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011028132422.F180F11716@oscar.casa.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15xqOj-0007s2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On October 28, 2001 01:25 am, Dan wrote:
-> might have a process accessing /back?
-> lsof|grep back
+>  static struct pci_device_id i810tco_pci_tbl[] __initdata = {
+> -	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AA_0,	PCI_ANY_ID, PCI_ANY_ID, },
+> -	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AB_0,	PCI_ANY_ID, PCI_ANY_ID, },
+> -	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0,	PCI_ANY_ID, PCI_ANY_ID, },
+> -	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_10,	PCI_ANY_ID, PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AA_0, PCI_ANY_ID, PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AB_0, PCI_ANY_ID, PCI_ANY_ID, },
+> +	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_0, PCI_ANY_ID, PCI_ANY_ID, },
 
-Forgot about lsof...  it found a gzip hiding.  I had tried
-ps -eaf | grep back but found nothing.  
+Why all this renaming and reformatting - what does your patch really do
+other than generate a lot of pointless noise
 
-I am glad this turn out to be a non bug - pre3 seems to be
-a quite nice kernel here.
+> -	1a21  82840 840 (Carmel) Chipset Host Bridge (Hub A)
+> +	1a21  82840 840 [Carmel] Chipset Host Bridge (Hub A)
 
-Thanks
-Ed Tomlinson
+And why break all the bracketing so that it isnt like other table
+entries ?

@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131290AbQLUWpx>; Thu, 21 Dec 2000 17:45:53 -0500
+	id <S131003AbQLUWuE>; Thu, 21 Dec 2000 17:50:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbQLUWpo>; Thu, 21 Dec 2000 17:45:44 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:10514 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S131290AbQLUWpe>; Thu, 21 Dec 2000 17:45:34 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: John Covici <covici@ccs.covici.com>
-Date: Fri, 22 Dec 2000 09:14:55 +1100 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14914.32991.480115.210561@notabene.cse.unsw.edu.au>
+	id <S131317AbQLUWtz>; Thu, 21 Dec 2000 17:49:55 -0500
+Received: from monza.monza.org ([209.102.105.34]:8197 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S131003AbQLUWtp>;
+	Thu, 21 Dec 2000 17:49:45 -0500
+Date: Thu, 21 Dec 2000 14:19:08 -0800
+From: Tim Wright <timw@splhi.com>
+To: Paul Cassella <pwc@sgi.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: strange nfs behavior in 2.2.18 and 2.4.0-test12
-In-Reply-To: message from John Covici on Thursday December 21
-In-Reply-To: <Pine.LNX.4.21.0012211324000.7606-100000@ccs.covici.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: Re: [RFC] Semaphores used for daemon wakeup
+Message-ID: <20001221141908.D1350@scutter.sequent.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Paul Cassella <pwc@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <3A42380B.6E9291D1@sgi.com> <Pine.SGI.3.96.1001221130859.8463C-100000@fsgi626.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SGI.3.96.1001221130859.8463C-100000@fsgi626.americas.sgi.com>; from pwc@sgi.com on Thu, Dec 21, 2000 at 01:30:03PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday December 21, covici@ccs.covici.com wrote:
-> Hi.  I am having strange nfs problems in both my 2.x and 2.4.0-test12
-> kernels.
-> 
-> What is happening is that when the machine boots up and exports the
-> directories for nfs, it complains that
-> 
-> ccs2:/ invalid argument .
-> 
-> The exports entry is
-> 
-> / ccs2(rw,no_root_squash)
+Looks good.
+I'd like to play with you patch, but certainly from a first glance, it would
+seem to be sufficiently powerful, and significantly cleaner/clearer (at least
+to me :-) than the current mechanism involving the wait queue games.
 
-Is there another export entry that exports another part of the same
-file system to the same client?  If so, that is your problem.
-You cannot export two different directories on the same filesystem to
-the same client if one is an ancestor of the other (because exporting
-a directory is really exporting the directory and all descendants on
-that filesystem, and so exporting a directory and a subdirectory is
-effectively exporting the subdirectory twice with potentially
-different flags).
+Regards,
 
-NeilBrown
+Tim
 
-> 
-> Now in Kernel 2.2.18, if I stop and restart the nfs daemons, all is
-> OK, the invalid argument goes away, but in 2.4.0 I cannot get this to
-> work at all and so I cannot mount nfs from a client on the ccs2 box.
-> I am using the utilities 0.2.1-4 from the Debian distribution if that
-> makes any difference.  I did an strace once on exportfs and it was
-> having trouble with the call to nfsservctl which returns invalid argument.
-> 
-> 
-> Any assistance would be appreciated.
-> 
-> -- 
->          John Covici
->          covici@ccs.covici.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+-- 
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

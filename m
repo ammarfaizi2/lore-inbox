@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUENQLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUENQSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUENQLm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 12:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUENQLm
+	id S261443AbUENQSl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 12:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUENQSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 12:11:42 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:16139 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261648AbUENQLi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 12:11:38 -0400
-From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-To: Will Dyson <will_dyson@pobox.com>
-Subject: Re: [PATCH] befs (1/5): LBD support
-Date: Fri, 14 May 2004 20:09:36 +0400
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org
-References: <200405132232.09816.rathamahata@php4.ru> <40A4E432.4020202@pobox.com>
-In-Reply-To: <40A4E432.4020202@pobox.com>
+	Fri, 14 May 2004 12:18:41 -0400
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:47795 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261443AbUENQSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 12:18:39 -0400
+Message-ID: <40A4F163.6090802@stanford.edu>
+Date: Fri, 14 May 2004 09:18:43 -0700
+From: Andy Lutomirski <luto@stanford.edu>
+User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+CC: Andy Lutomirski <luto@myrealbox.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, olaf+list.linux-kernel@olafdietsche.de,
+       Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH] capabilites, take 2
+References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <fa.mu5rj3d.24gtbp@ifi.uio.no>	 <40A4EC72.2020209@myrealbox.com> <1084550518.17741.134.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1084550518.17741.134.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405142009.36776.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Will,
+Stephen Smalley wrote:
 
-On Friday 14 May 2004 19:22, Will Dyson wrote:
-> Sergey S. Kostyliov wrote:
-> > LBD patch merged long time ago, so it is safe to pass u64 block
-> > numbers to sb_bread() when sector_t is large enough.
+> On Fri, 2004-05-14 at 11:57, Andy Lutomirski wrote:
 > 
-> Nice. I haven't mounted any of my BeFS volumes in quite some months now. 
->   Are you interested in taking over official maintainership?
->
+>>Thanks -- turning brain back on, SELinux is obviously better than any
+>>fine-grained capability scheme I can imagine.
+>>
+>>So unless anyone convinces me you're wrong, I'll stick with just
+>>fixing up capabilities to work without making them finer-grained.
+> 
+> 
+> Great, thanks.  Fixing capabilities to work is definitely useful and
+> desirable.  Significantly expanding them in any manner is a poor use of
+> limited resources, IMHO; I'd much rather see people work on applying
+> SELinux to the problem and solving it more effectively for the future.
+> 
 
-Yes, I am interested. How do you like this patch?
+Does this mean I should trash my 'maximum' mask?
 
-===== Documentation/filesystems/befs.txt 1.2 vs edited =====
---- 1.2/Documentation/filesystems/befs.txt	Tue Apr  1 03:55:42 2003
-+++ edited/Documentation/filesystems/befs.txt	Fri May 14 20:00:47 2004
-@@ -17,8 +17,8 @@
- 
- AUTHOR
- =====
--Current maintainer: Will Dyson <will_dyson@pobox.com>
--Has been working on the code since Aug 13, 2001. See the changelog for
-+The largest part of the code written by Will Dyson <will_dyson@pobox.com>
-+He has been working on the code since Aug 13, 2001. See the changelog for
- details.
- 
- Original Author: Makoto Kato <m_kato@ga2.so-net.ne.jp>
-@@ -26,6 +26,8 @@
- <http://hp.vector.co.jp/authors/VA008030/bfs/>
- Does anyone know of a more current email address for Makoto? He doesn't
- respond to the address given above...
-+
-+Current maintainer: Sergey S. Kostyliov <rathamahata@php4.ru>
- 
- WHAT IS THIS DRIVER?
- ==================
+(I like 'cap -c = sftp-server' so it can't try to run setuid/fP apps.)
+OTOH, since SELinux accomplishes this better, it may not be worth the
+effort.
 
--- 
-                   Best regards,
-                   Sergey S. Kostyliov <rathamahata@php4.ru>
-                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc
+--Andy
+

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130079AbRBPMqJ>; Fri, 16 Feb 2001 07:46:09 -0500
+	id <S130344AbRBPMtt>; Fri, 16 Feb 2001 07:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130244AbRBPMp7>; Fri, 16 Feb 2001 07:45:59 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:47120 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S130079AbRBPMpt>; Fri, 16 Feb 2001 07:45:49 -0500
-Message-ID: <3A8D20AC.B1DDA78C@idb.hist.no>
-Date: Fri, 16 Feb 2001 13:44:28 +0100
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: no, da, en
+	id <S129591AbRBPMtj>; Fri, 16 Feb 2001 07:49:39 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:46863 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130466AbRBPMtg>; Fri, 16 Feb 2001 07:49:36 -0500
+Subject: Re: mke2fs and kernel VM issues
+To: tytso@valinux.com
+Date: Fri, 16 Feb 2001 12:49:31 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk, sflory@valinux.com, chip@valinux.com,
+        linux-kernel@vger.kernel.org, sct@redhat.com
+In-Reply-To: <E14TkFk-0007Nz-00@beefcake.hdqt.valinux.com> from "tytso@valinux.com" at Feb 16, 2001 04:44:48 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: James Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <Pine.SOL.4.21.0102160933051.26108-100000@orange.csi.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14TkKM-00034C-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Sutherland wrote:
+> case, for example, we saw it with a system that had "only" 256 megs of
+> memory, and creating a 72 gigabyte filesystem using a 8x9gb RAID
+> configuration.
 
-> > I see no problem with that though.  And those who want to get
-> > paid for computing work?  No problem.  There is always support.
-> 
-> Hrm. Getting paid to write code is preferable, IMHO...
+Ok I've only tested 90Gb on 2.2.19pre3, not more than that
 
-You can still get paid for writing something new.  I have heard about
-businesses that write open source software on order.  I.e. customer
-pay for customizing an open source package the company knows well,
-then they release the extensions too.
+> workaround did fix IBM's problem, which lends credence to the theory
+> that the problem is a VM bug related to a lack of sufficient write
+> throttling.  
 
-Helge Hafting
+Yep. I think 2.4.1 is about the first kernel that gets this right
+
+
+

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbUBXVrf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 16:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbUBXVrf
+	id S262468AbUBXVrV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 16:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbUBXVrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 16:47:35 -0500
-Received: from gyge.telenet-ops.be ([195.130.132.48]:42712 "EHLO
-	gyge.telenet-ops.be") by vger.kernel.org with ESMTP id S262323AbUBXVrY
+	Tue, 24 Feb 2004 16:47:20 -0500
+Received: from fed1mtao06.cox.net ([68.6.19.125]:64222 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262487AbUBXVqn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 16:47:24 -0500
-From: Bart De Schuymer <bdschuym@pandora.be>
-To: "Simon Barber" <simon@instant802.com>,
-       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <netdev@oss.sgi.com>
-Subject: Re: Problem with ebtables target that changes frame protocol
-Date: Tue, 24 Feb 2004 22:47:20 +0100
-User-Agent: KMail/1.5
-References: <AC8C1F46CD753F4AAC8F890E35A9EB461C66EB@webmail.instant802.com>
-In-Reply-To: <AC8C1F46CD753F4AAC8F890E35A9EB461C66EB@webmail.instant802.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Feb 2004 16:46:43 -0500
+Date: Tue, 24 Feb 2004 14:46:42 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: todc_time warings on PPC
+Message-ID: <20040224214642.GE1052@smtp.west.cox.net>
+References: <Pine.GSO.4.44.0402201409380.23390-100000@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402242247.20875.bdschuym@pandora.be>
+In-Reply-To: <Pine.GSO.4.44.0402201409380.23390-100000@math.ut.ee>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 February 2004 23:41, Simon Barber wrote:
-> I have written an ebtables target that changes the ethernet protocol of
-> a received frame (it runs in the broute chain). I have been working on
-> 2.4.21 sources - Unfortunately inside netif_rx the skb->protocol is
-> looked at before the bridge code is called - and then acted upon after.
-> Hence if the bridge code changes the protocol the incorrect protocol is
-> used to process the frame.
+On Fri, Feb 20, 2004 at 02:12:48PM +0200, Meelis Roos wrote:
 
-As the variable type is only used after the bridge code, I think it is best to 
-postpone the initialization of type until after the bridge code. This is of 
-course of no concern to the standard 2.4 kernel (as ebtables isn't in 2.4). 
-This problem exists in the 2.6 kernel, however.
-I'll make a fix for 2.6 later, unless someone beats me to it. I'm kind of busy 
-at the moment.
+> FYI, there are new warning on PPC while compiling 2.6.3+current BK.
+> 
+> arch/ppc/syslib/todc_time.c: In function `todc_m48txx_read_val':
+> arch/ppc/syslib/todc_time.c:99: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c:100: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c:101: warning: passing arg 1 of `inb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c: In function `todc_m48txx_write_val':
+> arch/ppc/syslib/todc_time.c:107: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c:108: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c:109: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c: In function `todc_mc146818_read_val':
+> arch/ppc/syslib/todc_time.c:117: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c:118: warning: passing arg 1 of `inb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c: In function `todc_mc146818_write_val':
+> arch/ppc/syslib/todc_time.c:124: warning: passing arg 2 of `outb' makes integer from pointer without a cast
+> arch/ppc/syslib/todc_time.c:125: warning: passing arg 2 of `outb' makes integer from pointer without a cast
 
-cheers,
-Bart
+Yes.  This, and some slightly more root-cause issues have been fixed in
+the tree Linus pulls from occasionally, and once I grab some more of the
+(unrelated to this) ppc64 fixes that ppc32 needs, I'll ask Linus to
+pull.  Or ask Paul to ask Linus to pull..
 
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

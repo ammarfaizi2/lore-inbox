@@ -1,91 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269540AbUICQ63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269436AbUICRB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269540AbUICQ63 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 12:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269486AbUICQ6O
+	id S269436AbUICRB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 13:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269416AbUICRB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 12:58:14 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:60546 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S269466AbUICQxf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 12:53:35 -0400
-Date: Fri, 3 Sep 2004 17:53:23 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: lkml@einar-lueck.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] net/ipv4 for Source VIPA support, kernel BK Head
-In-Reply-To: <200409031007.29467.elueck@de.ibm.com>
-Message-ID: <Pine.LNX.4.61.0409031747580.23011@fogarty.jakma.org>
-References: <200409011441.10154.elueck@de.ibm.com> <200409021858.38338.elueck@de.ibm.com>
- <Pine.LNX.4.61.0409022147220.23011@fogarty.jakma.org> <200409031007.29467.elueck@de.ibm.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 3 Sep 2004 13:01:57 -0400
+Received: from cantor.suse.de ([195.135.220.2]:38101 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269515AbUICQ4f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 12:56:35 -0400
+Subject: Re: The argument for fs assistance in handling archives
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: David Masover <ninja@slaphack.com>, Steve Bergman <steve@rueb.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       reiserfs <reiserfs-list@namesys.com>
+In-Reply-To: <413810B6.7020805@namesys.com>
+References: <20040826150202.GE5733@mail.shareable.org>
+	 <200408282314.i7SNErYv003270@localhost.localdomain>
+	 <20040901200806.GC31934@mail.shareable.org>
+	 <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
+	 <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com>
+	 <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
+	 <4136A14E.9010303@slaphack.com>
+	 <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
+	 <4136C876.5010806@namesys.com>
+	 <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
+	 <4136E0B6.4000705@namesys.com>  <14260000.1094149320@flay>
+	 <1094154744.12730.64.camel@voyager.localdomain>
+	 <4137BC3C.4010207@slaphack.com>  <413810B6.7020805@namesys.com>
+Content-Type: text/plain
+Message-Id: <1094227041.6301.21.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 03 Sep 2004 12:02:49 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Sep 2004, Einar Lueck wrote:
+On Fri, 2004-09-03 at 02:35, Hans Reiser wrote:
 
-> I just set up the loopback interface via ZEBRA/OSPF as You 
-> described it and checked via tcpdump the source IP address of the 
-> related NFS packets. The kernel chooses the IP address of the NIC 
-> he routes the packets over as the source IP address and not the 
-> Source VIPA configured for loopback.
+> All this stuff about how no filesystem should be allowed to have 
+> semantic features others don't, it seems very Bolshevist to me.
+> 
+> Let Linux have an ecosystem with a diverse ecology of filesystems, and 
+> the features that work will reproduce to other filesystems.  I thought 
+> that was the Linus way?
+> 
 
-Ah, I didnt say adding an address to loopback would make everything 
-use it. Merely that loopback already exists as an interface to which 
-from which you can 'hang' your VIPA - no need for a new interface.
+There's no reason you can't have semantics the other filesystems don't. 
+There's also no reason you shouldn't continue researching in any
+direction you choose.
 
-You could try:
+When you submit to the kernel (even just -mm), call the FS stable and
+suggest people start broadly using it, you're telling them the parts you
+have submitted are in fact fixed and reliable.
 
- 	ip route change default via <gateway> src <vipa>
+This implies you are done changing the semantics you have submitted,
+which also implies you would like applications to start seriously using
+it.  Those application writers will want other filesystems to be able to
+support these new semantics, which means they should have a race free
+framework vetted by the kernel community and available for reuse by the
+other filesystems.  In other words, the semantics should be in the VFS,
+without any requirement other FS's implement them, but the possibility
+for every FS to implement them.
 
-Presuming the NFS clients are behind a gateway. If also onlink, you 
-need to modify the connected routes and change the src there too.
+If you don't want the framework to be agreed on by the community and
+available for other implementations, you either haven't stabilized the
+semantics, or you don't want anyone else using them.  Either way, it
+precludes inclusion in the kernel.  There are simply higher expectations
+for a filesystem in these cases, and a higher burden for stable
+semantics and interfaces.
 
-> You are right, it would be one option to have a "bind to address" 
-> in KNFSD.
+This doesn't mean new semantics are impossible, it just means that
+constantly changing semantics of the filesystem core are bad for users
+and applications.  They belong in patches that live outside the kernel
+until they are sufficiently researched to justify their inclusion.
 
-It might even already exist.. who knows. ;)
+The biggest victim of this discussion is the non-semantic part of
+reiser4.  You've done a huge amount of research that is being held back
+because you haven't separated the semantic research from the storage
+layer areas.  If the storage layers are ready now, please please just
+submit them.
 
-> But our idea was to implement a feature well known from other 
-> operating systems like AIX to Linux because this feature is quite 
-> popular and liked especially by large customers.
+-chris
 
-Right, but Linux can already do it. The configuration might not be 
-the same as AIX, but that's not a good reason.. if it were, you 
-should also be porting smit to Linux to satisfy your customers ;)
 
-Linux can already do what you want I think. Just a matter of 
-configuring it.
-
-> We would win a facility allowing for a Source VIPA for all kinds of 
-> servers not offering an explicit bind option. So: Due to the 
-> feature port idea mentioned above.
-
-Have you tried playing with ip route?
-
- 	ip route <destination> ...... src <source address>
-
-> If we focus for a moment just on the NIC-fail-over issue (not 
-> caring about layers, virtual IPs, etc.) then bonding offers the 
-> desired failover with some restriction. This is the reason why I 
-> mentioned it in this context.
-
-Ah.
-
-> Again, thanks for Your suggestions and maybe we should continue our
-> discussion privately.
-
-Sure.
-
-> Regards
->
-> Einar.
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-kernel panic: write-only-memory (/dev/wom0) capacity exceeded.

@@ -1,76 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265434AbTFMQ0H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 12:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265435AbTFMQ0H
+	id S265441AbTFMQa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 12:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265439AbTFMQ3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 12:26:07 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:1260 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265434AbTFMQ0B (ORCPT
+	Fri, 13 Jun 2003 12:29:17 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:6139 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265435AbTFMQ2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 12:26:01 -0400
-Date: Fri, 13 Jun 2003 09:41:40 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Steven Dake <sdake@mvista.com>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+	Fri, 13 Jun 2003 12:28:54 -0400
+Date: Fri, 13 Jun 2003 09:32:27 -0700
+From: Greg KH <greg@kroah.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] udev enhancements to use kernel event queue
-In-Reply-To: <3EE9F2E5.1050407@mvista.com>
-Message-ID: <Pine.LNX.4.44.0306130925510.908-100000@cherise>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20030613163226.GA5799@kroah.com>
+References: <3EE8D038.7090600@mvista.com> <20030612214753.GA1087@kroah.com> <20030612150335.6710a94f.akpm@digeo.com> <1055493636.5163.8.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055493636.5163.8.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I suppose it is possible that devfs could be faster, however, there are 
-> significant amounts of policies that can never be done in devfs which 
-> must be done in user space.  For these types of applications, it makes 
-> sense to provide the fastest mechanism available, even when it may only 
-> improve boot performance by 1 second.
-
-Eh? Why must you completely re-engineer a solution because you see the 
-current one as deficient? Not only is it completely over-engineered by 
-enforcing your fanatical ideas about requiring a new system daemon, but 
-it's total pre-mature optimization. 
-
-On top of that, you don't have any accurate numbers to back up your 
-claims. Please perform and post the timings I suggested yesterday, and 
-then we'll talk. 
-
-> I understand what you mean by saying that 99.99% of users don't care 
-> about availability.  While those particular users may spend significant 
-> amounts of time improving Linux, it is the remaining folks that care 
-> about availability that are interested in investing money into r&d to 
-> improve availability while also improving feature set.  It is this set 
-> of folks, (the people that do care about availability) that this patch 
-> is targeted towards.
-
-Then it is your responsibility to merge the continuing efforts and design 
-goals of the kernel with the requirements of your high-paying customers in 
-the smoothest possible way. Serving one while ignoring the other is a good 
-way to waste a lot of time and money. 
-
-I care about availability. But, I am not willing to integrate or support 
-features that come from some random person just because they claim to 
-improve availability, especially when a) I don't like the numbers and b) 
-there are no numbers to back it up. 
-
-> >As for the memory issues, if no one ever reads from the character node,
-> >it will constantly fill up with events, right?  Shouldn't they be
-> >eventually flushed out at some point in time?
-> >  
-> >
-> This is a problem...  I wasn't quite sure how to handle this.  The two 
-> choices are to include timeouts in events (after a certain amount of 
-> time, events are timed out and freed) or to allow only a certain number 
-> of events, after which events at the front of the queue are flushed.
+On Fri, Jun 13, 2003 at 09:40:37AM +0100, Alan Cox wrote:
+> On Iau, 2003-06-12 at 23:03, Andrew Morton wrote:
+> > This is a significantly crappy aspect of the /sbin/hotplug callout.  I'd be
+> > very interested in reading an outline of how you propose fixing it, without
+> > waiting until OLS, thanks.
 > 
-> The reality though, is that the user will be running the daemon to clear 
-> out the events.  If they don't, then they get what they deserve :)
+> Dave Miller posted a simple patch to allow netlink to be used for
+> kernel->user messages - hotplug/disk error/logging/whatever. I'm
+> suprised therefore that the whole thing is being regurgitated again.
 
-And this improves availability how? 
+For error logging stuff I think the netlink interface is fine.  And I'm
+pretty sure some of the IBM RAS people are looking into useing it.
 
+But as a hotplug interface, no, I do not want to change to using it.
+The bash /sbin/hotplug plugin writers would hate me...  :)
 
-	-pat
+thanks,
 
+greg k-h

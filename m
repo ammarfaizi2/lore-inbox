@@ -1,50 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261876AbTCGXTc>; Fri, 7 Mar 2003 18:19:32 -0500
+	id <S261867AbTCGXRg>; Fri, 7 Mar 2003 18:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261875AbTCGXTb>; Fri, 7 Mar 2003 18:19:31 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:2994 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261876AbTCGXSl>; Fri, 7 Mar 2003 18:18:41 -0500
-Date: Fri, 7 Mar 2003 18:29:14 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: [PATCH] s390 (1/7): s390 arch fixes.
-Message-ID: <20030307182914.D32569@devserv.devel.redhat.com>
-References: <200303072001.h27K12V16864@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200303072001.h27K12V16864@devserv.devel.redhat.com>; from zaitcev@redhat.com on Fri, Mar 07, 2003 at 03:01:02PM -0500
+	id <S261863AbTCGXRg>; Fri, 7 Mar 2003 18:17:36 -0500
+Received: from mail2.fbab.net ([195.54.134.228]:44970 "HELO mail2.fbab.net")
+	by vger.kernel.org with SMTP id <S261867AbTCGXRb>;
+	Fri, 7 Mar 2003 18:17:31 -0500
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail2.fbab.net
+X-Qmail-Scanner: 1.10 (Clear:0. Processed in 0.266271 secs)
+Message-ID: <048901c2e501$569ef060$f80c0a0a@mnd>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <DC900CF28D03B745B2859A0E084F044D043506DD@cceexc19.americas.cpqcorp.net> <3E5CE539.60905@pobox.com>
+Subject: Re: lockups with 2.4.20 (tg3? net/core/dev.c|deliver_to_old_ones)
+Date: Sat, 8 Mar 2003 00:29:02 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> --- linux-2.5.64/arch/s390/kernel/time.c	Wed Mar  5 04:28:53 2003
-> +++ linux-2.5.64-s390/arch/s390/kernel/time.c	Fri Mar  7 11:40:12 2003
-> @@ -202,14 +203,14 @@
->  	unsigned long cr0;
->  	__u64 timer;
->  
-> +	timer = jiffies_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
-> +	S390_lowcore.jiffy_timer = timer;
-> +	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
-> +	asm volatile ("SCKC %0" : : "m" (timer));
->          /* allow clock comparator timer interrupt */
->          asm volatile ("STCTL 0,0,%0" : "=m" (cr0) : : "memory");
->          cr0 |= 0x800;
->          asm volatile ("LCTL 0,0,%0" : : "m" (cr0) : "memory");
-> -	timer = init_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
-> -	S390_lowcore.jiffy_timer = timer;
-> -	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
-> -	asm volatile ("SCKC %0" : : "m" (timer));
->  }
->  
->  /*
+Jeff Garzik <jgarzik@pobox.com> wrote:
+> Rhodes, Tom wrote:
+[snip]
+>>
+>> Until this is fixed, there are a couple work-arounds:
+>
+> It's fixed in tg3 version 1.4c, which is attached.  James Bourne also
+> put up tg3 2.4.20 patches containing the needed fixes, at
+> http://www.hardrock.org/kernel/2.4.20
+>
+> Jeff
 
-This is a good fix, I confirm it fixing my booting problem ...
-on 2.4! Seriously, I can't believe it worked before.
-Please send it to Marcelo, too.
+I got an hang/oops with the tg3 driver aswell.
+I just wanted to make sure that 1.4c+ fixes this bug too:
 
--- Pete
+ftp://ftp.fbab.net/pub/mag/tg3_oops_small.jpg
+
+I've still got it in KDB if you want to find anything out from that
+(tell me what to do) ...
+Before this hang i had a e1000 card that also stopped working after a
+while, so i switched to tg3, and ofcourse i got a hang there too :)
+
+Regards
+
+Magnus
+

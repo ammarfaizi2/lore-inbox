@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290956AbSAaFtv>; Thu, 31 Jan 2002 00:49:51 -0500
+	id <S290961AbSAaFuv>; Thu, 31 Jan 2002 00:50:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290953AbSAaFtl>; Thu, 31 Jan 2002 00:49:41 -0500
-Received: from are.twiddle.net ([64.81.246.98]:34455 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S290956AbSAaFti>;
-	Thu, 31 Jan 2002 00:49:38 -0500
-Date: Wed, 30 Jan 2002 21:49:35 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Richard Henderson <rth@twiddle.net>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
-Message-ID: <20020130214935.A7479@are.twiddle.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Richard Henderson <rth@twiddle.net>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com, kuznet@ms2.inr.ac.ru
-In-Reply-To: <20020130002204.A4480@are.twiddle.net> <E16W3U9-0004Pd-00@wagner.rustcorp.com.au>
+	id <S290953AbSAaFum>; Thu, 31 Jan 2002 00:50:42 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:33040 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S290957AbSAaFu1>; Thu, 31 Jan 2002 00:50:27 -0500
+Date: Wed, 30 Jan 2002 20:56:25 +0100
+From: Jurriaan on Alpha <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: fonts corruption with 3dfx drm module
+Message-ID: <20020130195625.GA21521@alpha.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <3C584532.3B64FBC@astercity.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E16W3U9-0004Pd-00@wagner.rustcorp.com.au>; from rusty@rustcorp.com.au on Thu, Jan 31, 2002 at 09:45:45AM +1100
+In-Reply-To: <3C584532.3B64FBC@astercity.net>
+User-Agent: Mutt/1.3.25i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 31, 2002 at 09:45:45AM +1100, Rusty Russell wrote:
-> "better".  Believe me, I was fully aware, but I refuse to write such
-> crap unless *proven* to be required.
+On Wed, Jan 30, 2002 at 08:10:42PM +0100, Marek Kassur wrote:
+> Zwane Mwaikambo ask me to post to kernel list directly, so here it is.
+> 
+> I have Voodoo 3 3000 PCI on dual pentium 200MHz (MMX) so no MTRR here
+> and I see occasionally font corruption with every Xfree 4.x (excluding
+> 4.2, because don't have it yet). I use only text console. Typically one
+> or sometimes more characters are corrupted and look like upper/lower
+> fragment is eaten. Always switch to X and back correct it.
+> 
+In that case, let me pitch in and say I never saw any corruption.
 
-You're going to wait until the compiler generates incorrect
-code for you after knowing that it *probably* will?  Nice.
+Voodoo 4500 pci
+X 4.1.x
+framebuffer 1600x1200-16@86
+Alpha 21164 computer.
+mtrr? none on Alpha :-)
 
-> I agree that this is much better.  But do not understand what small
-> relocs have to do with simple address arithmetic?  You've always been
-> right before: what am I missing?
-
-"Small" variables may be positioned by the compiler such that
-they are addressable via a 16-bit relocation from some GP register.
-If that variable isn't actually located in the small data area,
-then the 16-bit relocation may overflow, resulting in link errors.
-
-So it isn't a matter of the arithmetic itself, but loading the
-addresses with which to do the arithmetic.
-
-By declaring the variable to be an array of unspecified size,
-you're giving the compiler no information as to the size of the
-variable, and so it cannot assume the variable is located in the
-small data area.
-
-
-r~
+Jurriaan
+-- 
+5) "My competition did it!"  Tactics for showing how the spam that
+points to your site (and got you 12 orders) was actually an attempt by
+your competition to malign you.
+	'Top ten seminars at an upcoming DMA conference' as seen in nanae
+GNU/Linux 2.4.18p7-rmap12a on Debian/Alpha 988 bogomips load:0.04 0.03 0.00

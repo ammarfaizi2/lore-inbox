@@ -1,196 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265390AbTFVA73 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 20:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbTFVA73
+	id S265045AbTFVA6q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 20:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbTFVA6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 20:59:29 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:2781 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265390AbTFVA7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 20:59:16 -0400
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: nfs@lists.sourceforge.net
-Subject: [PATCH] ipconfig dhcp mtu option support
-Date: Sun, 22 Jun 2003 03:13:13 +0200
-User-Agent: KMail/1.5.1
+	Sat, 21 Jun 2003 20:58:46 -0400
+Received: from lvs00-fl.valueweb.net ([216.219.253.199]:57285 "EHLO
+	ams002.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S265045AbTFVA6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 20:58:44 -0400
+Message-ID: <3EF50289.8000700@coyotegulch.com>
+Date: Sat, 21 Jun 2003 21:12:41 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, etherboot-developers@lists.sourceforge.net
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: wa@almesberger.net, lm@work.bitmover.com, miquels@cistron-office.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe>	<1056027789.3ef1b48d3ea2e@support.tuxbox.dk>	<03061908145500.25179@tabby>	<20030619141443.GR29247@fs.tum.de>	<bcsolt$37m$2@news.cistron.nl>	<20030619165916.GA14404@work.bitmover.com>	<3EF4ABF7.9050003@coyotegulch.com> <20030622001322.16c5c458.skraw@ithnet.com>
+In-Reply-To: <20030622001322.16c5c458.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200306220313.13040.hpj@urpla.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Stephan von Krawczynski wrote:
+> Scott Robert Ladd <coyote@coyotegulch.com> wrote:
+>>A very technocratic view, to be sure. Source code is no guranatee of 
+>>future portability or viability; for the vast, vast majority of users -- 
+>>we do care about those, don't we? -- source code is useless.
+> 
+> I doubt that. You are probably right with your exact statement, meaning that
+> the _user_ cannot make use of the available source code himself (though the
+> only reason why is that he plays user and refuses to learn anything :-)
 
-while experimenting with jumbo frames in a diskless setup, I came
-across the problem to enable them properly on the client. This is 
-due to missing support for the dhcp interface-mtu option in ipconfig.
+While I subscribe to the theory that specialization is for insects (ala 
+Heinlein), I also recognize that no one can know everything. Having 
+tried to be a universalist, I'm somewhat familiar with the limitations 
+of time over genius; while it is certainly possible for me to perform 
+surgery, for example, I would much rather have a trained professional do it.
 
-It took me this patch to make them work. Note, that I ommited the
-bootp_init_ext, so this one is limited to dhcp by now... While at
-it, I've cleaned up the ifreq struct usage a bit.
+Just because someone is not a programmer does not make them lazy. Most 
+users have other tasks at hand; in my case, I would much rather my 
+surgeon refine his skills the the scapel, than have him waste time 
+writing his own diagnostic software.
 
-If you're going to test this, please let me know, if it __works__ 
-for you, too, since I plan to send it to Marcelo, when 'enough' 
-positives arrived here.
+> the manpower and brain invested in creation of this open source code is not
+> lost in space. Someone with brain and time can pick it up and revive it at any
+> given time. And this is a very big advantage in comparison to closed source
+> which simply vanishes with its producing company - and there already have been
+> quite a few of those.
 
-BTW, anybody willing to apply and test this on 2.5?
+I most certainly agree. Knowledge is built on knowledge, and if a Homo 
+erectus had patented the flaked stone tool, we would all still be living 
+in caves.
 
-Enjoy,
-Pete
+Of course, not everyone is capable of creating a sharp edge by banging 
+the rocks together. And that's why different people do different things.
 
-P.S.: I'm using e1000 (Intel Pro/1000 MT Desktop) GB NICs here.
+> So even if your statement looks correct in micro-economics, it is completely
+> wrong in macro-economics. As Larry already pointed out in another post software
+> development is often expensive. But it is only expensive if every company has
+> to re-invent the wheel.
+ >
+ > If you can simply use the wheel and go on producing a
+ > car "on top" of it, you _saved_ money, time and manpower.
 
---- linux-2.4.20/net/ipv4/ipconfig.c.orig	2003-06-21 17:24:21.000000000 +0200
-+++ linux/net/ipv4/ipconfig.c	2003-06-22 01:50:53.000000000 +0200
-@@ -27,10 +27,13 @@
-  *  Merged changes from 2.2.19 into 2.4.3
-  *              -- Eric Biederman <ebiederman@lnxi.com>, 22 April Aug 2001
-  *
-  *  Multipe Nameservers in /proc/net/pnp
-  *              --  Josef Siemes <jsiemes@web.de>, Aug 2002
-+ *
-+ *  Support for MTU selection via DHCP
-+ *              -- Hans-Peter Jansen <hpj@urpla.net>, June 2003
-  */
- 
- #include <linux/config.h>
- #include <linux/types.h>
- #include <linux/string.h>
-@@ -144,10 +147,13 @@
-  */
- 
- /* Name of user-selected boot device */
- static char user_dev_name[IFNAMSIZ] __initdata = { 0, };
- 
-+/* MTU of device (if requested) */
-+static int ic_dev_mtu __initdata = 0;
-+
- /* Protocols supported by available interfaces */
- static int ic_proto_have_if __initdata = 0;
- 
- #ifdef IPCONFIG_DYNAMIC
- static spinlock_t ic_recv_lock = SPIN_LOCK_UNLOCKED;
-@@ -262,21 +268,32 @@
- 	sin->sin_family = AF_INET;
- 	sin->sin_addr.s_addr = addr;
- 	sin->sin_port = port;
- }
- 
--static int __init ic_dev_ioctl(unsigned int cmd, struct ifreq *arg)
-+static int __init ic_devinet_ioctl(unsigned int cmd, struct ifreq *arg)
- {
- 	int res;
- 
- 	mm_segment_t oldfs = get_fs();
- 	set_fs(get_ds());
- 	res = devinet_ioctl(cmd, arg);
- 	set_fs(oldfs);
- 	return res;
- }
- 
-+static int __init ic_dev_ioctl(unsigned int cmd, struct ifreq *arg)
-+{
-+	int res;
-+
-+	mm_segment_t oldfs = get_fs();
-+	set_fs(get_ds());
-+	res = dev_ioctl(cmd, arg);
-+	set_fs(oldfs);
-+	return res;
-+}
-+
- static int __init ic_route_ioctl(unsigned int cmd, struct rtentry *arg)
- {
- 	int res;
- 
- 	mm_segment_t oldfs = get_fs();
-@@ -291,30 +308,38 @@
-  */
- 
- static int __init ic_setup_if(void)
- {
- 	struct ifreq ir;
--	struct sockaddr_in *sin = (void *) &ir.ifr_ifru.ifru_addr;
-+	struct sockaddr_in *sin = (void *) &ir.ifr_addr;
- 	int err;
- 
- 	memset(&ir, 0, sizeof(ir));
--	strcpy(ir.ifr_ifrn.ifrn_name, ic_dev->name);
-+	strcpy(ir.ifr_name, ic_dev->name);
- 	set_sockaddr(sin, ic_myaddr, 0);
--	if ((err = ic_dev_ioctl(SIOCSIFADDR, &ir)) < 0) {
-+	if ((err = ic_devinet_ioctl(SIOCSIFADDR, &ir)) < 0) {
- 		printk(KERN_ERR "IP-Config: Unable to set interface address (%d).\n", err);
- 		return -1;
- 	}
- 	set_sockaddr(sin, ic_netmask, 0);
--	if ((err = ic_dev_ioctl(SIOCSIFNETMASK, &ir)) < 0) {
-+	if ((err = ic_devinet_ioctl(SIOCSIFNETMASK, &ir)) < 0) {
- 		printk(KERN_ERR "IP-Config: Unable to set interface netmask (%d).\n", err);
- 		return -1;
- 	}
- 	set_sockaddr(sin, ic_myaddr | ~ic_netmask, 0);
--	if ((err = ic_dev_ioctl(SIOCSIFBRDADDR, &ir)) < 0) {
-+	if ((err = ic_devinet_ioctl(SIOCSIFBRDADDR, &ir)) < 0) {
- 		printk(KERN_ERR "IP-Config: Unable to set interface broadcast address (%d).\n", err);
- 		return -1;
- 	}
-+	if (ic_dev_mtu) {
-+		strcpy(ir.ifr_name, ic_dev->name);
-+		ir.ifr_mtu = ic_dev_mtu;
-+		if ((err = ic_dev_ioctl(SIOCSIFMTU, &ir))  < 0)
-+			printk(KERN_ERR "IP-Config: Unable to set interface mtu to %d (%d).\n", 
-+				ic_dev_mtu, err);
-+			/* Don't error out because set mtu failure, just notice the operator */
-+	}
- 	return 0;
- }
- 
- static int __init ic_setup_routes(void)
- {
-@@ -576,10 +601,11 @@
- 			3,	/* Default gateway */
- 			6,	/* DNS server */
- 			12,	/* Host name */
- 			15,	/* Domain name */
- 			17,	/* Boot path */
-+			26,	/* MTU */
- 			40,	/* NIS domain name */
- 		};
- 
- 		*e++ = 55;	/* Parameter request list */
- 		*e++ = sizeof(ic_req_params);
-@@ -777,10 +803,13 @@
- 			break;
- 		case 17:	/* Root path */
- 			if (!root_server_path[0])
- 				ic_bootp_string(root_server_path, ext+1, *ext, sizeof(root_server_path));
- 			break;
-+		case 26:
-+			ic_dev_mtu = ntohs(*(u16 *)(ext+1));
-+			break;
- 		case 40:	/* NIS Domain name (_not_ DNS) */
- 			ic_bootp_string(system_utsname.domainname, ext+1, *ext, __NEW_UTS_LEN);
- 			break;
- 	}
- }
-@@ -1294,10 +1323,12 @@
- 	printk(",\n     host=%s, domain=%s, nis-domain=%s",
- 	       system_utsname.nodename, ic_domain, system_utsname.domainname);
- 	printk(",\n     bootserver=%u.%u.%u.%u", NIPQUAD(ic_servaddr));
- 	printk(", rootserver=%u.%u.%u.%u", NIPQUAD(root_server_addr));
- 	printk(", rootpath=%s", root_server_path);
-+	if (ic_dev_mtu)
-+		printk(", mtu=%d", ic_dev_mtu);
- 	printk("\n");
- #endif /* !SILENT */
- 
- 	return 0;
- }
+The mere act of making code open (or object-oriented) does not make 
+people reuse it. I am constantly amazed by the amount of available 
+information, and am disturbed by how few people take advantage of it.
 
+Almost every company *does* reinvent the wheel -- and that can not be 
+legitimately blamed on closed-source software. Witness the massive 
+duplication of effort in the free software community -- KDE, Gnome, and 
+other "desktops" being a salient example. Egos, license disputes, 
+business concerns, and technical choices lead to duplication of effort; 
+as a former evangelist of object-oriented programming, I'm more than 
+aware that it is not technology that prevents code re-use, but psychology.
+
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Professional programming for science and engineering;
+Interesting and unusual bits of very free code.
 

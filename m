@@ -1,37 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315481AbSGALjO>; Mon, 1 Jul 2002 07:39:14 -0400
+	id <S315438AbSGALuG>; Mon, 1 Jul 2002 07:50:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315483AbSGALjN>; Mon, 1 Jul 2002 07:39:13 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:61671 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S315481AbSGALjN>; Mon, 1 Jul 2002 07:39:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-To: Matthew Wilcox <willy@debian.org>,
-       Janitors <kernel-janitor-discuss@lists.sourceforge.net>
-Subject: Re: [RFC] BH removal text
-Date: Mon, 1 Jul 2002 15:41:32 +0200
-User-Agent: KMail/1.4.2
-Cc: linux-kernel@vger.kernel.org
-References: <20020701050555.F29045@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20020701050555.F29045@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200207011541.33128.arnd@bergmann-dalldorf.de>
+	id <S315483AbSGALuF>; Mon, 1 Jul 2002 07:50:05 -0400
+Received: from unthought.net ([212.97.129.24]:43742 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S315438AbSGALuE>;
+	Mon, 1 Jul 2002 07:50:04 -0400
+Date: Mon, 1 Jul 2002 13:52:30 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       linux-raid@vger.rutgers.edu,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Can't boot from /dev/md0 (RAID-1)
+Message-ID: <20020701115230.GD18580@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	dean gaudet <dean-list-linux-kernel@arctic.org>,
+	linux-raid@vger.rutgers.edu,
+	Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0206301152150.1582-100000@twinlark.arctic.org> <200207011330.18973.roy@karlsbakk.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200207011330.18973.roy@karlsbakk.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 01 July 2002 06:05, Matthew Wilcox wrote:
+On Mon, Jul 01, 2002 at 01:30:18PM +0200, Roy Sigurd Karlsbakk wrote:
+> hi
+> 
+> trying this:
+> --
+> boot=/dev/md0
+> map=/boot/map
+> install=/boot/boot.b.hda
+> backup=/boot/boot.b.rs.hda
+> prompt
+> timeout=50
+> lba32
+> raid-extra-boot=/dev/hda,/dev/hdb
+> ...
+> 
+> with lilo-21.4-4 (standard with rh73) it won't accept the raid-extra-boot 
+> option
 
-> Of course, that's the lazy way of doing it.  What I'm hoping is that each
-> Janitor will take a driver and spend a week checking over its locking.
-> There's only 80 files in the kernel which use tq_immediate; with 10
-> Janitors involved, that's 8 drivers each -- that's only 2 months and we
-> have 4.
+Ok - I use it with LILO 22.2 here, it's on Debian, and it's the only box
+where I ever needed that option.
 
-I suppose mine are the 8 drivers in drivers/s390 then :-). 
-I'm already working on them to support the new LDM and I know the
-maintainers.
+My lilo.conf:
+----------8<--------
+lba32
+boot=/dev/md0
+raid-extra-boot=/dev/sda,/dev/sdb
+root=/dev/md1
 
-	Arnd <><
+disk=/dev/sda
+ bios=0x80
+disk=/dev/sdb
+ bios=0x81
+
+install=/boot/boot-menu.b
+
+delay=20
+default=Linux
+
+image=/boot/vmlinuz
+  label=Linux
+  read-only
+----------8<--------
+
+The following is from a standard RedHat 7.3 system with LILO 21.4.4-14:
+
+----------8<-----8<-----
+boot=/dev/md3
+map=/boot/map
+install=/boot/boot.b
+message=/boot/message
+prompt
+timeout=40
+linear
+default=2.4.18
+image=/boot/vmlinuz-2.4.18
+  label=2.4.18
+  read-only
+  root=/dev/md2
+----------8<-----8<-----
+
+Both systems are SCSI-only though.
+
+The following is an IDE-only RedHat 7.2 with LILO 21.4.4.14
+
+----8<-----8<------------
+boot=/dev/md0
+map=/boot/map
+install=/boot/boot.b
+prompt
+timeout=50
+message=/boot/message
+linear
+default=linux
+image=/boot/vmlinuz
+  label=linux
+  read-only
+  root=/dev/md1
+----8<-----8<------------
+
+Perhaps you could change the lba32 option into linear ?  I'm really
+shooting in the mist here - LILO tends to "just work", and ignorance is
+bliss   ;)
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

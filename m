@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264529AbRFJOJA>; Sun, 10 Jun 2001 10:09:00 -0400
+	id <S264531AbRFJOli>; Sun, 10 Jun 2001 10:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264530AbRFJOIu>; Sun, 10 Jun 2001 10:08:50 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:50703 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S264529AbRFJOIk>;
-	Sun, 10 Jun 2001 10:08:40 -0400
-Date: Sun, 10 Jun 2001 10:09:35 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Cc: maxk@qualcomm.com
-Subject: Undocumented configuration symbols in 2.4.6pre2
-Message-ID: <20010610100935.A11098@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net, maxk@qualcomm.com
-Mime-Version: 1.0
+	id <S264532AbRFJOl2>; Sun, 10 Jun 2001 10:41:28 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20747 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264531AbRFJOlQ>; Sun, 10 Jun 2001 10:41:16 -0400
+Subject: Re: [PATCH 2.4.5-ac12] New Sony Vaio Motion Eye camera driver
+To: stelian.pop@fr.alcove.com
+Date: Sun, 10 Jun 2001 15:39:26 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox)
+In-Reply-To: <20010610152526.B13172@ontario.alcove-fr> from "Stelian Pop" at Jun 10, 2001 03:25:26 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E1596NC-0006g5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 2.4.6-pre2 kernel introduces some new configuration symbols:
+> The driver does not yet support overlay (no docs... :-( ), but it does =
+> support
 
-CONFIG_AMD7409_OVERRIDE
-CONFIG_BLK_DEV_AMD7409
-CONFIG_BLK_DEV_OSB4
-CONFIG_BLUEZ
-CONFIG_BLUEZ_HCIEMU
-CONFIG_BLUEZ_HCIUART
-CONFIG_BLUEZ_HCIUSB
-CONFIG_BLUEZ_L2CAP
+Are you sure the hardware supports overlay ?
 
-Would the people responsible for these symbols please write Configure.help
-entries and send them to me?  Before this update Configure.help had 
-complete coverage; let's try to keep it that way.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> grabbing, jpeg snapshots and mjpeg compressed videos (through a private=
+>  API,
+> documented in <file:Documentation/video4linux/meye.txt>).
 
-"Today, we need a nation of Minutemen, citizens who are not only prepared to
-take arms, but citizens who regard the preservation of freedom as the basic
-purpose of their daily life and who are willing to consciously work and
-sacrifice for that freedom."	-- John F. Kennedy
+We have an API for mjpeg in the buz, I wonder if its possible to make that
+more generic.
+

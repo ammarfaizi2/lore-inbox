@@ -1,183 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266077AbUBLJwY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 04:52:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266100AbUBLJwY
+	id S266314AbUBLKEP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 05:04:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266320AbUBLKEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 04:52:24 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:15797 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266077AbUBLJwT (ORCPT
+	Thu, 12 Feb 2004 05:04:15 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:42378 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266314AbUBLKEG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 04:52:19 -0500
-Date: Thu, 12 Feb 2004 10:52:04 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-cc: "David S. Miller" <davem@redhat.com>, Greg Kroah-Hartman <greg@kroah.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: dmapool (was: Re: Linux 2.6.3-rc2)
-In-Reply-To: <20040210101437.1507af3b.davem@redhat.com>
-Message-ID: <Pine.GSO.4.58.0402121048550.7297@waterleaf.sonytel.be>
-References: <Pine.LNX.4.58.0402091914040.2128@home.osdl.org>
- <Pine.GSO.4.58.0402101424250.2261@waterleaf.sonytel.be>
- <Pine.GSO.4.58.0402101531240.2261@waterleaf.sonytel.be> <20040210145558.A4684@infradead.org>
- <20040210162259.GA26620@kroah.com> <Pine.GSO.4.58.0402101727130.2261@waterleaf.sonytel.be>
- <20040210101437.1507af3b.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Feb 2004 05:04:06 -0500
+Date: Thu, 12 Feb 2004 11:04:46 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Jamie Lokier <jamie@shareable.org>, torvalds@osdl.org,
+       benh@kernel.crashing.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Ulrich Drepper <drepper@redhat.com>
+Subject: Re: [BUG] get_unmapped_area() change -> non booting machine
+Message-ID: <20040212100446.GA2862@elte.hu>
+References: <1076384799.893.5.camel@gaston> <Pine.LNX.4.58.0402100814410.2128@home.osdl.org> <20040210173738.GA9894@mail.shareable.org> <20040213002358.1dd5c93a.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040213002358.1dd5c93a.ak@suse.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Feb 2004, David S. Miller wrote:
-> On Tue, 10 Feb 2004 17:29:15 +0100 (MET)
-> Geert Uytterhoeven <geert@linux-m68k.org> wrote:
->
-> > Let's see what the sparc guys have to comment...
->
-> I think we'll just add the necessary stubs, it's not unreasonable.
 
-So here's a patch for m68k, based on Greg's stubs. I only added a few
-`return 0;' statements to kill compiler warnings. It increased kernel size by a
-bit less than 0.5 KiB.
+* Andi Kleen <ak@suse.de> wrote:
 
-Feel free to move the stubs to asm-generic/no-dma-mapping.h, if there are
-enough users to warrant that.
+> > The real question is - why does malloc() break?  I'd expect malloc()
+> > to use MAP_ANON these days, when brk() fails.  But it seems not.
+> 
+> Yep, that's the real bug.
 
---- linux-2.6.3-rc2/include/asm-m68k/dma-mapping.h	2003-07-29 18:19:20.000000000 +0200
-+++ linux-m68k-2.6.3-rc2/include/asm-m68k/dma-mapping.h	2004-02-12 10:21:29.000000000 +0100
-@@ -5,6 +5,123 @@
+i've pasted the relevant glibc malloc code below - it does use mmap() as
+a fallback.
 
- #ifdef CONFIG_PCI
- #include <asm-generic/dma-mapping.h>
-+#else
-+
-+static inline int
-+dma_supported(struct device *dev, u64 mask)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline int
-+dma_set_mask(struct device *dev, u64 dma_mask)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void *
-+dma_alloc_coherent(struct device *dev, size_t size, dma_addr_t *dma_handle,
-+		   int flag)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void
-+dma_free_coherent(struct device *dev, size_t size, void *cpu_addr,
-+		    dma_addr_t dma_handle)
-+{
-+	BUG();
-+}
-+
-+static inline dma_addr_t
-+dma_map_single(struct device *dev, void *cpu_addr, size_t size,
-+	       enum dma_data_direction direction)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void
-+dma_unmap_single(struct device *dev, dma_addr_t dma_addr, size_t size,
-+		 enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
-+static inline dma_addr_t
-+dma_map_page(struct device *dev, struct page *page,
-+	     unsigned long offset, size_t size,
-+	     enum dma_data_direction direction)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void
-+dma_unmap_page(struct device *dev, dma_addr_t dma_address, size_t size,
-+	       enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
-+static inline int
-+dma_map_sg(struct device *dev, struct scatterlist *sg, int nents,
-+	   enum dma_data_direction direction)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void
-+dma_unmap_sg(struct device *dev, struct scatterlist *sg, int nhwentries,
-+	     enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
-+static inline void
-+dma_sync_single(struct device *dev, dma_addr_t dma_handle, size_t size,
-+		enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
-+static inline void
-+dma_sync_sg(struct device *dev, struct scatterlist *sg, int nelems,
-+	    enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
-+#define dma_alloc_noncoherent(d, s, h, f) dma_alloc_coherent(d, s, h, f)
-+#define dma_free_noncoherent(d, s, v, h) dma_free_coherent(d, s, v, h)
-+#define dma_is_consistent(d)	(1)
-+
-+static inline int
-+dma_get_cache_alignment(void)
-+{
-+	BUG();
-+	return 0;
-+}
-+
-+static inline void
-+dma_sync_single_range(struct device *dev, dma_addr_t dma_handle,
-+		      unsigned long offset, size_t size,
-+		      enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
-+static inline void
-+dma_cache_sync(void *vaddr, size_t size,
-+	       enum dma_data_direction direction)
-+{
-+	BUG();
-+}
-+
- #endif
+why in this particular case it failed i dont know - i believe some
+_minimal_ brk space is supposed to be available though, so if you break
+mmap() to fill in the brk space then that might break glibc assumptions.
 
- #endif  /* _M68K_DMA_MAPPING_H */
+	Ingo
 
-Gr{oetje,eeting}s,
 
-						Geert
+  if (size > 0)
+    brk = (char*)(MORECORE(size));
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+  if (brk != (char*)(MORECORE_FAILURE)) {
+    /* Call the `morecore' hook if necessary.  */
+    if (__after_morecore_hook)
+      (*__after_morecore_hook) ();
+  } else {
+  /*
+    If have mmap, try using it as a backup when MORECORE fails or
+    cannot be used. This is worth doing on systems that have "holes" in
+    address space, so sbrk cannot extend to give contiguous space, but
+    space is available elsewhere.  Note that we ignore mmap max count
+    and threshold limits, since the space will not be used as a
+    segregated mmap region.
+  */
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+#if HAVE_MMAP
+    /* Cannot merge with old top, so add its size back in */
+    if (contiguous(av))
+      size = (size + old_size + pagemask) & ~pagemask;
+
+    /* If we are relying on mmap as backup, then use larger units */
+    if ((unsigned long)(size) < (unsigned long)(MMAP_AS_MORECORE_SIZE))
+      size = MMAP_AS_MORECORE_SIZE;
+
+    /* Don't try if size wraps around 0 */
+    if ((unsigned long)(size) > (unsigned long)(nb)) {
+
+      char *mbrk = (char*)(MMAP(0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE));
+
+      if (mbrk != MAP_FAILED) {
+
+        /* We do not need, and cannot use, another sbrk call to find end */
+        brk = mbrk;
+        snd_brk = brk + size;
+
+        /*
+           Record that we no longer have a contiguous sbrk region.
+           After the first time mmap is used as backup, we do not
+           ever rely on contiguous space since this could incorrectly
+           bridge regions.
+        */
+        set_noncontiguous(av);
+      }
+    }
+#endif
+  }
+

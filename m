@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276894AbRJQRMx>; Wed, 17 Oct 2001 13:12:53 -0400
+	id <S277011AbRJQR5m>; Wed, 17 Oct 2001 13:57:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276988AbRJQRMc>; Wed, 17 Oct 2001 13:12:32 -0400
-Received: from gannet.scg.man.ac.uk ([130.88.94.110]:47120 "EHLO
-	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
-	id <S276894AbRJQRMa>; Wed, 17 Oct 2001 13:12:30 -0400
-Date: Wed, 17 Oct 2001 18:12:57 +0100
-From: John Levon <moz@compsoc.man.ac.uk>
-To: linux-kernel@vger.kernel.org
+	id <S277013AbRJQR5d>; Wed, 17 Oct 2001 13:57:33 -0400
+Received: from web20507.mail.yahoo.com ([216.136.226.142]:25604 "HELO
+	web20507.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277011AbRJQR5U>; Wed, 17 Oct 2001 13:57:20 -0400
+Message-ID: <20011017175752.80489.qmail@web20507.mail.yahoo.com>
+Date: Wed, 17 Oct 2001 19:57:52 +0200 (CEST)
+From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
 Subject: Re: Making diff(1) of linux kernels faster
-Message-ID: <20011017181257.B94101@compsoc.man.ac.uk>
-In-Reply-To: <3BCAB9B1.2F85F523@yahoo.com> <Pine.LNX.4.33.0110170949370.17757-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110170949370.17757-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.19i
-X-Url: http://www.movement.uklinux.net/
-X-Record: Truant - Neither Work Nor Leisure
-X-Toppers: N/A
+To: Paul Gortmaker <p_gortmaker@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 17, 2001 at 09:59:35AM -0700, Linus Torvalds wrote:
+Hi Paul !
 
-> Who's the maintainer for "diff" these days? This change seems small and
-> simple enough that they might accept it, and I'd love to see it. I'll
-> probably do this in my copy anyway, but it would be nicer to not have to
-> patch it specially..
+congratulations for this improvement, it seems really
+interesting. BTW, I personnaly use hard links between
+kernels to make the effective data set smaller, and
+I'd
+like to explain here how I proceed since there are
+often people who seem completely amazed by this method
+which I learned here on LKML a few years ago :
 
-afaict, there is no maintainer. The stated maintainer has been ignoring patches
-for years.
+# cd /usr/src
+# tar Ixf anydir/linux-2.4.12.tar.bz2
+# cp -dRflp linux linux-2.4.12
+>>> this way, only dir entries are duplicated, so very
+>>> little overhead
+# (cd linux && bzcat anydir/patch-2.4.13pre1.bz2|patch
+-Np1)
+# cp -dRflp linux linux-2.4.13pre1
+>>> now, only file affected by the patch are
+duplicated
+>>> then, you can work inside linux dir, and construct
+>>> your patches very quickly since a few files
+>>> effectively differ from your new tree and old
+ones.
 
-regards
-john
+Be very careful not to modify a multi-linked file, or
+it will be damaged in all trees and won't be seen by
+diff. your editor must unlink before saving.
 
--- 
-"There are two kinds of fool. One says, 'This is old, and therefore good.' And
-one says, 'This is new, and therefore better'."
-	- John Brunner
+I hope it will help someone as it has helped me for a
+while now. I nearly always have sub-second diffs, even
+with not-so-much RAM.
+
+Cheers,
+Willy
+
+
+___________________________________________________________
+Un nouveau Nokia Game commence. 
+Allez sur http://fr.yahoo.com/nokiagame avant le 3 novembre
+pour participer à cette aventure tous médias.

@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263728AbTKRQ0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 11:26:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTKRQ0p
+	id S263716AbTKRQZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 11:25:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTKRQZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 11:26:45 -0500
-Received: from nat9.steeleye.com ([65.114.3.137]:16135 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263728AbTKRQ0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 11:26:31 -0500
-Subject: Re: lib.a causing modules not to load
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031117060542.088D32C0B1@lists.samba.org>
-References: <20031117060542.088D32C0B1@lists.samba.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Nov 2003 10:25:16 -0600
-Message-Id: <1069172719.1835.30.camel@mulgrave>
-Mime-Version: 1.0
+	Tue, 18 Nov 2003 11:25:27 -0500
+Received: from pat.uio.no ([129.240.130.16]:17095 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263716AbTKRQZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 11:25:26 -0500
+To: Andi Kleen <ak@suse.de>
+Cc: Jamie Lokier <jamie@shareable.org>, hpa@zytor.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: OT: why no file copy() libc/syscall ??
+References: <1068512710.722.161.camel@cube.suse.lists.linux.kernel>
+	<20031111133859.GA11115@bitwizard.nl.suse.lists.linux.kernel>
+	<20031111085323.M8854@devserv.devel.redhat.com.suse.lists.linux.kernel>
+	<bp0p5m$lke$1@cesium.transmeta.com.suse.lists.linux.kernel>
+	<20031113233915.GO1649@x30.random.suse.lists.linux.kernel>
+	<3FB4238A.40605@zytor.com.suse.lists.linux.kernel>
+	<20031114011009.GP1649@x30.random.suse.lists.linux.kernel>
+	<3FB42CC4.9030009@zytor.com.suse.lists.linux.kernel>
+	<p734qx7rmyf.fsf@oldwotan.suse.de>
+	<20031118154921.GA28942@mail.shareable.org>
+	<20031118170509.71bfb039.ak@suse.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 18 Nov 2003 11:25:16 -0500
+In-Reply-To: <20031118170509.71bfb039.ak@suse.de>
+Message-ID: <shsk75xy783.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-11-16 at 20:47, Rusty Russell wrote:
-> I think lib.a should be linked as is if !CONFIG_MODULES, and done as a
-> ..o if CONFIG_MODULES.  Other alternatives are possible, but make it
-> tricky if someone adds a module later which wants something in lib.a.
+>>>>> " " == Andi Kleen <ak@suse.de> writes:
 
-I tried this and it is getting to be a whole nasty mess can of worms:
+    >> > That would be buggy because existing users of sendfile don't
+    >> > know about this and would silently only copy part of the file
+    >> > when a signal happens.
+    >>
+    >> That doesn't make sense.  There aren't any existing users of
+    >> sendfile to copy files.
 
-You can't link the lib objects all in, because they can be overridden by
-the arch dependent lib.a (we rely on link order to permit this).  For
-instance on x86, dump_stack and bust_spinlocks give duplicate symbols.
+     > [ignore the mail, it was an stuck mail queue]
 
-If we have to add processing logic to work out what symbols are in the
-arch lib.a, we might as well go the whole hog and try to work out what
-is missing from the kernel and compile that alone as a module.
+     > But note that arbitary changes in the signal handling would
+     > affect all users of sendfile, not just those that attempt to
+     > copy files or do other things that should be done in user
+     > space.
 
-James
+That 'change' is already in effect for people who mount their NFS
+partitions with the "intr" or "soft" flags.
 
+See the return value of generic_file_sendfile(): it already has the
+read()/write-like semantics of returning number of bytes written if
+non-zero, or the value of desc.error if not.
 
-
-
+Cheers,
+  Trond

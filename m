@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265441AbTFZHHr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 03:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265446AbTFZHHr
+	id S265451AbTFZHpR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 03:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbTFZHpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 03:07:47 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:27804 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S265441AbTFZHHq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 03:07:46 -0400
+	Thu, 26 Jun 2003 03:45:16 -0400
+Received: from smtp8.wanadoo.fr ([193.252.22.30]:21422 "EHLO
+	mwinf0102.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S265451AbTFZHpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 03:45:14 -0400
+From: "R.C" <rafaled@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: HyperThreading not working under 2.4.21
+Date: Thu, 26 Jun 2003 09:57:48 +0200
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16122.40719.122816.392066@gargle.gargle.HOWL>
-Date: Thu, 26 Jun 2003 09:21:51 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Ed L Cashin <ecashin@uga.edu>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: compile error in drivers/perfctr/x86.c (Re: 2..5.73-osdl2)
-In-Reply-To: <20030625224707.A15559@atlas.cs.uga.edu>
-References: <20030625174048.221471a0.shemminger@osdl.org>
-	<20030625224707.A15559@atlas.cs.uga.edu>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+Message-Id: <200306260957.48103.rafaled@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed L Cashin writes:
- > On Wed, Jun 25, 2003 at 05:40:48PM -0700, Stephen Hemminger wrote:
- > > http://developer.osdl.org/shemminger/patches/patch-2.5.73-osdl2.bz2
- > 
- > Hi.  I'm getting a compile error:
- > 
- >   CC      drivers/perfctr/x86_setup.o
- >   CC      drivers/perfctr/x86.o
- > drivers/perfctr/x86.c: In function `unregister_nmi_pmdev':
- > drivers/perfctr/x86.c:1484: `nmi_pmdev' undeclared (first use in this function)
- > drivers/perfctr/x86.c:1484: (Each undeclared identifier is reported only once
- > drivers/perfctr/x86.c:1484: for each function it appears in.)
- > drivers/perfctr/x86.c:1485: warning: implicit declaration of function `apic_pm_unregister'
- > drivers/perfctr/x86.c: In function `x86_pm_init':
- > drivers/perfctr/x86.c:1500: warning: implicit declaration of function `apic_pm_register'
- > drivers/perfctr/x86.c:1500: warning: assignment makes pointer from integer without a cast
- > make[2]: *** [drivers/perfctr/x86.o] Error 1
- > make[1]: *** [drivers/perfctr] Error 2
- > make: *** [drivers] Error 2
+Hello there,
 
-It looks a lot like OSDL includes an old obsolete version of perfctr.
-The PM code you're getting errors in is for kernels older than 2.5.68.
-The current release of perfctr knows that current 2.5 kernels use the
-driver model for local APIC and NMI watchdog power management.
+I recently tried to upgrade to the 2.4.21 vanilla kernel. I am using a Pentium 
+IV 3,06ghz HT. Amongst other things, I enabled the following options: 
+"Pentium-4 processor Family, SMP support, ACPI support". I tried it with both 
+ACPI support on and off. I can join a copy of my .config if it is required.
 
-Unfortunately, the -osdl kernel announcements don't state _which_ release
-of perfctr they're including. I was assuming they got new releases off
-the download site on a regular basis, but perhaps they don't.
+Anyway, when booting the 2.4.21 kernel my second logical processor
+is not detected at all. All works as if I had only one processor. There is no 
+error message. A cat /proc/cpuinfo reports only one cpu.
 
-/Mikael
+This problem only occurs with 2.4.21 kernel. My HT processor was working 
+perfectly with any branch of the 2.4.20 serie (I was using 2.4.20-ck6). My 
+second logical processor was perfectly recognized. Thus, it does not seem to 
+be a problem with bios or mb settings.
+
+A "very" quick search through google made me conclude that this problem had 
+not been reported yet so please, forgive me if you are all already aware of 
+such a problem.
+
+Best regards,
+
+            R.C
+
+
+P.S: join a copy to my e-mail adress if you may.
+

@@ -1,65 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265958AbSKBNLn>; Sat, 2 Nov 2002 08:11:43 -0500
+	id <S265963AbSKBNR7>; Sat, 2 Nov 2002 08:17:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265963AbSKBNLn>; Sat, 2 Nov 2002 08:11:43 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:40404 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP
-	id <S265958AbSKBNLm>; Sat, 2 Nov 2002 08:11:42 -0500
-Date: Sat, 2 Nov 2002 14:20:30 +0100
-From: Romain Lievin <rlievin@free.fr>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kconfig (qt) -> Gconfig (gtk+)
-Message-ID: <20021102132029.GB323@free.fr>
-References: <20021031134308.I27461@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.44.0210311452531.13258-100000@serv> <20021101125226.B16919@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211011439420.6949-100000@serv> <20021101193112.B26989@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211012119290.6949-100000@serv> <20020625221306.GA439@free.fr> <Pine.LNX.4.44.0211021254420.6949-100000@serv>
+	id <S265964AbSKBNR6>; Sat, 2 Nov 2002 08:17:58 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:39694 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S265963AbSKBNR5>; Sat, 2 Nov 2002 08:17:57 -0500
+Date: Sat, 2 Nov 2002 14:24:21 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Alexander Zarochentcev <zam@namesys.com>
+Cc: Hans Reiser <reiser@namesys.com>, lkml <linux-kernel@vger.kernel.org>,
+       Oleg Drokin <green@namesys.com>, umka <umka@namesys.com>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+Message-ID: <20021102132421.GJ28803@louise.pinerecords.com>
+References: <3DC19F61.5040007@namesys.com> <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com> <3DC1D63A.CCAD78EF@digeo.com> <3DC1D885.6030902@namesys.com> <3DC1D9D0.684326AC@digeo.com> <3DC1DF02.7060307@namesys.com> <20021101102327.GA26306@louise.pinerecords.com> <15810.46998.714820.519167@crimson.namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211021254420.6949-100000@serv>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <15810.46998.714820.519167@crimson.namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, Nov 02, 2002 at 12:59:22PM +0100, Roman Zippel wrote:
-> Hi,
+> This should help:
 > 
-> On Wed, 26 Jun 2002, Romain Lievin wrote:
-> 
-> > I noticed there is a new configuration tool written in qt for replacing the tcl/tk one.
-> > 
-> > Is there any plan to write a similar configuration tool in GTK+ ? 
-> > I will be interested in writing a such one...
-> 
-> I'm not planning to do it myself, so go ahead. If you have any questions, 
-> just ask.
-
-ok, let's go !
-BTW, is there any doc about your library ?
-
-> 
-> bye, Roman
-> 
-> 
-
-regards, roms.
--- 
-Romain Lievin, aka 'roms'  	<roms@lpg.ticalc.org>
-Web site 			<http://lpg.ticalc.org/prj_tilp>
-"Linux, y'a moins bien mais c'est plus cher !"
+> diff -Nru a/txnmgr.c b/txnmgr.c
+> --- a/txnmgr.c	Wed Oct 30 18:58:09 2002
+> +++ b/txnmgr.c	Fri Nov  1 20:13:27 2002
+> @@ -1917,7 +1917,7 @@
+>  		return;
+>  	}
+>  
+> -	if (!jnode_is_unformatted) {
+> +	if (jnode_is_znode(node)) {
+>  		if ( /**jnode_get_block(node) &&*/
+>  			   !blocknr_is_fake(jnode_get_block(node))) {
+>  			/* jnode has assigned real disk block. Put it into
 
 
+Jup, this fixes the leak, but free space still isn't reported accurately
+until after sync gets called, which I believe is a bug too.
 
+Compare:
+[reiser3]
+$ pwd
+/tmp
+$ dd if=/dev/zero of=testfile bs=16k count=64
+64+0 records in
+64+0 records out
+$ df /
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda1               526296    330696    195600  63% /
+$ rm testfile
+$ df /
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda1               526296    329672    196624  63% /
+$ sync
+$ df /
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda1               526296    329672    196624  63% /
 
+[reiser4]
+$ pwd
+/ap/tmp
+$ dd if=/dev/zero of=testfile bs=16k count=64
+64+0 records in
+64+0 records out
+$ df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332      1152   1489180   1% /ap
+$ rm testfile
+$ df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332      1160   1489172   1% /ap
+$ sync
+$ df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332       128   1490204   1% /ap
 
-
-
-
-
-
-
-
-
-
+T.

@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262722AbTCTXre>; Thu, 20 Mar 2003 18:47:34 -0500
+	id <S262680AbTCTXm1>; Thu, 20 Mar 2003 18:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262768AbTCTXqO>; Thu, 20 Mar 2003 18:46:14 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:7430 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262722AbTCTXp3>;
-	Thu, 20 Mar 2003 18:45:29 -0500
-Date: Thu, 20 Mar 2003 15:56:43 -0800
+	id <S262663AbTCTXlO>; Thu, 20 Mar 2003 18:41:14 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6406 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262284AbTCTXkt>;
+	Thu, 20 Mar 2003 18:40:49 -0500
+Date: Thu, 20 Mar 2003 15:52:03 -0800
 From: Greg KH <greg@kroah.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: mdharm-usb@one-eyed-alien.net
-Subject: Re: Bugs sitting in the NEW state for more than two weeks
-Message-ID: <20030320235643.GB10249@kroah.com>
-References: <3E79D1AD.5080803@us.ibm.com> <20030320182135.GD1757@Master.Wizards> <3E7A1871.4090505@us.ibm.com> <20030320203446.GE1757@Master.Wizards>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] i2c driver changes for 2.5.65
+Message-ID: <20030320235203.GA10249@kroah.com>
+References: <20030320223046.GA4959@kroah.com> <10481995574110@kroah.com> <20030320234156.A21189@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030320203446.GE1757@Master.Wizards>
+In-Reply-To: <20030320234156.A21189@infradead.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20, 2003 at 03:34:46PM -0500, Murray J. Root wrote:
+On Thu, Mar 20, 2003 at 11:41:56PM +0000, Christoph Hellwig wrote:
+> On Thu, Mar 20, 2003 at 02:32:00PM -0800, Greg KH wrote:
+> >  	if (check_region(i801_smba, (isich4 ? 16 : 8))) {
 > 
-> Thanks for the explanation - now I just need to find ways to add info to a
-> bug report without affecting the "last updated" time - IRC memos to gregkh?
+> Do I see a check_region here? :)
 
-Heh.  Your bug, and others need to be assigned to the usb-storage owner.
-Matt, care to sign up on bugzilla.kernel.org so I can transfer these to
-you?
+You really need to start reading all of the patches in the series :)
 
 thanks,
 

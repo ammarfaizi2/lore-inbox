@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVCHNb4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVCHNiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbVCHNb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 08:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCHNbz
+	id S262055AbVCHNiU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 08:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVCHNiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 08:31:55 -0500
-Received: from users.linvision.com ([62.58.92.114]:57564 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262049AbVCHNbx (ORCPT
+	Tue, 8 Mar 2005 08:38:20 -0500
+Received: from dwdmx2.dwd.de ([141.38.3.197]:64114 "HELO dwdmx2.dwd.de")
+	by vger.kernel.org with SMTP id S262055AbVCHNiI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 08:31:53 -0500
-Date: Tue, 8 Mar 2005 14:31:49 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Vineet Joglekar <vintya@excite.com>
-Cc: linux-kernel@vger.kernel.org, linux-c-programming@vger.kernel.org
-Subject: Re: Random number generator in Linux kernel
-Message-ID: <20050308133149.GC31844@harddisk-recovery.com>
-References: <20050307231853.9F661B6E7@xprdmailfe20.nwk.excite.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050307231853.9F661B6E7@xprdmailfe20.nwk.excite.com>
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.com
+	Tue, 8 Mar 2005 08:38:08 -0500
+Date: Tue, 8 Mar 2005 13:38:07 +0000 (GMT)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+X-X-Sender: kiehl@praktifix.dwd.de
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Fusion-MPT much faster as module
+Message-ID: <Pine.LNX.4.61.0503081327560.28812@praktifix.dwd.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 07, 2005 at 06:18:53PM -0500, Vineet Joglekar wrote:
-> I want a function where I will be supplying a seed to that function
-> as an input, and will get a random number back. If same seed is used,
-> same number should be generated again.
+Hello
 
-Google for "Numerical recipes in C", it has a complete section about
-random numbers, including a couple of functions that do what you want.
+On a four CPU Opteron compiling the Fusion-MPT as module gives much better
+performance when compiling it in, here some bonnie++ results:
 
+Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
+                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+compiled in  15872M 38366 71  65602  22 18348   4 53276 84  57947   7 905.4   2
+module       15872M 51246 96 204914  70 57236  14 59779 96 264171  33 923.0   2
 
-Erik
+This happens with 2.6.10, 2.6.11 and 2.6.11-bk2. Controller is a
+Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI.
 
+Why is there such a large difference?
+
+Holger
 -- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

@@ -1,38 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269520AbUINV6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269038AbUINV6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269520AbUINV6m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 17:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269582AbUINRJW
+	id S269038AbUINV6j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 17:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269592AbUINRKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 13:09:22 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:39348 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S269442AbUINQkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:40:10 -0400
-Date: Tue, 14 Sep 2004 18:39:29 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040914163929.GR4180@dualathlon.random>
-References: <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <20040914163106.GS9106@holomorphy.com>
+	Tue, 14 Sep 2004 13:10:00 -0400
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:56812 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S269531AbUINQNE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 12:13:04 -0400
+Date: Wed, 15 Sep 2004 01:12:53 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] mips: fixed do_signal in arch/mips/kernel/signal.c
+Message-Id: <20040915011253.6c0a1bb1.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914163106.GS9106@holomorphy.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 09:31:06AM -0700, William Lee Irwin III wrote:
-> The might_sleep() in cond_resched() sounds particularly useful to pick
-> up misapplications of cond_resched().
+The change of get_signal_to_deliver() is followed.
 
-agreed ;)
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-> I suppose this isn't even the half of it, but it's what I looked at.
-
-looks much nicer indeed (the previous code was basic-like ;).
+diff -urN -X dontdiff vr-orig/arch/mips/kernel/signal.c vr/arch/mips/kernel/signal.c
+--- vr-orig/arch/mips/kernel/signal.c	Wed Sep 15 00:50:11 2004
++++ vr/arch/mips/kernel/signal.c	Wed Sep 15 00:31:06 2004
+@@ -480,10 +480,8 @@
+ 	struct pt_regs *regs, int signr, sigset_t *set, siginfo_t *info);
+ 
+ static inline void handle_signal(unsigned long sig, siginfo_t *info,
+-	sigset_t *oldset, struct pt_regs *regs)
++	struct k_sigaction *ka, sigset_t *oldset, struct pt_regs *regs)
+ {
+-	struct k_sigaction *ka = &current->sighand->action[sig-1];
+-
+ 	switch(regs->regs[0]) {
+ 	case ERESTART_RESTARTBLOCK:
+ 	case ERESTARTNOHAND:
+@@ -535,6 +533,7 @@
+ 
+ asmlinkage int do_signal(sigset_t *oldset, struct pt_regs *regs)
+ {
++	struct k_sigaction ka;
+ 	siginfo_t info;
+ 	int signr;
+ 
+@@ -560,9 +559,9 @@
+ 	if (!oldset)
+ 		oldset = &current->blocked;
+ 
+-	signr = get_signal_to_deliver(&info, regs, NULL);
++	signr = get_signal_to_deliver(&info, &ka, regs, NULL);
+ 	if (signr > 0) {
+-		handle_signal(signr, &info, oldset, regs);
++		handle_signal(signr, &info, &ka, oldset, regs);
+ 		return 1;
+ 	}
+ 

@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268896AbUIHG5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268889AbUIHG6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268896AbUIHG5w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 02:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUIHG5v
+	id S268889AbUIHG6f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 02:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268890AbUIHG63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 02:57:51 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:42645 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S268896AbUIHG44
+	Wed, 8 Sep 2004 02:58:29 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:1114 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S268889AbUIHGzj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 02:56:56 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH] netpoll endian fixes
-Date: Wed, 8 Sep 2004 08:56:55 +0200
-User-Agent: KMail/1.6.2
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <200409080124.43530.baldrick@free.fr> <20040907232927.GB31237@waste.org>
-In-Reply-To: <20040907232927.GB31237@waste.org>
-MIME-Version: 1.0
+	Wed, 8 Sep 2004 02:55:39 -0400
+Date: Wed, 8 Sep 2004 10:55:45 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove tmpfile for ppc binutils check
+Message-ID: <20040908085545.GA8821@mars.ravnborg.org>
+Mail-Followup-To: Olaf Hering <olh@suse.de>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040907195719.GB14276@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409080856.56568.baldrick@free.fr>
+In-Reply-To: <20040907195719.GB14276@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 September 2004 01:29, Matt Mackall wrote:
-> On Wed, Sep 08, 2004 at 01:24:43AM +0200, Duncan Sands wrote:
-> > The big-endians took their revenge in netpoll.c: on i386,
-> > the ip header length / version nibbles need to be the other
-> > way round; and the htonl leaves only zeros in tot_len...
+On Tue, Sep 07, 2004 at 09:57:19PM +0200, Olaf Hering wrote:
 > 
-> I'm completely baffled as to how length / version nibbles could be
-> swapped. Endianness here should be a matter of _bytes_.
+> make distclean does not remove the new tmp file .tmp_gas_check.
+> 
+> Signed-off-by: Olaf Hering <olh@suse.de>
 
-I also don't understand it.  The definition of struct iphdr contains:
+Applied to my tree - thanks.
 
-#if defined(__LITTLE_ENDIAN_BITFIELD)
-        __u8    ihl:4,
-                version:4;
-#elif defined (__BIG_ENDIAN_BITFIELD)
-        __u8    version:4,
-                ihl:4;
-
-What does it mean?
-
-All the best,
-
-Duncan.
+	Sam

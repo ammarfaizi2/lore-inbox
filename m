@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268688AbUHTTpk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268005AbUHTTsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268688AbUHTTpk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 15:45:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268696AbUHTTpj
+	id S268005AbUHTTsw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 15:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268042AbUHTTsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 15:45:39 -0400
-Received: from mail.cs.umn.edu ([128.101.34.202]:61114 "EHLO mail.cs.umn.edu")
-	by vger.kernel.org with ESMTP id S268688AbUHTTpf (ORCPT
+	Fri, 20 Aug 2004 15:48:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52881 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268005AbUHTTsv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 15:45:35 -0400
-Date: Fri, 20 Aug 2004 14:45:25 -0500
-From: Dave C Boutcher <sleddog@us.ibm.com>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Greg KH <greg@kroah.com>, Patrick Mochel <mochel@osdl.org>,
-       martins@au.ibm.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: VPD in sysfs
-Message-ID: <20040820194525.GA13970@cs.umn.edu>
-Reply-To: boutcher@cs.umn.edu
-References: <20040814182932.GT12936@parcelfarce.linux.theplanet.co.uk> <20040820142143.GB14144@parcelfarce.linux.theplanet.co.uk>
+	Fri, 20 Aug 2004 15:48:51 -0400
+Date: Fri, 20 Aug 2004 12:48:23 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: root@chaos.analogic.com
+Cc: adilger@clusterfs.com, jlcooke@certainkey.com, shemminger@osdl.org,
+       alan@lxorguk.ukuu.org.uk, tytso@mit.edu, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] enhanced version of net_random()
+Message-Id: <20040820124823.071ac1d9.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.53.0408201518250.25319@chaos>
+References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
+	<20040820175952.GI5806@certainkey.com>
+	<20040820185956.GV8967@schnapps.adilger.int>
+	<Pine.LNX.4.53.0408201518250.25319@chaos>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040820142143.GB14144@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 03:21:43PM +0100, Matthew Wilcox wrote:
-> On Sat, Aug 14, 2004 at 07:29:32PM +0100, Matthew Wilcox wrote:
-> > Thoughts?  Since there's at least four and probably more ways of getting
-> > at VPD, we either need to fill in some VPD structs at initialisation or
-> > have some kind of vpd_ops that a driver can fill in so the core can get
-> > at the data.
-> 
-> I've tried the first option -- creating a large block of sysfs entries for
-> all the VPD entries that are present.  However, I've come upon a problem
-> with sysfs that prevents me from doing so.
-> 
-> Basically, the problem is that sysfs doesn't pass the attribute that's
-> being invoked to the attribute ->show method.  So I can't determine
-> which one is being read.  This isn't a problem for any other sysfs attribute
-> because they're all static, but for dynamically created attributes, it's
-> not possible to work this way.
+On Fri, 20 Aug 2004 15:22:09 -0400 (EDT)
+"Richard B. Johnson" <root@chaos.analogic.com> wrote:
 
-Ya, I ran into some similar restrictions with a driver I was
-writing...after talking to gregkh, you are going to have to go down a
-level and use kobjects directly...each piece of data will have a kobject, 
-and that's what you dereference in the show method. 
+> The attached code will certainly work on Intel machines. It is
+> in the public domain, having been modified by myself to produce
+> a very long sequence...
 
--- 
-Dave Boutcher
+How long a period does it have?  The one we're adding to the
+networking has one which is 2^88.
+
+> I wouldn't suggest converting it to 'C' because the rotation
+> takes many CPU instructions when one tries to do the test, shift,
+> and OR in 'C',
+
+You only need 2 'shifts' and an 'or' to do a rotate in C.
+No tests are needed.

@@ -1,38 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131080AbQLQNdC>; Sun, 17 Dec 2000 08:33:02 -0500
+	id <S131148AbQLQNnZ>; Sun, 17 Dec 2000 08:43:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131495AbQLQNcx>; Sun, 17 Dec 2000 08:32:53 -0500
-Received: from cpe.atm0-0-0-121118.boanxx2.customer.tele.dk ([195.249.94.150]:13165
-	"HELO server3.home.mgs") by vger.kernel.org with SMTP
-	id <S131080AbQLQNck>; Sun, 17 Dec 2000 08:32:40 -0500
-Message-ID: <3A3CB8D3.B6FA50CF@mirrormind.com>
-Date: Sun, 17 Dec 2000 14:00:03 +0100
-From: Simon Lodal <simonl@mirrormind.com>
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Sound (emu10k1) broken in 2.2.18
-In-Reply-To: <20001215215031.A743@cascade.cs.ubc.ca> <20001216105823.H3199@cadcamlab.org>
+	id <S131495AbQLQNnP>; Sun, 17 Dec 2000 08:43:15 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:50951 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S131148AbQLQNm4>; Sun, 17 Dec 2000 08:42:56 -0500
+Date: Sun, 17 Dec 2000 14:12:47 +0100
+From: Dieter Schuster <didischuster@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel Panic with 2.4.0-test12 when using iso9660 over nfs
+Message-ID: <20001217141247.A579@Poseidon>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.0.1i
+X-Registered-Linux-user: 186360  http://counter.li.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Do you have emu10k1 compiled in, or as a module?
-> - Does your SBLive appear to have been detected?  (Check 'dmesg')
-> - If emu10k1 is a module, is the module loaded?  Does it seem to detect
->   your SBLive when loaded?  (Again check 'dmesg')
+If I mount a cdrom over NFS with 2.4.0-test12 on the NFS-Server, the server
+crashs. In the log-files are no Information. On the screen comes the following:
 
-On my machine emu10k1 works as a module, but not at all when compiled
-in. When I had it compiled in I didn't notice if the card was detected.
-It surely worked as compiled in with 2.2.17, but not with 2.2.18.
+Code: 89 42 04 89 10 b8 01 00 00 c7 43 04 00 00 00 c 03 00
+Aieee, killing interupt handler
+Unable to handle kernel Null pointer deveference at virtural address 0000029e.
 
-Too, the bass and treble controls seem to have vanished in 2.2.18, they
-do not show up in any mixer apps anymore.
+It crashs only with 2.4.0-test12 with 2.4.0-test10 it doesn't (with 
+2.4.0-test11 I cannot use cdroms at all). 
 
-Simon
+I have an Alladin V chipset and a IDE-CDROM.
+
+My System:
+-- Versions installed: (if some fields are empty or looks
+-- unusual then possibly you have very old versions)
+Linux Poseidon 2.4.0-test12 #2 Wed Nov 29 19:54:45 MET 2000 i586 unknown
+Kernel modules         found
+Gnu C                  2.95.2
+Binutils               2.9.5.0.37
+Linux C Library        2.2
+Procps                 2.0.6
+Mount                  2.10f
+Net-tools              (1999-04-20)
+Kbd                    [option...]
+Sh-utils               2.0
+Sh-utils               Parker.
+Sh-utils               Inc.
+Sh-utils               NO
+Sh-utils               PURPOSE.
+
+	Dieter
+
+Registered Linux User #186360
+-- 
+I am the "ILOVEGNU" signature virus. Just copy me to your signature.
+This email was infected under the terms of the GNU General Public License.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

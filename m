@@ -1,105 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264906AbRGAKM0>; Sun, 1 Jul 2001 06:12:26 -0400
+	id <S265077AbRGAKmV>; Sun, 1 Jul 2001 06:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265061AbRGAKMQ>; Sun, 1 Jul 2001 06:12:16 -0400
-Received: from 35.roland.net ([65.112.177.35]:59146 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S264906AbRGAKMD>;
-	Sun, 1 Jul 2001 06:12:03 -0400
-Message-ID: <002001c10216$500e3910$bb1cfa18@JimWS>
-From: "Jim Roland" <jroland@roland.net>
-To: "Rick Hohensee" <humbubba@smarty.smart.net>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <200107010136.VAA17843@smarty.smart.net>
-Subject: Re: Uncle Sam Wants YOU!
-Date: Sun, 1 Jul 2001 05:12:19 -0500
+	id <S265090AbRGAKmM>; Sun, 1 Jul 2001 06:42:12 -0400
+Received: from edu.joroinen.fi ([195.156.135.125]:55559 "HELO edu.joroinen.fi")
+	by vger.kernel.org with SMTP id <S265077AbRGAKmE> convert rfc822-to-8bit;
+	Sun, 1 Jul 2001 06:42:04 -0400
+Date: Sun, 1 Jul 2001 13:42:01 +0300 (EEST)
+From: =?ISO-8859-1?Q?Pasi_K=E4rkk=E4inen?= <pasik@iki.fi>
+X-X-Sender: <pk@edu.joroinen.fi>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Broken tulip in 2.4.5+
+In-Reply-To: <20010630182110.A1144@opus.bloom.county>
+Message-ID: <Pine.LNX.4.33.0107011339100.24303-100000@edu.joroinen.fi>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pardon me, but what does this have to do with Linux or the Linux Kernel?!?!
-Post this on the usenet under advocacy, but please don't litter up the
-kernel listserver with this.
 
------ Original Message -----
-From: "Rick Hohensee" <humbubba@smarty.smart.net>
-To: <linux-kernel@vger.kernel.org>
-Sent: Saturday, June 30, 2001 8:36 PM
-Subject: Uncle Sam Wants YOU!
+On Sat, 30 Jun 2001, Tom Rini wrote:
+
+> Hello.  The current tulip driver in 2.4.5 and up no longer works with my
+> 'tulip' ethernet card.  0.9.14 (what's in prior to 2.4.5-pre6, iirc) works
+> fine with the card, as does de4x5.  Version 0.9.15-pre5 (2.4.6-pre8) and
+> 1.1.8 (from sourceforge) both don't work.
+>
+
+I am seeing the same problem.
+I had to plug my tulip to 10Mbps HUB yesterday, and it couldn't autosense
+(options=0) 10Mbps Halfduplex! It tried to use 100Mbps or something..
+
+Also, If I try to create 100Mbps Fullduplex connection with cross-cable
+between two tulip-cards (2.2.19 on the other end, and 2.4.5 on the other
+end) it doesn't work either.
 
 
->
-> The two branches of the USA that pertain have now confirmed that Microsoft
-> is a problem requiring an externally asserted solution, but the judicial
-> branch has rejected the specific solution proposed by the executive
-> branch. Three other proposed remedies are mentioned in the Washington Post
-> today. One involves allowing developers access to Microsoft sourcecode
-> equally. One involves allowing computer vendors to configure the Microsoft
-> software as they see fit. The third involves unbundling software from the
-> OS. Gates had stated, correctly, that the split of the company proposed by
-> DOJ did not reflect any understanding of the software business. Looking at
-> the three subsequent proposals, it appears to me that this problem is
-> still searching for a solution. These three recent superficialities also
-> do not appear to be the ideas of people who know how these things work.
-> Meanwhile, Microsoft whole-heartedly engages in a depraved attack on the
-> copyright rights of individuals, making it delightfully clear that the
-> problem remains unsolved, and that Microsoft's general degradation of the
-> computer world continues unabated.
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->
->                         HELLO???????
->
->                     ANY GEEKS IN HERE?
->
->
->         ANY OF YOU TURKEYS GOOD WITH PROBLEM-SOLVING?
->
->
->
-> My hastily concocted proposed solution remains at...
->
-> ftp://ftp.gwdg.de/pub/linux/install/clienux/interim/amicus_curae
->
->
->
->                         WHERE'S YOURS?
->
-> Rick Hohensee
-> www.cLIeNUX.com  Who do you want to piss off today?
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+- Pasi Kärkkäinen
+
+                                   ^
+                                .     .
+                                 Linux
+                              /    -    \
+                             Choice.of.the
+                           .Next.Generation.
 

@@ -1,157 +1,186 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262672AbTCTWVP>; Thu, 20 Mar 2003 17:21:15 -0500
+	id <S262688AbTCTWXD>; Thu, 20 Mar 2003 17:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262673AbTCTWVP>; Thu, 20 Mar 2003 17:21:15 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:55490 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S262672AbTCTWVK>;
-	Thu, 20 Mar 2003 17:21:10 -0500
-Message-ID: <F760B14C9561B941B89469F59BA3A84725A210@orsmsx401.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: James Wright <james@jigsawdezign.com>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
-Subject: RE: P4 3.06Ghz Hyperthreading with 2.4.20?
-Date: Thu, 20 Mar 2003 14:32:00 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-content-class: urn:content-classes:message
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262687AbTCTWW7>; Thu, 20 Mar 2003 17:22:59 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:33797 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262688AbTCTWVg>;
+	Thu, 20 Mar 2003 17:21:36 -0500
+Subject: Re: [PATCH] i2c driver changes for 2.5.65
+In-reply-to: <10481995653857@kroah.com>
+Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+Mime-version: 1.0
+Date: Thu, 20 Mar 2003 14:32 -0800
+Message-id: <1048199566294@kroah.com>
+X-mailer: gregkh_patchbomb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ChangeSet 1.1143.1.7, 2003/03/18 17:13:06-08:00, greg@kroah.com
 
-> From: James Wright [mailto:james@jigsawdezign.com] 
-> ACPI: Local APIC address 0xfee00000
-> ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
-> Processor #0 Pentium 4(tm) XEON(tm) APIC version 16
-> ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
-> Processor #1 Pentium 4(tm) XEON(tm) APIC version 16
+[PATCH] i2c i2c-piix4.c: fix up formatting and whitespace issues.
 
-There should be some messages about IO APICs right here. To be SMP, you
-need IO APICs.
 
-If you did the ACPI cpu enumeration only, please try the full ACPI
-support. That is the only reason I can think of (except for !CONFIG_SMP)
-as to why the IO APIC(s) could be overlooked.
+ drivers/i2c/busses/i2c-piix4.c |   80 +++++++++++++++++++----------------------
+ 1 files changed, 38 insertions(+), 42 deletions(-)
 
-> Kernel command line: BOOT_IMAGE=linux ro root=302 acpismp=force
 
-Don't need acpismp=force, btw. With the patch off sf.net it is on by
-default - you can use acpi=off to disable it, though. ;-)
+diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+--- a/drivers/i2c/busses/i2c-piix4.c	Thu Mar 20 12:56:08 2003
++++ b/drivers/i2c/busses/i2c-piix4.c	Thu Mar 20 12:56:08 2003
+@@ -51,37 +51,37 @@
+ };
+ 
+ /* PIIX4 SMBus address offsets */
+-#define SMBHSTSTS (0 + piix4_smba)
+-#define SMBHSLVSTS (1 + piix4_smba)
+-#define SMBHSTCNT (2 + piix4_smba)
+-#define SMBHSTCMD (3 + piix4_smba)
+-#define SMBHSTADD (4 + piix4_smba)
+-#define SMBHSTDAT0 (5 + piix4_smba)
+-#define SMBHSTDAT1 (6 + piix4_smba)
+-#define SMBBLKDAT (7 + piix4_smba)
+-#define SMBSLVCNT (8 + piix4_smba)
+-#define SMBSHDWCMD (9 + piix4_smba)
+-#define SMBSLVEVT (0xA + piix4_smba)
+-#define SMBSLVDAT (0xC + piix4_smba)
++#define SMBHSTSTS	(0 + piix4_smba)
++#define SMBHSLVSTS	(1 + piix4_smba)
++#define SMBHSTCNT	(2 + piix4_smba)
++#define SMBHSTCMD	(3 + piix4_smba)
++#define SMBHSTADD	(4 + piix4_smba)
++#define SMBHSTDAT0	(5 + piix4_smba)
++#define SMBHSTDAT1	(6 + piix4_smba)
++#define SMBBLKDAT	(7 + piix4_smba)
++#define SMBSLVCNT	(8 + piix4_smba)
++#define SMBSHDWCMD	(9 + piix4_smba)
++#define SMBSLVEVT	(0xA + piix4_smba)
++#define SMBSLVDAT	(0xC + piix4_smba)
+ 
+ /* PCI Address Constants */
+-#define SMBBA     0x090
+-#define SMBHSTCFG 0x0D2
+-#define SMBSLVC   0x0D3
+-#define SMBSHDW1  0x0D4
+-#define SMBSHDW2  0x0D5
+-#define SMBREV    0x0D6
++#define SMBBA		0x090
++#define SMBHSTCFG	0x0D2
++#define SMBSLVC		0x0D3
++#define SMBSHDW1	0x0D4
++#define SMBSHDW2	0x0D5
++#define SMBREV		0x0D6
+ 
+ /* Other settings */
+-#define MAX_TIMEOUT 500
+-#define  ENABLE_INT9 0
++#define MAX_TIMEOUT	500
++#define  ENABLE_INT9	0
+ 
+ /* PIIX4 constants */
+-#define PIIX4_QUICK      0x00
+-#define PIIX4_BYTE       0x04
+-#define PIIX4_BYTE_DATA  0x08
+-#define PIIX4_WORD_DATA  0x0C
+-#define PIIX4_BLOCK_DATA 0x14
++#define PIIX4_QUICK		0x00
++#define PIIX4_BYTE		0x04
++#define PIIX4_BYTE_DATA		0x08
++#define PIIX4_WORD_DATA		0x0C
++#define PIIX4_BLOCK_DATA	0x14
+ 
+ /* insmod parameters */
+ 
+@@ -138,7 +138,7 @@
+ 		goto END;
+ 	}
+ 
+-/* Determine the address of the SMBus areas */
++	/* Determine the address of the SMBus areas */
+ 	if (force_addr) {
+ 		piix4_smba = force_addr & 0xfff0;
+ 		force = 0;
+@@ -161,8 +161,8 @@
+ 	}
+ 
+ 	pci_read_config_byte(PIIX4_dev, SMBHSTCFG, &temp);
+-/* If force_addr is set, we program the new address here. Just to make
+-   sure, we disable the PIIX4 first. */
++	/* If force_addr is set, we program the new address here. Just to make
++	   sure, we disable the PIIX4 first. */
+ 	if (force_addr) {
+ 		pci_write_config_byte(PIIX4_dev, SMBHSTCFG, temp & 0xfe);
+ 		pci_write_config_word(PIIX4_dev, SMBBA, piix4_smba);
+@@ -171,12 +171,14 @@
+ 			"new address %04x!\n", piix4_smba);
+ 	} else if ((temp & 1) == 0) {
+ 		if (force) {
+-/* This should never need to be done, but has been noted that
+-   many Dell machines have the SMBus interface on the PIIX4
+-   disabled!? NOTE: This assumes I/O space and other allocations WERE
+-   done by the Bios!  Don't complain if your hardware does weird 
+-   things after enabling this. :') Check for Bios updates before
+-   resorting to this.  */
++			/* This should never need to be done, but has been
++			 * noted that many Dell machines have the SMBus
++			 * interface on the PIIX4 disabled!? NOTE: This assumes
++			 * I/O space and other allocations WERE done by the
++			 * Bios!  Don't complain if your hardware does weird
++			 * things after enabling this. :') Check for Bios
++			 * updates before resorting to this.
++			 */
+ 			pci_write_config_byte(PIIX4_dev, SMBHSTCFG,
+ 					      temp | 1);
+ 			dev_printk(KERN_NOTICE, &PIIX4_dev->dev,
+@@ -202,11 +204,10 @@
+ 	dev_dbg(&PIIX4_dev->dev, "SMBREV = 0x%X\n", temp);
+ 	dev_dbg(&PIIX4_dev->dev, "SMBA = 0x%X\n", piix4_smba);
+ 
+-      END:
++END:
+ 	return error_return;
+ }
+ 
+-
+ /* Internally used pause function */
+ static void piix4_do_pause(unsigned int amount)
+ {
+@@ -377,7 +378,6 @@
+ 	return 0;
+ }
+ 
+-
+ static u32 piix4_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+@@ -399,8 +399,6 @@
+ 	.algo		= &smbus_algorithm,
+ };
+ 
+-
+-
+ static struct pci_device_id piix4_ids[] __devinitdata = {
+ 	{
+ 		.vendor =	PCI_VENDOR_ID_INTEL,
+@@ -443,7 +441,7 @@
+ static int __devinit piix4_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ {
+ 	int retval;
+-	
++
+ 	retval = piix4_setup(dev, id);
+ 	if (retval)
+ 		return retval;
+@@ -484,8 +482,6 @@
+ 	pci_unregister_driver(&piix4_driver);
+ 	release_region(piix4_smba, 8);
+ }
+-
+-
+ 
+ MODULE_AUTHOR
+     ("Frodo Looijaard <frodol@dds.nl> and Philip Edelbrock <phil@netroedge.com>");
 
-Regards -- Andy
-
-> On Thu, 20 Mar 2003 09:11:10 -0800
-> "Grover, Andrew" <andrew.grover@intel.com> wrote:
-> 
-> > > From: James Wright [mailto:james@jigsawdezign.com] 
-> > >    So i can apply the ACPI patch to 2.4.20, and it will work, 
-> > > even though my motherboard BIOS
-> > > doesn't provide the MPS table?
-> > 
-> > Yes, because ACPI uses a different table.
-> > 
-> > > Do i still need to use 
-> > > "acpismp=force" option?
-> > 
-> > Nope.
-> > 
-> > > What do you mean
-> > > by *configuring* acpi
-> > 
-> > Configuring it into your kernel, presumably, using make menuconfig.
-> > 
-> > > do i need the "acpid" or other 
-> > > resources, than just enabling it?
-> > 
-> > Nope, all the SMP detection stuff is in the kernel.
-> > 
-> > Regards -- Andy
-> > 
-> > > 
-> > > Thanks,
-> > > James
-> > > 
-> > > 
-> > > On Wed, 19 Mar 2003 18:50:59 -0800
-> > > "Nakajima, Jun" <jun.nakajima@intel.com> wrote:
-> > > 
-> > > > You need to apply the ACPI patch: 
-> > > http://sourceforge.net/projects/acpi and *configure* APIC. 
-> > > > 
-> > > > The 2.4 kernel depends on the MPS table for all but logical 
-> > > processors. If MPS table is not present, it will fall back to UP.
-> > > > 
-> > > > Thanks,
-> > > > Jun
-> > > > 
-> > > > > -----Original Message-----
-> > > > > From: James Wright [mailto:james@jigsawdezign.com]
-> > > > > Sent: Wednesday, March 19, 2003 5:34 PM
-> > > > > To: linux-kernel@vger.kernel.org
-> > > > > Subject: P4 3.06Ghz Hyperthreading with 2.4.20?
-> > > > > 
-> > > > > Hello,
-> > > > > 
-> > > > >    I have kernel 2.4.20 with a single P4 3.06Ghz CPU and 
-> > > Asus P4G8X
-> > > > > motherboard
-> > > > > (with the Intel E7205) Chipset. I have enabled 
-> > > Hyperthreading in the BIOS
-> > > > > options,
-> > > > > compiled in SMP & ACPI support, and also tried adding 
-> > > "acpismp=force" to
-> > > > > my lilo
-> > > > > kernel cmdline, but it just doesn't seem to detect the 
-> > > second Logical CPU.
-> > > > > My
-> > > > > current theory is that this is bcos Linux expects the 
-> > > motherboard to be an
-> > > > > SMP
-> > > > > item (as with the Xeon boards) but this board is a Single 
-> > > processor board,
-> > > > > ansd
-> > > > > doesn't have an MP table, but the cpu info is held in the 
-> > > ACPI tables.?!?
-> > > > > 
-> > > > > I have tried installing 2.5.65 but can't get past the 
-> > > compile due to
-> > > > > compile-time
-> > > > > errors... Is this a known problem? SHall i just disable 
-> > > Hyperthreading
-> > > > > until a new
-> > > > > kernel release?
-> > > > > 
-> > > > > 
-> > > > > Thanks,
-> > > > > James
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > > -
-> > > > > To unsubscribe from this list: send the line "unsubscribe 
-> > > linux-kernel" in
-> > > > > the body of a message to majordomo@vger.kernel.org
-> > > > > More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> > > > > Please 
-> read the FAQ at  http://www.tux.org/lkml/
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe 
-> > > linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> > > > Please read 
-> the FAQ at  http://www.tux.org/lkml/
-> > > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe 
-> > > linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> 

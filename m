@@ -1,79 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264271AbUEDInp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264269AbUEDIlx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264271AbUEDInp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 04:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264270AbUEDInp
+	id S264269AbUEDIlx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 04:41:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264268AbUEDIlx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 04:43:45 -0400
-Received: from adsl-83-231.38-151.net24.it ([151.38.231.83]:56333 "EHLO
-	gateway.milesteg.arr") by vger.kernel.org with ESMTP
-	id S264271AbUEDIn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 04:43:28 -0400
-Date: Tue, 4 May 2004 10:43:26 +0200
-From: Daniele Venzano <webvenza@libero.it>
-To: Ken Ashcraft <ken@coverity.com>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [PATCH] sis900 fix (Was: [CHECKER] Resource leaks in driver shutdown functions)
-Message-ID: <20040504084326.GA11133@gateway.milesteg.arr>
-Mail-Followup-To: Ken Ashcraft <ken@coverity.com>,
-	linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-References: <3580.171.64.70.92.1083609961.spork@webmail.coverity.com>
+	Tue, 4 May 2004 04:41:53 -0400
+Received: from mail1.drkw.com ([62.129.121.35]:53499 "EHLO mail1.drkw.com")
+	by vger.kernel.org with ESMTP id S264271AbUEDIlp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 04:41:45 -0400
+From: "Heilmann, Oliver" <Oliver.Heilmann@drkw.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, davej@redhat.com,
+       benh@kernel.crashing.org
+Subject: Re: Crash in 2.6.6-rc3-mm1 (SiS/Radeon)
+In-Reply-To: <20040501120843.GG2541@fs.tum.de>
+References: <20040426082159.90513.qmail@web10102.mail.yahoo.com> 
+    <1082971956.24569.2.camel@pandora> <1083063853.24569.88.camel@pandora> 
+    <20040501120843.GG2541@fs.tum.de>
+Content-Type: text/plain
+Message-Id: <1083660105.9822.186.camel@pandora>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3580.171.64.70.92.1083609961.spork@webmail.coverity.com>
-X-Operating-System: Debian GNU/Linux on kernel Linux 2.4.25-grsec
-X-Copyright: Forwarding or publishing without permission is prohibited.
-X-Truth: La vita e' una questione di culo, o ce l'hai o te lo fanno.
-X-GPG-Fingerprint: 642A A345 1CEF B6E3 925C  23CE DAB9 8764 25B3 57ED
-User-Agent: Mutt/1.5.5.1i
+Date: Tue, 04 May 2004 09:41:45 +0100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: Oliver.Heilmann@drkw.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for the spotting, the sis900 dirver was really missing a call
-to netif_device_detach in sis900_suspend.
+It's possible that this is indeed an AGP problem (the 746 hasn't
+received a lot of testing yet).
+However, I don't think it's related to the patch. The only change it
+introduces for your chip is the delay-hack, which I don't think could
+adversely affect stability.
+_If_ it is an AGP problem it might be a GART screw-up.
+Here's a bunch of things you can do/try:
 
-Attached is a trivial patch that fixes the issue.
+1. Run testgart.
 
-The sis900 driver is currently unmaintained (the MAINTAINERS address
-bounces), but I'm willing to take the work, since I know somewhat the
-code and I wrote the power management functions.
+2. Tell me which kernel version you were running when you thought your
+system was stable. (Are you sure you were even using agp?)
 
-I no one stands up, I'll send a patch to MAINTAINERS later on.
+3. Send me the output of lspci -s0 -vvv -xxx and lspci -s1 -vvv -xxx
+   preferably when X is up.
 
-Bye.
+Thanks for testing,
 
-On Mon, May 03, 2004 at 11:46:01AM -0700, Ken Ashcraft wrote:
-> The resource allocation/freeing functions in question below are:
-> netif_start_queue/netif_stop_queue
+Oliver
+
+On Sat, 2004-05-01 at 13:08, Adrian Bunk wrote:
+> Hi Oliver,
 > 
-> If you are CC'd on this email, it is because I think you are the
-> maintainer for some of the code below.  Search for your email address
-> below to find it.
+> 2.6.6-rc3-mm1 contains your patch.
 > 
-> 1	|	/drivers/net/sis900.c
-> ---------------------------------------------------------
-...
-> [BUG] webvenza@libero.it
-> /home/kash/linux/2.6.3/linux-2.6.3/drivers/net/sis900.c:2191:sis900_suspend:ERROR:INTERFACE_A_B:
-> Not calling netif_device_detach. See sis900_resume:2229
-> [COUNTER=netif_device_attach-netif_device_detach] [fit=4] [fit_fn=2]
-> [fn_ex=0] [fn_counter=1] [ex=18] [counter=2] [z = 1.11803398874989] [fn-z
-> = -2]
-> 	pci_set_drvdata(pci_dev, NULL);
-> }
+> My computer is usually very stable, but I had the following strange 
+> crash [1]:
 > 
-> #ifdef CONFIG_PM
+> - running XFree86 4.3.0 (from Debian unstable) with FVWM and 3x3 virtual 
+>   terminals
+> - in one xterm a kernel compile that was most likely at the final
+>   linking (IOW: medium cpu and IO load - I heard my HD working)
+> 
+> I suddenly saw in my virtual terminal the outlines of a xclock in a 
+> different virtual terminal (but not the content).
+> 
+> After a Ctrl-Alt-F5 and Alt-F5 I'm also in 2.6.6-rc3-mm1 seeing for 
+> a short time the following:
+> - in the lower half of the window the lower half of the X window
+> - in the left upper half and the right upper half of the window
+>   two copies of tty5
+> 
+> But in the case of the crash, this didn't vanish any more.
+> 
+> At boot time, the kernel said:
+> May  1 12:07:01 r063144 kernel: agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+> May  1 12:07:01 r063144 kernel: agpgart: Putting AGP V3 device at 0000:00:00.0 into 4x mode
+> May  1 12:07:01 r063144 kernel: agpgart: SiS delay workaround: giving bridge time to recover.
+> May  1 12:07:01 r063144 kernel: agpgart: Putting AGP V3 device at 0000:01:00.0 into 4x mode
+> 
+> My hardware is:
+> 
+> 0000:00:00.0 Host bridge: Silicon Integrated Systems [SiS] 746 Host (rev 10)
+>         Subsystem: Unknown device 1849:0746
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+>         Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+>         Latency: 0
+>         Region 0: Memory at d0000000 (32-bit, non-prefetchable)
+>         Capabilities: [c0] AGP version 2.0
+>                 Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
+>                 Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x1
+> 
+> 0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon 
+> RV100 QY [Radeon 7000/VE] (prog-if 00 [VGA])
+>         Subsystem: C.P. Technology Co. Ltd: Unknown device 2072
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR+ FastB2B-
+>         Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 32 (2000ns min), Cache Line Size: 0x08 (32 bytes)
+>         Interrupt: pin A routed to IRQ 11
+>         Region 0: Memory at c0000000 (32-bit, prefetchable)
+>         Region 1: I/O ports at b800 [size=256]
+>         Region 2: Memory at cfef0000 (32-bit, non-prefetchable) [size=64K]
+>         Capabilities: [58] AGP version 2.0
+>                 Status: RQ=48 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2,x4
+>                 Command: RQ=32 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x1
+>         Capabilities: [50] Power Management version 2
+>                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 > 
 > 
-> Error --->
-> static int sis900_suspend(struct pci_dev *pci_dev, u32 state)
-> {
-> 	struct net_device *net_dev = pci_get_drvdata(pci_dev);
-> 	struct sis900_private *sis_priv = net_dev->priv;
+> Radeon framebuffer support is compiled into the kernel, but X is 
+> configured not to use it.
+> 
+> 
+> cu
+> Adrian
+> 
+> [1] the SiS AGP patch is first possible suspect, but it might be 
+>     unrelated
 
--- 
------------------------------
-Daniele Venzano
-Web: http://teg.homeunix.org
+
+--------------------------------------------------------------------------------
+The information contained herein is confidential and is intended solely for the
+addressee. Access by any other party is unauthorised without the express
+written permission of the sender. If you are not the intended recipient, please
+contact the sender either via the company switchboard on +44 (0)20 7623 8000, or
+via e-mail return. If you have received this e-mail in error or wish to read our
+e-mail disclaimer statement and monitoring policy, please refer to 
+http://www.drkw.com/disc/email/ or contact the sender.
+--------------------------------------------------------------------------------
 

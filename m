@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbUB0IK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 03:10:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261746AbUB0IK5
+	id S261739AbUB0IdF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 03:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbUB0IdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 03:10:57 -0500
-Received: from jozlin.snap.net.nz ([202.37.101.35]:33213 "EHLO
-	jozlin.snap.net.nz") by vger.kernel.org with ESMTP id S261745AbUB0IKz
+	Fri, 27 Feb 2004 03:33:05 -0500
+Received: from zone3.gcu-squad.org ([217.19.50.74]:56582 "EHLO
+	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S261739AbUB0IdC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 03:10:55 -0500
-Date: Fri, 27 Feb 2004 21:15:52 +1300 (NZDT)
-From: Keith Duthie <psycho@albatross.co.nz>
-To: alsa-devel@alsa-project.org
-cc: linux-kernel@vger.kernel.org
-Subject: APM suspend causes uninterruptible sleep
-Message-ID: <Pine.LNX.4.53.0402272054010.164@loki.albatross.co.nz>
+	Fri, 27 Feb 2004 03:33:02 -0500
+Message-ID: <1077870909.403f013dd04b6@imp.gcu.info>
+Date: Fri, 27 Feb 2004 09:35:09 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+       "Prakash K. Cheemplavam" <PrakashKC@gmx.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       sensors@Stimpy.netroedge.com
+Subject: Re: 2.6.3-mm4
+References: <20040225185536.57b56716.akpm@osdl.org> <403E82D8.3030209@gmx.de> <20040225185536.57b56716.akpm@osdl.org> <20040227001115.GA2627@werewolf.able.es> <20040227004602.GB15075@kroah.com>
+In-Reply-To: <20040227004602.GB15075@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2 / FreeBSD-4.6.2
+X-Originating-IP: 62.23.237.137
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Between alsa-driver 0.9.4 and alsa-driver 0.9.5 the change below was made.
-Since then, suspending with a program outputting to the pcm device
-causes that program to enter the uninterruptible sleep state. Reverting
-this patch fixes the problem. The problem exists in 0.9.5 through 1.0.2c.
+Quoting Greg KH <greg@kroah.com>:
 
-This problem affects kernel 2.6.3; applying the reversion of this patch
-fixes it.
+> Anyway, I think all you need to do is get the cvs tree of the
+> lmsensors package.  Sensors people, the needed changes are commited
+> into the tree, right?
 
-diff -urN alsa-driver-0.9.4/alsa-kernel/isa/cs423x/cs4231_lib.c alsa-driver-0.9.5/alsa-kernel/isa/cs423x/cs4231_lib.c
---- alsa-driver-0.9.4/alsa-kernel/isa/cs423x/cs4231_lib.c	Wed Apr 30 23:53:17 2003
-+++ alsa-driver-0.9.5/alsa-kernel/isa/cs423x/cs4231_lib.c	Tue Jul  8 22:42:09 2003
-@@ -1401,8 +1401,10 @@
+No. The changes are waiting in my local repository, ready to be applied.
+I didn't want to apply them because we were supposed to release
+lm_sensors 2.8.5 (for Linux 2.6.3 users) and the sysfs names change
+wouldn't belong there.
 
- 	switch (rqst) {
- 	case PM_SUSPEND:
--		if (chip->suspend)
-+		if (chip->suspend) {
-+			snd_pcm_suspend_all(chip->pcm);
- 			(*chip->suspend)(chip);
-+		}
- 		break;
- 	case PM_RESUME:
- 		if (chip->resume)
+The libsensors patches are available on my personal server here:
+http://jdelvare.net1.nerim.net/sensors/
+Apply both patches in order and you'll get a 2.6.3-mm4-compliant
+library.
+
+I will apply the libsensors changes to the CVS repository as soon as the
+kernel modules changes are accepted into Linus' tree. If we did not
+release a new version since there, I'll take a CVS snapshot right
+before so that Linux 2.6.3 users have a usable version available (but
+my preference strongly goes to releasing 2.8.5 instead).
+
+Thanks for testing.
 
 -- 
-Just because it isn't nice doesn't make it any less a miracle.
-     http://users.albatross.co.nz/~psycho/     O-   -><-
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/
+

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131096AbRBNTWd>; Wed, 14 Feb 2001 14:22:33 -0500
+	id <S130950AbRBNTYX>; Wed, 14 Feb 2001 14:24:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRBNTWX>; Wed, 14 Feb 2001 14:22:23 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:30706 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130950AbRBNTWJ>; Wed, 14 Feb 2001 14:22:09 -0500
-Message-ID: <3A8ADA30.2936D3B1@sympatico.ca>
-Date: Wed, 14 Feb 2001 14:19:12 -0500
-From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
+	id <S131078AbRBNTYN>; Wed, 14 Feb 2001 14:24:13 -0500
+Received: from tux.mkp.net ([130.225.60.11]:5124 "EHLO tux.mkp.net")
+	by vger.kernel.org with ESMTP id <S130950AbRBNTX4>;
+	Wed, 14 Feb 2001 14:23:56 -0500
+To: Michael E Brown <michael_e_brown@dell.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: block ioctl to read/write last sector
+In-Reply-To: <Pine.LNX.4.30.0102132348560.1882-100000@carthage.michaels-house.net>
+From: "Martin K. Petersen" <mkp@mkp.net>
+Organization: mkp.net
+Date: 14 Feb 2001 09:23:49 -0500
+In-Reply-To: <Pine.LNX.4.30.0102132348560.1882-100000@carthage.michaels-house.net>
+Message-ID: <yq13ddh2vii.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Canyonlands)
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Is this the ultimate stack-smash fix?
-In-Reply-To: <3A899FEB.D54ABBC7@sympatico.ca> <m1lmr98c5t.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
+>>>>> "Michael" == Michael E Brown <michael_e_brown@dell.com> writes:
 
-> Jeremy Jackson <jeremy.jackson@sympatico.ca> writes:
-> (about non-executable stack)
->
-> There is another much more effective solution in the works.  The C
-> standard allows bounds checking of arrays.  So it is quite possible
-> for the compiler itself to check this in a combination of run-time and
-> compile-time checks.   I haven't followed up but not too long ago
-> there was an effort to add this as an option to gcc.  If you really
-> want this fixed that is the direction to go.  Then buffer overflow
-> exploits become virtually impossible.
->
+Michael,
 
-I've thought some more, and yes someone else has already done this.  Problems
-are with compilers that
-put code on stack (g++ trampolines for local functions i think).  There is
-the gcc-mod (Stack-guard?) that checks for
-corrupt stack frame using magic number containing zeros before returning...
-this will take away some
-performance though...
+Michael> It looks like the numbers we picked for our respective IOCTLs
+Michael> conflict.  I think I can change mine to the next higher since
+Michael> your patch seems to have been around longer. 
 
-I wonder if the root of the issue is the underlying security architechure ...
-anything that needs ANY privilege
-gets ALL privileges (ie root).  chown named and such fixes this, but can't
-rebind to privileged port, must be restarted
-by root to do so.  VMS / NT have more fine grained privileges.
-
-Is there any documentation of the kernel's 'capabilities' functions?  It
-would be exceedingly cool if services (named, nfs, etc)
-could be updated to use this;  I think crackers would loose some motivation
-if instead of "hey I can totally rule this box!"
-they have to settle for "hey I can make the ident service report user 'CrAp'
-for every port!".
+If you could pick another number that would be great.  All the people
+out there using XFS rely on the BLKSETSIZE ioctl, and mkfs.xfs would
+break horribly with your patch.
 
 
+Michael> What is the general way to deal with these conflicts?
+
+Whoever applies the patch to the official tree deals with them :)
+
+-- 
+Martin K. Petersen, Principal Linux Consultant, Linuxcare, Inc.
+mkp@linuxcare.com, http://www.linuxcare.com/
+SGI XFS for Linux Developer, http://oss.sgi.com/projects/xfs/

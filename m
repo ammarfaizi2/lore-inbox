@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264515AbUEMTks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUEMTkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264515AbUEMTks (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 15:40:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264646AbUEMTjV
+	id S264502AbUEMTkp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 15:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUEMTjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 15:39:21 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:12299 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S264471AbUEMT1k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 15:27:40 -0400
-Subject: Re: [PATCH] AES i586 optimized (oops)
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Fruhwirth Clemens <clemens-dated-1085312570.422b@endorphin.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1084462173.2554.3.camel@teapot.felipe-alfaro.com>
-References: <20040513110110.GA8491@ghanima.endorphin.org>
-	 <20040513040732.75c5999c.akpm@osdl.org>
-	 <20040513114250.GB22233@ghanima.endorphin.org>
-	 <1084457158.1737.2.camel@teapot.felipe-alfaro.com>
-	 <1084462173.2554.3.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain
-Message-Id: <1084476462.1793.13.camel@teapot.felipe-alfaro.com>
+	Thu, 13 May 2004 15:39:53 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39628 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264518AbUEMTfM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 15:35:12 -0400
+Date: Thu, 13 May 2004 12:35:09 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, hch@infradead.org,
+       linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.6.6-mm2
+Message-ID: <20040513123509.I21045@build.pdx.osdl.net>
+References: <20040513032736.40651f8e.akpm@osdl.org> <20040513114520.A8442@infradead.org> <20040513035134.2e9013ea.akpm@osdl.org> <20040513121850.B22989@build.pdx.osdl.net> <20040513122940.0d281f52.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
-Date: Thu, 13 May 2004 21:27:42 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040513122940.0d281f52.akpm@osdl.org>; from akpm@osdl.org on Thu, May 13, 2004 at 12:29:40PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-13 at 17:29, Felipe Alfaro Solana wrote:
-> On Thu, 2004-05-13 at 16:05, Felipe Alfaro Solana wrote:
-> > On Thu, 2004-05-13 at 13:42, Fruhwirth Clemens wrote:
-> > > > 
-> > > > Some benchmark figures would be useful.  Cache-cold and cache-hot.
-> > > 
-> > > I posted this patch for the first time about 3/4 year ago. The first
-> > > response has been the same. Please have a look at
-> > 
-> > I'll give this a spin, since I'm very interested in AES. Currently, I'm
-> > using IPSec with AES ESP all over my 100Mbps LAN. I'll apply this one to
-> > 2.6.6-mm2 and will compare with vanillas 2.6.6 and 2.6.6-mm2.
+* Andrew Morton (akpm@osdl.org) wrote:
+> Chris Wright <chrisw@osdl.org> wrote:
+> > What about something that's just simple and generic?  This is similar to
+> > Andrea's disable_cap_mlock patch and the disabling capabilities patch
+> > that wli produced back in that thread.  It would remove the hack, and
+> > buy us some time to find better solutions.  Downside of course (as all
+> > of these have) is reduced security value.
 > 
-> I got an oops on 2.6.6-mm2 plus i586 AES patch when invoking setkey to
-> setup my SPD database with preshared keys entries. Attached dmesg and
-> config.
+> -ENODOCCO.
 
-As pointed before, it was the CONFIG_REGPARM config option. Reverting
-the force-config_regparm-to-y.patch and setting CONFIG_REGPARM to no
-solves the problems.
+Oops, I assumed the MODULE_PARAM_DESC was self-explanatory for a first
+pass, sorry about that.
 
-Having tried the new i586-optimized AES, I must say that throughput
-increases from ~7MB/s with vanilla AES to more than ~9.4MB/s with the
-i586-optimized AES (when FTPing a large file over the AES/ESP encrypted
-link).
+> I assume one does
+> 
+> 	modprobe capability mask=32768
+> 
+> and this squashes CAP_IPC_LOCK system-wide?
 
-That's like saying that I'm getting more than 80% of the maximum
-sustained, unencrypted throughput for my network link (which is at
-~11MB/s). That's really impressive, since that's a Security Association
-between a 700Mhz PIII and a 2GHz P4.
+Yes, although I think you picked off the wrong bit ;-)  (and I prefer hex)
 
-Nice work, indeed.
+	modprobe capability mask=0x4000
 
+or if CONFIG_SECURITY_MODULE=y, then boot param:
+
+	capability.mask=0x4000
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288248AbSCCVJy>; Sun, 3 Mar 2002 16:09:54 -0500
+	id <S288557AbSCCVQo>; Sun, 3 Mar 2002 16:16:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288557AbSCCVJo>; Sun, 3 Mar 2002 16:09:44 -0500
-Received: from mnh-1-21.mv.com ([207.22.10.53]:65288 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S288248AbSCCVJi>;
-	Sun, 3 Mar 2002 16:09:38 -0500
-Message-Id: <200203032112.QAA03497@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] Arch option to touch newly allocated pages
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 03 Mar 2002 16:12:38 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S288800AbSCCVQf>; Sun, 3 Mar 2002 16:16:35 -0500
+Received: from smtp02.web.de ([217.72.192.151]:2332 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S288557AbSCCVQX>;
+	Sun, 3 Mar 2002 16:16:23 -0500
+Message-ID: <3C82929B.48E5E77A@web.de>
+Date: Sun, 03 Mar 2002 22:16:11 +0100
+From: Ulrich Hahn <ulrich.hahn@web.de>
+X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
+X-Accept-Language: en-US,de
+MIME-Version: 1.0
+To: Charles Briscoe-Smith <charles@briscoe-smith.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCMCIA-related IDE problems - "hda: lost interrupt"
+In-Reply-To: <20020302122339.A31436@merry.bs.lan>
+Content-Type: text/plain; charset=us-ascii; x-mac-type="54455854"; x-mac-creator="4D4F5353"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What I'd like is for the arch to have __alloc_pages touch all pages that it 
-has allocated and is about to return.
+Hi there -
 
-The reason for this is that for UML, those pages are backed by host memory,
-which may or may not be available when they are finally touched at some
-arbitrary place in the kernel.  I hit this by tmpfs running out of room
-because my UMLs have their memory backed by tmpfs mounted on /tmp.  So, I
-want to be able to dirty those pages before they are seen by any other code.
+I was lucky today finding another solution that helped me out:
 
-My first guess at what I want in the code is for all the places that 
-__alloc_pages says this:
+It seems the 2.4 kernel series produce the problem of messing with PCI
+interrupts.
+I had no problem with one and the same pcmcia_cs package with a 2.2.9 kernel
+which locked up ALL of the 2.4 kernels I tried meanwile (I am on 2.4.18 now
+using the kernel-owned pcmcia modules, yenta_socket, which does not seem to know
+any parameters at all).
 
-			if (page)
-				return page;
+Today I found a hint on giving the kernel an irqmask on bootup in the lilo.conf
+file:
+append="pci=irqmask=0xafff"
 
-to change to this:
+This prevents the vital IRQs of ide or mouse from being taken by the PCI bridge
+when the yenta_socket or i82365 module is loaded. (Unloading the module again
+would  not give back interrupt control - so a reboot was the final step)
 
-			if (page)
-				return arch_validate(page);
+Charles Briscoe-Smith wrote:
 
-arch_validate would be defined as basically empty somewhere in a
-include/linux/*.h unless the arch has defined one already.  And I may want
-to add order to the arg list if it can't be inferred from the page alignment.
+> > Personal question: did you find a solution?
+>
+> Yes, I did, and it has since been documented in the PCMCIA HOWTO,
+> section 2.3, subsection "Card readers for desktop systems":
+>
+>   For Chase CardPORT and Altec ISA card readers using the Cirrus PD6722
+>   ISA-to-PCMCIA bridge, the i82365 driver should be loaded with a
+>   ``has_ring=0'' parameter to prevent irq 15 conflicts.
+>
+> I had been trying the option "has_ring=1", which I didn't know was
+> the default.
+>
+> [ CC'ed linux-kernel so that this gets into its archives.  I am not on
+> linux-kernel so, if replying, please CC me (and, I presume, Ulrich). ]
 
-My arch_validate would look something like this:
+Thanks for your hint!
 
-struct page_struct *arch_validate(page_struct *page)
-{
-	unsigned long zero = 0;
-	unsigned long addr = page_address(page);
 
-	set_fs(USER_DS);
-	for(i = 0; i < 1 << order; i++){
-		if(copy_to_user(addr + i * PAGE_SIZE, &zero, sizeof(zero))){
-			set_fs(KERNEL_DS);
-			free_pages(addr, order);
-			return(NULL);
-		}
-	}
-	set_fs(KERNEL_DS);
-	return(page);
-}
-
-The use of set_fs/copy_to_user is somewhat hokey, but that's exactly the
-effect that I want.  Is there a better way of doing that?
-
-So, is this a reasonable thing to do, and is the above the right way of
-getting it?
-
-				Jeff

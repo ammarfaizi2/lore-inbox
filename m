@@ -1,51 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263832AbUAMKoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 05:44:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbUAMKoQ
+	id S263983AbUAMKp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 05:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263946AbUAMKp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 05:44:16 -0500
-Received: from gprs214-71.eurotel.cz ([160.218.214.71]:2432 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263832AbUAMKoP (ORCPT
+	Tue, 13 Jan 2004 05:45:59 -0500
+Received: from jaguar.mkp.net ([192.139.46.146]:24273 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S263983AbUAMKpx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 05:44:15 -0500
-Date: Tue, 13 Jan 2004 11:45:52 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Is this too ugly to merge?
-Message-ID: <20040113104552.GA269@elf.ucw.cz>
-References: <1073609923.2003.10.camel@laptop-linux>
-Mime-Version: 1.0
+	Tue, 13 Jan 2004 05:45:53 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       Jesse Barnes <jbarnes@sgi.com>, Jack Steiner <steiner@sgi.com>,
+       David Mosberger <davidm@hpl.hp.com>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: [patch] ACPI NUMA quiet printk and cleanup
+From: Jes Sorensen <jes@wildopensource.com>
+In-Reply-To: <yq0r7y4dvqf.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+Date: 13 Jan 2004 05:45:50 -0500
+Message-ID: <yq0k73wdt41.fsf_-_@wildopensource.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1073609923.2003.10.camel@laptop-linux>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> My question, then (at last!) is, are these 'too ugly', so that they'd
-> never get merged? If you do consider them ugly, is it because you'd like
-> to see better names (lower case? replace SWSUSP?) and/or because you
-> think the whole idea is ugly and have a better solution?
+I'd love to see the following patch go into -mm. It turns two current
+ACPI printk's into ACPI debug messages thgat only shows when
+ACPI_DEBUG is enabled and eliminates some excessive NULL
+initialization of variables that are immediately being set to their
+real value afterwards.
 
-Well, problem is not as much with uglyness of those macros, but with
-need to patch many files to include those macros. If you can get
-number of uses of those macros down to, say, 10, it will get
-better. Can't you just do something at each syscall/pagefault
-entry/exit?
+The patch should be very easy to verify - compiled and booted on an sn2.
 
-Ordinarily, process get stopped by sending them SIGSTOP. That suggests
-to me that we might be able to reuse existing mechanism... SIGSTOP-ed
-task should not hold any locks since it can be SIGSTOPed for very long
-time. And if SIGSTOP does not work properly ... well that would be
-simple bugfix.
+Thanks,
+Jes
 
-								Pavel
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+diff -urN -X /usr/people/jes/exclude-linux orig/linux-2.6.1-jb-acpi-clean/drivers/acpi/numa.c linux-2.6.1/drivers/acpi/numa.c
+--- orig/linux-2.6.1-jb-acpi-clean/drivers/acpi/numa.c	Tue Jan 13 02:25:32 2004
++++ linux-2.6.1/drivers/acpi/numa.c	Tue Jan 13 02:38:32 2004
+@@ -30,6 +30,7 @@
+ #include <linux/errno.h>
+ #include <linux/acpi.h>
+ #include <acpi/acpi_bus.h>
++#include <acpi/acmacros.h>
+ 
+ extern int __init acpi_table_parse_madt_family (enum acpi_table_id id, unsigned long madt_size, int entry_id, acpi_madt_entry_handler handler, unsigned int max_entries);
+ 
+@@ -46,9 +47,9 @@
+ 	{
+ 		struct acpi_table_processor_affinity *p =
+ 			(struct acpi_table_processor_affinity*) header;
+-		printk(KERN_INFO PREFIX "SRAT Processor (id[0x%02x] eid[0x%02x]) in proximity domain %d %s\n",
++		ACPI_DEBUG_PRINT((ACPI_DB_INFO "SRAT Processor (id[0x%02x] eid[0x%02x]) in proximity domain %d %s\n",
+ 		       p->apic_id, p->lsapic_eid, p->proximity_domain,
+-		       p->flags.enabled?"enabled":"disabled");
++		       p->flags.enabled?"enabled":"disabled"));
+ 	}
+ 		break;
+ 
+@@ -56,11 +57,11 @@
+ 	{
+ 		struct acpi_table_memory_affinity *p =
+ 			(struct acpi_table_memory_affinity*) header;
+-		printk(KERN_INFO PREFIX "SRAT Memory (0x%08x%08x length 0x%08x%08x type 0x%x) in proximity domain %d %s%s\n",
++		ACPI_DEBUG_PRINT((ACPI_DB_INFO "SRAT Memory (0x%08x%08x length 0x%08x%08x type 0x%x) in proximity domain %d %s%s\n",
+ 		       p->base_addr_hi, p->base_addr_lo, p->length_hi, p->length_lo,
+ 		       p->memory_type, p->proximity_domain,
+ 		       p->flags.enabled ? "enabled" : "disabled",
+-		       p->flags.hot_pluggable ? " hot-pluggable" : "");
++		       p->flags.hot_pluggable ? " hot-pluggable" : ""));
+ 	}
+ 		break;
+ 
+@@ -97,7 +98,7 @@
+ static int __init
+ acpi_parse_processor_affinity (acpi_table_entry_header *header)
+ {
+-	struct acpi_table_processor_affinity *processor_affinity = NULL;
++	struct acpi_table_processor_affinity *processor_affinity;
+ 
+ 	processor_affinity = (struct acpi_table_processor_affinity*) header;
+ 	if (!processor_affinity)
+@@ -115,7 +116,7 @@
+ static int __init
+ acpi_parse_memory_affinity (acpi_table_entry_header *header)
+ {
+-	struct acpi_table_memory_affinity *memory_affinity = NULL;
++	struct acpi_table_memory_affinity *memory_affinity;
+ 
+ 	memory_affinity = (struct acpi_table_memory_affinity*) header;
+ 	if (!memory_affinity)
+@@ -133,7 +134,7 @@
+ static int __init
+ acpi_parse_srat (unsigned long phys_addr, unsigned long size)
+ {
+-	struct acpi_table_srat	*srat = NULL;
++	struct acpi_table_srat	*srat;
+ 
+ 	if (!phys_addr || !size)
+ 		return -EINVAL;

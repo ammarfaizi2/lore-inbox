@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269251AbUJQSID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269247AbUJQSLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269251AbUJQSID (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 14:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269252AbUJQSIC
+	id S269247AbUJQSLu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 14:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269257AbUJQSLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 14:08:02 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:39889 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S269251AbUJQSGu (ORCPT
+	Sun, 17 Oct 2004 14:11:49 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:23271 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S269247AbUJQSLm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 14:06:50 -0400
-Date: Sun, 17 Oct 2004 20:06:29 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Buddy Lucas <buddy.lucas@gmail.com>, Jesper Juhl <juhl-lkml@dif.dk>
-Cc: David Schwartz <davids@webmaster.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041017180629.GO7468@marowsky-bree.de>
-References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <5d6b657504101707175aab0fcb@mail.gmail.com> <20041017150509.GC10280@mark.mielke.cc> <5d6b65750410170840c80c314@mail.gmail.com> <Pine.LNX.4.61.0410171921440.2952@dragon.hygekrogen.localhost> <5d6b65750410171104320bc6a8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5d6b65750410171104320bc6a8@mail.gmail.com>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+	Sun, 17 Oct 2004 14:11:42 -0400
+Date: Sun, 17 Oct 2004 20:10:37 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Daniele Pizzoni <auouo@tin.it>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/8] replacing/fixing printk with pr_debug/pr_info in
+ arch/i386 - intro
+In-Reply-To: <20041017161953.GA24810@elte.hu>
+Message-ID: <Pine.GSO.4.61.0410172006060.27743@waterleaf.sonytel.be>
+References: <1098031764.3023.45.camel@pdp11.tsho.org> <20041017161953.GA24810@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004-10-17T20:04:21, Buddy Lucas <buddy.lucas@gmail.com> wrote:
-
-> [ snip ]
+On Sun, 17 Oct 2004, Ingo Molnar wrote:
+> * Daniele Pizzoni <auouo@tin.it> wrote:
 > 
-> Also note the examples that Stevens gives. For instance, he explicitly
-> checks for EWOULDBLOCK after a read on a nonblocking fd that has been
-> reported readable by select().
+> > Hello, I'm going to post a series of small janitorial patches focused on
+> > 1) replacing DPRINTK-style macros with pr_debug from kernel.h
+> > 2) replacing printk(KERN_INFO ...) with pr_info(...)
+> > 3) fixing _obvious_ inconsistencies of printk levels as:
+> > 
+> > printk(KERN_INFO "Start... ");
+> > ...
+> > printk("Ok!\n");
+> 
+> 1) be careful, there is no inconsistency here. It's a printk that doesnt
+> end in a "\n" in the first line.
 
-The specs don't disagree with that. On a O_NONBLOCK socket, that is
-allowed.
+Indeed.
 
+Iff you ever want to replace the above, make sure to do it like this:
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
+    printk_info("Start... ");
+    ...
+    printkc_info("Ok!\n");
 
--- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX AG - A Novell company
+(with `printkc_info()' being a continuation of `printk_info()'. And do the same
+for all other KERN_* variations. This would add real value, since the next step
+is to make the printk{,c}_*() definitions conditionally empty for embedded
+systems and/or systems with few memory.
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+P.S. The naming conventions above are purely hypothetical. I suggest we first
+     have a few Holy Wars(tm) about them before settling :-)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

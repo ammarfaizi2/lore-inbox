@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288987AbSAIT5y>; Wed, 9 Jan 2002 14:57:54 -0500
+	id <S288991AbSAIT6F>; Wed, 9 Jan 2002 14:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288994AbSAIT5k>; Wed, 9 Jan 2002 14:57:40 -0500
-Received: from [213.171.51.190] ([213.171.51.190]:1420 "EHLO ns.yauza.ru")
-	by vger.kernel.org with ESMTP id <S288985AbSAITz1>;
-	Wed, 9 Jan 2002 14:55:27 -0500
-Date: Wed, 9 Jan 2002 22:55:17 +0300
-From: Nikita Gergel <fc@yauza.ru>
-To: linux-kernel@vger.kernel.org
-Cc: Brendan Burns <bburns@genet.cs.umass.edu>
-Subject: Re: MINOR(inode->i_rdev) vs. minor(inode->i_rdev)
-Message-Id: <20020109225517.182c8e24.fc@yauza.ru>
-In-Reply-To: <1010604024.2904.0.camel@epiphany>
-In-Reply-To: <1010604024.2904.0.camel@epiphany>
-Organization: YAUZA-Telecom
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-alt-linux)
-X-Face: /kH/`k:.@|9\`-o$p/YBn<xFr)I]mglEQW0$I${i4Q;J|JXWbc}de_p8c1;:W~5{WV,.l%B S|A4'A1hnId[
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg=pgp-sha1; boundary="=.jmsM,88Of)Y?_Y"
+	id <S288990AbSAIT5w>; Wed, 9 Jan 2002 14:57:52 -0500
+Received: from quark.didntduck.org ([216.43.55.190]:32019 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S288987AbSAIT5I>; Wed, 9 Jan 2002 14:57:08 -0500
+Message-ID: <3C3CA078.52242C57@didntduck.org>
+Date: Wed, 09 Jan 2002 14:56:40 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Sipos Ferenc <sferi@dumballah.tvnet.hu>, linux-kernel@vger.kernel.org
+Subject: Re: system time issue
+In-Reply-To: <Pine.LNX.3.95.1020109143029.8141A-101000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.jmsM,88Of)Y?_Y
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+"Richard B. Johnson" wrote:
+> 
+> The code works by disabling paging while executing code where
+> there is not a 1:1 physical/virtual page mapping. I have never
+> found a system, even one with two CPUs that did not instantly
+> reset.
 
-On 09 Jan 2002 14:20:23 -0500
-Brendan Burns <bburns@eksl.cs.umass.edu> wrote:
+All you are doing is causing a triple fault, started with most likely an
+invalid op fault.  There are many ways of doing that, including the no
+idt way the kernel currently uses, which IMHO would be more reliable
+that depending on the processor crashing on random memory.
 
-> Hello,
-Hello!
+--
 
-> In the process of compiling ALSA for my new 2.5.2pre10 kernel I noticed
-> that MINOR(inode->i_rdev) causes compile errors and should be replaced
-> with minor(inode->i_rdev) Looking at a number of the OSS sound drivers
-> in the kernel I noticed that they to would not compile in 2.5.2pre10 (eg
-> Turtle Beach Pinnacle)  I fixed all of these modules and a patch is
-> attached.  However, looking further I noticed that there were similar
-> problems in a number of other drivers.  Before I undertook cleaning all
-> of them I thought I would check in and make sure I was doing the right
-> thing.  Namely that every instance of MINOR(inode->i_rdev) or
-> MINOR(i_rdev) should be replaced with minor(inode->i_rdev) or
-> minor(i_rdev).
-
-I've contributed patch for emu10k1, because tests after 'MINOR' replacement successed. You're on the right way.
-
-Regards.
-
--- 
-Nikita Gergel					System Administrator
-Moscow, Russia					YAUZA-Telecom
-
---=.jmsM,88Of)Y?_Y
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8PKAnFP8BYTTFfXkRAowLAKCs9cOXROjKRpyD3Q0hN26y5wgFpwCfYDlk
-SBfaUEyQnG8RZ2vlbAlqzwY=
-=/xEn
------END PGP SIGNATURE-----
-
---=.jmsM,88Of)Y?_Y--
-
+				Brian Gerst

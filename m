@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135855AbRDYMoX>; Wed, 25 Apr 2001 08:44:23 -0400
+	id <S135857AbRDYMoD>; Wed, 25 Apr 2001 08:44:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135860AbRDYMoD>; Wed, 25 Apr 2001 08:44:03 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:12298 "HELO
-	zcamail04.zca.compaq.com") by vger.kernel.org with SMTP
-	id <S135855AbRDYMoB>; Wed, 25 Apr 2001 08:44:01 -0400
-Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDB0@aeoexc1.aeo.cpqcorp.net>
-From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [POT] eepro100 crash my 2.4.2smp on Alpha ES40 under network load
-	!
-Date: Wed, 25 Apr 2001 14:42:30 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S135860AbRDYMny>; Wed, 25 Apr 2001 08:43:54 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:17933 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S135855AbRDYMnr>;
+	Wed, 25 Apr 2001 08:43:47 -0400
+Date: Wed, 25 Apr 2001 14:43:38 +0200
+From: Jamie Lokier <ln@tantalophile.demon.co.uk>
+To: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Dynamic TCP reserved ports allocated in which range?
+Message-ID: <20010425144338.B18214@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.A32.3.95.1010419104422.13922A-100000@werner.exp-math.uni-essen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.A32.3.95.1010419104422.13922A-100000@werner.exp-math.uni-essen.de>; from eowmob@exp-math.uni-essen.de on Thu, Apr 19, 2001 at 10:52:00AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dr. Michael Weller wrote:
+> For a firewall setup I need to know in which range applications like
+> rsh, or better yet the rresvport() libc function allocate reserved ports.
+> 
+> Do I have to expect ports in the whole 1..1024 range (maybe omitting those
+> already in use by other servers) or is only a limited range used (like
+> 512-1023).
 
-My hardware configuration is:
+This isn't a kernel question as the allocation is handled entirely by
+userspace.  Userspace tries each port in turn until it finds one that
+isn't used at the moment.
 
-	AlphaServer ES40, 4 cpus, 8 Gigas of RAM
+The non-privileged local port range can be read from and written to
+/proc/sys/net/ipv4/ip_local_port_range, but that's not your question.
 
-	lspci -tv shows the network board as:
+The man page for rresvport() says:
 
-	Intel Corporation 82557 [ Ethernet Pro 100 ]
+     The rresvport() function is used to obtain a socket with a
+     privileged address bound to it.  This socket is suitable for use by
+     rcmd() and several other functions.  Privileged Internet ports are
+     those in the range 0 to 1023.  Only the super-user is allowed to
+     bind an address of this sort to a socket.
 
-The driver is inserted as a module: lsmod shows eepro100 loaded.
+For a firewall, you should probably distinguish these ports from fixed
+services ports (like ssh and smtp) by having different rules for
+Outgoing and Incoming connections.  This is done by matching on the TCP
+SYN and ACK flags (see any firewall tutorial).
 
-
-The system is Redhat 7.0 with updates and 2.4.2 kernel hand compiled
-with egcs-2.91.66.
-
-As long as I do not stress too much the network everything is fine. I can
-transfer
-little files but when I do big transfers: I see on the /var/log/messages:
-
-	NETDEV WATCHDOG | eth0: transmit timeout
-				 status 0090 0c00 at xxxxxx/xxxxxx command
-000ca000
-				 wait_cmd_done timeout.
-
-
-I if instist and launch another transfer, the system freeze, I loose the
-console and the 
-network and I must do a hard reboot.
-
-PS:With 2.2 the problem was fixed by changing the eepro100 driver with the
-package
-of donald becker on www.scyld.com, but I can't load it in my 2.4 kernel. 
-
-Any help would be much appreciated.
-
-
-
-Sebastien CABANIOLS
-
-  
+enjoy,
+-- Jamie

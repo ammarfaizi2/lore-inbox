@@ -1,89 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVAGUaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVAGU2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261591AbVAGUaC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 15:30:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVAGU3P
+	id S261576AbVAGU2b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:28:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVAGUZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 15:29:15 -0500
-Received: from alog0359.analogic.com ([208.224.222.135]:10112 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261591AbVAGU12
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 15:27:28 -0500
-Date: Fri, 7 Jan 2005 15:27:05 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: uselib()  & 2.6.X?
-In-Reply-To: <20050107170712.GK29176@logos.cnet>
-Message-ID: <Pine.LNX.4.61.0501071519330.21405@chaos.analogic.com>
-References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl>
- <20050107170712.GK29176@logos.cnet>
+	Fri, 7 Jan 2005 15:25:05 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:61825 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261595AbVAGUVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 15:21:40 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: [RFC] per thread page reservation patch
+References: <20050103011113.6f6c8f44.akpm@osdl.org>
+	<20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com>
+	<1105019521.7074.79.camel@tribesman.namesys.com>
+	<20050107144644.GA9606@infradead.org>
+	<1105118217.3616.171.camel@tribesman.namesys.com>
+	<20050107104838.0eacd301.akpm@osdl.org>
+From: Nikita Danilov <nikita@clusterfs.com>
+Date: Fri, 07 Jan 2005 23:21:19 +0300
+In-Reply-To: <20050107104838.0eacd301.akpm@osdl.org> (Andrew Morton's
+ message of "Fri, 7 Jan 2005 10:48:38 -0800")
+Message-ID: <m1u0ptq9c0.fsf@clusterfs.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.5 (chayote, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jan 2005, Marcelo Tosatti wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> On Fri, Jan 07, 2005 at 04:59:22PM +0100, Lukasz Trabinski wrote:
->> Hello
+> Vladimir Saveliev <vs@namesys.com> wrote:
 >>
->>
->> http://isec.pl/vulnerabilities/isec-0021-uselib.txt
->>
->> [...]
->> Locally  exploitable  flaws  have  been found in the Linux binary format
->> loaders'  uselib()  functions  that  allow  local  users  to  gain  root
->> privileges.
->> [...]
->> Version:   2.4 up to and including 2.4.29-rc2, 2.6 up to and including 2.6.10
->> [...]
->>
->> It's was fixed by Marcelo on 2.4.29-rc1. Thank's :)
->> What about 2.6.X? Is any patch available? I don't see any changes
->> around binfmt_elf in 2.6.10-bk10?
+>> +int perthread_pages_reserve(int nrpages, int gfp)
+>>  +{
+>>  +	int i;
+>>  +	struct list_head  accumulator;
+>>  +	struct list_head *per_thread;
+>>  +
+>>  +	per_thread = get_per_thread_pages();
+>>  +	INIT_LIST_HEAD(&accumulator);
+>>  +	list_splice_init(per_thread, &accumulator);
+>>  +	for (i = 0; i < nrpages; ++i) {
 >
-> 2.6.10-ac contains a version of the fix.
->
-> Attached is what going to be merged in mainline, most likely.
->
->
+> This will end up reserving more pages than were asked for, if
+> current->private_pages_count is non-zero.  Deliberate?
 
-FYI, the provided source-code won't build with the 2.6.x kernel
-because one of the structures is no longer defined. However,
-building on 2.4.20 and attempting to exploit the alleged bug
-results in:
-
-Script started on Fri 07 Jan 2005 03:22:24 PM EST
-LINUX> ./isec
-
-[+] SLAB cleanup    child 1 VMAs 0
-[+] moved stack bfffe000, task_size=0xc0000000, map_base=0xbf800000
-[+] vmalloc area 0xef800000 - 0xffffd000
-
-[-] FAILED: try again (No such device) 
-Killed
-LINUX> ./isec
-
-[+] SLAB cleanup    child 1 VMAs 0
-[+] moved stack bfffe000, task_size=0xc0000000, map_base=0xbf800000
-[+] vmalloc area 0xef800000 - 0xffffd000
-
-[-] FAILED: try again (No such device) 
-Killed
-LINUX> exit
-
-Script done on Fri 07 Jan 2005 03:22:45 PM EST
+Yes. This is to make modular usage possible, so that
 
 
-.... Nothing. It just doesn't do what it's claimed to do....
-So, maybe the exploit __can__ happen under rare circumstances,
-but I wouldn't worry too much about it at the present time.
+        perthread_pages_reserve(nrpages, gfp_mask);
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+        /* call some other code... */
+
+        perthread_pages_release(unused_pages);
+
+works correctly if "some other code" does per-thread reservations
+too.
+
+Nikita.

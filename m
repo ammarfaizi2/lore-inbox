@@ -1,100 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131507AbRAAFaC>; Mon, 1 Jan 2001 00:30:02 -0500
+	id <S130876AbRAAFcD>; Mon, 1 Jan 2001 00:32:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131536AbRAAF3w>; Mon, 1 Jan 2001 00:29:52 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:52240 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131507AbRAAF3m>;
-	Mon, 1 Jan 2001 00:29:42 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: J Sloan <jjs@pobox.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, dri-devel@lists.sourceforge.net,
-        torvalds@transmeta.com
-Subject: [patch] 2.4.0-prerelease drm and modversions
-In-Reply-To: Your message of "Sun, 31 Dec 2000 14:38:16 -0800."
-             <3A4FB558.688EFE01@pobox.com> 
-Mime-Version: 1.0
+	id <S131004AbRAAFbx>; Mon, 1 Jan 2001 00:31:53 -0500
+Received: from exit1.i-55.com ([204.27.97.1]:60660 "EHLO exit1.i-55.com")
+	by vger.kernel.org with ESMTP id <S130876AbRAAFbj>;
+	Mon, 1 Jan 2001 00:31:39 -0500
+Message-ID: <3A500DE8.9755BA46@mailhost.cs.rose-hulman.edu>
+Date: Sun, 31 Dec 2000 22:56:08 -0600
+From: Leslie Donaldson <donaldlf@hermes.cs.rose-hulman.edu>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test12 alpha)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx 2.4.0 test12 hang
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 01 Jan 2001 15:59:08 +1100
-Message-ID: <3866.978325148@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2000 14:38:16 -0800, 
-J Sloan <jjs@pobox.com> wrote:
->Looks good here in most respects, but still needs makefile fixes -
->
-># modprobe tdfx
->/lib/modules/2.4.0-prerelease/kernel/drivers/char/drm/tdfx.o: unresolved
->symbol remap_page_range
->.... etc, etc
->
->Of course, adding
->
->#include <linux/modversions.h>
->
->to drivers/char/drm/drmP.h makes it all work....
+Hello,
+  After some crashes this weekend I have tracked the crash to someplace
+in 
+tagged Command Queue.
 
-Wrong fix.
+I noticed 2.4.0 is in the prerelease phase So I will try to get a patch
+out 
+real soon now the when the 39160 is detected the driver will shut off
+the TCQ.
+At least then 2.4.0 will be stable, not fast, but stable :)
 
-drivers/char/drm/Makefile is breaking the Makefile rules.  It builds
-drmlib.a and expects to link that library into both the kernel and into
-modules.  The kernel makefile system assumes that everything is either
-kernel or module, not both.  The components in drmlib.a get compiled
-for kernel only, when used in a module they are missing the symbol
-versions.
+Now back to figureing out whats wrong in that thar code :)
 
-The ability to link into both kernel and modules will be available in
-the 2.5 Makefile redesign (already in progress) but this bandaid will
-fix 2.4.  It is still fragile, if you change a drm driver from module
-to built in or vice versa then you have to manually remove the old drm
-driver first, but few people will do that (I hope).
+Leslie Donaldson
 
-The bandaid is to generate two copies of drmlib from the same C
-sources, one for kernel and one for modules.
+P.S. If anyone has XFree 4.0.2 working on the Alpha drop me a line. I
+snagged the
+     latest RPM from rawhide but it can't load symbols .... sigh...
 
-Index: 0-prerelease.1/drivers/char/drm/Makefile
---- 0-prerelease.1/drivers/char/drm/Makefile Sat, 16 Dec 2000 15:22:55 +1100 kaos (linux-2.4/I/b/2_Makefile 1.1.1.6 644)
-+++ 0-prerelease.1(w)/drivers/char/drm/Makefile Mon, 01 Jan 2001 15:56:48 +1100 kaos (linux-2.4/I/b/2_Makefile 1.1.1.6 644)
-@@ -55,13 +55,23 @@ obj-$(CONFIG_DRM_I810)  += i810.o
- # When linking into the kernel, link the library just once. 
- # If making modules, we include the library into each module
- 
-+lib-objs-mod := $(patsubst %.o,%-mod.o,$(lib-objs))
-+obj-m += $(lib-objs-mod)
-+
- ifdef MAKING_MODULES
--  lib = drmlib.a
-+  lib = drmlib-mod.a
- else
-   obj-y += drmlib.a
- endif
- 
- include $(TOPDIR)/Rules.make
-+
-+$(patsubst %.o,%.c,$(lib-objs-mod)): 
-+	@ln -sf $(subst -mod,,$@) $@
-+
-+drmlib-mod.a: $(lib-objs-mod)
-+	rm -f $@
-+	$(AR) $(EXTRA_ARFLAGS) rcs $@ $(lib-objs-mod)
- 
- drmlib.a: $(lib-objs)
- 	rm -f $@
-Index: 0-prerelease.1/Makefile
---- 0-prerelease.1/Makefile Mon, 01 Jan 2001 14:23:43 +1100 kaos (linux-2.4/B/c/27_Makefile 1.1.2.2.2.4.1.7.1.3.1.5.2.5.2.2.1.6.1.10 644)
-+++ 0-prerelease.1(w)/Makefile Mon, 01 Jan 2001 15:47:10 +1100 kaos (linux-2.4/B/c/27_Makefile 1.1.2.2.2.4.1.7.1.3.1.5.2.5.2.2.1.6.1.10 644)
-@@ -188,6 +188,7 @@ CLEAN_FILES = \
- 	.tmp* \
- 	drivers/char/consolemap_deftbl.c drivers/video/promcon_tbl.c \
- 	drivers/char/conmakehash \
-+	drivers/char/drm/*-mod.c \
- 	drivers/pci/devlist.h drivers/pci/classlist.h drivers/pci/gen-devlist \
- 	drivers/zorro/devlist.h drivers/zorro/gen-devlist \
- 	drivers/sound/bin2hex drivers/sound/hex2hex \
 
+-- 
+/----------------------------\ Current Contractor: None
+|    Leslie F. Donaldson     | Current Customer  : None
+|    Computer Contractor     | Skills:
+Unix/OS9/VMS/Linux/SUN-OS/C/C++/assembly
+| Have Computer will travel. | WWW  :
+http://www.cs.rose-hulman.edu/~donaldlf
+\----------------------------/ Email: mail://donaldlf@cs.rose-hulman.edu
+Goth Code V1.1: GoCS$$ TYg(T6,T9) B11Bk!^1 C6b-- P0(1,7) M+ a24 n---
+b++:+
+                H6'11" g m---- w+ r+++ D--~!% h+ s10 k+++ R-- Ssw
+LusCA++
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,63 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbSJPOPB>; Wed, 16 Oct 2002 10:15:01 -0400
+	id <S264997AbSJPOcZ>; Wed, 16 Oct 2002 10:32:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264989AbSJPOPB>; Wed, 16 Oct 2002 10:15:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57355 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264976AbSJPOO7>;
-	Wed, 16 Oct 2002 10:14:59 -0400
-Message-ID: <3DAD75AE.7010405@pobox.com>
-Date: Wed, 16 Oct 2002 10:20:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S264998AbSJPOcZ>; Wed, 16 Oct 2002 10:32:25 -0400
+Received: from matrix.roma2.infn.it ([141.108.255.2]:64746 "EHLO
+	matrix.roma2.infn.it") by vger.kernel.org with ESMTP
+	id <S264997AbSJPOcY>; Wed, 16 Oct 2002 10:32:24 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Emiliano Gabrielli <Emiliano.Gabrielli@roma2.infn.it>
+To: tlan@zet.no, linux-kernel@vger.kernel.org
+Subject: Re: Kernel BUG at swap.c:62 [2.4.19 vanilla]
+Date: Wed, 16 Oct 2002 16:38:45 +0200
+User-Agent: KMail/1.4.3
+References: <20021016150131.F26786@stine.vestdata.no>
+In-Reply-To: <20021016150131.F26786@stine.vestdata.no>
 MIME-Version: 1.0
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-CC: Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
-Subject: Re: [PATCH] Device-mapper submission 6/7
-References: <20021015175858.GA28170@fib011235813.fsnet.co.uk> <3DAC5B47.7020206@pobox.com> <20021015214420.GA28738@fib011235813.fsnet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <200210161638.45032.gabrielli@roma2.infn.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Thornber wrote:
-> On Tue, Oct 15, 2002 at 02:15:35PM -0400, Jeff Garzik wrote:
-> 
->>>[Device mapper]
->>>Provide a traditional ioctl based interface to control device-mapper
->>
->>>from userland.
->>
->>
->>If you're adding a new interface, there should be no need to add new
->>ioctls and all that they entail.  Just control via a ramfs-based fs...
-> 
-> 
-> We originally did have a fs based interface written by Steve
-> Whitehouse.  However at the time (about a year ago) it wasn't obvious
-> that everyone would think it a good idea.  Also the code was
-> significantly larger than the ioctl interface.  I would be more than
-> happy to do away with the ioctl stuff if people are now in full
-> agreement that an fs interface is the way to go.
+On 15:01, mercoledì 16 ottobre 2002, Thomas Langås wrote:
+> Reading Oops report from the terminal
+> kernel BUG at swap.c:62!
+> kernel BUG at swap.c:62!
+> invalid operand: 0000
+> CPU:    1
+> EIP:    0010:[<c01329ca>]    Not tainted
+> EFLAGS: 00010202
+> invalid operand: 0000
 
+>
+> This is a vanilla 2.4.19 kernel, and we've seen this bug on several
+> machines, but we haven't been able to find out what triggers it. And I
+> don't see a BUG-statement at swap.c line 62.  So, anyone with an idea of
+> what to do is welcome with suggestions :)
 
-Which people didn't like it?  ;-)
+well, the BUG() is inplicit in add_page_to_inactive_list in linux.c:61, this 
+macro is defined in linux/swap.h:197.
 
-AFAIK Linus and Al Viro (and myself <g>) have always considered ioctls 
-an ugly -ism that should have never made it into Unix.  Over and above 
-the Unix/VFS design problems with ioctl(2), ioctl(2) is a pain for 
-people like David Miller who must maintain 32<->64 bit ioctl translation 
-layers for their architecture.  ia64 and x64-64 must do this too.  Each 
-ioctl you add is an additional headache for them.
+Could this one is a patch ?!?:
 
-We now have libfs.c in 2.5.x that makes ramfs-based filesystems even 
-more tiny, too.  With the added flexibility of an fs -- it makes the 
-userland tools much more simple and sane -- and the pain of ioctls, it 
-seems a clear choice for new interfaces.
+@linux/swap.h
+#define DEBUG_LRU_PAGE(page)                    \
+do {                                            \
+-        if (!PageLRU(page))                     \
+-                BUG();                          \
+-        if (PageActive(page))                   \
+-                BUG();                          \
++        BUG_ON(!PageLRU(page))                  \
++        BUG_ON (PageActive(page))               \
+} while (0)
 
-	Jeff
+@mm/swap.c
+void lru_cache_add(struct page * page)
+{
++        spin_lock(&pagemap_lru_lock);
+        if (!TestSetPageLRU(page)) {
+-        spin_lock(&pagemap_lru_lock);
+	add_page_to_inactive_list(page);
+-        spin_unlock(&pagemap_lru_lock);
+        }
++        spin_unlock(&pagemap_lru_lock);
+}
 
+best reguards 
 
+Emiliano 'AlberT' Gabrielli
 

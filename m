@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135899AbRAWBUT>; Mon, 22 Jan 2001 20:20:19 -0500
+	id <S135664AbRAWBsy>; Mon, 22 Jan 2001 20:48:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135939AbRAWBUJ>; Mon, 22 Jan 2001 20:20:09 -0500
-Received: from feral.com ([192.67.166.1]:40770 "EHLO feral.com")
-	by vger.kernel.org with ESMTP id <S135899AbRAWBT6>;
-	Mon, 22 Jan 2001 20:19:58 -0500
-Date: Mon, 22 Jan 2001 17:19:49 -0800 (PST)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: mjacob@feral.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org, linux-scsi@vger.rutgers.edu
-Subject: RESEND: [ PATCH ] externalize (new) scsi timer function
-In-Reply-To: <Pine.LNX.4.21.0101111613210.29666-100000@zeppo.feral.com>
-Message-ID: <Pine.LNX.4.21.0101221717590.9065-100000@zeppo.feral.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135751AbRAWBso>; Mon, 22 Jan 2001 20:48:44 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:60668 "EHLO halfway")
+	by vger.kernel.org with ESMTP id <S135664AbRAWBsd>;
+	Mon, 22 Jan 2001 20:48:33 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and ipmasq modules 
+In-Reply-To: Your message of "Sat, 20 Jan 2001 14:46:16 -0800."
+             <20010120144616.A16843@vitelus.com> 
+Date: Tue, 23 Jan 2001 12:48:20 +1100
+Message-Id: <E14KsZI-0006IU-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <20010120144616.A16843@vitelus.com> you write:
+> It was great to see that 2.4.0 reintroduced ipfwadm support! I had no
+> need for ipchains and ended up using the wrapper around it that
+> emulated ipfwadm. However, 2.[02].x used to have "special IP
+> masquerading modules" such as ip_masq_ftp.o, ip_masq_quake.o, etc. I
+> can't find these in 2.4.0. Where have they gone? Without important
+> modules such as ip_masq_ftp.o I cannot use non-passive ftp from behind
+> the masquerading firewall.
 
+Hi Aaron,
 
-I sent this about a month ago. I think it's important. For what it's worth,
-Doug Gilbert (and Eric Youngdale) thought it was a good idea too. Can you
-please drop it in?
+The entire point of the netfilter kernel architecture is that we can
+just ask for packets at certain points, no #ifdefs, special hacks,
+etc.  Unfortunately, the previous masquerading code (used in 2.0 and
+2.2) looked really difficult to extract from the kernel.  Netfilter
+has changed a little since then (particularly NF_STOLEN), so it might
+be possible now.
 
----------
+So I reimplimented 2.2-style masquerading on top of the new NAT
+infrastructure: ideally this would mean that it could use the new
+helpers, but there were some minor technical problems, and it was
+never tested.  
 
-Late in the game, and possibly questionable, but it would be helpful to have
-the (new) scsi timer functions externalized so that loadable HBA modules can
-easily see them.
+Those who berated Aaron for not wanting to upgrade: he is the Debian
+maintainer for crashme, gtk-theme-switch, koules, pngcrush, and
+xdaliclock.  By wasting his time making him convert a perfectly
+working system, you are taking away time from those projects.  I'd
+rather see him spend time on Cool Stuff(TM) which benefits all of us.
 
-This is needed because, particularly for Fibre Channel, it's only the HBA that
-knows when a command is actually sent to the device as opposed to being
-(temporarily) queued up locally while some Fibre Channel or SCSI reset
-wreckage is being cleared. The time limit for a command should be while it's
-actually active- not while it's waiting to be started.
-
-The alternative of returning commands as having not been queued doesn't work
-as well because of race conditions. You can, with several type os HBA, get
-cases of having queued up one or more commands and after returning success to
-the midlayer, still get an interrupt that says, "that command you thought I
-started? Ooops... Sorry. I lied. I couldn't get it started, but it's really
-okay to start it now...".
-
-At any rate- it's a minor change, which I've been using for a bit, which
-really only is an aid to the case that you have a loadable module that wants
-this symbol (natuarally, resident drivers don't care). The only real downside
-to any of this is that effectively use the scsi_add_timer to restart a timer
-
-is that you have to use a portion of the Scsi_Cmnd that is not marked as
-public. An alternative could be to change the midlayer to add a function to
-pause and restart the timer.
-
--matt
-
---- linux.orig/drivers/scsi/scsi_syms.c Wed Nov 29 18:19:45 2000
-+++ linux/drivers/scsi/scsi_syms.c Wed Nov 29 18:18:35 2000
-@@ -91,3 +91,10 @@
- EXPORT_SYMBOL(scsi_devicelist);
- EXPORT_SYMBOL(scsi_device_types);
-
-+/*
-+ * Externalize timers so that HBAs can safely start/restart commands.
-+ */
-+extern void scsi_add_timer(Scsi_Cmnd *, int, void ((*) (Scsi_Cmnd *)));
-+extern int scsi_delete_timer(Scsi_Cmnd *);
-+EXPORT_SYMBOL(scsi_add_timer);
-+EXPORT_SYMBOL(scsi_delete_timer);
-
-
-
-
-
-
-
+Cheers,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

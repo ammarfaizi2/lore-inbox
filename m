@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264642AbUEDVVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUEDV3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264642AbUEDVVS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUEDVU7
+	id S264501AbUEDV3k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 17:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264623AbUEDV3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:20:59 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:33478 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264639AbUEDVTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:19:10 -0400
-Date: Tue, 4 May 2004 23:20:05 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Nivedita Singhvi <niv@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: TCP hangs
-In-Reply-To: <4097C966.5080509@us.ibm.com>
-Message-ID: <Pine.LNX.4.58.0405042314220.2573@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.58.0405021602120.20423@artax.karlin.mff.cuni.cz>
- <409583B1.5040906@us.ibm.com> <Pine.LNX.4.58.0405031238110.18691@artax.karlin.mff.cuni.cz>
- <4097B8D1.4010008@us.ibm.com> <Pine.LNX.4.58.0405041811300.11971@artax.karlin.mff.cuni.cz>
- <4097C966.5080509@us.ibm.com>
+	Tue, 4 May 2004 17:29:40 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42383 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264501AbUEDV3i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 17:29:38 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH] for idle=C1halt, 2.6.5
+Date: Tue, 4 May 2004 23:29:25 +0200
+User-Agent: KMail/1.5.3
+Cc: Allen Martin <AMartin@nvidia.com>, linux-kernel@vger.kernel.org,
+       Ross Dickson <ross@datscreative.com.au>,
+       Len Brown <len.brown@intel.com>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49FC2D@mail-sc-6-bk.nvidia.com> <200405040111.01514.bzolnier@elka.pw.edu.pl> <409806C6.3060300@pobox.com>
+In-Reply-To: <409806C6.3060300@pobox.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405042329.25285.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 4 May 2004, Nivedita Singhvi wrote:
-
-> Mikulas Patocka wrote:
+On Tuesday 04 of May 2004 23:10, Jeff Garzik wrote:
+> Bartlomiej Zolnierkiewicz wrote:
+> > +/*
+> > + * Fixup for C1 Halt Disconnect problem on nForce2 systems.
+> > + *
+> > + * From information provided by "Allen Martin" <AMartin@nvidia.com>:
+> > + *
+> > + * A hang is caused when the CPU generates a very fast CONNECT/HALT
+> > cycle + * sequence.  Workaround is to set the SYSTEM_IDLE_TIMEOUT to 80
+> > ns. + * This allows the state-machine and timer to return to a proper
+> > state within + * 80 ns of the CONNECT and probe appearing together. 
+> > Since the CPU will not + * issue another HALT within 80 ns of the initial
+> > HALT, the failure condition + * is avoided.
+> > + */
+> > +static void __devinit pci_fixup_nforce2(struct pci_dev *dev)
 >
-> >TCP should send RST on received data after shutdown(SHUT_RD) ---
-> >RFC2525, sections 2.16, 2.17.
-> >
-> >
->
-> Yes, but that should lead to a shutdown on both ends. If you
-> have sent a reset, why are you not tearing down your end of
-> whatever remains of the connection? You have asked the
-> other side to tear down. RFC 793:
->
-> "The receiver of a RST first validates it, then changes
-> state.  If the receiver was in the LISTEN state, it ignores it.
-> If the receiver was in SYN-RECEIVED state and had previously
-> been in the LISTEN state, then the receiver returns to the
-> LISTEN state, otherwise the receiver aborts the connection
-> and goes to the CLOSED state.  If the receiver was in any
-> other state, it aborts the connection and advises the user
-> and goes to the CLOSED state."
+> Minor nit:  is __devinit really needed?
 
-Good point. Now I see that in client's code, that it doesn't kill the
-connection after sending reset. However if it did, the trace would look
-exactly the same, because when client receives packet for port without
-connection, it would reply with RST anyway.
+No, it's not needed.
 
-Mikulas
+I was mislead by the fact that all fixups there are marked with __devinit.
+
+> You're changing a northbridge or a southbridge, not a PCI card, I
+> presume...?  That would only need to be done once, when the kernel is
+> booted, regardless of CONFIG_HOTPLUG AFAICS.
+
+Yep, the same is probably true for:
+
+static void __devinit pci_fixup_i450nx(struct pci_dev *d)
+static void __devinit pci_fixup_i450gx(struct pci_dev *d)
+static void __devinit  pci_fixup_umc_ide(struct pci_dev *d)
+static void __devinit  pci_fixup_latency(struct pci_dev *d)
+static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
+static void __devinit pci_fixup_via_northbridge_bug(struct pci_dev *d)
+static void __devinit pci_fixup_transparent_bridge(struct pci_dev *dev)
+
+Bartlomiej
+

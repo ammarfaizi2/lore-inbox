@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278053AbRJOTkq>; Mon, 15 Oct 2001 15:40:46 -0400
+	id <S278062AbRJOTo0>; Mon, 15 Oct 2001 15:44:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278057AbRJOTkg>; Mon, 15 Oct 2001 15:40:36 -0400
-Received: from ip240.cvd2.rb1.bel.nwlink.com ([207.202.151.240]:1874 "EHLO
-	zot.localdomain") by vger.kernel.org with ESMTP id <S278053AbRJOTkX>;
-	Mon, 15 Oct 2001 15:40:23 -0400
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: What is /boot/modules-info
-From: Mark Atwood <mra@pobox.com>
-Date: 15 Oct 2001 12:40:53 -0700
-In-Reply-To: "Mark H. Wood"'s message of "Sun, 14 Oct 2001 16:43:13 -0500 (EST)"
-Message-ID: <m3vghgsncq.fsf@flash.localdomain>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S278052AbRJOToQ>; Mon, 15 Oct 2001 15:44:16 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:54801 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S278061AbRJOToF>;
+	Mon, 15 Oct 2001 15:44:05 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200110151944.f9FJiYZ01673@oboe.it.uc3m.es>
+Subject: what happened to mark_buffer_protected()
+To: "linux kernel" <linux-kernel@vger.kernel.org>
+Date: Mon, 15 Oct 2001 21:44:34 +0200 (MET DST)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the /boot/modules-info file?
+Nice function. Used to use it. 2.4.8. 2.4.12-going-on-13 and it's no
+longer there. No BH_Protected field in the bh either.
 
-I've been doing some online searching, and the best I can find is it
-is an exampe of a RPM resource, and no one can figure out what it's
-for.
+OK, so how do I stop buffers being reclaimed now? My intention
+is to keep the buffer hanging around forever once I have written to it,
+so that further reads to that block of my device return the buffer
+content without ever getting to my device (that's right, write-once,
+read-many).
 
--- 
-Mark Atwood   | I'm wearing black only until I find something darker.
-mra@pobox.com | http://www.pobox.com/~mra
+He's off to read the ramdisk code, tara, tarum, tara ...
+
+Peter

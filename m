@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVCCQSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVCCQTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbVCCQSF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 11:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVCCQRj
+	id S261909AbVCCQTj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 11:19:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVCCQTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 11:17:39 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:21975 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261937AbVCCQR1 (ORCPT
+	Thu, 3 Mar 2005 11:19:38 -0500
+Received: from fire.osdl.org ([65.172.181.4]:38564 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261927AbVCCQTS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 11:17:27 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
+	Thu, 3 Mar 2005 11:19:18 -0500
+Date: Thu, 3 Mar 2005 08:19:01 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, greg@kroah.com, torvalds@osdl.org,
+       rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050303161901.GO28536@shell0.pdx.osdl.net>
+References: <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org> <20050303081958.GA29524@kroah.com> <4226CCFE.2090506@pobox.com> <20050303090106.GC29955@kroah.com> <4226D655.2040902@pobox.com> <20050303021506.137ce222.akpm@osdl.org> <4226EE0F.1050405@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16935.14471.919379.826792@alkaid.it.uu.se>
-Date: Thu, 3 Mar 2005 17:17:11 +0100
-To: paulus@samba.org, geert@linux-m68k.org
-Cc: linuxppc-dev@ozlabs.org, linux-m68k@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH][2.6.11] gcc4 fix for <asm-m68k/setup.h>
+Content-Disposition: inline
+In-Reply-To: <4226EE0F.1050405@pobox.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc4 generates compile errors when it sees declarations
-of arrays of incomplete element types. <asm-m68k/setup.h>
-has one such declaration, which unfortunately breaks ppc32
-since <asm-ppc/setup.h> #includes <asm-m68k/setup.h>.
+* Jeff Garzik (jgarzik@pobox.com) wrote:
+> 1) There is no clear, CONSISTENT point where "bugfixes only" begins. 
+> Right now, it could be -rc2, -rc3, -rc4... who knows.
+> 
+> We need to send a clear signal to users "this is when you can really 
+> start hammering it."  A signal that does not change from release to 
+> release.  A signal that does not require intimate knowledge of the 
+> kernel devel process.
+> 
+> This is a key reason why we don't get more pre-release testing.
+> 
+> 2) After 2.6.11 release is out, there is no established process for "oh 
+> shit, 2.6.11 users will really want that fixed."
+> 
+> --------------------
+> 
+> Linus's even/odd proposal is an example of a solution for problem #2, as 
+> is my 2.6.X.Y proposal.
+> 
+> The 2.4.x series -pre/-rc is an example of a solution for problem #1.
 
-The fix in this case is to simply move the array declaration
-to after the corresponding element type declaration.
+This is exactly how I see it as well.  Guess we drank the same koolaid ;-)
+I don't see the reluctance to use -pre/-rc since that's already what
+we're doing (just poorly encoded in -rc$x).  Also, .x.y does require
+some release discipline, there may be cases where the .x.y fix should be
+much simpler than .x+1-pre/rc fix (as in Greg's comment that fixes may
+include basic API changes).
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
-
-diff -rupN linux-2.6.11/include/asm-m68k/setup.h linux-2.6.11.gcc4-fixes-v2/include/asm-m68k/setup.h
---- linux-2.6.11/include/asm-m68k/setup.h	2004-12-25 12:16:22.000000000 +0100
-+++ linux-2.6.11.gcc4-fixes-v2/include/asm-m68k/setup.h	2005-03-02 19:36:26.000000000 +0100
-@@ -362,12 +362,13 @@ extern int m68k_is040or060;
- #ifndef __ASSEMBLY__
- extern int m68k_num_memory;		/* # of memory blocks found (and used) */
- extern int m68k_realnum_memory;		/* real # of memory blocks found */
--extern struct mem_info m68k_memory[NUM_MEMINFO];/* memory description */
- 
- struct mem_info {
- 	unsigned long addr;		/* physical address of memory chunk */
- 	unsigned long size;		/* length of memory chunk (in bytes) */
- };
-+
-+extern struct mem_info m68k_memory[NUM_MEMINFO];/* memory description */
- #endif
- 
- #endif /* __KERNEL__ */
+thanks,
+-chris

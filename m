@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130466AbQLGRwc>; Thu, 7 Dec 2000 12:52:32 -0500
+	id <S130380AbQLGRw7>; Thu, 7 Dec 2000 12:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131220AbQLGRwW>; Thu, 7 Dec 2000 12:52:22 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:64778 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S130466AbQLGRwJ>;
-	Thu, 7 Dec 2000 12:52:09 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200012071721.UAA30863@ms2.inr.ac.ru>
-Subject: Re: [Fwd: lost need_resched flag re-introduced?]
-To: jsun@mvista.COM (Jun Sun)
-Date: Thu, 7 Dec 2000 20:21:16 +0300 (MSK)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A2EE42C.F59317E9@mvista.com> from "Jun Sun" at Dec 7, 0 04:15:03 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S131220AbQLGRwo>; Thu, 7 Dec 2000 12:52:44 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:1764 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S130380AbQLGRwi>; Thu, 7 Dec 2000 12:52:38 -0500
+Date: Thu, 7 Dec 2000 17:55:07 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andi Kleen <ak@suse.de>
+cc: richardj_moore@uk.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Why is double_fault serviced by a trap gate?
+In-Reply-To: <20001207171353.A28798@gruyere.muc.suse.de>
+Message-ID: <Pine.GSO.3.96.1001207173802.21086G-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 7 Dec 2000, Andi Kleen wrote:
 
-> > A while back I reported the lost need_resched flag bug ( it happens if
-> > need_resched is set right before switch_to() is called).  Later on a one-line
-> > fix is added to __schedule_tail().
+> > Why is double_fault serviced by a trap gate? The problem with this is that
+> > any double-fault caused by a stack-fault, which is the usual reason,
+> > becomes a triple-fault. And a triple-fault results in a processor reset or
+> > shutdown making the fault damn near impossible to get any information on.
 > > 
-> >         current->need_resched |= prev->need_resched;
-> > 
-> > I looked at the latest kernel and found this one is gone.  Is the lost
-> > need_resched problem taken care of in some other way?  Or is it re-introduced?
+> > Oughtn't the double-fault exception handler be serviced by a task gate? And
+> > similarly the NMI handler in case the NMI is on the current stack page
+> > frame?
+> 
+> Sounds like a good idea, when you can afford a few K for a special
+> NMI/double fault stack. On x86-64 it is planned to do that.
 
-It is removed not only because it was wrong (which you have found too),
-but because it was useless even if copied correctly.
+ A task gate is an absolute must for the double fault if we want to have a
+working handler.  Intel warns the CPU state can be inconsistent when a
+double fault happens and for example I've seen cases where the saved CS
+and EIP were not matching each other (tests were not conducted under
+Linux).  Also SS:ESP might be unusable leading to a triple fault.
 
-current->need_resched is not changed in interrupt context outside
-runqueue lock except for scheduler timer, where copying results
-in nothing but spurious reschedule.
+ The NMI should be left alone, though, I think as we want it to be fast
+for the NMI watchdog.  Task gates are not necessarily fast (depending on
+how you define "fast").
 
-Alexey
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

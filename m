@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267236AbSIRQMH>; Wed, 18 Sep 2002 12:12:07 -0400
+	id <S267225AbSIRQDX>; Wed, 18 Sep 2002 12:03:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267239AbSIRQMH>; Wed, 18 Sep 2002 12:12:07 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63245 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267236AbSIRQMG>; Wed, 18 Sep 2002 12:12:06 -0400
-Date: Wed, 18 Sep 2002 09:17:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
- elimination, 2.5.35-BK
-In-Reply-To: <Pine.LNX.4.44.0209181452050.19672-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0209180915350.1913-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267201AbSIRQDX>; Wed, 18 Sep 2002 12:03:23 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:11660 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267174AbSIRQDT>;
+	Wed, 18 Sep 2002 12:03:19 -0400
+Date: Wed, 18 Sep 2002 09:08:02 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Brian Waite <waite@skycomputers.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [RFC] [PATCH] 0/7 2.5.35 SCSI multi-path
+Message-ID: <20020918090802.B14245@eng2.beaverton.ibm.com>
+References: <20020917154940.A18401@eng2.beaverton.ibm.com> <200209181117.59388.waite@skycomputers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <200209181117.59388.waite@skycomputers.com>; from waite@skycomputers.com on Wed, Sep 18, 2002 at 11:17:59AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 18 Sep 2002, Ingo Molnar wrote:
+On Wed, Sep 18, 2002 at 11:17:59AM -0400, Brian Waite wrote:
+> On Tuesday 17 September 2002 6:49 pm, Patrick Mansfield wrote:
 > 
-> why? For most desktop systems even 32K PIDs is probably too high. A large
-> pid_max only increases the RAM footprint. (well not under the current
-> allocation scheme but still.)
+> >
+> > Currently, multi-path support requires a SCSI device that supports one of
+> > the SCSI INQUIRY device identification pages (page 0x80 or 0x83). Devices
+> > not supporting one of these pages are treated as if they were separate
+> > devices. Devices that do not give a unique serial number per LUN for these
+> > commands might incorrectly be identified as multi-pathed.
+> >
+> I might be wrong about this, I have put most of this out of my mind, but I 
+> belive that many tape drives and many cdrom drives do not return a serial 
+> number. Does this mean two seperate tape drives will "appear" as a single 
+> multi-port device, and worse could a cdrom and a tape device appear as the 
+> same device or do you seperate between device types and then serial numbers.\
+> 
+>  I was working on exactly this problem in Linux a while ago and we were 
+> running into serial number as uniqueness problems. What we chose to do was 
+> create a "uniqueness" driver that would first use a customer derived 
+> uniquness mecanism, IE "host:bus:channel:device is a single ported device of 
+> type XXX". The fall though mechanism was to query the serial number and if it 
+> was zero, or provided no serial number,  then it could not be a multiported 
+> device. Of course for most scsi disks, the serial number was adequate to 
+> provide multiported-ness.
+> 
+> PS. There is nothing funnier than putting 2 tape drives on a system that 
+> decides it is a single multiported device, starting a tar, and pulling the 
+> drive it was writing to, only to watch the tar continue merrily ontl the 
+> second tape drive. Sure you get your backup, the restore is a real bugger tho 
+> :)
+> 
+> Sorry to waste bandwidth if you've already discussed, I am probably a bit late 
+> to the discussion.
+> Thanks
+> Brian
 
-Yeah. It increases memory pressure for the _complex_ and _slow_ 
-algorithms. Agreed.
+Devices without serial numbers are treated as if they had different serial
+numbers, they show up as if there was no multi-path support.
 
-See my two-liner suggestion (which is admittedly not even compiled, so the
-one disadvantage it might have is that it might need to be debugged. But
-it's only two lines and doesn't actually change any fundamental part of
-any existing algorithms, so debugging shouldn't be a big problem.
+Special handling is need for devices with unique identifiers outside of VPD
+INQUIRY 0x80 and 0x83. This has to be handled on a per device basis, with
+special scanning/probing code to get the unique identifier. Some devices
+give the same value for page 0x80 no matter what LUN you connect to - these
+are the biggest problem, and could show up as you described.
 
-		Linus
+-- Patrick Mansfield
 

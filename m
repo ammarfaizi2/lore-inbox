@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVA3TYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbVA3Tfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbVA3TYS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 14:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVA3TYS
+	id S261770AbVA3Tfy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 14:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVA3Tfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 14:24:18 -0500
-Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:7258 "EHLO
-	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S261687AbVA3TYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 14:24:15 -0500
-Date: Sun, 30 Jan 2005 20:24:10 +0100 (CET)
-From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
-To: chas3@users.sourceforge.net
-Cc: Mike Westall <westall@cs.clemson.edu>,
-       linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Bartlomiej Solarz <solarz@wsisiz.edu.pl>
-Subject: Re: [Linux-ATM-General] Kernel 2.6.10 and 2.4.29 Oops fore200e (fwd)
-In-Reply-To: <Pine.LNX.4.61L.0501250009240.9051@oceanic.wsisiz.edu.pl>
-Message-ID: <Pine.LNX.4.61L.0501302022470.5761@oceanic.wsisiz.edu.pl>
-References: <200501242238.j0OMcru4017742@ginger.cmf.nrl.navy.mil>
- <Pine.LNX.4.61L.0501250009240.9051@oceanic.wsisiz.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Sun, 30 Jan 2005 14:35:54 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:54122 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261770AbVA3Tfr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 14:35:47 -0500
+Date: Sun, 30 Jan 2005 20:37:33 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: kbuild: shorthand ym2y, ym2m etc
+Message-ID: <20050130193733.GA8984@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jan 2005, Lukasz Trabinski wrote:
+We have in several cases the need to transpose a i'm' to 'y' in the Kbuild
+files.
+One example is the following snippet from sound/Makefile:
+ifeq ($(CONFIG_SND),y)
+  obj-y += last.o
+endif
 
-> Ok, i have just put udelay() function to the driver. If router will not crash 
-> after 5-6 days, it mean that driver works fine. I will inform about
-> it. Generally problems has stareted (frequently crashes) when we puted to 
-> them more atm interfaces/VCs and router started forward more traffic and
-> operated with two additional full bgp table.
-
-OK, I think that dirver works much better with udelay() function.
-
-[root@cosmos root]# uptime
-  20:20:48 up 6 days, 23:25,  1 user,  load average: 0.03, 0.03, 0.00
+Alternative syntax could be:
+obj-$(call y2y,CONFIG_SND) += last.o
 
 
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+y2y takes one parameter and return y unly if parameter is y, otherwise
+return nothing.
+
+
+>From drivers/vidoe/Makfile:
+ifeq ($(CONFIG_FB),y)
+  obj-$(CONFIG_PPC)                 += macmodes.o
+endif
+
+Altetnative syntax:
+obj-$(call yx2x,CONFIG_FB,CONFIG_PPC) += mcmodes.o
+
+yx2x return second parameter (x) if first parameter is y. Otherwise
+nothing is returned.
+
+To be complete the full set would be:
+
+ym2y
+ym2m
+empty2y
+empty2m
+y2y
+m2y
+y2m
+m2m
+yx2x
+mx2x
+
+Would that be considered usefull?
+
+	Sam

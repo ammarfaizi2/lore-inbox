@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319234AbSIFQqq>; Fri, 6 Sep 2002 12:46:46 -0400
+	id <S319223AbSIFQpL>; Fri, 6 Sep 2002 12:45:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319242AbSIFQqq>; Fri, 6 Sep 2002 12:46:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55826 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319234AbSIFQqp>;
-	Fri, 6 Sep 2002 12:46:45 -0400
-Message-ID: <3D78DCE9.5040808@mandrakesoft.com>
-Date: Fri, 06 Sep 2002 12:50:49 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S319229AbSIFQpL>; Fri, 6 Sep 2002 12:45:11 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:48907 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S319223AbSIFQpK>; Fri, 6 Sep 2002 12:45:10 -0400
+Message-ID: <3D78DFC9.26BF8CC5@zip.com.au>
+Date: Fri, 06 Sep 2002 10:03:05 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jordan Crouse <jordanc@censoft.com>
-CC: Theewara Vorakosit <g4465018@pirun.ku.ac.th>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VIA82cxxx sound problem
-References: <Pine.GSO.4.44.0209061822580.1094-100000@pirun.ku.ac.th> <20020906092705.7a746d39.jordanc@censoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] iowait stats for 2.5.33
+References: <Pine.LNX.4.44L.0209061332190.1857-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jordan Crouse wrote:
->>Dear All,
->>	I use Gigabyte GA-7VTXE+, equip with on board sound card. When I
->>use sound card (when start KDE), there is a lot of message:
->>
->>via82cxxx warning: SG stopped or paused
->>
->>I'm using kernel 2.4.18-3, Red Hat 7.3. Would you please tell me how to solve this problem?
+Rik van Riel wrote:
 > 
+> Hi,
 > 
-> You motherboard has a VA8233A south bridge, which is more fully supported in 2.4.19 than in the Red Hat kernel.  Upgrade, and your problems should go away (or at least, get easier to debug).
+> the following patch, against 2.5.33-mm4, implements iowait
+> statistics in /proc/stat.
 
+trivial:  I'd be inclined to use:
 
-The newer multi-channel VT8233A audio chip isn't supported at all in the 
-2.4.x via audio driver, you need ALSA for that support.  The VT8233A is 
-_almost_ register compatible, but not enough to not require additional 
-changes.
+void iowait_schedule()
+{
+	atomic_inc(...);
+	schedule();
+	atomic_dec(...);
+}
 
-	Jeff
+less trivial: there are times when an io wait is deliberate:
+in the context of balance_dirty_pages(), and (newly) in the
+context of page reclaim when current->backing_dev_info is
+non-zero.
 
-
-
+Given that this is a deliberate throttling sleep, perhaps it
+should not be included in the accounting?   That way we only
+account for the accidental, undesirable sleeps, and reads
+and such.

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285366AbRLNM5f>; Fri, 14 Dec 2001 07:57:35 -0500
+	id <S285361AbRLNNNt>; Fri, 14 Dec 2001 08:13:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285365AbRLNM50>; Fri, 14 Dec 2001 07:57:26 -0500
-Received: from mgw-x2.nokia.com ([131.228.20.22]:18676 "EHLO mgw-x2.nokia.com")
-	by vger.kernel.org with ESMTP id <S285364AbRLNM5N>;
-	Fri, 14 Dec 2001 07:57:13 -0500
-Message-ID: <3C19F6D5.7060908@nokia.com>
-Date: Fri, 14 Dec 2001 14:55:49 +0200
-From: Dmitri Kassatkine <dmitri.kassatkine@nokia.com>
-Reply-To: Linux-Bluetooth.General@nokia.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
+	id <S285365AbRLNNNj>; Fri, 14 Dec 2001 08:13:39 -0500
+Received: from mustard.heime.net ([194.234.65.222]:17312 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S285363AbRLNNNW>; Fri, 14 Dec 2001 08:13:22 -0500
+Date: Fri, 14 Dec 2001 14:12:55 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] RAID sub system
+In-Reply-To: <Pine.LNX.4.33.0112131525470.15231-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.30.0112141409000.6035-100000@mustard.heime.net>
 MIME-Version: 1.0
-Newsgroups: comp.os.linux.networking
-To: affix-support <affix-support@lists.sourceforge.net>,
-        affix-devel@lists.sourceforge.net,
-        Bluetooth-Drivers-for-Linux 
-	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
-        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
-Subject: Affix new release: Affix-0.9pre6
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All.
+> > ...and so on
+> >
+> > This gives a total read of a little less than 800MB before giving up. Is
+> > there a cache timeout that needs to be set any lower?
+>
+> my observation is this: once you use up all your free memory, you have
+> 30 seconds of reasonable behavior.  30 seconds is the the default dirty-buffer
+> age.  are you tweaking /proc/sys/vm/bdflush at all?  and no, I don't see
+> why your application would have dirty buffers in the first place -
+> I'm just noticing the ominous 30 seconds.
 
+no bdflush tweaking...
 
-Affix-0.9pre6 has been release: http://affix.sourceforge.net
+this is the same as I've observed... Usa all memory, and everything stops
+up.
 
-- Endianess problem has been fixed. We chacked it on iMAC (big endian).
-- Service registration in btdrv fixed.
-  Windows machine connects well.
+> are you using elvtune?
 
-br, Dmitri
+er.. what's elvtune?
 
--- 
- Dmitri Kassatkine
- Nokia Research Center / Helsinki
- Mobile: +358 50 4836365
- E-Mail: dmitri.kassatkine@nokia.com
+> also, which kernel?
+
+2.4.16 + tux patches
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
 
 

@@ -1,101 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317674AbSHHRbi>; Thu, 8 Aug 2002 13:31:38 -0400
+	id <S317662AbSHHR2N>; Thu, 8 Aug 2002 13:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317686AbSHHRbi>; Thu, 8 Aug 2002 13:31:38 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:2038 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317674AbSHHRbh>;
-	Thu, 8 Aug 2002 13:31:37 -0400
-Subject: ANNOUNCE: August Linux Test Project Announcement
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF42DAB8DA.8F2270B7-ON87256C0F.00606321@boulder.ibm.com>
-From: "Airong Zhang" <zhanga@us.ibm.com>
-Date: Thu, 8 Aug 2002 12:34:43 -0500
-X-MIMETrack: Serialize by Router on D03NM127/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 08/08/2002 11:34:44 AM
+	id <S317674AbSHHR2N>; Thu, 8 Aug 2002 13:28:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:47886 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S317662AbSHHR2N>; Thu, 8 Aug 2002 13:28:13 -0400
+Date: Thu, 8 Aug 2002 14:31:40 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: Jens Axboe <axboe@suse.de>, <linux-kernel@vger.kernel.org>,
+       <jmacd@namesys.com>, <phillips@arcor.de>, <rml@tech9.net>
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+In-Reply-To: <20020808170824.GA29468@sgi.com>
+Message-ID: <Pine.LNX.4.44L.0208081430310.2589-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project test suite LTP-20020806.tgz has been released.
-Visit our website ( http://ltp.sourceforge.net ) to download the latest
-version of the test suite, and for information on test results on
-pre-release, release candidate and stable releases of the kernel. There is
-also a list of test cases that are expected to fail, please find the list
-at http://ltp.sourceforge.net/expected-errors.php.
+On Thu, 8 Aug 2002, Jesse Barnes wrote:
+> On Thu, Aug 08, 2002 at 08:00:45AM +0200, Jens Axboe wrote:
 
-Highlights
-----------
-- LTP's Kernel Code Coverage website for 2.5.X kernel is live
-  http://ltp.sf.net/coverage/coverage-2.5.26/index.html
-- Kernel code coverage tools are available on CVS under module utils
-- Automated test frame work to extract, build and install various Linux
-  tests are available on CVS under module utils
-- Database stress tool 'dbgrinder' is available on cvs under
-ltp/utils/database
+> > For MUST_NOT_HOLD to work, you need to take into account which processor
+> > took the lock etc.
 
-We encourage the community to post results, patches or new tests on
-our mailing list and use the CVS bug tracking facility to report problems
-that you might encounter with the test suite. More details are available at
-our web-site.
+[snip]
 
-Change Log
-----------
+> Agreed.  I'll post another patch that doesn't mess with the scsi
+> stuff.  Maybe later I can put together a useful
+> 'lock-not-held-on-this-cpu' macro.
 
-* New Additions
----------------
-- Added new test-cases for link07,fcntl22,link06        ( Group Bull
-)
-- Added Linux kernel scheduler latency tester           ( Davide Libenzi
-)
-- Database test tool 'dbgrinder'                        ( James Kenefick
-)
+You don't need to put this in a macro.  This test is valid
+for ALL spinlocks in the kernel and can be done from inside
+the spin_lock() macro itself, when spinlock debugging is on.
 
-* Fixes
--------
-- Several fixes for 64-bit                              ( Gerhard Tonn
-)
-- fstat05,llseek fixes for MIPS                         ( Carsten Langgaard
-)
-- Fixed check in getgroups03 that was causing
-  failures if 'nobody' isn't in any secondary groups    ( Paul Larson
-)
-- Fix sendfile02 to work with the new 2.5 kernels which
-  no longer allow it to fall back on write              ( Paul Larson
-)
-- Changed the hard-coded ip address to 127.0.0.1 in
-  recvfrom01-sctp-udp-ipv6                              ( Robbie Williamson
-)
-- Added instance and time command line options in
-  runalltests.sh                                        ( Jeff Martin
-)
-- Fixed the algorithm description for fork07,fork12
-  Reduced the output of fork07 to a finite amount       ( Nathan Straz
-)
-- Added fork12 to runtest/crashme.                      ( Nathan Straz
-)
-- Added option for interface selection in tcpdump01     ( Robbie Williamson
-)
+regards,
 
-CVS Bugs closed
----------------
-#591695 getgroups03 fails on some distros
-#591698 sendfile02 fails with 2.5 kernels
+Rik
+-- 
+	http://www.linuxsymposium.org/2002/
+"You're one of those condescending OLS attendants"
+"Here's a nickle kid.  Go buy yourself a real t-shirt"
 
-Acknowledgements
-----------------
-- Manoj Iyer,James Kenefick and Peter Oberparleiter for delivering the
-coverage
-  analysis toolset.
-
-
-Airong Zhang
-Beta Testing
-IBM Linux Technology Center
-zhanga@us.ibm.com
-908-1D-007, 838-1763
-
-
+http://www.surriel.com/		http://distro.conectiva.com/
 

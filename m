@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132807AbRC2SdY>; Thu, 29 Mar 2001 13:33:24 -0500
+	id <S132809AbRC2Spo>; Thu, 29 Mar 2001 13:45:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132815AbRC2SdO>; Thu, 29 Mar 2001 13:33:14 -0500
-Received: from mail-oak-1.pilot.net ([198.232.147.16]:46996 "EHLO
-	mail01-oak.pilot.net") by vger.kernel.org with ESMTP
-	id <S132807AbRC2SdD>; Thu, 29 Mar 2001 13:33:03 -0500
-Message-ID: <973C11FE0E3ED41183B200508BC7774C0124F0C2@csexchange.crystal.cirrus.com>
-From: "Woller, Thomas" <twoller@crystal.cirrus.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, andrew.grover@intel.com
-Cc: pavel@suse.cz, sfr@canb.auug.org.au,
-   "Woller, Thomas" <twoller@crystal.cirrus.com>, linux-kernel@vger.kernel.org
-Subject: RE: Incorrect mdelay() results on Power Managed Machines x86
-Date: Thu, 29 Mar 2001 12:30:36 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S132815AbRC2SpY>; Thu, 29 Mar 2001 13:45:24 -0500
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:1781 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S132809AbRC2SpR>; Thu, 29 Mar 2001 13:45:17 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200103291844.f2TIiSK09176@webber.adilger.int>
+Subject: Re: Bug in the file attributes ?
+In-Reply-To: <Pine.LNX.4.21.0103292011480.20805-100000@ilaws.aurora-linux.net>
+ from Xavier Ordoquy at "Mar 29, 2001 08:20:32 pm"
+To: Xavier Ordoquy <xordoquy@aurora-linux.com>
+Date: Thu, 29 Mar 2001 11:44:27 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i talked with Keith Frechette at IBM, he is in charge of Linux for IBM.  he
-indicated that they are working issues with INTEL speedstep and Linux for
-their newer laptops, albeit not at a swift pace.  he will probably contact
-the linux community at some point to help solve issues with SpeedStep, but
-he affirms that INTEL treats this information as proprietary, so not sure
-how much work can be done for linux.  he also indicated that some of the
-older IBM models did some non-standard manipulation with the CPU speed at
-runtime, e.g. what I am seeing with mdelay failing if booting on a 600X on
-battery power.  most likely, no event notification would be available for
-any of these CPU speed manipulations.  
-I am going to send some info on the issue to Keith, and he is going to
-forward to the technical IBM folks somewhere at IBM, but any solution would
-most likely be specific to IBM for the cs46xx audio driver.  
-It does sound like the PM timer is the best idea so far.
-Tom
-twoller@crystal.cirrus.com
+Xavier Ordoquy writes:
+> I just made a manipulation that disturbs me. So I'm asking whether it's a
+> bug or a features.
+> 
+> user> su
+> root> echo "test" > test
+> root> ls -l
+> -rw-r--r--   1 root     root            5 Mar 29 19:14 test
+> root> exit
+> user> rm test
+> rm: remove write-protected file `test'? y
+> user> ls test
+> ls: test: No such file or directory
+> 
+> This is in the user home directory.
+> Since the file is read only for the user, it should not be able to remove
+> it. Moreover, the user can't write to test.
 
-> -----Original Message-----
-> From:	Alan Cox [SMTP:alan@lxorguk.ukuu.org.uk]
-> Sent:	Wednesday, March 28, 2001 10:11 PM
-> To:	andrew.grover@intel.com
-> Cc:	pavel@suse.cz; alan@lxorguk.ukuu.org.uk; sfr@canb.auug.org.au;
-> twoller@crystal.cirrus.com; linux-kernel@vger.kernel.org
-> Subject:	Re: Incorrect mdelay() results on Power Managed Machines x86
-> 
-> > I know on ACPI systems you are guaranteed a PM timer running at ~3.57
-> Mhz.
-> > Could udelay use that, or are there other timers that are better (maybe
-> > without the ACPI dependency)? 
-> 
-> We could use that if ACPI was present. It might be worth exploring. Is
-> this
-> PM timer well defined for accesses  ?
+This is definitely not a bug.  Deleting a file (under *nix) does not
+"modify" the file at all, it is modifying the directory where the file
+resides.  In this case, a user _will_ have permission to write into
+their home directory, so they can delete the file, but not modify it.
+
+Why do such a thing?  If you have group/world write permission on a
+directory, then people who have write permission to the _directory_
+should be able to delete files even if they don't own them.  However,
+if you set the "sticky" bit on the directory (chmod +t /dir), then only
+the owner of the file can delete it, like in /tmp.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

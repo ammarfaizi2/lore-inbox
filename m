@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315419AbSEGLpo>; Tue, 7 May 2002 07:45:44 -0400
+	id <S315417AbSEGLsP>; Tue, 7 May 2002 07:48:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315417AbSEGLpn>; Tue, 7 May 2002 07:45:43 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:65288 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S315421AbSEGLpC>; Tue, 7 May 2002 07:45:02 -0400
-Message-ID: <3CD7AF7A.6040705@evision-ventures.com>
-Date: Tue, 07 May 2002 12:42:02 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S315420AbSEGLsO>; Tue, 7 May 2002 07:48:14 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:27654 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S315417AbSEGLsM>; Tue, 7 May 2002 07:48:12 -0400
+Date: Tue, 7 May 2002 13:48:08 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 55
+In-Reply-To: <3CD7ADD1.5080404@evision-ventures.com>
+Message-ID: <Pine.LNX.4.21.0205071345110.32715-100000@serv>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Osamu Tomita <tomita@cinet.co.jp>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.14 IDE CD-ROM PIO mode
-In-Reply-To: <3CD79586.63E17164@cinet.co.jp> <3CD7A500.8030509@evision-ventures.com> <20020507124109.A32573@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Christoph Hellwig napisa?:
-> On Tue, May 07, 2002 at 11:57:20AM +0200, Martin Dalecki wrote:
-> 
->>>@@ -962,7 +962,7 @@
->>> 
->>> 	/* First, figure out if we need to bit-bucket
->>> 	   any of the leading sectors. */
->>>-	nskip = MIN(rq->current_nr_sectors - bio_sectors(rq->bio), sectors_to_transfer);
->>>+	nskip = MIN((int)(rq->current_nr_sectors - bio_sectors(rq->bio)), sectors_to_transfer);
->>
-> 
-> What about a s/MIN/min/g in the idea driver to easily catch such bugs?
+Hi,
 
-Good idea partially already implemented :-).
-At least the generic code and the host chip driver code are alread
-switched to using those "chatch them" macros.
+On Tue, 7 May 2002, Martin Dalecki wrote:
+
+> >> Then ide-pci.c is still compiled into the kernel. Why?
+> > 
+> > Becouse the big tables there are subject to go.
+> 
+> And at some point in time it will check whatever there is
+> request for any host chip support.
+
+Could you please then do the above change _after_ you have done this?
+
+bye, Roman
 

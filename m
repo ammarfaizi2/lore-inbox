@@ -1,86 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUEEWqR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264834AbUEEWsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264833AbUEEWqR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 18:46:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264834AbUEEWqR
+	id S264834AbUEEWsu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 18:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUEEWsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 18:46:17 -0400
-Received: from mail.kroah.org ([65.200.24.183]:15036 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264833AbUEEWqM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 18:46:12 -0400
-Date: Wed, 5 May 2004 15:45:34 -0700
-From: Greg KH <greg@kroah.com>
-To: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Load hid.o module synchronously?
-Message-ID: <20040505224534.GB30345@kroah.com>
-References: <408D65A7.7060207@nortelnetworks.com> <s5gisfm34kq.fsf@patl=users.sf.net> <c6od9g$53k$1@gatekeeper.tmr.com> <s5ghdv0i8w4.fsf@patl=users.sf.net> <20040504200147.GA26579@kroah.com> <s5ghduvdg1u.fsf@patl=users.sf.net> <20040504223550.GA32155@kroah.com> <s5gy8o7bnhv.fsf@patl=users.sf.net> <20040505025602.GA19873@kroah.com> <s5gpt9jexwg.fsf@patl=users.sf.net>
+	Wed, 5 May 2004 18:48:50 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:65246 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S264834AbUEEWss
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 18:48:48 -0400
+Date: Wed, 5 May 2004 17:48:47 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org
+Subject: Re: PCI devices with no PCI_CACHE_LINE_SIZE implemented
+Message-ID: <20040505224847.GA2283@lists.us.dell.com>
+References: <20040429195301.GB15106@lists.us.dell.com> <20040505223102.GF30003@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s5gpt9jexwg.fsf@patl=users.sf.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040505223102.GF30003@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 05, 2004 at 11:19:56AM -0400, Patrick J. LoPresti wrote:
-> What I want is to load a driver and not proceed until it has finished
-> loading, which I am told "does not fit into the way the kernel handles
-> drivers anymore".  This strikes me as a clear misdesign.
-
-No, it is designed this way on purpose.  Think about devices that can be
-added or removed at any point in time.  Failing a module load if a
-device isn't present at this point in time is not good if the device is
-plugged in a while later.
-
-It also would not allow you to bind a driver to a device while the
-kernel is running that the driver doesn't originally know about.  See
-the pci sysfs file "new_id" for how you can do this today.  If we didn't
-allow the driver to load that would not be possible at all.
-
-> > So, what are you trying to fix/solve/monitor/do here?
+On Wed, May 05, 2004 at 03:31:02PM -0700, Greg KH wrote:
+> On Thu, Apr 29, 2004 at 02:53:01PM -0500, Matt Domsch wrote:
+> > a) need this be a warning, wouldn't KERN_DEBUG suffice, if a message
+> > is needed at all?  This is printed in pci_generic_prep_mwi().
 > 
-> I have a custom Linux boot disk for my project
-> (http://unattended.sourceforge.net/).  I want it to work unaltered on
-> as many different systems as possible.  The boot disk can be
-> interactive or non-interactive, depending on how the system is
-> configured.  Early on, it issues a prompt "Override boot disk
-> defaults?", which defaults to "no" after a ten-second timeout.
-> 
-> So, first, I want to load the driver for the keyboard, if any.  I want
-> to wait until the keyboard is ready before I emit any prompts.  Under
-> no circumstances do I want to wait forever.
-> 
-> This is just one example.  I have now had essentially the same problem
-> three different times:
-> 
->   1) Loading hid.o to talk to the keyboard, as described.
+> Yes, we should make that KERN_DEBUG.  I don't have a problem with that.
+> Care to make a patch?
 
-Why not just build this in the kernel?  Once the driver is bound to the
-device, the user can eventually press a key.  Perhaps make your timeout
-longer (1 minute)?
+Appended for 2.6.6-rc3.  I'll send a 2.4.x patch separately.
 
->   3) When I load the network driver, I want to wait until it is ready
->      to use.  Otherwise, when I try to obtain a DHCP lease, sometimes
->      it fails.
+Thanks,
+Matt
 
-Run your dhcp connect script after the device is bound to the driver
-through the hotplug interface (the default hotplug scripts do this
-today.)  No waiting, no guessing, no additional scripting, it just works
-exactly when the device is ready for it to work.
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
-> In all of these cases, I am hacking around an apparent design flaw in
-> the kernel's device loading architecture.  Obviously, random delays
-> are inherently unreliable; hence my comment about "unreliable by
-> design".
-
-Sorry, but your situation is very unusual, and based on my suggestions,
-I don't think it is needed.
-
-But hey, you have the source, if you don't like it, feel free to change
-the code :)
-
-thanks,
-
-greg k-h
+===== drivers/pci/pci.c 1.65 vs edited =====
+--- 1.65/drivers/pci/pci.c	Fri Mar 26 10:58:01 2004
++++ edited/drivers/pci/pci.c	Wed May  5 17:39:08 2004
+@@ -640,7 +640,7 @@
+ 	if (cacheline_size == pci_cache_line_size)
+ 		return 0;
+ 
+-	printk(KERN_WARNING "PCI: cache line size of %d is not supported "
++	printk(KERN_DEBUG "PCI: cache line size of %d is not supported "
+ 	       "by device %s\n", pci_cache_line_size << 2, pci_name(dev));
+ 
+ 	return -EINVAL;

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271920AbRHVDiK>; Tue, 21 Aug 2001 23:38:10 -0400
+	id <S271921AbRHVDiu>; Tue, 21 Aug 2001 23:38:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271921AbRHVDiA>; Tue, 21 Aug 2001 23:38:00 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:14500 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S271920AbRHVDhq>;
-	Tue, 21 Aug 2001 23:37:46 -0400
-Message-ID: <3B832AB6.2DC46BE8@randomlogic.com>
-Date: Tue, 21 Aug 2001 20:44:54 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kplug-list@kernel-panic.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Linux Kernel 2.4.9 Docs. and Metrics
-In-Reply-To: <3.0.6.32.20010821162635.00a936c0@pop-server.san.rr.com> <3.0.6.32.20010821173148.00a7fac0@pop-server.san.rr.com>
+	id <S271922AbRHVDil>; Tue, 21 Aug 2001 23:38:41 -0400
+Received: from zok.sgi.com ([204.94.215.101]:38336 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S271921AbRHVDi1>;
+	Tue, 21 Aug 2001 23:38:27 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: 2.4.9 new min/max definitions are buggy
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 22 Aug 2001 13:38:38 +1000
+Message-ID: <9140.998451518@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"James G. Sack (jim)" wrote:
-> 
-> At 17:24 08/21/01 -0700, "Paul G. Allen" <pgallen@randomlogic.com> wrote:
-> >..It would take a *LOT* longer than a couple of hours.
-> 
-> Oh! Well, in that case -- never mind. ;-)
-> 
+Leaving aside the question of whether the new min/max functions are
+sane or not, the 2.4.9 definitions are buggy.  If type is a pointer
+like char *, __x takes pointer type, __y takes base type, splat!
 
-I thought you might say that. :)
+Index: 9.1/include/linux/kernel.h
+--- 9.1/include/linux/kernel.h Tue, 21 Aug 2001 16:48:26 +1000 kaos (linux-2.4/g/b/11_kernel.h 1.1.1.5 644)
++++ 9.1(w)/include/linux/kernel.h Wed, 22 Aug 2001 13:33:28 +1000 kaos (linux-2.4/g/b/11_kernel.h 1.1.1.5 644)
+@@ -113,9 +113,9 @@ static inline void console_verbose(void)
+ 	((unsigned char *)&addr)[0]
+ 
+ #define min(type,x,y) \
+-	({ type __x = (x), __y = (y); __x < __y ? __x: __y; })
++	({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
+ #define max(type,x,y) \
+-	({ type __x = (x), __y = (y); __x > __y ? __x: __y; })
++	({ type __x = (x); type __y = (y); __x > __y ? __x: __y; })
+ 
+ #endif /* __KERNEL__ */
+ 
 
-BTW, I too think the interface could be better, but the HTML is nothing compared to the graphical layout that is used in the program itself. I've been thinking
-of posting a call tree that shows all (or at least some) of the functions from kernel boot through something like, say, complete hardware initialization.
-
-> ..jim
-> 
-> PS: I like your work anyway.
-
-Thanks,
-
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043

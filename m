@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261527AbSKKWgc>; Mon, 11 Nov 2002 17:36:32 -0500
+	id <S261523AbSKKWdu>; Mon, 11 Nov 2002 17:33:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbSKKWgc>; Mon, 11 Nov 2002 17:36:32 -0500
-Received: from smtp.terra.es ([213.4.129.129]:11433 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id <S261527AbSKKWgb>;
-	Mon, 11 Nov 2002 17:36:31 -0500
-Message-ID: <00df01c289d3$52969420$6e9afea9@anabel>
-From: =?iso-8859-1?Q?David_San=E1n_Baena?= <davidsanan@teleline.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: how to access user space memory from kernel.
-Date: Mon, 11 Nov 2002 23:40:19 +0100
-MIME-Version: 1.0
+	id <S261524AbSKKWdu>; Mon, 11 Nov 2002 17:33:50 -0500
+Received: from services.cam.org ([198.73.180.252]:11848 "EHLO mail.cam.org")
+	by vger.kernel.org with ESMTP id <S261523AbSKKWdt>;
+	Mon, 11 Nov 2002 17:33:49 -0500
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+  charset="us-ascii"
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] cs46xx compile error 2.5.47
+Date: Mon, 11 Nov 2002 17:40:18 -0500
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200211111740.18312.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I need to access to user space memory from a kernel module. This module
-is not a driver, so I would like how can i write and read from/to a variable
-in a user application from my kernel module?
-At first I thought I could do that with shared memory (shmget, shmat...),
-but in that is not possible in a kernel module. So I have thought to do it
-with copy_from_user and copy_to_user, but i don't know how to do it exactly,
-basically how to know where to write or read in the user var...
-Any suggestion???
-Thanks in advance
+Hi,
+
+I get this compiling 2.5.47
+
+  gcc -Wp,-MD,sound/pci/cs46xx/.cs46xx_lib.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wrigraphs -O2 -fno-strict-aliasing -fno-common -pipe 
+-mpreferred-stack-boundary=2 -march=k6 -Iarch//mach-generic -fomit-frame-pointer 
+-nostdinc -iwithprefix include -DMODULE -include include/linux/ersions.h   
+-DKBUILD_BASENAME=cs46xx_lib   -c -o sound/pci/cs46xx/cs46xx_lib.o sound/pci/cs46xx/cs_lib.c
+sound/pci/cs46xx/cs46xx_lib.c: In function `_cs46xx_adjust_sample_rate':
+sound/pci/cs46xx/cs46xx_lib.c:1054: structure has no member named `spos_mutex'
+sound/pci/cs46xx/cs46xx_lib.c: In function `snd_cs46xx_playback_hw_params':
+sound/pci/cs46xx/cs46xx_lib.c:1071: warning: unused variable `chip'
+sound/pci/cs46xx/cs46xx_lib.c:1072: warning: unused variable `sample_rate'
+sound/pci/cs46xx/cs46xx_lib.c:1073: warning: unused variable `period_size'
+sound/pci/cs46xx/cs46xx_lib.c: In function `snd_cs46xx_capture_hw_params':
+sound/pci/cs46xx/cs46xx_lib.c:1251: warning: unused variable `period_size'
+sound/pci/cs46xx/cs46xx_lib.h: At top level:
+sound/pci/cs46xx/cs46xx_lib.c:1028: warning: `_cs46xx_adjust_sample_rate' defined but not used
+sound/pci/cs46xx/cs46xx_lib.c:1445: warning: `hw_constraints_period_sizes' defined but not used
+make[3]: *** [sound/pci/cs46xx/cs46xx_lib.o] Error 1
+make[2]: *** [sound/pci/cs46xx] Error 2
+make[1]: *** [sound/pci] Error 2
+make: *** [sound] Error 2
+
+Anyone have any ideas?
+
+Ed Tomlinson
 

@@ -1,36 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136455AbREDRBt>; Fri, 4 May 2001 13:01:49 -0400
+	id <S136449AbREDQ6T>; Fri, 4 May 2001 12:58:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136457AbREDRBk>; Fri, 4 May 2001 13:01:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11790 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136455AbREDRBd>; Fri, 4 May 2001 13:01:33 -0400
-Subject: Re: Possible PCI subsystem bug in 2.4
-To: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 4 May 2001 18:04:40 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        beamz_owl@yahoo.com (Edward Spidre),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <m17kzxnlbv.fsf@frodo.biederman.org> from "Eric W. Biederman" at May 04, 2001 10:13:56 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136455AbREDQ6J>; Fri, 4 May 2001 12:58:09 -0400
+Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:43996 "EHLO
+	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S136449AbREDQ6F>; Fri, 4 May 2001 12:58:05 -0400
+Message-ID: <3AF2DF96.5CEAEAE8@home.com>
+Date: Fri, 04 May 2001 09:57:58 -0700
+From: Seth Goldberg <bergsoft@home.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Brian Gerst <bgerst@didntduck.org>
+CC: Gordon Sadler <gbsadler1@lcisp.com>, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: Athlon/VIA Kernel Experimentation (mmx.c)
+In-Reply-To: <20010503150346.A18141@debian-home.lcisp.com> <3AF27C39.9BD7EC99@home.com> <3AF2ACD6.AB9D4D91@didntduck.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14vj0V-0007ek-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Seriously.  With the general attitude of distrusting BIOS's I have
-> been amazed at the number of things linux expects the BIOS to get
-> right.  In practice windows seem to trust the BIOS much less than
-> linux does.
 
-It becomes more and more obvious over time exactly why. One problem however
-is that windows gets away with this because many vendors ship random extra
-gunge for their box with the system. We dont yet have that power
+ Doh. I feel like a moron.  Thanks.. will do...
 
-Alan
+ --S
 
+
+Brian Gerst wrote:
+> 
+> Seth Goldberg wrote:
+> >
+> > Hi,
+> >
+> >   I implemented a small check loop at the end of the fast_page_copy
+> > routine in mmx.c for the Athlon.  Booting the resulting kernel
+> > yields an interesting result. Every single time, the kernel
+> > panics RIGHT AFTER it frees unused kernel memory from bootup.
+> > I encourage those of you with the same problem to try this and report
+> > when it panics.
+> >
+> > Here is my patch to mmx.c: (sorry about the long lines)
+> > -----------------------------------------------------cut here
+> > diff -r linux-ref/arch/i386/lib/mmx.c linux/arch/i386/lib/mmx.c
+> > 204a205,216
+> > >
+> > >       {
+> > >               register int x = 0;
+> > >               /* do mem compares to ensure written == read */
+> > >               for ( /* initted above */; x < (4096/sizeof(int)); x++ )
+> > >               {
+> > >                       if ( ((int *)to)[x] != ((int *)from)[x] ) {
+> > >                               panic("fast_page_copy: dest value @ 0x%lx (%x) does not equal source value @ %lx (%x)!\n",
+> > >                                               (long) to, ((int *)to)[x], (long) from, ((int *) from)[x] );
+> > >                       }
+> > >               }
+> > >       }
+> > -----------------------------------------------------cut here
+> >
+> >   Wouldn't it be correct to say that because it is panicking, the
+> > page copy was not completed properly?
+> 
+> No, you are comparing the following two pages... from and to are
+> incremented as the copy proceeds.  Subtract PAGE_SIZE from them before
+> comparing.
+> 
+> --
+> 
+>                                 Brian Gerst

@@ -1,74 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261853AbSJZEZd>; Sat, 26 Oct 2002 00:25:33 -0400
+	id <S261855AbSJZEgZ>; Sat, 26 Oct 2002 00:36:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261854AbSJZEZd>; Sat, 26 Oct 2002 00:25:33 -0400
-Received: from [216.38.156.94] ([216.38.156.94]:1549 "EHLO mail.networkfab.com")
-	by vger.kernel.org with ESMTP id <S261853AbSJZEZc>;
-	Sat, 26 Oct 2002 00:25:32 -0400
-Subject: Re: Orinoco gold car locking up under sustained load
-From: Dmitri <dmitri@users.sourceforge.net>
-To: Tony.Lill@ajlc.waterloo.on.ca
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210260403.g9Q43R901903@spider.ajlc.waterloo.on.ca>
-References: <200210260403.g9Q43R901903@spider.ajlc.waterloo.on.ca>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-z+DWvCJhvh2UUYYfw8XD"
-Organization: 
-Message-Id: <1035606707.14594.114.camel@usb.networkfab.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 25 Oct 2002 21:31:47 -0700
+	id <S261856AbSJZEgZ>; Sat, 26 Oct 2002 00:36:25 -0400
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.101.90.246]:37124
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S261855AbSJZEgX>; Sat, 26 Oct 2002 00:36:23 -0400
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
+To: linux-kernel@vger.kernel.org
+Subject: [CFT] faster athlon/duron memory copy implementation - 2.5.44 vanilla Test
+Date: Sat, 26 Oct 2002 00:45:46 -0400
+User-Agent: KMail/1.4.7
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200210260045.46366.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Single CPU only (SMP capable)
 
---=-z+DWvCJhvh2UUYYfw8XD
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 6
+model name      : AMD Athlon(TM) MP 2000+
+stepping        : 2
+cpu MHz         : 1680.359
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
+bogomips        : 3309.56
 
-On Fri, 2002-10-25 at 21:03, Tony Lill wrote:
+[Notes: 2.5 seems to show slower Mhz / bogos]
 
-> Linux 2.4.17 laptop with an orinoco gold and AP-500. I'm trying to
-> backup some stuff useing 'ssh tardis tar cf -' After about an hour or
-> so, the card locks up with both led's going dim.
+RAM is PC2100 Registered DDR 512MB 
+Motherboard/Chipset: A7M266-D AMD 760MPX
 
-Maybe the card just overheated? Do those LEDs normally ever go dim?
-These cards draw a considerate amount of power, so it is conceivable
-that either the card, or the CardBus power switch decided to take a
-vacation elsewhere... Looking at the log, it seems that the card just
-disappeared - which would be consistent with hardware failure, and power
-failure in particular.
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
+Controller (rev 11)
+00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 04)
+00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
+00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 04)
 
-> Oct 20 05:43:36 tardis kernel: hermes @ 0x100: Card removed while waiting=
- for command completion.
-> Oct 20 05:43:36 tardis kernel: hermes @ 0x100: Card removed while waiting=
- for command completion.
-> Oct 20 05:43:36 tardis kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> Oct 20 05:43:36 tardis kernel: eth0: Tx timeout! Resetting card.
-> Oct 20 05:43:36 tardis kernel: hermes @ 0x100: CMD register busy in herme=
-s_issue_command().
-> Oct 20 05:43:36 tardis kernel: hermes @ 0x100: Frame allocation command f=
-ailed (0xFFFFFFF0).
-> Oct 20 05:43:36 tardis kernel: eth0: Error -16 resetting card on Tx timeo=
-ut!
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System 
+Controller
+(rev 17).
+      Master Capable.  Latency=32.
+      Prefetchable 32 bit memory at 0xf0000000 [0xf7ffffff].
+      Prefetchable 32 bit memory at 0xef800000 [0xef800fff].
+      I/O at 0xe800 [0xe803].
+  Bus  0, device   1, function  0:
+    PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge 
+(rev 0).
+      Master Capable.  No bursts.  Min Gnt=8.
 
-Dmitri
+Kernel Preformed on: 2.5.44 vanilla
 
---=20
-what's the difference between chattr and chmod?  SomeLamer: man chattr >
-1; man chmod > 2; diff -u 1 2 | less (Seen on #linux on irc)
+gcc (GCC) 3.2.1 20021011 (prerelease)
+Copyright (C) 2002 Free Software Foundation, Inc.
 
---=-z+DWvCJhvh2UUYYfw8XD
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+gcc athlon.c -O3 -march=athlon-mp -mcpu=athlon-mp -falign-functions 
+-fomit-frame-pointer 
+-mpreferred-stack-boundary=2 -falign-functions=4 -fschedule-insns2 
+-fexpensive-optimizations -o athlon
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
 
-iD8DBQA9uhqzXksyLpO6T4IRAlK6AJ4wAZ7kOgvHTYNrQD7lrP3RIkth8gCeJykL
-abNv8uapIrwfbJkJ1lrhgyw=
-=64sH
------END PGP SIGNATURE-----
+copy_page() tests
+copy_page function 'warm up run'         took 21014 cycles per page
+copy_page function '2.4 non MMX'         took 23435 cycles per page
+copy_page function '2.4 MMX fallback'    took 23399 cycles per page
+copy_page function '2.4 MMX version'     took 20983 cycles per page
+copy_page function 'faster_copy'         took 11722 cycles per page
+copy_page function 'even_faster'         took 12030 cycles per page
+copy_page function 'no_prefetch'         took 9433 cycles per page
 
---=-z+DWvCJhvh2UUYYfw8XD--
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+
+copy_page() tests
+copy_page function 'warm up run'         took 20766 cycles per page
+copy_page function '2.4 non MMX'         took 23229 cycles per page
+copy_page function '2.4 MMX fallback'    took 23187 cycles per page
+copy_page function '2.4 MMX version'     took 20889 cycles per page
+copy_page function 'faster_copy'         took 11654 cycles per page
+copy_page function 'even_faster'         took 11967 cycles per page
+copy_page function 'no_prefetch'         took 9428 cycles per page
+
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $
+
+copy_page() tests
+copy_page function 'warm up run'         took 20957 cycles per page
+copy_page function '2.4 non MMX'         took 23600 cycles per page
+copy_page function '2.4 MMX fallback'    took 23471 cycles per page
+copy_page function '2.4 MMX version'     took 20943 cycles per page
+copy_page function 'faster_copy'         took 11724 cycles per page
+copy_page function 'even_faster'         took 12029 cycles per page
+copy_page function 'no_prefetch'         took 9422 cycles per page
+
+[Note: this seems very slightly slower but more consistant then 2.4.20-pre7]
+
+Shawn.
+
 

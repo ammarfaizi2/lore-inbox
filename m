@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278271AbRJMFqN>; Sat, 13 Oct 2001 01:46:13 -0400
+	id <S278273AbRJMFzz>; Sat, 13 Oct 2001 01:55:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278272AbRJMFqE>; Sat, 13 Oct 2001 01:46:04 -0400
-Received: from s1.relay.oleane.net ([195.25.12.48]:29931 "HELO
-	s1.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S278271AbRJMFp4>; Sat, 13 Oct 2001 01:45:56 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: <linux-kernel@vger.kernel.org>, Mike Borrelli <mike@nerv-9.net>
-Subject: Re: No love for the PPC
-Date: Sat, 13 Oct 2001 07:46:15 +0200
-Message-Id: <20011013054615.1831@smtp.adsl.oleane.com>
-In-Reply-To: <200110130452.f9D4qG9288830@saturn.cs.uml.edu>
-In-Reply-To: <200110130452.f9D4qG9288830@saturn.cs.uml.edu>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S278274AbRJMFzp>; Sat, 13 Oct 2001 01:55:45 -0400
+Received: from mailgw.netvision.net.il ([194.90.1.14]:65451 "EHLO
+	mailgw1.netvision.net.il") by vger.kernel.org with ESMTP
+	id <S278273AbRJMFzb>; Sat, 13 Oct 2001 01:55:31 -0400
+Date: Sat, 13 Oct 2001 07:58:53 +0200
+From: Etay Meiri <cl1@netvision.net.il>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: exporting open_namei to modules
+Message-ID: <20011013075853.C1069@amber.rog.net>
+In-Reply-To: <20011013011841.B1069@amber.rog.net> <Pine.GSO.4.21.0110121955470.76-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0110121955470.76-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Oct 12, 2001 at 08:03:33PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->At the most recent Ottata Linux Symposium, there was a PowerPC
->session with about 20 people. Somebody did a poll, asking what
->people used. I was the only person who dared to use a kernel
->from Linus. Everone else was using the BenH and BitKeeper ones.
->
->This is a sorry state of affairs. If people are off using kernels
->from other places, there isn't a great incentive to keep the
->official Linus kernel updated. Nobody uses it anyway.
->
->Elimination of these non-Linus PowerPC trees would be great.
->(at least the "stable" ones should go, as they lure people
->away from the one true source tree)
+On Fri, Oct 12, 2001 at 08:03:33PM -0400, Alexander Viro wrote:
+> 
+> 
+> On Sat, 13 Oct 2001, Etay Meiri wrote:
+> 
+> > Hi,
+> > 
+> > Is there a particular reason why open_namei() is
+> > not exported to modules?
+> 
+> 	Is there any reason for exporting it?  By default, stuff is _NOT_
+> exported.  Think for a moment and you'll see why.  Exported functions are
+> public API.  Protection is weaker than for syscalls, but it's there and
+> exporting a function makes harder to do changes in core kernel.  Unless
+> there are damn serious reasons for exporting something, it isn't done.
+> 
+> 	In particular, open_namei() is a helper function of filp_open(),
+> which _is_ exported.  What use of open_namei() do you have in mind?
 
-That's not exactly how things happen.
+I'm writing a kernel file server. Unlike NFS, clients send me full paths
+so I need to translate them to their respective inodes before calling
+->open(...).
+The reason I didn't use filp_open() in the first place is because it calls 
+get_empty_filp() and, when I started writing this thing, didn't really understand
+and so I thought it was better for me to call open_namei() directly and duplicate
+some of the stuff that was going on in filp_open(). Now I see that there is a better
+solution. 
 
-Most users use the kernel that comes with their distro, which,
-as usual in the linux world, is made of bits from here and there.
+Thanks Alexander.
 
-Some mac users use my kernels because they contain some bleeding
-edge stuff that is not ready to be in a stable tree. It's an
-experimental kernel and doesn't claim to be stable.
+> 
+> 
 
-Now, PPC is a lot of very different machines, coordinating them
-all is a complicated task, and having our own tree to handle the
-merge work is pretty useful. This is the bk _2_4 "stable" tree, any
-thing in there is supposed to be "pending" for Linus.
-
-We would probably be happy to submit all what we have in _2_4_devel
-once 2.5 is opened. It's our developemental tree. Occasionally,
-parts of it are considered stable enough to get to _2_4, and
-at that point, it might happen to take some time before beeing
-fully merged in Linus tree, but we are doing our best.
-
-Ben.
-
-
+-- 
+************************************************
+"When in doubt, use brute force."
+									Ken Thompson
+Etay Meiri
+cl1@netvision.net.il
+************************************************

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268922AbRHLCLn>; Sat, 11 Aug 2001 22:11:43 -0400
+	id <S268920AbRHLCZF>; Sat, 11 Aug 2001 22:25:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268920AbRHLCLd>; Sat, 11 Aug 2001 22:11:33 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:28687 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S268917AbRHLCLW>;
-	Sat, 11 Aug 2001 22:11:22 -0400
+	id <S268923AbRHLCYy>; Sat, 11 Aug 2001 22:24:54 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:35087 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S268920AbRHLCYk>;
+	Sat, 11 Aug 2001 22:24:40 -0400
 X-Mailer: exmh version 2.1.1 10/15/1999
 From: Keith Owens <kaos@ocs.com.au>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-cc: Tom Rini <trini@kernel.crashing.org>, kbuild-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org
+To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available. 
-In-Reply-To: Your message of "Sat, 11 Aug 2001 21:20:52 +0200."
-             <20010811212051.A819@jaquet.dk> 
+In-Reply-To: Your message of "Sun, 12 Aug 2001 01:03:00 +1000."
+             <1904.997542180@ocs3.ocs-net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 12 Aug 2001 12:11:27 +1000
-Message-ID: <6820.997582287@ocs3.ocs-net>
+Date: Sun, 12 Aug 2001 12:24:46 +1000
+Message-ID: <7130.997583086@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Aug 2001 21:20:52 +0200, 
-Rasmus Andersen <rasmus@jaquet.dk> wrote:
->pp_makefile2: drivers/char/defkeymap.o is selected but is not part of vmlinux, missing link_subdirs?
+Bug fixes against 2.4.8 + kbuild-2.5-2.4.8-1.  I will put up a -2 later
+today.
 
-Against 2.4.8 + kbuild-2.5-2.4.8-1.  I will put up a -2 later today
-containing this fix and a few others.
-
+Index: 8.7/drivers/sound/emu10k1/Makefile.in
+--- 8.7/drivers/sound/emu10k1/Makefile.in Sat, 11 Aug 2001 22:55:17 +1000 kaos (linux-2.4/G/d/38_Makefile.i 1.2 644)
++++ 8.7(w)/drivers/sound/emu10k1/Makefile.in Sun, 12 Aug 2001 12:21:44 +1000 kaos (linux-2.4/G/d/38_Makefile.i 1.2 644)
+@@ -3,8 +3,9 @@
+ #
+ # 12 Apr 2000 Rui Sousa
+ 
+-objlink(emu10k1.o efxmgr.o emuadxmg.o hwaccess.o irqmgr.o joystick.o main.o
+-	midi.o mixer.o passthrough.o recmgr.o timer.o voicemgr.o)
++objlink(emu10k1.o audio.o cardmi.o cardmo.o cardwi.o cardwo.o ecard.o efxmgr.o
++        emuadxmg.o hwaccess.o irqmgr.o joystick.o main.o midi.o mixer.o
++        passthrough.o recmgr.o timer.o voicemgr.o)
+ 
+ select(CONFIG_SOUND_EMU10K1 emu10k1.o)
+ 
 Index: 8.7/scripts/pp_makefile2.c
 --- 8.7/scripts/pp_makefile2.c Sat, 11 Aug 2001 22:45:22 +1000 kaos (linux-2.4/I/d/36_pp_makefil 1.24 644)
 +++ 8.7(w)/scripts/pp_makefile2.c Sun, 12 Aug 2001 11:43:58 +1000 kaos (linux-2.4/I/d/36_pp_makefil 1.24 644)
@@ -43,12 +52,4 @@ Index: 8.7/scripts/pp_makefile2.c
        return(0);
      }
      switch (type) {
-
->pp_makefile2: Cannot find source for target drivers/sound/emu10k1/efxmgr.o
->pp_makefile2: Cannot find source for target drivers/sound/emu10k1/joystick.o
->pp_makefile2: Cannot find source for target drivers/sound/emu10k1/passthrough.o
-
-You put kbuild-2.5-2.4.8-1 on an 2.4.8-pre kernel.  Linus moved emu10k1
-to its own directory in 2.4.8.  You have match kbuild with the correct
-kernel.
 

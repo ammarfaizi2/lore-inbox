@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbUKYAld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262881AbUKYAfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbUKYAld (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 19:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUKYAiu
+	id S262881AbUKYAfS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 19:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbUKXXZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 19:38:50 -0500
-Received: from mail.dif.dk ([193.138.115.101]:9612 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262909AbUKYAh2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 19:37:28 -0500
-Date: Thu, 25 Nov 2004 01:39:46 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Marc Zyngier <maz@wild-wind.fr.eu.org>
-Subject: [patch][trivial] avoid signed/unsigned comparison in
- drivers/eisa/eisa-bus.c::eisa_name_device()
-Message-ID: <Pine.LNX.4.61.0411250130540.3447@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 24 Nov 2004 18:25:20 -0500
+Received: from pool-151-203-245-3.bos.east.verizon.net ([151.203.245.3]:26116
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262947AbUKXXUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 18:20:38 -0500
+Message-Id: <200411242306.iAON6dbn005408@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, Blaisorblade <blaisorblade_spam@yahoo.it>,
+       Milton Miller <miltonm@bga.com>
+Subject: [PATCH] UML - Remove a quilt-induced duplicity
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 24 Nov 2004 18:06:39 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This piece appears to have gone in twice.
 
-This is trivial and of questional importance, but I'll submit it 
-none-the-less - feel free to drop/ignore.
+Signed-off-by: Milton Miller <miltonm@bga.com>
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-The patch changes the 'i' variable in eisa_name_device() to be unsigned 
-for no other reason than to avoid this warning when building with gcc -W :
-drivers/eisa/eisa-bus.c: In function `eisa_name_device':
-drivers/eisa/eisa-bus.c:62: warning: comparison between signed and unsigned
-
-whether this variable is a signed or unsigned int will not make any actual 
-difference, but I thought it would be nice to have one less warning to go 
-through when building with -W - especially when it won't do any harm nor 
-obfuscate the code to make the change (and you could argue that since we 
-are looping through a table that cannot have any negative indices, the 
-index 'i' is logically unsigned).
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-rc2-bk9-orig/drivers/eisa/eisa-bus.c linux-2.6.10-rc2-bk9/drivers/eisa/eisa-bus.c
---- linux-2.6.10-rc2-bk9-orig/drivers/eisa/eisa-bus.c	2004-11-17 01:19:37.000000000 +0100
-+++ linux-2.6.10-rc2-bk9/drivers/eisa/eisa-bus.c	2004-11-25 01:29:59.000000000 +0100
-@@ -58,7 +58,7 @@ static int is_forced_dev (int *forced_ta
- static void __init eisa_name_device (struct eisa_device *edev)
- {
- #ifdef CONFIG_EISA_NAMES
--	int i;
-+	unsigned int i;
- 	for (i = 0; i < EISA_INFOS; i++) {
- 		if (!strcmp (edev->id.sig, eisa_table[i].id.sig)) {
- 			strlcpy (edev->pretty_name,
-
+===== arch/um/kernel/tt/trap_user.c 1.5 vs edited =====
+Index: 2.6.9/arch/um/kernel/tt/trap_user.c
+===================================================================
+--- 2.6.9.orig/arch/um/kernel/tt/trap_user.c	2004-11-18 12:24:41.000000000 -0500
++++ 2.6.9/arch/um/kernel/tt/trap_user.c	2004-11-18 12:25:32.000000000 -0500
+@@ -30,13 +30,6 @@
+ 	if(sig == SIGSEGV)
+ 		change_sig(SIGSEGV, 1);
+ 
+-	/* This is done because to allow SIGSEGV to be delivered inside a SEGV
+-	 * handler.  This can happen in copy_user, and if SEGV is disabled,
+-	 * the process will die.
+-	 */
+-	if(sig == SIGSEGV)
+-		change_sig(SIGSEGV, 1);
+-
+ 	r = &TASK_REGS(get_current())->tt;
+ 	save_regs = *r;
+ 	is_user = user_context(SC_SP(sc));
 

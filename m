@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131613AbQLLBhA>; Mon, 11 Dec 2000 20:37:00 -0500
+	id <S131615AbQLLBhb>; Mon, 11 Dec 2000 20:37:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131615AbQLLBgu>; Mon, 11 Dec 2000 20:36:50 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:8216 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S131613AbQLLBgi>;
-	Mon, 11 Dec 2000 20:36:38 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: PATCH: linux-2.4.0-test12pre8/include/linux/module.h breaks sysklogd compilation 
-In-Reply-To: Your message of "Mon, 11 Dec 2000 14:59:01 -0800."
-             <20001211145901.A8047@baldur.yggdrasil.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 12 Dec 2000 12:05:43 +1100
-Message-ID: <3241.976583143@kao2.melbourne.sgi.com>
+	id <S131669AbQLLBhW>; Mon, 11 Dec 2000 20:37:22 -0500
+Received: from mail.cruzio.com ([165.227.128.37]:15041 "EHLO mail.cruzio.com")
+	by vger.kernel.org with ESMTP id <S131615AbQLLBhP> convert rfc822-to-8bit;
+	Mon, 11 Dec 2000 20:37:15 -0500
+Message-ID: <3A357A32.8B7004AE@cruzio.com>
+Date: Mon, 11 Dec 2000 17:06:58 -0800
+From: Bruce Korb <bkorb@cruzio.com>
+Organization: Home
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.16 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Frédéric L . W . Meunier" <0@pervalidus.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide-pci.c: typo
+In-Reply-To: <20001211225133.D1245@pervalidus>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Dec 2000 14:59:01 -0800, 
-"Adam J. Richter" <adam@yggdrasil.com> wrote:
->	linux-2.4.0test12pre8/include/linux/module.h contains some
->kernel-specific declarations that now reference struct list_head, which
->which is only defined when __KERNEL__ is set.  This causes sysklogd
->and probably any other user level program that needs to include
-><linux/module.h> to fail to compile.
->
->	The following patch brackets the (unused) offending declarations
->in #ifdef __KERNEL__...#endif.
+Frédéric L . W . Meunier wrote:
+> 
+> Alan Cox wrote:
+...
 
-Linus, please do not apply.
-
-User space applications _must_ not include kernel headers.  Even
-modutils does not include linux/module.h, it has its own portable
-(kernels 2.0 - 2.4) version.
-
-I have strongly recommended to the sysklogd maintainers that they strip
-all the symbol handling from klogd.  The oops decoding in klogd is
-hopelessly out of date and broken.
-
+There are several typos, but it is not clear if they are all
+from ide-pci.c, or in the other files (pci.ids and pci_ids.h).
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264517AbTDXVn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 17:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbTDXVn6
+	id S264505AbTDXVmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbTDXVmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 17:43:58 -0400
-Received: from [203.194.240.135] ([203.194.240.135]:9097 "HELO station173.com")
-	by vger.kernel.org with SMTP id S264509AbTDXVnT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:43:19 -0400
-From: Daniel Callahan <proteus@eclectic-cheval.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Flame Linus to a crisp!
-Date: Thu, 24 Apr 2003 16:55:22 -0500
-User-Agent: KMail/1.5
-Cc: pochini@shiny.it
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 24 Apr 2003 17:42:09 -0400
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:36551 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S264505AbTDXVmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 17:42:06 -0400
+Subject: Re: 2.5.68 kernel no initrd
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       =?iso-8859-2?Q?Pawe=B3_Go=B3aszewski?= <blues@ds.pg.gda.pl>,
+       Dave Mehler <dmehler26@woh.rr.com>
+In-Reply-To: <Pine.LNX.3.96.1030424161618.11351B-100000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1030424161618.11351B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051221242.612.49.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 24 Apr 2003 23:54:03 +0200
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304241655.22689.proteus@eclectic-cheval.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-----
-On 24-Apr-2003 Giuliano Pochini wrote:
-Free software is free. You can do anything with it, the only contraint
-is it must stay free. But cryptography plays a bad role here. Someone
-can make hw that accepts only that peice of signed free software. You
-have the hw, you have the binaries, you have the sources. But the
-sources are completely useless. GPL allows the user to modify it, but
-the hw doesn't run the modified copy. DRM can turns free software into
-half-proprietary software. I don't like it at all, but I don't see any
-solution.
-----
-The solution lies outside of the GPL.  Not that you're guilty of this, but 
-somehow hackerdom has mixed the GPL in with 'the Right to free binaries' and 
-'the Right to have compatible hardware'.  And those two Rights are as real as 
-the brontosaurus, (i.e., they ain't, despite what many want to believe).  
+On Thu, 2003-04-24 at 22:19, Bill Davidsen wrote:
+> > I don't have any doubts that initrd is a very flexible solution and
+> > provides for a generic kernel. However, in the end (I'm talking about my
+> > experiences), initrd has caused me more troubles than problems it
+> > solved. I always keep all "config" file for every kernel I use on my
+> > machines.
+> 
+> Other than needing to build and maintain all those kernels, what does it
+> gain you over installing the  modules you need and having a single kernel?
 
-Free binaries and compatible hardware are privileges.  In the case of 
-hardware, that's a damn shame, but there it is.  Apart from mutilating the 
-GPL to outlaw development on secured hardware, I can't see the solution 
-coming from that direction.  (And even if GPL were modified to cover 
-"activities other than copying, distribution and modification", all it would 
-do is fork the license.  Linus would use the older license (I'm guessing), 
-others would use the anti-DRM license, and Bill Gates would be ROTFLHAO.)
+Simply said, I don't like "initrd". I have still to figure out how to
+make an "initrd" that includes the newer modutils.
 
-So there's no solution except to learn to live with it *unless* someone is 
-brave and savvy enough to create a General Hardware License and found the 
-Free Hardware Foundation.  And that still wouldn't make the DRM issue vanish 
--- GNU didn't wipe out proprietary software; it didn't even prevent the Mac 
-from using FreeBSD.  It would just create the opportunity for a hardware 
-hacker to do what has been done with Linux.
+Anyways, I don't mantain so much kernels (only 3 or 4 different
+versions), and have a mix of AMD/P4/P3/P2/PI machines that need things
+that can't be configured/don't yet work as modules, so I prefer to pass
+initrd by...
 
-So, if anyone really is waiting for a sign to start the Free Hardware 
-Foundation, consider Linus' email to be it.
+-- 
+Please AVOID sending me WORD, EXCEL or POWERPOINT attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html
+Linux Registered User #287198
 
-Daniel.

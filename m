@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270274AbRHRSJ5>; Sat, 18 Aug 2001 14:09:57 -0400
+	id <S270280AbRHRSKF>; Sat, 18 Aug 2001 14:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270293AbRHRSJq>; Sat, 18 Aug 2001 14:09:46 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:10651 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270279AbRHRSJe>; Sat, 18 Aug 2001 14:09:34 -0400
-Date: Sat, 18 Aug 2001 12:09:49 -0600
-Message-Id: <200108181809.f7II9nq12577@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
-Subject: devfsd-v1.3.17 available
+	id <S270279AbRHRSJ6>; Sat, 18 Aug 2001 14:09:58 -0400
+Received: from pop.gmx.de ([213.165.64.20]:23350 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S270280AbRHRSJn>;
+	Sat, 18 Aug 2001 14:09:43 -0400
+Message-ID: <001601c12810$f78ec040$0100005a@host1>
+From: "peter k." <spam-goes-to-dev-null@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.9: GCC 3.0 problem in "acct.c"
+Date: Sat, 18 Aug 2001 20:09:37 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi, all. I've just released version 1.3.17 of my devfsd (devfs
-daemon) at: http://www.atnf.csiro.au/~rgooch/linux/
+i just updated my gcc from 2.96 to 3.0.1 and now i cant compile kernel 2.4.9
+anymore, make bzImage fails with the following error message:
 
-Tarball directly available from:
-ftp://ftp.??.kernel.org/pub/linux/daemons/devfsd/devfsd.tar.gz
+acct.c: In function `check_free_space':
+acct.c:147: Unrecognizable insn:
+(insn 335 102 336 (parallel[
+            (set (reg/v:SI 2 ecx [44])
+                (const_int 0 [0x0]))
+            (clobber (reg:CC 17 flags))
+        ] ) -1 (insn_list:REG_DEP_ANTI 100 (insn_list:REG_DEP_ANTI 102
+(nil)))
+    (expr_list:REG_UNUSED (reg:CC 17 flags)
+        (nil)))
+acct.c:147: Internal compiler error in insn_default_length, at
+insn-attrtab.c:223
 
-AND:
-ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/daemons/devfsd/devfsd.tar.gz
+can anyone tell me how to fix this?
 
-This works with devfs-patch-v130, kernel 2.3.46 and devfs-patch-v99.7
-(or later).
+thx
 
-The main changes are:
 
-- Dynamically load libnsl at run-time as needed, rather than
-  linking. Based on patch from Adam J. Richter.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

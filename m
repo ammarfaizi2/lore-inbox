@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269909AbRHMKtG>; Mon, 13 Aug 2001 06:49:06 -0400
+	id <S270090AbRHMLJO>; Mon, 13 Aug 2001 07:09:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270075AbRHMKs5>; Mon, 13 Aug 2001 06:48:57 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:18963 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269909AbRHMKsv>; Mon, 13 Aug 2001 06:48:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: VM working much better in 2.4.8 than before
-Date: Mon, 13 Aug 2001 12:55:12 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <20010811234822.A422@debian> <3B7792B9.61721B85@idb.hist.no>
-In-Reply-To: <3B7792B9.61721B85@idb.hist.no>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010813104900Z16329-1231+665@humbolt.nl.linux.org>
+	id <S270089AbRHMLJD>; Mon, 13 Aug 2001 07:09:03 -0400
+Received: from arminho.ip.pt ([195.23.132.10]:14096 "HELO arminho.ip.pt")
+	by vger.kernel.org with SMTP id <S270087AbRHMLIr>;
+	Mon, 13 Aug 2001 07:08:47 -0400
+Message-ID: <20010813110855.9358.qmail@webmail.clix.pt>
+X-Originating-IP: [198.62.9.29]
+X-Mailer: Clix Webmail 2.0
+In-Reply-To: <E15W1eR-000691-00@the-village.bc.nu>
+In-Reply-To: <E15W1eR-000691-00@the-village.bc.nu> 
+From: "rui.p.m.sousa@clix.pt" <rui.p.m.sousa@clix.pt>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: manuel@mclure.org (Manuel McLure), linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
+Date: Mon, 13 Aug 2001 11:08:54 GMT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 13 August 2001 10:41, Helge Hafting wrote:
-> misty-@charter.net wrote:
-> > 
-> >         I've said it before, I'll say it again - you guys deserve a
-> > 'this is a great thing' report once in a while. This is such a report :)
-> 
-> 2.4.8 is good indeed.  My vmstat window tells me it ties up
-> about 40M less in page cache than earlier kernels, possibly an
-> effect of use-once.  (This is a 128M desktop machine.)
-> 
-> updatedb run still manages to use some swap, but the machine
-> is no longer sluggish in the morning. :-)
 
-Yes, those would be the expected effects of use-once, in fact it was
-"morning after updatedb" question that got me started on it.
+Alan Cox writes:
 
-BTW, keep that 486, it's a great reality check!
+Did you have any lockups with non Athlon
+motherboards?
+
+>> On 2001.08.12 05:04 Alan Cox wrote:
+>> > The in kernel one seemed fine. The 2.4.8 update one is definitely broken
+>> > on
+>> > SMP boxes
+>> 
+>> I'm getting 2.4.8 Oopsen that seem to be in emu10k1 code on UP - see my
+>> message "2.4.8 oops in ksoftirqd_CPU0"...
+> 
+> Yep. So far the new driver that Linus took from a non maintaier breaks
+> 
+> 	SMP
+> 	Some mixers
+> 	Uniprocessor with some cards
+> 	Surround sound (spews noise on cards)
+> 
+> so I think Linus should do the only sane thing - back it out. I'm backing
+> it out of -ac. Of my three boxes, one spews noise, one locks up smp and
+> one works.
+> 
+> Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+
 
 --
-Daniel
+Crie o seu Email Grátis no Clix em
+http://registo.clix.pt/

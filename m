@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271637AbTGQXtv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 19:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271638AbTGQXtv
+	id S271641AbTGQXwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 19:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271642AbTGQXwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 19:49:51 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:49673 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S271637AbTGQXtu (ORCPT
+	Thu, 17 Jul 2003 19:52:35 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:23172 "EHLO server")
+	by vger.kernel.org with ESMTP id S271641AbTGQXwc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 19:49:50 -0400
-Date: Fri, 18 Jul 2003 02:04:44 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] print_dev_t for 2.6.0-test1-mm
-Message-ID: <20030718020444.A2612@pclin040.win.tue.nl>
-References: <20030716184609.GA1913@kroah.com> <20030718002451.A2569@pclin040.win.tue.nl> <20030717224307.GF19891@ca-server1.us.oracle.com> <20030718011115.A2600@pclin040.win.tue.nl> <bf7clr$ang$1@news.cistron.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <bf7clr$ang$1@news.cistron.nl>; from miquels@cistron.nl on Thu, Jul 17, 2003 at 11:49:15PM +0000
+	Thu, 17 Jul 2003 19:52:32 -0400
+Message-ID: <01d701c34cc0$7f698740$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva> <020301c3459b$942a1860$3400a8c0@W2RZ8L4S02> <1057703020.5568.10.camel@dhcp22.swansea.linux.org.uk> <024801c345a2$ceeef090$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307091428450.26373@freak.distro.conectiva> <064101c34644$3d917850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307171545460.1789@freak.distro.c onectiva> <014501c34c9b$d93d4920$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307171649340.2003@freak.distro.conectiva>
+Subject: Re: 2.4.22-pre6 deadlock
+Date: Thu, 17 Jul 2003 17:06:53 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 11:49:15PM +0000, Miquel van Smoorenburg wrote:
-
-> But why do you need a 32bit interface to the kernel when a
-> 32:32 interface exists? Userland can translate 32 bit major/minor
-> into 32:32 to the kernel, if a 64 bits syscall exists.
-
-I? A 32bit interface to the kernel? Why do you think I want one?
-
-The discussion has become too long, and people react to single
-sentences in a reply instead of reading the thread.
-
-[This started when I answered Andrew and wrote about a dev_t:
-8+8 when 16-bit, otherwise 16+16 when 32-bit, otherwise 32+32.
-Look: no kernel involved. No interface involved.
-This structure is defined by <sys/sysmacros.h>.]
+If it acts up again, do you want a copy of the build logs??
 

@@ -1,83 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272253AbTG3V1r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 17:27:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272275AbTG3VZ4
+	id S272282AbTG3Vaf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 17:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272260AbTG3V2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 17:25:56 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:59092 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S272273AbTG3VZl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 17:25:41 -0400
-Date: Wed, 30 Jul 2003 17:24:36 -0400 (EDT)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-To: bert hubert <ahu@ds9a.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-mm1 & ipsec-tools (xfrm_type_2_50?)
-In-Reply-To: <20030730210414.GA28308@outpost.ds9a.nl>
-Message-ID: <Pine.LNX.4.56.0307301710550.26621@onqynaqf.yrkvatgba.voz.pbz>
-References: <Pine.LNX.4.56.0307301515250.26621@onqynaqf.yrkvatgba.voz.pbz>
- <20030730210414.GA28308@outpost.ds9a.nl>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Jul 2003 17:28:03 -0400
+Received: from numenor.qualcomm.com ([129.46.51.58]:32477 "EHLO
+	numenor.qualcomm.com") by vger.kernel.org with ESMTP
+	id S272276AbTG3V0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 17:26:41 -0400
+Message-Id: <5.1.0.14.2.20030730140614.01ce0a98@unixmail.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 30 Jul 2003 14:25:49 -0700
+To: "Dave O" <cxreg@pobox.com>, linux-kernel@vger.kernel.org
+From: Max Krasnyansky <maxk@qualcomm.com>
+Subject: Re: Oops from tun module
+In-Reply-To: <34018.204.17.42.117.1059505497.squirrel@www.genericorp.net
+ >
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jul 2003, bert hubert wrote:
+At 12:04 PM 7/29/2003, Dave O wrote:
+>I added a tun/tap interface using tunctl(8) from the user-mode-linux
+>project under 2.6.0-test1, which created a device tap0, owned by user 1000
+>(tunctl -u 1000).  In doing so, the tun module was automatically loaded,
+>but showed a refcount of 0 in lsmod.  I was able to successfully "rmmod
+>tun", but after doing this every program that tried to open /proc/net/dev
+>(including ifconfig) immediately segfaults and causes an Oops.  I was able
+>to modprobe tun.o back in and that restored sane behavior.  I imagine the
+>module should have had it's refcount incremented when the device is
+>created.
 
-> I recently tested all this again with 2.6.0-test2 and It Just Worked, so I
-> can't confirm this.
+TUN/TAP driver relies on the network core to do module reference counting. 
+It doesn't really do any cleanup in module_exit(). Module refcounting was 
+recently removed from the network core which apparently broke TUN/TAP 
+driver. btw 'misc' driver doesn't do any ref counting either.
+I'll try to spend some time on it this week and fix both misc and TUN driver.
 
-with an all modular build ?
-
-> I run with a very minimal racoon.conf, almost exactly the one found on
-> http://lartc.org/howto/lartc.ipsec.html
-
-ditto
-
-> I'd suggest posting the relevant bits of your .config
-
-!/usr/sbin/setkey -f
-flush;
-spdflush;
-spdadd 9.30.62.131 9.51.94.26 any -P out ipsec
-        esp/transport//require;
-spdadd 9.51.94.26 9.30.62.131 any -P in ipsec
-        esp/transport//require;
-
-/etc/racoon/racoon.conf
-remote 9.51.94.26
-{
-	exchange_mode main;
-	my_identifier asn1dn;
-	peers_identifier asn1dn;
-	certificate_type x509 "<cert>" "<key>";
-	peers_certfile "<remote cert>";
-	proposal {
-        encryption_algorithm 3des;
-		hash_algorithm sha1;
-		authentication_method rsasig;
-		dh_group modp1536 ;
-	}
-}
-sainfo anonymous
-{
-    pfs_group modp1536;
-    encryption_algorithm 3des ;
-    authentication_algorithm hmac_sha1 ;
-    compression_algorithm deflate ;
-}
-
-Again, the remote is freeswan 1.96
+Max
 
 
-> Good luck!
-Thanks, I'll probably be needing it :)
-
--- 
-Rick Nelson
-I can saw a woman in two, but you won't want to look in the box when I do
-'For My Next Trick I'll Need a Volunteer' -- Warren Zevon

@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262372AbTCICfC>; Sat, 8 Mar 2003 21:35:02 -0500
+	id <S262368AbTCICc5>; Sat, 8 Mar 2003 21:32:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262374AbTCICfC>; Sat, 8 Mar 2003 21:35:02 -0500
-Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:54153 "EHLO
-	renegade") by vger.kernel.org with ESMTP id <S262372AbTCICex>;
-	Sat, 8 Mar 2003 21:34:53 -0500
-Date: Sat, 8 Mar 2003 18:45:22 -0800
-From: Zack Brown <zbrown@tumblerings.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030309024522.GA25121@renegade>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030307123237.GG18420@atrey.karlin.mff.cuni.cz> <20030307165413.GA78966@dspnet.fr.eu.org> <20030307190848.GB21023@atrey.karlin.mff.cuni.cz> <b4b98v$14m$1@penguin.transmeta.com> <20030308225252.GA23972@renegade> <20030309000514.GB1807@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030309000514.GB1807@work.bitmover.com>
-User-Agent: Mutt/1.5.3i
+	id <S262369AbTCICc4>; Sat, 8 Mar 2003 21:32:56 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:7 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262368AbTCICcz>; Sat, 8 Mar 2003 21:32:55 -0500
+Date: Sat, 8 Mar 2003 21:38:07 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Harald.Schaefer@gls-germany.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Thomas.Mieslinger@gls-germany.com, linux-kernel@vger.kernel.org,
+       aeb@cwi.nl
+Subject: Re: ide-problem still with 2.4.21-pre5-ac1
+In-Reply-To: <20030308232351.GA3462@win.tue.nl>
+Message-ID: <Pine.LNX.3.96.1030308213021.5356B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 04:05:14PM -0800, Larry McVoy wrote:
-> Zack Brown wrote:
-> > Linus Torvalds wrote:
-> > > Give it up.  BitKeeper is simply superior to CVS/SVN, and will stay that
-> > > way indefinitely since most people don't seem to even understand _why_
-> > > it is superior. 
+On Sun, 9 Mar 2003, Andries Brouwer wrote:
+
+> On Sat, Mar 08, 2003 at 05:28:10PM -0500, Bill Davidsen wrote:
+> > On Thu, 6 Mar 2003 Harald.Schaefer@gls-germany.com wrote:
 > > 
-> > You make it sound like no one is even interested ;-). But it's not true! A
-> > lot of people currently working on alternative version control systems would
-> > like very much to know what it would take to satisfy the needs of kernel
-> > development.
+> > >  *    1. CHS value set by user       (whatever user sets will be trusted)
+> > >  *    2. LBA value from target drive (require new ATA feature)
+> > >  *    3. LBA value from system BIOS  (new one is OK, old one may break)
+> > >  *    4. CHS value from system BIOS  (traditional style)
+> > > 
+> > > I think that the priority of LBA from BIOS has to be raised to 2 and the
+> > > priority of LBA from drive should be lowered to 3.
+> > > The mapping-problem only appreared with very new drives in some
+> > > brand-computers using a 240-head mapping from the bios.
+> > 
+> > I think the chances of a drive knowing its own correct LBA info is far
+> > better than the BIOS getting it right. Many BIOS versions don't understand
+> > large drives.
 > 
-> [Long rant, summary: it's harder than you think, read on for the details]
-[skipping long description]
+> Maybe time for some preaching again.
+> 
+> The above sounds like nonsense,
+> "its own correct LBA info" does not refer to anything.
 
-OK, so here is my distillation of Larry's post.
+Change the wording any way you like, my point that the drive is more
+likely to have correct information about its LBA capacity than the BIOS.
 
-  Basic summary: a distributed, replicated, version controlled user level file
-  system with no limits on any of the file system events which may happened
-  in parallel. All changes must be put correctly back together, no matter how
-  much parallelism there has been.
+> A disk that is less than twelve years old does not have a geometry.
+> All disks that can handle LBA (that is, all disks less than
+> twelve years old) use LBA under Linux.
+> Thus, the disk has nothing to tell use except for its total capacity.
 
-  * Merging.
+So you are saying the same thing I am, are you not? I said to use the
+drive LBA capacity, you say that means nothing and then agree that is
+exactly what the drive can tell us. Many people put new drives in old
+machines which have a BIOS which doesn't understand large drives. So the
+kernel should believe the drive about the size rather than the BIOS.
 
-  * The graph structure.
-
-  * Distributed rename handling. Centralized systems like Subversion don't
-  have as many problems with this because you can only create one file in
-  one directory entry because there is only one directory entry available.
-  In distributed rename handling, there can be an infinite number of different
-  files which all want to be src/foo.c. There are also many rename corner-cases.
-
-  * Symbolic tags. This is adding a symbolic label on a revision. A distributed
-  system must handle the fact that the same symbol can be put on multiple
-  revisions. This is a variation of file renaming. One important thing to
-  consider is that time can go forward or backward.
-
-  * Security semantics. Where should they go? How can they be integrated
-  into the system? How are hostile users handled when there is no central
-  server to lock down?
-
-  * Time semantics. A distributed system cannot depend on reported time
-  being correct. It can go forward or backward at any rate.
-
-I'd be willing to maintain this as the beginning of a feature list and
-post it regularly to lkml if enough people feel it would be useful and not
-annoying. The goal would be to identify the features/problems that would
-need to be handled by a kernel-ready version control system.
-
-Be well,
-Zack
+You call that nonsens and then say the same thing in other words as if you
+were disagreeing with me.
 
 -- 
-Zack Brown
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

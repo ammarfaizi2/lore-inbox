@@ -1,87 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUJDOjj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267624AbUJDOlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUJDOjj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 10:39:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267769AbUJDOjj
+	id S267624AbUJDOlh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 10:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267916AbUJDOlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 10:39:39 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:34751 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S267449AbUJDOjc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 10:39:32 -0400
-Date: Mon, 4 Oct 2004 07:37:13 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-Cc: efocht@hpce.nec.com, akpm@osdl.org, nagar@watson.ibm.com,
-       ckrm-tech@lists.sourceforge.net, mbligh@aracnet.com,
-       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
-       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
-       ak@suse.de, sivanich@sgi.com
-Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
-Message-Id: <20041004073713.2d047a24.pj@sgi.com>
-In-Reply-To: <416156E8.7060708@watson.ibm.com>
-References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
-	<20041001164118.45b75e17.akpm@osdl.org>
-	<20041001230644.39b551af.pj@sgi.com>
-	<200410032221.26683.efocht@hpce.nec.com>
-	<416156E8.7060708@watson.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Oct 2004 10:41:36 -0400
+Received: from CPE-144-131-116-152.nsw.bigpond.net.au ([144.131.116.152]:56305
+	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id S267624AbUJDOlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 10:41:07 -0400
+Message-ID: <416160FE.2090107@eyal.emu.id.au>
+Date: Tue, 05 Oct 2004 00:41:02 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.9-rc3-mm2: error: `u64' used prior to declaration
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erich wrote:
-> > Can CKRM (as it is now) fulfil the requirements?
-> ...
-> [CKRM] doesn't care about the structure of the machine
+   CC [M]  drivers/media/dvb/bt8xx/dvb-bt8xx.o
+In file included from drivers/media/dvb/bt8xx/dvb-bt8xx.c:22:
+include/asm/bitops.h:543: error: parse error before "rol64"
+include/asm/bitops.h:543: error: parse error before "x"
+include/asm/bitops.h:543: warning: return type defaults to `int'
+include/asm/bitops.h:543: warning: function declaration isn't a prototype
+include/asm/bitops.h: In function `rol64':
+include/asm/bitops.h:544: error: `num' undeclared (first use in this function)
+include/asm/bitops.h:544: error: (Each undeclared identifier is reported only on
+ce
+include/asm/bitops.h:544: error: for each function it appears in.)
+include/asm/bitops.h:545: error: `u64' undeclared (first use in this function)
+include/asm/bitops.h:545: error: parse error before "vv"
+include/asm/bitops.h:545: error: `vv' undeclared (first use in this function)
+include/asm/bitops.h:547: error: `x' undeclared (first use in this function)
+include/asm/bitops.h: At top level:
+include/asm/bitops.h:549: error: parse error before "ror64"
+include/asm/bitops.h:549: error: parse error before "x"
+include/asm/bitops.h:549: warning: return type defaults to `int'
+include/asm/bitops.h:549: warning: function declaration isn't a prototype
+include/asm/bitops.h: In function `ror64':
+include/asm/bitops.h:550: error: `num' undeclared (first use in this function)
+include/asm/bitops.h:551: error: `u64' undeclared (first use in this function)
+include/asm/bitops.h:551: error: parse error before "vv"
+include/asm/bitops.h:551: error: `vv' undeclared (first use in this function)
+include/asm/bitops.h:552: error: `x' undeclared (first use in this function)
+In file included from include/linux/types.h:14,
+                  from include/linux/capability.h:16,
+                  from include/linux/sched.h:7,
+                  from include/linux/module.h:10,
+                  from drivers/media/dvb/bt8xx/dvb-bt8xx.c:23:
+include/asm/types.h: At top level:
+include/asm/types.h:50: error: `u64' used prior to declaration
+make[4]: *** [drivers/media/dvb/bt8xx/dvb-bt8xx.o] Error 1
+make[3]: *** [drivers/media/dvb/bt8xx] Error 2
+make[2]: *** [drivers/media/dvb] Error 2
+make[1]: *** [drivers/media] Error 2
+make: *** [drivers] Error 2
 
-Hubertus wrote:
-> You forget that CKRM does NOT violate ... cpus_allowed ...
-> ...
-> In order to allow CKRM scheduling within a cpuset ...
+I just added
+	#include <asm/types.h>
+to the top of
+	include/asm/bitops.h
+and the build finished
 
-I sense a disconnect here.
 
-Seems to me Erich was asking if CKRM could be used _instead_ of cpusets,
-and observes that, for now at least, CKRM lacks something.
+BTW, I also see tons of warnings like:
 
-Seems to me Hubertus is, _in_ _part_, responding to the question of
-whether CKRM can be used _within_ cpusets, and claims to be taking a
-position opposite to Erich's, protesting that indeed CKRM can be used
-within cpusets - CKRM doesn't violate cpus_allowed constraints.
+drivers/media/dvb/b2c2/skystar2.c:2069: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/media/dvb/b2c2/skystar2.c:2086: warning: passing arg 2 of `writel' makes pointer from integer without a cast
 
-Hubertus - I didn't realize that Erich considered that question, not did
-I realize he took that position.
+drivers/atm/iphase.c:1017: warning: passing arg 1 of `readw' makes pointer from integer without a cast
+drivers/atm/iphase.c:1070: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+drivers/isdn/hisax/teles0.c:35: warning: passing arg 1 of `readb' makes pointer from integer without a cast
+drivers/isdn/hisax/teles0.c:41: warning: passing arg 2 of `writeb' makes pointer from integer without a cast
+drivers/isdn/hisax/telespci.c:50: warning: passing arg 1 of `readl' makes pointer from integer without a cast
+drivers/isdn/hisax/telespci.c:53: warning: passing arg 2 of `writel' makes pointer from integer without a cast
 
-Unfortunately, the plot thickens.  Hubertus goes on it seems to consider
-other questions, and I start to lose the thread of his thought.  Such
-questions as:
 
- - can RCFS/controllers set cpus_allowed as do cpusets?
-	[ beware that there's more to cpusets than setting cpus_allowed ]
- - can cpusets replace shared based scheduling?
- - can share based scheduling replace cpusets?
- - can CKRM scheduling be allowed within cpusets?
- - are sibling cpusets exclusive?
-	[ yes - if the exclusive property is set on them ]
- - can we enforce that a certain task class is limited to a cpuset subtree?
-
-By now I'm thoroughly confused.  Fortunately, Hubertus concludes:
-
-  - If we agree or disagree then we can work on a proposal for this.
-
-Well, since I'm pretty sure from my Logic 101 class that we agree or
-disagree, this is good news.  I'm glad to hear we can work on a proposal
-on this [ what was 'this' again ...? ;) ]
-
-One thing I am sure of ... either one of Hubertus or myself needs another
-cup of coffee, or both Hubertus and I need to have a beer together.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+--
+Eyal Lebedinsky	 (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

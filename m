@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317698AbSH3WJZ>; Fri, 30 Aug 2002 18:09:25 -0400
+	id <S317602AbSH3WG6>; Fri, 30 Aug 2002 18:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317642AbSH3WIP>; Fri, 30 Aug 2002 18:08:15 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:32275 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317637AbSH3WHp>;
-	Fri, 30 Aug 2002 18:07:45 -0400
-Date: Fri, 30 Aug 2002 15:11:08 -0700
+	id <S317610AbSH3WG5>; Fri, 30 Aug 2002 18:06:57 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:30739 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317602AbSH3WGI>;
+	Fri, 30 Aug 2002 18:06:08 -0400
+Date: Fri, 30 Aug 2002 15:09:32 -0700
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
 Subject: Re: [BK PATCH] PCI ops cleanups for 2.5.32-bk
-Message-ID: <20020830221107.GG10783@kroah.com>
-References: <20020830220720.GA10783@kroah.com> <20020830220846.GB10783@kroah.com> <20020830220912.GC10783@kroah.com> <20020830220931.GD10783@kroah.com> <20020830221017.GE10783@kroah.com> <20020830221044.GF10783@kroah.com>
+Message-ID: <20020830220931.GD10783@kroah.com>
+References: <20020830220720.GA10783@kroah.com> <20020830220846.GB10783@kroah.com> <20020830220912.GC10783@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020830221044.GF10783@kroah.com>
+In-Reply-To: <20020830220912.GC10783@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -24,359 +24,274 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.547   -> 1.548  
-#	arch/ia64/sn/io/pci.c	1.3     -> 1.4    
-#	arch/ia64/kernel/pci.c	1.14    -> 1.15   
-#	include/asm-ia64/pci.h	1.10    -> 1.11   
+#	           ChangeSet	1.544   -> 1.545  
+#	drivers/hotplug/pci_hotplug_util.c	1.3     -> 1.4    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/08/30	hannal@us.ibm.com	1.548
-# [PATCH] PCI: ia64 pci_ops changes
+# 02/08/30	greg@kroah.com	1.545
+# [PATCH] PCI Hotplug: removed the pci_*_nodev functions
 # 
-# ia64 pci ops changes
+# removed the pci_*_nodev functions, as the pci_bus_* functions should be used instead.
 # --------------------------------------------
 #
-diff -Nru a/arch/ia64/kernel/pci.c b/arch/ia64/kernel/pci.c
---- a/arch/ia64/kernel/pci.c	Fri Aug 30 15:00:24 2002
-+++ b/arch/ia64/kernel/pci.c	Fri Aug 30 15:00:24 2002
-@@ -46,9 +46,6 @@
- 
- struct pci_ops *pci_root_ops;
- 
--int (*pci_config_read)(int seg, int bus, int dev, int fn, int reg, int len, u32 *value);
--int (*pci_config_write)(int seg, int bus, int dev, int fn, int reg, int len, u32 value);
--
- 
- /*
-  * Low-level SAL-based PCI configuration access functions. Note that SAL
-@@ -60,7 +57,7 @@
- 	((u64)(bus << 16) | (u64)(dev << 11) | (u64)(fn << 8) | (u64)(reg))
- 
- static int
--pci_sal_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
-+__pci_sal_read (int seg, int bus, int dev, int fn, int reg, int len, u32 *value)
- {
- 	int result = 0;
- 	u64 data = 0;
-@@ -76,7 +73,7 @@
- }
- 
- static int
--pci_sal_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
-+__pci_sal_write (int seg, int bus, int dev, int fn, int reg, int len, u32 value)
- {
- 	if ((bus > 255) || (dev > 31) || (fn > 7) || (reg > 255))
- 		return -EINVAL;
-@@ -86,77 +83,22 @@
+diff -Nru a/drivers/hotplug/pci_hotplug_util.c b/drivers/hotplug/pci_hotplug_util.c
+--- a/drivers/hotplug/pci_hotplug_util.c	Fri Aug 30 15:00:33 2002
++++ b/drivers/hotplug/pci_hotplug_util.c	Fri Aug 30 15:00:33 2002
+@@ -51,245 +51,6 @@
+ static int debug;
  
  
- static int
--pci_sal_read_config_byte (struct pci_dev *dev, int where, u8 *value)
+-static int build_dev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, struct pci_dev **pci_dev)
 -{
--	int result = 0;
--	u32 data = 0;
+-	struct pci_dev *my_dev;
+-	struct pci_bus *my_bus;
 -
--	if (!value)
--		return -EINVAL;
+-	/* Some validity checks. */
+-	if ((function > 7) ||
+-	    (slot > 31) ||
+-	    (pci_dev == NULL) ||
+-	    (ops == NULL))
+-		return -ENODEV;
 -
--	result = pci_sal_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
--			      PCI_FUNC(dev->devfn), where, 1, &data);
+-	my_dev = kmalloc (sizeof (struct pci_dev), GFP_KERNEL);
+-	if (!my_dev)
+-		return -ENOMEM;
+-	my_bus = kmalloc (sizeof (struct pci_bus), GFP_KERNEL);
+-	if (!my_bus) {
+-		kfree (my_dev);
+-		return -ENOMEM;
+-	}
+-	memset(my_dev, 0, sizeof(struct pci_dev));
+-	memset(my_bus, 0, sizeof(struct pci_bus));
 -
--	*value = (u8) data;
+-	my_bus->number = bus;
+-	my_bus->ops = ops;
+-	my_dev->devfn = PCI_DEVFN(slot, function);
+-	my_dev->bus = my_bus;
+-	*pci_dev = my_dev;
+-	return 0;
+-}
 -
+-/**
+- * pci_read_config_byte_nodev - read a byte from a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to read from the pci device
+- * @bus: the bus of the pci device to read from
+- * @slot: the pci slot number of the pci device to read from
+- * @function: the function of the pci device to read from
+- * @where: the location on the pci address space to read from
+- * @value: pointer to where to place the data read
+- *
+- * Like pci_read_config_byte() but works for pci devices that do not have a
+- * pci_dev structure set up yet.
+- * Returns 0 on success.
+- */
+-int pci_read_config_byte_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u8 *value)
+-{
+-	struct pci_dev *dev = NULL;
+-	int result;
+-
+-	dbg("%p, %d, %d, %d, %d, %p\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
+-	if (dev) {
+-		dbg("using native pci_dev\n");
+-		return pci_read_config_byte (dev, where, value);
+-	}
+-	
+-	result = build_dev (ops, bus, slot, function, &dev);
+-	if (result)
+-		return result;
+-	result = pci_read_config_byte(dev, where, value);
+-	kfree (dev->bus);
+-	kfree (dev);
 -	return result;
 -}
 -
--static int
--pci_sal_read_config_word (struct pci_dev *dev, int where, u16 *value)
+-/**
+- * pci_read_config_word_nodev - read a word from a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to read from the pci device
+- * @bus: the bus of the pci device to read from
+- * @slot: the pci slot number of the pci device to read from
+- * @function: the function of the pci device to read from
+- * @where: the location on the pci address space to read from
+- * @value: pointer to where to place the data read
+- *
+- * Like pci_read_config_word() but works for pci devices that do not have a
+- * pci_dev structure set up yet. 
+- * Returns 0 on success.
+- */
+-int pci_read_config_word_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u16 *value)
 -{
--	int result = 0;
--	u32 data = 0;
+-	struct pci_dev *dev = NULL;
+-	int result;
 -
--	if (!value)
--		return -EINVAL;
--
--	result = pci_sal_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
--			      PCI_FUNC(dev->devfn), where, 2, &data);
--
--	*value = (u16) data;
--
+-	dbg("%p, %d, %d, %d, %d, %p\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
+-	if (dev) {
+-		dbg("using native pci_dev\n");
+-		return pci_read_config_word (dev, where, value);
+-	}
+-	
+-	result = build_dev (ops, bus, slot, function, &dev);
+-	if (result)
+-		return result;
+-	result = pci_read_config_word(dev, where, value);
+-	kfree (dev->bus);
+-	kfree (dev);
 -	return result;
 -}
 -
--static int
--pci_sal_read_config_dword (struct pci_dev *dev, int where, u32 *value)
+-/**
+- * pci_read_config_dword_nodev - read a dword from a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to read from the pci
+- * device
+- * @bus: the bus of the pci device to read from
+- * @slot: the pci slot number of the pci device to read from
+- * @function: the function of the pci device to read from
+- * @where: the location on the pci address space to read from
+- * @value: pointer to where to place the data read
+- *
+- * Like pci_read_config_dword() but works for pci devices that do not have a
+- * pci_dev structure set up yet. 
+- * Returns 0 on success.
+- */
+-int pci_read_config_dword_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u32 *value)
 -{
--	if (!value)
--		return -EINVAL;
+-	struct pci_dev *dev = NULL;
+-	int result;
 -
--	return pci_sal_read(0, dev->bus->number, PCI_SLOT(dev->devfn),
--			    PCI_FUNC(dev->devfn), where, 4, value);
+-	dbg("%p, %d, %d, %d, %d, %p\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
+-	if (dev) {
+-		dbg("using native pci_dev\n");
+-		return pci_read_config_dword (dev, where, value);
+-	}
+-	
+-	result = build_dev (ops, bus, slot, function, &dev);
+-	if (result)
+-		return result;
+-	result = pci_read_config_dword(dev, where, value);
+-	kfree (dev->bus);
+-	kfree (dev);
+-	return result;
 -}
 -
--static int
--pci_sal_write_config_byte (struct pci_dev *dev, int where, u8 value)
+-/**
+- * pci_write_config_byte_nodev - write a byte to a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to write to the pci
+- * device
+- * @bus: the bus of the pci device to write to
+- * @slot: the pci slot number of the pci device to write to
+- * @function: the function of the pci device to write to
+- * @where: the location on the pci address space to write to
+- * @value: the value to write to the pci device
+- *
+- * Like pci_write_config_byte() but works for pci devices that do not have a
+- * pci_dev structure set up yet. 
+- * Returns 0 on success.
+- */
+-int pci_write_config_byte_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u8 value)
 -{
--	return pci_sal_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
--			     PCI_FUNC(dev->devfn), where, 1, value);
+-	struct pci_dev *dev = NULL;
+-	int result;
+-
+-	dbg("%p, %d, %d, %d, %d, %d\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
+-	if (dev) {
+-		dbg("using native pci_dev\n");
+-		return pci_write_config_byte (dev, where, value);
+-	}
+-	
+-	result = build_dev (ops, bus, slot, function, &dev);
+-	if (result)
+-		return result;
+-	result = pci_write_config_byte(dev, where, value);
+-	kfree (dev->bus);
+-	kfree (dev);
+-	return result;
 -}
 -
--static int
--pci_sal_write_config_word (struct pci_dev *dev, int where, u16 value)
-+pci_sal_read (struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
- {
--	return pci_sal_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
--			     PCI_FUNC(dev->devfn), where, 2, value);
-+	return __pci_sal_read(0, bus->number, PCI_SLOT(devfn),
-+			    PCI_FUNC(devfn), where, size, value);
- }
- 
- static int
--pci_sal_write_config_dword (struct pci_dev *dev, int where, u32 value)
-+pci_sal_write (struct pci_bus *bus, unsigned int devfn, int where, int size, u32 value)
- {
--	return pci_sal_write(0, dev->bus->number, PCI_SLOT(dev->devfn),
--			     PCI_FUNC(dev->devfn), where, 4, value);
-+	return __pci_sal_write(0, bus->number, PCI_SLOT(devfn),
-+			     PCI_FUNC(devfn), where, size, value);
- }
- 
- struct pci_ops pci_sal_ops = {
--	pci_sal_read_config_byte,
--	pci_sal_read_config_word,
--	pci_sal_read_config_dword,
--	pci_sal_write_config_byte,
--	pci_sal_write_config_word,
--	pci_sal_write_config_dword
-+	.read = 	pci_sal_read,
-+	.write =	pci_sal_write,
- };
- 
- 
-@@ -193,8 +135,6 @@
- 	printk("PCI: Using SAL to access configuration space\n");
- 
- 	pci_root_ops = &pci_sal_ops;
--	pci_config_read = pci_sal_read;
--	pci_config_write = pci_sal_write;
- 
- 	return;
- }
-diff -Nru a/arch/ia64/sn/io/pci.c b/arch/ia64/sn/io/pci.c
---- a/arch/ia64/sn/io/pci.c	Fri Aug 30 15:00:24 2002
-+++ b/arch/ia64/sn/io/pci.c	Fri Aug 30 15:00:24 2002
-@@ -44,22 +44,21 @@
- extern devfs_handle_t devfn_to_vertex(unsigned char bus, unsigned char devfn);
- 
+-/**
+- * pci_write_config_word_nodev - write a word to a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to write to the pci
+- * device
+- * @bus: the bus of the pci device to write to
+- * @slot: the pci slot number of the pci device to write to
+- * @function: the function of the pci device to write to
+- * @where: the location on the pci address space to write to
+- * @value: the value to write to the pci device
+- *
+- * Like pci_write_config_word() but works for pci devices that do not have a
+- * pci_dev structure set up yet. 
+- * Returns 0 on success.
+- */
+-int pci_write_config_word_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u16 value)
+-{
+-	struct pci_dev *dev = NULL;
+-	int result;
+-
+-	dbg("%p, %d, %d, %d, %d, %d\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
+-	if (dev) {
+-		dbg("using native pci_dev\n");
+-		return pci_write_config_word (dev, where, value);
+-	}
+-	
+-	result = build_dev (ops, bus, slot, function, &dev);
+-	if (result)
+-		return result;
+-	result = pci_write_config_word(dev, where, value);
+-	kfree (dev->bus);
+-	kfree (dev);
+-	return result;
+-}
+-
+-/**
+- * pci_write_config_dword_nodev - write a dword to a pci device
+- * @ops: pointer to a &struct pci_ops that will be used to write to the pci
+- * device
+- * @bus: the bus of the pci device to write to
+- * @slot: the pci slot number of the pci device to write to
+- * @function: the function of the pci device to write to
+- * @where: the location on the pci address space to write to
+- * @value: the value to write to the pci device
+- *
+- * Like pci_write_config_dword() but works for pci devices that do not have a
+- * pci_dev structure set up yet. 
+- * Returns 0 on success.
+- */
+-int pci_write_config_dword_nodev (struct pci_ops *ops, u8 bus, u8 slot, u8 function, int where, u32 value)
+-{
+-	struct pci_dev *dev = NULL;
+-	int result;
+-
+-	dbg("%p, %d, %d, %d, %d, %d\n", ops, bus, slot, function, where, value);
+-	dev = pci_find_slot(bus, PCI_DEVFN(slot, function));
+-	if (dev) {
+-		dbg("using native pci_dev\n");
+-		return pci_write_config_dword (dev, where, value);
+-	}
+-	
+-	result = build_dev (ops, bus, slot, function, &dev);
+-	if (result)
+-		return result;
+-	result = pci_write_config_dword(dev, where, value);
+-	kfree (dev->bus);
+-	kfree (dev);
+-	return result;
+-}
+-
  /*
-- * snia64_read_config_byte - Read a byte from the config area of the device.
-+ * snia64_read - Read from the config area of the device.
-  */
--static int snia64_read_config_byte (struct pci_dev *dev,
--                                   int where, unsigned char *val)
-+static int snia64_read (struct pci_bus *bus, unsigned char devfn,
-+                                   int where, int size, unsigned char *val)
- {
- 	unsigned long res = 0;
--	unsigned size = 1;
- 	devfs_handle_t device_vertex;
+  * This is code that scans the pci buses.
+  * Every bus and every function is presented to a custom
+@@ -394,10 +155,4 @@
  
--	if ( (dev == (struct pci_dev *)0) || (val == (unsigned char *)0) ) {
-+	if ( (bus == NULL) || (val == (unsigned char *)0) ) {
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 	}
--	device_vertex = devfn_to_vertex(dev->bus->number, dev->devfn);
-+	device_vertex = devfn_to_vertex(bus->number, devfn);
- 	if (!device_vertex) {
- 		DBG("%s : nonexistent device: bus= 0x%x  slot= 0x%x  func= 0x%x\n", 
--		__FUNCTION__, dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+		__FUNCTION__, bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn));
- 		return(-1);
- 	}
- 	res = pciio_config_get(device_vertex, (unsigned) where, size);
-@@ -68,160 +67,40 @@
- }
  
- /*
-- * snia64_read_config_word - Read 2 bytes from the config area of the device.
-+ * snia64_write - Writes to the config area of the device.
-  */
--static int snia64_read_config_word (struct pci_dev *dev,
--                                   int where, unsigned short *val)
-+static int snia64_write (struct pci_bus *bus, unsigned char devfn,
-+                                    int where, int size, unsigned char val)
- {
--	unsigned long res = 0;
--	unsigned size = 2; /* 2 bytes */
--	devfs_handle_t device_vertex;
--
--	if ( (dev == (struct pci_dev *)0) || (val == (unsigned short *)0) ) {
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	}
--	device_vertex = devfn_to_vertex(dev->bus->number, dev->devfn);
--	if (!device_vertex) {
--		DBG("%s : nonexistent device: bus= 0x%x  slot= 0x%x  func= 0x%x\n", 
--		__FUNCTION__, dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--		return(-1);
--	}
--	res = pciio_config_get(device_vertex, (unsigned) where, size);
--	*val = (unsigned short) res;
--	return PCIBIOS_SUCCESSFUL;
--}
--
--/*
-- * snia64_read_config_dword - Read 4 bytes from the config area of the device.
-- */
--static int snia64_read_config_dword (struct pci_dev *dev,
--                                    int where, unsigned int *val)
--{
--	unsigned long res = 0;
--	unsigned size = 4; /* 4 bytes */
- 	devfs_handle_t device_vertex;
- 
--	if (where & 3) {
--		return PCIBIOS_BAD_REGISTER_NUMBER;
--	}
--	if ( (dev == (struct pci_dev *)0) || (val == (unsigned int *)0) ) {
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	}
--
--	device_vertex = devfn_to_vertex(dev->bus->number, dev->devfn);
--	if (!device_vertex) {
--		DBG("%s : nonexistent device: bus= 0x%x  slot= 0x%x  func= 0x%x\n", 
--		__FUNCTION__, dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--		return(-1);
--	}
--	res = pciio_config_get(device_vertex, (unsigned) where, size);
--	*val = (unsigned int) res;
--	return PCIBIOS_SUCCESSFUL;
--}
--
--/*
-- * snia64_write_config_byte - Writes 1 byte to the config area of the device.
-- */
--static int snia64_write_config_byte (struct pci_dev *dev,
--                                    int where, unsigned char val)
--{
--	devfs_handle_t device_vertex;
--
--	if ( dev == (struct pci_dev *)0 ) {
-+	if ( bus == NULL) {
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 	}
- 	/* 
- 	 * if it's an IOC3 then we bail out, we special
- 	 * case them with pci_fixup_ioc3
- 	 */
--	if (dev->vendor == PCI_VENDOR_ID_SGI && 
-+	/* Starting 2.5.32 struct pci_dev is not passed down */
-+	/*if (dev->vendor == PCI_VENDOR_ID_SGI && 
- 	    dev->device == PCI_DEVICE_ID_SGI_IOC3 )
- 		return PCIBIOS_SUCCESSFUL;
-+	*/
- 
--	device_vertex = devfn_to_vertex(dev->bus->number, dev->devfn);
--	if (!device_vertex) {
--		DBG("%s : nonexistent device: bus= 0x%x  slot= 0x%x  func= 0x%x\n", 
--		__FUNCTION__, dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--		return(-1);
--	}
--	pciio_config_set( device_vertex, (unsigned)where, 1, (uint64_t) val);
--
--	return PCIBIOS_SUCCESSFUL;
--}
--
--/*
-- * snia64_write_config_word - Writes 2 bytes to the config area of the device.
-- */
--static int snia64_write_config_word (struct pci_dev *dev,
--                                    int where, unsigned short val)
--{
--	devfs_handle_t device_vertex = NULL;
--
--	if (where & 1) {
--		return PCIBIOS_BAD_REGISTER_NUMBER;
--	}
--	if ( dev == (struct pci_dev *)0 ) {
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	}
--	/* 
--	 * if it's an IOC3 then we bail out, we special
--	 * case them with pci_fixup_ioc3
--	 */
--	if (dev->vendor == PCI_VENDOR_ID_SGI && 
--	    dev->device == PCI_DEVICE_ID_SGI_IOC3)
--		return PCIBIOS_SUCCESSFUL;
--
--	device_vertex = devfn_to_vertex(dev->bus->number, dev->devfn);
--	if (!device_vertex) {
--		DBG("%s : nonexistent device: bus= 0x%x  slot= 0x%x  func= 0x%x\n", 
--		__FUNCTION__, dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
--		return(-1);
--	}
--	pciio_config_set( device_vertex, (unsigned)where, 2, (uint64_t) val);
--
--	return PCIBIOS_SUCCESSFUL;
--}
--
--/*
-- * snia64_write_config_dword - Writes 4 bytes to the config area of the device.
-- */
--static int snia64_write_config_dword (struct pci_dev *dev,
--                                     int where, unsigned int val)
--{
--	devfs_handle_t device_vertex;
--
--	if (where & 3) {
--		return PCIBIOS_BAD_REGISTER_NUMBER;
--	}
--	if ( dev == (struct pci_dev *)0 ) {
--		return PCIBIOS_DEVICE_NOT_FOUND;
--	}
--	/* 
--	 * if it's an IOC3 then we bail out, we special
--	 * case them with pci_fixup_ioc3
--	 */
--	if (dev->vendor == PCI_VENDOR_ID_SGI && 
--	    dev->device == PCI_DEVICE_ID_SGI_IOC3)
--		return PCIBIOS_SUCCESSFUL;
--
--	device_vertex = devfn_to_vertex(dev->bus->number, dev->devfn);
-+	device_vertex = devfn_to_vertex(bus->number, devfn);
- 	if (!device_vertex) {
- 		DBG("%s : nonexistent device: bus= 0x%x  slot= 0x%x  func= 0x%x\n", 
--		__FUNCTION__, dev->bus->number, PCI_SLOT(dev->devfn), PCI_FUNC(dev->devfn));
-+		__FUNCTION__, bus->number, PCI_SLOT(devfn), PCI_FUNC(devfn));
- 		return(-1);
- 	}
--	pciio_config_set( device_vertex, (unsigned)where, 4, (uint64_t) val);
-+	pciio_config_set( device_vertex, (unsigned)where, size, (uint64_t) val);
- 
- 	return PCIBIOS_SUCCESSFUL;
- }
- 
- static struct pci_ops snia64_pci_ops = {
--	snia64_read_config_byte,
--	snia64_read_config_word,
--	snia64_read_config_dword,
--	snia64_write_config_byte,
--	snia64_write_config_word,
--	snia64_write_config_dword
-+	.read =		snia64_read,
-+	.write = 	snia64_write,
- };
- 
- /*
-diff -Nru a/include/asm-ia64/pci.h b/include/asm-ia64/pci.h
---- a/include/asm-ia64/pci.h	Fri Aug 30 15:00:24 2002
-+++ b/include/asm-ia64/pci.h	Fri Aug 30 15:00:24 2002
-@@ -22,8 +22,6 @@
- 
- void pcibios_config_init(void);
- struct pci_bus * pcibios_scan_root(int bus);
--extern int (*pci_config_read)(int seg, int bus, int dev, int fn, int reg, int len, u32 *value);
--extern int (*pci_config_write)(int seg, int bus, int dev, int fn, int reg, int len, u32 value);
- 
- struct pci_dev;
+ EXPORT_SYMBOL(pci_visit_dev);
+-EXPORT_SYMBOL(pci_read_config_byte_nodev);
+-EXPORT_SYMBOL(pci_read_config_word_nodev);
+-EXPORT_SYMBOL(pci_read_config_dword_nodev);
+-EXPORT_SYMBOL(pci_write_config_byte_nodev);
+-EXPORT_SYMBOL(pci_write_config_word_nodev);
+-EXPORT_SYMBOL(pci_write_config_dword_nodev);
  

@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbTKDQNi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 11:13:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbTKDQNi
+	id S262375AbTKDQNt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 11:13:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbTKDQNt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 11:13:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:60822 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262373AbTKDQNh (ORCPT
+	Tue, 4 Nov 2003 11:13:49 -0500
+Received: from [62.38.236.240] ([62.38.236.240]:34740 "EHLO pfn1.pefnos")
+	by vger.kernel.org with ESMTP id S262375AbTKDQNq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 11:13:37 -0500
-Date: Tue, 4 Nov 2003 08:13:32 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6] Dont use cpu_has_pse for WP test branch
-In-Reply-To: <Pine.LNX.4.53.0311040155150.20595@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44.0311040809470.20373-100000@home.osdl.org>
+	Tue, 4 Nov 2003 11:13:46 -0500
+From: "P. Christeas" <p_christ@hol.gr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: lsmod ipv6 on -test9 shows many refs, lockd
+Date: Tue, 4 Nov 2003 18:14:24 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311041814.24731.p_christ@hol.gr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Question: is it normal for ipv6 module to have many refs while there is few 
+ipv6 connections ?
+My system is up for 3 days now. I have been using ACPI sleep and _ifconfig to 
+alter the ip address_. 
+lsmod gives:
+	ipv6                  235904  34
+and lsof -i6 only shows two ports listening on ipv6.
+Even when I close all tcp (including v4) sockets, ipv6 still has around 10 
+refs in lsmod.
+Ten days ago (with -test7) I used to have a broken script for sshd that tried 
+to bind to ipv6 every 20 mins. The result was that the count for ipv6.ko 
+would reach as high as 900 w/o any bound sockets.
+Does that constitute a leak? 
 
-On Tue, 4 Nov 2003, Zwane Mwaikambo wrote:
->
-> It appears that not all processors which support PSE have the PSE bit set, 
-> possibly we should be checking with PSE36 too. But instead i've opted to 
-> simply check for 586+
+In other news, I haven't managed to trace the bug behind 'lockd', but I guess 
+it's time I ask about it. After about 4 days uptime [1], both in -test7 and 
+-test9, lockd BUGs at 'module.h, 296' . After that, nfs becomes unusable[2] 
+and I have to reboot the kernel. The BUG is hit while I try to mount a nfs 
+partition, which is being served by another 2.6 machine [3].
+I can only report that this has happened. It may be related to the ipv6 leak, 
+I guess..
 
-Why?
 
-The reason we test the PSE bit is not that we think it's a good indicator 
-of "new enough".  It's because if the PSE bit is set, we will use 4MB 
-pages, and the code below that actually _tests_ whether WP works or not 
-won't work.
+[1] Every day, I switch from my home net to my work's net and back. I use 
+ifconfig new_ip for that.
+[2] lockd freezes, the 'mount' process gets <defunct> and nfs cannot be 
+unloaded.
+[3] At work, I mount nfs partitions to a *nix environment. I have not yet seen 
+lockd freeze there.
 
-So it doesn't _matter_ that
-
-> Celeron (Mendocino): fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca 
-> cmov pat pse36 mmx fxsr
-> 
-> Opteron 240: fpu vme de tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat 
-> pse36 clflush mmx fxsr sse sse2 syscall mmxext lm 3dnowext 3dnow
-
-do not have PSE, they'll just end up testing dynamically if it works or 
-not.
-
-In fact, these days we could remove the test entirely: the only reason it 
-exists is because traditionally we didn't have the "fixmap" helpers, so we 
-used the page in lowest kernel memory for testing (which did not exist if 
-we had PSE, since with PSE the kernel wouldn't use individual pages to map 
-itself).
-
-		Linus
 

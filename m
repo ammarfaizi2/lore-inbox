@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSGVKeG>; Mon, 22 Jul 2002 06:34:06 -0400
+	id <S315375AbSGUXno>; Sun, 21 Jul 2002 19:43:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316666AbSGVKeG>; Mon, 22 Jul 2002 06:34:06 -0400
-Received: from [213.225.90.118] ([213.225.90.118]:21254 "HELO
-	lexx.infeline.org") by vger.kernel.org with SMTP id <S316649AbSGVKeG>;
-	Mon, 22 Jul 2002 06:34:06 -0400
-Date: Mon, 22 Jul 2002 12:38:18 +0200 (CEST)
-From: Ketil Froyn <ketil-kernel@froyn.net>
-X-X-Sender: ketil@ketil.np
-To: linux-kernel@vger.kernel.org
-Subject: EINTR on close() in Linux?
-Message-ID: <Pine.LNX.4.40L0.0207221221580.1417-100000@ketil.np>
+	id <S315388AbSGUXno>; Sun, 21 Jul 2002 19:43:44 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21448 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S315375AbSGUXnn>;
+	Sun, 21 Jul 2002 19:43:43 -0400
+Date: Mon, 22 Jul 2002 01:44:16 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>
+Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
+In-Reply-To: <20020722004353.S26376@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207220143520.4084-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-After looking at the discussion on errors during close(), I'd like a
-clarification. Linus said that Linux ALWAYS tears down the fd when close()
-is called, and it returns the error just to notify the application. What
-happens if the close() call is interrupted by a signal? Does Linux say
-EINTR and close the FD, or will Linux just never say EINTR? To close a fd
-a portable program might do something like this:
+On Mon, 22 Jul 2002, Russell King wrote:
 
-while (1) {
-	if (close(fd) == -1) {
-		if (errno == EINTR) continue;
-		printf("Barf\n");
-		exit(1);
-	}
-	break;
-}
+> Actually its to cover the case where you have a floppy drive, and you've
+> booted the kernel from a floppy disk, and the kernel doesn't have the
+> floppy driver built in.  It turns the floppy drive off, cause there's
+> nothing else to do that.
 
-If Linux returns EINTR and tears down the fd, this code is bad because
-1) It will die with EBADF the second try, or
-2) In a multithreaded app, it might close something it shouldn't
+this should then be done by the floppy boot code?
 
-Thanks,
-Ketil
+	Ingo
 

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261372AbSKGUhO>; Thu, 7 Nov 2002 15:37:14 -0500
+	id <S261581AbSKGUoU>; Thu, 7 Nov 2002 15:44:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261574AbSKGUhN>; Thu, 7 Nov 2002 15:37:13 -0500
-Received: from ppp-217-133-220-172.dialup.tiscali.it ([217.133.220.172]:12424
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S261372AbSKGUhN>; Thu, 7 Nov 2002 15:37:13 -0500
-Subject: Re: USB broken in 2.5.4[56]
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux-USB-Users <linux-usb-users@lists.sourceforge.net>
-In-Reply-To: <20021106183046.GA23770@kroah.com>
-References: <20021106132022.GA2101@home.ldb.ods.org> 
-	<20021106183046.GA23770@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-EgDvU01NpHyeyhNl+vvP"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 07 Nov 2002 21:43:17 +0100
-Message-Id: <1036701797.2841.17.camel@ldb>
+	id <S265973AbSKGUoU>; Thu, 7 Nov 2002 15:44:20 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:5533 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261581AbSKGUoU>;
+	Thu, 7 Nov 2002 15:44:20 -0500
+Date: Thu, 7 Nov 2002 12:51:16 -0800
+From: Dave Olien <dmo@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: mochel@osdl.org
+Subject: [BUG] 2.5.46 reloading a block device module doesn't probe devices
+Message-ID: <20021107125116.A16707@acpi.pdx.osdl.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-EgDvU01NpHyeyhNl+vvP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-> Anyway, which USB drivers are you using?  That might help us narrow this
-> down a bit.
+I just converted the DAC960 driver in 2.5.46 to use the pci_register_driver()
+to discover devices.
 
-speedtouch              8932   3
-hid                    39652   0 (unused)
-uhci-hcd               27900   0 (unused)
-usbcore                88372   2 [speedtouch hid uhci-hcd]
+I've been experimenting loading the DAC960 driver module, unloading
+the module, and then loading it again.  I get curious behavior.
+The load, unload seem to work fine.
 
-Anyway the problems are obviously either in the USB core or in the uhci
-driver.
+The reload also APPEARS to succeed. The insmod command completes
+with a successful status.
 
+But the second loading of the driver never calls the driver's probe routines.
+I added printfs, and determined that the module_init() function
+DOES get called the second time.  But a printf in the probe() routine
+doesn't show up the second time.
 
---=-EgDvU01NpHyeyhNl+vvP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Has there been a patch recently for this problem?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Thanks!
 
-iD8DBQA9ytBldjkty3ft5+cRAhhwAJwPAsV0mEW+bS9dqo0WRdVVQl96pwCghS//
-ZyN7isxHyJccurgMbSxluBU=
-=/qxa
------END PGP SIGNATURE-----
+Dave Olien
 
---=-EgDvU01NpHyeyhNl+vvP--

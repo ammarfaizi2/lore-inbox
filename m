@@ -1,34 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263182AbTFDK3d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 06:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbTFDK3d
+	id S263025AbTFDK2i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 06:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbTFDK2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 06:29:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:63237 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263182AbTFDK3b (ORCPT
+	Wed, 4 Jun 2003 06:28:37 -0400
+Received: from ns.suse.de ([213.95.15.193]:55813 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263025AbTFDK2g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 06:29:31 -0400
-Date: Wed, 4 Jun 2003 12:43:04 +0200
-From: Andrea Arcangeli <andrea@suse.de>
+	Wed, 4 Jun 2003 06:28:36 -0400
+Date: Wed, 4 Jun 2003 12:42:15 +0200
+From: Jens Axboe <axboe@suse.de>
 To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
        Georg Nikodym <georgn@somanetworks.com>,
        lkml <linux-kernel@vger.kernel.org>
 Subject: Re: -rc7   Re: Linux 2.4.21-rc6
-Message-ID: <20030604104304.GQ3412@x30.school.suse.de>
+Message-ID: <20030604104215.GN4853@suse.de>
 References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <Pine.LNX.4.55L.0305291609580.14835@freak.distro.conectiva> <20030604102241.GM3412@x30.school.suse.de> <200306041235.07832.m.c.p@wolk-project.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <200306041235.07832.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 04, 2003 at 12:35:07PM +0200, Marc-Christian Petersen wrote:
+On Wed, Jun 04 2003, Marc-Christian Petersen wrote:
 > On Wednesday 04 June 2003 12:22, Andrea Arcangeli wrote:
 > 
 > Hi Andrea,
@@ -46,22 +44,8 @@ On Wed, Jun 04, 2003 at 12:35:07PM +0200, Marc-Christian Petersen wrote:
 > > get_request should block (and it doesn't in 2.4, that is the problem)
 > do you see a chance to fix this up in 2.4?
 
-sure, it's just a matter of adding a bit to the blkdev structure.
-However I'm not 100% sure that it is the real thing that could make the
-difference, but overall the exclusive wakeup FIFO in theory should
-provide even an higher degree of fariness, so at the very least the
-"fix" 2 from Andrew makes very little sense to me, and it seems just an
-hack meant to hide a real problem in the algorithm.
+Nick posted a patch to do so the other day and asked people to test.
 
-I mean, going wakeall (LIFO btw) rather than wake-one FIFO if something
-should make things worse unless it is hiding some other issue.
+-- 
+Jens Axboe
 
-As for 1 and 3 they were just included in my tree for ages.
-
-BTW, Chris recently spotted a nearly impossible to trigger SMP-only race
-in the fix pausing patch [great spotting Chris] (to trigger it would
-need an intersection of two races at the same time), it'll be fixed in
-my next tree, however nobody ever reproduced it and you certainly can
-ignore it in practice so it can't explain any issue.
-
-Andrea

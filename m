@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264363AbRFGIMr>; Thu, 7 Jun 2001 04:12:47 -0400
+	id <S264366AbRFGIQh>; Thu, 7 Jun 2001 04:16:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264364AbRFGIM2>; Thu, 7 Jun 2001 04:12:28 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:22021 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264363AbRFGIMR>; Thu, 7 Jun 2001 04:12:17 -0400
-Date: Thu, 7 Jun 2001 01:11:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S264365AbRFGIQ1>; Thu, 7 Jun 2001 04:16:27 -0400
+Received: from www.wen-online.de ([212.223.88.39]:30469 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S264366AbRFGIQO>;
+	Thu, 7 Jun 2001 04:16:14 -0400
+Date: Thu, 7 Jun 2001 10:15:42 +0200 (CEST)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: linux-kernel@vger.kernel.org
+cc: Derek Glidden <dglidden@illusionary.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
 Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <m13d9c68j5.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.21.0106070109210.5128-100000@penguin.transmeta.com>
+In-Reply-To: <m1y9r44t5b.fsf@frodo.biederman.org>
+Message-ID: <Pine.LNX.4.33.0106071006310.8593-100000@mikeg.weiden.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 On 7 Jun 2001, Eric W. Biederman wrote:
 
-> torvalds@transmeta.com (Linus Torvalds) writes:
-> > 
-> > Somebody interested in trying the above add? And looking for other more
-> > obvious bandaid fixes.  It won't "fix" swapoff per se, but it might make
-> > it bearable and bring it to the 2.2.x levels. 
-> 
-> At little bit.  The one really bad behavior of not letting any other
-> processes run seems to be fixed with an explicit:
-> if (need_resched) {
->         schedule();
-> }
-> 
-> What I can't figure out is why this is necessary.  Because we should
-> be sleeping in alloc_pages if nowhere else.
+> Mike Galbraith <mikeg@wen-online.de> writes:
+>
+> > On 7 Jun 2001, Eric W. Biederman wrote:
+> >
+> > > Does this improve the swapoff speed or just allow other programs to
+> > > run at the same time?  If it is still slow under that kind of load it
+> > > would be interesting to know what is taking up all time.
+> > >
+> > > If it is no longer slow a patch should be made and sent to Linus.
+> >
+> > No, it only cures the freeze.  The other appears to be the slow code
+> > pointed out by Andrew Morton being tickled by dead swap pages.
+>
+> O.k.  I think I'm ready to nominate the dead swap pages for the big
+> 2.4.x VM bug award.  So we are burning cpu cycles in sys_swapoff
+> instead of being IO bound?  Just wanting to understand this the cheap way :)
 
-No - I suspect that we're not actually doing all that much IO at all, and
-the real reason for the lock-up is just that the current algorithm is so
-bad that when it starts to act exponentially worse it really _is_ taking
-minutes of CPU time following pointers and generally not being very nice
-on the CPU cache etc..
+There's no IO being done whatsoever (that I can see with only a blinky).
+I can fire up ktrace and find out exactly what's going on if that would
+be helpful.  Eating the dead swap pages from the active page list prior
+to swapoff cures all but a short freeze.  Eating the rest (few of those)
+might cure the rest, but I doubt it.
 
-The bulk of the work is walking the process page tables thousands and
-thousands of times. Expensive.
-
-> If this is going on I think we need to look at our delayed
-> deallocation policy a little more carefully.
-
-Agreed. I already talked in private with some people about just
-re-visiting the issue of the lazy de-allocation. It has nice properties,
-but it certainly appears as if the nasty cases just plain outweigh the
-advantages.
-
-		Linus
+	-Mike
 

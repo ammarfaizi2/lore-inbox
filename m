@@ -1,54 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269200AbUIYDN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269203AbUIYDTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269200AbUIYDN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 23:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269201AbUIYDN5
+	id S269203AbUIYDTV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 23:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269206AbUIYDTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 23:13:57 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:895 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269200AbUIYDNz (ORCPT
+	Fri, 24 Sep 2004 23:19:20 -0400
+Received: from holomorphy.com ([207.189.100.168]:50148 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269203AbUIYDTQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 23:13:55 -0400
-Message-ID: <9e47339104092420131410dd3@mail.gmail.com>
-Date: Fri, 24 Sep 2004 23:13:52 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>
-Subject: sparse, __iomem and framebuffer memory
+	Fri, 24 Sep 2004 23:19:16 -0400
+Date: Fri, 24 Sep 2004 20:19:12 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [sched.h 4/8] move struct k_itimer to posix-timers.h
+Message-ID: <20040925031912.GP9106@holomorphy.com>
+References: <20040925024513.GL9106@holomorphy.com> <20040925024917.GM9106@holomorphy.com> <20040925025304.GN9106@holomorphy.com> <20040925030802.GO9106@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040925030802.GO9106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just spent sometime looking at about a thousand errors from sparse
-in the DRM code.
+On Fri, Sep 24, 2004 at 08:08:02PM -0700, William Lee Irwin III wrote:
+> CALC_LOAD() is used nowhere but kernel/timer.c; this patch moves it
+> there.
 
-There are two main problems, first DRM makes use of opaque handles
-which are passed to user space. These handles can be to normal or
-iomem memory. Since the handles are typeless this generates a lot of
-sparse errors. Other data associated with the handle can be use to
-tell if it is normal or iomem.
+struct k_itimer is used nowhere but posix-timers.h; this patch moves it
+there.
 
-Second the DRM code always treats the framebuffer as if it is in
-IOMEM. But what about IGP type devices where the framebuffer is in
-main memory? These only exist on the x86 so treating their framebuffer
-as IOMEM works since there is no difference between IOMEM and normal
-memory access on an x86.
 
-Is there an example of a IGP type device on an architecture where
-normal and IOMEM need different access functions? I suspect DRI/DRM
-would break on the device.
-
-This implies that DRM should be passing back two distinct handle
-types, one for normal and one for IOMEM, so that the user space app
-will use the correct access function. This is also a pretty good
-argument for hiding direct framebuffer access and forcing access with
-read/write calls on a handle like the IA64 people want to do.
-
-Of course there are a thousand errors to browse though and I may not
-be interpreting everything right.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Index: mm3-2.6.9-rc2/include/linux/posix-timers.h
+===================================================================
+--- mm3-2.6.9-rc2.orig/include/linux/posix-timers.h	2004-09-12 22:32:27.000000000 -0700
++++ mm3-2.6.9-rc2/include/linux/posix-timers.h	2004-09-24 18:55:19.288557856 -0700
+@@ -8,6 +8,8 @@
+ 	struct list_head list;
+ 	spinlock_t lock;
+ };
++
++struct k_itimer;
+ struct k_clock {
+ 	int res;		/* in nano seconds */
+ 	struct k_clock_abs *abs_struct;
+@@ -23,6 +25,27 @@
+ 	void (*timer_get) (struct k_itimer * timr,
+ 			   struct itimerspec * cur_setting);
+ };
++
++/* POSIX.1b interval timer structure. */
++struct k_itimer {
++	struct list_head list;		 /* free/ allocate list */
++	spinlock_t it_lock;
++	clockid_t it_clock;		/* which timer type */
++	timer_t it_id;			/* timer id */
++	int it_overrun;			/* overrun on pending signal  */
++	int it_overrun_last;		 /* overrun on last delivered signal */
++	int it_requeue_pending;          /* waiting to requeue this timer */
++	int it_sigev_notify;		 /* notify word of sigevent struct */
++	int it_sigev_signo;		 /* signo word of sigevent struct */
++	sigval_t it_sigev_value;	 /* value word of sigevent struct */
++	unsigned long it_incr;		/* interval specified in jiffies */
++	struct task_struct *it_process;	/* process to send signal to */
++	struct timer_list it_timer;
++	struct sigqueue *sigq;		/* signal queue entry. */
++	struct list_head abs_timer_entry; /* clock abs_timer_list */
++	struct timespec wall_to_prev;   /* wall_to_monotonic used when set */
++};
++
+ struct now_struct {
+ 	unsigned long jiffies;
+ };
+Index: mm3-2.6.9-rc2/include/linux/sched.h
+===================================================================
+--- mm3-2.6.9-rc2.orig/include/linux/sched.h	2004-09-24 18:51:25.969027816 -0700
++++ mm3-2.6.9-rc2/include/linux/sched.h	2004-09-24 18:54:45.788650616 -0700
+@@ -352,26 +352,6 @@
+ struct backing_dev_info;
+ struct reclaim_state;
+ 
+-/* POSIX.1b interval timer structure. */
+-struct k_itimer {
+-	struct list_head list;		 /* free/ allocate list */
+-	spinlock_t it_lock;
+-	clockid_t it_clock;		/* which timer type */
+-	timer_t it_id;			/* timer id */
+-	int it_overrun;			/* overrun on pending signal  */
+-	int it_overrun_last;		 /* overrun on last delivered signal */
+-	int it_requeue_pending;          /* waiting to requeue this timer */
+-	int it_sigev_notify;		 /* notify word of sigevent struct */
+-	int it_sigev_signo;		 /* signo word of sigevent struct */
+-	sigval_t it_sigev_value;	 /* value word of sigevent struct */
+-	unsigned long it_incr;		/* interval specified in jiffies */
+-	struct task_struct *it_process;	/* process to send signal to */
+-	struct timer_list it_timer;
+-	struct sigqueue *sigq;		/* signal queue entry. */
+-	struct list_head abs_timer_entry; /* clock abs_timer_list */
+-	struct timespec wall_to_prev;   /* wall_to_monotonic used when set */
+-};
+-
+ #ifdef CONFIG_SCHEDSTATS
+ struct sched_info {
+ 	/* cumulative counters */

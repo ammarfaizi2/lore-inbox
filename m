@@ -1,37 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317835AbSFSJdA>; Wed, 19 Jun 2002 05:33:00 -0400
+	id <S317832AbSFSJjb>; Wed, 19 Jun 2002 05:39:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSFSJc7>; Wed, 19 Jun 2002 05:32:59 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:896 "EHLO
-	DervishD.pleyades.net") by vger.kernel.org with ESMTP
-	id <S317835AbSFSJc5>; Wed, 19 Jun 2002 05:32:57 -0400
-Date: Wed, 19 Jun 2002 11:38:56 +0200
-Organization: Pleyades
-To: viro@math.psu.edu, sct@redhat.com
-Subject: Re: Shrinking ext3 directories
-Cc: raul@pleyades.net, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Message-ID: <3D105130.mailEN1WJ7DE@viadomus.com>
-References: <Pine.GSO.4.21.0206181812220.13571-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0206181812220.13571-100000@weyl.math.psu.edu>
-User-Agent: nail 9.31 6/18/02
+	id <S317833AbSFSJja>; Wed, 19 Jun 2002 05:39:30 -0400
+Received: from web21205.mail.yahoo.com ([216.136.131.248]:39350 "HELO
+	web21205.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317832AbSFSJj3>; Wed, 19 Jun 2002 05:39:29 -0400
+Message-ID: <20020619093930.69906.qmail@web21205.mail.yahoo.com>
+Date: Wed, 19 Jun 2002 02:39:30 -0700 (PDT)
+From: aryan aru <aryan222is@yahoo.com>
+Subject: PCI DMA : pci_map_single usage
+To: aryan222is@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3C8464AB.3020404@bryanr.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@pleyades.net>
-Reply-To: DervishD <raul@pleyades.net>
-X-Mailer: DervishD TWiSTiNG Mailer
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Alexander :))
+Hi,
 
->IOW, making sure that empty blocks in the end of directory get freed
->is a matter of 10-20 lines.  If you want such patch - just tell, it's
->half an hour of work...
+I am new to this device driver area. I have a question
+on PCI DMA usage. Could you plz correct me.
 
-    IMHO it would be a great feature to add, and if the cost is as
-low as you say... BTW, thanks a lot for your answer and your offer :)
+I have two processors, processor(pci device) pA,
+processor(pci device) pB. I want to use DMA pull
+mechanism for transfering the messages between them. I
+need to follow the mechanism for this.
 
-    Raúl
+When pA wants to send a pkt to pB:
+
+pA places the address of the src_buff in one of the
+common registers. pB, by accessing that register, will
+come to know the location of the src_buffer. Now pB,
+using its DMA controller has to pull the message to
+its local buffer, say dest_loc_buff. For setting up
+the dma controller on pB, I need  the pci_addr of
+src_buuf and dest_loc_buff( DMA controller of
+MPC82xx). 
+
+How can I get pci_addr of src_buff?
+Can I get this by using pci_map_single?
+
+>From my understating pci_map_single takes local buffer
+as the argument. 
+
+In this transfer, do both the DMA controllers (pA and
+pB) involve in message transfer or only pB pulls the
+pkt.
+
+
+Any driver example available in that net for this
+"pull" mechanism.
+
+Any help is highly appreciated.
+
+thans and regards
+Aryan
+
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

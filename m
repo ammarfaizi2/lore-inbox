@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310414AbSCPQDd>; Sat, 16 Mar 2002 11:03:33 -0500
+	id <S310171AbSCPQJD>; Sat, 16 Mar 2002 11:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310416AbSCPQDY>; Sat, 16 Mar 2002 11:03:24 -0500
-Received: from ns.suse.de ([213.95.15.193]:21258 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S310414AbSCPQDI>;
-	Sat, 16 Mar 2002 11:03:08 -0500
-To: John Levon <movement@marcelothewonderpenguin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Nice values for kernel modules
-In-Reply-To: <Pine.LNX.4.33.0203161126130.1090-100000@einstein.homenet.suse.lists.linux.kernel> <16358.1016282075@ocs3.intra.ocs.com.au.suse.lists.linux.kernel> <20020316154848.GA82190@compsoc.man.ac.uk.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 16 Mar 2002 17:03:07 +0100
-In-Reply-To: John Levon's message of "16 Mar 2002 16:53:27 +0100"
-Message-ID: <p73it7w1ow4.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S310423AbSCPQIx>; Sat, 16 Mar 2002 11:08:53 -0500
+Received: from host194.steeleye.com ([216.33.1.194]:45321 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S310171AbSCPQIi>; Sat, 16 Mar 2002 11:08:38 -0500
+Message-Id: <200203161608.g2GG8WC05423@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: James Bottomley <James.Bottomley@SteelEye.com>, lm@bitmover.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Problems using new Linux-2.4 bitkeeper repository. 
+In-Reply-To: Message from Jeff Garzik <jgarzik@mandrakesoft.com> 
+   of "Thu, 14 Mar 2002 23:55:08 EST." <3C917EAC.1080401@mandrakesoft.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 16 Mar 2002 11:08:32 -0500
+From: James Bottomley <James.Bottomley@SteelEye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Levon <movement@marcelothewonderpenguin.com> writes:
+jgarzik@mandrakesoft.com said:
+> Through the magic of BK :)
 
-> On Sat, Mar 16, 2002 at 11:34:35PM +1100, Keith Owens wrote:
-> 
-> > I can see no good reason why the syscall table has been exported.
-> 
-> please don't change this. Just because it breaks on architectures X
-> and Y doesn't mean it's useless.
-> 
-> System call snooping is an ugly thing but being able to do it without
-> patching the kernel is incredibly useful. We're not unaware that
-> it is arch-specific.
+> Just do a 'bk pull' on my marcelo-2.4 tree.  Since it is based on the
+> original linux-2.4 tree just like Marcelo's tree, I was able to merge
+> from my 2.4 line to his 2.4 line. 
 
-I can just second that. It would make it impossible to fix pice for 2.5 for 
-example.
+Well, I tried this, but it just gave me a slew of initial rename conflicts.  
+It could be something to do with the fact that my base development is still on 
+2.4.18 (so the ancestors are easier to manage).
 
--Andi
+I finally solved it by writing a script to backport a bitkeeper change set to 
+an earlier ancestor while preserving the change logs.  This is going to be 
+helpful taking change sets between 2.4 and 2.5 anyway.
+
+Thanks,
+
+James
+
+

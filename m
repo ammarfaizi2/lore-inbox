@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292773AbSBUV7m>; Thu, 21 Feb 2002 16:59:42 -0500
+	id <S292779AbSBUV7m>; Thu, 21 Feb 2002 16:59:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292774AbSBUV7c>; Thu, 21 Feb 2002 16:59:32 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:23822 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S292773AbSBUV7W>;
-	Thu, 21 Feb 2002 16:59:22 -0500
-Date: Thu, 21 Feb 2002 13:53:55 -0800
-From: Greg KH <greg@kroah.com>
+	id <S292773AbSBUV7d>; Thu, 21 Feb 2002 16:59:33 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:7040 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S292544AbSBUV7P>; Thu, 21 Feb 2002 16:59:15 -0500
+Date: Thu, 21 Feb 2002 16:59:25 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: Adam <ambx1@netscape.net>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: driverfs question
-Message-ID: <20020221215355.GH4984@kroah.com>
-In-Reply-To: <3C755A8A.90000@netscape.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C755A8A.90000@netscape.net>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Thu, 24 Jan 2002 18:54:56 -0800
+In-Reply-To: <3C756D06.7090901@netscape.net>
+Message-ID: <Pine.LNX.3.95.1020221165804.565A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 03:37:30PM -0500, Adam wrote:
+On Thu, 21 Feb 2002, Adam wrote:
+[SNIPPED..]
 > 
-> How will the devices in the driverfs be arranged?
-> It seems to me that it could only be one of the following three methods.
+> 
+> You're absolutely right.  What I meant to say is a directory.  It's 
+> simply a bad habit.  In fact, one, of several, reason I became 
+> interested in the Linux kernel project is that I was unhappy with the 
+> Micro$oft licensing policy.  The term folder is used by micro$oft simply 
+> to make it's OS sound more user friendly.
+> 
 
-Have you looked at the current code and seen how stuff is already layed
-out?  It seems to match your "Method 3" already.  Are you proposing the
-current implementation should be changed?
+Thanks. I needed that. I started to worry that we had started to devolve.
 
-thanks,
+Cheers,
+Dick Johnson
 
-greg k-h
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+        111,111,111 * 111,111,111 = 12,345,678,987,654,321
+

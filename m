@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130916AbRAPMK3>; Tue, 16 Jan 2001 07:10:29 -0500
+	id <S130842AbRAPMOT>; Tue, 16 Jan 2001 07:14:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131040AbRAPMKT>; Tue, 16 Jan 2001 07:10:19 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:19217 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S130916AbRAPMKM>;
-	Tue, 16 Jan 2001 07:10:12 -0500
-Date: Tue, 16 Jan 2001 13:09:38 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Jonathan Thackray <jthackray@zeus.com>
-Subject: Re: O_ANY  [was: Re: 'native files', 'object fingerprints' [was:
- sendpath()]]
-In-Reply-To: <Pine.LNX.4.30.0101161242180.529-100000@elte.hu>
-Message-ID: <Pine.LNX.4.30.0101161307060.529-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131418AbRAPMOJ>; Tue, 16 Jan 2001 07:14:09 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:34570 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130842AbRAPMNy>; Tue, 16 Jan 2001 07:13:54 -0500
+Date: Tue, 16 Jan 2001 06:13:42 -0600
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: O_ANY  [was: Re: 'native files', 'object fingerprints' [was: sendpath()]]
+Message-ID: <20010116061342.C12650@cadcamlab.org>
+In-Reply-To: <20010116123743.A32075@gruyere.muc.suse.de> <Pine.LNX.4.30.0101161242180.529-100000@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.30.0101161242180.529-100000@elte.hu>; from mingo@elte.hu on Tue, Jan 16, 2001 at 01:04:22PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Ingo Molnar]
+> - probably the most radical solution is what i suggested, to
+> completely avoid the unique-mapping of file structures to an integer
+> range, and use the address of the file structure (and some cookies)
+> as an identification.
 
-On Tue, 16 Jan 2001, Ingo Molnar wrote:
+Careful, these must cast to non-negative integers, without clashing.
 
-> 	struct lazy_filedesc {
-> 		int fd;
-> 		struct file *file;
-> 	}
+> 	fd = open(...,O_ANY);
 
-in fact "struct file" can (ab)used for this, no need for new structures or
-new fields. Eg. file->f_flags contains the cached descriptor-information.
-file->f_list is used for the current->lazy_files ringlist.
+I like this idea, but call it O_ALLOCANYFD.
 
-this way there is no additional allocation overhead in the worst-case.
-
-(unless i'm missing something obvious.)
-
-	Ingo
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

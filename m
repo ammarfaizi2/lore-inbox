@@ -1,83 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263380AbTJESGE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 14:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263383AbTJESGE
+	id S263314AbTJESK6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 14:10:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263316AbTJESK6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 14:06:04 -0400
-Received: from law11-f101.law11.hotmail.com ([64.4.17.101]:12045 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263380AbTJESGA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 14:06:00 -0400
-X-Originating-IP: [220.224.20.223]
-X-Originating-Email: [kartik_me@hotmail.com]
-From: "kartikey bhatt" <kartik_me@hotmail.com>
-To: jmorris@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CRYPTO] Testing Module Cleanup.
-Date: Sun, 05 Oct 2003 23:35:59 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law11-F101ECBlGkVf30000a080@hotmail.com>
-X-OriginalArrivalTime: 05 Oct 2003 18:06:00.0163 (UTC) FILETIME=[5513D330:01C38B6B]
+	Sun, 5 Oct 2003 14:10:58 -0400
+Received: from [65.248.4.67] ([65.248.4.67]:10112 "EHLO verdesmares.com")
+	by vger.kernel.org with ESMTP id S263314AbTJESK5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 14:10:57 -0400
+Message-ID: <003801c38b6c$02b43840$f8e4a7c8@bsb.virtua.com.br>
+From: "Breno" <brenosp@brasilsec.com.br>
+To: <linux-kernel@vger.kernel.org>,
+       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+References: <000c01c38b62$50a125e0$f8e4a7c8@bsb.virtua.com.br> <yw1x3ce7ha3w.fsf@users.sourceforge.net><002301c38b66$b10f4980$f8e4a7c8@bsb.virtua.com.br> <yw1xu16nfu9c.fsf@users.sourceforge.net>
+Subject: Re: Freeing unused kernel memnory - bug
+Date: Sun, 5 Oct 2003 15:10:45 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-done it.
-sending it as an attachment.
+There are many 2.4.22 kernels .
+Is there a problem to freeing pages during the boot when this pages are
+"defined" by an vma ?
 
-- Kartikey Mahendra Bhatt
+att,
+Breno
+----- Original Message -----
+From: "Måns Rullgård" <mru@users.sourceforge.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, October 05, 2003 2:51 PM
+Subject: Re: Freeing unused kernel memnory - bug
 
 
->From: James Morris <jmorris@redhat.com>
->To: kartikey bhatt <kartik_me@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: [CRYPTO] Testing Module Cleanup.
->Date: Thu, 2 Oct 2003 10:35:09 -0400 (EDT)
->
->On Thu, 2 Oct 2003, kartikey bhatt wrote:
->
-> > sending it as an attachment
+"Breno" <brenosp@brasilsec.com.br> writes:
+
+> > > I'm using 2.4.22 and when i reboot my system , the boot process
+> > > stop when "freeing unused memory" message appear.
 > >
+> > Does it just stop, or does it print some kind of panic message and
+> > then stop?
 >
->I'm seeing a failure with the 5th DES ECB test vector:
->
->   testing des ECB encryption
->   [...]
->   test 5 (64 bit key):
->   5630092f0161d576
->   fail
->
->Could you also retain the weak key test for DES?  Just add another field
->to the test vector struct to indicate that CRYPTO_TFM_REQ_WEAK_KEY needs
->to be set prior to setkey(), then clear it after the test.  (Once you do
->this the above test vector should fail anyway, which is probably why it
->is buggy -- it's never been run).
->
->Also, a minor nit: please be careful about this kind of thing:
->
->- * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org>$
->+ * Copyright (c) 2002 Jean-Francois Dive <jef@linuxbe.org> ^I$
->
->
->Otherwise, it looks good.
->
->Thanks,
->
->
->- James
->--
->James Morris
-><jmorris@redhat.com>
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+> Just stop
 
-_________________________________________________________________
-MSN Hotmail now on your Mobile phone. 
-http://server1.msn.co.in/sp03/mobilesms/ Click here.
+That's odd.  Has the system been working with other kernels?  Are you
+using an initrd and forgot to update it for the new kernel?
+
+--
+Måns Rullgård
+mru@users.sf.net
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

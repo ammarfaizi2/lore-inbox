@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269257AbUI3NNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269255AbUI3NXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269257AbUI3NNo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 09:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269255AbUI3NNo
+	id S269255AbUI3NXf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 09:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269259AbUI3NXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 09:13:44 -0400
-Received: from ipx20189.ipxserver.de ([80.190.249.56]:48768 "EHLO
-	ipx20189.ipxserver.de") by vger.kernel.org with ESMTP
-	id S269254AbUI3NNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 09:13:40 -0400
-Date: Thu, 30 Sep 2004 16:03:56 +0300 (EAT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>, Andrew Morton <akpm@osdl.org>,
-       Greg Kroah-Hartmann <greg@kroah.com>, Len Brown <len.brown@intel.com>,
-       tony.luck@intel.com, acpi-devel@lists.sourceforge.net,
-       linux-ia64@vger.kernel.org
-Subject: Re: [ACPI] [PATCH] Updated patches for PCI IRQ resource deallocation
- support [2/3]
-In-Reply-To: <415B8A16.9070101@jp.fujitsu.com>
-Message-ID: <Pine.LNX.4.61.0409301601240.3069@musoma.fsmlabs.com>
-References: <Pine.LNX.4.53.0409251356110.2914@musoma.fsmlabs.com>
- <Pine.LNX.4.53.0409251401560.2914@musoma.fsmlabs.com>
- <Pine.LNX.4.53.0409251416570.2908@musoma.fsmlabs.com> <4157A9D7.4090605@jp.fujitsu.com>
- <Pine.LNX.4.61.0409281702580.3052@musoma.fsmlabs.com> <415A28B9.6080504@jp.fujitsu.com>
- <Pine.LNX.4.61.0409291809270.3056@musoma.fsmlabs.com> <415B8A16.9070101@jp.fujitsu.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 30 Sep 2004 09:23:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:53399 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269255AbUI3NXd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 09:23:33 -0400
+Date: Thu, 30 Sep 2004 14:23:10 +0100
+Message-Id: <200409301323.i8UDNAR3004753@sisko.scot.redhat.com>
+From: Stephen Tweedie <sct@redhat.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       ext2-devel@lists.sourceforge.net
+Cc: Stephen Tweedie <sct@redhat.com>
+Subject: [Patch 0/10]: Cleanup online reservations for 2.6.9-rc2-mm4.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Sep 2004, Kenji Kaneshige wrote:
+The patches to follow clean up a lot of the ext3 online reservation
+code in 2.6.9-rc2-mm4.  There are a few minor fixes for things like
+loglevels of printks and correcting some error returns, plus
+refactoring a bit of existing ext3 code to allow resize to avoid dummy
+on-stack inodes. 
 
-> Zwane Mwaikambo wrote:
-> > 
-> > Ok i think i may have not conveyed my meaning properly, my mistake. What i
-> > think would be better is if the architectures which have no-op
-> > acpi_unregister_gsi to declare them as static inline in header files. For
-> > architectures (such as ia64) which have a functional acpi_unregister_gsi, we
-> > can declare them in a .c file with the proper exports etc.
-> > 
-> 
-> Now I (maybe) properly understand what you mean :-). But I still have one
-> concern about your idea.
-> 
-> For architectures which have a functional acpi_unregister_gsi, we need to
-> declare "extern void acpi_unregister_gsi(int gsi);" in include/linux/acpi.h
-> that is common to all architectures. I think include/linux/acpi.h is the
-> best place to declare it because acpi_register_gsi(), opposite portion of
-> acpi_unregister_gsi(), is declared in it. On the other hand, for archtectures
-> that have no-op acpi_unregister_gsi(), acpi_unregister_gsi() is defined as
-> static inline function in arch specific header files. This looks not natural
-> to me.
+There's also a review of the whole SMP locking of the resize.  Locking
+is minimised: the impact on the hot path consists of nothing more than
+an smp_rmb() before we test sb->s_groups_count.  That's a noop on x86,
+but is a bit expensive on archs with a weak memory order; I've tried to
+minimise that by reading it just once where previously it was read each
+time round a loop, but I don't see how to avoid the cost entirely.
 
-Can't you declare "extern void acpi_unregister_gsi(int gsi)" in 
-include/asm/acpi.h? That way it stays arch specific and you don't have the 
-conflicting declarations. You can also move acpi_unregister_gsi into arch 
-specific headers too.
+Finally, sb->s_debts is nuked from ext3.  It's broken already, as per my
+email a week or two ago --- the per-group s_debt[] counts never get
+modified.  We could probably do with nuking it from ext2 too, as it's
+(differently) broken there (performs unlocked byte inc/dec operations on
+a shared array and is vulnerable to word-tearing problems.)
 
-Thanks,
-	Zwane
+This should address all of the points akpm had in his review of resize
+a while back, except for the documentation/user space side of things
+and the lack of error checking in certain ext3_journal_dirty_metadata
+calls: I'm still fixing those up (I'll try to push out a working
+user-space for this later today.)
+
+

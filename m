@@ -1,103 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVDBHGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVDBH0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVDBHGK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 02:06:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVDBHGJ
+	id S261184AbVDBH0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 02:26:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVDBH0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 02:06:09 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:12976 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261188AbVDBHFw convert rfc822-to-8bit (ORCPT
+	Sat, 2 Apr 2005 02:26:16 -0500
+Received: from ozlabs.org ([203.10.76.45]:27031 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261184AbVDBH0L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 02:05:52 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Sat, 2 Apr 2005 02:26:11 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: x86 TSC time warp puzzle
-Date: Fri, 1 Apr 2005 23:05:21 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6004629635@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: x86 TSC time warp puzzle
-Thread-Index: AcU3JdXonX6xmtAoSG2cn+UlcNdZLQAH+mog
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Jonathan Lundell" <linux@lundell-bros.com>,
-       "LKML" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 02 Apr 2005 07:05:16.0676 (UTC) FILETIME=[52D98440:01C53752]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16974.18698.304283.188321@cargo.ozlabs.ibm.com>
+Date: Sat, 2 Apr 2005 17:26:02 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: benh@kernel.crashing.org, trini@kernel.crashing.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc: eliminate gcc warning in xmon.c
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch shuts up some more incorrect gcc warnings.
 
-At what point are you seeing these delays? During early boot or after
-boot? 
-It can be SMI happening in the platform. Typically BIOS uses some SMI
-polling 
-to handle some devices during early boot. Though 500 microseconds sounds
-a 
-bit too high.
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-Thanks,
-Venki
-
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Jonathan Lundell
->Sent: Friday, April 01, 2005 5:43 PM
->To: LKML
->Subject: x86 TSC time warp puzzle
->
->Well, not actually a time warp, though it feels like one.
->
->I'm doing some real-time bit-twiddling in a driver, using the TSC to 
->measure out delays on the order of hundreds of nanoseconds. Because I 
->want an upper limit on the delay, I disable interrupts around it.
->
->The logic is something like:
->
->	local_irq_save
->	out(set a bit)
->	t0 = TSC
->	wait while (t = (TSC - t0)) < delay_time
->	out(clear the bit)
->	local_irq_restore
->
-> From time to time, when I exit the delay, t is *much* bigger than 
->delay_time. If delay_time is, say, 300ns, t is usually no more than 
->325ns. But every so often, t can be 2000, or 10000, or even much 
->higher.
->
->The value of t seems to depend on the CPU involved, The worst case is 
->with an Intel 915GV chipset, where t approaches 500 microseconds (!).
->
->This is with ACPI and HT disabled, to avoid confounding interactions. 
->I suspected NMI, of course, but I monitored the nmi counter, and 
->mostly saw nothing (from time to time a random hit, but mostly not).
->
->The longer delay is real. I can see the bit being set/cleared in the 
->pseudocode above on a scope, and when the long delay happens, the bit 
->is set for a correspondingly long time.
->
->BTW, the symptom is independent of my IO. I wrote a test case that 
->does diddles nothing but reading TSC, and get the same result.
->
->Finally, on some CPUs, at least, the extra delay appears to be 
->periodic. The 500us delay happens about every second. On a different 
->machine (chipset) it happens at about 5 Hz. And the characteristic 
->delay on each type of machine seems consistent.
->
->Any ideas of where to look? Other lists to inquire on?
->
->Thanks.
->-- 
->/Jonathan Lundell.
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+diff -urN linux-2.5/arch/ppc/xmon/xmon.c testpmac/arch/ppc/xmon/xmon.c
+--- linux-2.5/arch/ppc/xmon/xmon.c	2004-10-21 07:17:18.000000000 +1000
++++ testpmac/arch/ppc/xmon/xmon.c	2005-04-02 17:23:19.000000000 +1000
+@@ -1033,9 +1033,9 @@
+ 	extern unsigned long Hash_size;
+ 	unsigned *htab = Hash;
+ 	unsigned hsize = Hash_size;
+-	unsigned v, hmask, va, last_va;
++	unsigned v, hmask, va, last_va = 0;
+ 	int found, last_found, i;
+-	unsigned *hg, w1, last_w2, last_va0;
++	unsigned *hg, w1, last_w2 = 0, last_va0 = 0;
+ 
+ 	last_found = 0;
+ 	hmask = hsize / 64 - 1;
+@@ -1492,7 +1492,7 @@
+ {
+ 	int nr, dotted;
+ 	unsigned first_adr;
+-	unsigned long inst, last_inst;
++	unsigned long inst, last_inst = 0;
+ 	unsigned char val[4];
+ 
+ 	dotted = 0;
+@@ -1959,7 +1959,7 @@
+ xmon_symbol_to_addr(char* symbol)
+ {
+ 	char *p, *cur;
+-	char *match;
++	char *match = NULL;
+ 	int goodness = 0;
+ 	int result = 0;
+ 	

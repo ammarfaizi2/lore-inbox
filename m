@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317112AbSGCSCS>; Wed, 3 Jul 2002 14:02:18 -0400
+	id <S317110AbSGCSBh>; Wed, 3 Jul 2002 14:01:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317115AbSGCSCR>; Wed, 3 Jul 2002 14:02:17 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:50705 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S317112AbSGCSCP>; Wed, 3 Jul 2002 14:02:15 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: Matthew Wilcox <willy@debian.org>
-cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use list_* functions better in dcache.c 
-cc: pmenage@ensim.com
-In-reply-to: Your message of "Wed, 03 Jul 2002 17:02:11 BST."
-             <20020703170211.N27706@parcelfarce.linux.theplanet.co.uk> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Jul 2002 11:04:21 -0700
-Message-Id: <E17PoUH-00065L-00@pmenage-dt.ensim.com>
+	id <S317112AbSGCSBg>; Wed, 3 Jul 2002 14:01:36 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43652 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317110AbSGCSBf>; Wed, 3 Jul 2002 14:01:35 -0400
+Date: Wed, 3 Jul 2002 20:03:48 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Eduard Bloch <edi@gmx.de>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+In-Reply-To: <20020703155113.GA26299@zombie.inka.de>
+Message-ID: <Pine.SOL.4.30.0207031955430.4553-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->@@ -382,42 +389,18 @@ void prune_dcache(int count)
-> 
-> void shrink_dcache_sb(struct super_block * sb)
-> {
->-	struct list_head *tmp, *next;
->-	struct dentry *dentry;
->-
->-	/*
->-	 * Pass one ... move the dentries for the specified
->-	 * superblock to the most recent end of the unused list.
->-	 */
->-	spin_lock(&dcache_lock);
 
-Oops - you're walking dentry_unused without holding dcache_lock ...
+On Wed, 3 Jul 2002, Eduard Bloch wrote:
 
->-	next = dentry_unused.next;
->-	while (next != &dentry_unused) {
->-		tmp = next;
->-		next = tmp->next;
->-		dentry = list_entry(tmp, struct dentry, d_lru);
->-		if (dentry->d_sb != sb)
->-			continue;
->-		list_del(tmp);
->-		list_add(tmp, &dentry_unused);
->-	}
->-
->-	/*
->-	 * Pass two ... free the dentries for this superblock.
->-	 */
->-repeat:
->-	next = dentry_unused.next;
->-	while (next != &dentry_unused) {
->-		tmp = next;
->-		next = tmp->next;
->-		dentry = list_entry(tmp, struct dentry, d_lru);
->+	struct list_head *entry, *next;
->+	
->+	list_for_each_safe(entry, next, &dentry_unused) {
->+		struct dentry *dentry = list_entry(entry, struct dentry, d_lru);
-> 		if (dentry->d_sb != sb)
+> Why not another way round? Just make the ide-scsi driver be prefered,
+> and hack ide-scsi a bit to simulate the cdrom and adv.floppy devices
+> that are expected as /dev/hd* by some user's configuration?
+>
+> To be honest - why keep ide-[cd,floppy,tape] when they can be almost
+> completely replaced with ide-scsi? I know about only few cdrom devices
+> that are broken (== not ATAPI compliant) but can be used with
+> workarounds in the current ide-cd driver. OTOH many users do already
+> need ide-scsi to access cd recorders and similar hardware, so they would
+> benefit much more from having ide-scsi as default than few users of
+> broken "atapi" drives.
+
+THE PLAN is to have generic ATAPI driver and generic packet command
+driver (ATAPI and SCSI).
+
+:-)
+
+--
+Bartlomiej
+
 

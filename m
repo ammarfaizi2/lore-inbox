@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131045AbRAKQpO>; Thu, 11 Jan 2001 11:45:14 -0500
+	id <S132718AbRAKQsx>; Thu, 11 Jan 2001 11:48:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131930AbRAKQpE>; Thu, 11 Jan 2001 11:45:04 -0500
-Received: from mail.sun.ac.za ([146.232.128.1]:57870 "EHLO mail.sun.ac.za")
-	by vger.kernel.org with ESMTP id <S131045AbRAKQo4>;
-	Thu, 11 Jan 2001 11:44:56 -0500
-Date: Thu, 11 Jan 2001 18:44:48 +0200 (SAST)
-From: Hans Grobler <grobh@sun.ac.za>
-To: Danny ter Haar <dth@lin-gen.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Drivers under 2.4
-In-Reply-To: <93kn8a$itt$1@voyager.cistron.net>
-Message-ID: <Pine.LNX.4.30.0101111836460.30013-100000@prime.sun.ac.za>
+	id <S132720AbRAKQsn>; Thu, 11 Jan 2001 11:48:43 -0500
+Received: from p020-53.netc.pt ([213.30.21.20]:21764 "EHLO thecrypt.utad.pt")
+	by vger.kernel.org with ESMTP id <S132718AbRAKQs3>;
+	Thu, 11 Jan 2001 11:48:29 -0500
+Message-ID: <3A5BEA90.D3B68DCD@alvie.com>
+Date: Wed, 10 Jan 2001 04:52:32 +0000
+From: Alvaro Lopes <alvieboy@alvie.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Kernel (2.4.0) lock-up in "write" (using PTS).
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Danny,
+Hi all
 
-If you're willing, would you please follow "REPORTING-BUGS" and send some
-more info. Also cat /proc/interrupts. This one's intriging...
+This is somewhat odd, but I seemed to have found some kind of bug in
+2.4.0. I  tested the same program in 2.2.17 and it run perfectly.
 
--- Hans
+So, here goes the description:
+
+2.4.0 Kernel hangs up when I do the following stuff:
+
+	* Create a new PTY using openpty();
+	* Fork using forkpty. Now, the child process does this:
+		- Set the fd 0 line discipline to PPP;
+		- tries infinitely to read the standard input.
+
+	The parent process sets the line discipline of the master PTY fd to PPP
+also, and then writes to it.
 
 
+When I say it hangs up I really mean it. Not even the SYSRQ works.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264426AbRFIBLS>; Fri, 8 Jun 2001 21:11:18 -0400
+	id <S264428AbRFIB1x>; Fri, 8 Jun 2001 21:27:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264427AbRFIBLI>; Fri, 8 Jun 2001 21:11:08 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:42333 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S264426AbRFIBLA>; Fri, 8 Jun 2001 21:11:00 -0400
-Message-ID: <3B217792.8020405@blue-labs.org>
-Date: Fri, 08 Jun 2001 18:10:42 -0700
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-pre1 i686; en-US; rv:0.9.1+) Gecko/20010606
-X-Accept-Language: en-us
+	id <S264429AbRFIB1m>; Fri, 8 Jun 2001 21:27:42 -0400
+Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:7678 "HELO
+	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S264428AbRFIB11>; Fri, 8 Jun 2001 21:27:27 -0400
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880AAA@xsj02.sjs.agilent.com>
+From: hiren_mehta@agilent.com
+To: alan@lxorguk.ukuu.org.uk, hiren_mehta@agilent.com
+Cc: chamb@almaden.ibm.com, linux-scsi@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: RE: question about scsi generic behavior
+Date: Fri, 8 Jun 2001 19:27:20 -0600 
 MIME-Version: 1.0
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-CC: "D. Stimits" <stimits@idcomm.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: missing sysrq
-In-Reply-To: <Pine.LNX.4.33.0106072239570.26171-100000@asdf.capslock.lan>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW, you ONLY need to echo 1 > /proc../sysrq if you use a distribution 
-that puts a 0 there on init.
+Well, the problem is not with non-512byte block device. The problem is
+if the device is 512 byte block-sized device and if you use sg_dd with
+bs=1024 or bs=2048, then it fails. I can understand if this fails
+on a sequential device. But this fails on a disk. To be specific,
+the problem is this : in case of fibre channel, you can specify
+the FCP_DL in addition to the transfer-length which goes into CDB.
+Now, when e.g. we use the following command,
 
-By default the kernel initializes with '1'.
+sg_dd if=/dev/zero of=/dev/sg5 bs=2048 count=1,
 
-David
+and if in the low-level driver, we set the FCP_DL to 2048 and
+in the CDB portition of FCP_CMND if we set the transfer-length to 1,
+then the drive may not honour the FCP_DL and just look at the
+transfer-length
+and send XFER_RDY for 512 byte data. Once the HBA transfers the 512 byte of
+data, then drive will send FCP_STATUS with status=good. Well, if you
+look at it, we want to transfer 2048 bytes of data to the device, 
+whereas the device completes the command with good status after 
+transferring only 512 bytes. I hope this is more clear.
 
->>>I compiled it, and the sysrq is definitely in the config. No doubt at
->>>all. I also use make mrproper and config again before dep and actual
->>>compile. Maybe it is just a quirk/oddball.
->>>
->>>D. Stimits, stimits@idcomm.com
->>>
->>Have you tried "echo 1 > /proc/sys/kernel/sysrq"?
->>You need both, compiled in and activation.
->>
+I guess, probably the sg driver is  probably not looking at the block 
+size information returned in response to READ_CAPACITY command.
 
+Regards,
+-hiren
+(408)970-3062
+hiren_mehta@agilent.com
 
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+> Sent: Friday, June 08, 2001 5:37 PM
+> To: hiren_mehta@agilent.com
+> Cc: chamb@almaden.ibm.com; linux-scsi@vger.kernel.org;
+> linux-kernel@vger.kernel.org
+> Subject: Re: question about scsi generic behavior
+> 
+> 
+> > Hardcoding  of block size to 512 bytes for disk devices is 
+> what currently 
+> > either the block device driver or the sd driver is doing. 
+> Because, if
+> 
+> I'm using 2048 byte block sized scsi media just fine. I've 
+> not tried using
+> sg on the same device
+> 

@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263227AbUECNeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263709AbUECNmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263227AbUECNeY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 09:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263687AbUECNeY
+	id S263709AbUECNmf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 09:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUECNmf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 09:34:24 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:40712 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id S263227AbUECNeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 09:34:22 -0400
-To: linux-kernel@vger.kernel.org
-Subject: 4x card in 8x AGP KT600 = locked solid (AGP bug?)
-Reply-To: Ian McConnell <kernel@emit.demon.co.uk>
-From: Ian McConnell <kernel@emit.demon.co.uk>
-Date: Mon, 03 May 2004 14:34:20 +0100
-Message-ID: <871xm1tz1f.fsf@emit.demon.co.uk>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) XEmacs/21.4 (Common Lisp, linux)
-MIME-Version: 1.0
+	Mon, 3 May 2004 09:42:35 -0400
+Received: from linuxhacker.ru ([217.76.32.60]:19135 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S263713AbUECNmd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 09:42:33 -0400
+Date: Mon, 3 May 2004 16:42:35 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Chris Stromsoe <cbs@cts.ucla.edu>, linux-kernel@vger.kernel.org
+Subject: Re: two lockups with 2.4.25
+Message-ID: <20040503134235.GC1794@linuxhacker.ru>
+References: <Pine.LNX.4.58.0404201554590.4433@potato.cts.ucla.edu> <200404211510.i3LFAGe7031761@car.linuxhacker.ru> <Pine.LNX.4.58.0404210814370.10269@potato.cts.ucla.edu> <20040503125108.GA29160@logos.cnet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040503125108.GA29160@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I try to use DRI with a 4x AGP Radeon 9100 card in my 8x AGP KT600
-motherboard, the screen goes black and the machine locks up solid - only a
-hard reset reboots the machine. I can't find any error messages or Oops
-logged.
+Hello!
 
-With the latest BIOS and drivers, the card plays 3D games under Win2k ok.
-However with debian testing, stock kernel 2.6.5 and XFree86 4.3.0.1, the
-machine hangs unless I disable DRI in /etc/X11/XF86Config-4 with 
-   Option          "ForcePCIMode"          "on"
-then X works fine (using software GL)
+On Mon, May 03, 2004 at 09:51:08AM -0300, Marcelo Tosatti wrote:
+> > > Chris Stromsoe <cbs@cts.ucla.edu> wrote:
+> > > CS> Pid: 26885, comm:               sophie
+> > > >>>EIP; c0110ed7 <flush_tlb_others+9b/bc>   <=====
+> > > >>>EDX; 01000000 Before first symbol
+> > > >>>ESI; f4762cc0 <_end+343c85cc/3896e90c>
+> > > >>>EDI; 081a1d28 Before first symbol
+> > > >>>EBP; e806fe94 <_end+27cd57a0/3896e90c>
+> > > CS> Trace; c011100f <flush_tlb_page+6f/7c>
+> > > CS> Trace; c01259b7 <do_wp_page+223/284>
+> > > CS> Trace; c01260de <handle_mm_fault+82/b8>
+> > > CS> Trace; c01132f9 <do_page_fault+1a1/4ed>
+> > > CS> Trace; c0113158 <do_page_fault+0/4ed>
+> > > CS> Trace; c0224ce1 <__kfree_skb+129/134>
+> > > CS> Trace; c01145e3 <schedule+45b/520>
+> > > CS> Trace; c0106fc4 <error_code+34/3c>
+> > > This backtrace is suspiciously similar to a backtrace from NMI WD I had
+> > > not so long ago. Also on 2.5.25 Are your boxes SMP?
+> AFAICS this backtrace is fine -- flush_tlb_others() does invplg and thats it. No
+> locking involved, yes?
 
-I wasn't sure if this was a DRI or AGP bug, so I downloaded and installed
-ATI's own 3d drivers (fglrx-4.3.0-3.7.6.i386.rpm). This time the screen goes
-black and the X server sits burning 100% CPU, but I can log in remotely. I
-cannot kill the X server (with kill -9 or ctrl-alt-backspace) and 
-strace -p<xserver pid> just hangs with no output.
+Well, the trace looks fine, except the box was hung at the time of the
+trace capturing. And most of the trace is the same as I had reported with
+NMI watchdog. This is the only thing I was going to say.
+So far the box I experienced NMI WD oops on works and does not hang.
+And I posted previous oops on lkml.
+If something will happen to it again, I won't keep it secret for sure ;)
 
-There is a thread of my experiences and more detail at
-      http://www.rage3d.com/board/showthread.php?s=&threadid=33756033
-
-
-So two difference implementations of DRI hanging makes me suspect that there
-is a bug with AGP (Also the same video card, kernel and X worked well with
-an older 4xAGP KT133 motherboard)
-
-I'm using a stock kernel-2.6.5 with an AthlonXP 2700 and modules:
-  via_agp                 5824  1 
-  agpgart                28072  2 via_agp
-  radeon                115184  2 
-
-which show
-  Linux agpgart interface v0.100 (c) Dave Jones
-  agpgart: Detected VIA KT400/KT400A/KT600 chipset
-  agpgart: Maximum main memory to use for agp memory: 439M
-  agpgart: AGP aperture is 64M @ 0xe8000000
-  [drm] Initialized radeon 1.9.0 20020828 on minor 0
-
-The card is a Sapphire Radeon 9100 which supports up 4x AGP and the bios
-R1.04 (dated Jan 20 2004) settings are:
-  AGP Aperture 64M
-  AGP Mode 4x
-  AGP Driving control Auto
-  AGP Fastwrite Enable
-  AGP Master 1 WS Write Disable
-  AGP Master 1 WS Read Disable
-Changing the BIOS settings doesn't make any noticeable difference.
-
-I've tried kernel-2.4.25, but that fails loading agpgart.o with
-  Linux agpgart interface v0.99 (c) Jeff Hartmann
-  agpgart: Maximum main memory to use for agp memory: 439M
-  agpgart: Detected Via Apollo Pro KT400 chipset
-  agpgart: unable to determine aperture size.
-
-
-
-Is there any way to test AGP without using X? Any suggestions as to how I
-can track down where/what is freezing the machine? How compatible is the
-KT600 running in an AGP v2 compatibility mode?
+Bye,
+    Oleg

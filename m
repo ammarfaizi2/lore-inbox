@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282400AbRL3Ruc>; Sun, 30 Dec 2001 12:50:32 -0500
+	id <S282914AbRL3Rxc>; Sun, 30 Dec 2001 12:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282914AbRL3RuX>; Sun, 30 Dec 2001 12:50:23 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37134 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S282400AbRL3RuL>;
-	Sun, 30 Dec 2001 12:50:11 -0500
-Message-ID: <3C2F53D0.5942335F@mandrakesoft.com>
-Date: Sun, 30 Dec 2001 12:50:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@caldera.de>
-CC: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
+	id <S282684AbRL3RxW>; Sun, 30 Dec 2001 12:53:22 -0500
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:51610 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S283286AbRL3RxM>; Sun, 30 Dec 2001 12:53:12 -0500
+Date: 30 Dec 2001 13:42:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: viro@math.psu.edu
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8FqGN-B1w-B@khms.westfalen.de>
+In-Reply-To: <E16K6ID-0002Bk-00@the-village.bc.nu>
 Subject: Re: [kbuild-devel] Re: State of the new config & build system
-In-Reply-To: <20011228141211.B15338@thyrsus.com> <Pine.GSO.4.21.0112281459380.3924-100000@weyl.math.psu.edu> <20011228153902.B17774@thyrsus.com> <20011230145831.A30561@caldera.de>
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <E16K6ID-0002Bk-00@the-village.bc.nu>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> Localization for technical messages sucks.  badly.
-> Just take a look at a european computer magazine, you will find lots of
-> english words in the text because there is no german/frensh/whatever
-> one.  Trying to use different grammar doesn't help the understanding.
+alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 28.12.01 in <E16K6ID-0002Bk-00@the-village.bc.nu>:
 
-Or take a look at a BSD or Linux Web page in one of the oriental
-languages...  even it contains English quite often.
+> > Frankly, I find it very amusing that advocates of i18n efforts tend to
+> > be either British or USAnians.  Folks, get real - your languages are
+> > too close to show where the problems are.  I can see how doing that
+> > gives you a warm fuzzy feeling, but could you please listen to those
+> > of us who have to deal with the resulting mess for real?
+>
+> The biggest advocates I see are from the Middle-East and Japan. We already
+> have people providing translations for Configure.help in several languages.
 
-	Jeff
+Once upon a time, I installed the German version of the man pages. Shortly  
+after that, I switched to doing "LANG= man ..." because of exactly the  
+problem Al mentions.
 
+But just recently I have been considering going back to the German man  
+pages, because the quality has become *MUCH* better. In fact, it's now  
+obvious they are fairly close translations of the English ones.
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+In short, i18n for Linux has been improving drastically at least in some  
+areas. Of course that won't be the same for all target languages; German  
+is probably one of the best-supported ones because Linux usage in Germany  
+is so heavy.
+
+As for Configure.help specifically: it should be fairly easy to do a  
+script which notices when the original of a translation has changed, and  
+possibly either replaces it with the English version, or else does some  
+other more or less intelligent thing about it.
+
+MfG Kai

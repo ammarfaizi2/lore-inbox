@@ -1,737 +1,889 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129508AbRBCLmF>; Sat, 3 Feb 2001 06:42:05 -0500
+	id <S129177AbRBCLs0>; Sat, 3 Feb 2001 06:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129736AbRBCLlz>; Sat, 3 Feb 2001 06:41:55 -0500
-Received: from smtp3.xs4all.nl ([194.109.127.132]:18438 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S129508AbRBCLln>;
-	Sat, 3 Feb 2001 06:41:43 -0500
-Date: Sat, 3 Feb 2001 11:36:04 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Frank de Lange <frank@unternet.org>, linux-kernel@vger.kernel.org
-Subject: Re: hard crashes 2.4.0/1 with NE2K stuff
-Message-ID: <20010203113604.A625@grobbebol.xs4all.nl>
-In-Reply-To: <20010202145504.A607@grobbebol.xs4all.nl> <Pine.GSO.3.96.1010202213824.19076D-100000@delta.ds2.pg.gda.pl>
+	id <S129243AbRBCLsQ>; Sat, 3 Feb 2001 06:48:16 -0500
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:7308 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S129177AbRBCLsI>; Sat, 3 Feb 2001 06:48:08 -0500
+Date: Sat, 3 Feb 2001 11:49:15 +0000
+From: Anders Karlsson <anders.karlsson@meansolutions.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Oops in 2.4.0-ac12
+Message-ID: <20010203114915.A13675@alien.ssd.hursley.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="s2ZSL+KKDSLx8OML"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.3.96.1010202213824.19076D-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Fri, Feb 02, 2001 at 09:42:30PM +0100
-X-OS: Linux grobbebol 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 02, 2001 at 09:42:30PM +0100, Maciej W. Rozycki wrote:
->  Could you please apply the following patch, wait for a lockup, then hit
-> SysRq+A (you need to have CONFIG_MAGIC_SYSRQ enabled) and send me the
-> resulting output?  You need to include debug messages, so I recommend to
-> use `dmesg' for getting the log.
-> 
->  I'd like to know if the conditions are the same as previously.
 
-ok. the conditions are this :
+--s2ZSL+KKDSLx8OML
+Content-Type: multipart/mixed; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Disposition: inline
 
 
-2.4.1 with your APIC patch & the sysrq-a addition.
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-the system doesn't lock up anymore with your patch as mentioned before.
-what does happen is that the ne2k doesn't react anymore (eth0 dead).
+Hi again,
 
-I have sysrq'd twice. the first one is the one where it works, then,
-after a floodping of only 5 seconds, eth0 stops working. the floodping
-is generated from outside towards this machine. then again I sysrq'd/
-here are the results. I glued dmesg from begin to end so that all
-messages are visible from boot time. pls explain what you find :-)
+Okay, thanks for telling me how to properly submit an Oops. I
+apologise for not looking in the ./Documentation directory first. I'll
+behave better in future.
 
+I downloaded the ksymoops program and ran the Oops'es through that,
+see attached file. I also thought the .config from the kernel tree
+might assist so I attached that as well. If there is any other
+information I could provide, let me know and I'll try and get it.
 
-Linux version 2.4.1 (root@grobbebol) (gcc version 2.95.2 19991024 (release)) #5 SMP Sat Feb 3 11:02:44 GMT 2001
-BIOS-provided physical RAM map:
- BIOS-e820: 000000000009fc00 @ 0000000000000000 (usable)
- BIOS-e820: 0000000000000400 @ 000000000009fc00 (usable)
- BIOS-e820: 0000000000010000 @ 00000000000f0000 (reserved)
- BIOS-e820: 0000000000001000 @ 00000000fec00000 (reserved)
- BIOS-e820: 0000000000001000 @ 00000000fee00000 (reserved)
- BIOS-e820: 0000000000010000 @ 00000000ffff0000 (reserved)
- BIOS-e820: 000000000ff00000 @ 0000000000100000 (usable)
-Scan SMP from c0000000 for 1024 bytes.
-Scan SMP from c009fc00 for 1024 bytes.
-Scan SMP from c00f0000 for 65536 bytes.
-found SMP MP-table at 000f5ae0
-hm, page 000f5000 reserved twice.
-hm, page 000f6000 reserved twice.
-hm, page 000f1000 reserved twice.
-hm, page 000f2000 reserved twice.
-On node 0 totalpages: 65536
-zone(0): 4096 pages.
-zone(1): 61440 pages.
-zone(2): 0 pages.
-Intel MultiProcessor Specification v1.4
-    Virtual Wire compatibility mode.
-OEM ID: OEM00000 Product ID: PROD00000000 APIC at: 0xFEE00000
-Processor #0 Pentium(tm) Pro APIC version 17
-    Floating point unit present.
-    Machine Exception supported.
-    64 bit compare & exchange supported.
-    Internal APIC present.
-    SEP present.
-    MTRR  present.
-    PGE  present.
-    MCA  present.
-    CMOV  present.
-    Bootup CPU
-Processor #1 Pentium(tm) Pro APIC version 17
-    Floating point unit present.
-    Machine Exception supported.
-    64 bit compare & exchange supported.
-    Internal APIC present.
-    SEP present.
-    MTRR  present.
-    PGE  present.
-    MCA  present.
-    CMOV  present.
-Bus #0 is PCI   
-Bus #1 is PCI   
-Bus #2 is ISA   
-I/O APIC #2 Version 17 at 0xFEC00000.
-Int: type 3, pol 0, trig 0, bus 2, IRQ 00, APIC ID 2, APIC INT 00
-Int: type 0, pol 0, trig 0, bus 2, IRQ 01, APIC ID 2, APIC INT 01
-Int: type 0, pol 0, trig 0, bus 2, IRQ 00, APIC ID 2, APIC INT 02
-Int: type 0, pol 0, trig 0, bus 2, IRQ 03, APIC ID 2, APIC INT 03
-Int: type 0, pol 0, trig 0, bus 2, IRQ 04, APIC ID 2, APIC INT 04
-Int: type 0, pol 0, trig 0, bus 2, IRQ 05, APIC ID 2, APIC INT 05
-Int: type 0, pol 0, trig 0, bus 2, IRQ 06, APIC ID 2, APIC INT 06
-Int: type 0, pol 0, trig 0, bus 2, IRQ 07, APIC ID 2, APIC INT 07
-Int: type 0, pol 1, trig 1, bus 2, IRQ 08, APIC ID 2, APIC INT 08
-Int: type 0, pol 0, trig 0, bus 2, IRQ 0a, APIC ID 2, APIC INT 0a
-Int: type 0, pol 0, trig 0, bus 2, IRQ 0b, APIC ID 2, APIC INT 0b
-Int: type 0, pol 0, trig 0, bus 2, IRQ 0d, APIC ID 2, APIC INT 0d
-Int: type 0, pol 0, trig 0, bus 2, IRQ 0e, APIC ID 2, APIC INT 0e
-Int: type 0, pol 0, trig 0, bus 2, IRQ 0f, APIC ID 2, APIC INT 0f
-Int: type 0, pol 3, trig 3, bus 0, IRQ 1f, APIC ID 2, APIC INT 13
-Int: type 0, pol 3, trig 3, bus 0, IRQ 24, APIC ID 2, APIC INT 13
-Int: type 0, pol 3, trig 3, bus 0, IRQ 2c, APIC ID 2, APIC INT 12
-Int: type 0, pol 3, trig 3, bus 0, IRQ 4c, APIC ID 2, APIC INT 12
-Int: type 0, pol 3, trig 3, bus 0, IRQ 4d, APIC ID 2, APIC INT 12
-Int: type 0, pol 3, trig 3, bus 1, IRQ 00, APIC ID 2, APIC INT 10
-Int: type 2, pol 0, trig 0, bus 2, IRQ 00, APIC ID 2, APIC INT 17
-Lint: type 3, pol 0, trig 0, bus 0, IRQ 00, APIC ID ff, APIC LINT 00
-Lint: type 1, pol 0, trig 0, bus 0, IRQ 00, APIC ID ff, APIC LINT 01
-Processors: 2
-mapped APIC to ffffe000 (fee00000)
-mapped IOAPIC to ffffd000 (fec00000)
-Kernel command line: BOOT_IMAGE=linux ro root=302
-Initializing CPU#0
-Detected 467.732 MHz processor.
-Console: colour VGA+ 132x43
-Calibrating delay loop... 933.88 BogoMIPS
-Memory: 255540k/262144k available (939k kernel code, 6216k reserved, 391k data, 204k init, 0k highmem)
-Dentry-cache hash table entries: 32768 (order: 6, 262144 bytes)
-Buffer-cache hash table entries: 16384 (order: 4, 65536 bytes)
-Page-cache hash table entries: 65536 (order: 6, 262144 bytes)
-Inode-cache hash table entries: 16384 (order: 5, 131072 bytes)
-VFS: Diskquotas version dquot_6.4.0 initialized
-CPU: Before vendor init, caps: 0183fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 128K
-Intel machine check architecture supported.
-Intel machine check reporting enabled on CPU#0.
-CPU: After vendor init, caps: 0183fbff 00000000 00000000 00000000
-CPU: After generic, caps: 0183fbff 00000000 00000000 00000000
-CPU: Common caps: 0183fbff 00000000 00000000 00000000
-Enabling fast FPU save and restore... done.
-Checking 'hlt' instruction... OK.
-POSIX conformance testing by UNIFIX
-mtrr: v1.37 (20001109) Richard Gooch (rgooch@atnf.csiro.au)
-mtrr: detected mtrr type: Intel
-CPU: Before vendor init, caps: 0183fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 128K
-Intel machine check reporting enabled on CPU#0.
-CPU: After vendor init, caps: 0183fbff 00000000 00000000 00000000
-CPU: After generic, caps: 0183fbff 00000000 00000000 00000000
-CPU: Common caps: 0183fbff 00000000 00000000 00000000
-CPU0: Intel Celeron (Mendocino) stepping 05
-per-CPU timeslice cutoff: 365.67 usecs.
-Getting VERSION: 40011
-Getting VERSION: 40011
-Getting ID: 0
-Getting ID: f000000
-Getting LVT0: 700
-Getting LVT1: 400
-enabled ExtINT on CPU#0
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-CPU present map: 3
-Booting processor 1/1 eip 2000
-Setting warm reset code and vector.
-1.
-2.
-3.
-Asserting INIT.
-Waiting for send to finish...
-+Deasserting INIT.
-Waiting for send to finish...
-+#startup loops: 2.
-Sending STARTUP #1.
-After apic_write.
-Initializing CPU#1
-CPU#1 (phys ID: 1) waiting for CALLOUT
-Startup point 1.
-Waiting for send to finish...
-+Sending STARTUP #2.
-After apic_write.
-Startup point 1.
-Waiting for send to finish...
-+After Startup.
-Before Callout 1.
-After Callout 1.
-CALLIN, before setup_local_APIC().
-masked ExtINT on CPU#1
-ESR value before enabling vector: 00000000
-ESR value after enabling vector: 00000000
-Calibrating delay loop... 933.88 BogoMIPS
-Stack at about c15fffbc
-CPU: Before vendor init, caps: 0183fbff 00000000 00000000, vendor = 0
-CPU: L1 I cache: 16K, L1 D cache: 16K
-CPU: L2 cache: 128K
-Intel machine check reporting enabled on CPU#1.
-CPU: After vendor init, caps: 0183fbff 00000000 00000000 00000000
-CPU: After generic, caps: 0183fbff 00000000 00000000 00000000
-CPU: Common caps: 0183fbff 00000000 00000000 00000000
-OK.
-CPU1: Intel Celeron (Mendocino) stepping 05
-CPU has booted.
-Before bogomips.
-Total of 2 processors activated (1867.77 BogoMIPS).
-Before bogocount - setting activated=1.
-Boot done.
-ENABLING IO-APIC IRQs
-...changing IO-APIC physical APIC ID to 2 ... ok.
-Synchronizing Arb IDs.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 2-0, 2-9, 2-12, 2-17, 2-20, 2-21, 2-22, 2-23 not connected.
-..TIMER: vector=49 pin1=2 pin2=0
-activating NMI Watchdog ... done.
-number of MP IRQ sources: 21.
-number of IO-APIC #2 registers: 24.
-testing the IO APIC.......................
+Regards,
 
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 00170011
-.......     : max redirection entries: 0017
-.......     : IO APIC version: 0011
-.... register #02: 00000000
-.......     : arbitration: 00
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 003 03  0    0    0   0   0    1    1    39
- 02 003 03  0    0    0   0   0    1    1    31
- 03 003 03  0    0    0   0   0    1    1    41
- 04 003 03  0    0    0   0   0    1    1    49
- 05 003 03  0    0    0   0   0    1    1    51
- 06 003 03  0    0    0   0   0    1    1    59
- 07 003 03  0    0    0   0   0    1    1    61
- 08 003 03  0    0    0   0   0    1    1    69
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 003 03  0    0    0   0   0    1    1    71
- 0b 003 03  0    0    0   0   0    1    1    79
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 003 03  0    0    0   0   0    1    1    81
- 0f 003 03  0    0    0   0   0    1    1    89
- 10 003 03  1    1    0   1   0    1    1    91
- 11 000 00  1    0    0   0   0    0    0    00
- 12 003 03  1    1    0   1   0    1    1    99
- 13 003 03  1    1    0   1   0    1    1    A1
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 2
-IRQ1 -> 1
-IRQ3 -> 3
-IRQ4 -> 4
-IRQ5 -> 5
-IRQ6 -> 6
-IRQ7 -> 7
-IRQ8 -> 8
-IRQ10 -> 10
-IRQ11 -> 11
-IRQ13 -> 13
-IRQ14 -> 14
-IRQ15 -> 15
-IRQ16 -> 16
-IRQ18 -> 18
-IRQ19 -> 19
-.................................... done.
-calibrating APIC timer ...
-..... CPU clock speed is 467.7620 MHz.
-..... host bus clock speed is 66.8228 MHz.
-cpu: 0, clocks: 668228, slice: 222742
-CPU0<T0:668224,T1:445472,D:10,S:222742,C:668228>
-cpu: 1, clocks: 668228, slice: 222742
-CPU1<T0:668224,T1:222736,D:4,S:222742,C:668228>
-checking TSC synchronization across CPUs: passed.
-Setting commenced=1, go go go
-mtrr: your CPUs had inconsistent fixed MTRR settings
-mtrr: probably your BIOS does not setup all CPUs
-PCI: PCI BIOS revision 2.10 entry at 0xfb5c0, last bus=1
-PCI: Using configuration type 1
-PCI: Probing PCI hardware
-Unknown bridge resource 0: assuming transparent
-PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
-PCI->APIC IRQ transform: (B0,I7,P3) -> 19
-PCI->APIC IRQ transform: (B0,I9,P0) -> 19
-PCI->APIC IRQ transform: (B0,I11,P0) -> 18
-PCI->APIC IRQ transform: (B0,I19,P0) -> 18
-PCI->APIC IRQ transform: (B0,I19,P1) -> 18
-PCI->APIC IRQ transform: (B1,I0,P0) -> 16
-Limiting direct PCI/PCI transfers.
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-DMI 2.2 present.
-41 structures occupying 1111 bytes.
-DMI table at 0x000F0800.
-BIOS Vendor: Award Software International, Inc.
-BIOS Version: 4.51 PG
-BIOS Release: 04/20/00
-Starting kswapd v1.8
-pty: 256 Unix98 ptys configured
-block: queued sectors max/low 169730kB/56576kB, 512 slots per queue
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev 39
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
-HPT366: onboard version of chipset, pin1=1 pin2=2
-HPT366: IDE controller on PCI bus 00 dev 98
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-    ide2: BM-DMA at 0xd400-0xd407, BIOS settings: hde:pio, hdf:pio
-HPT366: IDE controller on PCI bus 00 dev 99
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-    ide3: BM-DMA at 0xe000-0xe007, BIOS settings: hdg:pio, hdh:pio
-hda: ST313021A, ATA DISK drive
-hdc: Hewlett-Packard CD-Writer Plus 9100, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 25434228 sectors (13022 MB) w/512KiB Cache, CHS=25232/16/63, UDMA(33)
-Partition check:
- hda: hda1 hda2 hda3 hda4
-Floppy drive(s): fd0 is 1.44M
-FDC 0 is a post-1991 82077
-Serial driver version 5.02 (2000-08-09) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-ttyS03 at 0x02e8 (irq = 3) is a 16550A
-Real Time Clock Driver v1.10d
-SCSI subsystem driver Revision: 1.00
-scsi: ***** BusLogic SCSI Driver Version 2.1.15 of 17 August 1998 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-scsi0: Configuring BusLogic Model BT-930 PCI Ultra SCSI Host Adapter
-scsi0:   Firmware Version: 5.02, I/O Address: 0xC800, IRQ Channel: 18/Level
-scsi0:   PCI Bus: 0, Device: 11, Address: 0xD8000000, Host Adapter SCSI ID: 7
-scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
-scsi0:   Synchronous Negotiation: Fast, Wide Negotiation: Disabled
-scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-scsi0:   Driver Queue Depth: 255, Scatter/Gather Limit: 128 segments
-scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
-scsi0:   Error Recovery Strategy: Default, SCSI Bus Reset: Enabled
-scsi0:   SCSI Bus Termination: Enabled, SCAM: Disabled
-scsi0: *** BusLogic BT-930 Initialized Successfully ***
-scsi0 : BusLogic BT-930
-  Vendor: COMPAQ    Model: ST15150N          Rev: 5217
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-scsi0: Target 0: Queue Depth 28, Synchronous at 10.0 MB/sec, offset 15
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 16384)
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 204k freed
-Detected scsi disk sda at scsi0, channel 0, id 0, lun 0
-SCSI device sda: 8386000 512-byte hdwr sectors (4294 MB)
- sda: sda1
-reiserfs: checking transaction log (device 08:01) ...
-Using tea hash to sort names
-reiserfs: using 3.5.x disk format
-ReiserFS version 3.6.25
-i2c-core.o: i2c core module
-i2c-isa.o version 2.5.4 (20001012)
-i2c-core.o: adapter ISA main adapter registered as adapter 0.
-i2c-isa.o: ISA bus access for i2c modules initialized.
-sensors.o version 2.5.4 (20001012)
-w83781d.o version 2.5.4 (20001012)
-i2c-core.o: driver W83781D sensor driver registered.
-i2c-core.o: client [W83782D chip] registered to adapter [ISA main adapter](pos. 0).
-scsi1 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: HP        Model: CD-Writer+ 9100   Rev: 1.0c
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-ne2k-pci.c:v1.02 10/19/2000 D. Becker/P. Gortmaker
-  http://www.scyld.com/network/ne2k-pci.html
-eth0: RealTek RTL-8029 found at 0xc400, IRQ 19, 00:20:18:54:6F:35.
-Adding Swap: 51192k swap-space (priority -1)
-SysRq: 
-print_PIC()
+--=20
+        Anders Karlsson
 
-printing PIC contents
-... PIC  IMR: fffa
-... PIC  IRR: 0000
-... PIC  ISR: 0000
-... PIC ELCR: 1200
-print_IO_APIC()
-number of MP IRQ sources: 21.
-number of IO-APIC #2 registers: 24.
-testing the IO APIC.......................
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=".config"
 
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 00170011
-.......     : max redirection entries: 0017
-.......     : IO APIC version: 0011
-.... register #02: 01000000
-.......     : arbitration: 01
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 003 03  0    0    0   0   0    1    1    39
- 02 003 03  0    0    0   0   0    1    1    31
- 03 003 03  0    0    0   0   0    1    1    41
- 04 003 03  0    0    0   0   0    1    1    49
- 05 003 03  0    0    0   0   0    1    1    51
- 06 003 03  0    0    0   0   0    1    1    59
- 07 003 03  0    0    0   0   0    1    1    61
- 08 003 03  0    0    0   0   0    1    1    69
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 003 03  0    0    0   0   0    1    1    71
- 0b 003 03  0    0    0   0   0    1    1    79
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 003 03  0    0    0   0   0    1    1    81
- 0f 003 03  0    0    0   0   0    1    1    89
- 10 003 03  1    1    0   1   0    1    1    91
- 11 000 00  1    0    0   0   0    0    0    00
- 12 003 03  0    1    0   1   0    1    1    99
- 13 003 03  0    1    0   1   0    1    1    A1
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 2
-IRQ1 -> 1
-IRQ3 -> 3
-IRQ4 -> 4
-IRQ5 -> 5
-IRQ6 -> 6
-IRQ7 -> 7
-IRQ8 -> 8
-IRQ10 -> 10
-IRQ11 -> 11
-IRQ13 -> 13
-IRQ14 -> 14
-IRQ15 -> 15
-IRQ16 -> 16
-IRQ18 -> 18
-IRQ19 -> 19
-.................................... done.
-print_all_local_APICs()
+#
+# Automatically generated by make menuconfig: don't edit
+#
+CONFIG_X86=y
+CONFIG_ISA=y
+# CONFIG_SBUS is not set
+CONFIG_UID16=y
 
-printing local APIC contents on CPU#0/0:
-... APIC ID:      00000000 (0)
-... APIC VERSION: 00040011
-... APIC TASKPRI: 00000000 (00)
-... APIC ARBPRI: 00000000 (00)
-... APIC PROCPRI: 00000000
-... APIC EOI: 00000000
-... APIC LDR: 01000000
-... APIC DFR: ffffffff
-... APIC SPIV: 000001ff
-... APIC ISR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC TMR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000001000000
-01000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC IRR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000010000000000000000
-... APIC ESR: 00000000
-... APIC ICR: 000008fc
-... APIC ICR2: 02000000
-... APIC LVTT: 000200ef
-... APIC LVTPC: 00010000
-... APIC LVT0: 00000400
-... APIC LVT1: 00000400
-... APIC LVTERR: 000000fe
-... APIC TMICT: 0000a324
-... APIC TMCCT: 000090ee
-... APIC TDCR: 00000003
+#
+# Code maturity level options
+#
+CONFIG_EXPERIMENTAL=y
 
+#
+# Loadable module support
+#
+CONFIG_MODULES=y
+# CONFIG_MODVERSIONS is not set
+CONFIG_KMOD=y
 
-printing local APIC contents on CPU#1/1:
-... APIC ID:      01000000 (1)
-... APIC VERSION: 00040011
-... APIC TASKPRI: 00000000 (00)
-... APIC ARBPRI: 000000f0 (f0)
-... APIC PROCPRI: 00000000
-... APIC EOI: 00000000
-... APIC LDR: 02000000
-... APIC DFR: ffffffff
-... APIC SPIV: 000001ff
-... APIC ISR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC TMR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000001000000
-01000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC IRR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000010000000000001000
-... APIC ESR: 00000000
-... APIC ICR: 000c08fb
-... APIC ICR2: 01000000
-... APIC LVTT: 000200ef
-... APIC LVTPC: 00010000
-... APIC LVT0: 00000400
-... APIC LVT1: 00010400
-... APIC LVTERR: 000000fe
-... APIC TMICT: 0000a324
-... APIC TMCCT: 00007339
-... APIC TDCR: 00000003
+#
+# Processor type and features
+#
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+CONFIG_M686=y
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+# CONFIG_TOSHIBA is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+# CONFIG_X86_CPUID is not set
+CONFIG_NOHIGHMEM=y
+# CONFIG_HIGHMEM4G is not set
+# CONFIG_HIGHMEM64G is not set
+# CONFIG_MATH_EMULATION is not set
+CONFIG_MTRR=y
+# CONFIG_SMP is not set
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
 
-SysRq: 
-print_PIC()
+#
+# General setup
+#
+CONFIG_NET=y
+# CONFIG_VISWS is not set
+CONFIG_PCI=y
+# CONFIG_PCI_GOBIOS is not set
+# CONFIG_PCI_GODIRECT is not set
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+# CONFIG_EISA is not set
+# CONFIG_MCA is not set
+CONFIG_HOTPLUG=y
 
-printing PIC contents
-... PIC  IMR: fffa
-... PIC  IRR: 0200
-... PIC  ISR: 0000
-... PIC ELCR: 1200
-print_IO_APIC()
-number of MP IRQ sources: 21.
-number of IO-APIC #2 registers: 24.
-testing the IO APIC.......................
+#
+# PCMCIA/CardBus support
+#
+# CONFIG_PCMCIA is not set
+CONFIG_SYSVIPC=y
+# CONFIG_BSD_PROCESS_ACCT is not set
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+# CONFIG_KCORE_AOUT is not set
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PM=y
+# CONFIG_ACPI is not set
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+# CONFIG_APM_DISPLAY_BLANK is not set
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+CONFIG_APM_REAL_MODE_POWER_OFF=y
 
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 00170011
-.......     : max redirection entries: 0017
-.......     : IO APIC version: 0011
-.... register #02: 00000000
-.......     : arbitration: 00
-.... IRQ redirection table:
- NR Log Phy Mask Trig IRR Pol Stat Dest Deli Vect:   
- 00 000 00  1    0    0   0   0    0    0    00
- 01 003 03  0    0    0   0   0    1    1    39
- 02 003 03  0    0    0   0   0    1    1    31
- 03 003 03  0    0    0   0   0    1    1    41
- 04 003 03  0    0    0   0   0    1    1    49
- 05 003 03  0    0    0   0   0    1    1    51
- 06 003 03  0    0    0   0   0    1    1    59
- 07 003 03  0    0    0   0   0    1    1    61
- 08 003 03  0    0    0   0   0    1    1    69
- 09 000 00  1    0    0   0   0    0    0    00
- 0a 003 03  0    0    0   0   0    1    1    71
- 0b 003 03  0    0    0   0   0    1    1    79
- 0c 000 00  1    0    0   0   0    0    0    00
- 0d 000 00  1    0    0   0   0    0    0    00
- 0e 003 03  0    0    0   0   0    1    1    81
- 0f 003 03  0    0    0   0   0    1    1    89
- 10 003 03  1    1    0   1   0    1    1    91
- 11 000 00  1    0    0   0   0    0    0    00
- 12 003 03  0    1    0   1   0    1    1    99
- 13 003 03  0    1    1   1   1    1    1    A1
- 14 000 00  1    0    0   0   0    0    0    00
- 15 000 00  1    0    0   0   0    0    0    00
- 16 000 00  1    0    0   0   0    0    0    00
- 17 000 00  1    0    0   0   0    0    0    00
-IRQ to pin mappings:
-IRQ0 -> 2
-IRQ1 -> 1
-IRQ3 -> 3
-IRQ4 -> 4
-IRQ5 -> 5
-IRQ6 -> 6
-IRQ7 -> 7
-IRQ8 -> 8
-IRQ10 -> 10
-IRQ11 -> 11
-IRQ13 -> 13
-IRQ14 -> 14
-IRQ15 -> 15
-IRQ16 -> 16
-IRQ18 -> 18
-IRQ19 -> 19
-.................................... done.
-print_all_local_APICs()
+#
+# Memory Technology Devices (MTD)
+#
+# CONFIG_MTD is not set
 
-printing local APIC contents on CPU#1/1:
-... APIC ID:      01000000 (1)
-... APIC VERSION: 00040011
-... APIC TASKPRI: 00000000 (00)
-... APIC ARBPRI: 00000000 (00)
-... APIC PROCPRI: 00000000
-... APIC EOI: 00000000
-... APIC LDR: 02000000
-... APIC DFR: ffffffff
-... APIC SPIV: 000001ff
-... APIC ISR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC TMR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000001000000
-01000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC IRR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC ESR: 00000000
-... APIC ICR: 000008fc
-... APIC ICR2: 01000000
-... APIC LVTT: 000200ef
-... APIC LVTPC: 00010000
-... APIC LVT0: 00000400
-... APIC LVT1: 00010400
-... APIC LVTERR: 000000fe
-... APIC TMICT: 0000a324
-... APIC TMCCT: 00001e10
-... APIC TDCR: 00000003
+#
+# Parallel port support
+#
+# CONFIG_PARPORT is not set
 
+#
+# Plug and Play configuration
+#
+CONFIG_PNP=y
+CONFIG_ISAPNP=y
 
-printing local APIC contents on CPU#0/0:
-... APIC ID:      00000000 (0)
-... APIC VERSION: 00040011
-... APIC TASKPRI: 00000000 (00)
-... APIC ARBPRI: 000000e0 (e0)
-... APIC PROCPRI: 00000000
-... APIC EOI: 00000000
-... APIC LDR: 01000000
-... APIC DFR: ffffffff
-... APIC SPIV: 000001ff
-... APIC ISR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC TMR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000001000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-... APIC IRR field:
-0123456789abcdef0123456789abcdef
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000000000000000000000
-00000000000000010000000000000000
-... APIC ESR: 00000000
-... APIC ICR: 000c08fb
-... APIC ICR2: 02000000
-... APIC LVTT: 000200ef
-... APIC LVTPC: 00010000
-... APIC LVT0: 00000400
-... APIC LVT1: 00000400
-... APIC LVTERR: 000000fe
-... APIC TMICT: 0000a324
-... APIC TMCCT: 00007b18
-... APIC TDCR: 00000003
+#
+# Block devices
+#
+CONFIG_BLK_DEV_FD=y
+# CONFIG_BLK_DEV_XD is not set
+# CONFIG_PARIDE is not set
+# CONFIG_BLK_CPQ_DA is not set
+# CONFIG_BLK_CPQ_CISS_DA is not set
+# CONFIG_BLK_DEV_DAC960 is not set
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_NBD=m
+CONFIG_BLK_DEV_RAM=m
+CONFIG_BLK_DEV_RAM_SIZE=4096
+# CONFIG_BLK_DEV_INITRD is not set
 
+#
+# Multi-device support (RAID and LVM)
+#
+# CONFIG_MD is not set
+# CONFIG_BLK_DEV_MD is not set
+# CONFIG_MD_LINEAR is not set
+# CONFIG_MD_RAID0 is not set
+# CONFIG_MD_RAID1 is not set
+# CONFIG_MD_RAID5 is not set
+# CONFIG_BLK_DEV_LVM is not set
+# CONFIG_LVM_PROC_FS is not set
 
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+#
+# Networking options
+#
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+# CONFIG_NETLINK is not set
+CONFIG_NETFILTER=y
+CONFIG_NETFILTER_DEBUG=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+# CONFIG_IP_ADVANCED_ROUTER is not set
+# CONFIG_IP_PNP is not set
+# CONFIG_NET_IPIP is not set
+# CONFIG_NET_IPGRE is not set
+# CONFIG_IP_MROUTE is not set
+CONFIG_INET_ECN=y
+# CONFIG_SYN_COOKIES is not set
+
+#
+#   IP: Netfilter Configuration
+#
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_NAT=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=m
+CONFIG_IP_NF_TARGET_REDIRECT=m
+CONFIG_IP_NF_NAT_FTP=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_COMPAT_IPCHAINS=m
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_COMPAT_IPFWADM=m
+CONFIG_IP_NF_NAT_NEEDED=y
+# CONFIG_IPV6 is not set
+# CONFIG_KHTTPD is not set
+# CONFIG_ATM is not set
+# CONFIG_IPX is not set
+# CONFIG_ATALK is not set
+# CONFIG_DECNET is not set
+# CONFIG_BRIDGE is not set
+# CONFIG_X25 is not set
+# CONFIG_LAPB is not set
+# CONFIG_LLC is not set
+# CONFIG_NET_DIVERT is not set
+# CONFIG_ECONET is not set
+# CONFIG_WAN_ROUTER is not set
+# CONFIG_NET_FASTROUTE is not set
+# CONFIG_NET_HW_FLOWCONTROL is not set
+
+#
+# QoS and/or fair queueing
+#
+# CONFIG_NET_SCHED is not set
+
+#
+# Telephony Support
+#
+# CONFIG_PHONE is not set
+# CONFIG_PHONE_IXJ is not set
+
+#
+# ATA/IDE/MFM/RLL support
+#
+CONFIG_IDE=y
+
+#
+# IDE, ATA and ATAPI Block devices
+#
+CONFIG_BLK_DEV_IDE=y
+# CONFIG_BLK_DEV_HD_IDE is not set
+# CONFIG_BLK_DEV_HD is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_COMMERIAL is not set
+# CONFIG_BLK_DEV_TIVO is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+# CONFIG_BLK_DEV_IDETAPE is not set
+# CONFIG_BLK_DEV_IDEFLOPPY is not set
+# CONFIG_BLK_DEV_IDESCSI is not set
+# CONFIG_BLK_DEV_CMD640 is not set
+# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
+# CONFIG_BLK_DEV_ISAPNP is not set
+# CONFIG_BLK_DEV_RZ1000 is not set
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+# CONFIG_BLK_DEV_OFFBOARD is not set
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+# CONFIG_IDEDMA_PCI_WIP is not set
+# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+# CONFIG_BLK_DEV_AEC62XX is not set
+# CONFIG_AEC62XX_TUNING is not set
+# CONFIG_BLK_DEV_ALI15X3 is not set
+# CONFIG_WDC_ALI15X3 is not set
+# CONFIG_BLK_DEV_AMD7409 is not set
+# CONFIG_AMD7409_OVERRIDE is not set
+# CONFIG_BLK_DEV_CMD64X is not set
+# CONFIG_BLK_DEV_CY82C693 is not set
+# CONFIG_BLK_DEV_CS5530 is not set
+# CONFIG_BLK_DEV_HPT34X is not set
+# CONFIG_HPT34X_AUTODMA is not set
+# CONFIG_BLK_DEV_HPT366 is not set
+# CONFIG_BLK_DEV_PIIX is not set
+# CONFIG_PIIX_TUNING is not set
+# CONFIG_BLK_DEV_NS87415 is not set
+# CONFIG_BLK_DEV_OPTI621 is not set
+# CONFIG_BLK_DEV_PDC202XX is not set
+# CONFIG_PDC202XX_BURST is not set
+# CONFIG_BLK_DEV_OSB4 is not set
+# CONFIG_BLK_DEV_SIS5513 is not set
+# CONFIG_BLK_DEV_SLC90E66 is not set
+# CONFIG_BLK_DEV_TRM290 is not set
+# CONFIG_BLK_DEV_VIA82CXXX is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+# CONFIG_DMA_NONPCI is not set
+# CONFIG_BLK_DEV_IDE_MODES is not set
+
+#
+# SCSI support
+#
+# CONFIG_SCSI is not set
+
+#
+# Fusion MPT device support
+#
+# CONFIG_FUSION is not set
+# CONFIG_FUSION_BOOT is not set
+# CONFIG_FUSION_ISENSE is not set
+# CONFIG_FUSION_CTL is not set
+# CONFIG_FUSION_LAN is not set
+
+#
+# IEEE 1394 (FireWire) support
+#
+# CONFIG_IEEE1394 is not set
+
+#
+# I2O device support
+#
+# CONFIG_I2O is not set
+# CONFIG_I2O_PCI is not set
+# CONFIG_I2O_BLOCK is not set
+# CONFIG_I2O_LAN is not set
+# CONFIG_I2O_SCSI is not set
+# CONFIG_I2O_PROC is not set
+
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
+
+#
+# ARCnet devices
+#
+# CONFIG_ARCNET is not set
+CONFIG_DUMMY=m
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
+# CONFIG_NET_SB1000 is not set
+
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+# CONFIG_NET_VENDOR_3COM is not set
+# CONFIG_LANCE is not set
+# CONFIG_NET_VENDOR_SMC is not set
+# CONFIG_NET_VENDOR_RACAL is not set
+# CONFIG_AT1700 is not set
+# CONFIG_DEPCA is not set
+# CONFIG_HP100 is not set
+# CONFIG_NET_ISA is not set
+# CONFIG_NET_PCI is not set
+# CONFIG_NET_POCKET is not set
+
+#
+# Ethernet (1000 Mbit)
+#
+# CONFIG_ACENIC is not set
+# CONFIG_HAMACHI is not set
+# CONFIG_YELLOWFIN is not set
+# CONFIG_SK98LIN is not set
+# CONFIG_FDDI is not set
+# CONFIG_HIPPI is not set
+CONFIG_PPP=y
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_ASYNC=y
+CONFIG_PPP_SYNC_TTY=y
+CONFIG_PPP_DEFLATE=y
+CONFIG_PPP_BSDCOMP=y
+# CONFIG_PPPOE is not set
+# CONFIG_SLIP is not set
+
+#
+# Wireless LAN (non-hamradio)
+#
+# CONFIG_NET_RADIO is not set
+
+#
+# Token Ring devices
+#
+CONFIG_TR=y
+# CONFIG_IBMTR is not set
+# CONFIG_IBMOL is not set
+# CONFIG_IBMLS is not set
+# CONFIG_TMS380TR is not set
+# CONFIG_SMCTR is not set
+# CONFIG_NET_FC is not set
+# CONFIG_RCPCI is not set
+# CONFIG_SHAPER is not set
+
+#
+# Wan interfaces
+#
+# CONFIG_WAN is not set
+
+#
+# Amateur Radio support
+#
+# CONFIG_HAMRADIO is not set
+
+#
+# IrDA (infrared) support
+#
+# CONFIG_IRDA is not set
+
+#
+# ISDN subsystem
+#
+# CONFIG_ISDN is not set
+
+#
+# Old CD-ROM drivers (not SCSI, not IDE)
+#
+# CONFIG_CD_NO_IDESCSI is not set
+
+#
+# Input core support
+#
+# CONFIG_INPUT is not set
+
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+# CONFIG_SERIAL_CONSOLE is not set
+CONFIG_SERIAL_EXTENDED=y
+CONFIG_SERIAL_MANY_PORTS=y
+CONFIG_SERIAL_SHARE_IRQ=y
+# CONFIG_SERIAL_DETECT_IRQ is not set
+# CONFIG_SERIAL_MULTIPORT is not set
+# CONFIG_HUB6 is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+
+#
+# I2C support
+#
+# CONFIG_I2C is not set
+
+#
+# Mice
+#
+# CONFIG_BUSMOUSE is not set
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+# CONFIG_82C710_MOUSE is not set
+# CONFIG_PC110_PAD is not set
+
+#
+# Joysticks
+#
+# CONFIG_JOYSTICK is not set
+# CONFIG_QIC02_TAPE is not set
+
+#
+# Watchdog Cards
+#
+# CONFIG_WATCHDOG is not set
+# CONFIG_INTEL_RNG is not set
+# CONFIG_NVRAM is not set
+CONFIG_RTC=y
+# CONFIG_DTLK is not set
+# CONFIG_R3964 is not set
+# CONFIG_APPLICOM is not set
+
+#
+# Ftape, the floppy tape device driver
+#
+# CONFIG_FTAPE is not set
+# CONFIG_AGP is not set
+# CONFIG_DRM is not set
+
+#
+# Multimedia devices
+#
+# CONFIG_VIDEO_DEV is not set
+
+#
+# File systems
+#
+# CONFIG_QUOTA is not set
+# CONFIG_AUTOFS_FS is not set
+CONFIG_AUTOFS4_FS=y
+CONFIG_REISERFS_FS=y
+# CONFIG_REISERFS_CHECK is not set
+# CONFIG_ADFS_FS is not set
+# CONFIG_ADFS_FS_RW is not set
+# CONFIG_AFFS_FS is not set
+# CONFIG_HFS_FS is not set
+# CONFIG_BFS_FS is not set
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+# CONFIG_UMSDOS_FS is not set
+CONFIG_VFAT_FS=y
+# CONFIG_EFS_FS is not set
+# CONFIG_JFFS_FS is not set
+# CONFIG_CRAMFS is not set
+CONFIG_SWAPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+# CONFIG_MINIX_FS is not set
+# CONFIG_NTFS_FS is not set
+# CONFIG_NTFS_RW is not set
+# CONFIG_HPFS_FS is not set
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+# CONFIG_DEVFS_DEBUG is not set
+# CONFIG_DEVPTS_FS is not set
+# CONFIG_QNX4FS_FS is not set
+# CONFIG_QNX4FS_RW is not set
+# CONFIG_ROMFS_FS is not set
+CONFIG_EXT2_FS=y
+# CONFIG_SYSV_FS is not set
+# CONFIG_SYSV_FS_WRITE is not set
+# CONFIG_UDF_FS is not set
+# CONFIG_UDF_RW is not set
+# CONFIG_UFS_FS is not set
+# CONFIG_UFS_FS_WRITE is not set
+
+#
+# Network File Systems
+#
+CONFIG_CODA_FS=m
+CONFIG_NFS_FS=y
+# CONFIG_NFS_V3 is not set
+# CONFIG_ROOT_NFS is not set
+CONFIG_NFSD=m
+# CONFIG_NFSD_V3 is not set
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_SMB_FS=m
+# CONFIG_SMB_NLS_DEFAULT is not set
+# CONFIG_NCP_FS is not set
+# CONFIG_NCPFS_PACKET_SIGNING is not set
+# CONFIG_NCPFS_IOCTL_LOCKING is not set
+# CONFIG_NCPFS_STRONG is not set
+# CONFIG_NCPFS_NFS_NS is not set
+# CONFIG_NCPFS_OS2_NS is not set
+# CONFIG_NCPFS_SMALLDOS is not set
+# CONFIG_NCPFS_NLS is not set
+# CONFIG_NCPFS_EXTRAS is not set
+
+#
+# Partition Types
+#
+# CONFIG_PARTITION_ADVANCED is not set
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+
+#
+# Native Language Support
+#
+CONFIG_NLS_DEFAULT="iso8859-1"
+# CONFIG_NLS_CODEPAGE_437 is not set
+# CONFIG_NLS_CODEPAGE_737 is not set
+# CONFIG_NLS_CODEPAGE_775 is not set
+# CONFIG_NLS_CODEPAGE_850 is not set
+# CONFIG_NLS_CODEPAGE_852 is not set
+# CONFIG_NLS_CODEPAGE_855 is not set
+# CONFIG_NLS_CODEPAGE_857 is not set
+# CONFIG_NLS_CODEPAGE_860 is not set
+# CONFIG_NLS_CODEPAGE_861 is not set
+# CONFIG_NLS_CODEPAGE_862 is not set
+# CONFIG_NLS_CODEPAGE_863 is not set
+# CONFIG_NLS_CODEPAGE_864 is not set
+# CONFIG_NLS_CODEPAGE_865 is not set
+# CONFIG_NLS_CODEPAGE_866 is not set
+# CONFIG_NLS_CODEPAGE_869 is not set
+# CONFIG_NLS_CODEPAGE_874 is not set
+# CONFIG_NLS_CODEPAGE_932 is not set
+# CONFIG_NLS_CODEPAGE_936 is not set
+# CONFIG_NLS_CODEPAGE_949 is not set
+# CONFIG_NLS_CODEPAGE_950 is not set
+# CONFIG_NLS_ISO8859_1 is not set
+# CONFIG_NLS_ISO8859_2 is not set
+# CONFIG_NLS_ISO8859_3 is not set
+# CONFIG_NLS_ISO8859_4 is not set
+# CONFIG_NLS_ISO8859_5 is not set
+# CONFIG_NLS_ISO8859_6 is not set
+# CONFIG_NLS_ISO8859_7 is not set
+# CONFIG_NLS_ISO8859_8 is not set
+# CONFIG_NLS_ISO8859_9 is not set
+# CONFIG_NLS_ISO8859_14 is not set
+# CONFIG_NLS_ISO8859_15 is not set
+# CONFIG_NLS_KOI8_R is not set
+# CONFIG_NLS_UTF8 is not set
+
+#
+# Console drivers
+#
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+# CONFIG_MDA_CONSOLE is not set
+
+#
+# Frame-buffer support
+#
+# CONFIG_FB is not set
+
+#
+# Sound
+#
+CONFIG_SOUND=m
+# CONFIG_SOUND_CMPCI is not set
+# CONFIG_SOUND_EMU10K1 is not set
+# CONFIG_SOUND_FUSION is not set
+# CONFIG_SOUND_CS4281 is not set
+# CONFIG_SOUND_ES1370 is not set
+# CONFIG_SOUND_ES1371 is not set
+# CONFIG_SOUND_ESSSOLO1 is not set
+# CONFIG_SOUND_MAESTRO is not set
+# CONFIG_SOUND_MAESTRO3 is not set
+# CONFIG_SOUND_SONICVIBES is not set
+# CONFIG_SOUND_TRIDENT is not set
+# CONFIG_SOUND_MSNDCLAS is not set
+# CONFIG_SOUND_MSNDPIN is not set
+# CONFIG_SOUND_VIA82CXXX is not set
+CONFIG_SOUND_OSS=m
+# CONFIG_SOUND_TRACEINIT is not set
+# CONFIG_SOUND_DMAP is not set
+CONFIG_SOUND_AD1816=m
+# CONFIG_SOUND_SGALAXY is not set
+# CONFIG_SOUND_ADLIB is not set
+# CONFIG_SOUND_ACI_MIXER is not set
+# CONFIG_SOUND_CS4232 is not set
+# CONFIG_SOUND_SSCAPE is not set
+# CONFIG_SOUND_GUS is not set
+# CONFIG_SOUND_ICH is not set
+CONFIG_SOUND_VMIDI=m
+# CONFIG_SOUND_TRIX is not set
+# CONFIG_SOUND_MSS is not set
+CONFIG_SOUND_MPU401=m
+# CONFIG_SOUND_NM256 is not set
+# CONFIG_SOUND_MAD16 is not set
+# CONFIG_SOUND_PAS is not set
+# CONFIG_PAS_JOYSTICK is not set
+# CONFIG_SOUND_PSS is not set
+CONFIG_SOUND_SB=m
+# CONFIG_SOUND_AWE32_SYNTH is not set
+# CONFIG_SOUND_WAVEFRONT is not set
+# CONFIG_SOUND_MAUI is not set
+CONFIG_SOUND_YM3812=m
+CONFIG_SOUND_OPL3SA1=m
+CONFIG_SOUND_OPL3SA2=m
+# CONFIG_SOUND_YMFPCI is not set
+# CONFIG_SOUND_YMFPCI_LEGACY is not set
+# CONFIG_SOUND_UART6850 is not set
+# CONFIG_SOUND_AEDSP16 is not set
+# CONFIG_SOUND_TVMIXER is not set
+
+#
+# USB support
+#
+# CONFIG_USB is not set
+
+#
+# Kernel hacking
+#
+CONFIG_MAGIC_SYSRQ=y
+
+--X1bOJ3K7DJ5YkBrT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="oops_decoded.txt"
+Content-Transfer-Encoding: quoted-printable
+
+ksymoops 2.3.7 on i686 2.4.0-ac12.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.0-ac12/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol adapter_def  , ibmtr_cs says c69=
+4d670, /lib/modules/2.4.0-ac12/pcmcia/ibmtr_cs.o says c6949060.  Ignoring /=
+lib/modules/2.4.0-ac12/pcmcia/ibmtr_cs.o entry
+Warning (compare_maps): mismatch on symbol channel_def  , ibmtr_cs says c69=
+4e22c, /lib/modules/2.4.0-ac12/pcmcia/ibmtr_cs.o says c694d3e0.  Ignoring /=
+lib/modules/2.4.0-ac12/pcmcia/ibmtr_cs.o entry
+Warning (compare_maps): mismatch on symbol ibmtr_probe  , ibmtr_cs says c69=
+4d770, /lib/modules/2.4.0-ac12/pcmcia/ibmtr_cs.o says c6949160.  Ignoring /=
+lib/modules/2.4.0-ac12/pcmcia/ibmtr_cs.o entry
+Unable to handle kernel paging request at virtual address 5b919ba8
+c01a66c2
+*pde =3D 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01a66c2>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00013086
+eax: c5d0a200   ebx: 0000200a   ecx: 00008028    edx: 5b919aa8
+esi: 0000200a   edi: 00000001   ebp: c02d4820    esp: c5061f4c
+ds: 0018   es: 0018   ss: 0018
+Process X (pid: 800, stackpage=3Dc5061000)
+Stack: c02d4120 00000001 00000000 bffff634 00000001 c01a437a 00000001
+00000001
+       00000001 c02d4120 002d4820 c01a446d 00000001 00000000 c02ab580
+c01a965f
+       00000001 00000006 00000000 c011984c 00000000 00000001 c02ab5d8
+00000007
+Call Trace: [<c01a437a>] [<c01a446d>] [<c01a965f>] [<c011984c>]
+[<c01197af>] [<c0108e2d>]
+Code: 8b 82 00 01 00 00 89 3d 28 46 2d c0 39 10 74 21 8b 81 20 48
+
+>>EIP; c01a66c2 <redraw_screen+6e/160>   <=3D=3D=3D=3D=3D
+Trace; c01a437a <complete_change_console+2a/94>
+Trace; c01a446d <change_console+89/9c>
+Trace; c01a965f <console_softint+4f/c0>
+Trace; c011984c <tasklet_action+38/58>
+Trace; c01197af <do_softirq+3f/64>
+Trace; c0108e2d <handle_softirq+5/c>
+Code;  c01a66c2 <redraw_screen+6e/160>
+00000000 <_EIP>:
+Code;  c01a66c2 <redraw_screen+6e/160>   <=3D=3D=3D=3D=3D
+   0:   8b 82 00 01 00 00         mov    0x100(%edx),%eax   <=3D=3D=3D=3D=3D
+Code;  c01a66c8 <redraw_screen+74/160>
+   6:   89 3d 28 46 2d c0         mov    %edi,0xc02d4628
+Code;  c01a66ce <redraw_screen+7a/160>
+   c:   39 10                     cmp    %edx,(%eax)
+Code;  c01a66d0 <redraw_screen+7c/160>
+   e:   74 21                     je     31 <_EIP+0x31> c01a66f3 <redraw_sc=
+reen+9f/160>
+Code;  c01a66d2 <redraw_screen+7e/160>
+  10:   8b 81 20 48 00 00         mov    0x4820(%ecx),%eax
+
+Kernel panic: Aiee, killing interrupt handler!
+Kernel BUG at sched.c:688!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c0113e74>]
+EFLAGS: 00013286
+eax: 0000001b   ebx: c5061dd8   ecx: 00000001    edx: c0263b88
+esi: c11fc240   edi: c5060000   ebp: c5061dc4    esp: c5061d94
+ds: 0018   es: 0018   ss: 0018
+Process X (pid: 800, stackpage=3Dc5061000)
+Stack: c021c765 c021c8b6 000002b0 c5061dd8 c11fc240 c5060000 c0119a44
+c02d5b60
+       c5061dd8 c11fc240 00000000 c02d5bc4 00000000 c013106a c39a7240
+00000303
+       00000001 00000000 c5060000 c11fc28c c11fc28c c0131114 c11fc240
+00000303
+Call Trace: [<c0119a44>] [<c013106a>] [<c0131114>] [<c0131288>]
+[<c01b0b64>]
+            [<c01b0c2b>] [<c0115cae>] [<c011865f>] [<c010923e>]
+[<c0113447>]
+            [<c0113124>] [<c0131ee3>] [<c0131f53>] [<c014cb63>]
+[<c0121e7f>]
+            [<c0108e7c>] [<c01a66c2>] [<c01a437a>] [<c01a446d>]
+[<c01a965f>]
+            [<c011984c>] [<c01197af>] [<c0108e2d>]
+Code: 0f 0b 8d 65 dc 5b 5e 5f 89 ec 5d c3 55 89 e5 83 ec 10 57 56
+
+>>EIP; c0113e74 <schedule+388/394>   <=3D=3D=3D=3D=3D
+Trace; c0119a44 <__run_task_queue+4c/68>
+Trace; c013106a <__wait_on_buffer+6a/8c>
+Trace; c0131114 <sync_buffers+88/1b0>
+Trace; c0131288 <fsync_dev+28/30>
+Trace; c01b0b64 <go_sync+90/118>
+Trace; c01b0c2b <do_emergency_sync+3f/a4>
+Trace; c0115cae <panic+de/e0>
+Trace; c011865f <do_exit+27/220>
+Trace; c010923e <die+42/44>
+Trace; c0113447 <do_page_fault+323/40c>
+Trace; c0113124 <do_page_fault+0/40c>
+Trace; c0131ee3 <balance_dirty+b/1c>
+Trace; c0131f53 <mark_buffer_dirty+33/38>
+Trace; c014cb63 <ext2_free_blocks+2eb/35c>
+Trace; c0121e7f <handle_mm_fault+127/158>
+Trace; c0108e7c <error_code+34/3c>
+Trace; c01a66c2 <redraw_screen+6e/160>
+Trace; c01a437a <complete_change_console+2a/94>
+Trace; c01a446d <change_console+89/9c>
+Trace; c01a965f <console_softint+4f/c0>
+Trace; c011984c <tasklet_action+38/58>
+Trace; c01197af <do_softirq+3f/64>
+Trace; c0108e2d <handle_softirq+5/c>
+Code;  c0113e74 <schedule+388/394>
+00000000 <_EIP>:
+Code;  c0113e74 <schedule+388/394>   <=3D=3D=3D=3D=3D
+   0:   0f 0b                     ud2a      <=3D=3D=3D=3D=3D
+Code;  c0113e76 <schedule+38a/394>
+   2:   8d 65 dc                  lea    0xffffffdc(%ebp),%esp
+Code;  c0113e79 <schedule+38d/394>
+   5:   5b                        pop    %ebx
+Code;  c0113e7a <schedule+38e/394>
+   6:   5e                        pop    %esi
+Code;  c0113e7b <schedule+38f/394>
+   7:   5f                        pop    %edi
+Code;  c0113e7c <schedule+390/394>
+   8:   89 ec                     mov    %ebp,%esp
+Code;  c0113e7e <schedule+392/394>
+   a:   5d                        pop    %ebp
+Code;  c0113e7f <schedule+393/394>
+   b:   c3                        ret   =20
+Code;  c0113e80 <__wake_up+0/98>
+   c:   55                        push   %ebp
+Code;  c0113e81 <__wake_up+1/98>
+   d:   89 e5                     mov    %esp,%ebp
+Code;  c0113e83 <__wake_up+3/98>
+   f:   83 ec 10                  sub    $0x10,%esp
+Code;  c0113e86 <__wake_up+6/98>
+  12:   57                        push   %edi
+Code;  c0113e87 <__wake_up+7/98>
+  13:   56                        push   %esi
+
+Kernel panic: Aiee, killing interrupt handler!
+
+4 warnings issued.  Results may not be reliable.
+
+--X1bOJ3K7DJ5YkBrT--
+
+--s2ZSL+KKDSLx8OML
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.3 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjp78DsACgkQhWP0bzSeaGOM5wCg0VylxZ2AN7a13c34Gm5Pzcdm
+RLkAoOJeP/UHCPGHzgWshc5Zhd4KWif9
+=glcb
+-----END PGP SIGNATURE-----
+
+--s2ZSL+KKDSLx8OML--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbUKGTXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUKGT1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbUKGTXu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 14:23:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbUKGTXt
+	id S261680AbUKGT1M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 14:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUKGT1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 14:23:49 -0500
-Received: from compunauta.com ([69.36.170.169]:21909 "EHLO compunauta.com")
-	by vger.kernel.org with ESMTP id S261679AbUKGTXc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 14:23:32 -0500
-From: Gustavo Guillermo Perez <gustavo@compunauta.com>
-To: Jean-Yves LENHOF <jean-yves@lenhof.eu.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with USB 1.1 Storage plugged in USB 2.0
-Date: Mon, 8 Nov 2004 09:23:51 +0600
-User-Agent: KMail/1.5.4
-References: <1099846698.6045.7.camel@localhost>
-In-Reply-To: <1099846698.6045.7.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8BIT
+	Sun, 7 Nov 2004 14:27:12 -0500
+Received: from adsl-70-241-70-1.dsl.hstntx.swbell.net ([70.241.70.1]:46208
+	"EHLO leamonde.no-ip.org") by vger.kernel.org with ESMTP
+	id S261680AbUKGT1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 14:27:10 -0500
+Date: Sun, 7 Nov 2004 13:26:03 -0600
+From: "Camilo A. Reyes" <camilo@leamonde.no-ip.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Console 80x50 SVGA
+Message-ID: <20041107192603.GA530@leamonde.no-ip.org>
+References: <20041105224206.GA16741@leamonde.no-ip.org> <20041106071245.GA28709@middle.of.nowhere> <20041106183147.GB16891@leamonde.no-ip.org> <Pine.GSO.4.61.0411071158280.19472@waterleaf.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411080923.51778.gustavo@compunauta.com>
+In-Reply-To: <Pine.GSO.4.61.0411071158280.19472@waterleaf.sonytel.be>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reproductable, I have an Adaptor for SecureDigital Cards to download images 
-from a cammera, And only works in USB 1.1 plug, Kernel is 2.6.6 and 2.6.7.
-Cause I not own the adaptor, I don't have a chance to try without ehci enabled 
-(rmmod ehci-hcd).
+On Sun, Nov 07, 2004 at 11:58:56AM +0100, Geert Uytterhoeven wrote:
+> On Sat, 6 Nov 2004, Camilo A. Reyes wrote:
+> > On Sat, Nov 06, 2004 at 08:12:45AM +0100, Jurriaan wrote:
+> > > > Just a question about displaying the console in 80x50 lines instead of 80x30. I have enabled frame buffer but as of now its doing only 80x30.
+> > > 
+> > > The combination of resolution and font you use allows you to get 80x30.
+> > > 
+> > > Try google, or read more in /usr/src/linux/Documentation/fb/
+> > > 
+> > > Good luck,
+> > > Jurriaan
+> > > -- 
+> > > "You so much as flutter in his direction again," growled Fisher, "and
+> > > they'll be using what's left of you for a pipe cleaner."
+> > > The faerie winced. "Do you think you could be a little less premenstrual
+> > > about this, darling?"
+> > > 	Simon R Green - Beyond the Blue Moon
+> > > Debian (Unstable) GNU/Linux 2.6.9-mm1 2x6078 bogomips load 0.40
+> > 
+> > True, but one of the issues I have is when I choose 8x8 built in character
+> > fonts it comes up 80x50 at the begining of the bootup process, (with a
+> > nice penguin logo too :-D) but then as the system begins to run its services
+> > and mounting its drives it switches back to good old 80x30. :-(
+> 
+> Hence one of the startup scripts loads the 8x16 font again...
+> 
+> Gr{oetje,eeting}s,
+> 
+> 						Geert
+> 
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> 
+> In personal conversations with technical people, I call myself a hacker. But
+> when I'm talking to journalists I just say "programmer" or something like that.
+> 							    -- Linus Torvalds
 
-
-El Domingo 07 Noviembre 2004 22:58, Jean-Yves LENHOF escribió:
-> Hi kernel folks,
->
-> I just enter this bug because I want to buy a new laptop and very often
-> there's only USB 2.0 port on new ones...
->
-> Quickly my problem :
-> I try to mount as a usb-storage my Minolta DiMAGE F200 (which seems to
-> be USB
-> 1.1)  on a kernel 2.6
->
-> If I plug it on a USB 2.0 plug, it hangs
-> If I plug it on a USB 1.1 plug, it works
->
-> With kernel 2.4 (module usb-uhci) it works whatever the plug I use.
->
-> I've posted more information there :
-> http://bugme.osdl.org/show_bug.cgi?id=3711
->
-> If there's a patch around or something that I can test, ask.
->
-> Thanks for your job.
->
-> PS : Please cc me as I'm not on the list
-
--- 
--------
-Gustavo Guillermo Perez
-Compunauta uLinux
-www.userver.tk
-
+Very good point this Red Hat distro is becoming a hassle little by little...

@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318184AbSIJWQq>; Tue, 10 Sep 2002 18:16:46 -0400
+	id <S318194AbSIJWSm>; Tue, 10 Sep 2002 18:18:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318176AbSIJWQq>; Tue, 10 Sep 2002 18:16:46 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:17659 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318184AbSIJWQp> convert rfc822-to-8bit;
-	Tue, 10 Sep 2002 18:16:45 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM xSeries Linux Solutions
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Buglet in 2.4.19's arch/i386/kernel/pci-pc.c
-Date: Tue, 10 Sep 2002 15:20:42 -0700
-User-Agent: KMail/1.4.1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209101520.42333.jamesclv@us.ibm.com>
+	id <S318191AbSIJWSm>; Tue, 10 Sep 2002 18:18:42 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:44478 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S318182AbSIJWRy>; Tue, 10 Sep 2002 18:17:54 -0400
+Date: Tue, 10 Sep 2002 18:25:17 -0400
+To: jonathan@buzzard.org.uk, john.weber@linuxhq.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Toshiba Laptop Support and IRQ Locks
+Message-ID: <20020910222517.GA14056@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Despite the comment, the return from direct check function was overwriting the 
-value found by the BIOS check, assuming both are enabled.  Oddly, this was 
-keeping my 2.4.20-pre-ac Summit backport from booting.
+> Alrighty then, the patch below uses spinlocks instead of cli() and
+> friends -- to conform to the new irq locking mechanism -- and some minor
+> module changes while we're at it.
 
-Please apply.
+The patch seems mangled in:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=102832986723995&w=2
+I'd like to try it if someone has an unmangled version.
 
+2.5.34 compile on my toshiba tecra 8000 stopped with:
 
---- 2.4.19/arch/i386/kernel/pci-pc.c	Fri Aug  2 17:39:42 2002
-+++ acx/arch/i386/kernel/pci-pc.c	Tue Sep 10 15:14:55 2002
-@@ -1276,6 +1276,8 @@
- 
- void __devinit pcibios_config_init(void)
- {
-+	struct pci_ops *pcip;
-+
- 	/*
- 	 * Try all known PCI access methods. Note that we support using 
- 	 * both PCI BIOS and direct access, with a preference for direct.
-@@ -1293,7 +1295,8 @@
- 
- #ifdef CONFIG_PCI_DIRECT
- 	if ((pci_probe & (PCI_PROBE_CONF1 | PCI_PROBE_CONF2)) 
--		&& (pci_root_ops = pci_check_direct())) {
-+		&& (pcip = pci_check_direct())) {
-+		pci_root_ops = pcip;
- 		if (pci_root_ops == &pci_direct_conf1) {
- 			pci_config_read = pci_conf1_read;
- 			pci_config_write = pci_conf1_write;
+drivers/built-in.o: In function `tosh_fn_status':
+drivers/built-in.o(.text+0x17569): undefined reference to `save_flags'
+drivers/built-in.o(.text+0x1756e): undefined reference to `cli'
+drivers/built-in.o(.text+0x1757f): undefined reference to `restore_flags'
+drivers/built-in.o: In function `tosh_emulate_fan':
 
+The patch below gets it to compile and boot.
+
+diff -ruN linux-2.5.34/drivers/char/toshiba.c linux/drivers/char/toshiba.c
+--- linux-2.5.34/drivers/char/toshiba.c 2002-05-21 01:07:42.000000000 -0400
++++ linux/drivers/char/toshiba.c        2002-09-10 17:30:27.000000000 -0400
+@@ -57,6 +57,7 @@
+ #define TOSH_DEBUG 0
+
+ #include <linux/module.h>
++#include <linux/interrupt.h>
+ #include <linux/version.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
+
+The keyboard isn't working though.  That may be a config issue.
+
+egrep ^C.*INPUT .config
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_KEYBOARD=y
+
+I haven't tried 2.5 on the laptop for a long time.  
+Anyone running 2.5 on a toshiba laptop?  A tecra 8000?
 
 -- 
-James Cleverdon
-IBM xSeries Linux Solutions
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVACGWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVACGYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVACGWr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 01:22:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVACGWr
+	id S261394AbVACGYP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 01:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVACGYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 01:22:47 -0500
-Received: from pcsmail.patni.com ([203.124.139.197]:30607 "EHLO
-	pcsmail.patni.com") by vger.kernel.org with ESMTP id S261389AbVACGWn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 01:22:43 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 3 Jan 2005 01:24:14 -0500
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:20606 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261394AbVACGYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 01:24:03 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+Date: Mon, 3 Jan 2005 01:23:58 -0500
+User-Agent: KMail/1.6.2
+Cc: Roey Katz <roey@sdf.lonestar.org>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org> <200501022206.50265.dtor_core@ameritech.net> <Pine.NEB.4.61.0501030536110.14662@sdf.lonestar.org>
+In-Reply-To: <Pine.NEB.4.61.0501030536110.14662@sdf.lonestar.org>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: How to start
-Date: Mon, 3 Jan 2005 11:52:35 +0530
-Message-ID: <374639AB1012AA4C840022842AA95BC203D8AD56@ruby.patni.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to start
-Thread-Index: AcTw0Qiq+4IW07dARkmMNZEvv01y1AA/HFEQ
-From: "Kotian, Deepak" <Deepak.Kotian@patni.com>
-To: "Pedro Venda" <pjvenda@arrakis.net.dhis.org>,
-       <linux-kernel@vger.kernel.org>
-Cc: "Eugene K" <evgfpeters@yahoo.com>
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501030123.58884.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>. linux kernel development by robert love
-This seems to be pretty good.
+On Monday 03 January 2005 12:37 am, Roey Katz wrote:
+> Dmitry,
+> 
+> I have the contents of 'kern.log' at:
+> 
+>    http://roey.freeshell.org/mystuff/kernel/kern.log-2.6.10
+> 
 
->>. linux device drivers by Alessandro Rubini and Jonathan Corbet.
-When is this expected, a week,a month..
+The following looks very suspicious:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Pedro Venda
-Sent: Sunday, January 02, 2005 5:40 AM
-To: unlisted-recipients
-Cc: Eugene K; linux-kernel@vger.kernel.org
-Subject: Re: How to start
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [4842]
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1, timeout) [4866]
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: ab <- i8042 (interrupt, kbd, 1, timeout) [4874]
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, kbd, 1, timeout) [4882]
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [4882]
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [4894]
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [4894]
+Jan  2 23:05:17 tits kernel: drivers/input/serio/i8042.c: fa <- i8042 (interrupt, kbd, 1) [4906]
 
+atkbd driver tries to get ID from the attached device but although the
+controller responds with valid keyboard ID it also for some reason indicates
+that the connected device times out. Wierd...
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Could you try booting with "acpi=off"?
 
-Jim Nelson wrote:
-| Eugene K wrote:
-|
-|> For many years I've been involved in OS/kernel and
-|> network development on various platforms (including
-|> Intel86) and OSes, but I am totally new to Linux. What
-|> would be an optimal way for somebody like me to learn
-|> both Linux driver development and Linux Kernel
-|> internals ?
-
-this has been very recently asked on the list. some of the suggested answers were:
-
-books:
-
-. linux kernel development by robert love
-. linux device drivers by Alessandro Rubini and Jonathan Corbet.
-. understanding linux kernel by Daniel P. Bovet and Marco Cesati.
-
-(last two will have new editions soon covering 2.6 kernels)
-
-regards,
-pedro venda.
-- --
-
-Pedro João Lopes Venda
-email: pjlv@mega.ist.utl.pt
-http://arrakis.dhis.org
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFB1/mteRy7HWZxjWERAs1zAJ9C0j4kvmENHvuKgtnCQHCFZU7BJQCfcEju
-9z+wZb1KlV1cN0k2B2K71Iw=
-=Eplx
------END PGP SIGNATURE-----
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Dmitry

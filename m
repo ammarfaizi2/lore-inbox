@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbTERS5I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 14:57:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbTERS5H
+	id S262163AbTERTGu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 15:06:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTERTGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 14:57:07 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:11018 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id S262162AbTERS5G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 14:57:06 -0400
-Date: Sun, 18 May 2003 21:09:54 +0200
-Message-Id: <200305181909.h4IJ9sK02186@oboe.it.uc3m.es>
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
+	Sun, 18 May 2003 15:06:49 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:8710 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S262163AbTERTGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 15:06:48 -0400
+Date: Sun, 18 May 2003 21:26:33 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
 To: Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: recursive spinlocks. Shoot.
-X-Newsgroups: linux.kernel
-In-Reply-To: <20030518182010$0541@gated-at.bofh.it>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SIS-650+CPQ Presario 3045US+USB ...
+In-Reply-To: <Pine.LNX.4.55.0305172022440.4235@bigblue.dev.mcafeelabs.com>
+Message-ID: <Pine.LNX.4.44.0305181052210.14825-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030518182010$0541@gated-at.bofh.it> you wrote:
-> On Sun, 18 May 2003, Peter T. Breuer wrote:
->> Here's a before-breakfast implementation of a recursive spinlock. That
+On Sat, 17 May 2003, Davide Libenzi wrote:
 
-> A looong time ago I gave to someone a recursive spinlock implementation
-> that they integrated in the USB code. I don't see it in the latest
-> kernels, so I have to guess that they found a better solution to do their
-> things. I'm biased to say that it must not be necessary to have the thing
-> if you structure your code correctly.
+> I've spent a few horrible hours terrified by the idea of a possible XP
+> install on my new laptop. It's a Compaq Presario 3045US with SIS-650
+> chipset and there was no way to have USB bits work with it because of a
+> IRQ routing issue.
 
-Well, you can get rid of anything that way. The question is if the
-interface is an appropriate one to use or not - i.e. if it makes for
-better code in general, or if it make errors of programming less
-likely.
+What are the device/revision id's of the pci irq router function?
 
-I would argue that the latter is undoubtedly true - merely that
-userspace flock/fcntl works that way would argue for it, but there
-are a couple of other reasons too. 
+> The PCI routing table of that machine issues requests
+> for 0x60, 0x61 and 0x63 that, to have everything to work out, must be
+> handled like the 0x4* cases.
 
-Going against is the point that it may be slower.  Can you dig out your
-implementation and show me it?  I wasn't going for assembler in my hasty
-example.  I just wanted to establish that it's easy, so that it becomes
-known that its easy, and folks therefore aren't afraid of it.  That both
-you and I have had to write it implies that it's not obvious code to
-everyone.
+This sounds different wrt. what we have documented for the older 85C503 
+ISA bridge which is used in the 5595 chipset family.
 
+> Now, while 0x60 and 0x63 were ot documented
+> at all, 0x61 was documented as IDEIRQ and I was a bit worried about that.
 
-Peter
+0x61=IDEIRQ / 0x62=USBIRQ is definitely correct for the 5595/85C503 rev 01 
+- according to the data sheet and playing with setpci ;-)
+
+> But this is not the case since the machine issue 0x60..0x63 for the four
+> OHCI devices. Now USB is working great with keyboard, mouse and drives. I
+> still have to say bye to the Broadcom 54g wireless interface though ...
+
+Looks like your chipset uses a different irq routing register layout. When 
+the existing sis pci-irq routing stuff was added, the primary concern was 
+to handle the ambigous link values (0x40-43 vs. 0x00-03) used by different 
+BIOS's. The IDEIRQ case was merely added for documentation, it's unused.
+
+I think this might need some special treatment in pirq_sis_[sg]et(), 
+either checking for the revision id or a different pci device id.
+
+Btw, have you tried with acpi interrupt routing enabled?
+
+Martin
+

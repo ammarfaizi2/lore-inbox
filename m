@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275008AbTHFXqH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 19:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275007AbTHFXqH
+	id S273019AbTHFXvL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 19:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275017AbTHFXs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 19:46:07 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:25105
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S275008AbTHFXpN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 19:45:13 -0400
-Date: Wed, 6 Aug 2003 16:45:11 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Subject: Re: Euro-English
-Message-ID: <20030806234511.GH21290@matchmail.com>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-References: <20030805233308.GD928@matchmail.com> <200308052014.31133.gene.heskett@verizon.net> <Pine.LNX.4.51.0308061115400.16005@dns.toxicfilms.tv> <20030806231403.GF1380@pegasys.ws>
+	Wed, 6 Aug 2003 19:48:28 -0400
+Received: from b.smtp-out.sonic.net ([208.201.224.39]:42932 "HELO
+	b.smtp-out.sonic.net") by vger.kernel.org with SMTP id S275016AbTHFXsA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 19:48:00 -0400
+X-envelope-info: <dhinds@sonic.net>
+Date: Wed, 6 Aug 2003 16:35:27 -0700
+From: David Hinds <dhinds@sonic.net>
+To: "Hmamouche, Youssef" <youssef@ece.utexas.edu>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] xircom CBE2-100(faulty) hangs kernel 2.4.{21, 22-pre8} (fwd)
+Message-ID: <20030806163527.A27113@sonic.net>
+References: <20030806124759.C30485@sonic.net> <Pine.LNX.4.21.0308061514470.2297-100000@linux08.ece.utexas.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030806231403.GF1380@pegasys.ws>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.21.0308061514470.2297-100000@linux08.ece.utexas.edu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 04:14:03PM -0700, jw schultz wrote:
-> On Wed, Aug 06, 2003 at 11:16:51AM +0200, Maciej Soltysiak wrote:
-> > > >If zis mad yu smil, pleas pas it on to oza pepl.
-> > >
-> > > Chuckle...  Some people have way too much time on their hands. :-)
-> > Oh, come on, it really points something out.
-> > Europe is a place where everybody speaks bad english :)
-> > And people who know english and bad english tend to use bad english.
+On Wed, Aug 06, 2003 at 03:55:02PM -0500, Hmamouche, Youssef wrote:
 > 
-> As you have just done ;)
-> 
-> I also disagree.  Many in Europe speak English much better
-> than those born to it.
+> I'm a user. When I insert a card "into my laptop" I'd like it to
+> work as advertised. If it doesn't work as advertised(because of some
+> hardware failure in this case), I'd like the kernel to more or less
+> let me know that something went wrong so I can return it. I wouldn't
+> expect the kernel to freeze.
 
-Yes, I have to agree also.  I am a native english speaker, and I have an
-Arabic friend who knows english many times better than I do.  Though he does
-come to me to make sure his phrases are in acceptable according to modern
-english (ie, slang and common phrases).
+I accept this...
+
+> Faulty hardware is very common in the PC era. I agree that it is
+> hard to pin down hardware malfunctions when you don't know what to
+> check for. However, There should be concern when it takes your whole
+> system down.
+
+I'd agree, that drivers should be made to not screw up when an
+unexpected condition arises, where that's possible.  Like, not
+crashing the OS if a device returns an unexpected value.
+
+This particular problem (what seems to be an unacknowledged interrupt,
+but that could be a symptom of something else) is troublesome and
+likely impossible for the driver to detect and handle sanely.  Because
+PCI interrupts are shared, and a driver cannot assume that its device
+was responsible for any particular interrupt.
+
+I believe that the 2.6 kernel provides a general central mechanism for
+detecting and throttling unacknowledged interrupts, if that really is
+the problem.  That's where this particular fix belongs, not in the
+driver (and every other driver).
+
+-- Dave
+

@@ -1,49 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264777AbUEYTxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265082AbUEYTxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264777AbUEYTxq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 15:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUEYTxp
+	id S265082AbUEYTxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 15:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbUEYTvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 15:53:45 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:19910 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265092AbUEYTx0 (ORCPT
+	Tue, 25 May 2004 15:51:04 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47258 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265082AbUEYTrx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 15:53:26 -0400
-Date: Tue, 25 May 2004 21:54:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4g/4g for 2.6.6
-Message-ID: <20040525195437.GA10784@elte.hu>
-References: <40B3A35D.4020702@colorfullife.com>
+	Tue, 25 May 2004 15:47:53 -0400
+Date: Tue, 25 May 2004 12:47:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: joe.korty@ccur.com
+Cc: markh@compro.net, linux-kernel@vger.kernel.org
+Subject: Re: mlockall and mmap of IO devices don't mix
+Message-Id: <20040525124715.5f7e61b6.akpm@osdl.org>
+In-Reply-To: <20040525142728.GA10738@tsunami.ccur.com>
+References: <20031003214411.GA25802@rudolph.ccur.com>
+	<40ADE959.822F1C23@compro.net>
+	<20040521191326.58100086.akpm@osdl.org>
+	<20040525142728.GA10738@tsunami.ccur.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B3A35D.4020702@colorfullife.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joe Korty <joe.korty@ccur.com> wrote:
+>
+> On Fri, May 21, 2004 at 07:13:26PM -0700, Andrew Morton wrote:
+>  > Mark Hounschell <markh@compro.net> wrote:
+>  > >
+>  > > Joe Korty wrote:
+>  > > > 
+>  > > > 2.6.0-test6: the use of mlockall(2) in a process that has mmap(2)ed
+>  > > > the registers of an IO device will hang that process uninterruptibly.
+>  > > > The task runs in an infinite loop in get_user_pages(), invoking
+>  > > > follow_page() forever.
+>  > > > 
+>  > > > Using binary search I discovered that the problem was introduced
+>  > > > in 2.5.14, specifically in ChangeSetKey
+>  > > > 
+>  > > >     zippel@linux-m68k.org|ChangeSet|20020503210330|37095
+>  > > > 
+>  > > 
+>  > > I know this is an old thread but can anyone tell me if this problem is
+>  > > resolved in the current 2.6.6 kernel? 
+>  > > 
+>  > 
+>  > There's an utterly ancient patch in -mm which might fix this.
+>  > 
+>  > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6-mm4/broken-out/get_user_pages-handle-VM_IO.patch
+> 
+>  [ 2nd send -- corporate email system in the throes of being scrambled / updated ]
+> 
+>  Andrew,
+>  I have been using this patch for ages.  Any chance of it being forwared to
+>  the official tree?
 
-* Manfred Spraul <manfred@colorfullife.com> wrote:
+That patch had its first birthday last week.  I wrote it in response to
+some long-forgotten problem, failed to changelog it at the time then forgot
+why I wrote it.  I kept it in the hope that I'd remember why I wrote it.  I
+subsequently wrote a best-effort changelog but am unconvinced by it.  Ho
+hum.
 
-> >also, the 4:4 overhead is really a hardware problem - and there are
-> >x86-compatible CPUs (amd64) where the TLB flush problem has already been
-> >solved: on amd64 the 4:4 feature has no noticeable overhead.
-> >
-> Do you have an idea why amd64 is better for 4g4g? Which benchmark did
-> you use for testing?
-
-i used an althlon64 CPU. amd64 is better because it has a hardware
-feature that 'watches' for memory updates to cached TLBs, and it tags
-the TLBs by cr3. So it can avoid having to flush those TLBs that didnt
-actually change. So an amd64 CPU has in excess of 1000+ TLBs ...
-
-	Ingo
+Let me genuflect a bit.  I guess we can be reasonably confident it won't
+break anything.

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262637AbTJAWqK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 18:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTJAWqK
+	id S262649AbTJAWjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 18:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTJAWjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 18:46:10 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:9122 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S262637AbTJAWqH (ORCPT
+	Wed, 1 Oct 2003 18:39:09 -0400
+Received: from gprs150-56.eurotel.cz ([160.218.150.56]:30081 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262649AbTJAWjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 18:46:07 -0400
-Date: Thu, 2 Oct 2003 00:44:58 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Date/UnixTime of SysRq state dump
-Message-ID: <20031001224458.GA16165%konsti@ludenkalle.de>
-Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20031001182859.GA4081%konsti@ludenkalle.de> <20031001214846.GB13051@matchmail.com>
+	Wed, 1 Oct 2003 18:39:07 -0400
+Date: Thu, 2 Oct 2003 00:37:52 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: [pm] fix oops after saving image
+Message-ID: <20031001223751.GA6402@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031001214846.GB13051@matchmail.com>
-Organization: Kletschke & Uhlig GbR
-User-Agent: Mutt/1.5.4i-ja.1
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mike Fedyk <mfedyk@matchmail.com> [Wed, Oct 01, 2003 at 02:48:46PM -0700]:
-> 
-> Reproduce without tainting please...
-> 
-> Really that should have been the first thing to try...
+Hi!
 
-Ya, OK. I understand. It is really acquired to reproduce this, when
-possible, with an untainted kernel... Otherwise it is not possible to
-work, you really do not know what this _huge_ module does...
+I was seeing strange oopsen after saving image. They are almost
+harmless: anything that happens after writing final signature does not
+matter (as long as  it does not write to disk). But that oops makes
+testing hard as you have to manually powerdown the machine.
 
-I updated to 2.6.0-test6-mm1 yesterday, which lifes still after day
-change :) and when this freezes I will get rid of the nvidia module to
-reproduce that with the nv driver (problem is, only one monitor then!)
-and only then I will report.
+free_page() at this point is unneccessary as machine is going down,
+anyway. Please apply,
+								Pavel
+PS: For a test, I'm running while true; do echo 4 > /proc/acpi/sleep;
+sleep 30; done while making kernel. It seems to work so far.
 
-Really, I only wanted to know if a day change can trigger a kernel
-freeze, but, I realize now, one does not know what goes on with that:
-
-nvidia               1709612  10
-
-o_O
-
-Regards, Konsti
-
+--- tmp/linux/kernel/power/swsusp.c	2003-10-02 00:04:35.000000000 +0200
++++ linux/kernel/power/swsusp.c	2003-10-01 23:56:49.000000000 +0200
+@@ -345,7 +348,7 @@
+ 	printk( "|\n" );
+ 
+ 	MDELAY(1000);
+-	free_page((unsigned long) buffer);
++	/* Trying to free_page((unsigned long) buffer) here is bad idea, not sure why */
+ 	return 0;
+ }
+ 
 -- 
-2.6.0-test6-mm1
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 5:35, 29 users
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

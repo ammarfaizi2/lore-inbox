@@ -1,37 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261561AbREUQ0P>; Mon, 21 May 2001 12:26:15 -0400
+	id <S261418AbREUQj4>; Mon, 21 May 2001 12:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261563AbREUQ0F>; Mon, 21 May 2001 12:26:05 -0400
-Received: from hamachi.synopsys.com ([204.176.20.26]:63467 "EHLO
-	hamachi.synopsys.com") by vger.kernel.org with ESMTP
-	id <S261561AbREUQZy>; Mon, 21 May 2001 12:25:54 -0400
-Message-ID: <3B094183.24148B9D@Synopsys.COM>
-Date: Mon, 21 May 2001 18:25:39 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S261489AbREUQjq>; Mon, 21 May 2001 12:39:46 -0400
+Received: from biglinux.tccw.wku.edu ([161.6.10.206]:19339 "EHLO
+	biglinux.tccw.wku.edu") by vger.kernel.org with ESMTP
+	id <S261418AbREUQje>; Mon, 21 May 2001 12:39:34 -0400
+Date: Mon, 21 May 2001 11:39:30 -0500 (CDT)
+From: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>
+To: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
+In-Reply-To: <E151ooP-0003i0-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0105211138150.14726-100000@biglinux.tccw.wku.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Giant disk on 2.2.17: Any concerns?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+> #2 is fixed by rewriting tools in C
 
-For running some kind of database application (ClearCase 4.1) I would 
-like to attach an external RAID array with 6*30GByte to a RedHat 6.2 
-machine, using kernel 2.2.17. I don't expect huge files (maximum file 
-size should be about 250MByte), but a lot of middle size files and 
-millions of tiny files.
+didn't Eric say that this has stalled though?  Is that not the case?
 
-Will this work? 
+Brent Norris
 
-Do you expect any problems with the partition table?
+Executive Advisor -- WKU-Linux
 
+System Administrator -- WKU-Center for Biodiversity
+                        Best Mechanical
 
-Many thanx in advance
-
-Harri

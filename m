@@ -1,87 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135698AbRDSUrc>; Thu, 19 Apr 2001 16:47:32 -0400
+	id <S135706AbRDSUtt>; Thu, 19 Apr 2001 16:49:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135702AbRDSUrX>; Thu, 19 Apr 2001 16:47:23 -0400
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:11722 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S135698AbRDSUrJ>; Thu, 19 Apr 2001 16:47:09 -0400
-Date: Thu, 19 Apr 2001 22:47:07 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: light weight user level semaphores
-Message-ID: <20010419224707.K682@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3ADEA746.D3A44511@alsa-project.org> <Pine.LNX.4.31.0104190903560.3842-100000@penguin.transmeta.com>
+	id <S135704AbRDSUtk>; Thu, 19 Apr 2001 16:49:40 -0400
+Received: from hermes.sistina.com ([208.210.145.141]:13070 "HELO sistina.com")
+	by vger.kernel.org with SMTP id <S135702AbRDSUtX>;
+	Thu, 19 Apr 2001 16:49:23 -0400
+Date: Thu, 19 Apr 2001 15:16:33 -0500
+From: AJ Lewis <lewis@sistina.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-lvm@sistina.com, linux-kernel@vger.kernel.org,
+        linux-openlvm@nl.linux.org
+Subject: Re: [linux-lvm] Re: [repost] Announce: Linux-OpenLVM mailing list
+Message-ID: <20010419151633.P10345@sistina.com>
+In-Reply-To: <20010419142400.E10345@sistina.com> <200104191945.f3JJjKRn015661@webber.adilger.int> <20010419145337.K10345@sistina.com> <3ADF45FC.EE7B2003@mandrakesoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Bd2KlmcTHfsQFEJ+"
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.31.0104190903560.3842-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Apr 19, 2001 at 09:11:56AM -0700
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3ADF45FC.EE7B2003@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Thu, Apr 19, 2001 at 04:09:32PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19, 2001 at 09:11:56AM -0700, Linus Torvalds wrote:
-> No, this is NOT what the UNIX dogmas are all about.
-> 
-> When UNIX says "everything is a file", it really means that "everything is
-> a stream of bytes". Things like magic operations on file desciptors are
-> _anathema_ to UNIX. ioctl() is the worst wart of UNIX. Having magic
-> semantics of file descriptors is NOT Unix dogma at all, it is a horrible
-> corruption of the original UNIX cleanlyness.
 
-Right. And on semaphores, this stream is exactly 0 bytes long.
-This is perfectly normal and can be handled by all applications
-I'm aware of.
+--Bd2KlmcTHfsQFEJ+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My idea violates nothing here.
+On Thu, Apr 19, 2001 at 04:09:32PM -0400, Jeff Garzik wrote:
+> AJ Lewis wrote:
+> > Ok, the issue here is that we're trying to get a release out and so any=
+thing
+> > that majorly changes the code is getting shunted aside for the moment. =
+ It
+> > would be stupid to just add everything that comes in on the ML without
+> > review.  Linus does the exact same thing.  I've said this before to you
+> > Andreas, but apparently you feel that you should have final say on whet=
+her
+> > your patches go in or not.
+>=20
+> > As far as getting patches into the stock kernel, we've been sending pat=
+ches
+> > to Linus for over a month now, and none of them have made it in.  Maybe
+> > someone has some pointers on how we get our code past his filters.
+>=20
+> Read Documentation/SubmittingPatches, and also listen to kernel hackers
+> who know the block layer and want to fix lvm.
+>=20
+> And I wonder, if kernel hackers are saying lvm is broken... why do you
+> want to freeze it and ship it in that state?
 
-> Please don't excuse "semaphore file descriptors" with the "everything is a
-> file" mantra. It is not at ALL applicable.
-> 
-> The "everything is a file" mantra is to make pipe etc meaningful -
-> processes don't have to worry about whether the fd they have is from a
-> file open, a pipe() system call, opening a special block device, or a
-> socket()+connect() thing. They can just read and write. THAT is what UNIX
-> is all about.
- 
-Right. And with my approach read() and write() with a buffer
-pointer != NULL would either yield an return value of "0" or
--1 and set errno=EINVAL ("object not suitable for reading/writing").
-Anyway they should return IMMIDIATELY in these cases.
+Hmm...perhaps I didn't make myself clear.  AFAIK Heinz is not putting
+cosmetic changes into the CVS.  The team should be putting fixes in.  If
+they aren't it's because they are dealing with backlog.
 
-We already have these special semantics with devices. Look at
-/dev/sgX for an example how we pass even structured data via
-normal read/write (instead of "stream of bytes").
+As far as the smaller patches go.  I know.  We're working on it; really we
+are.
 
-> And this is obviously NOT true of a "magic file descriptors for
-> semaphores". You can't pass it off as stdin to another process and expect
-> anything useful from it unless the other process _knows_ it is a special
-> semaphore thing and does mmap magic or something.
+Regards,
+--=20
+AJ Lewis
+Sistina Software Inc.                  Voice:  612-379-3951
+1313 5th St SE, Suite 111              Fax:    612-379-3952
+Minneapolis, MN 55414                  E-Mail: lewis@sistina.com
+http://www.sistina.com
 
-see above. NOTHING special about this idea. No magic handling
-involved, unless the user of the fd knows what it is. For other
-users it will be just a normal fd with normal operations, since
-the special case is hidden well enough. 
+Current GPG fingerprint =3D 3B5F 6011 5216 76A5 2F6B  52A0 941E 1261 0029 2=
+648
+Get my key at: http://www.sistina.com/~lewis/gpgkey
+ (Unfortunately, the PKS-type keyservers do not work with multiple sub-keys)
 
-This is even WAY simpler as all that tty-crap and similar
-devices, which read/write very dependend on their actual ioctl
-configuration.
+-----Begin Obligatory Humorous Quote----------------------------------------
+There's nary an animal alive that can outrun a greased Scotsman.
+   - Groundskeeper Willie
+-----End Obligatory Humorous Quote------------------------------------------
 
-But since stupid POSIX forbids using fds for semaphores
-(according to Ulrich Drepper), this nice, simple and
-non-intrusive solution is out.
+--Bd2KlmcTHfsQFEJ+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Instead we should go with several new syscalls, user space
-dependencies, strange error handling and yet-to-discuss
-semantics.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Everybody else byt you would have been kicked out by the core
-people for suggesting this ;-)
+iD8DBQE630ehpE6/iGtdjLERAs31AJ4iMbx4Kl8jstHlzTEJU1suADj8vgCeJz2j
+rp2T7zAgbXzJLBbfbk72K98=
+=tyQj
+-----END PGP SIGNATURE-----
 
-Regards
-
-Ingo Oeser
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>
+--Bd2KlmcTHfsQFEJ+--

@@ -1,90 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264513AbUEaCRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264514AbUEaCc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264513AbUEaCRn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 May 2004 22:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUEaCRn
+	id S264514AbUEaCc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 May 2004 22:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUEaCc2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 May 2004 22:17:43 -0400
-Received: from main.gmane.org ([80.91.224.249]:40662 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264513AbUEaCRk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 May 2004 22:17:40 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: How to use floating point in a module?
-Date: Mon, 31 May 2004 04:18:28 +0200
-Message-ID: <yw1xbrk5baq3.fsf@kth.se>
-References: <200405310152.i4V1qNk03732@mailout.despammed.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:JWm6+FKx3wyFHTb6PxEZXzKRl0s=
+	Sun, 30 May 2004 22:32:28 -0400
+Received: from web90002.mail.scd.yahoo.com ([66.218.94.60]:52356 "HELO
+	web90002.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S264514AbUEaCcZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 May 2004 22:32:25 -0400
+Message-ID: <20040531023225.93772.qmail@web90002.mail.scd.yahoo.com>
+Date: Sun, 30 May 2004 19:32:25 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Ooops w/2.6.7-rc2 & XFS
+To: linux-xfs@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ndiamond@despammed.com writes:
+Hello,
 
-> A driver, implemented as a module, must do some floating-point
-> computations including trig functions.
+Ran into this problem today.  The machine in question
+is a dual Xeon 2.4GHz w/a 1.5T 3Ware sata volume
+carved out  vi LVM2 and formated with XFS:
 
-Sorry, floating point in the Linux kernel isn't allowed.
+nfsd: non-standard errno: -990
+Filesystem "dm-1": XFS internal error
+xfs_btree_check_sblock at line 342 of file
+fs/xfs/xfs_btree.c.  Caller 0xc025c414
+ [<c0240098>] xfs_btree_check_sblock+0x65/0xed
+ [<c025c414>] xfs_inobt_lookup+0x19f/0x3cf
+ [<c025c414>] xfs_inobt_lookup+0x19f/0x3cf
+ [<c0259832>] xfs_dialloc+0x316/0xb74
+ [<c027ef70>] xfs_vget+0xcf/0xe8
+ [<c016f836>] iput+0x3c/0x76
+ [<c026c8e2>] xlog_grant_log_space+0x260/0x408
+ [<c0261736>] xfs_ialloc+0x7a/0x4bd
+ [<c027c595>] xfs_dir_ialloc+0x9b/0x323
+ [<c027923b>] xfs_trans_reserve+0x8b/0x1f9
+ [<c0283988>] xfs_mkdir+0x2d9/0x77d
+ [<c021d664>] xfs_acl_vhasacl_default+0x3b/0x49
+ [<c028ecdb>] linvfs_mknod+0x44c/0x451
+ [<c037cec9>] tcp_transmit_skb+0x40b/0x693
+ [<c011864d>] __wake_up_common+0x3f/0x5e
+ [<c028ed17>] linvfs_mkdir+0x2a/0x2e
+ [<c0164eaf>] vfs_mkdir+0x9f/0x118
+ [<c01e7b3f>] nfsd_create+0x443/0x48a
+ [<c01eed79>] nfsd3_proc_mkdir+0xd3/0x11b
+ [<c01e32a4>] nfsd_dispatch+0x15e/0x20e
+ [<c03a9d7d>] svc_process+0x406/0x61d
+ [<c01e2f97>] nfsd+0x1ed/0x39c
+ [<c01e2daa>] nfsd+0x0/0x39c
+ [<c01022b5>] kernel_thread_helper+0x5/0xb
 
-> Fortunately the architecture is x86.  A few hundred kilograms of
-> searching (almost a ton of searching :-) seems to reveal the
-> following possibilities.
->
-> Recompile GNU's libc with option "--without-fp".  If I understand
-> correctly, the resulting libc will completely avoid using
-> floating-point hardware while providing floating-point computations to
-> its client.  Do I understand correctly?
 
-Probably, but it doesn't matter, since the kernel doesn't link with
-libc.
+I unmounted and repaired which allowed the unit to run
+for another couple of hours only to get hosed again
+with the above trace.
 
-> Compile the module's .c files with gcc's "-msoft-float" option and
-> "-D__NO_MATH_INLINES".  (Actually I think "-D__NO_MATH_INLINES" is
-> probably unnecessary here.)
+Any suggestions?
 
-Using floating point emulation will be VERY slow.
+Thank you for your time.
+Phy
 
-> Link the module's .o files with the version of libc produced above,
-> and try to get a loadable .ko from this... or a loadable .o since the
-> target is still kernel 2.4.something.
 
-As I said, the kernel doesn't link with libc.
-
-> But I'm sure there must be a ton of pitfalls that I'm not seeing here.
-> I'm not the first poor slob who got tasked with shoving some
-> floating-point into a module.  My searches found a few tricks that
-> people used for a few floating-point operations, but they used the
-> real floating-point hardware and they didn't really reveal all the
-> trickery they used.  (Not that I can blame them, since the hackery
-> they did must be virtually unteachable.)  I didn't find anyone saying
-> that they found a safe method of doing it, whether or not a safe
-> method might somewhat resemble the ideas I've just presented.  I
-> didn't find anyone saying they got trig functions into it either.  If
-> my ideas could possibly work, surely they would have been done
-> already.  So, what am I missing?
-
-Floating point is forbidden in kernel code since the floating point
-registers (and other floating point context) is not saved/restored
-during system calls, for efficiency.  I'm speculating here, but it
-might be possible to manually save the floating point context while
-doing some floating point operations.  The problem arises if this code
-is interrupted midway.  Using a preemptive 2.6 kernel would easily
-break here.
-
-What you should do is think again about why you need all this floating
-point in the kernel.  Could it be moved to userspace somehow?  Maybe
-you could use lookup tables instead of doing floating point
-arithmetic.
-
--- 
-Måns Rullgård
-mru@kth.se
-
+	
+		
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

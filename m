@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266829AbUFYSdM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266831AbUFYSjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266829AbUFYSdM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 14:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266830AbUFYSdL
+	id S266831AbUFYSjr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 14:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266832AbUFYSjr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 14:33:11 -0400
-Received: from disk.smurf.noris.de ([192.109.102.53]:35558 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S266829AbUFYSdK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 14:33:10 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Newsgroups: smurf.list.linux.kernel
-Subject: Re: [PATCH] Staircase scheduler v7.4
-Date: Fri, 25 Jun 2004 20:32:37 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2004.06.25.18.32.36.821877@smurf.noris.de>
-References: <40DC38D0.9070905@kolivas.org>
-NNTP-Posting-Host: kiste.smurf.noris.de
+	Fri, 25 Jun 2004 14:39:47 -0400
+Received: from waste.org ([209.173.204.2]:6604 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S266831AbUFYSjq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 14:39:46 -0400
+Date: Fri, 25 Jun 2004 13:39:35 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] teach netconsole how to do syslog
+Message-ID: <20040625183935.GC25826@waste.org>
+References: <16604.26514.243458.631948@segfault.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Trace: server.smurf.noris.de 1088188357 28621 192.109.102.35 (25 Jun 2004 18:32:37 GMT)
-X-Complaints-To: smurf@noris.de
-NNTP-Posting-Date: Fri, 25 Jun 2004 18:32:37 +0000 (UTC)
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16604.26514.243458.631948@segfault.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+On Fri, Jun 25, 2004 at 01:57:38PM -0400, Jeff Moyer wrote:
+> Hello,
+> 
+> Here's a patch which adds the option to send messages to a remote syslog,
+> enabled via the do_syslog= module parameter.  Currently logs everything at
+> info (as did the original netconsole module).  Patch is against 2.6.6,
+> though should apply to later.
 
-> +// interactive - interactive tasks get longer intervals at best
-> priority
+Well as it stands, it's already syslog compatible, as the priority level
+component of the syslog protocol is optional. I've made a point of
+_defining_ the netconsole protocol as syslog (note the default port)
+so that this could be done at a later date. Thus, I don't think a new
+command line option is necessary.
 
-Hmmm... IIRC, C++ comments are frowned upon in the kernel.
+On the other hand, for this to have real value, we need to provide
+real priority levels. Which means we need to plug it in higher in the
+printk framework so that we a) get all messages by default and b) get
+them before the levels are stripped off. I had this in an earlier
+version but dropped it as being too intrusive for 2.6.0 merger.
 
-Other than that: thanks for the work. Your comments seem to indicate that
-INYO the staircase scheduler is ready for "real-world" kernels. Correct?
+Also, if we're going to go to the trouble of being more completely
+syslog-like, it's very useful (and trivial) to throw in the hostname
+as well. Timestamp is slightly more difficult, but also worth
+considering.
 
 -- 
-Matthias Urlichs
+Mathematics is the supreme nostalgia of our time.

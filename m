@@ -1,201 +1,287 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUHAQzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266016AbUHAQ47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265872AbUHAQzi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 12:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUHAQzh
+	id S266016AbUHAQ47 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 12:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUHAQ46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 12:55:37 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:63184 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S265872AbUHAQz3
+	Sun, 1 Aug 2004 12:56:58 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:31118 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S266016AbUHAQ4D
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 12:55:29 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: 2.6.8-rc2 crash(s)?
-Date: Sun, 1 Aug 2004 12:55:26 -0400
-User-Agent: KMail/1.6.82
-References: <200407242156.40726.gene.heskett@verizon.net> <200408010809.28311.gene.heskett@verizon.net> <200408011858.13610.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200408011858.13610.vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Aug 2004 12:56:03 -0400
+Date: Sun, 1 Aug 2004 18:54:10 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: [RFC] [PATCH 2/2] export module parameters in sysfs for modules _and_ built-in code: remove /sys/module/*parameters*
+Message-ID: <20040801165410.GB8667@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200408011255.27018.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [141.153.91.21] at Sun, 1 Aug 2004 11:55:27 -0500
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 August 2004 11:58, Denis Vlasenko wrote:
->On Sunday 01 August 2004 15:09, Gene Heskett wrote:
->> >But I digress. OOPS happened in dentry_iput(), which is
->> > (surprise!) an inline function:
->
-This looks as if its as far as we can get Denis, so I'm
-just going to post the whole thing to lkml, after snipping
-the last Opps out of what is now last weeks log (its
-sunday, and so far this log is clean) and inserting it also.
+Remove the exporting of module parameters in sysfs in /sys/module,
+and clean up the exporting of the attribute "refcnt". One functionality
+change: it is always exported now, and if !CONFIG_MODULE_UNLOAD, it reports
+1.
 
-Many thanks for all your help, Denis.  I've learned a bit
-about troubleshooting things like this.
+Signed-off-by: Dominik Brodowski <linux@brodo.de>
 
-To the lkml:  I can supply the dcache.txt objdumps, and the
-dcache-w-nops.s files to whomever requests them so that they
-can draw their own conclusions.  My uptimes here are generally
-less than 24 hours because of this Oops.
+ include/linux/module.h |   18 ++-----
+ kernel/module.c        |  114 ++++++++++++++----------------------------------- 
+ 2 files changed, 39 insertions(+), 93 deletions(-)
 
->> >You need to do more of asm()ing.
-
->> Ok, I now have them attached.  I did add a pair of curlies to
->> contain another example of the H syndrome.
-[...]
->asm("nop #O");
->                if (dentry->d_op && dentry->d_op->d_iput)
->                    ^^^^^^^^^^^^    ^^^^^^^^^^^^^^^^^^^^
->{
->asm("nop #P");
->                        dentry->d_op->d_iput(dentry, inode);
->                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->}
->                else
->{
->asm("nop #Q");
->                        iput(inode);
->asm("nop #R");
->
-[... to the objdump]
->
->        nop #O
->        movl    68(%ebx), %eax
->        testl   %eax, %eax <--- this is dentry->d_op. %eax ==
-> 00000e00 here. this is bad. pointer can't have such a value
->        je      .L532
->        movl    20(%eax), %edx   <=== it tries to fetch
->				dentry->d_op->d_iput
->				at 00000e20, which is bogus address. OOPS
->        testl   %edx, %edx
->        jne     .L594      <--*
->.L532:
->        nop #Q
->        movl    %esi, (%esp)
->        call    iput
->        nop #R
->.L565:
->        nop #E
->        movl    12(%ebx), %esi
->        nop #F
->        movl    %ebx, (%esp)
->        call    d_free
->        nop #G
->        cmpl    %ebx, %esi
->        je      .L566
->        movl    %esi, (%esp)
->        call    dput
->.L566:
->        nop #I
->        incl    20(%edi)
->        nop #J
->        jmp     .L445
->.L594:                     <--*
->        nop #P
->        movl    %ebx, (%esp)
->        movl    %esi, 4(%esp)
->        call    *20(%eax)   <---- calls dentry->d_op->d_iput(dentry,
-> inode) (just checking that I indeed properly matched C to asm) jmp 
->    .L565
->.L593:
->
->Where that dentry came from?
->
->void prune_dcache(int count)
->{
->        for (; count ; count--) {
->                struct dentry *dentry;
->                struct list_head *tmp;
->                tmp = dentry_unused.prev;
->                if (tmp == &dentry_unused) break;
->                list_del_init(tmp);
->                dentry_stat.nr_unused--;
->                dentry = list_entry(tmp, struct dentry, d_lru);
->                /*
->                 * We found an inuse dentry which was not removed
-> from * dentry_unused because of laziness during lookup.  Do not
-> free * it - just keep it off the dentry_unused list. */
->                if (atomic_read(&dentry->d_count)) continue;
->                }
->                /* If the dentry was recently referenced, don't free
-> it. */ if (dentry->d_flags & DCACHE_REFERENCED) {
->			...
->                        continue;
->                }
->                prune_one_dentry(dentry);
->		...
->
->prune_one_dentry(dentry) {
->	...
->        dentry_iput(dentry)
->	...
->}
->
->Heh. I don't know where to go now. At least we can post complete
->bug report on lkml.
->
->You can trace other oopses in a similar way. Maybe there is some
->patterm in them.
-
-This 'pattern' has been pretty consistent, and even attacks kernels
-as late as 2.6.8-rc2, with the difference being that from 2.6.7-mm1
-on, the Oops is 99% fatal to the machine, as in a total lockup,
-reset or power switch to recover.  With 2.6.7, the worst its done
-(generally, there have been exceptions) is to screw up the reboot,
-eventually needing the reset switch about 5% of the time to get
-back to post & get rebooting under way.
-
-Without further prattle, The Oops, from yesterday afternoon:
--------------
-Jul 31 13:55:12 coyote kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000e14
-Jul 31 13:55:12 coyote kernel:  printing eip:
-Jul 31 13:55:12 coyote kernel: c0162887
-Jul 31 13:55:12 coyote kernel: *pde = 00000000
-Jul 31 13:55:12 coyote kernel: Oops: 0000 [#1]
-Jul 31 13:55:12 coyote kernel: PREEMPT
-Jul 31 13:55:12 coyote kernel: Modules linked in: eeprom snd_seq_oss snd_seq_midi_event snd_seq snd_pcm_oss snd_mixer_oss snd
-_bt87x snd_intel8x0 snd_ac97_codec snd_pcm snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device snd forcedeth
-sg
-Jul 31 13:55:12 coyote kernel: CPU:    0
-Jul 31 13:55:12 coyote kernel: EIP:    0060:[<c0162887>]    Not tainted
-Jul 31 13:55:12 coyote kernel: EFLAGS: 00010206   (2.6.7-nf2)
-Jul 31 13:55:12 coyote kernel: EIP is at prune_dcache+0x147/0x1c0
-Jul 31 13:55:12 coyote kernel: eax: 00000e00   ebx: d1bde050   ecx: f1b3c050   edx: f1b3ac50
-Jul 31 13:55:12 coyote kernel: esi: f1b3ac40   edi: c1973000   ebp: 00000036   esp: c1973ef8
-Jul 31 13:55:12 coyote kernel: ds: 007b   es: 007b   ss: 0068
-Jul 31 13:55:12 coyote kernel: Process kswapd0 (pid: 65, threadinfo=c1973000 task=c1986050)
-Jul 31 13:55:12 coyote kernel: Stack: d7721178 c1973ef8 0000007a 00000000 c1973000 f7ffea48 c0162d1f 0000007a
-Jul 31 13:55:12 coyote kernel:        c0139a2b 0000007a 000000d0 00025528 049dbb00 00000000 000001fa 00000000
-Jul 31 13:55:12 coyote kernel:        c0364564 00000001 0000000a c0364440 c013add1 00000080 000000d0 00000000
-Jul 31 13:55:12 coyote kernel: Call Trace:
-Jul 31 13:55:12 coyote kernel:  [<c0162d1f>] shrink_dcache_memory+0x1f/0x30
-Jul 31 13:55:12 coyote kernel:  [<c0139a2b>] shrink_slab+0x14b/0x190
-Jul 31 13:55:12 coyote kernel:  [<c013add1>] balance_pgdat+0x1b1/0x200
-Jul 31 13:55:12 coyote kernel:  [<c013aee7>] kswapd+0xc7/0xe0
-Jul 31 13:55:12 coyote kernel:  [<c0114270>] autoremove_wake_function+0x0/0x60
-Jul 31 13:55:12 coyote kernel:  [<c0103e9e>] ret_from_fork+0x6/0x14
-Jul 31 13:55:12 coyote kernel:  [<c0114270>] autoremove_wake_function+0x0/0x60
-Jul 31 13:55:12 coyote kernel:  [<c013ae20>] kswapd+0x0/0xe0
-Jul 31 13:55:12 coyote kernel:  [<c01021d1>] kernel_thread_helper+0x5/0x14
-Jul 31 13:55:12 coyote kernel:
-Jul 31 13:55:12 coyote kernel: Code: 8b 50 14 85 d2 75 27 89 34 24 e8 4a 2b 00 00 8b 73 0c 89 1c
-------------------------
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+diff -ruN linux-original/include/linux/module.h linux/include/linux/module.h
+--- linux-original/include/linux/module.h	2004-08-01 17:53:56.584410480 +0200
++++ linux/include/linux/module.h	2004-08-01 18:11:59.001858016 +0200
+@@ -208,21 +208,16 @@
+ 	MODULE_STATE_GOING,
+ };
+ 
+-/* sysfs stuff */
+-struct module_attribute
+-{
+-	struct attribute attr;
+-	struct kernel_param *param;
++struct module_attribute {
++        struct attribute attr;
++        ssize_t (*show)(struct module *, char *);
++        ssize_t (*store)(struct module *, const char *, size_t count);
+ };
+ 
+ struct module_kobject
+ {
+-	/* Everyone should have one of these. */
+ 	struct kobject kobj;
+-
+-	/* We always have refcnt, we may have others from module_param(). */
+-	unsigned int num_attributes;
+-	struct module_attribute attr[0];
++	struct module *mod;
+ };
+ 
+ /* Similar stuff for section attributes. */
+@@ -306,9 +301,6 @@
+ 
+ 	/* Destruction function. */
+ 	void (*exit)(void);
+-
+-	/* Fake kernel param for refcnt. */
+-	struct kernel_param refcnt_param;
+ #endif
+ 
+ #ifdef CONFIG_KALLSYMS
+diff -ruN linux-original/kernel/module.c linux/kernel/module.c
+--- linux-original/kernel/module.c	2004-08-01 17:53:56.593409112 +0200
++++ linux/kernel/module.c	2004-08-01 18:26:15.722616664 +0200
+@@ -378,22 +378,6 @@
+ }
+ #endif /* CONFIG_SMP */
+ 
+-static int add_attribute(struct module *mod, struct kernel_param *kp)
+-{
+-	struct module_attribute *a;
+-	int retval;
+-
+-	a = &mod->mkobj->attr[mod->mkobj->num_attributes];
+-	a->attr.name = (char *)kp->name;
+-	a->attr.owner = mod;
+-	a->attr.mode = kp->perm;
+-	a->param = kp;
+-	retval = sysfs_create_file(&mod->mkobj->kobj, &a->attr);
+-	if (!retval)
+-		mod->mkobj->num_attributes++;
+-	return retval;
+-}
+-
+ #ifdef CONFIG_MODULE_UNLOAD
+ /* Init the unload section of the module. */
+ static void module_unload_init(struct module *mod)
+@@ -678,21 +662,10 @@
+ }
+ EXPORT_SYMBOL_GPL(symbol_put_addr);
+ 
+-static int refcnt_get_fn(char *buffer, struct kernel_param *kp)
+-{
+-	struct module *mod = container_of(kp, struct module, refcnt_param);
+-
+-	/* sysfs holds one reference. */
+-	return sprintf(buffer, "%u", module_refcount(mod)-1);
+-}
+-
+-static inline int sysfs_unload_setup(struct module *mod)
++static int show_refcnt(struct module *mod, char *buffer)
+ {
+-	mod->refcnt_param.name = "refcnt";
+-	mod->refcnt_param.perm = 0444;
+-	mod->refcnt_param.get = refcnt_get_fn;
+-
+-	return add_attribute(mod, &mod->refcnt_param);
++	/* sysfs holds a reference */
++	return sprintf(buffer, "%u\n", module_refcount(mod)-1);
+ }
+ 
+ #else /* !CONFIG_MODULE_UNLOAD */
+@@ -711,8 +684,10 @@
+ 	return strong_try_module_get(b);
+ }
+ 
+-static inline void module_unload_init(struct module *mod)
++static int show_refcnt(struct module *mod, char *buffer)
+ {
++	/* always non-removable */
++	return sprintf(buffer, "1\n");
+ }
+ 
+ asmlinkage long
+@@ -1077,47 +1052,46 @@
+ 
+ 
+ 
++static struct module_attribute refcnt = {
++	.attr = { .name = "refcnt", .mode = 0444, .owner = THIS_MODULE },
++	.show = show_refcnt,
++};
++
++static struct attribute * default_attrs[] = {
++	&refcnt.attr,
++	NULL,
++};
+ 
+ #define to_module_attr(n) container_of(n, struct module_attribute, attr);
++#define to_module_kobject(n) container_of(n, struct module_kobject, kobj);
+ 
+ static ssize_t module_attr_show(struct kobject *kobj,
+ 				struct attribute *attr,
+ 				char *buf)
+ {
+-	int count;
+-	struct module_attribute *attribute = to_module_attr(attr);
++	struct module_attribute *attribute; 
++	struct module_kobject *mk;
++	int ret;
+ 
+-	if (!attribute->param->get)
++	attribute = to_module_attr(attr);
++	mk = to_module_kobject(kobj);
++
++	if (!attribute->show)
+ 		return -EPERM;
+ 
+-	count = attribute->param->get(buf, attribute->param);
+-	if (count > 0) {
+-		strcat(buf, "\n");
+-		++count;
+-	}
+-	return count;
+-}
++	if (!try_module_get(mk->mod))
++		return -ENODEV;
+ 
+-/* sysfs always hands a nul-terminated string in buf.  We rely on that. */
+-static ssize_t module_attr_store(struct kobject *kobj,
+-				 struct attribute *attr,
+-				 const char *buf, size_t len)
+-{
+-	int err;
+-	struct module_attribute *attribute = to_module_attr(attr);
++	ret = attribute->show(mk->mod, buf);
+ 
+-	if (!attribute->param->set)
+-		return -EPERM;
++	module_put(mk->mod);
+ 
+-	err = attribute->param->set(buf, attribute->param);
+-	if (!err)
+-		return len;
+-	return err;
++	return ret;
+ }
+ 
+ static struct sysfs_ops module_sysfs_ops = {
+ 	.show = module_attr_show,
+-	.store = module_attr_store,
++	.store = NULL,
+ };
+ 
+ static void module_kobj_release(struct kobject *kobj)
+@@ -1127,6 +1101,7 @@
+ 
+ static struct kobj_type module_ktype = {
+ 	.sysfs_ops =	&module_sysfs_ops,
++        .default_attrs = default_attrs,
+ 	.release =	&module_kobj_release,
+ };
+ static decl_subsys(module, &module_ktype, NULL);
+@@ -1137,42 +1112,27 @@
+ 
+ extern void module_param_sysfs_remove(struct module *mod);
+ 
++
+ static int mod_sysfs_setup(struct module *mod,
+ 			   struct kernel_param *kparam,
+ 			   unsigned int num_params)
+ {
+-	unsigned int i;
+ 	int err;
+ 
+-	/* We overallocate: not every param is in sysfs, and maybe no refcnt */
+-	mod->mkobj = kmalloc(sizeof(*mod->mkobj)
+-			     + sizeof(mod->mkobj->attr[0]) * (num_params+1),
+-			     GFP_KERNEL);
++	mod->mkobj = kmalloc(sizeof(struct module_kobject), GFP_KERNEL);
+ 	if (!mod->mkobj)
+ 		return -ENOMEM;
+ 
+-	memset(&mod->mkobj->kobj, 0, sizeof(mod->mkobj->kobj));
++	memset(&mod->mkobj->kobj, 0, sizeof(struct module_kobject));
+ 	err = kobject_set_name(&mod->mkobj->kobj, mod->name);
+ 	if (err)
+ 		goto out;
+ 	kobj_set_kset_s(mod->mkobj, module_subsys);
++	mod->mkobj->mod = mod;
+ 	err = kobject_register(&mod->mkobj->kobj);
+ 	if (err)
+ 		goto out;
+ 
+-	mod->mkobj->num_attributes = 0;
+-
+-	for (i = 0; i < num_params; i++) {
+-		if (kparam[i].perm) {
+-			err = add_attribute(mod, &kparam[i]);
+-			if (err)
+-				goto out_unreg;
+-		}
+-	}
+-	err = sysfs_unload_setup(mod);
+-	if (err)
+-		goto out_unreg;
+-
+ 	err = module_param_sysfs_setup(mod, kparam, num_params);
+ 	if (err)
+ 		goto out_unreg;
+@@ -1180,8 +1140,6 @@
+ 	return 0;
+ 
+ out_unreg:
+-	for (i = 0; i < mod->mkobj->num_attributes; i++)
+-		sysfs_remove_file(&mod->mkobj->kobj,&mod->mkobj->attr[i].attr);
+ 	/* Calls module_kobj_release */
+ 	kobject_unregister(&mod->mkobj->kobj);
+ 	return err;
+@@ -1192,12 +1150,8 @@
+ 
+ static void mod_kobject_remove(struct module *mod)
+ {
+-	unsigned int i;
+-
+ 	module_param_sysfs_remove(mod);
+ 
+-	for (i = 0; i < mod->mkobj->num_attributes; i++)
+-		sysfs_remove_file(&mod->mkobj->kobj,&mod->mkobj->attr[i].attr);
+ 	/* Calls module_kobj_release */
+ 	kobject_unregister(&mod->mkobj->kobj);
+ }

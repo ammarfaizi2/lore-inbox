@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261632AbTCYIoE>; Tue, 25 Mar 2003 03:44:04 -0500
+	id <S261630AbTCYImz>; Tue, 25 Mar 2003 03:42:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261635AbTCYIoE>; Tue, 25 Mar 2003 03:44:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34067 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261632AbTCYIoD>; Tue, 25 Mar 2003 03:44:03 -0500
-Date: Tue, 25 Mar 2003 08:55:05 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [PATCH] i2c driver changes for 2.5.66
-Message-ID: <20030325085505.A16443@flint.arm.linux.org.uk>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-	sensors@stimpy.netroedge.com
-References: <10485563141404@kroah.com> <10485563161165@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <10485563161165@kroah.com>; from greg@kroah.com on Mon, Mar 24, 2003 at 05:38:00PM -0800
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+	id <S261632AbTCYImz>; Tue, 25 Mar 2003 03:42:55 -0500
+Received: from beamer.mchh.siemens.de ([194.138.158.163]:48331 "EHLO
+	beamer.mchh.siemens.de") by vger.kernel.org with ESMTP
+	id <S261630AbTCYImy> convert rfc822-to-8bit; Tue, 25 Mar 2003 03:42:54 -0500
+Message-ID: <AEEEEE93AFA5D411AF8500D0B75E4A16062A4678@BSL203E>
+From: Spang Oliver <oliver.spang@siemens.com>
+To: "'Badari Pulavarty'" <pbadari@us.ibm.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: AW: 2.5.64 ttyS problem ?
+Date: Tue, 25 Mar 2003 09:53:30 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 05:38:00PM -0800, Greg KH wrote:
->  static struct i2c_adapter ioc_ops = {
-> -	.name			= "IOC/IOMD",
->  	.id			= I2C_HW_B_IOC,
->  	.algo_data		= &ioc_data,
->  	.client_register	= ioc_client_reg,
->  	.client_unregister	= ioc_client_unreg
-> +	.dev			= {
-> +		.name		= "IOC/IOMD",
-> +	},
->  };
+Hi,
 
-Are you sure that "IOC/IOMD" is a good name to stick in sysfs?
-s|/|,| would probably be a good idea.
+I think Russell was right ("drivers/serial/Makefile"-thread), it's no fault in the kernel. I tried to recompile minicom (minicom-2.00.0), and it works.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+regards
+Oliver
 
+> -----Ursprüngliche Nachricht-----
+> Von: Badari Pulavarty [mailto:pbadari@us.ibm.com]
+> Gesendet: Dienstag, 25. März 2003 00:46
+> An: Duncan Sands; Spang Oliver
+> Cc: 'linux-kernel@vger.kernel.org'
+> Betreff: Re: 2.5.64 ttyS problem ?
+> 
+> 
+> On Monday 24 March 2003 07:17 am, Duncan Sands wrote:
+> > > has anyone another solution? I tried 2.5.62 to 2.5.65, 
+> same result.
+> >
+> > Is this the no "serial" module problem?  It seems to have 
+> been renamed
+> > "8250", but not everything knows that yet...
+> >
+> > Duncan.
+> 
+> [root@elm3b81 linux-2.5.64-gcov]# minicom
+> Device /dev/ttyS1 lock failed: No child processes.
+> 
+> [root@elm3b81 linux-2.5.64-gcov]# grep 8250 .config
+> CONFIG_SERIAL_8250=y
+> CONFIG_SERIAL_8250_CONSOLE=y
+> # CONFIG_SERIAL_8250_CS is not set
+> # CONFIG_SERIAL_8250_EXTENDED is not set
+> # Non-8250 serial port support
+> 
+> - Badari
+> 

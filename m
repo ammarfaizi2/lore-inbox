@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbUBUOQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 09:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbUBUOQ3
+	id S261561AbUBUO3g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 09:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbUBUO3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 09:16:29 -0500
-Received: from gprs154-206.eurotel.cz ([160.218.154.206]:63616 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261559AbUBUOQT (ORCPT
+	Sat, 21 Feb 2004 09:29:36 -0500
+Received: from s4.uklinux.net ([80.84.72.14]:43754 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id S261561AbUBUO3f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 09:16:19 -0500
-Date: Sat, 21 Feb 2004 15:16:08 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Stephen Hemminger <shemminger@osdl.org>, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: kernel/microcode.c error from new 64bit code
-Message-ID: <20040221141608.GB310@elf.ucw.cz>
-References: <20040218145218.6bae77b5@dell_ss3.pdx.osdl.net> <Pine.LNX.4.58.0402181502260.18038@home.osdl.org>
+	Sat, 21 Feb 2004 09:29:35 -0500
+Date: Sat, 21 Feb 2004 14:28:04 +0000
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.3 fix 8250_pnp resource allocation
+Message-ID: <20040221142804.GA5292@titan.home.hindley.uklinux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402181502260.18038@home.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.3.28i
+From: Mark Hindley <mark@hindley.uklinux.net>
+X-MailScanner-Titan: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > In the mad rush to put in Intel 64 bit support, did anyone make sure and not
-> > break the 32 bit build?
-> 
-> Heh. Somebody has the driver enabled ;).
-> 
-> How about this patch?
-> 
-> 		Linus
-> 
-> ---
-> ===== arch/i386/kernel/microcode.c 1.24 vs edited =====
-> --- 1.24/arch/i386/kernel/microcode.c	Tue Feb 17 18:14:37 2004
-> +++ edited/arch/i386/kernel/microcode.c	Wed Feb 18 15:05:38 2004
-> @@ -371,8 +371,9 @@
->  	spin_lock_irqsave(&microcode_update_lock, flags);          
->  
->  	/* write microcode via MSR 0x79 */
-> -	wrmsr(MSR_IA32_UCODE_WRITE, (u64)(uci->mc->bits), 
-> -	      (u64)(uci->mc->bits) >> 32);
-> +	wrmsr(MSR_IA32_UCODE_WRITE,
-> +		(unsigned long) uci->mc->bits, 
-> +		(unsigned long) uci->mc->bits >> 16 >> 16);
-				             ~~~~~~~~~~~~
+Patch below to ensure that 8250_pnp sets necessary flags so that 8250
+driver will reserve ioports.
 
-I see what you are doing, but this is evil. At least comment /* ">> 32"
-is undefined on i386 */ ?
-								Pavel
+Before, I was logging errors like
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Feb 20 08:42:37 titan kernel: Trying to free nonexistent resource <000003e8-000003ef>
+
+on module unload.
+
+Mark
+
+
+diff -u ../linux-2.6.3/drivers/serial/8250_pnp.c drivers/serial/8250_pnp.c
+--- ../linux-2.6.3/drivers/serial/8250_pnp.c	Sat Feb 21 12:18:33 2004
++++ drivers/serial/8250_pnp.c	Sat Feb 21 14:18:38 2004
+@@ -21,8 +21,10 @@
+ #include <linux/pnp.h>
+ #include <linux/string.h>
+ #include <linux/kernel.h>
++#include <linux/tty.h>
+ #include <linux/serial.h>
+ #include <linux/serialP.h>
++#include <linux/serial_core.h>
+ 
+ #include <asm/bitops.h>
+ #include <asm/byteorder.h>
+@@ -408,7 +410,7 @@
+ 	       serial_req.port, serial_req.irq, serial_req.io_type);
+ #endif
+ 
+-	serial_req.flags = ASYNC_SKIP_TEST | ASYNC_AUTOPROBE;
++	serial_req.flags = UPF_SKIP_TEST | UPF_AUTOPROBE  | UPF_RESOURCES;
+ 	serial_req.baud_base = 115200;
+ 	line = register_serial(&serial_req);
+ 

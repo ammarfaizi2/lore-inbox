@@ -1,107 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266884AbUITRqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUITRuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266884AbUITRqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 13:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUITRqp
+	id S266878AbUITRuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 13:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266885AbUITRuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 13:46:45 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26849 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266884AbUITRqh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 13:46:37 -0400
-Date: Mon, 20 Sep 2004 13:19:13 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: joshk@triplehelix.org,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] scripts: Support output of new ld
-Message-ID: <20040920161913.GC4501@logos.cnet>
-References: <20040918065733.GA4549@darjeeling.triplehelix.org>
+	Mon, 20 Sep 2004 13:50:35 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:45128 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266878AbUITRu1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 13:50:27 -0400
+Message-ID: <8e6f9472040920105013b4e0cd@mail.gmail.com>
+Date: Mon, 20 Sep 2004 13:50:25 -0400
+From: Will Dyson <will.dyson@gmail.com>
+Reply-To: Will Dyson <will.dyson@gmail.com>
+To: James Morris <jmorris@redhat.com>
+Subject: Re: [PATCH 1/6] xattr consolidation v2 - generic xattr API
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       Christoph Hellwig <hch@infradead.org>,
+       Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Xine.LNX.4.44.0409180305300.10905-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="RnlQjJ0d97Da+TV1"
-Content-Disposition: inline
-In-Reply-To: <20040918065733.GA4549@darjeeling.triplehelix.org>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Xine.LNX.4.44.0409180252090.10905@thoron.boston.redhat.com>
+	 <Xine.LNX.4.44.0409180305300.10905-100000@thoron.boston.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 18 Sep 2004 03:20:37 -0400 (EDT), James Morris
+<jmorris@redhat.com> wrote:
+> This patch consolidates common xattr handling logic into the core fs code,
+> with modifications suggested by Christoph Hellwig (hang off superblock,
+> remove locking, use generic code as methods), for use by ext2, ext3 and
+> devpts, as well as upcoming tmpfs xattr code.
 
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi James,
 
+I'd like to raise an issue with the documentation your patch
+introduces. The lack of it, actually.
 
-Hi Joshua, 
+While it might be obvious to someone who is familiar with the ext2 and
+ext3 xattr code, I had a rather hard time understanding how a
+filesystem would make use of the generic functions that your patch
+introduces. While I think I have it now, that is 30 minutes of my life
+that I will never get back :) . 30 minutes is not a long time (I've
+spent as much thinking about this message), but this sort of thing is
+an issue all throughout the generic vfs code.
 
-(We met at Palo Alto in a Debian dinner on a chinese restaurant, remember? :))
+When I was working on the readonly befs filesystem, I may have spent
+as much as 20 percent of my time actually thinking about on-disk data
+and how to use it. Most of the rest of that time was spent reading
+code from the vfs layer (or other existing filesystems), trying to
+figure out how I should call helper functions or how they would call
+my code. Some of that code is very clever and solves complex problems,
+which makes it hard to grok on the first (or third) read-through.
 
+I don't plan on holding my breath while waiting for "The linux vfs
+layer for dummies" to come out. But a quick comment to explain the
+purpose and use of a block of code can make a world of difference to
+someone trying to come up to speed.
 
-Unfortunately this patch doenst apply cleanly
+For example:
 
-[marcelo@logos linux-2.4]$ fp /tmp/gnu
-bk import -tpatch -r -CR -yscripts: Support output of new ld /tmp/patch4572 .
-Patching...
-Patch failed.  **** patch log follows ****
-Patching file scripts/ver_linux
-1 out of 1 hunk FAILED -- saving rejects to file scripts/ver_linux.rej
+/*
+In order to implement different sets of xattr operations for each
+xattr prefix, a filesystem should create a null-terminated array of
+struct xattr_handler (one for each prefix) and hang a pointer to it
+off of the s_xattr field of the superblock. The generic_fooxattr
+functions will search this list for a xattr_handler with a prefix
+field that matches the prefix of the xattr we are dealing with and
+call the apropriate function pointer from that xattr_handler.
+*/
 
-Its easy enough to be applied by hand but I prefer if you generate
-a clean patch instead
-
-reject file attached
-
-
-
-On Fri, Sep 17, 2004 at 11:57:33PM -0700, Joshua Kwan wrote:
-> Hello,
-> 
-> This is one in a handful of small patches that I'll be sending along in
-> the near future. This patch allows scripts/ver_linux to find out the ld
-> version for versions of ld that have different output on 'ld -v' (new
-> ones have "GNU" at the beginning.)
-> 
-> Marcelo, please apply. 
-> 
-> Signed-off-by: Joshua Kwan <joshk@triplehelix.org>
-> 
-> -- 
-> Joshua Kwan
-> 
-> --- a/scripts/ver_linux	2004-09-05 01:31:23.000000000 -0700
-> +++ b/scripts/ver_linux	2004-09-05 01:31:47.000000000 -0700
-> @@ -22,7 +22,8 @@
->        '/GNU Make/{print "Gnu make              ",$NF}'
->  
->  ld -v 2>&1 | awk -F\) '{print $1}' | awk \
-> -      '/BFD/{print "binutils              ",$NF}'
-> +      '/BFD/{print "binutils              ",$NF}
-> +       /^GNU/{print "binutils              ",$4}'
->  
->  fdformat --version | awk -F\- '{print "util-linux            ", $NF}'
->  
-
-
-
---RnlQjJ0d97Da+TV1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ver_linux.rej"
-
-***************
-*** 22,28 ****
-        '/GNU Make/{print "Gnu make              ",$NF}'
-  20
-  ld -v 2>&1 | awk -F\) '{print $1}' | awk \
--       '/BFD/{print "binutils              ",$NF}'
-  20
-  fdformat --version | awk -F\- '{print "util-linux            ", $NF}'
-  20
---- 22,29 ----
-        '/GNU Make/{print "Gnu make              ",$NF}'
-  20
-  ld -v 2>&1 | awk -F\) '{print $1}' | awk \
-+       '/BFD/{print "binutils              ",$NF}
-+        /^GNU/{print "binutils              ",$4}'
-  20
-  fdformat --version | awk -F\- '{print "util-linux            ", $NF}'
-  20
-
---RnlQjJ0d97Da+TV1--
+-- 
+Will Dyson - Consultant
+http://www.lucidts.com/

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272257AbRHWNLv>; Thu, 23 Aug 2001 09:11:51 -0400
+	id <S271820AbRHWNQC>; Thu, 23 Aug 2001 09:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272258AbRHWNLk>; Thu, 23 Aug 2001 09:11:40 -0400
-Received: from s1.relay.oleane.net ([195.25.12.48]:9863 "HELO
-	s1.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S272257AbRHWNL2>; Thu, 23 Aug 2001 09:11:28 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Gabriel Paubert <paubert@iram.es>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC
- add_timer_randomness()
-Date: Thu, 23 Aug 2001 15:11:04 +0200
-Message-Id: <20010823131104.9016@smtp.adsl.oleane.com>
-In-Reply-To: <Pine.LNX.4.21.0108231137080.2015-100000@ltgp.iram.es>
-In-Reply-To: <Pine.LNX.4.21.0108231137080.2015-100000@ltgp.iram.es>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S270134AbRHWNPv>; Thu, 23 Aug 2001 09:15:51 -0400
+Received: from tele-post-20.mail.demon.net ([194.217.242.20]:16648 "EHLO
+	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S270121AbRHWNPn>; Thu, 23 Aug 2001 09:15:43 -0400
+Subject: Re: (was posted)2.4.9-compilation error, pls help
+From: Richard Russon <ntfs@flatcap.org>
+To: Steve Kieu <haiquy@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010823125433.88094.qmail@web10402.mail.yahoo.com>
+In-Reply-To: <20010823125433.88094.qmail@web10402.mail.yahoo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 23 Aug 2001 14:15:41 +0100
+Message-Id: <998572548.19873.1.camel@home.flatcap.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> In the 2.4 tree we have code that works out a cpu features word from
->> the PVR value.  The cpu features word has bits for things like does
->> the cpu have the TB register, does the MMU use a hash table, does the
->> cpu have separate I and D caches, etc.
->
->Reading the PVR is probably faster in this case, since you avoid a
->potential cache miss. As I said in an earlier message the __USE_RTC macro
->should be made dependent on whether the kernel supports 601 or not.
+On Thu, 2001-08-23 at 13:54, Steve Kieu wrote:
+> sorry but I lost the email and can not compile it. I
+> still remember that someone made a patch available to
+> fix it. pls show me :-))
 
-The CPU features will nop-out sections of code that don't apply for
-a given CPU if you use the assembly macros. If you nop'out a couple
-of instructions, you win over reading the PVR, masking out bits,
-comparing, and doing a conditional branch.
+Add this to unistr.c
 
-Ben.
+  #include <linux/kernel.h>
+
+FlatCap (Rich)
+ntfs@flatcap.org
+
 
 
 

@@ -1,168 +1,707 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTHYVeC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 17:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbTHYVeC
+	id S262280AbTHYVmm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 17:42:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262281AbTHYVmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 17:34:02 -0400
-Received: from fep01.swip.net ([130.244.199.129]:45768 "EHLO
-	fep01-svc.swip.net") by vger.kernel.org with ESMTP id S262288AbTHYVct
+	Mon, 25 Aug 2003 17:42:42 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:37254 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262280AbTHYVmS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 17:32:49 -0400
-From: "Michal Semler (volny.cz)" <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: Can't compile 2.6.0-test4
-Date: Mon, 25 Aug 2003 23:32:46 +0200
-User-Agent: KMail/1.5.3
+	Mon, 25 Aug 2003 17:42:18 -0400
+Message-ID: <3F4A8217.33647992@us.ibm.com>
+Date: Mon, 25 Aug 2003 14:39:35 -0700
+From: Jim Keniston <jkenisto@us.ibm.com>
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_+BoS/Gfy3NjwW0n"
-Message-Id: <200308252332.46101.cijoml@volny.cz>
+To: LKML <linux-kernel@vger.kernel.org>, netdev <netdev@oss.sgi.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Feldman, Scott" <scott.feldman@intel.com>,
+       Larry Kessler <kessler@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Randy Dunlap <rddunlap@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, jkenisto <jkenisto@us.ibm.com>
+Subject: Subject: [PATCH 2/4] Net device error logging, revised (e100)
+References: <3F4A8027.6FE3F594@us.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------09E8359C42A09191C013F7B9"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-00=_+BoS/Gfy3NjwW0n
-Content-Type: text/plain;
-  charset="iso-8859-2"
+This is a multi-part message in MIME format.
+--------------09E8359C42A09191C013F7B9
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Hi,
+Here's a patch to modify the v2.6.0-test4 e100 driver to use netdev_*
+macros and support verbosity control via the NETIF_MSG_* message levels.
 
-I tried compile 2.6.0-test4, but I got this error messages:
-gcc-3.3, Debian Woody with bunk debs
+Jim Keniston
+IBM Linux Technology Center
+--------------09E8359C42A09191C013F7B9
+Content-Type: text/plain; charset=us-ascii;
+ name="e100-2.6.0-test4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="e100-2.6.0-test4.patch"
 
-arch/i386/mm/built-in.o(.init.text+0x4bf): In function `mem_init':
-: undefined reference to `kclist_add'
-arch/i386/mm/built-in.o(.init.text+0x4ec): In function `mem_init':
-: undefined reference to `kclist_add'
-make: *** [.tmp_vmlinux1] Error 1
+diff -Naur linux.org/drivers/net/e100/e100_config.c linux.e100.patched/drivers/net/e100/e100_config.c
+--- linux.org/drivers/net/e100/e100_config.c	Mon Aug 25 13:29:38 2003
++++ linux.e100.patched/drivers/net/e100/e100_config.c	Mon Aug 25 13:29:38 2003
+@@ -565,7 +565,8 @@
+ 		config_byte = CB_CFIG_LOOPBACK_EXTERNAL;
+ 		break;
+ 	default:
+-		printk(KERN_NOTICE "e100: e100_config_loopback_mode: "
++		netdev_printk(KERN_NOTICE, bdp->device,,
++		       "e100_config_loopback_mode: "
+ 		       "Invalid argument 'mode': %d\n", mode);
+ 		goto exit;
+ 	}
+diff -Naur linux.org/drivers/net/e100/e100_main.c linux.e100.patched/drivers/net/e100/e100_main.c
+--- linux.org/drivers/net/e100/e100_main.c	Mon Aug 25 13:29:38 2003
++++ linux.e100.patched/drivers/net/e100/e100_main.c	Mon Aug 25 13:29:38 2003
+@@ -78,6 +78,7 @@
+ #include <net/checksum.h>
+ #include <linux/tcp.h>
+ #include <linux/udp.h>
++#include <linux/moduleparam.h>
+ #include "e100.h"
+ #include "e100_ucode.h"
+ #include "e100_config.h"
+@@ -215,12 +216,19 @@
+ static void e100_dump_stats_cntrs(struct e100_private *);
+ 
+ static void e100_check_options(int board, struct e100_private *bdp);
+-static void e100_set_int_option(int *, int, int, int, int, char *);
++static void e100_set_int_option(struct e100_private *bdp, int *,
++				int, int, int, int, char *);
+ static void e100_set_bool_option(struct e100_private *bdp, int, u32, int,
+ 				 char *);
+ unsigned char e100_wait_exec_cmplx(struct e100_private *, u32, u8, u8);
+ void e100_exec_cmplx(struct e100_private *, u32, u8);
+ 
++static int debug = -1;
++#define E100_DFLT_MSGLVL (NETIF_MSG_DRV | NETIF_MSG_PROBE | NETIF_MSG_LINK)
++
++module_param(debug, int, 0);
++MODULE_PARM_DESC(debug, "e100 debug level: 0 (quiet) to 15 (verbose)");
++
+ /**
+  * e100_get_rx_struct - retrieve cell to hold skb buff from the pool
+  * @bdp: atapter's private data struct
+@@ -433,15 +441,12 @@
+ e100_wait_exec_simple(struct e100_private *bdp, u8 scb_cmd_low)
+ {
+ 	if (!e100_wait_scb(bdp)) {
+-		printk(KERN_DEBUG "e100: %s: e100_wait_exec_simple: failed\n",
+-		       bdp->device->name);
++		netdev_dbg(bdp->device,, "e100_wait_exec_simple: failed\n");
+ #ifdef E100_CU_DEBUG		
+-		printk(KERN_ERR "e100: %s: Last command (%x/%x) "
+-			"timeout\n", bdp->device->name, 
++		netdev_err(bdp->device,, "Last command (%x/%x) timeout\n",
+ 			bdp->last_cmd, bdp->last_sub_cmd);
+-		printk(KERN_ERR "e100: %s: Current simple command (%x) "
+-			"can't be executed\n", 
+-			bdp->device->name, scb_cmd_low);
++		netdev_err(bdp->device,, "Current simple command (%x) "
++			"can't be executed\n", scb_cmd_low);
+ #endif		
+ 		return false;
+ 	}
+@@ -466,12 +471,10 @@
+ {
+ 	if (!e100_wait_scb(bdp)) {
+ #ifdef E100_CU_DEBUG		
+-		printk(KERN_ERR "e100: %s: Last command (%x/%x) "
+-			"timeout\n", bdp->device->name, 
++		netdev_err(bdp->device,, "Last command (%x/%x) timeout\n",
+ 			bdp->last_cmd, bdp->last_sub_cmd);
+-		printk(KERN_ERR "e100: %s: Current complex command "
+-			"(%x/%x) can't be executed\n", 
+-			bdp->device->name, cmd, sub_cmd);
++		netdev_err(bdp->device,, "Current complex command "
++			"(%x/%x) can't be executed\n", cmd, sub_cmd);
+ #endif		
+ 		return false;
+ 	}
+@@ -562,7 +565,7 @@
+ 
+ 	dev = alloc_etherdev(sizeof (struct e100_private));
+ 	if (dev == NULL) {
+-		printk(KERN_ERR "e100: Not able to alloc etherdev struct\n");
++		dev_err(&pcid->dev, "Not able to alloc etherdev struct\n");
+ 		rc = -ENODEV;
+ 		goto out;
+ 	}
+@@ -584,6 +587,15 @@
+ 	pci_set_drvdata(pcid, dev);
+ 	SET_NETDEV_DEV(dev, &pcid->dev);
+ 
++	if (debug < 0) {
++		dev->msg_enable = E100_DFLT_MSGLVL;
++	} else if (debug >= 8 * sizeof(int)) {
++		/* All levels enabled */
++		dev->msg_enable = -1;
++	} else {
++		dev->msg_enable = (1 << debug) - 1;
++	}
++
+ 	if ((rc = e100_alloc_space(bdp)) != 0) {
+ 		goto err_dev;
+ 	}
+@@ -655,7 +667,7 @@
+ 	e100_check_options(e100nics, bdp);
+ 
+ 	if (!e100_init(bdp)) {
+-		printk(KERN_ERR "e100: Failed to initialize, instance #%d\n",
++		netdev_err(dev,, "Failed to initialize, instance #%d\n",
+ 		       e100nics);
+ 		rc = -ENODEV;
+ 		goto err_unregister_netdev;
+@@ -665,7 +677,7 @@
+ 	cal_checksum = e100_eeprom_calculate_chksum(bdp);
+ 	read_checksum = e100_eeprom_read(bdp, (bdp->eeprom_size - 1));
+ 	if (cal_checksum != read_checksum) {
+-                printk(KERN_ERR "e100: Corrupted EEPROM on instance #%d\n",
++                netdev_err(dev,, "Corrupted EEPROM on instance #%d\n",
+ 		       e100nics);
+                 rc = -ENODEV;
+                 goto err_unregister_netdev;
+@@ -675,9 +687,8 @@
+ 
+ 	e100_get_speed_duplex_caps(bdp);
+ 
+-	printk(KERN_NOTICE
+-	       "e100: %s: %s\n", 
+-	       bdp->device->name, "Intel(R) PRO/100 Network Connection");
++	netdev_printk(KERN_NOTICE,
++		dev, PROBE, "Intel(R) PRO/100 Network Connection\n");
+ 	e100_print_brd_conf(bdp);
+ 
+ 	bdp->wolsupported = 0;
+@@ -694,8 +705,6 @@
+ 		bdp->wolopts = WAKE_MAGIC;
+ 	}
+ 
+-	printk(KERN_NOTICE "\n");
+-
+ 	goto out;
+ 
+ err_unregister_netdev:
+@@ -839,26 +848,28 @@
+ e100_check_options(int board, struct e100_private *bdp)
+ {
+ 	if (board >= E100_MAX_NIC) {
+-		printk(KERN_NOTICE 
+-		       "e100: No configuration available for board #%d\n",
+-		       board);
+-		printk(KERN_NOTICE "e100: Using defaults for all values\n");
++		netdev_printk(KERN_NOTICE, bdp->device, PROBE,
++			"No configuration available for board #%d.  "
++			"Using defaults for all values\n", board);
+ 		board = E100_MAX_NIC;
+ 	}
+ 
+-	e100_set_int_option(&(bdp->params.TxDescriptors), TxDescriptors[board],
++	e100_set_int_option(bdp, &(bdp->params.TxDescriptors),
++			    TxDescriptors[board],
+ 			    E100_MIN_TCB, E100_MAX_TCB, E100_DEFAULT_TCB,
+ 			    "TxDescriptor count");
+ 
+-	e100_set_int_option(&(bdp->params.RxDescriptors), RxDescriptors[board],
++	e100_set_int_option(bdp, &(bdp->params.RxDescriptors),
++			    RxDescriptors[board],
+ 			    E100_MIN_RFD, E100_MAX_RFD, E100_DEFAULT_RFD,
+ 			    "RxDescriptor count");
+ 
+-	e100_set_int_option(&(bdp->params.e100_speed_duplex),
++	e100_set_int_option(bdp, &(bdp->params.e100_speed_duplex),
+ 			    e100_speed_duplex[board], 0, 4,
+ 			    E100_DEFAULT_SPEED_DUPLEX, "speed/duplex mode");
+ 
+-	e100_set_int_option(&(bdp->params.ber), ber[board], 0, ZLOCK_MAX_ERRORS,
++	e100_set_int_option(bdp, &(bdp->params.ber), ber[board], 0,
++			    ZLOCK_MAX_ERRORS,
+ 			    E100_DEFAULT_BER, "Bit Error Rate count");
+ 
+ 	e100_set_bool_option(bdp, XsumRX[board], PRM_XSUMRX, E100_DEFAULT_XSUM,
+@@ -883,11 +894,11 @@
+ 			     E100_DEFAULT_BUNDLE_SMALL_FR,
+ 			     "CPU saver bundle small frames value");
+ 
+-	e100_set_int_option(&(bdp->params.IntDelay), IntDelay[board], 0x0,
++	e100_set_int_option(bdp, &(bdp->params.IntDelay), IntDelay[board], 0x0,
+ 			    0xFFFF, E100_DEFAULT_CPUSAVER_INTERRUPT_DELAY,
+ 			    "CPU saver interrupt delay value");
+ 
+-	e100_set_int_option(&(bdp->params.BundleMax), BundleMax[board], 0x1,
++	e100_set_int_option(bdp, &(bdp->params.BundleMax), BundleMax[board], 0x1,
+ 			    0xFFFF, E100_DEFAULT_CPUSAVER_BUNDLE_MAX,
+ 			    "CPU saver bundle max value");
+ 
+@@ -895,6 +906,7 @@
+ 
+ /**
+  * e100_set_int_option - check and set an integer option
++ * @bdp: adapter's private data struct
+  * @option: a pointer to the relevant option field
+  * @val: the value specified
+  * @min: the minimum valid value
+@@ -907,22 +919,22 @@
+  * Otherwise, if the value is invalid, change it to the default.
+  */
+ void __devinit
+-e100_set_int_option(int *option, int val, int min, int max, int default_val,
+-		    char *name)
++e100_set_int_option(struct e100_private *bdp, int *option, int val,
++	int min, int max, int default_val, char *name)
+ {
+ 	if (val == -1) {	/* no value specified. use default */
+ 		*option = default_val;
+ 
+ 	} else if ((val < min) || (val > max)) {
+-		printk(KERN_NOTICE
+-		       "e100: Invalid %s specified (%i). "
+-		       "Valid range is %i-%i\n",
+-		       name, val, min, max);
+-		printk(KERN_NOTICE "e100: Using default %s of %i\n", name,
+-		       default_val);
++		netdev_printk(KERN_NOTICE, bdp->device, PROBE,
++		       "Invalid %s specified (%i). "
++		       "Valid range is %i-%i. "
++		       "Using default %s of %i\n",
++		       name, val, min, max, name, default_val);
+ 		*option = default_val;
+ 	} else {
+-		printk(KERN_INFO "e100: Using specified %s of %i\n", name, val);
++		netdev_info(bdp->device, PROBE,
++		       "Using specified %s of %i\n", name, val);
+ 		*option = val;
+ 	}
+ }
+@@ -949,17 +961,17 @@
+ 			bdp->params.b_params |= mask;
+ 
+ 	} else if ((val != true) && (val != false)) {
+-		printk(KERN_NOTICE
+-		       "e100: Invalid %s specified (%i). "
+-		       "Valid values are %i/%i\n",
+-		       name, val, false, true);
+-		printk(KERN_NOTICE "e100: Using default %s of %i\n", name,
+-		       default_val);
++		netdev_printk(KERN_NOTICE, bdp->device, PROBE,
++		       "Invalid %s specified (%i). "
++		       "Valid values are %i/%i. "
++		       "Using default %s of %i\n",
++		       name, val, false, true, name, default_val);
+ 
+ 		if (default_val)
+ 			bdp->params.b_params |= mask;
+ 	} else {
+-		printk(KERN_INFO "e100: Using specified %s of %i\n", name, val);
++		netdev_info(bdp->device, PROBE,
++			"Using specified %s of %i\n", name, val);
+ 		if (val)
+ 			bdp->params.b_params |= mask;
+ 	}
+@@ -1181,8 +1193,7 @@
+ 	}
+ 
+ 	if (!e100_exec_non_cu_cmd(bdp, cmd)) {
+-		printk(KERN_WARNING "e100: %s: Multicast setup failed\n", 
+-		       dev->name);
++		netdev_warn(dev,, "Multicast setup failed\n");
+ 	}
+ }
+ 
+@@ -1262,20 +1273,20 @@
+ 
+ 	if (!e100_selftest(bdp, &st_timeout, &st_result)) {
+         	if (st_timeout) {
+-			printk(KERN_ERR "e100: selftest timeout\n");
++			netdev_err(bdp->device,, "selftest timeout\n");
+ 		} else {
+-			printk(KERN_ERR "e100: selftest failed. Results: %x\n",
+-					st_result);
++			netdev_err(bdp->device,,
++				"selftest failed. Results: %x\n", st_result);
+ 		}
+ 		return false;
+ 	}
+ 	else
+-		printk(KERN_DEBUG "e100: selftest OK.\n");
++		netdev_dbg(bdp->device,, "selftest OK.\n");
+ 
+ 	/* read the MAC address from the eprom */
+ 	e100_rd_eaddr(bdp);
+ 	if (!is_valid_ether_addr(bdp->device->dev_addr)) {
+-		printk(KERN_ERR "e100: Invalid Ethernet address\n");
++		netdev_err(bdp->device,, "Invalid Ethernet address\n");
+ 		return false;
+ 	}
+ 	/* read NIC's part number */
+@@ -1426,7 +1437,7 @@
+ 
+ 	return true;
+ err:
+-	printk(KERN_ERR "e100: hw init failed\n");
++	netdev_err(bdp->device,, "hw init failed\n");
+ 	return false;
+ }
+ 
+@@ -1555,8 +1566,7 @@
+ 	return 0;
+ 
+ err:
+-	printk(KERN_ERR
+-	       "e100: Failed to allocate memory\n");
++	netdev_err(bdp->device,, "Failed to allocate memory\n");
+ 	return -ENOMEM;
+ }
+ 
+@@ -1697,8 +1707,7 @@
+ 
+ #ifdef E100_CU_DEBUG
+ 	if (e100_cu_unknown_state(bdp)) {
+-		printk(KERN_ERR "e100: %s: CU unknown state in e100_watchdog\n",
+-			dev->name);
++		netdev_err(dev,, "CU unknown state in e100_watchdog\n");
+ 	}
+ #endif	
+ 	if (!netif_running(dev)) {
+@@ -1708,9 +1717,9 @@
+ 	/* check if link state has changed */
+ 	if (e100_phy_check(bdp)) {
+ 		if (netif_carrier_ok(dev)) {
+-			printk(KERN_ERR
+-			       "e100: %s NIC Link is Up %d Mbps %s duplex\n",
+-			       bdp->device->name, bdp->cur_line_speed,
++			netdev_err(dev, LINK,
++			       "NIC Link is Up %d Mbps %s duplex\n",
++			       bdp->cur_line_speed,
+ 			       (bdp->cur_dplx_mode == HALF_DUPLEX) ?
+ 			       "Half" : "Full");
+ 
+@@ -1718,8 +1727,7 @@
+ 			e100_config(bdp);  
+ 
+ 		} else {
+-			printk(KERN_ERR "e100: %s NIC Link is Down\n",
+-			       bdp->device->name);
++			netdev_err(dev, LINK, "NIC Link is Down\n");
+ 		}
+ 	}
+ 
+@@ -2289,14 +2297,12 @@
+ 	case START_WAIT:
+ 		// The last command was a non_tx CU command
+ 		if (!e100_wait_cus_idle(bdp))
+-			printk(KERN_DEBUG
+-			       "e100: %s: cu_start: timeout waiting for cu\n",
+-			       bdp->device->name);
++			netdev_dbg(bdp->device,,
++			       "cu_start: timeout waiting for cu\n");
+ 		if (!e100_wait_exec_cmplx(bdp, (u32) (tcb->tcb_phys),
+ 					  SCB_CUC_START, CB_TRANSMIT)) {
+-			printk(KERN_DEBUG
+-			       "e100: %s: cu_start: timeout waiting for scb\n",
+-			       bdp->device->name);
++			netdev_dbg(bdp->device,,
++			       "cu_start: timeout waiting for scb\n");
+ 			e100_exec_cmplx(bdp, (u32) (tcb->tcb_phys),
+ 					SCB_CUC_START);
+ 			ret = false;
+@@ -2414,8 +2420,7 @@
+ 
+ 	res = e100_exec_non_cu_cmd(bdp, cmd);
+ 	if (!res)
+-		printk(KERN_WARNING "e100: %s: IA setup failed\n", 
+-		       bdp->device->name);
++		netdev_warn(bdp->device,, "IA setup failed\n");
+ 
+ exit:
+ 	return res;
+@@ -2460,9 +2465,7 @@
+ 	spin_lock(&bdp->bd_lock);
+ 
+ 	if (!e100_wait_exec_cmplx(bdp, rx_struct->dma_addr, SCB_RUC_START, 0)) {
+-		printk(KERN_DEBUG
+-		       "e100: %s: start_ru: wait_scb failed\n", 
+-		       bdp->device->name);
++		netdev_dbg(bdp->device,, "start_ru: wait_scb failed\n");
+ 		e100_exec_cmplx(bdp, rx_struct->dma_addr, SCB_RUC_START);
+ 	}
+ 	if (bdp->next_cu_cmd == RESUME_NO_WAIT) {
+@@ -2707,8 +2710,8 @@
+ 			spin_lock_bh(&(bdp->bd_non_tx_lock));
+ 		} else {
+ #ifdef E100_CU_DEBUG			
+-			printk(KERN_ERR "e100: %s: non-TX command (%x) "
+-				"timeout\n", bdp->device->name, sub_cmd);
++			netdev_err(bdp->device,, "non-TX command (%x) "
++				"timeout\n", sub_cmd);
+ #endif			
+ 			rc = false;
+ 			goto exit;
+@@ -2961,14 +2964,17 @@
+ {
+ 	/* Print the string if checksum Offloading was enabled */
+ 	if (bdp->flags & DF_CSUM_OFFLOAD)
+-		printk(KERN_NOTICE "  Hardware receive checksums enabled\n");
++		netdev_printk(KERN_NOTICE, bdp->device, PROBE,
++			"  Hardware receive checksums enabled\n");
+ 	else {
+ 		if (bdp->rev_id >= D101MA_REV_ID) 
+-			printk(KERN_NOTICE "  Hardware receive checksums disabled\n");
++			netdev_printk(KERN_NOTICE, bdp->device, PROBE,
++				"  Hardware receive checksums disabled\n");
+ 	}
+ 
+ 	if ((bdp->flags & DF_UCODE_LOADED))
+-		printk(KERN_NOTICE "  cpu cycle saver enabled\n");
++		netdev_printk(KERN_NOTICE, bdp->device, PROBE,
++			"  cpu cycle saver enabled\n");
+ }
+ 
+ /**
+@@ -3017,8 +3023,8 @@
+ 	bdp->scb = (scb_t *) ioremap_nocache(dev->mem_start, sizeof (scb_t));
+ 
+ 	if (!bdp->scb) {
+-		printk(KERN_ERR "e100: %s: Failed to map PCI address 0x%lX\n",
+-		       dev->name, pci_resource_start(pcid, 0));
++		netdev_err(dev,, "Failed to map PCI address 0x%lX\n",
++		       pci_resource_start(pcid, 0));
+ 		rc = -ENOMEM;
+ 		goto err_region;
+ 	}
+@@ -3092,7 +3098,7 @@
+ 		return false;
+ 
+ 	if (!e100_setup_iaaddr(bdp, bdp->device->dev_addr)) {
+-		printk(KERN_ERR "e100: e100_configure_device: "
++		netdev_err(bdp->device,, "e100_configure_device: "
+ 			"setup iaaddr failed\n");
+ 		return false;
+ 	}
+@@ -3122,7 +3128,7 @@
+ 	e100_sw_reset(bdp, cmd);
+ 	if (cmd == PORT_SOFTWARE_RESET) {
+ 		if (!e100_configure_device(bdp))
+-			printk(KERN_ERR "e100: e100_deisolate_driver:" 
++			netdev_err(bdp->device,, "e100_deisolate_driver:"
+ 		       		" device configuration failed\n");
+ 	} 
+ 
+@@ -3206,6 +3212,20 @@
+ 	case ETHTOOL_PHYS_ID:
+ 		rc = e100_ethtool_led_blink(dev,ifr);
+ 		break;
++	case ETHTOOL_GMSGLVL: {
++		struct ethtool_value eval = {ETHTOOL_GMSGLVL};
++		eval.data = dev->msg_enable;
++		if (copy_to_user(ifr->ifr_data, &eval, sizeof(eval)))
++			return -EFAULT;
++		return 0;
++	}
++	case ETHTOOL_SMSGLVL: {
++		struct ethtool_value eval;
++		if (copy_from_user(&eval, ifr->ifr_data, sizeof(eval)))
++			return -EFAULT;
++		dev->msg_enable = eval.data;
++		return 0;
++	}
+ #ifdef	ETHTOOL_GRINGPARAM
+ 	case ETHTOOL_GRINGPARAM: {
+ 		struct ethtool_ringparam ering;
+@@ -3843,8 +3863,7 @@
+ 
+ 	res = e100_exec_non_cu_cmd(bdp, cmd);
+ 	if (!res)
+-		printk(KERN_WARNING "e100: %s: Filter setup failed\n",
+-		       bdp->device->name);
++		netdev_warn(bdp->device,, "Filter setup failed\n");
+ 
+ exit:
+ 	return res;
+@@ -3859,10 +3878,10 @@
+ 	if (e100_config(bdp)) {
+ 		if (bdp->wolopts & (WAKE_UCAST | WAKE_ARP))
+ 			if (!e100_setup_filter(bdp))
+-				printk(KERN_ERR
+-				       "e100: WOL options failed\n");
++				netdev_err(bdp->device,,
++				       "WOL options failed\n");
+ 	} else {
+-		printk(KERN_ERR "e100: config WOL failed\n");
++		netdev_err(bdp->device,, "config WOL failed\n");
+ 	}
+ }
+ #endif
+@@ -4159,9 +4178,9 @@
+ #ifdef E100_CU_DEBUG			
+ 			if (!(non_tx_cmd->cb_status 
+ 			    & __constant_cpu_to_le16(CB_STATUS_COMPLETE)))
+-				printk(KERN_ERR "e100: %s: Queued "
++				netdev_err(bdp->device,, "Queued "
+ 					"command (%x) timeout\n", 
+-					bdp->device->name, sub_cmd);
++					sub_cmd);
+ #endif			
+ 			list_del(&(active_command->list_elem));
+ 			e100_free_non_tx_cmd(bdp, active_command);
+diff -Naur linux.org/drivers/net/e100/e100_phy.c linux.e100.patched/drivers/net/e100/e100_phy.c
+--- linux.org/drivers/net/e100/e100_phy.c	Mon Aug 25 13:29:38 2003
++++ linux.e100.patched/drivers/net/e100/e100_phy.c	Mon Aug 25 13:29:38 2003
+@@ -72,7 +72,7 @@
+ 	if (mdi_cntrl & MDI_PHY_READY) 
+ 		return 0;
+ 	else {
+-		printk(KERN_ERR "e100: MDI write timeout\n");
++		netdev_err(bdp->device,, "MDI write timeout\n");
+ 		return 1;
+ 	}
+ }
+@@ -127,7 +127,7 @@
+ 		return 0;
+ 	}
+ 	else {
+-		printk(KERN_ERR "e100: MDI read timeout\n");
++		netdev_err(bdp->device,, "MDI read timeout\n");
+ 		return 1;
+ 	}
+ }
+@@ -236,22 +236,20 @@
+ 		switch (bdp->params.e100_speed_duplex) {
+ 		case E100_AUTONEG:
+ 			/* The adapter can't autoneg. so set to 10/HALF */
+-			printk(KERN_INFO
+-			       "e100: 503 serial component detected which "
+-			       "cannot autonegotiate\n");
+-			printk(KERN_INFO
+-			       "e100: speed/duplex forced to "
++			netdev_info(bdp->device, PROBE,
++			       "503 serial component detected which "
++			       "cannot autonegotiate. "
++			       "speed/duplex forced to "
+ 			       "10Mbps / Half duplex\n");
+ 			bdp->params.e100_speed_duplex = E100_SPEED_10_HALF;
+ 			break;
+ 
+ 		case E100_SPEED_100_HALF:
+ 		case E100_SPEED_100_FULL:
+-			printk(KERN_ERR
+-			       "e100: 503 serial component detected "
+-			       "which does not support 100Mbps\n");
+-			printk(KERN_ERR
+-			       "e100: Change the forced speed/duplex "
++			netdev_err(bdp->device,,
++			       "503 serial component detected "
++			       "which does not support 100Mbps. "
++			       "Change the forced speed/duplex "
+ 			       "to a supported setting\n");
+ 			return false;
+ 		}
+@@ -269,7 +267,7 @@
+ 		if ((bdp->params.e100_speed_duplex != E100_AUTONEG) &&
+ 		    (bdp->params.e100_speed_duplex != E100_SPEED_100_FULL)) {
+ 			/* just inform user about 100 full */
+-			printk(KERN_ERR "e100: NC3133 NIC can only run "
++			netdev_err(bdp->device,, "NC3133 NIC can only run "
+ 			       "at 100Mbps full duplex\n");
+ 		}
+ 
+diff -Naur linux.org/drivers/net/e100/e100_test.c linux.e100.patched/drivers/net/e100/e100_test.c
+--- linux.org/drivers/net/e100/e100_test.c	Mon Aug 25 13:29:38 2003
++++ linux.e100.patched/drivers/net/e100/e100_test.c	Mon Aug 25 13:29:38 2003
+@@ -44,7 +44,7 @@
+ static void e100_diag_config_loopback(struct e100_private *, u8, u8, u8 *,u8 *);
+ static u8 e100_diag_loopback_alloc(struct e100_private *);
+ static void e100_diag_loopback_cu_ru_exec(struct e100_private *);
+-static u8 e100_diag_check_pkt(u8 *);
++static u8 e100_diag_check_pkt(struct e100_private *bdp, u8 *);
+ static void e100_diag_loopback_free(struct e100_private *);
+ static int e100_cable_diag(struct e100_private *bdp);
+ 
+@@ -169,19 +169,19 @@
+ {
+ 	u8 rc = 0;
+ 
+-	printk(KERN_DEBUG "%s: PHY loopback test starts\n", dev->name);
++	netdev_printk(KERN_DEBUG, dev,, "PHY loopback test starts\n");
+ 	e100_hw_init(dev->priv);
+ 	if (!e100_diag_one_loopback(dev, PHY_LOOPBACK)) {
+ 		rc |= PHY_LOOPBACK;
+ 	}
+-	printk(KERN_DEBUG "%s: PHY loopback test ends\n", dev->name);
++	netdev_printk(KERN_DEBUG, dev,, "PHY loopback test ends\n");
+ 
+-	printk(KERN_DEBUG "%s: MAC loopback test starts\n", dev->name);
++	netdev_printk(KERN_DEBUG, dev,, "MAC loopback test starts\n");
+ 	e100_hw_init(dev->priv);
+ 	if (!e100_diag_one_loopback(dev, MAC_LOOPBACK)) {
+ 		rc |= MAC_LOOPBACK;
+ 	}
+-	printk(KERN_DEBUG "%s: MAC loopback test ends\n", dev->name);
++	netdev_printk(KERN_DEBUG, dev,, "MAC loopback test ends\n");
+ 
+ 	return rc;
+ }
+@@ -349,7 +349,7 @@
+ {
+ 	/*load CU & RU base */ 
+ 	if(!e100_wait_exec_cmplx(bdp, bdp->loopback.dma_handle, SCB_RUC_START, 0))
+-		printk(KERN_ERR "e100: SCB_RUC_START failed!\n");
++		netdev_err(bdp->device,, "SCB_RUC_START failed!\n");
+ 
+ 	bdp->next_cu_cmd = START_WAIT;
+ 	e100_start_cu(bdp, bdp->loopback.tcb);
+@@ -359,20 +359,23 @@
+ /**
+  * e100_diag_check_pkt - checks if a given packet is a loopback packet
+  * @bdp: atapter's private data struct
++ * @datap: pointer to packet data
+  *
+  * Returns true if OK false otherwise.
+  */
+ static u8
+-e100_diag_check_pkt(u8 *datap)
++e100_diag_check_pkt(struct e100_private *bdp, u8 *datap)
+ {
+ 	int i;
+ 	for (i = 0; i<512; i++) {
+ 		if( !((*datap)==0xFF && (*(datap + 512) == 0xBA)) ) {
+-			printk (KERN_ERR "e100: check loopback packet failed at: %x\n", i);
++			netdev_err(bdp->device,,
++				"check loopback packet failed at: %x\n", i);
+ 			return false;
+ 			}
+ 	}
+-	printk (KERN_DEBUG "e100: Check received loopback packet OK\n");
++	netdev_printk(KERN_DEBUG, bdp->device,,
++		"Check received loopback packet OK\n");
+ 	return true;
+ }
+ 
+@@ -404,11 +407,13 @@
+         }
+ 
+         if (rfd_status & RFD_STATUS_COMPLETE) {
+-		printk(KERN_DEBUG "e100: Loopback packet received\n");
+-                return e100_diag_check_pkt(((u8 *)rfdp+bdp->rfd_size));
++		netdev_printk(KERN_DEBUG, bdp->device,,
++			"Loopback packet received\n");
++                return e100_diag_check_pkt(bdp,
++			((u8 *)rfdp+bdp->rfd_size));
+ 	}
+ 	else {
+-		printk(KERN_ERR "e100: Loopback packet not received\n");
++		netdev_err(bdp->device,, "Loopback packet not received\n");
+ 		return false;
+ 	}
+ }
 
-.config included
-
-Michal
-
---Boundary-00=_+BoS/Gfy3NjwW0n
-Content-Type: application/x-bzip2;
-  name="config-experimental-2.6.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="config-experimental-2.6.bz2"
-
-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
-
---Boundary-00=_+BoS/Gfy3NjwW0n--
+--------------09E8359C42A09191C013F7B9--
 

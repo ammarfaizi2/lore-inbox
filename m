@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283259AbRLDSim>; Tue, 4 Dec 2001 13:38:42 -0500
+	id <S283272AbRLDSmA>; Tue, 4 Dec 2001 13:42:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281527AbRLDShY>; Tue, 4 Dec 2001 13:37:24 -0500
-Received: from patan.Sun.COM ([192.18.98.43]:33205 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S283259AbRLDSgJ>;
-	Tue, 4 Dec 2001 13:36:09 -0500
-Message-ID: <3C0D1780.612876EB@sun.com>
-Date: Tue, 04 Dec 2001 10:35:44 -0800
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12C5_V i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: gibbs@scsiguy.com
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        eddieath@us.ibm.com
-Subject: AIC7xxx and nasty EISA probing
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281547AbRLDSkQ>; Tue, 4 Dec 2001 13:40:16 -0500
+Received: from 217-126-161-163.uc.nombres.ttd.es ([217.126.161.163]:46217 "EHLO
+	DervishD.viadomus.com") by vger.kernel.org with ESMTP
+	id <S281659AbRLDSjf>; Tue, 4 Dec 2001 13:39:35 -0500
+To: raul@viadomus.com, trini@kernel.crashing.org
+Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <E16BKeT-0001zt-00@DervishD.viadomus.com>
+Date: Tue, 4 Dec 2001 19:50:45 +0100
+From: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	 Coronado <raul@viadomus.com>
+Reply-To: =?ISO-8859-1?Q?Ra=FAl?= =?ISO-8859-1?Q?N=FA=F1ez?= de Arenas
+	   Coronado <raul@viadomus.com>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin,
+    Hi Tom :))
 
-I hope you are still the maintainer of the linux aic7xxx driver, and this
-is not just stale info.
+>>     Why must I install Python in order to compile the kernel? I don't
+>> understand this. I think there are better alternatives, but kbuild
+>> seems to be imposed any way.
+>kbuild != CML2.
 
-I have a user who is reporting nasty interference by the AIC driver into
-other devices.  Digging shows the aic7770_linux_probe() routine doing EISA
-accesses to io-ports at will.  I've seen the aic7xxx=no_probe comments, but
-I wanted to make a small suggestion.
+    Yes, sorry, just a mental shortcircuit ;))
 
-I'd suggest you make no_probe be the default.  I'd much rather see a
-CONFIG_AIC7XXX_PROBE option which enabled EISA/VLB probing (which are
-probably the minority of devices) and did not interfere with the default
-PCI (which I'd guess to be a majority) systems.
+>It all boils down to the current 'language' having no
+>real definitive spec, and having 3+ incompatible parsers.
 
-If you'd like I can make a patch for this, but the changes should be very
-elementary.
+    Yes, I know and I think that is a good thing to have a good
+configuration language, and it means having a good specification and
+a good parser. Just I don't think that 6Mb-Python is a good way to
+write a good parser. Well, I'm sure that I cannot do better (right
+now), so I don't want to flame anyone with this, just want to show my
+opinion (shared by many, although) and show the negative points of
+having Python as a dependence.
 
-As it is, the user has a work around, but I think the other way around
-would make a lot more sense and be a fair bit friendlier to the average
-user.
+>The spec for CML2 is out there, and there's even a CML2-in-C project.
 
-Thanks, and let me know if you want me to do the work.
+    How advanced? Where is the spec, please?
 
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+>that project out and then convince Linus to include it.
+
+    Hard job... Convincing Linus, I mean ;)))
+
+>>     The kernel should depend just on the compiler and assembler, IMHO.
+>The right tools for the right job.  C is good for the kernel.  Python is
+>good at manipulating strings.
+
+    Well, IMHO Python is good only in being big and doing things
+slow, but... why the parser cannot be built over flex/bison?. That
+way it can be 'pregenerated' and people won't need additional tools
+to build the kernel.
+
+    Raúl

@@ -1,68 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263406AbTJVEfR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 00:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTJVEfR
+	id S263424AbTJVE5K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 00:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263422AbTJVE5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 00:35:17 -0400
-Received: from taco.zianet.com ([216.234.192.159]:59656 "HELO taco.zianet.com")
-	by vger.kernel.org with SMTP id S263406AbTJVEfL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 00:35:11 -0400
-From: Steven Cole <elenstev@mesatop.com>
-To: Paul Jakma <paul@clubi.ie>
-Subject: Re: Scaling noise
-Date: Tue, 21 Oct 2003 21:46:41 -0600
-User-Agent: KMail/1.5
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com> <200309272113.18030.elenstev@mesatop.com> <Pine.LNX.4.56.0310220220130.27492@fogarty.jakma.org>
-In-Reply-To: <Pine.LNX.4.56.0310220220130.27492@fogarty.jakma.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Wed, 22 Oct 2003 00:57:10 -0400
+Received: from codepoet.org ([166.70.99.138]:50861 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S263411AbTJVE5G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 00:57:06 -0400
+Date: Tue, 21 Oct 2003 22:57:09 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Nir Tzachar <tzachar@cs.bgu.ac.il>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: srfs - a new file system.
+Message-ID: <20031022045708.GA5636@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Nir Tzachar <tzachar@cs.bgu.ac.il>, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.GSO.4.44.0310070757400.4688-100000@sundance.cse.ucsc.edu> <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310212146.41423.elenstev@mesatop.com>
+In-Reply-To: <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 21 October 2003 07:22 pm, Paul Jakma wrote:
-> On Sat, 27 Sep 2003, Steven Cole wrote:
-> > It appears that SGI is working to scale the Altix to 128 CPUs on
-> > Linux.
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=106323064611280&w=2
->
-> This may be interesting so:
->
-> 	http://lwn.net/Articles/54822/
->
-> it announces:
->
-> 	"record levels of sustained performance and scalability on a
->         256-processor global shared-memory SGI Altix 3000 system, the
->         largest such system ever to run on the Linux ® operating
->         system."
+On Mon Oct 20, 2003 at 11:12:07AM +0200, Nir Tzachar wrote:
+> more info on the system architecture can be find on the web page, and
+> here: http://www.cs.bgu.ac.il/~tzachar/srfs.pdf
 
-This thread was continued with this post:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106471432320108&w=2
+Suppose I install srfs on both my laptop and my server.  I then
+move the CVS repository for my pet project onto the new srfs
+filesystem and I take off for the weekend with my laptop.   Over
+the weekend I commit several changes to file X.  Over the weekend
+my friend also commits several changes to file X.
 
-Quoting LM:
-> Dave and friends can protest as much as they want that the kernel works
-> and it scales (it does work, it doesn't scale by comparison to something
-> like IRIX) 
+When I get home and plug in my laptop, presumably the caching
+daemon will try to stabalize the system by deciding which version
+of file X was changed last and replicating that latest version.  
 
-Even though SGI is producing machines as noted above, and planning
-on scaling to 512 or even 1024 processors in a SSI machine, that ability
-to scale remains to be proven.  Meanwhile, IRIX is running a 2048 cpu
-SSI machine at Wright-Patterson Air Force Base as noted here: 
-http://www.sgi.com/newsroom/press_releases/2003/october/msrc.html
+Who's work will the caching daemon overwrite?  My work, or my
+friends work?
 
-So, the original point seems to be holding for now.  It will be interesting
-to see just how far the new (2.6) linux kernel will scale.
+Of course, this need not involve anything so extreme as days of
+disconnected independent operation.  A rebooting router between
+two previously syncd srfs peers seems sufficient to trigger this
+kind of data loss, unless you make the logging daemon fail all
+writes when disconnected.
 
-I've been having difficulty getting posts from home to reach lkml due to
-a problem with my ISP inserting a bogus "Delivered-To" header, which
-results in bounces from vger.kernel.org.  If this message reaches lkml, 
-then my efforts to fix this have been successful.
+ -Erik
 
-Steven
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

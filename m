@@ -1,67 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266120AbTAMNMV>; Mon, 13 Jan 2003 08:12:21 -0500
+	id <S267357AbTAMN0Z>; Mon, 13 Jan 2003 08:26:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267357AbTAMNMV>; Mon, 13 Jan 2003 08:12:21 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:61420 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S266120AbTAMNMU>; Mon, 13 Jan 2003 08:12:20 -0500
-Date: Mon, 13 Jan 2003 14:20:45 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: davidm@hpl.hp.com, Mike Stephens <mike.stephens@intel.com>,
-       linux-kernel@vger.kernel.org, bjornw@axis.com, geert@linux-m68k.org,
-       ralf@gnu.org, mkp@mkp.net, willy@debian.org, anton@samba.org,
-       gniibe@m17n.org, kkojima@rr.iij4u.or.jp, Jeff Dike <jdike@karaya.com>
-Subject: Re: Userspace Test Framework for module loader porting 
-In-Reply-To: <20030113011128.76CDC2C052@lists.samba.org>
-Message-ID: <Pine.GSO.3.96.1030113114240.25230B-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S267362AbTAMN0Z>; Mon, 13 Jan 2003 08:26:25 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:985 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S267357AbTAMN0X>; Mon, 13 Jan 2003 08:26:23 -0500
+Date: Mon, 13 Jan 2003 08:26:44 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: why the new config process is a *big* step backwards
+Message-ID: <Pine.LNX.4.44.0301130743100.25468-100000@dell>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Rusty Russell wrote:
 
-> > I'm also a bit worried about changing module loaders so often.  Yeah,
-> > once you switch to a kernel-loader, presumably users won't be
-> > affected, but (kernel-module) developers will be.
-> 
-> While ET_DYN modules are a reasonably serious win for ia64 (and
-> probably hppa) (ie. -300 lines or so), they're a minor win for alpha
-> and ppc64 (-100 lines or so), and no real change for arm, i386, ppc,
-> sparc, and sparc64.  It's a lose for x86_64 (toolchain fixes, unless
-> they want to use -fPIC for modules), mips and mips64 (major toolchain
-> fixes, unless they want to use -fPIC for modules and stop using r28
-> for current inside modules).
+  (apologies to those who are thoroughly sick of this topic, but
+i'm now firmly convinced that i don't much care for the new
+config process, and i'm curious as to whether it's just me.
+Answer: probably.)
 
- Hmm, what's the gain from using shared objects as opposed to relocatables
-and why is there any for non-PIC objects at all?  After all, the reason
-for using shared objects is to handle shared PIC code, for which
-relocation is indeed easier to perform -- you only need to relocate the
-GOT and data sections, the latter being rare and with a limited number of
-relocation types.  For non-PIC shared objects the GOT and data sections
-still need to be relocated, but text sections do as well, introducting all
-the relocation types back.  The end result is almost no different from
-operating on relocatables. 
+  IMHO, the new config process (and i'll restrict myself to talking
+about the graphical "make xconfig" process here) not only doesn't
+improve substantially over the old one, but is actually worse in 
+a number of places.  where to start?
 
- From the MIPS pov, adding non-PIC support to tools would mean defining
-R_MIPS_26 (with some effort these could mostly be avoided for modules less
-than 128kB in size), R_MIPS_32, R_MIPS_HI16 and R_MIPS_LO16 for shared
-objects.  Additionally R_MIPS_64, R_MIPS_HIGHEST and R_MIPS_HIGHER for
-MIPS64.  A few ABI issues should be resolved, specifically how to create
-the GOT and the dynamic section, possibly others, as the MIPS ABI
-supplement doesn't define handling of non-PIC shared objects.  An
-implementation for the BFD, though likely tiresome, shouldn't be difficult
-in principle, but tricky issues may arrise due to BFD's subtleties.  And
-the overall processing gain would be questionable, IMO. 
+  first, the hierarchical structure of the options in the left
+window (i'm going to make up names and call these the "menu window",
+"option window" and "help window") is non-intuitive, in that the
+top-level selection will bring up a set of selectable options,
+while submenus will *also* bring up options.
 
-  Maciej
+  example:  Power management options.  if i select that menu
+option explicitly, i get options including APM in the option
+window.  but if i expand that option, i can select the submenu
+"ACPI Support", for further options.  this is confusing --
+it's analogous to a directory having files both directly inside
+it *and* within a sub-structure.  
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+  this is inconsistent with other common things people are
+familiar with -- in the pine mailer, for example, you can't
+use a folder both for storing files *and* for having subfolders.
+and think about bookmarks in a browser (a model i wish the new
+config process had followed).
+
+  the current design is messy since it suggests that some
+options belong strictly to the top level, while others belong
+to more specialized sub levels.  if that's the case, then
+the menu window should contain something like:
+
+[+] Power management options (APM, ACPI)
+      Basic APM options
+      ACPI Support
+
+(obviously, this would apply to *all* entries in the menu
+window thave have submenus.)
+
+  but wait, you say, there's an advantage to this approach.
+it means i can, with one click, get to the more common settable
+options, rather than needing to expand the top level menu.
+so we get to my second complaint.
+
+  there's no reason to not have checkboxes *right* *in*
+the menu window, so i can see *immediately* whether i have
+entire submenu options selected.
+
+  consider "IrDA (infrared) support".  from the menu window,
+there's no way to tell if i have this selected.  instead, i
+must select that option, get it's option window displayed, and
+only then can i see/select/deselect *all* of IrDA in one fell
+swoop.  (of course, the same is true of submenus where, e.g.,
+under Networking support, i can only deselect all of 
+"Ethernet 1000 Mbit" by first selecting that option, getting
+its menu, then turning it off at the top.)
+ 
+  this is hideously uninformative, since it's impossible to tell
+at a glance what entire submenus are selected or not.  why
+*shouldn't* i be able to see, with one look, that my current
+configuration is not selecting Plug and Play, SCSI, Amateur
+Radio, IrDA, IDSN, Power Management and Bluetooth?  adding
+selection checkboxes to top-level entries in the menu window
+would make this trivial, and it's one area that the previous
+configuration program fell down as well.  it's disappointing
+that this was not addressed.
+
+  my third complaint represents where the new config process is
+actually *worse* than the previous.  the fact that there is
+a single menu window and a single option window makes it
+impossible to work in detail in more than one part of the
+main menu at a time (assuming i haven't overlooked some neat
+feature of this new process).
+
+  at least in the old "make xconfig", i could bring up two
+children dialogs at a time.  perhaps i want to examine/configure
+both "Block devices" and "Filesystems" at the same time, since
+there are some related features (loopback device support under
+Block devices lets me mount filesystem images).  under the
+new scheme, this is impossible (unless there's a trick or
+feature i haven't found).
+
+  and that option window is just confusing.  given that we
+already have +/- expand/collapse icons, and checkboxes for
+selection, it just makes things messier to have these submenu
+boxes with the internal triangle.  and once it takes you to
+that submenu, is it really painfully obvious how you back up
+one level?  (the arrow icon in the tool bar?)
+
+  frankly, i would like to see the option window disappear
+entirely.  i see no need to have more than two frames --
+a menu window with expandable/collapsible choices, where
+i can select/deselect entire chunks with a click, where it's
+obvious at a glance which parts are deselected, and where
+i can expand more than one part of the top-level menu to
+configure more than one set of options at a time.
+
+  (this would be even more practical if the number of top-level
+entries in the menu window was reduced.  i mean, is it really
+necessary to have separate top-level entries for MTD, Fusion
+MPT and related selections?  why not just a top-level entry
+for some kind of all-encompassing "Device support"?  i know,
+that's a bad name, but you get the idea.)
+
+  anyway, i've rambled enough.  time for coffee.
+
+rday
 

@@ -1,63 +1,369 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281342AbRKHDNM>; Wed, 7 Nov 2001 22:13:12 -0500
+	id <S281354AbRKHDOB>; Wed, 7 Nov 2001 22:14:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281349AbRKHDNC>; Wed, 7 Nov 2001 22:13:02 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:15091 "EHLO
-	e32.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S281342AbRKHDMs>; Wed, 7 Nov 2001 22:12:48 -0500
-Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andreas Dilger <adilger@turbolabs.com>, ak@muc.de, andrewm@uow.edu.au,
-        "David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-        kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-        owner-netdev@oss.sgi.com, tim@physik3.uni-rostock.de
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF80A3FFE5.FC1D4628-ON88256AFE.0010957E@boulder.ibm.com>
-From: "Krishna Kumar" <kumarkr@us.ibm.com>
-Date: Wed, 7 Nov 2001 19:07:47 -0800
-X-MIMETrack: Serialize by Router on D03NM066/03/M/IBM(Release 5.0.8 |June 18, 2001) at
- 11/07/2001 08:11:26 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S281355AbRKHDNx>; Wed, 7 Nov 2001 22:13:53 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:41707 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S281349AbRKHDN0>;
+	Wed, 7 Nov 2001 22:13:26 -0500
+Date: Wed, 7 Nov 2001 19:13:21 -0800
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        linux-irda@pasta.cs.uit.no
+Subject: [PATCH] : ir243_endian_fix.diff
+Message-ID: <20011107191321.B23773@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi,
 
-> Unsigned arithmetic is fine. The _correct_ way to test whether something
-> is in within
->
->          [ start , start+HZ ]
->
-> is to do
->
->          if (jiffies - start <= HZ)
->
-> try it. The C language guarantees that unsigned arithmetic works in a
-> "modulo power of two" fashion, which means that it _is_ ok to do
-> arithmetic on unsigned longs, and jiffy wrapping does not matter. No need
-> to cast to "signed" or anything else.
->
-> In short: It is wrong to do
->
->          if (jiffies <= start+HZ)
->
-> and it is _right_ to do
->
->          if (jiffies - start <= HZ)
+	Please apply....
 
-Actually this last part is wrong, isn't it ? jiffies <= start + HZ is also
-a correct way to do it, since start+HZ will overflow to the current value
-of
-jiffies when HZ time elapses. So the above two statements are IDENTICAL. I
-agree with the rest of the statements, and especially that you don't need
-to worry about wrapping using unsigned numbers.
+	Jean
 
-Regards,
+ir243_endian_fix.diff :
+---------------------
+	<Patch from Michel Daenzer and Benjamin Herrenschmidt>
+	o [CORRECT] Fix endianess in IrDA parameters management
+	  Without this, the IrDA stack doesn't work on PPC :-(
 
-- KK
-
-> (as long as "start" is "unsigned long" like jiffies).
->
->                    Linus
-
+diff -u -p linux/include/net/irda/parameters.d2.h linux/include/net/irda/parameters.h
+--- linux/include/net/irda/parameters.d2.h	Thu Nov  1 14:15:51 2001
++++ linux/include/net/irda/parameters.h	Mon Nov  5 18:57:28 2001
+@@ -25,6 +25,9 @@
+  *     along with this program; if not, write to the Free Software 
+  *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+  *     MA 02111-1307 USA
++ *
++ *     Michel Dänzer <daenzer@debian.org>, 10/2001
++ *     - simplify irda_pv_t to avoid endianness issues
+  *     
+  ********************************************************************/
+ 
+@@ -55,11 +58,7 @@ typedef enum {
+ 
+ typedef union {
+ 	char   *c;
+-	__u8    b;
+-	__u16   s;
+ 	__u32   i;
+-	__u8  *bp;
+-	__u16 *sp;
+ 	__u32 *ip;
+ } irda_pv_t;
+ 
+diff -u -p linux/net/irda/parameters.d2.c linux/net/irda/parameters.c
+--- linux/net/irda/parameters.d2.c	Thu Nov  1 14:17:32 2001
++++ linux/net/irda/parameters.c	Mon Nov  5 18:57:13 2001
+@@ -167,14 +167,14 @@ static int irda_insert_integer(void *sel
+ 	IRDA_DEBUG(2, __FUNCTION__ "(), pi=%#x, pl=%d, pi=%d\n", p.pi, p.pl, p.pv.i);
+ 	switch (p.pl) {
+ 	case 1:
+-		n += irda_param_pack(buf, "bbb", p.pi, p.pl, p.pv.b);
++		n += irda_param_pack(buf, "bbb", p.pi, p.pl, (__u8) p.pv.i);
+ 		break;
+ 	case 2:
+ 		if (type & PV_BIG_ENDIAN)
+-			cpu_to_be16s(&p.pv.s);
++			p.pv.i = cpu_to_be16((__u16) p.pv.i);
+ 		else
+-			cpu_to_le16s(&p.pv.s);
+-		n += irda_param_pack(buf, "bbs", p.pi, p.pl, p.pv.s);
++			p.pv.i = cpu_to_le16((__u16) p.pv.i);
++		n += irda_param_pack(buf, "bbs", p.pi, p.pl, (__u16) p.pv.i);
+ 		break;
+ 	case 4:
+ 		if (type & PV_BIG_ENDIAN)
+@@ -230,16 +230,17 @@ static int irda_extract_integer(void *se
+ 		return p.pl+2;
+ 	}
+ 
++
+ 	switch (p.pl) {
+ 	case 1:
+-		n += irda_param_unpack(buf+2, "b", &p.pv.b);
++		n += irda_param_unpack(buf+2, "b", &p.pv.i);
+ 		break;
+ 	case 2:
+-		n += irda_param_unpack(buf+2, "s", &p.pv.s);
++		n += irda_param_unpack(buf+2, "s", &p.pv.i);
+ 		if (type & PV_BIG_ENDIAN)
+-			be16_to_cpus(&p.pv.s);
++			p.pv.i = be16_to_cpu((__u16) p.pv.i);
+ 		else
+-			le16_to_cpus(&p.pv.s);
++			p.pv.i = le16_to_cpu((__u16) p.pv.i);
+ 		break;
+ 	case 4:
+ 		n += irda_param_unpack(buf+2, "i", &p.pv.i);
+@@ -255,6 +256,7 @@ static int irda_extract_integer(void *se
+ 		return p.pl+2;
+ 	}
+ 
++	IRDA_DEBUG(2, __FUNCTION__ "(), pi=%#x, pl=%d, pi=%d\n", p.pi, p.pl, p.pv.i);
+ 	/* Call handler for this parameter */
+ 	err = (*func)(self, &p, PV_PUT);
+ 	if (err < 0)
+@@ -359,8 +361,8 @@ int irda_param_pack(__u8 *buf, char *fmt
+ 			buf[n++] = (__u8)va_arg(args, int);
+ 			break;
+ 		case 's':  /* 16 bits unsigned short */
+-			arg.s = (__u16)va_arg(args, int);
+-			put_unaligned(arg.s, (__u16 *)(buf+n)); n+=2;
++			arg.i = (__u16)va_arg(args, int);
++			put_unaligned((__u16)arg.i, (__u16 *)(buf+n)); n+=2;
+ 			break;
+ 		case 'i':  /* 32 bits unsigned integer */
+ 			arg.i = va_arg(args, __u32);
+@@ -402,12 +404,12 @@ int irda_param_unpack(__u8 *buf, char *f
+ 	for (p = fmt; *p != '\0'; p++) {
+ 		switch (*p) {
+ 		case 'b':  /* 8 bits byte */
+-			arg.bp = va_arg(args, __u8 *);
+-			*arg.bp = buf[n++];
++			arg.ip = va_arg(args, __u32 *);
++			*arg.ip = buf[n++];
+ 			break;
+ 		case 's':  /* 16 bits short */
+-			arg.sp = va_arg(args, __u16 *);
+-			*arg.sp = get_unaligned((__u16 *)(buf+n)); n+=2;
++			arg.ip = va_arg(args, __u32 *);
++			*arg.ip = get_unaligned((__u16 *)(buf+n)); n+=2;
+ 			break;
+ 		case 'i':  /* 32 bits unsigned integer */
+ 			arg.ip = va_arg(args, __u32 *);
+diff -u -p linux/net/irda/qos.d2.c linux/net/irda/qos.c
+--- linux/net/irda/qos.d2.c	Thu Nov  1 14:17:42 2001
++++ linux/net/irda/qos.c	Mon Nov  5 18:45:07 2001
+@@ -11,6 +11,7 @@
+  * 
+  *     Copyright (c) 1998-2000 Dag Brattli <dagb@cs.uit.no>, 
+  *     All Rights Reserved.
++ *     Copyright (c) 2000-2001 Jean Tourrilhes <jt@hpl.hp.com>
+  *     
+  *     This program is free software; you can redistribute it and/or 
+  *     modify it under the terms of the GNU General Public License as 
+@@ -455,8 +456,8 @@ static int irlap_param_baud_rate(void *i
+ 		 *  Stations must agree on baud rate, so calculate
+ 		 *  intersection 
+ 		 */
+-		IRDA_DEBUG(2, "Requested BAUD_RATE: 0x%04x\n", param->pv.s);
+-		final = param->pv.s & self->qos_rx.baud_rate.bits;
++		IRDA_DEBUG(2, "Requested BAUD_RATE: 0x%04x\n", (__u16) param->pv.i);
++		final = (__u16) param->pv.i & self->qos_rx.baud_rate.bits;
+ 
+ 		IRDA_DEBUG(2, "Final BAUD_RATE: 0x%04x\n", final);
+ 		self->qos_tx.baud_rate.bits = final;
+@@ -483,14 +484,14 @@ static int irlap_param_link_disconnect(v
+ 	ASSERT(self->magic == LAP_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = self->qos_rx.link_disc_time.bits;
++		param->pv.i = self->qos_rx.link_disc_time.bits;
+ 	else {
+ 		/*  
+ 		 *  Stations must agree on link disconnect/threshold 
+ 		 *  time.
+ 		 */
+-		IRDA_DEBUG(2, "LINK_DISC: %02x\n", param->pv.b);
+-		final = param->pv.b & self->qos_rx.link_disc_time.bits;
++		IRDA_DEBUG(2, "LINK_DISC: %02x\n", (__u8) param->pv.i);
++		final = (__u8) param->pv.i & self->qos_rx.link_disc_time.bits;
+ 
+ 		IRDA_DEBUG(2, "Final LINK_DISC: %02x\n", final);
+ 		self->qos_tx.link_disc_time.bits = final;
+@@ -515,9 +516,9 @@ static int irlap_param_max_turn_time(voi
+ 	ASSERT(self->magic == LAP_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = self->qos_rx.max_turn_time.bits;
++		param->pv.i = self->qos_rx.max_turn_time.bits;
+ 	else
+-		self->qos_tx.max_turn_time.bits = param->pv.b;
++		self->qos_tx.max_turn_time.bits = (__u8) param->pv.i;
+ 
+ 	return 0;
+ }
+@@ -537,9 +538,9 @@ static int irlap_param_data_size(void *i
+ 	ASSERT(self->magic == LAP_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = self->qos_rx.data_size.bits;
++		param->pv.i = self->qos_rx.data_size.bits;
+ 	else
+-		self->qos_tx.data_size.bits = param->pv.b;
++		self->qos_tx.data_size.bits = (__u8) param->pv.i;
+ 
+ 	return 0;
+ }
+@@ -560,9 +561,9 @@ static int irlap_param_window_size(void 
+ 	ASSERT(self->magic == LAP_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = self->qos_rx.window_size.bits;
++		param->pv.i = self->qos_rx.window_size.bits;
+ 	else
+-		self->qos_tx.window_size.bits = param->pv.b;
++		self->qos_tx.window_size.bits = (__u8) param->pv.i;
+ 
+ 	return 0;
+ }
+@@ -581,9 +582,9 @@ static int irlap_param_additional_bofs(v
+ 	ASSERT(self->magic == LAP_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = self->qos_rx.additional_bofs.bits;
++		param->pv.i = self->qos_rx.additional_bofs.bits;
+ 	else
+-		self->qos_tx.additional_bofs.bits = param->pv.b;
++		self->qos_tx.additional_bofs.bits = (__u8) param->pv.i;
+ 
+ 	return 0;
+ }
+@@ -603,9 +604,9 @@ static int irlap_param_min_turn_time(voi
+ 	ASSERT(self->magic == LAP_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = self->qos_rx.min_turn_time.bits;
++		param->pv.i = self->qos_rx.min_turn_time.bits;
+ 	else
+-		self->qos_tx.min_turn_time.bits = param->pv.b;
++		self->qos_tx.min_turn_time.bits = (__u8) param->pv.i;
+ 
+ 	return 0;
+ }
+diff -u -p linux/net/irda/ircomm/ircomm_param.d2.c linux/net/irda/ircomm/ircomm_param.c
+--- linux/net/irda/ircomm/ircomm_param.d2.c	Thu Nov  1 14:17:19 2001
++++ linux/net/irda/ircomm/ircomm_param.c	Thu Nov  1 14:18:17 2001
+@@ -182,13 +182,13 @@ static int ircomm_param_service_type(voi
+ 				     int get)
+ {
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) instance;
+-	__u8 service_type = param->pv.b; /* We know it's a one byte integer */
++	__u8 service_type = (__u8) param->pv.i;
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 
+ 	if (get) {
+-		param->pv.b = self->settings.service_type;
++		param->pv.i = self->settings.service_type;
+ 		return 0;
+ 	}
+ 
+@@ -246,9 +246,9 @@ static int ircomm_param_port_type(void *
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = IRCOMM_SERIAL;
++		param->pv.i = IRCOMM_SERIAL;
+ 	else {
+-		self->settings.port_type = param->pv.b;
++		self->settings.port_type = (__u8) param->pv.i;
+ 
+ 		IRDA_DEBUG(0, __FUNCTION__ "(), port type=%d\n", 
+ 			   self->settings.port_type);
+@@ -317,9 +317,9 @@ static int ircomm_param_data_format(void
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 
+ 	if (get)
+-		param->pv.b = self->settings.data_format;
++		param->pv.i = self->settings.data_format;
+ 	else
+-		self->settings.data_format = param->pv.b;
++		self->settings.data_format = (__u8) param->pv.i;
+ 	
+ 	return 0;
+ }
+@@ -339,11 +339,11 @@ static int ircomm_param_flow_control(voi
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 	
+ 	if (get)
+-		param->pv.b = self->settings.flow_control;
++		param->pv.i = self->settings.flow_control;
+ 	else
+-		self->settings.flow_control = param->pv.b;
++		self->settings.flow_control = (__u8) param->pv.i;
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "(), flow control = 0x%02x\n", param->pv.b);
++	IRDA_DEBUG(1, __FUNCTION__ "(), flow control = 0x%02x\n", (__u8) param->pv.i);
+ 
+ 	return 0;
+ }
+@@ -362,15 +362,15 @@ static int ircomm_param_xon_xoff(void *i
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 	
+ 	if (get) {
+-		param->pv.s = self->settings.xonxoff[0];
+-		param->pv.s |= self->settings.xonxoff[1] << 8;
++		param->pv.i = self->settings.xonxoff[0];
++		param->pv.i |= self->settings.xonxoff[1] << 8;
+ 	} else {
+-		self->settings.xonxoff[0] = param->pv.s & 0xff;
+-		self->settings.xonxoff[1] = param->pv.s >> 8;
++		self->settings.xonxoff[0] = (__u16) param->pv.i & 0xff;
++		self->settings.xonxoff[1] = (__u16) param->pv.i >> 8;
+ 	}
+ 
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), XON/XOFF = 0x%02x,0x%02x\n", 
+-		   param->pv.s & 0xff, param->pv.s >> 8);
++		   param->pv.i & 0xff, param->pv.i >> 8);
+ 
+ 	return 0;
+ }
+@@ -389,15 +389,15 @@ static int ircomm_param_enq_ack(void *in
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 	
+ 	if (get) {
+-		param->pv.s = self->settings.enqack[0];
+-		param->pv.s |= self->settings.enqack[1] << 8;
++		param->pv.i = self->settings.enqack[0];
++		param->pv.i |= self->settings.enqack[1] << 8;
+ 	} else {
+-		self->settings.enqack[0] = param->pv.s & 0xff;
+-		self->settings.enqack[1] = param->pv.s >> 8;
++		self->settings.enqack[0] = (__u16) param->pv.i & 0xff;
++		self->settings.enqack[1] = (__u16) param->pv.i >> 8;
+ 	}
+ 
+ 	IRDA_DEBUG(0, __FUNCTION__ "(), ENQ/ACK = 0x%02x,0x%02x\n",
+-		   param->pv.s & 0xff, param->pv.s >> 8);
++		   param->pv.i & 0xff, param->pv.i >> 8);
+ 
+ 	return 0;
+ }
+@@ -431,9 +431,9 @@ static int ircomm_param_dte(void *instan
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);
+ 
+ 	if (get)
+-		param->pv.b = self->settings.dte;
++		param->pv.i = self->settings.dte;
+ 	else {
+-		dte = param->pv.b;
++		dte = (__u8) param->pv.i;
+ 		
+ 		if (dte & IRCOMM_DELTA_DTR)
+ 			self->settings.dce |= (IRCOMM_DELTA_DSR|
+@@ -470,9 +470,9 @@ static int ircomm_param_dce(void *instan
+ 	struct ircomm_tty_cb *self = (struct ircomm_tty_cb *) instance;
+ 	__u8 dce;
+ 
+-	IRDA_DEBUG(1, __FUNCTION__ "(), dce = 0x%02x\n", param->pv.b);
++	IRDA_DEBUG(1, __FUNCTION__ "(), dce = 0x%02x\n", (__u8) param->pv.i);
+ 
+-	dce = param->pv.b;
++	dce = (__u8) param->pv.i;
+ 
+ 	ASSERT(self != NULL, return -1;);
+ 	ASSERT(self->magic == IRCOMM_TTY_MAGIC, return -1;);

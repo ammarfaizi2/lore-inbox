@@ -1,97 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271150AbUJVBSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271156AbUJVBSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271150AbUJVBSA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 21:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271157AbUJVBQE
+	id S271156AbUJVBSC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 21:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271148AbUJVBPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 21:16:04 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:28384 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S271119AbUJVBFe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 21:05:34 -0400
-Date: Thu, 21 Oct 2004 18:01:50 -0700
-From: Grant Grundler <iod00d@hp.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] I/O space write barrier
-Message-ID: <20041022010150.GH3878@cup.hp.com>
-References: <200410211613.19601.jbarnes@engr.sgi.com>
+	Thu, 21 Oct 2004 21:15:12 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:43954 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S271167AbUJVBJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 21:09:56 -0400
+Date: Fri, 22 Oct 2004 03:10:57 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
+Message-ID: <20041022011057.GC14325@dualathlon.random>
+References: <20041021011714.GQ24619@dualathlon.random> <417728B0.3070006@yahoo.com.au> <20041020213622.77afdd4a.akpm@osdl.org> <417837A7.8010908@yahoo.com.au> <20041021224533.GB8756@dualathlon.random> <41785585.6030809@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410211613.19601.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <41785585.6030809@yahoo.com.au>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 04:13:19PM -0700, Jesse Barnes wrote:
-> This patch adds a mmiowb() call to deal with this sort of situation, and 
-> adds some documentation describing I/O ordering issues to deviceiobook.tmpl.  
-
-Jesse,
-This looks overall pretty good. Just a few nits.
-
-> The idea is to mirror the regular, cacheable memory barrier operation, wmb.  
-> Example of the problem this new macro solves:
+On Fri, Oct 22, 2004 at 10:34:13AM +1000, Nick Piggin wrote:
+> Andrea Arcangeli wrote:
 > 
-> CPU A:  spin_lock_irqsave(&dev_lock, flags)
-> CPU A:  ...
-> CPU A:  writel(newval, ring_ptr);
-> CPU A:  spin_unlock_irqrestore(&dev_lock, flags)
->         ...
-> CPU B:  spin_lock_irqsave(&dev_lock, flags)
-> CPU B:  writel(newval2, ring_ptr);
-> CPU B:  ...
-> CPU B:  spin_unlock_irqrestore(&dev_lock, flags)
+> >
+> >looks reasonable. only cons is that this rejects on my tree ;), pages_*
+> >and protection is gone in my tree, replaced by watermarks[] using the
+> >very same optimal and proven algo of 2.4 (enabled by default of course).
+> >I'll reevaluate the false sharing later on.
+> >
 > 
-> In this case, newval2 could be written to ring_ptr before newval.  Fixing it 
-> is easy though:
-> 
-> CPU A:  spin_lock_irqsave(&dev_lock, flags)
-> CPU A:  ...
-> CPU A:  writel(newval, ring_ptr);
-> CPU A:  mmiowb(); /* ensure no other writes beat us to the device */
-> CPU A:  spin_unlock_irqrestore(&dev_lock, flags)
->         ...
-> CPU B:  spin_lock_irqsave(&dev_lock, flags)
-> CPU B:  writel(newval2, ring_ptr);
-> CPU B:  ...
-> CPU B:  mmiowb();
-> CPU B:  spin_unlock_irqrestore(&dev_lock, flags)
+> May I again ask what you think is wrong with ->protection[] apart from
+> it being turned off by default? (I don't think our previous conversation
+> ever reached a conclusion...)
 
-This is a great example and should be used instead of the qla1280 code
-snippet that you used. Please just point at the source file that contains
-the code and name the register usage this example represents.
-Ie make it easy to find the example in real code without using
-line numbers.
+the API is flawed, how can set it up by default? if somebody tweaks
+pages_min it get screwed.
 
-> I've tried to describe how mmiowb() differs from PCI posted 
-> write flushing in the patch to deviceiobook.tmpl.
+plus it's worthless to have pages_min/low/high and protection[] when you
+can combine the two things together. those pages_min/low/high and
+protection combined when protection itself is calculated in function of
+pages_min/low/high just creates confusion. I believe this comments
+explains it well enough:
 
-Yes - I think this is alot clearer than the previous documents - thanks!
+/*
+ * setup_per_zone_protection - called whenver min_free_kbytes or
+ *	sysctl_lower_zone_protection changes.  Ensures that each zone
+ *	has a correct pages_protected value, so an adequate number of
+ *	pages are left in the zone after a successful __alloc_pages().
+ *
+ *	This algorithm is way confusing.  I tries to keep the same
+	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ *	behavior
+ *	as we had with the incremental min iterative algorithm.
+ */
 
-...
-> +<programlisting>
-> +       sp->flags |= SRB_SENT;
-> +       ha->actthreads++;
-> +       WRT_REG_WORD(&amp;reg->mailbox4, ha->req_ring_index);
-> +
-> +       /*
-> +        * A Memory Mapped I/O Write Barrier is needed to ensure that this write
-> +        * of the request queue in register is ordered ahead of writes issued
-> +        * after this one by other CPUs.  Access to the register is protected
-> +        * by the host_lock.  Without the mmiowb, however, it is possible for
-> +        * this CPU to release the host lock, another CPU acquire the host lock,
-> +        * and write to the request queue in, and have the second write make it
-> +        * to the chip first.
-> +        */
-> +       mmiowb(); /* posted write ordering */
-> +</programlisting>
+I've to agree with the comment, if I've to start doing math on top of
+this algorithm, it's almost faster to replace it with the 2.4 one that
+has clear semantics.
 
-This is the example code I'd like to see replaced with your
-synthetic example above.
+Example of the runtime behavaiour of the very well understood
+lowmem_reserve from 2.4, it's easier to make an example than to explain
+it with words:
 
+	1G machine -> (16M dma, 800M-16M normal, 1G-800M high)
+	1G machine -> (16M dma, 784M normal, 224M high)
 
-thanks,
-grant
+sysctl defaults are:
+
+int sysctl_lower_zone_reserve_ratio[MAX_NR_ZONES-1] = { 256, 32 };
+
+the results will be:
+
+1) NORMAL allocation will leave 784M/256 of ram reserved in the ZONE_DMA
+
+2) HIGHMEM allocation will leave 224M/32 of ram reserved in ZONE_NORMAL
+
+3) HIGHMEM allocation will (224M+784M)/256 of ram reserved in ZONE_DMA
+
+I invented this algorithm to scale in all machines and to make the
+memory reservation not noticeable and only beneficial. With this API is
+trivial to tune and to understand what will happen, the default value
+looks good and they're proven by years of production in 2.4. Most
+important: it's only in function of the sizes of the zones, the
+pages_min levels have nothing to do with it.
+
+I'm still unsure if the 2.6 lower_zone_protection completely mimics the
+2.4 lowmem_zone_reserve algorithm if tuned by reversing the pages_min
+settings accordingly, but I believe it's easier to drop it and replace
+with a clear understandable API that as well drops the pages_min levels
+that have no reason to exists anymore, than to leave it in its current
+state and to start reversing pages_min algorithm to tune it from
+userspace (in the hope nobody could ever tweak pages_min calculation in
+the kernel, to avoid breaking the userspace that would require
+kernel-internal knowledge to have a chance to tune lowmem_protection
+from a rc.d script).

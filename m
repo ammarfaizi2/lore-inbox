@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVDFTaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262299AbVDFTcI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVDFTaB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 15:30:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVDFTaA
+	id S262299AbVDFTcI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 15:32:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVDFTcI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 15:30:00 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:26043 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262297AbVDFT36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 15:29:58 -0400
-Date: Wed, 6 Apr 2005 21:30:08 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: Renate Meijer <kleuske@xs4all.nl>, stable@kernel.org,
-       Greg KH <gregkh@suse.de>, jdike@karaya.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [08/08] uml: va_copy fix
-Message-ID: <20050406193008.GC17413@wohnheim.fh-wedel.de>
-References: <20050405164539.GA17299@kroah.com> <200504052053.20078.blaisorblade@yahoo.it> <7aa6252d5a294282396836b1a27783e8@xs4all.nl> <200504062109.51344.blaisorblade@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 6 Apr 2005 15:32:08 -0400
+Received: from 212-28-208-94.customer.telia.com ([212.28.208.94]:38665 "EHLO
+	www.dewire.com") by vger.kernel.org with ESMTP id S262299AbVDFTbr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 15:31:47 -0400
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: linux-kernel@vger.kernel.org
+Subject: Out of memory with Java 1.5 and 2.6.11.6
+Date: Wed, 6 Apr 2005 21:31:34 +0200
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200504062109.51344.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200504062131.36204.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 April 2005 21:09:50 +0200, Blaisorblade wrote:
->
-> I'm reattaching the patch, so that you can look at the changelog (I'm also 
-> resending it as a separate email so that it is reviewed and possibly merged). 
-> Basically this is an error in GCC 2 and not in GCC 3:
-> 
-> int [] list = {
->  [0] = 1,
->  [0] = 1
-> }
-> (I've not tested the above itself, but this should be a stripped down version 
-> of one of the bugs fixed in the patch).
-> 
-> That sort of code in the UML syscall table is not the safer one - in fact, 
-> apart this patch for the stable tree, I'm refactoring the UML syscall table 
-> completely (for 2.6.12 / 2.6.13).
-> 
-> Btw: I've not investigated which one of the two behaviours is the buggy one - 
-> if you know, maybe you or I can report it.
 
-Your code is at best redundant.  And I'd bet beer that it is not what
-its author intended to write.  So the bug is in GCC 3, imo.
+I see regular crashes with 2.6.11.6 (mandrake-patched) and Java 1.5.02 (01 too 
+btw, but not 1.4.2). Gentoo people report the same problem sugesting that it
+may have appeared between 2.6.11.4 and 2.6.11.5.
 
-Jörn
+If I start eclipse and then, outside of eclipse, starts a java 1.5 process 
+eclipse dies instantly. Not always, but usually when I stop watching.
 
--- 
-The cost of changing business rules is much more expensive for software
-than for a secretaty.
--- unknown
+Any clues?
+
+-- robin
+
+oh, here is an excerpt from /var/log/messages.
+
+Apr  5 22:05:20 xine kernel: oom-killer: gfp_mask=0xd0
+Apr  5 22:05:20 xine kernel: DMA per-cpu:
+Apr  5 22:05:20 xine kernel: cpu 0 hot: low 2, high 6, batch 1
+Apr  5 22:05:20 xine kernel: cpu 0 cold: low 0, high 2, batch 1
+Apr  5 22:05:20 xine kernel: Normal per-cpu:
+Apr  5 22:05:20 xine kernel: cpu 0 hot: low 32, high 96, batch 16
+Apr  5 22:05:20 xine kernel: cpu 0 cold: low 0, high 32, batch 16
+Apr  5 22:05:20 xine kernel: HighMem per-cpu: empty
+Apr  5 22:05:20 xine kernel:
+Apr  5 22:05:20 xine kernel: Free pages:        5684kB (0kB HighMem)
+Apr  5 22:05:20 xine kernel: Active:107335 inactive:5929 dirty:0 writeback:4 
+unstable:0 free:1421 slab:9726 mapped:113240 pagetables:1705
+Apr  5 22:05:20 xine kernel: DMA free:2068kB min:88kB low:108kB high:132kB 
+active:8392kB inactive:0kB present:16384kB pages_scanned:8802 
+all_unreclaimable? yes
+Apr  5 22:05:20 xine kernel: lowmem_reserve[]: 0 495 495
+Apr  5 22:05:21 xine kernel: Normal free:3616kB min:2800kB low:3500kB 
+high:4200kB active:420948kB inactive:23716kB present:507576kB pages_scanned:0 
+all_unreclaimable? no
+Apr  5 22:05:21 xine kernel: lowmem_reserve[]: 0 0 0
+Apr  5 22:05:21 xine kernel: HighMem free:0kB min:128kB low:160kB high:192kB 
+active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+Apr  5 22:05:21 xine kernel: lowmem_reserve[]: 0 0 0
+Apr  5 22:05:21 xine kernel: DMA: 1*4kB 0*8kB 1*16kB 0*32kB 2*64kB 1*128kB 
+1*256kB 1*512kB 1*1024kB 0*2048kB 0*4096kB = 2068kB
+Apr  5 22:05:21 xine kernel: Normal: 208*4kB 8*8kB 2*16kB 6*32kB 7*64kB 
+0*128kB 0*256kB 0*512kB 0*1024kB 1*2048kB 0*4096kB = 3616kB
+Apr  5 22:05:21 xine kernel: HighMem: empty
+Apr  5 22:05:21 xine kernel: Swap cache: add 1267612, delete 1246233, find 
+7825455/7951372, race 0+6
+Apr  5 22:05:21 xine kernel: Free swap  = 760276kB
+Apr  5 22:05:21 xine kernel: Total swap = 1060248kB
+Apr  5 22:05:21 xine kernel: Out of Memory: Killed process 23770 (java).

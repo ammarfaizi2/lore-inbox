@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287212AbSACMfV>; Thu, 3 Jan 2002 07:35:21 -0500
+	id <S287215AbSACMfV>; Thu, 3 Jan 2002 07:35:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287206AbSACMfM>; Thu, 3 Jan 2002 07:35:12 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:65036 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S287205AbSACMez>;
-	Thu, 3 Jan 2002 07:34:55 -0500
-Date: Thu, 3 Jan 2002 13:34:34 +0100
-From: Jens Axboe <axboe@suse.de>
-To: R.Oehler@GDImbH.com
-Cc: Scsi <linux-scsi@vger.kernel.org>, linux-kernel@vger.kernel.org,
-        Marcelo <marcelo@conectiva.com.br>
-Subject: Re: kernel 2.4.17 crashes on SCSI-errors
-Message-ID: <20020103133434.B6267@suse.de>
-In-Reply-To: <XFMail.20020103130541.R.Oehler@GDImbH.com> <20020103130941.B1027@suse.de>
+	id <S287212AbSACMfM>; Thu, 3 Jan 2002 07:35:12 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:2321 "HELO mail.pha.ha-vel.cz")
+	by vger.kernel.org with SMTP id <S287206AbSACMe4>;
+	Thu, 3 Jan 2002 07:34:56 -0500
+Date: Thu, 3 Jan 2002 13:34:54 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: esr@thyrsus.com, David Woodhouse <dwmw2@infradead.org>,
+        Dave Jones <davej@suse.de>, Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020103133454.A17280@suse.cz>
+In-Reply-To: <20020103040924.B6936@thyrsus.com> <E16M6lk-00087l-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020103130941.B1027@suse.de>
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16M6lk-00087l-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 03, 2002 at 12:14:47PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 03, 2002 at 12:14:47PM +0000, Alan Cox wrote:
 
-seeing an older post on linux-scsi, you might want to retry your test
-with the aic7xxx nseg bug fixed. this is against 2.4.17, haven't checked
-if it's applied in 2.4.18-pre1 -- if not, Marcelo please apply.
+> > You have my intentions backwards. What I'd like to be able to do is
+> > suppress ISA_SLOTS when there are detectably *no* ISA cards.  Unfortunately
+> > I have had it demonstrated that the DMI tables can give false negatives
+> > (false positives would not have been a showstopper).
+> 
+> Thats why I also suggested using lspci and looking for an ISA bridge.
+> If you have no PCI its probably ISA. If you have no PCI/ISA bridge its
+> very very unlikely to be ISA
 
---- drivers/scsi/aic7xxx/aic7xxx_linux.c~	Thu Jan  3 13:32:33 2002
-+++ drivers/scsi/aic7xxx/aic7xxx_linux.c	Thu Jan  3 13:33:00 2002
-@@ -1703,6 +1703,7 @@
- 			       cmd->request_buffer,
- 			       cmd->request_bufflen,
- 			       scsi_to_pci_dma_dir(cmd->sc_data_direction));
-+			scb->sg_count = 0;
- 			scb->sg_count = ahc_linux_map_seg(ahc, scb,
- 							  sg, addr,
- 							  cmd->request_bufflen);
+Uh, no. Almost all 486 PCI boards and early Pentium/K5/K6 boards have
+the PCI bus hanging of the VLB or other local bus, and on those ISA
+isn't behind an ISA bridge. These chipsets do have ISA but no ISA
+bridge.
 
+To name one example: VIA Apollo Master, vt82c570 chipset has only Host
+Bridge and IDE Controller visible on the PCI bus.
 
 -- 
-Jens Axboe
-
+Vojtech Pavlik
+SuSE Labs

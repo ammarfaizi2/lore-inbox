@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263564AbUAHDdI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 22:33:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbUAHDdI
+	id S263062AbUAHDoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 22:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUAHDoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 22:33:08 -0500
-Received: from users.ccur.com ([208.248.32.211]:8013 "HELO rudolph.ccur.com")
-	by vger.kernel.org with SMTP id S263564AbUAHDdF (ORCPT
+	Wed, 7 Jan 2004 22:44:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:55249 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263062AbUAHDoC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 22:33:05 -0500
-Date: Wed, 7 Jan 2004 22:32:24 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-ID: <20040108033224.GA13325@rudolph.ccur.com>
-Reply-To: Joe Korty <joe.korty@ccur.com>
-References: <20040107165607.GA11483@rudolph.ccur.com> <20040107170650.0fca07a7.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040107170650.0fca07a7.pj@sgi.com>
-User-Agent: Mutt/1.4i
+	Wed, 7 Jan 2004 22:44:02 -0500
+Date: Wed, 7 Jan 2004 19:43:50 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Greg KH <greg@kroah.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+In-Reply-To: <20040108043506.A1555@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
+References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com>
+ <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040108031357.A1396@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401071815320.12602@home.osdl.org> <20040108034906.A1409@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401071854500.2131@home.osdl.org> <20040108043506.A1555@pclin040.win.tue.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 05:06:50PM -0800, Paul Jackson wrote:
-> Joe proposed this change to the loop displaying masks:
-> -		len += snprintf(buf+len, buflen-len, "%s%x", sep, wordp[i]);
-> +		len += snprintf(buf+len, buflen-len, "%x%s", wordp[i], sep);
-> 
-> 
-> I doubt that your patch is correct, Joe.
-> 
-> Consider for example the case that exactly three words are displayed.
-> 
-> Before your patch, the code would output one hex word, then (after
-> looping around once) the "," separator and the second word, then on the
-> final loop another separator and word, resulting in something such as:
-> 
->     deadbeef,12345678,87654321
-> 
-> After your patch, it would output the first word, then the second word,
-> then a trailing separator, and then the third word and separator,
-> resulting in something such as:
-> 
->     deadbeef12345678,87654321,
 
-Sorry about the bit of conceptual dylexia on my part.
 
-Paul, there might be a problem with __mask_snprintf_len.  Won't a
-value that should be displayed as:
+On Thu, 8 Jan 2004, Andries Brouwer wrote:
+> 
+> I am even happy in a somewhat more general situation that you are.
+> If the kernel autopartitions (and make recognition of new partitions
+> hotplug events so that udev can create the device nodes), all is well.
 
-     d,00abcdef      be displayed as
-     d,abcdef
+Yes. We _could_ do that, by just making a "we noticed the disk change" be
+a hotplug event. However, I'm loath to do that, because some devices
+literally don't even have an easily read disk change signal, so what they
+do is
 
-Joe
+ - assume the disk _always_ changed on open
+ - do a quick IO to verify it
+
+and I'd be nervous about that kind of thing resulting in hotplug being 
+called constantly if somebody rude just has an endless loop of 
+"open()/close()".
+
+		Linus

@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261524AbSLAIEX>; Sun, 1 Dec 2002 03:04:23 -0500
+	id <S261530AbSLAILZ>; Sun, 1 Dec 2002 03:11:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261530AbSLAIEX>; Sun, 1 Dec 2002 03:04:23 -0500
-Received: from packet.digeo.com ([12.110.80.53]:13558 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261524AbSLAIEW>;
-	Sun, 1 Dec 2002 03:04:22 -0500
-Message-ID: <3DE9C43D.61FF79C5@digeo.com>
-Date: Sun, 01 Dec 2002 00:11:41 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S261544AbSLAILY>; Sun, 1 Dec 2002 03:11:24 -0500
+Received: from mithra.wirex.com ([65.102.14.2]:63501 "EHLO mail.wirex.com")
+	by vger.kernel.org with ESMTP id <S261530AbSLAILX>;
+	Sun, 1 Dec 2002 03:11:23 -0500
+Message-ID: <3DE9C5B2.4070404@wirex.com>
+Date: Sun, 01 Dec 2002 00:17:54 -0800
+From: Crispin Cowan <crispin@wirex.com>
+Organization: WireX Communications, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-       "ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: data corrupting bug in 2.4.20 ext3, data=journal
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Dec 2002 08:11:42.0307 (UTC) FILETIME=[481BCB30:01C29911]
+To: Greg KH <greg@kroah.com>
+Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] LSM fix for stupid "empty" functions
+References: <20021201083056.GJ679@kroah.com>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-md5;
+ protocol="application/pgp-signature";
+ boundary="------------enig14779EA52B3E854D27FF0E32"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig14779EA52B3E854D27FF0E32
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-In 2.4.20-pre5 an optimisation was made to the ext3 fsync function
-which can very easily cause file data corruption at unmount time.  This
-was first reported by Nick Piggin on November 29th (one day after 2.4.20 was
-released, and three months after the bug was merged.  Unfortunate timing)
+Greg KH wrote:
 
-This only affects filesystems which were mounted with the `data=journal'
-option.  Or files which are operating under `chattr -j'.  So most people
-are unaffected.  The problem is not present in 2.5 kernels.
+>I'm _really_ tired of all of the "empty" functions that all security
+>modules need to provide.  So here's a brute force patch that lets any
+>security module only set the functions that it wants to override.  If
+>the function is NULL, then the "dummy" function will be used instead.
+>
+Sounds good to me. So you're just creating a default null function, and 
+then stuffing all the stubs with a pointer to that function?
 
-The symptoms are that any file data which was written within the thirty
-seconds prior to the unmount may not make it to disk.   A workaround is
-to run `sync' before unmounting.
+>Comments welcome (if there are none, I'll send it on to Linus.)
+>
+I suggest holding that post to Linus until Tuesday am. Lots of people 
+are likely taking a long weekend away from software, and won't see your 
+post until Monday morning.
 
-The optimisation was intended to avoid writing out and waiting on the
-inode's buffers when the subsequent commit would do that anyway. This
-optimisation was applied to both data=journal and data=ordered modes.
-But it is only valid for data=ordered mode.
+Thanks,
+    Crispin
 
-In data=journal mode the data is left dirty in memory and the unmount
-will silently discard it.
-
-The fix is to only apply the optimisation to inodes which are operating
-under data=ordered.
-
+-- 
+Crispin Cowan, Ph.D.
+Chief Scientist, WireX                      http://wirex.com/~crispin/
+Security Hardened Linux Distribution:       http://immunix.org
+Available for purchase: http://wirex.com/Products/Immunix/purchase.html
+			    Just say ".Nyet"
 
 
---- linux-akpm/fs/ext3/fsync.c~ext3-fsync-fix	Sat Nov 30 23:37:33 2002
-+++ linux-akpm-akpm/fs/ext3/fsync.c	Sat Nov 30 23:39:30 2002
-@@ -63,10 +63,12 @@ int ext3_sync_file(struct file * file, s
- 	 */
- 	ret = fsync_inode_buffers(inode);
- 
--	/* In writeback mode, we need to force out data buffers too.  In
--	 * the other modes, ext3_force_commit takes care of forcing out
--	 * just the right data blocks. */
--	if (test_opt(inode->i_sb, DATA_FLAGS) == EXT3_MOUNT_WRITEBACK_DATA)
-+	/*
-+	 * If the inode is under ordered-data writeback it is not necessary to
-+	 * sync its data buffers here - commit will do that, with potentially
-+	 * better IO merging
-+	 */
-+	if (!ext3_should_order_data(inode))
- 		ret |= fsync_inode_data_buffers(inode);
- 
- 	ext3_force_commit(inode->i_sb);
+--------------enig14779EA52B3E854D27FF0E32
+Content-Type: application/pgp-signature
 
-_
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE96cW+5ZkfjX2CNDARAQKEAJ0ZGqxFpQIFgq1RiU/llsFATivCZQCgkTyW
+S8KdUL/yXFMrWcBy2u72ePI=
+=GFZj
+-----END PGP SIGNATURE-----
+
+--------------enig14779EA52B3E854D27FF0E32--
+

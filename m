@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVBUT2h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVBUT2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVBUT2h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 14:28:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbVBUT0r
+	id S262076AbVBUT2m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 14:28:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVBUT1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 14:26:47 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13802 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262075AbVBUSvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 13:51:47 -0500
-Message-ID: <421A2D8F.3050704@pobox.com>
-Date: Mon, 21 Feb 2005 13:50:55 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-CC: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: 2.6.11rc4: irq 5, nobody cared
-References: <20050220155600.GD5049@vanheusden.com> <4218C692.9040106@tiscali.de> <20050220180550.GA18606@ime.usp.br> <200502211943.59887.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200502211943.59887.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Mon, 21 Feb 2005 14:27:10 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:49162 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262080AbVBUTRc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 14:17:32 -0500
+Date: Mon, 21 Feb 2005 20:17:30 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "Adam 'dredzik' Kuczynski" <dredzik@ekg2.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Maarten Deprez <maartendeprez@users.sourceforge.net>
+Subject: Re: GL520SM Sensor Chip driver fix
+Message-Id: <20050221201730.5f880556.khali@linux-fr.org>
+In-Reply-To: <20050220150604.GA658@lotus.ma.gda.pl>
+References: <20050220150604.GA658@lotus.ma.gda.pl>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On Sunday 20 February 2005 19:05, Rogério Brito wrote:
+Hi Adam,
+
+> I've been recently trying to get my lmsensors working under
+> 2.6.9, and i've found this:
 > 
->>On Feb 20 2005, Matthias-Christian Ott wrote:
->>
->>>Rogério Brito wrote:
->>>
->>>>I am willing to test any patch and configuration (let's call me a
->>>>"guinea pig"), but I don't know what I should do. I have, OTOH,
->>>>reported my problem many times in the past few days. :-(
->>>>
->>>>I will retry sending my message to the list once again, with the
->>>>details (in my case, the message I get is "irq 10: nobody cared!"
->>>>and it is regarding my primary HD on my secondary Promise PDC20265
->>>>controller).
->>
->>First of all, Matthias-Christian, thank you very much for your kind
->>answer.
->>
->>I have already tried contacting the linux-ide mailing list as a CC to my
->>earlier messages, but I got no response. I am including some details in
->>this e-mail. I included Bartlomiej in the CC, as he is listed as general
->>IDE maintainer in the MAINTAINERS file.
+> http://seclists.org/lists/linux-kernel/2005/Feb/2856.html
+> http://lkml.org/lkml/2005/2/11/90
 > 
-> 
-> Hi,
-> 
-> There is no need to cc: me 3x times,
-> I'm subscribed to linux-kernel and linux-ide
-> so I got your mail 5x times...
+> kernel patch for gl520 chip, but after applying it kernel refused to
+> compile. So I've fixed it using gl518sm module source code and I want
+> to share the results of my work with you. I hope that it will be
+> useful.
+> (...)
+> +static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
+> +static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
 
-You should add this to your procmailrc :)
+Ranges were taken apart in 2.6.10-rc2, and Maarten's patch was meant for
+linux-2.6.11-rc3-mm2, so it comes to no surprise that you had to
+reintroduce them when backporting to 2.6.9.
 
-# Nuke duplicate messages
-:0 Wh: msgid.lock
-| $FORMAIL -D 32768 msgid.cache
+>  static int gl520_attach_adapter(struct i2c_adapter *adapter)
+>  {
+> - if (!(adapter->clRD_DATA))
+> - goto exit;
+> + if (!(adapter->class & I2C_CLASS_HWMON))
+> + return 0;
+> + return i2c_detect(adapter, &addr_data, gl520_detect);
+> +}
+>  
+> +static int gl520_detect(struct i2c_adapter *adapter, int address, int kind)
+> +{
+> + struct i2c_client *new_client;
+> + struct gl520_data *data;
+> + int err = 0;
+> + 
+> + if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+> + I2C_FUNC_SMBUS_WORD_DATA))
+> + goto exit;
+> +							     
 
-	Jeff
+I suspect that a problem happened when you retrieved the original patch
+and it somehow got corrupted, because everything you restore here is
+already correct in Maarten's patch.
 
+As a summary, Maarten's patch was just fine and doesn't need any update.
 
-
+Thanks,
+-- 
+Jean Delvare

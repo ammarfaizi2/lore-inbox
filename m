@@ -1,39 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbUKQRmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbUKQRjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262411AbUKQRmO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 12:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbUKQRmI
+	id S261714AbUKQRjf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 12:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbUKQReR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:42:08 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:37844 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262443AbUKQRkS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:40:18 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 17 Nov 2004 18:25:19 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: jelle@foks.8m.com, lkml <linux-kernel@vger.kernel.org>,
-       akpm <akpm@osdl.org>
-Subject: Re: [PATCH] cx88: fix printk arg. type
-Message-ID: <20041117172519.GB8176@bytesex>
-References: <419A89A3.90903@osdl.org>
+	Wed, 17 Nov 2004 12:34:17 -0500
+Received: from bender.bawue.de ([193.7.176.20]:12170 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S262424AbUKQRcM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 12:32:12 -0500
+Date: Wed, 17 Nov 2004 18:31:18 +0100
+From: Joerg Sommrey <jo@sommrey.de>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: local-/io-apic nmi watchdog failing on S2466
+Message-ID: <20041117173118.GA5211@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <419A89A3.90903@osdl.org>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -		dprintk(0, "ERROR: Firmware size mismatch (have %ld, expected %d)\n",
-> +		dprintk(0, "ERROR: Firmware size mismatch (have %Zd, expected %d)\n",
+Hello,
 
-Thanks, merged to cvs.  I like that 'Z'.  Or is that just a linux-kernel
-printk specific thingy?  Or is this standardized somewhere?  So I could
-use that in userspace code as well maybe?
+I'm still having problems with nmi watchdog on my S2466 board.  I tried lots
+of different configurations with a large number of 2.6 kernels (vanilla,
+-mm, -ac) all with the same result: no working nmi watchdog, neither with
+local- nor with io-apic. I still wonder if anybody out there has ever
+succeeded with a working nmi watchdog on Tyan Tiger MPX.
 
-  Gerd
+The symptoms are:
+
+nmi_watchdog=1:
+===============
+dmesg:
+	testing NMI watchdog ... CPU#0: NMI appears to be stuck!
+/proc/interrupts:
+	no NMI count
+
+nmi_watchdog=2:
+===============
+dmesg:
+	testing NMI watchdog ... OK.
+/proc/interupts:
+	NMI count increments
+recovery from lockup:
+	none
+
+nmi_watchdog=2 clock=pit:
+=========================
+dmesg:
+	testing NMI watchdog ... CPU#0: NMI appears to be stuck!
+/proc/interrupts:
+	NMI count increments, but rate is ~ 1/20s
+recovery from lockup:
+	none
+
+The lockup-test is done with a little program that Ingo posted on this
+list:
+
+int
+main(void) {
+        iopl(3);
+        while (1)
+                asm("cli");
+        return 0;
+}
+
+The only reaction I can see from this test: after some seconds (5+) the LEDs
+on the keyboard start blinking when nmi_watchdog=2 and clock!=pit.
+Always need to hit the reset button :-(
+
+What else could I try?  Are there any BIOS-settings relevant to a
+working nmi-watchdog? What information is needed to track down this
+problem?
+
+Maybe it's the board's failure, but as there *are* counted NMIs I still
+hope there is a software solution to this problem.
+
+Thanks,
+-jo
 
 -- 
-#define printk(args...) fprintf(stderr, ## args)
+-rw-r--r--  1 jo users 63 2004-11-17 17:45 /home/jo/.signature

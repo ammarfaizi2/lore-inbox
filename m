@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263090AbSJBOiS>; Wed, 2 Oct 2002 10:38:18 -0400
+	id <S263164AbSJBO4C>; Wed, 2 Oct 2002 10:56:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263101AbSJBOiS>; Wed, 2 Oct 2002 10:38:18 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:62199 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263090AbSJBOiR>;
-	Wed, 2 Oct 2002 10:38:17 -0400
-Subject: [Trivial 2.5 patch] ips.c remove tqueue.h
-From: Paul Larson <plars@linuxtestproject.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S263165AbSJBO4C>; Wed, 2 Oct 2002 10:56:02 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:24494 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263164AbSJBO4B>; Wed, 2 Oct 2002 10:56:01 -0400
+Date: Wed, 02 Oct 2002 07:59:44 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] dump_stack() cleanup, BK-curr
+Message-ID: <934212386.1033545583@[10.10.2.3]>
+In-Reply-To: <Pine.LNX.4.44.0210021112020.6201-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0210021112020.6201-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 02 Oct 2002 09:39:45 -0500
-Message-Id: <1033569586.28106.3.camel@plars>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The ips.c driver wasn't compiling and broke my nightly run last night. 
-It doesn't look like they were even using task queues though, so
-removing the include fixed it.  Tested that it compiles and boots with
-this.
+>  void dump_stack(void)
+>  {
+> -	show_stack(0);
+> +	unsigned long stack;
+> +
+> +	show_trace(&stack);
+>  }
 
-Please apply.
+Doesn't this mean that dump_stack no longer dumps the stack?
+(seems somewhat counter-intuitive)
 
--Paul Larson
+Can't code which only wants a trace just call show_trace instead?
 
---- linux-2.5/drivers/scsi/ips.c	Thu Aug 22 12:02:43 2002
-+++ linux-ipswq/drivers/scsi/ips.c	Wed Oct  2 10:00:50 2002
-@@ -164,7 +164,6 @@
- #include <linux/pci.h>
- #include <linux/proc_fs.h>
- #include <linux/reboot.h>
--#include <linux/tqueue.h>
- #include <linux/interrupt.h>
- 
- #include <linux/blk.h>
-
-
+M.
 

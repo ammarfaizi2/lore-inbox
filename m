@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVAFVc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262997AbVAFV01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbVAFVc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 16:32:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVAFV1N
+	id S262997AbVAFV01 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 16:26:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263033AbVAFVY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 16:27:13 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:15497 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263036AbVAFVZI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 16:25:08 -0500
-Date: Thu, 6 Jan 2005 13:24:24 -0800
-From: Greg KH <greg@kroah.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
-       linux-usb-devel@lists.sourceforge.net, mst@mellanox.co.il,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: [PATCH] macros to detect existance of unlocked_ioctl and ioctl_compat
-Message-ID: <20050106212424.GA6465@kroah.com>
-References: <20050106145356.GA18725@infradead.org> <20050106163559.GG5772@vana.vc.cvut.cz> <20050106165715.GH1830@wotan.suse.de> <20050106172613.GI5772@vana.vc.cvut.cz> <20050106175342.GA28889@wotan.suse.de> <20050106193520.GA5481@kroah.com> <20050106195144.GE28889@wotan.suse.de> <20050106115959.45d793e1.davem@davemloft.net> <20050106204431.GH28889@wotan.suse.de> <20050106210921.GK5772@vana.vc.cvut.cz>
+	Thu, 6 Jan 2005 16:24:26 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28860 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263028AbVAFVWi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 16:22:38 -0500
+Subject: Re: [2.6.10-bk7] Oops: ide_dma_timeout_retry
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Simon Kirby <sim@netnation.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050106192357.GA1760@netnation.com>
+References: <20050105233359.GA2327@netnation.com>
+	 <1105023683.24896.213.camel@localhost.localdomain>
+	 <20050106192357.GA1760@netnation.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105040975.17176.245.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106210921.GK5772@vana.vc.cvut.cz>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 06 Jan 2005 20:18:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 10:09:21PM +0100, Petr Vandrovec wrote:
-> On Thu, Jan 06, 2005 at 09:44:31PM +0100, Andi Kleen wrote:
-> > On Thu, Jan 06, 2005 at 11:59:59AM -0800, David S. Miller wrote:
-> > > On Thu, 6 Jan 2005 20:51:44 +0100
-> > > Andi Kleen <ak@suse.de> wrote:
-> > > 
-> > > > DaveM can probably give you more details since he tried unsucessfully
-> > > > to make it work. I think the problem is that there is no enough
-> > > > information for the compat layer to convert everything.
-> > > 
-> > > When the usbfs async stuff writes back the status, we are no
-> > > longer within the original syscall/ioctl execution any more,
-> > > therefore we don't know if we're doing this for a compat task
-> > > or not.
+On Iau, 2005-01-06 at 19:23, Simon Kirby wrote:
+> On Thu, Jan 06, 2005 at 04:30:14PM +0000, Alan Cox wrote:
+> I can't seem to find a post with the SGI fixes, and I don't see anything
+> from a quick skim of the bk8 and bk9 logs (problem reproduced in bk7). 
+> Could you point me to the relevant thread?
 
-Ick, yeah, now I remember...
+Don't think it got discussed on l/k. Dunno if its in the 2.6.10bk code
+yet either
 
-> P.S.:  When designing new API, please do not make it unnecessary complicated.
-> USB video needs rather large bandwidth and low latency, so please no ASCII
-> strings, and scatter-gather aware API helps a bit...
+        rq->errors = 0;
+                                                                                
+        if (!rq->bio)
+                goto out;
+                                                                                
+        rq->sector = rq->bio->bi_sector;
+        rq->current_nr_sectors = bio_iovec(rq->bio)->bv_len >> 9;
+        rq->hard_cur_sectors = rq->current_nr_sectors;
+        rq->buffer = bio_data(rq->bio);
+out:
+        return ret;
 
-In measurements published on linux-usb-devel, pure userspace calls using
-the current usbfs code generated almost full bandwidth usage (within the
-hardware limits).  So adding the scatter-gather api interface to usbfs
-wouldn't really provide that much benefit.
 
-And, we can always use help in designing such an API, if you could find
-someone at your company to help us out in doing so... :)
+Is how the code should look at the end of ide_dma_timeout_retry (plus
+your rq == NULL check I imagine)
 
-thanks,
-
-greg k-h

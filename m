@@ -1,61 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267697AbTBUUpc>; Fri, 21 Feb 2003 15:45:32 -0500
+	id <S267689AbTBUUn3>; Fri, 21 Feb 2003 15:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267699AbTBUUpc>; Fri, 21 Feb 2003 15:45:32 -0500
-Received: from packet.digeo.com ([12.110.80.53]:45549 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267697AbTBUUpb>;
-	Fri, 21 Feb 2003 15:45:31 -0500
-Date: Fri, 21 Feb 2003 12:52:59 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: andrea@suse.de, m.c.p@wolk-project.de, t.baetzler@bringe.com,
-       linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
-Subject: Re: xdr nfs highmem deadlock fix [Re: filesystem access slowing
- system to a crawl]
-Message-Id: <20030221125259.5d22a42f.akpm@digeo.com>
-In-Reply-To: <shs1y22zhm9.fsf@charged.uio.no>
-References: <A1FE021ABD24D411BE2D0050DA450B925EEA6C@MERKUR>
-	<200302191742.02275.m.c.p@wolk-project.de>
-	<20030219174940.GJ14633@x30.suse.de>
-	<200302201629.51374.m.c.p@wolk-project.de>
-	<20030220103543.7c2d250c.akpm@digeo.com>
-	<20030220215457.GV31480@x30.school.suse.de>
-	<shs1y22zhm9.fsf@charged.uio.no>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267690AbTBUUn3>; Fri, 21 Feb 2003 15:43:29 -0500
+Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:51985 "HELO
+	babylon.d2dc.net") by vger.kernel.org with SMTP id <S267689AbTBUUn2>;
+	Fri, 21 Feb 2003 15:43:28 -0500
+Date: Fri, 21 Feb 2003 15:53:33 -0500
+From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
+To: John Bradford <john@grabjohn.com>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
+Message-ID: <20030221205333.GA1684@babylon.d2dc.net>
+Mail-Followup-To: John Bradford <john@grabjohn.com>,
+	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+References: <200302212013.h1LKD6Cu014437@turing-police.cc.vt.edu> <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Feb 2003 20:55:30.0098 (UTC) FILETIME=[91794120:01C2D9EB]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
+Content-Disposition: inline
+In-Reply-To: <200302212040.h1LKejY3001679@81-2-122-30.bradfords.org.uk>
+X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
+X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
+X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
+X-Notice-4: policy and agree to the fee.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->
-> >>>>> " " == Andrea Arcangeli <andrea@suse.de> writes:
-> 
->      > 2.5.62 has the very same deadlock condition in xdr triggered by
->      >        nfs too.
->      > Andrew, if you're forward porting it yourself like with the
->      > filebacked vma merging feature just let me know so we make sure
->      > not to duplicate effort.
-> 
-> For 2.5.x we should rather fix MSG_MORE so that it actually works
-> instead of messing with hacks to kmap().
 
-Is the fixing of MSG_MORE likely to actually happen?
+--W/nzBZO5zC0uMSeA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> For 2.4.x, Hirokazu Takahashi had a patch which allowed for a safe
-> kmap of > 1 page in one call. Appended here as an attachment FYI
-> (Marcelo do *not* apply!).
+</lurk>
 
-Andrea's patch is quite simple.  Although I wonder if this, in
-xdr_kmap():
+On Fri, Feb 21, 2003 at 08:40:45PM +0000, John Bradford wrote:
+> > RFC3168 section 6.1.1.1 says this:
+> >=20
+> >    A host that receives no reply to an ECN-setup SYN within the normal
+> >    SYN retransmission timeout interval MAY resend the SYN and any
+> >    subsequent SYN retransmissions with CWR and ECE cleared.  To overcome
+> >    normal packet loss that results in the original SYN being lost, the
+> >    originating host may retransmit one or more ECN-setup SYN packets
+> >    before giving up and retransmitting the SYN with the CWR and ECE bits
+> >    cleared.
+> >=20
+> > Supporting this would make using ECN a lot less painful - currently, if
+> > I want to use ECN by default, I get to turn it off anytime I find an
+> > ECN-hostile site that I'd like to communicate with.
+>=20
+> Linux shouldn't encourage the use of equipment that violates RFCs, in
+> this case, RFC 739.
 
-+		} else {
-+			iov->iov_base = kmap_nonblock(*ppage);
-+			if (!iov->iov_base)
-+				goto out;
-+		}
+Linux shouldn't encourage the use of equipment that attempts to emulate
+<insert thing here> but screws it up.
+>=20
+> The correct way to deal with it, is to contact the maintainers of the
+> site, and ask them to fix the non conforming equipment.
 
-should be skipping the map_tail thing?
+The correct way to deal with it, is to contact the manufactures of the
+equipment.
+>=20
+> If the problem is caused upstream, by equipment out of the
+> site's maintainers' control, it is their responsibility to contact the
+> relevant maintainers, or change their upstream provider.
+
+If the hardware is provided by people upstream, and is out of the
+control of the sysadmin's control, it is their responsibility to contact
+the relevant people, or change hardware providers.
+
+Oh, look, does that mean that we can now remove all the work arounds in
+the various network, ide, etc drivers?
+
+No, I believe Linus has stated many times that Linux is not a research
+project, it is meant to actually be USED.
+
+<lurk>
+
+--=20
+	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
+	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
+	    CCs of replies from mailing lists are requested.
+
+I am an "expert".  Fear me, for I will wreak untold damage upon anything
+I can get my grubby hands on.
+  -- Matt McLeod on ASR.
+
+--W/nzBZO5zC0uMSeA
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+VpHNRFMAi+ZaeAERAnlqAKCr8Dwv79cn6yZ4W5C2/RRap+wfYQCeNwTp
+D66ZhoeOAhZBsoepbJuRbRE=
+=fAcM
+-----END PGP SIGNATURE-----
+
+--W/nzBZO5zC0uMSeA--

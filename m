@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261482AbRE3Q1L>; Wed, 30 May 2001 12:27:11 -0400
+	id <S261487AbRE3Qfm>; Wed, 30 May 2001 12:35:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261487AbRE3Q1C>; Wed, 30 May 2001 12:27:02 -0400
-Received: from unityhill.com ([207.106.123.146]:52608 "EHLO mail.newearth.org")
-	by vger.kernel.org with ESMTP id <S261482AbRE3Q0y>;
-	Wed, 30 May 2001 12:26:54 -0400
-Date: Wed, 30 May 2001 12:26:51 -0400 (EDT)
-From: Michael David <michael@newearth.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5 panic while starting aic7xxx 
-In-Reply-To: <200105301519.f4UFJ2U53164@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.4.32.0105301225570.2618-100000@sapphire.newearth.org>
+	id <S261502AbRE3Qfd>; Wed, 30 May 2001 12:35:33 -0400
+Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.112]:40746 "HELO
+	email03.aon.at") by vger.kernel.org with SMTP id <S261487AbRE3QfS>;
+	Wed, 30 May 2001 12:35:18 -0400
+Message-ID: <3B152146.82299CA2@violin.dyndns.org>
+Date: Wed, 30 May 2001 18:35:18 +0200
+From: Hermann Himmelbauer <dusty@violin.dyndns.org>
+Reply-To: dusty@strike.wu-wien.ac.at
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jt@hpl.hp.com
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tori@unhappy.mine.nu,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net #9
+In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <20010529180420.A14639@bougret.hpl.hp.com> <3B14493E.63F861E7@mandrakesoft.com> <20010529182506.A14727@bougret.hpl.hp.com> <3B145127.5B173DFF@mandrakesoft.com> <20010529190152.A14806@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The "rebuild firmware" option was the right answer in this
-case. It is now working.
+Jean Tourrilhes wrote:
+> > This is ANSI C standard stuff.  If a static object with a scalar type is
+> > not explicitly initialized, it is initialized to zero by default.
+> >
+> > Sure we can get gcc to recognize that case, but why use gcc to work
+> > around code that avoids an ANSI feature?
+> 
+>         Good standard don't mandate the implementation. And as
+> somebody doing some other language said, there is more than one way to
+> do it.
 
-> Date: Wed, 30 May 2001 09:19:02 -0600
-> From: Justin T. Gibbs <gibbs@scsiguy.com>
-> To: Michael David <michael@newearth.org>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 2.4.5 panic while starting aic7xxx
->
-> >SCSI subsystem driver Revision: 1.00
-> >PCI: Found IRQ 11 for device 00:0c.0
-> >scsi0: Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.1.13
-> >        <Adaptec 2940 Ultra2 SCSI adapter>
-> >        aic7890/91: Ultra2 Wide Channel A, SCSI Id=7, 32/255 SCBs
-> >ahc_intr: AWAITING_MSG for an SCB that does not have a waiting message
-> >SCSIID = 7, target_mask = 1
-> >Kernel panic: SCB = 3, SCB Control = 40, MSG_OUT = 80 SCB flags = 6000
-> >In interrupt handler - not syncing
->
-> This looks like the firmware file is not in sync with the rest
-> of the driver.  Depending on the host environment, you may be
-> able to rebuild the firmware yourself.  Just check the box in
-> the kernel config section for the aic7xxx driver to rebuild
-> the firmware.
+Hmmm, I understand both sides perfectly, but what about that one:
+
+int n; /* n=0 */
+
+Would that be a compromise?
+
+		Regards,
+		Hermann
+
 
 -- 
-Michael V. David, AAO (Acronym Assignment Officer), NewEarth Swedenborg BBS
-michael@newearth.org - http://www.newearth.org/~michael - Penguin 2.4.3-XFS
-"Never apply a Star Trek solution to a Babylon 5 problem" -- Nicholas C. Weaver
-
+ ,_,
+(O,O)     "There is more to life than increasing its speed."
+(   )     -- Gandhi
+-"-"--------------------------------------------------------------

@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVCYVUD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVCYVXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbVCYVUD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 16:20:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVCYVUD
+	id S261809AbVCYVXB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 16:23:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVCYVXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 16:20:03 -0500
-Received: from mail.dif.dk ([193.138.115.101]:10419 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261807AbVCYVTz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 16:19:55 -0500
-Date: Fri, 25 Mar 2005 22:21:51 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove not needed checks for NULL before calling kfree()
- for fs/befs/
-Message-ID: <Pine.LNX.4.62.0503252219200.2498@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 25 Mar 2005 16:23:01 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:8715 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261809AbVCYVWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 16:22:51 -0500
+Date: Fri, 25 Mar 2005 21:22:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org, davem@davemloft.net,
+       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] freepgt: free_pgtables shakeup
+Message-ID: <20050325212234.F12715@flint.arm.linux.org.uk>
+Mail-Followup-To: Hugh Dickins <hugh@veritas.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, akpm@osdl.org,
+	davem@davemloft.net, tony.luck@intel.com, benh@kernel.crashing.org,
+	ak@suse.de, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>; from hugh@veritas.com on Wed, Mar 23, 2005 at 05:10:15PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 23, 2005 at 05:10:15PM +0000, Hugh Dickins wrote:
+> Here's the recut of those patches, including David Miller's vital fixes.
+> I'm addressing these to Nick rather than Andrew, because they're perhaps
+> not fit for -mm until more testing done and the x86_64 32-bit vdso issue
+> handled.  I'm unlikely to be responsive until next week, sorry: over to
+> you, Nick - thanks.
 
-There's no problem in passing kfree() a NULL pointer. Checking first is 
-not needed.
+I thought I'd try these out on ARM, but alas they don't apply to
+2.6.12-rc1. ;(  This means I won't be testing them, sorry.
 
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.12-rc1-mm3-orig/fs/befs/linuxvfs.c	2005-03-02 08:38:07.000000000 +0100
-+++ linux-2.6.12-rc1-mm3/fs/befs/linuxvfs.c	2005-03-25 21:36:53.000000000 +0100
-@@ -731,20 +731,16 @@ parse_options(char *options, befs_mount_
- static void
- befs_put_super(struct super_block *sb)
- {
--	if (BEFS_SB(sb)->mount_opts.iocharset) {
--		kfree(BEFS_SB(sb)->mount_opts.iocharset);
--		BEFS_SB(sb)->mount_opts.iocharset = NULL;
--	}
-+	kfree(BEFS_SB(sb)->mount_opts.iocharset);
-+	BEFS_SB(sb)->mount_opts.iocharset = NULL;
- 
- 	if (BEFS_SB(sb)->nls) {
- 		unload_nls(BEFS_SB(sb)->nls);
- 		BEFS_SB(sb)->nls = NULL;
- 	}
- 
--	if (sb->s_fs_info) {
--		kfree(sb->s_fs_info);
--		sb->s_fs_info = NULL;
--	}
-+	kfree(sb->s_fs_info);
-+	sb->s_fs_info = NULL;
- 	return;
- }
- 
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

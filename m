@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVBQOjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVBQOj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVBQOjr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 09:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVBQOjr
+	id S262187AbVBQOj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 09:39:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVBQOj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 09:39:47 -0500
-Received: from fsmlabs.com ([168.103.115.128]:60344 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S262193AbVBQOjn (ORCPT
+	Thu, 17 Feb 2005 09:39:59 -0500
+Received: from fsmlabs.com ([168.103.115.128]:61624 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262187AbVBQOjy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 09:39:43 -0500
-Date: Thu, 17 Feb 2005 07:40:41 -0700 (MST)
+	Thu, 17 Feb 2005 09:39:54 -0500
+Date: Thu, 17 Feb 2005 07:40:48 -0700 (MST)
 From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Joshua Kwan <joshk@triplehelix.org>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, hostap@shmoo.com
-Subject: Re: 2.6.10: irq 12 nobody cared!
-In-Reply-To: <4214450B.6090006@triplehelix.org>
-Message-ID: <Pine.LNX.4.61.0502170713110.26742@montezuma.fsmlabs.com>
-References: <4214450B.6090006@triplehelix.org>
+To: Davide Rossetti <davide.rossetti@roma1.infn.it>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: rmmod while module is in use
+In-Reply-To: <4214926B.3030707@roma1.infn.it>
+Message-ID: <Pine.LNX.4.61.0502170739530.26742@montezuma.fsmlabs.com>
+References: <4214926B.3030707@roma1.infn.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Feb 2005, Joshua Kwan wrote:
+On Thu, 17 Feb 2005, Davide Rossetti wrote:
 
->            CPU0
->   0:    1073809          XT-PIC  timer
->   1:       1291          XT-PIC  i8042
->   2:          0          XT-PIC  cascade
->   4:          7          XT-PIC  serial
->   5:       4366          XT-PIC  eth0
->   7:         12          XT-PIC  parport0
->   8:          1          XT-PIC  rtc
->  10:       7698          XT-PIC  uhci_hcd, uhci_hcd, eth1
->  11:      58320          XT-PIC  ide2, ide3
->  12:     306731          XT-PIC  wifi0
->  14:      24446          XT-PIC  ide0
->  15:         13          XT-PIC  ide1
-> NMI:          0
-> ERR:          0
+> maybe RTFM...
+> a module:
+> - char device driver for..
+> - a PCI device
 > 
-> that IRQ 12 is a wireless device:
+> any clue as to how to protect from module unloading while there is still some
+> process opening it??? have I to sleep in the remove_one() pci driver function
+> till last process closes its file descriptor???
 > 
-> 0000:00:09.0 Network controller: Intersil Corporation Prism 2.5 Wavelan
-> chipset (rev 01)
+> static void __devexit apedev_remove_one(struct pci_dev *pdev)
+> {
+>    ApeDev* apedev = pci_get_drvdata(pdev);
 > 
-> that gets handled by HostAP. The device is operating correctly.
+>    if(test_bit(APEDEV_FLAG_OPEN, &apedev->flags)) {
+>        PERROR("still open flag on!!! (flags=0x%08x)\n", apedev->flags);
 > 
-> What's to blame here?
+>        // sleep here till it gets closed...
+> 
+>    }
+>    ...
+> }
+> 
+> static struct pci_driver apedev_driver = {
+>    .name     =  DEVNAME,
+>    .id_table =  apedev_pci_tbl,
+>    .probe    =  apedev_init_one,
+>    .remove   =  __devexit_p(apedev_remove_one),
+> };
 
-Check that the hostap interrupt handler is 2.6 aware (IRQ_HANDLED etc)
+Add .module = THIS_MODULE to your file_operations.
+

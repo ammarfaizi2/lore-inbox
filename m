@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266514AbTAPCmO>; Wed, 15 Jan 2003 21:42:14 -0500
+	id <S266809AbTAPCqO>; Wed, 15 Jan 2003 21:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266771AbTAPCmO>; Wed, 15 Jan 2003 21:42:14 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:29396 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id <S266514AbTAPCmN>; Wed, 15 Jan 2003 21:42:13 -0500
-Date: Thu, 16 Jan 2003 15:50:49 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Valdis.Kletnieks@vt.edu
-cc: Mikael Pettersson <mikpe@csd.uu.se>, voytech@ucw.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: Dell Latitude CPi keyboard problems since 2.5.42 
-Message-ID: <3660000.1042685449@localhost.localdomain>
-In-Reply-To: <200301151921.h0FJLvV0009887@turing-police.cc.vt.edu>
-References: <15909.13901.284523.220804@harpo.it.uu.se>           
- <481480000.1042627438@localhost.localdomain>
- <200301151921.h0FJLvV0009887@turing-police.cc.vt.edu>
-X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266952AbTAPCqO>; Wed, 15 Jan 2003 21:46:14 -0500
+Received: from almesberger.net ([63.105.73.239]:3090 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id <S266809AbTAPCqN>; Wed, 15 Jan 2003 21:46:13 -0500
+Date: Wed, 15 Jan 2003 23:55:01 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       adam@yggdrasil.com
+Subject: Re: [PATCH] Proposed module init race fix.
+Message-ID: <20030115235501.B1589@almesberger.net>
+References: <D4E37953801@vcnet.vc.cvut.cz> <20030116015535.355A22C133@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030116015535.355A22C133@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Jan 16, 2003 at 12:48:57PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The i8k will power off with APM but not ACPI, but it won't reboot with 
-either.
+Rusty Russell wrote:
+> And see remove_proc_entry, or notifier_chain_unregister for
+> counterexamples.  No doubt there are others.
 
-I'm using grub, so it may hit the problem before outputting anything where 
-lilo may not.
+Perhaps some convenient include file should contain something like
+this:
 
-Andrew
+#ifdef CONFIG_DEBUG_KERNEL
+#define whistleblower() \
+  printk(KERN_ERR "this interface may call back after deregistration\n");
+#else
+#define whistleblower() /* no failure is silent in Oopsland */
+#endif
 
---On Wednesday, January 15, 2003 14:21:57 -0500 Valdis.Kletnieks@vt.edu 
-wrote:
+? ;-)
 
-> On Wed, 15 Jan 2003 23:43:58 +1300, Andrew McGregor said:
->> Possibly related:
->>
->> Dell Inspiron 8000s won't warm reboot either.  They just freeze with a
->> blinking cursor at the point where the bootloader would ordinarily load.
->> Have to power off or reset.
->>
->> Consistent in various versions from 2.5.44 to .55.  Have not tested
->> earlier, nor yet later.
->
-> Dell Latitude C840s will power off.  Oddly enough, it doesn't do it when
-> LILO itself loads - it does it when LILO starts loading the actual kernel
-> image.  True from 2.5.46 through 2.5.58.
-> --
-> 				Valdis Kletnieks
-> 				Computer Systems Senior Engineer
-> 				Virginia Tech
->
+- Werner
 
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

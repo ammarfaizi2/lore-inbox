@@ -1,69 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbSJFAD5>; Sat, 5 Oct 2002 20:03:57 -0400
+	id <S262818AbSJFALR>; Sat, 5 Oct 2002 20:11:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262832AbSJFAD4>; Sat, 5 Oct 2002 20:03:56 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:42816 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S262826AbSJFADz>;
-	Sat, 5 Oct 2002 20:03:55 -0400
-Subject: RE: QLogic Linux failover/Load Balancing ER0000000020860
-From: Austin Gonyou <austin@coremetrics.com>
-To: CSG Support <csgsupport@qlogic.com>, tbelcher@uniquedigital.com,
-       ssaqr@uniquedigital.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41EBA11203419D4CA8EB4C6140D8B4017CD8EE@AVEXCH01.qlogic.org>
-References: <41EBA11203419D4CA8EB4C6140D8B4017CD8EE@AVEXCH01.qlogic.org>
-Content-Type: text/plain
+	id <S262822AbSJFALR>; Sat, 5 Oct 2002 20:11:17 -0400
+Received: from packet.digeo.com ([12.110.80.53]:59521 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262818AbSJFALQ>;
+	Sat, 5 Oct 2002 20:11:16 -0400
+Message-ID: <3D9F80EA.2768688@digeo.com>
+Date: Sat, 05 Oct 2002 17:16:42 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [PATCH] patch-slab-split-08-reap
+References: <3D9EBFA9.90806@colorfullife.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: Coremetrics, Inc.
-Message-Id: <1033862965.27451.51.camel@UberGeek.coremetrics.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
-Date: 05 Oct 2002 19:09:26 -0500
+X-OriginalArrivalTime: 06 Oct 2002 00:16:45.0887 (UTC) FILETIME=[A7C92CF0:01C26CCD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest driver does not load balance with STK D178 array either.
+Manfred Spraul wrote:
+> 
+>  int __init cpucache_init(void)
+>  {
+>         struct list_head* p;
+> +       int i;
+> 
+>         down(&cache_chain_sem);
+>         g_cpucache_up = FULL;
+> 
+> -       p = &cache_cache.next;
+> -       do {
+> +       list_for_each(p, &cache_chain) {
+>                 kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
+>                 enable_cpucache(cachep);
+>                 p = cachep->next.next;
+> -       } while (p != &cache_cache.next);
+> +       }
 
-I've discovered why, but I'm not sure which direction to take with
-helping out to get better closure/resolution with this.
+You're only visiting every second member in this list walk.
+I added the below diff which gets me to a login prompt.  I need
+to get another rollup out - I'll beat on the slab changes a bit
+and include them if they look solid; otherwise I'll upload an
+incremental diff for them.
 
+--- 2.5.40/mm/slab.c~cpucache_init-fix	Sat Oct  5 17:06:28 2002
++++ 2.5.40-akpm/mm/slab.c	Sat Oct  5 17:06:28 2002
+@@ -697,17 +697,14 @@ void __init kmem_cache_sizes_init(void)
+ 
+ int __init cpucache_init(void)
+ {
+-	struct list_head* p;
++	kmem_cache_t *cachep;
+ 	int i;
+ 
+ 	down(&cache_chain_sem);
+ 	g_cpucache_up = FULL;
+ 
+-	list_for_each(p, &cache_chain) {
+-		kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
++	list_for_each_entry(cachep, &cache_chain, next)
+ 		enable_cpucache(cachep);
+-		p = cachep->next.next;
+-	}
+ 	
+ 	/* 
+ 	 * Register the timers that return unneeded
 
-The cause of the problem is that the QLogic driver doesn't to
-transparent LUN masking it seems. The reason this is a problem, is that
-when the LSI/StoragTEK controllers present their luns, AVT is enabled.
-This causes LUN "ghosting" down each path from the storage to the HBAs.
-This becomes a problem because when the Linux Driver is told to perform
-load balancing via static bindings, the LUNs are now out of order.
-(whether LUN ghosting is happening or not). 
-
-This is where transparent LUN masking would solve this problem. 
-
-Example:
-HBA0 is told it's only allowed to address the even numbered volumes.
-HBA1 is told it's only allowed to address the odd-numberd volumes. 
-
-When this happens, the driver can see all the volumes, and names them
-0:0:0:0-16(or whatever the last number is) for HBA0, and then
-1:0:0:0-16(or whatever thelast number is). But, the OS is not shown
-that, it sees the real LUN numbers as presented by the storage.
-(0,2,4,6,8,10,etc) 
-
-Linux is not allowed to address LUNs out of sequence, so searching for
-further LUN numbers stops after 0, since 2 is the next one. 
-
-Is there a way to resolve this, either at the driver level, IMHO the
-place it *should* happen. At the storage level, the place that it could
-also happen, or in the Kernel?
-
-For the time being, I'm using a temporary load balanced setup for
-performance reasons since we just extended our two primary loops from 1
-tray each, to 3 and 4 trays. Please advise ASAP, as in this
-configuration, we cannot fail-over. 
-
-TIA
--- 
-Austin Gonyou <austin@coremetrics.com>
-Systems Architect
-Coremetrics, Inc.
-Cel: 512-698-7250
+.

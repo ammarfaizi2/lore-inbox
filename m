@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315469AbSE2UEY>; Wed, 29 May 2002 16:04:24 -0400
+	id <S315457AbSE2UJX>; Wed, 29 May 2002 16:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315463AbSE2UEY>; Wed, 29 May 2002 16:04:24 -0400
-Received: from mark.mielke.cc ([216.209.85.42]:47631 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S315457AbSE2UEV>;
-	Wed, 29 May 2002 16:04:21 -0400
-Date: Wed, 29 May 2002 15:58:10 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Rose, Billy" <wrose@loislaw.com>, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-        Roman Zippel <zippel@linux-m68k.org>,
-        "'Karim Yaghmour'" <karim@opersys.com>, yodaiken@fsmlabs.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: A reply on the RTLinux discussion.
-Message-ID: <20020529155810.B22536@mark.mielke.cc>
-In-Reply-To: <4188788C3E1BD411AA60009027E92DFD0962E2F2@loisexc2.loislaw.com> <E17D9PC-0006in-00@starship>
+	id <S315459AbSE2UJW>; Wed, 29 May 2002 16:09:22 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:44562 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S315457AbSE2UJV>; Wed, 29 May 2002 16:09:21 -0400
+Date: Wed, 29 May 2002 21:09:10 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
+To: "Christian.Gennerat" <xgen@noos.fr>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel zombie threads after module removal.
+Message-ID: <20020529200908.GA7499@compsoc.man.ac.uk>
+In-Reply-To: <3CF52841.8040507@noos.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
+X-Scanner: exiscan *17D9ky-0000Lq-00*Nz6GTfNyOBo* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 09:46:46PM +0200, Daniel Phillips wrote:
-> What we're really discussing is whether we're willing to allow patent
-> restrictions to inhibit the growth of Linux in new areas that go beyond
-> its traditional IT role, and further, whether we're willing to accept
-> such restrictions from people or companies that depend on Linux for
-> their sustenance, and who have benefitted from the lack of such
-> restrictions as they wish to impose on others.
+On Wed, May 29, 2002 at 09:13:05PM +0200, Christian.Gennerat wrote:
 
-Unless Linux is released under a stricter license, I don't know how much
-effect 'whether we're willing to accept such restrictions' will have.
+> This is very close to the problem related in 
+> http://lkml.org/archive/2002/2/4/368/index.html
+> but I have no USB. I have SCSI with aha152x_cs.o,
+> and after doing "cardctl eject" that removes the module,
+> the process scsi_eh_0  stays as zombie.
 
-People can theorize that software patents make no sense, but that opinion
-alone does not invalidate them.
+Add 
 
-mark
+	reparent_to_init();
+
+after the call to daemonize() in scsi_error_handler() in
+drivers/scsi/scsi_error.c
+
+Disclaimer: I don't know this code at all
+
+regards
+john
 
 -- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+"If you look 'round the table and can't tell who the sucker is, it's you." 
+	- Quiz Show 

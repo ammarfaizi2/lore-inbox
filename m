@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbTI3JGb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 05:06:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbTI3JGb
+	id S261256AbTI3JY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 05:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbTI3JY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 05:06:31 -0400
-Received: from chello080109223066.lancity.graz.surfer.at ([80.109.223.66]:16777
-	"EHLO lexx.delysid.org") by vger.kernel.org with ESMTP
-	id S261226AbTI3JGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 05:06:30 -0400
+	Tue, 30 Sep 2003 05:24:57 -0400
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:53991 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP id S261256AbTI3JY4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 05:24:56 -0400
+From: Erik Hensema <erik@hensema.net>
+Subject: Matroxfb still broken in -test6
+Date: Tue, 30 Sep 2003 09:24:54 +0000 (UTC)
+Message-ID: <slrnbniiv6.p62.erik@bender.home.hensema.net>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
 To: linux-kernel@vger.kernel.org
-Subject: /dev/vcs: stuck with dimensions <255?
-From: Mario Lang <mlang@delysid.org>
-Date: Tue, 30 Sep 2003 11:06:33 +0200
-Message-ID: <87oex21w86.fsf@lexx.delysid.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi,
 
-I just realized, that /dev/vcsa behaviour is broken when
-used with lines or columns more than 255.  I can easily
-get this behaviour by using the built-in 4x6 font on a
-1024xsomething resolution.  That results in 256 columns.  However,
-the vcs devices expose dimensions and cursor position in the first
-4 bytes.
+Matroxfb has been unusable for me since around 2.5.6x, and it still is in
+-test6.
 
-My question is now:  Are we stuck with this now?  I found that
-it is at least possible to use TIOCGWINSZ on the corresponding
-/dev/tty%d device to get correct dimensions, but then again, how
-would I optain the cursor position?
+The simptoms are:
 
-I am wondering why a char was choosen at all.  I see no gain
-by "saving" space there...
+- large white bar to the right of the pengiun logo on booting
+- (mostly) yellow distortion in the background: parts of the screen that
+  should be black, are distorted with a semi-regular pattern. Each line of
+  scrolling adds around 5 lines worth of distorion to the bottom of the
+  screen. The distorion works its way up until the entire screen is filled
+  with it.
+  Switching to and from another vc clears it.
+
+I could make a picture of it using the low-res (640x480) digicam on my
+cellphone if anyone is interesed ;-)
+
+Hardware: Matrox G550, CRT connected to the DVI port and TV connected to
+the TV-out.
+Settings: all default
+Config:
+
+CONFIG_FB=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_I2C=m
+CONFIG_FB_MATROX_MAVEN=m
+CONFIG_FB_MATROX_MULTIHEAD=y
+
 
 -- 
-CYa,
-  Mario
+Erik Hensema <erik@hensema.net>

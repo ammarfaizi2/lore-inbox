@@ -1,43 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292400AbSCDOuU>; Mon, 4 Mar 2002 09:50:20 -0500
+	id <S292398AbSCDOzU>; Mon, 4 Mar 2002 09:55:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292399AbSCDOuB>; Mon, 4 Mar 2002 09:50:01 -0500
-Received: from gull.mail.pas.earthlink.net ([207.217.120.84]:61315 "EHLO
-	gull.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S292395AbSCDOtz>; Mon, 4 Mar 2002 09:49:55 -0500
-Date: Mon, 4 Mar 2002 09:54:50 -0500
-To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au
-Subject: Re: [patch] delayed disk block allocation
-Message-ID: <20020304145450.GA14256@rushmore>
-Mime-Version: 1.0
+	id <S292399AbSCDOzK>; Mon, 4 Mar 2002 09:55:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51461 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292398AbSCDOzF>; Mon, 4 Mar 2002 09:55:05 -0500
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+To: jdike@karaya.com (Jeff Dike)
+Date: Mon, 4 Mar 2002 15:09:45 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200203040504.AAA05343@ccure.karaya.com> from "Jeff Dike" at Mar 04, 2002 12:04:52 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: rwhron@earthlink.net
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16hu5x-0007zd-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's not on a big box, but I have a side by side of
-2.5.6-pre2 and 2.5.6-pre2 with patches from 
-http://www.zipworld.com.au/~akpm/linux/patches/2.5/2.5.6-pre2/
+> Even with address overcommit management, I can fault if I touch pages when
+> tmpfs is full but the system is not near overcommit.
 
-2.5.6-pre2-akpm compiled with MPIO_DEBUG = 0 and ext2 
-filesystem mounted with delalloc.
-
-tiobench and dbench were on ext2.
-bonnie++ and most other tests were on reiserfs.
-
-2.5.6-pre2-akpm throughput on ext2 is much improved.
-
-http://home.earthlink.net/~rwhron/kernel/akpm.html
-
-One odd number in lmbench is page fault latency.  Lmbench also 
-showed high page fault latency in 2.4.18-pre9 with make_request, 
-read-latency2, and low-latency.  2.4.19-pre1aa1 with read_latency2 
-(2.4.19pre1aa1rl) did not show a bump in page fault latency.   
-
--- 
-Randy Hron
-
+That is what mmap defines for a file based mapping yes. Thats a case where
+there isnt much else you can do

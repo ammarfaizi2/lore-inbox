@@ -1,133 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbUBPGFS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 01:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265354AbUBPGFS
+	id S265350AbUBPGPT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 01:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUBPGPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 01:05:18 -0500
-Received: from aragorn.schlenn.net ([195.177.220.21]:26248 "EHLO
-	aragorn.schlenn.net") by vger.kernel.org with ESMTP id S265211AbUBPGFE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 01:05:04 -0500
-Date: Sun, 15 Feb 2004 22:22:42 +0100
-From: Michael Schlenstedt <Michael-ml-kernel@schlenn.net>
-To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Cc: jjciarla@raiz.uncu.edu.ar
-Subject: PROBLEM: /proc/sys/net/ipv4/ip_dynaddr does not work correctly
-Message-ID: <20040215212241.GA2752@schlenn.net>
-Mail-Followup-To: Michael Schlenstedt <Michael-ml-kernel@schlenn.net>,
-	Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-	jjciarla@raiz.uncu.edu.ar
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Feb 2004 01:15:18 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:26857 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S265350AbUBPGPL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Feb 2004 01:15:11 -0500
+From: Michael Frank <mhf@linuxmail.org>
+To: Bill Anderson <banderson@hp.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: system (not HW) clock advancing really fast
+Date: Mon, 16 Feb 2004 14:24:49 +0800
+User-Agent: KMail/1.5.4
+References: <1076910368.25980.12.camel@perseus>
+In-Reply-To: <1076910368.25980.12.camel@perseus>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux (2.4.21-166-athlon)
-Organization: http://www.schlenn.net
+Message-Id: <200402161424.49242.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I had this somtetimes when using ntpd doing step time update
+resulting in silly values in /etc/adjtime . 
 
-Hello!
+# mv /etc/adjtime /tmp 
+# hwclock --systohc
 
+and see if it goes away.
 
-[1.] One line summary of the problem:
-
-/proc/sys/net/ipv4/ip_dynaddr does not work correctly in debug-mode.
-
-
-[2.] Full description of the problem/report:
-
-I've recognized that the debug-mode ("2") with
-/proc/sys/net/ipv4/ip_dynaddr does not work correctly. In fact, if I do
-a "echo 2 > /proc/sys/net/ipv4/ip_dynaddr", nothing happens. There are no
-messages in the syslog, and there is no function of ip_dynaddr at all.
-
-If I use "echo 1 > /proc/sys/net/ipv4/ip_dynaddr", it works fine, of
-course without any debugging messages.
-
-So it seems that the "2"-mode (debug output) does not work correctly
-with newer kernels (tested with 2.4.21 and 2.4.24)
-
-
-[3.] Keywords (i.e., modules, networking, kernel):
-
-network, NAT, masquerading, dynamic ip
-
-
-[4.] Kernel version (from /proc/version):
-
-Linux version 2.4.24 (root@gandalf) (gcc version 2.95.4 20011002 (Debian
-prerelease)) #3 SMP Sun Feb 15 10:43:15 CET 2004
-
-
-[7.] Environment
-[7.1.] Software (add the output of the ver_linux script here)
-
-Linux gandalf 2.4.24 #3 SMP Sun Feb 15 10:43:15 CET 2004 i686 unknown
- 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.15
-e2fsprogs              1.27
-PPP                    2.4.1
-isdn4k-utils           3.1pre4
-Linux C Library        2.3.1
-Dynamic linker (ldd)   2.3.1
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         ppp_deflate zlib_deflate bsd_comp ppp_synctty
-nfsd parport_pc lp parport ipt_multiport ipt_LOG ipt_limit ipt_unclean
-iptable_mangle iptable_filter ipt_MASQUERADE ipt_REJECT iptable_nat
-ipt_state ip_conntrack_ftp ip_conntrack ip_tables ppp_generic slhc fcpci
-capi capifs kernelcapi capiutil printer uhci usbcore apm dmfe
-
-
-[7.3.] Module information (from /proc/modules):
-
-ppp_deflate             3008   0 (autoclean)
-zlib_deflate           18048   0 (autoclean) [ppp_deflate]
-bsd_comp                4032   0 (autoclean)
-ppp_synctty             5760   0 (autoclean)
-nfsd                   45920   4 (autoclean)
-parport_pc             25320   1 (autoclean)
-lp                      6528   0 (autoclean)
-parport                24704   1 (autoclean) [parport_pc lp]
-ipt_multiport            640   8 (autoclean)
-ipt_LOG                 3360   8 (autoclean)
-ipt_limit               1056   9 (autoclean)
-ipt_unclean             6784   1 (autoclean)
-iptable_mangle          2208   0 (autoclean) (unused)
-iptable_filter          1760   1 (autoclean)
-ipt_MASQUERADE          1504   0 (unused)
-ipt_REJECT              3264  18
-iptable_nat            16596   1 [ipt_MASQUERADE]
-ipt_state                608  20
-ip_conntrack_ftp        3936   0 (unused)
-ip_conntrack           21428   3 [ipt_MASQUERADE iptable_nat ipt_state
-ip_conntrack_ftp]
-ip_tables              12032  12 [ipt_multiport ipt_LOG ipt_limit
-ipt_unclean iptable_mangle iptable_filter ipt_MASQUERADE ipt_REJECT
-iptable_nat ipt_state]
-ppp_generic            23308   1 (autoclean) [ppp_deflate bsd_comp
-ppp_synctty]
-slhc                    4736   0 (autoclean) [ppp_generic]
-fcpci                 531008   3
-capi                   19360   8
-capifs                  3584   1 [capi]
-kernelcapi             30880   4 [fcpci capi]
-capiutil               22464   0 [kernelcapi]
-printer                 7776   0
-uhci                   25320   0 (unused)
-usbcore                60256   1 [printer uhci]
-apm                     9692   0 (unused)
-dmfe                   12348   1
-
-
-Bye,
+Regards
 Michael
+
+On Monday 16 February 2004 13:46, Bill Anderson wrote:
+> Kernel version: 
+> 	2.4.24-xfs
+> 	We've apaprently had this problem for a while
+> 
+> Ok, I've got an HP LPr machine, dual 700MHz intel machine that has it's
+> system clock gaining seconds very quickly. This, I am told, has been
+> happening for several kernels.
+> 
+> At first, others on the team insisted it was the hardware clock at
+> fault, as rebooting the system gives the appearance of fixing it.
+> However, the system is currently having this issue, and the HW clock is
+> actually keeping accurate time, as I expected.
+> 
+> The time gain is no consistent. It can gain 3 seconds in one, or 12 in
+> 11, but it always runs fast. This time speedup is to much for ntp to
+> keep up with. If I sync from hwclock or ntpdate every second, I'm
+> correcting about 1-3 seconds each time. This is a mail server, so I am
+> sure you can appreciate the need for accurate timestamps. ;)
+> 
+> I've seen many messages in the archives about *losing* time, but only a
+> few about gaining it. Personally, I am opposed to the "just reboot it"
+> mentality; one reason I run Linux.
+> 
+> Given that we are talking about system clock, not HW, and that this
+> happens with or w/o ntpd/ntpdate, I am suspecting something in the
+> kernel. Also, this thread leads me there too:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=105465355622844&w=2
+> 
+> 
+> Am I off base here? I can probably keep the hwclock sync method running
+> for a day or so before I'm forced to reboot it, so if there is anything
+> you need to know or want me to try while it is in this state, let me
+> know.
+> 
+> This address is not subscribed, so please cc me on responses.
+> 
+> Thanks,
+> 
+> Bill
+> 
+> 
+> 
+> 
+> -- 
+> Bill Anderson <banderson@hp.com>
+> Red Hat Certified Engineer
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 

@@ -1,60 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291607AbSBHPKd>; Fri, 8 Feb 2002 10:10:33 -0500
+	id <S291600AbSBHPOn>; Fri, 8 Feb 2002 10:14:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291605AbSBHPJl>; Fri, 8 Feb 2002 10:09:41 -0500
-Received: from mailhub.dartmouth.edu ([129.170.16.6]:38673 "EHLO
-	mailhub.Dartmouth.EDU") by vger.kernel.org with ESMTP
-	id <S291600AbSBHPJ0>; Fri, 8 Feb 2002 10:09:26 -0500
-X-Disclaimer: This message was received from outside Dartmouth's BlitzMail system.
-Date: Fri, 08 Feb 2002 10:09:23 -0500
-From: "Joseph L. Hill" <joseph.l.hill@Dartmouth.EDU>
-To: linux-kernel@vger.kernel.org
-Subject: i810_audio driver
-Message-ID: <18090000.1013180963@localhost>
-X-Mailer: Mulberry/2.2.0b1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S291604AbSBHPOh>; Fri, 8 Feb 2002 10:14:37 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:27921 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S291600AbSBHPNw>;
+	Fri, 8 Feb 2002 10:13:52 -0500
+Date: Fri, 8 Feb 2002 08:13:00 -0700
+From: yodaiken@fsmlabs.com
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: yodaiken@fsmlabs.com, Martin Wirth <Martin.Wirth@dlr.de>,
+        linux-kernel@vger.kernel.org, akpm@zip.com.au, mingo@elte.hu,
+        rml@tech9.net, nigel@nrg.org
+Subject: Re: [RFC] New locking primitive for 2.5
+Message-ID: <20020208081300.A5768@hq.fsmlabs.com>
+In-Reply-To: <3C629F91.2869CB1F@dlr.de> <20020207125601.A21354@hq.fsmlabs.com> <200202080847.g188lMt13875@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200202080847.g188lMt13875@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Fri, Feb 08, 2002 at 10:47:24AM -0200
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Fri, Feb 08, 2002 at 10:47:24AM -0200, Denis Vlasenko wrote:
+> On 7 February 2002 17:56, yodaiken@fsmlabs.com wrote:
+> > > If a spin_lock request is blocked by a mutex_lock call, the spin_lock
+> > > attempt also sleeps i.e. behaves like a semaphore.
+> >
+> > So what's the difference between combi_spin and combi_mutex?
+> > combi_spin becomes
+> > 	if not mutex locked, spin
+> > 	else sleep
+> > Bizzare
+> 
+> combi_spin_lock():
+> If not mutex locked, spin - will be released shortly
+> else sleep - may take long time before released
+>  * lock released *
+> spin lock it!     <=== this is the difference -
+>                        combi_mutex_lock would mutex lock it here
+> 
+> What's wrong with this?
+
+In the elegant words of Andrew Morton, this is a "I don't know what
+the fuck I'm doing lock".
 
 
-I have a linux-works 'nano II' server running RedHat 7.2 with the errata 
-kernel (2.4.9-21). I am using this box an an irlp node but can not get any 
-audio out of the sound card.
-
-dmesg output:
-i810: Intel ICH 82801AA found at IO 0xd000 and 0xd400, IRQ 11
-i810_audio: Audio Controller supports 2 channels.
-ac97_codec: AC97 Audio codec, id: 0x4144:0x5348 (Analog Devices AD1881A)
-i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not 
-present), total channels = 2
-ac97_codec: AC97 Modem codec, id: 0x5349:0x4c21 (Unknown)
-i810_audio: timed out waiting for codec 1 analog ready
-
-
-lsmods:
-Module                  Size  Used by
-irlp-port               1216   3
-i810_audio             20768   0  (autoclean)
-ac97_codec              9504   0  (autoclean) [i810_audio]
-soundcore               4452   2  (autoclean) [i810_audio]
-autofs                 11556   0  (autoclean) (unused)
-8139too                13120   1
-usb-uhci               21668   0  (unused)
-usbcore                51808   1  [usb-uhci]
-ext3                   62592   2
-jbd                    41092   2  [ext3]
-
-Any suggestions much appreciated, please cc joseph.l.hill@dartmouth with 
-your reply.
-
-Thank you for you time.
--joe
-
-
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVANCV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVANCY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbVANCV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 21:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVANCV0
+	id S261751AbVANCY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 21:24:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVANCY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 21:21:26 -0500
-Received: from [209.195.52.120] ([209.195.52.120]:12274 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261724AbVANCVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 21:21:23 -0500
-Date: Thu, 13 Jan 2005 18:20:55 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: John covici <covici@ccs.covici.com>
-cc: Helge Hafting <helge.hafting@hist.no>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10 dies when X tries to initialize PCI radeon 9200 SE
-In-Reply-To: <16870.21720.866418.326325@ccs.covici.com>
-Message-ID: <Pine.LNX.4.60.0501131820230.20576@dlang.diginsite.com>
-References: <41E64DAB.1010808@hist.no> <16870.21720.866418.326325@ccs.covici.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 13 Jan 2005 21:24:29 -0500
+Received: from smtp109.mail.sc5.yahoo.com ([66.163.170.7]:34984 "HELO
+	smtp109.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261751AbVANCYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 21:24:22 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: utz lehmann <lkml@s2y4n2c.de>
+Cc: Lee Revell <rlrevell@joe-job.com>, Arjan van de Ven <arjanv@redhat.com>,
+       "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       LKML <linux-kernel@vger.kernel.org>, Con Kolivas <kernel@kolivas.org>
+In-Reply-To: <1105668319.15692.16.camel@segv.aura.of.mankind>
+References: <20050111214152.GA17943@devserv.devel.redhat.com>
+	 <200501112251.j0BMp9iZ006964@localhost.localdomain>
+	 <20050111150556.S10567@build.pdx.osdl.net> <87y8ezzake.fsf@sulphur.joq.us>
+	 <20050112074906.GB5735@devserv.devel.redhat.com>
+	 <87oefuma3c.fsf@sulphur.joq.us>
+	 <20050113072802.GB13195@devserv.devel.redhat.com>
+	 <878y6x9h2d.fsf@sulphur.joq.us>
+	 <20050113210750.GA22208@devserv.devel.redhat.com>
+	 <1105651508.3457.31.camel@krustophenia.net>
+	 <1105668319.15692.16.camel@segv.aura.of.mankind>
+Content-Type: text/plain
+Date: Fri, 14 Jan 2005 13:24:11 +1100
+Message-Id: <1105669451.5402.38.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran into a similar problem with 2.6.8.1 and found that by downgrading to 
-AGP4 I could get it to work.
+On Fri, 2005-01-14 at 03:05 +0100, utz lehmann wrote:
+> On Thu, 2005-01-13 at 16:25 -0500, Lee Revell wrote:
 
-DAvid Lang
-
-On Thu, 13 Jan 2005, John covici wrote:
-
-> Date: Thu, 13 Jan 2005 06:00:40 -0500
-> From: John covici <covici@ccs.covici.com>
-> To: Helge Hafting <helge.hafting@hist.no>
-> Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: 2.6.10 dies when X tries to initialize PCI radeon 9200 SE
+> > This all seems to imply that introducing an rlimit for MAX_RT_PRIO is an
+> > excellent solution.  The RT watchdog thread could run as root, and the
+> > rlimit would be used to ensure than even nonroot users in the RT group
+> > could never preempt the watchdog thread.
 > 
-> I am getting something similar -- the X process gets stuck in some
-> kind of system call, but I can login from the network and shut the
-> system down, but I cannot change the console from the X to a text
-> console.
->
-> on Thursday 01/13/2005 Helge Hafting(helge.hafting@hist.no) wrote
-> > 2.6.10 boots fine, but is killed by the X server when it
-> > tries to initialize my PCI radeon 9200 SE.  This problem exists
-> > in 2.6.9 too, but not in 2.6.8.1.  So I'm stuck with that version currently.
-> >
-> > The problem seems to be access to the card bios, X uses
-> > int10 bios calls to initialize the card.
-> >
-> > Helge Hafting
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> --
->         John Covici
->         covici@ccs.covici.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> Just an idea. What about throttling runaway RT tasks?
+> If the system spend more than 98% in RT tasks for 5s consider this as a
+> _fatal error_. Print an error message and throttle RT tasks by inserting
+> ticks where only SCHED_OTHER tasks allowed. For a limit of 98% this
+> means one SCHED_OTHER only tick all 50 ticks.
+> 
+> The limit and timeout should be configurable and of course it can be
+> disabled.
+> 
 
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+This is just a hack. Realtime scheduling is pretty rigidly specified,
+and we satisfy that. Thus it is useful for systems that need to make
+use of it. The way SCHED_FIFO and SCHED_RR scheduling is specified is
+inherently insecure/incompatible with a multi user machine; I don't
+understand why people are getting heated with this debate. You literally
+can't run more than one realtime system on the same CPU(s) if they don't
+have a knowledge of one another.
+
+SCHED_FIFO and SCHED_RR are definitely privileged operations and you
+can't really change them without making them useless to legitimate
+users, I think.
+
+
+

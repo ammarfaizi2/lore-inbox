@@ -1,74 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289224AbSBDWfp>; Mon, 4 Feb 2002 17:35:45 -0500
+	id <S289234AbSBDWgi>; Mon, 4 Feb 2002 17:36:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289234AbSBDWff>; Mon, 4 Feb 2002 17:35:35 -0500
-Received: from host113.south.iit.edu ([216.47.130.113]:48852 "EHLO
-	lostlogicx.com") by vger.kernel.org with ESMTP id <S289224AbSBDWfY>;
-	Mon, 4 Feb 2002 17:35:24 -0500
-Date: Mon, 4 Feb 2002 16:35:13 -0600
-From: Brandon Low <lostlogic@lostlogicx.com>
-To: Andreas Tscharner <starfire@dplanet.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: New scheduler in 2.4. series?
-Message-ID: <20020204163513.A31041@lostlogicx.com>
-In-Reply-To: <20020204231938.18755478.starfire@dplanet.ch>
+	id <S289236AbSBDWg0>; Mon, 4 Feb 2002 17:36:26 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:15371 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S289234AbSBDWgR>;
+	Mon, 4 Feb 2002 17:36:17 -0500
+Date: Mon, 4 Feb 2002 23:35:51 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Roger Larsson <roger.larsson@norran.net> (by way of Roger Larsson
+	<roger.larsson@norran.net>)
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: New VM Testcase (2.4.18pre7 SWAPS) (2.4.17-rmap12b OK)
+Message-Id: <20020204233551.76469dc6.skraw@ithnet.com>
+In-Reply-To: <200202042227.g14MRFN12329@maile.telia.com>
+In-Reply-To: <200202042227.g14MRFN12329@maile.telia.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020204231938.18755478.starfire@dplanet.ch>; from starfire@dplanet.ch on Mon, Feb 04, 2002 at 11:19:38PM +0100
-X-Operating-System: Linux found 2.4.17-pre5-ipln
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Feb 2002 23:24:11 +0100
+Roger Larsson <roger.larsson@norran.net> (by way of Roger Larsson <roger.larsson@norran.net>) wrote:
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> When examining Karlsbakk problem I got into one quite different myself.
+> 
+> [...]
+> 
+> the 2.4.18pre7 goes into deep swap after awhile .
+> It is impossible to start a new login, et.c. finally
+> the dd processes begins to be OOM killed... not nice...
+> 
+> the 2.4.17-rmap12b handles this MUCH nicer!
 
-Seeing the new scheduler in 2.4 would be nice!  However, soon wouldn't be n=
-ice, because there are a lot of 3rd party kernel=20
-modules that try to make calls against the old scheduler that don't seem to=
- work.  My personal case in point is Bestcrypt=20
-( www.jetico.sci.fi ).  Just my thoughts on the matter.
+What about -aa ?
 
---Brandon
+Regards,
+Stephan
 
--=3D-=3D-=3D-=3D-=3D-=3D-=3D-Previous Message(s)-=3D-=3D-=3D-=3D-=3D-=3D-=
-=3D-
-> Hello World,
-> Hello Marcelo,
->=20
-> Is there any chance, that the new scheduler will be in the 2.4 series soo=
-n?
->=20
-> Regards
-> 	Andreas
-> --=20
-> Andreas Tscharner                                     starfire@dplanet.ch
-> -------------------------------------------------------------------------
-> "Programming today is a race between software engineers striving to build=
-=20
-> bigger and better idiot-proof programs, and the Universe trying to produce
-> bigger and better idiots. So far, the Universe is winning." -- Rich Cook=
-=20
-
-
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8XwyhHCCPbR8BLcYRAq4EAKCBEmG52CUx1QzHivxQnOyhTNjb0gCbBGo5
-Kl4UstPSG7+yfbL0b2v4SWE=
-=yJIJ
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--

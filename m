@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261918AbSIYF45>; Wed, 25 Sep 2002 01:56:57 -0400
+	id <S261907AbSIYGAe>; Wed, 25 Sep 2002 02:00:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261919AbSIYF45>; Wed, 25 Sep 2002 01:56:57 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:8328 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S261918AbSIYF44>; Wed, 25 Sep 2002 01:56:56 -0400
-From: jordan.breeding@attbi.com
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: [PATCH] fix /dev/cdroms on 2.5.38-bk current
-Date: Wed, 25 Sep 2002 06:02:04 +0000
-X-Mailer: AT&T Message Center Version 1 (Aug 12 2002)
+	id <S261919AbSIYGAe>; Wed, 25 Sep 2002 02:00:34 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:27793 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261907AbSIYGAd>; Wed, 25 Sep 2002 02:00:33 -0400
+Date: Tue, 24 Sep 2002 23:03:50 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>, William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.38-mm2 dbench $N times
+Message-ID: <297318451.1032908628@[10.10.2.3]>
+In-Reply-To: <3D9103EB.FC13A744@digeo.com>
+References: <3D9103EB.FC13A744@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="NextPart_Webmail_9m3u9jl4l_23406_1032933724"
-Message-Id: <20020925060206.FGZU16629.rwcrmhc51.attbi.com@rwcrwbc58>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> Not sure. This is boot bay SCSI crud, but single-disk FC looks
+>> *worse* for no obvious reason. Multiple disk tests do much better
+>> (about matching the el-scruffo PC numbers above).
+> 
+> dbench 16 on that sort of machine is a memory bandwidth test.
+> And a dcache lock exerciser.  It basically doesn't touch the
+> disk.  Something very bad is happening.
 
---NextPart_Webmail_9m3u9jl4l_23406_1032933724
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
+Does dbench have any sort of CPU locality between who read it 
+into pagecache, and who read it out again? If not, you stand
+7/8 chance of being on the wrong node, and getting 1/20 of the
+mem bandwidth ....
 
-Hello,
+M.
 
-  Currently 2.5.38-bk ends up creating all devfs based
-cdrom entries in /dev/cdroms/cdroms, this should actually
-only be /dev/cdroms.  This patch fixes it for me at least.
-
-Jordan Breeding
-
---NextPart_Webmail_9m3u9jl4l_23406_1032933724
-Content-Type: application/octet-stream; name="patch-cdrom-fix-2.5.38-1"
-Content-Transfer-Encoding: 7bit
-
---- linux-2.5.38/fs/partitions/check.c	2002-09-23 21:55:43.000000000 -0500
-+++ linux-2.5.38-bk/fs/partitions/check.c	2002-09-24 22:53:00.000000000 -0500
-@@ -348,7 +348,7 @@
- 		cdroms = devfs_mk_dir (NULL, "cdroms", NULL);
- 
- 	dev->number = devfs_alloc_unique_number(&cdrom_numspace);
--	sprintf(vname, "cdroms/cdrom%d", dev->number);
-+	sprintf(vname, "cdrom%d", dev->number);
- 	if (dev->de) {
- 		int pos;
- 		devfs_handle_t slave;
-
---NextPart_Webmail_9m3u9jl4l_23406_1032933724--

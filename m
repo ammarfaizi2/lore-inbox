@@ -1,91 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVAITou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVAIUDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVAITou (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 14:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVAITou
+	id S261734AbVAIUDH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 15:03:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVAIUDH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 14:44:50 -0500
-Received: from vds-320151.amen-pro.com ([62.193.204.86]:61596 "EHLO
-	vds-320151.amen-pro.com") by vger.kernel.org with ESMTP
-	id S261734AbVAITnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 14:43:24 -0500
-Subject: Possible user base and mainline inclusion of LSM-based security
-	improvements.
-From: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "linux-security-module@wirex.com" <linux-security-module@wirex.com>
-Cc: alan@redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YzCBB+KhVRZSTzrV0fg6"
-Date: Sun, 09 Jan 2005 20:42:53 +0100
-Message-Id: <1105299774.8662.13.camel@localhost.localdomain>
+	Sun, 9 Jan 2005 15:03:07 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29958 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261734AbVAIUDF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Jan 2005 15:03:05 -0500
+Date: Sun, 9 Jan 2005 20:03:01 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Subject: Re: removing bcopy... because it's half broken
+Message-ID: <20050109200301.B12788@flint.arm.linux.org.uk>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+References: <20050109192305.GA7476@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050109192305.GA7476@infradead.org>; from arjan@infradead.org on Sun, Jan 09, 2005 at 07:23:05PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jan 09, 2005 at 07:23:05PM +0000, Arjan van de Ven wrote:
+> Nothing in the kernel is using bcopy right know, and that is a good thing.
+> Why? Because a lot of the architectures implement a broken bcopy()....
+> the userspace standard bcopy() is basically a memmove() with a weird
+> parameter order, however a bunch of architectures implement a memcpy() not a
+> memmove(). 
 
---=-YzCBB+KhVRZSTzrV0fg6
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+ARM doesn't implement bcopy() but does define __HAVE_ARCH_BCOPY - so
+any users would error.  Removing bcopy() is therefore no problem
+afaics, and I'll lend my support by trying to will it to be gone. 8)
 
-Hi,
-
-I'm now writing a "safe networking" LSM, inspired by grSecurity socket
-restriction capabilities.
-
-Currently, it provides users and groups (uid and gid based) Access
-Control Lists, which can be changed in runtime by a new interface based
-on my other LSM, the TPE, which registers a subsystem in sysfs and
-creates  the needed entries for "realtime" configuration under secfs in
-the mountpoint of sysfs (normally /sys/).
-
-I'ts intended to provide a base of enhanced features inspired by the
-well-designed grSecurity patch maintained and developed by Brad Spengler
-(a.k.a. spender), by now i have the TPE and this LSM almost done.
-
-The main goal is to provide an also well-designed (as most as possible)
-security improvement using the LSM framework for Vanilla sources.
-
-The main problem is that people often needs security enhancements that
-they can not get by using the default Vanilla sources, even in an easy,
-"user friendly" way.
-
-What's more simple than insmod'ding a module?
-
-Maybe the LSM framework is not the best one, or it's just not reliable
-for this as some people and colectives said before, but i want to give
-it a chance, even if this work could be nonsense for some people, it's
-also for my own fun and coding profit.
-
-If someone wants to help with this idea (i can not call it a project but
-seems going to be :) ), just tell me.
-
-Also, i would appreciate knowing the opinion from both kernel hackers
-and users "vocal" base, about the inclusion of this security
-improvements in the main line.
-
-Tomorrow, my school time will start again after these Christmas
-holidays, so, i will have more limited time and less nights (umm, none
-maybe) to work on this stuff, until i get spin_unlock()'ed again ;).
-
-Thanks in advance, cheers.
---=20
-Lorenzo Hern=E1ndez Garc=EDa-Hierro <lorenzo@gnu.org> [1024D/6F2B2DEC]
-[2048g/9AE91A22] Hardened Debian head developer & project manager
-
---=-YzCBB+KhVRZSTzrV0fg6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB4Yk9DcEopW8rLewRAtiuAJ49DJTd2p9um+tPY850JLB2hF8ogwCgrS/5
-PD69kGjbSF5iYYi1HJuJBo8=
-=QrRH
------END PGP SIGNATURE-----
-
---=-YzCBB+KhVRZSTzrV0fg6--
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

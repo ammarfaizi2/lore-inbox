@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130215AbRACO0y>; Wed, 3 Jan 2001 09:26:54 -0500
+	id <S130440AbRACOi4>; Wed, 3 Jan 2001 09:38:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130440AbRACO0o>; Wed, 3 Jan 2001 09:26:44 -0500
-Received: from latt.if.usp.br ([143.107.129.103]:26125 "HELO latt.if.usp.br")
-	by vger.kernel.org with SMTP id <S130215AbRACO0f>;
-	Wed, 3 Jan 2001 09:26:35 -0500
-Date: Wed, 3 Jan 2001 11:56:07 -0200 (BRST)
-From: "Jorge L. deLyra" <delyra@latt.if.usp.br>
-To: Andi Kleen <ak@suse.de>
-cc: Neil Brown <neilb@cse.unsw.edu.au>,
-        Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Frank.Olsen@stonesoft.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
-In-Reply-To: <20010103140116.A32638@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.3.96.1010103114120.21947A-100000@latt.if.usp.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131191AbRACOip>; Wed, 3 Jan 2001 09:38:45 -0500
+Received: from [196.38.105.82] ([196.38.105.82]:38917 "EHLO www.webtrac.co.za")
+	by vger.kernel.org with ESMTP id <S130440AbRACOij>;
+	Wed, 3 Jan 2001 09:38:39 -0500
+Date: Wed, 3 Jan 2001 16:08:02 +0200
+From: Craig Schlenter <craig@qualica.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: strange swap behaviour - test11pre4
+Message-ID: <20010103160802.A8544@qualica.com>
+In-Reply-To: <20010103123230.C23323@qualica.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20010103123230.C23323@qualica.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You probably had a inode namespace collision. unfsd encodes the dev_t in
-> the upper in ext2 unused bits of the inode to be able to export multiple
-> file systems in a single export (knfsd dropped that broken feature)
+[snip, vmstat stuff, me]
+> There is a perl program running (80 Meg's in size, 20 Megs resident) that is
+> chatting to a database and building up a large hash in memory. The machine has
+> 64M of RAM. The bit that doesn't make sense is why the cache is so large -
+> the VM seems to have got stuck paging in stuff from swap repeatedly (bits of
+> the perl program it would seem). Surely it should shrink the cache to provide 
+> more breathing room or am I being an idiot about this?
 
-Well, not completely. There is now this option "nohide" on /etc/exports
-which does this. Another useful thing we use a lot here. With knfsd you
-still have to authorize (export) separately each local mount point (unfsd
-used to automatically authorize all the underlying tree), but with this
-option you can mount just once and go down into directories which are on
-different filesystems on the server. A very useful feature, specially
-while autofs is not able to do cascaded mounts. We use this for some
-sysadmin tasks on clients, which export their root to their server.
+$idiot++;
 
-I recognize the need for a robust NFS structure on Linux and understand
-that some restrictions on features might be needed for that. But all these
-features are quite nice and useful, so I hope ways are found to implement
-them in robust ways.
-							Regards,
+> Should I be running a different kernel? 2.2.19preXXX ? Should I be tuning
+> vm things in proc and if so how?
 
-----------------------------------------------------------------
-        Jorge L. deLyra,  Associate Professor of Physics
-            The University of Sao Paulo,  IFUSP-DFMA
-       For more information: finger delyra@latt.if.usp.br
-----------------------------------------------------------------
+Hmmmm ... I think more RAM will help. I was hoping that it was some
+VM problem but having tested 2.2.19pre5 now (which does seem 'better' -
+it keeps about 45M of the program resident) it seems as if program 
+really is keen on actually using most of the 80Megs it has allocated
+... sheesh ... it makes mozilla look lean.
 
+My apologies for the noise ...
+
+--Craig
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281659AbRLANdv>; Sat, 1 Dec 2001 08:33:51 -0500
+	id <S284100AbRLANjw>; Sat, 1 Dec 2001 08:39:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281660AbRLANdm>; Sat, 1 Dec 2001 08:33:42 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15370 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281659AbRLANdd>; Sat, 1 Dec 2001 08:33:33 -0500
-Subject: Re: Coding style - a non-issue
-To: yodaiken@fsmlabs.com (Victor Yodaiken)
-Date: Sat, 1 Dec 2001 13:38:11 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        yodaiken@fsmlabs.com (Victor Yodaiken),
-        torvalds@transmeta.com (Linus Torvalds),
-        riel@conectiva.com.br (Rik van Riel), akpm@zip.com.au (Andrew Morton),
-        lm@bitmover.com (Larry McVoy),
-        phillips@bonn-fries.net (Daniel Phillips),
-        hps@intermeta.de (Henning Schmiedehausen),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <20011201061431.B31278@hq2> from "Victor Yodaiken" at Dec 01, 2001 06:14:31 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284098AbRLANjm>; Sat, 1 Dec 2001 08:39:42 -0500
+Received: from smtp3.libero.it ([193.70.192.53]:8587 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id <S281662AbRLANjj>;
+	Sat, 1 Dec 2001 08:39:39 -0500
+Date: Sat, 1 Dec 2001 14:39:43 +0100
+From: Emmanuele Bassi <emmanuele.bassi@iol.it>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock on kernels > 2.4.13-pre6
+Message-ID: <20011201143943.A1851@wolverine.lohacker.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011130221334.A15353@wolverine.lohacker.net> <E169wJt-00052j-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16AALL-0007C2-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E169wJt-00052j-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.23i
+X-Mailer: Mutt 1.3.23i (2001-10-09)
+X-OS: Linux 2.4.13-pre6 i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Recently, our correspondent from Wales wrote:
-> 	... the changes have been done and
-> 	tested one at a time as they are merged. Real engineering process is the
-> 	only way to get this sort of thing working well.
+* Alan Cox <alan@lxorguk.ukuu.org.uk>:
 
-Which doesn't conflict. Engineering does not require science. Science helps
-a lot but people built perfectly good brick walls long before they knew why
-cement works.
+> > Even if it shows up to be a VIA problem, what do I have to do, to get my
+> > system work properly with this chipset?
+> 
+> The reason I ask is VIA have had a history of weird ISA DMA hangs when doing
+> certain other operations. It could be some combination of these triggering
+> problems.
 
-> All the alchemists ever managed to create were cases of mercury
-> poisoning.
+Considering this issue, and that everything else I've tried this far, I
+beginning to think that the controller is, indeed, guilty as charged.
 
-and chemistry, eventually. You take it as far more demeaning than its meant.
+> > 01:00.0 VGA compatible controller: nVidia Corporation Riva TnT [NV04] (rev 04) (prog-if 00 [VGA])
+> 
+> Are you seeing the hangs in X11, and which X setup (one with agp loaded ?)
 
-But right now given two chunks of code, I find out what happens by putting
-them together not by formal methods. In the case of alchemy v chemistry the
-chemists know whether it will probably go bang before they try it (and the
-chemical engineers still duck anyway)
+I see hangs in both X11 and console, but under console I use the
+framebuffer device (rivafb).
 
-Alan
+This is the section about my hardware inside /etc/X11/XF86Config-4:
 
+# **********************************************************************
+# Graphics device section
+# **********************************************************************
+
+# Device configured by xf86config:
+
+Section "Device"
+    Identifier  "Creative VideoBlaster"
+    Driver      "nv"
+    VideoRam    16384
+EndSection
+
++++
+
+Just to be certain, I have an old PCI graphic card (a Matrox Mystique)
+that worked nicely since three years now... If that works nice, this
+should be the final proof...
+
+> Also does it print "Activiating ISA DMA workarounds" during the boot ?
+
+Yes.
+
+Bye,
+ Emmanuele.
+
+-- 
+Emmanuele Bassi (Zefram)               [ http://digilander.iol.it/ebassi ]
+GnuPG Key fingerprint = 4DD0 C90D 4070 F071 5738  08BD 8ECC DB8F A432 0FF4

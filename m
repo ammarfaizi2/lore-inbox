@@ -1,37 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277224AbRJDVOy>; Thu, 4 Oct 2001 17:14:54 -0400
+	id <S277226AbRJDVQE>; Thu, 4 Oct 2001 17:16:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277226AbRJDVOn>; Thu, 4 Oct 2001 17:14:43 -0400
-Received: from fenrus.demon.co.uk ([158.152.228.152]:55711 "EHLO
-	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S277224AbRJDVOe>;
-	Thu, 4 Oct 2001 17:14:34 -0400
-From: arjan@fenrus.demon.nl
-To: kravetz@us.ibm.com (Mike Kravetz)
-Subject: Re: Context switch times
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
-Message-Id: <E15pFor-0004sC-00@fenrus.demon.nl>
-Date: Thu, 04 Oct 2001 22:14:13 +0100
+	id <S277232AbRJDVPz>; Thu, 4 Oct 2001 17:15:55 -0400
+Received: from age.cs.columbia.edu ([128.59.22.100]:5135 "EHLO
+	age.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id <S277226AbRJDVPi>; Thu, 4 Oct 2001 17:15:38 -0400
+Date: Thu, 4 Oct 2001 17:16:02 -0400 (EDT)
+From: Ion Badulescu <ion@cs.columbia.edu>
+X-X-Sender: <ion@guppy.limebrokerage.com>
+To: jamal <hadi@cyberus.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <Pine.GSO.4.30.0110041456000.10825-100000@shell.cyberus.ca>
+Message-ID: <Pine.LNX.4.33.0110041715380.7266-100000@guppy.limebrokerage.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com> you wrote:
-> 2.4.10 on 8 CPUs:  lat_ctx -s 0 -r 2 results
-> "size=0k ovr=2.27
-> 2 3.86
+On Thu, 4 Oct 2001, jamal wrote:
 
-> 2.2.16-22 on 8 CPUS:  lat_ctx -s 0 -r 2 results
-> "size=0k ovr=1.99
-> 2 1.44
+> I could write a small HOWTO at least for HWFLOWCONTROL since that doesnt
+> need anything fancy.
 
-> As you can see, the context switch times for 2.4.10 are more
-> than double what they were for 2.2.16-22 in this example.  
+That'd be very nice.
 
-> Comments?
+Thanks,
+Ion
 
-2.4.x supports SSE on pentium III/athlons, so the SSE registers need to be
-saved/restored on a taskswitch as well.... that's not exactly free.
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

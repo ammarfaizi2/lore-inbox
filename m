@@ -1,43 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268248AbUHKVjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268245AbUHKVlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268248AbUHKVjl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 17:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268241AbUHKVhq
+	id S268245AbUHKVlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 17:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268241AbUHKVkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 17:37:46 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40390 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268245AbUHKVg6
+	Wed, 11 Aug 2004 17:40:05 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:29499 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268245AbUHKVi3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 17:36:58 -0400
-Date: Wed, 11 Aug 2004 18:14:30 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Andrey Savochkin <saw@saw.sw.com.sg>
-Cc: Jirka Kosina <jikos@jikos.cz>, Giuliano Pochini <pochini@shiny.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: FW: Linux kernel file offset pointer races
-Message-ID: <20040811211430.GA4275@dmt.cyclades>
-References: <XFMail.20040805104213.pochini@shiny.it> <Pine.LNX.4.58.0408051228400.2791@twin.jikos.cz> <20040807171500.GA26084@logos.cnet> <20040811182602.A2055@castle.nmd.msu.ru>
+	Wed, 11 Aug 2004 17:38:29 -0400
+Date: Wed, 11 Aug 2004 23:40:32 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, zippel@linux-m68k.org,
+       Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
+       davem@redhat.com, geert@linux-m68k.org, schwidefsky@de.ibm.com,
+       linux390@de.ibm.com, sparclinux@vger.kernel.org,
+       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: architectures with their own "config PCMCIA"
+Message-ID: <20040811214032.GC7207@mars.ravnborg.org>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
+	Arnd Bergmann <arnd@arndb.de>, zippel@linux-m68k.org,
+	Christoph Hellwig <hch@infradead.org>, wli@holomorphy.com,
+	davem@redhat.com, geert@linux-m68k.org, schwidefsky@de.ibm.com,
+	linux390@de.ibm.com, sparclinux@vger.kernel.org,
+	linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org> <20040807172518.GA25169@fs.tum.de> <200408072013.01168.arnd@arndb.de> <20040811201725.GJ26174@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040811182602.A2055@castle.nmd.msu.ru>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040811201725.GJ26174@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 06:26:02PM +0400, Andrey Savochkin wrote:
-> BTW, f_pos assignments are non-atomic on IA-32 since it's a 64-bit value.
-> The file position is protected by the BKL in llseek(), but I do not see any
-> serialization neither in sys_read() nor in generic_file_read() and other
-> methods.
+On Wed, Aug 11, 2004 at 10:17:25PM +0200, Adrian Bunk wrote:
+> On Sat, Aug 07, 2004 at 08:12:56PM +0200, Arnd Bergmann wrote:
+> >...
+> > On Samstag, 7. August 2004 19:25, Adrian Bunk wrote:
+> > > Is there eny reason for such options that are never visible nor enabled,  
+> > > or could they be removed?
+> > 
+> > Yes, the reason is that some other options depend on them. We added the
+> > PCMCIA option to arch/s390/Kconfig to stop kbuild from asking about
+> > some drivers that won't work anyway.
+> > 
+> > E.g. drivers/scsi/pcmcia starts with
+> > 
+> > menu "PCMCIA SCSI adapter support"
+> > 	depends on SCSI!=n && PCMCIA!=n && MODULES
+> > 
+> > which evaluate to true if the PCMCIA option is not known. Changing
+> > that to
+> > 
+> > menu "PCMCIA SCSI adapter support"
+> > 	depends on SCSI && PCMCIA && MODULES
+> > 
+> > solves this in a different way, but I'm not 100% sure if it still has
+> > the same meaning.
 > 
-> Have we accepted that the file position may be corrupted after crossing 2^32
-> boundary by 2 processes reading in parallel from the same file?
-> Or am I missing something?
+> Roman, is it intentional that PCMCIA!=n is true if there's no PCMCIA 
+> option, or is it simply a bug?
 
-Yes, as far as I know, parallel users of the same file descriptions (which 
-can race on 64-bit architectures) is expected, we dont care about handling it.
+Roman, a related Q.
+Why not error out, or at least warn when encountering an unknow
+symbol in a 'depends on' statement?
 
-Behaviour is undefined. 
+I took a quick look, but did not initially see how to actually implemnt it.
+Considering something in the bottom of menu_finalize()?
 
-
+	Sam

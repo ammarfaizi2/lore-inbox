@@ -1,57 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264482AbUEVCgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUEVCfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264482AbUEVCgH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 22:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263134AbUEVCck
+	id S264648AbUEVCfj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 22:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264719AbUEVCcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 22:32:40 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:38067 "EHLO mail4.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S265174AbUEUWh1 (ORCPT
+	Fri, 21 May 2004 22:32:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51367 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264648AbUEUWiH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 18:37:27 -0400
-Message-ID: <40AE837E.4030708@linuxmail.org>
-Date: Sat, 22 May 2004 08:32:30 +1000
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.org>
-CC: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend2 merge preparation: Rationale behind the freezer changes.
-References: <40A8606D.1000700@linuxmail.org> <20040521093307.GB15874@elf.ucw.cz> <40ADF605.2040809@linuxmail.org> <200405211542.40587.oliver@neukum.org>
-In-Reply-To: <200405211542.40587.oliver@neukum.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 21 May 2004 18:38:07 -0400
+Date: Thu, 20 May 2004 23:40:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6-mm] Make i386 boot not so chatty
+Message-Id: <20040520234006.291c3dfa.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405210032160.2864@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0405210032160.2864@montezuma.fsmlabs.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+>
+> This patch silences the default i386 boot by putting a lot of development
+>  related printks under KERN_DEBUG loglevel, allowing the normal chatty mode
+>  to be turned on by using the 'debug' kernel parameter.
 
-Oliver Neukum wrote:
-> Am Freitag, 21. Mai 2004 14:28 schrieb Nigel Cunningham:
->>Yes, but what order? I played with that problem for ages. Perhaps I just 
->>  didn't find the right combination.
-> How about recording the order of creation and do it in opposite order?
+I think I like it chatty.  Turning this stuff off by default makes kernel
+developers' lives that little bit harder.
 
-We could add a field to the process struct to record that. (Since PIDs 
-can wrap, they can't be relied upon for this).
-
-One potential problem is that we'd race with processes that were 
-forking, but that's a problem with the existing implementation anyway.
-
-I can see that the only way I'm going to convince people that we need 
-the method I settled on is by showing the deficiencies of the current one :<
-
-Nigel
--- 
-Nigel & Michelle Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable 
-events occur
-with alarming frequency, order arises from chaos, and no one is given 
-credit.
+Is the `quiet' option not suitable?

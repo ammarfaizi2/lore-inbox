@@ -1,72 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262046AbSJQT3q>; Thu, 17 Oct 2002 15:29:46 -0400
+	id <S261583AbSJQTeq>; Thu, 17 Oct 2002 15:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262081AbSJQT3q>; Thu, 17 Oct 2002 15:29:46 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:23169 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262046AbSJQT3p>; Thu, 17 Oct 2002 15:29:45 -0400
-Date: Thu, 17 Oct 2002 15:38:43 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: arun4linux <arun4linux@indiatimes.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cache flushing and invalidation in driver
-In-Reply-To: <200210171839.AAA21371@WS0005.indiatimes.com>
-Message-ID: <Pine.LNX.3.95.1021017152609.7608A-100000@chaos.analogic.com>
+	id <S262021AbSJQTeq>; Thu, 17 Oct 2002 15:34:46 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:7587 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S261583AbSJQTeo>;
+	Thu, 17 Oct 2002 15:34:44 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: Stress testing cifs filesystem
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
+Message-ID: <OFEC9BD9C9.68C35D7B-ON87256C55.00699285@boulder.ibm.com>
+From: "Steven French" <sfrench@us.ibm.com>
+Date: Thu, 17 Oct 2002 14:39:24 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 10/17/2002 01:40:31 PM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Oct 2002, arun4linux wrote:
 
-> Hello,
-> 
-> I'm writing a driver for a PCI based application specific controller. Infact porting from OS/2.
-> 
-> I have couple of questions on caching problem ( i faced this when I worked on vxworks, PPC machine).
-> 
-> 
-> Our card has its own RAM and we are mapping and using that in the driver. Ours is a pentium target machine.
-> 
-> I'd like to know how to do cache flushing and cache invalidation in linux? 
-> 
-> Do we need to do it explicitly on a pentium/linux machine?
-> 
-> The other question is existing OS/2 implementation exports the hardware personalities (PCI I/O and memory base addresses) to the application and application takes control after that.
-> 
-> We need to use mmap to acheive the same as per requirement. 
-> 
-> Will there be any cache or any other issues on this regard?
-> 
-> 
-> Your answers would be helpful for us as we are in the design phase.
-> 
-> Warm Regards
-> 
-> Arun
-> 
-> 
+Some observations about what to expect when fs stress testing against the
+CIFS filesystem.
 
-Normally you obtain access to your devices' memory-mapped RAM
-(or anything else) by using ioremap_nocache(). If you want to
-leave it cached (for speed), you use ioremap(). In that case,
-you can do a single dummy read from the same page that you
-want updated, just before you do whatever required the
-synchronization. This often gives better overall performance.
-With shared RAM, the CPU (and its cache) doesn't know that
-the RAM was written by some other device. Therefore, if this
-is important, you need to leave it uncached.
+The NFS connectathon tests seem to work against CIFS at least until the end
+when one of the final (optional) tests fails in which it tries to delete an
+open file (this is not allowed with CIFS servers - don't know a way around
+this yet but I have a few ideas that might work against Windows servers but
+not Samba).
 
-FYI, the "nocache" doesn't affect the PCI FIFO. Therefore stuff
-on the PCI Bus remains cached (sort of) anyway. Because of this,
-you may need to force all PCI Bus writes to complete by doing a
-dummy read before any important stuff anyway.
+Windows servers do not support chmod/chown/chgrp easily using the CIFS
+network protocol so the basic/test4 test has to be commented out in the NFS
+test script.  In theory these chmod/chown/chgrp ops could be done remotely
+(sort-of) using Windows ACLs but there is more code to write for this and
+it is a fairly esoteric part of the protocol which requires some more
+experimentation.   Also note that the cifs vfs memory mapping code is
+disabled until oplock handling is more complete so I compile the nfs
+connectathon tests with memory mapping disabled.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+Samba does support chmod/chgrp/chown so, unlike against Windows servers,
+the connectathon nfs tests run unaltered but only if the "unix extensions"
+smb.conf parm is on in the server's smb.conf file and also the "delete
+readonly" parm is on (deleting read-only files is tested late in the nfs
+tests).  Note that  if you have an access mask specified on the server
+(optional parms in smb.conf) it can make chmod generate less permission for
+chmod than testcases might expect so best not to set an access mask on your
+test shares while running the testcase.
+
+The fsx file system stress testing also runs against the CIFS VFS to either
+Windows or Samba servers (if -W -R options are specified when launching the
+fsx test in order to disable memory mapping) although I am not sure that I
+have ever been patient enough to run it all the way until the end.    I
+have tried the newer versions of LTP as well and have not found any
+problems so far but have not run all the way through every test on the
+current code but plan to.  I would like to find a test that tests more
+esoteric combinations of open flags, multiply opening the same files from
+the same process as well as from multiple processes on both the same and
+different machines.   Not all remote filesystems pass through every open to
+the remote target server (always restricting multiple opens of the same
+file to a single network file open) but in file systems like the cifs vfs
+that do, it would be nice to exhaustively test this useful feature.   It
+will be especially useful when testing oplock (distributed file caching) to
+do multiple conflicting and non-conflicting opens of the same files from
+both the same and different clients simulataneously.
+
+Steve French
+Senior Software Engineer
+Linux Technology Center - IBM Austin
+phone: 512-838-2294
+email: sfrench@us.ibm.com
+
 

@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275461AbTHNUtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 16:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275464AbTHNUtK
+	id S275524AbTHNVQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 17:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275528AbTHNVQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 16:49:10 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:28171 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S275461AbTHNUtI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 16:49:08 -0400
-Date: Thu, 14 Aug 2003 21:49:06 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Jakub Bogusz <qboosh@pld-linux.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] interlace and doublescan modes support for tdfxfb in
- 2.6
-In-Reply-To: <20030814201951.GC27236@satan.blackhosts>
-Message-ID: <Pine.LNX.4.44.0308142148510.15200-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Aug 2003 17:16:28 -0400
+Received: from mail.kroah.org ([65.200.24.183]:56248 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S275524AbTHNVQ1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 17:16:27 -0400
+Date: Thu, 14 Aug 2003 14:14:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Sensors <sensors@Stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] i2c driver fixes for 2.6.0-test2
+Message-ID: <20030814211402.GA3640@kroah.com>
+References: <20030802052904.GA9782@kroah.com> <20030802095518.4c5630ef.khali@linux-fr.org> <20030802165638.GF11038@kroah.com> <20030803052728.GC5202@earth.solarsys.private> <20030804160630.GB3395@kroah.com> <20030805034921.GB11605@earth.solarsys.private> <20030814051347.GB15093@earth.solarsys.private>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030814051347.GB15093@earth.solarsys.private>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 14, 2003 at 01:13:47AM -0400, Mark M. Hoffman wrote:
+> This is a resend of a patch to the i2c-nforce2.c I2C bus driver.
+> The start of the relevant thread was here:
+> http://archives.andrew.net.au/lm-sensors/msg03820.html
+> 
+> [comment]
+> This patch restores a line that was wrongly removed.  There are also some
+> trivial cleanups.  It applies & compiles vs. 2.6.0-test3.  It's untested
+> (no hardware here).
+> [/comment]
 
-Applying patch. It will be in the next code drop.
+Oops, sorry I forgot this one.  I've now applied it and will send it on
+later to Linus.
 
-
-On Thu, 14 Aug 2003, Jakub Bogusz wrote:
-
-> Like the second tdfxfb patch I've posted a while ago - it was posted to
-> linux-fbdev-devel few days ago, but I haven't got any feedback...
-> 
-> It works on my Voodoo4 4500 and shouldn't cause any problems on other
-> Voodoos - it's just a port of changes between 2.4.20 and 2.4.21.
-> 
-> 
-> ----- Forwarded message from Jakub Bogusz <qboosh at pld-linux.org> -----
-> 
-> Date: Sun, 10 Aug 2003 01:24:55 +0200
-> From: Jakub Bogusz <qboosh at pld-linux.org>
-> To: linux-fbdev-devel at lists.sourceforge.net
-> Subject: [PATCH] interlace and doublescan modes support for tdfxfb in 2.6
-> 
-> Hello,
-> 
-> this patch adds interlace and doublescan modes support to tdfxfb in 2.6
-> (it's a port of changes already incorporated into 2.4.21).
-> 
-> [...]
-> 
-> 
-
+greg k-h

@@ -1,31 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318652AbSHVJYF>; Thu, 22 Aug 2002 05:24:05 -0400
+	id <S319312AbSHVJqY>; Thu, 22 Aug 2002 05:46:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318693AbSHVJYF>; Thu, 22 Aug 2002 05:24:05 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:49150 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S318652AbSHVJYE>; Thu, 22 Aug 2002 05:24:04 -0400
-Date: Thu, 22 Aug 2002 10:59:42 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: James Hayhurst <herrdoktor@email.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Cannot unmount initrd
-Message-ID: <20020822105942.A807@linux-m68k.org>
-References: <20020822005730.9319.qmail@email.com>
+	id <S319313AbSHVJqY>; Thu, 22 Aug 2002 05:46:24 -0400
+Received: from ALyon-209-1-13-54.abo.wanadoo.fr ([217.128.17.54]:11961 "EHLO
+	alph.dyndns.org") by vger.kernel.org with ESMTP id <S319312AbSHVJqX>;
+	Thu, 22 Aug 2002 05:46:23 -0400
+Subject: [PATCH]: fix 32bits integer overflow in loops_per_jiffy calculation
+From: Yoann Vandoorselaere <yoann@prelude-ids.org>
+To: cpufreq@lists.arm.linux.org
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+       "benh@kernel.crashing.org" <benh@kernel.crashing.org>
+Content-Type: multipart/mixed; boundary="=-gG50E+/VVPeXiE/jq6T6"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 22 Aug 2002 11:50:40 +0200
+Message-Id: <1030009840.15429.109.camel@alph>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020822005730.9319.qmail@email.com>; from herrdoktor@email.com on Wed, Aug 21, 2002 at 07:57:30PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 21, 2002 at 07:57:30PM -0500, James Hayhurst wrote:
-> I'm making a boot CD and having problems unmounting and freeing the initrd after pivoting to a different root.  First off, for some reaosn it seems that /linuxrc is not being executed. 
 
-don't use 'root=/dev/ramX' if you want linuxrc executed.
+--=-gG50E+/VVPeXiE/jq6T6
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+Hi,
 
-Richard
+The "low_part * mult" multiplication of the old function may overflow a
+32bits integer...
+
+This patch both fix the overflow issue (tested with frequencies up to
+20Ghz), and make the result of the function lose less precision.
+
+Please apply, 
+
+-- 
+Yoann Vandoorselaere, http://www.prelude-ids.org
+
+"Programming is a race between programmers, who try and make more and 
+ more idiot-proof software, and universe, which produces more and more 
+ remarkable idiots. Until now, universe leads the race"  -- R. Cook
+
+--=-gG50E+/VVPeXiE/jq6T6
+Content-Disposition: attachment; filename=cpufreq-overflow.diff
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=cpufreq-overflow.diff; charset=ISO-8859-1
+
+--- linux-benh/kernel/cpufreq.c	2002-08-21 17:27:52.000000000 +0200
++++ linux-yoann/kernel/cpufreq.c	2002-08-22 11:27:09.000000000 +0200
+@@ -78,14 +78,16 @@ static unsigned int             cpufreq_
+  */
+ static unsigned long scale(unsigned long old, u_int div, u_int mult)
+ {
+-	unsigned long low_part, high_part;
+-
+-	high_part  =3D old / div;
+-	low_part   =3D (old % div) / 100;
+-	high_part *=3D mult;
+-	low_part   =3D low_part * mult / div;
+-
+-	return high_part + low_part * 100;
++        unsigned long val, carry =3D 0;
++       =20
++        mult /=3D 100;
++        div  /=3D 100;
++        val =3D old / div * mult;
++
++        carry =3D old % div;
++        carry =3D carry * mult / div;
++               =20
++        return val + carry;
+ }
+=20
+=20
+
+--=-gG50E+/VVPeXiE/jq6T6--
 

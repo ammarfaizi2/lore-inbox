@@ -1,162 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVANVaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVANVjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbVANVaO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVANV3h
+	id S262185AbVANVjf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVANViz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:29:37 -0500
-Received: from gw.goop.org ([64.81.55.164]:10903 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S262124AbVANV04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:26:56 -0500
-Subject: 2.6.10-mm3: lseek broken on /proc/self/maps
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Prasanna Meda <pmeda@akamai.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-yf84UKA4oQa58A8+hP99"
-Date: Fri, 14 Jan 2005 13:23:39 -0800
-Message-Id: <1105737819.11209.9.camel@localhost>
+	Fri, 14 Jan 2005 16:38:55 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:2247 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262058AbVANVgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 16:36:10 -0500
+Date: Fri, 14 Jan 2005 13:36:02 -0800
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: [Patch] x86: use cpumask_t instead of unsigned long
+Message-ID: <20050114133602.A13523@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-0.mozer.1) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Current code can lead to corruption. Please apply the fix.
 
---=-yf84UKA4oQa58A8+hP99
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+thanks,
+suresh
+--
 
-lseek doesn't seem to have any effect on /proc/<pid>/maps.  It should
-either work as expected, or fail.
+Use cpumask_t instead of unsigned long.
 
-I've attached a test program which uses a doubling buffer policy to try
-to read the whole buffer.  If it runs out of buffer, it simply allocates
-a new one, lseeks back to the beginning of the buffer, and tries again.
-However, the lseek seems to have no effect, because the next read
-continues from where the previous one (before the lseek) left off.
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
-Re-opening the file between each attempt works as expected.
 
-$ tm &
-$ ./readmap $!
-b7dea000-b7deb000 r-xp b7dea000 00:00 0
-b7deb000-b7dec000 ---p b7deb000 00:00 0
-b7dec000-b7ded000 r-xp b7dec000 00:00 0
-b7ded000-b7dee000 ---p b7ded000 00:00 0
-b7dee000-b7def000 r-xp b7dee000 00:00 0
-b7def000-b7df0000 ---p b7def000 00:00 0
-b7df0000-b7df1000 r-xp b7df0000 00:00 0
-[...]
-$ gcc -o readmap -DREOPEN readmap.c
-$ ./readmap $!
-08048000-08049000 r-xp 00000000 03:07 3868140    /home/jeremy/tm
-08049000-0804a000 rwxp 00000000 03:07 3868140    /home/jeremy/tm
-b7ae6000-b7ae7000 r-xp b7ae6000 00:00 0
-b7ae7000-b7ae8000 ---p b7ae7000 00:00 0
-b7ae8000-b7ae9000 r-xp b7ae8000 00:00 0
-b7ae9000-b7aea000 ---p b7ae9000 00:00 0
-b7aea000-b7aeb000 r-xp b7aea000 00:00 0
-b7aeb000-b7aec000 ---p b7aeb000 00:00 0
-
-	J
-
---=-yf84UKA4oQa58A8+hP99
-Content-Disposition: attachment; filename=readmap.c
-Content-Type: text/x-csrc; name=readmap.c; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifndef REOPEN
-#define REOPEN	0
-#endif
-
-int main(int argc, char **argv)
-{
-	int bufsize = 1024;
-	char *buf = NULL;
-	int bufused;
-	int got;
-	int fd = -1;
-	char path[100];
-
-	if (argc <= 1)
-		strcpy(path, "/proc/self/maps");
-	else
-		sprintf(path, "/proc/%s/maps", argv[1]);
-
-  again:
-	if (fd == -1)
-		fd = open(path, O_RDONLY);
-
-	if (fd == -1) {
-		perror("open");
-		exit(1);
-	}
-
-	if (lseek(fd, 0, SEEK_SET) == -1) {
-		perror("lseek");
-		exit(1);
-	}
-	bufused = 0;
-	if (buf == NULL)
-		buf = malloc(bufsize);
-
-	do {
-		int want = bufsize - bufused;
-		got = read(fd, &buf[bufused],
-			       want > 4000 ? 4000 : want); /* work around other bug */
-		if (got < 0) {
-			perror("read");
-			exit(1);
-		}
-		bufused += got;
-	} while(bufused < bufsize && got != 0);
-
-	if (bufused == bufsize) {
-		free(buf);
-		buf = NULL;
-		bufsize *= 2;
-		if (REOPEN) {
-			/* reopen */
-			close(fd);
-			fd = -1;
-		}
-		goto again;
-	}
-	close(fd);
-
-	write(1, buf, bufused);
-
-	return 0;
-}
-
---=-yf84UKA4oQa58A8+hP99
-Content-Disposition: attachment; filename=tm.c
-Content-Type: text/x-csrc; name=tm.c; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-#include <sys/mman.h>
-#include <unistd.h>
-int main()
-{
-	int i;
-	char *m = mmap(0, 1000*4096, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
-	char *p = m;
-
-	for(i = 0; i < 1000; i+=2) {
-		mprotect(p, 4096, PROT_READ);
-		p += 8192;
-	}
-
-	pause();
-
-	return 0;
-}
-
---=-yf84UKA4oQa58A8+hP99--
-
+diff -Nru linux-2.6.10/arch/i386/kernel/cpu/common.c linux-cpumask/arch/i386/kernel/cpu/common.c
+--- linux-2.6.10/arch/i386/kernel/cpu/common.c	2004-12-24 13:33:50.000000000 -0800
++++ linux-cpumask/arch/i386/kernel/cpu/common.c	2005-01-14 11:45:39.876089160 -0800
+@@ -455,7 +455,7 @@
+ 		printk("\n");
+ }
+ 
+-unsigned long cpu_initialized __initdata = 0;
++cpumask_t cpu_initialized __initdata = CPU_MASK_NONE;
+ 
+ /* This is hacky. :)
+  * We're emulating future behavior.
+@@ -509,7 +509,7 @@
+ 	struct tss_struct * t = &per_cpu(init_tss, cpu);
+ 	struct thread_struct *thread = &current->thread;
+ 
+-	if (test_and_set_bit(cpu, &cpu_initialized)) {
++	if (cpu_test_and_set(cpu, cpu_initialized)) {
+ 		printk(KERN_WARNING "CPU#%d already initialized!\n", cpu);
+ 		for (;;) local_irq_enable();
+ 	}

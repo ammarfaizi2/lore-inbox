@@ -1,145 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265576AbUABTmP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 14:42:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265610AbUABTmP
+	id S265572AbUABThj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 14:37:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265574AbUABThj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 14:42:15 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:53584 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S265576AbUABTmL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 14:42:11 -0500
-Date: Fri, 2 Jan 2004 21:42:00 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Cc: Willy Tarreau <willy@w.ods.org>
-Subject: Re: Something corrupts raid5 disks slightly during reboot
-Message-ID: <20040102194200.GA11115091@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	linux-kernel@vger.kernel.org, Willy Tarreau <willy@w.ods.org>
-References: <20031031190829.GM4868@niksula.cs.hut.fi> <3FA30F4A.5030500@hundstad.net> <20031101082745.GF4640@niksula.cs.hut.fi> <20031101155604.GB530@alpha.home.local> <20031101182518.GL4640@niksula.cs.hut.fi> <20031101190114.GA936@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031101190114.GA936@alpha.home.local>
-User-Agent: Mutt/1.4i
+	Fri, 2 Jan 2004 14:37:39 -0500
+Received: from firewall.conet.cz ([213.175.54.250]:50076 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265572AbUABThi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 14:37:38 -0500
+Message-ID: <3FF5C881.2080004@conet.cz>
+Date: Fri, 02 Jan 2004 20:37:37 +0100
+From: Libor Vanek <libor@conet.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Syscall table AKA hijacking syscalls
+References: <3FF56B1C.1040308@conet.cz> <20040102151206.GJ1718@actcom.co.il> <3FF59073.3060305@conet.cz> <20040102160020.A24026@infradead.org> <20040102163552.GD31489@wohnheim.fh-wedel.de> <3FF5A36A.5070501@conet.cz> <20040102180431.GB6577@wohnheim.fh-wedel.de> <3FF5BF68.8060303@conet.cz> <20040102191805.GA12905@wohnheim.fh-wedel.de>
+In-Reply-To: <20040102191805.GA12905@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary:                                                                   
+Jörn Engel wrote:
+> On Fri, 2 January 2004 19:58:48 +0100, Libor Vanek wrote:
+> 
+>>On Fri, Jan 02, 2004 at 07:04:31PM +0100, Jörn Engel wrote:
+>>
+>>>On Fri, 2 January 2004 17:59:22 +0100, Libor Vanek wrote:
+>>>
+>>>>This is also something (but just a bit) different - I don't need "change 
+>>>>notification" but "pre-change notification" ;)
+>>>
+>>>"Vor dem Spiel ist nach dem Spiel" -- Sepp Herberger
+>>>
+>>>Except for exactly two cases, pre-change and post-change and the same,
+>>>just off-by-one.  So you would need a bootup/mount/whenever special
+>>>case now, is that a big problem?
+>>
+>>Probably my english is bad but I don't understand what are you trying to 
+>>say (except the german part ;-))
+>>A bit more about pre/post-change (if this is what are you trying to say) - 
+>>I need allways pre-change because after file is changed I can no longer get 
+>>original (pre-change) version of file which I need for snapshot.
+> If you take a snapshot on every change within your scope, it doesn't
+> really matter whether you do it before or after the change.  Before
+> change n is just after change n-1.  All you have to do is take another
+> snapshot before the first change, that is the special case.
 
-I've been experiencing strange corruption on a raid5 volume for some time. 
-The kernel is 2.2.x + RAID-0.90 patch. Fs is ext2 (+e2compr). After        
-unmounting the filesystem, I can mount it again without problems. I can also
-raidstop the raid device in between and all is still fine:
+But this special case in fact means to copy all the data, if wanted to do it 100% working ;-) And I suggest that it wont' go through my exam ;)
 
-> umount /dev/md4; mount /dev/md4
-    - no corruption              
-> umount /dev/md4; raidstop /dev/md4; raidstart /dev/md4; mount /dev/md4
-    - no corruption                                                     
+> Actually, with userspace notification in place, you could even get
+> this with just cvs.  Whenever a file is changed, commit.  cvs add on
+> creation, etc.  Yes, it sucks, but implementation simplicity has it's
+> own beauty and it would only take a few minutes. :)
 
-But after a reboot, the filesystem is corrupted - few bytes differ in the
-beginning of /dev/md4 between 1k and and 5k.
+I've heard about some fs from Microsoft which should have cvs-like behaviour for all the time ("I want this file version from yesterday") - but I haven't had any details (and I suppose performance hit must be big)
 
-See the threads
-  http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=MMYt.4B2.1%40gated-at.bofh.it&rnum=1&prev=/groups%3Fnum%3D50%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26q%3DSomething%2Bcorrupts%2Braid5%2Bdisks%2Bslightly%2Bduring%2Breboot%26sa%3DN%26tab%3Dwg
-  http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=MZsH.72R.5%40gated-at.bofh.it&rnum=4&prev=/groups%3Fnum%3D50%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26q%3DSomething%2Bcorrupts%2Braid5%2Bdisks%2Bslightly%2Bduring%2Breboot%26sa%3DN%26tab%3Dwg
-for details.
+-- 
 
-I did some futher research.
-
-First I thought this was an artifact of using "non-normal" blocksize on the
-fs, 4096 bytes. The other raid partitions I have on the system are 1024 and
-do not get corrupted.). Also the corrupting fs is on raid5 on bare disks
-(hdb+hdc+hdg), while the others are on partitions (hda1+hdd1+hdf1 and so
-on.)
-
-I tried to reproduce this under vmware with 3-disk raid5 (hda+hdb+hdd) using
-4096-byte ext2 and the exact same kernel. Initially, I thought I was able to
-trigger it by mounting the fs while raid rebuild was on progress. The kernel
-spitted this:
-
-  set_blocksize: b_count 1, dev md(9,4), block 15642112, from c014c3fb
-  set_blocksize: b_count 1, dev md(9,4), block 15642113, from c014c3fb
-  set_blocksize: b_count 1, dev md(9,4), block 15642114, from c014c3fb
-  ...
-  set_blocksize: b_count 2, dev md(9,4), block 15642367, from c014c3fb
-  md4: blocksize changed during read
-  nr_blocks changed to 64 (blocksize 4096, j 3910528, max_blocks 39091968)
-
-and fsck reported problems, but only once (the set_blocksize stuff appeared
-each time). It seems the "set_blocksize" outpouring is a known issue, and
-not severe:
-
-  http://www.ussg.iu.edu/hypermail/linux/kernel/0110.1/0493.html
-
-The fsck errors were probably just a side-effect of unclean shutdown I used
-to force raid rebuild.
+Libor Vanek
 
 
-After the failed vmware experiment, I tried to isolate when exactly the
-corruption happens, shutdown or boot. Also, in the mentioned threads, people
-had suggested turning off the write cache of the IDE disk.
-
-I found out that the difference (corruption) is usually on three bytes on
-/dev/hdg, but sometimes on /dev/hdc, too. (/dev/md4 = hdb+hdc+hdg; hdb&hdc
-are on i810, hdg is on hpt370).
-
-First, I did
-   umount /dev/md4
-   raidstop /dev/md4
-   head -c 50k /dev/hdg > /save/hdg
-   reboot
-
-To rule out kernel raid autodetect and raid code in general, I
-booted 2.2.25-1-secure with "single init=/bin/bash raid=noautodetect".
- Did
-   head -c50k /dev/hdg | cmp -l /save/hdg
- Three bytes differed:
-   4641   0      35
-   4642   0      205
-   4643   0      10
-   bytepos after before
-           boot  boot  
-
- wrote the original stuff back:
-   dd if=/save/hdg /dev/hdg
-   sync
-   hdparm -W0 /dev/hdg
-   sync
-   reboot
-
-Booted 2.2.25-1-secure with "single init=/bin/bash raid=noautodetect"
-again.
- Did
-   head -c50k /dev/hdg | cmp -l /save/hdg
- Three same three bytes differed again.
- Wrote the stuff back, sync'ed, did hdparm, and powered off. Still, the the
-bytes differed on next boot.
-
-Then I booted 2.4.21-jam1 with "single init=/bin/bash raid=noautodetect" (I
-happened to have 2.4.21-jam1 compiled with suitable drivers at hand).
- Wrote the same stuff back with dd, synced, turned ide cache off.
- Booted 2.4.21-jam1 with "single init=/bin/bash raid=noautodetect" again.
- Did the diff; the three bytes differed again.
-
-Note that sometimes few bytes on hdc differed, too. Usually it was just the
-three hdg bytes.
-
-So this is not a 2.2 kernel issue. I very much doubt it's a kernel issue at
-all. Unless it is a bug in kernel partition detection that is still present
-in 2.4.x.
-         
-I tried to turn off the ide write cache with hdparm -W0, so it shouldn't  
-be a write caching issue.
-
-If it's a bios issue, it's really a strange one, since it affects both disks
-on i810 ide and on hpt370. The disks have no partition table, though, which
-_could_ confuse the bios.
-
-Any ideas? Who the heck could write to those three bytes, and why?
 
 
--- v --
-
-v@iki.fi

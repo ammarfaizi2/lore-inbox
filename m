@@ -1,54 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264036AbTDOU4x (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbTDOU4x 
+	id S264039AbTDOU7I (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 16:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbTDOU7H 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 16:56:53 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2944 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264036AbTDOU4v (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 16:56:51 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304152111.h3FLBJrp000257@81-2-122-30.bradfords.org.uk>
-Subject: Re: statistics for this mailinglist
-To: manfred@colorfullife.com (Manfred Spraul)
-Date: Tue, 15 Apr 2003 22:11:19 +0100 (BST)
-Cc: root@vanheusden.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3E9C605A.8020809@colorfullife.com> from "Manfred Spraul" at Apr 15, 2003 09:41:14 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Tue, 15 Apr 2003 16:59:07 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:60114 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S264039AbTDOU7H (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 16:59:07 -0400
+Date: Tue, 15 Apr 2003 23:10:49 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: jamal <hadi@cyberus.ca>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] qdisc oops fix
+Message-ID: <20030415211049.GB22780@louise.pinerecords.com>
+References: <20030415084706.O1131@shell.cyberus.ca> <20030415134305.GF15944@louise.pinerecords.com> <20030415102918.U2397@shell.cyberus.ca>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030415102918.U2397@shell.cyberus.ca>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Messages per hour
-> >----------------------------------------------------------
-> > 1   107 *************************************************
-> > 2    36 *****************
-> > 3    18 *********
-> > 4    10 *****
-> > 5     8 ****
-> > 6    10 *****
-> > 7    28 *************
-> > 8    40 *******************
-> > 9    69 ********************************
-> >10    78 ************************************
-> >11    75 ***********************************
-> >12    69 ********************************
-> >13    91 ******************************************
-> >14    85 ***************************************
-> >15    81 **************************************
-> >16    91 ******************************************
-> >17    70 *********************************
-> >18    77 ************************************
-> >19    56 **************************
-> >20    52 ************************
-> >21    66 *******************************
-> >22    62 *****************************
-> >23    57 ***************************
-> >
-> Which timezone?
+> [hadi@cyberus.ca]
+> 
+> Can you try a different qdisc - not htb to reproduce the problem?
 
-Each individual poster's timezone.
+Not quite possible I'm afraid.
 
-John.
+-- 
+Tomas Szepe <szepe@pinerecords.com>

@@ -1,36 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVAQVmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVAQVqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVAQVmp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 16:42:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVAQVmp
+	id S261455AbVAQVqS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 16:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVAQVqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 16:42:45 -0500
-Received: from hera.kernel.org ([209.128.68.125]:55438 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S262898AbVAQVlQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 16:41:16 -0500
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: kbuild: Implicit dependence on the C compiler
-Date: Mon, 17 Jan 2005 21:40:55 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <cshbd7$nff$1@terminus.zytor.com>
+	Mon, 17 Jan 2005 16:46:17 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:3466 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261455AbVAQVqA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 16:46:00 -0500
+Subject: Re: smbfs in 2.6.8 SMP kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Brian Henning <brian@strutmasters.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41EC003B.7040606@strutmasters.com>
+References: <41EBD4E8.70905@strutmasters.com>
+	 <Pine.LNX.4.61.0501171633140.20155@jjulnx.backbone.dif.dk>
+	 <41EC003B.7040606@strutmasters.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1105984827.16096.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1105998055 24048 127.0.0.1 (17 Jan 2005 21:40:55 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 17 Jan 2005 21:40:55 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 17 Jan 2005 20:41:28 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, this is driving me utterly crazy...
+On Llu, 2005-01-17 at 18:13, Brian Henning wrote:
+> Jesper Juhl wrote:
+> > If I remember correctly there was some smbfs breakage a few releases back 
+> > - 2.6.8 sounds about right. I'd suggest you try a newer kernel like 2.6.10 
+> > or 2.6.11-rc1 and see if that works better.
+> 
+> No luck with smbfs in 2.6.10 with SMP either; however, I discovered the 
+> existence of CIFS (which I previously did not know about), and it 
+> appears to work smoothly in place of smbfs.
 
-How the heck do I get kbuild to *not* think that because I'm using a
-different C compiler (including "gcc" versus "distcc"), or I'm on a
-different host, that it has to rebuild every single object file in my
-directory?  This is an unbelievable headache.
-
-	-hpa
+2.6.10-ac fixes several problems with the later smbfs code but cifs is
+probably the better choice
 

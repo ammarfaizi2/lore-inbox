@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUKHKfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbUKHK5G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbUKHKfx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 05:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbUKHKfx
+	id S261291AbUKHK5G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 05:57:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbUKHK5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 05:35:53 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47589 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261503AbUKHKfq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 05:35:46 -0500
-Date: Mon, 8 Nov 2004 10:35:44 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: unix_gc and file_count
-Message-ID: <20041108103544.GA24336@parcelfarce.linux.theplanet.co.uk>
-References: <20041108084825.GA8704@impedimenta.in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108084825.GA8704@impedimenta.in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 8 Nov 2004 05:57:06 -0500
+Received: from imap1.nextra.sk ([195.168.1.91]:24076 "EHLO mailhub1.nextra.sk")
+	by vger.kernel.org with ESMTP id S261291AbUKHK5C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 05:57:02 -0500
+Message-ID: <418F511E.6030506@rainbow-software.org>
+Date: Mon, 08 Nov 2004 11:57:34 +0100
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041105)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Egger <degger@fhm.edu>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cdu31a - anyone has this ancient drive for testing?
+References: <418E4A27.2060104@rainbow-software.org> <81AB4E1C-3101-11D9-92BA-000A958E35DC@fhm.edu>
+In-Reply-To: <81AB4E1C-3101-11D9-92BA-000A958E35DC@fhm.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 02:18:25PM +0530, Ravikiran G Thirumalai wrote:
-> unix_gc then walks through all the unix sockets in the hashtable, and 
-> processes sockets marked for gc (GC_ORPHAN).  unix_gc frees up the skbs in the 
-> receive queue of these unix sockets which have a fd[] payload on that skb.  
-> Other skbs are left as is.
- 
-> 1. Even if gc doesn't garbage collect the fd[] payload skbs, they'll be later
-> freed by unix_release through __fput when the f_count for that socket goes to 0.
-> Isn't a GC just for fd[] payloads which will anyway be freed wasteful?  I
-> probably am missing something here........ 
+Daniel Egger wrote:
+> On 07.11.2004, at 17:15, Ondrej Zary wrote:
+> 
+>> If someone has these ancient drives (CDU31A or CDU33A), please test :-)
+> 
+> 
+> I believe I have mine still lying around somewhere; if you are
+> interested (and willing to tell me a shippable address ;)) I'd
+> try to find it and send it over. I also probably still have
+> one or two ISA soundcards with Sony connector (one with Opti
+> chipset and a "highend" Yamaha Waveforge with additional cool
+> stuff... ;))
 
-You are.  Put descriptor of AF_UNIX socket into an SCM_RIGHTS datagram.
-Send that datagram to that socket.  Close all descriptors you had opened.
+If you don't want to test it yourself, it might help me (if shipping to 
+Slovakia is not a problem).
 
-We won't get the final fput() until all references to struct file are
-gone.  We won't get all references gone until one in SCM_RIGHTS datagram
-is gone.  I.e. that datagram has to die *before* we get to unix_release().
-I.e. the only thing that can trigger the whole thing is GC.
+> While we are at it I also have a Dawicontrol UW SCSI Controller
+> with Symbios Logic chipset to offer and two SCSI CD-Rom drives.
 
-That's why we need the damn thing in the first place.  And that's why
-socket and non-socket cases are different.
+This might be useful for SCSI people.
 
-Funnier case to look at:
+> If someone expresses interest in this ancient stuff I'd be happy
+> to arrange some shipment.
+> 
+> Servus,
+>       Daniel
 
-fd1 and fd2 are AF_UNIX sockets.
-get an SCM_RIGHTS datagram with fd1 in it into the queue of fd2.
-get an SCM_RIGHTS datagram with fd2 in it into the queue of fd1.
-close all opened descriptors (or just exit)
 
-We have two struct file, each with ->f_count == 1.  Each has an AF_UNIX
-socket associated with it (with inflight == 1).  And the only reference
-to either struct file is sitting in skb in the receiving queue of another
-one.
-
-Current algorithm is obviously correct: GC_ORPHAN is set on the sockets
-that will never have anything received from them.  Since we know that
-we'll never receive pending SCM_RIGHTS datagrams in their queues, we can
-pull all such datagrams out and kill them, which will release the references
-to files held by them.  And that's all we can kill - a datagram in queue
-of non-GC_ORPHAN socket could be eventually received, so we can't drop the
-struct file references it carries.
+-- 
+Ondrej Zary

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270472AbTGPIni (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 04:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270478AbTGPInh
+	id S270478AbTGPIpm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 04:45:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGPIpm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 04:43:37 -0400
-Received: from mirapoint3.brutele.be ([212.68.203.242]:58198 "EHLO
-	mirapoint3.brutele.be") by vger.kernel.org with ESMTP
-	id S270472AbTGPInc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 04:43:32 -0400
-Date: Wed, 16 Jul 2003 10:27:31 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: How to test the new kernel 2.6.0-test1 ?
-Message-ID: <20030716082731.GA6202@stargate.brutele.be>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux stargate 2.4.20-gentoo-r5
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+	Wed, 16 Jul 2003 04:45:42 -0400
+Received: from gandalf.avalon.ru ([195.209.229.227]:44715 "EHLO smtp.avalon.ru")
+	by vger.kernel.org with ESMTP id S270478AbTGPIn5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 04:43:57 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Partitioned loop device..
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+Date: Wed, 16 Jul 2003 12:59:43 +0400
+Message-ID: <E1B7C89B8DCB084C809A22D7FEB90B3840AE@frodo.avalon.ru>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Partitioned loop device..
+Thread-Index: AcNLFqtdn4SSHbleShSHsTvLDZ7TAQAXTZ7A
+From: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>
+To: "Lars Marowsky-Bree" <lmb@suse.de>, "Kevin Corry" <kevcorry@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> There is no difference. What makes /dev/loop1a worse than 
+> /dev/hda1? It's just block devices, that's it.
+Yes, it is. But I meant its still impossible to use legacy fdisk to
+create that DM mapped partitions (or am I wrong?)
 
+> I have hopes that the entire partitioning code etc will be 
+> ripped out in 2.7 in favour of full userspace discovery + DM, 
+> and that MD will hit the same fate...
+MD - did you mean metadisks (software raids?)
 
-I am using the kernel 2.6.0-test1 on my computer, and it works perfectly.
-
-Which are the weaknesses of the new kernel, an idea ?
-
-
-Best Regards, 
-
-Stephane Wirtel
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-GPG ID : 1024D/C9C16DA7 | 5331 0B5B 21F0 0363 EACD  B73E 3D11 E5BC C9C1 6DA7
-
-
+Dimitry.

@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262813AbSLaOOK>; Tue, 31 Dec 2002 09:14:10 -0500
+	id <S262821AbSLaOSi>; Tue, 31 Dec 2002 09:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbSLaOOK>; Tue, 31 Dec 2002 09:14:10 -0500
-Received: from mail.scram.de ([195.226.127.117]:49091 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S262813AbSLaOOK>;
-	Tue, 31 Dec 2002 09:14:10 -0500
-Date: Tue, 31 Dec 2002 15:22:28 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-To: John Bradford <john@grabjohn.com>
-cc: Xavier Bestel <xavier.bestel@free.fr>, <andrew@walrond.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <200212311219.gBVCJjJM001277@darkstar.example.net>
-Message-ID: <Pine.NEB.4.44.0212311518570.9962-100000@www2.scram.de>
+	id <S262824AbSLaOSi>; Tue, 31 Dec 2002 09:18:38 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:61956 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262821AbSLaOSh>; Tue, 31 Dec 2002 09:18:37 -0500
+Date: Tue, 31 Dec 2002 09:24:54 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>, `@samba.org
+Subject: Re: 2.5.53 : modules_install warnings 
+In-Reply-To: <20021231074756.2B9AC2C10B@lists.samba.org>
+Message-ID: <Pine.LNX.3.96.1021231091929.10362B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John,
+On Tue, 31 Dec 2002, Rusty Russell wrote:
 
-> Are drivers for Alpha, Sparc, or anything else with a pci slot apart
-> from an X86 machine available?
+> In message <Pine.LNX.3.96.1021230212600.8353B-100000@gatekeeper.tmr.com> you wr
+> ite:
+> > On Sun, 29 Dec 2002, Rusty Russell wrote:
+> > 
+> > > In message <Pine.LNX.4.44.0212281758230.839-100000@linux-dev> you write:
+> > > > Hello all,
+> > > >   I received the following warnings while a 'make modules_install'. It 
+> > > > looks like there are a few more locking changes that need to be made. :)
+> > > 
+> > > This is SMP, right?  Those warnings are perfectly correct (yes, those
+> > > files need updating).
+> > 
+> > Any guess when you'll get them fixed?
+> 
+> I've discovered an interesting (but kinda obvious) phenomenon.  If you
+> destabilize some part of the kernel, it becomes the natural suspect
+> for problems.
+> 
+> The corollary is, I'm getting more reports on kernel "module" bugs
+> which are not actually my fault at all (and some, like erroneous
+> __init sections, which the new module code just shows up).
+> 
+> This is one: these drivers are actually broken.  They give warnings on
+> compile, they won't link when compiled in, and they won't insert as
+> modules.
+> 
+> Hope that clarifies,
 
-Unfortunately, that wouldn't be enought. There are lots of PCI graphics
-cards available, which still only work in an X86 (and in most cases Alpha)
-machines, although there is an open source driver. The reason is that they
-need the initialisation code in their PCI BIOS, which is X86, binary code.
-Alpha works around this by using an X86 emulator in their PAL code.
+If they didn't work in 2.5.47, before the module change, then clearly they
+are broken on their own. If they worked until then, and especially if they
+work built-in still, I would certainly suspect that the problem is related
+to the module change.
 
---jochen
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262615AbUCEO7M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 09:59:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbUCEO7L
+	id S262623AbUCEPPt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 10:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbUCEPPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 09:59:11 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:32776
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262615AbUCEO7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 09:59:08 -0500
-Date: Fri, 5 Mar 2004 15:59:47 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
-       riel@redhat.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305145947.GA4922@dualathlon.random>
-References: <20040228072926.GR8834@dualathlon.random> <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040305103308.GA5092@elte.hu> <20040305141504.GY4922@dualathlon.random> <20040305143425.GA11604@elte.hu>
+	Fri, 5 Mar 2004 10:15:49 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:56228 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S262623AbUCEPPr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 10:15:47 -0500
+Date: Fri, 5 Mar 2004 08:15:42 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: problem with cache flush routine for G5?
+Message-ID: <20040305151542.GL26065@smtp.west.cox.net>
+References: <40479A50.9090605@nortelnetworks.com> <1078444268.5698.27.camel@gaston> <20040304235754.GK26065@smtp.west.cox.net> <1078445065.5703.37.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040305143425.GA11604@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <1078445065.5703.37.camel@gaston>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 05, 2004 at 03:34:25PM +0100, Ingo Molnar wrote:
+On Fri, Mar 05, 2004 at 11:04:26AM +1100, Benjamin Herrenschmidt wrote:
 > 
-> * Andrea Arcangeli <andrea@suse.de> wrote:
-> 
-> > > vsyscall-sys_gettimeofday and vsyscall-sys_time could help quite some
->                                   ^^^^^^^^^^^^^^^^^
-> > > for mysql. Also, the highly threaded nature of mysql on the same MM
 > > 
-> > he said he doesn't use gettimeofday frequently, so most of the flushes
-> > are from other syscalls.
+> > ... unless this is a 'G5' that's not in a pmac, it's not my code, and
+> > the openfirmware bootloaders don't, IIRC, do any cache stuff.
 > 
-> you are not reading Pete's and my emails too carefully, are you? Pete
-> said:
+> Heh, well, they should. You need to flush the dcache & invalidate the
+> icache over the kernel image after decompressing it. It's just that
+> those routines are totally broken as far as I can see, but I don't
+> think the pmac bootloaders will use them, they probably use a
+> different implementation that works.
 
-I thought time() wouldn't be called more than 1 per second anyways, why
-would anyone call time more than 1 per second?
+I take that back, the openfirmware stuff does have it's own flush_cache
+(of course).
 
-> 
-> > [...] MySQL does not use gettimeofday very frequently now, actually it
-> > uses time() most of the time, as some platforms used to have huge
->   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > performance problems with gettimeofday() in the past.
-> >
-> > The amount of gettimeofday() use will increase dramatically in the
-> > future so it is good to know about this matter.
-> 
-> 	Ingo
+> Note that whatever machines are using those routines will probably
+> have trouble too anyway
+
+I hate to disappoint Ben, but nothing is having any trouble with that
+code, even if it's not exactly right. :)
+
+Regardless, I'll go and make all of the boot code code the same,
+working, cache flushing code.  Thanks for finding that, Chris.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,89 +1,212 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbTI0CTE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 22:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbTI0CTE
+	id S262056AbTI0Dfa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 23:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTI0Dfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 22:19:04 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:36317 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S262038AbTI0CTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 22:19:01 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C3849D.B32B2DAF"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: ACPI patch flow
-Date: Fri, 26 Sep 2003 22:18:54 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE0CC871E@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI patch flow
-Thread-Index: AcN32XGZ1Aau06qCTBOIM0wtQAeqsQMwQXjw
-From: "Brown, Len" <len.brown@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <acpi-devel@lists.sourceforge.net>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "linux-acpi" <linux-acpi@intel.com>
-X-OriginalArrivalTime: 27 Sep 2003 02:18:58.0359 (UTC) FILETIME=[B5569C70:01C3849D]
+	Fri, 26 Sep 2003 23:35:30 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:11281 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S262056AbTI0DfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 23:35:05 -0400
+Date: Sat, 27 Sep 2003 13:31:40 +1000
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ARCNET] Fix double request_region in com20020
+Message-ID: <20030927033140.GA8051@gondor.apana.org.au>
+References: <20030927033055.GA8012@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="zhXaljGHf11kAtnf"
+Content-Disposition: inline
+In-Reply-To: <20030927033055.GA8012@gondor.apana.org.au>
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C3849D.B32B2DAF
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> From: Jeff Garzik [mailto:jgarzik@pobox.com]=20
-...
-> I definitely support the posting of plain patches...
+On Sat, Sep 27, 2003 at 01:30:55PM +1000, herbert wrote:
+> 
+> Currently com20020 and com20020_cs both call request_region on the same
+> block of ports leading to a conflict.  This patch resolves this by moving
+> request_region out of the generic driver and into the isa/pci/cs drivers.
 
-Done.
+And here is the patch for 2.4.
 
-In addition to pushing to the bkbits.net acpi-test-* trees,
-I'll publish a plain patch every time I commit a cset to acpi-test-*
-tree.
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-Like we've traditionally done on sourceforge.net, I'll continue to
-publish a cumulative plain patch every time the acpi-release-* tree is
-updated,
-but these will not live on sourceforge.net any more.
+--zhXaljGHf11kAtnf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=q
 
-The folks at kernel.org have graciously volunteered the space.
+Index: kernel-source-2.4/drivers/net/arcnet/com20020-isa.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/net/arcnet/com20020-isa.c,v
+retrieving revision 1.1.1.5
+diff -u -r1.1.1.5 com20020-isa.c
+--- kernel-source-2.4/drivers/net/arcnet/com20020-isa.c	3 Aug 2002 00:39:44 -0000	1.1.1.5
++++ kernel-source-2.4/drivers/net/arcnet/com20020-isa.c	27 Sep 2003 03:19:37 -0000
+@@ -53,6 +53,7 @@
+ 	int ioaddr;
+ 	unsigned long airqmask;
+ 	struct arcnet_local *lp = dev->priv;
++	int err;
+ 
+ #ifndef MODULE
+ 	arcnet_init();
+@@ -66,17 +67,20 @@
+ 		       "must specify the base address!\n");
+ 		return -ENODEV;
+ 	}
+-	if (check_region(ioaddr, ARCNET_TOTAL_SIZE)) {
++	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
+ 		BUGMSG(D_NORMAL, "IO region %xh-%xh already allocated.\n",
+ 		       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
+ 		return -ENXIO;
+ 	}
+ 	if (ASTATUS() == 0xFF) {
+ 		BUGMSG(D_NORMAL, "IO address %x empty\n", ioaddr);
+-		return -ENODEV;
++		err = -ENODEV;
++		goto out;
++	}
++	if (com20020_check(dev)) {
++		err = -ENODEV;
++		goto out;
+ 	}
+-	if (com20020_check(dev))
+-		return -ENODEV;
+ 
+ 	if (!dev->irq) {
+ 		/* if we do this, we're sure to get an IRQ since the
+@@ -100,13 +104,21 @@
+ 			dev->irq = probe_irq_off(airqmask);
+ 			if (dev->irq <= 0) {
+ 				BUGMSG(D_NORMAL, "Autoprobe IRQ failed.\n");
+-				return -ENODEV;
++				err = -ENODEV;
++				goto out;
+ 			}
+ 		}
+ 	}
+ 
+ 	lp->card_name = "ISA COM20020";
+-	return com20020_found(dev, 0);
++	if ((err = com20020_found(dev, SA_SHIRQ)) != 0)
++		goto out;
++
++	return 0;
++
++out:
++	release_region(ioaddr, ARCNET_TOTAL_SIZE);
++	return err;
+ }
+ 
+ 
+@@ -182,6 +194,7 @@
+ void cleanup_module(void)
+ {
+ 	com20020_remove(my_dev);
++	release_region(my_dev->base_addr, ARCNET_TOTAL_SIZE);
+ }
+ 
+ #else
+Index: kernel-source-2.4/drivers/net/arcnet/com20020-pci.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/net/arcnet/com20020-pci.c,v
+retrieving revision 1.1.1.10
+diff -u -r1.1.1.10 com20020-pci.c
+--- kernel-source-2.4/drivers/net/arcnet/com20020-pci.c	1 Jun 2003 03:06:26 -0000	1.1.1.10
++++ kernel-source-2.4/drivers/net/arcnet/com20020-pci.c	27 Sep 2003 03:15:23 -0000
+@@ -113,7 +113,7 @@
+ 	lp->timeout = timeout;
+ 	lp->hw.open_close_ll = com20020pci_open_close;
+ 
+-	if (check_region(ioaddr, ARCNET_TOTAL_SIZE)) {
++	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
+ 		BUGMSG(D_INIT, "IO region %xh-%xh already allocated.\n",
+ 		       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
+ 		err = -EBUSY;
+@@ -123,18 +123,20 @@
+ 		BUGMSG(D_NORMAL, "IO address %Xh was reported by PCI BIOS, "
+ 		       "but seems empty!\n", ioaddr);
+ 		err = -EIO;
+-		goto out_priv;
++		goto out_port;
+ 	}
+ 	if (com20020_check(dev)) {
+ 		err = -EIO;
+-		goto out_priv;
++		goto out_port;
+ 	}
+ 
+ 	if ((err = com20020_found(dev, SA_SHIRQ)) != 0)
+-	        goto out_priv;
++	        goto out_port;
+ 
+ 	return 0;
+ 
++out_port:
++	release_region(ioaddr, ARCNET_TOTAL_SIZE);
+ out_priv:
+ 	kfree(dev->priv);
+ out_dev:
+@@ -144,7 +146,9 @@
+ 
+ static void __devexit com20020pci_remove(struct pci_dev *pdev)
+ {
+-	com20020_remove(pci_get_drvdata(pdev));
++	struct net_device *dev = pci_get_drvdata(pdev);
++	com20020_remove(dev);
++	release_region(dev->base_addr, ARCNET_TOTAL_SIZE);
+ }
+ 
+ static struct pci_device_id com20020pci_id_table[] __devinitdata = {
+Index: kernel-source-2.4/drivers/net/arcnet/com20020.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/net/arcnet/com20020.c,v
+retrieving revision 1.1.1.5
+diff -u -r1.1.1.5 com20020.c
+--- kernel-source-2.4/drivers/net/arcnet/com20020.c	1 Jun 2003 03:06:26 -0000	1.1.1.5
++++ kernel-source-2.4/drivers/net/arcnet/com20020.c	27 Sep 2003 03:10:58 -0000
+@@ -204,12 +204,6 @@
+ 		BUGMSG(D_NORMAL, "Can't get IRQ %d!\n", dev->irq);
+ 		return -ENODEV;
+ 	}
+-	/* reserve the I/O region */
+-	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM20020)")) {
+-		free_irq(dev->irq, dev);
+-		return -EBUSY;
+-	}
+-	dev->base_addr = ioaddr;
+ 
+ 	BUGMSG(D_NORMAL, "%s: station %02Xh found at %03lXh, IRQ %d.\n",
+ 	       lp->card_name, dev->dev_addr[0], dev->base_addr, dev->irq);
+@@ -226,7 +220,6 @@
+ 
+ 	if (!dev->init && register_netdev(dev)) {
+ 		free_irq(dev->irq, dev);
+-		release_region(ioaddr, ARCNET_TOTAL_SIZE);
+ 		return -EIO;
+ 	}
+ 	return 0;
+@@ -348,7 +341,6 @@
+ {
+ 	unregister_netdev(dev);
+ 	free_irq(dev->irq, dev);
+-	release_region(dev->base_addr, ARCNET_TOTAL_SIZE);
+ 	kfree(dev->priv);
+ 	kfree(dev);
+ }
 
-Here's the plan:
-http://kernel.org/pub/linux/kernel/people/lenb/acpi/patches/README.ACPI
-And attached for the curious is my handy bk.checkin wrapper script.
-
-Thank you for your continued patience and support.
-
--Len
-
-------_=_NextPart_001_01C3849D.B32B2DAF
-Content-Type: application/x-zip-compressed;
-	name="bk.ZIP"
-Content-Transfer-Encoding: base64
-Content-Description: bk.ZIP
-Content-Disposition: attachment;
-	filename="bk.ZIP"
-
-UEsDBBQAAAAIAO+xOi+Uf63kmAIAADMGAAAJAAAAYmsuY29tbWl0lVRNb5tAED1nf8UkYPlQwR56
-a0VaYtPGiu1YtpM2jVKDYbFXhgXBurWi/vjOAjYfSaXUJ8/Me29nhpnRzumaC7r28i3RiAbrnekn
-ccwl/s/2AsIsiSFjaQJZkihnGc3BAz9nEk0hPS642IAXRSC3DNz1DlImAvS5EPKI5cBFEVE6KLFh
-gmWeZEok9aS/LV9RCKWJiBzpeeEo4zKBHcsEi8wk22CeQ3vpWG6AGvCu99CLe0HvujfpLVxCeAiP
-cA5GACa94vKGsZRl8PRRqQlyxvxtAvE+l69Vd8YOWHjICbl35ovR7dRyNxiFn5UJE2/HVEXwB/y9
-BMMIWMSxHSyz+tAHI3zvkpm9HFyPnXtnfGTXnjcJLO6uWvSj/Say8305tzvZN31vErlx5lNnPHfG
-jr1wLL2imnpdiKkfs9Kb6qRob4sOesskZX9WX0ZjVF5OZqvhaE49P+WGbg9mo9XAXlViRptpBjwM
-yezuSjEsmu7XNOJif6DlZNCUJWnEaMTEutCjxeiwnOKgSTJ0FsuCqFcK9EVe34aWm/4OXFJlZVEZ
-p9TF1WDCixnoiGhV65rVE42hO5YET1CNHFS/eBfw7BRXU1Y06+Qg9dqob+NJUgIMAf2yZ1N74nyC
-PsmYF0DtImRwO5k402WnqbraEkOvgaY8yFfb/xJZFNbArr7+sPTaNDfPVXazYj+n2J8P0BAogwO8
-FUzIHEPNFBvME6nwl4H+oxqEJxzGyw7v1JBfvB2B/u3NqTMH0g3XxAtscnnBwHhoYS46Gv8Ekizu
-qiOWHdIkQ6wsD9Zluy6iFQlIjmOEt2zzzNPj5cNVJFr1plYEWkwtysGImj78FHU9ud/Cg5r+z7GX
-4zqb9cX8oB/Hv1Okohv/p0DIX1BLAQIUCxQAAAAIAO+xOi+Uf63kmAIAADMGAAAJAAAAAAAAAAEA
-IAAAAAAAAABiay5jb21taXRQSwUGAAAAAAEAAQA3AAAAvwIAAAAA
-
-------_=_NextPart_001_01C3849D.B32B2DAF--
+--zhXaljGHf11kAtnf--

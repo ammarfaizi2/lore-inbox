@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276863AbRJHMET>; Mon, 8 Oct 2001 08:04:19 -0400
+	id <S276856AbRJHMB7>; Mon, 8 Oct 2001 08:01:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276864AbRJHMEJ>; Mon, 8 Oct 2001 08:04:09 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:11270 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S276863AbRJHMEA>;
-	Mon, 8 Oct 2001 08:04:00 -0400
-Date: Mon, 8 Oct 2001 14:04:22 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: kladit@t-online.de (Klaus Dittrich)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11.p4 and dd
-Message-Id: <20011008140422.0ed9eaa0.skraw@ithnet.com>
-In-Reply-To: <20011007203540.A392@df1tlpc.local.here>
-In-Reply-To: <20011007203540.A392@df1tlpc.local.here>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S276864AbRJHMBt>; Mon, 8 Oct 2001 08:01:49 -0400
+Received: from mout02.kundenserver.de ([195.20.224.133]:59942 "EHLO
+	mout02.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S276856AbRJHMBg>; Mon, 8 Oct 2001 08:01:36 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Hans-Peter Jansen <hpj@urpla.net>
+Organization: TreeWater Society Berlin
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.10-ac7 vmware-2.0.4-1142 breakage
+Date: Mon, 8 Oct 2001 14:02:05 +0200
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011008120206.A3DC0F62@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Oct 2001 20:35:40 +0200 kladit@t-online.de (Klaus Dittrich) wrote:
 
-> dd does not work anymore.
-> 
-> dd if=/dev/sda of=/dev/sdb bs=1024k 
-> 
-> stops with "File size limit exceeded"
-> 
-> Using kernel 2.4.3 the same command works fine.
-> 
-> 2.4.3 uses a large amount of buffer, 2.4.11p4 only chache.
-> 2.4.3 doesn't swap, 2.4.11p4 eats up 1 GB RAM and 100 MB swap.
+Does someone already fixed the vmmon compiling problems
+with current kernels?
 
-Please try 2.4.11-pre5.
-pre4 is seriously broken regarding high vm loads.
+BTW: 2.4.10-ac7 is running (v3) nfsroot mounted here on 2-way SMP
+server (2.4.8, knfsd, reiserfs) __SMOOTH__ && __FINE__.
+Congrat's to everybody involved!
 
-Regards,
-Stephan
+If only I could swap via nbd now, I would explode from pride ;-)
 
+Hans-Peter

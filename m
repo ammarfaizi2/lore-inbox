@@ -1,37 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268209AbTBWKDY>; Sun, 23 Feb 2003 05:03:24 -0500
+	id <S268105AbTBWJqz>; Sun, 23 Feb 2003 04:46:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268199AbTBWKCO>; Sun, 23 Feb 2003 05:02:14 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:57821 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268189AbTBWKBW>;
-	Sun, 23 Feb 2003 05:01:22 -0500
-Date: Sun, 23 Feb 2003 01:55:11 -0800 (PST)
-Message-Id: <20030223.015511.63413067.davem@redhat.com>
-To: hch@infradead.org
-Cc: ak@suse.de, sim@netnation.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: Longstanding networking / SMP issue? (duplextest)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030223100234.B15347@infradead.org>
-References: <20030221104541.GA18417@wotan.suse.de>
-	<20030223.011217.04700323.davem@redhat.com>
-	<20030223100234.B15347@infradead.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S268101AbTBWJqQ>; Sun, 23 Feb 2003 04:46:16 -0500
+Received: from chii.cinet.co.jp ([61.197.228.217]:51072 "EHLO
+	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S268113AbTBWJoP>; Sun, 23 Feb 2003 04:44:15 -0500
+Date: Sun, 23 Feb 2003 18:51:09 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (12/21) PCI
+Message-ID: <20030223095109.GM1324@yuzuki.cinet.co.jp>
+References: <20030223092116.GA1324@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030223092116.GA1324@yuzuki.cinet.co.jp>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@infradead.org>
-   Date: Sun, 23 Feb 2003 10:02:34 +0000
+This is additional patch to support NEC PC-9800 subarchitecture
+against 2.5.62-ac1. (12/21)
 
-   On Sun, Feb 23, 2003 at 01:12:17AM -0800, David S. Miller wrote:
-   > +static struct socket *__icmp_socket[NR_CPUS];
-   > +#define icmp_socket	__icmp_socket[smp_processor_id()]
-   
-   This should be per-cpu data
-   
-My bad.  Thanks for spotting this.
+Small changes for PCI support.
+Fix for difference of IRQ numbers and IO addresses.
+
+Regards,
+Osamu Tomita
+
+diff -Nru linux/arch/i386/pci/irq.c linux98/arch/i386/pci/irq.c
+--- linux/arch/i386/pci/irq.c	2002-10-12 13:22:46.000000000 +0900
++++ linux98/arch/i386/pci/irq.c	2002-10-12 14:18:52.000000000 +0900
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <linux/pci_ids.h>
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+ #include <linux/pci.h>
+@@ -25,6 +26,7 @@
+ 
+ static struct irq_routing_table *pirq_table;
+ 
++#ifndef CONFIG_X86_PC9800
+ /*
+  * Never use: 0, 1, 2 (timer, keyboard, and cascade)
+  * Avoid using: 13, 14 and 15 (FP error and IDE).
+@@ -36,6 +38,20 @@
+ 	1000000, 1000000, 1000000, 1000, 1000, 0, 1000, 1000,
+ 	0, 0, 0, 0, 1000, 100000, 100000, 100000
+ };
++#else
++/*
++ * Never use: 0, 1, 2, 7 (timer, keyboard, CRT VSYNC and cascade)
++ * Avoid using: 8, 9 and 15 (FP error and IDE).
++ * Penalize: 4, 5, 11, 12, 13, 14 (known ISA uses: serial, floppy, sound, mouse
++ *                                 and parallel)
++ */
++unsigned int pcibios_irq_mask = 0xff78;
++
++static int pirq_penalty[16] = {
++	1000000, 1000000, 1000000, 0, 1000, 1000, 0, 1000000,
++	100000, 100000, 0, 1000, 1000, 1000, 1000, 100000
++};
++#endif
+ 
+ struct irq_router {
+ 	char *name;
+@@ -612,6 +628,17 @@
+ 		r->set(pirq_router_dev, dev, pirq, 11);
+ 	}
+ 
++#ifdef CONFIG_X86_PC9800
++	if ((dev->class >> 8) == PCI_CLASS_BRIDGE_CARDBUS) {
++		if (pci_find_device(PCI_VENDOR_ID_INTEL,
++				PCI_DEVICE_ID_INTEL_82439TX, NULL) != NULL) {
++			if (mask & 0x0040) {
++				mask &= 0x0040;	/* assign IRQ 6 only */
++				printk("pci-irq: Use IRQ6 for CardBus controller\n");
++			}
++		}
++	}
++#endif
+ 	/*
+ 	 * Find the best IRQ to assign: use the one
+ 	 * reported by the device if possible.
+diff -Nru linux/drivers/pcmcia/yenta.c linux98/drivers/pcmcia/yenta.c
+--- linux/drivers/pcmcia/yenta.c	2002-11-18 13:29:48.000000000 +0900
++++ linux98/drivers/pcmcia/yenta.c	2002-11-19 11:02:09.000000000 +0900
+@@ -8,6 +8,7 @@
+  * 	Dynamically adjust the size of the bridge resource
+  * 	
+  */
++#include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/pci.h>
+ #include <linux/sched.h>
+@@ -510,6 +511,7 @@
+ 	add_timer(&socket->poll_timer);
+ }
+ 
++#ifndef CONFIG_X86_PC9800
+ /*
+  * Only probe "regular" interrupts, don't
+  * touch dangerous spots like the mouse irq,
+@@ -520,6 +522,10 @@
+  * Default to 11, 10, 9, 7, 6, 5, 4, 3.
+  */
+ static u32 isa_interrupts = 0x0ef8;
++#else
++/* Default to 12, 10, 6, 5, 3. */
++static u32 isa_interrupts = 0x1468;
++#endif
+ 
+ static unsigned int yenta_probe_irq(pci_socket_t *socket, u32 isa_irq_mask)
+ {
+diff -Nru linux/include/asm-i386/pci.h linux98/include/asm-i386/pci.h
+--- linux/include/asm-i386/pci.h	2002-06-09 14:29:24.000000000 +0900
++++ linux98/include/asm-i386/pci.h	2002-06-10 20:49:15.000000000 +0900
+@@ -17,7 +17,11 @@
+ #endif
+ 
+ extern unsigned long pci_mem_start;
++#ifdef CONFIG_X86_PC9800
++#define PCIBIOS_MIN_IO		0x4000
++#else
+ #define PCIBIOS_MIN_IO		0x1000
++#endif
+ #define PCIBIOS_MIN_MEM		(pci_mem_start)
+ 
+ void pcibios_config_init(void);

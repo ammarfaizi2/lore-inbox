@@ -1,74 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314034AbSDQCrR>; Tue, 16 Apr 2002 22:47:17 -0400
+	id <S314035AbSDQDON>; Tue, 16 Apr 2002 23:14:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314035AbSDQCrQ>; Tue, 16 Apr 2002 22:47:16 -0400
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:59126 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S314034AbSDQCrP>;
-	Tue, 16 Apr 2002 22:47:15 -0400
-Date: Tue, 16 Apr 2002 22:47:07 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org, davej@suse.de
-Subject: Re: 2.5.8-dj1 : arch/i386/kernel/smpboot.c error
-Message-ID: <20020417024707.GA24105@www.kroptech.com>
-In-Reply-To: <Pine.LNX.4.33.0204152216590.18109-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S314037AbSDQDOM>; Tue, 16 Apr 2002 23:14:12 -0400
+Received: from 216-55-134-41.dsl.san-diego.abac.net ([216.55.134.41]:11743
+	"EHLO mail") by vger.kernel.org with ESMTP id <S314035AbSDQDOM>;
+	Tue, 16 Apr 2002 23:14:12 -0400
+Message-ID: <3CBCE87A.2080905@navpoint.com>
+Date: Tue, 16 Apr 2002 23:14:02 -0400
+From: Emilio Recio <polywog@navpoint.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Martin Eriksson <nitrax@giron.wox.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AMD Athlon + VIA Crashing On Disk I/O
+In-Reply-To: <Pine.LNX.4.33.0204160921060.472-100000@polywog.navpoint.com> <00dc01c1e58b$668dd2f0$0201a8c0@homer>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 10:19:24PM -0400, Frank Davis wrote:
-> Hello all,
->   While a 'make bzImage', I received the following compile error:
-> Regards,
-> Frank
-> 
-> smpboot.c:1008: parse error before `0'
-> smpboot.c: In function `smp_boot_cpus':
-> smpboot.c:1023: invalid lvalue in assignment
-> make[1]: *** [smpboot.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux/arch/i386/kernel'
-> make: *** [_dir_arch/i386/kernel] Error 2
+Martin Eriksson wrote:
 
-There's an optimization in io.h for !CONFIG_MULTIQUAD which doesn't seem to have been
-carried through all the way...
+>First check out what kind of chipset you really have;
+>lspci -xs 0:0
+>should do the thing. Post the results.
+>
+>In the meantime, you can try to compile for
+>"Pentium-Pro/Celeron/Pentium-II", and check your BIOS settings one more time
+>(set stuff to "safe" values). Also, do you have a really recent kernel, such
+>as 2.4.18? There were some changes in the Athlon/VIA "quirks" department a
+>while ago, but after 2.4.15 (i think).
+>
 
-The following patch seems logical, but I'm no expert. In particular, I'm not sure
-if the ioremapping bit ever needs to be run when !CONFIG_MULTIQUAD...
+I think I tried the pentium stuff, but that would freeze up the computer 
+too (the HD light comes on, and nothing else works, not even ping(!)) 
+But I think that was for a <=2.4.14. I should try it again.
 
---Adam
+Here's the output of lspci:
 
---- linux-2.5.8-dj1-virgin/arch/i386/kernel/smpboot.c	Tue Apr 16 16:21:24 2002
-+++ linux-2.5.8-dj1+smpboot-fix/arch/i386/kernel/smpboot.c	Tue Apr 16 21:12:13 2002
-@@ -1004,8 +1004,11 @@
- extern int prof_counter[NR_CPUS];
- 
- static int boot_cpu_logical_apicid;
-+
- /* Where the IO area was mapped on multiquad, always 0 otherwise */
-+#ifdef CONFIG_MULTIQUAD
- void *xquad_portio = NULL;
-+#endif
- 
- int cpu_sibling_map[NR_CPUS] __cacheline_aligned;
- 
-@@ -1013,6 +1016,7 @@
- {
- 	int apicid, cpu, bit;
- 
-+#ifdef CONFIG_MULTIQUAD
-         if (clustered_apic_mode && (numnodes > 1)) {
-                 printk("Remapping cross-quad port I/O for %d quads\n",
- 			numnodes);
-@@ -1022,6 +1026,7 @@
-                 xquad_portio = ioremap (XQUAD_PORTIO_BASE, 
- 			numnodes * XQUAD_PORTIO_LEN);
-         }
-+#endif
- 
- #ifdef CONFIG_MTRR
- 	/*  Must be done before other processors booted  */
+polywog:~ # lspci -xs 0:0
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] 
+(rev 03)
+00: 06 11 05 03 06 00 10 22 03 00 00 06 00 08 00 00
+10: 08 00 00 d0 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+
+polywog:~ # lspci -xs 0:7.1
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+00: 06 11 71 05 07 00 90 02 06 8a 01 01 00 20 00 00
+10: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+20: 01 c0 00 00 00 00 00 00 00 00 00 00 06 11 71 05
+30: 00 00 00 00 c0 00 00 00 00 00 00 00 ff 00 00 00
+
+New news, I got up this morning and the computer was frozen again. This 
+time, I compiled in the kernel (not as modules) SCSI, SCSI CD, SCSI 
+Disk, PPA, completely removed ide-scsi stuff, compiled in ide-cdrom. So 
+I took ide-scsi out of the loop altogether.
+
+polywog:~ # cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 1199.714
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov
+pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2392.06
 

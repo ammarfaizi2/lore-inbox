@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbUJ0Cc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbUJ0CbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbUJ0Cc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 22:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUJ0CcU
+	id S261585AbUJ0CbB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 22:31:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbUJ0CbA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 22:32:20 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:25546 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261572AbUJ0Cax (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 22:30:53 -0400
-Date: Wed, 27 Oct 2004 04:30:37 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Larry McVoy <lm@bitmover.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@novell.com>,
-       Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <20041026010141.GA15919@work.bitmover.com>
-Message-ID: <Pine.LNX.4.61.0410270338310.877@scrub.home>
-References: <20041024144448.GA575@work.bitmover.com> <4d8e3fd304102409443c01c5da@mail.gmail.com>
- <20041024233214.GA9772@work.bitmover.com> <20041025114641.GU14325@dualathlon.random>
- <1098707342.7355.44.camel@localhost.localdomain> <20041025133951.GW14325@dualathlon.random>
- <20041025162022.GA27979@work.bitmover.com> <20041025164732.GE14325@dualathlon.random>
- <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
- <Pine.LNX.4.61.0410252350240.17266@scrub.home> <20041026010141.GA15919@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Oct 2004 22:31:00 -0400
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:51431 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261585AbUJ0Cao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 22:30:44 -0400
+Date: Wed, 27 Oct 2004 04:31:30 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: riel@redhat.com, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: lowmem_reserve (replaces protection)
+Message-ID: <20041027023130.GT14325@dualathlon.random>
+References: <417DCFDD.50606@yahoo.com.au> <Pine.LNX.4.44.0410262029210.21548-100000@chimarrao.boston.redhat.com> <20041027005425.GO14325@dualathlon.random> <20041027005637.GP14325@dualathlon.random> <20041027013522.GR14325@dualathlon.random> <20041026190856.1472b58e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026190856.1472b58e.akpm@osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Oct 26, 2004 at 07:08:56PM -0700, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@novell.com> wrote:
+> >
+> > this _incremental_ 2/? patch should fix the longtanding kswapd issue
+> >  vs protection algorithm
+> 
+> Could you please email the patch which this depends on?
 
-On Mon, 25 Oct 2004, Larry McVoy wrote:
+it's against this one:
 
-> You are mistakenly assuming that the way BK stores the data, or does
-> merges, or synchronizes is what we think is worth protecting, and you
-> are pretty much wrong.
+http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.9/lowmem_reserve-2
 
-Does that mean you don't mind if someones export the changeset information 
-in an useful way? All I need is pretty much the information that already 
-comes via the commit list (actually in the format used until May, where 
-it still contained information about renames) plus some useful identifiers 
-to identify the predecessors of a changeset.
-
-bye, Roman
+(the patch only address the wakeup issue, the stop is still unsolved,
+but it can be done in a separate patch)

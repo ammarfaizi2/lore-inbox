@@ -1,232 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266896AbUIIT5A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUIITjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266896AbUIIT5A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 15:57:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266825AbUIITyi
+	id S266807AbUIITjb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 15:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUIIThn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 15:54:38 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:28625 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S264795AbUIITtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 15:49:46 -0400
-Date: Thu, 9 Sep 2004 14:45:58 -0500
-From: Jack Steiner <steiner@sgi.com>
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] - Fix potential race condition in wake_up_forked_process()
-Message-ID: <20040909194558.GA28653@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 9 Sep 2004 15:37:43 -0400
+Received: from lax-gate3.raytheon.com ([199.46.200.232]:32313 "EHLO
+	lax-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S263100AbUIITZ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 15:25:27 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+Date: Thu, 9 Sep 2004 14:23:39 -0500
+Message-ID: <OF1EEB0481.83AB73CE-ON86256F0A.006A8955-86256F0A.006A8968@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 09/09/2004 02:23:47 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>would it be possible to test with DMA disabled? (hdparm -d0 /dev/hda) It
+>might take some extra work to shun the extra latency reports from the
+>PIO IDE path (which is quite slow) but once that is done you should be
+>able to see whether these long 0.5 msec delays remain even if all (most)
+>DMA activity has been eliminated.
 
-There appears to be a tiny (microscopic) timing hole in 
-wake_up_forked_process(). It is possible that a load_balancing
-application could change cpus_allowed on a task as it
-is being forked. Unlikely, but it can happen, especially if preemption 
-is enabled.
+OK. With new patches in hand, I have a set of latency results w/ IDE
+DMA turned off. For reference, tests were run with:
 
-If the new mask does not contain the cpu of the parent process, the
-child will be placed on a cpu that is not in it's cpus_allowed mask.
+# hdparm /dev/hda
 
-Here is a fix:
+/dev/hda:
+ multcount    = 16 (on)
+ IO_support   =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 64 (on)
+ geometry     = 58168/16/63, sectors = 58633344, start = 0
 
-	- patch 1 simply moves wake_up_forked_process() so that
-	  it appears further down in the file. This is needed
-	  so that double_rq_lock() can be called. An alternate
-	  solution would be to move double_rq_lock() but placing
-	  wake_up_forked_process() & wake_up_forked_thread()
-	  together seemed preferable. 
+# cat /sys/block/hda/queue/max_sectors_kb
+32
+# cat /sys/block/hda/queue/read_ahead_kb
+32
+# cat /proc/sys/net/core/netdev_max_backlog
+8
+# dmesg -n 1
 
-	- patch 2 is the real change. After obtaining the runqueue lock,
-	  the code verifies that the new process's cpu
-	  is in cpus_allowed. (The new code was cloned from 
-	  wake_up_forked_thread()).
+and all tests run w/ a -R8 kernel plus patches for sched, timer_tsc,
+and ide-iops (to add latency trace outputs or suppress known long paths).
 
-Patch is against 2.6.9-rc1
+No latency traces > 600 usec. These tests were run simply with
+  head -c 750000000 /dev/zero >tmpfile  (disk writes)
+  cp tmpfile tmpfile2 (disk copy)
+  cat tmpfile tmpfile2 >/dev/null
+while capturing the latency traces in another process. 72 total traces
+captured in 15 minutes of tests.
 
-Signed-off-by: Jack Steiner <steiner@sgi.com>
+For reference, the 750 meg file size is about 1.5 x physical memory.
+No I/O to the audio card. X was running (to monitor the test) and a
+network was connected (but generally idle).
 
-Fix race in wake_up_forked_process(). Cpus_allowed may have
-been changed by sched_setaffinity() while the process was 
-being forked.
+PIO trace
+=========
 
+preemption latency trace v1.0.7 on 2.6.9-rc1-bk12-VP-R8-nd
+-------------------------------------------------------
+ latency: 369 us, entries: 3 (3)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:2]
+    -----------------
+    | task: IRQ 14/140, uid:0 nice:-10 policy:0 rt_prio:0
+    -----------------
+ => started at: ide_outsl+0x44/0x50
+ => ended at:   ide_outsl+0x44/0x50
+=======>
+00000001 0.000ms (+0.370ms): touch_preempt_timing (ide_outsl)
+00000001 0.370ms (+0.000ms): touch_preempt_timing (ide_outsl)
+00000001 0.370ms (+0.000ms): update_max_trace (check_preempt_timing)
 
+which appears to be the PIO path ide_outsl. I had a few similar traces
+with ide_insl during the copy / read tests as well.
 
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c	2004-09-09 10:11:12.000000000 -0500
-+++ linux/kernel/sched.c	2004-09-09 10:47:01.000000000 -0500
-@@ -920,47 +920,6 @@ void fastcall sched_fork(task_t *p)
- }
- 
- /*
-- * wake_up_forked_process - wake up a freshly forked process.
-- *
-- * This function will do some initial scheduler statistics housekeeping
-- * that must be done for every newly created process.
-- */
--void fastcall wake_up_forked_process(task_t * p)
--{
--	unsigned long flags;
--	runqueue_t *rq = task_rq_lock(current, &flags);
--
--	BUG_ON(p->state != TASK_RUNNING);
--
--	/*
--	 * We decrease the sleep average of forking parents
--	 * and children as well, to keep max-interactive tasks
--	 * from forking tasks that are max-interactive.
--	 */
--	current->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(current) *
--		PARENT_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
--
--	p->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(p) *
--		CHILD_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
--
--	p->interactive_credit = 0;
--
--	p->prio = effective_prio(p);
--	set_task_cpu(p, smp_processor_id());
--
--	if (unlikely(!current->array))
--		__activate_task(p, rq);
--	else {
--		p->prio = current->prio;
--		list_add_tail(&p->run_list, &current->run_list);
--		p->array = current->array;
--		p->array->nr_active++;
--		rq->nr_running++;
--	}
--	task_rq_unlock(rq, &flags);
--}
--
--/*
-  * Potentially available exiting-child timeslices are
-  * retrieved here - this way the parent does not get
-  * penalized for creating too many threads.
-@@ -1211,6 +1170,47 @@ static int find_idlest_cpu(struct task_s
- }
- 
- /*
-+ * wake_up_forked_process - wake up a freshly forked process.
-+ *
-+ * This function will do some initial scheduler statistics housekeeping
-+ * that must be done for every newly created process.
-+ */
-+void fastcall wake_up_forked_process(task_t * p)
-+{
-+	unsigned long flags;
-+	runqueue_t *rq = task_rq_lock(current, &flags);
-+
-+	BUG_ON(p->state != TASK_RUNNING);
-+
-+	/*
-+	 * We decrease the sleep average of forking parents
-+	 * and children as well, to keep max-interactive tasks
-+	 * from forking tasks that are max-interactive.
-+	 */
-+	current->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(current) *
-+		PARENT_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
-+
-+	p->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(p) *
-+		CHILD_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
-+
-+	p->interactive_credit = 0;
-+
-+	p->prio = effective_prio(p);
-+	set_task_cpu(p, smp_processor_id());
-+
-+	if (unlikely(!current->array))
-+		__activate_task(p, rq);
-+	else {
-+		p->prio = current->prio;
-+		list_add_tail(&p->run_list, &current->run_list);
-+		p->array = current->array;
-+		p->array->nr_active++;
-+		rq->nr_running++;
-+	}
-+	task_rq_unlock(rq, &flags);
-+}
-+
-+/*
-  * wake_up_forked_thread - wake up a freshly forked thread.
-  *
-  * This function will do some initial scheduler statistics housekeeping
+send_IPI_mask_bitmask
+=====================
 
+I have several traces where send_IPI_mask_bitmask (flush_tlb_others)
+shows up. For example...
 
+00000002 0.010ms (+0.001ms): kunmap_atomic (zap_pte_range)
+00000001 0.011ms (+0.000ms): flush_tlb_mm (unmap_vmas)
+00000002 0.012ms (+0.000ms): flush_tlb_others (flush_tlb_mm)
+00000002 0.012ms (+0.000ms): spin_lock (flush_tlb_others)
+00000003 0.013ms (+0.001ms): spin_lock (<00000000>)
+00000003 0.014ms (+0.000ms): send_IPI_mask (flush_tlb_others)
+00000003 0.014ms (+0.132ms): send_IPI_mask_bitmask (flush_tlb_others)
+00010003 0.147ms (+0.000ms): do_nmi (flush_tlb_others)
+00010003 0.147ms (+0.001ms): do_nmi (ide_outsl)
+00010003 0.149ms (+0.000ms): notifier_call_chain (default_do_nmi)
+00010003 0.149ms (+0.000ms): profile_tick (nmi_watchdog_tick)
+00010003 0.150ms (+0.000ms): profile_hook (profile_tick)
+00010003 0.150ms (+0.000ms): read_lock (profile_hook)
+00010004 0.150ms (+0.000ms): read_lock (<00000000>)
+00010004 0.150ms (+0.000ms): notifier_call_chain (profile_hook)
+00010004 0.151ms (+0.000ms): _read_unlock (profile_tick)
+00010003 0.151ms (+0.250ms): profile_hit (nmi_watchdog_tick)
+00000003 0.401ms (+0.000ms): _spin_unlock (flush_tlb_others)
+00000001 0.402ms (+0.000ms): free_pages_and_swap_cache (unmap_vmas)
+00000001 0.402ms (+0.000ms): lru_add_drain (free_pages_and_swap_cache)
 
+or this one...
 
+preemption latency trace v1.0.7 on 2.6.9-rc1-bk12-VP-R8-nd
+-------------------------------------------------------
+ latency: 445 us, entries: 22 (22)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:2]
+    -----------------
+    | task: kswapd0/40, uid:0 nice:0 policy:0 rt_prio:0
+    -----------------
+ => started at: spin_lock+0x24/0x90
+ => ended at:   _spin_unlock+0x2d/0x60
+=======>
+00000001 0.000ms (+0.000ms): spin_lock (page_referenced_file)
+00000001 0.000ms (+0.000ms): spin_lock (<00000000>)
+00000001 0.000ms (+0.000ms): vma_prio_tree_next (page_referenced_file)
+00000001 0.001ms (+0.001ms): prio_tree_first (vma_prio_tree_next)
+00000001 0.003ms (+0.001ms): prio_tree_left (prio_tree_first)
+00000001 0.005ms (+0.000ms): page_referenced_one (page_referenced_file)
+00000001 0.005ms (+0.000ms): spin_lock (page_referenced_one)
+00000002 0.006ms (+0.001ms): spin_lock (<00000000>)
+00000002 0.007ms (+0.000ms): kmap_atomic (page_referenced_one)
+00000003 0.007ms (+0.001ms): page_address (page_referenced_one)
+00000003 0.009ms (+0.000ms): flush_tlb_page (page_referenced_one)
+00000004 0.010ms (+0.000ms): flush_tlb_others (flush_tlb_page)
+00000004 0.010ms (+0.000ms): spin_lock (flush_tlb_others)
+00000005 0.011ms (+0.001ms): spin_lock (<00000000>)
+00000005 0.012ms (+0.000ms): send_IPI_mask (flush_tlb_others)
+00000005 0.012ms (+0.431ms): send_IPI_mask_bitmask (flush_tlb_others)
+00000005 0.444ms (+0.000ms): _spin_unlock (flush_tlb_others)
+00000003 0.445ms (+0.000ms): kunmap_atomic (page_referenced_one)
+00000002 0.445ms (+0.000ms): _spin_unlock (page_referenced_one)
+00000001 0.445ms (+0.000ms): _spin_unlock (page_referenced_file)
+00000001 0.446ms (+0.000ms): sub_preempt_count (_spin_unlock)
+00000001 0.446ms (+0.000ms): update_max_trace (check_preempt_timing)
 
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c	2004-09-09 10:47:01.000000000 -0500
-+++ linux/kernel/sched.c	2004-09-09 10:50:49.000000000 -0500
-@@ -1178,10 +1178,26 @@ static int find_idlest_cpu(struct task_s
- void fastcall wake_up_forked_process(task_t * p)
- {
- 	unsigned long flags;
--	runqueue_t *rq = task_rq_lock(current, &flags);
-+	int this_cpu = get_cpu(), cpu = task_cpu(p);
-+	runqueue_t *this_rq = cpu_rq(this_cpu), *rq;
- 
- 	BUG_ON(p->state != TASK_RUNNING);
- 
-+	local_irq_save(flags);
-+lock_again:
-+	rq = cpu_rq(cpu);
-+	double_rq_lock(this_rq, rq);
-+
-+	/*
-+	 * We picked the cpu unlocked. In theory, the cpus_allowed
-+	 * mask could have changed.
-+	 */
-+	if (unlikely(!cpu_isset(cpu, p->cpus_allowed))) {
-+		double_rq_unlock(this_rq, rq);
-+		cpu = any_online_cpu(p->cpus_allowed);
-+		goto lock_again;
-+	}
-+
- 	/*
- 	 * We decrease the sleep average of forking parents
- 	 * and children as well, to keep max-interactive tasks
-@@ -1196,20 +1212,25 @@ void fastcall wake_up_forked_process(tas
- 	p->interactive_credit = 0;
- 
- 	p->prio = effective_prio(p);
--	set_task_cpu(p, smp_processor_id());
-+	set_task_cpu(p, cpu);
- 
--	if (unlikely(!current->array))
-+	if (unlikely(!p->array)) {
- 		__activate_task(p, rq);
--	else {
-+		if (TASK_PREEMPTS_CURR(p, rq))
-+			resched_task(rq->curr);
-+	} else {
- 		p->prio = current->prio;
- 		list_add_tail(&p->run_list, &current->run_list);
- 		p->array = current->array;
- 		p->array->nr_active++;
- 		rq->nr_running++;
- 	}
--	task_rq_unlock(rq, &flags);
-+	double_rq_unlock(this_rq, rq);
-+	local_irq_restore(flags);
-+	put_cpu();
- }
- 
-+
- /*
-  * wake_up_forked_thread - wake up a freshly forked thread.
-  *
--- 
-Thanks
+or this one...
 
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
+preemption latency trace v1.0.7 on 2.6.9-rc1-bk12-VP-R8-nd
+-------------------------------------------------------
+ latency: 428 us, entries: 49 (49)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:2]
+    -----------------
+    | task: get_ltrace.sh/5514, uid:0 nice:-9 policy:0 rt_prio:0
+    -----------------
+ => started at: flush_tlb_mm+0x1d/0xd0
+ => ended at:   flush_tlb_mm+0x52/0xd0
+=======>
+00000001 0.000ms (+0.001ms): flush_tlb_mm (copy_mm)
+00000001 0.001ms (+0.000ms): flush_tlb_others (flush_tlb_mm)
+00000001 0.002ms (+0.000ms): spin_lock (flush_tlb_others)
+00000002 0.002ms (+0.000ms): spin_lock (<00000000>)
+00000002 0.003ms (+0.000ms): send_IPI_mask (flush_tlb_others)
+00000002 0.003ms (+0.415ms): send_IPI_mask_bitmask (flush_tlb_others)
+00000002 0.419ms (+0.000ms): smp_apic_timer_interrupt (flush_tlb_others)
+00010002 0.419ms (+0.000ms): profile_tick (smp_apic_timer_interrupt)
+00010002 0.419ms (+0.000ms): profile_hook (profile_tick)
+00010002 0.419ms (+0.000ms): read_lock (profile_hook)
+00010003 0.420ms (+0.000ms): read_lock (<00000000>)
+00010003 0.420ms (+0.000ms): notifier_call_chain (profile_hook)
+00010003 0.420ms (+0.000ms): _read_unlock (profile_tick)
+00010002 0.420ms (+0.000ms): profile_hit (smp_apic_timer_interrupt)
+00010002 0.420ms (+0.000ms): update_process_times
+(smp_apic_timer_interrupt)
+...
 
+or this one...
+
+preemption latency trace v1.0.7 on 2.6.9-rc1-bk12-VP-R8-nd
+-------------------------------------------------------
+ latency: 330 us, entries: 9 (9)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:2]
+    -----------------
+    | task: get_ltrace.sh/5514, uid:0 nice:-9 policy:0 rt_prio:0
+    -----------------
+ => started at: flush_tlb_mm+0x1d/0xd0
+ => ended at:   flush_tlb_mm+0x52/0xd0
+=======>
+00000001 0.000ms (+0.001ms): flush_tlb_mm (copy_mm)
+00000001 0.001ms (+0.000ms): flush_tlb_others (flush_tlb_mm)
+00000001 0.002ms (+0.000ms): spin_lock (flush_tlb_others)
+00000002 0.002ms (+0.000ms): spin_lock (<00000000>)
+00000002 0.003ms (+0.000ms): send_IPI_mask (flush_tlb_others)
+00000002 0.004ms (+0.326ms): send_IPI_mask_bitmask (flush_tlb_others)
+00000002 0.330ms (+0.000ms): _spin_unlock (flush_tlb_others)
+00000001 0.331ms (+0.000ms): sub_preempt_count (flush_tlb_mm)
+00000001 0.331ms (+0.000ms): update_max_trace (check_preempt_timing)
+
+try_to_wake_up
+==============
+
+Buried inside a pretty long trace in kswapd0, I saw the following...
+
+preemption latency trace v1.0.7 on 2.6.9-rc1-bk12-VP-R8-nd
+-------------------------------------------------------
+ latency: 426 us, entries: 286 (286)   |   [VP:1 KP:1 SP:1 HP:1 #CPUS:2]
+    -----------------
+    | task: kswapd0/40, uid:0 nice:0 policy:0 rt_prio:0
+    -----------------
+ => started at: spin_lock+0x24/0x90
+ => ended at:   _spin_unlock+0x2d/0x60
+=======>
+00000001 0.000ms (+0.000ms): spin_lock (page_referenced_file)
+00000001 0.000ms (+0.000ms): spin_lock (<00000000>)
+00000001 0.000ms (+0.000ms): vma_prio_tree_next (page_referenced_file)
+00000001 0.000ms (+0.000ms): prio_tree_first (vma_prio_tree_next)
+00000001 0.001ms (+0.000ms): prio_tree_left (prio_tree_first)
+00000001 0.001ms (+0.000ms): page_referenced_one (page_referenced_file)
+00000001 0.001ms (+0.000ms): spin_lock (page_referenced_one)
+00000002 0.002ms (+0.000ms): spin_lock (<00000000>)
+...
+00000006 0.108ms (+0.000ms): task_rq_lock (try_to_wake_up)
+00000006 0.108ms (+0.000ms): spin_lock (task_rq_lock)
+00000007 0.108ms (+0.000ms): spin_lock (<00000000>)
+00000007 0.109ms (+0.000ms): wake_idle (try_to_wake_up)
+00000007 0.109ms (+0.000ms): activate_task (try_to_wake_up)
+00000007 0.109ms (+0.000ms): sched_clock (activate_task)
+00000007 0.109ms (+0.000ms): recalc_task_prio (activate_task)
+00000007 0.109ms (+0.000ms): effective_prio (recalc_task_prio)
+00000007 0.110ms (+0.000ms): __activate_task (try_to_wake_up)
+00000007 0.110ms (+0.000ms): enqueue_task (__activate_task)
+00000007 0.110ms (+0.000ms): sched_info_queued (enqueue_task)
+00000007 0.110ms (+0.000ms): resched_task (try_to_wake_up)
+00000007 0.111ms (+0.000ms): task_rq_unlock (try_to_wake_up)
+00000007 0.111ms (+0.000ms): _spin_unlock_irqrestore (try_to_wake_up)
+00000006 0.111ms (+0.298ms): preempt_schedule (try_to_wake_up)
+00000005 0.409ms (+0.000ms): _spin_unlock (flush_tlb_others)
+00000004 0.409ms (+0.000ms): preempt_schedule (flush_tlb_others)
+00000003 0.410ms (+0.000ms): preempt_schedule (flush_tlb_page)
+00000003 0.410ms (+0.000ms): kunmap_atomic (page_referenced_one)
+00000002 0.410ms (+0.000ms): preempt_schedule (page_referenced_one)
+00000002 0.410ms (+0.000ms): _spin_unlock (page_referenced_one)
+00000001 0.410ms (+0.000ms): preempt_schedule (page_referenced_one)
+
+There is an almost 300 usec hit there as we unwind the nested layers.
+
+So the long wait on paths through sched and timer_tsc appear to be
+eliminated with PIO to the disk.
+
+Is there some "for sure" way to limit the size and/or duration of
+DMA transfers so I get reasonable performance from the disk (and
+other DMA devices) and reasonable latency?
+  --Mark
 

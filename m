@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUHOQ4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266176AbUHORCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUHOQ4i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 12:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265932AbUHOQ4g
+	id S266176AbUHORCa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 13:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266189AbUHORCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 12:56:36 -0400
-Received: from smtp08.web.de ([217.72.192.226]:65471 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S262071AbUHOQ4f (ORCPT
+	Sun, 15 Aug 2004 13:02:30 -0400
+Received: from albireo.ucw.cz ([81.27.203.89]:7831 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S266176AbUHORC2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 12:56:35 -0400
-Subject: Re: [BKPATCH] ACPI for 2.6
-From: Marcus Hartig <m.f.h@web.de>
-To: Len Brown <len.brown@intel.com>
+	Sun, 15 Aug 2004 13:02:28 -0400
+Date: Sun, 15 Aug 2004 19:02:28 +0200
+From: Martin Mares <mj@ucw.cz>
+To: Sindi Keesan <keesan@iamjlamb.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1092509038.7765.271.camel@dhcppc4>
-References: <566B962EB122634D86E6EE29E83DD808182C3286@hdsmsx403.hd.intel.com>
-	 <1092509038.7765.271.camel@dhcppc4>
-Content-Type: text/plain
-Date: Sun, 15 Aug 2004 18:58:11 +0200
-Message-Id: <1092589091.3806.10.camel@redtuxi>
+Subject: Re: mdacon and scroll buffer
+Message-ID: <20040815170228.GA25095@ucw.cz>
+References: <Pine.LNX.4.44.0408151215040.5391-100000@foxxy.triohost.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.2 (1.5.92.2-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0408151215040.5391-100000@foxxy.triohost.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Len Brown wrote:
+Hello!
 
-> Hmm, this config builds for me with gcc 3.3,
-> and neither dsfield.c nor acnamesp.h have changed in months.
-> 
-> is it possible your source tree has been corrupted?
+> Mdacon appears to have no Scroll_Backward or _Forward feature (scroll
+> buffer) like vgacon does (shift Page Up or shift Page Down).  I use
+> mdacon.o with a 2-monitor system.  Is there something in vgacon.c I could
+> copy over to mdacon.c so I could try to compile my own version with scroll
+> buffer?
 
-Yes, my kernel source tree was corrupted... Do not know why.
-Now, with 2.6.8.1 and the ACPI patch no problems with my nForce2 board.
+On which card do you run mdacon?  Hercules or something MDA-like?
 
-Thanks,
-
-Marcus
-
+				Have a nice fortnight
 -- 
-www.marcush.de
-
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Even nostalgia isn't what it used to be.

@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263922AbTEFSDU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 14:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263924AbTEFSDU
+	id S263891AbTEFSBE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 14:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263901AbTEFSBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 14:03:20 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:58261 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263922AbTEFSDT (ORCPT
+	Tue, 6 May 2003 14:01:04 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:32485 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S263891AbTEFSBC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 14:03:19 -0400
-Date: Tue, 6 May 2003 09:30:06 -0700
-From: Greg KH <greg@kroah.com>
-To: Wade <neroz@ii.net>
+	Tue, 6 May 2003 14:01:02 -0400
+Message-ID: <F760B14C9561B941B89469F59BA3A84725A28E@orsmsx401.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: Andrew Morton <akpm@digeo.com>, Nicolas <linux@1g6.biz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
-Message-ID: <20030506163006.GA1296@kroah.com>
-References: <20030427115644.GA492@zip.com.au> <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au> <20030505165848.GA1249@kroah.com> <3EB6AA01.30601@wmich.edu> <20030505182648.GA1826@kroah.com> <3EB6BCDF.2020300@wmich.edu> <20030505203927.GA2325@kroah.com> <1052211616.654.1.camel@debian>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1052211616.654.1.camel@debian>
-User-Agent: Mutt/1.4.1i
+Subject: RE: oops 2.5.68 ohci1394/ IRQ/acpi
+Date: Tue, 6 May 2003 11:13:18 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+content-class: urn:content-classes:message
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 05:00:16PM +0800, Wade wrote:
-> On Tue, 2003-05-06 at 04:39, Greg KH wrote:
-> > On Mon, May 05, 2003 at 03:34:55PM -0400, Ed Sweetman wrote:
-> > > 
-> > > Ok, then the sensors program that is part of the lm_sensors package is 
-> > > just not up to date with the drivers since it complains about no 
-> > > i2c-proc and has no options for looking at sysfs.
-> > 
-> > Yes, the libsensors code has not been updated yet, sorry.  I'm hoping
-> > for some unification with the acpi/power management people too, as they
-> > too care about power and temperature and fan settings.
-> > 
-> > > My via686a sensors seem to be working just fine in .69
-> > 
-> > Glad to hear it.
+Ohhh so we need to not just return nonzero, but return 1 (aka
+IRQ_HANDLED?) Well, then this makes sense. Sorry about that.
+
+btw I think the line in handle_IRQ_event that reads
+
+if (retval != 1) {
+
+should be
+
+if (retval != IRQ_HANDLED) {
+
+but that's just a nit.
+
+Regards -- Andy
+
+> -----Original Message-----
+> From: Andrew Morton [mailto:akpm@digeo.com] 
+> Sent: Monday, May 05, 2003 2:16 PM
+> To: Nicolas
+> Cc: linux-kernel@vger.kernel.org; Grover, Andrew
+> Subject: Re: oops 2.5.68 ohci1394/ IRQ/acpi
+> Importance: High
 > 
-> Thats strange. Mine don't, and never have in 2.5 - works in FreeBSD just
-> fine though.
-
-Does the 2.4 packages from the lmsensors web page work for you?  And if
-so, are the drivers your hardware needs currently in the 2.5 tree yet?
-If not, want to port them?  If so, please let us know.
-
-thanks,
-
-greg k-h
+> 
+> Nicolas <linux@1g6.biz> wrote:
+> >
+> > 
+> > May  5 13:36:56 hal9003 kernel: irq 9: nobody cared!
+> > ...
+> > May  5 13:36:56 hal9003 kernel: handlers:
+> > May  5 13:36:56 hal9003 kernel: [acpi_irq+0/17] (acpi_irq+0x0/0x11) 
+> > May  5 13:36:56 hal9003 kernel: [<c01c1ff0>] (acpi_irq+0x0/0x11)
+> 
+> Look like the ACPI IRQ handler isn't returning an appropriate value.
+> 
+> Can you test this patch?
+> 
+> diff -puN drivers/acpi/osl.c~acpi-irq-ret-fix drivers/acpi/osl.c
+> --- 25/drivers/acpi/osl.c~acpi-irq-ret-fix	Mon May  5 14:14:24 2003
+> +++ 25-akpm/drivers/acpi/osl.c	Mon May  5 14:14:38 2003
+> @@ -237,7 +237,7 @@ acpi_os_table_override (struct acpi_tabl  
+> static irqreturn_t  acpi_irq(int irq, void *dev_id, struct 
+> pt_regs *regs)  {
+> -	return (*acpi_irq_handler)(acpi_irq_context);
+> +	return (*acpi_irq_handler)(acpi_irq_context) ? 
+> IRQ_HANDLED : IRQ_NONE;
+>  }
+>  
+>  acpi_status
+> 
+> _
+> 

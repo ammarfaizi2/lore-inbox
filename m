@@ -1,50 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270321AbTHSL4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 07:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270326AbTHSL4I
+	id S269664AbTHSMPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 08:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269659AbTHSMPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 07:56:08 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:62092 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S270321AbTHSL4G
+	Tue, 19 Aug 2003 08:15:50 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:50560 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269664AbTHSMPo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 07:56:06 -0400
-Date: Tue, 19 Aug 2003 13:48:13 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: John Bradford <john@grabjohn.com>
-cc: herbert@13thfloor.at, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Documentation for PC Architecture
-In-Reply-To: <200308190737.h7J7bVaa000623@81-2-122-30.bradfords.org.uk>
-Message-ID: <Pine.GSO.3.96.1030819133312.28761A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	Tue, 19 Aug 2003 08:15:44 -0400
+Date: Tue, 19 Aug 2003 08:17:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Simon Haynes <simon@baydel.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: File access
+In-Reply-To: <1FDBD34B76B1@baydel.com>
+Message-ID: <Pine.LNX.4.53.0308190814420.3760@chaos>
+References: <67597854DA5@baydel.com> <Pine.LNX.4.53.0308140803430.179@chaos>
+ <1FDBD34B76B1@baydel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="1678434306-676985530-1061295439=:3760"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003, John Bradford wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> On some boards I've seen, there is 384K onboard for ROM shadowing
-> purposes, and when only 128K is actually used, (as it is in a lot of
-> configurations), the other 256K is available as system memory.
-> 
-> However, this on-board 256K is only remapped when you have 8 MB RAM or
-> less on the board.  So with 8 MB the board reports 8448K of RAM, but
-> with 16 MB, it only reports 16384K.  In that case 256K of real RAM is,
-> indeed, lost.
+--1678434306-676985530-1061295439=:3760
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
- Since the system firmware of a typical PC these days is compressed in the
-ROM, part of the RAM in the upper 384kB of the first MB of physical
-address space is used to hold an uncompressed image of the firmware --
-typically 128kB.  The preceding 128kB is available for shadowing firmware
-of option boards and the remaining 128kB is used for SMM code or not at
-all.  Remapping of these 384kB of RAM in the chipset for general use is
-possible in some systems, but I haven't seen this option in any system
-newer than ones from the 486 era. 
+On Tue, 19 Aug 2003, Simon Haynes wrote:
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+> I actually had a character interface which I use for on the fly
+> configuration. I have now implemented some code which uses a user process to
+> pass the configuration to the driver. I have however run into problems trying
+> to write files from the driver. I have tried implementing a user process
+> which performs a blocking read. The user process is blocked with
+> interruptible_sleep_on and is woken by the main part of the driver when it
+> needs to write. The problem is I then need to stall the main part of the
+> driver while the data gets written out. My problem is that this write needs
+> to happen from an interrupt handler or a timer process. I cannot seem to
+> block these with interruptible_sleep_on, the kernel crashes. I guess you
+> cannot use this in these cases ? I have also tried semaphores without much
+> success. I have looked for the howto but failed there also.
+>
+> Could you please tell me where I could find this FAQ.
+>
+> Many Thanks
+>
+> Simon.
+>
 
+You may want to post this somewhere. I don't have a web-page.
+We are treated like prisoners here ;;;))   Just kidding, Thor
+(network spy).
+
+Cheers,
+Dick Johnson
+
+
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+
+--1678434306-676985530-1061295439=:3760
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="file-io.txt"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.53.0308190817190.3760@chaos>
+Content-Description: 
+Content-Disposition: attachment; filename="file-io.txt"
+
+DQpGaWxlIEkvTyBmcm9tIGluc2lkZSB0aGUga2VybmVsLCBGQVEuLi4uLi4u
+Li4uLi4NCg0KQXMgY2l0ZWQgbWFueSB0aW1lcywgdGhlIGtlcm5lbCBpcyBu
+b3QgYSBwcm9jZXNzLiBJdCBpcw0KZGVzaWduZWQgdG8gcGVyZm9ybSBmdW5j
+dGlvbnMgb24gYmVoYWxmIG9mIGEgY2FsbGluZyBwcm9jZXNzLg0KDQpCZWNh
+dXNlIGl0IGlzIG5vdCBhIHByb2Nlc3MsIGl0IGRvZXMgbm90IGhhdmUgYSBj
+b250ZXh0Lg0KQSBmaWxlIGRlc2NyaXB0b3Igd2l0aG91dCBhIGNvbnRleHQg
+d2l0aCB3aGljaCB0byBhc3NvY2lhdGUNCnRoZSBmaWxlIGRlc2NyaXB0b3Ig
+aXMgd29ydGhsZXNzLiBGb3IgaW5zdGFuY2UsIGFsbCBwcm9jZXNzZXMNCmFy
+ZSBjcmVhdGVkIHdpdGggZmlsZSBkZXNjcmlwdG9ycywgU1RESU5fRklMRU5P
+LCBTVERPVVRfRklMRU5PLA0KYW5kIFNUREVSUl9GSUxFTk8gKDAsIDEsIGFu
+ZCAyKSwgd2hpY2ggYXJlIGFzc29jaWF0ZWQgd2l0aCBzb21lDQpJL08gZGV2
+aWNlLiBJZiB0aGVzZSBmaWxlLWRlc2NyaXB0b3IgbnVtYmVycyB3ZXJlIG5v
+dCBhc3NvY2lhdGVkDQp3aXRoIGEgcHJvY2VzcyBjb250ZXh0LCBldmVyeSB0
+YXNrIHdvdWxkIGRvIEkvTyBmcm9tIHRoZSBzYW1lDQp0ZXJtaW5hbC4NCg0K
+QXQgYW55IGluc3RhbnQsIHRoZSBjb250ZXh0IG9mIGEgcHJvY2VzcyBpcyBy
+ZXByZXNlbnRlZCBieQ0KdGhlIG9iamVjdCBjYWxsZWQgImN1cnJlbnQiLiBU
+aGlzLCBjdXJyZW50bHksIGlzIGEgcG9pbnRlciB0bw0KYSBzdHJ1Y3R1cmUg
+d2hpY2ggY29udGFpbnMgdGhlIGVsZW1lbnRzIG5lY2Vzc2FyeSB0byByZXN1
+bWUNCmV4ZWN1dGlvbiBvZiB0aGUgcHJvY2VzcyB3aGVuIHRoZSBrZXJuZWwg
+Y2FsbCByZXR1cm5zLiBJdCBhbHNvDQpjb250YWlucyB0aGUgbWVtYmVyIHZh
+bHVlcyB3aGljaCB1bmlxdWVseSBkZWZpbmUgdGhlIHByb2Nlc3MgYW5kDQph
+bGxvdyB0aGUga2VybmVsIHRvIHBlcmZvcm0gdGFza3Mgb24gYmVoYWxmIG9m
+IHRoZSBjYWxsaW5nIHByb2Nlc3MuDQoNClRvIHBlcmZvcm0gZmlsZSBJL08g
+d2l0aGluIHRoZSBrZXJuZWwgcmVxdWlyZXMgYSBwcm9jZXNzIGNvbnRleHQu
+DQpZb3UgY2FuIGVpdGhlciBzdGVhbCBvbmUgb3IgeW91IGNhbiBjcmVhdGUg
+b25lLiBTdGVhbGluZyBhIHByb2Nlc3MNCmNvbnRleHQgaGFzIHRoZSBncmVh
+dCBwb3RlbnRpYWwgb2YgY29ycnVwdGluZyB0aGUgdGFzayBmcm9tIHdoaWNo
+DQp5b3Ugc3RvbGUgdGhlIGNvbnRleHQuIFRoaXMgaXMgYmVjYXVzZSBJL08g
+d291bGQgYmUgcGVyZm9ybWVkIGludG8NCml0cyByZXNvdXJjZXMgYW5kIHlv
+dSB3aWxsIHZlcnkgd2VsbCBvdmVyd3JpdGUgYnVmZmVyZWQgZGF0YQ0KdGhh
+dCB0aGF0IHByb2Nlc3MgaXMgdXNpbmcuDQoNCkNyZWF0aW5nIGEgcHJvY2Vz
+cyBjb250ZXh0IGludm9sdmVzIGNyZWF0aW5nIGEga2VybmVsIHRocmVhZC4g
+VGhpcw0KdGhyZWFkIHdpbGwgZnVuY3Rpb24gcHJvcGVybHkgYW5kIGNhbiBw
+ZXJmb3JtIGZpbGUgSS9PLiBIb3dldmVyLA0KeW91IGNhbiBuZXZlciB1c2Ug
+YW55IEMgcnVudGltZSBsaWJyYXJ5IGZ1bmN0aW9ucyBpbiB0aGUga2VybmVs
+IHNvDQp5b3UgaGF2ZSB0byBwZXJmb3JtIGFsbCBwcmltaXRpdmUgZmlsZSBJ
+L08geW91cnNlbGYuIEZvciBpbnN0YW5jZSwNCnlvdSBjYWxsIHN5c19vcGVu
+KCksIHlvdSBjYW4gbmV2ZXIgdXNlIG9wZW4oKSBvciBmb3BlbigpLCBldGMu
+DQoNCkhlcmUgaXMgc29tZSBtb2R1bGUtY29kZSB0aGF0IHN0YXJ0cyB1cCwg
+dGhlbiBydW5zIGRvd24gYSBrZXJuZWwtDQp0aHJlYWQuIFRoaXMgaXMgc25p
+cHBlZCBmcm9tIGEgbW9kdWxlIHRoYXQgSSB3cm90ZSBzbyBpdCBpcw0KaW5j
+b21wbGV0ZSwgbWVhbnQgb25seSBhcyBhIHRlbXBsYXRlLg0KDQoNCiNpZm5k
+ZWYgX19LRVJORUxfXw0KI2RlZmluZSBfX0tFUk5FTF9fDQojZW5kaWYNCg0K
+I2lmbmRlZiBNT0RVTEUNCiNkZWZpbmUgTU9EVUxFDQojZW5kaWYNCg0KI2lu
+Y2x1ZGUgPGxpbnV4L21vZHVsZS5oPg0KI2luY2x1ZGUgPGxpbnV4L3NsYWIu
+aD4NCiNpbmNsdWRlIDxsaW51eC9pb3BvcnQuaD4NCiNpbmNsdWRlIDxsaW51
+eC9wb2xsLmg+DQojaW5jbHVkZSA8bGludXgvc2NoZWQuaD4NCiNpbmNsdWRl
+IDxsaW51eC9pbml0Lmg+DQojaW5jbHVkZSA8YXNtL2F0b21pYy5oPg0KI2lu
+Y2x1ZGUgPGFzbS9kZWxheS5oPg0KI2luY2x1ZGUgPGFzbS9pby5oPg0KLyot
+PS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09
+LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPSovDQovKg0KICogIFRoaXMg
+a2VybmVsIHRocmVhZCBydW5zIGZvcmV2ZXIgYXMgbG9uZyBhcyB0aGUgbW9k
+dWxlIGlzIGluc3RhbGxlZC4NCiAqLw0Kc3RhdGljIGludCBncGliX3RocmVh
+ZCh2b2lkICp1bnVzZWQpDQp7DQogICAgaW50IGRvaXQ7DQogICAgdW5zaWdu
+ZWQgbG9uZyBmbGFnczsNCiAgICBleGl0X2ZpbGVzKGN1cnJlbnQpOw0KICAg
+IGRhZW1vbml6ZSgpOw0KICAgIHNwaW5fbG9ja19pcnEoJmN1cnJlbnQtPnNp
+Z21hc2tfbG9jayk7DQogICAgc2lnZW1wdHlzZXQoJmN1cnJlbnQtPmJsb2Nr
+ZWQpOw0KICAgIHJlY2FsY19zaWdwZW5kaW5nKGN1cnJlbnQpOw0KICAgIHNw
+aW5fdW5sb2NrX2lycSgmY3VycmVudC0+c2lnbWFza19sb2NrKTsNCiAgICBt
+ZW1jcHkoY3VycmVudC0+Y29tbSwgdGFza19uYW1lLCBzaXplb2YodGFza19u
+YW1lKSk7DQogICAgREVCKHByaW50aygiZ3BpYl90aHJlYWRcbiIpKTsNCiAg
+ICBmb3IoOzspDQogICAgeyANCiAgICAgICAgLy8gS2VybmVsIHRocmVhZCBj
+b2RlIGdvZXMgaGVyZS4NCg0KDQoNCiAgICAgICAgaWYoISFzaWduYWxfcGVu
+ZGluZyhjdXJyZW50KSkNCiNpZmRlZiBORVdfVEhSRUFEX0VYSVQNCiAgICAg
+ICAgICAgIGNvbXBsZXRlX2FuZF9leGl0KCZpbmZvLT5xdWl0LCAwKTsNCiNl
+bHNlDQogICAgICAgICAgICB1cF9hbmRfZXhpdCgmaW5mby0+cXVpdCwgMCk7
+DQojZW5kaWYNCiAgICB9IA0KfQ0KDQoNCi8qLT0tPS09LT0tPS09LT0tPS09
+LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0t
+PS09LT0tPS09LT0qLw0KLyoNCiAqICAgSW5pdGlhbGl6ZSBhbmQgcmVnaXN0
+ZXIgdGhlIG1vZHVsZQ0KICovDQppbnQgX19pbml0IGluaXRfbW9kdWxlKCkN
+CnsNCiNpZmRlZiBORVdfVEhSRUFEX0VYSVQNCiAgICBpbml0X2NvbXBsZXRp
+b24oJmluZm8tPnF1aXQpOw0KI2Vsc2UNCiAgICBpbml0X01VVEVYX0xPQ0tF
+RCgmaW5mby0+cXVpdCk7DQojZW5kaWYNCiAgICBpbmZvLT5waWQgPSBrZXJu
+ZWxfdGhyZWFkKGdwaWJfdGhyZWFkLCBOVUxMLCBDTE9ORV9GUyB8IENMT05F
+X0ZJTEVTKTsNCn0NCi8qLT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09
+LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0q
+Lw0KLyoNCiAqICAgUmVsZWFzZSB0aGUgbW9kdWxlLg0KICovDQp2b2lkIGNs
+ZWFudXBfbW9kdWxlKCkNCnsNCiAgICAgICAgaWYoISEocmVzdWx0ID0ga2ls
+bF9wcm9jKGluZm8tPnBpZCwgU0lHVEVSTSwgMSkpKQ0KICAgICAgICB7DQog
+ICAgICAgICAgICBwcmludGsoQV9zaWcsIGluZm8tPmRldik7DQogICAgICAg
+ICAgICByZXR1cm47DQogICAgICAgIH0NCiNpZmRlZiBORVdfVEhSRUFEX0VY
+SVQNCiAgICAgICAgd2FpdF9mb3JfY29tcGxldGlvbigmaW5mby0+cXVpdCk7
+DQojZWxzZQ0KICAgICAgICBkb3duKCZpbmZvLT5xdWl0KTsNCiNlbmRpZg0K
+fQ0KDQoNCk5vdywgdGhlIG9ubHkgcmVhc29uIHlvdSB3b3VsZCBldmVyIHBl
+cmZvcm0gZmlsZSBJL08gd2l0aGluIHRoZQ0Ka2VybmVsIGlzIGFzIGFuICJp
+bnRlbGxlY3R1YWwgZXhlcmNpc2UiLiBUaGVyZSBpcyBhYnNvbHV0ZWx5IG5v
+DQpyZWFzb24gd2hhdHNvZXZlciB0byBwZXJmb3JtIHVzZXItbW9kZSB0YXNr
+cyB3aXRoaW4gdGhlIGtlcm5lbC4NCg0KVGhlIHdheSBVbml4L0xpbnV4IGlz
+IGRlc2lnbmVkIHdpbGwgYWx3YXlzIGZhdm9yIHBlcmZvcm1pbmcgSS9PDQpm
+cm9tIHVzZXIgc3BhY2UuIFRoYXQncyBob3cgaXQncyBzdXBwb3NlZCB0byBi
+ZSBkb25lIHdpdGggc3VjaA0KYW4gT3BlcmF0aW5nIFN5c3RlbS4gSWYgeW91
+IGFyZSBhY3R1YWxseSBkZXNpZ25pbmcgc29tZXRoaW5nDQp0aGF0IHJlcXVp
+cmVzIGZpbGUgSS9PIGluIHRoZSBrZXJuZWwsIHRoZSBkZXNpZ24gaXMgX19k
+ZWZlY3RpdmVfXy4NCg0KVGhlcmUgaXMgb25seSBvbmUgT3BlcmF0aW5nIFN5
+c3RlbSB0aGF0IEkga25vdyBvZiBpbiB3aGljaCB0aGVyZQ0Kd2FzIHNvbWUg
+cGVyZm9ybWFuY2UgdG8gYmUgZ2FpbmVkIGJ5IHBlcmZvcm1pbmcgSS9PIGZy
+b20gd2l0aGluDQp0aGUga2VybmVsLiBUaGF0IHdhcyBWQVgvVk1TLiBBbnkg
+c3VjaCBJL08gd2FzIHBlcmZvcm1lZCB3aXRoaW4NCnRoZSBjb250ZXh0IG9m
+IHRoZSBzd2FwcGVyIHByb2Nlc3MuIFRoZSBWQVgvVk1TIGtlcm5lbCBtYWlu
+dGFpbnMNCml0cyBvd24gY29udGV4dC4gVGhlcmUgYXJlIGRpc2FkdmFudGFn
+ZXMsIGZvciBpbnN0YW5jZSBldmVyeQ0KaW50ZXJydXB0IGdlbmVyYXRlZCBh
+IGNvbnRleHQtc3dpdGNoLiBUaGVyZSBhcmUgYWR2YW50YWdlcywgdGhlDQpp
+bnRlcnJ1cHRlZCB0YXNrIGRpZCBub3QgbmVjZXNzYXJpbHkgZ2V0IHRoZSBD
+UFUgYmFjayBpbW1lZGlhdGVseQ0KYWZ0ZXIgYW4gaW50ZXJydXB0LCBldGMu
+DQoNClRoZSBVbml4IG1vZGVsIHNoYXJlcyBrZXJuZWwgY29kZSBiZXR3ZWVu
+IGFsbCB0YXNrcywgYnV0IHRoZSB0YXNrcw0KdGhlbXNlbHZlcyBnZXQgbW9z
+dCBvZiB0aGUgQ1BVIGFuZCBhcmUgZm9yY2VkIHRvIGdpdmUgdXAgdGhlIENQ
+VQ0Kb25seSB3aGVuIHdhaXRpbmcgZm9yIEkvTyBvciwgaW4gdGhlIGNhc2Ug
+b2YgYSBDUFUtSG9nLCB3aGVuIGENCmNvbnRleHQgc3dpdGNoIGlzIGZvcmNl
+ZCBieSBhIHRpbWVyLg0KDQpJZiB5b3UgbmVlZCB0byByZWFkIHBhcmFtZXRl
+cnMgZnJvbSBhIGZpbGUsIHdoZW4gaW5zdGFsbGluZw0KYSBrZXJuZWwgbW9k
+dWxlLCB5b3Ugc2ltcGx5IGRvIHRoaXMgaW4gdXNlci1zcGFjZSBhdCB0aGUg
+dGltZQ0KeW91ciB1c2VyLXNwYWNlIHByb2Nlc3MgaW5zdGFsbHMgdGhlIG1v
+ZHVsZS4gVGhhdCdzIHdoYXQgaW9jdGwoKQ0KZnVuY3Rpb25zIGFyZSBmb3Iu
+IEFsc28sIGV2ZW4gaWYgeW91IGNvbnRpbnVhbGx5IG5lZWQgdG8gZG8gZmls
+ZQ0KSS9PLCB5b3Ugc3RpbGwgZG8gaXQgZnJvbSB1c2VyLW1vZGUuIFlvdXIg
+a2VybmVsIG1vZHVsZSBqdXN0DQpkb2VzIHRoZSB0aGluZ3MgdGhhdCBjYW4n
+dCBiZSBkb25lIGZyb20gdXNlci1tb2RlIGNvZGUuDQoNCklmIHlvdSBuZWVk
+IGEgdXNlci1tb2RlIHJlc3BvbnNlIHRvIGFuIGludGVycnVwdCwgaXQncyBl
+YXN5Lg0KWW91ciB1c2VyLW1vZGUgY29kZSBzbGVlcHMgaW4gc2VsZWN0KCkg
+b3IgcG9sbCgpLiBUaGUgZHJpdmVyL21vZHVsZQ0KY29kZSBkb2VzIHdoYXRl
+dmVyIGlzIG5lY2Vzc2FyeSB0byBoYW5kbGUgdGhlIGltbWVkaWF0ZSBuZWVk
+cw0Kb2YgdGhlIGhhcmR3YXJlLCB0aGVuIGV4ZWN1dGVzIHdha2VfdXBfaW50
+ZXJydXB0aWJsZSgpLiBUaGlzDQp3YWtlcyB1cCB5b3VyIHRhc2sgYW5kIGl0
+IHByb2Nlc3NlcyB0aGUgZGF0YSByZWNlaXZlZCBpbiB0aGUgSVNSLg0KDQpU
+aGVyZSBpcyBubyBhZHZhbnRhZ2UgcnVubmluZyB1c2VyLW1vZGUgdGFza3Mg
+d2l0aGluIHRoZSBrZXJuZWwNCmJlY2F1c2UgeW91IGhhdmUgdG8gZG8gdGhl
+IHNhbWUgdGhpbmcgYW55d2F5LiBUaGVyZSBpcyBubyB3YXkNCmZvciBhbiBp
+bnRlcnJ1cHQgdG8gYXR0YWNoKCkgb3IgY2FsbGJhY2soKSBhIHRhc2suIE5v
+IHJlYWwtd29ybGQNCk9wZXJhdGluZyBTeXN0ZW0gdXNlcyBpbnRlcnJ1cHQg
+InRodW5rcyIsIHdoZXJlIHNvbWUgdXNlciBnZXRzDQp0aGUgQ1BVIGRpcmVj
+dGx5IGZyb20gYW4gaW50ZXJydXB0LiBUaGlzIGNhbm5vdCBoYXBwZW4gYmVj
+YXVzZSwNCndpdGggbm8gY29udGV4dC1zd2l0Y2ggaW4gYW4gaW50ZXJydXB0
+LCB0aGVyZSBpcyBubyB3YXkgdG8NCnJldHVybiB0byB0aGUgaW50ZXJydXB0
+ZWQgdGFzay4gSXQgY2Fubm90IHN3aXRjaCB0byBhbm90aGVyDQp0YXNrLiBJ
+ZiBpdCBkaWQgKGJ5IG1ha2luZyBzb21lIGtlcm5lbCBjaGFuZ2VzKSwgeW91
+IHdvdWxkIG5ldmVyDQpiZSBhYmxlIHRvIGdldCBiYWNrIHRvIHRoZSBvcmln
+aW5hbCBpbnRlcnJ1cHRlZCB0YXNrLg0KDQpPdmVyIGFuZCBvdmVyIGFnYWlu
+IEkgaGF2ZSB1c2VycyBzdGF0ZTsgIkkgTVVTVCBkbyBmaWxlIEkvTyBpbiB0
+aGUNCmtlcm5lbC4uLiIuIFRoaXMgaGFzIGFsd2F5cyBiZWVuIGEgcmVzdWx0
+IG9mIGFuIGluY29tcGxldGUgDQp1bmRlcnN0YW5kaW5nIG9mIHdoYXQgdGhl
+IGtlcm5lbCBpcyBhbmQgd2hhdCB0aGUga2VybmVsIGRvZXMuIFNvbWUNCmxv
+b2sgYXQgZHJpdmVyIGNvZGUgYW5kIHNheTsgIkl0J3MganVzdCAnQycgY29k
+ZS4gSSBjYW4gZG8gdGhpcy4uLiINClRoZW4gdGhleSBjb2RlIGEgbW9kdWxl
+IGFuZCB0cmlwbGUtZmF1bHQgdGhlIGtlcm5lbC4NCg0KVGhlIGtlcm5lbCBp
+cyBub3QgYSAiaGlnaC1wZXJmb3JtYW5jZSIgQVBJIHdoZXJlIHlvdSBjYW4g
+ZXhlY3V0ZQ0Kc29tZSBjb2RlIHdpdGggYSBwZXJmb3JtYW5jZSBhZHZhbnRh
+Z2UuIFRoZSBrZXJuZWwgaXMgY29tbW9uLWNvZGUNCnRoYXQgY2FuIGJlIGV4
+ZWN1dGVkIGJ5IGFsbCB0YXNrcy4gVGhhdCBjb2RlIGlzIGV4ZWN1dGVkIHdp
+dGhpbg0KdGhlIGNvbnRleHQgb2YgdGhlIGNhbGxpbmcgcHJvY2Vzcy4gVGhp
+cyBtYWtlcyBpdCBmYXN0LiBUaGUga2VybmVsDQpkb2VzIGZpbGUgSS9PIHRo
+cm91Z2ggY29kZSB0aGF0IGNhbid0IGJlIG1vZGlmaWVkIGJ5IHVzZXIgdGFz
+a3MNCnNvIGl0IGZvbGxvd3MgdGhlIHJ1bGVzIG5lY2Vzc2FyeSB0byBtYWlu
+dGFpbiBmaWxlLXN5c3RlbXMuIFRoZQ0Ka2VybmVsLCB0aGVyZWZvcmUsIGlz
+IGEgbWVjaGFuaXNtIGZvciBtYWludGFpbmluZyB0aGUgc2FuaXR5IG9mDQph
+IHN5c3RlbS4gVGhlIGFjdHVhbCB3b3JrIGlzIGRvbmUgYnkgdGhlIHByb2Nl
+c3MgaXRzZWxmLg0KDQoNCg==
+
+--1678434306-676985530-1061295439=:3760--

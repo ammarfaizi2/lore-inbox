@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266509AbUG0TXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUG0T0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266509AbUG0TXy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 15:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUG0TXy
+	id S266511AbUG0T0s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 15:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUG0T0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 15:23:54 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:27754 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266509AbUG0TXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 15:23:50 -0400
-From: tabris <tabris@tabris.net>
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: [Repost] IDE error 2.6.7-rc3-mm2 and 2.6.8-rc1-mm1
-Date: Tue, 27 Jul 2004 14:07:10 -0400
-User-Agent: KMail/1.6.1
+	Tue, 27 Jul 2004 15:26:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62621 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266511AbUG0T0Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 15:26:16 -0400
+Date: Tue, 27 Jul 2004 20:26:15 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Gene Heskett <gene.heskett@verizon.net>
 Cc: linux-kernel@vger.kernel.org
-References: <200407220659.22948.tabris@tabriel.tabris.net> <20040722153933.GJ3987@suse.de>
-In-Reply-To: <20040722153933.GJ3987@suse.de>
-MIME-Version: 1.0
+Subject: Re: 2.6.8-rc2 crashes
+Message-ID: <20040727192615.GG12308@parcelfarce.linux.theplanet.co.uk>
+References: <200407271233.04205.gene.heskett@verizon.net> <20040727142918.GE12308@parcelfarce.linux.theplanet.co.uk> <200407271315.22075.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407271407.10631.tabris@tabris.net>
+In-Reply-To: <200407271315.22075.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 July 2004 11:39 am, Jens Axboe wrote:
-> On Thu, Jul 22 2004, Tabris wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-<snip log>
-> > 	This error did not occur in 2.6.6-rc3-mm2. Turning off ACPI made
-> > no difference, not that I expected one.
+On Tue, Jul 27, 2004 at 01:15:22PM -0400, Gene Heskett wrote:
+> On Tuesday 27 July 2004 10:29, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> >On Tue, Jul 27, 2004 at 12:33:04PM -0400, Gene Heskett wrote:
+> >> Greetings everybody;
+> >>
+> >> I have now had 4 crashes while running 2.6.8-rc2, the last one
+> >> requiring a full powerdown before the intel-8x0 could
+> >> re-establish control over the sound.
+> >>
+> >> All have had an initial Opps located in prune_dcache, and were
+> >> logged as follows:
+> >> Jul 27 07:58:58 coyote kernel: Unable to handle kernel NULL
+> >> pointer dereference at virtual address 00000000
 > >
-> > 	It appears to be harmless but it's polluting my syslog.
-> >
-> > Appears related to
-> > http://marc.theaimsgroup.com/?l=linux-kernel&m=108946389700930
-> >
-> > 	None of my harddrives are over 60GiB (and hda is an 8GiB), so
-> > there's no reason i should be getting LBA48 Flush Cache.
-> >
-> > 	What should I do, what do you need from me to get to the bottom of
-> > this?
->
-> Does this work?
-	No, however it does seem to start it going in my syslog a bit earlier, 
-but that may be meaningless (normally I found it waited until after 
-qmail would start).
+> >... which means that dentry_unused list got corrupted, which doesn't
+> > really help.  Could you try to narrow it down to 2.6.8-rc1-bk<day>?
+> 
+> I got the bright idea of doing some cmp's on that code module, and 
+> its identical all the way back to 2.6.7-mm1, (I have them all) but 
+> differs at 2.6.7:
 
-	Also, my i2c/sensors have stopped working (tho I doubt it has anything 
-to do with your patch, it _does_ lineup with my applying your patch and 
-rebooting...)
+Doesn't help - all we know is that at some point in a cyclic list we'd
+got NULL instead of a pointer to the next list element.  Could've happened
+for any number of reasons.
 
---
-tabris
+What filesystems do you have on that box, BTW?

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbUKKP2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbUKKP2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbUKKP2J (ORCPT <rfc822;willy@w.ods.org>);
+	id S262262AbUKKP2J (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 11 Nov 2004 10:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbUKKP0M
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbUKKPZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 10:26:12 -0500
-Received: from mail8.spymac.net ([195.225.149.8]:5031 "EHLO mail8")
-	by vger.kernel.org with ESMTP id S262243AbUKKPZM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 10:25:12 -0500
-Message-ID: <41939263.4020004@spymac.com>
-Date: Thu, 11 Nov 2004 17:25:07 +0100
-From: Gunther Persoons <gunther_persoons@spymac.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
-X-Accept-Language: en-us, en
+	Thu, 11 Nov 2004 10:25:54 -0500
+Received: from ihemail1.lucent.com ([192.11.222.161]:27103 "EHLO
+	ihemail1.lucent.com") by vger.kernel.org with ESMTP id S262246AbUKKPTU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 10:19:20 -0500
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
-References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <41938D60.4070802@spymac.com> <20041111160819.GA26184@elte.hu> <20041111161235.GA26582@elte.hu>
-In-Reply-To: <20041111161235.GA26582@elte.hu>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16787.33524.397332.953427@gargle.gargle.HOWL>
+Date: Thu, 11 Nov 2004 10:19:16 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: "Siddhesh Bhadkamkar" <siddheish@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.26 IDE driver
+In-Reply-To: <BAY2-F311s7nlT2NqFJ0002718f@hotmail.com>
+References: <BAY2-F311s7nlT2NqFJ0002718f@hotmail.com>
+X-Mailer: VM 7.14 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
 
->* Ingo Molnar <mingo@elte.hu> wrote:
->
->  
->
->>* Gunther Persoons <gunther_persoons@spymac.com> wrote:
->>
->>    
->>
->>>Got 2 times a hard lock up with this one. Happened while i was typing
->>>something and downloading both after 15-20 minutes.
->>>      
->>>
->>.config?
->>    
->>
->
->just in case you are using UP-IOAPIC, could you enable CONFIG_SMP (even
->if you are running an UP box) and see whether the lockup goes away? 
->  
->
-Ok. Going to build a new kernel.
+Siddhesh> we are trying to modify IDE driver as a possible workaround
+Siddhesh> for an unreliable storage media.
 
->Which was the last -RT kernel that you tried that didnt lock up in this
->fashion?
->  
->
-V0.7.24.
+Yuck, don't do that, just use the Linux RAID tools and mirror your
+data.
 
->	Ingo
->
->  
->
+Siddhesh> this driver will expose only a part of the disk to file
+Siddhesh> system by reporting the disk capacity as say
+Siddhesh> real_capacity/4. remaining disk will be hidden from the file
+Siddhesh> system. in write operation driver will try to write the same
+Siddhesh> data in all 4 parts of the same disk for redundancy. in read
+Siddhesh> it will hope to find atleast one copy properly written.
+
+Use the 'md' raid modules instead.  You can divide the disk(s) into
+multiple volumes, then mirror/stripe your data across that instead.
+If a disk fails, you're toast if you haven't got data on another
+disk.
+
+If it's the media that's possibly flaky, then partitioning into
+multiple areas and using 'md' to RAID across partitions might help.
+Performance will suck though.  
+
+If the underlying media is flaky, then you're going to have lots and
+lots of problems.
+
+John
 

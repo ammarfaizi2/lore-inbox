@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbUJ0VXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbUJ0WzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262908AbUJ0VXs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 17:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbUJ0VXR
+	id S262765AbUJ0WzC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbUJ0Wqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 17:23:17 -0400
-Received: from DSL022.labridge.com ([206.117.136.22]:10764 "EHLO Perches.com")
-	by vger.kernel.org with ESMTP id S262754AbUJ0VTO (ORCPT
+	Wed, 27 Oct 2004 18:46:40 -0400
+Received: from mail.dif.dk ([193.138.115.101]:31671 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262765AbUJ0Wnn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:19:14 -0400
-Subject: Re: BK kernel workflow
-From: Joe Perches <joe@perches.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <Pine.LNX.4.61.0410272214580.877@scrub.home>
-References: <20041024233214.GA9772@work.bitmover.com>
-	 <20041025114641.GU14325@dualathlon.random>
-	 <1098707342.7355.44.camel@localhost.localdomain>
-	 <20041025133951.GW14325@dualathlon.random>
-	 <20041025162022.GA27979@work.bitmover.com>
-	 <20041025164732.GE14325@dualathlon.random>
-	 <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0410252350240.17266@scrub.home>
-	 <20041026010141.GA15919@work.bitmover.com>
-	 <Pine.LNX.4.61.0410270338310.877@scrub.home>
-	 <20041027035412.GA8493@work.bitmover.com>
-	 <Pine.LNX.4.61.0410272214580.877@scrub.home>
-Content-Type: text/plain
-Date: Wed, 27 Oct 2004 14:16:15 -0700
-Message-Id: <1098911775.8811.126.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 18:43:43 -0400
+Date: Thu, 28 Oct 2004 00:52:01 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Dave Airlie <airlied@gmail.com>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+In-Reply-To: <Pine.LNX.4.58.0410271424590.28839@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.61.0410280036490.3284@dragon.hygekrogen.localhost>
+References: <4179F81A.4010601@yahoo.com.au> <417D7089.3070208@tmr.com> 
+ <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>  <20041027200805.GA17759@4t2.com>
+  <Pine.LNX.4.58.0410271323040.28839@ppc970.osdl.org>
+ <21d7e997041027141358b05c41@mail.gmail.com> <Pine.LNX.4.58.0410271424590.28839@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-27 at 22:58 +0200, Roman Zippel wrote:
-> The complete development history of the Linux kernel is now effectly 
-> locked into the bk format, you can get a summary of it, but that's it.
-> The data everyone put into a bk repository is now owned by BM and only if 
-> you abide to the rules set by BM, do you have the permission to extract 
-> some of the data again. You can completely forget the idea to one day 
-> import "your" data into a different SCM system.
+On Wed, 27 Oct 2004, Linus Torvalds wrote:
 
-Nonsense.
+> 
+> 
+> On Thu, 28 Oct 2004, Dave Airlie wrote:
+> > 
+> > There has been a fair bit of bike shedding going on... so I think we
+> > should use some sort of timber and paint it red...
+> 
+> Ok, I nominate this for the strangest entry in the discussion so far.
+> 
+Heh, yeah, glad I'm not the only one incapable of making sense of that. :)
 
-I believe these statements to be wrong.
-I believe you might even know these statements are wrong.
+Anyway, I've been reading this thread and just want to add my own small 
+comments to it  :
 
-It's sad really.
+Personally I was a bit sceptical of the "new development model" at first, 
+but as 2.6.x has progressed I've come to like it very much.
+I'm using 2.6 on a number of boxes, servers, workstations at work and my 
+personal machine at work, and my impression is that it's the fastest 
+kernel we've had so far, and it's stable (at least I've not had any major 
+issues). So to me it seems to be working just fine.
 
-Subscribe to BK-KERNEL-COMMITS if you want to see every change
-ever made and track them.  Use the web tools, use the CVS.
+Some people have been asking for a sepperate tree for all the experimental 
+and unstable stuff, but as I see it that role is fulfilled by Andrews -mm 
+tree.
+Things go into -mm, then get a bit (or a lot in some cases) workout and 
+then slowly migrate into the mainline (Linus) tree as they settle down and 
+are proven to be stable. This is good since it keeps the stable kernel 
+up-to-date feature wise, and stuff has a place to get fixed and 
+stabilized before it moves to mainline, so mainline 2.6 is not a minefield 
+of unstable changes (and I think Andrew is doing a very good job at 
+this), but it's not a hugely out-of-date thing as it used to be with a 
+sepperate 2.<odd number>.x development tree.
 
-Perhaps now you'll say something like because BK doesn't provide
-a cross-reference tool for every email to LK that proposes some patch
-that BK is stopping you from importing "your" data.
+The people asking for a very stable 2.6.x.y.z.whatever tree are forgetting 
+a few things in my oppinion;
+First they seem to forget that point releases actually serve the role of 
+"new and improved stable kernel", so 2.6.x is the new "maintainance 
+release" of the 2.6.x-1 kernel. 
+Also they forget that there's a period of -rc releases before a point 
+release where stability and incompatibility problems can be dealt with.
+They also forget that there's nothing stopping them from forking off 2.6.x 
+at any point in time and maintaining their own "ultra stable" kernel based 
+on that release (hopefully they would still merge their fixes into 
+whatever is the current Linus kernel).
 
-Write your own import tools.
+I'm starting to ramble, all I really want to say is that I think the 
+current model works well - changes get testing in -mm before hitting 
+mainline, and mainline is not lacking behind in fixes and features as 
+badly as we've seen earlier with 2.4.x vs 2.5.x, 2.3.x vs 2.2.x and 
+previous development branches. And I think Andrew, Linus and the other 
+main kernel people are doing a very good job with the kernel atm.
 
-Stop whining.  Go write your own SCM.
-BitBucket anyone?  Lots of activity on SF.
+--
+Jesper Juhl
 

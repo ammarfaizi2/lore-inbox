@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263234AbTCWVDN>; Sun, 23 Mar 2003 16:03:13 -0500
+	id <S263214AbTCWVAp>; Sun, 23 Mar 2003 16:00:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263238AbTCWVDN>; Sun, 23 Mar 2003 16:03:13 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:9894
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263234AbTCWVDG>; Sun, 23 Mar 2003 16:03:06 -0500
-Subject: Re: Ptrace hole / Linux 2.2.25
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Martin Mares <mj@ucw.cz>, Robert Love <rml@tech9.net>,
-       Alan Cox <alan@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Stephan von Krawczynski <skraw@ithnet.com>, Pavel Machek <pavel@ucw.cz>,
-       szepe@pinerecords.com, arjanv@redhat.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030323200820.A20767@flint.arm.linux.org.uk>
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz>
-	 <200303231938.h2NJcAq14927@devserv.devel.redhat.com>
-	 <20030323194423.GC14750@atrey.karlin.mff.cuni.cz>
-	 <1048448838.1486.12.camel@phantasy.awol.org>
-	 <20030323195606.GA15904@atrey.karlin.mff.cuni.cz>
-	 <20030323200820.A20767@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048458387.10727.80.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Mar 2003 22:26:28 +0000
+	id <S263216AbTCWVAo>; Sun, 23 Mar 2003 16:00:44 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:4532 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S263214AbTCWVAn>; Sun, 23 Mar 2003 16:00:43 -0500
+Message-Id: <200303232111.h2NLBloa013334@post.webmailer.de>
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Subject: Re: [PATCH] slab.c cleanup
+To: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+Date: Sun, 23 Mar 2003 22:11:04 +0100
+References: <20030323191010$7678@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-03-23 at 20:08, Russell King wrote:
-> To give an instance, because I don't work for a distribution, I don't
-> have access to the security lists.  Yet, I'm the guy who produces the
-> ARM patches which the ARM community at large use.
+Brian Gerst wrote:
 
-So apply to join vendor-sec.
+> - Don't create caches that are not multiples of L1_CACHE_BYTES.
 
-Alan
+This sounds a bit drastic to me considering that the vast majority
+of kmalloc allocations that I see are either in the <32 byte or
+in the 64..128 byte range. Enlarging the minimum size to 256
+byte would immediately waste over 1MB on my machine...
 
+        Arnd <><

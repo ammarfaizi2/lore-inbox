@@ -1,92 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278386AbRJMT7C>; Sat, 13 Oct 2001 15:59:02 -0400
+	id <S278387AbRJMUFW>; Sat, 13 Oct 2001 16:05:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278387AbRJMT6x>; Sat, 13 Oct 2001 15:58:53 -0400
-Received: from [193.252.19.44] ([193.252.19.44]:59360 "EHLO
-	mel-rti19.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S278386AbRJMT6n>; Sat, 13 Oct 2001 15:58:43 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Linus Torvalds <torvalds@transmeta.com>, duncan.sands@math.u-psud.fr,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Al Viro <viro@redhat.com>
-Subject: Re: xine pauses with recent (not -ac) kernels
-Date: Sat, 13 Oct 2001 21:58:45 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01101208552800.00838@baldrick> <20011012161052.R714@athlon.random> <200110130351.f9D3pRp08271@penguin.transmeta.com>
-In-Reply-To: <200110130351.f9D3pRp08271@penguin.transmeta.com>
+	id <S278388AbRJMUFM>; Sat, 13 Oct 2001 16:05:12 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:27142 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S278387AbRJMUFH>; Sat, 13 Oct 2001 16:05:07 -0400
+Message-ID: <3BC89C7E.6040003@megapathdsl.net>
+Date: Sat, 13 Oct 2001 12:56:46 -0700
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4+) Gecko/20010925
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Message-Id: <01101321584500.00779@baldrick>
-Content-Transfer-Encoding: 7BIT
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.13-pre2 -- Build error -- appletalk.o: In function `ipddp_xmit' undefined reference to `atalk_find_dev_addr' and `aarp_send_ddp' 
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 13 October 2001  5:51 am, Linus Torvalds wrote:
-> In article <01101300085600.00832@baldrick> you write:
-> >> can you reproduce also on 2.4.12aa1?
-> >>
-> >> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4
-> >>.12 aa1.bz2
-> >>
-> >> Andrea
-> >
-> >Yes, it seems to have the same problem.  It even seems a bit worse
-> >(just my impression, I didn't do any statistics).
->
-> Let me guess: xine opens the raw device, and does all the DVD parsing
-> from there.
->
-> Furthermore, maybe it closes and re-opens the device for each VOB file.
->
-> Which in turn will invalidate the buffer and page cache, and force a
-> re-read of all the metadata..  Oh, and wait for all the prefetching to
-> have finished.
->
-> If this is it, it should be "fixed" by doing a
->
-> 	sleep 100000 < /dev/dvd-device &
->
-> in the background before starting xine?
->
-> Does that make any difference?
->
-> If it does, then I suspect we should really look into making the raw
-> device close just leave the device descriptor around at least for a
-> while. Al?
->
-> 		Linus
+drivers/net/appletalk/appletalk.o: In function `ipddp_xmit':
+drivers/net/appletalk/appletalk.o(.text+0x47): undefined reference to 
+`atalk_find_dev_addr'
+drivers/net/appletalk/appletalk.o(.text+0x120): undefined reference to 
+`aarp_send_ddp'
+drivers/net/appletalk/appletalk.o: In function `ipddp_create':
+drivers/net/appletalk/appletalk.o(.text+0x187): undefined reference to 
+`atrtr_get_dev'
+make: *** [vmlinux] Error 1
 
-Good try, but no banana: I wasn't using raw IO!  (I use devfs
-which didn't support raw devices last time I looked).  I experimented
-a bit with raw io, your sleep idea and other things though:
+#
+# Networking options
+#
+CONFIG_PACKET=m
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_SYN_COOKIES=y
+CONFIG_ATALK=m
 
-devfs vs no devfs : no difference (problem present)
+#
+# Network device support
+#
+CONFIG_NETDEVICES=y
 
-no raw io (devfs) + sleep : problem present
-raw io (no devfs) : problem present, but less frequent (one time in three)
-raw io (no devfs) + sleep : problem not present (tried three times)
+#
+# Appletalk devices
+#
+CONFIG_APPLETALK=y
+# CONFIG_LTPC is not set
+# CONFIG_COPS is not set
+CONFIG_IPDDP=y
+CONFIG_IPDDP_ENCAP=y
+CONFIG_IPDDP_DECAP=y
+# CONFIG_DUMMY is not set
+# CONFIG_BONDING is not set
+# CONFIG_EQUALIZER is not set
+# CONFIG_TUN is not set
 
-I'm not sure whether the fact that xine didn't get stuck with raw io + sleep
-means that it will never get stuck, or that I didn't try long enough.  I
-rebooted the machine after every test since if I run xine several times
-without rebooting, I get a pattern like this:
-  problem
-  problem
-  ...
-  problem
-  correct
-  correct
-  correct...
-
-So rebooting seemed like the best way to reset everything to the
-same state for each test.  But it means that it takes time to run
-each test, which is why there are not so many...
-
-Thanks for looking into this,
-
-Duncan.
-
-
-
+#
+# Ethernet (10 or 100Mbit)
+#
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_EL3=y
+CONFIG_VORTEX=y
 

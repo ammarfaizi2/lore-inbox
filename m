@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311879AbSDBAvU>; Mon, 1 Apr 2002 19:51:20 -0500
+	id <S312532AbSDBAyJ>; Mon, 1 Apr 2002 19:54:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312532AbSDBAvJ>; Mon, 1 Apr 2002 19:51:09 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:51149 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S311879AbSDBAu6>; Mon, 1 Apr 2002 19:50:58 -0500
-Date: Mon, 1 Apr 2002 16:51:16 -0800 (PST)
-From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Questions about /proc/stat
-In-Reply-To: <Pine.LNX.4.33L2.0204011556100.13412-100000@dragon.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0204011649050.9748-100000@shell1.aracnet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312616AbSDBAx7>; Mon, 1 Apr 2002 19:53:59 -0500
+Received: from jalon.able.es ([212.97.163.2]:13448 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S312532AbSDBAxw>;
+	Mon, 1 Apr 2002 19:53:52 -0500
+Date: Mon, 1 Apr 2002 02:53:09 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: rwhron@earthlink.net
+Subject: [PATCHSET] Linux 2.4.19-pre5-jam2
+Message-ID: <20020401005309.GA1549@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Apr 2002, Randy.Dunlap wrote:
+Hi.
 
-> On Mon, 1 Apr 2002, M. Edward (Ed) Borasky wrote:
->
-> | On Mon, 1 Apr 2002, Randy.Dunlap wrote:
-> |
-> | > Of course the basic answer is something like
-> | >   Try cscope
-> |
-> | I can't find this -- does it come with Red Hat??
->
-> it's at cscope.sf.net
+After Easter holydays, back on patching...
+Just to remember: basic aim of this is to have updated current mainline
+VM + O(1)-sched + basic low latency, just all together.
 
-OK ... I'll go grab it.
+New release of jam patchset:
+- Update to aa-vm-33.
 
-> | Ah ... so every page to/from swap is counted in pswpin/out (as a page)
-> | and again in pgpgin/out as half-kilobytes :-). Incidentally, I also
-> | followed the third fork in this road, the one which derives the "blocks"
-> | read and written per device that show up in /proc/stat. Those "blocks"
-> | turn out to be 512 bytes long.
->
-> Do you mean this line or something else?
->   disk_io: (3,0):(616296,386142,7120356,230154,3010882)
+URL:
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre5-jam2/
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre5-jam2.tar.gz
 
-Yeah ... that one. I have code that samples that every 15 seconds, as
-well as everything else in /proc/stat. I was having trouble making sense
-of the I/O numbers.
-
-Q. How do you tell when a pineapple is ready to eat?
-A. It picks up its knife and fork.
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre5-jam2 #1 SMP Mon Apr 1 01:58:05 CEST 2002 i686

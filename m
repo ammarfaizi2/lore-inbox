@@ -1,72 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTKTFL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 00:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbTKTFL6
+	id S261473AbTKTFSo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 00:18:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbTKTFSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 00:11:58 -0500
-Received: from h80ad2583.async.vt.edu ([128.173.37.131]:53648 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261326AbTKTFL5 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 00:11:57 -0500
-Message-Id: <200311200511.hAK5Bmsp010268@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: ndiswrapper 
-In-Reply-To: Your message of "Wed, 19 Nov 2003 20:38:48 PST."
-             <20031120043848.GG19856@holomorphy.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC402E.6070109@cyberone.com.au>
-            <20031120043848.GG19856@holomorphy.com>
+	Thu, 20 Nov 2003 00:18:44 -0500
+Received: from holomorphy.com ([199.26.172.102]:8108 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261473AbTKTFSm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 00:18:42 -0500
+Date: Wed, 19 Nov 2003 21:12:11 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Pontus Fuchs <pof@users.sourceforge.net>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031120051211.GE22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nick Piggin <piggin@cyberone.com.au>,
+	Jeff Garzik <jgarzik@pobox.com>, jt@hpl.hp.com,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Pontus Fuchs <pof@users.sourceforge.net>
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120040034.GF19856@holomorphy.com> <3FBC402E.6070109@cyberone.com.au> <20031120043848.GG19856@holomorphy.com> <3FBC4A42.8010806@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1391753850P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 20 Nov 2003 00:11:47 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FBC4A42.8010806@cyberone.com.au>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1391753850P
-Content-Type: text/plain; charset=us-ascii
+William Lee Irwin III wrote:
+>> I'm not convinced it is good for end users. They _think_ they're
+>> getting something that's supported by Linux, but are instead getting
+>> something highly problematic that ties them to specific kernel
+>> versions and cuts off most, if not all, avenues of support available.
 
-On Wed, 19 Nov 2003 20:38:48 PST, William Lee Irwin III said:
+On Thu, Nov 20, 2003 at 03:59:46PM +1100, Nick Piggin wrote:
+> Well what they get is hardware accelerated 3d graphics under Linux.
+> If they didn't need 3d, they can use the open source drivers.
+> If someone downloads and installs the drivers themselves, they should
+> know enough to contact nvidia for support (I think nvidia have been
+> pretty good). Others will contact their ditro support.
 
-> It's very much a second-class flavor of open source. They dare not
-> change the kernel version lest the binary-only trainwreck explode.
-> They dare not run with the whiz-bang patches going around they're
-> interested in lest the binary-only trainwreck explode. It may oops
-> in mainline, and all they can do is wait for a tech support line to
-> answer. Well, they're a little better than that, they have hackers
-> out and about, but you're still stuck waiting for a specific small
-> set of individuals and lose all of the "many eyes" advantages.
-
-On the flip side, if I go back as far as 2.5.4<mumble>, I've had a lot more
-days where the open-source drivers for my Xircom ethernet/modem card were
-broken than days where my binary NVidia driver was broken.  Also, the Xircom
-has been the cause of a lot more "hang before even single user mode" problems,
-and several times the Xircom didn't start working again until there was a
-complete overhaul of the Cardbus support, while there's not been that much
-activity on the NVidia patch on www.minion.de.
-
-It's certainly seemed like I've ended up "stuck waiting for a specific
-small set of individuals" when the Cardbus support has broken (not to
-slight them, they're all great guys and  do support the stuff) - how many
-people on this list *really* understand that code?  And it's not just
-the Cardbus stuff - there's a LOT of stuff in the kernel that's only
-really understood by a very small number of people.
+"cuts off most, if not all, avenues of support available" == any and
+all problems with the things around are untraceable. We won't touch
+tainted bugreports and rightly so. And nvidia isn't supporting the
+whole kernel.
 
 
---==_Exmh_1391753850P
-Content-Type: application/pgp-signature
+On Thu, Nov 20, 2003 at 03:59:46PM +1100, Nick Piggin wrote:
+> There might be a problem where they percieve that Linux is unstable
+> while it is actually binary drivers.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Yes, that's one I'm very concerned about.
 
-iD8DBQE/vE0ScC3lWbTT17ARAuhvAKC5iEZB20g0eGhg8lpbWbvJ2n8Z1gCeIRMn
-kVqLeC2RpAIoriSkXqQSxUU=
-=QrVU
------END PGP SIGNATURE-----
 
---==_Exmh_1391753850P--
+William Lee Irwin III wrote:
+>> It's very much a second-class flavor of open source. They dare not
+>> change the kernel version lest the binary-only trainwreck explode.
+>> They dare not run with the whiz-bang patches going around they're
+>> interested in lest the binary-only trainwreck explode. It may oops
+>> in mainline, and all they can do is wait for a tech support line to
+>> answer. Well, they're a little better than that, they have hackers
+>> out and about, but you're still stuck waiting for a specific small
+>> set of individuals and lose all of the "many eyes" advantages.
+
+On Thu, Nov 20, 2003 at 03:59:46PM +1100, Nick Piggin wrote:
+> I must say that I've been using the same nvidia drivers on my desktop
+> system for maybe a year, and never had a crash including going through
+> countless versions of 2.5/6. True you need to recompile the intermediate
+> layer, but then, nobody who knows less than me will know or care about
+> kernel versions. Their distro will upgrade kernel+drivers if needed, and
+> presumably the distro has done some sort of testing / QA.
+
+They're rather sensitive to VM changes, and I've had people with
+significantly less know-how than either of us come back after trying VM
+patches in combination with nvidia stuff report things ranging from
+oopsen, to reboots, to fs corruption. The insulation layers are only
+partially effective at best. And end-users are fiddling with whiz bang
+patches for their kernels and upgrading versions by means other than
+distros. Heck, the distros aren't even shipping 2.6, and they're
+running 2.6 plus patches.
+
+And besides, nvidia is really just the most commonly reported issue due
+to the hordes of end users, there are many other offenders on this
+front (e.g. certain FC drivers, and apparently some wireless drivers).
+
+
+-- wli

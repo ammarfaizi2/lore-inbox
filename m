@@ -1,29 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265376AbUADLL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 06:11:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265377AbUADLL5
+	id S265383AbUADLSR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 06:18:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265389AbUADLSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 06:11:57 -0500
-Received: from mtaw4.prodigy.net ([64.164.98.52]:9661 "EHLO mtaw4.prodigy.net")
-	by vger.kernel.org with ESMTP id S265376AbUADLL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 06:11:56 -0500
-Date: Sun, 4 Jan 2004 03:11:54 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Does CONFIG_NET_FASTROUTE conflict with CONFIG_NETFILTER?
-Message-ID: <20040104111154.GN1882@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Sun, 4 Jan 2004 06:18:17 -0500
+Received: from mail.mediaways.net ([193.189.224.113]:40351 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP id S265383AbUADLSF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 06:18:05 -0500
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+From: Soeren Sonnenburg <kernel@nn7.de>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Lincoln Dale <ltd@cisco.com>,
+       Con Kolivas <kernel@kolivas.org>, Willy Tarreau <willy@w.ods.org>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, gillb4@telusplanet.net
+In-Reply-To: <20040104111257.GO1882@matchmail.com>
+References: <200401041242.47410.kernel@kolivas.org>
+	 <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>
+	 <200401040815.54655.kernel@kolivas.org>
+	 <20040103233518.GE3728@alpha.home.local>
+	 <200401041242.47410.kernel@kolivas.org>
+	 <5.1.0.14.2.20040104195316.02151e98@171.71.163.14>
+	 <3FF7DA24.40802@cyberone.com.au> <1073211879.3261.6.camel@localhost>
+	 <20040104111257.GO1882@matchmail.com>
+Content-Type: text/plain
+Message-Id: <1073215029.3247.13.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Date: Sun, 04 Jan 2004 12:17:10 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If they do, then the config system should not allow you to enable both at
-the same time.
+On Sun, 2004-01-04 at 12:12, Mike Fedyk wrote:
+> On Sun, Jan 04, 2004 at 11:24:39AM +0100, Soeren Sonnenburg wrote:
+> > [...]
+> > > Or, out of interest, an alternate scheduler?
+> > > 
+> > > http://www.kerneltrap.org/~npiggin/w29p2.gz
+> > > (applies 2.6.1-rc1-mm1, please renice X to -10 or so)
+> > 
+> > Thats nothing *I* can try out as I am on the powerpc benh tree.
+> > 
+> 
+> Says who?  The scheduler isn't platform specific.  Nick, do you have any per
+> arch defines in your patch?
 
-Will CONFIG_NET_FASTROUTE speed up bridging?  It config help mentions
-nic<->nic transfers...
+Says me, as quite a lot of stuff does not apply cleanly... and probably
+same with when applying -mm1.
+
+S
+

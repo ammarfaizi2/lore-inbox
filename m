@@ -1,47 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262212AbSJNVaI>; Mon, 14 Oct 2002 17:30:08 -0400
+	id <S262188AbSJNVZN>; Mon, 14 Oct 2002 17:25:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262217AbSJNVaI>; Mon, 14 Oct 2002 17:30:08 -0400
-Received: from msp-65-29-16-62.mn.rr.com ([65.29.16.62]:3769 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262212AbSJNVaH>; Mon, 14 Oct 2002 17:30:07 -0400
-Date: Mon, 14 Oct 2002 16:34:29 -0500
-From: Shawn <core@enodev.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Shawn <core@enodev.com>, Christoph Hellwig <hch@infradead.org>,
-       Michael Clark <michael@metaparadigm.com>,
-       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: Linux v2.5.42
-Message-ID: <20021014163429.A28737@q.mn.rr.com>
-References: <20021014092048.A27417@q.mn.rr.com> <Pine.LNX.4.44L.0210141414330.22993-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262194AbSJNVZN>; Mon, 14 Oct 2002 17:25:13 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:53383 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S262188AbSJNVZI>; Mon, 14 Oct 2002 17:25:08 -0400
+Message-ID: <20021014213054.1637.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44L.0210141414330.22993-100000@imladris.surriel.com>; from riel@conectiva.com.br on Mon, Oct 14, 2002 at 02:15:02PM -0200
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Date: Tue, 15 Oct 2002 05:30:54 +0800
+Subject: Re:Benchmark results from resp1 trivial response time test
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hadn't heard comments yet that anyone thought of dm as ready yet.
+Hi Bill,
+I'm back with the results of others tests, here all my results:
 
-This may be the case by now.
+		Kernel version: 2.4.19
+  Starting 1 CPU run with 251 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    119.653    124.207    119.786    120.644    0.002    1.000
+     smallwrite    121.051    190.696    144.469    152.062    0.031    1.260
+     largewrite    117.412  11871.027   1113.563   3362.302    4.870   27.870
+        cpuload    119.691    313.702    178.513    190.324    0.081    1.578
+      spawnload    114.624    243.985    119.747    154.604    0.057    1.281
+       8ctx-mem    652.737   7564.493   1234.938   2527.273    2.904   20.948
+       2ctx-mem    126.914   8428.021    620.418   2941.043    3.890   24.378
 
-On 10/14, Rik van Riel said something like:
-> On Mon, 14 Oct 2002, Shawn wrote:
-> 
-> > Having said all that, given that your premises are true regarding the
-> > code design problems you have with EVMS, you have a valid point about
-> > including it in mainline. The question is, is this good enough to ignore
-> > having a logical device management system?!?
-> 
-> You're acting like EVMS was the only logical volume manager out there.
+		Kernel version: 2.5.41-mm2
+  Starting 1 CPU run with 250 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    113.676    114.413    113.713    113.856    0.000    1.000
+     smallwrite    117.001    228.536    119.025    141.028    0.049    1.239
+     largewrite    116.102   1681.086    216.776    499.422    0.667    4.386
+        cpuload    105.461    160.513    105.834    116.661    0.025    1.025
+      spawnload    108.506    166.367    108.863    120.305    0.026    1.057
+       8ctx-mem   1789.834   9155.800   3790.198   4547.118    2.831   39.938
+       2ctx-mem   2290.391  10661.156   4810.641   5040.725    3.358   44.273
 
---
-Shawn Leas
-core@enodev.com
+		Kernel version: 2.5.41-mm2C
+  Starting 1 CPU run with 250 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    113.648    114.508    113.707    113.861    0.000    1.000
+     smallwrite    116.054    180.420    117.924    130.525    0.028    1.146
+     largewrite    114.019    179.770    120.451    134.021    0.028    1.177
+        cpuload    106.590    162.893    107.075    118.080    0.025    1.037
+      spawnload    106.574    164.898    107.490    118.671    0.026    1.042
+       8ctx-mem   7767.843  16917.625   8994.265  10906.788    3.844   95.790
+       2ctx-mem   6515.450  18273.101  10344.575  11217.755    4.822   98.521
 
-My grandfather invented Cliff's Notes. It all started back in 1912...
-well, to make a long story short...
-						-- Stephen Wright
+		Kernel version: 2.5.41-mm2C@128MiB
+  Starting 1 CPU run with 123 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    113.550    114.451    113.763    113.857    0.000    1.000
+     smallwrite    118.926    182.074    123.044    139.160    0.028    1.222
+     largewrite    119.864    186.550    139.593    148.957    0.027    1.308
+        cpuload    105.468    165.026    105.922    117.648    0.026    1.033
+      spawnload    106.408    162.414    106.778    117.861    0.025    1.035
+       8ctx-mem   7264.508  12232.155   8106.800   8836.428    1.965   77.610
+       2ctx-mem   7447.326  23237.534  11601.912  13325.664    6.527  117.038
+
+		Kernel version: 2.5.41
+  Starting 1 CPU run with 250 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    113.607    114.030    113.774    113.783    0.000    1.000
+     smallwrite    117.882    526.275    121.038    208.868    0.178    1.836
+     largewrite   1674.216  88428.871  14794.752  27750.852   34.851  243.892
+        cpuload    104.225    158.400    104.478    115.269    0.024    1.013
+      spawnload    105.933    166.818    106.682    118.452    0.027    1.041
+       8ctx-mem    116.458   8893.645    120.670   1875.275    3.923   16.481
+       2ctx-mem    116.847  10174.152    121.309   2130.303    4.497   18.722
+
+		Kernel version: 2.5.42-mm2
+  Starting 1 CPU run with 250 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    113.658    114.500    113.737    113.866    0.000    1.000
+     smallwrite    117.220    245.110    119.017    144.541    0.056    1.269
+     largewrite    114.841    181.420    118.746    131.568    0.028    1.155
+        cpuload    104.583    159.080    104.890    115.694    0.024    1.016
+      spawnload    108.790    166.141    109.655    120.698    0.025    1.060
+       8ctx-mem    114.430   8484.873    784.141   2066.476    3.604   18.148
+       2ctx-mem    121.388   8453.018   1414.443   2383.773    3.459   20.935
+
+		Kernel version: 2.5.42
+  Starting 1 CPU run with 250 MB RAM, minimum 5 data points at 20 sec intervals
+ 
+                       _____________ delay ms. ____________                  
+           Test        low       high    median     average     S.D.    ratio
+         noload    113.676    113.948    113.737    113.774    0.000    1.000
+     smallwrite    115.352    189.983    119.500    141.645    0.036    1.245
+     largewrite  19012.080  45528.170  30311.890  31472.632    9.646  276.625
+        cpuload    103.328   1267.116    103.971    336.462    0.520    2.957
+      spawnload    105.196    167.400    105.787    117.983    0.028    1.037
+       8ctx-mem    121.166   8616.232    126.489   1824.054    3.797   16.032
+       2ctx-mem    115.162  10291.470    119.560   2152.930    4.550   18.923
+
+
+I post the script I use to get this summary as well,
+do you think it is usefull ?
+
+#!/bin/bash
+out=(`ls *.out|sort`)
+total=`echo ${out[@]}|wc -w`
+# echo $total 
+> summary.txt
+for i in `seq 0 1 $[total-1]`
+do
+kernel_version=`echo ${out[i]}|cut -d "." --fields=1-3`
+	echo -e "\t\tKernel version: $kernel_version" >> summary.txt
+	grep  '^ ' ${out[i]} >> summary.txt
+	echo >> summary.txt
+done;
+
+Ciao,
+         Paolo
+
+
+
+-- 
+Get your free email from www.linuxmail.org 
+
+
+Powered by Outblaze

@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129044AbQKDSPl>; Sat, 4 Nov 2000 13:15:41 -0500
+	id <S129337AbQKDSRv>; Sat, 4 Nov 2000 13:17:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129118AbQKDSPb>; Sat, 4 Nov 2000 13:15:31 -0500
-Received: from 125-68-127-216.ip.sirius.com ([216.127.68.125]:47109 "EHLO
-	gateway.geolog.com") by vger.kernel.org with ESMTP
-	id <S129044AbQKDSPP>; Sat, 4 Nov 2000 13:15:15 -0500
-Date: Sat, 4 Nov 2000 10:14:53 -0800
-From: John Shifflett <john@geolog.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: pppd and 2.4.0pre10
-Message-ID: <20001104101453.A79@main.geolog.com>
-In-Reply-To: <Pine.LNX.4.21.0011041757570.32560-100000@tahallah.clara.co.uk>
-Mime-Version: 1.0
+	id <S129142AbQKDSRl>; Sat, 4 Nov 2000 13:17:41 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51490 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129118AbQKDSR2>; Sat, 4 Nov 2000 13:17:28 -0500
+Subject: Re: processes> 2^15
+To: aprasad@in.ibm.com
+Date: Sat, 4 Nov 2000 18:18:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <CA25698D.00608C13.00@d73mta05.au.ibm.com> from "aprasad@in.ibm.com" at Nov 04, 2000 07:27:58 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2us
-In-Reply-To: <Pine.LNX.4.21.0011041757570.32560-100000@tahallah.clara.co.uk>
-X-Operating-System: Linux 2.4.0-test10
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13s7tk-0004hf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 04, 2000 at 05:59:21PM +0000, Alex Buell wrote:
+> after reaching process count something around 30568, processes start
+> getting pid from start, which ever is the first free entry slot in process
+> table. that means we can't have simultaneously more than roughly 2^15
+> processes?
 
-> I'm getting this problem each time I start pppd whenever I dial up if the
-> ppp modules have been unloaded from memory. The odd thing is that I can
-> repeat 'ppp-on' and it will work fine!
-
-   Another odd thing is that I have the same problem, but with ppp
-   compiled into the kernel (present in /proc/devices). There doesn't
-   seem to be any way to fool it into working in my case. 'pppd' version
-   is 2.4.0.
-
-      John Shifflett    john@geolog.com
+Yes
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

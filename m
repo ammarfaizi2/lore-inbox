@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbTKXUzE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 15:55:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTKXUzE
+	id S261563AbTKXVIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 16:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbTKXVIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 15:55:04 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.116]:6281 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S261476AbTKXUzB
+	Mon, 24 Nov 2003 16:08:09 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:29887 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S261563AbTKXVIH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 15:55:01 -0500
-Message-ID: <3FC27019.7010402@myrealbox.com>
-Date: Mon, 24 Nov 2003 12:54:49 -0800
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: hard links create local DoS vulnerability and security problems
-References: <fa.hevpbbs.u5q2r6@ifi.uio.no> <fa.l1quqni.v405hu@ifi.uio.no>
-In-Reply-To: <fa.l1quqni.v405hu@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Nov 2003 16:08:07 -0500
+To: henning@meier-geinitz.de, vojtech@suse.cz, rusty@rustcorp.com.au
+cc: linux-kernel@vger.kernel.org
+Reply-to: mmayer@uci.edu
+Subject: USB printer and scanner modules don't load automatically in linux-2.6.0-test10
+Name: Meinhard E. Mayer, Research Professor 
+Organization: Department of Physics, U C. Irvine. Ph. (949) 824-5543
+X-Mailer: Gnu/Linux-Fedora-1 kernel 2.6.0; xemacs-21.5.16, nmh-1.0.4
+Date: Mon, 24 Nov 2003 13:08:05 -0800
+From: "Meinhard E. Mayer" <hardy@bill.ps.uci.edu>
+Message-Id: <20031124210755.FNIR9968.fed1mtao05.cox.net@bill.ps.uci.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't know whether I am supposed to ssend this to any of you or the
+general list.
+I have been using -test9 and -test10 for a while and noticed that the
+modules for my connected USB printer and scanner did not load
+automatically during boot (as they do in kernel-2.4.22-1.2115.nptl
+(Fedorea-SC1) or other versions of 2.4.22). 
+The alternatives were to enter 
+sudo modprobe usbpr
+sudo modprobe scanner
+or to compile the drivers into the kernel (which I ultimately did). 
+I could not figure out the correct format for the new /etc/modprobe.conf
+to remedy this; I also compiled the soundcard-driver into the kernel
+since the test9 kernel. 
+ 
 
-
-Valdis.Kletnieks@vt.edu wrote:
-
-> 
-> In any case, if a user is *MAKING* a program set-UID, it's probably because
-> he *wants* it to run as himself even if others invoke it (otherwise, he
-> could just leave it in ~/bin and be happy).  So this is really a red herring,
-> as it's only a problem if (a) he decides to get rid of the binary, and fails
-> to do so because of hard links he doesn't know about, or (b) he's an idiot
-> programmer and it malfunctions if invoked with an odd argv[0]....
-
-Right... but non-privileged users _can't_ delete these extra links, even 
-if they notice them from the link count.  And non-idiots do make 
-security errors -- they just fix them.  But in this case, fixing the 
-error after the fact may be impossible without root's help.
-
-And how many package managers / install scripts check for hard links of 
-files they're about to overwrite?
-
---Andy
-
+--
+Hardy
+(Meinhard E. Mayer)
+Professor Emeritus
+U. C. Irvine

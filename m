@@ -1,54 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266219AbUGTVAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266274AbUGTVER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266219AbUGTVAb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 17:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUGTVAb
+	id S266274AbUGTVER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 17:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUGTVER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 17:00:31 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:1484 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S266219AbUGTVAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 17:00:30 -0400
-Date: Tue, 20 Jul 2004 13:58:29 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Steve Lord <lord@xfs.org>, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com, nathans@sgi.com,
-       Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL and XFS on 4KSTACKS=n
-Message-ID: <20040720205829.GB3217@taniwha.stupidest.org>
-References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu> <20040720195012.GN14733@fs.tum.de> <20040720204238.GA3051@taniwha.stupidest.org> <20040720205030.GO14733@fs.tum.de>
+	Tue, 20 Jul 2004 17:04:17 -0400
+Received: from gate.crashing.org ([63.228.1.57]:44198 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266274AbUGTVEO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 17:04:14 -0400
+Subject: Re: device_suspend() levels [was Re: [patch] ACPI work on aic7xxx]
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Nathan Bryant <nbryant@optonline.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <40FD85A3.2060502@optonline.net>
+References: <40FD38A0.3000603@optonline.net>
+	 <20040720155928.GC10921@atrey.karlin.mff.cuni.cz>
+	 <40FD4CFA.6070603@optonline.net>
+	 <20040720174611.GI10921@atrey.karlin.mff.cuni.cz>
+	 <40FD6002.4070206@optonline.net> <1090347939.1993.7.camel@gaston>
+	 <40FD65C2.7060408@optonline.net> <1090350609.2003.9.camel@gaston>
+	 <40FD82B1.8030704@optonline.net> <1090356079.1993.12.camel@gaston>
+	 <40FD85A3.2060502@optonline.net>
+Content-Type: text/plain
+Message-Id: <1090357324.1993.15.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040720205030.GO14733@fs.tum.de>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 20 Jul 2004 17:02:06 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 20, 2004 at 10:50:31PM +0200, Adrian Bunk wrote:
+On Tue, 2004-07-20 at 16:50, Nathan Bryant wrote:
+> Benjamin Herrenschmidt wrote:
+> 
+> > Note regarding aix7xxx, we also need proper hooks in the SCSI stack to
+> > block the queue correctly etc... in the same way we do on IDE. I didn't
+> > have time to look into this yet.
+> 
+> Here's what we currently do, aic7xxx_core.c - looks like it attempts to 
+> quiesce, and then refuse to suspend if we happen to be busy. This is a 
+> little messy because it's done in the suspend call rather than the 
+> save_state call, therefore resume will still be called if this routine 
+> returns an error code, which will reinitialize the device when we didn't 
+> really need to.
 
-> 2.6 is a stable kernel series used in production environments.
+save_state is a nonsense, didn't we kill it ? queue quiescing must be
+done by the upper level, which is a bit nasty with things like md &
+multipath... basically, the low level driver must have a way to notify
+it's functional parent (as opposed to it's bus parent) that it's going
+to sleep, and any path using this low level driver must then be
+quiesced, the parent must resume only when all the drivers it relies
+on are back up.
 
-so is 2.4.x and problems i mentioned can occur there too but are
-harder to hit
+> int
+> ahc_suspend(struct ahc_softc *ahc)
+> {
+> 
+>          ahc_pause_and_flushwork(ahc);
+> 
+>          if (LIST_FIRST(&ahc->pending_scbs) != NULL) {
+>                  ahc_unpause(ahc);
+>                  return (EBUSY);
+>          }
+> 
+> #ifdef AHC_TARGET_MODE
+>          /*
+>           * XXX What about ATIOs that have not yet been serviced?
+>           * Perhaps we should just refuse to be suspended if we
+>           * are acting in a target role.
+>           */
+>          if (ahc->pending_device != NULL) {
+>                  ahc_unpause(ahc);
+>                  return (EBUSY);
+>          }
+> #endif
+>          ahc_shutdown(ahc);
+>          return (0);
+> }
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-> The correct solution is to fix XFS (and other problems with 4kb
-> stacks if they occur), and my patch is only a short-term workaround.
-
-it's not really a workaround, it just makes the problems harder to hit
-
-a real fix is going to be hard, it's partly the fact there are
-insanely long complicated paths and partly the fact for ia32 gcc
-spills register space badly and bloats functions (afaik amd64 uses
-significantly less stack in some functions)
-
-> 4KSTACKS=n is simply the better tested case, and 4KSTACKS=y uncovers
-> some issues you might not want to see in production environments.
-
-neither address the real problem though
-
-
-  --cw

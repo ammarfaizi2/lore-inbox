@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261180AbTGHMw6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 08:52:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbTGHMw6
+	id S262073AbTGHMyA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 08:54:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262148AbTGHMyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 08:52:58 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:42625 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S261180AbTGHMw5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 08:52:57 -0400
-Date: Tue, 8 Jul 2003 15:07:30 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Christian Axelsson <smiler@lanil.mine.nu>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm2 + nvidia (and others)
-Message-ID: <20030708130729.GA12219@vana.vc.cvut.cz>
-References: <6A3BC5C5B2D@vcnet.vc.cvut.cz> <1057669356.6858.29.camel@sm-wks1.lan.irkk.nu>
+	Tue, 8 Jul 2003 08:54:00 -0400
+Received: from adicia.telenet-ops.be ([195.130.132.56]:39821 "EHLO
+	adicia.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S262073AbTGHMxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 08:53:54 -0400
+Date: Tue, 8 Jul 2003 15:10:48 +0200
+From: Vincent Touquet <vincent.touquet@pandora.be>
+To: joe briggs <jbriggs@briggsmedia.com>
+Cc: vincent.touquet@pandora.be, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [Bug report] System lockups on Tyan S2469 and lots of io [smp boot time problems too :(]
+Message-ID: <20030708131047.GG14044@ns.mine.dnsalias.org>
+Reply-To: vincent.touquet@pandora.be
+References: <20030706210243.GA25645@lea.ulyssis.org> <20030708101950.GB14044@ns.mine.dnsalias.org> <200307080959.54247.jbriggs@briggsmedia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1057669356.6858.29.camel@sm-wks1.lan.irkk.nu>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <200307080959.54247.jbriggs@briggsmedia.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 08, 2003 at 03:02:37PM +0200, Christian Axelsson wrote:
-> On Tue, 2003-07-08 at 14:37, Petr Vandrovec wrote:
-> > 
-> > Either copy compat_pgtable.h from vmmon to vmnet, or grab
-> > vmware-any-any-update36. I forgot to update vmnet's copy of this file.
-> 
-> Still getting same errors. However if I copy pgtbl.h from vmmon it
-> compiles. vmmon uses pmd_offset_map instead of pmd_offset
+On Tue, Jul 08, 2003 at 09:59:54AM -0400, joe briggs wrote:
+>Vincent - 
+>I wonder if what is really happening is a problem in the in the arbitration 
+>between the PCI bus and the local bus that the onboard IDE devices are.  In 
+>your case the problem (onboard IDE device data corruption) manifests when you 
+>are performing sustained transfers (large files) between the onboard IDE 
+>device and a PCI block device (the 3ware RAID).
 
-Yes, I know :-( I forgot that I modified pgtbl.h too. All these files are 
-common to vmmon/vmnet and should be same. update36 large 173887 bytes
-should have all needed files updated in vmnet too. If it will not work,
-I'll download -mm2 and try really building code, as apparently even
-trivial changes are too complicated for me today.
-							Petr Vandrovec
+Yes, that seems very feasible.
 
+>In my case, the same problem 
+>manifests when I have sustained data activity from multiple frame grabbers to 
+>memory, then from memory to RAID.  When the system drive is used (code load, 
+>swap, etc.) it gets corrupted.  My point is, the onboard data device only 
+>seems to get corrupted when there is lots of i/o activity with PCI 
+>bus-masters that are DMA'ing data to/from memory.  What do you think?
+
+I had the same lockups too when pumping a lot of data over the network
+onto the array on a similar mainboard (Tyan S2468). So maybe there is
+the added problem that there is funny things going on on the PCI bus.
+Maybe the problem only occurs when you stress the bus and the dma is not
+the real culprit, it just enables high transfers and hence corruption on
+the PCI bus.
+
+I would very much like to nail this one down, as its nasty.
+
+regards,
+
+v

@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130682AbQKHAFF>; Tue, 7 Nov 2000 19:05:05 -0500
+	id <S131004AbQKHAFz>; Tue, 7 Nov 2000 19:05:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130565AbQKHAEz>; Tue, 7 Nov 2000 19:04:55 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:23050 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129940AbQKHAEm>;
-	Tue, 7 Nov 2000 19:04:42 -0500
-Message-ID: <3A089850.92EF0D4A@mandrakesoft.com>
-Date: Tue, 07 Nov 2000 19:03:28 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-CC: davej@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Installing kernel 2.4
-In-Reply-To: <Pine.LNX.4.21.0011072322120.8187-100000@neo.local> <3A089254.397115FE@timpanogas.org>
+	id <S129210AbQKHAFp>; Tue, 7 Nov 2000 19:05:45 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:36621 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S130902AbQKHAFd>;
+	Tue, 7 Nov 2000 19:05:33 -0500
+Date: Tue, 7 Nov 2000 17:04:34 -0700
+From: yodaiken@fsmlabs.com
+To: Tim Riker <Tim@Rikers.org>
+Cc: Jes Sorensen <jes@linuxcare.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+Message-ID: <20001107170433.A12578@hq.fsmlabs.com>
+In-Reply-To: <E13rPhi-0001ng-00@the-village.bc.nu> <3A01BB7D.B084B66@Rikers.org> <d31ywnkahg.fsf@lxplus015.cern.ch> <3A086BAB.89A588EB@Rikers.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <3A086BAB.89A588EB@Rikers.org>; from Tim Riker on Tue, Nov 07, 2000 at 01:52:59PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jeff V. Merkey" wrote:
-> If the compiler always aligned all functions and data on 16 byte
-> boundries (NetWare)
-> for all i386 code, it would run a lot faster.
+On Tue, Nov 07, 2000 at 01:52:59PM -0700, Tim Riker wrote:
+> As was mentioned before, there are nonproprietary compilers around as
+> well that might be good choices. My point is that the ANSI C steering
+> committee is probably a more balanced forum to determine C syntax than
+> the gcc team. We should adopt c99 syntax where feasible, for example. I
+> am not asking anyone to use a proprietary compiler of they do not choose
+> to do so.
 
-Are you saying that it isn't?  Have you look at gcc-generated assembly
-from a recent 2.2.x or 2.4.x kernel?
-
-2.2.x build command line, note use of "...align...":
-/usr/bin/kgcc -D__KERNEL__ -I/spare/cvs/linux_2_2/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
--D__SMP__ -pipe -fno-strength-reduce -m486 -malign-loops=2
--malign-jumps=2 -malign-functions=2 -DCPU=686   -c -o extable.o
-extable.c
-
-2.4.x, note "preferred-stack-boundary" and generated asm code...
-gcc -D__KERNEL__ -I/spare/cvs/linux_2_4/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS -include
-/spare/cvs/linux_2_4/include/linux/modversions.h   -c -o emd.o emd.c
-
-
-	Jeff
-
+The two problems with your "point" are (1) there is no evidence in its 
+favor and (2) you have an alternative reason for making such an 
+argument and by not either making it explicit or explicitly denying
+it, you appear to be simply trying to disguise a marketing strategy 
+in a pseudo-technical argument.  
 
 -- 
-Jeff Garzik             | "When I do this, my computer freezes."
-Building 1024           |          -user
-MandrakeSoft            | "Don't do that."
-                        |          -level 1
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

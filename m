@@ -1,30 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275420AbRJATWc>; Mon, 1 Oct 2001 15:22:32 -0400
+	id <S275399AbRJATYM>; Mon, 1 Oct 2001 15:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275406AbRJATWW>; Mon, 1 Oct 2001 15:22:22 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:26380 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S275399AbRJATWO>; Mon, 1 Oct 2001 15:22:14 -0400
-Date: Mon, 1 Oct 2001 12:22:27 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Rok Pergarec <rok@menuconfig.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Virtual terminal support
-In-Reply-To: <Pine.LNX.4.33.0110012033460.3086-100000@bla.menuconfig.org>
-Message-ID: <Pine.LNX.4.10.10110011218590.28938-100000@transvirtual.com>
+	id <S275421AbRJATYC>; Mon, 1 Oct 2001 15:24:02 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49936 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S275399AbRJATXq>;
+	Mon, 1 Oct 2001 15:23:46 -0400
+Date: Mon, 1 Oct 2001 16:23:44 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
+In-Reply-To: <3.0.6.32.20011001203320.02381600@pop.tiscalinet.it>
+Message-ID: <Pine.LNX.4.33L.0110011604310.4835-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Oct 2001, Lorenzo Allegrucci wrote:
 
-> This is propably not so important but anyway. I think that the kernel
-> should not complain about "unable to open an initial console" when
-> "Virtual terminal" support is disabled in the kernel.
+> Disclaimer:
+> I don't know if this "benchmark" is meaningful or not, but anyhow..
 
-You do need stdin, stdout, and stderr which is related to /dev/console at
-boot up. See main.c for what I mean. So you need some kind of console
-built in. Try serial console and you need to tell your kernel you are
-using serial console. See linux/Documentation/serialconsole.txt
+I'm not sure either, since qsort doesn't really have much
+locality of reference but just walks all over the place.
+
+This is direct contrast with the basic assumption on which
+VM and CPU caches are built ;)
+
+I wonder how eg. merge sort would perform ...
+
+> Below are linux-2.4.10 results
+> real    4m54.728s
+>
+> kswapd CPU time: 3 seconds
+> qs RSS always on 238-240M, very stable never below 235M.
+
+> .. and 2.4.10-ac2 results
+> real    6m2.139s
+>
+> kswapd CPU time: 20 seconds
+> qs RSS never above 204M, average value 150M.
+
+The RSS thing is just a side effect of how swap is allocated
+and should have little or no influence on which pages are
+kept in memory.
+
+One thing which could make 2.4.10 faster for this single case
+is the fact that it doesn't keep any page aging info, so IO
+clustering won't be confused by the process accessing its
+pages ;)
+
+cheers,
+
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

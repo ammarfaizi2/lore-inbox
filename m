@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbTDUXeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 19:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbTDUXeg
+	id S262731AbTDUXiH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 19:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262734AbTDUXiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 19:34:36 -0400
-Received: from zero.aec.at ([193.170.194.10]:2569 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262713AbTDUXeb (ORCPT
+	Mon, 21 Apr 2003 19:38:07 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:9604 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S262731AbTDUXiF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 19:34:31 -0400
-Date: Tue, 22 Apr 2003 01:46:11 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Runtime memory barrier patching
-Message-ID: <20030421234611.GA15191@averell>
-References: <20030421192734.GA1542@averell> <Pine.LNX.4.44.0304211254190.17221-100000@home.transmeta.com> <20030421205333.GA13883@averell> <20030421233557.GB17595@mail.jlokier.co.uk>
+	Mon, 21 Apr 2003 19:38:05 -0400
+Date: Tue, 22 Apr 2003 00:50:09 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] new system call mknod64
+Message-ID: <20030421235009.GC17595@mail.jlokier.co.uk>
+References: <UTC200304212143.h3LLh6e02148.aeb@smtp.cwi.nl> <b81tan$637$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030421233557.GB17595@mail.jlokier.co.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <b81tan$637$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 22, 2003 at 01:35:57AM +0200, Jamie Lokier wrote:
-> Andi Kleen wrote:
-> > The patching code is quite generic and could be used to patch other
-> > instructions
+H. Peter Anvin wrote:
+> > and in fact the patches I have been giving out use kdev_t
+> > as internal format, where you can think of kdev_t as
+> > u64, or, if you prefer, as struct { u32 major, minor; }.
 > 
-> Such as removing the lock prefix when running non-SMP?
+> Any reason why we don't just *make it* a struct?  (Well, besides that
+> it'd somewhat suck on 64-bit architectures?)
 
-Yes, could work. But you need a new variant of alternative()
-or eat worse code. The current alternative() can only handle
-constant sized original instructions, which requires that you
-use a constant sized constraint (e.g. (%0) ... "r" (ptr)) etc.)
-"m" is unfortunately variable size.
+It varies very much between architectures.
 
-For the special case of lock it would still work because you
-only need to patch the prefix away, not replace the whole 
-instruction, but that requires a new macro.
+I just checked, and simple copies of this structure are absolutely
+atrocious in GCC 3.2 (I tried Alpha, Mips64 and Sparc64).  The code
+was approx. 3 times longer to copy the 32:32 struct than to copy a 64
+bit scalar.
 
-Also when you do that I would start to think about discarding the
-.altinstructions section after load to avoid too much kernel bloat (it
-currently costs 7 byte + the length of the replacement. And lock
-is quite common in the kernel these days.
+On x86_64, the struct produces the same code as the scalar.
+The same is true on s390x.
 
--Andi
+If you change this to test 16:16, on i386 (or x86_64 with -m32),
+the struct still produces the same code as the scalar.
+
+Looks like a part of GCC that might be easy to improve, given that it
+works quite well on some architectures already.
+
+-- Jamie

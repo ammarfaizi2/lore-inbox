@@ -1,40 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKPB0n>; Wed, 15 Nov 2000 20:26:43 -0500
+	id <S129094AbQKPB2n>; Wed, 15 Nov 2000 20:28:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129094AbQKPB0d>; Wed, 15 Nov 2000 20:26:33 -0500
-Received: from harpo.it.uu.se ([130.238.12.34]:58609 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S129091AbQKPB0Z>;
-	Wed, 15 Nov 2000 20:26:25 -0500
-Date: Thu, 16 Nov 2000 01:56:09 +0100 (MET)
+	id <S129170AbQKPB2d>; Wed, 15 Nov 2000 20:28:33 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:12786 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S129094AbQKPB2Y>;
+	Wed, 15 Nov 2000 20:28:24 -0500
+Date: Thu, 16 Nov 2000 01:58:22 +0100 (MET)
 From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200011160056.BAA20778@harpo.it.uu.se>
-To: hpa@zytor.com, linux-kernel@vger.kernel.org
-Subject: Re: New bluesmoke patch available, implements MCE-without-MCA support
+Message-Id: <200011160058.BAA20802@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test10 truncate() change broke `dd'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Nov 2000, H. Peter Anvin wrote:
+2.4.0-test10 broke `dd' for block devices, due to the following
+change to do_sys_truncate & do_sys_ftruncate:
 
->This implements support for MCE on chips which don't support MCA (in
->addition to enabling MCA for non-Intel chips, like Athlon, which
->supports MCA.)
->
->I would appreciate it if people who have chips with MCE but no MCA --
->this includes older AMD chips and some Cyrix chips at the very least
->-- would please be so kind and try this out.
+diff -u --recursive --new-file v2.4.0-test9/linux/fs/open.c linux/fs/open.c
+--- v2.4.0-test9/linux/fs/open.c	Sun Oct  8 10:50:33 2000
++++ linux/fs/open.c	Thu Oct 26 08:11:21 2000
+@@ -103,7 +103,7 @@
+ 	inode = nd.dentry->d_inode;
+ 
+ 	error = -EACCES;
+-	if (S_ISDIR(inode->i_mode))
++	if (!S_ISREG(inode->i_mode))
+ 		goto dput_and_out;
+ 
+ 	error = permission(inode,MAY_WRITE);
+@@ -164,7 +164,7 @@
+ 	dentry = file->f_dentry;
+ 	inode = dentry->d_inode;
+ 	error = -EACCES;
+-	if (S_ISDIR(inode->i_mode) || !(file->f_mode & FMODE_WRITE))
++	if (!S_ISREG(inode->i_mode) || !(file->f_mode & FMODE_WRITE))
+ 		goto out_putf;
+ 	error = -EPERM;
+ 	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
 
-I have a K6-III which announces MCE but not MCA, so I was going to
-test this on that machine.
+I noticed because I needed to build a boot floppy with an
+initial ram disk under 2.4.0-test11pre5. The standard recipe
+(Documentation/ramdisk.txt) basically goes:
+- dd if=bzImage of=/dev/fd0 bs=1k
+  notice how many blocks dd reported (NNN)
+- dd if=ram_image of=/dev/fd0 bs=1k seek=NNN
+dd implements the seek=NNN option by calling ftruncate() before
+starting the write. This is where 2.4.0-test10 breaks, since
+ftruncate on a block device now provokes an EACCES error.
 
-However, both the K6-III manual and the K6 BIOS guide state quite
-clearly that the K6 family only has a "stub" MCE implementation.
-The MCE capability is announced, there are two MCE-related MSRs,
-and there is a CR4.MCE flag, but none of it actually _does_ anything.
+Maybe `dd' is buggy and should use lseek() instead, but this has
+apparently worked for a long time.
 
-The new CPU detection code should probably clear FEATURE_MCE for K6 CPUs.
-(We might consider it an AMD bug, but in their defense, they do state
-that the stub implementation was done for "compatibility" reasons.)
+Does anyone know the reason for the S_ISDIR -> !S_ISREG change in test10?
 
 /Mikael
 -

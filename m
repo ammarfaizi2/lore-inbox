@@ -1,94 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313683AbSDHQGb>; Mon, 8 Apr 2002 12:06:31 -0400
+	id <S313686AbSDHQGL>; Mon, 8 Apr 2002 12:06:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313688AbSDHQGa>; Mon, 8 Apr 2002 12:06:30 -0400
-Received: from rcpt-expgw.biglobe.ne.jp ([202.225.89.147]:25333 "EHLO
-	rcpt-expgw.biglobe.ne.jp") by vger.kernel.org with ESMTP
-	id <S313683AbSDHQG1>; Mon, 8 Apr 2002 12:06:27 -0400
-X-Biglobe-Sender: <miyazawa@mrj.biglobe.ne.jp>
-Date: Tue, 9 Apr 2002 01:06:20 +0900
-From: Kazunori Miyazawa <miyazawa@mrj.biglobe.ne.jp>
-To: linux-kernel@vger.kernel.org
-Cc: USAGI Core <usagi-core@linux-ipv6.org>
-Subject: USAGI stable release
-Message-Id: <20020409010620.77548c28.miyazawa@mrj.biglobe.ne.jp>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S313688AbSDHQGK>; Mon, 8 Apr 2002 12:06:10 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:55988 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S313686AbSDHQGJ>; Mon, 8 Apr 2002 12:06:09 -0400
+Message-ID: <00a801c1df17$55295ae0$95dc0e50@machine1>
+From: "Philippe Elie" <phil.el@wanadoo.fr>
+To: "Bill Davidsen" <davidsen@tmr.com>,
+        "John Levon" <movement@marcelothewonderpenguin.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020408104259.21476B-100000@gatekeeper.tmr.com>
+Subject: Re: Two fixes for 2.4.19-pre5-ac3
+Date: Mon, 8 Apr 2002 18:06:18 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-We are glad to announce the USAGI[1] STABLE RELEASE 3.1, dated on April 8th,
-2002.  Although this is a maintenance release of the STABLE RELEASE 3 dated 
-on January 1st, 2002, it comes with a latest kernel and couple of new 
-features.  
-
-The new / updated features are:
-	- based on latest kernel linux-2.4.18 
-	  (linux-2.2.20 for linux-2.2 systems)
-	- based on radvd-0.7.1, a router advertisement daemon
-	- ISATAP (Intra-Site Automatic Tunnel Addressing Protocol) support
-	- IPv4 and/or IPv6 over IPv4 Tunnel on a single driver support
-	- Privacy Extensions for linux-2.2 systems
-
-We also fixed the following bugs of the previous release:
-	- Fixed a bug, which devices, such as PCMCIA devices, could not
-	  finish correctly when using Privacy Extensions.
-	- Fixed a bug, which getifaddrs(3) did not report local/remote 
-	  addresses of point-to-point devices.
-	- Fixed a bug, which tcp_wrapper was not compiled correctly,
-	  so that ipv6 support was not enabled.
-	and so on.
-
-You can get our complete kit which includes kernel tree, library and 
-applications from the following URL.
-	<ftp://ftp.linux-ipv6.org/pub/usagi/stable/kit/>
-
-We also provide separate patches against the main-line kernel and the tools.
-	<ftp://ftp.linux-ipv6.org/pub/usagi/stable/split/>
-
-We have a plan to provide the binary packages for some distributions.
-They will appear under
-	<ftp://ftp.linux-ipv6.org/pub/usagi/stable/packages/>
-within several weeks.
+From: "Bill Davidsen" <davidsen@tmr.com>
+Sent: Monday, April 08, 2002 4:48 PM
 
 
-We announce the latest information on our web pages.  
-Please check our web site <http://www.linux-ipv6.org>.
+> On Sun, 7 Apr 2002, John Levon wrote:
+>
+> > But what about the recent discussion on the removal of sys_call_table ?
+> >
+> > (I believe it was along the lines of "it's ugly, prevent it ...", "ah,
+> > but it has real uses, so why can't it stay as deprecated/unadvised ?"
+> > "*no response*").
+> >
+> > I'm a bit disappointed this has just gone in without any real discussion
+> > on the usefulness of this for certain circumstances :(
+>
+>   Sure, removing that would break a lot of cracker software. Oh wait,
+> maybe that's a good thing...
 
-We also manage the mailing list for USAGI users. 
-If you have questions, please join the mailing list.
-Comments and advises are also welcome on that mailing list.  
-Please visit <http://www.linux-ipv6.org/ml/> for further
-information.
+It's really easy for cracker to patch sys_call even if it the table is not
+exported. Not exporting the sys call table is just to encourage good
+programming technics not a protection against machiavel things.
 
+>   For legitimate use, if any, a compile-time optional system call could be
+> added requiring a capability to use, and programs which are currently
+> doing that (AFS?) can be converted to use another f/s interface. I have
+> seen a few mentions of software which DO use that capability, I'm not sure
+> I've seen one which can be done no other way.
 
-Thanks.
+As stated oprofile needs it, there is no other efficient way to track exec,
+mmap and other sys call needed for profiler. I hope a consensus can
+be reach : explain than unloading module wich patch the sys call table
+are unsafe on SMP, discourage the use of sys call table patch, but do
+not forbid that.
 
-
-About USAGI Project:
-
-The USAGI Project is managed by volunteers and aims to provide better
-IPv6 environment on Linux freely.  We are tightly collaborating with
-WIDE Project[2], KAME Project[3] and TAHI Project[4], and trying to
-improve Linux kernel, IPv6 related libraries and IPv6 applications.
-Our snapshots are released every two weeks and stable release is
-released several times a year.  Please check our web site
-<http://www.linux-ipv6.org> for the latest information.
-
-
-In-Reply-To:
-
-	[1] USAGI Project       <http://www.linux-ipv6.org>
-	[2] WIDE Project        <http://www.wide.ad.jp>
-	[3] KAME Project        <http://www.kame.net>
-	[4] TAHI Project        <http://www.tahi.org>
-
--- 
-USAGI Project <http://www.linux-ipv6.org>
+--
+Philippe Elie
 
 

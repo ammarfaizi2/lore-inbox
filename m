@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129101AbRBFKVU>; Tue, 6 Feb 2001 05:21:20 -0500
+	id <S129104AbRBFKYK>; Tue, 6 Feb 2001 05:24:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129104AbRBFKVK>; Tue, 6 Feb 2001 05:21:10 -0500
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:5389 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S129101AbRBFKVA>; Tue, 6 Feb 2001 05:21:00 -0500
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Tue, 6 Feb 2001 11:20:48 +0100
+	id <S129170AbRBFKYB>; Tue, 6 Feb 2001 05:24:01 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57866 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129104AbRBFKXz>; Tue, 6 Feb 2001 05:23:55 -0500
+Subject: Re: [OT] Why so much memory 'reserved'?
+To: gandalf@winds.org (Byron Stanoszek)
+Date: Tue, 6 Feb 2001 10:24:48 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0102051957540.1746-100000@winds.org> from "Byron Stanoszek" at Feb 05, 2001 08:41:17 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.4.x: spinlock problem
-Message-ID: <3A7FDE02.17474.A94DE@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Q5Io-0005Jn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> This is an offtopic question. What determines the amount of 'reserved' memory,
+> and how much to reserve?
 
-I had reported this before: In 2.4.0 getting exact system time from 
-interrupt handlers seems inaccurate (in 2.2.18 it works fine). I have 
-applied the same modifications to the 2.4 code base as to 2.2.
+The BIOS
 
-With 2.4.1 the kernel is incredibly slow, so you can watch the 
-individual lines of kernel boot be printed on the screen.
+> Is there a way I can 'regain' this memory from the system, especially in cases
+> when there's only 32MB to work with?
 
-I checked the spinlocks, but could not find a problem. Before I start 
-removing the new spinlocks for timer, PIC and RTC, I'd like to hear 
-what the gurus might think.
-
-I also tried to find out how I can profile the kernel or trace the 
-spinlocks, but that seems to be hardly documented.
-
-Any hints?
-
-Regards,
-Ulrich
-
+In theory if ACPI isnt being used we can reclaim some of it on certain boxes
+but I dont believe anyone has implemented that yet
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264999AbUD2WdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265012AbUD2WhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264999AbUD2WdU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 18:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbUD2WdU
+	id S265012AbUD2WhD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 18:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbUD2WhB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 18:33:20 -0400
-Received: from [66.35.79.110] ([66.35.79.110]:57999 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S264999AbUD2WdM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 18:33:12 -0400
-Date: Thu, 29 Apr 2004 15:32:57 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: Marc Boucher <marc@linuxant.com>
-Cc: koke@sindominio.net, Paul Wagland <paul@wagland.net>,
-       linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
-       Rik van Riel <riel@redhat.com>,
-       David Gibson <david@gibson.dropbear.id.au>,
-       Timothy Miller <miller@techsource.com>
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-Message-ID: <20040429223257.GA25166@hockin.org>
-References: <Pine.LNX.4.44.0404291114150.9152-100000@chimarrao.boston.redhat.com> <4FE43C97-9A20-11D8-B804-000A95CD704C@wagland.net> <4091757B.3090209@techsource.com> <200404292347.17431.koke_lkml@amedias.org> <0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Apr 2004 18:37:01 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:28655 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265012AbUD2Wgx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 18:36:53 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Patrick Wildi <patrick@wildi.com>
+Subject: Re: [RFC][PATCH] 2.4 IDE Serverworks OSB4 DMA patch
+Date: Fri, 30 Apr 2004 00:37:10 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       andre@linux-ide.org
+References: <Pine.LNX.4.58.0404291130420.19527@bern.wildisoft.net> <200404292132.26039.bzolnier@elka.pw.edu.pl> <Pine.LNX.4.58.0404291455480.13881@bern.wildisoft.net>
+In-Reply-To: <Pine.LNX.4.58.0404291455480.13881@bern.wildisoft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <0CAE0144-9A2C-11D8-B83D-000A95BCAC26@linuxant.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200404300037.10054.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 06:24:58PM -0400, Marc Boucher wrote:
-> The inherent instability of binary modules is a religious myth. Any 
+On Friday 30 of April 2004 00:09, Patrick Wildi wrote:
+> On Thu, 29 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
+> > On Thursday 29 of April 2004 21:04, Patrick Wildi wrote:
+> > > I have been using a OSB4 chipset based system with a CompactFlash
+> > > that supports PIO only and a laptop IBM/Hitachi Travelstar HDD
+> > > that supports UDMA.
+> > > For both drives, the serverworks code misconfigures the drives:
+> > >
+> > > - for the CF (hooked up as /dev/hda), svwks_config_drive_xfer_rate()
+> > >   will not match any tests (drive->autodma = 0, id->capability = 2,
+> > >   id->field_valid = 1), but the function will then call
+> > >   hwif->ide_dma_on(drive), which it should not do for this drive.
+> > >   This patch moves the enabling of DMA up into the DMA section of
+> > >   the code.
+> >
+> > Yep, known bug, it is fixed in 2.6.
+> >
+> > It is present in many other drivers, my 2.6 patch needs to be backported.
+>
+> Are you the maintainer for 2.4 or to whom should I send the changes?
 
-No, it's REAL, unless VERY CAREFULLY handled.  If your binary uses a
-spinlock, it either works only on SMP or only on UP.  If your binary uses
-any number of kernel structures and interfaces, you are subject to the
-whims of whomever compiled the kernel.  spinlock debuging changes the
-sizeof(spinlock_t).  Some APIs become macros or inlines depending on
-config options.
+Send them to me.
 
-You have to toally separate all the kernel code from the binary code. If
-you can't do that, you end up with a kernel module that works ONLY on a
-very small subset of kernels.  And that sucks.  We don't want to encourage
-that.  If your driver manages to cleanly pull out all the binary gunk from
-the kernel gunk, then kudos to you.
+> > > - for the Travelstart HDD, the settings coming into
+> > >   svwks_config_drive_xfer_rate() are: drive->autodma = 32,
+> > >   id->capability = 15, id->field_valid = 7, id->dma_ultra = 0x43f.
+> > >   But as this is an OSB4, the hwif->ultra_mask is set to not support
+> > >   UDMA. Unfortunately in that case svwks_config_drive_xfer_rate()
+> > >   falls through to the end of the function, instead of trying
+> > >   other DMA modes.
+> >
+> > Good catch.
+> >
+> > It seems the same bug can be present in other drivers too (hint, hint).
+> > ;)
+>
+> I noticed that the piix driver uses the exact same logic. I could
+> replicate this part of the patch for other 2.4 drivers. I have no
+> way of testing them.
+> I can send you a combined patch for 2.4. I am not yet using 2.6.
 
-I still don't like it, but at least it has a chance of running.
+No problem. :)
+
+Thanks!
+Bartlomiej
 

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262568AbRGIQRO>; Mon, 9 Jul 2001 12:17:14 -0400
+	id <S263149AbRGIQWO>; Mon, 9 Jul 2001 12:22:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262715AbRGIQQy>; Mon, 9 Jul 2001 12:16:54 -0400
-Received: from t2.redhat.com ([199.183.24.243]:52725 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262682AbRGIQQu>; Mon, 9 Jul 2001 12:16:50 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010706080937.A22601@thyrsus.com> 
-In-Reply-To: <20010706080937.A22601@thyrsus.com> 
-To: esr@thyrsus.com
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net,
-        ralf@uni-koblenz.de
-Subject: Re: Current list of the missing-in-action 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 09 Jul 2001 17:16:43 +0100
-Message-ID: <21722.994695403@redhat.com>
+	id <S263334AbRGIQWE>; Mon, 9 Jul 2001 12:22:04 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:22029 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263149AbRGIQVx>; Mon, 9 Jul 2001 12:21:53 -0400
+Date: Mon, 9 Jul 2001 09:20:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33.0107091130580.448-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.33.0107090915310.14024-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-esr@thyrsus.com said:
-> CONFIG_GDB_CONSOLE
+On Mon, 9 Jul 2001, Mike Galbraith wrote:
+>
+> I'm running oom whether I have swap enabled or not.  The inactive
+> dirty list starts growing forever, until it's full of (aparantly)
+> dirty pages and I'm utterly oom.
 
-Mea Culpa.
+Does it help if you just remove the
 
-Console output to GDB
-CONFIG_GDB_CONSOLE
-  If you are using GDB for remote debugging over a serial port and would
-  like kernel messages to be formatted into GDB $O packets so that GDB
-  prints them as program output, say 'Y'.
+	if (atomic_read(&page->count) > 2)
+		goto out;
 
---
-dwmw2
+from shmem_writepage()?
 
+It _shouldn't_ matter (because writepage() should only be called with
+inactive pages anyway), but your problem certainly sounds like your
+inactive dirty list is not able to write out shmfs pages.
+
+Note that if you don't have swap, you're screwed anyway. You just don't
+have anywhere to put the pages.
+
+		Linus
 

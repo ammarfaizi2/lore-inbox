@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263892AbRFDVKT>; Mon, 4 Jun 2001 17:10:19 -0400
+	id <S263886AbRFDV1J>; Mon, 4 Jun 2001 17:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263893AbRFDVKJ>; Mon, 4 Jun 2001 17:10:09 -0400
-Received: from cicero0.cybercity.dk ([212.242.40.52]:45321 "HELO
-	cicero0.cybercity.dk") by vger.kernel.org with SMTP
-	id <S263892AbRFDVJz>; Mon, 4 Jun 2001 17:09:55 -0400
-Date: Mon, 4 Jun 2001 23:09:33 +0200
-From: Jens Axboe <axboe@suse.de>
-To: PROFETA Mickael <profeta@crans.ens-cachan.fr>
+	id <S263900AbRFDV07>; Mon, 4 Jun 2001 17:26:59 -0400
+Received: from 246.35.232.212.infosources.fr ([212.232.35.246]:47621 "HELO
+	fjord.dyndns.org") by vger.kernel.org with SMTP id <S263886AbRFDV0r>;
+	Mon, 4 Jun 2001 17:26:47 -0400
+Date: Mon, 4 Jun 2001 23:25:58 +0200
+To: Jens Axboe <axboe@suse.de>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: ide retry on 2.4.5-ac7
-Message-ID: <20010604230932.A23128@suse.de>
-In-Reply-To: <20010604140207.A529@alezan.dyndns.org> <20010604221404.A19333@suse.de> <20010604230215.A6188@alezan.dyndns.org>
+Message-ID: <20010604232558.C6188@alezan.dyndns.org>
+In-Reply-To: <20010604140207.A529@alezan.dyndns.org> <20010604221404.A19333@suse.de> <20010604230215.A6188@alezan.dyndns.org> <20010604230932.A23128@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010604230215.A6188@alezan.dyndns.org>; from profeta@crans.ens-cachan.fr on Mon, Jun 04, 2001 at 11:02:15PM +0200
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <20010604230932.A23128@suse.de>; from axboe@suse.de on Mon, Jun 04, 2001 at 11:09:33PM +0200
+From: profeta@crans.ens-cachan.fr (PROFETA Mickael)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 04 2001, PROFETA Mickael wrote:
-> On Mon, Jun 04, 2001 at 10:14:04PM +0200, Jens Axboe wrote:
-> > 
-> > It worked sucessfully for you in 2.4.5-ac4 but not in -ac7? I can't see
-> > any changes to the patch, so more details on the nature of the problem
-> > would be helpful.
+On Mon, Jun 04, 2001 at 11:09:33PM +0200, Jens Axboe wrote:
 > 
-> Ok, this is the results of a hdparm -tT on my second hard disk:
-> 
-> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-> ide1: reset: success
-> 64 MB in  7.03 seconds =  9.10 MB/sec
-> 
-> and then the kernel has shifted to udma3 and I have no more error in this
-> session with that hard disk
-> 
-> I tried the same thing on -ac7 and I always have the errors, the kernel does
-> not reset ide... Looking at the different change on ac patches, I can not see 
-> why...
+> This is not the case that is attempted solve. The above could be a cable
+> error (it looks like it). These are usually genuine and indicate a real
+> hw problem.
 
-This is not the case that is attempted solve. The above could be a cable
-error (it looks like it). These are usually genuine and indicate a real
-hw problem.
+I know about that, but I tried with other cable and the trouble leaves the
+same. On the other hand, before kernel 2.4.2 I think, (not sure of the number)
+the kernel does not want to activate UDMA on startup even with the option
+activated, and this on via mb. At that time, I used to force the DMA with
+hdparm, and I had no troubles in dma mode 3 with that hard disk, and I can
+remeber that udma mode 4 was even not indicate when I try hdparm -I /dev/hdc,
+so I don't know why it detects dma 4, and I did not manage to change that at
+boot time. 
+Another example is the hda, which is an ibm DTLA hard drive. In 2.4.2 a 2.4.3
+he made the same error in udma mode4, and since 2.4.4 no troubles anymore... I
+find it difficult to believe that it is hardware trouble!
+Furthemore, I began this thread because I heard someone else on this mailing
+list with the same crc error and I thought the patch in ac4 was in a way to
+solve the dma detect fails.
 
--- 
-Jens Axboe
+	thanks for your help
+
+	Mike
+
+> 
+> -- 
+> Jens Axboe
+

@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262389AbRGWWYu>; Mon, 23 Jul 2001 18:24:50 -0400
+	id <S262355AbRGWW1k>; Mon, 23 Jul 2001 18:27:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262355AbRGWWYl>; Mon, 23 Jul 2001 18:24:41 -0400
-Received: from smtprt15.wanadoo.fr ([193.252.19.210]:63952 "EHLO
-	smtprt15.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S262288AbRGWWYY>; Mon, 23 Jul 2001 18:24:24 -0400
-Message-ID: <3B5CA4CA.46B53843@wanadoo.fr>
-Date: Tue, 24 Jul 2001 00:27:22 +0200
-From: Jerome de Vivie <jerome.de-vivie@wanadoo.fr>
-Organization: CoolSite
-X-Mailer: Mozilla 4.74 [fr] (X11; U; Linux 2.4.4-sb i686)
-X-Accept-Language: French, fr, en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: linux-kernel@vger.kernel.org, linux-fsdev@vger.kernel.org,
-        maritza@libertsurf.fr, rusty@rustcorp.com.au
-Subject: Re: Yet another linux filesytem: with version control
-In-Reply-To: <3B5C91DA.3C8073AC@wanadoo.fr> <20010723141751.W6820@work.bitmover.com> <3B5C9E95.8BF61D7A@wanadoo.fr> <20010723151457.C14194@work.bitmover.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S261289AbRGWW1U>; Mon, 23 Jul 2001 18:27:20 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:16134 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263149AbRGWW1J>; Mon, 23 Jul 2001 18:27:09 -0400
+Date: Tue, 24 Jul 2001 00:27:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rob Landley <landley@webofficenow.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: user-mode port 0.44-2.4.7
+Message-ID: <20010724002742.J16919@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com> <200107232150.f6NLosh13126@vindaloo.ras.ucalgary.ca> <20010724000933.I16919@athlon.random> <01072309203206.00996@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01072309203206.00996@localhost.localdomain>; from landley@webofficenow.com on Mon, Jul 23, 2001 at 09:20:32AM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Larry McVoy a écrit :
+On Mon, Jul 23, 2001 at 09:20:32AM -0400, Rob Landley wrote:
+> On Monday 23 July 2001 18:09, Andrea Arcangeli wrote:
 > 
-> On Tue, Jul 24, 2001 at 12:00:53AM +0200, Jerome de Vivie wrote:
-> > I absolutely don't know how much work it is. Will you work again on this
-> > topic ?
+> > GCC will obviously _never_ introduce a BUG(), I never said that, the
+> > above example is only meant to show what GCC is _allowed_ to do and what
+> > we have to do to write correct C code.
 > 
-> Err, I've got a young but healthy company that is already doing it.  I'm
-> happy to offer what advice I can to help you but I can't really commit
-> substantial resources towards this.  I make my living off of my company
-> and that has to come first.  That said, it's an interesting area and it's
-> nice to see others take an interest, so I'll help a little...
+> "Correct" C code as in portable C code?  Standards compliant so it's portable 
 
-Ok, thanks !
+correct C code _mainly_ for gcc which is very aggressive.
 
-> 
-> > To work on a file, we just break and copy the link. But, i don't see how
-> > to work with 2 versions of the same file with hard link.
-> 
-> You don't want to do so.  You save little by doing so.  Please tell me you
-> weren't going to version control at the block level, therein lies the path
-> to insanity.  Getting it right at the file boundary is hard enough.
-
-Yes, it was block level version control but it feets our needs ( I have 
-scattered files across directories when there were no dependencies).
-
-j.
-
-
--- 
-Jerome de Vivie 	jerome . de - vivie @ wanadoo . fr
+Andrea

@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315394AbSEGXOX>; Tue, 7 May 2002 19:14:23 -0400
+	id <S315445AbSEGXPl>; Tue, 7 May 2002 19:15:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315445AbSEGXOW>; Tue, 7 May 2002 19:14:22 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48904 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315394AbSEGXOW>; Tue, 7 May 2002 19:14:22 -0400
-Subject: Re: x86 question: Can a process have > 3GB memory?
-To: ctwhite@us.ibm.com (Clifford White)
-Date: Wed, 8 May 2002 00:33:14 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF4EFD903E.F8196584-ON87256BB2.007DEC69@boulder.ibm.com> from "Clifford White" at May 07, 2002 04:03:09 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315448AbSEGXPk>; Tue, 7 May 2002 19:15:40 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:25342 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315445AbSEGXPi>; Tue, 7 May 2002 19:15:38 -0400
+Date: Tue, 07 May 2002 17:12:21 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Adrian Bunk <bunk@fs.tum.de>, Dave Jones <davej@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.5.14-dj1: misc.o: undefined reference to `__io_virt_debug'
+Message-ID: <285820000.1020816741@flay>
+In-Reply-To: <3CD858AA.5050601@didntduck.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E175ESI-0000PX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We'd like to go > 3GB of memory per process.
-> Is this possible on a 32-bit machine? I have been reading the various
 
-Yes and no...
+> -	outb_p(14, vidport);
+> -	outb_p(0xff & (pos >> 9), vidport+1);
+> -	outb_p(15, vidport);
+> -	outb_p(0xff & (pos >> 1), vidport+1);
+> +	outb_local(14, vidport); slow_down_io();
+> +	outb_local(0xff & (pos >> 9), vidport+1); slow_down_io();
+> +	outb_local(15, vidport); slow_down_io();
+> +	outb_local(0xff & (pos >> 1), vidport+1); slow_down_io();
 
-> Any pointers would be appreciated. The Intel ESMA (Extended Server Memory
-> Arch) page states that it's possible, but.....how?
+You converted the outb_p's to plain outb's. I'm not sure of the reasoning
+behind why they were there, but I wasn't brave enough to remove that ;-)
+See the patch I mailed out earlier, basically the same idea, but I created
+outb_local_p and friends.
 
-Remember DOS and EMM memory expansion. Basically that is what you come
-down to. Allocate multiple large shared memory segments, attach the one
-you need each time and implement software segment swapping.
+Actually, I screwed it up slightly, and put outb_p_local in one, and outb_local_p
+in the other. oops.
 
-That should have you diving for an AMD hammer or IA64 box as soon as they
-come out 8)
+M.
+
+
+

@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266213AbUGJLby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266214AbUGJLmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266213AbUGJLby (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 07:31:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266214AbUGJLby
+	id S266214AbUGJLmW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 07:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUGJLmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 07:31:54 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:42423 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S266213AbUGJLbw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 07:31:52 -0400
-Date: Sat, 10 Jul 2004 13:15:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, Andrew Morton <akpm@osdl.org>,
-       Nick Piggin <piggin@cyberone.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Likelihood of rt_tasks
-Message-ID: <20040710111528.GA22265@elte.hu>
-References: <40EE6CC2.8070001@kolivas.org> <40EF2FF2.6000001@bigpond.net.au> <40EF354F.9090903@kolivas.org>
+	Sat, 10 Jul 2004 07:42:22 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:59594 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266214AbUGJLmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 07:42:19 -0400
+Date: Sat, 10 Jul 2004 13:42:13 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net
+Subject: [2.6 patch] remove drivers/char/h8.{c,h} (fwd)
+Message-ID: <20040710114213.GH28324@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40EF354F.9090903@kolivas.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=0, required 5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: 0
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Con Kolivas <kernel@kolivas.org> wrote:
+CONFIG_H8 in drivers/char/ depends in both 2.4 and 2.6 on 
+CONFIG_OBSOLETE which is never enabled.
+ 
+To remove this driver, the following is required additionally to the 
+patch below: 
+  rm drivers/char/h8.c
+  rm drivers/char/h8.h
 
-> Well I dont think making them unlikely is necessary either, but
-> realistically the amount of time added by the unlikely() check will be
-> immeasurably small in real terms - and hitting it frequently enough
-> will be washed over by the cpu as Ingo said. I dont think the order of
-> magnitude of this change is in the same universe as the problem of
-> scheduling latency that people are complaining of.
+This patch was already ACK'ed by Richard Henderson.
 
-very much so. This is (sub-)nanoseconds stuff, while the scheduling
-latencies are tens of milliseconds or more - at least 7 orders of
-magnitude difference.
 
-the unlikely() check in rt_task() was mainly done because there was a
-steady stream of microoptimizations that added unlikely() to rt_task().
-So now we do in everywhere and have removed the unlikely()/likely()
-branches from sched.c. It doesnt really matter in real-world terms, but
-it will make the common case code (non-RT) a tiny bit more compact. And
-i challenge anyone to be able to even measure the difference to an RT
-task.
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-Not to mention that any truly RT-centric/embedded distribution would
-compile the kernel for size anyway, at which point the compiler ignores
-(or should ignore) the likely/unlikely attributes anyway. So there's
-really no harm to anyone and the code got a bit more readable.
+--- linux-2.6.7-mm5-full/drivers/char/Kconfig.old	2004-07-03 00:36:17.000000000 +0200
++++ linux-2.6.7-mm5-full/drivers/char/Kconfig	2004-07-03 00:36:39.000000000 +0200
+@@ -795,16 +795,6 @@
+ 	  This option enables support for the LCD display and buttons found
+ 	  on Cobalt systems through a misc device.
+ 
+-config H8
+-	bool "Tadpole ANA H8 Support (OBSOLETE)"
+-	depends on OBSOLETE && ALPHA_BOOK1
+-	help
+-	  The Hitachi H8/337 is a microcontroller used to deal with the power
+-	  and thermal environment. If you say Y here, you will be able to
+-	  communicate with it via a character special device.
+-
+-	  If unsure, say N.
+-
+ config DTLK
+ 	tristate "Double Talk PC internal speech card support"
+ 	help
+--- linux-2.6.7-mm5-full/drivers/char/Makefile.old	2004-07-03 00:37:03.000000000 +0200
++++ linux-2.6.7-mm5-full/drivers/char/Makefile	2004-07-03 00:37:14.000000000 +0200
+@@ -69,7 +69,6 @@
+ obj-$(CONFIG_QIC02_TAPE) += tpqic02.o
+ obj-$(CONFIG_FTAPE) += ftape/
+ obj-$(CONFIG_COBALT_LCD) += lcd.o
+-obj-$(CONFIG_H8) += h8.o
+ obj-$(CONFIG_PPDEV) += ppdev.o
+ obj-$(CONFIG_NWBUTTON) += nwbutton.o
+ obj-$(CONFIG_NWFLASH) += nwflash.o
 
-	Ingo
+

@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317782AbSFMRbX>; Thu, 13 Jun 2002 13:31:23 -0400
+	id <S317783AbSFMRhC>; Thu, 13 Jun 2002 13:37:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317783AbSFMRbW>; Thu, 13 Jun 2002 13:31:22 -0400
-Received: from unet4-130.univie.ac.at ([131.130.233.130]:49034 "EHLO
-	server.lan") by vger.kernel.org with ESMTP id <S317782AbSFMRbW>;
-	Thu, 13 Jun 2002 13:31:22 -0400
-From: Melchior FRANZ <a8603365@unet.univie.ac.at>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Very large font size crashing X Font Server and Grounding Server to a Halt (was: remote DoS in Mozilla 1.0)
-Date: Thu, 13 Jun 2002 18:53:53 +0200
-User-Agent: KMail/1.4.5
-X-PGP: http://www.unet.univie.ac.at/~a8603365/melchior.franz
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+	id <S317785AbSFMRhB>; Thu, 13 Jun 2002 13:37:01 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:13583 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317783AbSFMRhA>;
+	Thu, 13 Jun 2002 13:37:00 -0400
+Date: Thu, 13 Jun 2002 10:36:55 -0700
+From: Greg KH <greg@kroah.com>
+To: Martin Knoblauch <knobi@knobisoft.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Problems with 2.4.19-pre10-ac2
+Message-ID: <20020613173655.GD21644@kroah.com>
+In-Reply-To: <200206131916.16214.knobi@knobisoft.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200206131853.53896@pflug3.gphy.univie.ac.at>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 16 May 2002 15:59:19 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* rjh@world.std.com -- Thursday 13 June 2002 18:33:
-> It resulted in an almost infinite size malloc() request.
+On Thu, Jun 13, 2002 at 07:16:16PM +0200, Martin Knoblauch wrote:
+>  Suspicious are the "usb_control/bulk_msg: timeout" messages and the "not 
+> accepting" stuff. Same happens with the uhci.o module. The camera works with 
+> the 2.4.18-4GB kernel from SuSE8.0. So I suspect some problems with 
+> 2.4.19-pre10-ac2. Unfortunatelly I cannot build 2.4.19-pre10 alone, due to 
+> compilation errors.
 
-No. AFAIK it is caused in the file xc/lib/font/Type1/t1font.c
-by wrong RAM requirement estimation heuristics. Not too much
-memory is requested but too few! And if XFree actually needs
-more memory than it had originally estimated and requested, it
-simply aborts.
+What compilation errors?  USB specific ones?
 
-m.
+I would be very interested to see if this proble also happens on
+2.4.19-pre10.
 
+thanks,
+
+greg k-h

@@ -1,59 +1,114 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281785AbRKQRdf>; Sat, 17 Nov 2001 12:33:35 -0500
+	id <S281786AbRKQRv5>; Sat, 17 Nov 2001 12:51:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281788AbRKQRdZ>; Sat, 17 Nov 2001 12:33:25 -0500
-Received: from ns.caldera.de ([212.34.180.1]:44206 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S281785AbRKQRdQ>;
-	Sat, 17 Nov 2001 12:33:16 -0500
-Date: Sat, 17 Nov 2001 18:32:20 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: build-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] mconfig 0.20 available
-Message-ID: <20011117183220.A14033@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Keith Owens <kaos@ocs.com.au>, build-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011116173840.A15515@caldera.de> <16782.1005994611@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16782.1005994611@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sat, Nov 17, 2001 at 09:56:51PM +1100
+	id <S281787AbRKQRvs>; Sat, 17 Nov 2001 12:51:48 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:26356 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S281786AbRKQRvf>;
+	Sat, 17 Nov 2001 12:51:35 -0500
+Date: Sat, 17 Nov 2001 12:51:33 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: wwcopt@optonline.net, linux-kernel@vger.kernel.org
+Subject: [PATCH][RFC] Re: 2.4.15-pre5: /proc/cpuinfo broken
+In-Reply-To: <15350.36701.89478.960625@kruemel.monster.org>
+Message-ID: <Pine.GSO.4.21.0111171250310.11475-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 17, 2001 at 09:56:51PM +1100, Keith Owens wrote:
-> On Fri, 16 Nov 2001 17:38:40 +0100, 
-> Christoph Hellwig <hch@caldera.de> wrote:
-> >The mconfig release 0.20 is now available.
-> >
-> >Mconfig is a tool to configure the linux kernel, similar to
-> >make {menu,x,}config, but written in C and with a proper yacc
-> >parser.
-> 
-> Christoph, could you explain why this is being added now and how it
-> compares to CML1 and/or CML2?
+On Sat, 17 Nov 2001, Wolfgang Wander wrote:
 
-It's not added now - Michael started the development about 5 years ago,
-in 1998 he stopped working on it.  In 1999 or 2001 I started hacking on
-it, only adding what I needed.  Now I finally found the time to make a
-formal release.
-The tool mconfig parses CML1 rules, and does so _much_ more strictly
-then any other parser.
+>   Actually its bash - 2.04.0(1)-release (i386-suse-linux)
 
-> kbuild 2.[45] is completely agnostic about how .config and autoconf.h
-> are built, the only requirement is that .config be internally
-> consistent before it goes into the main build phase.  I don't care how
-> .config is built, but I do want to understand why another version of
-> CML is being developed.
+2.03.0(1)-release (i386-pc-linux-gnu) (Debian variant) works here.
 
-The current cml1 scripts are _very_ ugly, and even if cml2 makes it in
-2.5 (yes, I don't like it - but I don't have to decide it..) kernels
-using cml1 will be around for a long time.
+OK, let's see what can be done.  Situation is the same for all seq_file-based
+files.
 
-	Christoph
+	a) we can revert to old code.  Which had a lot of problems, quite
+a few of them unfixable if we want to have lseek() to calculated position.
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+	b) we can change i_mode for these files, making them S_IFIFO.
+That will stop any silliness (if something would rely on seeking
+backwards for something that looks like a pipe, it would break on
+real pipes, etc. and that's not too likely to stay unnoticed, to put
+it mildly).  And that's trivial to implement.
+
+	c) hunt down and fix the userland that relies on arithmetics
+on file position in case of regular files (POSIX prohibits it, SuS allows).
+
+(a) - lots of bad problems, including unsolvable userland races.
+(b) - user-visible change, but one that is very unlikely to break
+anything.
+(c) - yeah, right.  In the middle of 2.4.  Since such stuff exists and is
+widely used, it's out of question.  Pity, but there's nothing to do about
+that.
+
+Frankly, I'd prefer to try (b) before reverting to (a).  Patch doing that
+variant follows.  Linus, your opinion?
+
+diff -urN S15-pre5/fs/proc/inode.c S15-pre5-proc/fs/proc/inode.c
+--- S15-pre5/fs/proc/inode.c	Tue Oct  9 21:47:27 2001
++++ S15-pre5-proc/fs/proc/inode.c	Sat Nov 17 12:38:08 2001
+@@ -160,14 +160,12 @@
+ 			inode->i_nlink = de->nlink;
+ 		if (de->owner)
+ 			__MOD_INC_USE_COUNT(de->owner);
+-		if (S_ISBLK(de->mode)||S_ISCHR(de->mode)||S_ISFIFO(de->mode))
++		if (de->proc_iops)
++			inode->i_op = de->proc_iops;
++		if (de->proc_fops)
++			inode->i_fop = de->proc_fops;
++		else if (S_ISBLK(de->mode)||S_ISCHR(de->mode)||S_ISFIFO(de->mode))
+ 			init_special_inode(inode,de->mode,kdev_t_to_nr(de->rdev));
+-		else {
+-			if (de->proc_iops)
+-				inode->i_op = de->proc_iops;
+-			if (de->proc_fops)
+-				inode->i_fop = de->proc_fops;
+-		}
+ 	}
+ 
+ out:
+diff -urN S15-pre5/fs/proc/proc_misc.c S15-pre5-proc/fs/proc/proc_misc.c
+--- S15-pre5/fs/proc/proc_misc.c	Thu Nov 15 23:43:07 2001
++++ S15-pre5-proc/fs/proc/proc_misc.c	Sat Nov 17 12:38:15 2001
+@@ -519,6 +519,14 @@
+ 
+ struct proc_dir_entry *proc_root_kcore;
+ 
++static void create_seq_entry(char *name, mode_t mode, struct file_operations *f)
++{
++	struct proc_dir_entry *entry;
++	entry = create_proc_entry(name, mode|S_IFIFO, NULL);
++	if (entry)
++		entry->proc_fops = f;
++}
++
+ void __init proc_misc_init(void)
+ {
+ 	struct proc_dir_entry *entry;
+@@ -568,16 +576,10 @@
+ 	entry = create_proc_entry("kmsg", S_IRUSR, &proc_root);
+ 	if (entry)
+ 		entry->proc_fops = &proc_kmsg_operations;
+-	entry = create_proc_entry("mounts", 0, NULL);
+-	if (entry)
+-		entry->proc_fops = &proc_mounts_operations;
+-	entry = create_proc_entry("cpuinfo", 0, NULL);
+-	if (entry)
+-		entry->proc_fops = &proc_cpuinfo_operations;
++	create_seq_entry("mounts", 0, &proc_mounts_operations);
++	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
+ #ifdef CONFIG_MODULES
+-	entry = create_proc_entry("ksyms", 0, NULL);
+-	if (entry)
+-		entry->proc_fops = &proc_ksyms_operations;
++	create_seq_entry("cpuinfo", 0, &proc_ksyms_operations);
+ #endif
+ 	proc_root_kcore = create_proc_entry("kcore", S_IRUSR, NULL);
+ 	if (proc_root_kcore) {
+
+

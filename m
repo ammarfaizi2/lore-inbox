@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbTDRJfF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 05:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTDRJfE
+	id S262993AbTDRJmE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 05:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTDRJmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 05:35:04 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:29429 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262985AbTDRJfD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 05:35:03 -0400
-Date: Fri, 18 Apr 2003 11:46:39 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.67-ac1 IDE - fix Taskfile IOCTLs
-In-Reply-To: <Pine.LNX.4.10.10304171935301.11686-100000@master.linux-ide.org>
-Message-ID: <Pine.SOL.4.30.0304181145110.17729-100000@mion.elka.pw.edu.pl>
+	Fri, 18 Apr 2003 05:42:04 -0400
+Received: from siaag1ac.compuserve.com ([149.174.40.5]:54171 "EHLO
+	siaag1ac.compuserve.com") by vger.kernel.org with ESMTP
+	id S262993AbTDRJmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 05:42:03 -0400
+Date: Fri, 18 Apr 2003 05:50:39 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH] only use 48-bit lba when necessary
+To: "linux-kernel@horizon.com" <linux-kernel@horizon.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200304180553_MC3-1-34EE-10DA@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 17 Apr 2003, Andre Hedrick wrote:
-
-> ide_diag_taskfile
-
-???
-
-> Do not do that it will break paths!
-
-What paths?
-
-> On Fri, 18 Apr 2003, Bartlomiej Zolnierkiewicz wrote:
+>>   The operands of & can be evaluated in any order, while && requires
+>> left-to-right and does not evaluate the right operand if the left one
+>> is false.  Only the simplest cases could possibly generate the same
+>> code.
 >
-> >
-> > Hey,
-> >
-> > This time 5 incremental patches:
-> >
-> > 1       - Fix PIO handlers for Taskfile ioctls.
-> > 2a + 2b - Taskfile and flagged Taskfile PIO handlers unification.
-> > 3       - Map HDIO_DRIVE_CMD ioctl onto taskfile.
-> > 4       - Remove dead ide_diag_taskfile() code.
-> >
-> > [ More comments inside patches. ]
-> >
-> > Special care is needed for patch 3 as it is a bit experimental,
-> > but at least hdparm -I /dev/hdx still works :-).
-> > I have also made version using direct IO to user pages,
-> > it works okay too but needs some more work to be elegant...
-> >
-> > You can also get them at:
-> > http://home.elka.pw.edu.pl/~bzolnier/patches/2.5.67-ac1/
-> >
-> > --
-> > bzolnier
-> >
+> The code must execute AS IF the right operand is only evaluated if the left
+> operand is true.
 >
-> Andre Hedrick
-> LAD Storage Consulting Group
+> If an optimizer can prove that evaluating an operand has no side effects
+> (which a halfway-decent optimizer can usually do for simple expressions),
+> then it is free to evaluate it in any way that will produce the same
+> result.
 
+
+  No, that's not quite right.  Take this code for example:
+
+   struct foo *bar;
+
+   if (bar && bar->baz == 6) /* something */;
+
+If bar were zero, then evaluating the right side of the && would cause
+a fault.  (This is not a side effect.)
+
+  So the AS IF part if your statement is right but you have to consider
+more than just side effects.
+
+ --
+ Chuck

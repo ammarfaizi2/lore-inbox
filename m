@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285226AbSALHd0>; Sat, 12 Jan 2002 02:33:26 -0500
+	id <S285273AbSALHxV>; Sat, 12 Jan 2002 02:53:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285261AbSALHdR>; Sat, 12 Jan 2002 02:33:17 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54027 "EHLO
+	id <S285161AbSALHxM>; Sat, 12 Jan 2002 02:53:12 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13324 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285226AbSALHdG>; Sat, 12 Jan 2002 02:33:06 -0500
+	id <S285099AbSALHxI>; Sat, 12 Jan 2002 02:53:08 -0500
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] 1-2-3 GB
-Date: 11 Jan 2002 23:32:37 -0800
+Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
+Date: 11 Jan 2002 23:52:50 -0800
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a1ooql$ili$1@cesium.transmeta.com>
-In-Reply-To: <20020112004528.A159@earthlink.net>
+Message-ID: <a1oq0i$ino$1@cesium.transmeta.com>
+In-Reply-To: <m26669olcu.fsf@goliath.csn.tu-chemnitz.de.suse.lists.linux.kernel> <E16Oocq-0005tX-00@the-village.bc.nu.suse.lists.linux.kernel> <p737kqpp60w.fsf@oldwotan.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,29 +21,24 @@ Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020112004528.A159@earthlink.net>
-By author:    rwhron@earthlink.net
+Followup to:  <p737kqpp60w.fsf@oldwotan.suse.de>
+By author:    Andi Kleen <ak@suse.de>
 In newsgroup: linux.dev.kernel
-> --- linux.aa2/arch/i386/config.in       Fri Jan 11 20:57:58 2002
-> +++ linux/arch/i386/config.in   Fri Jan 11 22:20:32 2002
-> @@ -169,7 +169,11 @@
->  if [ "$CONFIG_HIGHMEM64G" = "y" ]; then
->     define_bool CONFIG_X86_PAE y
->  else
-> -   bool '3.5GB user address space' CONFIG_05GB
-> +   choice 'Maximum Virtual Memory' \
-> +       "3GB            CONFIG_1GB \
-> +        2GB            CONFIG_2GB \
-> +        1GB            CONFIG_3GB \
-> +        05GB           CONFIG_05GB" 3GB
->  fi
+>  
+> One corner case where emulation would IMHO make sense would be CMPXCHG8.
+> It would allow to do efficient inline mutexes in pthreads, and hit the
+> emulation only on 386/486. cpu feature flag checking is unfortunately
+> not an option normally for inline code.
+> 
 
-Calling this "Maximum Virtual Memory" is misleading at best.  This is
-best described as "kernel:user split" (3:1, 2:2, 1:3, 3.5:0.5);
-"maximum virtual memory" sounds to me a lot like the opposite of what
-your parameter is.
+You don't need CMPXCHG8B to do efficient inline mutexes.  In fact, the
+pthreads code for i386 uses the same mutexes the kernel does (LOCK INC
+based, I believe), complete with section hacking to make them
+efficiently inlinable -- and then they're put inside a function call.
+I believe "kill me now" is an appropriate response.
 
 	-hpa
+
 -- 
 <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
 "Unix gives you enough rope to shoot yourself in the foot."

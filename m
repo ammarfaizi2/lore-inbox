@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSLOUnJ>; Sun, 15 Dec 2002 15:43:09 -0500
+	id <S262580AbSLOUx6>; Sun, 15 Dec 2002 15:53:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262580AbSLOUnJ>; Sun, 15 Dec 2002 15:43:09 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:1994 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262506AbSLOUnH>;
-	Sun, 15 Dec 2002 15:43:07 -0500
-Date: Sun, 15 Dec 2002 21:50:57 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: AnonimoVeneziano <voloterreno@tin.it>
+	id <S262602AbSLOUx6>; Sun, 15 Dec 2002 15:53:58 -0500
+Received: from x101-201-88-dhcp.reshalls.umn.edu ([128.101.201.88]:63370 "EHLO
+	arashi.yi.org") by vger.kernel.org with ESMTP id <S262580AbSLOUx6>;
+	Sun, 15 Dec 2002 15:53:58 -0500
+Date: Sun, 15 Dec 2002 15:01:51 -0600
+From: Matt Reppert <arashi@arashi.yi.org>
+To: Richard Henderson <rth@twiddle.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE-CD and VT8235 issue!!!
-Message-ID: <20021215215057.A12689@ucw.cz>
-References: <3DFB7B21.7040004@tin.it> <200212142019.14449.black666@inode.at> <3DFBC4F3.2070603@tin.it>
+Subject: Re: 2.5.51 on Alpha oopses on mount
+Message-Id: <20021215150151.6cdf9bdf.arashi@arashi.yi.org>
+In-Reply-To: <20021215105722.A3831@twiddle.net>
+References: <20021214123155.7383524c.arashi@arashi.yi.org>
+	<20021215105722.A3831@twiddle.net>
+Organization: Yomerashi
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-message-flag: : This mail sent from host minerva, please respond.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3DFBC4F3.2070603@tin.it>; from voloterreno@tin.it on Sun, Dec 15, 2002 at 12:55:31AM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 15, 2002 at 12:55:31AM +0100, AnonimoVeneziano wrote:
-> Patrick Petermair wrote:
+On Sun, 15 Dec 2002 10:57:22 -0800
+Richard Henderson <rth@twiddle.net> wrote:
+
+> On Sat, Dec 14, 2002 at 12:31:55PM -0600, Matt Reppert wrote:
+> > >>PC;  fffffc00004a5240 <__copy_user+100/1d4>   <=====
+> > Trace; fffffc0000385920 <sys_mount+40/160>
 > 
-> >Hi!
-> >
-> >Same problem here. I have addressed this issue several times...so far no 
-> >solution.
-> >
-> >My specs:
-> >MSI KT3 Ultra2 (VT8235)
-> >TOSHIBA DVD-ROM SD-M1302
-> >YAMAHA CRW8424E
-> >
-> >Kernel 2.4.19:
-> >The one I'm currently using. It doesn't detect the VT8235 and therefore 
-> >I have no dma. But I can access/mount my DVD without a problem.
-> >
-> >Kernel 2.4.20:
-> >Detects the VT8235 at boot but hangs with my DVD Rom (hdc) --> doesn't 
-> >boot. I have posted my problem here an Alan Cox suggested that I should 
-> >try the -ac tree.
-> >
-> >Kernel 2.4.20-ac2:
-> >Some improvements - It detects the VT8235 at boot, also my DVD and CDRW. 
-> >It boots fine and I have DMA on all my discs. But as soon as I try to 
-> >mount a CD/DVD (mount /cdrom) the system hangs and I get this:
- 
-> >
-> Please, anyone help us, I can't live with a 6 MB HD bandwith!!!:-D
+> This fault is expected and is _supposed_ to be handled by the
+> exception mechanism.  Why this stopped working, I don't know.
+> 
+> For grins, see if the following helps.  It's something that I
+> need for the shared-library modules anyway, and it eliminates
+> an extra variable from the problem.
 
-You're not alone with this problem. I suspect some fishy stuff in the
-vt8235, because the driver programs it exactly the same as vt8233a, but
-while the vt8233a doesn't seem to have problems with DVDs and CDs, the
-vt8235 fails for many people.
+This seems to work, mount doesn't oops anymore. I guess this
+means I can go back to trying to get the shared modules patches
+to compile and boot, since this is in shared-modules-alpha.
+Thanks!
 
-It might be some new DVD drive, though.
-
-Can you send me 'hdparm -i' of the drive?
-
-I'll try to make a patch to circumvent the problem ...
-
-Thanks.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+Matt

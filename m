@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132056AbRDJUQo>; Tue, 10 Apr 2001 16:16:44 -0400
+	id <S132142AbRDJUWe>; Tue, 10 Apr 2001 16:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132142AbRDJUQe>; Tue, 10 Apr 2001 16:16:34 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:17682 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132056AbRDJUQW>; Tue, 10 Apr 2001 16:16:22 -0400
-Date: Tue, 10 Apr 2001 13:16:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: David Howells <dhowells@cambridge.redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>, Ben LaHaise <bcrl@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 rw_semaphores fix
-In-Reply-To: <20010410220551.A24251@gruyere.muc.suse.de>
-Message-ID: <Pine.LNX.4.31.0104101313390.13071-100000@penguin.transmeta.com>
+	id <S132140AbRDJUWY>; Tue, 10 Apr 2001 16:22:24 -0400
+Received: from goliath.siemens.de ([194.138.37.131]:60879 "EHLO
+	goliath.siemens.de") by vger.kernel.org with ESMTP
+	id <S132137AbRDJUWP>; Tue, 10 Apr 2001 16:22:15 -0400
+X-Envelope-Sender-Is: ulrich.lauther@mchp.siemens.de (at relayer goliath.siemens.de)
+From: Ulrich Lauther <ulrich.lauther@mchp.siemens.de>
+Message-Id: <200104102022.f3AKM8Q03806@emma.mchp.siemens.de>
+Subject: 2.4.2 bug in handling vfat?
+To: linux-kernel@vger.kernel.org
+Date: Tue, 10 Apr 2001 22:22:08 +0200 (MET DST)
+Reply-To: Ulrich.Lauther@mchp.siemens.de
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+when I unmount and remount a vfat file system, the time stamp of a recently
+created file changes by one hour.
+This does not happen on the same system when running 2.2.17.
 
+Script started on Mon Apr  9 13:59:26 2001
+sh-2.03# uname -a
+Linux tahiti 2.4.2 #7 Mon Mar 26 23:50:57 CEST 2001 i686 unknown
+sh-2.03# touch /dos/fudge
+sh-2.03# ls -l /dos/fudge
+-rwxrwxrwx   1 root     root            0 Apr  9 13:59 /dos/fudge
+sh-2.03# umount /dos
+sh-2.03# mount /dos
+sh-2.03# ls -l /dos/fudge
+-rwxrwxrwx   1 root     root            0 Apr  9 14:59 /dos/fudge
+                                                 ^^^^^^
+The relevant fstab entry is:
+/dev/hda1      /dos        vfat     noauto,umask=0,defaults  1    0
 
-On Tue, 10 Apr 2001, Andi Kleen wrote:
->
-> I guess 386 could live with an exception handler that emulates it.
+the clock was set after booting using clock -s -u
 
-That approach is fine, although I'd personally prefer to take the
-exception just once and just rewrite the instuction as a "call". The
-places that need xadd would have to follow some strict guidelines (long
-modrms or other instructions to pad out to enough size, and have the
-arguments in fixed registers)
+Is the descibed behaviour a known problem?
+-- 
+	-lauther
 
-> (BTW an generic exception handler for CMPXCHG would also be very useful
-> for glibc -- currently it has special checking code for 386 in its mutexes)
-> The 386 are so slow that nobody would probably notice a bit more slowness
-> by a few exceptions.
-
-Ehh. I find that the slower the machine is, the more easily I _notice_
-that it is slow. So..
-
-		Linus
-
+----------------------------------------------------------------------------
+Ulrich Lauther          ph: +49 89 636 48834 fx: ... 636 42284
+Siemens CT SE 6         Internet: Ulrich.Lauther@mchp.siemens.de

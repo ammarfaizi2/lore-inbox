@@ -1,62 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290706AbSAROig>; Fri, 18 Jan 2002 09:38:36 -0500
+	id <S290709AbSAROnH>; Fri, 18 Jan 2002 09:43:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290707AbSAROiR>; Fri, 18 Jan 2002 09:38:17 -0500
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:1857 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S290706AbSAROiJ>; Fri, 18 Jan 2002 09:38:09 -0500
-Message-ID: <3C48325A.EFFA4237@m3its.de>
-Date: Fri, 18 Jan 2002 15:34:02 +0100
-From: Klaus Meyer <k.meyer@m3its.de>
-Organization: m3ITS
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
+	id <S290707AbSAROm5>; Fri, 18 Jan 2002 09:42:57 -0500
+Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:49158 "HELO
+	mail.et6.tu-harburg.de") by vger.kernel.org with SMTP
+	id <S290709AbSAROmm>; Fri, 18 Jan 2002 09:42:42 -0500
+Message-ID: <3C483460.70100@tu-harburg.de>
+Date: Fri, 18 Jan 2002 15:42:40 +0100
+From: Sebastian Zimmermann <S.Zimmermann@tu-harburg.de>
+Organization: Technische =?ISO-8859-15?Q?Universit=E4t?= Hamburg-Harburg
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011213
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: highmem=system killer, 2.2.17=performance killer ?
-In-Reply-To: <Pine.LNX.3.96.1020117235335.5060B-100000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: I2O kernel oops with Promise SuperTrak SX6000
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> 
-> On Fri, 18 Jan 2002, Klaus Meyer wrote:
-> 
-> > It was just a bad memory modul. Believe me, i'd tested them before
-> > carefully.
-> > But i had to learn that even ECC-modules installed in brand motherboards
-> > dont tell you that they are not working correctly.
-> 
-> I wonder if your BIOS is doing the right thing setting the ECC config?
-> That should have been reported.
-> 
+Hello,
 
-Yes you are right. That _should_ have been reported.
-I'm using the ASUS CUR-DLS with the ServerSet LE III chipset.
-I was honestly convinced that such a motherboard is constructed for
-server usage and stability. Perhaps there is something wrong with my
-board.
-Since you have to use ECC modules in this motherboard there is
-no way to configure a special ECC config mode in the bios.
+since Promise did not answer, I am asking here for help again.
 
-The bad module (1 GB) was installed in bank 1 beside another GB module
-in bank 0.
-The board reported 2GB of installed ram.
-I put it then in bank 0 as the only module installed.
-The bios then reported 16M as mem, which is wrong of course, but: no
-error.
-It's really funny since all memory tests with 16M were sucessful (using
-memtest).
-After that the board always reported 16M not depending on the bank
-position _without any error_.
+We have a strange problem with the Promise SuperTrak SX6000 that leads 
+to a kernel oops:
 
-I really don't know wether I should laugh or cry about that ;)
-All in all the system is now working stable with other modules (2x1GB)
-installed.
+When the system is powered up, the SuperTrak BIOS is initializing the 
+adapter. If we manually *abort* the initialization, Linux will boot 
+without problems and we can use the hardware raid.
 
-regards
-	Klaus
+However, if we let the controller initialze the adapter (that is the 
+default), the kernel will always Oops when I2O is loaded:
+
+Oops: 0000
+Call Trace: 
+[<c01f7fd6>][<c0107d6d>][<c0107ed6>][<c0105150>][<c0105150>][<c0109d48>][<c0105150>][<c0105150>][<c0105173>][<c01051d9>][<c0105000>][<c0105027>]
+Warning (Oops_read): Code line not seen, dumping what data is available
+
+Trace; c01f7fd6 <i2o_pci_interrupt+a/14>
+Trace; c0107d6c <handle_IRQ_event+30/5c>
+Trace; c0107ed6 <do_IRQ+6a/a8>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0109d48 <call_do_IRQ+6/e>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105150 <default_idle+0/28>
+Trace; c0105172 <default_idle+22/28>
+Trace; c01051d8 <cpu_idle+40/54>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105026 <rest_init+26/28>
+
+This error is reproducable with all current kernels (2.4.9, 2.4.14, 2.4.17).
+
+There are no other Promise controllers in the system. Changing PCI slots 
+or reassigning IRQs doesn't help either.
+
+My guess is that the i2o module tries to initialize the board. When it 
+already was initialized by the BIOS, the system crashes.
+
+Sebastian
+

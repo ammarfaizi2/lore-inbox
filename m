@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262649AbTJAWjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 18:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTJAWjJ
+	id S262655AbTJAWuD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 18:50:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbTJAWuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 18:39:09 -0400
-Received: from gprs150-56.eurotel.cz ([160.218.150.56]:30081 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262649AbTJAWjH (ORCPT
+	Wed, 1 Oct 2003 18:50:02 -0400
+Received: from hell.org.pl ([212.244.218.42]:50701 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S262655AbTJAWt7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 18:39:07 -0400
-Date: Thu, 2 Oct 2003 00:37:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: [pm] fix oops after saving image
-Message-ID: <20031001223751.GA6402@elf.ucw.cz>
+	Wed, 1 Oct 2003 18:49:59 -0400
+Date: Thu, 2 Oct 2003 00:56:41 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Len Brown <len.brown@intel.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] Re: [BK PATCH] ACPI 20030918
+Message-ID: <20031001225641.GB18451@hell.org.pl>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Len Brown <len.brown@intel.com>, Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	acpi-devel@lists.sourceforge.net
+References: <BF1FE1855350A0479097B3A0D2A80EE0D56318@hdsmsx402.hd.intel.com> <1064986198.2574.190.camel@dhcppc4> <3F7B0B86.70206@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <3F7B0B86.70206@pobox.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Thus wrote Jeff Garzik:
+> ><len.brown@intel.com> (03/09/30 1.1381)
+> >   [ACPI] acpi4asus-0.25-0.26.diff (Karol Kozimor)
+> >
+> ><len.brown@intel.com> (03/09/30 1.1380)
+> >   [ACPI] acpi4asus-0.24a-0.25-2.6.0-test (Karol Kozimor)
+> >
+> 
+> All the comments were quite descriptive except for these...  a filename 
+> doesn't me much about the content of the patch.
 
-I was seeing strange oopsen after saving image. They are almost
-harmless: anything that happens after writing final signature does not
-matter (as long as  it does not write to disk). But that oops makes
-testing hard as you have to manually powerdown the machine.
+Well, as for me, I posted ChangeLog excerpts in the original announcements.
+The problem is those patches went in after the third or fourth resend,
+which took some 1.5 month. I'll try to post the ChangeLog in the resends
+though.
+Best regards,
 
-free_page() at this point is unneccessary as machine is going down,
-anyway. Please apply,
-								Pavel
-PS: For a test, I'm running while true; do echo 4 > /proc/acpi/sleep;
-sleep 30; done while making kernel. It seems to work so far.
-
---- tmp/linux/kernel/power/swsusp.c	2003-10-02 00:04:35.000000000 +0200
-+++ linux/kernel/power/swsusp.c	2003-10-01 23:56:49.000000000 +0200
-@@ -345,7 +348,7 @@
- 	printk( "|\n" );
- 
- 	MDELAY(1000);
--	free_page((unsigned long) buffer);
-+	/* Trying to free_page((unsigned long) buffer) here is bad idea, not sure why */
- 	return 0;
- }
- 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315438AbSFOPwW>; Sat, 15 Jun 2002 11:52:22 -0400
+	id <S315431AbSFOQET>; Sat, 15 Jun 2002 12:04:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315431AbSFOPwV>; Sat, 15 Jun 2002 11:52:21 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:25493 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S315430AbSFOPwU>; Sat, 15 Jun 2002 11:52:20 -0400
-Date: Sat, 15 Jun 2002 09:52:12 -0600
-Message-Id: <200206151552.g5FFqCT14714@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Kurt Garloff <garloff@suse.de>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-        Linux SCSI list <linux-scsi@vger.kernel.org>
+	id <S315437AbSFOQET>; Sat, 15 Jun 2002 12:04:19 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:39065 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S315431AbSFOQES>;
+	Sat, 15 Jun 2002 12:04:18 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 15 Jun 2002 18:04:19 +0200 (MEST)
+Message-Id: <UTC200206151604.g5FG4JQ26968.aeb@smtp.cwi.nl>
+To: garloff@suse.de
 Subject: Re: /proc/scsi/map
-In-Reply-To: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl>
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff writes:
-> Hi SCSI users,
-> 
-> from people using SCSI devices, there's one question that turns up again=20
-> and again: How can one assign stable device names to SCSI devices in
+> How can one assign stable device names to SCSI devices in
 > case there are devices that may or may not be switched on or connected.
-> 
-> There are a couple of ways to address this problem:
-[...]
-> (c) devfs
-[...]
-> Unfortunately, those approaches all have some deficiencies.
-[...]
-> Ad (c): devfs is currently not (yet?) an option for distributions
->         due to security and stability considerations.
 
-Mandrake is using devfs. And the security and stability issues have
-been fixed many months ago. The "devfs races" that Al used to complain
-about regularly have been fixed. I haven't heard from Al for many
-months (I see that as a positive sign:-). The current devfs code is in
-maintenance mode. The next release of code will be a new devfs core
-which uses the VFS for tree maintenance, making the code much smaller.
-I.e. not a bugfixing release.
+An interesting unsolved problem.
+[Your discussion confuses a few things, especially in the context
+of removable devices: a uuid lives on the disk, the C,B,T,U tends
+to identify the drive rather than the disk.]
 
-If there *are* remaining bugs with the devfs core (or devfsd for that
-matter), I've not been made aware of them. If you know something I
-don't, please let me know. AFAICT, all the bugs are long since solved.
+> Life would be easier if the scsi subsystem would just report which
+> SCSI device (uniquely identified by the controller,bus,target,unit tuple)
+> belongs to which high-level device.
 
-				Regards,
+Yes. I took your patch, ported it to 2.5, and tried it out.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+# cat /proc/scsi/map
+# C,B,T,U       Type    onl     sg_nm   sg_dev  nm      dev(hex)
+1,0,06,00       0x00    1       sg0     c:15:00 sda     b:08:00
+2,0,00,00       0x00    1       sg1     c:15:01 sdb     b:08:10
+2,0,00,01       0x00    1       sg2     c:15:02 sdc     b:08:20
+3,0,00,00       0x00    1       sg3     c:15:03 sdd     b:08:30
+3,0,00,01       0x00    1       sg4     c:15:04 sde     b:08:40
+
+Very good - in combination with /proc/scsi/scsi this gives
+good information. I like it.
+
+But just "cat /proc/scsi/map" is not good enough.
+>From the above output alone one cannot easily guess which is which.
+One would need a small utility that reads /proc/scsi/map and
+/proc/scsi/scsi and produces something readable.
+Will add sth to util-linux in case this gets accepted.
+
+Andries
+
+

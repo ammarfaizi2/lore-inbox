@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135676AbRDSOAA>; Thu, 19 Apr 2001 10:00:00 -0400
+	id <S135737AbRDSOAN>; Thu, 19 Apr 2001 10:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135678AbRDSN7u>; Thu, 19 Apr 2001 09:59:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18695 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135676AbRDSN7j>;
-	Thu, 19 Apr 2001 09:59:39 -0400
-Date: Thu, 19 Apr 2001 15:59:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: block devices don't work without plugging in 2.4.3
-Message-ID: <20010419155930.G22517@suse.de>
-In-Reply-To: <20010419152443.B22517@suse.de> <200104191354.f3JDs7C27006@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200104191354.f3JDs7C27006@oboe.it.uc3m.es>; from ptb@it.uc3m.es on Thu, Apr 19, 2001 at 03:54:07PM +0200
+	id <S135678AbRDSOAA>; Thu, 19 Apr 2001 10:00:00 -0400
+Received: from auemail2.lucent.com ([192.11.223.163]:9413 "EHLO
+	auemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id <S135677AbRDSN7t>; Thu, 19 Apr 2001 09:59:49 -0400
+Message-ID: <3ADEEF31.125FCE94@lucent.com>
+Date: Thu, 19 Apr 2001 09:59:13 -0400
+From: George Talbot <gtalbot@lucent.com>
+Organization: Lucent, Inc.  InterNetworking Systems
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17-21mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com
+Subject: Re: light weight user level semaphores
+Content-Type: multipart/mixed;
+ boundary="------------AEBD45E0AF34E2AC1DECE2C8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19 2001, Peter T. Breuer wrote:
-> OK - agreed. But while I have your attention...
+This is a multi-part message in MIME format.
+--------------AEBD45E0AF34E2AC1DECE2C8
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+On Tue, 17 Apr 2001 12:48:48 -0700 (PDT) Linus Torvalds wrote:
+
+[deletia]
+
+>         /*
+>          * a fast semaphore is a 128-byte opaque thing,
+>          * aligned on a 128-byte boundary. This is partly
+>          * to minimize false sharing in the L1 (we assume
+>          * that 128-byte cache-lines are going to be fairly
+>          * common), but also to allow the kernel to hide
+>          * data there
+>          */
+>         struct fast_semaphore {
+>                 unsigned int opaque[32];
+>         } __attribute__((aligned, 64));
 > 
-> "Jens Axboe wrote:"
-> > On the contrary, you are now given an exceptional opportunity to clean
-> > up your code and get rid of blk_queue_pluggable and your noop plugging
-> > function.
-> 
-> In summary: blk_queue_pluggable can be removed for all driver codes
-> aimed at all 2.4.* kernels, because the intended effect can be obtained
-> through merge_reqeusts function controls.
+>         struct fast_semaphore *FS_create(char *ID);
+>         int FS_down(struct fast_semaphore *, unsigned long timeout);
+>         void FS_up(struct fast_semaphore *);
 
-Yes
+[deletia]
 
-> My unease derives, I think, from the fact that I have occasionally used
-> plugging for other purposes. Namely for throttling the device. These
-> uses have always been experimental and uniformly unsuccessful, because
-> throttling that way backs up the VFS with dirty buffers and provokes
-> precisely the deadlock against VFS that I was trying to avoid. So ..
-> 
->  ... how can I tell when VFS is nearly full?  In those circumstances I
-> want to sync every _other_ device, thus giving me enough buffers at
-> least to flush something to the net with, thus freeing a request of
-> mine, plus its buffers.
+These are counting semaphores, right?  If so, would this make sense?
 
-You can't, there's currently no way of doing what you suggest. The block
-layer will throttle locked buffers for you. Besides, this would be the
-very wrong place to do it. If you reject or throttle requests, you are
-effectively throttling stuff that is already locked down and cannot be
-touched.
+        struct fast_semaphore *FS_create(char *ID, int initial_count);
 
--- 
-Jens Axboe
+        [FS_down/FS_up the same]
+
+        int     FS_get_count(struct fast_semaphore *);
+
+The FS_get_count() is less useful, but being able to pass the initial
+count to the semaphore is pretty important.
+
+--George
+--------------AEBD45E0AF34E2AC1DECE2C8
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="gtalbot.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for George Talbot
+Content-Disposition: attachment;
+ filename="gtalbot.vcf"
+
+begin:vcard 
+n:Talbot;George
+tel;fax:732-615-4526
+tel;work:732-615-5099
+x-mozilla-html:FALSE
+org:Lucent, Inc.;Inter-Networking Systems
+adr:;;480 Red Hill Road, Building 1;Middletown;NJ;07748;USA
+version:2.1
+email;internet:gtalbot@lucent.com
+title:Senior Software Engineer
+x-mozilla-cpt:;0
+fn:George Talbot
+end:vcard
+
+--------------AEBD45E0AF34E2AC1DECE2C8--
 

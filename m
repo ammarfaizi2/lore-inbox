@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbTCEMOj>; Wed, 5 Mar 2003 07:14:39 -0500
+	id <S265791AbTCEMUo>; Wed, 5 Mar 2003 07:20:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266615AbTCEMOi>; Wed, 5 Mar 2003 07:14:38 -0500
-Received: from sheridan.uel.ac.uk ([161.76.9.2]:42630 "EHLO sheridan.uel.ac.uk")
-	by vger.kernel.org with ESMTP id <S266527AbTCEMOh>;
-	Wed, 5 Mar 2003 07:14:37 -0500
-Date: Wed, 5 Mar 2003 12:25:02 +0000
-From: lk <lk@www0.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Radeon RV200 on /proc/pci
-Message-ID: <20030305122502.GA2817@www0.org>
+	id <S265947AbTCEMUo>; Wed, 5 Mar 2003 07:20:44 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:45474
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S265791AbTCEMUn>; Wed, 5 Mar 2003 07:20:43 -0500
+Subject: Re: High Mem Options
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Vergoz <mvergoz@sysdoor.com>
+Cc: "Reed, Timothy A" <timothy.a.reed@lmco.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030305131116.0556f3a5.mvergoz@sysdoor.com>
+References: <9EFD49E2FB59D411AABA0008C7E675C00DCDFE01@emss04m10.ems.lmco.com>
+	 <20030305131116.0556f3a5.mvergoz@sysdoor.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046871362.14169.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 05 Mar 2003 13:36:02 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erm, not sure if this is normal behaviour but, X reports
+On Wed, 2003-03-05 at 12:11, Michael Vergoz wrote:
+> Hi Tim,
+> 
+> Every system can NOT manage more than 4GB memory on x86 processor (32 bits processor).
+> Because the system addressing is limited to 32Bits, well memory > 4GB is used generaly for memory spare...
 
-	--) RADEON(0): VideoRAM: 65536 kByte (64-bit DDR SDRAM)
+x86 has 36bit physical addressing, its a truely bonkers implementation
+but it does have the facility. The limt in reality is 3Gb per process
+(1Gb is used for kernel mapping - we could do 4Gb per process but the
+syscall cost would go up a lot).
 
-and it was bought as a 64Mbyte card.
-
-however, /proc/pci reports
-	(..) Radeon RV200 QW [Radeon 7500] (prog-if 00 [VGA])
-        Memory at d0000000 (32-bit, prefetchable) [size=128M]
-	(..)						^^^
-
-The card works fine on indirect and direct rendering modes.

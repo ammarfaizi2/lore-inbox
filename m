@@ -1,83 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264097AbTDWQEb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 12:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264101AbTDWQEb
+	id S264103AbTDWQGm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 12:06:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTDWQGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 12:04:31 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:40127 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264097AbTDWQE3 (ORCPT
+	Wed, 23 Apr 2003 12:06:42 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:5075 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264103AbTDWQGm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 12:04:29 -0400
-Date: Wed, 23 Apr 2003 09:18:08 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-cc: Hanna Linder <hannal@us.ibm.com>, Patrick Mochel <mochel@osdl.org>,
-       linux-kernel@vger.kernel.org, andmike@us.ibm.com
-Subject: Re: [RFC] Device class rework [0/5]
-Message-ID: <41570000.1051114688@w-hlinder>
-In-Reply-To: <20030423015454.GA6298@kroah.com>
-References: <20030422205545.GA4701@kroah.com> <172940000.1051059583@w-hlinder> <20030423015454.GA6298@kroah.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 23 Apr 2003 12:06:42 -0400
+Subject: Re: [cgl_discussion] Re: OSDL CGL-WG draft specs available for
+	review
+From: Mika Kukkonen <mika@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, cgl_discussion@osdl.org
+In-Reply-To: <20030422222508.A12915@infradead.org>
+References: <1051044403.1384.44.camel@miku-t21-redhat.koti>
+	 <20030422215552.B12367@infradead.org>
+	 <1051046563.1384.54.camel@miku-t21-redhat.koti>
+	 <20030422222508.A12915@infradead.org>
+Content-Type: text/plain
+Organization: OSDL
+Message-Id: <1051114725.7515.39.camel@miku-t21-redhat.koti>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Apr 2003 09:18:45 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, April 22, 2003 06:54:54 PM -0700 Greg KH <greg@kroah.com> wrote:
-
->> I did a quick sanity test of these patches on a 2-way PIII.
->> It built and booted fine for me. I don't have any devices that 
->> span multiple classes but the patch hasnt changed any of my 
->> existing /sys/class output.
+On Tue, 2003-04-22 at 14:25, Christoph Hellwig wrote:
+> On Tue, Apr 22, 2003 at 02:22:48PM -0700, Mika Kukkonen wrote:
+> > Well, there are several ways to convert PDF to ASCII ("pdftotext" in RH9
+> > is one), but as expected they all produce bloody awful results. Better
+> > than nothing, I guess. If you want, I can send the results to you
+> > directly, but I am not going to spam LKML with them (these are reasonable 
+> > long documents).
 > 
-> Hm, are you sure you applied them and are using that kernel?  :)
-> 
+> Yeah, I know - I just hoped you had some way to generate better ASCII
+> output from the original form of the document..
 
-Yes. I did apply the patches... Just not to the kernel I booted ;(
+OK, we now have a text versions available at SourceForge:
+  http://sourceforge.net/docman/index.php?group_id=48444
 
-Here is the correct tree I see on my 2xPIII:
-
-
-/sys/class
-|-- cpu
-|   |-- cpu0
-|   |   `-- device -> ../../../devices/sys/cpu0
-|   `-- cpu1
-|       `-- device -> ../../../devices/sys/cpu1
-|-- input
-|-- scsi-host
-`-- tty
-    |-- console0
-    |   `-- dev
-    |-- ptmx0
-    |   `-- dev
-    |-- pty0
-    |   `-- dev
-    |-- pty1
-    |   `-- dev
-    |-- pty10
-    |   `-- dev
-    |-- pty100
-    |   `-- dev
-    |-- pty101
-    |   `-- dev
-    |-- pty102
-    |   `-- dev
-    |-- pty103
-    |   `-- dev
-    |-- pty104
-    |   `-- dev
-    |-- pty105
-    |   `-- dev
-    |-- pty106
-    |   `-- dev
-    |-- pty107
-    |   `-- dev
-    |-- pty108
-    |   `-- dev
+--MiKu
 
 

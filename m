@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbTAGMDi>; Tue, 7 Jan 2003 07:03:38 -0500
+	id <S267110AbTAGMLb>; Tue, 7 Jan 2003 07:11:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267303AbTAGMDi>; Tue, 7 Jan 2003 07:03:38 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:54662
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267292AbTAGMDh>; Tue, 7 Jan 2003 07:03:37 -0500
-Subject: Re: 'D' processes on a healthy system?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: martin f krafft <madduck@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030107080135.GA21307@fishbowl.madduck.net>
-References: <20021219124043.GA28617@fishbowl.madduck.net>
-	 <1040319832.28973.4.camel@irongate.swansea.linux.org.uk>
-	 <20021219182359.GA29366@fishbowl.madduck.net>
-	 <1040326031.28973.23.camel@irongate.swansea.linux.org.uk>
-	 <20030107080135.GA21307@fishbowl.madduck.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1041944228.20658.15.camel@irongate.swansea.linux.org.uk>
+	id <S267373AbTAGMLb>; Tue, 7 Jan 2003 07:11:31 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:56802 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267110AbTAGMLb>;
+	Tue, 7 Jan 2003 07:11:31 -0500
+Date: Tue, 7 Jan 2003 12:17:36 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre3
+Message-ID: <20030107121736.GA16281@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.50L.0301061932140.8257-100000@freak.distro.conectiva>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 07 Jan 2003 12:57:08 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50L.0301061932140.8257-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-07 at 08:01, martin f krafft wrote:
-> 
-> correct me if i am wrong, but it is properly tweaked. moreover, lspci
-> shows that there is a VT82C598 [Apollo MVP3] VIA Chipset in there, and
-> my kernel config is optimized for that:
+On Mon, Jan 06, 2003 at 07:32:37PM -0200, Marcelo Tossati wrote:
 
-Looks good yes.
+ > <bero@arklinux.org>:
+ >   o AGP support for VIA P4X333 boards
 
-	hdparm -t will give you the raw disk speed 
+Bogus. Uses incorrect naming, as the P4X333 is a chipset, not
+a northbridge. The P4X400 also matches this ID for eg.
+Also needes s/Via/VIA/
 
-> and performance is ridiculous. rsync will transfer about 40k before
-> the rsync process enters 'D' state as shown by top. this takes about
-> 10 seconds, then rsync gets to transfer another 40k.
-> 
-> this is on an AMD K6-2 500 MHz machine with 160 Mb RAM, 256Mb of swap
-> and a Maxtor 10Gb drive spinning at 5,400 I believe.
-> 
-> What's the problem?
+		Dave
 
-No idea. strace the rsync see what its spending its time stuck doing 
-(eg read from disk, or write to net etc). It'll probably show read from
-disk if this is a disk problem
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286400AbRL0Rzs>; Thu, 27 Dec 2001 12:55:48 -0500
+	id <S286412AbRL0SAs>; Thu, 27 Dec 2001 13:00:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286403AbRL0Rzi>; Thu, 27 Dec 2001 12:55:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:30480 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S286400AbRL0Rz2>;
-	Thu, 27 Dec 2001 12:55:28 -0500
-Date: Thu, 27 Dec 2001 18:55:20 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Russell King <rmk@arm.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Eyal Sohya'" <linuz_kernel_q@hotmail.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.33.0112271850570.15706-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286407AbRL0SAj>; Thu, 27 Dec 2001 13:00:39 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:60664 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S286401AbRL0SA3>;
+	Thu, 27 Dec 2001 13:00:29 -0500
+Date: Thu, 27 Dec 2001 11:00:09 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: snpe <snpe@snpe.co.yu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2/ext3  question ?
+Message-ID: <20011227110009.C12868@lynx.no>
+Mail-Followup-To: snpe <snpe@snpe.co.yu>, linux-kernel@vger.kernel.org
+In-Reply-To: <200112272249.fBRMmWm01937@spnew.snpe.co.yu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <200112272249.fBRMmWm01937@spnew.snpe.co.yu>; from snpe@snpe.co.yu on Thu, Dec 27, 2001 at 11:48:31PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Richard Gooch wrote:
+On Dec 27, 2001  23:48 +0100, snpe wrote:
+> Hello,
+>    I set S flag with chattr for any file.
+>    Is file really async write (without buffer cache) ?
 
-> So you just do what Linus does: delete those questions without
-> replying. No matter what system you use, if you want to avoid an
-> overflowing mailbox, you either have to silently drop patches, and/or
-> silently drop questions/requests/begging letters. There isn't really
-> much difference between the two.
+No, see chattr man page: S = synchronous updates.  It doesn't say anything
+about not using the buffer cache.  You need to use O_DIRECT for that.
 
-just a sidenote:
-Patches cc'd to linux-kernel instead of just to Alan/Marcelo/Linus are
-also far more likely to be 'rediscovered' sometime, bringing up
-"why wasn't this merged?" mails when perhaps the time is better for
-$maintainer to merge.
+>    Is it same raw devices and if not, what is different ?
 
-I spent post-xmas-lunch going through backlogged l-k mails, and found
-a bunch of patches that fix small problems that never got merged.
-(These bits ended up in -dj6, and what will be -dj7 btw, and will get
-pushed to the relevant people soon.)
+Totally unrelated.  It means that each I/O is waited on by the kernel
+before it returns to user space.
 
-Note however, xmas comes but once a year, so someone else can pick
-up the silently ignored stuff next time 8-)
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUFAWlS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265271AbUFAWlT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265261AbUFAWlS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 18:41:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265271AbUFAWkc
+	id S265271AbUFAWlT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 18:41:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265270AbUFAWkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 18:40:32 -0400
-Received: from Mail.MNSU.EDU ([134.29.1.12]:18309 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S265261AbUFAWbg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 18:31:36 -0400
-Message-ID: <40BD03C8.5060504@mnsu.edu>
-Date: Tue, 01 Jun 2004 17:31:36 -0500
-From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 1 Jun 2004 18:40:25 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13221 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265271AbUFAWac
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 18:30:32 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
 To: linux-kernel@vger.kernel.org
-Subject: aacraid hangs at boot on linux-2.4.27-pre1 20 second delay at lilo
- prompt makes it succeed
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH] IDE update [1/10]
+Date: Wed, 2 Jun 2004 00:16:39 +0200
+User-Agent: KMail/1.5.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200406020016.39400.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While booting linux-2.4.27-pre1 the system hangs.  If I put a 20 second 
-delay in at the lilo prompt then the system always boot successfully.  
-...I just pulled 20 seconds out of the air... less time might work,  but 
-I haven't tried.  I've also tried linux-2.4.24 with the same results.
 
-I've since updated the system and raid card to the most current bios. 
-and it hasn't helped.  The old raid bios was build 6082.
+[PATCH] ide: don't put disks in standby mode on halt on Alpha
 
-The system hangs right before the "Red Hat/Apaptec..." line below.
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 
-dmesg:
-Red Hat/Adaptec aacraid driver (1.1-3 Apr 22 2004 14:34:42)
-AAC0: kernel 2.8.4 build 6089
-AAC0: monitor 2.8.4 build 6089
-AAC0: bios 2.8.0 build 6089
-AAC0: serial 635081d3fafaf001
-scsi0 : percraid
-  Vendor: DELL      Model:                   Rev: V1.0
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-megaraid: v1.18k (Release Date: Thu Aug 28 10:05:11 EDT 2003)
-megaraid: no BIOS enabled.
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
 
-/proc/version:
-Linux version 2.4.27-pre1 (ricardo@krypton) (gcc version 2.95.4 20011002 
-(Debian prerelease)) #1 SMP Thu Apr 22 14:33:58 CDT 2004
+ linux-2.6.7-rc2-bk2-bzolnier/drivers/ide/ide-disk.c |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+)
 
+diff -puN drivers/ide/ide-disk.c~ide_alpha_halt_fix drivers/ide/ide-disk.c
+--- linux-2.6.7-rc2-bk2/drivers/ide/ide-disk.c~ide_alpha_halt_fix	2004-06-01 19:02:13.749812168 +0200
++++ linux-2.6.7-rc2-bk2-bzolnier/drivers/ide/ide-disk.c	2004-06-01 19:02:13.753811560 +0200
+@@ -1713,7 +1713,22 @@ static void ide_device_shutdown(struct d
+ {
+ 	ide_drive_t *drive = container_of(dev, ide_drive_t, gendev);
+ 
++#ifdef	CONFIG_ALPHA
++	/* On Alpha, halt(8) doesn't actually turn the machine off,
++	   it puts you into the sort of firmware monitor. Typically,
++	   it's used to boot another kernel image, so it's not much
++	   different from reboot(8). Therefore, we don't need to
++	   spin down the disk in this case, especially since Alpha
++	   firmware doesn't handle disks in standby mode properly.
++	   On the other hand, it's reasonably safe to turn the power
++	   off when the shutdown process reaches the firmware prompt,
++	   as the firmware initialization takes rather long time -
++	   at least 10 seconds, which should be sufficient for
++	   the disk to expire its write cache. */
++	if (system_state != SYSTEM_POWER_OFF) {
++#else
+ 	if (system_state == SYSTEM_RESTART) {
++#endif
+ 		ide_cacheflush_p(drive);
+ 		return;
+ 	}
+
+_
 

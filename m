@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbUDSW4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbUDSW5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbUDSW4T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 18:56:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbUDSW4S
+	id S261161AbUDSW5U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 18:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUDSW5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 18:56:18 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:60689 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S261187AbUDSW4I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 18:56:08 -0400
-Date: Mon, 19 Apr 2004 17:54:57 -0500
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org,
-       eich@suse.de
-Subject: Re: PAT support
-Message-ID: <20040419225456.GM632@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <20040417004217.GC72227@colin2.muc.de>
+	Mon, 19 Apr 2004 18:57:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:11450 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261161AbUDSW5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 18:57:15 -0400
+Date: Mon, 19 Apr 2004 15:59:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: drepper@redhat.com, manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] per-user signal pending and message queue limits
+Message-Id: <20040419155927.3279f13c.akpm@osdl.org>
+In-Reply-To: <20040419212810.GB10956@logos.cnet>
+References: <20040419212810.GB10956@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040417004217.GC72227@colin2.muc.de>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.4
-X-OriginalArrivalTime: 19 Apr 2004 22:54:59.0878 (UTC) FILETIME=[57BB1C60:01C42661]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 16, 2004 at 05:42:17PM -0700, ak@muc.de wrote:
-> change_page_attr can change more than just caching attributes,
-> also read/write (e.g. slab debug uses it for that) 
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+>
+> (forgot the subject on the first message)
+> 
+> Andrew, 
+> 
+> Here goes the signal pending & POSIX mqueue's per-uid limit patch. 
+> 
+> Initialization has been moved to include/asm-i386/resource.h, as you suggested.
+> 
+> The global mqueue limit has been increased to 256 (64 per user), and the global 
+> signal pending limit to 4096 (1024 per user).
+> 
+> This has been well tested.
+> 
+> If you are OK with it for inclusion (-mm) I'll generate the arch-dependant
+> changes for the other architectures.
 
-ah, ok. sorry, missed that.
+yes, please.
 
-> At least for the later adding another book keeping data structure
-> may be too expensive.
+>          { RLIM_INFINITY, RLIM_INFINITY },		\
+> +	{    IR_SIGNALS,    IR_SIGNALS },		\
+> +	{    IR_MSGQUEUE,  IR_MSGQUEUE },		\
 
-makes sense.
+What does "IR" stand for here?  Can a more meaningful abbreviation be chosen?
 
-> I think I prefer the do/undo model instead of push/pop.
-> That can work with cmaps too. PAGE_KERNEL means no cmap,
-> PAGE_KERNEL_WC and PAGE_KERNEL_NOCACHE get a cmap.
 
-but then what is the point of cmap? I would expect a mix of WC and UC mappings to be much less dangerous than a mix of WC/UC and WB. perhaps my mindset is wrong, but it seems allowing ioremap to request a cached mapping is important, and that if that mapping was followed by ioremap_nocached or ioremap_wrcomb, that these subsequent calls should fail.
-
-I did finish implementing your suggestion, that change_page_attr should consider PAGE_KERNEL as a call to cmap_release_range and anything else as a call to cmap_request_range. seemed to work ok, but I'm seeing the acpi table code doing a lot of ioremaps (cached) that are ignored, then iounmaps are causing cmap_release_range calls to complain about not finding the regions. of course in a final version, we'd cut out the debug output, but expecting lots of empty calls to cmap_release_range seems messy.
-
-what if there was a restore_page_attr(unsigned long address, unsigned long numpages) that assumed the pgprot was PAGE_KERNEL. change_page_attr knows to call cmap_request_range and restore_page_attr knows to call cmap_release_range. otherwise they do the same thing, restore_ just inherently uses PAGE_KERNEL for the caching type.
-
-> remove_vm_area() needs to just be split into some worker functions 
-> (__remove_vm_area et.al.)
-
-ok, easily done.
-
-Thanks,
-Terence

@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbTFZS4K (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 14:56:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTFZS4B
+	id S262385AbTFZS4p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 14:56:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbTFZS4p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 14:56:01 -0400
-Received: from [203.185.132.124] ([203.185.132.124]:64457 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262368AbTFZSzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 14:55:55 -0400
-Message-ID: <3EFB4507.30302@thai.com>
-Date: Fri, 27 Jun 2003 02:09:59 +0700
-From: Samphan Raruenrom <samphan@thai.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-CC: Samphan Raruenrom <samphan@thai.com>
-Subject: Re: Crusoe's performance on linux?
-References: <3EF1E6CD.4040800@thai.com> <3EF2144D.5060902@thai.com> <20030619221126.B3287@ucw.cz> <3EF67AD4.4040601@thai.com> <200306240051.RAA12097@cesium.transmeta.com>
-In-Reply-To: <200306240051.RAA12097@cesium.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Jun 2003 14:56:45 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:12937 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S262385AbTFZS4f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 14:56:35 -0400
+Date: Thu, 26 Jun 2003 21:10:10 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Larry McVoy <lm@work.bitmover.com>, Adrian Bunk <bunk@fs.tum.de>,
+       Larry McVoy <lm@bitmover.com>, David Woodhouse <dwmw2@infradead.org>,
+       Scott Robert Ladd <coyote@coyotegulch.com>,
+       Stephan von Krawczynski <skraw@ithnet.com>, jgarzik@pobox.com,
+       lawrence@the-penguin.otak.com, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030626191010.GI17986@khan.acc.umu.se>
+References: <20030621142048.2ae63afa.skraw@ithnet.com> <20030621133831.GA10089@work.bitmover.com> <1056358467.29264.41.camel@passion.cambridge.redhat.com> <20030623132231.GC6715@work.bitmover.com> <3EF70EF8.3050107@coyotegulch.com> <20030623150616.GA20103@work.bitmover.com> <1056382357.29264.281.camel@passion.cambridge.redhat.com> <20030623153952.GB20103@work.bitmover.com> <20030626174520.GA3710@fs.tum.de> <20030626184033.GA14299@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030626184033.GA14299@work.bitmover.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >> Vojtech Pavlik wrote:
- >> > Could you a test just for me? Take vanilla 2.4.21 and then
- >> > make oldconfig; make dep; time make bzImage
- >> > That's basically what I want to know how long will take, since
- >> > it's one of the most common time consuming tasks the thing will
- >> > have to handle.
- > Done! Here're the results:-
- >> Desktop - Pentium III 1 G Hz 754 MB	->	10.x min.
- >> Tablet PC - Crusoe TM5800 1 GHz 731 MB	->	17.x min.
- >>  From freshdiagnos benchmack, the TPC has about 2x faster RAM.
- >> I use tmpfs for the whole process so disk speed didn't count.
- >> Both test run without X or any foreground process using
- >> 2.4.21-ac1 and RedHat kernel.
- >For what it's worth, we have been completely unable to reproduce these
- >kinds of results at Transmeta; our results are in fact very consistent
- >with the numbers reported by some people for the Sharp MM-10 "Kitty"
- >which is also a 1 GHz TM5800; all of them have been in the 10 minute
- >ballpark.
+On Thu, Jun 26, 2003 at 11:40:33AM -0700, Larry McVoy wrote:
+> On Thu, Jun 26, 2003 at 07:45:21PM +0200, Adrian Bunk wrote:
+> > > That's probably a good enough test case.  Explain to me how your support
+> > > contracts are ever going to provide enough money to redo GCC or build
+> > > something equally substantial.
+> > 
+> > [incremental changes given as example]
+> 
+> Incremental changes != redo.  Redo is a ~$10M project.
 
-:-( I'm sorry. It's really my false. So all the time everyone think
-that I do exactly as Vojtech told.
-For uncomprehensible reason, no, I took the chance to upgrade my kernel
-to 2.4.21-ac2 then I 'make menuconfig' instead of 'make ldconfig' so
-I have tc1000 specific kernel with e100, VIA EIDE/sound, usb, irda,
-bluetooth even ppp and netfilters so it really take 17 min to 'make
-modules bzImage' on tc1000 on tmpfs with DMA on. Sorry for making this
-confusion :~~ I've just try following exactly what Vojtech told and yes,
-it takes about 9.5 min. I'm happy now :-)
+You are of course aware of the fact that gcc is already a testimony to
+the fact that such a compiler can be made from scratch, aren't you?
 
-But anyway, I use exactly the same source, the same .config (with crusoe
-setting) and build it the same way on my Pentium III, tmpfs with DMA on.
-So that 10 min vs. 17 min should still mean something, right?
-My comparison seem to be interesting (at least to me) because Crusoe
-is usually said to be comparable to Pentium III. I happend to have
-the desktop machine with equal ram so the comparison should be fair.
-as long as the benchmark doesn't use harddisk.
-You don't need me for this comparison though. Try to find a
-1 GHz Pentium III and run that 2.4.21 kernel build benchmark.
-I guess it should take 5.5-5.7 min (if it scale that easy).
-
-Hope these didn't make you too busy. Tell me if you need a hand.
-I do love to help.
+If it's been done once, it could be done again if there was need. But
+there really isn't (once and again one might wish for the gcc crew to
+spend a little concern on compile-times though, since things seem to get
+slower every release...)
 
 
-Samphan Raruenrom,
-The Open Source Project,
-National Electronics and Computer Technology Center,
-Thailand.
-
+/David Weinehall
+-- 
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

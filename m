@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318710AbSH1E0W>; Wed, 28 Aug 2002 00:26:22 -0400
+	id <S318715AbSH1E2a>; Wed, 28 Aug 2002 00:28:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318713AbSH1E0V>; Wed, 28 Aug 2002 00:26:21 -0400
-Received: from ppp-217-133-221-76.dialup.tiscali.it ([217.133.221.76]:8866
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S318710AbSH1EZs>; Wed, 28 Aug 2002 00:25:48 -0400
+	id <S318716AbSH1E22>; Wed, 28 Aug 2002 00:28:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22677 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318715AbSH1E2J>;
+	Wed, 28 Aug 2002 00:28:09 -0400
+Date: Tue, 27 Aug 2002 21:26:49 -0700 (PDT)
+Message-Id: <20020827.212649.102436426.davem@redhat.com>
+To: s.biggs@softier.com
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Bug in kernel code?
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: s.biggs@softier.com, Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020827.210748.10907440.davem@redhat.com>
-References: <1030507070.1489.32.camel@ldb>
-	<20020827.205830.72711261.davem@redhat.com> <1030507839.1547.36.camel@ldb> 
-	<20020827.210748.10907440.davem@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-nGlGpXBkAVm32AMDa3DW"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 28 Aug 2002 06:29:59 +0200
-Message-Id: <1030508999.1547.45.camel@ldb>
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D6BEF22.21951.10E69E8@localhost>
+References: <3D6BD62C.581.ACEBAD@localhost>
+	<20020827.203946.102043898.davem@redhat.com>
+	<3D6BEF22.21951.10E69E8@localhost>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "Stephen Biggs" <s.biggs@softier.com>
+   Date: Tue, 27 Aug 2002 21:29:06 -0700
 
---=-nGlGpXBkAVm32AMDa3DW
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+   You tell me.  You're saying a billion pages (((unsigned long)(~0)) >> 2) also crashes) is never 
+   going to be realistically possible?
 
-On Wed, 2002-08-28 at 06:07, David S. Miller wrote:
->    From: Luca Barbieri <ldb@ldb.ods.org>
->    Date: 28 Aug 2002 06:10:39 +0200
-> 
->    I'm not saying that it's serious bug, just that using __ffs is more
->    appropriate than reimplementing it incorrectly and inefficiently.
->    
-> ffs won't find the smallest power of 2 >= some_arbitrary_value.
-> That is what this code is doing.
-Yes you are right, fls should be used there, not ffs.
+On a 32-bit system?  No.  x86 cpus are architectually limited
+to 64GB of memory, shift that right by PAGE_SIZE (13) and we're
+still within bounds.
 
+Larger memory will be then be found on 64-bit systems, and hey
+then the limit becomes significantly higher.
 
---=-nGlGpXBkAVm32AMDa3DW
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9bFHGdjkty3ft5+cRApWnAJ90gL7kXMunuES3NtxDYYm8+D1zrACdFY2W
-o1K/Hk9X7YUnQt0EsUpPeNM=
-=CWDn
------END PGP SIGNATURE-----
-
---=-nGlGpXBkAVm32AMDa3DW--
+So that is exactly what I am saying, it is not realistically
+possible.

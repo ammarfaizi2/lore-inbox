@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132109AbRCYQmA>; Sun, 25 Mar 2001 11:42:00 -0500
+	id <S132112AbRCYQlu>; Sun, 25 Mar 2001 11:41:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132110AbRCYQlv>; Sun, 25 Mar 2001 11:41:51 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:9345 "EHLO zooty.lancs.ac.uk")
-	by vger.kernel.org with ESMTP id <S132109AbRCYQlm>;
-	Sun, 25 Mar 2001 11:41:42 -0500
-Message-Id: <l03130323b6e3cf66c12d@[192.168.239.101]>
-In-Reply-To: <Pine.LNX.4.30.0103251754300.13864-100000@fs131-224.f-secure.com>
-In-Reply-To: <01032411110700.03927@tabby>
+	id <S132110AbRCYQlm>; Sun, 25 Mar 2001 11:41:42 -0500
+Received: from zooty.lancs.ac.uk ([148.88.16.231]:8065 "EHLO zooty.lancs.ac.uk")
+	by vger.kernel.org with ESMTP id <S132109AbRCYQlY>;
+	Sun, 25 Mar 2001 11:41:24 -0500
+Message-Id: <l03130322b6e3ced39e99@[192.168.239.101]>
+In-Reply-To: <3ABE132F.E919F908@evision-ventures.com>
+In-Reply-To: <3ABDF8A6.7580BD7D@evision-ventures.com>
+ <l03130321b6e3c0533688@[192.168.239.101]>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 25 Mar 2001 17:39:30 +0100
-To: Szabolcs Szakacsits <szaka@f-secure.com>,
-        Jesse Pollard <jesse@cats-chateau.net>
+Date: Sun, 25 Mar 2001 17:36:21 +0100
+To: Martin Dalecki <dalecki@evision-ventures.com>
 From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <Andries.Brouwer@cwi.nl>,
-        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] OOM handling
+Cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "James A. Sutherland" <jas88@cam.ac.uk>,
+        Guest section DW <dwguest@win.tue.nl>,
+        "Patrick O'Rourke" <orourke@missioncriticallinux.com>,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->[ .... about non-overcommit .... ]
->> > Nobody feels its very important because nobody has implemented it.
+>> I didn't quite understand Martin's comments about "not normalised" -
+>> presumably this is some mathematical argument, but what does this actually
+>> mean?
 >
->Enterprises use other systems because they have much better resource
->management than Linux -- adding non-overcommit wouldn't help them much.
->Desktop users, Linux newbies don't understand what's
->eager/early/non-overcommit vs lazy/late/overcommit memory management
->[just see these threads here if you aren't bored already enough ;)] and
->even if they do at last they don't have the ability to implement it. And
->between them, people are mostly fine with ulimit.
->
->> Small correction - It was implemented, just not included in the standard
->> kernel.
->
->Please note, adding optional non-overcommit also wouldn't help much
->without guaranteed/reserved resources [e.g. you are OOM -> appps, users
->complain, admin login in and BANG OOM killer just killed one of the
->jobs]. This was one of the reasons I made the reserved root memory
->patch [this is also the way other OS'es do]. Now just the different
->patches should be merged and write an OOM FAQ for users how to avoid,
->control, etc it].
+>Not mathematics. It's from physics. Very trivial physics, basic scool
+>indeed.
+>If you try to calculate some weightning
+>factors which involve different units (in this case mostly seconds and
+>bits)
+>then you will have to make sure tha those units get factorized out.
+>Rik is just throwing the absolute values together...
 
-I'm currently trying to apply the 2.3.99.whatever non-overcommit patch to
-2.4.1 - decidedly nontrivial, lots of failed hunks, parts of the kernel
-have changed significantly even in this (fairly short) time.
+Understood - my Physics courses covered this as well, but not using the
+word "normalise".
 
 --------------------------------------------------------------
 from:     Jonathan "Chromatix" Morton

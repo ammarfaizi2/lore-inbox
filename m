@@ -1,31 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281024AbRKOUHe>; Thu, 15 Nov 2001 15:07:34 -0500
+	id <S281018AbRKOUHz>; Thu, 15 Nov 2001 15:07:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281023AbRKOUHY>; Thu, 15 Nov 2001 15:07:24 -0500
-Received: from w147.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.147]:3983 "EHLO
-	funky.gghcwest.COM") by vger.kernel.org with ESMTP
-	id <S281018AbRKOUHS>; Thu, 15 Nov 2001 15:07:18 -0500
-Subject: Re: Microsoft IE6 is crashing with Linux 2.4.X
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <002501c16e0c$d3800550$f5976dcf@nwfs>
-In-Reply-To: <002501c16e0c$d3800550$f5976dcf@nwfs>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 15 Nov 2001 12:07:12 -0800
-Message-Id: <1005854832.2730.1.camel@heat>
+	id <S281023AbRKOUHq>; Thu, 15 Nov 2001 15:07:46 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:7 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S281018AbRKOUHd>; Thu, 15 Nov 2001 15:07:33 -0500
+Date: Thu, 15 Nov 2001 14:07:22 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Daniel Phillips <phillips@bonn-fries.net>
+Subject: Re: 2.4.>=13 VM/kswapd/shmem/Oracle issue (was Re: Google's mm problems)
+Message-ID: <20011115140722.A7221@asooo.flowerfire.com>
+In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin> <20011109033851.A15099@asooo.flowerfire.com> <20011115184036.D1381@athlon.random>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20011115184036.D1381@athlon.random>; from andrea@suse.de on Thu, Nov 15, 2001 at 06:40:36PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-11-15 at 11:35, Jeff V. Merkey wrote:
-> 
-> I have upgraded several W2K boxes to the latest IE6 packages I downloaded
-> from Microsoft's website.  I am seeing a behavior which appears to be a bug.
+Thanks for looking into this -- I really mean it.  I'm looking forward
+to the patch and how it compares to the others I've received. ;-)
 
-Be a lot more interesting email if you included a dump of the actual
-network traffic.  -jwb
+Again, good work, and thanks to all,
+-- 
+Ken.
+brownfld@irridia.com
 
+On Thu, Nov 15, 2001 at 06:40:36PM +0100, Andrea Arcangeli wrote:
+| On Fri, Nov 09, 2001 at 03:38:51AM -0600, Ken Brownfield wrote:
+| > We're seeing an easily reproducible problem that I believe to be along
+| > the same lines as what Google is seeing.  I'm not sure if Oracle's SGA
+| 
+| FYI: yes, that's the same problem. After some debugging I found the
+| exact reason of the bug, and as Daniel claimed a few weeks ago it is
+| really a VM problem, not an mlock problem. And it's one thing that I
+| didn't noticed while rewriting the VM, so it is reproducible on all 2.4
+| kernels out there, no matter what VM is in them. The kswapd infinite
+| loop that can trigger with the -ac VM when all the ZONE_DMA is
+| unfreeable (now fixed in mainline with classzone) have nothing to do
+| with this google problem, kswapd is right here to spend cpu time, the
+| bug is not kswapd activation.
+| 
+| I just sent Ben (at Google) a patch that fixes the problem completly for
+| me and for him and I'll try to release the real fix in the next days.
+| (so far it's a dirty workaround, that is just usable fine in their and
+| my memory configuration but it's not general purpose yet, but it's been
+| more than enough to proof my theory so far and I've in mind how to fix
+| it properly, tomorrow I hope I will implement it).
+| 
+| Andrea
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

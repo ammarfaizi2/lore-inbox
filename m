@@ -1,35 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUFVTo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265276AbUFVTin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbUFVTo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 15:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265058AbUFVTi7
+	id S265276AbUFVTin (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 15:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbUFVTep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:38:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32178 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265478AbUFVTgt (ORCPT
+	Tue, 22 Jun 2004 15:34:45 -0400
+Received: from mail.xor.ch ([212.55.210.163]:56592 "HELO mail.xor.ch")
+	by vger.kernel.org with SMTP id S265476AbUFVTco (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:36:49 -0400
-Date: Tue, 22 Jun 2004 12:35:23 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: herbert@gondor.apana.org.au, kernel@nn7.de, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org, netdev@oss.sgi.com, jgarzik@pobox.com
-Subject: Re: sungem - ifconfig eth0 mtu 1300 -> oops
-Message-Id: <20040622123523.28fca55a.davem@redhat.com>
-In-Reply-To: <40D847E3.2080109@nortelnetworks.com>
-References: <20040621141144.119be627.davem@redhat.com>
-	<40D847E3.2080109@nortelnetworks.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 22 Jun 2004 15:32:44 -0400
+Message-ID: <40D88952.43EAB6BC@orpatec.ch>
+Date: Tue, 22 Jun 2004 21:32:35 +0200
+From: Otto Wyss <otto.wyss@orpatec.ch>
+Reply-To: otto.wyss@orpatec.ch
+X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
+X-Accept-Language: de,en
+MIME-Version: 1.0
+To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: How to check for the framebuffer device and the                        
+ right kernel module
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jun 2004 10:53:23 -0400
-Chris Friesen <cfriesen@nortelnetworks.com> wrote:
+I've written a simple app which checks if the framebuffer device is
+correct installed. I do
+it by more less just using the device. My little check app is working
+but shouldn't there be a more correct way?
 
-> Just a quick question.  Does the sungem chip support jumbo frames?
+I'm also not sure what results are produced when the device exists but
+without the right kernel module. How can I check for a kernel module to
+inform the user about it?
 
-Nope, not at all.
+O. Wyss

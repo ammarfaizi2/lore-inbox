@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUHYXpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUHYXsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUHYXpM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 19:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266525AbUHYXpM
+	id S266582AbUHYXsP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 19:48:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266467AbUHYXsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 19:45:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:20181 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266242AbUHYXof (ORCPT
+	Wed, 25 Aug 2004 19:48:14 -0400
+Received: from levante.wiggy.net ([195.85.225.139]:44425 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S266611AbUHYXqb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 19:44:35 -0400
-Date: Wed, 25 Aug 2004 16:44:01 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Harald Welte <laforge@netfilter.org>
-Cc: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org
-Subject: Re: Linux 2.6.9-rc1
-Message-Id: <20040825164401.12259308.davem@redhat.com>
-In-Reply-To: <20040825203206.GS5824@sunbeam.de.gnumonks.org>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-	<412CDFEE.1010505@triplehelix.org>
-	<20040825203206.GS5824@sunbeam.de.gnumonks.org>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Wed, 25 Aug 2004 19:46:31 -0400
+Date: Thu, 26 Aug 2004 01:46:29 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Jeremy Allison <jra@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>, torvalds@osdl.org,
+       reiser@namesys.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040825234629.GF2612@wiggy.net>
+Mail-Followup-To: Jeremy Allison <jra@samba.org>,
+	Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+	torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	flx@namesys.com, reiserfs-list@namesys.com
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040825233739.GP10907@legion.cup.hp.com>
+User-Agent: Mutt/1.5.6+20040523i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Aug 2004 22:32:06 +0200
-Harald Welte <laforge@netfilter.org> wrote:
+Previously Jeremy Allison wrote:
+> Multiple-data-stream files are something we should offer, definately (IMHO).
+> I don't care how we do it, but I know it's something we need as application
+> developers.
 
-Harald, a question about this fix.
+Aside from samba, is there any other application that has a use for
+them? 
 
-> +__ip_nat_find_helper(const struct ip_conntrack_tuple *tuple)
-> +{
-> +	return LIST_FIND(&helpers, helper_cmp, struct ip_nat_helper *, tuple);
-> +}
-> +
-> +struct ip_nat_helper *
->  ip_nat_find_helper(const struct ip_conntrack_tuple *tuple)
->  {
->  	struct ip_nat_helper *h;
->  
->  	READ_LOCK(&ip_nat_lock);
-> -	h = LIST_FIND(&helpers, helper_cmp, struct ip_nat_helper *, tuple);
-> +	h = __ip_nat_find_helper(tuple);
->  	READ_UNLOCK(&ip_nat_lock);
->  
+Wichert.
 
-So we're converting over to using __ip_nat_find_helper().
-
-> +EXPORT_SYMBOL(ip_nat_find_helper);
-
-And adding an export of ip_nat_find_helper (ie. without the two underscore
-prefix).  Why?
-
-If we need to export one, then we need to export both.
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129657AbRBMAMh>; Mon, 12 Feb 2001 19:12:37 -0500
+	id <S129700AbRBMASh>; Mon, 12 Feb 2001 19:18:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129752AbRBMAM1>; Mon, 12 Feb 2001 19:12:27 -0500
-Received: from mailgate.bridgetrading.com ([62.49.201.178]:1034 "EHLO 
-	directcommunications.net") by vger.kernel.org with ESMTP
-	id <S129657AbRBMAMU>; Mon, 12 Feb 2001 19:12:20 -0500
-Date: Tue, 13 Feb 2001 00:13:53 +0000 (GMT)
-From: Chris Funderburg <chris@Funderburg.com>
-To: Jérôme Augé <jauge@club-internet.fr>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: opl3sa not detected anymore
-In-Reply-To: <3A8873F3.772D75E7@club-internet.fr>
-Message-ID: <Pine.LNX.4.30.0102122359150.1412-100000@pikachu.bti.com>
-X-Unexpected-Header: Hello!!!
+	id <S129752AbRBMASR>; Mon, 12 Feb 2001 19:18:17 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:40206 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129700AbRBMASM>; Mon, 12 Feb 2001 19:18:12 -0500
+Date: Mon, 12 Feb 2001 19:18:05 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
+        Alexander Zarochentcev <zam@namesys.com>
+Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+Message-ID: <415160000.982023485@tiny>
+In-Reply-To: <3A886606.E3557ED3@namesys.com>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Well what do you know...
-I added isapnp=0 and it worked.
 
-<OPL3-SA3> at 0x370
-<MS Sound System (CS4231)> at 0x534 irq 5 dma 1,0
-<MPU-401 0.0  Midi interface #1> at 0x330 irq 5 dma -1,0
+On Tuesday, February 13, 2001 01:39:02 AM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
+> Chris, your quoting is very confusing above..... but I get your very
+> interesting remark (thanks for noticing) that the nulls are specific to
+> crashes on 2.2, and therefor could be due to the elevator bug on 2.4.  It
+> even makes rough sense that the elevator bug (said to occasionally cause
+> a premature write of the wrong buffer) could cause an effect similar to a
+> crash.  I hope it is true, let's ask all users to upgrade to pre2 (a good
+> idea anyway) and see if it cures.
+> 
 
-The dma and the MSS address (0x534) looks odd, but at least it
-seems to play now.
+Ok, I'll try again ;-)  People have been seeing null bytes in data files on
+reiserfs.  They see this without seeing any other corruption of any kind,
+and they only see it on files of very specific sizes.  They see this
+without crashing, and without hard drive suspend kicking in.  They see it
+on scsi and ide, on servers and laptops.
 
-And no, AFAIK, this driver has never been able to detect PNP settings.
-If you try to run it without them, you get this:
+Elevator bugs and general driver bugs could certainly cause nulls in data
+files.  But they would also cause other corruptions and probably would not
+be selective enough to pick files that happen to have the same range in
+size that reiserfs packs tails on.
 
-opl3sa2: io, mss_io, irq, dma, and dma2 must be set
+In other words, updating to 2.4.2pre2 or your favorite ac series kernel is
+probably a good plan.  It won't fix this bug ;-)
 
-Thanks for your help!
+Perhaps I haven't seen it yet because I've also been testing code that does
+direct->indirect conversions slightly differently, I'll try again on a pure
+kernel.
 
-CF
-
-
-On Tue, 13 Feb 2001, Jérôme Augé wrote:
-
-> Chris Funderburg wrote:
-> > following in /etc/modules.conf:
-> >
-> > alias sound-slot-0 opl3sa2
-> > options sound dmabuf=1
-> > alias midi opl3
-> > options opl3 io=0x388
-> > options opl3sa2 mss_io=0x530 irq=5 dma=1 dma2=0 mpu_io=0x330 io=0x370
-> >
-> > The midi works fine, but 'modprobe sound' reports:
-> >
-> > opl3sa2: No cards found
-> > opl3sa2: 0 PnP card(s) found.
-> >
-> > If the settings above look ok, then how can help debug it?
->
-> Try to add "isapnp=0" to the opl3sa2 options list :
->
-> opl3sa2 mss_io=0x530 irq=5 dma=1 dma2=0 mpu_io=0x330 io=0x370 isapnp=0
->
-> I had the same problem and adding isapnp=0 solved it, but PNP isn't
-> supposed to automaticaly detect those options ?
->
->
-
--- 
-... Any resemblance between the above views and those of my employer,
-my terminal, or the view out my window are purely coincidental.  Any
-resemblance between the above and my own views is non-deterministic.  The
-question of the existence of views in the absence of anyone to hold them
-is left as an exercise for the reader.  The question of the existence of
-the reader is left as an exercise for the second god coefficient.  (A
-discussion of non-orthogonal, non-integral polytheism is beyond the scope
-of this article.)
-
+-chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

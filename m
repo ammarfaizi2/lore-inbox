@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129116AbRBDRAf>; Sun, 4 Feb 2001 12:00:35 -0500
+	id <S129304AbRBDRCz>; Sun, 4 Feb 2001 12:02:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129304AbRBDRAZ>; Sun, 4 Feb 2001 12:00:25 -0500
-Received: from Cantor.suse.de ([213.95.15.193]:59399 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S129116AbRBDRAK>;
-	Sun, 4 Feb 2001 12:00:10 -0500
-To: "Hen, Shmulik" <shmulik.hen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel memory allocations alignment
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B2711B@hasmsx52.iil.intel.com>
-From: Andi Kleen <ak@suse.de>
-Date: 04 Feb 2001 18:00:05 +0100
-In-Reply-To: "Hen, Shmulik"'s message of "4 Feb 2001 17:18:50 +0100"
-Message-ID: <oup66iq8ju2.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
+	id <S131832AbRBDRCp>; Sun, 4 Feb 2001 12:02:45 -0500
+Received: from mail.diligo.fr ([194.153.78.251]:47370 "EHLO mail.diligo.fr")
+	by vger.kernel.org with ESMTP id <S129304AbRBDRC3>;
+	Sun, 4 Feb 2001 12:02:29 -0500
+Date: Sun, 4 Feb 2001 17:58:38 +0100
+From: patrick.mourlhon@wanadoo.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re: ATAPI CDRW which doesn't work
+Message-ID: <20010204175838.A2123@MourOnLine.dnsalias.org>
+Reply-To: patrick.mourlhon@wanadoo.fr
+In-Reply-To: <20010203230544.A549@MourOnLine.dnsalias.org> <20010204030644.A23913@l-t.ee> <20010204073352.A529@MourOnLine.dnsalias.org> <20010204172220.B19909@l-t.ee>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010204172220.B19909@l-t.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Hen, Shmulik" <shmulik.hen@intel.com> writes:
-
-> Actually yes. We were warned that on IA64 architecture the system will halt
-> when accessing any type of variable via a pointer if the pointer does not
-> contain an aligned address matching that type. Until now we were using a
-
-That will need to be fixed with a handler anyways, the network stack requires 
-unaligned accesses. If the IA64 port doesn't handle that it it's buggy and 
-trivially remotely crashable.
-
-Of course it'll always be much faster to use aligned accesses that do not
-need an exception.
-
-> method of receiving a pointer to an array, casting it to a pointer of a
-> struct (packed with #pragma pack(1) ) ,and retrieving fields directly from
-> it with pointers.
-> It seems we cannot do that any more and were wondering what are the
-> alternatives.
-
-get_unaligned() or a memcpy to a local variable is the standard method.
-get_unaligned is normally slightly faster than relying on an unalignment
-exception handler.
-
-> One way we could think of is forget the packing and rearrange the fields in
-> the struct in descending order so they all come out aligned, but we didn't
-> know for sure if the first one will be aligned too.
+> > I've got those kind of message now :
+> > 
+> > Feb  4 07:18:35 Line kernel: scsi : aborting command due to timeout : pid 0, scsi0, channel 0, id 0, lun 0 Read (10) 00 00 00 00 2e 00 00 01 00 
 > 
-> Will that work ?
+> If this is a correct ISO9660 cd you should not see those
+> messages.  It is either hardware problem (eg IDE cable is badly
+> conencted or CDRW is broken/dusty) or this CD is simply
+> scratched.  Does it work with another CD?
+> 
+> Also try to put it on separate IDE channel than your main HD.
 
-Yes, it's the best solution.
+Cable looks ok, removed and reinstalled, used it before with 
+a second hard disk. CDRW may be broken. don't know, but at
+least nothing appear broken all around the device.
+CD was read with an other CDROM reader.
+Never seen CDRW working reliably till now. But never used it
+through Windows, don't have it since 4 years. I might at least
+check if it could work on Windows.
 
--Andi
+Whatever thanks a lot for your time, was greatly appreciated,
+
+patrick
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

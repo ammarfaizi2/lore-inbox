@@ -1,56 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130642AbQLHKRR>; Fri, 8 Dec 2000 05:17:17 -0500
+	id <S131563AbQLHKSh>; Fri, 8 Dec 2000 05:18:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131283AbQLHKQ5>; Fri, 8 Dec 2000 05:16:57 -0500
-Received: from cerebus-ext.cygnus.co.uk ([194.130.39.252]:4602 "EHLO
-	passion.cygnus") by vger.kernel.org with ESMTP id <S130642AbQLHKQs>;
-	Fri, 8 Dec 2000 05:16:48 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20001208022044.A6417@gruyere.muc.suse.de> 
-In-Reply-To: <20001208022044.A6417@gruyere.muc.suse.de>  <E144BOL-0003Eg-00@the-village.bc.nu> <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> 
-To: Andi Kleen <ak@suse.de>
-Cc: Rainer Mager <rmager@vgkk.com>, linux-kernel@vger.kernel.org,
-        Mark Vojkovich <mvojkovich@valinux.com>
-Subject: Re: Signal 11 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
-Date: Fri, 08 Dec 2000 09:46:07 +0000
-Message-ID: <25692.976268767@redhat.com>
+	id <S131749AbQLHKS1>; Fri, 8 Dec 2000 05:18:27 -0500
+Received: from smtp2.free.fr ([212.27.32.6]:48906 "EHLO smtp2.free.fr")
+	by vger.kernel.org with ESMTP id <S131283AbQLHKSO>;
+	Fri, 8 Dec 2000 05:18:14 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Linux 2.2.18pre25
+Message-ID: <976268866.3a30ae4296b71@imp.free.fr>
+Date: Fri, 08 Dec 2000 10:47:46 +0100 (MET)
+From: Willy Tarreau <wtarreau@free.fr>
+Cc: Miquel van Smoorenburg <miquels@cistron.nl>, linux-kernel@vger.kernel.org
+In-Reply-To: <E144AfG-0003B2-00@the-village.bc.nu>
+In-Reply-To: <E144AfG-0003B2-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 195.6.58.78
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I asked people to explain why it was needed. I am still waiting. It is a
+> patch that does nothing. I will not put random deep magic into the
+> kernel.
 
-ak@suse.de said:
->  Sounds like a X Server bug. You should probably contact XFree86, not
-> linux-kernel
+Alan, I replied to you a few weeks ago (pre20 times) when you asked me why
+I was sending you this patch. (perhaps you didn't receive my email). What I 
+observed was that my netraid card had a 0xXXXX8 base address and the patch
+aligned that address to 16 bytes :
 
-I quote from the X devel list, which perhaps I shouldn't do but this is hardly 
-NDA'd stuff:
+|Bus  0, device   2, function  1:
+|  Unknown class: Intel OEM MegaRAID Controller (rev 5).
+|    Medium devsel.  Fast back-to-back capable.  BIST capable.  IRQ 10.  Master
+Capable.  Latency=64.  
+|    Prefetchable 32 bit memory at 0xf0000000 [0xf0000008].
 
-On Mon 20 Nov 2000, mvojkovich@valinux.com said:
->   I have seen random crashes on dual P3 BX boards (Tyan) and dual Xeon
-> GX boards (Intel).  XFree86 core dumps indicate that it happens in
-> random places, in old as dirt software rendering code that has nothing
-> wrong with it.  I've only seen this under 2.3.x/2.4 SMP kernels.  I
-> would say that this is definitely a kernel problem. 
+as you see, the board is found at 0xf0000008, but used aligned to 0xf0000000.
 
-XFree86 3.9 and XFree86 4 were rock solid for a _long_ time on 2.[34]
-kernels - even on my BP6¹. The random crashes started to happen when I
-upgraded my distribution² - and are only seen by people using 2.4. So I
-suspect that it's the combination of glibc and kernel which is triggering
-it.
+my server currently works with that patch, but I'm sure it won't boot anymore
+if I apply this 2.2.18pre25 alone. 
 
---
-dwmw2
+just in case, here it is again.
 
-¹ And the BP6 still falls over less frequently than the dual P3 I use at 
-work.
-² RH7. Don't start.
+Cheers,
+Willy
 
+--- 18pre/drivers/scsi/megaraid.c       Wed Nov  8 16:02:45 2000
++++ 18pre+megaraid/drivers/scsi/megaraid.c      Fri Nov 10 12:03:05 2000
+@@ -1920,10 +1920,14 @@
+ 
+     pciIdx++;
+ 
+-    if (flag & BOARD_QUARTZ)
++    if (flag & BOARD_QUARTZ) {
++       megaBase &= PCI_BASE_ADDRESS_IO_MASK;
+        megaBase = (long) ioremap (megaBase, 128);
+-    else
++    }
++    else {
++       megaBase &= PCI_BASE_ADDRESS_MEM_MASK;
+        megaBase += 0x10;
++    }
+ 
+     /* Initialize SCSI Host structure */
+     host = scsi_register (pHostTmpl, sizeof (mega_host_config));
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

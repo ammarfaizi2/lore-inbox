@@ -1,83 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263748AbRFHBUE>; Thu, 7 Jun 2001 21:20:04 -0400
+	id <S263756AbRFHBWe>; Thu, 7 Jun 2001 21:22:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263749AbRFHBTy>; Thu, 7 Jun 2001 21:19:54 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:8946 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S263748AbRFHBTw>; Thu, 7 Jun 2001 21:19:52 -0400
-Message-Id: <l03130324b745d584d0c9@[192.168.239.105]>
-In-Reply-To: <0106071629171E.32519@compiler>
-In-Reply-To: <Pine.LNX.4.21.0106071722450.1156-100000@freak.distro.conectiva>
- <Pine.LNX.4.21.0106071722450.1156-100000@freak.distro.conectiva>
+	id <S263751AbRFHBWY>; Thu, 7 Jun 2001 21:22:24 -0400
+Received: from alcove.wittsend.com ([130.205.0.20]:36746 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S263756AbRFHBWF>; Thu, 7 Jun 2001 21:22:05 -0400
+Date: Thu, 7 Jun 2001 21:21:38 -0400
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: mirabilos {Thorsten Glaser} <isch@ecce.homeip.net>
+Cc: "L. K." <lk@Aniela.EU.ORG>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: temperature standard - global config option?
+Message-ID: <20010607212138.B29121@alcove.wittsend.com>
+Mail-Followup-To: mirabilos {Thorsten Glaser} <isch@ecce.homeip.net>,
+	"L. K." <lk@Aniela.EU.ORG>,
+	"Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0106080022570.1875-100000@ns1.Aniela.EU.ORG> <Pine.BSO.4.33.0106072128580.13090-100000@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Fri, 8 Jun 2001 02:18:39 +0100
-To: Shane Nay <shane@minirl.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: VM Report was:Re: Break 2.4 VM in five easy steps
-Cc: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
-        Sean Hunter <sean@dev.sportingbet.com>,
-        Xavier Bestel <xavier.bestel@free.fr>,
-        lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <Pine.BSO.4.33.0106072128580.13090-100000@localhost>; from isch@ecce.homeip.net on Thu, Jun 07, 2001 at 09:30:54PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:29 am +0100 8/6/2001, Shane Nay wrote:
->(VM report at Marcelo Tosatti's request.  He has mentioned that rather than
->complaining about the VM that people mention what there experiences were.  I
->have tried to do so in the way that he asked.)
+On Thu, Jun 07, 2001 at 09:30:54PM +0000, mirabilos {Thorsten Glaser} wrote:
+> It was posted by L. K. where I now add my 0.02 EUR...
+> > On Thu, 7 Jun 2001, Albert D. Cahalan wrote:
+> > > Negative temperatures do not really exist.
+> > Are you really sure about this ?
 
->> By performance you mean interactivity or throughput?
->
->Interactivity.  I don't have any throughput needs to speak of.
->
->I just ran a barage of tests on my machine, and the smallest it would ever
->make the cache was 16M, it would prefer to kill processes rather than make
->the cache smaller than that.
+> I am. I made Abitur (german degree after 13yrs of school)
+> with physics being an important course, and there can not
+> be any temperature less than 0 K (or -273.15°C if you want).
+> This is because temperature is nothing but the movement of
+> pieces of materie (and even photons, ergo energy).
 
-http://www.chromatix.uklinux.net/linux-patches/vm-update-2.patch
+	Then you must have blown your quantum finals.  Royally.  ESPECIALLY
+after that statement about "temperature is nothing but the movement of
+pieces of materie".  Not even close, once you get into the quant.
 
-Try this.  I can't guarantee it's SMP-safe yet (I'm leaving the gurus to
-that, but they haven't told me about any errors in the past hour so I'm
-assuming they aren't going to find anything glaringly wrong...), but you
-might like to see if your performance improves with it.  It also fixes the
-OOM-killer bug, which you refer to above.
+	Mathematically and quantum mechanically, negative absolute
+temperatures do exist.  In quantum mechanics, temperature is expressed as
+probability populations in various quantum states.
 
-Some measurements, from my own box (1GHz Athlon, 256Mb RAM):
+	Absolute zero is the quantum state were all particles are in
+the ground state.  An infinite temperature is, quantum mechanically,
+the condition where all states, ground and energetic, have an equal
+probability of population.
 
-For the following benchmarks, physical memory availability was reduced
-according to the parameter in the left column.  The benchmark is the
-wall-clock time taken to compile MySQL.
+	A "population inversion" (a condition where the energized states
+are more likely to be populated than the ground states) is at the heart
+of many things we take for granted today such as lasers, masers, leds,
+NMR (Nuclear Magnetic Resonance) and MRI (the medical use of NMR).
 
-mem=	2.4.5		earlier tweaks	now
-48M	8m30s		6m30s		5m58s
-32M	unknown		2h15m		12m34s
+	Those "population inversions" represents an "energized state"
+that is more energetic than the state that would be present in a steady
+state infinite temperature.
 
-The following was performed with all 256Mb RAM available.  This is
-compilation of MySQL using make -j 15.
+	Mathematically, those states can actually be treated as negative
+absolute temperatures.  IOW, negative absolute temperatures are actually
+hotter than infinite.
 
-kernel:		2.4.5		now
-time:		6m30s		6m15s
-peak swap:	190M		70M
+	It's true that these are not STEADY STATE conditions or in
+equilibrium (which is how we take advantage of populations inversions -
+by their actions in returning to equilibrium), but the math still works.
+Just check out a few issues of Scientific American from the mid 1970's
+on "Negative Absolute Temperatures in Nuclear Magnetic Resonance" and
+to the scientific journals they reference.  I won an argument with
+a physics prof (PhD in high energy physics) over that very issue when
+I did the same thing in a 400 level senior level physics lab on NMR back
+then.  It's actually pretty damn simple, once you work the math, and it
+agravated him that he didn't believe it but couldn't argue with the math
+till he saw the work and publication from someone else.  Then he conceeded
+that I had him and I had been right.
 
-For the following test, the 256Mb swap partition on my IDE drive was
-disabled and replaced with a 1Gb swapfile on my Ultra160 SCSI drive.  This
-is compilation of MySQL using make -j 20.
+	IAC...  Negative absolute temperatures are about as meaningless
+to this particular discussion as is expressing the temperature in 1/100s
+of a Kelvin which would have a precision than exceeds the accuracy of
+the measuring chips by two orders of magnitude.  IOW...  Both are silly
+and meaningless to this case.  One is out of range in magnitude and one
+is out of the range of accuracy.
 
-kernel:		2.4.5		now
-time:		7m20s		6m30s
-peak swap:	370M		254M
+> -mirabilos
+> -- 
+> C:\>debug
+> -e100 EA F0 FF 00 F0
+> -g
+> --->Enjoy!
 
-Draw your own conclusions.  :)
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-
-The key to knowledge is not to rely on people to teach you it.
-
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 

@@ -1,42 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266080AbUANJSk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 04:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265439AbUANJRk
+	id S265263AbUANJVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 04:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265294AbUANJVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 04:17:40 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30219 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265848AbUANJQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 04:16:37 -0500
-Date: Wed, 14 Jan 2004 09:16:30 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: [PATCH] Add CONFIG for -mregparm=3
-Message-ID: <20040114091630.A14739@flint.arm.linux.org.uk>
-Mail-Followup-To: Andi Kleen <ak@muc.de>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, jh@suse.cz
-References: <20040114090603.GA1935@averell>
+	Wed, 14 Jan 2004 04:21:03 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:41683 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S265263AbUANJUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 04:20:30 -0500
+Date: Wed, 14 Jan 2004 10:11:28 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Dave Jones <davej@redhat.com>, paul.devriendt@amd.com, pavel@ucw.cz,
+       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+       mark.langsdorf@amd.com
+Subject: Re: Cleanups for powernow-k8
+Message-ID: <20040114091128.GA11159@dominikbrodowski.de>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	paul.devriendt@amd.com, pavel@ucw.cz, cpufreq@www.linux.org.uk,
+	linux-kernel@vger.kernel.org, mark.langsdorf@amd.com
+References: <99F2150714F93F448942F9A9F112634C080EF39F@txexmtae.amd.com> <20040114034237.GT14674@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040114090603.GA1935@averell>; from ak@muc.de on Wed, Jan 14, 2004 at 10:06:03AM +0100
+In-Reply-To: <20040114034237.GT14674@redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 14, 2004 at 10:06:03AM +0100, Andi Kleen wrote:
-> Using -mregparm=3 shrinks the kernel further:
 
-Note that there is a dependence on this patch - as highlighted by Arjan,
-CardServices() breaks when built on x86 with -mregparm.
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Therefore, the CardServices() patches need to be merged into any tree
-prior to this patch.
+On Wed, Jan 14, 2004 at 03:42:37AM +0000, Dave Jones wrote:
+> On Tue, Jan 13, 2004 at 09:39:53PM -0600, paul.devriendt@amd.com wrote:
+>  > >> Dave had a good idea of a minimal ACPI parser for trying to retriev=
+e the
+>  > >> table of p-states from an ACPI BIOS without needing the full AML in=
+terpreter.
+>  > >> I will see if I can get that to work in powernow-k8-acpi=20
+>  > > =20
+>  > > If done properly, that parsing code could be shared by the K7=20
+>  > > driver too.
+>  >=20
+>  > Agreed. Function in a header file? Don't want the drivers attempting to
+>  > call each other at runtime.
+>=20
+> Works for me, or shove it out into its own .c file, and have both drivers=
+ link against it.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Guys, do you remember my acpi-perflib?[1] Currently, I'm rewriting it so th=
+at
+it isn't so invasive and can be merged more easily during 2.x.[2] It's exac=
+tly
+what you want as base for powernow-k7-acpi and powernow-k8-acpi driver.
+
+However, as it relies on CONFIG_ACPI, an acpi-perflib-no-acpi module which
+exports the same functions, but includes a minimal parser could be added.
+But let's do the easy part (CONFIG_ACPI) first.
+
+[1] http://marc.theaimsgroup.com/?l=3Dacpi4linux&m=3D106547064228222&w=3D2
+[patches are taken down from the website, though...]
+
+[2] http://marc.theaimsgroup.com/?l=3Dacpi4linux&m=3D107398568612489&w=3D2 =
+is a
+first step, another one will be sent out later today.
+
+	Dominik
+
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFABQfAZ8MDCHJbN8YRAgjBAJ0RVZwuo+hjsICIAIhxSYigpiLjbgCfcypp
+LmgK8LUme7UY88V/3e8D+yU=
+=d9Tz
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--

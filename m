@@ -1,60 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261609AbSIXIN0>; Tue, 24 Sep 2002 04:13:26 -0400
+	id <S261610AbSIXISz>; Tue, 24 Sep 2002 04:18:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261610AbSIXIN0>; Tue, 24 Sep 2002 04:13:26 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:23557 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261609AbSIXIN0>; Tue, 24 Sep 2002 04:13:26 -0400
-Message-Id: <200209240813.g8O8DWp24815@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] streq()
-Date: Tue, 24 Sep 2002 11:07:58 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0209240731060.8824-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0209240731060.8824-100000@localhost.localdomain>
+	id <S261611AbSIXISz>; Tue, 24 Sep 2002 04:18:55 -0400
+Received: from [80.120.128.82] ([80.120.128.82]:33811 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S261610AbSIXISy>;
+	Tue, 24 Sep 2002 04:18:54 -0400
+From: Der Herr Hofrat <der.herr@mail.hofr.at>
+Message-Id: <200209240726.g8O7QNA06595@hofr.at>
+Subject: mmap question
+To: linux-kernel@vger.kernel.org
+Date: Tue, 24 Sep 2002 09:26:23 +0200 (CEST)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 September 2002 03:40, Ingo Molnar wrote:
-> On Tue, 24 Sep 2002, Rusty Russell wrote:
-> there's a few more places that tend to cause wasted time, no matter what:
->  - kmalloc(size, flags)/gfp(order, flags) argument ordering. A few months
->    ago i wasted two days on such a bug - since 'size' was very small
->    usually, it never showed up that the allocated buffer was short, until
->    some rare load-test increased the 'size'.
 
-Aughment kmalloc(size, GFP_XXXXX) with kmalloc_XXXXX(size) (inline of course)?
-You may use this form in those 90% cases where flags are constant.
+Hi !
 
-This also gets rid of GFP_ prefixes (shorter).
+ trying to write up a simple mmap for a pseudo device that accesses a 
+ kmalloc'ed area.
 
-Ingo, Rusty?
---
-vda
+ The driver is a character driver that only has mmap implemented - the kmalloc
+ is done in init module and the pointer to the buffer is in global context.
+ I expected to be able to write to the mmap'ed area from user-space but it
+ never shows up in kernel space (the printk in driver_mmap always shows the
+ init_msg passed in init_module). 
 
---- linux-2.5.36/include/linux/slab.h.orig Tue Sep 24 11:00:42 2002
-+++ linux-2.5.36/include/linux/slab.h      Tue Sep 24 11:06:32 2002
-@@ -61,6 +61,15 @@
+ the basic framework I'm using is below - can anybody point me to an obvious
+ error or to some docs that would explain how to share an kmalloc'ed area
+ with user-space via mmap ? 
 
- extern void *kmalloc(size_t, int);
- extern void kfree(const void *);
-+extern inline void *kmalloc_NOHIGHIO(size_t sz) { return kmalloc(sz, GFP_NOHIGHIO); }
-+extern inline void *kmalloc_NOIO    (size_t sz) { return kmalloc(sz, GFP_NOIO    ); }
-+extern inline void *kmalloc_NOFS    (size_t sz) { return kmalloc(sz, GFP_NOFS    ); }
-+extern inline void *kmalloc_ATOMIC  (size_t sz) { return kmalloc(sz, GFP_ATOMIC  ); }
-+extern inline void *kmalloc_USER    (size_t sz) { return kmalloc(sz, GFP_USER    ); }
-+extern inline void *kmalloc_HIGHUSER(size_t sz) { return kmalloc(sz, GFP_HIGHUSER); }
-+extern inline void *kmalloc_KERNEL  (size_t sz) { return kmalloc(sz, GFP_KERNEL  ); }
-+extern inline void *kmalloc_NFS     (size_t sz) { return kmalloc(sz, GFP_NFS     ); }
-+extern inline void *kmalloc_KSWAPD  (size_t sz) { return kmalloc(sz, GFP_KSWAPD  ); }
+thx !
+hofrat
+ 
+---driver---
+char *kmalloc_area;
+...
+static int
+driver_mmap(struct file *file,
+	struct vm_area_struct *vma)
+{
+	vma->vm_flags |= VM_LOCKED|VM_SHARED;
 
- extern int FASTCALL(kmem_cache_reap(int));
+	printk("message buffer: %s\",kmalloc_area); 
+	remap_page_range(vma->vm_start,
+		virt_to_phys(kmalloc_area),
+		LEN,
+		PAGE_SHARED);
+	return 0;
+}
+	
+static struct file_operations simple_fops={
+    mmap:	driver_mmap,
+};
 
+int
+init_module(void){
+	...
+	kmalloc_area=kmalloc(LEN,GFP_USER);
+	strncpy(kmalloc_area,init_msg,sizeof(init_msg));
+	...
+}
+
+---user-app---
+
+int main(void)
+{
+	int fd;
+	char msg[]="some message - should appear in kernel space";
+	unsigned int *addr;
+
+	if((fd=open("/dev/simple-device", O_RDWR))<0)
+	addr = mmap(0, LEN, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	memset(addr,0,LEN); 
+	strncpy(addr,msg,sizeof(msg));
+	return 0;
+}

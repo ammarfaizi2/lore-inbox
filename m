@@ -1,100 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267734AbUIHO4l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268070AbUIHO4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267734AbUIHO4l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 10:56:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268070AbUIHO42
+	id S268070AbUIHO4m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 10:56:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269007AbUIHOzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 10:56:28 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:2473 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S268382AbUIHOwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 10:52:18 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Wed, 8 Sep 2004 10:55:49 -0400
+Received: from mail.mellanox.co.il ([194.90.237.34]:13791 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S267737AbUIHOy2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 10:54:28 -0400
+Date: Wed, 8 Sep 2004 17:54:32 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
 To: Andi Kleen <ak@suse.de>
-Subject: Re: Fw: 2.6.9-rc1-mm4: swsusp + AMD64 = LOCKUP on CPU0
-Date: Wed, 8 Sep 2004 16:52:43 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
-References: <20040908021637.57525d43.akpm@osdl.org.suse.lists.linux.kernel> <200409081451.55531.rjw@sisk.pl> <20040908130049.GA15444@wotan.suse.de>
-In-Reply-To: <20040908130049.GA15444@wotan.suse.de>
-MIME-Version: 1.0
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch]   Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel
+Message-ID: <20040908145432.GA12332@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20040907142530.GB1016@mellanox.co.il> <20040907142945.GB20981@wotan.suse.de> <20040907143702.GC1016@mellanox.co.il> <20040907144452.GC20981@wotan.suse.de> <20040907144543.GA1340@mellanox.co.il> <20040907151022.GA32287@wotan.suse.de> <20040907181641.GB2154@mellanox.co.il> <20040908065548.GE27886@wotan.suse.de> <20040908142808.GA11795@mellanox.co.il> <20040908143852.GA27411@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409081652.43463.rjw@sisk.pl>
+In-Reply-To: <20040908143852.GA27411@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 of September 2004 15:00, Andi Kleen wrote:
-> On Wed, Sep 08, 2004 at 02:51:55PM +0200, Rafael J. Wysocki wrote:
-> > On Wednesday 08 of September 2004 14:01, Andi Kleen wrote:
-> > > Pavel Machek <pavel@ucw.cz> writes:
-> > > 
-> > > > Hi!
-> > > > 
-> > > > > One for you guys on lkml ;)
-> > > > 
-> > > > It simply takes long to count pages (O(n^2) algorithm), so watchdog
-> > > > triggers. I have better algorithm locally, but would like merge to
-> > > > linus first. (I posted it to lkml some days ago, I can attach the
-> > > > bigdiff).
-> > > > 
-> > > > Just disable the watchdog. Suspend *is* going to take time with
-> > > > disabled interrupts.
-> > > 
-> > > 
-> > > As a short term workaround you could also add touch_nmi_watchdog()s
-> > > in that loop.
-> > 
-> > You mean like that:
+Hello!
+Quoting r. Andi Kleen (ak@suse.de) "Re: [patch]   Re: [discuss] f_ops flag to speed up compatible ioctls in linux kernel":
+> On Wed, Sep 08, 2004 at 05:28:08PM +0300, Michael S. Tsirkin wrote:
+> > --- linux-2.6.8.1/include/linux/fs.h	2004-09-07 19:33:43.000000000 +0300
+> > +++ linux-2.6.8.1-new/include/linux/fs.h	2004-09-08 07:18:20.000000000 +0300
+> > @@ -879,6 +879,8 @@ struct file_operations {
+> >  	int (*readdir) (struct file *, void *, filldir_t);
+> >  	unsigned int (*poll) (struct file *, struct poll_table_struct *);
+> >  	int (*ioctl) (struct inode *, struct file *, unsigned int, unsigned long);
+> > +	int (*ioctl_native) (struct inode *, struct file *, unsigned int, unsigned long);
+> > +	int (*ioctl_compat) (struct inode *, struct file *, unsigned int, unsigned long);
 > 
-> I doubt this will help, because the number of zones is quite small.
+> Define these as long, not int.  No need to waste 32 perfectly good bits on 
+> 64bit platforms.
+
+I was just following ioctl. 
+
+And ioctl is the way it is because man IOCTL(2) defines ioctl as
+
+  int ioctl(int d, int request, ...);
+
+So I wander what goes on here- the syscall returns a long but
+libc cuts the high 32 bit?
+
+Now that I think about it,for compat if you start returning 0 in low
+32 bits you are unlike to get the effect you wanted ...
+The ioctl_native could be changed but that would make it impossible
+for compatible ioctls to just use the same pointer in both.
+
+So what do you think - should I make just the native ioctl a long,
+or both, and document that the high 32 bit are cut in the compat call?
+
+> The main thing missing is documentation. You need clear comments what
+> the locking rules are and what compat is good for.
+
+Would these be best fit in the header file itself, or in a new
+Documentation/ file?
+
+> And you should change the code style to follow Documentation/CodingStyle
+I'll go over it again. Something specific that I missed?
+
+> Other than that it looks ok to me.
 > 
-> Better check every N pages, e.g. N=100
-
-I've done something like that:
-
---- swsusp.c.orig	2004-09-08 14:30:29.000000000 +0200
-+++ swsusp.c	2004-09-08 15:56:55.000000000 +0200
-@@ -38,6 +38,7 @@
- 
- #include <linux/module.h>
- #include <linux/mm.h>
-+#include <linux/nmi.h>
- #include <linux/suspend.h>
- #include <linux/smp_lock.h>
- #include <linux/file.h>
-@@ -556,14 +557,19 @@
- {
- 	struct zone *zone;
- 	unsigned long zone_pfn;
-+	unsigned nmi_cnt = 0;
- 
- 	nr_copy_pages = 0;
- 
- 	for_each_zone(zone) {
--		if (!is_highmem(zone)) {
--			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn)
-+		if (!is_highmem(zone))
-+			for (zone_pfn = 0; zone_pfn < zone->spanned_pages; ++zone_pfn) {
- 				nr_copy_pages += saveable(zone, &zone_pfn);
--		}
-+				if (nmi_cnt++ >= 100) {
-+					touch_nmi_watchdog();
-+					nmi_cnt = 0;
-+				}	
-+			}
- 	}
- }
- 
-and it works, but it seems to me that something similar is necessary for 
-resuming (I get an NMI watchdog report if it's not disabled).
-
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+> -Andi

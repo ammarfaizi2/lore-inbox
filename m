@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316891AbSGBT5x>; Tue, 2 Jul 2002 15:57:53 -0400
+	id <S310190AbSGBUkn>; Tue, 2 Jul 2002 16:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316892AbSGBT5w>; Tue, 2 Jul 2002 15:57:52 -0400
-Received: from aboukir-101-1-23-willy.adsl.nerim.net ([62.212.114.60]:46866
-	"EHLO www.home.local") by vger.kernel.org with ESMTP
-	id <S316889AbSGBT5v>; Tue, 2 Jul 2002 15:57:51 -0400
-Date: Tue, 2 Jul 2002 22:00:05 +0200
-From: Willy TARREAU <willy@w.ods.org>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: willy tarreau <wtarreau@yahoo.fr>, Willy TARREAU <willy@w.ods.org>,
-       willy@meta-x.org, linux-kernel@vger.kernel.org,
-       Ronald.Wahl@informatik.tu-chemnitz.de
-Subject: Re: [ANNOUNCE] CMOV emulation for 2.4.19-rc1
-Message-ID: <20020702200005.GA29557@pcw.home.local>
-References: <20020701130327.38962.qmail@web20506.mail.yahoo.com> <200207011316.g61DGxT18808@Port.imtp.ilyichevsk.odessa.ua>
+	id <S311025AbSGBUkm>; Tue, 2 Jul 2002 16:40:42 -0400
+Received: from dingo.clsp.jhu.edu ([128.220.34.67]:30066 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S310190AbSGBUkl>;
+	Tue, 2 Jul 2002 16:40:41 -0400
+Date: Tue, 2 Jul 2002 02:47:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Robert Love <rml@ufl.edu>
+Cc: Pradeep Padala <ppadala@cise.ufl.edu>,
+       Andrew D Kirch <Trelane@Trelane.Net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace vs /proc
+Message-ID: <20020702004706.GB107@elf.ucw.cz>
+References: <Pine.LNX.4.44.0206201742170.18444-100000@lin114-02.cise.ufl.edu> <1024609747.922.0.camel@sinai>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200207011316.g61DGxT18808@Port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1024609747.922.0.camel@sinai>
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you code up a "dummy" emulator (which just ignores
-> any invalid opcode by doing eip+=3) and compare trap times
-> of your emulator and dummy one for, say, CMOVC AL,AL?
-> (with carry flag cleared)
+Hi!
 
-The dummy emulator costs exactly 296 cycles (stable) on my
-k6-2/450. It only adds 3 to eip then returns.
+> > As far as I could investigate, I didn't find any such interface in linux. 
+> > Programs like strace do the tracing through ptrace only.
+> > 
+> > Please let me know if you know more about this.
+> 
+> There is no such interface in Linux and currently no plans to develop a
+> Solaris-style /proc.
 
-To check this, I compared 1 million iteriations of 10
-consecutive cmove %eax,%eax with as much lea 0(%eax),%eax
-(1 cycle, RAW dependancy, not parallelizable), and the
-difference was exactly 660 ns/inst (297 cycles).
-
-That said, I agree with you that it's worth optimizing a
-bit, at least to stay closer to 300 cycles than to 450.
-But that won't make emulated machines fast anyway.
-
-One interesting note: I tested the prog on a VIA C3/533
-Mhz. One native cmove %eax,%eax costs 56 cycles here ! (at
-first, I even thought it was emulated). It's a shame to see
-how these instructions have been implemented. May be they
-flush the pipelines, write-backs, ... before the instruction.
-BTW, cmov isn't reported in cpu_flags, perhaps to discourage
-progs from using it ;-)
-
-I will recode the stuff, and add two preventive messages:
- - at boot time : "warning: this kernel may emulate unsupported instructions. If you
-   find it slow, please do dmesg."
- - at first emulation : "trap caught for instruction XXX, program XXX."
-
-Cheers,
-Willy
-
+I believe such proc interface is wrong thing to do. ptrace() is really
+very *very* special thing, and you don't want it hidden in some kind
+of /proc magic.
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

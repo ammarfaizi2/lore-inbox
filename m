@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277893AbRJaAXP>; Tue, 30 Oct 2001 19:23:15 -0500
+	id <S278099AbRJaA2f>; Tue, 30 Oct 2001 19:28:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277983AbRJaAXF>; Tue, 30 Oct 2001 19:23:05 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4106 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277893AbRJaAWx>; Tue, 30 Oct 2001 19:22:53 -0500
-Subject: Re: [PATCH] init/main.c/root_dev_names - another one #ifdef
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 31 Oct 2001 00:28:49 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), zzz@cd-club.ru (Denis Zaitsev),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110301610460.1336-100000@penguin.transmeta.com> from "Linus Torvalds" at Oct 30, 2001 04:12:36 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S278103AbRJaA2b>; Tue, 30 Oct 2001 19:28:31 -0500
+Received: from atlrel6.hp.com ([192.151.27.8]:45073 "HELO atlrel6.hp.com")
+	by vger.kernel.org with SMTP id <S278087AbRJaA2R>;
+	Tue, 30 Oct 2001 19:28:17 -0500
+Message-ID: <3BDF45B6.5B7FA397@fc.hp.com>
+Date: Tue, 30 Oct 2001 17:28:38 -0700
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: rjk@greenend.org.uk
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: problem with ide-scsi and IDE tape drive
+In-Reply-To: <mailman.1004484541.12716.linux-kernel2news@redhat.com> <200110302359.f9UNxht09639@devserv.devel.redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15yjFR-0001qh-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Firstly the array is __init so is discarded on boot
+Pete Zaitcev wrote:
 > 
-> I think that array really is broken. We should get the name association
-> from the array that "register_blkdev()" maintains, I'm sure. That way
-> random stupid driver X doesn't need to touch a common init/main.c file,
-> which I find personally offensive.
+> > I originally found this under 2.2.19, and upgraded to 2.4.13 to see if
+> > the problem was still there when running more recent code.  It is.
+> 
+> >     mt -f $TAPE rewind
+> >     echo "tape 1" | dd conv=sync of=$TAPE bs=$hsize count=1
+> >
+> >     for x in 1 2 3; do
+> >       mt -f $TAPE rewind
+> >       dd if=$TAPE of=/dev/null bs=$hsize
+> >       date
+> >       tar -c -b 20 -f $TAPE /boot
+> >     done
+> 
+> Try "mt fsf" instead dd, see if that helps.
+> 
+> -- Pete
 
-For 2.5 definitely. Right now we'd have to be very careful to process
-the string -> number conversion after initrd had run (ie at the root change)
-and also add a mechanism for aliases for the names we don't quite match
+
+dd is not guaranteed toposition you beyond the filemark after the first
+record. You have to be positioned beyond the filemark to start writing.
+Pete's suggestion is a good one. "mt fsf" will position the tape beyond
+the filemark and writing to the tape should work at that point.
+
+-- 
+Khalid
+
+====================================================================
+Khalid Aziz                              Linux Systems Operation R&D
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

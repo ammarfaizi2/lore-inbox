@@ -1,58 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbUKDUwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbUKDUyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbUKDUwy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 15:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbUKDUuZ
+	id S262423AbUKDUyA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 15:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbUKDUxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 15:50:25 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:42116 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262427AbUKDUps
+	Thu, 4 Nov 2004 15:53:16 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:8322 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262427AbUKDUvA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 15:45:48 -0500
-Message-ID: <418A9593.5070102@tmr.com>
-Date: Thu, 04 Nov 2004 15:48:19 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adam Heath <doogie@debian.org>
-CC: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: support of older compilers
-References: <20041103233029.GA16982@taniwha.stupidest.org><20041103211353.GA24084@infradead.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
-In-Reply-To: <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Nov 2004 15:51:00 -0500
+Date: Thu, 4 Nov 2004 21:53:18 +0100
+From: DervishD <lkml@dervishd.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Gene Heskett <gheskett@wdtv.com>, linux-kernel@vger.kernel.org,
+       Valdis.Kletnieks@vt.edu,
+       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: is killing zombies possible w/o a reboot?
+Message-ID: <20041104205318.GA25290@DervishD>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	Gene Heskett <gheskett@wdtv.com>, linux-kernel@vger.kernel.org,
+	Valdis.Kletnieks@vt.edu,
+	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+References: <20041104102655.GB23673@DervishD> <418A816C.3060705@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <418A816C.3060705@tmr.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Heath wrote:
-> On Wed, 3 Nov 2004, Chris Wedgwood wrote:
-> 
-> 
->>On Wed, Nov 03, 2004 at 05:06:56PM -0600, Adam Heath wrote:
->>
->>
->>>You can't be serious that this is a problem.
->>
->>try it, say gcc 2.95 vs gcc 4.0 ... i think last i checked the older
->>gcc was over twice as fast
-> 
-> 
-> I didn't deny the speed difference of older and newer compilers.
-> 
-> But why is this an issue when compiling a kernel?  How often do you compile
-> your kernel?
+    Hi Bill :)
 
-Twice for each -bk to look for "not my fault" issues (preempt and not), 
-usually once with some combination of Nick, Con, or Ingo patches, and 
-then with config options depending on what's been added. Not to mention 
-patches I cull from here and my own set of network patches.
+ * Bill Davidsen <davidsen@tmr.com> dixit:
+> >    If init is the parent, all works ok, just wait a bit and all
+> >those zombies will really die ;)
+> Actually the ones in i/o probably won't, since the kernel either missed 
+> the completion or didn't time out if the hardware missed sending the 
+> int. And even plain non-i/o zombies, just how long "a bit" are you 
+> proposing?
 
-For some people I bet the limit is 24/{compile_time} per day.
+    A zombie *is already dead*, not stuck in some uninterruptible
+queue in the kernel, so they will be ripped, sure. My last sentence
+in the paragraph above may be confusing: when I said 'really die' I
+meant 'be ripped'?
+
+> Over Thanksgiving weekend I will try to look at the init code and see if 
+> a signal could be used to initiate a forced reap without waiting for the 
+> timer. By "look at" I mean not only "could I do that" but is it a good 
+> thing to do, before someone starts trying to explain that it's going to 
+> do something evil not to wait for the timer...
+
+    Don't look: just send SIGCHLD to init. That will do.
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/

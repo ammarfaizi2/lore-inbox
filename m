@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263251AbREWUq3>; Wed, 23 May 2001 16:46:29 -0400
+	id <S263250AbREWUk7>; Wed, 23 May 2001 16:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263252AbREWUqJ>; Wed, 23 May 2001 16:46:09 -0400
-Received: from 136-CORU-X12.libre.retevision.es ([62.83.49.136]:14994 "HELO
-	trasno.mitica") by vger.kernel.org with SMTP id <S263251AbREWUqA>;
-	Wed, 23 May 2001 16:46:00 -0400
-To: alan@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] hga depmod fix
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-Date: 23 May 2001 22:44:38 +0200
-Message-ID: <m2ofsju761.fsf@trasno.mitica>
+	id <S263251AbREWUkj>; Wed, 23 May 2001 16:40:39 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:60589 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263250AbREWUk2>;
+	Wed, 23 May 2001 16:40:28 -0400
+Message-ID: <3B0C202E.AA9962AD@mandrakesoft.com>
+Date: Wed, 23 May 2001 16:40:14 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: DVD blockdevice buffers
+In-Reply-To: <Pine.LNX.4.31.0105231258420.6642-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> Now, it may be that the preliminary patches from Andrea do not work this
+> way. I didn't look at them too closely, and I assume that Andrea basically
+> made the block-size be the same as the page size. That's how I would have
+> done it (and then waited for people to find real life cases where we want
+> to allow sector writes).
 
-Hi
-        if you compile hga as a module, you get unresolved symbols,
-        you need the following patch for it.
-        The patch is trivial.  Apply, please.
-
-Later, Juan.
-
---- linux/drivers/video/hgafb.c.~1~	Mon May 21 08:56:08 2001
-+++ linux/drivers/video/hgafb.c	Mon May 21 09:04:00 2001
-@@ -712,7 +712,7 @@
- 
- 	hga_gfx_mode();
- 	hga_clear_screen();
--#ifdef MODULE
-+#ifndef MODULE
- 	if (!nologo) hga_show_logo();
- #endif /* MODULE */
- 
-
+Due to limitations in low-level drivers, Andrea was forced to hardcode
+4096 for the block size, instead of using PAGE_SIZE or PAGE_CACHE_SIZE.
 
 -- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy
+Jeff Garzik      | "Are you the police?"
+Building 1024    | "No, ma'am.  We're musicians."
+MandrakeSoft     |

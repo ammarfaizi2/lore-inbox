@@ -1,34 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131058AbRAEROj>; Fri, 5 Jan 2001 12:14:39 -0500
+	id <S130670AbRAERPJ>; Fri, 5 Jan 2001 12:15:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131384AbRAERO3>; Fri, 5 Jan 2001 12:14:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41478 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131371AbRAEROS>; Fri, 5 Jan 2001 12:14:18 -0500
-Subject: Re: Change of policy for future 2.2 driver submissions
-To: Wayne.Brown@altec.com
-Date: Fri, 5 Jan 2001 17:15:36 +0000 (GMT)
-Cc: phillips@innominate.de (Daniel Phillips),
-        hahn@coffee.psychology.mcmaster.ca (Mark Hahn),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <862569CB.005E6373.00@smtpnotes.altec.com> from "Wayne.Brown@altec.com" at Jan 05, 2001 11:11:27 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129436AbRAERPD>; Fri, 5 Jan 2001 12:15:03 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:41725 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S131384AbRAEROq>; Fri, 5 Jan 2001 12:14:46 -0500
+Date: Fri, 5 Jan 2001 15:14:08 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: linux-mm@kvack.org
+cc: linux-kernel@vger.kernel.org
+Subject: MM/VM todo list
+Message-ID: <Pine.LNX.4.21.0101051505430.1295-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14EaSo-00083x-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In other words, there's no longer any such thing as a "stable" branch.  The
-> whole point of having separate production and development branches was to have
-> one in which each succeeding patch could be counted upon to be more reliable
+Hi,
 
-By your personal definition of stable 2.0.3x is the current stable kernel. 
+here is a TODO list for the memory management area of the
+Linux kernel, with both trivial things that could be done
+for later 2.4 releases and more complex things that really
+have to be 2.5 things.
 
-Alan
+Most of these can be found on http://linux24.sourceforge.net/ too
+
+Trivial stuff:
+* VM: better IO clustering for swap (and filesystem) IO
+  * Marcelo's swapin/out clustering code
+  * ->writepage() IO clustering support
+  * page_launder()/->writepage() working together in avoiding
+    low-yield (small cluster) IO at first, ...
+* VM: include Ben LaHaise's code, which moves readahead to the
+  VMA level, this way we can do streaming swap IO, complete with
+  drop_behind()
+* VM: enforce RSS ulimit
+
+
+Probably 2.5 era:
+* VM: physical->virtual reverse mapping, so we can do much
+  better page aging with less CPU usage spikes 
+* VM: move all the global VM variables, lists, etc. into the
+  pgdat struct for better NUMA scalability
+* VM: per-node kswapd for NUMA
+* VM: thrashing control, maybe process suspension with some
+  forced swapping ?             (trivial only in theory)
+* VM: experiment with different active lists / aging pages
+  of different ages at different rates + other page replacement
+  improvements
+* VM: Quality of Service / fairness / ... improvements
+
+
+Additions to this list are always welcome, I'll put it online
+on the Linux-MM pages (http://www.linux.eu.org/Linux-MM/) soon.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to loose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

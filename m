@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261690AbULNWBe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbULNWCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261690AbULNWBe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbULNWBe
+	id S261681AbULNWCT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbULNWCS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:01:34 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:20910 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261690AbULNWAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:00:11 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc3-mm1-V0.7.33-0
-From: Steven Rostedt <rostedt@goodmis.org>
-To: george@mvista.com
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       LKML <linux-kernel@vger.kernel.org>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <41BF60A1.1080606@mvista.com>
-References: <20041122005411.GA19363@elte.hu> <20041123175823.GA8803@elte.hu>
-	 <20041124101626.GA31788@elte.hu> <20041203205807.GA25578@elte.hu>
-	 <20041207132927.GA4846@elte.hu> <20041207141123.GA12025@elte.hu>
-	 <20041214132834.GA32390@elte.hu>
-	 <1103052853.3582.46.camel@localhost.localdomain>
-	 <1103054908.14699.20.camel@krustophenia.net>
-	 <1103057144.3582.51.camel@localhost.localdomain>
-	 <20041214211828.GA17216@elte.hu>  <41BF60A1.1080606@mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Tue, 14 Dec 2004 16:59:53 -0500
-Message-Id: <1103061593.3582.56.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Tue, 14 Dec 2004 17:02:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30424 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261688AbULNV61 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 16:58:27 -0500
+Date: Tue, 14 Dec 2004 13:58:01 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+       David Howells <dhowells@redhat.com>, hch@infradead.org,
+       aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <20041214184605.B1271@almesberger.net>
+Message-ID: <Pine.LNX.4.58.0412141351570.3279@ppc970.osdl.org>
+References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk>
+ <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com>
+ <16810.24893.747522.656073@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> <20041214025110.A28617@almesberger.net>
+ <Pine.LNX.4.58.0412140734340.3279@ppc970.osdl.org> <20041214135029.A1271@almesberger.net>
+ <Pine.LNX.4.58.0412140950520.3279@ppc970.osdl.org> <20041214184605.B1271@almesberger.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-14 at 13:52 -0800, George Anzinger wrote:
-> Ingo Molnar wrote:
 
-...
 
-> >>Now, since High Res-timers and RT seem to go together, what are the
-> >>plans for merging these?  If this is indeed what I need, then I'll be
-> >>doing it to myself, [...]
-> > 
-> > 
-> > i've been thinking about it on and off. If you would/could try it that
-> > would certainly help. RT for Linux is a dance of many small steps.
-> > 
-> > the two projects are obviously complementary and i have no intention to
-> > reinvent the wheel in any way. Best would be to bring hires timers up to
-> > upstream-mergable state (independently of the -RT patch) and ask Andrew
-> > to include it in -mm, then i'd port -RT to it automatically.
+On Tue, 14 Dec 2004, Werner Almesberger wrote:
+> > So forget about that stupid abortion called "uint32_t" already. It buys
+> > you absolutely nothing.
 > 
-> Well, I guess I am just backward :)  I plan to port it to the current RT today 
-> or tomorrow (if all goes well).  I will then work on the changes needed to get 
-> it into -mm.  Guess I will be supporting two versions for a bit...
-> 
+> Now, what do we do with them when they are inside the kernel,
+> far from any interfaces ? Live and let live ?
 
-I need what you've been working on, so I'm available to help get the two
-together. Since you two (Ingo and George) are the creators of these,
-I'll let you fight it out at how to go about this. If it ends up being
-two patches for you George, then I would be glad to help maintain the
-RT/HigRes one.
+Yes. As long as they don't cause problems, I'm a big fan of "let
+developers make their own choices". I think that uint32_t and friends are
+totally useless in the kernel, but while I have strong opinions, I try to
+not force those opinions on others too much.
 
--- Steve
+Quite frankly, it's unlikely to cause problems in practice. Having strong 
+opinions and enjoying the occasional flame war is one thing. Trying to 
+rail against other people who don't share those opinions and force them to 
+change their code is a totally different thing.
 
+[ It has absolutely nothing to do with me being lazy. Oh, no. I'm not 
+  lazy. Much better to attribute it to some lofty goal like "live and let 
+  live". If the two just _happen_ to co-incide, all the better ;-]
+
+			Linus

@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288384AbSAQJGD>; Thu, 17 Jan 2002 04:06:03 -0500
+	id <S288420AbSAQJRe>; Thu, 17 Jan 2002 04:17:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288411AbSAQJFx>; Thu, 17 Jan 2002 04:05:53 -0500
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:10252 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id <S288384AbSAQJFs>;
-	Thu, 17 Jan 2002 04:05:48 -0500
-Date: Thu, 17 Jan 2002 02:19:41 -0800 (PST)
-From: Alan Olsen <alan@clueserver.org>
-To: Marc ZYNGIER <mzyngier@freesurf.fr>
-cc: <esr@thyrsus.com>, Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Calling EISA experts
-In-Reply-To: <wrppu492w8g.fsf@hina.wild-wind.fr.eu.org>
-Message-ID: <Pine.LNX.4.33.0201170216450.6003-100000@clueserver.org>
+	id <S288422AbSAQJRY>; Thu, 17 Jan 2002 04:17:24 -0500
+Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:56452 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S288420AbSAQJRN>; Thu, 17 Jan 2002 04:17:13 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: I3 sched brakes "realtime" task
+Date: Thu, 17 Jan 2002 10:17:12 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33.0201170008290.20808-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0201170008290.20808-100000@localhost.localdomain>
+Cc: Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020117091722Z288420-13996+7423@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 17 Jan 2002, Marc ZYNGIER wrote:
+On Thursday, 17. January 2002 00:09, you wrote:
+> On Wed, 16 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
+> > running I3 on top of 2.4.18-pre3-I3-VM-22-preempt-lock ;-) This
+> > combination rouks!
+>
+> could you try the -J0 patch i've just uploaded? It has a number of fixes
+> and improvements.
 
-> Most high-end Pentium-Pro motherboard had both PCI and EISA slots.
+Somewhat better but a reniced artsd (-16 or -19) stutters a little during 
+dbench 32. Maybe there is one show stopper slipped into preempt or lock-break 
+during my 10_vm-22 merge. Few stalls during heavy IO. But I have the buffer.c 
+fix applied.
 
-I think that depends on when it was made and by whom.  My Micron Millenia 
-pro2 with dual Pentium-pro 200s does not have EISA at all.
+2.4.18-pre4-J0-VM-22-preempt-lock
 
--- 
-alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
-Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
- "All power is derived from the barrel of a gnu." - Mao Tse Stallman
+32 clients started
+................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................+..+...................................................................+..+.+.+.++++.++.+...........++...........++...+.+++.+++.........+...+.++.....+...++....+********************************
+Throughput 51.711 MB/sec (NB=64.6388 MB/sec  517.11 MBit/sec)
+14.260u 49.860s 1:22.71 77.5%   0+0k 0+0io 939pf+0w
 
+More to come after some sleep...
+
+-Dieter
+
+BTW I'll prepare a unified patch for wider testing if anybody want.

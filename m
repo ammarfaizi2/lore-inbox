@@ -1,76 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262688AbUJ1Bzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262699AbUJ1BzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262688AbUJ1Bzd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 21:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUJ1Bzd
+	id S262699AbUJ1BzY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 21:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbUJ1BzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 21:55:33 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:41168 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262688AbUJ1BzN (ORCPT
+	Wed, 27 Oct 2004 21:55:24 -0400
+Received: from fmr10.intel.com ([192.55.52.30]:28315 "EHLO
+	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262683AbUJ1BzF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 21:55:13 -0400
-Date: Thu, 28 Oct 2004 03:49:52 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Larry McVoy <lm@bitmover.com>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@novell.com>,
-       Joe Perches <joe@perches.com>,
-       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: BK kernel workflow
-In-Reply-To: <20041028005412.GA8065@work.bitmover.com>
-Message-ID: <Pine.LNX.4.61.0410280314490.877@scrub.home>
-References: <1098707342.7355.44.camel@localhost.localdomain>
- <20041025133951.GW14325@dualathlon.random> <20041025162022.GA27979@work.bitmover.com>
- <20041025164732.GE14325@dualathlon.random> <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
- <Pine.LNX.4.61.0410252350240.17266@scrub.home> <20041026010141.GA15919@work.bitmover.com>
- <Pine.LNX.4.61.0410270338310.877@scrub.home> <20041027035412.GA8493@work.bitmover.com>
- <Pine.LNX.4.61.0410272214580.877@scrub.home> <20041028005412.GA8065@work.bitmover.com>
+	Wed, 27 Oct 2004 21:55:05 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Fixing MTRR smp breakage and suspending sysdevs.
+Date: Wed, 27 Oct 2004 18:54:36 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB600333AEF9@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Fixing MTRR smp breakage and suspending sysdevs.
+Thread-Index: AcS8EfsXY1o15QQ6TFu8j9E6cOb6HAAfbqQw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>, "Li, Shaohua" <shaohua.li@intel.com>
+Cc: <ncunningham@linuxmail.org>, "Patrick Mochel" <mochel@digitalimplant.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 28 Oct 2004 01:54:37.0946 (UTC) FILETIME=[14DC05A0:01C4BC91]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 27 Oct 2004, Larry McVoy wrote:
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Pavel Machek
+>Sent: Wednesday, October 27, 2004 3:01 AM
+>To: Li, Shaohua
+>Cc: ncunningham@linuxmail.org; Patrick Mochel; Linux Kernel 
+>Mailing List
+>Subject: Re: Fixing MTRR smp breakage and suspending sysdevs.
+>
+>Hi!
+>
+>> >One thing I have noticed is that by adding the sysdev suspend/resume
+>> >calls, I've gained a few seconds delay. I'll see if I can track down
+>> the
+>> >cause.
+>> Is the problem MTRR resume must be with IRQ enabled, right? Could we
+>> implement a method sysdev resume with IRQ enabled? MTRR driver isn't
+>> the
+>
+>MTRR does not deserve to be sysdev. It is not essential for the
+>system, it only makes it slow.
+>
+>> only case. The ACPI Link device is another case, it's a 
+>sysdev (it must
+>> resume before any PCI device resumed), but its resume (it 
+>uses semaphore
+>> and non-atomic kmalloc) can't invoked with IRQ enabled. I 
+>guess cpufreq
+>> driver is another case when suspend/resume SMP is supported.
+>
+>I do not see how enabling interrupts before setting up IRQs is good
+>idea.
+>
+>What about this one, instead?
+>
+>* ACPI Link device should allocate with GFP_ATOMIC
+>
+>* during suspend, locks can't be taken. (We stop userland, etc). So it
+>should be okay to down_trylock() and panic if that does not work.
 
-> 100% of the data, diffs, comments, everything, is available in a BK2CVS
-> exported CVS tree.  The comparison of the metadata is as follows:
-> 
->     System          File deltas		Commits
->     BK              203,999		53,274        (1)
->     CVS             195,689		23,429        (2)
-> 
-> In other words, the files which contain the data have 96% of the same
-> information as the BK files, at the same boundaries, the same patches can
-> be generated, etc.  In 4% of the cases you are looking at a patch which
-> was two commits in BK but one commit in CVS.  In 4% of the cases only.
-> 96% of the time you'd get the same patch from each system.
 
-Actually the Commit numbers are far more interesting and here you have 
-difference of 56% you haven't explained.
-A large number of CVS commits are really also single BK commits (let's say 
-30%, I have to leave the verification to you, but I don't think I'm that 
-far of), that would leave 70% of BK commits merged into 32% of CVS 
-commits. These 70% can't be extracted anymore as a single logical change 
-from CVS.
-The only reason this number isn't worse is that the kernel development is 
-still quite serial, e.g. most of the patches sent by Andrew show up as a 
-single commit, but the more people use bk the worse these numbers get.
+Actually, I am trying another approach for Link Device.
 
-> That's pretty darned good IMO.
+- Temporarily enable interrupts during Link Device resume. Turn off all
+the external interrupts at suspend time. They will remain suspended
+until interrupt device resumes.
 
-I can play with numbers too...
+Something like the patch below. Only part I don't like is controlling
+the resume order by Makefiles and the link order. Probably we can fix
+that by sorting the sysdev list at the boottime, depending on our
+ordering requirements. I think, the resume order we need to maintain is
+something like this: irqrouter, pit/timer, i8259, lapic, ioapic, others
 
-> Maybe you weren't aware that that is the situation so you were complaining
-> about something that wasn't true.  Now that you are aware that you are
-> getting all of the data, all of the comments, in a form which is 96%
-> of the way to being identical to BK you will no longer have a complaint.
+Thanks,
+-Venki
 
-You're only telling half of the story and I'm afraid you'll get away with 
-it, because most people don't really know the topic that well and I can't 
-blame them.
-
-bye, Roman
+--- linux-2.6.9-latest/arch/i386/kernel/i8259.c.org	2004-10-26
+21:58:32.000000000 -0700
++++ linux-2.6.9-latest/arch/i386/kernel/i8259.c	2004-10-27
+13:06:12.000000000 -0700
+@@ -266,6 +266,10 @@ static int i8259A_resume(struct sys_devi
+ static int i8259A_suspend(struct sys_device *dev, u32 state)
+ {
+ 	save_ELCR(irq_trigger);
++	/* Stop all the interrupts from PIC until resume */
++	outb(0xff, PIC_MASTER_IMR);
++	outb(0xff, PIC_SLAVE_IMR);
++
+ 	return 0;
+ }
+ 
+--- linux-2.6.9-latest/arch/i386/kernel/io_apic.c.org	2004-10-26
+22:05:58.000000000 -0700
++++ linux-2.6.9-latest/arch/i386/kernel/io_apic.c	2004-10-26
+22:06:53.000000000 -0700
+@@ -2302,6 +2302,7 @@ static int ioapic_suspend(struct sys_dev
+ 		*(((int *)entry) + 1) = io_apic_read(dev->id, 0x11 + 2 *
+i);
+ 		*(((int *)entry) + 0) = io_apic_read(dev->id, 0x10 + 2 *
+i);
+ 	}
++	clear_IO_APIC();
+ 	spin_unlock_irqrestore(&ioapic_lock, flags);
+ 
+ 	return 0;
+--- linux-2.6.9-latest/drivers/acpi/pci_link.c.org	2004-10-26
+22:13:20.000000000 -0700
++++ linux-2.6.9-latest/drivers/acpi/pci_link.c	2004-10-27
+13:31:43.000000000 -0700
+@@ -714,9 +714,12 @@ irqrouter_resume(
+ {
+ 	struct list_head        *node = NULL;
+ 	struct acpi_pci_link    *link = NULL;
++	unsigned long 		flags;
+ 
+ 	ACPI_FUNCTION_TRACE("irqrouter_resume");
+ 
++	local_save_flags(flags);
++	local_irq_enable();
+ 	list_for_each(node, &acpi_link.entries) {
+ 
+ 		link = list_entry(node, struct acpi_pci_link, node);
+@@ -727,6 +730,7 @@ irqrouter_resume(
+ 
+ 		acpi_pci_link_resume(link);
+ 	}
++	local_irq_restore(flags);
+ 	return_VALUE(0);
+ }
+ 
+--- linux-2.6.9-latest/Makefile.org	2004-10-27 12:38:19.000000000
+-0700
++++ linux-2.6.9-latest/Makefile	2004-10-27 13:06:10.000000000 -0700
+@@ -571,7 +571,7 @@ libs-y		:= $(libs-y1) $(libs-y2)
+ # System.map is generated to document addresses of all kernel symbols
+ 
+ vmlinux-init := $(head-y) $(init-y)
+-vmlinux-main := $(core-y) $(libs-y) $(drivers-y) $(net-y)
++vmlinux-main := $(drivers-y) $(core-y) $(libs-y) $(net-y)
+ vmlinux-all  := $(vmlinux-init) $(vmlinux-main)
+ vmlinux-lds  := arch/$(ARCH)/kernel/vmlinux.lds
+ 

@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267749AbUBTIzl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 03:55:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267748AbUBTIzl
+	id S267739AbUBTIxh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 03:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267742AbUBTIxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 03:55:41 -0500
-Received: from smtp-out1.xs4all.nl ([194.109.24.11]:36108 "EHLO
-	smtp-out1.xs4all.nl") by vger.kernel.org with ESMTP id S267744AbUBTIz3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 03:55:29 -0500
-In-Reply-To: <403596D8.8020509@pobox.com>
-References: <1077242738.12567.76.camel@morsel.kungfoocoder.org> <403596D8.8020509@pobox.com>
-Mime-Version: 1.0 (Apple Message framework v612)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-34-175863389"
-Message-Id: <7D98D0B5-6382-11D8-B07A-000A95CD704C@kungfoocoder.org>
+	Fri, 20 Feb 2004 03:53:37 -0500
+Received: from gate.crashing.org ([63.228.1.57]:10410 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267739AbUBTIxg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 03:53:36 -0500
+Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB update for 2.6.3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: dsaxena@plexity.net, Linus Torvalds <torvalds@osdl.org>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
+       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4035C8C4.8010605@pacbell.net>
+References: <20040220012802.GA16523@kroah.com>
+	 <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
+	 <1077256996.20789.1091.camel@gaston> <20040220074041.GA6680@plexity.net>
+	 <1077263253.20789.1221.camel@gaston> <20040220080801.GA6786@plexity.net>
+	 <4035C8C4.8010605@pacbell.net>
+Content-Type: text/plain
+Message-Id: <1077266892.20779.1290.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 20 Feb 2004 19:48:13 +1100
 Content-Transfer-Encoding: 7bit
-Cc: atulm@lsil.com, akpm@osdl.org,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       James.Bottomley@HansenPartnership.com, torvalds@osdl.org,
-       Linux SCSI mailing list <linux-scsi@vger.kernel.org>
-From: Paul Wagland <paul@kungfoocoder.org>
-Subject: Re: [PATCH][BUGFIX] : Megaraid patch for 2.6 1/5
-Date: Fri, 20 Feb 2004 09:55:11 +0100
-To: Jeff Garzik <jgarzik@pobox.com>
-X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
-X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Apple-Mail-34-175863389
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+> Well, usb_device->bus->controller is the only access that
+> should be needed ... much prettier than a tree walk!  It's
+> set up as part of device enumeration.
+> 
+> Some of the usb_buffer_*() mapping calls could probably
+> start to get inlined now, using the generic DMA calls.
 
+It all depends what the USB device driver does. If it does
+pass the struct device of it's controller, it's fine. If we
+want it to be able to pass its own struct device, we need
+this walk... it's a matter of how we want this API to behave.
 
-On Feb 20, 2004, at 6:10, Jeff Garzik wrote:
+Same goes for firewire, and possibly others
 
-> Patches 1-5 look OK to me.
->
-> If you are attempting to follow LSI's megaraid (in 2.4 only, sigh), 
-> patch #4 may wind up causing you grief in the future.  Hopefully Atul 
-> will pick it up, though :)
+Anyway, a platform hook in device_add() seem like it could be
+useful for other things as well...
 
-Thanks for looking them over! Patch 4 should not actually cause a 
-problem, since this is actually one of the bigger changes introduced in 
-the 2.00.9 patch. I think it was 2.00.9 anyway, just guessing from the 
-changelogs, in any case it is definitely one of the "more widespread" 
-changes between 2.00.3 and 2.10.1, which is the current 2.4 driver. The 
-bigger problem is probably going to be patch 5, and the follow ons from 
-it, since that factors out more common code between the /proc and /sys 
-filesystems, which also results in smaller "common chunks" between the 
-two drivers.
+Ben.
 
-My plan at the moment is to pull forward all of the changes from the 
-2.10.1 driver, and then to go back and add more sysfs support on top of 
-what is there now.
-
-Cheers,
-Paul
-
---Apple-Mail-34-175863389
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
-
-iD8DBQFANct2tch0EvEFvxURAjHyAKC/fEzMWFajDwLBIVCU2VpdAXt2OgCfY03N
-W8lmgZvV+UN45x7Z5rQqMiw=
-=movj
------END PGP SIGNATURE-----
-
---Apple-Mail-34-175863389--
 

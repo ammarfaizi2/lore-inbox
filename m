@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316508AbSEOWaf>; Wed, 15 May 2002 18:30:35 -0400
+	id <S316507AbSEOWaR>; Wed, 15 May 2002 18:30:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316509AbSEOWaf>; Wed, 15 May 2002 18:30:35 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:49168 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316508AbSEOWad>; Wed, 15 May 2002 18:30:33 -0400
-Date: Wed, 15 May 2002 19:30:18 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa3
-In-Reply-To: <20020515212733.GA1025@dualathlon.random>
-Message-ID: <Pine.LNX.4.44L.0205151929430.32261-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316508AbSEOWaQ>; Wed, 15 May 2002 18:30:16 -0400
+Received: from bitmover.com ([192.132.92.2]:21217 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S316507AbSEOWaP>;
+	Wed, 15 May 2002 18:30:15 -0400
+Date: Wed, 15 May 2002 15:30:16 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Kenneth Johansson <ken@canit.se>
+Cc: David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020515153016.H13795@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Kenneth Johansson <ken@canit.se>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Larry McVoy <lm@bitmover.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020515130831.C13795@work.bitmover.com> <20020515122003.A13795@work.bitmover.com> <30386.1021456050@redhat.com> <Pine.LNX.4.44.0205150931500.25038-100000@home.transmeta.com> <20020515122003.A13795@work.bitmover.com> <18732.1021493020@redhat.com> <19065.1021493737@redhat.com> <1021496614.917.33.camel@tiger>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 May 2002, Andrea Arcangeli wrote:
+> Also I have found that it is a pain in the a** to have debug code that I
+> really don't want to save but it's temporary usefull. When I do a pull
 
-> Only in 2.4.19pre8aa3: 00_ext3-register-filesystem-lifo-1
->
-> 	Make sure to always try mounting with ext3 before ext2 (otherwise
-> 	it's impossible to mount the real rootfs with ext3 if ext3 is a module
-> 	loaded by an initrd and ext2 is linked into the kernel).
+bk park		# saves work as a patch
+bk pull
+bk unpark	# restores the patch
 
-Funny, I've been doing this for months.
-
-Maybe you should look into pivot_mount(2) and pivot_mount(8)
-some day ?
-
-Rik
+park/unpark are undocumented because they puke when there are patch rejects.
+If we document them, then we have to explain to people what to do when there
+are patch rejects, and if you need that explanation, we probably can't help
+you.  You guys all grok patch rejects, so try park/unpark.
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

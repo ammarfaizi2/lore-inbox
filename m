@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313300AbSDYSUc>; Thu, 25 Apr 2002 14:20:32 -0400
+	id <S313304AbSDYSVY>; Thu, 25 Apr 2002 14:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313304AbSDYSUc>; Thu, 25 Apr 2002 14:20:32 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:34433 "EHLO
-	e33.esmtp.ibm.com") by vger.kernel.org with ESMTP
-	id <S313300AbSDYSUb>; Thu, 25 Apr 2002 14:20:31 -0400
-Subject: [RFC][PATCH] Early console/printk patch
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.9a  January 7, 2002
-Message-ID: <OFC06C7165.A501449A-ON87256BA6.006469C0-88256BA6.006471AC@boulder.ibm.com>
-From: "Keith Mannthey" <kmannth@us.ibm.com>
-Date: Thu, 25 Apr 2002 12:19:11 -0600
-X-MIMETrack: Serialize by Router on D03NM008/03/M/IBM(Release 5.0.9a |January 7, 2002) at
- 04/25/2002 12:19:12 PM
+	id <S313305AbSDYSVX>; Thu, 25 Apr 2002 14:21:23 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:43270 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313304AbSDYSVV>; Thu, 25 Apr 2002 14:21:21 -0400
+Message-ID: <3CC83A7B.40800@evision-ventures.com>
+Date: Thu, 25 Apr 2002 19:18:51 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.10 IDE 41
+In-Reply-To: <Pine.LNX.4.33.0203181243210.10517-100000@penguin.transmeta.com> <3CC8136B.2060705@evision-ventures.com> <20020425173908.GN3542@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Uz.ytkownik Jens Axboe napisa?:
+> On Thu, Apr 25 2002, Martin Dalecki wrote:
+> 
+>>Tue Apr 23 00:27:55 CEST 2002 ide-clean-41
+>>
+>>- Revoke the TCQ stuff. Well having it for some time showed just nicely what
+>>  has to be done before it can be included cleanly. But it's just not ready
+>>  jet.
+> 
+> 
+> Again, you charge ahead instead of just getting it fixed... It's not a
+> lot of work!
 
-        The following is a patch which provides early printk support.
-It provides a way to add a console in seup_arch and then
-automatically have it removed just before the real console is added.
-It provides a way to debug kernels that don't boot past console_init
-or that overflow the temp buffer.  It also provides 3 simple consoles
-for i386 (mainly vga and serial) that support write.  It allows you to
-just make printk calls and see them on your console before
-console_init.
+Unless you actually try too ;-).
 
-         A big piece of the patch was written by William Irwin and had
-been previously submitted by him (NOV 2001).  The patch is against
-a base 2.4.17 but should be easy to apply against other versions of
-the kernel.
+> If you want to disable the TCQ stuff until this is fixed, fine, I have
+> no objection to that. Completely ripping it out is a silly decision.
 
-Please let us know what you think about getting this into the kernel.
+Again: what's the problem? - You still have it there at hand.
+Nothing is lost.
 
-
-http://prdownloads.sourceforge.net/lse/patch-2.4.17-early_console
-
-Keith Mannthey
-kmannth@us.ibm.com
-
-
+> First you blast ahead and include even before I ask you or sent it to
+> Linus myself, now you remove it without my consent as well. A bit of
+> consistency would get you a long way.
 

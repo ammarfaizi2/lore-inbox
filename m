@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUI2EKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268180AbUI2EPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268177AbUI2EKj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 00:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268180AbUI2EKj
+	id S268180AbUI2EPu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 00:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUI2EPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 00:10:39 -0400
-Received: from gate.crashing.org ([63.228.1.57]:64154 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268177AbUI2EKf (ORCPT
+	Wed, 29 Sep 2004 00:15:50 -0400
+Received: from gate.crashing.org ([63.228.1.57]:4507 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268180AbUI2EPs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 00:10:35 -0400
-Subject: [PATCH] ppc/ppc64: Fix g5 access to PCI IO cycles
+	Wed, 29 Sep 2004 00:15:48 -0400
+Subject: Re: [PATCH] Use msleep_interruptible for therm_adt7467.c kernel
+	thread
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Owen Stampflee <ostampflee@terrasoftsolutions.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mdz@canonical.com, janitor@sternwelten.at
+In-Reply-To: <1096421071.14637.6.camel@localhost.localdomain>
+References: <20040927102552.GA19183@gondor.apana.org.au>
+	 <1096289501.9930.19.camel@localhost.localdomain>
+	 <20040929015827.GA26337@gondor.apana.org.au>
+	 <1096421071.14637.6.camel@localhost.localdomain>
 Content-Type: text/plain
-Message-Id: <1096430880.17114.3.camel@gaston>
+Message-Id: <1096431162.17114.10.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 29 Sep 2004 14:08:01 +1000
+Date: Wed, 29 Sep 2004 14:12:43 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Wed, 2004-09-29 at 11:24, Alan Cox wrote:
+> On Mer, 2004-09-29 at 02:58, Herbert Xu wrote:
+> > > A more interesting question is why this isn't being driven off a
+> > > timer ?
+> > 
+> > It probably could if the stuff afterwards doesn't sleep.
+> 
+> schedule_work() ?
 
-Looks like we never needed them, since that bug has been there forever,
-I didn't get the right base for the IO cycles on the G5 host bridge
-in the first place (I probably misinterpreted some OF forth code or
-something like that).
+I don't like that. I wrote the g5 therm driver (from which this one is
+derivated) as a kernel thread because, at least on the g5, I do a lot of
+i2c accesses. If I were to do that in schedule_work, I would "hog" keventd
+a very long time each time, which is bad.
 
-Here's the fix:
+schedule_work() is always way too much abused in this way, thus beeing
+a source of latencies.
 
-===== arch/ppc/platforms/pmac_pci.c 1.23 vs edited =====
---- 1.23/arch/ppc/platforms/pmac_pci.c	2004-09-21 11:17:40 +10:00
-+++ edited/arch/ppc/platforms/pmac_pci.c	2004-09-29 14:05:15 +10:00
-@@ -716,7 +716,7 @@
- 	 * properties or figuring out the U3 address space decoding logic and
- 	 * then read its configuration register (if any).
- 	 */
--	hose->io_base_phys = 0xf4000000 + 0x00400000;
-+	hose->io_base_phys = 0xf4000000;
- 	hose->io_base_virt = ioremap(hose->io_base_phys, 0x00400000);
- 	isa_io_base = (unsigned long) hose->io_base_virt;
- 	hose->io_resource.name = np->full_name;
-===== arch/ppc64/kernel/pmac_pci.c 1.9 vs edited =====
---- 1.9/arch/ppc64/kernel/pmac_pci.c	2004-09-27 19:12:49 +10:00
-+++ edited/arch/ppc64/kernel/pmac_pci.c	2004-09-29 14:05:38 +10:00
-@@ -419,7 +419,7 @@
- 	 * properties or figuring out the U3 address space decoding logic and
- 	 * then read it's configuration register (if any).
- 	 */
--	hose->io_base_phys = 0xf4000000 + 0x00400000;
-+	hose->io_base_phys = 0xf4000000;
- 	hose->io_base_virt = ioremap(hose->io_base_phys, 0x00400000);
- 	isa_io_base = pci_io_base = (unsigned long) hose->io_base_virt;
- 	hose->io_resource.name = np->full_name;
+Creating my own work queue would have been silly since (at least back
+then), it would have meant creating one additional kernel thread on every
+CPU... so I decided just to create my own kernel thread and be done with
+it.
+
+Now, using a timer and waiting on it would eventually work too, but the
+way it is now just works so ...
+
+Ben.
 
 

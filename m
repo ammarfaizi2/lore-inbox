@@ -1,35 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269318AbRHRXJz>; Sat, 18 Aug 2001 19:09:55 -0400
+	id <S269326AbRHRXX4>; Sat, 18 Aug 2001 19:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269395AbRHRXJp>; Sat, 18 Aug 2001 19:09:45 -0400
-Received: from mailc.telia.com ([194.22.190.4]:46844 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S269391AbRHRXJh>;
-	Sat, 18 Aug 2001 19:09:37 -0400
-Date: Sun, 19 Aug 2001 01:08:21 +0200
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.xx won't recompile.
-Message-ID: <20010819010821.A614@telia.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <01081812570001.09229@bits.linuxball> <001901c12810$97ef3a70$020a0a0a@totalmef> <3B7EB162.5070207@nothing-on.tv> <01081817401000.01028@bits.linuxball> <010d01c12839$29751370$020a0a0a@totalmef>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <010d01c12839$29751370$020a0a0a@totalmef>
-User-Agent: Mutt/1.3.20i
+	id <S269391AbRHRXXq>; Sat, 18 Aug 2001 19:23:46 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:21510 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S269326AbRHRXXd>;
+	Sat, 18 Aug 2001 19:23:33 -0400
+Date: Sun, 19 Aug 2001 01:23:47 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: disk I/O slower with kernel 2.4.9 
+Message-ID: <Pine.LNX.4.33.0108190037070.1823-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus Naeslund(f) <mag@fbab.net> wrote:
+HI,
+I was just starting to test eavily linux 2.4.9 if i can use it in a
+production environment.
+The platform target i am considering is the x86 family processor (Mostly
+AMD Athlon), with no more than 512 MByte RAM and scsi disks.
 
-> Maybe youre using egcs ?
-> I think that compiler is "old" from a 2.4.x (x>=6) point of view?
+The first thing i noticed is that, while  context switch performances
+has improoved a lot, disk I/O is mutch slower. This is true for both ext2
+and reiserFS, but maybe reiserFS is suffering the effects a little more
+than ext2.
+That can be even felt by a normal user, just doing a cp of a directory
+containing a lot of small files.
 
-andre@sledgehammer:~$ grep 'egcs' devel/kernel/linux/Documentation/Changes
-The recommended compiler for the kernel is egcs 1.1.2 (gcc 2.91.66), and it
-<snip>
--- 
+That also has big impacts with normal compilations.
+just making time make -j 2 bzImage with kernel source 2.4.9
+gives me:
 
-André Dahlqvist <andre.dahlqvist@telia.com>
+real    3m36.041s
+user    2m2.950s
+sys     0m9.740s
+
+while compiling the same sources running kernel 2.4.7 gives:
+
+real    2m28.350s
+user    1m56.150s
+sys     0m5.262s
+
+Every single operation that has to do with read and write activities
+on disks is simply slower.
+
+That has big repercussion with uses like NFS server, and web server
+with khttpd as primary server and apache as the secondary one.
+
+Even more affected are mysql performances and everything relates to FS
+speed.
+
+The test machine is a AMD Athlon 1300 Mhz, 200 FSB, with 256 Mbyte RAM
+133 Mhz and an adaptec 2940 UW2 with two seagate scsi 3 disks. Mother
+board is an abit KT7A-RAID (KT133 VT82C686 chipsets) but i am not using
+any ATA disk.
+
+kernel is compiled for athlon, gcc 2.95.3, binutils 2.11.90.0.27
+
+This should not be a problem related to a via since the server has always
+been stable with all 2.4.X kernels compiled for athlon, with mtrr and
+3dnow enabled, and all bios settings setted to maximize performances.
+The AIC7XXX adaptec driver i compied statically inside of the kernel is
+the new one, with firware rebuild enabled,
+253 tag queues, and 5000m sec for reset.
+
+To be sure i made some tests also on a k6 II, and on a PIII 450 with the
+same adaptec, the same memory amount (just dimm are 100 Mhz instead of 133
+Mhz), and same kernel configuration just using respectivelly k6 and PIII
+optimizzations. Results are the same.
+
+I know i should make some comparative test beetwen 2.4.7 and 2.4.9 using
+another scsi card (like a symbios or busloginc) or with some EIDE and ATA
+disks, but actually i do not have a server available for those tests with
+different HW. SO i made my tests also on a SUN ULTRA5, with one ultrasparc
+processor running at 400 Mhz, and 512 MByte of RAM. The ultra5 disk is
+simply an ATA66, but it runs as a standard EIDE at 33 Mhz. I could just
+test ext2, because i have never been able to run an mkreiserFS on
+this platform. DISK I/O is slower with 2.4.9 also with ultrasparc
+processor, but I have to admitt that the difference is not so niticeable,
+49 minutes to compile the kernel in front of 43...
+
+I read many posts about 2.4.8 slowdown as NFS server, and i think this
+could be a case of what i noticed.
+
+Hope this helps
+Luigi
+
+

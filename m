@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271597AbTGQW2q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 18:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271601AbTGQW2q
+	id S271615AbTGQW3n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 18:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271617AbTGQW3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 18:28:46 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:53185 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S271597AbTGQW2n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 18:28:43 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 17 Jul 2003 15:36:19 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: asm (lidt) question
-In-Reply-To: <20030717152819.66cfdbaf.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.55.0307171535020.4845@bigblue.dev.mcafeelabs.com>
-References: <20030717152819.66cfdbaf.rddunlap@osdl.org>
+	Thu, 17 Jul 2003 18:29:42 -0400
+Received: from inet-mail3.oracle.com ([148.87.2.203]:1522 "EHLO
+	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
+	id S271615AbTGQW3W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 18:29:22 -0400
+Message-ID: <3F1726DE.1020304@oracle.com>
+Date: Fri, 18 Jul 2003 00:44:46 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030617
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [2.4.22-pre6] radeon busted both in fb and X
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jul 2003, Randy.Dunlap wrote:
+Don't know if this has already been reported, but:
 
->
-> In arch/i386/kernel, inline asm for loading IDT (lidt) is used a few
-> times, but with slightly different constraints and output/input
-> definitions.  Are these OK, equivalent, or what?
->
-> [rddunlap@dragon kernel]$ findc lidt
-> ./cpu/common.c:484: __asm__ __volatile__("lidt %0": "=m" (idt_descr));
-> ./traps.c:783:	__asm__ __volatile__("lidt %0": "=m" (idt_descr));
->
-> vs.
->
-> ./reboot.c:186:	__asm__ __volatile__ ("lidt %0" : : "m" (real_mode_idt));
-> ./reboot.c:261:	__asm__ __volatile__("lidt %0": :"m" (no_idt));
-> ./suspend.c:95:	asm volatile ("lidt %0" :: "m" (saved_context.idt_limit));
+  when the code starts at bootup, screen goes wild with colored lines
+  like in a bad TV transmission. Letting the boot sequence end and
+  starting X afterwards yields no significant improvement - screen
+  is slightly less wild but entirely unusable.
 
-I'd have said no looking at the syntax (input/output), but they indeed
-generate the same code (just checked).
+2.4.22-pre4 works fine.
 
+base of RedHat 8.0 on a Dell Latitude C640, with this from lspci:
 
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M7 LW [Radeon Mobility 7500]
 
-- Davide
+--alessandro
+
+  "Prima di non essere sincera / Pensa che ti tradisci solo tu"
+       (Vasco Rossi, 'Prima di partire per un lungo viaggio')
 

@@ -1,164 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265665AbTIES7d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 14:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265707AbTIES7d
+	id S265902AbTIETVX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265775AbTIETUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 14:59:33 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:55012 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265665AbTIES7E
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 14:59:04 -0400
-Subject: LTP nightly regression results for
-	2.6.0-test4,bk1,bk2,bk3,bk5,bk6,mm1,mm2,mm3-1,mm4,mm5,mm6
-From: Paul Larson <plars@linuxtestproject.org>
-To: lkml <linux-kernel@vger.kernel.org>,
-       ltp-results <ltp-results@lists.sourceforge.net>,
-       linstab <linstab@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 05 Sep 2003 13:58:12 -0500
-Message-Id: <1062788292.1290.242.camel@plars>
-Mime-Version: 1.0
+	Fri, 5 Sep 2003 15:20:41 -0400
+Received: from ida.rowland.org ([192.131.102.52]:20228 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265830AbTIETQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 15:16:24 -0400
+Date: Fri, 5 Sep 2003 15:16:16 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: How can I force a read to hit the disk?
+In-Reply-To: <Pine.LNX.4.53.0309051435230.23800@chaos>
+Message-ID: <Pine.LNX.4.44L0.0309051510170.678-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lots of test results here, the swapoff test failures are related to a
-known bug in mkswap under debian unstable so nothing to worry about
-there.  If its too alarming to people to see it there, then I can take
-it out of the nightly run on this box.
+On Fri, 5 Sep 2003, Richard B. Johnson wrote:
 
-These results and previous results are archived at:
-http://developer.osdl.org/dev/ltp/results/
+> On Fri, 5 Sep 2003, Alan Stern wrote:
+> 
+> > My kernel module for Linux-2.6 needs to be able to verify that the media
+> > on which a file resides actually is readable.  How can I do that?
+> >
+> > It would certainly suffice to use the normal VFS read routines, if there
+> > was some way to force the system to actually read from the device rather
+> > than just returning data already in the cache.  So I guess it would be
+> > enough to perform an fdatasync for the file and then invalidate the file's
+> > cache entries.  How does one invalidate a file's cache entries?  Does
+> > filemap_flush() perform both these operations for you?
+> >
+> > TIA,
+> >
+> > Alan Stern
+> 
+> Force a read() before some write data was flushed to the disk??
 
-Thanks,
-Paul Larson
+No, no!  Force a read() _after_ all the dirty buffers are flushed to the 
+disk.
 
-2.6.0-test4-vs-2.6.0-test4-bk1
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-vs-2.6.0-test4-bk1/
-Test Name      2.6.0-test4        2.6.0-test4-bk1     Regression  Improvement
------------------------------------------------------------------------------
-getgroups03    FAIL               FAIL                    N            N
-gettimeofday   PASS               FAIL                    Y            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-syslog04       FAIL               FAIL                    N            N
+> Well, if you insist, just do a raw read of the device after
+> you find the inode, then offset, that your data is on. You
+> can walk the same fs structure(s) as the active file-system
+> to get all meta-data information.
 
-2.6.0-test4-bk1-vs-2.6.0-test4-bk2
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-bk1-vs-2.6.0-test4-bk2/
-Test Name      2.6.0-test4-bk1    2.6.0-test4-bk2     Regression  Improvement
------------------------------------------------------------------------------
-getgroups03    FAIL               FAIL                    N            N
-gettimeofday   FAIL               PASS                    N            Y
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-syslog04       FAIL               FAIL                    N            N
+I assume you're kidding... :-)
 
-2.6.0-test4-bk2-vs-2.6.0-test4-bk3
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-bk2-vs-2.6.0-test4-bk3/
-Test Name      2.6.0-test4-bk2    2.6.0-test4-bk3     Regression  Improvement
------------------------------------------------------------------------------
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-syslog04       FAIL               PASS                    N            Y
+> ...but... The most current data is probably in the kernel
+> buffers. I don't think you really want what you are asking
+> for.
 
-*The -bk4 kernel is skipped here because there was some kind of hang
-problem with it.  I didn't get a chance to look into it before -bk5 came
-out and the problem was fixed there anyway.
+No, I _do_ want exactly what I asked for.  Actually, I would really like a 
+bit more: to ask the disk drive to read from its media rather than its 
+cache.  But I'll settle for bypassing the O/S's cache.
 
-2.6.0-test4-bk3-vs-2.6.0-test4-bk5
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-bk3-vs-2.6.0-test4-bk5/
-Test Name      2.6.0-test4-bk3    2.6.0-test4-bk5     Regression  Improvement
------------------------------------------------------------------------------
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
+>  If you did a fdatasync(), you get the current data your
+> process wrote to go to the disk.
 
-2.6.0-test4-bk5-vs-2.6.0-test4-bk6
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-bk5-vs-2.6.0-test4-bk6/
-Test Name      2.6.0-test4-bk5    2.6.0-test4-bk6     Regression  Improvement
------------------------------------------------------------------------------
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
+Not if there is a bad sector that causes a read error.
 
-2.6.0-test4-vs-2.6.0-test4-mm1
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-vs-2.6.0-test4-mm1/
-Test Name      2.6.0-test4        2.6.0-test4-mm1     Regression  Improvement
------------------------------------------------------------------------------
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-syslog04       FAIL               FAIL                    N            N
+>  However, there may be
+> other writers. This, too, may not be what you want.
 
-2.6.0-test4-mm1-vs-2.6.0-test4-mm2
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-mm1-vs-2.6.0-test4-mm2/
-Test Name      2.6.0-test4-mm1    2.6.0-test4-mm2     Regression  Improvement
------------------------------------------------------------------------------
-fcntl15        PASS               FAIL                    Y            N
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-syslog04       FAIL               PASS                    N            Y
+I'm assuming there aren't other writers.  It doesn't really matter if 
+there are.  I don't care _what_ data is on the disk; I just want to know 
+that it is _readable_ without getting hardware errors.
 
-2.6.0-test4-mm2-vs-2.6.0-test4-mm3-1
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-mm2-vs-2.6.0-test4-mm3-1/
-Test Name      2.6.0-test4-mm2    2.6.0-test4-mm3-1   Regression  Improvement
------------------------------------------------------------------------------
-fcntl15        FAIL               PASS                    N            Y
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
+>  Also,
+> Just because the data was queued to go to a (SCSI) disk,
+> doesn't mean it actually got to the platters.
 
-2.6.0-test4-mm3-1-vs-2.6.0-test4-mm4
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-mm3-1-vs-2.6.0-test4-mm4/
-Test Name      2.6.0-test4-mm3-1  2.6.0-test4-mm4     Regression  Improvement
------------------------------------------------------------------------------
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-syslog04       PASS               FAIL                    Y            N
+Yes.  It's an imperfect world.
 
-2.6.0-test4-mm4-vs-2.6.0-test4-mm5
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-mm4-vs-2.6.0-test4-mm5/
-Test Name      2.6.0-test4-mm4    2.6.0-test4-mm5     Regression  Improvement
------------------------------------------------------------------------------
-fcntl15        PASS               FAIL                    Y            N
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-syslog04       FAIL               PASS                    N            Y
-
-*Seems to be some bouncing around on the -mms of fcntl15 failing.  I
-need to do some more investigation here to see if the test is failing
-randomly on its own, or just with -mm.
-
-2.6.0-test4-mm5-vs-2.6.0-test4-mm6
-http://developer.osdl.org/dev/ltp/results/2.6.0-test4/2.6.0-test4-mm5-vs-2.6.0-test4-mm6/
-Test Name      2.6.0-test4-mm5    2.6.0-test4-mm6     Regression  Improvement
------------------------------------------------------------------------------
-fcntl15        FAIL               PASS                    N            Y
-getgroups03    FAIL               FAIL                    N            N
-hangup01       PASS               FAIL                    Y            N
-nanosleep02    FAIL               FAIL                    N            N
-ptem01         PASS               FAIL                    Y            N
-pty01          PASS               FAIL                    Y            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-
-*The hangup01, ptem01, and pty01 regressions here are all related to an
-error on opening /dev/ptmx.  A bug has been filed for this, #1187.
-
+Alan Stern
 

@@ -1,44 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131454AbRCWUnV>; Fri, 23 Mar 2001 15:43:21 -0500
+	id <S131455AbRCWUol>; Fri, 23 Mar 2001 15:44:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131455AbRCWUnL>; Fri, 23 Mar 2001 15:43:11 -0500
-Received: from nrg.org ([216.101.165.106]:20275 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S131446AbRCWUm7>;
-	Fri, 23 Mar 2001 15:42:59 -0500
-Date: Fri, 23 Mar 2001 12:42:01 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: george anzinger <george@mvista.com>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <m14fjfA-001PKRC@mozart>
-Message-ID: <Pine.LNX.4.05.10103231215540.5839-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131446AbRCWUoY>; Fri, 23 Mar 2001 15:44:24 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:56588 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S131457AbRCWUn4>; Fri, 23 Mar 2001 15:43:56 -0500
+Message-Id: <200103232043.f2NKhCs17223@aslan.scsiguy.com>
+To: Matthew Costello <matthew@mp3.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx in 2.4.3-pre6 missing db.h 
+In-Reply-To: Your message of "Thu, 22 Mar 2001 10:23:41 PST."
+             <3ABA432D.271E42CB@mp3.com> 
+Date: Fri, 23 Mar 2001 13:43:12 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Rusty Russell wrote:
-> Nigel's "traverse the run queue and mark the preempted" solution is
-> actually pretty nice, and cheap.  Since the runqueue lock is grabbed,
-> it doesn't require icky atomic ops, either.
+>I am trying to compile the 2.4.3-pre6 linux kernel and it is failing
+>because it cannot find the "db.h" header file.
 
-You'd have to mark both the preempted tasks, and the tasks currently
-running on each CPU (which could become preempted before reaching a
-voluntary schedule point).
+Please upgrade to the latest aic7xxx driver.  Patches are available
+here:
 
-> Despite Nigel's initial belief that this technique is fragile, I
-> believe it will become an increasingly fundamental method in the
-> kernel, so (with documentation) it will become widely understood, as
-> it offers scalability and efficiency.
+http://people.freebsd.org/~gibbs/linux/
 
-Actually, I agree with you now that I've had a chance to think about
-this some more.
+That code will not attempt to build the firmware unless you set your
+kernel config to do so.
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
-MontaVista Software                             nigel@mvista.com
-
+--
+Justin

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285338AbSACKvQ>; Thu, 3 Jan 2002 05:51:16 -0500
+	id <S285352AbSACK75>; Thu, 3 Jan 2002 05:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285347AbSACKvG>; Thu, 3 Jan 2002 05:51:06 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:50961 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S285338AbSACKuw>;
-	Thu, 3 Jan 2002 05:50:52 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S285367AbSACK7h>; Thu, 3 Jan 2002 05:59:37 -0500
+Received: from 10fwd.cistron-office.nl ([195.64.65.197]:36363 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id <S285352AbSACK7Q>; Thu, 3 Jan 2002 05:59:16 -0500
+Date: Thu, 3 Jan 2002 11:59:13 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sync and reboot (was: Re: system.map)
+Message-ID: <20020103115913.A23530@cistron.nl>
+Reply-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020102191157.49760.qmail@web21204.mail.yahoo.com> <200201022039.g02KdPSr022018@svr3.applink.net> <a1194d$5r6$3@ncc1701.cistron.net> <02010312301401.01898@manta>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15412.14140.652362.747279@argo.ozlabs.ibm.com>
-Date: Thu, 3 Jan 2002 21:49:32 +1100 (EST)
-To: Bernard Dautrevaux <Dautrevaux@microprocess.com>
-Cc: "'Tom Rini'" <trini@kernel.crashing.org>, jtv <jtv@xs4all.nl>,
-        Richard Henderson <rth@redhat.com>, Momchil Velikov <velco@fadata.bg>,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: RE: [PATCH] C undefined behavior fix
-In-Reply-To: <17B78BDF120BD411B70100500422FC6309E3F8@IIS000>
-In-Reply-To: <17B78BDF120BD411B70100500422FC6309E3F8@IIS000>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <02010312301401.01898@manta>; from vda@port.imtp.ilyichevsk.odessa.ua on Thu, Jan 03, 2002 at 12:30:14PM -0200
+X-NCC-RegID: nl.cistron
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernard Dautrevaux writes:
+According to vda:
+> However, then my shutdown script waits 5 secs before hard rebooting the box: 
+> there is no way to be sure that IDE drives flushed their cache, except for 
+> large pause.
 
-> OH... are you saying that the Linux kernel is not writtent in ANSI C? AFAICR
+There is, and sysvinit-2.83 implements it ;)
 
-No, in fact the kernel isn't written in ANSI C. :)
-If nothing else, the fact that it uses a lot of gcc-specific
-extensions rules that out.  And it assumes that you can freely cast
-pointers to unsigned longs and back again.  I'm sure others can add to
-this list.
+> (There may be some IDE command to do it, but who said each and every drive 
+> will implement it? (and will do it correctly, i.e. would not lie to us that 
+> cache is written back) :-)
 
-> the standard *requires* that the standard library functions have their
-> standard meaning. So if the Linux kernel expects them to have some special
-> meaning it is *non-conforming* and then you need a *special* compiler,
-> understanding this.
+There's supposed to be an IDE command but it depends on task files and
+what not according to Andre Hedrick.
 
-Sure the kernel is non-conforming.  "Conforming" means that the
-program will run the same on any architecture, and the Linux kernel
-surely won't do that - it won't get very far on a PDP-10, I can assure
-you. :)
+However there is another way. Putting the drive in standby mode also
+flushes the write cache, and reboot/halt from sysvinit 2.83 and up
+look for all IDE drives and put them in standby mode just before calling
+the kernel's hard reboot/halt.
 
-Paul.
+Ofcourse the kernel should do that itself, the IDE driver should
+register a reboot handler that does this - but it doesn't, so I
+put it in sysvinit for now.
+
+Mike.

@@ -1,137 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbTJJLYj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 07:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTJJLYj
+	id S261151AbTJJLm5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 07:42:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTJJLm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 07:24:39 -0400
-Received: from odalix.ida.liu.se ([130.236.186.10]:53668 "EHLO
-	odalix.ida.liu.se") by vger.kernel.org with ESMTP id S262064AbTJJLYf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 07:24:35 -0400
-Date: Fri, 10 Oct 2003 13:23:26 +0200
-From: Magnus Andersson <magan029@student.liu.se>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22 O_DIRECT memory leak?!?
-Message-ID: <20031010132326.A8903@student.liu.se>
-References: <20031008180919.A6172@student.liu.se> <Pine.LNX.4.44.0310091637270.3040-100000@logos.cnet>
+	Fri, 10 Oct 2003 07:42:57 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:40618 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261151AbTJJLmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 07:42:53 -0400
+Date: Fri, 10 Oct 2003 17:18:21 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>
+Subject: Re: 2.6.0-test6-mm4 - oops in __aio_run_iocbs()
+Message-ID: <20031010114821.GA4357@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20031005013326.3c103538.akpm@osdl.org> <1065655095.1842.34.camel@ibm-c.pdx.osdl.net> <20031009111624.GA11549@in.ibm.com> <1065721121.1821.16.camel@ibm-c.pdx.osdl.net> <20031010083401.GA3983@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="rwEMma7ioTxnRzrJ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.44.0310091637270.3040-100000@logos.cnet>; from marcelo.tosatti@cyclades.com on Thu, Oct 09, 2003 at 04:37:52PM -0300
+In-Reply-To: <20031010083401.GA3983@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Oct 09, 2003 at 04:37:52PM -0300, Marcelo Tosatti wrote:
-> 
-> 
-> On Wed, 8 Oct 2003, Magnus Andersson wrote:
-> 
-> > Hello!
+On Fri, Oct 10, 2003 at 02:04:01PM +0530, Suparna Bhattacharya wrote:
+> On Thu, Oct 09, 2003 at 10:38:41AM -0700, Daniel McNeil wrote:
+> > On Thu, 2003-10-09 at 04:16, Suparna Bhattacharya wrote:
+> > > On Wed, Oct 08, 2003 at 04:18:15PM -0700, Daniel McNeil wrote:
+> > > > I'm been testing AIO on test6-mm4 using a ext3 file system and
+> > > > copying a 88MB file to an already existing preallocated file of 88MB.
+> > > > I been using my aiocp program to copy the file using i/o sizes of
+> > > > 1k to 512k and outstanding aio requests of between 1 and 64 using
+> > > > O_DIRECT, O_SYNC and O_DIRECT & O_SYNC.  Everything works as long
+> > > > as the file is pre-allocated.  When copying the file to a new file
+> > > > (O_CREAT|O_DIRECT), I get the following oops:
+> > > 
+> > > What are the i/o sizes and block sizes for which you get the oops ?
+> > > Is this only for large i/o sizes ?
 > > 
-> > If I open one file a lot of times using the flag O_DIRECT,
-> > memory seems to be be lost and never given back to the system.
-> > This is happening on some kernels, see below for which ones I tried.
 > > 
-> > Attached program will produce this behavior, also attached 
-> > is the output from vmstat while running the program.
+> > I've done more testing and it is a little confusing.
+> > I originally got the oops running a shell script which copied 4
+> > 88MB files one at a time to a sub-directory:
+> > 
+> > for i in fff ff1 ff2 ff3
+> > do
+> >         aiocp -b 128k -n 8 -f CREAT -f DIRECT $i junkdir/$i
+> > done
+> > sync
+> > 
+> > This script would always cause the oops and the machine would lock up.
+> > 
+> > I ran aiocp manually using different block sizes (4k-128k) to copy
+> > 1 file to a subdirectory.  I removed the file in the subdirectory
+> > afterward.  These tests completed without any problems or oopses.
+> > 
+> > > __aio_run_iocbs should have been called only for buffered i/o, 
+> > > so this sounds like an O_DIRECT fallback to buffered i/o.
+> > > Possibly after already submitting some blocks direct to BIO,
+> > > the i/o completion path for which ends up calling aio_complete
+> > > releasing the iocb. That could explain the use-after-free situation
+> > > you see.
+> > 
+> > mm4 has my extra iocb ref count for retries patch.  So the iocb should
+> > not be being freed by aio_complete.  The stack trace looks like the
+> > fault is on the ctx or ctx->runlist.
 > 
-> Magnus,
+> The race I was suspecting is a different one - a case where the dio code
+> calls aio_complete before a fallback to buffered i/o, and the latter
+> queues up a retry. By the time the retry gets to run the reference to
+> the iocb would have gone. (your extra iocb ref count patch wouldn't
+> be able to guard against this - the correct solution would be to
+> avoid doing aio_complete if we run into -ENOTBLK i.e. when we intend 
+> to fallback to buffered i/o).
 > 
-> That memory will be freed as soon as there's memory pressure so its not a 
-> memory leak.
 
-Ok. It's not a leak. But it looks like the memory never goes back to the system.
-The kernel has killed some processes of mine, thats why I suspect this.
+Could you try applying the following hack and see if it makes a 
+difference ?
 
-Attached are a program, malloc_mem.
-Before running open_odirect, malloc_mem succeeds in allocating 450 000 000 bytes.
-After running open_odirect, malloc_mem fails.
+I was able to recreate an oops running aiocp with the same arguments
+that you mentioned on 2.6.0-test6-mm4; and that didn't seem to
+occur when I applied this patch.
 
-It is working on the 2.4.22-aa1 kernel, but not on 2.4.22
+Note: This is not a complete fix though and probably room for doing this 
+in a cleaner way. If what I suspect is going on, we'll need more work to get 
+there - like thinking through the case where a request spans an allocated
+region followed by a hole.
 
-The test is run with this amount of memory, and no swap.
+Regards
+Suparna
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Labs, India
 
-Memory: 515752k/524204k available (1593k kernel code, 8064k reserved, 334k data, 264k init, 0k highmem)
+----------------------------------------------
 
-/Magnus
+AIO-DIO fix: Don't call aio_complete if we are falling back to buffered i/o
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="run.log"
-
-foo:~> ./malloc_mem 
-All ok!
-foo:~> ./open_odirect 
-foo:~> ./malloc_mem
-Could not malloc 450000000 bytes
-foo:~>
-
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="malloc_mem.c"
-
-#include <stdio.h>
-
-#define MEM_SIZE 450000000
-
-int main()
-{
-  int i;
-  char *mem;
-  
-  mem = (char *)malloc(MEM_SIZE);
-
-  if(mem == NULL) {
-    printf("Could not malloc %d bytes\n", MEM_SIZE);
-    exit(1);
-  }
-
-  memset(mem, 1, MEM_SIZE);
-
-  printf("All ok!\n");
-}
-
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="vmstat.output"
-
-procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
- 0  0      0 496804    940   7936    0    0     0     0  101     2  0  0 100  0
- 0  0      0 496800    940   7940    0    0     0     0  101     6  0  0 100  0
- 0  0      0 496800    940   7940    0    0     0     0  101     4  0  0 100  0
- 0  0      0 496800    940   7940    0    0     0     0  101     2  0  0 100  0
- 0  0      0 496800    940   7940    0    0     0     0  101     2  0  0 100  0
- 1  0      0 438912    940   7940    0    0     0     0  104    14 71 28  1  0
- 1  0      0 379896    940   7940    0    0     0     0  101     4 76 24  0  0
- 1  0      0 320880    940   7940    0    0     0     0  101     4 78 22  0  0
- 1  0      0 261868    940   7940    0    0     0     0  101     2 74 26  0  0
- 1  0      0 202848    940   7940    0    0     0     0  101     2 77 23  0  0
- 1  0      0 143836    940   7940    0    0     0     0  101     2 73 27  0  0
- 1  0      0  84856    940   7940    0    0     0     0  101     8 76 24  0  0
- 0  0      0 496716    940   7940    0    0     0     0  105    13 35 17 49  0
- 0  0      0 496716    940   7940    0    0     0     0  101     2  0  0 100  0
- 0  0      0 496716    940   7940    0    0     0     0  101     2  0  0 100  0
- 0  0      0 496716    940   7940    0    0     0     0  107    16  0  0 100  0
- 0  0      0 496716    940   7940    0    0     0     0  104    11  0  0 100  0
- 1  0      0 461916    940   7940    0    0     0   128  137    27  0 17 83  0
- 0  0      0 385028    940   7940    0    0     0     0  103     7  0 50 50  0
- 0  0      0 385028    940   7940    0    0     0     0  101     2  0  0 100  0
- 0  0      0 385028    940   7940    0    0     0     0  101     4  0  0 100  0
- 0  0      0 385028    940   7940    0    0     0     0  107    20  0  0 100  0
- 0  0      0 385028    940   7940    0    0     0    76  126    22  0  0 100  0
- 0  0      0 385028    940   7940    0    0     0     0  101     2  0  0 100  0
- 0  0      0 385028    940   7940    0    0     0     0  101     2  0  0 100  0
- 0  0      0 385024    940   7944    0    0     0     0  101     2  0  0 100  0
- 0  0      0 385024    940   7944    0    0     0     0  101     4  0  0 100  0
- 0  0      0 385024    940   7944    0    0     0     0  101     4  0  0 100  0
-
---rwEMma7ioTxnRzrJ--
+diff -urp puremm/fs/direct-io.c linux-2.6.0-test6-mm4/fs/direct-io.c
+--- puremm/fs/direct-io.c	2003-10-10 14:26:53.000000000 +0530
++++ linux-2.6.0-test6-mm4/fs/direct-io.c	2003-10-10 14:26:26.000000000 +0530
+@@ -208,7 +208,7 @@ static struct page *dio_get_page(struct 
+  */
+ static void dio_complete(struct dio *dio, loff_t offset, ssize_t bytes)
+ {
+-	if (dio->end_io)
++	if (dio->end_io && dio->result != -ENOTBLK)
+ 		dio->end_io(dio->inode, offset, bytes, dio->map_bh.b_private);
+ 	if (dio->needs_locking)
+ 		up_read(&dio->inode->i_alloc_sem);
+@@ -224,7 +224,8 @@ static void finished_one_bio(struct dio 
+ 		if (dio->is_async) {
+ 			dio_complete(dio, dio->block_in_file << dio->blkbits,
+ 					dio->result);
+-			aio_complete(dio->iocb, dio->result, 0);
++			if (dio->result != -ENOTBLK)
++				aio_complete(dio->iocb, dio->result, 0);
+ 			kfree(dio);
+ 		}
+ 	}
+@@ -978,6 +979,8 @@ direct_io_worker(int rw, struct kiocb *i
+ 	 * OK, all BIOs are submitted, so we can decrement bio_count to truly
+ 	 * reflect the number of to-be-processed BIOs.
+ 	 */
++	if (ret == -ENOTBLK)
++		dio->result = ret;
+ 	if (dio->is_async) {
+ 		if (ret == 0)
+ 			ret = dio->result;	/* Bytes written */

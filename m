@@ -1,102 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132765AbRDQQ65>; Tue, 17 Apr 2001 12:58:57 -0400
+	id <S132770AbRDQQ7h>; Tue, 17 Apr 2001 12:59:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132764AbRDQQ6g>; Tue, 17 Apr 2001 12:58:36 -0400
-Received: from mail.gci.com ([205.140.80.57]:46094 "EHLO daytona.gci.com")
-	by vger.kernel.org with ESMTP id <S132762AbRDQQ5R>;
-	Tue, 17 Apr 2001 12:57:17 -0400
-Message-ID: <BF9651D8732ED311A61D00105A9CA3150446DA18@berkeley.gci.com>
-From: Leif Sawyer <lsawyer@gci.com>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        Ian Stirling <root@mauve.demon.co.uk>, linux-kernel@vger.kernel.org
-Subject: RE: IP Acounting Idea for 2.5
-Date: Tue, 17 Apr 2001 08:57:10 -0800
+	id <S132769AbRDQQ7a>; Tue, 17 Apr 2001 12:59:30 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:25650 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S132762AbRDQQ7I>; Tue, 17 Apr 2001 12:59:08 -0400
+Date: Tue, 17 Apr 2001 12:59:06 -0400 (EDT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] Scalable FD Management using Read-Copy-Update
+In-Reply-To: <20010417145809.A21310@in.ibm.com>
+Message-ID: <Pine.LNX.4.10.10104171257310.9534-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Pollard continues with:
-> Leif Sawyer <lsawyer@gci.com>:
->>> Ian Stirling [mailto:root@mauve.demon.co.uk]
->>>> Manfred Bartz responded to
->>>>> Russell King <rmk@arm.linux.org.uk> who writes:
->>>>>
->>>>> You just illustrated my point.  While there is a 
->>>>> reset capability people will use it and accounting/
->>>>> logging programs will get wrong data.  Resetable
->>>>> counters might be a minor convenience when debugging
->>>>> but the price is unreliable programs and the loss of the 
->>>>> ability of several programs to use the same counters.
->>>> 
->>>> You of course, are commenting from the fact that your 
->>>> applications are stupid, written poorly, and cannot handle
->>>> 'wrapped' data.  Take MRTG
->>>> <snip>
->>>> Similarly, if my InPackets are at 102345 at one read, and 
->>>> 2345 the next read, and I know that my counter is 32 bits,
->>>> then I know i've wrapped and can do
->>> 
->>> I think the point being made is that if InPackets are at 
->>> 102345 at one read, and 2345 the next, and you know it's
->>> a 32 bit counter, it's completely unreliable to assume that
->>> you have in fact recieved 4294867295 packets, if the counter
->>> can be zeroed. You can say nothing other than at least 2345
->>> packets, at most 2345+n*2^32 have been got since you last
->>> checked.
->> 
->> Ah, yes.. I seem to have misplaced a bit of text in my reply.
->> 
->> The continuation of thought:
->> 
->> How the application derives the status of a wrapped counter or
->> a zero'ed counter is dependant on the device being monitored.
->> 
->> Yes, you have to know what your interface is capable of 
->> (maxbytes/sec) so that you can do a simple calculation where:
->> 
->> maximum_throughput = maxbytes_sec * (time_now - time_last_read)
->> 
->> and if your previous good counter + the maximum throughput wraps
->> the counter, you have a good chance that you've simply wrapped.
->> 
->> If not, then you can assume that your counters were cleared 
->> at some point, log the data you've got, and keep moving forward.
+> > isn't this a solution in search of a problem?
+> > does it make sense to redesign parts of the kernel for the sole
+> > purpose of making a completely unrealistic benchmark run faster?
 > 
-> And that introduces errors in measurement. It also depends on 
-> how frequently an uncontroled process is clearing the counters.
-> You may never be able to get a valid measurement.
+> Irrespective of the usefulness of the "chat" benchmark, it seems
+> that there is a problem of scalability as long as CLONE_FILES is
+> supported. John Hawkes (SGI) posted some nasty numbers on a
+> 32 CPU mips machine in the lse-tech list some time ago.
 
-This is true.  Which is why application programmers need to write
-code as if they are not the only [ab]users of data.
-
-Which brings me back to my point.
-
-Don't force the kernel to uphold your local application requirements
-of stable counters.
-
-Enforce it in the userspace portion of the code.
-
-<subtopic>
-Yes, you could extend the proc filesystem (ugh) with a flag that could
-be read by the ip[chains|tables] user app to determine if clearing flags
-were allowed.  Then a simple
-
-echo 1 > /proc/sys/net/ipv4/counters_locked
-
-or some such cruft.  But I don't see this extension making into the
-standard kernel at this time.  It just seems to be wasteful.
-</subtopic>
-
-If you (at your site) really need this type of functionality, it's
-pretty darn simple to write a wrapper to ip[tables|chains] which
-silently (or not so) drops the option to clear the counters before
-calling the real version.
-
-Besides, what would be gained in making the counters RO, if they were
-cleared every time the module was loaded/unloaded?
-
+that's not the point.  the point is that this has every sign of 
+being premature optimization.  the "chat" benchmark does no work,
+it only generates load.  and yes, indeed, you can cause contention
+if you apply enough load in the right places.  this does NOT indicate
+that any real apps apply the same load in the same places.
 

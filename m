@@ -1,225 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbSLOQo0>; Sun, 15 Dec 2002 11:44:26 -0500
+	id <S262210AbSLOR0i>; Sun, 15 Dec 2002 12:26:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262210AbSLOQo0>; Sun, 15 Dec 2002 11:44:26 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:27528 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262190AbSLOQoX>;
-	Sun, 15 Dec 2002 11:44:23 -0500
-Date: Sun, 15 Dec 2002 22:23:13 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S262215AbSLOR0i>; Sun, 15 Dec 2002 12:26:38 -0500
+Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:12114 "EHLO
+	brian.localnet") by vger.kernel.org with ESMTP id <S262210AbSLOR0h>;
+	Sun, 15 Dec 2002 12:26:37 -0500
+To: rmk@arm.linux.org.uk
+Subject: [PATCH 2.5] Titan pci serial card recognition fix
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] RCU statistics 2.5.51
-Message-ID: <20021215165313.GA1456@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Message-Id: <E18Nceo-00014o-00@brian.localnet>
+From: Brian Murphy <brm@murphy.dk>
+Date: Sun, 15 Dec 2002 18:34:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+This patch fixes an error in the pci recognition table which
+means that otherwise supportes Titan pci serial cards fail to
+work.
 
-This is a re-transmit of the patch that adds some basic statistics to
-RCU (/proc/rcu). The statistics made available by this patch are very generic 
-in nature - # of RCU requests and # of actual RCU updates for each
-CPU. This will allow us to monitor the health of the RCU
-subsystem and such things have been extremely useful for 
-investigating problems. For example, if a CPU looping in kernel
-stops RCU grace period from completing, we would be easily able
-to detect it by looking at these counters. Without these, that
-becomes very difficult.
+/Brian
 
-dipankar@llm04 dipankar]$ cat /proc/rcu
-CPU : 0
-RCU requests : 0
-RCU updates : 0
-
-CPU : 1
-RCU requests : 0
-RCU updates : 0
-
-CPU : 2
-RCU requests : 0
-RCU updates : 0
-
-CPU : 3
-RCU requests : 0
-RCU updates : 0
-
-This patch has been in akpm's -mm tree for a long time now and would be nice
-to have in your tree.
-
-Thanks
-Dipankar
-
- Documentation/filesystems/proc.txt |    4 +++
- fs/proc/proc_misc.c                |   13 ++++++++++
- include/linux/rcupdate.h           |    4 +++
- kernel/rcupdate.c                  |   48 +++++++++++++++++++++++++++++++++++--
- 4 files changed, 67 insertions(+), 2 deletions(-)
-
-diff -urN linux-2.5.51-base/Documentation/filesystems/proc.txt linux-2.5.51-rcu_stats/Documentation/filesystems/proc.txt
---- linux-2.5.51-base/Documentation/filesystems/proc.txt	2002-12-10 08:15:52.000000000 +0530
-+++ linux-2.5.51-rcu_stats/Documentation/filesystems/proc.txt	2002-12-14 22:58:51.000000000 +0530
-@@ -222,6 +222,7 @@
-  partitions  Table of partitions known to the system           
-  pci	     Depreciated info of PCI bus (new way -> /proc/bus/pci/, 
-              decoupled by lspci					(2.4)
-+ rcu	     Read-Copy Update information			(2.5)
-  rtc         Real time clock                                   
-  scsi        SCSI info (see text)                              
-  slabinfo    Slab pool info                                    
-@@ -346,6 +347,9 @@
- ZONE_DMA, 4 chunks of 2^1*PAGE_SIZE in ZONE_DMA, 101 chunks of 2^4*PAGE_SIZE 
- availble in ZONE_NORMAL, etc... 
+--- linux-2.5.44/drivers/serial/8250_pci.c	2002-12-15 18:21:15.000000000 +0100
++++ linux-2.5.44-mine/drivers/serial/8250_pci.c	2002-12-15 17:00:41.000000000 +0100
+@@ -473,6 +473,7 @@
+ 	pbn_b1_4_115200,
+ 	pbn_b1_8_115200,
  
-+The rcu file gives information about Read-Copy Update synchronization
-+primitive. It indicates the number for RCU requests and actual
-+updates for every CPU.
++	pbn_b1_1_921600,
+ 	pbn_b1_2_921600,
+ 	pbn_b1_4_921600,
+ 	pbn_b1_8_921600,
+@@ -481,6 +482,8 @@
+ 	pbn_b1_4_1382400,
+ 	pbn_b1_8_1382400,
  
- 1.3 IDE devices in /proc/ide
- ----------------------------
-diff -urN linux-2.5.51-base/fs/proc/proc_misc.c linux-2.5.51-rcu_stats/fs/proc/proc_misc.c
---- linux-2.5.51-base/fs/proc/proc_misc.c	2002-12-10 08:15:44.000000000 +0530
-+++ linux-2.5.51-rcu_stats/fs/proc/proc_misc.c	2002-12-14 22:58:51.000000000 +0530
-@@ -243,6 +243,18 @@
- 	.release	= seq_release,
- };
- 
-+extern struct seq_operations rcu_op;
-+static int rcu_open(struct inode *inode, struct file *file)
-+{
-+	return seq_open(file, &rcu_op);
-+}
-+static struct file_operations proc_rcu_operations = {
-+	.open		= rcu_open,
-+	.read		= seq_read,
-+	.llseek		= seq_lseek,
-+	.release	= seq_release,
-+};
++	pbn_b1_bt_2_921600,
 +
- extern struct seq_operations vmstat_op;
- static int vmstat_open(struct inode *inode, struct file *file)
- {
-@@ -586,6 +598,7 @@
- 	if (entry)
- 		entry->proc_fops = &proc_kmsg_operations;
- 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
-+	create_seq_entry("rcu", 0, &proc_rcu_operations);
- 	create_seq_entry("partitions", 0, &proc_partitions_operations);
- #if !defined(CONFIG_ARCH_S390)
- 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
-diff -urN linux-2.5.51-base/include/linux/rcupdate.h linux-2.5.51-rcu_stats/include/linux/rcupdate.h
---- linux-2.5.51-base/include/linux/rcupdate.h	2002-12-10 08:15:52.000000000 +0530
-+++ linux-2.5.51-rcu_stats/include/linux/rcupdate.h	2002-12-14 22:58:51.000000000 +0530
-@@ -95,6 +95,8 @@
-         long  	       	batch;           /* Batch # for current RCU batch */
-         struct list_head  nxtlist;
-         struct list_head  curlist;
-+ 	long		nr_rcureqs;
-+ 	long		nr_rcupdates;
- };
+ 	pbn_b2_1_115200,
+ 	pbn_b2_8_115200,
+ 	pbn_b2_4_460800,
+@@ -494,6 +497,9 @@
+ 	pbn_b2_bt_4_115200,
+ 	pbn_b2_bt_2_921600,
  
- DECLARE_PER_CPU(struct rcu_data, rcu_data);
-@@ -105,6 +107,8 @@
- #define RCU_batch(cpu) 		(per_cpu(rcu_data, (cpu)).batch)
- #define RCU_nxtlist(cpu) 	(per_cpu(rcu_data, (cpu)).nxtlist)
- #define RCU_curlist(cpu) 	(per_cpu(rcu_data, (cpu)).curlist)
-+#define RCU_nr_rcureqs(cpu) 	(per_cpu(rcu_data, (cpu)).nr_rcureqs)
-+#define RCU_nr_rcupdates(cpu) 	(per_cpu(rcu_data, (cpu)).nr_rcupdates)
++	pbn_bt_4_921600,
++	pbn_bt_8_921600,
++
+ 	pbn_panacom,
+ 	pbn_panacom2,
+ 	pbn_panacom4,
+@@ -553,6 +559,7 @@
+ 	{ SPCI_FL_BASE1, 4, 115200 },		/* pbn_b1_4_115200 */
+ 	{ SPCI_FL_BASE1, 8, 115200 },		/* pbn_b1_8_115200 */
  
- #define RCU_QSCTR_INVALID	0
++	{ SPCI_FL_BASE1, 1, 921600 },		/* pbn_b1_1_921600 */
+ 	{ SPCI_FL_BASE1, 2, 921600 },		/* pbn_b1_2_921600 */
+ 	{ SPCI_FL_BASE1, 4, 921600 },		/* pbn_b1_4_921600 */
+ 	{ SPCI_FL_BASE1, 8, 921600 },		/* pbn_b1_8_921600 */
+@@ -561,6 +568,7 @@
+ 	{ SPCI_FL_BASE1, 4, 1382400 },		/* pbn_b1_4_1382400 */
+ 	{ SPCI_FL_BASE1, 8, 1382400 },		/* pbn_b1_8_1382400 */
  
-diff -urN linux-2.5.51-base/kernel/rcupdate.c linux-2.5.51-rcu_stats/kernel/rcupdate.c
---- linux-2.5.51-base/kernel/rcupdate.c	2002-12-10 08:15:40.000000000 +0530
-+++ linux-2.5.51-rcu_stats/kernel/rcupdate.c	2002-12-14 22:58:51.000000000 +0530
-@@ -41,6 +41,7 @@
- #include <linux/module.h>
- #include <linux/completion.h>
- #include <linux/percpu.h>
-+#include <linux/seq_file.h>
- #include <linux/notifier.h>
- #include <linux/rcupdate.h>
++	{ SPCI_FL_BASE1 | SPCI_FL_BASE_TABLE, 2, 921600 }, /* pbn_b1_bt_2_921600 */
+ 	{ SPCI_FL_BASE2, 1, 115200 },		/* pbn_b2_1_115200 */
+ 	{ SPCI_FL_BASE2, 8, 115200 },		/* pbn_b2_8_115200 */
+ 	{ SPCI_FL_BASE2, 4, 460800 },		/* pbn_b2_4_460800 */
+@@ -574,6 +582,9 @@
+ 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 4, 115200 }, /* pbn_b2_bt_4_115200 */
+ 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 2, 921600 }, /* pbn_b2_bt_2_921600 */
  
-@@ -75,6 +76,7 @@
- 	local_irq_save(flags);
- 	cpu = smp_processor_id();
- 	list_add_tail(&head->list, &RCU_nxtlist(cpu));
-+	RCU_nr_rcureqs(cpu)++;
- 	local_irq_restore(flags);
- }
++	{ SPCI_FL_BASE_TABLE, 4, 921600 },		/* pbn_bt_4_921600 */
++	{ SPCI_FL_BASE_TABLE, 8, 921600 },		/* pbn_bt_8_921600 */
++
+ 	{ SPCI_FL_BASE2, 2, 921600, /* IOMEM */		   /* pbn_panacom */
+ 		0x400, 7, pci_plx9050_fn },
+ 	{ SPCI_FL_BASE2 | SPCI_FL_BASE_TABLE, 2, 921600,   /* pbn_panacom2 */
+@@ -1000,17 +1011,17 @@
+ 		pbn_b0_4_921600 },
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_100L,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE1, 1, 921600 },
++		pbn_b1_1_921600 },
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_200L,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE1 | SPCI_FL_BASE_TABLE, 2, 921600 },
++		pbn_b1_bt_2_921600 },
+ 	/* The 400L and 800L have a custom hack in get_pci_port */
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_400L,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE_TABLE, 4, 921600 },
++		pbn_bt_4_921600 },
+ 	{	PCI_VENDOR_ID_TITAN, PCI_DEVICE_ID_TITAN_800L,
+ 		PCI_ANY_ID, PCI_ANY_ID,
+-		SPCI_FL_BASE_TABLE, 8, 921600 },
++		pbn_bt_8_921600 },
  
-@@ -82,7 +84,7 @@
-  * Invoke the completed RCU callbacks. They are expected to be in
-  * a per-cpu list.
-  */
--static void rcu_do_batch(struct list_head *list)
-+static void rcu_do_batch(int cpu, struct list_head *list)
- {
- 	struct list_head *entry;
- 	struct rcu_head *head;
-@@ -92,6 +94,7 @@
- 		list_del(entry);
- 		head = list_entry(entry, struct rcu_head, list);
- 		head->func(head->arg);
-+		RCU_nr_rcupdates(cpu)++;
- 	}
- }
- 
-@@ -187,7 +190,7 @@
- 	}
- 	rcu_check_quiescent_state();
- 	if (!list_empty(&list))
--		rcu_do_batch(&list);
-+		rcu_do_batch(cpu, &list);
- }
- 
- void rcu_check_callbacks(int cpu, int user)
-@@ -266,3 +269,44 @@
- 
- EXPORT_SYMBOL(call_rcu);
- EXPORT_SYMBOL(synchronize_kernel);
-+
-+#ifdef	CONFIG_PROC_FS
-+
-+static void *rcu_start(struct seq_file *m, loff_t *pos)
-+{
-+	static int cpu;
-+	cpu = *pos;
-+	return *pos < NR_CPUS ? &cpu : NULL;
-+}
-+		
-+static void *rcu_next(struct seq_file *m, void *v, loff_t *pos) 
-+{
-+	++*pos;
-+	return rcu_start(m, pos);
-+}
-+
-+static void rcu_stop(struct seq_file *m, void *v)
-+{
-+}
-+
-+static int show_rcu(struct seq_file *m, void *v)
-+{
-+	int cpu = *(int *)v;
-+
-+	if (!cpu_online(cpu))
-+		return 0;
-+	seq_printf(m, "CPU : %d\n", cpu);
-+	seq_printf(m, "RCU requests : %ld\n", RCU_nr_rcureqs(cpu));
-+	seq_printf(m, "RCU updates : %ld\n\n", RCU_nr_rcupdates(cpu));
-+	return 0;
-+}
-+
-+struct seq_operations rcu_op = {
-+	.start	= rcu_start,
-+	.next	= rcu_next,
-+	.stop	= rcu_stop,
-+	.show	= show_rcu,
-+};
-+
-+#endif
-+
+ 	{	PCI_VENDOR_ID_SIIG, PCI_DEVICE_ID_SIIG_1S_10x_550,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,

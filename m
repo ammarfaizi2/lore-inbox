@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268837AbRIEJFo>; Wed, 5 Sep 2001 05:05:44 -0400
+	id <S268714AbRIEJPQ>; Wed, 5 Sep 2001 05:15:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268714AbRIEJFf>; Wed, 5 Sep 2001 05:05:35 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:9484 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S268837AbRIEJF0>; Wed, 5 Sep 2001 05:05:26 -0400
-Message-ID: <3B95EA8F.93B27304@t-online.de>
-Date: Wed, 05 Sep 2001 11:04:15 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S268916AbRIEJPG>; Wed, 5 Sep 2001 05:15:06 -0400
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:60678 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S268714AbRIEJO5>; Wed, 5 Sep 2001 05:14:57 -0400
+To: linux-kernel@vger.kernel.org
+Subject: getpeereid() for Linux
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 05 Sep 2001 11:14:41 +0200
+Message-ID: <tgsne23sou.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
 MIME-Version: 1.0
-To: Olaf Zaplinski <o.zaplinski@mediascape.de>
-CC: joe.mathewson@btinternet.com, linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx errors
-In-Reply-To: <200109050621.f856LAK00824@ambassador.mathewson.int> <3B95DB22.866EDCA3@mediascape.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Zaplinski schrieb:
-> 
-> Joseph Mathewson wrote:
-> >
-> > I've just woken up this morning to find my internet gateway machine only
-> > responding to pings, and on giving it a keyboard & monitor, a load of
-> >
-> > scsi0:0:1:0: Attempting to queue an ABORT message
-> > scsi0:0:1:0: Cmd aborted from QINFIFO
-> > aic7xxx_abort returns 8194
-> >
-> > errors.
-> [...]
-> 
-> /me too. I had this while booting 2.4.9 with a fresh installed SCSI card
-> (AHA2940) + harddisk. What worked for me was to compile the kernel with the
-> old Adaptec driver, so it's a driver issue.
-> 
-> Olaf
+Would anyone like to give me a helping hand in implementing the
+getpeereid() syscall for Linux?  See the following page for the
+documentation of the OpenBSD implementation:
 
-Hello...
+http://www.openbsd.org/cgi-bin/man.cgi?query=getpeereid&sektion=2&apropos=0&manpath=OpenBSD+Current
 
-I had this effect too here (RH7.1, Kernel 2.4.3), but i put it on a
-wrong termination of the LVD Bus...be careful if you have LVD-Drives
-with a "Termination"-Jumper...(e.g. IBM DGHS18V)...this Termination is
-only usable if you use the drive as Single Ended SCSI-UW, *not* if you
-use the drive i a true LVD-environment !
+I think I could work out the kernel data structures to gather the
+relevant data from, however, I won't get all the locking stuff right.
 
-I learnt this the hard way, because i used this "Termination"-jumper and
-the system bootet without problems and ran about 2 weeks...then the
-above errors occured, followed by system crashes....after reading the
-original ibm-docs, and not the oem-reseller-crap, the reason was clear.
+OTOH, is there any chance that the addition of such a syscall would be
+accepted?
 
-Th second thing i noticed was, that the value for "Maximum Number of TCQ
-Commands per Device" is per default on 255, but wirt my system the
-driver always complained, that he could only use 64 ("locked on
-64")...so i decided to switch to 32 and not to let him auto-detect the
-max. value...since then i had no problems at all...
+Thanks to /proc, it is possible to implement the user ID part of the
+syscall in userland, at least for TCP sockets, but this isn't enough.
+(I've got a such an implementation which seems to work quite well,
+just in case you are interested.)
 
-Solong..
-Frank.
-
---
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

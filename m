@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265291AbUE0V3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265292AbUE0VbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265291AbUE0V3I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 17:29:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265292AbUE0V3I
+	id S265292AbUE0VbX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 17:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265313AbUE0VbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 17:29:08 -0400
-Received: from mail.tpgi.com.au ([203.12.160.61]:51344 "EHLO mail4.tpgi.com.au")
-	by vger.kernel.org with ESMTP id S265291AbUE0V3E (ORCPT
+	Thu, 27 May 2004 17:31:23 -0400
+Received: from zero.aec.at ([193.170.194.10]:17926 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265292AbUE0VbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 17:29:04 -0400
-Message-ID: <40B65C14.6070705@linuxmail.org>
-Date: Fri, 28 May 2004 07:22:28 +1000
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
+	Thu, 27 May 2004 17:31:22 -0400
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function
+References: <20pwP-55v-5@gated-at.bofh.it> <20suK-7C5-11@gated-at.bofh.it>
+	<20tAB-5c-31@gated-at.bofh.it> <20AiB-69m-17@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 27 May 2004 23:31:17 +0200
+In-Reply-To: <20AiB-69m-17@gated-at.bofh.it> (Ingo Molnar's message of "Thu,
+ 27 May 2004 23:10:09 +0200")
+Message-ID: <m34qq1v9p6.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andrew Morton <akpm@osdl.org>, davej@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP support for drain local pages v2.
-References: <40B473F7.4000100@linuxmail.org> <20040526223255.GB15278@redhat.com> <40B520A2.2060508@linuxmail.org> <20040526162607.0f177009.akpm@osdl.org> <40B52A7D.6090102@linuxmail.org> <20040527192956.GD509@openzaurus.ucw.cz>
-In-Reply-To: <20040527192956.GD509@openzaurus.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TPG-Antivirus: Passed
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Ingo Molnar <mingo@elte.hu> writes:
 
-Andrew, Dave: do you want to be cc'd still?
+> yeah, this is arguably the biggest (and i think only) conceptual item
+> that needs to be solved before this can be integrated.
 
-Pavel Machek wrote:
-> drain_local_pages was there so that accounting is not
-> screwed by local pages. That should be non-issue for stopped cpus.
+I would think netdump is more important than this though
+(so if anything should be integrated i would start with netdump) 
 
-You're probably right that it's not absolutely necessary. That said, I have three reasons for 
-wanting to do it: each cpu has say 200 pages in its pcp structs (this varies with zone size). If we 
-don't drain them, we're saving 200 extra pages (because they're not marked as free). That's fine for 
-a dual CPU system, but it's not very scalable. (I admit I wouldn't want to suspend to disk a 4GB 
-machine now, but in the future?).
+> it would also be easier to enable diskdump in a driver if this was
+> handled in add_timer()/del_timer()/mod_timer()/tasklet_schedule().
 
-More than that, though, my real motivation is to be able to account for every page in the system and 
-ensure that suspend is doing the right thing with all of them. If I drain the PCP page lists, I can 
-be more certain that allocations do come from the right place.
+I don't think it's a good idea to add this to these fast paths.
+Timers are critical for lots of things, tasklet_schedule too.
 
-Thirdly, after suspending hot pages aren't really hot anymore. We may as well start with clean lists.
+How about a standard wrapper that does the check and everybody
+who may need that uses the wrappers ?
 
-> 
-> OTOH you are right that my swsusp with smp does not work
-> on my smp machine, and I do not yet know why.
+-Andi
 
-I found that I needed to:
-- save context for other CPUs.
-- ensure they're completely idle during copyback even running the idle thread messed things up (use 
-a smp function)
-- ensure suspend is always running on CPU0 (at the start of suspending and resuming)
-
-You might also consider how you're restoring highmem pages and how that interacts with SMP esp in 
-flushing tlbs.
-
-Nigel
--- 
-Nigel & Michelle Cunningham
-C/- Westminster Presbyterian Church Belconnen
-61 Templeton Street, Cook, ACT 2614.
-+61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
-
-Evolution (n): A hypothetical process whereby infinitely improbable events occur
-with alarming frequency, order arises from chaos, and no one is given credit.

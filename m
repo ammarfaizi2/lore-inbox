@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289051AbSBDQUE>; Mon, 4 Feb 2002 11:20:04 -0500
+	id <S289058AbSBDQYf>; Mon, 4 Feb 2002 11:24:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289056AbSBDQTy>; Mon, 4 Feb 2002 11:19:54 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50701 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289051AbSBDQTm>; Mon, 4 Feb 2002 11:19:42 -0500
-Message-ID: <3C5EB491.5020001@zytor.com>
-Date: Mon, 04 Feb 2002 08:19:29 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S289061AbSBDQYZ>; Mon, 4 Feb 2002 11:24:25 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:44147 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S289058AbSBDQYU>;
+	Mon, 4 Feb 2002 11:24:20 -0500
+Message-ID: <3C5EB50E.1000008@debian.org>
+Date: Mon, 04 Feb 2002 17:21:34 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Marco Colombo <marco@esi.it>
-CC: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <Pine.LNX.4.44.0202041051220.1381-100000@Megathlon.ESI>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: David Balazic <david.balazic@uni-mb.si>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <fa.c5n369v.1a10827@ifi.uio.no>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 04 Feb 2002 16:24:19.0027 (UTC) FILETIME=[655C5A30:01C1AD98]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marco Colombo wrote:
 
->>
->>No, the boot specification allows direct access to the CD.  See the El 
->>Torito specification, specifically the parts that talk about "no 
->>emulation" mode.
->>
-> Is this the -hard-disk-boot option of mkisofs?
+
+David Balazic wrote:
+
+> Hi!
 > 
+> This problem again :-)
+> 
+> I purchase/download a program for linux.
+> It says it requires certain kernel features, for example :
+> CONFIG_PROC_FS,CONFIG_NET,CONFIG_INET
+> 
+> How can I figure out in 5 minutes, without a kernel hacker, if
+> my linux system has the correct settings ?
+> 
+> This is a real life question, probably more suitable to ask
+> on some distributions mail list, but I thought I'll start here.
 
 
-No, it's -no-emul-boot
+I agree: ask to yout distribution mail list. Every distribution
+have a different place for kernel configuration.
 
-	-hpa
+Anyway:
+If you use your distribution kernel, and if your distribution is
+not so strange, you have enabled the 3 drivers.
+
+	giacomo
+
+ 
+
+
 
 

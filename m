@@ -1,33 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317886AbSFNETR>; Fri, 14 Jun 2002 00:19:17 -0400
+	id <S315419AbSFNE2H>; Fri, 14 Jun 2002 00:28:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317888AbSFNETQ>; Fri, 14 Jun 2002 00:19:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:27876 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317886AbSFNETO>;
-	Fri, 14 Jun 2002 00:19:14 -0400
-Date: Thu, 13 Jun 2002 21:14:25 -0700 (PDT)
-Message-Id: <20020613.211425.60193542.davem@redhat.com>
-To: oliver@neukum.name
-Cc: roland@topspin.com, wjhun@ayrnetworks.com, paulus@samba.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206111623.30842.oliver@neukum.name>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S316605AbSFNE2H>; Fri, 14 Jun 2002 00:28:07 -0400
+Received: from ns.suse.de ([213.95.15.193]:15119 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S315419AbSFNE2G>;
+	Fri, 14 Jun 2002 00:28:06 -0400
+Date: Fri, 14 Jun 2002 06:27:54 +0200
+From: Andi Kleen <ak@suse.de>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org,
+        Richard Brunner <richard.brunner@amd.com>, mark.langsdorf@amd.com
+Subject: Re: New version of pageattr caching conflict fix for 2.4
+Message-ID: <20020614062754.A11232@wotan.suse.de>
+In-Reply-To: <20020613221533.A2544@wotan.suse.de> <20020613210339.B21542@redhat.com> <20020614032429.A19018@wotan.suse.de> <20020613213724.C21542@redhat.com> <20020614040025.GA2093@inspiron.birch.net> <20020614001726.D21542@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Oliver Neukum <oliver@neukum.name>
-   Date: Tue, 11 Jun 2002 16:23:30 +0200
-   
-   Still does that justify the overhead and the complications ?
-   Couldn't we provide for the worst case in a generic kernel
-   and make it a compile time option ?
+On Fri, Jun 14, 2002 at 12:17:26AM -0400, Benjamin LaHaise wrote:
+> On Fri, Jun 14, 2002 at 06:00:25AM +0200, Andrea Arcangeli wrote:
+> > just a fast comment on this bit: x86 specs state invlpg must flush
+> > global entries from the tlb too, see also the kmap_prot as pratical
+> > reference.
+> 
+> It's not the 4KB pages that I'm worried about so much as the 4MB pages.
 
-I already posted that using the worst case scenerio would be an
-acceptable solution to this problem, I consider it a closed issue
-and you can ignore my earlier gripes on this issue.
+Both AMD x86-64 and Intel IA32 documentation states that INVLPG flushes global
+TLBs. The first version of change_page_attr did in fact use __flush_tlb_all,
+but I changed it after checking the docs.
+
+-Andi

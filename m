@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261594AbTAVPmG>; Wed, 22 Jan 2003 10:42:06 -0500
+	id <S261640AbTAVPvb>; Wed, 22 Jan 2003 10:51:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbTAVPmG>; Wed, 22 Jan 2003 10:42:06 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:34289 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S261594AbTAVPmF>; Wed, 22 Jan 2003 10:42:05 -0500
-Subject: Re: Kernel panic with Red Hat 2-4-18 kernel
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: "M. Edward Borasky" <znmeb@aracnet.com>
-Cc: "Linux-Kernel@Vger. " "Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <DEEBJHMCKLIHOCFBLNCCGEMOCDAA.znmeb@aracnet.com>
-References: <DEEBJHMCKLIHOCFBLNCCGEMOCDAA.znmeb@aracnet.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-USp/PJMMteL+Yramfd6s"
-Organization: Red Hat, Inc.
-Message-Id: <1043250664.1406.0.camel@laptop.fenrus.com>
+	id <S261645AbTAVPvb>; Wed, 22 Jan 2003 10:51:31 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:1032 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S261640AbTAVPva>;
+	Wed, 22 Jan 2003 10:51:30 -0500
+Date: Wed, 22 Jan 2003 16:59:55 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: test suite?
+Message-ID: <20030122155955.GA1219@mars.ravnborg.org>
+Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301220840530.2622-100000@dell>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 22 Jan 2003 16:51:05 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0301220840530.2622-100000@dell>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 22, 2003 at 08:44:05AM -0500, Robert P. J. Day wrote:
+> 
+>   i've noticed references to "test suites" for kernels, but
+> is there any one-step convenient way to select every possible
+> option for test-compiling a new kernel, just to see if it builds?
+> perhaps an "everything" option?
 
---=-USp/PJMMteL+Yramfd6s
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Try "make help" some day..
 
-On Wed, 2003-01-22 at 16:32, M. Edward Borasky wrote:
-> Is there a fix available for the following, generated on a 6 GB SMP P4 Xe=
-on
-> system with the Red Hat 2.4.18 kernel?
->=20
-> Kernel panic: Fix pte_chain allocation, you lazy bastard!
->=20
-> I searched the web and found copious references in the context of 2.5, bu=
-t
-> nothing in 2.4, Red Hat or otherwise.
+make allyesconfig
+make allmodconfig
+make allnoconfig <- Opposite of what you ask for.
 
-have you filed a bug yet in RH bugzilla ?
-
-
---=-USp/PJMMteL+Yramfd6s
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+Lr3oxULwo51rQBIRAjQVAKCjMtq3/03iE5n5dsebAS7vt5xWWwCfX8DG
-Z80vl7wDXl5mSsFFCbFJDFg=
-=EqiR
------END PGP SIGNATURE-----
-
---=-USp/PJMMteL+Yramfd6s--
+	Sam

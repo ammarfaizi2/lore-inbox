@@ -1,43 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286314AbRLTSVt>; Thu, 20 Dec 2001 13:21:49 -0500
+	id <S286316AbRLTSZ7>; Thu, 20 Dec 2001 13:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286315AbRLTSVp>; Thu, 20 Dec 2001 13:21:45 -0500
-Received: from ns01.netrox.net ([64.118.231.130]:27641 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S286314AbRLTSV1>;
-	Thu, 20 Dec 2001 13:21:27 -0500
-Subject: Re: aio
-From: Robert Love <rml@tech9.net>
-To: mingo@elte.hu
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com, cs@zip.com.au,
-        billh@tierra.ucsd.edu, linux-kernel@vger.kernel.org,
-        linux-aio@kvack.org
-In-Reply-To: <Pine.LNX.4.33.0112201101580.2464-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0112201101580.2464-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
-Date: 20 Dec 2001 13:20:55 -0500
-Message-Id: <1008872459.2777.10.camel@phantasy>
-Mime-Version: 1.0
+	id <S286318AbRLTSZn>; Thu, 20 Dec 2001 13:25:43 -0500
+Received: from datelb-1-3-123.dialup.vol.cz ([212.20.101.13]:52740 "HELO
+	ghost.ucw.cz") by vger.kernel.org with SMTP id <S286316AbRLTSZa>;
+	Thu, 20 Dec 2001 13:25:30 -0500
+Date: Thu, 20 Dec 2001 20:25:44 +0100 (MET)
+From: <brain@artax.karlin.mff.cuni.cz>
+To: Andrey Panin <pazke@orbita1.ru>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with GUS PnP: ad1848, pnp
+In-Reply-To: <20011220175753.A277@pazke.ipt>
+Message-ID: <Pine.LNX.4.30.0112202021360.796-200000@ghost.ucw.cz>
+X-Echelon: GRU Vatutinki Chodynka Khodinka Putin Suvorov USA Aquarium Russia Ladygin Lybia China Moscow missile reconnaissance agent spetsnaz security tactical target operation military nuclear force defense spy attack bomb explode tap MI5 IRS KGB CIA FBI NSA AK-47 MOSSAD M16 plutonium smuggle intercept plan intelligence war analysis president
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811837-1401552673-1008876344=:796"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2001-12-20 at 05:18, Ingo Molnar wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> there are two possibilities i can think of:
-> 
-> 1) lets get Ben's patch in but do *not* export the syscalls, yet.
+---1463811837-1401552673-1008876344=:796
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-This is an excellent way to give aio the testing and exposure Linus
-wants without getting into the commitment / syscall mess.
+On Thu, 20 Dec 2001, Andrey Panin wrote:
 
-Stick aio in the kernel, play with it via Tux, etc.  The really
-interested can add temporary syscalls.  aio (which I like, btw) will get
-testing and in time, once proven, we can add the syscalls.
+> IIRC, Gravis Ultrasound PnP listed as supported in Hardware Compatibility
+> HOWTO, but it can lack ISA PnP configuration support. So send us a copy
+> of /proc/isapnp anyway :))
 
-Comments?
+OK. Here it is. It was set by isapnptools, so the values are a bit wild :-) But
+the resources are visible.
 
-	Robert Love
+Brain
 
+--------------------------------
+Petr `Brain' Kulhavy
+<brain@artax.karlin.mff.cuni.cz>
+http://artax.karlin.mff.cuni.cz/~brain
+Faculty of Mathematics and Physics, Charles University Prague, Czech Republic
+
+---
+I am looking for a honest man.
+                -- Diogenes the Cynic
+
+---1463811837-1401552673-1008876344=:796
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=bla
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0112202025440.796@ghost.ucw.cz>
+Content-Description: /proc/isapnp
+Content-Disposition: attachment; filename=bla
+
+Q2FyZCAxICdHUlYwMDAxOkFkdmFuY2VkIEdyYXZpcyBJbnRlcldhdmUgQXVk
+aW8nIFBuUCB2ZXJzaW9uIDEuMCBQcm9kdWN0IHZlcnNpb24gMS4wDQogIExv
+Z2ljYWwgZGV2aWNlIDAgJ0dSVjAwMDA6U3ludGggJiBDb2RlYycNCiAgICBT
+dXBwb3J0ZWQgcmVnaXN0ZXJzIDB4Mg0KICAgIERldmljZSBpcyBhY3RpdmUN
+CiAgICBBY3RpdmUgcG9ydCAweGZmZmYsMHhmZmZmLDB4ZmZmZiwweGZmZmYs
+MHhmZmZmLDB4ZmZmZiwweGZmZmYsMHhmZmZmDQogICAgQWN0aXZlIElSUSAy
+NTUgWzB4ZmZdLDI1NSBbMHhmZl0NCiAgICBBY3RpdmUgRE1BIDI1NSwyNTUN
+CiAgICBBY3RpdmUgbWVtb3J5IDB4ZmZmZmZmZmYsMHhmZmZmZmZmZiwweGZm
+ZmZmZmZmLDB4ZmZmZmZmZmYNCiAgICBSZXNvdXJjZXMgMA0KICAgICAgUHJp
+b3JpdHkgcHJlZmVycmVkDQogICAgICBJUlEgMi85LDExLDEyLDE1IEhpZ2gt
+RWRnZQ0KICAgICAgSVJRIDIvOSwxMSwxMiwxNSBIaWdoLUVkZ2UNCiAgICAg
+IERNQSAwLDEsMyw1LDYsNyA4LWJpdCYxNi1iaXQgY29tcGF0aWJsZQ0KICAg
+ICAgRE1BIDAsMSwzLDUsNiw3IDgtYml0JjE2LWJpdCBjb21wYXRpYmxlDQog
+ICAgUmVzb3VyY2VzIDENCiAgICAgIFByaW9yaXR5IHByZWZlcnJlZA0KICAg
+ICAgUG9ydCAweDIyMC0weDIyMCwgYWxpZ24gMHgwLCBzaXplIDB4MTAsIDEw
+LWJpdCBhZGRyZXNzIGRlY29kaW5nDQogICAgICBQb3J0IDB4MzIwLTB4MzIw
+LCBhbGlnbiAweDAsIHNpemUgMHg4LCAxMC1iaXQgYWRkcmVzcyBkZWNvZGlu
+Zw0KICAgICAgUG9ydCAweDMyYy0weDMyYywgYWxpZ24gMHgwLCBzaXplIDB4
+NCwgMTAtYml0IGFkZHJlc3MgZGVjb2RpbmcNCiAgICAgIEFsdGVybmF0ZSBy
+ZXNvdXJjZXMgMToxDQogICAgICAgIFByaW9yaXR5IGFjY2VwdGFibGUNCiAg
+ICAgICAgUG9ydCAweDI0MC0weDI0MCwgYWxpZ24gMHgwLCBzaXplIDB4MTAs
+IDEwLWJpdCBhZGRyZXNzIGRlY29kaW5nDQogICAgICAgIFBvcnQgMHgzNDAt
+MHgzNDAsIGFsaWduIDB4MCwgc2l6ZSAweDgsIDEwLWJpdCBhZGRyZXNzIGRl
+Y29kaW5nDQogICAgICAgIFBvcnQgMHgzNGMtMHgzNGMsIGFsaWduIDB4MCwg
+c2l6ZSAweDQsIDEwLWJpdCBhZGRyZXNzIGRlY29kaW5nDQogIExvZ2ljYWwg
+ZGV2aWNlIDEgJ0dSVjAwMDE6QVRBUEkgQ0QtUk9NJw0KICAgIFN1cHBvcnRl
+ZCByZWdpc3RlcnMgMHgyDQogICAgQ29tcGF0aWJsZSBkZXZpY2UgUE5QMDYw
+MA0KICAgIERldmljZSBpcyBhY3RpdmUNCiAgICBBY3RpdmUgcG9ydCAweGZm
+ZmYsMHhmZmZmLDB4ZmZmZiwweGZmZmYsMHhmZmZmLDB4ZmZmZiwweGZmZmYs
+MHhmZmZmDQogICAgQWN0aXZlIElSUSAyNTUgWzB4ZmZdLDI1NSBbMHhmZl0N
+CiAgICBBY3RpdmUgRE1BIDI1NSwyNTUNCiAgICBBY3RpdmUgbWVtb3J5IDB4
+ZmZmZmZmZmYsMHhmZmZmZmZmZiwweGZmZmZmZmZmLDB4ZmZmZmZmZmYNCiAg
+ICBSZXNvdXJjZXMgMA0KICAgICAgUHJpb3JpdHkgcHJlZmVycmVkDQogICAg
+ICBJUlEgMi85LDExLDEyLDE1IEhpZ2gtRWRnZQ0KICAgICAgRE1BIDAsMSwz
+LDUsNiw3IDgtYml0JjE2LWJpdCBjb21wYXRpYmxlDQogICAgUmVzb3VyY2Vz
+IDENCiAgICAgIFByaW9yaXR5IGFjY2VwdGFibGUNCiAgICAgIFBvcnQgMHgx
+NzAtMHgxNzAsIGFsaWduIDB4MCwgc2l6ZSAweDgsIDEwLWJpdCBhZGRyZXNz
+IGRlY29kaW5nDQogICAgICBQb3J0IDB4Mzc2LTB4Mzc2LCBhbGlnbiAweDAs
+IHNpemUgMHgyLCAxMC1iaXQgYWRkcmVzcyBkZWNvZGluZw0KICAgICAgQWx0
+ZXJuYXRlIHJlc291cmNlcyAxOjENCiAgICAgICAgUHJpb3JpdHkgYWNjZXB0
+YWJsZQ0KICAgICAgICBQb3J0IDB4MTY4LTB4MTY4LCBhbGlnbiAweDAsIHNp
+emUgMHg4LCAxMC1iaXQgYWRkcmVzcyBkZWNvZGluZw0KICAgICAgICBQb3J0
+IDB4MzZlLTB4MzZlLCBhbGlnbiAweDAsIHNpemUgMHgyLCAxMC1iaXQgYWRk
+cmVzcyBkZWNvZGluZw0KICAgICAgQWx0ZXJuYXRlIHJlc291cmNlcyAxOjIN
+CiAgICAgICAgUHJpb3JpdHkgYWNjZXB0YWJsZQ0KICAgICAgICBQb3J0IDB4
+MWU4LTB4MWU4LCBhbGlnbiAweDAsIHNpemUgMHg4LCAxMC1iaXQgYWRkcmVz
+cyBkZWNvZGluZw0KICAgICAgICBQb3J0IDB4M2VlLTB4M2VlLCBhbGlnbiAw
+eDAsIHNpemUgMHgyLCAxMC1iaXQgYWRkcmVzcyBkZWNvZGluZw0KICBMb2dp
+Y2FsIGRldmljZSAyICdHUlYwMDAyOkdhbWUgUG9ydCcNCiAgICBTdXBwb3J0
+ZWQgcmVnaXN0ZXJzIDB4Mg0KICAgIENvbXBhdGlibGUgZGV2aWNlIFBOUGIw
+MmYNCiAgICBEZXZpY2UgaXMgYWN0aXZlDQogICAgQWN0aXZlIHBvcnQgMHhm
+ZmZmLDB4ZmZmZiwweGZmZmYsMHhmZmZmLDB4ZmZmZiwweGZmZmYsMHhmZmZm
+LDB4ZmZmZg0KICAgIEFjdGl2ZSBJUlEgMjU1IFsweGZmXSwyNTUgWzB4ZmZd
+DQogICAgQWN0aXZlIERNQSAyNTUsMjU1DQogICAgQWN0aXZlIG1lbW9yeSAw
+eGZmZmZmZmZmLDB4ZmZmZmZmZmYsMHhmZmZmZmZmZiwweGZmZmZmZmZmDQog
+ICAgUmVzb3VyY2VzIDANCiAgICAgIFByaW9yaXR5IHByZWZlcnJlZA0KICAg
+ICAgUG9ydCAweDIwMS0weDIwMSwgYWxpZ24gMHgwLCBzaXplIDB4MSwgMTAt
+Yml0IGFkZHJlc3MgZGVjb2RpbmcNCiAgTG9naWNhbCBkZXZpY2UgMyAnR1JW
+MDAwMzpTQiBEaWdpdGFsIEF1ZGlvJw0KICAgIFN1cHBvcnRlZCByZWdpc3Rl
+cnMgMHgyDQogICAgRGV2aWNlIGlzIGFjdGl2ZQ0KICAgIEFjdGl2ZSBwb3J0
+IDB4ZmZmZiwweGZmZmYsMHhmZmZmLDB4ZmZmZiwweGZmZmYsMHhmZmZmLDB4
+ZmZmZiwweGZmZmYNCiAgICBBY3RpdmUgSVJRIDI1NSBbMHhmZl0sMjU1IFsw
+eGZmXQ0KICAgIEFjdGl2ZSBETUEgMjU1LDI1NQ0KICAgIEFjdGl2ZSBtZW1v
+cnkgMHhmZmZmZmZmZiwweGZmZmZmZmZmLDB4ZmZmZmZmZmYsMHhmZmZmZmZm
+Zg0KICAgIFJlc291cmNlcyAwDQogICAgICBQcmlvcml0eSBwcmVmZXJyZWQN
+CiAgICAgIFBvcnQgMHgzODgtMHgzODgsIGFsaWduIDB4MCwgc2l6ZSAweDIs
+IDEwLWJpdCBhZGRyZXNzIGRlY29kaW5nDQogICAgICBJUlEgNSw3IEhpZ2gt
+RWRnZQ0KICBMb2dpY2FsIGRldmljZSA0ICdHUlYwMDA0OkdNIE11c2ljJw0K
+ICAgIFN1cHBvcnRlZCByZWdpc3RlcnMgMHgyDQogICAgRGV2aWNlIGlzIGFj
+dGl2ZQ0KICAgIEFjdGl2ZSBwb3J0IDB4ZmZmZiwweGZmZmYsMHhmZmZmLDB4
+ZmZmZiwweGZmZmYsMHhmZmZmLDB4ZmZmZiwweGZmZmYNCiAgICBBY3RpdmUg
+SVJRIDI1NSBbMHhmZl0sMjU1IFsweGZmXQ0KICAgIEFjdGl2ZSBETUEgMjU1
+LDI1NQ0KICAgIEFjdGl2ZSBtZW1vcnkgMHhmZmZmZmZmZiwweGZmZmZmZmZm
+LDB4ZmZmZmZmZmYsMHhmZmZmZmZmZg0KICAgIFJlc291cmNlcyAwDQogICAg
+ICBQcmlvcml0eSBwcmVmZXJyZWQNCiAgICAgIElSUSAyLzkgSGlnaC1FZGdl
+DQogICAgICBBbHRlcm5hdGUgcmVzb3VyY2VzIDA6MQ0KICAgICAgICBQcmlv
+cml0eSBhY2NlcHRhYmxlDQogICAgICAgIElSUSAxMCBIaWdoLUVkZ2UNCiAg
+ICAgIEFsdGVybmF0ZSByZXNvdXJjZXMgMDoyDQogICAgICAgIFByaW9yaXR5
+IGFjY2VwdGFibGUNCiAgICAgICAgSVJRIDExIEhpZ2gtRWRnZQ0KICAgIFJl
+c291cmNlcyAxDQogICAgICBQcmlvcml0eSBwcmVmZXJyZWQNCiAgICAgIFBv
+cnQgMHgzMzAtMHgzMzYsIGFsaWduIDB4MSwgc2l6ZSAweDIsIDEwLWJpdCBh
+ZGRyZXNzIGRlY29kaW5nDQo=
+---1463811837-1401552673-1008876344=:796--

@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266126AbUGJD6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266131AbUGJEFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266126AbUGJD6P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 23:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUGJD6O
+	id S266131AbUGJEFt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 00:05:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUGJEFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 23:58:14 -0400
-Received: from ultra1.eskimo.com ([204.122.16.64]:62982 "EHLO
-	ultra1.eskimo.com") by vger.kernel.org with ESMTP id S266126AbUGJD6N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 23:58:13 -0400
-Date: Fri, 9 Jul 2004 20:57:37 -0700
-From: Elladan <elladan@eskimo.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <piggin@cyberone.com.au>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Likelihood of rt_tasks
-Message-ID: <20040710035737.GA7552@eskimo.com>
-References: <40EE6CC2.8070001@kolivas.org> <40EF2FF2.6000001@bigpond.net.au>
-Mime-Version: 1.0
+	Sat, 10 Jul 2004 00:05:49 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:29852 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266127AbUGJEFq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 00:05:46 -0400
+To: ultralinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: arch/sparc64/Kconfig
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 09 Jul 2004 21:05:45 -0700
+Message-ID: <52brio8q1y.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40EF2FF2.6000001@bigpond.net.au>
-User-Agent: Mutt/1.5.6+20040523i
+X-OriginalArrivalTime: 10 Jul 2004 04:05:45.0673 (UTC) FILETIME=[2CF36390:01C46633]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 09:53:22AM +1000, Peter Williams wrote:
-> Con Kolivas wrote:
->
-> >While rt tasks are normally unlikely, what happens in the case when you 
-> >are scheduling one or many running rt_tasks and the majority of your 
-> >scheduling is rt? Would it be such a good idea in this setting that it 
-> >is always hitting the slow path of branching all the time?
-> 
-> Even when this isn't the case you don't want to make all rt_task() 
-> checks "unlikely".  In particular, during "wake up" using "unlikely" 
-> around rt_task() will increase the time that it takes for SCHED_FIFO 
-> tasks to get onto the CPU when they wake which will be bad for latency 
-> (which is generally important to these tasks as evidenced by several 
-> threads on the topic).
+I recently tested building the OpenIB InfiniBand drivers for sparc64.
+These drivers add a new drivers/infiniband directory and hook into the
+kernel config system by adding a 'source "drivers/infiniband/Kconfig"'
+to the drivers/Kconfig file.
 
-Average wall speed of RT task wakeup isn't really an issue - the issue
-is deterministic worst-case latency.  Adding a hundred cycles every time
-won't cause someone to miss a deadline.  The deadlines need to be based
-on the worst case, where the cache is 100% cold and you're at the
-beginning of a long-held mutex section etc.
+However, I discovered that arch/sparc64/Kconfig includes individual
+drivers/xxx/Kconfig files rather than the main drivers/Kconfig.  This
+means that hooking in the infiniband Kconfig requires changing the
+sparc64 Kconfig.
 
-An unlikely branch won't have any measurable effect on worst-case wakeup
-latency, but will reduce the average impact of the test on the common
-fast path for normal processes.
+I looked at arch/sparc64/Kconfig and found that the only files it does
+not include that are included by drivers/Kconfig are
 
-I don't see how this is anything but a good idea.
+    drivers/cdrom/Kconfig
+    drivers/char/Kconfig
+    drivers/macintosh/Kconfig
+    drivers/message/i2o/Kconfig
+    drivers/misc/Kconfig
 
--J
+cdrom is safe because the whole thing depends on ISA.  macintosh is
+safe because it depends on PPC || MAC.  misc is safe because it only
+includes one entry that depends on X86.
+
+So I guess my questions are, first, is there any reason why the
+message/i2o and especially the char Kconfigs are left out of the
+sparc64 Kconfig, and second, would a patch changing sparc64 to use the
+main drivers/Kconfig be accepted?
+
+Thanks,
+  Roland

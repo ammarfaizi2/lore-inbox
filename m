@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276138AbRJUO5C>; Sun, 21 Oct 2001 10:57:02 -0400
+	id <S276150AbRJUPAx>; Sun, 21 Oct 2001 11:00:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276150AbRJUO4w>; Sun, 21 Oct 2001 10:56:52 -0400
-Received: from deepthought.blinkenlights.nl ([62.58.162.228]:2308 "EHLO
-	mail.blinkenlights.nl") by vger.kernel.org with ESMTP
-	id <S276138AbRJUO4i>; Sun, 21 Oct 2001 10:56:38 -0400
-Date: Sun, 21 Oct 2001 17:10:28 +0200 (CEST)
-From: Sten <sten@blinkenlights.nl>
-To: linux-kernel@vger.kernel.org
-Subject: INIT_MMAP on sparc64
-Message-ID: <Pine.LNX.4.40-blink.0110211702070.19859-100000@deepthought.blinkenlights.nl>
+	id <S276204AbRJUPAn>; Sun, 21 Oct 2001 11:00:43 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35344 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276150AbRJUPA3>; Sun, 21 Oct 2001 11:00:29 -0400
+Subject: Re: MODULE_LICENSE and EXPORT_SYMBOL_GPL
+To: kaos@ocs.com.au (Keith Owens)
+Date: Sun, 21 Oct 2001 16:06:44 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <28610.1003559905@ocs3.intra.ocs.com.au> from "Keith Owens" at Oct 20, 2001 04:38:25 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15vKBY-0006cX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> and add that string to the non-tainting list.  BSD no advert code that
+> is not in the kernel tree can either switch to dual BSD/GPL or be
+> tainted, at the choice of the supplier.
 
-I have been playing around with linux on an ultra60,
-and have had some struggles with the kernel.
-The most annoying one is that somewhere in between
-kernels 2.4.7 and 2.4.12 someone delete the define
-of INIT_MMAP from the processor.h of sparc64, which
-doesnt really help when trying to compile a kernel.
+BSD no advertising with no patent issues (and therefore compliant) linked
+with GPL code ends up as GPL anyway, so I don't see the problem in using
+the dual BSD/GPL tag
 
-Putting in the define of 2.4.7 got me on the way.
-So putting it back might be a nice idea ;)
-
-Ow well, still better as solaris, for my purposes
-atleast.
-
---
-
-Sten Spans
-
+Alan

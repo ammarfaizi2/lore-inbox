@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319103AbSIJMTB>; Tue, 10 Sep 2002 08:19:01 -0400
+	id <S319104AbSIJMhv>; Tue, 10 Sep 2002 08:37:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319104AbSIJMTA>; Tue, 10 Sep 2002 08:19:00 -0400
-Received: from pop.gmx.de ([213.165.64.20]:42273 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S319103AbSIJMTA> convert rfc822-to-8bit;
-	Tue, 10 Sep 2002 08:19:00 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@gmx.net>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.xx and ext3
-Date: Tue, 10 Sep 2002 14:23:36 +0200
-X-Mailer: KMail [version 1.4]
+	id <S319105AbSIJMhv>; Tue, 10 Sep 2002 08:37:51 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:35839 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S319104AbSIJMhv>; Tue, 10 Sep 2002 08:37:51 -0400
+Date: Tue, 10 Sep 2002 14:42:32 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Andreas Kerl <andreas.kerl@dts.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: compile error 2.4.20.pre5-ac4 
+In-Reply-To: <3D7D0D02.6060604@dts.de>
+Message-ID: <Pine.NEB.4.44.0209101441300.7966-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200209101423.37000.m.c.p@gmx.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Mon, 9 Sep 2002, Andreas Kerl wrote:
 
-say, is there any good reason for 2.5.xx ext3 to be version 0.9.16 and not 
-0.9.18 + additional patches from akpm?
+> drivers/ide/idedriver.o: In function `proc_ide_read_drivers':
+> drivers/ide/idedriver.o(.text+0x4c9): undefined reference to `ide_modules'
+>...
 
-TIA!
+Hi Andreas,
+
+thanks for the report. This is a known issue when compiling
+2.4.20-pre5-ac4 without IDE support. A workaround is to enable IDE
+support.
+
+cu
+Adrian
+
 -- 
-Kind regards
-        Marc-Christian Petersen
 
-http://sourceforge.net/projects/wolk
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.

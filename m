@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264232AbTFKTK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 15:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTFKTK1
+	id S263131AbTFKT3j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 15:29:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbTFKT3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 15:10:27 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2556 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264192AbTFKTKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 15:10:23 -0400
-Date: Wed, 11 Jun 2003 21:22:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Randolph Bentson <bentson@holmsjoen.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030611192232.GB16164@fs.tum.de>
-References: <20030609213321.GP16164@fs.tum.de> <MDEHLPKNGKAHNMBLJOLKCEMCDIAA.davids@webmaster.com> <20030609222141.GS16164@fs.tum.de> <20030610131730.A26932@grieg.holmsjoen.com> <20030611153845.GA16164@fs.tum.de> <20030611103936.A29520@grieg.holmsjoen.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030611103936.A29520@grieg.holmsjoen.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 11 Jun 2003 15:29:38 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:27604 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S263131AbTFKT3h
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 15:29:37 -0400
+Message-ID: <3EE7852C.2050605@rackable.com>
+Date: Wed, 11 Jun 2003 12:38:20 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Artemio <artemio@artemio.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SMP question
+References: <200306112043.11923.artemio@artemio.net>
+In-Reply-To: <200306112043.11923.artemio@artemio.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Jun 2003 19:43:21.0301 (UTC) FILETIME=[B6BFC050:01C33051]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 10:39:36AM -0700, Randolph Bentson wrote:
->...
-> If the distributor elects to distribute the object code or executable
-> form under clause 3b, one might reasonably argue that the distributor
-> need only distribute the source to those third parties in possession
-> of the written offer which must be included.  Others may argue that
->...
+Artemio wrote:
 
-"Accompany it with a written offer, ..., to give any third party, ..., a 
-complete machine-readable copy of the corresponding source code..."
+>Hello!
+>
+>I have the following question.
+>
+>My system is 2x 2.4Ghz Xeons.
+>
+>Linux kernel 2.4.18 compiled with SMP support sees it as four processors. 
+>
+  This is hyper threading.  This is intel's attempt to cram extra 
+instructions on each cpu cyle.  It may make things faster, or slower.  
+It really depends on what you are doing.  You can shut off hyper 
+threading off in the bios.
 
-This is non-ambiguous. You might _not_ "reasonably argue" about it, the 
-"any third party" leaves no room for other interpretations.
+>SMP-disabled kernel sees one, of course.
+>
+>I would like to know, how will it influence the system performance, if I run a 
+>UP kernel?
+>
+  Well if you are generally only running a single program then it will 
+speed things up.  If you run a number of programs all at once it will 
+speed things up.  Hyperthreading tends to be a good thing if you are 
+running 8 or more cpu hungry processes.
 
-> Randolph Bentson
+>
+>What does the kernel SMP support add? Just some API for additinal 
+>multiprocessor control? 
+>
+  For the most part.  It also enables io-apic and other stuff.
 
-cu
-Adrian
 
 -- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

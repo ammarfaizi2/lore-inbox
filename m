@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTLWUpf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 15:45:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTLWUpf
+	id S261928AbTLWU6X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 15:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTLWU6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 15:45:35 -0500
-Received: from mra02.ex.eclipse.net.uk ([212.104.129.89]:39652 "EHLO
-	mra02.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S262094AbTLWUpe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 15:45:34 -0500
-From: Ian Hastie <ianh@iahastie.clara.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [License of kernel components] linux-2.x.y/Documentation/logo.GIF should be logo.PNG?
-Date: Tue, 23 Dec 2003 20:45:28 +0000
-User-Agent: KMail/1.5.4
-References: <178ed117d672.17d672178ed1@ono.com> <200312231207.53580.gene.heskett@verizon.net> <20031223193806.GA5864@codepoet.org>
-In-Reply-To: <20031223193806.GA5864@codepoet.org>
+	Tue, 23 Dec 2003 15:58:23 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:51846 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S261928AbTLWU6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 15:58:22 -0500
+To: ryutaroh@it.ss.titech.ac.jp
+cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cannot input bar with JP106 keyboards
+References: <20031219.212456.74735601.ryutaroh@it.ss.titech.ac.jp>
+From: Junio C Hamano <junkio@cox.net>
+Date: Tue, 23 Dec 2003 12:58:20 -0800
+In-Reply-To: <fa.kfih9j0.q4e8bi@ifi.uio.no> (ryutaroh@it.ss.titech.ac.jp's
+ message of "Fri, 19 Dec 2003 12:26:46 GMT")
+Message-ID: <7v4qvrtfo3.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312232045.32535.ianh@iahastie.local.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 23 Dec 2003 19:38, Erik Andersen wrote:
->The LZW patents in the United
-> Kingdom, France, Germany and Italy however are still active, and
-> will expire June 18, 2004.
+>>>>> "rm" == ryutaroh  <ryutaroh@it.ss.titech.ac.jp> writes:
 
-Are these patents enforceable in under current law?  I may well have the wrong 
-idea here, but I thought that the recent controversial EU legislation was 
-about to enabling this sort of patent.
+rm> We cannot input | (bar) with the JP 106 keyboards (the standard Japanese
+rm> keyboards).
 
--- 
-Ian.
+Known problem.  Look for string "Japanese" in the post-halloween doc.
+
+http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
 

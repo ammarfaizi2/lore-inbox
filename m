@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270821AbTGVMbk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 08:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270822AbTGVMbk
+	id S270809AbTGVMfx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 08:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270810AbTGVMfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 08:31:40 -0400
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:43014 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270821AbTGVMbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 08:31:39 -0400
-Message-ID: <3F1D328B.2010205@yahoo.ca>
-Date: Tue, 22 Jul 2003 08:48:11 -0400
-From: Jonathan Bastien-Filiatrault <Intuxicated_kdev@yahoo.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030716
-X-Accept-Language: en-ca
-MIME-Version: 1.0
-To: Martin Schlemmer <azarah@gentoo.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test1 Cannot login in X or console
-References: <3F18B603.70405@yahoo.ca> <3F195E5D.50409@maine.rr.com>	 <3F1983BF.4080600@yahoo.ca> <3F19B65A.6010606@maine.rr.com>	 <3F1A244E.6000505@yahoo.ca> <3F1A5123.2080101@portrix.net>	 <3F1A6397.8040706@yahoo.ca> <1058789247.5737.2.camel@workshop.saharacpt.lan>
-In-Reply-To: <1058789247.5737.2.camel@workshop.saharacpt.lan>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 22 Jul 2003 08:35:53 -0400
+Received: from mail.kroah.org ([65.200.24.183]:22427 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270809AbTGVMfw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 08:35:52 -0400
+Date: Tue, 22 Jul 2003 08:50:39 -0400
+From: Greg KH <greg@kroah.com>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] Non-ASCII chars in visor.c messages
+Message-ID: <20030722125039.GA2310@kroah.com>
+References: <20030722143821.C26218@fi.muni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030722143821.C26218@fi.muni.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schlemmer wrote:
+On Tue, Jul 22, 2003 at 02:38:21PM +0200, Jan Kasprzak wrote:
+> 	Hello,
+> 
+> what is the general opinion on printing non-ASCII characters in kernel
+> messages? I think kernel should print either pure ASCII messages, or
+> at least UTF-8-encoded ones.
 
->On Sun, 2003-07-20 at 11:40, Jonathan Bastien-Filiatrault wrote:
->  
->
->>Jan Dittmer wrote:
->>
->>    
->>
->>>just mount devpts to /dev/pts, iff you have devfs enabled.
->>>      
->>>
->>Already did that, i cannot even login on the 80x25 console.
->>
->>    
->>
->>>jan
->>>
->>>      
->>>
->>This bug is preventing me from migrating !!!
->>Any ideas on the cause of this problem ?
->>
->>    
->>
->
->Maybe try to boot 2.4 again, and see if you can get the
->wiser by looking at the logs.
->  
->
-Nothing in the logs...the dreaful ilent error !!!
+"pure ASCII"?  Heh, that's the first time I've heard that.
 
->
->Regards,
->
->  
->
+> 	The visor.c module contains three messages
+> with non-ASCII character ("e" with acute above, encoded in
+> ISO 8859-1, in the name of "Sony Clie'" handheld). I propose the attached
+> patch, which works in all environments (altough UTF-8 variant would be
+> IMHO fine as well).
+> 
+> 	What do you think about it?
 
+I don't think it's really needed.  Why change this, syslog can't handle
+this?  It works for me...
 
+thanks,
+
+greg k-h

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293008AbSCFVbG>; Wed, 6 Mar 2002 16:31:06 -0500
+	id <S293579AbSCFVbq>; Wed, 6 Mar 2002 16:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293579AbSCFVa4>; Wed, 6 Mar 2002 16:30:56 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:34322 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S293008AbSCFVar>;
-	Wed, 6 Mar 2002 16:30:47 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: israel fdez <israel@seg.inf.cu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Question?? 
-In-Reply-To: Your message of "Wed, 06 Mar 2002 11:08:47 CDT."
-             <3C863F0F.8000106@seg.inf.cu> 
-Mime-Version: 1.0
+	id <S310202AbSCFVbh>; Wed, 6 Mar 2002 16:31:37 -0500
+Received: from carbon.btinternet.com ([194.73.73.92]:45549 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id <S293579AbSCFVbW>; Wed, 6 Mar 2002 16:31:22 -0500
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Ben Greear <greearb@candelatech.com>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: a faster way to gettimeofday?
+In-Reply-To: <Pine.LNX.4.33.0203061238380.17114-100000@twinlark.arctic.org>
+From: Chris Ball <chris@void.printf.net>
+Date: 06 Mar 2002 21:31:10 +0000
+In-Reply-To: <Pine.LNX.4.33.0203061238380.17114-100000@twinlark.arctic.org>
+Message-ID: <87bse14c4h.fsf@lexis.house.pkl.net>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 07 Mar 2002 08:30:34 +1100
-Message-ID: <19210.1015450234@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 06 Mar 2002 11:08:47 -0500, 
-israel fdez <israel@seg.inf.cu> wrote:
->Hi all, how can I get the full path of a module that is intended to be 
->insmod'ed into the kernel
+>>>>> "dean" == dean gaudet <dean-list-linux-kernel@arctic.org> writes:
 
-# insmod -n loop
-Using /lib/modules/2.4.17-xfs/kernel/drivers/block/loop.o
-# modprobe -l '*loop*'
-/lib/modules/2.4.17-xfs/kernel/drivers/block/loop.o
+    dean> ingo started the proper work for this, for example, see:
+    dean> <http://people.redhat.com/mingo/vsyscall-patches/vsyscall-2.3.32-F4>
+    dean> (there's a documentation file near the bottom of the patch)
+    dean> but it doesn't appear to support gettimeofday via rdtsc yet.
+
+Interesting patch; when last I looked, vsyscalls were only being
+implemented on the new 64-bit architectures.
+
+Does this patch break binary compatibility?  I seem to recall that being
+Andrea's reason for not running vsyscalls on standard x86 back in August
+last year.
+
+- Chris.
+-- 
+$a="printf.net"; Chris Ball | chris@void.$a | www.$a | finger: chris@$a
+         "In the beginning there was nothing, which exploded."
 

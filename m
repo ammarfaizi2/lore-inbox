@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266885AbUHTN3P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267175AbUHTNfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266885AbUHTN3P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 09:29:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267175AbUHTN3P
+	id S267175AbUHTNfF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 09:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUHTNfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 09:29:15 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:48831 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266885AbUHTN3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 09:29:04 -0400
-Date: Fri, 20 Aug 2004 15:30:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Charbonnel <thomas@undata.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Lee Revell <rlrevell@joe-job.com>, Mark_H_Johnson@raytheon.com
-Subject: [patch] voluntary-preempt-2.6.8.1-P5
-Message-ID: <20040820133031.GA13105@elte.hu>
-References: <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu>
+	Fri, 20 Aug 2004 09:35:05 -0400
+Received: from mxfep01.bredband.com ([195.54.107.70]:18324 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S267175AbUHTNfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 09:35:00 -0400
+Subject: Re: DTrace-like analysis possible with future Linux kernels?
+From: Alexander Nyberg <alexn@telia.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Miles Lane <miles.lane@comcast.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <87k6vu3bet.fsf@deneb.enyo.de>
+References: <200408191822.48297.miles.lane@comcast.net>
+	 <87hdqyogp4.fsf@killer.ninja.frodoid.org>  <87k6vu3bet.fsf@deneb.enyo.de>
+Content-Type: text/plain
+Message-Id: <1093008895.7824.11.camel@boxen>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040819073247.GA1798@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 15:34:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-08-20 at 02:23, Florian Weimer wrote:
+> * Julien Oster:
+> 
+> > Miles Lane <miles.lane@comcast.net> writes:
+> >
+> >> http://www.theregister.co.uk/2004/07/08/dtrace_user_take/:
+> >> "Sun sees DTrace as a big advantage for Solaris over other versions of Unix 
+> >> and Linux."
+> >
+> > That article is way too hypey.
+> 
+> Maybe, but DTrace seems to solve one really pressing problem: tracking
+> disk I/O to the processes causing it.  Unexplained high I/O
+> utilization is a *very* common problem, and there aren't any tools to
+> diagnose it.
+>
+> Most other system resources can be tracked quite easily: disk space,
+> CPU time, committed address space, even network I/O (with tcpdump and
+> netstat -p).  But there's no such thing for disk I/O.
 
-i've uploaded the -P5 patch:
+Why can't this be done be looking at the major faults a process causes?
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P5
+Not very slick indeed, but it can be done.
 
-Changes since -P4:
+I wrote a small silly /proc/pid/stat parser at
+http://serkiaden.mine.nu/procextract.c 
 
- - increase PERCPU_ENOUGH_ROOM to avoid percpu overflow on SMP.
-   (Mark H Johnson)
+One could quite easily hack up a tool to monitor I/O per process or
+does it need to be very more precise?
 
- - reduce ZAP_BLOCK_SIZE to 16 when vp != 0. This pushes the exit
-   latency down to below 100 usecs on Lee Revell's box.
-
- - added a preempt_count field to /proc/latency_trace. This makes it
-   easier to spot IRQ contexts and generally it gives a nice overview of
-   how the preemption depth changes. It should also help us debug
-   those 900usec weirdnesses related to cpu_idle. (if they still occur)
-
- - made the tcp packet-queue collapsing dependent on VOLUNTARY_PREEMPT.
-
- - fixed 10-20 msec latencies triggered by 'netstat', which occur when
-   there are lots of sockets on a box.
-
- - rediffed against 2.6.8.1 for the patch to apply without fuzz
-
-	Ingo

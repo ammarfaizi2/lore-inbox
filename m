@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVBBTen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVBBS6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262736AbVBBTen (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:34:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVBBTeQ
+	id S262492AbVBBS6W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 13:58:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVBBS4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:34:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:7382 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262741AbVBBTb3 convert rfc822-to-8bit (ORCPT
+	Wed, 2 Feb 2005 13:56:32 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:1671 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262471AbVBBSwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:31:29 -0500
-Date: Wed, 2 Feb 2005 19:31:24 +0000 (GMT)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: Haakon Riiser <haakon.riiser@fys.uio.no>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Accelerated frame buffer functions
-In-Reply-To: <20050202154139.GA3267@s>
-Message-ID: <Pine.LNX.4.56.0502021930250.20184@pentafluge.infradead.org>
-References: <20050202133108.GA2410@s> <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
- <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales>
- <20050202154139.GA3267@s>
+	Wed, 2 Feb 2005 13:52:19 -0500
+Date: Wed, 2 Feb 2005 13:52:18 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Frank klein <frnk_kln@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Copyright / licensing question
+In-Reply-To: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.61.0502021351260.14232@chimarrao.boston.redhat.com>
+References: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2 Feb 2005, Frank klein wrote:
 
-> > Le mercredi 02 février 2005 à 15:21 +0100, Haakon Riiser a
-> > écrit :
-> 
-> >> How can I use a frame buffer driver's optimized copyarea,
-> >> fillrect, blit, etc. from userspace?  The only way I've ever
-> >> seen anyone use the frame buffer device is by mmap()ing it
-> >> and doing everything manually in the mapped memory.  I assume
-> >> there must be ioctls for accessing the accelerated functions,
-> >> but after several hours of grepping and googling, I give up. :-(
-> 
-> > Did you try DirectFB ?
-> 
-> Thanks for the tip, I hadn't heard about it.  I will take a look,
-> but only to see if it can show me the user space API of /dev/fb.
-> I don't need a general library that supports a bunch of different
-> graphics cards.  I'm writing my own frame buffer driver for the
-> GX2 CPU, and I just want to know how to call the various functions
-> registered in struct fb_ops, so that I can test my code.  I mean,
-> all those functions registered in fb_ops must be accessible
-> somehow; if they weren't, what purpose would they serve?
+> 1. For explaining the internals of a filesystem in
+> detail, I need to take their code from kernel sources
+> 'as it is' in the book. Do I need to take any
+> permissions from the owner/maintainer regarding this ?
+> Will it violate any license if reproduce the driver
+> source code in my book ??
 
-The reason for the accelerated functions is for the framebuffer console.
-Drawing pixel by pixel is to slow.
+Reproducing GPL code is legal, though you may want to
+make sure that the copyright notice on the book doesn't
+accidentally try to prohibit your readers from further
+distributing said code ;)
 
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

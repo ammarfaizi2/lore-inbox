@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262915AbTIGJDS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 05:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbTIGJDS
+	id S262918AbTIGJ0z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 05:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbTIGJ0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 05:03:18 -0400
-Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:24313 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id S262915AbTIGJDR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 05:03:17 -0400
-Date: Sun, 7 Sep 2003 03:02:24 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Aaron Dewell <acd@woods.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: partition recovery question resolution
-Message-ID: <20030907030224.B18482@schatzie.adilger.int>
-Mail-Followup-To: Aaron Dewell <acd@woods.net>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0309062335230.20670-100000@dragon.woods.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0309062335230.20670-100000@dragon.woods.net>; from acd@woods.net on Sat, Sep 06, 2003 at 11:43:17PM -0600
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Sun, 7 Sep 2003 05:26:54 -0400
+Received: from static-ctb-210-9-247-166.webone.com.au ([210.9.247.166]:16905
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S262918AbTIGJ0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 05:26:53 -0400
+Message-ID: <3F5AF9D9.3070206@cyberone.com.au>
+Date: Sun, 07 Sep 2003 19:26:49 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John Yau <jyau_kernel_dev@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+References: <000201c374c8$1124ee20$f40a0a0a@Aria> <3F5ABE90.2040003@cyberone.com.au> <Law10-OE296cRyiOYbp00008b23@hotmail.com> <3F5AE7ED.7010501@cyberone.com.au> <LAW10-OE38NfztQ7LS000009f64@hotmail.com>
+In-Reply-To: <LAW10-OE38NfztQ7LS000009f64@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 06, 2003  23:43 -0600, Aaron Dewell wrote:
-> Doing a dd back to the disk with a short file shouldn't
-> affect anything past the end of the file, right?  Therefore, there would have
-> had to have been some kind of condition whereby the file got truncated while a
-> dd was going on, and for some reason, it started writing zeros instead of
-> stopping.
 
-That's a common pitfall of dd.  It will truncate regular output files unless
-you use "conv=notrunc".  If you are writing to a block device it obviously
-can't truncate the device so you don't notice it unless you are trying to
-dd over an existing file.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+John Yau wrote:
+
+>>Even if context switches don't cost anything, you still want to have
+>>priorities so cpu hogs can be preempted by other tasks in order to
+>>quickly respond to IO events. You want interactive tasks to be able
+>>to sometimes get more cpu than cpu hogs, etc. Scheduling latency is
+>>only a part of it.
+>>
+>>
+>
+>Of course priorities are still necessary =)  However assuming that
+>interactive tasks will always finish much much earlier than hogs, it's not
+>really worth it to give interactive tasks any special treatment when you
+>have very fine timeslices.
+>
+
+Its actually more important when you have smaller timeslices, because
+the interactive task is more likely to use all of its timeslice in a
+burst of activity, then getting stuck behind all the cpu hogs.
+
+>
+>
+>For example you have x that will use 100 ms and y that will use 5 ms, both
+>of the same priority.  Assuming that x entered into the queue first and y
+>immediately after, at 20 ms timeslice, it will be 25 ms before y finishes.
+>However, at 1 ms timeslice, y finishes in 10 ms.
+>
+>
+
+Yes. Also, say 5 hogs running, an interactive task needs to do something
+taking 2ms. At a 2ms timeslice, it will take 2ms. At a 1ms timeslice it
+will take 6ms.
+
 

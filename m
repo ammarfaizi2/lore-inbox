@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSFFXBl>; Thu, 6 Jun 2002 19:01:41 -0400
+	id <S312254AbSFFXEU>; Thu, 6 Jun 2002 19:04:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312254AbSFFXBk>; Thu, 6 Jun 2002 19:01:40 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:64398 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S311898AbSFFXBj>;
-	Thu, 6 Jun 2002 19:01:39 -0400
-Date: Thu, 6 Jun 2002 15:57:24 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] PCI device matching fix
-In-Reply-To: <Pine.LNX.4.44.0206061706230.31896-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.33.0206061551170.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312560AbSFFXET>; Thu, 6 Jun 2002 19:04:19 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:10881 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S312254AbSFFXET>; Thu, 6 Jun 2002 19:04:19 -0400
+Date: Thu, 6 Jun 2002 17:04:15 -0600
+Message-Id: <200206062304.g56N4Fg05480@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+Cc: Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org
+Subject: Re: Devfs strangeness in 2.4.18
+In-Reply-To: <Pine.LNX.4.44.0206062312530.16968-100000@sharra.ivimey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ruth Ivimey-Cook writes:
+> On Thu, 6 Jun 2002, Dag Nygren wrote:
+> 
+> >The problems are tha the sg? links doesn't correspond to the real
+> >devices shown by /proc/scsi/scsi (Which matches the real situation)
+> >sg0 matches the first disk, OK
+> >sg1 matches the Medium changer, OK
+> >sg2 matches nothing...... There is no target 2 on host1 !!!
+> >sg3 matches the DLT tape drive
+> >sg4 matches the DAT tape drive
+> >
+> >The other problem is the st? links.
+> >st0 is linked out into nothing ...
+> >
+> >Seems like 3 host adapters is too much for devfs......
+> >Do I need an upgrade ?
+> 
+> In my experience, devfs doesn't create /dev/sg or /dev/st softlinks.
 
-> Yes, you're basically right, whether you use the refcount in struct driver 
-> or the module use count doesn't make any difference. Except for one thing:
-> You cannot call module_exit() when the module count is > 0. Since only 
-> then unregister_driver() is called, there's no way to get the use count to 
-> zero and thus unload the module. One could of course change the policy to 
-> call unregister_driver() not from module_exit(), but e.g. by
-> "echo remove > /driversfs/../my_driver", but it's surely not that I'm 
-> suggesting this.
+Indeed. It's devfsd that creates it.
 
-We can keep the same policy as modules now - keep the usage count at 0 
-when not in use. That way the module can unload at any time. module_exit() 
-calls driver_unregister(), which, down the line, calls the drivers' 
-remove() for each device attached to it. 
+> The only links it creates are from /dev/discs/... to /dev/ide/... or
+> /dev/scsi/... as appropriate.
+> 
+> I would look into the mandrake boot sequence in detail.
 
-That seems a lot cleaner than anything so far; we leverage the existing
-module infrastructure as much as possible. I'll see about codifying the
-concept in the next day or so and sending it out..
+Also check that you don't have bogus entries in your dev-state
+area. Mandrake had some configuration problems a few months back.
 
-	-pat
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

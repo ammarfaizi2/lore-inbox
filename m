@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263549AbUCTVwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 16:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263550AbUCTVwY
+	id S263551AbUCTVzd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 16:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbUCTVzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 16:52:24 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:65454 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S263549AbUCTVwW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 16:52:22 -0500
-X-BrightmailFiltered: true
-Date: Sat, 20 Mar 2004 22:52:19 +0100
-From: Kronos <kronos@kronoz.cjb.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] Sysfs for framebuffer
-Message-ID: <20040320215219.GA20277@dreamland.darkstar.lan>
-Reply-To: kronos@kronoz.cjb.net
-References: <20040320174956.GA3177@dreamland.darkstar.lan> <20040320213030.GA3950@kroah.com>
+	Sat, 20 Mar 2004 16:55:33 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12504 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263551AbUCTVz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 16:55:28 -0500
+Date: Sat, 20 Mar 2004 13:55:30 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Michael W. Shaffer" <mwshaffer@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.4 Hang in utime() on swap file
+Message-Id: <20040320135530.7f06a7b8.akpm@osdl.org>
+In-Reply-To: <20040320181630.27185.qmail@web10401.mail.yahoo.com>
+References: <20040320181630.27185.qmail@web10401.mail.yahoo.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040320213030.GA3950@kroah.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sat, Mar 20, 2004 at 01:30:30PM -0800, Greg KH ha scritto: 
-> On Sat, Mar 20, 2004 at 06:49:56PM +0100, Kronos wrote:
-> > Hi,
-> > the following patch (against 2.6.5-rc2) teaches fb to use class_simple.
-> > With this patch udev will automagically create device nodes for each
-> > framebuffer registered. Once all drivers are converted to
-> > framebuffer_{alloc,release} we can switch to our own class.
-> 
-> yeah, it's about time!  Didn't I post this patch a few months ago... :)
-
-Hum, I remeber your patch that did the same thing, but it didn't use
-class_simple, did it?
-
-> Anyway, it looks good, I only have one comment:
-> 
-> > notebook:~# tree /sys/class/graphics/
-> > /sys/class/graphics/
-> 
-> "graphics"?  Why that?  Why not "fb"?
-> 
-> It doesn't really matter to me, just curious.
-
-It was discussed a while ago (this is James):
-
-<quote>
-On Tue, 9 Sep 2003, Benjamin Herrenschmidt wrote:
-> > On Tue, 2003-09-09 at 21:24, Kronos wrote:
-> > > +static struct class fb_class = {
-> > > + .name           = "video",
-> >
-> > I'd rather use "display" here. "video" is too broad and will cause
-> > confusion with multimedia stuff.
+"Michael W. Shaffer" <mwshaffer@yahoo.com> wrote:
 >
-> Exactly my comment. I was thinking about `graphics' instead of
-> `video', but indeed `display' sounds better. Gr{oetje,eeting}s,
+> I have a Debian Sarge system running a 2.6 kernel (tested with 2.6.2, 2.6.3,
+> 2.6.4 with the same behavior as described here), and am seeing un-killable
+> hanging processes with our particular backup product.
+> 
+> When the backup disk agent process is running, one the the last files it
+> tries to back up is a swap file at the path /swapfile00. The read of the
+> file appears to work fine, but then it wants to call utime() to reset the
+> atime/mtime on the file, and at this point the process becomes infinitely
+> hung, doing nothing, no more output from strace, never terminating.
+> 
+> This only occurs if the swapfile is actively in use when the backup runs. If
+> I run swapoff to deactivate the swapfile, then the utime() call apparently
+> completes and the process immediately finishes and exits normally. If the
+> swapfile is not in use at all, everything works fine.
+> 
 
-I prefere graphics myself. Display sounds to generic. That is what video
-and graphics output is piped to. Since fbdev doesn't handle video ouput
-normally this is kind of fuzzy sounding.
-</quote>
-
-Luca
--- 
-Home: http://kronoz.cjb.net
-"Di tutte le perversioni sessuali, la castita` e` la piu` strana".
-Anatole France
+ho hum.  We do this to prevent anyone from ftruncate()ing the swapfile
+while it is in use.  That can destroy filesystems.  Let me think about it a
+bit.

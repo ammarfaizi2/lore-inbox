@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289114AbSA2J3v>; Tue, 29 Jan 2002 04:29:51 -0500
+	id <S289234AbSA2JkO>; Tue, 29 Jan 2002 04:40:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289226AbSA2J3k>; Tue, 29 Jan 2002 04:29:40 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12551 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289114AbSA2J3e>;
-	Tue, 29 Jan 2002 04:29:34 -0500
-Message-ID: <3C5669D6.B81E0B4@zip.com.au>
-Date: Tue, 29 Jan 2002 01:22:30 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
+	id <S289291AbSA2JkE>; Tue, 29 Jan 2002 04:40:04 -0500
+Received: from mail.sonytel.be ([193.74.243.200]:36263 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S289234AbSA2Jjs>;
+	Tue, 29 Jan 2002 04:39:48 -0500
+Date: Tue, 29 Jan 2002 10:39:21 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Dave Jones <davej@suse.de>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fbdev accel wrapper. II
+In-Reply-To: <Pine.LNX.4.10.10201281521090.14010-100000@www.transvirtual.com>
+Message-ID: <Pine.GSO.4.21.0201291034460.3801-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
-In-Reply-To: <E16VU8j-0006Hm-00@wagner.rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+On Mon, 28 Jan 2002, James Simmons wrote:
+> Oops. Forgot the patch. Here you go.
 > 
-> This patch introduces the __per_cpu_data tag for data, and the
-> per_cpu() & this_cpu() macros to go with it.
-> 
-> This allows us to get rid of all those special case structures
-> springing up all over the place for CPU-local data.
+> diff -urN -X /home/jsimmons/dontdiff linux-2.5.2-dj6/drivers/video/fbcon-accel.c linux/drivers/video/fbcon-accel.c
+> --- linux-2.5.2-dj6/drivers/video/fbcon-accel.c	Wed Dec 31 16:00:00 1969
+> +++ linux/drivers/video/fbcon-accel.c	Mon Jan 28 11:15:10 2002
 
-Am I missing something? smp_init() is called quite late in
-the boot process, and if any code touches per-cpu data before
-this, it'll get a null pointer deref, won't it?
+  [...]
 
-You could possibly do:
+> +void fbcon_accel_clear(struct vc_data *vc, struct display *p, int sy, int sx,
+> +		       int height, int width)
+> +{
+> +	struct fb_info *info = p->fb_info;
+> +	struct fb_fillrect region;
+> +
+> +	if (info->fix.visual == FB_VISUAL_PSEUDOCOLOR)
+> +		region.color = attr_bgcol_ec(p,vc);
+> +	else {
+> +		if (info->var.bits_per_pixel > 16)
+> +			region.color = ((u32*)info->pseudo_palette)[attr_bgcol_ec(p,vc)];
+> +		else
+> +			region.color = ((u16*)info->pseudo_palette)[attr_bgcol_ec(p,vc)];
+> +	}
 
-unsigned long __per_cpu_offset[NR_CPUS] = { (unsigned long *)&__per_cpu_start, };
+What about non-pseudocolor modes with bpp <= 8? We still use the 16-bit wide
+pseudo-palette in that case?
 
-which takes care of the boot processor.  You lose the ability
-to put statically initialised data into the per-cpu area, but
-that's not too bad.
+Alternatively we can always use the 32-bit wide pseudo-palette, so the test
+for info->var.bits_per_pixel can go away (assumed there are no pixel sizes
+where more than 32 bits are needed for the color information). Then a pixel
+value is just an opaque 32-bit value (cfr. fbtest).
 
-Also the boot processor won't be able to initialise stuff which
-belongs to other CPUs.
+Gr{oetje,eeting}s,
 
-Or the whole thing needs to be moved super-early into the boot
-process.
+						Geert
 
-Or I missed something :)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbULEDwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbULEEHs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbULEDwD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 22:52:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbULEDwD
+	id S261250AbULEEHs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 23:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbULEEHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 22:52:03 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11179 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261245AbULEDwB (ORCPT
+	Sat, 4 Dec 2004 23:07:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16333 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261247AbULEEHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 22:52:01 -0500
-Date: Sat, 4 Dec 2004 19:51:43 -0800
-Message-Id: <200412050351.iB53phqK025663@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Dec 2004 23:07:33 -0500
+Subject: Re: Linux 2.6.10-rc3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200412041903.55583.david-b@pacbell.net>
+References: <200412041903.55583.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Sun, 05 Dec 2004 15:07:16 +1100
+Message-Id: <1102219637.18809.0.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Paul Mackerras <paulus@samba.org>
-X-Fcc: ~/Mail/linus
-Cc: Robert Love <rml@novell.com>, Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org,
-       libc-alpha@sources.redhat.com
-Subject: Re: Proposal for a userspace "architecture portability" library
-In-Reply-To: Paul Mackerras's message of  Sunday, 5 December 2004 12:47:05 +1100 <16818.26777.209451.685576@cargo.ozlabs.ibm.com>
-X-Windows: simplicity made complex.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I don't think glibc exports any atomic operations.
 
-That is true.  But it does have implementations in bits/atomic.h for many
-processors, and that is under the LGPL.
+> Why was that changed?  Are you sure it's not just a bug higher up
+> in the call stack?  Classically(*), both suspend() and resume()
+> methods are called in contexts that can sleep, so that's a big
+> change I'd expect to impact other drivers too.  In fact that'd
+> explain a lot of other messages I saw reported on the list...
 
-> As for the semaphores and spinlocks, clearly you can use the pthread_*
-> functions, but hopefully the kernel versions are a bit lighter-weight.
+Yes, lots of drivers are expected to be able to schedule in suspend and
+resume requests. If that was broken upstream, then this is a big BUG.
 
-The pthread_spin_* functions are not inlines, but are otherwise minimal.
+> - Dave
+> 
+> (*) Since APM days if not before.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
+

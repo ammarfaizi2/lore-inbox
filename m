@@ -1,91 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbTFOOTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 10:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbTFOOTQ
+	id S262262AbTFOOWR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 10:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbTFOOWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 10:19:16 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:28913 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262259AbTFOOTO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 10:19:14 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: e1000 performance hack for ppc64 (Power4)
-To: Anton Blanchard <anton@samba.org>
-Cc: "Feldman, Scott" <scott.feldman@intel.com>,
-       "David S. Miller" <davem@redhat.com>, haveblue@us.ibm.com,
-       dwg@au1.ibm.com, linux-kernel@vger.kernel.org,
-       "Nancy J Milliner" <milliner@us.ibm.com>,
-       "Ricardo C Gonzalez" <ricardoz@us.ibm.com>,
-       "Brian Twichell" <twichell@us.ibm.com>, netdev@oss.sgi.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF00A6394D.D41D5DDC-ON85256D46.004F9DFD@pok.ibm.com>
-From: "Herman Dierks" <hdierks@us.ibm.com>
-Date: Sun, 15 Jun 2003 09:32:34 -0500
-X-MIMETrack: Serialize by Router on D01ML065/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
- and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 06/15/2003 10:32:44 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Sun, 15 Jun 2003 10:22:17 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:41990 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262262AbTFOOWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 10:22:16 -0400
+Subject: Re: New struct sock_common breaks parisc 64 bit compiles with a
+	misalignment
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1055657946.6481.6.camel@rth.ninka.net>
+References: <1055221067.11728.14.camel@mulgrave> 
+	<1055657946.6481.6.camel@rth.ninka.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 15 Jun 2003 09:35:52 -0500
+Message-Id: <1055687753.10803.28.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2003-06-15 at 01:19, David S. Miller wrote:
+> On Mon, 2003-06-09 at 21:57, James Bottomley wrote:
+> > The problem seems to be that the new struct sock_common ends with a
+> > pointer and an atomic_t (which is an int on parisc), so the compiler
+> > adds an extra four bytes of padding where none previously existed in
+> > struct tcp_tw_bucket, so the __u64 ptr tricks with tw_daddr fail.
+> 
+> I'm fixing this, but why does it "fail"?  You should get unaligned
+> traps which get fixed up by the trap handler.
 
-Anton, I think the option described below is intended to cause the adapter
-to "get off on a cache line boundary" so when it restarts the DMA it will
-be aligned.   This is for cases when the adapter has to get off, for exampe
-due to FIFO full, etc.
-Some adapters would get off on any boundary and that then causes perf
-issues when the DMA is restarted.
-This is a good option, but I don't think it addresses what we need here as
-the host needs to ensure a DMA starts on a cache line.
-Different adapter anyway, but  I am just pointing out that even if e1000
-had this it would not be the solution.
+Well, it's an architecture thing, I suppose.  Unaligned access traps are
+pretty expensive on the parisc, so we don't actually handle them when
+they're from the kernel, we panic instead (and expect the problem code
+to be fixed).
 
+In this case, our rather crappy kernel tool chain gcc generated the
+instruction
 
-Anton Blanchard <anton@samba.org> on 06/13/2003 07:03:42 PM
+ldd 52(%r1),%r4
 
-To:    "Feldman, Scott" <scott.feldman@intel.com>
-cc:    "David S. Miller" <davem@redhat.com>,
-       haveblue@us.ltcfwd.linux.ibm.com, Herman Dierks/Austin/IBM@IBMUS,
-       dwg@au1.ibm.com, linux-kernel@vger.kernel.org, Nancy J
-       Milliner/Austin/IBM@IBMUS, Ricardo C Gonzalez/Austin/IBM@ibmus,
-       Brian Twichell/Austin/IBM@IBMUS, netdev@oss.sgi.com
-Subject:    Re: e1000 performance hack for ppc64 (Power4)
+Which is actually illegal assembly (displacements greater than 16 must
+be multiples of 8 for the load double word instruction).  So I couldn't
+even compile the code.
 
+> If that isn't happening, lots of things in the networking should
+> break on you.
 
+If the gcc is told that the structure won't be aligned, it generates
+non-alignment faulting instructions to access it, so no, we don't see
+any misalignment faults in the networking layer.
 
-
-> I thought the answer was no, so I double checked with a couple of
-> hardware guys, and the answer is still no.
-
-Hi Scott,
-
-Thats a pity, the e100 docs on sourceforge show it can do what we want,
-it would be nice if e1000 had this feature too :)
-
-4.2.2 Read Align
-
-The Read Align feature is aimed to enhance performance in cache line
-oriented systems. Starting a PCI transaction in these systems on a
-non-cache line aligned address may result in low  performance. To solve
-this performance problem, the controller can be configured to terminate
-Transmit DMA cycles on a cache line boundary, and start the next
-transaction on a cache line aligned address. This  feature is enabled
-when the Read Align Enable bit is set in device Configure command
-(Section 6.4.2.3, "Configure (010b)").
-
-If this bit is set, the device operates as follows:
-
-* When the device is close to running out of resources on the Transmit
-* DMA (in other words, the Transmit FIFO is almost full), it attempts to
-* terminate the read transaction on the nearest cache line boundary when
-* possible.
-
-* When the arbitration counters feature is enabled (maximum Transmit DMA
-* byte count value is set in configuration space), the device switches
- * to other pending DMAs on cache line boundary only.
-
-
+James
 
 

@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266944AbTAUBfC>; Mon, 20 Jan 2003 20:35:02 -0500
+	id <S266932AbTAUBeg>; Mon, 20 Jan 2003 20:34:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266953AbTAUBfB>; Mon, 20 Jan 2003 20:35:01 -0500
-Received: from mail1.cornernet.com ([207.195.212.6]:27880 "EHLO
-	mail1.cornernet.com") by vger.kernel.org with ESMTP
-	id <S266944AbTAUBfA>; Mon, 20 Jan 2003 20:35:00 -0500
-Date: Mon, 20 Jan 2003 19:43:54 -0600 (CST)
-From: Coax <coax@cornernet.com>
-To: "David D. Hagood" <wowbagger@sktc.net>
-cc: AnonimoVeneziano <voloterreno@tin.it>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Spurious 8259A interrupt: IRQ7 ????
-In-Reply-To: <3E2C9623.60709@sktc.net>
-Message-ID: <Pine.LNX.4.30.0301201943290.4362-100000@shell1.cornernet.com>
+	id <S266944AbTAUBeg>; Mon, 20 Jan 2003 20:34:36 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:38081 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266932AbTAUBeg>; Mon, 20 Jan 2003 20:34:36 -0500
+Date: Mon, 20 Jan 2003 23:43:24 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: folkert@vanheusden.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: tool for testing how fast your kernel can rename files :-)
+In-Reply-To: <Pine.LNX.4.33.0301201826120.13207-100000@muur.intranet.vanheusden.com>
+Message-ID: <Pine.LNX.4.50L.0301202342390.18171-100000@imladris.surriel.com>
+References: <Pine.LNX.4.33.0301201826120.13207-100000@muur.intranet.vanheusden.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have seen this problem with a motherboard with a bad PCI slot, too.
-happened with a pci network card in the slot...
+On Mon, 20 Jan 2003 folkert@vanheusden.com wrote:
 
-Chad Schwartz
-CornerNet System Administration
+> This night, while half a-sleep I thought it is usefull to have a tool
+> which creates a number of files in a directory and then starts to
+> randomly rename them.
 
-On Mon, 20 Jan 2003, David D. Hagood wrote:
+> But now, fully awake with at least 8 cups of coffee in my system I cannot
+> think of anything usefull this program is actually doing.
+> Well, maybe to test if something gets corrupted allong the way?
 
-> AnonimoVeneziano wrote:
-> > What does it mean this message?
-> >
-> > Of what problem is the signal?
->
-> It is most likely a hardware problem.
->
-> When a device signals an interrupt, it asserts its interrupt pin. When
-> the CPU asks the interrupt controller what device generated the
-> interrupt, the interrupt controller tells the CPU.
->
-> But if the interrupt line "goes away" before the CPU fetches the vector,
-> then the interrupt controller doesn't "know" what IRQ caused the
-> interrupt. So the interrupt controller sends an IRQ #7 to the CPU, along
-> with setting a bit in the interrupt controller's status register that
-> says in effect "this isn't really an IRQ 7, but I have no idea what it
-> was. Sorry."
->
-> If you have ISA cards in your system, remove them from the system and
-> re-insert them (with the power off, of course) - they may have developed
-> some oxidization on the card edge connector. You can also try scrubbing
-> the card edge with some plain paper (a US dollar bill works even better,
-> but you might not have access to dead presidents in Italy.)
->
-> Ditto with PCI cards - remove them, polish the connector, then re-insert
-> them.
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+You could test with NFS, you might even break something...
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbTKEJN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 04:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTKEJN2
+	id S262760AbTKEJMa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 04:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKEJMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 04:13:28 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:57541 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262761AbTKEJN0
+	Wed, 5 Nov 2003 04:12:30 -0500
+Received: from yate.wa.csiro.au ([130.116.131.40]:13837 "EHLO
+	yate.nexus.csiro.au") by vger.kernel.org with ESMTP id S262760AbTKEJM3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 04:13:26 -0500
-Date: Wed, 5 Nov 2003 01:17:34 -0800
-From: Mike Anderson <andmike@us.ibm.com>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-Message-ID: <20031105091734.GA6342@beaverton.ibm.com>
-Mail-Followup-To: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Linux-SCSI <linux-scsi@vger.kernel.org>
-References: <B179AE41C1147041AA1121F44614F0B060ED62@AVEXCH02.qlogic.org>
+	Wed, 5 Nov 2003 04:12:29 -0500
+Subject: Re:RE: interrupts across  PCI bridge(s) not handled
+From: Frank Horowitz <frank.horowitz@csiro.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Content-Type: text/plain
+Message-Id: <1068023546.13152.9.camel@bonzo.ned.dem.csiro.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B060ED62@AVEXCH02.qlogic.org>
-X-Operating-System: Linux 2.0.32 on an i486
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 05 Nov 2003 17:12:26 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Vasquez [andrew.vasquez@qlogic.com] wrote:
-> All,
+On Mon, 3 Nov 2003, Linux Torvalds wrote:
+
+> On Mon, 3 Nov 2003, Charles Martin wrote:
+> >
+> > I enabled ACPI, and the interrupts are now assigned correctly,
+> > and in the range of 48-51:
 > 
-> A new version of the 8.x series driver for Linux 2.6.x kernels has
-> been uploaded to SourceForge:
+> Good. 
+> 
+> > I didn't realize that ACPI is related to interrupt management 
+> > as well as power control. Is there any downside to using ACPI?
+> 
+> The downside to ACPI is that it's a complex standard, and with
+> complexity 
+> comes the inevitable bugs. As you just found out, it does a lot more
+> than 
+> just power control (the "C" is for "Configuration").
+> 
+> On some machines the ACPI support is even more broken than other BIOS 
+> tables, but it's getting better.
 
-Thanks for the update.
+I infer from this discussion that the old (2.2.x-era) rule-of-thumb
+about disabling ACPI for SMP systems is now dangerous advice. True?
+(Even for a 2.4.x series kernel?) Any other "gotchas" with ACPI and SMP
+systems?
 
-Can you give more information on why clustering was turned off starting
-in b5?
+Frank Horowitz
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
 

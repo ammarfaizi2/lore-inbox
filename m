@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269618AbUJFW6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269614AbUJFWyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269618AbUJFW6G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 18:58:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269531AbUJFWzJ
+	id S269614AbUJFWyp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 18:54:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269531AbUJFWyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 18:55:09 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:10118 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S269593AbUJFWwE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 18:52:04 -0400
-Date: Wed, 6 Oct 2004 18:51:49 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Alan Kilian <kilian@bobodyne.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver access ito PCI card memory space question.
-In-Reply-To: <200410062020.i96KKPN13520@raceme.attbi.com>
-Message-ID: <Pine.LNX.4.61.0410061849390.7214@chaos.analogic.com>
-References: <200410062020.i96KKPN13520@raceme.attbi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 6 Oct 2004 18:54:04 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:27037 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S269596AbUJFWwd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 18:52:33 -0400
+Date: Wed, 6 Oct 2004 15:49:58 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Simon.Derr@bull.net, colpatch@us.ibm.com, mbligh@aracnet.com,
+       frankeh@watson.ibm.com, dipankar@in.ibm.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, efocht@hpce.nec.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041006154958.18d9d917.pj@sgi.com>
+In-Reply-To: <416469D5.9050202@bigpond.net.au>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<20040805190500.3c8fb361.pj@sgi.com>
+	<247790000.1091762644@[10.10.2.4]>
+	<200408061730.06175.efocht@hpce.nec.com>
+	<20040806231013.2b6c44df.pj@sgi.com>
+	<411685D6.5040405@watson.ibm.com>
+	<20041001164118.45b75e17.akpm@osdl.org>
+	<20041001230644.39b551af.pj@sgi.com>
+	<20041002145521.GA8868@in.ibm.com>
+	<415ED3E3.6050008@watson.ibm.com>
+	<415F37F9.6060002@bigpond.net.au>
+	<821020000.1096814205@[10.10.2.4]>
+	<20041003083936.7c844ec3.pj@sgi.com>
+	<834330000.1096847619@[10.10.2.4]>
+	<1097014749.4065.48.camel@arrakis>
+	<20041005194702.0644070b.pj@sgi.com>
+	<Pine.LNX.4.61.0410061114470.19964@openx3.frec.bull.fr>
+	<416469D5.9050202@bigpond.net.au>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Oct 2004, Alan Kilian wrote:
+Peter protests:
+> I think that this is becoming overly complicated.
 
->
->
->  Folks,
->
->     I'm not sure how to access the memory spaces on my PCI card.
->
->     I do
->
->     From /var/log/messages:
->
-> 		SSE: Start of card attachment.
-> 		SSE: Found a DeCypher card, interrupting on line 3
-> 		SSE: Bar0 From 0xfeaff000 to 0xfeafffff F=0x200 MEMORY space
-> 		SSE: Bar1 From 0xfeafc000 to 0xfeafdfff F=0x200 MEMORY space
-> 		SSE: Bar2 From 0xfe000000 to 0xfe7fffff F=0x200 MEMORY space
->
->     My driver detects the card, and asks about the memory areas.
->
+My brainstorming ways to accomodate the isolation that the scheduler,
+allocator and resource manager domains require is getting ahead of
+itself.
 
-Please look at a driver module that uses PCI. There are plenty in
-the kernel.
+First I need to hear from the CKRM folks what degree of isolation they
+really need, the essential minimum, and how they intend to accomodate
+not just cpusets, but also the other placement API's sched_setaffinity,
+mbind and set_mempolicy, as well as the per-cpu kernel threads.
 
+Then it makes sense to revisit the implementation.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,70 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267579AbRGXPik>; Tue, 24 Jul 2001 11:38:40 -0400
+	id <S267577AbRGXPpA>; Tue, 24 Jul 2001 11:45:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267574AbRGXPiU>; Tue, 24 Jul 2001 11:38:20 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:39617 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S267570AbRGXPiR>;
-	Tue, 24 Jul 2001 11:38:17 -0400
-Message-ID: <XFMail.20010724084134.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S267580AbRGXPov>; Tue, 24 Jul 2001 11:44:51 -0400
+Received: from cmn2.cmn.net ([206.168.145.10]:26192 "EHLO cmn2.cmn.net")
+	by vger.kernel.org with ESMTP id <S267577AbRGXPom>;
+	Tue, 24 Jul 2001 11:44:42 -0400
+Message-ID: <3B5D9799.70807@valinux.com>
+Date: Tue, 24 Jul 2001 09:43:21 -0600
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <p05100306b7829ca20739@[10.0.0.49]>
-Date: Tue, 24 Jul 2001 08:41:34 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: user-mode port 0.44-2.4.7
-Cc: Jan Hubicka <jh@suse.cz>, linux-kernel@vger.kernel.org,
-        user-mode-linux-user@lists.sourceforge.net,
-        Jeff Dike <jdike@karaya.com>, Andrea Arcangeli <andrea@suse.de>,
-        Linus Torvalds <torvalds@transmeta.com>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: AMD-760 MP AGP Support
+In-Reply-To: <3B5CDFC1.4D954891@randomlogic.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Paul G. Allen wrote:
 
-On 24-Jul-2001 Jonathan Lundell wrote:
-> At 3:51 PM -0700 2001-07-23, Linus Torvalds wrote:
->>On Mon, 23 Jul 2001, Jonathan Lundell wrote:
->>>
->>>  If jiffies were not volatile, this initializing assignment and the
->>>  test at the end could be optimized away, leaving an unconditional
->>>  "return 0". A lock is of no help.
->>
->>Right.
->>
->>We want optimization barriers, and there's an explicit "barrier()"  thing
->>for Linux exactly for this reason.
->>
->>For historical reasons "jiffies" is actually marked volatile, but at least
->>it has reasonably good semantics with a single-data item. Which is not to
->>say I like it. But grep for "barrier()" to see how many times we make this
->>explicit in the algorithms.
->>
->>And really, THAT is my whole point. Notice in the previous mail how I used
->>"volatile" when it was part of the _algorithm_. You should not hide
->>algorithmic choices in your data structures. You should make them
->>explicit, so that when you read the code you _see_ what assumptions people
->>make.
+> Hello, I'm new to the list and I have a question (or two, or three, or... ;)
 > 
-> OK, sure, that's fine. Better than barrier() in some respects, too. 
-> Namely, 1) volatile is portable C; barrier() isn't (not that that's 
-> much of an issue for compiling Linux), and 2) volatile can be 
-> specific to a variable, unlike the indiscriminate barrier(), which 
-> forces a reload of everything that might be cached (OK, not a big 
-> deal for IA32, but nontrivial for many-register architectures). One 
-> could imagine a more specific barrier(jiffies) syntax, I suppose, but 
-> the volatile cast is nice, restricting the effect not only to the 
-> single variable but to the single reference to a single variable.
+> I just purchased a Tyan K7 Thunder (Dual Athlon motherboard) and I am running dual 1.4GHz Athlons and a GeForce 3 on it. It appears that the current (2.4.7
+> kernel) agpgart module does not directly support the AMD-760 MP chipset. I am planning upon modifying agpgart to support it. My question is: Is anyone already
+> doing this? I don't want to re-create the wheel, I just want full support on this screaming fast system.
+> 
 
-One more thing, with volatile you specify it one time ( declaration time ),
-while with barrier() you've to spread inside the code tons of such macro
-everywhere you touch the variable.
+I have a pre production Tyan mb that I tested things on.  It seemed to 
+work just fine with agp_try_unsupported=1.  Please test it with 
+agp_try_unsupported on an actual production system to make sure, but if 
+it works just send me the output of lspci -vvv and I'll put it in the 
+kernel.
 
-
-
-- Davide
+-Jeff
 

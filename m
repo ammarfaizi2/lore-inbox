@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266144AbUGIMU0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266155AbUGIMZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266144AbUGIMU0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 08:20:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266146AbUGIMU0
+	id S266155AbUGIMZY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 08:25:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266163AbUGIMZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 08:20:26 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:6528 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266144AbUGIMUY
+	Fri, 9 Jul 2004 08:25:24 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:23513 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S266155AbUGIMZX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 08:20:24 -0400
-Date: Fri, 9 Jul 2004 08:18:22 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Harish K Harshan <harish@amritapuri.amrita.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Interrupt Handling in linux
-In-Reply-To: <40916.203.197.150.195.1089366068.squirrel@203.197.150.195>
-Message-ID: <Pine.LNX.4.53.0407090808130.919@chaos>
-References: <40916.203.197.150.195.1089366068.squirrel@203.197.150.195>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Jul 2004 08:25:23 -0400
+Subject: Re: [PATCH] swsusp bootsplash support
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Dave Jones <davej@redhat.com>
+Cc: Pavel Machek <pavel@suse.cz>, Christoph Hellwig <hch@infradead.org>,
+       Erik Rigtorp <erik@rigtorp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040709115531.GA28343@redhat.com>
+References: <20040708110549.GB9919@linux.nu>
+	 <20040708133934.GA10997@infradead.org>
+	 <20040708204840.GB607@openzaurus.ucw.cz>
+	 <20040708210403.GA18049@infradead.org> <20040708225216.GA27815@elf.ucw.cz>
+	 <20040708225501.GA20143@infradead.org> <20040709051528.GB23152@elf.ucw.cz>
+	 <20040709115531.GA28343@redhat.com>
+Content-Type: text/plain
+Message-Id: <1089375589.3001.7.camel@nigel-laptop.wpcb.org.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 09 Jul 2004 22:19:49 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jul 2004, Harish K Harshan wrote:
+Hi.
 
-> Hi.
->
->  Can Interrupt handlers in linux, be interrupted by other running
-> processes??? to make it more clear, im developing a driver for and ADC
-> card, and would like to know if the CPU can or rather WILL schedule
-> wnother running process in the middle of the ISR, when a timer interrupt
-> comes in. If thats the case, then we need to use spinlocks or other
-> mechanisms in our ISR, right?? im new to this, so if theres something not
-> clear, it just just that my understanding of this topic is not very deep.
->
-> Harish.
->
->
+On Fri, 2004-07-09 at 21:55, Dave Jones wrote:
+> Personally I'd prefer the effort went into making suspend actually
+> work on more machines rather than painting eyecandy for the minority
+> of machines it currently works on.
 
-The usual case is that a hardware interrupt occurs, gets dispatched
-by the kernel to the interrupt service routine, and is quickly
-executed without interruption.
+That's happening. I'm hoping to merge Suspend2 within the week. It has
+support for SMP, Highmem (4GB), preempt, PPC (courtesy Steve & Ben),
+X86-64 (being finished by 'Disconnect' right now), x86, image
+compression and bootsplash. An NFS image writer is also planned.
 
-If you don't design your interrupt service code to be interrupted,
-it won't be interrupted. However, another CPU may be executing
-so you need to protect critical sections of code, including
-your ISR, with spin-locks.
+Regards,
 
-If you design your ISR to be interrupted, generally it will because,
-especially on a network, there is always something that needs
-interrupt service. There are so-called bottom-half handlers that
-can be dispatched by your ISR to finish up what could be done
-with interrupts enabled.
-
-If your ADC board requires periodic service at a regular
-interval as many do, (perhaps for an IIR filter) you might
-think about writing code that executes on a timer queue,
-rather than an interrupt.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Nigel
 

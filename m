@@ -1,82 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbUA0Bfq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 20:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUA0Bfq
+	id S262566AbUA0BiA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 20:38:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbUA0BiA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 20:35:46 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:5782 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S261735AbUA0Bfn (ORCPT
+	Mon, 26 Jan 2004 20:38:00 -0500
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:27654 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S262566AbUA0Bh4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 20:35:43 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 27 Jan 2004 02:35:34 +0100 (MET)
-Message-Id: <UTC200401270135.i0R1ZYs03187.aeb@smtp.cwi.nl>
-To: patearl@patearl.net, usb-storage@one-eyed-alien.net
-Subject: Re: Writing CIS... ioctl?
-Cc: linux-kernel@vger.kernel.org
+	Mon, 26 Jan 2004 20:37:56 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] cpqarray update
+Date: Mon, 26 Jan 2004 16:32:28 -0600
+Message-ID: <CBD6B29E2DA6954FABAC137771769D6504E15965@cceexc19.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] cpqarray update
+Thread-Index: AcPkSWAKrSqANbYXSfK7SsAY8XN2GgAEe2Ow
+From: "Wiran, Francis" <francis.wiran@hp.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 Jan 2004 22:32:29.0908 (UTC) FILETIME=[48630940:01C3E45C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi.  As a fun little project I'm considering adding userland support 
-    for reading and writing the CIS block via the SDDR-09.  Based on my 
-    previous driver experience, I'd do it using an ioctl on the scsi 
-    device it maps to.  However, I'm unsure of how the SCSI/USB layering 
-    occurs and if an ioctl would be the best way to allow access to the 
-    CIS.  Note that the CIS info itself is roughly 100 bytes, and that 
-    information is duplicated in another location on the smartmedia card.
+> You need to check the return value of pci_module_init() for errors.
+No, because the return value is determined from number of ctrls found,
+and not from function return.
 
-    Any thoughts?  Is an ioctl the way to do it?
+int __init cpqarray_init(void)
+{
+...
+	pci_module_init(&cpqarray_pci_driver);
+	cpqarray_eisa_detect();
 
-    Are there other ways that low level control data is written to storage 
-    devices?
+	for(i=0;i<MAX_CTLR;i++) {
+		if(hba[i] != NULL)
+			num_ctlrs_reg++
+	}
 
-For any single project ioctl() is one of the easy ways of doing it.
-There are other communication channels, like module parameters
-or proc files.
+	return (num_ctlrs_reg);
+}
 
-But there are lots of such projects, and after doing a few hundred of them
-we have interface mess. For the dev_t change last year I did an audit of
-all ioctls, more than a thousand, with lots of different interfaces,
-sometimes varying between architectures, not exactly a pleasure.
+int __init cpqarray_init_module(void)
+{
+	if (cpqarray_init() == 0)
+		return -ENODEV;
+	return 0;
+}
 
-So, something else is needed, and we do not have it. Lots of ideas have been
-suggested. Whatever one does the situation is messy, just because the type
-of control needed varies a lot.
-
-If for every device there also is a control device, then the control device
-can be opened and ordinary read and write calls can be used. That is good.
-But still there will be parsing on both sides, so the mess has only been
-hidden a little, it is still there.
-
-Sysfs tries to avoid the parsing problem by having a large number of files,
-each with a simple ASCII value. Now one has to walk and parse messy trees.
-People who like that will want a control filesystem instead of a control device
-for each device.
-
-But you do not want a long discussion, but a utility.
-
-Give the driver a reading and a writing mode.
-(Read normal 512-byte blocks, or 512+64-bytes blocks plus control,
-or just the 64-byte control, possibly with a choice between 16-byte and
-64-byte control, and similarly for write, where write also has the
-writeCIS possibility.)
-
-The getting and setting of reading and writing mode is separate from the
-rest. While testing, it is probably easiest to use a module parameter.
-If everything works, and you want to submit the result for inclusion in the
-kernel, see whether Linus has requirements on the shape things should be in.
-
-In case you learn things about the sddr09 hardware not yet documented,
-I would like to hear about them.
-
-Andries
+regards,
+-francis-
 
 
-[Non-sddr09 examples of control things one wants to do: setmax on a disk;
-set a password on a disk; set a disk read-only or read-write (on the
-media level or on the drive level or on the software level); eject;
-reread partition table; set a ZIP drive to disk vs large floppy mode;
-load a keymap; set unicode mode; load a compose table; assign keycodes
-to scancode sequences; set keyboard repeat rate; set magic SysRq key.]
 
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+> Sent: Monday, January 26, 2004 2:15 PM
+> To: Linux Kernel Mailing List; Wiran, Francis
+> Subject: Re: [PATCH] cpqarray update
+> 
+> 
+> Linux Kernel Mailing List wrote:
+> > ChangeSet 1.1288, 2004/01/26 16:58:21-02:00, francis.wiran@hp.com
+> > 
+> > 	[PATCH] cpqarray update
+> > 	
+> > 	Yes, we should. I usually ask Mike Miller in our group 
+> to send my
+> > 	patches since he's been doing that and more known in 
+> the community, but
+> > 	since you already got a hold of it ...yes, please :)
+> > 	
+> > 	CHANGELOG:
+> > 	
+> > 	   * Fix for eisa card not detecting partitions properly
+> > 	   * Use pci_module_init instead of pci_register_device 
+> to handle hotplug
+> > 	     scenario and unregister if the driver can't find 
+> pci controller
+> > 	   * Add BLKSSZGET ioctl
+> [...]
+> > @@ -616,7 +623,7 @@
+> >  
+> >  	/* detect controllers */
+> >  	printk(DRIVER_NAME "\n");
+> > -	pci_register_driver(&cpqarray_pci_driver);
+> > +	pci_module_init(&cpqarray_pci_driver);
+> >  	cpqarray_eisa_detect();
+> >  
+> >  	for(i=0; i< MAX_CTLR; i++) {
+> 
+> You need to check the return value of pci_module_init() for errors.
+> 
+> 	Jeff
+> 
+> 
+> 
+> 

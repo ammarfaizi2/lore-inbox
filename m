@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268915AbUI2UJC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269006AbUI2URe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268915AbUI2UJC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:09:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUI2UJC
+	id S269006AbUI2URe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269007AbUI2URe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:09:02 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:10126 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268915AbUI2UI6 (ORCPT
+	Wed, 29 Sep 2004 16:17:34 -0400
+Received: from cantor.suse.de ([195.135.220.2]:58577 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269006AbUI2UR3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:08:58 -0400
-Message-ID: <35fb2e5904092913081a802944@mail.gmail.com>
-Date: Wed, 29 Sep 2004 21:08:54 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: "Jeff V. Merkey" <jmerkey@drdos.com>
-Subject: Re: processor affinity
-Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Robert Love <rml@novell.com>, Ankit Jain <ankitjain1580@yahoo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <415B0BFA.6050203@drdos.com>
+	Wed, 29 Sep 2004 16:17:29 -0400
+Date: Wed, 29 Sep 2004 22:15:25 +0200
+From: Andi Kleen <ak@suse.de>
+To: Olaf Hering <olh@suse.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]  allow CONFIG_NET=n on ppc64
+Message-ID: <20040929201524.GA14615@wotan.suse.de>
+References: <20040929200158.GA16366@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20040928122517.9741.qmail@web52907.mail.yahoo.com>
-	 <41596F7F.1000905@drdos.com>
-	 <1096387088.4911.4.camel@betsy.boston.ximian.com>
-	 <41598B23.50702@drdos.com>
-	 <1096408318.13983.47.camel@localhost.localdomain>
-	 <415AE953.3070105@drdos.com> <20040929184510.A15692@infradead.org>
-	 <415B0BFA.6050203@drdos.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040929200158.GA16366@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004 13:24:42 -0600, Jeff V. Merkey <jmerkey@drdos.com> wrote:
+On Wed, Sep 29, 2004 at 10:01:58PM +0200, Olaf Hering wrote:
+> 
+> The attached minimal config does not compile on ppc64.
+> I was able to boot the resulting binary with this patch.
 
-> Anyway, I
-> provided it as a reference since it is the first patent on SMP affinity
-> scheduling and methods for the very interested person who asked. And
-> yes, Linux
-> appears to infringe it, but since Novell is pro-Linux, I don't think it
-> matters.
+I already fixed this some time ago, but the patch must have disappeared.
 
-Still it's probably worth knowing it might be an issue someday. What's
-Novell's position on patents they hold involving the kernel? I'm too
-lazy to go hunting for it (rml might well know).
+> diff -purNX /suse/olh/kernel/kernel_exclude.txt linux-2.6.9-rc2/arch/ppc64/kernel/misc.S linux-2.6.9-rc2.ppc64/arch/ppc64/kernel/misc.S
+> --- linux-2.6.9-rc2/arch/ppc64/kernel/misc.S	2004-09-13 07:33:23.000000000 +0200
+> +++ linux-2.6.9-rc2.ppc64/arch/ppc64/kernel/misc.S	2004-09-29 21:00:44.909074755 +0200
+> @@ -703,7 +703,11 @@ _GLOBAL(sys_call_table32)
+>  	.llong .compat_sys_statfs
+>  	.llong .compat_sys_fstatfs		/* 100 */
+>  	.llong .sys_ni_syscall		/* old ioperm syscall */
+> +#ifdef CONFIG_NET
+>  	.llong .compat_sys_socketcall
+> +#else
+> +	.llong .sys_ni_syscall		/* old ioperm syscall */
+> +#endif
 
-Jon.
+Right fix is to declare compat_sys_socketcall as as cond_syscall() 
+in sys.c
+
+-Andi

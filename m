@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129042AbQKCK4a>; Fri, 3 Nov 2000 05:56:30 -0500
+	id <S129078AbQKCLIv>; Fri, 3 Nov 2000 06:08:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129078AbQKCK4U>; Fri, 3 Nov 2000 05:56:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12302 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129042AbQKCK4B>;
-	Fri, 3 Nov 2000 05:56:01 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011031038.eA3Accj30162@flint.arm.linux.org.uk>
-Subject: Re: USB init order dependencies.
-To: randy.dunlap@intel.com (Dunlap, Randy)
-Date: Fri, 3 Nov 2000 10:38:38 +0000 (GMT)
-Cc: dwmw2@infradead.org ('David Woodhouse'), torvalds@transmeta.com,
-        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDBC8@orsmsx31.jf.intel.com> from "Dunlap, Randy" at Oct 31, 2000 10:10:49 AM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S129307AbQKCLIa>; Fri, 3 Nov 2000 06:08:30 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:9477 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S129078AbQKCLIW>;
+	Fri, 3 Nov 2000 06:08:22 -0500
+Message-ID: <3A02A944.1117A0DF@evision-ventures.com>
+Date: Fri, 03 Nov 2000 13:02:12 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Tim Riker <Tim@Rikers.org>
+CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
+In-Reply-To: <200011022037.PAA21436@tsx-prime.MIT.EDU> <3A01D463.9ADEF3AF@Rikers.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dunlap, Randy writes:
-> David is entitled to his opinion (IMO).
-> And I dislike this patch, as he and I have already discussed.
+Tim Riker wrote:
 > 
-> Short of fixing the link order, I like Jeff's suggestion
-> better (if it actually works, that is):  go back to the
-> way it was a few months ago by calling usb_init()
-> from init/main.c and making the module_init(usb_init);
-> in usb.c conditional (#ifdef MODULE).
+> ok, a very valid point. The "C++ kernel code" reference is very telling.
+> (ouch). ;-)
+> 
+> Obviously the changes to support non-gcc compilers should have the goal
+> of minimal impact on gcc users lives. I recognize that the mainstream
+> will still use gcc.
+> 
+> Q: Why should we help you make it possible to use a proprietary C
+> compiler?
+> 
+> This is right on the money. I hope to show that is is all part of "World
+> Domination". ;-) I can easily see other paths to get there though, so
+> why this one?
+> 
+> As is being discussed here, C99 has some replacements to the gcc syntax
+> the kernel uses. I believe the C99 syntax will win in the near future,
+> and thus the gcc syntax will have to be removed at some point. In the
+> interim the kernel will either move towards supporting both, or a
+> quantum jump to support the new gcc3+ compiler only. I am hoping a
 
-However, that breaks the OHCI driver on ARM.  Unless we're going to start
-putting init calls back into init/main.c so that we can guarantee the order
-of init calls which Linus will not like, you will end up with a lot of ARM
-guys complaining.
-
-Linus, your opinion would be helpful at this point.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+No I think that there will be just a switch for gcc along the lines of
+gcc --forget-our-extensions-use-c99-for-this-file. Gnu code is common
+enough to
+justify this. And nothing will change in old code ;-).
+It's only recently that the G++ people got around to throw away some
+extensions (on the C++ part).
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

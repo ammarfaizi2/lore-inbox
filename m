@@ -1,47 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUGZHeh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUGZIAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbUGZHeh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 03:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbUGZHeh
+	id S264991AbUGZIAi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 04:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265022AbUGZIAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 03:34:37 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:63972 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S264973AbUGZHef convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 03:34:35 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 26 Jul 2004 04:00:38 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:51974 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S264991AbUGZIAg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 04:00:36 -0400
+From: "Bc. Michal Semler" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: rpc@cafe4111.org
+Subject: Re: 3C905 and ethtool
+Date: Mon, 26 Jul 2004 10:00:34 +0200
+User-Agent: KMail/1.6.2
+References: <200407251016.22001.cijoml@volny.cz> <200407260218.29966.cijoml@volny.cz> <200407252127.37159.rpc@cafe4111.org>
+In-Reply-To: <200407252127.37159.rpc@cafe4111.org>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] kernel events layer
-Date: Mon, 26 Jul 2004 00:31:03 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] kernel events layer
-Thread-Index: AcRy11yXAKZs8M37REeM/aetuCWnJAACvh8Q
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <cw@f00f.org>, <rml@ximian.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 26 Jul 2004 07:34:14.0936 (UTC) FILETIME=[F3A97180:01C472E2]
+Message-Id: <200407261000.34094.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Andrew Morton [mailto:akpm@osdl.org]
+I tested it on few machines and it works for me on 8139too devices:
+
+# ethtool eth0
+Settings for eth0:
+        Supported ports: [ TP MII ]
+        Supported link modes:   10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+        Supports auto-negotiation: Yes
+        Advertised link modes:  10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+        Advertised auto-negotiation: Yes
+        Speed: 100Mb/s
+        Duplex: Full
+        Port: MII
+        PHYAD: 32
+        Transceiver: internal
+        Auto-negotiation: on
+        Supports Wake-on: pumbg
+        Wake-on: d
+        Current message level: 0x00000007 (7)
+        Link detected: yes
+
+# ethtool eth0
+Settings for eth0:
+
+        Supported ports: [ TP MII ]
+        Supported link modes:   10baseT/Half 10baseT/Full
+                                100baseT/Half 100baseT/Full
+        Supports auto-negotiation: Yes
+        Speed: 10Mb/s
+        Duplex: Half
+        Port: MII
+        PHYAD: 32
+        Transceiver: internal
+        Auto-negotiation: on
+        Supports Wake-on: pumbg
+        Wake-on: d
+
+But this really doesn't work with 3c59x - probably it was destroyed somewhere 
+in 2.4 - maybe 2.4.23, where were some ethtool fixes???
+
+M.
+
+Dne po 26. èervence 2004 03:27 Rob Couto napsal(a):
+> This is weird. I'm able to try 4 machines: one has a RTL8139 card
+> (8139too), two others are 1) Kingston and 2) generic cards (tulip), and the
+> server uses 2x 3Com (3c59x) cards. and ethtool returns nothing, no data
+> from any of them. What am I missing?
 >
-> I hope we'll hear more from Greg on this next week - see if we can come up
-> with some way to use the kobject/sysfs namespace for this.
-> 
-> Although heaven knows how "tmpfs just ran out of space" would map onto
-> kobject/sysfs.
-
-methinks: if the message is related to some object that has a kobject
-representation, use it. If not, come up with one on a case by case
-basis [now this is the difficult one--is where it'd be difficult to
-keep things on leash].
-
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)
-
+> "Curiouser and curiouser!"

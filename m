@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263456AbRFPH3U>; Sat, 16 Jun 2001 03:29:20 -0400
+	id <S264590AbRFPHiK>; Sat, 16 Jun 2001 03:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264591AbRFPH3J>; Sat, 16 Jun 2001 03:29:09 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:62731 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S264590AbRFPH2y>; Sat, 16 Jun 2001 03:28:54 -0400
-Date: Sat, 16 Jun 2001 09:22:27 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Leon Breedt <ljb@devco.net>,
+	id <S264591AbRFPHh7>; Sat, 16 Jun 2001 03:37:59 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:50818 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S264590AbRFPHho>;
+	Sat, 16 Jun 2001 03:37:44 -0400
+Date: Sat, 16 Jun 2001 03:37:15 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@redhat.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: [patch] nonblinking VGA block cursor
-Message-ID: <20010616092227.T12987@arthur.ubicom.tudelft.nl>
-In-Reply-To: <200106151938.f5FJcIJ288693@saturn.cs.uml.edu> <0106160144400D.00879@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <0106160144400D.00879@starship>; from phillips@bonn-fries.net on Sat, Jun 16, 2001 at 01:44:40AM +0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Subject: Re: Linux 2.4.5-ac14
+In-Reply-To: <oupzob9q84y.fsf@pigdrop.muc.suse.de>
+Message-ID: <Pine.GSO.4.21.0106160322510.10605-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 16, 2001 at 01:44:40AM +0200, Daniel Phillips wrote:
-> IBM had lots of ideas about how computers should work.  Remember the keyboard 
-> keys that when CLACK CLACK CLACK.  Thank god they turned out to be too 
-> expensive to clone - nobody misses them now.
-
-I actually like that kind of keyboards, they're extremely reliable and
-are great to use.
-
-Anyway, my point is that keyboards are a matter of taste, just like
-blinking or non-blinking cursors are.
 
 
-Erik
+On 16 Jun 2001, Andi Kleen wrote:
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+> "David S. Miller" <davem@redhat.com> writes:
+> 
+> > Alan Cox writes:
+> >  > Because right now I dont consider the 2.4.6 page cache ext2 stuff safe
+> >  > enough to merge. I'm letting someone else be the sucide squad.. so far it
+> >  > looks like it is indeed fine but I want to wait and see more yet
+> > 
+> > If it means anything it has already withstanded a few
+> > cerebus-->fsck_check-->cerebus rounds on machines here
+> > in my lab.
+> 
+> ... it also seems to make ppc not boot anymore.
+
+OK, after looking at the bug report things smell very strange:
+
+	* kernel had barfed on lookup for /dev/console.
+	* kernel had found /dev - right inode number, etc.
+	* read_cache_page(inode->i_mapping, n, ext2_readpage) on it
+gave all-zeroes for each page within first 32Kb (size of /dev on box in
+question).
+	* filesystem is not corrupted.
+	* all that stuff had happened with cold caches.
+	* kernel was 2.4.6-pre3 + some unspecified modifications.
+
+Very odd. Could somebody try vanilla 2.4.6-pre1 on a PPC box? I _really_
+doubt that it might be an architecture-specific problem in directory
+code - it would simply fail the lookup for  /dev in that case.
+
+I'll try to find a PPC nearby, but it may be tricky on weekend. So if
+somebody wants to help... Notice that problem was on read-only mount,
+so it can be tested without risking fs corruption - just try to boot
+with init=/bin/sh and do ls -lR, etc.
+

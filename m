@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265510AbSIWLuC>; Mon, 23 Sep 2002 07:50:02 -0400
+	id <S265615AbSIWL6D>; Mon, 23 Sep 2002 07:58:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265592AbSIWLuB>; Mon, 23 Sep 2002 07:50:01 -0400
-Received: from smtpout.mac.com ([204.179.120.89]:21963 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S265510AbSIWLuB>;
-	Mon, 23 Sep 2002 07:50:01 -0400
-Date: Mon, 23 Sep 2002 13:55:10 +0200
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	id <S265671AbSIWL6C>; Mon, 23 Sep 2002 07:58:02 -0400
+Received: from mta.sara.nl ([145.100.16.144]:54147 "EHLO mta.sara.nl")
+	by vger.kernel.org with ESMTP id <S265615AbSIWL6B>;
+	Mon, 23 Sep 2002 07:58:01 -0400
+Date: Mon, 23 Sep 2002 14:03:02 +0200
 Mime-Version: 1.0 (Apple Message framework v482)
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org,
-       ingo Molnar <mingo@redhat.com>
-To: Bill Davidsen <davidsen@tmr.com>
-From: Peter Waechtler <pwaechtler@mac.com>
-In-Reply-To: <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
-Message-Id: <4FBEDDB0-CEEB-11D6-8873-00039387C942@mac.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: 2.5.38 on ppc/prep
+From: Remco Post <r.post@sara.nl>
+To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+Message-Id: <692386AC-CEEC-11D6-A08A-000393911DE2@sara.nl>
+X-Pgp-Agent: GPGMail 0.5.3 (v20)
 X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag den, 23. September 2002, um 12:05, schrieb Bill Davidsen:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Sun, 22 Sep 2002, Larry McVoy wrote:
->
->> On Sun, Sep 22, 2002 at 08:55:39PM +0200, Peter Waechtler wrote:
->>> AIX and Irix deploy M:N - I guess for a good reason: it's more
->>> flexible and combine both approaches with easy runtime tuning if
->>> the app happens to run on SMP (the uncommon case).
->>
->> No, AIX and IRIX do it that way because their processes are so bloated
->> that it would be unthinkable to do a 1:1 model.
->
-> And BSD? And Solaris?
+Hi,
 
-Don't know. I don't have access to all those Unices. I could try FreeBSD.
+after some tiny fixes to reiserfs and the makefile for prep bootfile 
+(using ../lib/lib.a vs. ../lib/libz.a) I managed to succesfully compile 
+a kernel. It even boots to the point where it frees unused kernel memory 
+and then stops... this includes succesfully mounting the root 
+filesystem...
 
-According to http://www.kegel.com/c10k.html  Sun is moving to 1:1
-and FreeBSD still believes in M:N
+Just to let the world know what does and doesn't work on my powerstack 
+mobo.
 
-MacOSX 10.1 does not support PROCESS_SHARED locks, tried that 5 minutes 
-ago.
+- --
+Met vriendelijke groeten,
+
+Remco Post
+
+SARA - Stichting Academisch Rekencentrum Amsterdam    http://www.sara.nl
+High Performance Computing  Tel. +31 20 592 8008    Fax. +31 20 668 3167
+PGP keys at http://home.sara.nl/~remco/keys.asc
+
+"I really didn't foresee the Internet. But then, neither did the computer
+industry. Not that that tells us very much of course - the computer 
+industry
+didn't even foresee that the century was going to end." -- Douglas Adams
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (Darwin)
+
+iD8DBQE9jwL/BIoCv9yTlOwRAkGMAKC1mv8cF2kfVIWOWruxjLQMGXSgIgCghGQi
+tkJONCA76Lz9dWmJPzOc9pg=
+=yOO+
+-----END PGP SIGNATURE-----
 

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135281AbRDLTnE>; Thu, 12 Apr 2001 15:43:04 -0400
+	id <S135292AbRDLTsg>; Thu, 12 Apr 2001 15:48:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135278AbRDLTmU>; Thu, 12 Apr 2001 15:42:20 -0400
-Received: from runyon.cygnus.com ([205.180.230.5]:12241 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S135271AbRDLTkU>;
-	Thu, 12 Apr 2001 15:40:20 -0400
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: List of all-zero .data variables in linux-2.4.3 available
-In-Reply-To: <200104121929.MAA04049@adam.yggdrasil.com>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 12 Apr 2001 12:40:20 -0700
-In-Reply-To: "Adam J. Richter"'s message of "Thu, 12 Apr 2001 12:29:33 -0700"
-Message-ID: <m33dbdsy8r.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S135288AbRDLTq1>; Thu, 12 Apr 2001 15:46:27 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:64143 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135287AbRDLTps>; Thu, 12 Apr 2001 15:45:48 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 12 Apr 2001 12:45:45 -0700
+Message-Id: <200104121945.MAA00280@baldur.yggdrasil.com>
+To: frankeh@us.ibm.com
+Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
+Cc: linux-kernel@vger.kernel.org, pratap@us.ibm.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" <adam@yggdrasil.com> writes:
+Hubertus Franke <frankeh@us.ibm.com> writes:
 
-> 	I am aware of a couple of cases where code relied on static
-> variables being allocated contiguously, but, in both cases, those
-> variables were either all zeros or all non-zeros, so my proposed
-> change would not break such code.
+>Try this ... this will guarantee that (p->counter) > (current->counter)
+>and it seems not as radical
 
-Continuous placement is not the only property defined by
-initialization.  There are many more.  You cannot change this since it
-will quite a few programs and libraries and subtle and hard to
-impossible to identify ways.  Simply educate programmers to not
-initialize.
+>         p->counter = (current->counter + 1) >> 1;
+>        current->counter = (current->counter - 1) >> 1;
+>        if (!current->counter)
+>                current->need_resched = 1;
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+>instead of this
+
+
+>-       p->counter = (current->counter + 1) >> 1;
+>-       current->counter >>= 1;
+>-       if (!current->counter)
+>-               current->need_resched = 1;
+>+       p->counter = current->counter;
+>+       current->counter = 0;
+>+       current->need_resched = 1;
+
+
+	No.  I tried your change and also tried it with setting
+current->need_resched to 1 in all cases, and it still seems to run the
+parent first in at least half of the tries.  Evidently,
+current->counter must be zero to make the currently running process
+give up the CPU immediately, which is the important thing (so that the
+parent does not touch its virtual memory for a while).
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+

@@ -1,43 +1,197 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129100AbQKNDFL>; Mon, 13 Nov 2000 22:05:11 -0500
+	id <S129351AbQKNDVs>; Mon, 13 Nov 2000 22:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129895AbQKNDEw>; Mon, 13 Nov 2000 22:04:52 -0500
-Received: from chac.inf.utfsm.cl ([200.1.19.54]:1289 "EHLO chac.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id <S129100AbQKNDEk>;
-	Mon, 13 Nov 2000 22:04:40 -0500
-Message-Id: <200011140135.eAE1ZTD11785@sleipnir.valparaiso.cl>
-To: Chris Evans <chris@scary.beasts.org>
-cc: Torsten.Duwe@caldera.de, Francis Galiegue <fg@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Modprobe local root exploit 
-In-Reply-To: Message from Chris Evans <chris@scary.beasts.org> 
-   of "Mon, 13 Nov 2000 16:56:40 -0000." <Pine.LNX.4.21.0011131655430.22139-100000@ferret.lmh.ox.ac.uk> 
-Date: Mon, 13 Nov 2000 22:35:29 -0300
-From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
+	id <S129388AbQKNDVi>; Mon, 13 Nov 2000 22:21:38 -0500
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:35076 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S129351AbQKNDVY>; Mon, 13 Nov 2000 22:21:24 -0500
+Message-ID: <3A10B64A.257D8345@holly-springs.nc.us>
+Date: Mon, 13 Nov 2000 22:49:30 -0500
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Corisen <csyap@starnet.gov.sg>
+CC: David Relson <relson@osagesoftware.com>, linux-kernel@vger.kernel.org
+Subject: Re: anyone compiled 2.2.17 on RH7 successfully?
+In-Reply-To: <200011140118.eAE1IuV17166@moisil.dev.hydraweb.com> <4.3.2.7.2.20001113205514.00af7d20@mail.osagesoftware.com> <008801c04de0$9c08a840$050010ac@starnet.gov.sg>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Evans <chris@scary.beasts.org> said:
-> On Mon, 13 Nov 2000, Torsten Duwe wrote:
-> > >>>>> "Francis" == Francis Galiegue <fg@mandrakesoft.com> writes:
-> > 
-> >     >> + if ((*p & 0xdf) >= 'a' && (*p & 0xdf) <= 'z') continue;
-> > 
-> >     Francis> Just in case... Some modules have uppercase letters too :)
-> > 
-> > That's what the &0xdf is intended for...
+GCCLOC=`which gcc`
+rm `echo $GCCLOC`
+ln -s `which kgcc` `echo $GCCLOC`
 
-> Code in a security sensitive area needs to be crystal clear.
+... repeat for g++
 
-Nodz!
 
-> What's wrong with isalnum() ?
+-M
 
-Too efficient? ;)
---
-Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
+
+Corisen wrote:
+> 
+> thanks for the info. i've kgcc installed during RH7 installation. i've
+> checked the version to be 2.91.66. i've used the following 2 methods with
+> kgcc but it won't even allow me to compile:
+> 1. make CC=kgcc zImage
+> 2. change the CC=gcc to CC=kgcc in Makefile
+> 
+> the "make CC=kgcc zImage" process reports the following error messages:
+> 
+> In file included from init/main.c:15:
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:283: parse error before
+> `mode_t'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:283: warning: no semicolon
+> at end of struct or union
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:284: warning: data
+> definition has no type or storage class
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:285: parse error before
+> `uid'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:285: warning: data
+> definition has no type or storage class
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:286: parse error before
+> `gid'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:286: warning: data
+> definition has no type or storage class
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:289: parse error before
+> `off_t'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:290: warning: `struct inode'
+> declared inside parameter list
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:290: warning: its scope is
+> only this definition or declaration,
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:290: warning: which is
+> probably not what you want.
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:293: parse error before
+> `off_t'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:296: warning: `struct file'
+> declared inside parameter list
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:300: parse error before `}'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:302: parse error before
+> `off_t'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:305: warning: `struct file'
+> declared inside parameter list
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:308: parse error before
+> `off_t'
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h: In function
+> `proc_scsi_register':
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:344: dereferencing pointer
+> to incomplete type
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:345: dereferencing pointer
+> to incomplete type
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h: In function
+> `proc_scsi_unregister':
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:359: dereferencing pointer
+> to incomplete type
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:362: `NULL' undeclared
+> (first use in this function)
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:362: (Each undeclared
+> identifier is reported only once
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:362: for each function it
+> appears in.)
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:363: dereferencing pointer
+> to incomplete type
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:365: dereferencing pointer
+> to incomplete type
+> /usr/i386-glibc21-linux/include/linux/proc_fs.h:368: sizeof applied to an
+> incomplete type
+> .....many more lines
+> .....many more lines
+> 
+> ----- Original Message -----
+> From: David Relson <relson@osagesoftware.com>
+> To: Corisen <csyap@starnet.gov.sg>
+> Cc: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, November 14, 2000 9:58 AM
+> Subject: Re: anyone compiled 2.2.17 on RH7 successfully?
+> 
+> > Corisen,
+> >
+> > RedHat 7.0's version of gcc, known as gcc 2.96, is incompatible with the
+> > kernel's code.  Preprocessor changes cause the problem you encountered.
+> It
+> > also has some defects in how it optimizes code that would cause the kernel
+> > to run incorrectly.
+> >
+> > The 7.0 distribution includes an older version of gcc, known as kgcc (for
+> > kernel gcc), that compiles code correctly and can be used for kernel
+> > compilation.  Install the rpm and go for it!
+> >
+> > David
+> >
+> > At 08:44 PM 11/13/00, Corisen wrote:
+> > >has anyone running RedHat7(with kernel 2.2.16, gcc 2.96, kgcc 2.91.66)
+> > >complied 2.2.17 kernel successfully?
+> > >
+> > >i've downloaded the source and gunzip/untar to /root/linux-2.2.17
+> > >
+> > >1. make menuconfig (ok)
+> > >2. make dep (ok)
+> > >3. make zImage
+> > >===> lots of warning message
+> > >===> error: checksum.S:231 badly punctuated parameter list in #define
+> > >===> error: checksum.S:237 badly punctuated parameter list in #define
+> > >
+> > >4. make CC=kgcc zImage
+> > >===> snapshot of errors reported:
+> > >In file included from init/main.c:15:
+> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:283: parse error before
+> > >`mode_t'
+> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:283: warning: no
+> semicolon
+> > >at end of struct or union
+> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:284: warning: data
+> > >definition has no type or storage class
+> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:285: parse error before
+> > >`uid'
+> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:285: warning: data
+> > >definition has no type or storage class
+> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:286: parse error before
+> > >`gid'
+> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:286: warning: data
+> > >definition has no type or storage class
+> > >....many more errors
+> > >....many more errors
+> > >....
+> > >
+> > >5. changed CC= kgcc in Makefile and execute "make zImage"
+> > >===> same error as 3 (strange, seems like the the compilation is still by
+> > >gcc and not kgcc despite the change)
+> > >
+> > >i was able to compile 2.4.0-test10 kernel image with "make CC=kgcc
+> bzImage"
+> > >
+> > >pls kindly advise on the possible solutions.
+> > >
+> > >thanks.
+> > >
+> > >
+> > >
+> > >
+> > >
+> > >-
+> > >To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> > >the body of a message to majordomo@vger.kernel.org
+> > >Please read the FAQ at http://www.tux.org/lkml/
+> >
+> > --------------------------------------------------------
+> > David Relson                   Osage Software Systems, Inc.
+> > relson@osagesoftware.com       514 W. Keech Ave.
+> > www.osagesoftware.com          Ann Arbor, MI 48103
+> > voice: 734.821.8800            fax: 734.821.8800
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

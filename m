@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270244AbTGMQB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 12:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270248AbTGMQB4
+	id S270270AbTGMQaS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 12:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270271AbTGMQaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 12:01:56 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:59294 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S270244AbTGMQBy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 12:01:54 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.5.75 and xfs quotas 
-Date: Sun, 13 Jul 2003 10:25:56 -0400
-User-Agent: KMail/1.5.2
+	Sun, 13 Jul 2003 12:30:18 -0400
+Received: from www.wireboard.com ([216.151.155.101]:60033 "EHLO
+	varsoon.wireboard.com") by vger.kernel.org with ESMTP
+	id S270270AbTGMQaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 12:30:15 -0400
+To: Chris Morgan <cmorgan@alum.wpi.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.XX very sluggish
+References: <200307131228.00155.cmorgan@alum.wpi.edu>
+From: Doug McNaught <doug@mcnaught.org>
+Date: 13 Jul 2003 12:45:00 -0400
+In-Reply-To: Chris Morgan's message of "Sun, 13 Jul 2003 12:28:00 -0400"
+Message-ID: <m38yr2e5pv.fsf@varsoon.wireboard.com>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307131025.56438.ivg2@cornell.edu>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps I'm missing something silly, but with both generic quota v2 and xfs 
-quota enabled (and xfs) all compiled into the kernel:
-===========================================================
-[root@cobra linux]# mount -o remount /dev/hda8
+Chris Morgan <cmorgan@alum.wpi.edu> writes:
 
-strace:
-mount("/dev/hda8", "/", "xfs", MS_REMOUNT|0xc0ed0000, 0x805be00) = 0
-===========================================================
-[root@cobra linux]# mount -o remount,quota /dev/hda8
-mount: / not mounted already, or bad option        
+> 1.4Ghz Athlon via 82cxx chipset, software raid 1 scsi drives, currently 
+> running 2.4.21
+> 
+> With 2.5.73/74/75(the only ones I've tried thus far) the kernel boots fine 
+> until it tries to mount the reiserfs partition on the raid1 set.  Replaying 
+> the journal takes many times longer than with 2.4.  Once it gets past that 
+> point the whole machine appears to be quite sluggish.  Is this a known issue 
+> with reiserfs + software raid 1?  What information would be useful to aid in 
+> debugging?
 
-strace:                                                                                                                          
-mount("/dev/hda8", "/", "xfs", MS_REMOUNT|0xc0ed0000, 0x805be38) = -1 EINVAL 
-(Invalid argument)
-===========================================================
+What does 'hdparm' say about DMA settings on your drive under 2.5?
 
-
-
-
-
-
-
-
+-Doug

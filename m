@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261805AbVCOTIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVCOTIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261805AbVCOTIf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 14:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVCOTFU
+	id S261697AbVCOTIe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 14:08:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbVCOTFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 14:05:20 -0500
-Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:55564
-	"EHLO graphe.net") by vger.kernel.org with ESMTP id S261787AbVCOTCz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:02:55 -0500
-Date: Tue, 15 Mar 2005 11:02:53 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org, Shai Fultheim <Shai@Scalex86.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 0/2] del_timer_sync: proof of concept
-In-Reply-To: <42373A4C.D9B90D6@tv-sign.ru>
-Message-ID: <Pine.LNX.4.58.0503151100210.27117@server.graphe.net>
-References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net>
-  <4237192B.7E8AA85A@tv-sign.ru> <Pine.LNX.4.58.0503151006550.25689@server.graphe.net>
- <42373A4C.D9B90D6@tv-sign.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.8
+	Tue, 15 Mar 2005 14:05:48 -0500
+Received: from fire.osdl.org ([65.172.181.4]:53442 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261785AbVCOTCM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:02:12 -0500
+Date: Tue, 15 Mar 2005 11:01:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, helge.hafting@aitel.hist.no,
+       linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: Re: 2.6.11-mm3 mouse oddity
+Message-Id: <20050315110146.4b0c5431.akpm@osdl.org>
+In-Reply-To: <d120d50005031506252c64b5d2@mail.gmail.com>
+References: <20050312034222.12a264c4.akpm@osdl.org>
+	<4236D428.4080403@aitel.hist.no>
+	<d120d50005031506252c64b5d2@mail.gmail.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Mar 2005, Oleg Nesterov wrote:
-
-> Christoph Lameter wrote:
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+>
+> On Tue, 15 Mar 2005 13:25:12 +0100, Helge Hafting
+> <helge.hafting@aitel.hist.no> wrote:
+> > 2.6.11-mm1 and earlier: mouse appear as /dev/input/mouse0
+> > 2.6.11-mm3: mouse appear as /dev/input/mouse1
+> > 
+> > No big problem, one change to xorg.conf and I got the mouse back.
+> > I guess it wasn't supposed to change like that though?
 > >
-> > However, this also means that __run_timers will not free up the timer and
-> > it has to be explicitly freed with del_timer_??.
->
-> I am not sure I understand you but no, del_timer{,_sync} is not needed.
->
-> __run_timer deletes timer from base->tv? list and clears 'pending flag'.
->
-> __del_timer_sync sets ->_base = NULL, but it is merely optimization.
-> It could set ->_base = base, but in that case next del_timer_sync()
-> call will need spin_lock(base->lock) again.
+> 
+> Vojtech activated scroll handling in keyboard code by default so now
+> your keyboard is mapped to the mouse0 and the mouse moved to mouse1.
 
-For some reason I thought that ->base == NULL would have special
-significance outside of the function you discussed. Looks fine to me now.
+We cannot ship a kernel with this change, surely?  Our users would come
+hunting for us with pitchforks.
+
+> Vojtech, is is possible to detect whether a keyboard has scroll
+> wheel(s) by its ID?
+
+What sort of keyboard has a scroll wheel??
 

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292864AbSB0TIk>; Wed, 27 Feb 2002 14:08:40 -0500
+	id <S292878AbSB0TIm>; Wed, 27 Feb 2002 14:08:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292878AbSB0TIT>; Wed, 27 Feb 2002 14:08:19 -0500
-Received: from maile.telia.com ([194.22.190.16]:52462 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S292894AbSB0TIH>;
-	Wed, 27 Feb 2002 14:08:07 -0500
-Date: Wed, 27 Feb 2002 20:11:48 +0100
-From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via686/AD1886/Soundmax drivers
-Message-ID: <20020227191147.GA1119@telia.com>
-Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020227165412.62bbe066.christy@attglobal.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020227165412.62bbe066.christy@attglobal.net>
-User-Agent: Mutt/1.3.27i
+	id <S292839AbSB0TIM>; Wed, 27 Feb 2002 14:08:12 -0500
+Received: from a213-22-98-46.netcabo.pt ([213.22.98.46]:54473 "EHLO
+	aeminium.aeminium.pt") by vger.kernel.org with ESMTP
+	id <S292847AbSB0THt>; Wed, 27 Feb 2002 14:07:49 -0500
+Date: Wed, 27 Feb 2002 19:07:40 +0000 (WET)
+From: Nuno Miguel Fernandes Sucena Almeida <slug@aeminium.org>
+To: Sven Koch <haegar@sdinet.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with orinoco_cs and i810_audio
+Message-ID: <Pine.LNX.4.21.0202271857350.32513-100000@aeminium.aeminium.pt>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 04:54:12PM +0000, Peter Christy wrote:
 
-> Ths saga continues..... (no sound on laptops using via686 and AD1886s -
-> mostly FIC A360+ and Compaq Presarios)
+Hello,
+	i'm having some random hangs in a Satellite Pro 4600, mostly when
+the laptop is idle (it seems to be related to apm/pcmcia yenta socket...) 
+and i found your message ...
+	now, about your problem: try the alsa-modules and you won't regret
+it. the i810 drivers that are in stock linux kernel seem to be a bit
+braindead ... dunno  if it fixes since altough i can get my wavelan card
+to work i don't use it often to connect to the network but instead the
+bultin e100 card...oh, and i also use the driver from intel for this
+one not the one in the kernel...
+	right now i'm using kernel 2.4.17
 
-This is interesting. Have you given the ALSA drivers a shot? Do you know
-what Compaq Presario laptops this affects?
--- 
+				()s
+					Nuno Sucena
+--
 
-André Dahlqvist <andre.dahlqvist@telia.com>

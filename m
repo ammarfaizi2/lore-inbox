@@ -1,130 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261900AbSLTKit>; Fri, 20 Dec 2002 05:38:49 -0500
+	id <S261524AbSLTKnW>; Fri, 20 Dec 2002 05:43:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSLTKit>; Fri, 20 Dec 2002 05:38:49 -0500
-Received: from dsl-213-023-066-076.arcor-ip.net ([213.23.66.76]:7808 "EHLO
-	neon.pearbough.net") by vger.kernel.org with ESMTP
-	id <S261900AbSLTKiq>; Fri, 20 Dec 2002 05:38:46 -0500
-Date: Fri, 20 Dec 2002 11:46:44 +0100
-From: axel@pearbough.net
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.52: Many, many unresolved symbols!?
-Message-ID: <20021220104644.GA637@neon.pearbough.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S261582AbSLTKnW>; Fri, 20 Dec 2002 05:43:22 -0500
+Received: from MailBox.iNES.RO ([80.86.96.21]:50340 "EHLO MailBox.iNES.RO")
+	by vger.kernel.org with ESMTP id <S261524AbSLTKnV>;
+	Fri, 20 Dec 2002 05:43:21 -0500
+Subject: Re: [PATCH 2.4] : donauboe IrDA driver (resend)
+From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+To: jt@hpl.hp.com
+Cc: James McKenzie <james@fishsoup.dhs.org>,
+       Christian Gennerat <christian.gennerat@polytechnique.org>,
+       Martin Lucina <mato@kotelna.sk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021219185630.GC6703@bougret.hpl.hp.com>
+References: <20021219024632.GB1746@bougret.hpl.hp.com>
+	 <1040310314.1225.9.camel@localhost.localdomain>
+	 <20021219185630.GC6703@bougret.hpl.hp.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Jwg3Zc3JznJSBWY95rCV"
+Organization: iNES Advertising
+Message-Id: <1040381739.1084.43.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="UugvWAfsgieZRqgk"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: pearbough.net
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-1) 
+Date: 20 Dec 2002 12:55:40 +0200
+X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---UugvWAfsgieZRqgk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-Jwg3Zc3JznJSBWY95rCV
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Jo, 2002-12-19 at 20:56, Jean Tourrilhes wrote:
+> On Thu, Dec 19, 2002 at 05:05:16PM +0200, Dumitru Ciobarcianu wrote:
+> >=20
+> 	As I don't have this hardware, I fully depend on people trying
+> the code to know if it works or not. This driver has been for 6 months
+> in kernel 2.5.X and on my web page (and advertised on the IrDA mailing
+> list), and it's only today that I get the first negative bug report.
+[...]
+> 	Also, would you mind sending this bug report to all three
+> maintainers of the driver ? Also : would you mind sending the log
+> output of the old toshoboe driver (assuming it works - does it ?).
 
-after kernel build of 2.5.52-bk4 snapshot, depmod results in a very long
-list of unresolved symbols.
+Well, about the bug report it could be me being lazy or not having
+enough time... :)
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.52bk4; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.5.52bk4/kernel/drivers/block/floppy.ko
-...
-...
-...
-
-I see it! All the listed files that have unresolved symbols end in .ko ?!
-I believe that's not ok.
-
-
-I have attached the bzipped output.
-
-Best regards,
-Axel Siebenwirth
+It works with the old toshoboe driver.
+If I load the module with "do_probe=3D0" donauoboe loads on the first try,
+thanks for the hint:
 
 
+toshoboe: Using multiple tasks, version $Id: donauboe.c V2.17 jeu sep 12
+08:50:20 2002 $
 
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-# CONFIG_MODULE_FORCE_UNLOAD is not set
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
 
---UugvWAfsgieZRqgk
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="build.log.bz2"
-Content-Transfer-Encoding: base64
+This is what I dug up from an old bootlog (for the old toshoboe
+messages):
 
-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
+Linux version 2.4.18-5.64LNX (root@LNX.iNES.RO) (gcc version 3.1
+20020620 (Red Hat Linux Rawhide 3.1-7)) #1 Wed Jul 10 00:30:01 EEST 2002
+[..snip..]
+IrDA: Registered device irda0
+ToshOboe: Using single tasks, version $Id: toshoboe.c,v 1.91 1999/06/29 14:=
+21:06 root Exp $
+ToshOboe: setting baud to 9600
+[..snip..]
 
---UugvWAfsgieZRqgk--
+
+Let me know if I can be of any help.
+
+//Cioby
+
+
+--=-Jwg3Zc3JznJSBWY95rCV
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+AvcrZ73E6zRGg0URAvMsAJ0WZey2uSTY89AKgq7YWXi6ZMM2LgCfXpvD
+wKS/GnzjbE//ooZRGKbh0kw=
+=SQLG
+-----END PGP SIGNATURE-----
+
+--=-Jwg3Zc3JznJSBWY95rCV--
+

@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269030AbTGUA7H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 20:59:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269124AbTGUA7H
+	id S269173AbTGUBAC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 21:00:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269169AbTGUBAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 20:59:07 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:14052 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S269030AbTGUA7F (ORCPT
+	Sun, 20 Jul 2003 21:00:01 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:14820 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S269131AbTGUA76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 20:59:05 -0400
-Date: Mon, 21 Jul 2003 03:13:52 +0200 (MEST)
-Message-Id: <200307210113.h6L1DqiY018985@harpo.it.uu.se>
+	Sun, 20 Jul 2003 20:59:58 -0400
+Date: Mon, 21 Jul 2003 03:14:47 +0200 (MEST)
+Message-Id: <200307210114.h6L1El7M018996@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org, rl@hellgate.ch
-Subject: Re: APIC support prevents power off
-Cc: mingo@redhat.com
+To: akpm@osdl.org, andrew.grover@intel.com, eric.valette@free.fr,
+       sziwan@hell.org.pl
+Subject: Re: [PATCH] Linux 2.6-pre-mm2 Fix crash on boot on ASUS L3800C if enabing APIC => add this machine to DMI black list
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jul 2003 16:36:13 +0200, Roger Luethi wrote:
->On some UP boards (e.g. ASUS A7A266) enabling support for local APICs keeps
->the machine from powering off on shutdown. It will just hang instead.
+On Sun, 20 Jul 2003 21:48:24 +0200, Eric Valette wrote:
+>The following patch integrated in 2.5.74,
 >
->This has been observed by others before [1]. A warning in the respective
->configuration note seems in order (or a proper fix if anybody has one).
+><http://lists.insecure.org/lists/linux-kernel/2003/Jun/5840.html>
 >
->Roger
+>really enables the APIC even if BIOS disabled it. Unfortunately, 
+>enabling APIC really does not seem to work on this ASUS laptop and ACPI 
+>(which is mandatory) crash the kernel in ACPI code at boot time while 
+>"Executing all Devices _STA and_INIT methods"
 >
->[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=105561164424871&w=2
+>Unless someones find a bug in ACPI code related to APIC management, It 
+>is safer to add this machine in the DMI black list (along with DELL, 
+>IBM, ...).
+>
+>So, as suggested by the author of the problematic change, I added and 
+>entry in the DMI black list. But my guess is that most laptop will soon 
+>be present in this list....
 
-Insufficient data to draw anti-local-APIC conclusions.
-- ensure you have the latest BIOS
-- if you're using APM, ensure that CPU_IDLE and DISPLAY_BLANK are
-  disabled, and that APM isn't built as a module
-  (these things are known to cause APM hangs in UP APIC systems)
-- if you're using ACPI, try without ACPI, or at least with ACPI not
-  doing any power management
+At least two P4 laptops are known to require the 2.5.74 patch, and
+they do work with the local APIC.
 
-A very general "may break some BIOSen" warning could be in order.
+While I don't dispute your machine has some problem, please
+do the following first before we completely blacklist it:
+- ensure you have the latest BIOS (ftp.asuscom.de has the ones for
+  their desktop mainboards, presumably the laptop BIOSen are also there)
+- in what way is ACPI mandatory? does it fail to boot, or does it
+  just lose some specific feature? If you just want suspend support,
+  try APM if the machine has it
+
+A question for the ACPI people:
+- Does the Linux kernel ACPI code ever transfer control to BIOS,
+  explicitly or implicitly via SMIs triggered by the interpreter?
+  If you do transfer control, do you disable interrupts and/or
+  the interrupt controllers before transferring control?
+  Entering BIOS with the local APIC live, in particular the timer,
+  is a known hang-generator with APM.
 
 /Mikael
+(. again in "I hate BIOS writers" mode, grr .)

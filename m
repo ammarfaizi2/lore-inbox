@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263378AbRFRWbR>; Mon, 18 Jun 2001 18:31:17 -0400
+	id <S263400AbRFRW5c>; Mon, 18 Jun 2001 18:57:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263395AbRFRWbG>; Mon, 18 Jun 2001 18:31:06 -0400
-Received: from twinlark.arctic.org ([204.107.140.52]:50441 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S263378AbRFRWav>; Mon, 18 Jun 2001 18:30:51 -0400
-Date: Mon, 18 Jun 2001 15:30:50 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: Jan Hudec <bulb@ucw.cz>, <linux-kernel@vger.kernel.org>
-Subject: Re: Client receives TCP packets but does not ACK
-In-Reply-To: <a05101000b753df30ddaa@[192.168.239.105]>
-Message-ID: <Pine.LNX.4.33.0106181527050.13084-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S263402AbRFRW5V>; Mon, 18 Jun 2001 18:57:21 -0400
+Received: from rumor.cps.intel.com ([192.102.198.242]:14287 "EHLO
+	rumor.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S263400AbRFRW5G>; Mon, 18 Jun 2001 18:57:06 -0400
+Message-ID: <9319DDF797C4D211AC4700A0C96B7C9404AC2068@orsmsx42.jf.intel.com>
+From: "Raj, Ashok" <ashok.raj@intel.com>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: gnu asm help...
+Date: Mon, 18 Jun 2001 15:56:50 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello asm gurus..
+
+I need a simple (??) change to atomic_inc() functionality. so that i can
+increment and return the 
+value of the variable.
+
+current implementation in linux/include/asm/atomic.h does not do this job.
+
+any help would be greatly appreciated.
+
+ashokr
 
 
-On Mon, 18 Jun 2001, Jonathan Morton wrote:
+from atomic.h
 
-> >  > Btw: can the aplication somehow ask the tcp/ip stack what was
-> >actualy acked?
-> >>  (ie. how many bytes were acked).
-> >
-> >no, but it's not necessarily a useful number anyhow -- because it's
-> >possible that the remote end ACKd bytes but the ACK never arrives.  so you
-> >can get into a situation where the remote application has the entire
-> >message but the local application doesn't know.  the only way to solve
-> >this is above the TCP layer.  (message duplicate elimination using an
-> >unique id.)
->
-> No, because if the ACK doesn't reach the sending machine, the sender
-> will retry the data until it does get an ACK.
+also if there is any reference to the gnu asm symtax, please send me a
+pointer.. 
+i can understand what the LOCK "incl %0 means.. but not sure what the rest
+is for.
 
-if the network goes down in between, the sender may never get the ACK.
-the sender will see a timeout eventually.  the receiver may already be
-done with the connection and closed it and never see the error.  if it
-were a protocol such as SMTP then the sender would retry later, and the
-result would be a duplicate message.  (which you can eliminate above the
-TCP layer using unique ids.)
+thanks
+ashokr
 
--dean
+static __inline__ void atomic_inc(atomic_t *v)
+{
+    __asm__ __volatile__(
+        LOCK "incl %0"
+        :"=m" (v->counter)
+        :"m" (v->counter));
+}
+
+
 

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129327AbRBMVH0>; Tue, 13 Feb 2001 16:07:26 -0500
+	id <S129315AbRBMVTG>; Tue, 13 Feb 2001 16:19:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130228AbRBMVHR>; Tue, 13 Feb 2001 16:07:17 -0500
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:44706 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S129327AbRBMVHA>; Tue, 13 Feb 2001 16:07:00 -0500
-Message-ID: <3A89A1ED.603F0DF8@talk21.com>
-Date: Tue, 13 Feb 2001 21:06:53 +0000
-From: Scott Ashcroft <scott.ashcroft@talk21.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Gordon Sadler <gbsadler1@lcisp.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19ac-pre9 lo interface Broke
-In-Reply-To: <20010212101318.A6980@home-desktop> <20010213143234.A18024@home-desktop>
+	id <S129793AbRBMVS5>; Tue, 13 Feb 2001 16:18:57 -0500
+Received: from smtp8.xs4all.nl ([194.109.127.134]:31723 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S129315AbRBMVSr>;
+	Tue, 13 Feb 2001 16:18:47 -0500
+From: thunder7@xs4all.nl
+Date: Tue, 13 Feb 2001 22:17:59 +0100
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk, keil@isdn4linux.de
+Subject: Re: 2.2.19pre10 locks up hard on unloading the isdn module 'hisax.o' - 2.2.19pre11 does too!
+Message-ID: <20010213221759.A718@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.11i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gordon Sadler wrote:
-> 
-> I have some further info here.
-> I performed strace on ifup -a and ifdown -a.
-> 
-> They aren't more than 4Kb each, but I'll cut and paste what appear to be
-> most relevant:
-> 
-> ifup.strace:
-> fork()                                  = 17974
-> wait4(17974, [WIFEXITED(s) && WEXITSTATUS(s) == 0], 0, NULL) = 17974
-> --- SIGCHLD (Child exited) ---
-> fork()                                  = 17976
-> wait4(17976, SIOCSIFADDR: Bad file descriptor
-> lo: unknown interface: Bad file descriptor
-> lo: unknown interface: Bad file descriptor
-> [WIFEXITED(s) && WEXITSTATUS(s) == 255], 0, NULL) = 17976
-> --- SIGCHLD (Child exited) ---
-[snip]
-> 
-> Can anyone point a finger?
+>SMP machine, 2x P3/700 on an Abit VP6.
+>Never any trouble with the earlier 2.2.19pre's.
+>
+>a strace shows the hang to be in the delete_module("hisax") call.
+>
+>I'm having trouble with the sysrq-key, but I hope this is enough since
+>there were some changes w.r.t. modules/locking etc. in pre10.
+>
+It's Linux, after all, so 2 minutes after creating this email
+2.2.19pre11's announcement was here. I just tested it, and it has the
+same problem.
 
-Debian bug #85774
-http://cgi.debian.org/cgi-bin/bugreport.cgi?archive=no&bug=85774
+from my config:
 
-ifconfig broke, nothing to do with the kernel.
+ISDN subsystem
+#
+CONFIG_ISDN=m
+CONFIG_ISDN_PPP=y
+CONFIG_ISDN_PPP_VJ=y
+CONFIG_ISDN_DRV_HISAX=m
+CONFIG_HISAX_EURO=y
+CONFIG_HISAX_W6692=y
 
-Cheers,
-Scott
+Now, it's just one more crash and back to 2.2.19pre9 for me!
+
+Good luck,
+Jurriaan
+-- 
+When God is on the Bodhran
+The atoms want to dance
+	Oysterband - In your eyes
+GNU/Linux 2.2.19pre11 SMP/ReiserFS 2x1402 bogomips load av: 0.05 0.34 0.20

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbTFFSlX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 14:41:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbTFFSlX
+	id S262179AbTFFSoS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 14:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262185AbTFFSoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 14:41:23 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56071 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262227AbTFFSlV convert rfc822-to-8bit (ORCPT
+	Fri, 6 Jun 2003 14:44:18 -0400
+Received: from dp.samba.org ([66.70.73.150]:17895 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262179AbTFFSoR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 14:41:21 -0400
-Date: Fri, 6 Jun 2003 11:54:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Steven Cole <elenstev@mesatop.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] 2.5.70-bk11 zlib cleanup #3 Z_NULL
-In-Reply-To: <20030606183920.GC10487@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.44.0306061151420.30453-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h56IsjB07327
+	Fri, 6 Jun 2003 14:44:17 -0400
+Date: Sat, 7 Jun 2003 04:41:32 +1000
+From: Anton Blanchard <anton@samba.org>
+To: linas@austin.ibm.com
+Cc: lnz@dandelion.com, mike@i-connect.net, eric@andante.org,
+       linux-kernel@vger.kernel.org, olh@suse.de, groudier@free.fr,
+       axboe@suse.de, acme@conectiva.com.br, linas@linas.org
+Subject: Re: Patches for SCSI timeout bug
+Message-ID: <20030606184132.GC6069@krispykreme>
+References: <20030604163415.A41236@forte.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030604163415.A41236@forte.austin.ibm.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 6 Jun 2003, Jörn Engel wrote:
+ 
+> 2) By incresing the sym53c8xx post-reset delay to at least
+>    12 seconds.
 > 
-> How do you feel about "if (z->state->blocks != NULL)"?  Remove the
-> pointless !=NULL or keep it?
+> Fix 2) may not be bad: I have at least one scsi hard drive which 
+> takes 5 seconds to recover from a bus reset.   On the other hand,
+> fix 2) makes the boot process longer: it introduces a delay of 
+> N x 12 seconds, where N is the number of scsi channels.
+> (Most cards have two channels; some server-class machines with 
+> many cards may have a significantly longer boot).
 
-I don't mind it, but it doesn't buy much.
+Yep, Ive got a box with 42 scsi controllers and the time to probe SCSI
+is already unbearable :) 
 
-It's actually in some other cases where I think there is a readability 
-issue, ie in more complex conditionals I personally prefer the simpler 
-cersion, ie I much prefer something like
+So I like fix 1 as well.
 
-	if (ptr && ptr->ops && ptr->ops->shutdown)
-		ptr->ops->shutdown(ptr, xxxx);
-
-over the pointless NULL-masturbation in something like
-
-	if (ptr != NULL && ptr->ops != NULL && ptr->ops->shutdown != NULL)
-		ptr->ops->shutdown(ptr, xxxx)
-
-which I just is much less readable than the simple version.
-
-		Linus
-
+Anton

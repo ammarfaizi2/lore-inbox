@@ -1,25 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316109AbSEJUQm>; Fri, 10 May 2002 16:16:42 -0400
+	id <S316113AbSEJURd>; Fri, 10 May 2002 16:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316113AbSEJUQl>; Fri, 10 May 2002 16:16:41 -0400
-Received: from [155.223.251.1] ([155.223.251.1]:2000 "HELO gatekeeper")
-	by vger.kernel.org with SMTP id <S316109AbSEJUQj>;
-	Fri, 10 May 2002 16:16:39 -0400
-Date: Fri, 10 May 2002 23:16:04 +0300 (EEST)
-From: Halil Demirezen <halild@bilmuh.ege.edu.tr>
-To: linux-kernel@vger.kernel.org
-Subject: To start up
-Message-ID: <Pine.LNX.4.44.0205102313240.8807-100000@bilmuh.ege.edu.tr>
+	id <S316115AbSEJURc>; Fri, 10 May 2002 16:17:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3852 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316113AbSEJURa>; Fri, 10 May 2002 16:17:30 -0400
+Date: Fri, 10 May 2002 13:17:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>, <linux-kernel@vger.kernel.org>,
+        <trond.myklebust@fys.uio.no>, <reiserfs-dev@namesys.com>
+Subject: Re: [PATCH] iget-locked [2/6]
+In-Reply-To: <Pine.GSO.4.21.0205101614260.19226-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0205101316550.16160-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have started to be interested in developing kernels code in a such way .
-But i am interested in the network source codes .. Do i have to know all
-kernel code or just the network section to be a devoloper for the kernel-
-network section-
 
-thanx
+On Fri, 10 May 2002, Alexander Viro wrote:
+> 
+> OK.  BTW, would you accept ->getattr() patchset if I start to feed it to
+> you today?
+
+Go wild.
+
+		Linus
 

@@ -1,25 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282136AbRKWMu1>; Fri, 23 Nov 2001 07:50:27 -0500
+	id <S282128AbRKWMrh>; Fri, 23 Nov 2001 07:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282133AbRKWMuR>; Fri, 23 Nov 2001 07:50:17 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:24083 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S282136AbRKWMuG>; Fri, 23 Nov 2001 07:50:06 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+	id <S282136AbRKWMr2>; Fri, 23 Nov 2001 07:47:28 -0500
+Received: from ns.krot.org ([193.212.103.165]:36115 "HELO ns.krot.org")
+	by vger.kernel.org with SMTP id <S282128AbRKWMrX> convert rfc822-to-8bit;
+	Fri, 23 Nov 2001 07:47:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
 To: linux-kernel@vger.kernel.org
-Subject: [OT] How to make static binary out of ELF shared one?
-Date: Fri, 23 Nov 2001 14:48:48 -0200
-X-Mailer: KMail [version 1.2]
+Subject: /proc/sys/vm/(max|min)-readahead question
+Date: Fri, 23 Nov 2001 13:49:03 +0100
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Message-Id: <01112314484801.01070@manta>
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011123124724Z282128-17408+17814@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject says it all. I need it for ramdisk image.
-You may mail me directly to reduce ot on lkml
---
-vda
+hi
+
+I'm currently using 2.4.13-ac5+tux with the /proc/sys/vm/(max|min)-readahead 
+extension. Are there any plans to include this in the linus tree on 2.4, or 
+should I just modify include/linux/blkdev.h and recompile?
+
+roy
+-- 
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.

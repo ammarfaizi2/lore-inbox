@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbUDSVZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUDSV13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbUDSVZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 17:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUDSVZ5
+	id S261900AbUDSV13 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 17:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbUDSV13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 17:25:57 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:54689 "EHLO mail.cyclades.com")
-	by vger.kernel.org with ESMTP id S261795AbUDSVZs (ORCPT
+	Mon, 19 Apr 2004 17:27:29 -0400
+Received: from mail.cyclades.com ([64.186.161.6]:13986 "EHLO mail.cyclades.com")
+	by vger.kernel.org with ESMTP id S261925AbUDSV1I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 17:25:48 -0400
-Date: Mon, 19 Apr 2004 18:26:52 -0300
+	Mon, 19 Apr 2004 17:27:08 -0400
+Date: Mon, 19 Apr 2004 18:28:10 -0300
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 To: akpm@osdl.org
 Cc: drepper@redhat.com, manfred@colorfullife.com, linux-kernel@vger.kernel.org
-Message-ID: <20040419212652.GA10956@logos.cnet>
+Subject: [PATCH] per-user signal pending and message queue limits
+Message-ID: <20040419212810.GB10956@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,6 +22,7 @@ User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+(forgot the subject on the first message)
 
 Andrew, 
 
@@ -258,3 +260,5 @@ diff -Nur --show-c-function linux-2.6.5.org/kernel/user.c linux-2.6.5/kernel/use
  
  		/*
  		 * Before adding this, check whether we raced
+
+----- End forwarded message -----

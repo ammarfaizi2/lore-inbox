@@ -1,107 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVAZOtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVAZOvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262314AbVAZOtI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 09:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVAZOtI
+	id S262320AbVAZOvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 09:51:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVAZOvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 09:49:08 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:61920 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262314AbVAZOs4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 09:48:56 -0500
-Message-ID: <41F7ADD6.9050608@us.ibm.com>
-Date: Wed, 26 Jan 2005 08:48:54 -0600
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Wed, 26 Jan 2005 09:51:05 -0500
+Received: from de01egw01.freescale.net ([192.88.165.102]:57993 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S262320AbVAZOuq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 09:50:46 -0500
+Date: Wed, 26 Jan 2005 08:50:27 -0600 (CST)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@blarg.somerset.sps.mot.com
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: [PATCH] ppc32: back out idle patch for non-powersaving CPU's
+Message-ID: <Pine.LNX.4.61.0501260843340.28993@blarg.somerset.sps.mot.com>
 MIME-Version: 1.0
-To: "Mukker, Atul" <Atulm@lsil.com>
-CC: "'Patrick Mansfield'" <patmans@us.ibm.com>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "'SCSI Mailing List'" <linux-scsi@vger.kernel.org>
-Subject: Re: How to add/drop SCSI drives from within the driver?
-References: <0E3FA95632D6D047BA649F95DAB60E5705B837C3@exa-atlanta>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5705B837C3@exa-atlanta>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Newer kernels also have kobject_uevent, which lets any application use 
-netlink to look for hotplug events.
+Back out previous patch to ppc idle that handled CPU's that did not have 
+powersavings.  Ingo's fixes to cpu_rest, cause this fix to no longer be 
+needed.
 
--Brian
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-Mukker, Atul wrote:
-> Thanks for the suggestion. After more exploration, looks like different
-> distribution have different implementations for /sbin/hotplug. This may
-> aggravate the issue for applications. For now, we will stick with a wait and
-> watch after bus scan :-(
-> 
-> Will probe the linux-hotplug-devel@lists.sourceforge.net list for more
-> pointers
-> 
-> Thanks
-> 
-> ===========================
-> Atul Mukker
-> Architect, Drivers and BIOS
-> LSI Logic Corporation
-> 
-> 
-> 
->>-----Original Message-----
->>From: Patrick Mansfield [mailto:patmans@us.ibm.com] 
->>Sent: Tuesday, January 25, 2005 11:52 AM
->>To: Mukker, Atul
->>Cc: 'James Bottomley'; Linux Kernel; SCSI Mailing List
->>Subject: Re: How to add/drop SCSI drives from within the driver?
->>
->>Atul -
->>
->>On Tue, Jan 25, 2005 at 11:27:36AM -0500, Mukker, Atul wrote:
->>
->>>After writing the "- - -" to the scan attribute, the management 
->>>applications assume the udev has created the relevant 
->>
->>entries in the 
->>
->>>/dev directly and try to use the devices _immediately_ and 
->>
->>fail to see 
->>
->>>the devices
->>>
->>>Is there a hotplug event which would tell the management 
->>
->>applications 
->>
->>>that the device nodes have actually been created now and 
->>
->>ready to be used?
->>
->>Read the udev man page section, the part right before 
->>"FILES". Try putting a script under /etc/dev.d/default/*.dev. 
->>Then you can get more specific with an /etc/dev.d/scsi/*.dev 
->>script or something else.
->>
->>I just tried something simple but did not get it working.
->>
->>Try linux-hotplug-devel@lists.sourceforge.net list for help.
->>
->>-- Patrick Mansfield
->>
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
-
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
+---
+diff -Nru a/arch/ppc/kernel/idle.c b/arch/ppc/kernel/idle.c
+--- a/arch/ppc/kernel/idle.c	2005-01-26 08:39:59 -06:00
++++ b/arch/ppc/kernel/idle.c	2005-01-26 08:39:59 -06:00
+@@ -41,17 +41,14 @@
+ 	if (!need_resched()) {
+ 		if (powersave != NULL && !irqs_disabled())
+ 			powersave();
+-		else {
+ #ifdef CONFIG_SMP
++		else {
+ 			set_thread_flag(TIF_POLLING_NRFLAG);
+-			local_irq_enable();
+ 			while (!need_resched())
+ 				barrier();
+ 			clear_thread_flag(TIF_POLLING_NRFLAG);
+-#else
+-			local_irq_enable();
+-#endif
+ 		}
++#endif
+ 	}
+ 	if (need_resched())
+ 		schedule();

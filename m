@@ -1,107 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTD2URd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 16:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbTD2URd
+	id S261669AbTD2UWt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 16:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbTD2UWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 16:17:33 -0400
-Received: from ithilien.qualcomm.com ([129.46.51.59]:43409 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id S261624AbTD2URb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 16:17:31 -0400
-Message-Id: <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 29 Apr 2003 13:29:41 -0700
-To: Greg KH <greg@kroah.com>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [Bluetooth] HCI USB driver update. Support for SCO over
-  HCI USB.
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20030429041535.GA2093@kroah.com>
-References: <200304290317.h3T3HOdA027579@hera.kernel.org>
- <200304290317.h3T3HOdA027579@hera.kernel.org>
+	Tue, 29 Apr 2003 16:22:49 -0400
+Received: from h214n1fls32o988.telia.com ([62.20.176.214]:528 "EHLO
+	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
+	id S261669AbTD2UWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 16:22:48 -0400
+Date: Tue, 29 Apr 2003 22:35:05 +0200
+From: Henrik Persson <nix@socialism.nu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-Id: <20030429223505.400352e4.nix@socialism.nu>
+In-Reply-To: <3EAED8DC.5000801@techsource.com>
+References: <fa.ivrgub8.1ci079c@ifi.uio.no>
+	<20030427183553.GA955879@hiwaay.net>
+	<20030427185037.GA23581@work.bitmover.com>
+	<3EAE8A5F.8000408@techsource.com>
+	<200304291427.h3TERpZq031934@sirius.nix.badanka.com>
+	<3EAED8DC.5000801@techsource.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:15 PM 4/28/2003, Greg KH wrote:
->On Mon, Mar 24, 2003 at 09:03:28PM +0000, Linux Kernel Mailing List wrote:
->> ChangeSet 1.971.22.2, 2003/03/24 13:03:28-08:00, maxk@qualcomm.com
->> 
->>       [Bluetooth] HCI USB driver update. Support for SCO over HCI USB.
->>       URB and buffer managment rewrite.
->
->Max, you need to be very careful with this:
-I know ;-)
+On Tue, 29 Apr 2003 15:56:12 -0400
+Timothy Miller <miller@techsource.com> wrote:
 
->> +struct _urb *_urb_alloc(int isoc, int gfp)
->> +{
->> +     struct _urb *_urb = kmalloc(sizeof(struct _urb) +
->> +                             sizeof(struct usb_iso_packet_descriptor) * isoc, gfp);
->> +     if (_urb) {
->> +             memset(_urb, 0, sizeof(*_urb));
->> +             _urb->urb.count = (atomic_t)ATOMIC_INIT(1);
->> +             spin_lock_init(&_urb->urb.lock);
->> +     }
->> +     return _urb;
->> +}
->
->You aren't calling usb_alloc_urb() and:
->
->> +struct _urb *_urb_dequeue(struct _urb_queue *q)
->> +{
->> +     struct _urb *_urb = NULL;
->> +        unsigned long flags;
->> +        spin_lock_irqsave(&q->lock, flags);
->> +     {
->> +             struct list_head *head = &q->head;
->> +             struct list_head *next = head->next;
->> +             if (next != head) {
->> +                     _urb = list_entry(next, struct _urb, list);
->> +                     list_del(next); _urb->queue = NULL;
->> +             }
->> +     }
->> +     spin_unlock_irqrestore(&q->lock, flags);
->> +     return _urb;
->> +}
->
->You aren't calling usb_free_urb() as you are embedding a struct urb
->within your struct _urb structure.  Any reason you can't use a struct
->urb * instead and call the usb core's functions to create and return 
->a urb ?
-I didn't want to do two allocations (one for struct _urb and one for struct urb).
+> Like in movies where:
+> - kid A writes a book report
+> - kid B copies it
+> - kid B gives the book report in class before kid A
+> - kid A gets an F because he can't give his report
 
->Otherwise any changes to the internal urb structures, and the
->usb_alloc_urb() and usb_free_urb() functions will have to be mirrored
->here in your functions, and I know I will forget to do that :)
-How about 
+Ah, allright.
 
-static inline urb_init(urb)
-{
-        urb->xx = YY;
-        ...
-}
+> Mind you, this may be a very childish way of looking at things.  I 
+> PERSONALLY don't expect a problem.  I've released code under GPL before,
+> and people respected, to my knowledge, my copyright.  They were thankful
+> and appreciated using what I wrote.  I loved the whole experience.  But 
+> I have a strong enough sort of personality that I would go on the 
+> offensive were someone to steal my work, take credit for what I did, 
+> etc.  Some people are much more timid.  Rather than damning them for 
+> being timid, those of us who can understand how they feel should try to 
+> help so that they will share their ideas with us.
+> 
+> The fear exists because this kind of theft happens, and not just among 
+> children.
 
-urb_alloc() 
-{
-        urb = kmalloc()
-        urb_init(urb);
-}
+I can see what you mean. Personally, neither do I expect a problem. And if
+it did become a problem, I wouldn't care very much. If I knew that someone
+stole my work and took credit for it, I would flame him somewhere public,
+just to let the world know, but it wouldn't keep me up at night.
 
-?
+But there is another view at this problem. When money gets involved. If
+someone is stealing your code and is making money of it. Most people I
+know would react in a very offensive way. But I wouldn't. I did never
+expect to get any money out of it, so well. ;)
 
->Other than that, it's nice to see Bluetooth SCO support for Linux, very
->nice job.
-Thank you.
+Or.. Err. On the second thought, I would flame them too, I guess. Darn.
 
-I was actually going to ask you guys if you'd be interested in generalizing this _urb_queue() 
-stuff that I have for other drivers. Current URB api does not provide any interface for 
-queueing/linking/etc of URBs in the _driver_ itself. Things like next, prev, etc are used in 
-the HCD. So if driver submits bunch of different URBs (and potentially multiple URBs of the 
-same type like hci_usb does) it has to implement its own lists, arrays and stuff. I used to 
-use SKBs for URB queues but struct sk_buff is to big for that simple task.
+> Keep in mind that being introverted is normal and common.  Being timid, 
+> on the other hand, is something completely different and can be the 
+> result of some sort of past trauma.  People try to share and get burned,
+> so they don't share anymore.
 
-Max
+We will just have to be pedagogical. We'll have to try to help them
+overcome their fear of those pirates, as you said. I think that it might
+be enough for some people to raise the question "Does it really matter? At
+least _you_ know you did this."
 
+-- 
+Henrik Persson  nix@socialism.nu  http://nix.badanka.com
+PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbTLOKhk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 05:37:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbTLOKhj
+	id S263491AbTLOKmQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 05:42:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263510AbTLOKmQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 05:37:39 -0500
-Received: from mail.mppmu.mpg.de ([134.107.24.11]:59604 "EHLO
-	mail.mppmu.mpg.de") by vger.kernel.org with ESMTP id S263460AbTLOKhi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 05:37:38 -0500
-Date: Mon, 15 Dec 2003 11:37:36 +0100 (CET)
-From: Peter Breitenlohner <peb@mppmu.mpg.de>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+	Mon, 15 Dec 2003 05:42:16 -0500
+Received: from albireo.ucw.cz ([81.27.194.19]:41344 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S263491AbTLOKmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 05:42:15 -0500
+Date: Mon, 15 Dec 2003 11:42:14 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.23 dual Xeon detection problem + patch (fwd)
-In-Reply-To: <Pine.LNX.4.58.0312141814550.23752@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0312151134580.1027@pcl321.mppmu.mpg.de>
-References: <Pine.LNX.4.58.0312141309280.1027@pcl321.mppmu.mpg.de>
- <Pine.LNX.4.58.0312141814550.23752@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: PCI Express support for 2.4 kernel
+Message-ID: <20031215104214.GA1495@ucw.cz>
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com> <3FDD8691.80206@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FDD8691.80206@intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Dec 2003, Zwane Mwaikambo wrote:
+Hi!
 
-> On Sun, 14 Dec 2003, Peter Breitenlohner wrote:
->
-> > -------------------- start of patch ------------------
-> > --- linux-2.4.23/include/asm-i386/smpboot.h.orig	2003-08-25 13:44:43.000000000 +0200
-> > +++ linux-2.4.23/include/asm-i386/smpboot.h	2003-12-02 16:49:46.000000000 +0100
-> > @@ -73,11 +73,9 @@
-> >   */
-> >  static inline int cpu_present_to_apicid(int mps_cpu)
-> >  {
-> > -	if (clustered_apic_mode == CLUSTERED_APIC_XAPIC)
-> > -		return raw_phys_apicid[mps_cpu];
-> >  	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
-> >  		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
-> > -	return mps_cpu;
-> > +	return raw_phys_apicid[mps_cpu];
-> >  }
->
-> What was NR_CPUS in your kernel config?
+> I did not found this feature in standard.
 
-I tried 4, 8, and 32; that didn't make any difference. The problem really is
-a physical vs. logigal apic-id confusion!
+I did :-)  C99, section 6.7.8 "Initialization", constraint 10:
 
-regards
-Peter Breitenlohner <peb@mppmu.mpg.de>
+"... If an object that has static storage duration is not initialized
+explicitly, then:
+
+   - if it has pointer type, it is initialized to a null pointer;
+   - if it has arithmetic type, it is initialized to (positive or unsigned) zero;
+
+..."
+
+> More, future versions of gcc will give at least warning, if not error, like
+> "use of uninitialized variable".
+
+Yes, such warning exists, but only for automatic variables.
+
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Quote of the day: '

@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262290AbTCMNGp>; Thu, 13 Mar 2003 08:06:45 -0500
+	id <S262298AbTCMNPh>; Thu, 13 Mar 2003 08:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262292AbTCMNGp>; Thu, 13 Mar 2003 08:06:45 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45833 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262290AbTCMNGo>; Thu, 13 Mar 2003 08:06:44 -0500
-Date: Thu, 13 Mar 2003 13:17:28 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Patches, effort, motivation
-Message-ID: <20030313131728.A4861@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262311AbTCMNPh>; Thu, 13 Mar 2003 08:15:37 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:51981 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262298AbTCMNPf>;
+	Thu, 13 Mar 2003 08:15:35 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.4.23 is available
+Date: Fri, 14 Mar 2003 00:26:10 +1100
+Message-ID: <10620.1047561970@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I'm getting to the point of completely giving up kernel development
-outside the ARM tree, which basically means leaving serial, pci, and
-pcmcia to other people.
+Content-Type: text/plain; charset=us-ascii
 
-I have been trying for the last 5 days to get Linus to accept two
-patches small patches:
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
-1. a patch to register tty_devclass using postcore_initcall().
+modutils-2.4.23.tar.gz          Source tarball, includes RPM spec file
+modutils-2.4.23-1.src.rpm       As above, in SRPM format
+modutils-2.4.23-1.i386.rpm      Compiled with gcc 2.96 20000731,
+                                glibc 2.2.2.
+modutils-2.4.23-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731,
+				glibc-2.2.3.
+patch-modutils-2.4.23.gz        Patch from modutils 2.4.22 to 2.4.23.
 
-   This is necessary before I can push the next set of serial changes.
-   Without it, the serial layer will oops in sysfs when it tries to
-   register drivers.
+Changelog extract
 
-2. a patch to restore the PCI device probing, so we don't probe
-   all functions when we discover that function 0 is not present.
-   This is the behaviour we had prior to 2.5.64.
+	* Correct s390[x] relocations for position independent code.
+	  Bill Nottingham/Amit S. Kale.
+	* Add alias for the tun/tap device.  Bill Nottingham.
+	* Fix insmod for ppc64 MODULE_PARM(foo, "l").  Peter Bergner.
+	* Add DESTDIR to man_kerneld, change man pages from 444 to 644.
+	  Peter Breitenlohner.
+	* libz must be static for --enable-zlib.  Bill Nottingham, reworked
+	  by Keith Owens.
+	* Add note about refusing patches that change behaviour to man pages.
+	* Alpha now uses srel32 in the exception handling macros.
+	  Richard Henderson.
+	* Support ia64 brl relocations.
 
-Both of these patches have been sent to Linus several times over the
-past 5 days, and each time they have been completely ignored without
-explaination.
+Modutils 2.4.24 will be out in the next few days.  The only change
+planned for 2.4.24 is to complain about modules using the default
+behaviour of "export all symbols" on architectures that use function
+descriptors.  Such architectures must explicitly export symbols,
+otherwise gcc does not generate function descriptors and inter-module
+references break spectacularly.  
 
-I have a huge pile of patches backing up here.  I'm at the point where
-I'm going to give up updating them to bk-curr, and testing them before
-sending each to Linus due to the number of patches.  Going around this
-loop just takes too much of my time to make it worth while.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-My backlog currently consists of:
-
-	8 PCI patches (1 needs to be further cut up)
-	10 PCMCIA patches (1 needs to be further cut up)
-	1 tty_io.c patch
-	16 serial csets
-
-there are some dependencies between these patches, and getting the stuff
-applied in the right order is absolutely paramount to ensure that things
-don't break.
-
-So, any suggestions on how to handle this better, and above all get Linus
-to start applying stuff?
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+iD8DBQE+cIbxi4UHNye0ZOoRAtUcAKDB5K4wb+3/unAOTJQ66xl1EaPhRQCgqFKz
+mTaRAx9pufzo68wP8rjMORc=
+=utno
+-----END PGP SIGNATURE-----
 

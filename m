@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbTGAINh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 04:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbTGAINh
+	id S261249AbTGAIaC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 04:30:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTGAIaC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 04:13:37 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:58580 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261245AbTGAINf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 04:13:35 -0400
-Date: Tue, 01 Jul 2003 01:21:07 -0700 (PDT)
-Message-Id: <20030701.012107.42800729.davem@redhat.com>
-To: jsalmon@thesalmons.org
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       kuznet@ms2.inr.ac.ru, jmorris@redhat.com
-Subject: Re: negative tcp_tw_count and other TIME_WAIT weirdness?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200307010025.h610PGmX007656@river.fishnet>
-References: <200307010025.h610PGmX007656@river.fishnet>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 1 Jul 2003 04:30:02 -0400
+Received: from imf21aec.mail.bellsouth.net ([205.152.59.69]:48881 "EHLO
+	imf21aec.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261249AbTGAI37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 04:29:59 -0400
+Message-ID: <3F012202.4010303@bellsouth.net>
+Date: Tue, 01 Jul 2003 01:54:10 -0400
+From: CarlosRomero <caberome@bellsouth.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.3) Gecko/20030322
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: simple pnp bios io resources bug makes  system unusable
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Salmon <jsalmon@thesalmons.org>
-   Date: Mon, 30 Jun 2003 17:25:16 -0700
+my one line patch just skips an io registration with a simple sanity check.
+never once have i heard a device with an ioport of 0x0.
+question is why it happens and only once.
+tested with
 
-   I have several fairly busy servers reporting a negative value
-   for tcp_tw_count.
+ISA Plug and Play:
+U.S. Robotics Sportster 33600 FAX/Voice Int
+Creative ViBRA16C PnP
+Crystal Codec
 
- I have a sneaking suspicion that this patch (already in 2.4.22-preX)
- will fix your problem.
+Host/PCI Bridge:
+VIA Technologies, In VT82C585VP [Apollo V
+VIA Technologies, In VT82C586/A/B PCI-to-
+VIA Technologies, In VT82C586/B/686A/B PI
+VIA Technologies, In USB
+VIA Technologies, In VT82C586B ACPI
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.930.114.22 -> 1.930.114.23
-#	net/ipv4/tcp_minisocks.c	1.13    -> 1.14   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/05/07	olof@austin.ibm.com	1.930.114.23
-# [TCP]: tcp_twkill leaves death row list in inconsistent state over tcp_timewait_kill.
-# --------------------------------------------
-#
-diff -Nru a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
---- a/net/ipv4/tcp_minisocks.c	Tue Jul  1 01:25:26 2003
-+++ b/net/ipv4/tcp_minisocks.c	Tue Jul  1 01:25:26 2003
-@@ -447,6 +447,8 @@
- 
- 	while((tw = tcp_tw_death_row[tcp_tw_death_row_slot]) != NULL) {
- 		tcp_tw_death_row[tcp_tw_death_row_slot] = tw->next_death;
-+		if (tw->next_death)
-+			tw->next_death->pprev_death = tw->pprev_death;
- 		tw->pprev_death = NULL;
- 		spin_unlock(&tw_death_lock);
- 
+(also noticing cutoff in /sys/devices/pci0/*/name)
+
+>Yes, I also ran into this problem, Adam is was also working on a fix
+>although I wonder if it's the same fix?
+
+>Shawn S.
+
+>>List:     linux-kernel
+>>Subject:  simple pnp bios io resources bug makes  system unusable
+>>From:     CarlosRomero <caberome () bellsouth ! net>
+>>Date:     2003-07-01 3:38:17
+
+>>cat /sys/devices/pnp0/00\:0c/name
+>>Reserved Motherboard Resources
+
+>>cat /sys/devices/pnp0/00\:0c/resources
+>>state = active
+>>io 0x4d0-0x4d1
+>>io 0xcf8-0xcff
+>>io 0x3f7-0x3f7
+>>io 0x401-0x407
+>>io 0x298-0x298
+>>io 0x00000000-0xffffffff
+>>mem 0xfffe0000-0xffffffff
+>>mem 0x100000-0x7ffffff
+
+>>fixup: check for null io base, other devices are now able to initialize.
+
+

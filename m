@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284870AbRLFAIi>; Wed, 5 Dec 2001 19:08:38 -0500
+	id <S284871AbRLFAMi>; Wed, 5 Dec 2001 19:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284873AbRLFAI3>; Wed, 5 Dec 2001 19:08:29 -0500
-Received: from peace.netnation.com ([204.174.223.2]:4069 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP
-	id <S284870AbRLFAIR>; Wed, 5 Dec 2001 19:08:17 -0500
-Date: Wed, 5 Dec 2001 16:08:16 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [FS] Why doesn't this patch work?
-Message-ID: <20011205160816.A26214@netnation.com>
-In-Reply-To: <20011205152834.A11289@netnation.com> <1007595982.848.4.camel@phantasy>
+	id <S284872AbRLFAM3>; Wed, 5 Dec 2001 19:12:29 -0500
+Received: from [202.135.142.194] ([202.135.142.194]:45326 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S284871AbRLFAMR>; Wed, 5 Dec 2001 19:12:17 -0500
+Date: Thu, 6 Dec 2001 11:13:06 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: mfedyk@matchmail.com, hps@intermeta.de, lm@bitmover.com,
+        jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+Message-Id: <20011206111306.6ce4039e.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.GSO.4.21.0112010003410.7958-100000@binet.math.psu.edu>
+In-Reply-To: <20011130201235.A489@mikef-linux.matchmail.com>
+	<Pine.GSO.4.21.0112010003410.7958-100000@binet.math.psu.edu>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <1007595982.848.4.camel@phantasy>; from rml@tech9.net on Wed, Dec 05, 2001 at 06:46:21PM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 06:46:21PM -0500, Robert Love wrote:
+On Sat, 1 Dec 2001 00:14:54 -0500 (EST)
+Alexander Viro <viro@math.psu.edu> wrote:
 
-> On Wed, 2001-12-05 at 18:28, Simon Kirby wrote:
-> > I'm attempting to write this little dinky patch to see who calls fsync()
-> > or fdatasync(), but it's spitting out compiler warnings.  I can't figure
-> > out why, though.  What did I do wrong?
-> > 
-> > buffer.c: In function `report_culprit':
-> > buffer.c:409: warning: assignment from incompatible pointer type
-> > buffer.c:410: warning: passing arg 2 of `d_path' from incompatible pointer type
-> > buffer.c:420: warning: passing arg 1 of `mntput' from incompatible pointer type
 > 
-> s/struct vfsmnt/struct vfsmount/
+> 
+> On Fri, 30 Nov 2001, Mike Fedyk wrote:
+> 
+> > This is Linux-Kernel.  Each developer is on their own on how they pay the
+> > their bills.  The question is... Why not accept a *driver* that *works* but
+> > the source doesn't look so good?
+> 
+> Because this "works" may very well include exploitable buffer overruns in
+> kernel mode.  I had seen that - ioctl() assuming that nobody would pass
 
-Doh!
+And: bad code spreads.  Anyone who has done infrastructure change in the
+kernel sees this: people copy (presumed) working code.
 
-Simon-
+Hence I now lean towards "change EVERYTHING" rather than "wrap old source, add
+new", and "fix even if not broken", eg. my "set_bit needs a long" patch which
+also changed x86-specific code (where it doesn't matter).
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+Cheers,
+Rusty.
+-- 
+  Anyone who quotes me is an idiot. -- Rusty Russell.

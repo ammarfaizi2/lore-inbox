@@ -1,41 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319709AbSIMP6S>; Fri, 13 Sep 2002 11:58:18 -0400
+	id <S319699AbSIMP4N>; Fri, 13 Sep 2002 11:56:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319710AbSIMP6S>; Fri, 13 Sep 2002 11:58:18 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:1296 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S319709AbSIMP6R>;
-	Fri, 13 Sep 2002 11:58:17 -0400
-Date: Fri, 13 Sep 2002 09:00:26 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <andy@chaos.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Extracting CONFIG_IKCONFIG data from 2.4.19-ac4
-In-Reply-To: <slrnao3r8m.si3.abuse@madhouse.demon.co.uk>
-Message-ID: <Pine.LNX.4.33L2.0209130859450.4465-100000@dragon.pdx.osdl.net>
+	id <S319704AbSIMP4N>; Fri, 13 Sep 2002 11:56:13 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:42761 "EHLO zeus.domdv.de")
+	by vger.kernel.org with ESMTP id <S319699AbSIMP4L>;
+	Fri, 13 Sep 2002 11:56:11 -0400
+Message-ID: <3D820BC9.5080207@domdv.de>
+Date: Fri, 13 Sep 2002 18:01:13 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Thunder from the hill <thunder@lightweight.ods.org>
+CC: Bob_Tracy <rct@gherkin.frus.com>, dag@brattli.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.34: IR __FUNCTION__ breakage
+References: <Pine.LNX.4.44.0209121414570.10048-100000@hawkeye.luckynet.adm>
+X-Enigmail-Version: 0.65.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Sep 2002, Andrew Bray wrote:
 
-| I am using kernel 2.4.19-ac4 and I have been looking at using
-| CONFIG_IKCONFIG to record the configuration in the kernel image.
-|
-| I have a question about this:
-|
-| There is a handy looking script in scripts/extract-ikconfig.  This
-| uses a command called 'binoffset'.  I have never heard of this, can
-| anyone point me to a source of binoffset, or an alternative to
-| extract-ikconfig?
 
-Yes, binoffset.c is here:
-  http://www.osdl.org/archive/rddunlap/patches/
+Thunder from the hill wrote:
+> Hi,
+> 
+> On Thu, 12 Sep 2002, Bob_Tracy wrote:
+> 
+>>define DERROR(dbg, args...) \
+>>	{if(DEBUG_##dbg){\
+>>		printk(KERN_INFO "irnet: %s(): ", __FUNCTION__);\
+>>		printk(KERN_INFO args);}}
+>>
+>>which strikes me as not quite what the author intended, although it
+>>should work.
+> 
+> 
+> Why not
+> 
+> #define DERROR(dbg, fmt, args...) \
+> 	do { if (DEBUG_##dbg) \
+> 		printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION, args); \
+> 	} while(0)
+> 
+> ?
+> 
+> 			Thunder
+
+At least for gcc 3.2 this would be better:
+
+#define DERROR(dbg, fmt, args...) \
+     do { if (DEBUG_##dbg) \
+         printk(KERN_INFO "irnet: %s(): " fmt, __FUNCTION__, ##args); \
+     } while(0)
+
+Unfortunately this doesn't work with gcc 2.95.3.
 
 -- 
-~Randy
-"Linux is not a research project. Never was, never will be."
-  -- Linus, 2002-09-02
+Andreas Steinmetz
+D.O.M. Datenverarbeitung GmbH
 

@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130515AbRCIR6L>; Fri, 9 Mar 2001 12:58:11 -0500
+	id <S129749AbRCIRxB>; Fri, 9 Mar 2001 12:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130517AbRCIR6C>; Fri, 9 Mar 2001 12:58:02 -0500
-Received: from hank-fep8-0.inet.fi ([194.251.242.203]:6597 "EHLO
-	fep08.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S130515AbRCIR5p>; Fri, 9 Mar 2001 12:57:45 -0500
-Message-ID: <3AA918CF.DBCF3D6@pp.inet.fi>
-Date: Fri, 09 Mar 2001 19:54:23 +0200
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18aa2 i686)
-X-Accept-Language: en
+	id <S130471AbRCIRww>; Fri, 9 Mar 2001 12:52:52 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:2012 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129749AbRCIRwl>;
+	Fri, 9 Mar 2001 12:52:41 -0500
+Date: Fri, 9 Mar 2001 12:51:57 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Andries Brouwer <aeb@veritas.com>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Ramdisk (and other) problems with 2.4.2
+In-Reply-To: <Pine.LNX.4.33.0103091449580.6037-100000@mikeg.weiden.de>
+Message-ID: <Pine.GSO.4.21.0103091232150.14558-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Thomas Sailer <sailer@ife.ee.ethz.ch>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jari Anttonen <jari.anttonen@nic.fi>
-Subject: [PATCH] 2.2.19pre hfmodem/refclock.c asm statement error
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/char/hfmodem/refclock.c fails to compile with "gcc version 2.95.2
-20000220 (Debian GNU/Linux)", but compiles normally with "gcc version
-2.7.2.3". GNU assembler 2.9.5 was used in both cases. Here is the error
-message:
 
-refclock.c: In function `hfmodem_refclock_current':
-refclock.c:136: Invalid `asm' statement:
-refclock.c:136: fixed or forbidden register 0 (ax) was spilled for class AREG.
 
-Here is the offending line:
-__asm__("mull %2" : "=d" (tmp2), "=a" (tmp4) : "m" (scale_rdtsc), "1" (tmp0) : "ax");
+On Fri, 9 Mar 2001, Mike Galbraith wrote:
 
-It appears that above code declares register eax as output and globbered
-register simultaneously. My gcc docs say: "You may not write a clobber
-description in a way that overlaps with an input or output operand." Below
-is a patch against 2.2.19pre16 to fix this. Please consider applying.
+> I think I've figured it out.. at least I've found a way to reproduce
+> the exact errors to the last detail and some pretty nasty corruption
+> to go with it.  The operator must help though.. a lot ;-)
+> 
+> If you do mount -o remount /dev/somedisk / thinking that that will get
+> rid of your /dev/ram0 root, that isn't the case, and you will corrupt
+> the device you remounted (I did it to a scratch monkey) very badly when
+> you write to the still mounted ramdisk.
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
+Ugh. mount -o remount ignores dev_name argument. It will change the
+flags of fs mounted from /dev/ram0 and will not even touch a /dev/somedisk.
+If you write to device you have mounted... Well, don't expect it to be pretty.
 
---- linux-2.2.19pre16/drivers/char/hfmodem/refclock.c	Tue Jan  4 20:12:14 2000
-+++ linux/drivers/char/hfmodem/refclock.c	Fri Mar  9 17:59:31 2001
-@@ -133,7 +133,7 @@
- 			"subl %2,%%eax\n\t"
- 			"sbbl %3,%%edx\n\t" : "=&a" (tmp0), "=&d" (tmp1) 
- 			: "m" (dev->clk.starttime_lo), "m" (dev->clk.starttime_hi));
--		__asm__("mull %2" : "=d" (tmp2), "=a" (tmp4) : "m" (scale_rdtsc), "1" (tmp0) : "ax");
-+		__asm__("mull %2" : "=d" (tmp2), "=a" (tmp4) : "m" (scale_rdtsc), "1" (tmp0));
- 		__asm__("mull %1" : "=a" (tmp3) : "m" (scale_rdtsc), "a" (tmp1) : "dx");
- 		curtime = tmp2 + tmp3;
- 		goto time_known;
+> You must exec a shell (or something) chrooted to your mounted harddisk
+> to un-busy the old root and then pivot_root/unmount that old root.  I
+> tested this, and all is well.
+> 
+> I think this is a consequence of the multiple mount changes.. not sure.
+> (ergo cc to Al Viro.. he knows eeeeverything about mount points)
+
+I _really_ doubt that it has anything to multiple mounts. mount -o remount
+never unmounts anything. Never did. The rest is an obvious result - you
+leave fs mounted, you do direct write to its device, you see it fucked.
+The fact that it is a root doesn't matter. Relevant part of manpage:
+              remount
+                     Attempt  to  remount an already-mounted file
+                     system.  This is commonly used to change the
+                     mount flags for a file system, especially to
+                     make a readonly file system writeable.
+Hmm... Might be cleaner. IMO
+                     Attempt  to  change the mount flags of
+                     already-mounted file system.  This is commonly
+                     used to make a readonly file system writeable.
+would be less confusing. Andries, your comments?
+							Cheers,
+								Al
+(fully expecting a long rant from Richard declaring that -o remount had
+_always_ been used to mount a different fs and both ANSI C standard and
+X-files fan guide mention it somewhere ;-)
+

@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266116AbTLIUXd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 15:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266098AbTLIUXB
+	id S266098AbTLIU0u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 15:26:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbTLIU0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 15:23:01 -0500
-Received: from mail.kroah.org ([65.200.24.183]:20953 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265173AbTLIUVC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 15:21:02 -0500
-Date: Tue, 9 Dec 2003 12:19:33 -0800
-From: Greg KH <greg@kroah.com>
-To: Svetoslav Slavtchev <svetljo@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Badness in kobject_get at lib/kobject.c:439
-Message-ID: <20031209201933.GA13882@kroah.com>
-References: <9528.1070977894@www16.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 9 Dec 2003 15:26:19 -0500
+Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:57984
+	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S266123AbTLIUYr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 15:24:47 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Date: Tue, 9 Dec 2003 21:24:45 +0100
+User-Agent: KMail/1.5.4
+Cc: David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
+       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0312091057150.1033-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0312091057150.1033-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <9528.1070977894@www16.gmx.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200312092124.45224.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 02:51:34PM +0100, Svetoslav Slavtchev wrote:
-> 
-> Call Trace: [<c017fb84>]  [<c01991f2>]  [<c01995b4>]  [<c01dd15d>] 
-> [<c01cbabc>]
->   [<c01cbca8>]  [<c0337fd8>]  [<c03306ce>]  [<c01050b4>]  [<c0105082>] 
-> [<c01091f1>]
+> Here's how I see it.
+>
+> dev->serialize is meant to protect significant state changes, things like
+> set_configuration and device disconnect.  ps->devsem is meant to protect
+> against usbfs trying to do two things to the device at the same time.
 
-Can you enable CONFIG_KALLSYMS in your .config, rebuild, and then report
-the decoded oops message?
+Actually no: it is a read lock and all routines take it with down_read except
+for the disconnect routine.  So it is only there to guard against disconnect.
 
-Also a copy of your .config you are using that generates this would be
-appreciated.
+> But you also want to protect against usbfs using the device during a state
+> change.  (The normal protection mechanisms don't work because usbfs might
+> be using a device without having a driver bound to any of its interfaces.)
+> Given that, there's no reason usbfs shouldn't just use serialize instead
+> of devsem.
+>
+> The fact that the core calls driver_disconnect with serialize already held
+> then just makes your life simpler: You don't need to acquire the lock
+> yourself!
+>
+> The only tricky part is that you have to release serialize (which now is
+> your only lock) before calling set_configuration.  But as you said, you
+> would have to release ps->devsem anyway, so nothing's lost there.
+>
+> Anything wrong with this approach?
 
-Odds are you are using a misc driver that happens to be calling
-misc_register() before misc_init() gets called.  Others are reporting
-this issue with the rtc driver on ppc64 boxes.
+Nothing - that is exactly what my patch does.  And it works... except
+for the Oops in usb_put_dev.
 
-thanks,
+All the best,
 
-greg k-h
+Duncan.

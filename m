@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbUCBXhL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 18:37:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbUCBXhL
+	id S261726AbUCBXgj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 18:36:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbUCBXgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 18:37:11 -0500
-Received: from alt.aurema.com ([203.217.18.57]:10145 "EHLO smtp.sw.oz.au")
-	by vger.kernel.org with ESMTP id S261790AbUCBXg5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 18:36:57 -0500
-Message-ID: <40451A92.5040105@aurema.com>
-Date: Wed, 03 Mar 2004 10:36:50 +1100
-From: Peter Williams <peterw@aurema.com>
-Organization: Aurema Pty Ltd
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andy Lutomirski <luto@myrealbox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
-References: <fa.jgj0bdi.b3u6qk@ifi.uio.no> <404297D1.5010301@myrealbox.com>
-In-Reply-To: <404297D1.5010301@myrealbox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Mar 2004 18:36:39 -0500
+Received: from fed1mtao01.cox.net ([68.6.19.244]:50316 "EHLO
+	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S261726AbUCBXgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 18:36:37 -0500
+Date: Tue, 2 Mar 2004 16:36:35 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: George Anzinger <george@mvista.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kgdb-bugreport@lists.sourceforge.net, amit@av.mvista.com,
+       Pavel Machek <pavel@suse.cz>
+Subject: Re: [Kgdb-bugreport] [KGDB][RFC] Send a fuller T packet
+Message-ID: <20040302233635.GM20227@smtp.west.cox.net>
+References: <20040302220233.GG20227@smtp.west.cox.net> <404518AD.40606@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <404518AD.40606@mvista.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski wrote:
-> <snip>
-> Ignoring limts, this should be just an exercise in keeping track of 
-> shares and eliminating the 1/420 limit in precision.  It would take some 
-> thought to figure out what nice should do.
- > <snip>
+On Tue, Mar 02, 2004 at 03:28:45PM -0800, George Anzinger wrote:
 
-I take it from this comment that you would like to see a larger range of 
-shares made available?
+> Tom Rini wrote:
+> >Hello.  Since a 'T' packet is allowed to send back information on an
+> >arbitrary number of registers, and on PPC32 we've always been including
+> >information on the stack pointer and program counter, I was wondering
+> >what people thought of the following patch:
+> >
+> >diff -u linux-2.6.3/include/asm-x86_64/kgdb.h 
+> >linux-2.6.3/include/asm-x86_64/kgdb.h
+> >--- linux-2.6.3/include/asm-x86_64/kgdb.h	2004-02-27 
+> >11:30:37.445782703 -0700
+> >+++ linux-2.6.3/include/asm-x86_64/kgdb.h	2004-03-02 
+> >14:42:47.854532793 -0700
+> >@@ -48,6 +48,10 @@
+> > /* Number of bytes of registers.  */
+> > #define NUMREGBYTES (_LASTREG*8)
+> > 
+> >+#define PC_REGNUM	_PC	/* Program Counter */
+> >+#define SP_REGNUM	_RSP	/* Stack Pointer */
+> >+#define PTRACE_PC	rip	/* Program Counter, in ptrace regs. */
+> 
+> I would really like to keep this stuff out of kgdb.h since it may be 
+> included by the user to pick up the BREAKPOINT() (which, by the way we 
+> should standardize as I note that here it has () while not on the current 
+> x86).
 
-The current range (1 to 420) was chosen to allow easy mapping between 
-niceness and shares and so that minimum shares was roughly the same 
-times smaller than the default as the maximum was bigger (i.e. twenty 
-times).  One of the restrictions on the number of shares is the dynamic 
-range of the representation of real numbers that we use for our 
-calculations.  We use fixed denominator rational numbers with a 
-denominator of 2 to the power of 27.  This value was chosen because the 
-maximum (real number) value that we have to be able to cope with in our 
-calculations is 19 and we are limited to using 32 bits because we need 
-to do a divide and 64 bit division is not supported in the kernel on all 
-hardwares (in particular, the IA32 kernels do not support 64 bit 
-division).  The other factors that have to be taken into consideration 
-are the half life and the value of HZ (which varies widely depending on 
-the system).
+It's BREAKPOINT() everywhere:
+$ grep BREAKPOINT include/asm-*/kgdb.h
+include/asm-i386/kgdb.h:#define BREAKPOINT() asm("   int $3");
+include/asm-ppc/kgdb.h:#define BREAKPOINT()             asm(".long 0x7d821008") /* twge r2, r2 */
+include/asm-x86_64/kgdb.h:#define BREAKPOINT() asm("   int $3");
 
-Anyway, I will look at the numbers and see if it's possible to squeeze a 
-larger range of shares in (although it may mean tighter restrictions on 
-half life on some systems).
+> Isn't there a kgdb_local.h which is used only by kdgd and friends?  We 
+> really do want to keep the name space as clean as possible to prevent 
+> possible conflicts.
 
-Peter
+The simple answer is you don't call BREAKPOINT() in your code anywhere.
+You call breakpoint() or kgdb_schedule_breakpoint().
+The split here is different in that <linux/kgdb.h> should be standalone
+(it's not, _yet_).
+
+But this is all an aside to my question. :)
+
 -- 
-Dr Peter Williams, Chief Scientist                peterw@aurema.com
-Aurema Pty Limited                                Tel:+61 2 9698 2322
-PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
-79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
-
+Tom Rini
+http://gate.crashing.org/~trini/

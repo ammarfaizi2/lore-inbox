@@ -1,72 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266322AbUAOAVA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jan 2004 19:21:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266329AbUAOAVA
+	id S266339AbUAOAnd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jan 2004 19:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266312AbUAOAm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jan 2004 19:21:00 -0500
-Received: from gprs214-23.eurotel.cz ([160.218.214.23]:30338 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S266322AbUAOAUm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jan 2004 19:20:42 -0500
-Date: Thu, 15 Jan 2004 01:19:29 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: George Anzinger <george@mvista.com>
-Cc: Greg KH <greg@kroah.com>, Matt Mackall <mpm@selenic.com>,
-       "Amit S. Kale" <amitkale@emsyssoft.com>, Andrew Morton <akpm@osdl.org>,
-       jim.houston@comcast.net, discuss@x86-64.org, ak@suse.de,
-       shivaram.upadhyayula@wipro.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
-Message-ID: <20040115001928.GD308@elf.ucw.cz>
-References: <000e01c3d476$2ebe03a0$4008720a@shivram.wipro.com> <200401101611.53510.amitkale@emsyssoft.com> <400237F0.9020407@mvista.com> <200401122020.08578.amitkale@emsyssoft.com> <40046296.1050702@mvista.com> <20040114063155.GF28521@waste.org> <4005A03A.40409@mvista.com> <20040114232631.GB9983@kroah.com> <4005D8A5.3010002@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4005D8A5.3010002@mvista.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Wed, 14 Jan 2004 19:42:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51598 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265200AbUAOAmK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jan 2004 19:42:10 -0500
+Message-ID: <4005E1D4.6040807@pobox.com>
+Date: Wed, 14 Jan 2004 19:41:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Courtier-Dutton <James@superbug.demon.co.uk>
+CC: andersen@codepoet.org, Greg Stark <gsstark@mit.edu>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org, mplayer@jburgess.uklinux.net
+Subject: Re: Serial ATA (SATA) for Linux status report
+References: <20031203204445.GA26987@gtf.org> <87hdyyxjgl.fsf@stark.xeocode.com> <20040114225653.GA32704@codepoet.org> <4005D141.7050408@superbug.demon.co.uk>
+In-Reply-To: <4005D141.7050408@superbug.demon.co.uk>
+Content-Type: multipart/mixed;
+ boundary="------------080701060506030409060206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------080701060506030409060206
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> >>Right.  I had hoped that we might one day be able to use the USB and I am 
-> >>sure there are others.
-> >
-> >
-> >Raw USB?  Or some kind of USB to serial device?
-> >
-> >Remember, USB needs interrupts to work, see the kdb patches for the mess
-> >that people have tried to go through to send usb data without interrupts
-> >(doesn't really work...)
-> 
-> I gave up on USB when I asked the following questions:
-> 1. How many different HW USB master devices need to be supported (i.e. 
-> appear on your normal line of MBs)? (answer, too many)
-> 2. Can I isolate a USB port from the kernel so that it does not even know 
-> it is there? (answer: NO)
-> 
-> What I want is a USB port that is completely coded in kgdb software (keeps 
-> Heisenberg out).  It would be a polled device except for the ^C (or 
-> equivalent) interrupt.
-> 
-> We, of course, have the same issues with the eth interface.  Far too much 
-> of the rest of the kernel is involved in the communications with it.  Also 
-> there are way to many interfaces to code each one seperatly, thus the 
-> current effort using a good deal of the kernel to remove all that special 
-> code.  Of course Heisenberg and all his friends and relations are taking up 
-> residence in that code :)  Might not be too bad except that his uncle is 
-> Murphy.
 
-I believe that usb only has UHCI, OHCI and EHCI drivers, the rest are
-devices, but ?HCI is evil enough that ethernet looks like "nice and
-easy" interface.
+I'm pretty sure the "excessive interrupts" issue was successfully 
+tracked down by Jon Burgess (thanks!).  He found this post describing an 
+ICH5 hardware issue,
+http://www.mail-archive.com/freebsd-stable@freebsd.org/msg58421.html
 
-BTW it is not using that much of eth infrastructure, just the
-driver. It should be possible to dedicate one ethernet to kgdb,
-only...
+and he also submitted the attached patch.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+I've been meaning to rewrite his patch to isolate it more to ata_piix, 
+but in the meantime maybe folks could test this?
+
+	Jeff
+
+
+
+
+--------------080701060506030409060206
+Content-Type: text/plain;
+ name="libata-spurious2.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libata-spurious2.diff"
+
+--- libata-core.c-orig	2003-12-07 01:54:19.000000000 +0000
++++ libata-core.c	2003-12-07 16:25:11.961806872 +0000
+@@ -2386,6 +2386,37 @@
+ }
+ 
+ /**
++ *	ata_chk_spurious_int - Check for spurious interrupts
++ *	@ap: port to which command is being issued
++ *
++ *	Examines the DMA status registers and clears
++ *      unexpected interrupts
++ *
++ *	LOCKING:
++ */
++static inline void ata_chk_spurious_int(struct ata_port *ap) {
++	int host_stat;
++	
++	if (ap->flags & ATA_FLAG_MMIO) {
++		void *mmio = (void *) ap->ioaddr.bmdma_addr;
++		host_stat = readb(mmio + ATA_DMA_STATUS);
++	} else
++		host_stat = inb(ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
++	
++	if ((host_stat & (ATA_DMA_INTR | ATA_DMA_ERR | ATA_DMA_ACTIVE)) == ATA_DMA_INTR) {
++		if (ap->flags & ATA_FLAG_MMIO) {
++			void *mmio = (void *) ap->ioaddr.bmdma_addr;
++			writeb(host_stat & ~ATA_DMA_ERR, mmio + ATA_DMA_STATUS);
++		} else
++			outb(host_stat & ~ATA_DMA_ERR, ap->ioaddr.bmdma_addr + ATA_DMA_STATUS);
++		
++		DPRINTK("ata%u: Caught spurious interrupt, status 0x%X\n", ap->id, host_stat);
++		udelay(1);
++	}
++}
++
++
++/**
+  *	ata_interrupt -
+  *	@irq:
+  *	@dev_instance:
+@@ -2417,6 +2448,7 @@
+ 			qc = ata_qc_from_tag(ap, ap->active_tag);
+ 			if (qc && ((qc->flags & ATA_QCFLAG_POLL) == 0))
+ 				handled += ata_host_intr(ap, qc);
++			ata_chk_spurious_int(ap);
+ 		}
+ 	}
+ 
+
+--------------080701060506030409060206--
+

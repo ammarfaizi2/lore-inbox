@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267160AbTAKINl>; Sat, 11 Jan 2003 03:13:41 -0500
+	id <S267162AbTAKIUx>; Sat, 11 Jan 2003 03:20:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267162AbTAKINl>; Sat, 11 Jan 2003 03:13:41 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:23314 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S267160AbTAKINi>; Sat, 11 Jan 2003 03:13:38 -0500
-Date: Sat, 11 Jan 2003 08:22:23 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: GertJan Spoelman <kl@gjs.cc>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] i2c-isa and w83871d sensors support
-Message-ID: <20030111082222.A20116@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	GertJan Spoelman <kl@gjs.cc>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200212280303.gBS33o628113@hera.kernel.org> <1041076002.1485.2.camel@laptop.fenrus.com> <20021228123655.A31843@infradead.org> <200301051844.55795.kl@gjs.cc>
-Mime-Version: 1.0
+	id <S267164AbTAKIUw>; Sat, 11 Jan 2003 03:20:52 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:34834
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267162AbTAKIUw>; Sat, 11 Jan 2003 03:20:52 -0500
+Date: Sat, 11 Jan 2003 00:27:32 -0800 (PST)
+From: Andre Hedrick <andre@pyxtechnologies.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: More on Linux and iSCSI [info, not flame :)]
+In-Reply-To: <20030111081440.GU14778@waste.org>
+Message-ID: <Pine.LNX.4.10.10301110020440.31168-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200301051844.55795.kl@gjs.cc>; from kl@gjs.cc on Sun, Jan 05, 2003 at 06:44:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 05, 2003 at 06:44:55PM +0100, GertJan Spoelman wrote:
-> This patch adds the i2c-isa pseudo ISA adapter and the w8387* series
-> sensors support to 2.5.54 (tested on bk1 and bk3).
+On Sat, 11 Jan 2003, Oliver Xymoron wrote:
+
+> On Sat, Jan 11, 2003 at 12:01:05AM -0800, Andre Hedrick wrote:
+> > 
+> > Oliver et al.
+> > 
+> > http://downloadfinder.intel.com/scripts-df/filter_results.asp?strOSs=19%2C24%2C39&strTypes=DRV%2CFRM%2CUTL&ProductID=844&OSFullName=&submit=Go%21
+> > http://downloadfinder.intel.com/scripts-df/proc/T8Clearance.asp?url=/4461/eng/Zama2_1.0.8_Linux_42715.tgz&agr=N
+> > 
+> > This self extracting file contains the firmware and software for the 
+> > upgrading to 0.8 iSCSI specification.
+> > 
+> > I own this product, and have to install RH 7.1 w/ 2.4.2 kernels to use and
+> > test with it.
 > 
-> I've just took the code from the lm_sensor package and changed it
-> to be more or less consistent with the lm75 and amd* patches Christoph
-> has done.
-> Christoph, maybe you could check this because I don't really understand
-> all of the code and maybe it needs some more changes.
+> Which means, like every other binary module, it's pretty much
+> worthless. Though I'm guessing that's not the point you're trying to
+> make.
+> 
+> (For the record, there's not much value in iSCSI NICs, or TCP offload
+> in general at the moment, except to avoid potential deadlock issues
+> with trying to do network buffer allocation down in the block layer)
 
-Looks fine in principle.  A few nitpicks:
+Well if you restrict the transport of the protocol to on Network Fabric,
+you have a small point.  However moving off the Network stack to MPI
+transports is real power of the protocol.  Classic example is the IBM
+iSCSI Shark running Linux, and where are the their drivers?  Recall they
+are the "Peace, Love, Linux" company.  However, transports like Myrinet,
+SCI, Quads, etc ... are the place to be for local SAN banks.
 
-> +static struct i2c_algorithm isa_algorithm = {
-> +	.name		= "ISA bus algorithm",
-> +	.id		= I2C_ALGO_ISA,
-> +	.smbus_xfer	= NULL,
-> +	.functionality	= &isa_func,
-> +};
+When NIC's or TOEs support native ipsec, have a CRC32C offload core, and a
+few other issues them they will have value.
 
-There's no need to initialize a struct member to zero/NULL.
+All the ones I have tested or seen, offload the network stack, do not
+support ipsec or handle the CRC32C offload.
 
-> +static int __init isa_init(void)
-> +{
-> +	int res;
-> +	if (isa_initialized) {
-> +		pr_debug(DRV_NAME
-> +		    ": i2c-isa.o: Oops, isa_init called a second time!\n");
-> +		return -EBUSY;
-> +	}
-> +	isa_initialized = 0;
-> +	if ((res = i2c_add_adapter(&isa_adapter))) {
-> +		printk(KERN_ERR DRV_NAME
-> +		       ": Adapter registration failed, module not inserted\n.");
-> +		isa_cleanup();
-> +		return res;
-> +	}
-> +	isa_initialized++;
-> +	printk("i2c-isa.o: ISA bus access for i2c modules initialized.\n");
-> +	return 0;
+Only the MPI fabric cards provide the tools desired.
 
-Please remove the <foo>_initialized handling.  It just obsfucates the code.
+Cheers,
 
-> +static void __exit isa_exit(void)
-> +{
-> +	isa_cleanup();
-> +}
-
-Just move the code from isa_cleanup into isa_exit directly.
+Andre Hedrick, CTO & Founder 
+iSCSI Software Solutions Provider
+http://www.PyXTechnologies.com/
 

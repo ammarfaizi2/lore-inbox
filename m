@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVBYQxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVBYQxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbVBYQxr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 11:53:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVBYQxr
+	id S262742AbVBYQxj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 11:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbVBYQxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 11:53:47 -0500
-Received: from web51502.mail.yahoo.com ([206.190.38.194]:60091 "HELO
-	web51502.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262743AbVBYQwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 11:52:41 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=UiOy+FicfasDxByUf3m06zqua1Fi5NqXIi/++52J9K0GyMzXV+q/DEpg//rts/N3iTvY4LWuWJV6Djd5gS6sg3xWVjORNeghRKgVukix5tBHuke90SdsVmDDe15WIDBo0c6bNM2+5aQeHO+/cHa9mMTR/JPhAF+9TsazL3JCWQc=  ;
-Message-ID: <20050225165240.69376.qmail@web51502.mail.yahoo.com>
-Date: Fri, 25 Feb 2005 08:52:40 -0800 (PST)
-From: Park Lee <parklee_sel@yahoo.com>
-Subject: What's the purpose of ip_route_output_flow()?
-To: netdev@oss.sgi.com
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Feb 2005 11:53:38 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:21434 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262742AbVBYQvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 11:51:42 -0500
+Message-Id: <200502251649.j1PGnL5w006570@laptop11.inf.utfsm.cl>
+To: linux-os@analogic.com
+cc: Payasam Manohar <pmanohar@lantana.cs.iitm.ernet.in>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Invalid module format in Fedora core2 
+In-Reply-To: Message from linux-os <linux-os@analogic.com> 
+   of "Fri, 25 Feb 2005 10:53:44 CDT." <Pine.LNX.4.61.0502251031170.626@chaos.analogic.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
+Date: Fri, 25 Feb 2005 13:49:21 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 25 Feb 2005 13:49:21 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  Would you please tell me what the purpose of
-ip_route_output_flow() is? and What the differences
-between it and ip_route_output_key() are?
+linux-os <linux-os@analogic.com> said:
+> On Fri, 25 Feb 2005, Payasam Manohar wrote:
+> > I tried to insert a sample module into Fedora core 2 , But it is giving
+> > an error message that " no module in the object"
+> > The same module was inserted successfully into Redhat linux 9.
 
-  Thank you.
+> > Is there any changes from RH 9 to Fedora Core 2 with respect to the module 
+> > writing and insertion.
 
+> Yes. Fedora Core 2 should have the new module tools. It also has
+> a new kernel. These new kernels load a module called "module.ko"
+> instead of "module.o".
 
-=====
-Best Regards,
-Park Lee
+Right up to here.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+>                        Inside the new module is some code used
+> to obfuscate the new module mechanism where 'insmod' and friends
+> has been moved inside the kernel, further bloating the kernel
+
+AFAIR, the resulting code in-kernel is even smaller than before, and diong
+it in-kernel is the only sane way to avoid all kinds of nasty races.
+
+> and, incidentally, making it necessary for modules to be
+> "politically correct", i.e., policy moved into the kernel.
+
+Is this FUD really necesary?
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

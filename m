@@ -1,74 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313900AbSDJV41>; Wed, 10 Apr 2002 17:56:27 -0400
+	id <S313902AbSDJV77>; Wed, 10 Apr 2002 17:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313904AbSDJV40>; Wed, 10 Apr 2002 17:56:26 -0400
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:60098 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S313900AbSDJV4W>; Wed, 10 Apr 2002 17:56:22 -0400
-Subject: Re: Cannot compile mandrake 8.2 Kernel
-From: Steven Cole <elenstev@mesatop.com>
-To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0204101505220.5649-100000@rtlab.med.cornell.edu>
+	id <S313904AbSDJV76>; Wed, 10 Apr 2002 17:59:58 -0400
+Received: from pacman.mweb.co.za ([196.2.45.77]:18400 "EHLO pacman.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S313902AbSDJV75>;
+	Wed, 10 Apr 2002 17:59:57 -0400
+Subject: Re: 2.5.8-pre2: preempt: exits with preempt_count 1
+From: Bongani <bonganilinux@mweb.co.za>
+To: Robert Love <rml@tech9.net>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1018463295.6681.18.camel@phantasy>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 10 Apr 2002 15:52:43 -0600
-Message-Id: <1018475564.17571.10.camel@spc.esa.lanl.gov>
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 11 Apr 2002 00:14:34 +0200
+Message-Id: <1018476875.6315.1.camel@localhost.localdomain>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-04-10 at 13:10, Calin A. Culianu wrote:
+On Wed, 2002-04-10 at 20:28, Robert Love wrote:
+> On Wed, 2002-04-10 at 08:53, Duncan Sands wrote:
 > 
-> The stupid mandrake 8.2 kernel (2.4.18-mdk6) won't compile.  I know,
-> mandrake is kind of a newbie distro, but I needed to mess with that kernel
-> for some reason (don't ask).
+> > error: halt[411] exited with preempt_count 1
+> > 
+> > This was after about 24 hours of up time.  What can I do to help
+> > track down this locking problem?
 > 
-> Anyway it gets errors like the following then you do make modules.  I
-> notices someone else also had the exact same problem.. also below is
-> preprocessor output from that compile... I think the problem is due to
-> some of the exported kernel symbols containing parens...:
+> It is not a big deal.  The issue is that in the system shutdown code,
+> something does not release a lock but just figures "the system is going
+> down, what is the point?"  It is probably the BKL ...
 > 
+> For the sake of code readability and having nothing quit with a nonzero
+> preempt_count, we should explicitly drop the lock, but it is not hurting
+> anything (now, if you get this message elsewhere, there may be a
+> problem).
 > 
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.18-6mdk-rtl/include  -Wall
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fno-common -fomit-frame-pointer
-> -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE -DMODVERSIONS
-> -include /usr/src/linux-2.4.18-6mdk-rtl/include/linux/modversions.h
-> -DKBUILD_BASENAME=loop  -DEXPORT_SYMTAB -c loop.c
-> In file included from
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/prefetch.h:13,
->                  from
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/list.h:6,
->                  from
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:12,
-> from loop.c:64:
-> /usr/src/linux-2.4.18-6mdk-rtl/include/asm/processor.h:51: warning:
-> parameter names (without types) in function declaration
-> /usr/src/linux-2.4.18-6mdk-rtl/include/asm/processor.h:51: field
-> `loops_per_jiffy_R_ver_str' declared as a function
-> In file included from loop.c:64:
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-> number and not hexadecimal
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-> number and not hexadecimal
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-> number and not hexadecimal
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: nondigits in
-> number and not hexadecimal
-> /usr/src/linux-2.4.18-6mdk-rtl/include/linux/module.h:183: parse error
+> I am trying to find what is the cause but I have not tracked it down yet
 
-[other errors snipped]
+This is also still happening on 2.4.19-pre6 + preempt 
 
-I was able to reproduce this, but then I remembered Jeff Garzik's advice
-to always do a make mrproper (that applied to Alan's trees) when you see
-this kind of thing.  So, I saved the Mandrake supplied .config somewhere
-safe, did a make mrproper, copied the .config back, did make oldconfig,
-make dep, make -j3 bzImage (dual PIII machine), and make modules.  The
-first time, without the make mrproper, the failure occurred almost
-immediately, and now make modules has been cranking away for quite a
-while, so it should be OK.  Good luck.
 
-Steven
+> ...
+
+> 
+> 	Robert Love
+
+
+
+
+
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 

@@ -1,54 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVCIK3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVCIKgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVCIK3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 05:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVCIK27
+	id S262296AbVCIKgD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 05:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVCIKeX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 05:28:59 -0500
-Received: from colin2.muc.de ([193.149.48.15]:50449 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262275AbVCIK2g (ORCPT
+	Wed, 9 Mar 2005 05:34:23 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:7050 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262296AbVCIKa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 05:28:36 -0500
-Date: 9 Mar 2005 11:28:30 +0100
-Date: Wed, 9 Mar 2005 11:28:30 +0100
-From: Andi Kleen <ak@muc.de>
-To: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] -stable, how it's going to work.
-Message-ID: <20050309102830.GA76065@muc.de>
-References: <20050309072833.GA18878@kroah.com> <m1sm35w3am.fsf@muc.de> <1110363060.6280.74.camel@laptopd505.fenrus.org> <20050309101728.A17289@flint.arm.linux.org.uk>
+	Wed, 9 Mar 2005 05:30:59 -0500
+Date: Wed, 9 Mar 2005 11:30:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Roberts-Thomson, James" <James.Roberts-Thomson@NBNZ.CO.NZ>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug: ll_rw_blk.c, elevator.c and displaying "default" IO Schedule r at boot-time (Cosmetic only)
+Message-ID: <20050309103053.GK28855@suse.de>
+References: <40BC5D4C2DD333449FBDE8AE961E0C330360F8E3@psexc03.nbnz.co.nz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050309101728.A17289@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <40BC5D4C2DD333449FBDE8AE961E0C330360F8E3@psexc03.nbnz.co.nz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 10:17:28AM +0000, Russell King wrote:
-> On Wed, Mar 09, 2005 at 11:10:59AM +0100, Arjan van de Ven wrote:
-> > On Wed, 2005-03-09 at 10:56 +0100, Andi Kleen wrote:
-> > > One rule I'm missing:
-> > > 
-> > > - It must be accepted to mainline. 
-> > > 
-> > 
-> > I absolutely agree with Andi on this one.
+On Wed, Mar 09 2005, Roberts-Thomson, James wrote:
+> Hi,
 > 
-> What about the case (as highlighted in previous discussions) that the
-> stable tree needs a simple "dirty" fix, whereas mainline takes the
-> complex "clean" fix?
+> I've been trying to investigate an IO performance issue on my machine, as
+> part of this I've noticed what is (presumably only a cosmetic) issue with
+> the messages displayed at kernel boot-time.
+> 
+> In the "good old days" (i.e. older 2.6.x kernel versions), one of the many
+> messages displayed at kernel boot-time was "elevator: using XXX as default
+> io scheduler", where XXX was one of the IO schedulers (cfq, anticipatory,
+> deadline, etc) depending on kernel .config at compile time.
+> 
+> I noticed in 2.6.11, this message has vanished (although this may have
+> happened in an earlier kernel), and I now get some messages "io scheduler
+> XXX registered".  Unfortunately, the "default" scheduler is no longer
+> tagged.
 
-That's ok, as long as the maintainers agree it's an equivalent fix
+Does this work?
 
-What should just be ruled out is something getting fixed in stable
-and not getting fixed in mainline. And the mainline patch should
-always go in first and preferably tested for a short time there.
+--- 2.6.11/drivers/block/elevator.c	2005-01-22 15:22:55.000000000 +1100
++++ test/drivers/block/elevator.c	2005-01-31 22:38:36.000000000 +1100
+@@ -180,6 +180,8 @@
+ 
+ __setup("elevator=", elevator_setup);
+ 
++static int default_msg = 0;
++
+ int elevator_init(request_queue_t *q, char *name)
+ {
+ 	struct elevator_type *e = NULL;
+@@ -195,6 +197,12 @@
+ 	if (!e)
+ 		return -EINVAL;
+ 
++	if (!default_msg && !strcmp(e->elevator_name, chosen_elevator)) {
++		printk(KERN_INFO "using %s as default io scheduler\n",
++						chosen_elevator);
++		default_msg = 1;
++	}
++
+ 	eq = kmalloc(sizeof(struct elevator_queue), GFP_KERNEL);
+ 	if (!eq) {
+ 		elevator_put(e->elevator_type);
+@@ -513,10 +521,7 @@
+ 	list_add_tail(&e->list, &elv_list);
+ 	spin_unlock_irq(&elv_list_lock);
+ 
+-	printk(KERN_INFO "io scheduler %s registered", e->elevator_name);
+-	if (!strcmp(e->elevator_name, chosen_elevator))
+-		printk(" (default)");
+-	printk("\n");
++	printk(KERN_INFO "io scheduler %s registered\n", e->elevator_name);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(elv_register);
 
-But in general it is a judgement call: if the "big fix" is not too big
-or risky I would prefer the big fix just to avoid code drift.
-A custom fix for stable should be more the exception than the rule.
-
--Andi
+-- 
+Jens Axboe
 

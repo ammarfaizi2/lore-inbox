@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUETVap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265115AbUETVdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265222AbUETVap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 17:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265278AbUETVap
+	id S265115AbUETVdU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 17:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265221AbUETVdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 17:30:45 -0400
-Received: from main.gmane.org ([80.91.224.249]:13485 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265222AbUETVao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 17:30:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jonas Wolz <jonas.wolz@freenet.de>
-Subject: Re: Sluggish performances with FreeBSD
-Date: Thu, 20 May 2004 23:22:47 +0200
-Message-ID: <c8j7ja$3u6$1@sea.gmane.org>
-References: <1085080302.7764.20.camel@caribou.no-ip.org>
+	Thu, 20 May 2004 17:33:20 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:20634 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S265115AbUETVdT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 17:33:19 -0400
+Date: Thu, 20 May 2004 23:33:12 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Gopikrishnan Sidhardhan <gs33@eng.buffalo.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Data loss on IDE drive after crash
+Message-ID: <20040520233312.B2172@electric-eye.fr.zoreil.com>
+References: <40AD0365.6040003@eng.buffalo.edu> <1085081357.2044.1.camel@cassius.public.buffalo.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: p5083c443.dip0.t-ipconnect.de
-User-Agent: KNode/0.7.6
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1085081357.2044.1.camel@cassius.public.buffalo.edu>; from gs33@eng.buffalo.edu on Thu, May 20, 2004 at 03:29:17PM -0400
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Goujon wrote:
-> [laptop with sis900 NIC]
-> My problem is :
-> I have very poor performances with tcp streams from my server to my
-> laptop (0.35 Mb/s), but throughput is normal from the laptop to the
-> server (90Mb/s) and also (my favorite one) from Internet to my laptop
-> (~4Mb/s).
-> When I'm running WinXP, all is quite normal.
+Gopikrishnan Sidhardhan <gs33@eng.buffalo.edu> :
+[...]
+> > At that point, I had my X configuration file open.  
+> 
+> This is not quite true.  I had just written to it and closed it.  Sorry
+> for the confusion.
 
-You're obviously not the only one with that problem, because I'm having a
-similar problem with my laptop's (Acer Aspire 1705SCi) sis900 NIC:
+sync ?
 
-If I test network performance using netio I get ~4.4 MByte/s from my Linux
-server (RTL8139 NIC) to the laptop but ~11 MB/s from the laptop to the
-server (if the laptop is running Linux).
-Disabling ACPI or the APIC doesn't help in my case, too.
-
-When I'm running WinXP or FreeBSD on the laptop I get 11 MB/s in both
-directions.
-
-
-Jonas Wolz
-
+--
+Ueimor

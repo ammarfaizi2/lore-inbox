@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVAEAIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVAEAPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262264AbVAEAIM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 19:08:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVADVeU
+	id S262008AbVAEAPt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 19:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVAEAP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 16:34:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:47059 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262135AbVADVdO (ORCPT
+	Tue, 4 Jan 2005 19:15:27 -0500
+Received: from holomorphy.com ([207.189.100.168]:6030 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262008AbVAEANY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 16:33:14 -0500
-Date: Tue, 4 Jan 2005 13:33:13 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] track capabilities in default dummy security module code
-Message-ID: <20050104133313.D469@build.pdx.osdl.net>
+	Tue, 4 Jan 2005 19:13:24 -0500
+Date: Tue, 4 Jan 2005 16:09:42 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Willy Tarreau <willy@w.ods.org>, Thomas Graf <tgraf@suug.ch>,
+       "Theodore Ts'o" <tytso@mit.edu>, Adrian Bunk <bunk@stusta.de>,
+       Diego Calleja <diegocg@teleline.es>, aebr@win.tue.nl,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050105000942.GA7961@holomorphy.com>
+References: <20050104053348.GB19945@alpha.home.local> <41DB2BF3.2010103@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <41DB2BF3.2010103@tmr.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Switch dummy logic around to set cap_* bits during exec and set*uid based
-on basic uid check.  Then check cap_* bits during capable() (rather than
-doing basic uid check).  This ensures that capability bits are properly
-initialized in case the capability module is later loaded.
+On Tue, Jan 04, 2005 at 06:51:15PM -0500, Bill Davidsen wrote:
+> I expect this to be ignored or disparaged like all other suggestions 
+> that anything resembling stability is needed.
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+No one is claiming stability is not needed. We are only debating the
+best way to go about accomplishing it.
 
-===== security/dummy.c 1.49 vs edited =====
---- 1.49/security/dummy.c	2005-01-03 15:49:14 -08:00
-+++ edited/security/dummy.c	2005-01-04 13:14:10 -08:00
-@@ -74,11 +74,8 @@ static int dummy_acct (struct file *file
- 
- static int dummy_capable (struct task_struct *tsk, int cap)
- {
--	if (cap_is_fs_cap (cap) ? tsk->fsuid == 0 : tsk->euid == 0)
--		/* capability granted */
-+	if (cap_raised (tsk->cap_effective, cap))
- 		return 0;
--
--	/* capability denied */
- 	return -EPERM;
- }
- 
-@@ -183,6 +180,7 @@ static int dummy_bprm_alloc_security (st
- 
- static void dummy_bprm_free_security (struct linux_binprm *bprm)
- {
-+	dummy_capget(current, &current->cap_effective, &current->cap_inheritable, &current->cap_permitted);
- 	return;
- }
- 
-@@ -558,6 +556,7 @@ static int dummy_task_setuid (uid_t id0,
- 
- static int dummy_task_post_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
- {
-+	dummy_capget(current, &current->cap_effective, &current->cap_inheritable, &current->cap_permitted);
- 	return 0;
- }
- 
+
+-- wli

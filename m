@@ -1,45 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269596AbUJFX1v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269636AbUJFXcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269596AbUJFX1v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 19:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269574AbUJFX0I
+	id S269636AbUJFXcA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 19:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269617AbUJFXZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:26:08 -0400
-Received: from hera.kernel.org ([63.209.29.2]:38295 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S269596AbUJFXUc (ORCPT
+	Wed, 6 Oct 2004 19:25:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63431 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269610AbUJFXWf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 19:20:32 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Probable module bug in linux-2.6.5-1.358
-Date: Wed, 06 Oct 2004 16:20:33 -0700
-Organization: Open Source Development Lab
-Message-ID: <1097104833.26149.3.camel@localhost.localdomain>
-References: <Pine.LNX.4.61.0410061807030.4586@chaos.analogic.com>
+	Wed, 6 Oct 2004 19:22:35 -0400
+Date: Wed, 6 Oct 2004 16:26:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Serge Hallyn <serue@us.ibm.com>
+Cc: chrisw@osdl.org, linux-kernel@vger.kernel.org, serue@us.ibm.com
+Subject: Re: [patch 1/3] lsm: add bsdjail module
+Message-Id: <20041006162620.4c378320.akpm@osdl.org>
+In-Reply-To: <1097094270.6939.9.camel@serge.austin.ibm.com>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com>
+	<1097094270.6939.9.camel@serge.austin.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Trace: build.pdx.osdl.net 1097104824 23122 172.20.1.60 (6 Oct 2004 23:20:24 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Wed, 6 Oct 2004 23:20:24 +0000 (UTC)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-06 at 18:08 -0400, Richard B. Johnson wrote:
-> The attached script shows that an attempt to open a device
-> after its module was removed, will seg-fault the kernel.
+Serge Hallyn <serue@us.ibm.com> wrote:
+>
 > 
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.5-1.358-noreg on an i686 machine (5537.79 BogoMips).
->              Note 96.31% of all statistics are fiction.
+> Attached is a patch against the security Kconfig and Makefile to support
+> bsdjail, as well as the bsdjail.c file itself. bsdjail offers
+> functionality similar to (but more limited than) the vserver patch.
 
+I don't recall anyone requesting this feature.  Tell me why we should add
+it to Linux?
 
+> +
+> +#define in_use(x) (x->jail_flags & IN_USE)
+> +#define set_in_use(x) (x->jail_flags |= IN_USE)
+> +
+> +#define got_network(x) (x->jail_flags & (GOT_IPV4 | GOT_IPV6))
+> +#define got_ipv4(x) (x->jail_flags & (GOT_IPV4))
+> +#define got_ipv6(x) (x->jail_flags & (GOT_IPV6))
+> +#define set_ipv4(x) (x->jail_flags |= GOT_IPV4)
+> +#define set_ipv6(x) (x->jail_flags |= GOT_IPV6)
+> +#define unset_got_ipv4(x) (x->jail_flags &= ~GOT_IPV4)
+> +#define unset_got_ipv6(x) (x->jail_flags &= ~GOT_IPV6)
+> +#define get_task_security(task) (task->security)
+> +#define get_inode_security(inode) (inode->i_security)
+> +#define get_sock_security(sock) (sock->sk_security)
+> +#define get_file_security(file) (file->f_security)
+> +#define get_ipc_security(ipc)	(ipc->security)
+> +#define jail_of(proc) (get_task_security(proc))
+> +
 
-Oct  6 17:03:30 chaos kernel: Analogic Corp Datalink Driver : Module
-removed
+The above tricks may make the code easier to type, but I find they make the
+code harder for others to read, and that's more important.  We prefer to
+open-code such things.
 
-The bug is in that driver. It needs to unregister the character device
-in it's module remove routine.  It doesn't appear to be in the main
-kernel source tree so bug Redhat or the vendor.
+> +	if (tsec->root_pathname)
+> +		kfree(tsec->root_pathname);
+> +	if (tsec->ip4_addr_name)
+> +		kfree(tsec->ip4_addr_name);
+> +	if (tsec->ip6_addr_name)
+> +		kfree(tsec->ip6_addr_name);
+
+kfree(0) is permitted.  Some people like to do the double test anyway but I
+don't think it adds much here.
+
+> +		set_task_security(task,NULL);
+
+whitespace nit: In some places you have spaces after the commas and in
+others you do not.
+
+> +	kref_put(&tsec->kref, release_jail);
+
+This is the preferred style.
 

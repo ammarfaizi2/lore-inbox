@@ -1,50 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262948AbUJ0WRS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262717AbUJ0UcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262948AbUJ0WRS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262953AbUJ0WOE
+	id S262717AbUJ0UcM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbUJ0UMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:14:04 -0400
-Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:40033 "HELO
-	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262931AbUJ0Vl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 17:41:58 -0400
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Lee Revell <rlrevell@joe-job.com>, Pavel Machek <pavel@ucw.cz>
-Subject: Re: [2.6.10-rc1-bk5] e1000 broken badly on IBM T42
-Date: Wed, 27 Oct 2004 17:41:54 -0400
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <200410270033.22804.shawn.starr@rogers.com> <200410270521.56816.shawn.starr@rogers.com> <1098892310.8313.1.camel@krustophenia.net>
-In-Reply-To: <1098892310.8313.1.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 27 Oct 2004 16:12:47 -0400
+Received: from fw.osdl.org ([65.172.181.6]:57804 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262628AbUJ0UIa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 16:08:30 -0400
+Date: Wed, 27 Oct 2004 13:06:20 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: linux-kernel@vger.kernel.org, jonsmirl@gmail.com
+Subject: Re: [rfc] [bk tree] DRM 2.6 for -mm
+Message-Id: <20041027130620.714c2adc.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0410271351570.17741@skynet>
+References: <Pine.LNX.4.58.0410271351570.17741@skynet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410271741.55039.shawn.starr@rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Actually, there is a bug, when suspending the laptop its not storing the 
-negotiated link status and resets to gigabit.
-
-This looks to be a bug :-)
-
-Shawn.
-
-On October 27, 2004 11:51, Lee Revell wrote:
-> On Wed, 2004-10-27 at 05:21 -0400, Shawn Starr wrote:
-> > I should just answer it myself, restarting fixed the interface
-> > negotiation 'blip'. Perhaps the driver somehow did not reset and retry
-> > negotiation?
-> >
-> > That did look interesting though :)
+Dave Airlie <airlied@linux.ie> wrote:
 >
-> AIUI it's impossible to do 100% reliable autonegotiation with Ethernet.
-> The best you can do is try to detect when you might have gotten it wrong
-> and reset the interface.
->
-> Lee
+> (Andrew are you still taking this
+>  tree?
+
+I am.
+
+> you can drop the -via tree if you want for now,
+
+OK.

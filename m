@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbUDLHSM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 03:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUDLHSM
+	id S261746AbUDLHYI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 03:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbUDLHYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 03:18:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:168 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261340AbUDLHSK (ORCPT
+	Mon, 12 Apr 2004 03:24:07 -0400
+Received: from [203.197.196.2] ([203.197.196.2]:60091 "EHLO mail2.iitk.ac.in")
+	by vger.kernel.org with ESMTP id S261170AbUDLHX7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 03:18:10 -0400
-Date: Mon, 12 Apr 2004 00:15:51 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Jeremy Martin <martinjd@csc.uvic.ca>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix tuntap oversight
-Message-Id: <20040412001551.05476658.davem@redhat.com>
-In-Reply-To: <20040412065947.GC18810@net-ronin.org>
-References: <20040412065947.GC18810@net-ronin.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Apr 2004 03:23:59 -0400
+Date: Mon, 12 Apr 2004 12:54:17 +0530 (IST)
+From: "K.Anantha Kiran" <ananth@cse.iitk.ac.in>
+To: linux-kernel@vger.kernel.org
+cc: linux-net@vger.kernel.org, <linux-c-programming@vger.kernel.org>
+Subject: Can i use dev_queue_xmit()
+In-Reply-To: <Pine.LNX.4.44.0404121223250.5450-100000@csews104.cse.iitk.ac.in>
+Message-ID: <Pine.LNX.4.44.0404121246040.5450-100000@csews104.cse.iitk.ac.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Apr 2004 23:59:47 -0700
-Jeremy Martin <martinjd@csc.uvic.ca> wrote:
-
-> +static int tun_mac_addr(struct net_device *dev, void *p)
-> +{
-> +	struct sockaddr *addr=p;
-> +	if (netif_running(dev))
-> +		return -EBUSY;
-> +	memcpy(dev->dev_addr, addr->sa_data,dev->addr_len);
-> +	return 0;
-> +}
-
-This netif_running() check is not necessary, and in fact
-wrong.
-
-In fact, if ethernet drivers erroneously do this, this causes
-them to fail to support the ALB bonding driver modes which
-require on-the-fly MAC address changes while the interface is
-up.
+ 
+Hi,
+ 
+ 	We are printing the return value of dev_queue_xmit() and we 
+ confirm that this will be NET_XMIT_DROP for dropped pkts.
+ 
+ 	in *dev_queue_xmit()* function , there is a call to  *enqueue()* 
+ which is function pointer pointing to, /net/sched/sch_generic.c 
+ pfifo_fast_enqueue() function. In this if the length of queue is greater 
+ that the txqueuelen( a parameter of NIC ) then the packet is not queued 
+ and DROPPED.
+  
+ static int pfifo_fast_enqueue(struct sk_buff *skb, struct Qdisc* qdisc)
+     {
+ 	
+ 		struct sk_buff_head *list;
+    
+             list = ((struct sk_buff_head*)qdisc->data) +
+                    prio2band[skb->priority&TC_PRIO_MAX];
+    
+             if (list->qlen <= qdisc->dev->tx_queue_len) {
+                     __skb_queue_tail(list, skb);
+                     qdisc->q.qlen++;
+                     return 0;
+             }
+             qdisc->stats.drops++;
+             kfree_skb(skb);
+             return NET_XMIT_DROP;
+    }
+ 
+ 	We have tested this by printing the values of list->qlen and 
+ checking for different values of txqueuelen ( def-100 upto 100000). still 
+ the packets are being dropped after some time when the condition fails. 
+ and this is continuing until the whole queue is empty, after this it is 
+ again resuming to Xmit properly, this phenomenon is repeated.Actually we 
+sending 10 lakh pkts at 500 Mbps speed.  
+ 
+ 	The problem is that " is there any flag that tell the queue is 
+ full and once it is full it will not take any pkts in and drops all 
+ till the queue is empty". If so can u plz suggest a solution to this 
+ problem.
+ 
+ 
+ thanks,
+ Ananth.
 

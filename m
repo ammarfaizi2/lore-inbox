@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317662AbSGaCtT>; Tue, 30 Jul 2002 22:49:19 -0400
+	id <S317660AbSGaCuW>; Tue, 30 Jul 2002 22:50:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317660AbSGaCtT>; Tue, 30 Jul 2002 22:49:19 -0400
-Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:1439 "EHLO
-	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S317662AbSGaCtS>; Tue, 30 Jul 2002 22:49:18 -0400
-Message-ID: <3D474F48.1030109@linux.org>
-Date: Tue, 30 Jul 2002 22:45:28 -0400
-From: John Weber <john.weber@linux.org>
-Organization: Linux Online
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a) Gecko/20020702
-X-Accept-Language: en-us, en
+	id <S317664AbSGaCuW>; Tue, 30 Jul 2002 22:50:22 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:26306 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S317660AbSGaCtl>; Tue, 30 Jul 2002 22:49:41 -0400
+Date: 31 Jul 2002 00:46:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: vojtech@suse.cz
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8TuNa2cHw-B@khms.westfalen.de>
+In-Reply-To: <20020730233907.B23181@ucw.cz>
+Subject: Re: [patch] Input cleanups for 2.5.29 [2/2]
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: janitorial PATCH: 2.4:  nvram.c Lindent
-References: <3D47170E.20003@sun.com> <ai75c5$1ft$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <20020730233907.B23181@ucw.cz>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you're doing these kinds of Lindent changes, you might as well also
-> fix another non-linuxism:
-> 
-> 	return (x);	->	return x;
-> 
-> I don't know why some people seem to think that "return" is a function
-> with an argument..
+vojtech@suse.cz (Vojtech Pavlik)  wrote on 30.07.02 in <20020730233907.B23181@ucw.cz>:
 
-Excuse me?  Anyone care to explain?
+> On Wed, Jul 31, 2002 at 07:26:05AM +1000, Brad Hards wrote:
+> > On Wed, 31 Jul 2002 07:09, Greg KH wrote:
+> > > On Tue, Jul 30, 2002 at 03:23:42PM +0200, Vojtech Pavlik wrote:
+> > > > -#include <asm/types.h>
+> > > > +#include <stdint.h>
+> > >
+> > > Why?  I thought we were not including any glibc (or any other libc)
+> > > header files when building the kernel?
+> > Should be <linux/types.h>
+>
+> It's #ifndef __KERNEL__ and if we #include <linux/types.h> and the user
+> #includes <stdint.h> elsewhere, we're going to get collisions.
+>
+> I guess __u16 is really the safe way here.
 
-> I guess that one isn't mentioned in the CodingStyles thing. I'm lazy.
-> Bad Bad Linus.
+Well then, I guess the thing to do for the poor ignorant user space  
+programmers is to have one standard header somewhere which maps the  
+standard Linux kernel types to standard ISO C types. No?
 
-
+MfG Kai

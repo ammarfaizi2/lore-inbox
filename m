@@ -1,71 +1,122 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282887AbRK0JIg>; Tue, 27 Nov 2001 04:08:36 -0500
+	id <S282889AbRK0JO0>; Tue, 27 Nov 2001 04:14:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282886AbRK0JI1>; Tue, 27 Nov 2001 04:08:27 -0500
-Received: from inet-mail4.oracle.com ([148.87.2.204]:65492 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id <S282887AbRK0JIO>; Tue, 27 Nov 2001 04:08:14 -0500
-Message-ID: <3C0357F6.4000300@oracle.com>
-Date: Tue, 27 Nov 2001 04:08:06 -0500
-From: Svein Erik Brostigen <svein.brostigen@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S282891AbRK0JOR>; Tue, 27 Nov 2001 04:14:17 -0500
+Received: from host132.googgun.cust.cyberus.ca ([209.195.125.132]:22422 "EHLO
+	marauder.googgun.com") by vger.kernel.org with ESMTP
+	id <S282889AbRK0JOG>; Tue, 27 Nov 2001 04:14:06 -0500
+From: "Ahmed Masud" <masud@googgun.com>
+To: "'Nicolas Pitre'" <nico@cam.org>, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: "'Nathan G. Grennan'" <ngrennan@okcforum.org>,
+        "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: RE: Unresponiveness of 2.4.16
+Date: Tue, 27 Nov 2001 04:12:59 -0500
+Message-ID: <000901c17723$b641c990$8604a8c0@googgun.com>
 MIME-Version: 1.0
-To: Allan Sandfeld <linux@sneulv.dk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <20011126161802.A8398@xi.linuxpower.cx> <3C034889.6040000@oracle.com> <E168dbm-0000Jr-00@Princess>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <Pine.LNX.4.33.0111261825340.15932-100000@xanadu.home>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allan Sandfeld wrote:
-
->On Tuesday 27 November 2001 09:02, Svein Erik Brostigen wrote:
->
->>What really scares me is not so much the way the kernels are numbered as
->>the way features gets added to
->>the kernels.
->>
->The problem is that for kernels new features _are_ bug-fixes. Like the new 
->vm, work-around for discovered bugs in hardware, etc., etc. 
->I an way what should't be done in a -rc release is new fixing features, but 
->only the fixing _of_ features. ;-)
->
-Hmmm... workarounds are not new  features, but bug-fixes ;-)
-The new vm is not a *new* feature, it is just a different vm than the 
-old. Even if you treat it as a new
-feature, it should then be incorporated into a new-feature release, i.e 
-not in a 2.4.10.4, but maybe in what
-would have been a 2.4.11.0.
-
-I'm not going to be anal about this, but a more structured way of 
-handling new features/bug-fixes and release
-numbering would be nice. A lot easier to know what you are programming 
-against and what you are
-installing/testing.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
--- 
-Regards
-Svein Erik
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Nicolas
+> Pitre Sent: Monday, November 26, 2001 6:34 PM
+> To: Alan Cox
+> Cc: Nathan G. Grennan; lkml
+> Subject: Re: Unresponiveness of 2.4.16
+> 
+> 
+> On Mon, 26 Nov 2001, Alan Cox wrote:
+> 
+> > > 2.4.16 becomes very unresponsive for 30 seconds or so at a time
+> > >  during large unarchiving of tarballs, like tar -zxf 
+> > > mozilla-src.tar.gz. The file is about 36mb. I run top in 
+> one window, 
+> > > run free repeatedly in
+> > 
+> > This seems to be one of the small as yet unresolved 
+> problems with the 
+> > newer VM code in 2.4.16. I've not managed to prove its the 
+> VM or the 
+> > differing I/O scheduling rules however.
+> 
+> FWIW...
+> 
+> I experienced quite the same unresponsiveness but more in the 
+> order of 4-5 seconds since I started to use ext3 with RH 7.2 
+> (i.e. kernel 2.4.7 based).  
+> I'm currently running 2.4.15-pre7 and the same momentary 
+> stalls are there just like with 2.4.7. It is much more 
+> visible when applying large patches to a kernel source tree 
+> as the patch output stops scrolling from time to time for 
+> about 5 secs.  I never saw such thing while previously using 
+> reiserfs.  
+> I've yet to try reiserfs on a 2.4.16 tree to see if this is 
+> actually an ext3 problem.
+> 
+> 
 
-I've given up reading books; I find it takes my mind off myself.
-_____________________________________________________________
-Svein Erik Brostigen       e-mail: svein.brostigen@oracle.com
-Senior Technical Analyst                  Phone: 407.458.7168
-EBC - Extended Business Critical
-Oracle Support Services
-5955 T.G. Lee Blvd
-Orlando FL, 32822
+Just to add to the above something I've experienced:
 
-Enabling the Information Age Through Internet Computing
-_____________________________________________________________
+2.4.12 - 2.4.14 on a number of AMD Athelon 900 with 256 MB 
+RAM doing serial I/O would miss data while any DISK writes would
+occure. 
 
-The statements and opinions expressed here are my own and
-do not necessarily represent those of Oracle Corporation.
+Reads would be okay but writes of any significance like untarring a 
+relatively large tar ball ( > 10 megs ).  
+
+While turning on UDMA for PROMISE PDC20265 chipset significantly
+reduced the
+Slugishness (by an order of magnitude)  the problem would still crop
+up
+Whenever there were more than three processing doing disk writing.
 
 
+CPU: 				AMD 900 Athelon 
+Chipset: 			VIA
+IDE Controller:		PROMISE PDC20265
+Disks:			IBM ATA100 IC35L020AVER07-0
+
+I tried the same operations on  Reiserfs, ext2 and ext3; on direct
+partitions 
+on software raid 1 devices and on LVM  ( 1.0.1-rc4 patches from
+sistina ).  
+
+All permutations with all kernels 2.4.12 thru to 2.4.14 yield
+identical results
+... Loss of data while selecting on serial ports while there are
+heavy writes to 
+the file system.
+
+Doing the same operation on same hardware with 2.2.16 yields no loss
+of data.
+
+Perhaps if I can get some guidance as to what else to try to resolve
+whether this is
+a VM related problem or an IO subsystem related problem, I'll be more
+than happy to 
+experiment and relay the results.
+
+Ahmed
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 6.5.3 for non-commercial use <http://www.pgp.com>
+
+iQA/AwUBPANZG+A+WVFT6/r4EQL7PgCg3dWSrBDxsxqCF6OY1YiKDiEd34sAnA4W
+S6Zb2wfzBj6bXETTFNoYzTlW
+=HFWs
+-----END PGP SIGNATURE-----
 

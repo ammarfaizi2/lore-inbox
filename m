@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129232AbRBETzl>; Mon, 5 Feb 2001 14:55:41 -0500
+	id <S129964AbRBEUDb>; Mon, 5 Feb 2001 15:03:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131368AbRBETzc>; Mon, 5 Feb 2001 14:55:32 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:54536 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129232AbRBETz0>; Mon, 5 Feb 2001 14:55:26 -0500
-Date: Mon, 5 Feb 2001 19:53:31 +0000
-To: linux-kernel@vger.kernel.org
-Subject: VIA silent disk corruption - bad news
-Message-ID: <20010205195331.A736@colonel-panic.com>
-Mail-Followup-To: pdh, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Peter Horton <pdh@colonel-panic.com>
+	id <S131368AbRBEUDM>; Mon, 5 Feb 2001 15:03:12 -0500
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:23793 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S129964AbRBEUDE>; Mon, 5 Feb 2001 15:03:04 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Robert Guerra" <rob_guerra@usa.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: system call sched_yield() doesn't work on Linux 2.2
+Date: Mon, 5 Feb 2001 12:03:03 -0800
+Message-ID: <NCBBLIEPOCNJOAEKBEAKOEPFNHAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+In-Reply-To: <20010205043355.12353.qmail@nwcst276.netaddress.usa.net>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch doesn't work for me. Maybe I need to disable some more of
-those North bridge features :-(
 
-Oh bum. Back to testing with "normal" ...
+> David,
 
-P.
+>     please try to reply courteously to queries by other people.
+> And specially
+> when you're the one who's wrong. Mohit is right - Linux had a
+> long standing problem where sched_yield() system call didn't work. It
+> was only fixed in Linux 2.4.
 
------  CORRUPTING SETUP  -----
+	Didn't work in accordance with what standard? I just checked SuSv2, and it
+appears to me that a 'sched_yield' that had no user-visible affects would be
+fully compliant.
 
-00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 0305 (rev 02)
-	Subsystem: Asustek Computer, Inc.: Unknown device 8033
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
-	Latency: 0 set
-	Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
-	Capabilities: [a0] AGP version 2.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=421
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=
-	Capabilities: [c0] Power Management version 2
-		Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-00: 06 11 05 03 06 00 10 a2 02 00 00 06 00 00 00 00
-10: 08 00 00 e4 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
-30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 17 a4 6b b4 4f 81 08 08 80 00 04 08 08 08 08 08
-60: 03 ff 00 a0 52 e5 e5 00 44 7c 86 0f 08 3f 00 00
-70: de 80 cc 0c 0e a1 d2 00 01 b4 11 02 00 00 00 00
-80: 0f 40 00 00 c0 00 00 00 02 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 02 c0 20 00 07 02 00 1f 00 00 00 00 6e 02 04 00
-b0: 59 ec 80 b5 32 33 28 00 00 00 00 00 00 00 00 00
-c0: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 0e 22 00 00 00 00 00 91 06
+> > > Also, it is NOT unrealistic to expect perfect alternation.
+> >
+> >	Find one pthreads expert who agrees with this claim. Post it to
+> > comp.programming.threads and let the guys who created the standard
+> > laugh at you. Scheduling is not a substitute for synchronization, ever.
+>
+> I don't claim mastery over threads. But I have been programming
+> with threads
+> for a very long time and am well aware of the way OS schedulers
+> work. In the example that Mohit posted, it is reasonable to expect
+> perfect alternation once both threads have started. And it certainly isn't
+> something to laugh at (even if it were wrong).
 
------  DIFF FOR NON-CORRUPTING SETUP  -----
+	No, it is completely unreasonable to expect the scheduler to provide
+perfect thread synchronization. Implementations that provide threads in user
+space may easily be able to provide this, but implementations of kernel
+threads will not have it so easy.
 
-@@ -5,7 +5,7 @@
- 	Latency: 0 set
- 	Region 0: Memory at e4000000 (32-bit, prefetchable) [size=64M]
- 	Capabilities: [a0] AGP version 2.0
--		Status: RQ=31 SBA+ 64bit- FW- Rate=421
-+		Status: RQ=31 SBA+ 64bit- FW- Rate=21
- 		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=
- 	Capabilities: [c0] Power Management version 2
- 		Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
-@@ -15,12 +15,12 @@
- 20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
- 30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
- 40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
--50: 17 a4 6b b4 4f 81 08 08 80 00 04 08 08 08 08 08
--60: 03 ff 00 a0 52 e5 e5 00 44 7c 86 0f 08 3f 00 00
--70: de 80 cc 0c 0e a1 d2 00 01 b4 11 02 00 00 00 00
-+50: 17 a4 6b b4 06 81 08 08 80 00 04 08 08 08 08 08
-+60: 03 ff 00 a0 50 e4 e4 00 40 78 86 0f 08 3f 00 00
-+70: d8 80 cc 0c 0e a1 d2 00 01 b4 01 02 00 00 00 00
- 80: 0f 40 00 00 c0 00 00 00 02 00 00 00 00 00 00 00
- 90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
--a0: 02 c0 20 00 07 02 00 1f 00 00 00 00 6e 02 04 00
-+a0: 02 c0 20 00 03 02 00 1f 00 00 00 00 6e 02 00 00
- b0: 59 ec 80 b5 32 33 28 00 00 00 00 00 00 00 00 00
- c0: 01 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00
- d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	DS
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

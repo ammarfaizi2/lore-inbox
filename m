@@ -1,39 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbTJILa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 07:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTJILa4
+	id S262057AbTJILka (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 07:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTJILka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 07:30:56 -0400
-Received: from colin2.muc.de ([193.149.48.15]:56338 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262078AbTJILa4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 07:30:56 -0400
-Date: 9 Oct 2003 13:31:11 +0200
-Date: Thu, 9 Oct 2003 13:31:11 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: Andi Kleen <ak@muc.de>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, bos@serpentine.com
-Subject: Re: [PATCH] Fix mlockall for PROT_NONE mappings
-Message-ID: <20031009113111.GA48461@colin2.muc.de>
-References: <20031009104218.GA1935@averell> <20031009104918.GB4699@actcom.co.il> <20031009112245.GA59762@colin2.muc.de> <20031009112458.GE4699@actcom.co.il>
+	Thu, 9 Oct 2003 07:40:30 -0400
+Received: from smtp2.actcom.co.il ([192.114.47.15]:36482 "EHLO
+	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S262057AbTJILk3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 07:40:29 -0400
+Date: Thu, 9 Oct 2003 13:40:23 +0200
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Mark Hounschell <markh@compro.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't build external module against 2.6.0-test6 kernel
+Message-ID: <20031009114023.GI4699@actcom.co.il>
+References: <3F8544DF.85E7CA81@compro.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tctmm6wHVGT/P6vA"
 Content-Disposition: inline
-In-Reply-To: <20031009112458.GE4699@actcom.co.il>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3F8544DF.85E7CA81@compro.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I agree that improved readability is not "essential". Do you agree
-> that it's preferable?  
 
-I don't think this version is particularly unreadable or that your
-change would improve it very much.
-(to make any sense of a function with 6+ arguments you have to look
-at the function definition, no way around that, and there is a comment
-that explains it there), so I don't think the change is particularly
-important.
+--tctmm6wHVGT/P6vA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--Andi
+On Thu, Oct 09, 2003 at 07:22:07AM -0400, Mark Hounschell wrote:
+
+> I'm trying to build a driver external to the kernel. I'm running 2.6.0-te=
+st6
+> kernel.
+> It appears to me (I'm probably wrong) that there is a kernel include
+> file issue.=20
+>=20
+> gcc -c rtom.c -D__KERNEL__ -DMODULE -DDEBUG -DDEBUG_LEVEL=3D6
+> -I/lib/modules/2.6.0-test6/build/include -I../include/linux/sys
+> -I../include/linux -I../include -O -o rtom
+
+This compilation command line dos not look like it came from the kerel
+build system? If indeed you're using your own build system, please use
+the kernel's build system to compile external modules. See
+Documentation/kbuild/* for details, as well as lwn.net's "Compling
+External Modules" article - http://lwn.net/Articles/21823/. I'm
+guessing that you do not have something set up properly that the
+kernel's build system would've set up for you.=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+
+
+--tctmm6wHVGT/P6vA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/hUknKRs727/VN8sRAqPjAKC6tAyM0GalQqagTw0XF01iFcOqWwCgglyx
+9FKNJNBIlL3Kk+nctMGMlMc=
+=G3hM
+-----END PGP SIGNATURE-----
+
+--tctmm6wHVGT/P6vA--

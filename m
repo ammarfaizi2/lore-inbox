@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262668AbREOHtd>; Tue, 15 May 2001 03:49:33 -0400
+	id <S262666AbREOH4d>; Tue, 15 May 2001 03:56:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262666AbREOHtX>; Tue, 15 May 2001 03:49:23 -0400
-Received: from 20dyn175.com21.casema.net ([213.17.90.175]:36868 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S262663AbREOHtP>;
-	Tue, 15 May 2001 03:49:15 -0400
-Date: Tue, 15 May 2001 09:48:36 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: torvalds@transmeta.org
-Subject: 2.4 To Pending Device Number Registrants
-Message-ID: <20010515094835.A13650@home.ds9a.nl>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	torvalds@transmeta.org
-In-Reply-To: <Pine.GSO.4.21.0105141856090.19333-100000@weyl.math.psu.edu> <E14zRIW-0001dr-00@the-village.bc.nu>
+	id <S262669AbREOH4X>; Tue, 15 May 2001 03:56:23 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:28169 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S262666AbREOH4M>; Tue, 15 May 2001 03:56:12 -0400
+Date: Tue, 15 May 2001 19:56:07 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Getting FS access events
+Message-ID: <20010515195607.A13722@metastasis.f00f.org>
+In-Reply-To: <200105150649.f4F6nwD22946@vindaloo.ras.ucalgary.ca> <Pine.LNX.4.21.0105142357220.23955-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <E14zRIW-0001dr-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, May 14, 2001 at 11:58:39PM +0100
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0105142357220.23955-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, May 15, 2001 at 12:13:13AM -0700
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 14, 2001 at 11:58:39PM +0100, Alan Cox wrote:
-> Yet another 2.5 project. If Linus wants to go play with name driven devices
-> and you want to help him great, but if he'd care to put out
-> linux-2.5.0.tar.gz _before_ starting that would be good for all of us
+On Tue, May 15, 2001 at 12:13:13AM -0700, Linus Torvalds wrote:
 
-Well, that's one thing. 2.4 will not need userspace changes internally, so
-any funky major/minor number dynamic allocation stuff needs to be solved
-without userspace help. This probably rules out most everything, unless a
-setup is found that will special case all of /dev/ currently existing.
+    We should not create crap code just because we _can_.
 
-So I would think that this block of new major number allocations holds for
-2.5 and not 2.4. Also, if I'm correct, 2.4 won't be needing a lot of new
-major numbers anyhow.
+How about removing code?
 
-This all means that a lot of the current hubbub is unjustified - 2.5 is not
-there yet. Yes there is urgency and this way of forcing discussion is a very
-Linus-eque way of trying to achieve something.
 
-But unless I'm wrong, there is no way that this can affect a 2.4 without
-userspace changes which have historically been considered forbidden within a
-stable series.
+In 2.5.x is we move fs metadata into the pagecache, do we even need a
+buffer cache anymore? Can't we just ditch it completely and make all
+device access raw?
 
-Regards,
+It seems to me this is not only simple but also elegant, or perhaps I
+am fundamentally missing something?
 
-bert
 
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+
+  --cw

@@ -1,46 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262904AbSJGHaD>; Mon, 7 Oct 2002 03:30:03 -0400
+	id <S262906AbSJGHcu>; Mon, 7 Oct 2002 03:32:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262906AbSJGHaD>; Mon, 7 Oct 2002 03:30:03 -0400
-Received: from catv-d5de80ec.bp11catv.broadband.hu ([213.222.128.236]:37383
-	"EHLO balabit.hu") by vger.kernel.org with ESMTP id <S262904AbSJGHaC>;
-	Mon, 7 Oct 2002 03:30:02 -0400
-Date: Mon, 7 Oct 2002 09:35:32 +0200
-From: Balazs Scheidler <bazsi@balabit.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] unix domain sockets bugfix
-Message-ID: <20021007073532.GA15799@balabit.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S262908AbSJGHct>; Mon, 7 Oct 2002 03:32:49 -0400
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:4801 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S262906AbSJGHcs> convert rfc822-to-8bit; Mon, 7 Oct 2002 03:32:48 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] 2.5.40 s390.
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFEE3CA8C8.88B80B69-ONC1256C4B.00290591@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Mon, 7 Oct 2002 09:35:24 +0200
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 07/10/2002 09:37:16
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I've found a bug with unix domain sockets in both kernels 2.2 and 2.4.
-If the program issues a recvfrom() on a SOCK_DGRAM socket, and the sender
-had no name, the sockaddr returned is not filled in.
+Hi Al,
 
-The returned socklen is 2, but the sockaddr.family is not touched. A fix is
-below:
+> * please switch to use of alloc_disk()/put_disk()
+> * don't bother with disk->part allocation - it's done by add_disk()
+> * ditto for freeing it (del_gendisk())
+> * dasd_partition_to_kdev_t() - please use ->gdp->{major,first_minor}
+> * s/bdevname(d_device->bdev)/d_device->gdp->disk_name/
+> * lose ->bdev
+ I'll do that.
 
---- af_unix.c~	Mon Feb 25 20:38:16 2002
-+++ af_unix.c	Fri Oct  4 09:46:26 2002
-@@ -1392,6 +1392,9 @@
- 		       sk->protinfo.af_unix.addr->name,
- 		       sk->protinfo.af_unix.addr->len);
- 	}
-+	else {
-+		((struct sockaddr *) msg->msg_name)->sa_family = AF_UNIX;
-+	}
- }
- 
- static int unix_dgram_recvmsg(struct socket *sock, struct msghdr *msg, int size,
+> Note that we are getting bdev->bd_disk and disk->private pretty soon, so
+> we'll have very easy way to do your devmap by bdev stuff.
+Thats good to hear. One of the reasons for me to split of dasd_devmap.c
+was to have the code concerned about minors and friends in on place.
+That makes it easy to get rid of it.
+
+> Anther thing: tapeblock.c and friends.
+> <rant>
+ > In ~ 2.5.16 blksize_size[] had been removed.  Tape-related code
+> in s390 was using it, but that was fairly easy to get rid of.  Now, in
+> 2.5.21 somebody (presumably architecture maintainers) had submitted a
+> patch that
+ > * reverted all compile fixes, etc. that had happened in 2.5
+ > * reintroduced use of (long-dead) blksize_size[]
+> ^#$^%@!
+> Folks, if you do something like that, at least check the bloody changelog...
+> </rant>
+
+Oh, that must have been me then. Sorry about that. But there is a reason
+for my obvious desinterest in the tape device driver. I'm just rewriting
+it completely. So don't bother with the old one.
+
+blue skies,
+   Martin
+
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
 
--- 
-Bazsi
-PGP info: KeyID 9AF8D0A9 Fingerprint CD27 CFB0 802C 0944 9CFD 804E C82C 8EB1

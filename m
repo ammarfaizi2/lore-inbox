@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315232AbSE2Mdm>; Wed, 29 May 2002 08:33:42 -0400
+	id <S315222AbSE2Mgx>; Wed, 29 May 2002 08:36:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315227AbSE2Mdl>; Wed, 29 May 2002 08:33:41 -0400
-Received: from gw.lowendale.com.au ([203.26.242.120]:26700 "EHLO
-	marina.lowendale.com.au") by vger.kernel.org with ESMTP
-	id <S315222AbSE2Mdk>; Wed, 29 May 2002 08:33:40 -0400
-Date: Wed, 29 May 2002 23:18:14 +1000 (EST)
-From: Neale Banks <neale@lowendale.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: odd timer bug, similar to VIA 686a symptoms
-In-Reply-To: <1022676387.4124.162.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.05.10205292316380.3388-100000@marina.lowendale.com.au>
+	id <S315227AbSE2Mgw>; Wed, 29 May 2002 08:36:52 -0400
+Received: from loisexc2.loislaw.com ([12.5.234.240]:6152 "EHLO
+	loisexc2.loislaw.com") by vger.kernel.org with ESMTP
+	id <S315222AbSE2Mgw>; Wed, 29 May 2002 08:36:52 -0400
+Message-ID: <4188788C3E1BD411AA60009027E92DFD0962E2F2@loisexc2.loislaw.com>
+From: "Rose, Billy" <wrose@loislaw.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+        Roman Zippel <zippel@linux-m68k.org>,
+        "'Karim Yaghmour'" <karim@opersys.com>
+Cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: RE: A reply on the RTLinux discussion.
+Date: Wed, 29 May 2002 07:36:58 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 May 2002, Alan Cox wrote:
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+> Sent: Wednesday, May 29, 2002 8:25 AM
+> To: Roman Zippel
+> Cc: yodaiken@fsmlabs.com; linux-kernel@vger.kernel.org
+> Subject: Re: A reply on the RTLinux discussion.
 
-> On Wed, 2002-05-29 at 10:25, Neale Banks wrote:
-> >> May 28 11:19:54 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65485 [0xffcd]
-> > May 28 11:19:55 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65486 [0xffce]
-> > May 28 11:19:56 gull kernel: timer.c: VIA bug check triggered. Value read 65500 [0xffdc], re-read 65486 [0xffce]
-> > May 28 11:19:57 gull kernel: timer.c: VIA bug check triggered. Value read 65499 [0xffdb], re-read 65484 [0xffcc]
-> > May 28 11:19:58 gull kernel: timer.c: VIA bug check triggered. Value read 65497 [0xffd9], re-read 65483 [0xffcb]
-> > 
-> > Anyone got any good theories what's going on here, given that this is a
-> > ~1995 vintage laptop with a Pentium-120 (which I'm assured doesn't have a
-> > VIA 686a ;-)?
-> 
-> Neptune chipsets at least had latching bugs on timer reads. What chipset
-> is the laptop ?
+...
+> The
+> patent grant says it can be used for GPL software. As a free software
+> author I have no problems at all with Victor's patent. If I want to do
+> proprietary software well shucks, I'm going to have to play by the
+> proprietary rules. I don't see that anti free software. It 
+> might be anti
+> how convenient I can mix the two and flog it for lots of money, but
+> thats not free software anyway.
+...
 
-Does it help in that it's got a CMD640?  If not, what am I looking for?
+Enough said. Business is business, bottom line. Coding in open source
+is artwork. These guys building this kernel are artists. Those guys
+selling stuff are business people. So, you want to use my artwork for
+money? Fine, then pay me to let someone have the privilege. Want to
+help me paint parts of the memory handling? Fine, here's a paint brush
+all your own... totally free.
 
-Thanks,
-Neale.
-
+~Billy Rose~

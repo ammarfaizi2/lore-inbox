@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261994AbVBALT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVBALVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261994AbVBALT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 06:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVBALT7
+	id S262001AbVBALVh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 06:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVBALVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 06:19:59 -0500
-Received: from ONRC.cluj.astral.ro ([82.208.135.134]:24523 "EHLO cj.onrc.ro")
-	by vger.kernel.org with ESMTP id S261994AbVBALTv (ORCPT
+	Tue, 1 Feb 2005 06:21:36 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:47188 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261996AbVBALUg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 06:19:51 -0500
-X-Virus-Scanner: This message was checked by NOD32 Antivirus system
-	NOD32 for Linux Mail Server.
-	For more information on NOD32 Antivirus System,
-	please, visit our website: http://www.nod32.com/.
-Date: Tue, 1 Feb 2005 13:14:54 +0200 (EET)
-From: Tompa Septimius Paul <subzero@cj.onrc.ro>
-To: linux-kernel@vger.kernel.org
-Cc: netfilter@lists.netfilter.org
-Subject: iptables and ip_conntrack_tuple.h compile fix
-Message-ID: <Pine.LNX.4.58.0502011255020.24684@cj.onrc.ro>
+	Tue, 1 Feb 2005 06:20:36 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Aurelien Jarno <aurelien@aurel32.net>
+Subject: Re: [PATCH 2.6] I2C: New chip driver: sis5595
+Date: Tue, 1 Feb 2005 14:20:17 +0200
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       sensors@stimpy.netroedge.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502011420.17466.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 1 Feb 2005 11:11:35 +0100, Aurelien Jarno wrote:
 
-Hi,
+> Please find below the new version of the patch against kernel
+> 2.6.11-rc2-mm2 to add the sis5595 driver (sensor part).
 
-I try to recompile iptables iptables-1.2.11 with kernel 2.6.11-rc2
-(and mm2) running and I don't succeed. It complains about
-/usr/src/linux/include/linux/netfilter_ipv4/ip_conntrack_tuple.h
-after this small changes iptables is compiling again.
+> --- linux-2.6.11-rc2-mm2.orig/drivers/i2c/chips/sis5595.c
+> +++ linux-2.6.11-rc2-mm2/drivers/i2c/chips/sis5595.c
 
+> +struct sis5595_data {
 
+> +	char valid;		/* !=0 if following fields are valid */
 
---- ip_conntrack_tuple.h.old    2005-02-01 12:49:52.000000000 +0200
-+++ ip_conntrack_tuple.h        2005-02-01 12:55:43.983819584 +0200
-@@ -62,12 +62,11 @@
-                                u_int16_t port;
-                        } sctp;
-                } u;
+> +};
 
-                /* The protocol. */
--               u8 protonum;
-+               u_int16_t protonum;
+> +static struct sis5595_data *sis5595_update_device(struct device *dev)
+> +{
 
-                /* The direction (for tuplehash) */
--               u8 dir;
-+               u_int16_t dir;
-        } dst;
- };
+> +	if ((jiffies - data->last_updated > HZ + HZ / 2) ||
+> +	    (jiffies < data->last_updated) || !data->valid) {
 
+		[snip reading some values]
 
-A good day,
+> +		data->last_updated = jiffies;
+> +		data->valid = 1;
+> +	}
 
-Tompa Septimius Paul <subzero@cj.onrc.ro>
+> +}
 
+Maybe you should call sis5595_update_device() in initialization finction and
+get rid of "value" field. It's sole purpose to fill "struct sis5595" when it's
+known that "last_updated" field contains crap.
 
+> +			dev_err(&s_bridge->dev, "sis5595.ko: Error: Looked for SIS5595 but found unsupported device %.4X\n", *i);
 
+> +		dev_err(&s_bridge->dev, "sis5595.ko: base address not set - upgrade BIOS or use force_addr=0xaddr\n");
 
+".ko" isn't needed. "Error: " in the first line too.
 
-
-
-________ Information from NOD32 ________
-This message was checked by NOD32 Antivirus System for Linux Mail Server.
-http://www.nod32.com
+	Alexey

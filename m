@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266194AbUAGKyo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 05:54:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266298AbUAGKyo
+	id S266188AbUAGLBg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 06:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266186AbUAGLBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 05:54:44 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41894 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266194AbUAGKym (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 05:54:42 -0500
-Date: Wed, 7 Jan 2004 11:54:35 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: Olaf Hering <olh@suse.de>, Andries Brouwer <aebr@win.tue.nl>,
-       Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
+	Wed, 7 Jan 2004 06:01:36 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:2320 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S266185AbUAGLB2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 06:01:28 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: Jens Axboe <axboe@suse.de>, Olaf Hering <olh@suse.de>
 Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-Message-ID: <20040107105435.GA3483@suse.de>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040107102515.GC22770@suse.de> <20040107103123.GZ3483@suse.de> <200401071347.40328.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 7 Jan 2004 14:00:46 +0300
+User-Agent: KMail/1.5.3
+Cc: Andries Brouwer <aebr@win.tue.nl>, Greg KH <greg@kroah.com>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200401012333.04930.arvidjaar@mail.ru> <20040107094321.GC21059@suse.de> <20040107095029.GX3483@suse.de>
+In-Reply-To: <20040107095029.GX3483@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200401071347.40328.arvidjaar@mail.ru>
+Message-Id: <200401071400.46286.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07 2004, Andrey Borzenkov wrote:
-> On Wednesday 07 January 2004 13:31, Jens Axboe wrote:
-> > On Wed, Jan 07 2004, Olaf Hering wrote:
-> > >  On Wed, Jan 07, Jens Axboe wrote:
-> > > > On Wed, Jan 07 2004, Olaf Hering wrote:
-> > > > >  On Wed, Jan 07, Jens Axboe wrote:
-> > > > > > No need to put it in the kernel, user space fits the bil nicely. I
-> > > > > > don't see how this would lead to IO errors?
-> > > > >
-> > > > > Ok, how should it be done on my SCSI and parallel port ZIP? An ATAPI
-> > > > > ZIP
-> > >
-> > >         ^^^
-> > >
-> > > "How"? We need a sane way to deal with removeable medias.
-> > > Do you have example code that can be put into the udev distribution?
+On Wednesday 07 January 2004 12:50, Jens Axboe wrote:
+> > > So yeah, poll...
 > >
-> > Depends. If the device supports event status notification, then that is
-> > what should be used. 
-> 
-> Would you please give some pointers to information about "event status 
-> notification".
+> > Poll how? "kmediachangethread"? Or polling in userland? The latter would
+> > (probably) lead to endless IO errors. Not very good.
+>
+> No need to put it in the kernel, user space fits the bil nicely.
 
-Sure, I'm talking about GPCMD_GET_EVENT_STATUS_NOTIFICATION (see
-cdrom.h), opcode 0x4a in the mt fuji or mmc docs. You can fetch here:
+unfortunately opening device in userland effectively locks tray making media 
+change impossible. at least given current ->open semantic.
 
-ftp://ftp.avc-pioneer.com/Mtfuji5/
+even periodic access is quite annoying for users (tray closing while user 
+attempts to insert CD)
 
--- 
-Jens Axboe
+we may agree that O_NDELAY does not affect locked state; currently this is not 
+consistent across drivers (e.g. cdrom does not lock tray while sd does)
+
 

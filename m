@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVASRXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVASRXj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbVASRXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 12:23:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVASRWG
+	id S261781AbVASRXj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 12:23:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVASRV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 12:22:06 -0500
-Received: from speedy.student.utwente.nl ([130.89.163.131]:36578 "EHLO
-	speedy.student.utwente.nl") by vger.kernel.org with ESMTP
-	id S261790AbVASRPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 12:15:24 -0500
-Date: Wed, 19 Jan 2005 18:15:15 +0100
-From: Sytse Wielinga <s.b.wielinga@student.utwente.nl>
-To: linux-os <linux-os@analogic.com>
-Cc: Bodo Eggert <7eggert@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: kbuild: Implicit dependence on the C compiler
-Message-ID: <20050119171515.GA31265@speedy.student.utwente.nl>
-Mail-Followup-To: linux-os <linux-os@analogic.com>,
-	Bodo Eggert <7eggert@gmx.de>, Sam Ravnborg <sam@ravnborg.org>,
-	Linux kernel <linux-kernel@vger.kernel.org>,
-	"H. Peter Anvin" <hpa@zytor.com>
-References: <fa.e2phu9o.1c30pig@ifi.uio.no> <fa.gakt9b5.1klcr9h@ifi.uio.no> <E1CrIPb-0000lS-Oz@be1.7eggert.dyndns.org> <Pine.LNX.4.61.0501191128090.10869@chaos.analogic.com>
+	Wed, 19 Jan 2005 12:21:56 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:57581 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261785AbVASRTq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 12:19:46 -0500
+Date: Wed, 19 Jan 2005 09:17:31 -0800
+From: Tony Lindgren <tony@atomide.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dynamic tick patch
+Message-ID: <20050119171731.GC14545@atomide.com>
+References: <20050119000556.GB14749@atomide.com> <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com> <1106112525.4534.175.camel@gaston> <20050119141115.GI10437@ns.snowman.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501191128090.10869@chaos.analogic.com>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050119141115.GI10437@ns.snowman.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 19, 2005 at 11:35:55AM -0500, linux-os wrote:
-> >Sam Ravnborg <sam@ravnborg.org> wrote:
-> >>1) Unconditionally execute make install assuming vmlinux is up-to-date.
-> >>   make modules_install run unconditionally, so this is already know
-> >>   practice
+* Stephen Frost <sfrost@snowman.net> [050119 06:11]:
+> * Benjamin Herrenschmidt (benh@kernel.crashing.org) wrote:
+> > Hrm... reading more of the patch & Martin's previous work, I'm not sure
+> > I like the idea too much in the end... The main problem is that you are
+> > just "replaying" the ticks afterward, which I see as a problem for
+> > things like sched_clock() which returns the real current time, no ?
+> > 
+> > I'll toy a bit with my own implementation directly using Martin's work
+> > and see what kind of improvement I really get on ppc laptops.
 > 
-> You must never execute `make install` or `make modules_install` without
-> the explicit action of the operator! To do so could (will) result
-> in an un-bootable system. I can't imagine what somebody would be
-> thinking to propose an automatic install. Whoever proposed this
-> must have lots of time and little knowledge. They are going to
-> be reinstalling everything from the distribution CD as a hobby.
+> I don't know if this is the same thing, or the same issue, but I've
+> noticed on my Windows machines that the longer my laptop sleeps the
+> longer it takes for it to wake back up- my guess is that it's doing
+> exactly this (replaying ticks).  It *really* sucks though because it can
+> take quite a while for it to come back if it's been asleep for a while.
 
-What I think Sam meant was, to let make install assume that vmlinux is
-up-to-date, IOW, just to remove the dependency of install on vmlinux.
+That sounds like suspend related thing, while this is an idle loop
+issue. On my machine with PIT timer doing the interrupts, the skip is
+only 54 ticks, so catching up is very fast :) But if the machine was
+able to idle for seconds at time inbetween ticks, it would be noticable.
 
-Err, to put it in your words: I can't imagine what somebody would be thinking
-to think he proposed an automatic install. :-P
+Regards,
 
-	Sytse
+Tony
+

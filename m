@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVAUEUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVAUE2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbVAUEUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 23:20:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVAUEUQ
+	id S262270AbVAUE2t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 23:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVAUE2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 23:20:16 -0500
-Received: from mail.suse.de ([195.135.220.2]:46551 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262257AbVAUEUL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 23:20:11 -0500
-Date: Fri, 21 Jan 2005 05:19:59 +0100
-From: Andi Kleen <ak@suse.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@osdl.org>,
-       ak@suse.de, Greg KH <greg@kroah.com>, tiwai@suse.de, mingo@elte.hu,
-       rlrevell@joe-job.com, linux-kernel@vger.kernel.org, pavel@suse.cz,
-       discuss@x86-64.org, gordon.jin@intel.com,
-       alsa-devel@lists.sourceforge.net, VANDROVE@vc.cvut.cz
-Subject: Re: [PATCH] compat ioctl security hook fixup
-Message-ID: <20050121041959.GA27155@wotan.suse.de>
-References: <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050112203606.GA23307@mellanox.co.il> <20050112212954.GA13558@kroah.com> <20050112214326.GB14703@wotan.suse.de> <20050112225230.GA14590@kroah.com> <20050112151049.7473db7d.akpm@osdl.org> <20050119213818.55b14bb0.akpm@osdl.org> <20050121000935.GA341@mellanox.co.il> <20050120172656.R24171@build.pdx.osdl.net>
-Mime-Version: 1.0
+	Thu, 20 Jan 2005 23:28:49 -0500
+Received: from web60606.mail.yahoo.com ([216.109.118.244]:37209 "HELO
+	web60606.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262270AbVAUE2r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 23:28:47 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=NqBFjPcTN9B7tgyZeKwYNqbizCX/S88DYacN6tqLXvwI0JlGhsyrCflvrW0xPmYu8ot32he9TPqCA39ubHW8BqOvsxxLDH2r0Ow2mlL62aPx4G+iUaep0TKWPAdiDE+rzgSY/G5nWYV0O6U+VI3UJF1rbSa54PvAYVQRl979y7A=  ;
+Message-ID: <20050121042846.26605.qmail@web60606.mail.yahoo.com>
+Date: Thu, 20 Jan 2005 20:28:46 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: System calls effect after booting phase ?? 
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200412291205.iBTC52RX016345@turing-police.cc.vt.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050120172656.R24171@build.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 20, 2005 at 05:26:56PM -0800, Chris Wright wrote:
-> * Michael S. Tsirkin (mst@mellanox.co.il) wrote:
-> > Security hook seems to be missing before compat_ioctl in mm2.
-> > And, it would be nice to avoid calling it twice on some paths.
-> > 
-> > Chris Wright's patch addressed this in the most elegant way I think,
-> > by adding vfs_ioctl.
-> 
-> The patch below is against Linus' tree as per Andrew's request.  It will
-> conflict with some of the changes in -mm2 (including the some-fixes bit
-> from Andi, and LTT).  I also have a patch directly against -mm2 if anyone
-> would like to see that instead.
+--- Valdis.Kletnieks@vt.edu wrote:
 
-I'm not sure really adding vfs_ioctl is a good idea politically.
-I predict we'll see drivers starting to use it, which will cause quite
-broken design.
+> Possibility 1:
+> Load them from an initrd image while booting.  If
+> you're already
+> using an initrd, and this is "early enough", you
+> just need to put the
+> module into the initrd, and make sure the /linuxrc
+> or whatever script
+> does an insmod for it.  This has the advantage of
+> working for out-of-tree
+> modules.
 
-If you add it make at least sure it's not EXPORT_SYMBOL()ed.
+ Now, I am using an initrd image. How can I load my
+module there? In which file, should I insert the
+corresponding line? Can u tell me more regarding this
+on how to do it? I am using kernel 2.4.28. should I
+have to recompile the whole kernel once again? 
 
--Andi
+Thanks,
+selva
+
+
+
+
+		
+__________________________________ 
+Do you Yahoo!? 
+Meet the all-new My Yahoo! - Try it today! 
+http://my.yahoo.com 
+ 
+

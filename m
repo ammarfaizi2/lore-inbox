@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273811AbRIRCa7>; Mon, 17 Sep 2001 22:30:59 -0400
+	id <S273809AbRIRCct>; Mon, 17 Sep 2001 22:32:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273809AbRIRCat>; Mon, 17 Sep 2001 22:30:49 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2435 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S273810AbRIRCah>; Mon, 17 Sep 2001 22:30:37 -0400
-Date: Mon, 17 Sep 2001 22:30:15 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Bruce Blinn <blinn@MissionCriticalLinux.com>
-cc: Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Reading Windows CD on Linux 2.4.6
-In-Reply-To: <3BA669A8.812D381D@MissionCriticalLinux.com>
-Message-ID: <Pine.LNX.3.95.1010917222328.18866A-100000@chaos.analogic.com>
+	id <S273810AbRIRCcm>; Mon, 17 Sep 2001 22:32:42 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58896 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273809AbRIRCc0> convert rfc822-to-8bit; Mon, 17 Sep 2001 22:32:26 -0400
+Date: Mon, 17 Sep 2001 22:08:22 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <Pine.LNX.4.21.0109172016200.6823-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0109172156490.6905-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Sep 2001, Bruce Blinn wrote:
 
-> "Richard B. Johnson" wrote:
-> > 
-> > On Mon, 17 Sep 2001, Bruce Blinn wrote:
-> > [SNIPPED...]
-> > 
-> > Just do `cp /dev/cdrom /tmp/foo`. ^C out when you think you have
-> > enough, then use `dd` to copy a small portion of the image file.
-> > 
+
+On Mon, 17 Sep 2001, Marcelo Tosatti wrote:
+
 > 
-> Here are the results of the methods that were suggested for producing a
-> CD image.  They all seem to fail at the same place because the resulting
-> file is the same size.
 > 
+> On Mon, 17 Sep 2001, Linus Torvalds wrote:
+> 
+> > 
+> > Ok, the big thing here is continued merging, this time with Andrea.
+> > 
+> > I still don't like some of the VM changes, but integrating Andrea's VM
+> > changes results in (a) better performance and (b) much cleaner inactive
+> > page handling in particular. Besides, for the 2.4.x tree, the big priority
+> > is stability, we can re-address my other concerns during 2.5.x.
+> 
+> Andrea, 
+> 
+> Could you please make a resume of your VM changes ? 
+> 
+> Its hard to keep up with VM changes this way. 
 
-Okay. That's good. The guy that asked to get the image to find out what
-was happening can probably use a small piece of that to find out what
-is going on. It probably is a CD data + Music image where the first
-readable stuff is data, followed by a music image.
+Andrea, 
 
-You can try cdda2wav -D0,4,0, -B. You will probably get some *.wav files.
+I've just read a bit of your new VM code and I have a few comments.
 
+You completly removed the "inactive freeable pages" logic: There is no
+more distiction between "freeable inactive" and "free" pages. All VM work
+is based on "freepages.high" watermark. I don't like that: it seems to
+make page freeing more aggressive over time.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
+Also, if we have several try_to_free_pages() callers, for different
+classzones, I'm right saying that a caller with a "smaller" classzone can
+"hide" pages in its "active_local_lru" and/or "inactive_local_lru" (during
+shrink_cache) from other processes trying to free pages from those higher
+zones ?
 
 

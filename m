@@ -1,102 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268141AbUIWCHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268144AbUIWCKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268141AbUIWCHi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 22:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268144AbUIWCHi
+	id S268144AbUIWCKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 22:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268155AbUIWCKY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 22:07:38 -0400
-Received: from pointblue.com.pl ([81.219.144.6]:27140 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S268141AbUIWCHR (ORCPT
+	Wed, 22 Sep 2004 22:10:24 -0400
+Received: from holomorphy.com ([207.189.100.168]:5331 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268144AbUIWCIb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 22:07:17 -0400
-Message-ID: <41522FC7.6050500@pointblue.com.pl>
-Date: Thu, 23 Sep 2004 04:07:03 +0200
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 22 Sep 2004 22:08:31 -0400
+Date: Wed, 22 Sep 2004 19:08:19 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/3] compilation fixes for gcc 4.0
-References: <4151D140.9040600@pointblue.com.pl>
-In-Reply-To: <4151D140.9040600@pointblue.com.pl>
-Content-Type: multipart/mixed;
- boundary="------------060305000904010908020403"
+Cc: hawkes@sgi.com, raybry@sgi.com, jbarnes@engr.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [profile] fix timer interrupt livelock on 512x Altix
+Message-ID: <20040923020819.GU9106@holomorphy.com>
+References: <20040920213020.GX9106@holomorphy.com> <20040920221554.7f72f0eb.akpm@osdl.org> <20040921084232.GE9106@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040921084232.GE9106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060305000904010908020403
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>>>  What this patch does is to create a pair of per-cpu open-addressed
+>>>  hashtables indexed by profile buffer slot holding values representing
+>>>  the number of pending profile buffer hits for the profile buffer slot.
 
-Grzegorz Piotr Jaskiewicz wrote:
+On Mon, Sep 20, 2004 at 10:15:54PM -0700, Andrew Morton wrote:
+>> Needs a compile fix (see below).
+>> Also, goes oops on x86:
 
-> This one causes most doubts in me, as it is a function declared inside 
-> body of another function.
->
-> Is there really a need to have such mad code in reiser4 fs ??
-> This issue was raised already on reiser4 mailing list.
-> Here it's only for reviev and opinions, if no doubts, please apply.
->
-I need to change email client :-)
-Patch attached.
+On Tue, Sep 21, 2004 at 01:42:32AM -0700, William Lee Irwin III wrote:
+> Okay, I'll resend after dealing with that. It looks obvious, but just
+> to cut down on noise and/or false starts I'll get it through a clean
+> ia32 boot before following up. It was runtime tested on x86-64, sparc64,
+> ia64, alpha, and ppc64 prior to posting, so it boggles my mind that a
+> bogon this obvious could have run that gauntlet undetected...
 
-Signed-off-by: Grzegorz Jaskiewicz <gj at pointblue.com.pl>
+With the following fix (I took the liberty of cleaning up the ifdef'd
+code in create_proc_profile() into a conditionally-defined function)
+this compiles and boots successfully on an 8x Pentium4 (ia32) HP
+Proliant with 32GB RAM. The trivial bug was forgetting to zero out the
+hashtables prior to their initial use.
 
 
---
-GJ
-
---------------060305000904010908020403
-Content-Type: text/plain;
- name="search.c.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="search.c.patch"
-
---- a/fs/reiser4/search.c	2004-09-22 20:38:04 +0200
-+++ b/fs/reiser4/search.new.c	2004-09-22 20:37:26 +0200
-@@ -1088,6 +1088,20 @@
+Index: mm1-2.6.9-rc2/kernel/profile.c
+===================================================================
+--- mm1-2.6.9-rc2.orig/kernel/profile.c	2004-09-20 14:45:10.041602384 -0700
++++ mm1-2.6.9-rc2/kernel/profile.c	2004-09-21 01:39:13.956620472 -0700
+@@ -22,6 +22,7 @@
+ #include <linux/cpumask.h>
+ #include <linux/cpu.h>
+ #include <linux/profile.h>
++#include <linux/highmem.h>
+ #include <asm/sections.h>
+ #include <asm/semaphore.h>
+ 
+@@ -511,17 +512,11 @@
+ static void __init profile_nop(void *unused)
+ {
  }
- #endif
+-#endif
  
-+/* true if @key is left delimiting key of @node */
-+static int key_is_ld(znode * node, const reiser4_key * key) {
-+	int ld;
-+
-+	 assert("nikita-1716", node != NULL);
-+	 assert("nikita-1758", key != NULL);
-+
-+	 RLOCK_DK(znode_get_tree(node));
-+	 assert("nikita-1759", znode_contains_key(node, key));
-+	 ld = keyeq(znode_get_ld_key(node), key);
-+	 RUNLOCK_DK(znode_get_tree(node));
-+	 return ld;
+-static int __init create_proc_profile(void)
++static int __init create_hash_tables(void)
+ {
+-	struct proc_dir_entry *entry;
+ 	int cpu;
+ 
+-	(void)cpu;
+-	if (!prof_on)
+-		return 0;
+-#ifdef CONFIG_SMP
+ 	for_each_online_cpu(cpu) {
+ 		int node = cpu_to_node(cpu);
+ 		struct page *page;
+@@ -529,22 +524,17 @@
+ 		page = alloc_pages_node(node, GFP_KERNEL, 0);
+ 		if (!page)
+ 			goto out_cleanup;
++		clear_highpage(page);
+ 		per_cpu(cpu_profile_hits, cpu)[1]
+ 				= (struct profile_hit *)page_address(page);
+ 		page = alloc_pages_node(node, GFP_KERNEL, 0);
+ 		if (!page)
+ 			goto out_cleanup;
++		clear_highpage(page);
+ 		per_cpu(cpu_profile_hits, cpu)[0]
+ 				= (struct profile_hit *)page_address(page);
+ 	}
+-#endif /* CONFIG_SMP */
+-	if (!(entry = create_proc_entry("profile", S_IWUSR | S_IRUGO, NULL)))
+-		return 0;
+-	entry->proc_fops = &proc_profile_operations;
+-	entry->size = (1+prof_len) * sizeof(atomic_t);
+-	hotcpu_notifier(profile_cpu_callback, 0);
+ 	return 0;
+-#ifdef CONFIG_SMP
+ out_cleanup:
+ 	prof_on = 0;
+ 	mb();
+@@ -564,7 +554,25 @@
+ 		}
+ 	}
+ 	return -1;
+-#endif /* CONFIG_SMP */
 +}
++#else
++#define create_hash_tables()			({ 0; })
++#endif
 +
- /* Process one node during tree traversal.
- 
-    This is called by cbk_level_lookup(). */
-@@ -1107,19 +1121,6 @@
- 	/* result */
- 	int result;
- 
--	/* true if @key is left delimiting key of @node */
--	static int key_is_ld(znode * node, const reiser4_key * key) {
--		int ld;
--
--		 assert("nikita-1716", node != NULL);
--		 assert("nikita-1758", key != NULL);
--
--		 RLOCK_DK(znode_get_tree(node));
--		 assert("nikita-1759", znode_contains_key(node, key));
--		 ld = keyeq(znode_get_ld_key(node), key);
--		 RUNLOCK_DK(znode_get_tree(node));
--		 return ld;
--	}
- 	assert("nikita-379", h != NULL);
- 
- 	active = h->active_lh->node;
-
---------------060305000904010908020403--
++static int __init create_proc_profile(void)
++{
++	struct proc_dir_entry *entry;
++
++	if (!prof_on)
++		return 0;
++	if (create_hash_tables())
++		return -1;
++	if (!(entry = create_proc_entry("profile", S_IWUSR | S_IRUGO, NULL)))
++		return 0;
++	entry->proc_fops = &proc_profile_operations;
++	entry->size = (1+prof_len) * sizeof(atomic_t);
++	hotcpu_notifier(profile_cpu_callback, 0);
++	return 0;
+ }
+ module_init(create_proc_profile);
+ #endif /* CONFIG_PROC_FS */

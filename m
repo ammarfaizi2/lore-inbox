@@ -1,65 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbTCDWvi>; Tue, 4 Mar 2003 17:51:38 -0500
+	id <S264940AbTCDWuI>; Tue, 4 Mar 2003 17:50:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265285AbTCDWvh>; Tue, 4 Mar 2003 17:51:37 -0500
-Received: from B5460.pppool.de ([213.7.84.96]:26264 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261963AbTCDWvA>; Tue, 4 Mar 2003 17:51:00 -0500
-Subject: Kernel bloat 2.4 vs. 2.5
-From: Daniel Egger <degger@fhm.edu>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PK67Ftr3WF/sfP7a+ejm"
-Organization: 
-Message-Id: <1046817738.4754.33.camel@sonja>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 04 Mar 2003 23:42:18 +0100
+	id <S265270AbTCDWuI>; Tue, 4 Mar 2003 17:50:08 -0500
+Received: from sex.inr.ac.ru ([193.233.7.165]:30602 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S264940AbTCDWtu>;
+	Tue, 4 Mar 2003 17:49:50 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200303042259.BAA06142@sex.inr.ac.ru>
+Subject: Re: PCI init issues
+To: ink@jurassic.park.msu.ru (Ivan Kokshaysky)
+Date: Wed, 5 Mar 2003 01:59:33 +0300 (MSK)
+Cc: becker@scyld.com, ink@jurassic.park.msu.ru, hadi@cyberus.ca,
+       greg@kroah.com, torvalds@transmeta.com, jgarzik@pobox.com,
+       kuznet@ms2.inr.ac.ru, david.knierim@tekelec.com,
+       Robert.Olsson@data.slu.se, linux-kernel@vger.kernel.org,
+       alexander@netintact.se
+In-Reply-To: <20030305013037.A678@localhost.park.msu.ru> from "Ivan Kokshaysky" at Mar 5, 3 01:30:37 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---=-PK67Ftr3WF/sfP7a+ejm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> I know for a fact that at least D-Link card mentioned in some reports
+> utilizes all four INT# lines, because I have one.
 
-Hija,
+I confirm, my Znyx card (pci subsys 110d:0029) is wired correctly to INTA/B/C/D
+and works nicely with plain flat motherboards.
 
-I've seen surprisingly few messages about the dramatic size increase
-between a simple 2.4 and a 2.5 kernel image.=20
+Look at Jamal's mail: the cards work well when attached to primary
+bus. They stop to work when connected via one more bridge (which is
+common for server motherboards).
 
-I just decided to check back with the 2.5 series again after my last try
-with 2.5.53 (which wouldn't even boot) but had to dramatically cut down
-the kernel featurewise to keep it below 1MB because I can't boot it over
-tftp otherwise.=20
-
-909824 Feb 14 20:02 vmlinuz-192.168.11.3-2.4.20
-954880 Mar  4 17:01 vmlinuz-192.168.11.3-2.5.63
-
-What you see here is a 2.4 kernel with almost everything needed to run
-the machine built in and a (rsync'ed) 2.5.63 kernel with everything but
-the basic stuff + ipv4 + NIC + NFS (+ other necessary features not
-builtable as modules) built as modules.
-
-Are there any patches I've missed to get that down? A slight tad bigger
-and I couldn't even work with recent kernels if modules actually
-worked... :/
-
---=20
-Servus,
-       Daniel
-
---=-PK67Ftr3WF/sfP7a+ejm
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+ZSvKchlzsq9KoIYRAqmJAKDTJ8ESI6vuVDYcWUClZtBzREEKwACgwTur
-6jZqwKLHHVtttoH/yrufpgA=
-=1JZn
------END PGP SIGNATURE-----
-
---=-PK67Ftr3WF/sfP7a+ejm--
-
+Alexey

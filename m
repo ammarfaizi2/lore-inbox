@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVAVSLB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262692AbVAVSLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbVAVSLB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 13:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAVSI7
+	id S262692AbVAVSLt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 13:11:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVAVSLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 13:08:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19627 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262624AbVAVSCE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 13:02:04 -0500
-Date: Sat, 22 Jan 2005 10:02:03 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Ulrich Drepper <drepper@gmail.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Pollable Semaphores
-Message-ID: <20050122100203.N24171@build.pdx.osdl.net>
-References: <20050121212212.GA453910@firefly.engr.sgi.com> <521xceqx90.fsf@topspin.com> <Pine.SGI.4.61.0501211647100.7393@kzerza.americas.sgi.com> <a36005b5050121194377026f39@mail.gmail.com> <20050121215203.S469@build.pdx.osdl.net> <20050121230504.T469@build.pdx.osdl.net> <a36005b50501212339405ca4a7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <a36005b50501212339405ca4a7@mail.gmail.com>; from drepper@gmail.com on Fri, Jan 21, 2005 at 11:39:55PM -0800
+	Sat, 22 Jan 2005 13:11:31 -0500
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:34260 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262624AbVAVSJN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 13:09:13 -0500
+Date: Sat, 22 Jan 2005 19:09:18 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: sailer@ife.ee.ethz.ch
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] oss/es1371.c: Don't print joystick address before it's set.
+Message-ID: <Pine.LNX.4.58.0501221801040.3801@be1.lrz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ulrich Drepper (drepper@gmail.com) wrote:
-> On Fri, 21 Jan 2005 23:05:04 -0800, Chris Wright <chrisw@osdl.org> wrote:
-> > Yeah, here it is.  I refreshed it against a current kernel.  It passes my
-> > same old test, where I select on /proc/<pid>/status fd in exceptfds.
-> 
-> Looks certainly attractive to me.  Nice small patch.  How quickly
-> after the death of the process is proc_pid_flush() called?
+Kernel-Version: 2.6.10-ac9
 
-I don't think it's called until it's reaped.
+The Old code printed the joystick address before it was set, possibly 
+before the field was initialized.
 
-> If this could go in and the futex stuff is handled, there is "only"
-> async I/O to handle.  After that we could finally create a uniform
-> event mechanism at userlevel which binds all these events (I/O,
-> process/thread termination, sync primitives) together.  Maybe support
-> for legacy sync primitives (SysV semaphores, msg queues) is needed as
-> well, don't know yet.  Note that I assume that polling of POSIX
-> mqueues works as it did the last time I tried it.
+Old output was: (from memory)
+es1371: found es1371 rev 2 at io 0xec00 irq 5 joystick 0x0
 
-It should, AFAIK nothing there has changed.
+New output is:
+es1371: found es1371 rev 2 at io 0xec00 irq 5
+es1371: es1371 joystick at 0x218
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Signed-off-by: Bodo Eggert <7eggert@gmx.de>
+
+--- sound/oss/es1371.c.ori	2005-01-22 17:38:10.180308592 +0100
++++ sound/oss/es1371.c	2005-01-22 18:11:25.919910056 +0100
+@@ -105,6 +105,8 @@
+  *                       Fix SETTRIGGER non OSS API conformity
+  *    14.07.2001   0.31  Add list of laptops needing amplifier control
+  *    03.01.2003   0.32  open_mode fixes from Georg Acher <acher@in.tum.de>
++ *    22.01.2004   0.33  fix output of joystick address
++ *                       by Bodo Eggert <7eggert@gmx.de>
+  */
+ 
+ /*****************************************************************************/
+@@ -2849,8 +2851,8 @@ static int __devinit es1371_probe(struct
+ 		printk(KERN_ERR PFX "irq %u in use\n", s->irq);
+ 		goto err_irq;
+ 	}
+-	printk(KERN_INFO PFX "found es1371 rev %d at io %#lx irq %u joystick %#x\n",
+-	       s->rev, s->io, s->irq, s->gameport.io);
++	printk(KERN_INFO PFX "found es1371 rev %d at io %#lx irq %u\n",
++	       s->rev, s->io, s->irq);
+ 	/* register devices */
+ 	if ((res=(s->dev_audio = register_sound_dsp(&es1371_audio_fops,-1)))<0)
+ 		goto err_dev1;
+@@ -2886,6 +2888,8 @@ static int __devinit es1371_probe(struct
+ 		if (request_region(i, JOY_EXTENT, "es1371")) {
+ 			s->ctrl |= CTRL_JYSTK_EN | (((i >> 3) & CTRL_JOY_MASK) << CTRL_JOY_SHIFT);
+ 			s->gameport.io = i;
++			printk(KERN_INFO PFX "es1371 joystick at %#x\n",
++				s->gameport.io);
+ 			break;
+ 		}
+ 	}

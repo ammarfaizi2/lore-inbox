@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314613AbSEUOTM>; Tue, 21 May 2002 10:19:12 -0400
+	id <S314634AbSEUOX5>; Tue, 21 May 2002 10:23:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314634AbSEUOTL>; Tue, 21 May 2002 10:19:11 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:7340 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S314613AbSEUOTK>; Tue, 21 May 2002 10:19:10 -0400
-Date: Tue, 21 May 2002 09:19:08 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 build hides errors
-In-Reply-To: <20020521074532.GA27185@ravel.coda.cs.cmu.edu>
-Message-ID: <Pine.LNX.4.44.0205210913310.10815-100000@chaos.physics.uiowa.edu>
+	id <S314637AbSEUOX4>; Tue, 21 May 2002 10:23:56 -0400
+Received: from edcom.no ([194.248.172.30]:57609 "EHLO edcom.no")
+	by vger.kernel.org with ESMTP id <S314634AbSEUOX4>;
+	Tue, 21 May 2002 10:23:56 -0400
+From: "Svein E. Seldal" <Svein.Seldal@edcom.no>
+To: <linux-kernel@vger.kernel.org>
+Subject: Custom kernel version and depmod
+Date: Tue, 21 May 2002 16:23:54 +0200
+Message-ID: <KKEHJJLHENOALGODMOGLCECHCBAA.Svein.Seldal@edcom.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 May 2002, Jan Harkes wrote:
 
-> The following patch allows the kernel compile to abort on errors again.
-> It also fixes some missing includes in filesystems that were broken by
-> the removal of locks.h.
+Hi,
 
-Yup, just fixed the same problem - should better have gone through my 
-lkml mail before. My patch is slightly different (does '|| exit $?' 
-instead), but achieves the same thing.
-
-Actually, I think I like yours better.
-
-At least this proves that it's obviously possible for other people to
-grasp what's going in Rules.make - which is good ;-)
-
---Kai
+I have written a USB device driver for the Linux kernel. For convenience I
+am going to distribute it binary (rpm) in addition to the source. For
+flexibility I intended to distribute the module without enabling the kernel
+module version. However, depmod complains about unresolved symbols if I do
+so (insmod/modprobe works of course). Is there a method of avoiding these
+complaints by depmod or must I compile the driver with the kernel module
+enabled (i.e. depmod is made this way).
 
 
-
-> diff -urN linux-2.5.17/Rules.make linux-trivial/Rules.make
-> --- linux-2.5.17/Rules.make	Tue May 21 01:46:03 2002
-> +++ linux-trivial/Rules.make	Tue May 21 03:35:35 2002
-> @@ -380,5 +380,5 @@
->  if_changed = $(if $(strip $? \
->  		          $(filter-out $($(1)),$(cmd_$@))\
->  			  $(filter-out $(cmd_$@),$($(1)))),\
-> -	       @echo $($(1)); $($(1)); echo 'cmd_$@ := $($(1))' > .$@.cmd)
-> +	       @echo $($(1)) && $($(1)) && echo 'cmd_$@ := $($(1))' > .$@.cmd)
->  
-
+Regards,
+Svein
 

@@ -1,92 +1,264 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263814AbUCPJ47 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 04:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263815AbUCPJ47
+	id S261158AbUCPKB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 05:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263819AbUCPKB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 04:56:59 -0500
-Received: from mailhost.cs.auc.dk ([130.225.194.6]:64483 "EHLO
-	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S263814AbUCPJzJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 04:55:09 -0500
-Subject: [OOPS] Recovering ext3 - recovery.c: assertion failed, attempted
-	to kill init
-From: Kristian Soerensen <ks@cs.auc.dk>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1079430906.19929.10.camel@homer.cs.auc.dk>
+	Tue, 16 Mar 2004 05:01:28 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:26269 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261158AbUCPKBI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 05:01:08 -0500
+Date: Tue, 16 Mar 2004 08:16:02 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH][2.6-mm] Fix 4G/4G w/ 8k+ stacks
+Message-ID: <20040316071601.GA2560@elte.hu>
+References: <Pine.LNX.4.58.0403150401310.28447@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 16 Mar 2004 10:55:06 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0403150401310.28447@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all :)
 
-After (hard) power cycling a computer, running linux-2.6.3*, the
-filsystem (ext3) sould be recovered at boot. However I get the following
-message from the kernel. I have tried booting the redhat
-kernel-2.4.20-30.9 - but with the same result.
+looks good to me!
 
-* The kernel was patched with our Umbrella LSM module, but however _no_
-changes were made to the filesystem.
+	Ingo
 
+* Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
 
-Cheers,
-KS.
-
-
------------------------------------------------------------------------
-
-Assertion failure in jread() at fs/jbd/recovery.c:140: "offset <
-journal->j_maxlen"
------ [ cut here ] -----
-kernel BUG at fs/jbd/recovery.c:140!
-invalid operand: 0000 [#1]
-CPU:	0
-EIP:	0060:[<c019207c>]	Not tainted
-EFLASGS: 00010286
-EIP is at jread+0x114/0x121
-eax: 00000057	exb: 6b6b6b2f	ecx: c0300db0	edx: 00000286
-esi: df52cd80	edi: 6b6b6b2f	ebp: df721d44	esp: df721ce8
-ds: 007b	es: 007b	ss: 0068
-Process swapper (pid: 1, threadinfo df720000 task=df6ef900
-Stack: c02d5ba0 c02c41af c02d3d49 0000008c c02d3d2e c039e5b0 6b6b6b2f
-df52cd80
-       df721d7c 2f6b6b6b c0192262 df721d44 df52cd80 6b6b6b2f c0117cb7
-df721d44
-       df721d44 00000000 00000002 00000000 00000000 00000000 c0117cb7
-00000000
-Call Trace:
-[<c0192262>] 	do_one_pass+0x57/0x46b
-[<c0117cb7>] 	autoremove_wake_function+0x0/0x4f
-[<c0117cb7>] 	autoremove_wake_function+0x0/0x4f
-[<c0192131>] 	journal_recover+0x60/0xc3
-[<c01951c9>] 	journal_load+0x51/0x82
-[<c018a414>] 	ext3_load_journal+0xd2/0x19c
-[<c0189e30>] 	ext3_fill_super+0x9a9/0xb16
-[<c014f9bf>] 	get_sb_bdev+0x127/0x159
-[<c015f15e>] 	dput+0x22/0x21f
-[<c01638c7>] 	alloc_vfsmnt+0x87/0xb6
-[<c018ab83>] 	ext3_get_sb+0x2f/0x33
-[<c0189487>] 	ext3_fill_super+0x0/0xb16
-[<c014fc34>] 	do_kern_mount+0xa2/0x15a
-[<c0164b3c>] 	do_add_mount+0x81/0x15b
-[<c0164ea7>] 	do_mount+0x18f/0x1d8
-[<c01bf74e>] 	__copy_from_user_ll+0x74/0x7a
-[<c0164ca2>] 	copy_mount_options+0x8c/0x102
-[<c01652c1>] 	sys_mount+0xd7/0x135
-[<c0348db8>] 	do_mount_root+0x2f/0x9c
-[<c0348e79>] 	mount_block_root+0x54/0x118
-[<c03490d7>] 	mount_root+0x5e/0x66
-[<c0349124>]	prepare_namespace+0x45/0x102
-[<c01050c2>]	init+0x35/0x133
-[<c010508d>] 	init+0x0/0x133
-[<c0108a49>] 	kernel_thread_helper+0x5/0xb
-
-Code: 0f 0b 8c 00 49 3d 2d c0 e9 05 ff ff ff 57 56 53 31 db 8b 7c
-	<0>Kernel panic: Attempted to kill init!
-	
------------------------------------------------------------------------
-
+> The 4/4 code right now is setup for 8k stacks, this patch should allow for
+> arbitrary stack sizes. Some parts are rather ugly (e.g. STACK_PAGE_COUNT)
+> so (abusive too) comments are welcome.
+> 
+> I've tested it with 4k,8k and 16k stacks on UP and SMP, but i believe it
+> breaks with CONFIG_DEBUG_PAGEALLOC
+> 
+> Index: linux-2.6.4-mm2/include/asm-i386/fixmap.h
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.4-mm2/include/asm-i386/fixmap.h,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 fixmap.h
+> --- linux-2.6.4-mm2/include/asm-i386/fixmap.h	15 Mar 2004 05:53:41 -0000	1.1.1.1
+> +++ linux-2.6.4-mm2/include/asm-i386/fixmap.h	15 Mar 2004 16:01:20 -0000
+> @@ -115,10 +115,10 @@ extern void __set_fixmap (enum fixed_add
+>   * Leave one empty page between vmalloc'ed areas and
+>   * the start of the fixmap.
+>   *
+> - * IMPORTANT: dont change FIXADDR_TOP without adjusting KM_VSTACK0
+> - * and KM_VSTACK1 so that the virtual stack is 8K aligned.
+> + * IMPORTANT: we have to align FIXADDR_TOP so that the virtual stack
+> + * is THREAD_SIZE aligned.
+>   */
+> -#define FIXADDR_TOP	(0xffffe000UL)
+> +#define FIXADDR_TOP	(0xffffe000UL & ~(THREAD_SIZE-1))
+>  #define __FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)
+>  #define FIXADDR_START	(FIXADDR_TOP - __FIXADDR_SIZE)
+> 
+> Index: linux-2.6.4-mm2/include/asm-i386/kmap_types.h
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.4-mm2/include/asm-i386/kmap_types.h,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 kmap_types.h
+> --- linux-2.6.4-mm2/include/asm-i386/kmap_types.h	15 Mar 2004 05:53:41 -0000	1.1.1.1
+> +++ linux-2.6.4-mm2/include/asm-i386/kmap_types.h	15 Mar 2004 23:09:53 -0000
+> @@ -2,15 +2,16 @@
+>  #define _ASM_KMAP_TYPES_H
+> 
+>  #include <linux/config.h>
+> +#include <linux/thread_info.h>
+> 
+>  enum km_type {
+>  	/*
+> -	 * IMPORTANT: don't move these 3 entries, and only add entries in
+> -	 * pairs: the 4G/4G virtual stack must be 8K aligned on each cpu.
+> +	 * IMPORTANT: don't move these 3 entries, be wary when adding entries,
+> +	 * the 4G/4G virtual stack must be THREAD_SIZE aligned on each cpu.
+>  	 */
+>  	KM_BOUNCE_READ,
+> -	KM_VSTACK1,
+> -	KM_VSTACK0,
+> +	KM_VSTACK_BASE,
+> +	KM_VSTACK_TOP = KM_VSTACK_BASE + STACK_PAGE_COUNT-1,
+> 
+>  	KM_LDT_PAGE15,
+>  	KM_LDT_PAGE0 = KM_LDT_PAGE15 + 16-1,
+> @@ -30,8 +31,8 @@ enum km_type {
+>  	KM_SOFTIRQ0,
+>  	KM_SOFTIRQ1,
+>  	/*
+> -	 * Add new entries in pairs:
+> -	 * the 4G/4G virtual stack must be 8K aligned on each cpu.
+> +	 * Be wary when adding entries:
+> +	 * the 4G/4G virtual stack must be THREAD_SIZE aligned on each cpu.
+>  	 */
+>  	KM_TYPE_NR
+>  };
+> Index: linux-2.6.4-mm2/include/asm-i386/processor.h
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.4-mm2/include/asm-i386/processor.h,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 processor.h
+> --- linux-2.6.4-mm2/include/asm-i386/processor.h	15 Mar 2004 05:53:41 -0000	1.1.1.1
+> +++ linux-2.6.4-mm2/include/asm-i386/processor.h	15 Mar 2004 15:44:57 -0000
+> @@ -401,10 +401,16 @@ struct tss_struct {
+> 
+>  #define ARCH_MIN_TASKALIGN	16
+> 
+> +#ifdef CONFIG_4KSTACKS
+> +#define STACK_PAGE_COUNT	(4096/PAGE_SIZE)
+> +#else
+> +#define STACK_PAGE_COUNT	(8192/PAGE_SIZE)	/* THREAD_SIZE/PAGE_SIZE */
+> +#endif
+> +
+>  struct thread_struct {
+>  /* cached TLS descriptors. */
+>  	struct desc_struct tls_array[GDT_ENTRY_TLS_ENTRIES];
+> -	void *stack_page0, *stack_page1;
+> +	void *stack_page[STACK_PAGE_COUNT];
+>  	unsigned long	esp0;
+>  	unsigned long	sysenter_cs;
+>  	unsigned long	eip;
+> Index: linux-2.6.4-mm2/include/asm-i386/thread_info.h
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.4-mm2/include/asm-i386/thread_info.h,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 thread_info.h
+> --- linux-2.6.4-mm2/include/asm-i386/thread_info.h	15 Mar 2004 05:53:41 -0000	1.1.1.1
+> +++ linux-2.6.4-mm2/include/asm-i386/thread_info.h	15 Mar 2004 15:49:56 -0000
+> @@ -49,8 +49,10 @@ struct thread_info {
+>  #endif
+> 
+>  #define PREEMPT_ACTIVE		0x4000000
+> +
+> +/* if you change THREAD_SIZE here, don't forget to change STACK_PAGE_COUNT */
+>  #ifdef CONFIG_4KSTACKS
+> -#define THREAD_SIZE            (4096)
+> +#define THREAD_SIZE		(4096)
+>  #else
+>  #define THREAD_SIZE		(8192)
+>  #endif
+> Index: linux-2.6.4-mm2/arch/i386/kernel/entry_trampoline.c
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.4-mm2/arch/i386/kernel/entry_trampoline.c,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 entry_trampoline.c
+> --- linux-2.6.4-mm2/arch/i386/kernel/entry_trampoline.c	15 Mar 2004 05:53:30 -0000	1.1.1.1
+> +++ linux-2.6.4-mm2/arch/i386/kernel/entry_trampoline.c	15 Mar 2004 08:52:48 -0000
+> @@ -21,7 +21,9 @@ extern char __entry_tramp_start, __entry
+>  void __init init_entry_mappings(void)
+>  {
+>  #ifdef CONFIG_X86_HIGH_ENTRY
+> +
+>  	void *tramp;
+> +	int p;
+> 
+>  	/*
+>  	 * We need a high IDT and GDT for the 4G/4G split:
+> @@ -37,7 +39,7 @@ void __init init_entry_mappings(void)
+>  	/*
+>  	 * Virtual kernel stack:
+>  	 */
+> -	BUG_ON(__kmap_atomic_vaddr(KM_VSTACK0) & (THREAD_SIZE-1));
+> +	BUG_ON(__kmap_atomic_vaddr(KM_VSTACK_TOP) & (THREAD_SIZE-1));
+>  	BUG_ON(sizeof(struct desc_struct)*NR_CPUS*GDT_ENTRIES > 2*PAGE_SIZE);
+>  	BUG_ON((unsigned int)&__entry_tramp_end - (unsigned int)&__entry_tramp_start > 2*PAGE_SIZE);
+> 
+> @@ -45,15 +47,15 @@ void __init init_entry_mappings(void)
+>  	 * set up the initial thread's virtual stack related
+>  	 * fields:
+>  	 */
+> -	current->thread.stack_page0 = virt_to_page((char *)current->thread_info);
+> -	current->thread.stack_page1 = virt_to_page((char *)current->thread_info + PAGE_SIZE);
+> -	current->thread_info->virtual_stack = (void *)__kmap_atomic_vaddr(KM_VSTACK0);
+> -
+> -	__kunmap_atomic_type(KM_VSTACK0);
+> -	__kunmap_atomic_type(KM_VSTACK1);
+> -        __kmap_atomic(current->thread.stack_page0, KM_VSTACK0);
+> -        __kmap_atomic(current->thread.stack_page1, KM_VSTACK1);
+> +	for (p = 0; p < ARRAY_SIZE(current->thread.stack_page); p++)
+> +		current->thread.stack_page[p] = virt_to_page((char *)current->thread_info + (p*PAGE_SIZE));
+> +
+> +	current->thread_info->virtual_stack = (void *)__kmap_atomic_vaddr(KM_VSTACK_TOP);
+> 
+> +	for (p = 0; p < ARRAY_SIZE(current->thread.stack_page); p++) {
+> +		__kunmap_atomic_type(KM_VSTACK_TOP-p);
+> +		__kmap_atomic(current->thread.stack_page[p], KM_VSTACK_TOP-p);
+> +	}
+>  #endif
+>  	current->thread_info->real_stack = (void *)current->thread_info;
+>  	current->thread_info->user_pgd = NULL;
+> Index: linux-2.6.4-mm2/arch/i386/kernel/process.c
+> ===================================================================
+> RCS file: /home/cvsroot/linux-2.6.4-mm2/arch/i386/kernel/process.c,v
+> retrieving revision 1.1.1.1
+> diff -u -p -B -r1.1.1.1 process.c
+> --- linux-2.6.4-mm2/arch/i386/kernel/process.c	15 Mar 2004 05:53:30 -0000	1.1.1.1
+> +++ linux-2.6.4-mm2/arch/i386/kernel/process.c	15 Mar 2004 08:08:42 -0000
+> @@ -345,7 +345,7 @@ int copy_thread(int nr, unsigned long cl
+>  {
+>  	struct pt_regs * childregs;
+>  	struct task_struct *tsk;
+> -	int err;
+> +	int err, i;
+> 
+>  	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
+>  	struct_cpy(childregs, regs);
+> @@ -360,10 +360,11 @@ int copy_thread(int nr, unsigned long cl
+>  	 * get the two stack pages, for the virtual stack.
+>  	 *
+>  	 * IMPORTANT: this code relies on the fact that the task
+> -	 * structure is an 8K aligned piece of physical memory.
+> +	 * structure is an THREAD_SIZE aligned piece of physical memory.
+>  	 */
+> -	p->thread.stack_page0 = virt_to_page((unsigned long)p->thread_info);
+> -	p->thread.stack_page1 = virt_to_page((unsigned long)p->thread_info + PAGE_SIZE);
+> +	for (i = 0; i < ARRAY_SIZE(p->thread.stack_page); i++)
+> +		p->thread.stack_page[i] =
+> +				virt_to_page((unsigned long)p->thread_info + (i*PAGE_SIZE));
+> 
+>  	p->thread.eip = (unsigned long) ret_from_fork;
+>  	p->thread_info->real_stack = p->thread_info;
+> @@ -519,22 +520,23 @@ struct task_struct fastcall * __switch_t
+>  	__unlazy_fpu(prev_p);
+> 
+>  #ifdef CONFIG_X86_HIGH_ENTRY
+> +{
+> +	int i;
+>  	/*
+>  	 * Set the ptes of the virtual stack. (NOTE: a one-page TLB flush is
+>  	 * needed because otherwise NMIs could interrupt the
+>  	 * user-return code with a virtual stack and stale TLBs.)
+>  	 */
+> -	__kunmap_atomic_type(KM_VSTACK0);
+> -	__kunmap_atomic_type(KM_VSTACK1);
+> -	__kmap_atomic(next->stack_page0, KM_VSTACK0);
+> -	__kmap_atomic(next->stack_page1, KM_VSTACK1);
+> -
+> +	for (i = 0; i < ARRAY_SIZE(next->stack_page); i++) {
+> +		__kunmap_atomic_type(KM_VSTACK_TOP-i);
+> +		__kmap_atomic(next->stack_page[i], KM_VSTACK_TOP-i);
+> +	}
+>  	/*
+>  	 * NOTE: here we rely on the task being the stack as well
+>  	 */
+>  	next_p->thread_info->virtual_stack =
+> -			(void *)__kmap_atomic_vaddr(KM_VSTACK0);
+> -
+> +			(void *)__kmap_atomic_vaddr(KM_VSTACK_TOP);
+> +}
+>  #if defined(CONFIG_PREEMPT) && defined(CONFIG_SMP)
+>  	/*
+>  	 * If next was preempted on entry from userspace to kernel,

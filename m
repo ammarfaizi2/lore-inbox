@@ -1,103 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135588AbRDSIEe>; Thu, 19 Apr 2001 04:04:34 -0400
+	id <S135590AbRDSIWM>; Thu, 19 Apr 2001 04:22:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135589AbRDSIEZ>; Thu, 19 Apr 2001 04:04:25 -0400
-Received: from dpt-info.u-strasbg.fr ([130.79.6.1]:39438 "EHLO
-	dpt-info.u-strasbg.fr") by vger.kernel.org with ESMTP
-	id <S135588AbRDSIEL>; Thu, 19 Apr 2001 04:04:11 -0400
-Date: Thu, 19 Apr 2001 10:05:15 +0200
-To: Miles Lane <miles@megapathdsl.net>
-Cc: "David S. Miller" <davem@redhat.com>,
-        James Simmons <jsimmons@linux-fbdev.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: ANNOUNCE New Open Source X server
-Message-ID: <20010419100515.A25514@lambda.u-strasbg.fr>
-In-Reply-To: <Pine.LNX.4.10.10104181317440.1478-100000@www.transvirtual.com> <15070.4428.345455.994818@pizda.ninka.net> <3ADE2A06.7EE56438@megapathdsl.net>
-Mime-Version: 1.0
+	id <S135591AbRDSIWC>; Thu, 19 Apr 2001 04:22:02 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:42758 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S135590AbRDSIV6>; Thu, 19 Apr 2001 04:21:58 -0400
+Message-ID: <3ADE9FFA.3E8476C2@idb.hist.no>
+Date: Thu, 19 Apr 2001 10:21:14 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Jeremy Jackson <jerj@coplanar.net>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to turn file caching off ?
+In-Reply-To: <Pine.LNX.3.96.1010418134153.20558A-100000@medusa.sparta.lu.se> <3ADD99E8.FB7F8542@coplanar.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3ADE2A06.7EE56438@megapathdsl.net>; from miles@megapathdsl.net on Wed, Apr 18, 2001 at 04:57:58PM -0700
-From: Sven LUTHER <luther@dpt-info.u-strasbg.fr>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 18, 2001 at 04:57:58PM -0700, Miles Lane wrote:
-> "David S. Miller" wrote:
-> > 
-> > James Simmons writes:
-> >  >     The Linux GFX project grew out the need for a higher performance X
-> >  > server that has a much faster developement cycle. In the last few years
-> >  > the graphics card and multimedia environments have grow at such a rate
-> >  > the current X solutions can no longer keep pace nor do they focus on
-> >  > producing high performance X servers specifically for linux. Also the
-> >  > community has demanded for specific functionality which has never come to
-> >  > light.
-> > 
-> > And this specific functionality is?
-> > 
-> > I think this is not a worthwhile project at all.  The X tree, it's
-> > assosciated protocols and APIs, are complicated enough as it is, and
-> > the xfree86 project has some of the most talented and capable people
-> > in this area.  It would be a step backwards to do things outside of
-> > xfree86 development.
-> > 
-> > If the issue is that "things don't happen fast enough in the xfree86
-> > tree", why not lend them a hand and submitting patches to them instead
-> > of complaining?
+Jeremy Jackson wrote:
+
+> currently all the kernel's heuristics are feed-back control loops.
+> what you are asking for is a feed-forward system: a way for the application
+> to tell kernel "I'm only reading this once, so after I'm done, throw it out
+> straight away"
+> and "I'm only writing this data, so after I'm done, start writing it out and
+> then forget it"
 > 
-> Yes, David, I concur.  
-> 
-> James, please just pitch in and help XFree86 evolve faster.
-> There are drivers that need to be "Render" extension enabled.  
+This is hard to get right.  Sure - your unpack/copy program read once
+and
+writes once.  But the stuff might be used shortly thereafter by
+another process.  For example:  I unpack a kernel tarball.  tar
+knows it writes only once and might not need more than 5M to do
+this as efficient as possible with my disks.  A lot of other cache
+could be saved, fewer things swapped out.
+But then I compile it.  Todays system ensures that lots of the source
+is in memory already.  Limiting the caching to what tar needed
+however will force the source to be read from disk once during
+the compile - not what I want at all.  
 
-Sure, but if there was a Render documentation or something such, things would
-be much easier. 
+A program may know its own access pattern, but it don't usually know
+future access patterns.  Well, backing up the entire fs could benefit
+from a something like this, you probably won't need the backup again
+soon.  But this is hard to know in many other cases.
 
-> There's more work to do on fleshing out the Render extension.  
-> I am sure that Kieth Packard would be grateful for any 
-> worthwhile contributions.
-> 
-> If you are thinking that you'll provide better accellerated 
-> graphics rendering performance, I'd love to know how you plan 
-> to accomplish this.  AFAIK, the main impediment to XFree86 
-> giving really good accelleration support for a broad array 
-> of hardware is the lack of technical documentation from the 
-> manufacturers.  Unless you plan on trying to get hardware 
-
-Well, in doing fbdev drivers you already solve this kind of problems.
-
-> manufactures to have you develop their closed-source drivers 
-> for them, I don't see how you'll be able to do any better 
-
-closed source driver are evil anyway, so don't worry about those.
-
-> than the XFree86 organization is already doing.
-> 
-> XFree86 evolves in a measured way as a result of many 
-> competing needs.  Backward compatibility is needed for the 
-> huge installed base of legacy apps.  For the various 
-> development toolkits (KDE, Gnome, etc.) there is a rapid 
-> move toward using the Render and "Resize and Rotate" 
-> extensions.  These extensions will make all sorts of cool 
-> rendering functionality available to the applications that 
-> use these toolkits (alpha blending, anti-aliased fonts and 
-> so on).  
-> 
-> I'd love to hear you enumerate all the shortcomings that you
-> believe need to be addressed.  Also, please CC: devel@xfree86.org.
-> At least give the competition an opportunity to win over the 
-> support of the developers you'd like to pull away from 
-> XFree86 work!
-
-I think the main critic (guessing from his announcement) is the interaction
-between the console system and xfree86, as well as the
-multi-head/keyboard/whatever handling, but let's hear what james has to say
-about it.
-
-Friendly,
-
-Sven Luther
+Helge Hafting

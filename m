@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTJHIk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 04:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbTJHIk4
+	id S261162AbTJHJAp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 05:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbTJHJAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 04:40:56 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:58816 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261159AbTJHIky convert rfc822-to-8bit
+	Wed, 8 Oct 2003 05:00:45 -0400
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:37000 "EHLO
+	einstein31.homenet") by vger.kernel.org with ESMTP id S261162AbTJHJAo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 04:40:54 -0400
-content-class: urn:content-classes:message
+	Wed, 8 Oct 2003 05:00:44 -0400
+Date: Wed, 8 Oct 2003 09:59:05 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein31.homenet
+To: Dave Jones <davej@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: changes to microcode update driver.
+In-Reply-To: <20031007135417.GC11840@redhat.com>
+Message-ID: <Pine.LNX.4.44.0310080953550.1126-100000@einstein31.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH] incorrect use of sizeof() in ioctl definitions
-Date: Wed, 8 Oct 2003 16:40:46 +0800
-Message-ID: <571ACEFD467F7749BC50E0A98C17CDD8F3283B@pdsmsx403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] incorrect use of sizeof() in ioctl definitions
-Thread-Index: AcOHs4XoK9QAuwezQsqz1nwTtB99fwFvRU1g
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: "Andries Brouwer" <aebr@win.tue.nl>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Sharma, Arun" <arun.sharma@intel.com>,
-       <linux-kernel@vger.kernel.org>, "Matthew Wilcox" <willy@debian.org>
-X-OriginalArrivalTime: 08 Oct 2003 08:40:47.0427 (UTC) FILETIME=[DEC03930:01C38D77]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 7 Oct 2003, Dave Jones wrote:
+> Assuming that it can be done without the old tools breaking, sounds good
+> to me.  How will microcode_ctl -i react if you remove the ioctl ?
+> Folks _will_ upgrade kernels without updating userspace.
 
-> Andries Brouwer [mailto:aebr@win.tue.nl] wrote:
-> On Tue, Sep 30, 2003 at 11:25:56PM +0100, Matthew Wilcox wrote:
-> > On Tue, Sep 30, 2003 at 02:08:05PM -0700, Andrew Morton wrote:
-> > > Arun Sharma <arun.sharma@intel.com> wrote:
-> > > >
-> > > > Some drivers seem to use macros such as _IOR/_IOW in a way that
-ends
-> up
-> > > > calling the sizeof() operator twice. For eg:
-> > > >
-> > > > -#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, sizeof(__u32*))
-> > > > +#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, __u32*)
-> 
-> But this changes the define. You want
-> 
-> #define FBIO_ATY128_GET_MIRROR	_IOR_BAD('@', 1, __u32*)
+It will fail and Red Hat's startup scripts will show the red [FAILED]
+thing which users are always afraid of.
 
-	Maybe I got something wrong, but could someone please help me to
-understand why introduce _IOR_BAD here? Thanks first! :)
+So, I thought initially we should just return 0 in that ioctl (with the 
+comment that it's going away) and then remove it completely, after 
+microcode_ctl has been updated.
 
-	IMO, the birth of new ioctl definition convention considers
-"size" of argument as a part, so we should conform to this rule.
-_IOR_BAD is no different as old one <_IOR('@', 1, sizeof(__u32*))>,
-which expands as sizeof(sizeof(__32*)) and actually assume temp result
-of internal sizeof as the argument. Of course this didn't reflect the
-true point and we should change the definition. :)
+The patch was almost ready (together with Intel's changes) but I 
+discovered that microcode module (or in fact ANY module that is loaded 
+first on my system, 2.6.0-test6) is not unloadable, i.e. usage count stays 
+at 1 even though nothing is using it. I am not aware of this general 
+problem being discussed on linux-kernel list, so I thought I should debug 
+it first (after all, it may be something I am doing that causes it). And 
+yes my kernel is configured to allow unloading, even forced unloading.
 
-	Also I'm confused about the modification about using size_t to
-replace sizeof(). Take MATROXFB_SET_OUTPUT_MODE for example:
+(still feeling ashamed after yesterday's thing with me forgetting to 
+configure siimage driver and complaining that generic ATA is too slow :)
 
-(old)	#define MATROXFB_SET_OUTPUT_MODE
-_IOW('n',0xFA,sizeof(struct matroxioc_output_mode))
-(now)	#define MATROXFB_SET_OUTPUT_MODE        _IOW('n',0xFA,size_t)
+Kind regards
+Tigran
 
-	The size of matroxioc_output_mode is 8 bytes on all platforms,
-however size_t will be calculated as 4 bytes on 32bit arch and 8 bytes
-on 64bit arch. So this is also like using sizeof(), which imposes the
-difference between 32bit ioctl number and 64bit ioctl number. However in
-standard manner, I mean:
-	#define MATROXFB_SET_OUTPUT_MODE        _IOW('n',0xFA,struct
-matroxioc_output_mode)
- 	The value should be identical on all platforms, which save our
-efforts to do useless conversion when running 32bit apps on 64bit
-platform.
-
-	The most important is: to use sizeof() or size_t here both
-messed the ioctl definition, which violate the initial motivation of
-_IO**, is it?
-
-> Something else we should do is to change all occurrences of 'size'
-> here into 'argtype'. All this nonsense came because of the bad choice
-> of identifier.
-	Agree. The inaccurate name here confused us... :)

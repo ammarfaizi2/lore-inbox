@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264514AbTEJVdM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 17:33:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264516AbTEJVdL
+	id S264511AbTEJV1N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 17:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264514AbTEJV1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 17:33:11 -0400
-Received: from corky.net ([212.150.53.130]:45718 "EHLO marcellos.corky.net")
-	by vger.kernel.org with ESMTP id S264514AbTEJVdL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 17:33:11 -0400
-Date: Sun, 11 May 2003 00:45:44 +0300 (IDT)
-From: Yoav Weiss <ml-lkml@unpatched.org>
-X-X-Sender: yoavw@marcellos.corky.net
-To: daw@mozart.cs.berkeley.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <Pine.LNX.4.44.0305110036140.17881-100000@marcellos.corky.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 10 May 2003 17:27:13 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:47249
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264511AbTEJV1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 17:27:13 -0400
+Subject: Re: logs full of chatty IDE cdrom
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030510201744.GD662@gallifrey>
+References: <20030510201744.GD662@gallifrey>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1052599284.19351.2.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 10 May 2003 21:41:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Let's see you do sys_execve()...  sys_socketcall() and sys_ioctl() are
-> fun, too.  (And, I worry about doubly-indirected pointers, for instance.)
-> It's probably do-able, but you'd better stock up on the Advil in advance:
-> we're in major headache country, folks.
+On Sad, 2003-05-10 at 21:17, Dr. David Alan Gilbert wrote:
+> Hi,
+>   I'm not sure but this seems to be a lot worse in 2.5.x for some
+> reason; my logs are full of I/O errors, not ready's and other errors from
+> my CDROM drive that is playing audio CDs; I suspect at least some of it
+> is due to kscd trying to figure out if there is a CD in an empty drive.
 
-I agree.  I could post my 2.0.x code for doing this, but it would be
-counter-productive since security apps should use LSM for this very
-reason.  I was merely suggesting a way for Masud to solve his specific
-problem without rewriting his module.
-
-sys_execve() and sys_socketcall() are actually not that hard.  sys_ioctl()
-is next to impossible because no never know what the structs look like.
-Luckily, most security apps don't require ioctl-screening.
-
-Most security applications should use LSM but its not a good reason to
-remove sys_call_table, since its still useful for many non-security
-purposes.
-
-	Yoav Weiss
+That shouldnt be generating messages. Its more important to know why or
+to see wtf its doing that generates them
 

@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131355AbQK2NbL>; Wed, 29 Nov 2000 08:31:11 -0500
+        id <S130486AbQK2Nfy>; Wed, 29 Nov 2000 08:35:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131384AbQK2NbB>; Wed, 29 Nov 2000 08:31:01 -0500
-Received: from chia.umiacs.umd.edu ([128.8.120.111]:28843 "EHLO
-        chia.umiacs.umd.edu") by vger.kernel.org with ESMTP
-        id <S131355AbQK2Nav>; Wed, 29 Nov 2000 08:30:51 -0500
-Date: Wed, 29 Nov 2000 08:00:19 -0500 (EST)
-From: Adam <adam@cfar.umd.edu>
-To: linux-kernel@vger.kernel.org
-Subject: 'holey files' not holey enough.
-Message-ID: <Pine.GSO.4.21.0011290755570.2862-100000@chia.umiacs.umd.edu>
-X-WEB: http://www.eax.com
+        id <S131056AbQK2Nfo>; Wed, 29 Nov 2000 08:35:44 -0500
+Received: from 213-123-77-81.btconnect.com ([213.123.77.81]:20740 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S130486AbQK2Nfc>;
+        Wed, 29 Nov 2000 08:35:32 -0500
+Date: Wed, 29 Nov 2000 13:07:01 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Adam <adam@cfar.umd.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 'holey files' not holey enough.
+In-Reply-To: <Pine.GSO.4.21.0011290755570.2862-100000@chia.umiacs.umd.edu>
+Message-ID: <Pine.LNX.4.21.0011291306260.883-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 29 Nov 2000, Adam wrote:
+> However, when I try on 'development' 2.4.x kernel
+> 
+> 	[adam@pepsi /tmp]$ uname -a
+> 	Linux pepsi 2.4.0-test7-packet #24 SMP Fri Sep 8 20:26:35 EDT 2000 i686
+> 
+> 	[adam@pepsi /tmp]$  dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
+> 	1000+0 records in
+> 	1000+0 records out
+> 
+> 	[adam@pepsi /tmp]$ ls -l holed.file 
+> 	-rw-rw-r--    1 adam     adam      6000000 Nov 29 08:52 holed.file
+> 
+> 	[adam@pepsi /tmp]$ du -sh holed.file 
+> 	1.9M    holed.file
+> 
 
-Is this feature or bug?
+what filesystem type? on ext2 filesystem on 2.4.0-test12-pre3 I get
+expected result:
 
-First a test on 'stable' 2.2.x kernel:
+# dd if=/dev/zero of=hole bs=1000 seek=5000 count=1000
+1000+0 records in
+1000+0 records out
+# l hole
+-rw-r--r--    1 root     root      6000000 Nov 29 13:06 hole
+# du -sh hole
+988k    hole
+# u
+Linux penguin 2.4.0-test12 #1 Wed Nov 29 09:08:13 GMT 2000 i686 unknown
 
-	eax /tmp % uname -a
-	Linux eax 2.2.17pre15 #1 Sat Aug 5 14:31:19 EDT 2000 i586 unknown
-
-	eax /tmp % dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
-	1000+0 records in
-	1000+0 records out
-
-	eax /tmp % ls -l holed.file 
-	-rw-rw-r--    1 adam     adam      6000000 Nov 29 08:57 holed.file
-
-	eax /tmp % du -sh holed.file 
-	983k	holed.file
-
-Above holey file is as expected aproximately 1mb. 
-However, when I try on 'development' 2.4.x kernel
-
-	[adam@pepsi /tmp]$ uname -a
-	Linux pepsi 2.4.0-test7-packet #24 SMP Fri Sep 8 20:26:35 EDT 2000 i686
-
-	[adam@pepsi /tmp]$  dd if=/dev/zero of=holed.file bs=1000 seek=5000 count=1000
-	1000+0 records in
-	1000+0 records out
-
-	[adam@pepsi /tmp]$ ls -l holed.file 
-	-rw-rw-r--    1 adam     adam      6000000 Nov 29 08:52 holed.file
-
-	[adam@pepsi /tmp]$ du -sh holed.file 
-	1.9M    holed.file
-
-The holey file is twice as big, 
-
-at almost 2mb instead of expected 1mb.
-
--- 
-Adam
-http://www.eax.com	The Supreme Headquarters of the 32 bit registers
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317830AbSGPMxD>; Tue, 16 Jul 2002 08:53:03 -0400
+	id <S317819AbSGPMtD>; Tue, 16 Jul 2002 08:49:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317831AbSGPMxD>; Tue, 16 Jul 2002 08:53:03 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24303 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317830AbSGPMw7>; Tue, 16 Jul 2002 08:52:59 -0400
-Subject: Re: Tyan s2466 stability
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: SCoTT SMeDLeY <ss@aaoepp.aao.gov.au>, linux-kernel@vger.kernel.org,
-       ss@aao.gov.au
-In-Reply-To: <Pine.LNX.3.95.1020716073755.7363A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1020716073755.7363A-100000@chaos.analogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 16 Jul 2002 15:05:45 +0100
-Message-Id: <1026828345.1688.52.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S317814AbSGPMtB>; Tue, 16 Jul 2002 08:49:01 -0400
+Received: from mailhub.fokus.gmd.de ([193.174.154.14]:60326 "EHLO
+	mailhub.fokus.gmd.de") by vger.kernel.org with ESMTP
+	id <S317798AbSGPMsK>; Tue, 16 Jul 2002 08:48:10 -0400
+Date: Tue, 16 Jul 2002 14:49:26 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.gmd.de>
+Message-Id: <200207161249.g6GCnQZ9021743@burner.fokus.gmd.de>
+To: schilling@fokus.gmd.de, vojtech@suse.cz
+Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-16 at 12:58, Richard B. Johnson wrote:
-> We got one here about two weeks ago. It had 2 AMD processors plus
-> 2 'sticks' of RAM (Don't know how much). It was originally tested
-> on an IDE drive booting Windows/2000. It worked, but a CPU had to
-> be removed because W$ trashes drives when using two CPUs.
+>From vojtech@ucw.cz Tue Jul 16 13:59:27 2002
 
-More likely your set up was faulty
+>> It would help, if somebody would correct the current SCSI addressng scheme used 
+>> in Linux. Linux currently uses something called BUS/channel/target/lun.
+>> This does not reflect reality.
+>> 
+>> What Linux calls a SCSI bus is definitely not a SCSI bus but a SCSI HBA card.
+>> What Linux calls a channel really is one of possibly more SCSI busses going
+>> off one of the SCSI HBA cards. It makes sense to just count SCSI busses.
 
-> I got to play with it for an hour. I put one of my BusLogic SCSI
-> controllers in one of the 33MHz slots and booted Linux off an existing
+>Well, no. It doesn't. Because the numbers will change if you add a card
+>(even at runtime - hotplugging USB SCSI is something real happening
+>today. And that'd be a very bad thing.
 
-Sounds like hardware/PSU stuff to me
+It hey change, then this is a Linux kernel problem. On Solaris they don't 
+change because Solaris manages /etc/path_to_inst
 
-> Nevertheless, I was entirely unimpressed with this "MPX" board. It
-> didn't have built-in SCSI like older Tyan boards that I currently use
-> and it didn't work very well. My AGP graphics card (G-Force) didn't
-> work either (in graphics) although I'm told that 'newer' ones do.
+Jörg
 
-I'm very happy with my MPX based board. The docs sucked, the BIOS
-socked, the lack of onboard USB sucked, but the rest is very nice and it
-seems stable enough.
-
-Power (430W PSU or bigger - and the right ones to get sufficient current
-on low voltage lines) and heat are big problems. I'm very happy with
-mine as a server box. As a desktop, or living in the same room as me I'd
-say definitely not.
-
-As to the lack of SCSI. I have an Adaptec/Dell Obsidian 4 port 64bit PCI
-SCSI controller plugged into it. It outperforms onboard scsi controllers
-so I don't feel the need for an onboard scsi controller to chain CD-ROMS
-too.
-
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.gmd.de		(work) chars I am J"org Schilling
+ URL:  http://www.fokus.gmd.de/usr/schilling   ftp://ftp.fokus.gmd.de/pub/unix

@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265555AbUBBHUV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 02:20:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265564AbUBBHUU
+	id S265641AbUBBH3X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 02:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265651AbUBBH3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 02:20:20 -0500
-Received: from f17.mail.ru ([194.67.57.47]:48390 "EHLO f17.mail.ru")
-	by vger.kernel.org with ESMTP id S265555AbUBBHUR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 02:20:17 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Greg KH=?koi8-r?Q?=22=20?= <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module-init-tools/udev and module auto-loading
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Mon, 02 Feb 2004 10:20:15 +0300
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1AnYNT-0002Tp-00.arvidjaar-mail-ru@f17.mail.ru>
+	Mon, 2 Feb 2004 02:29:23 -0500
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:13974 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S265641AbUBBH3W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 02:29:22 -0500
+Message-ID: <401DFC4C.2080802@blue-labs.org>
+Date: Mon, 02 Feb 2004 02:29:16 -0500
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040129
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ACPI/battery status on Dell Inspiron 8200 broken, 2.6.2-rc3
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Battery status got lost in either rc2 or rc3.  It worked in rc1.
 
->> Hi
->> 
->> A quick question on module-init-tools/udev and module auto-loading ...
->> lets say I have a module called 'foo', that I want the kernel to
->> auto-load.
->
-> Wait, stop right there.  When do you want the module autoloaded?
+powerix klaptopdaemon # cat /proc/acpi/battery/BAT0/info
+present:                 yes
+design capacity:         0 mWh
+last full capacity:      0 mWh
+battery technology:      non-rechargeable
+design voltage:          0 mV
+design capacity warning: 0 mWh
+design capacity low:     0 mWh
+capacity granularity 1:  0 mWh
+capacity granularity 2:  0 mWh
+model number:
+serial number:
+battery type:
+OEM info:
 
-for legacy hardware that cannot generate any hotplug event when
-connected.
+powerix klaptopdaemon # cat /proc/acpi/battery/BAT0/state
+present:                 yes
+capacity state:          ok
+charging state:          unknown
+present rate:            0 mA
+remaining capacity:      0 mAh
+present voltage:         0 mV
 
-Parallel port Jaz that I have. I usually have it switched off
-or simply disconnected (let's leave the question of how safe is
-to plug in parallel port cable aside). When I turn it on there is
-no hotplug event available. Meaning
-
-- either I have to load ppa (given current implementation)
-- or initiate rescan of ppa scsi bus (if it is ever changed to new
-  model)
-
-I guess other parallel port devices share the same issue.
-
-so there are cases when "action on access" makes sense.
-
-regards
-
--andrey

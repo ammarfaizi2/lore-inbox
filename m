@@ -1,106 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUGBQ1i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264725AbUGBQbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264693AbUGBQ1i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 12:27:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264737AbUGBQ03
+	id S264725AbUGBQbv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 12:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264550AbUGBQ36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 12:26:29 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:7575 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264702AbUGBQZR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 12:25:17 -0400
-Date: Fri, 2 Jul 2004 22:04:38 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Cc: linux-osdl@osdl.org
-Subject: Re: [PATCH 19/22] Fix math error in AIO wait on writeback
-Message-ID: <20040702163438.GI3450@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20040702130030.GA4256@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040702130030.GA4256@in.ibm.com>
-User-Agent: Mutt/1.4i
+	Fri, 2 Jul 2004 12:29:58 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:43166
+	"EHLO voidhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S264717AbUGBQ2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 12:28:31 -0400
+Date: Fri, 2 Jul 2004 17:28:07 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+Message-Id: <200407021628.i62GS7ZS002412@voidhawk.shadowen.org>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] [PATCH] add TRAP_BAD_SYSCALL_EXITS config for i386
+Cc: akpm@osdl.org, apw@shadowen.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
-> The patchset contains modifications and fixes to the AIO core
-> to support the full retry model, an implementation of AIO
-> support for buffered filesystem AIO reads and O_SYNC writes
-> (the latter courtesy O_SYNC speedup changes from Andrew Morton),
-> an implementation of AIO reads and writes to pipes (from
-> Chris Mason) and AIO poll (again from Chris Mason).
-> 
-> Full retry infrastructure and fixes
-> [1] aio-retry.patch
-> [2] 4g4g-aio-hang-fix.patch
-> [3] aio-retry-elevated-refcount.patch
-> [4] aio-splice-runlist.patch
-> 
-> FS AIO read
-> [5] aio-wait-page.patch
-> [6] aio-fs_read.patch
-> [7] aio-upfront-readahead.patch
-> 
-> AIO for pipes
-> [8] aio-cancel-fix.patch
-> [9] aio-read-immediate.patch
-> [10] aio-pipe.patch
-> [11] aio-context-switch.patch
-> 
-> Concurrent O_SYNC write speedups using radix-tree walks
-> [12] writepages-range.patch
-> [13] fix-writeback-range.patch
-> [14] fix-writepages-range.patch
-> [15] fdatawrite-range.patch
-> [16] O_SYNC-speedup.patch
-> 
-> AIO O_SYNC write
-> [17] aio-wait_on_page_writeback_range.patch
-> [18] aio-O_SYNC.patch
-> [19] O_SYNC-write-fix.patch
-> 
+There seems to be code recently added to -bk and thereby -mm which supports
+extra debug for preempt on system call exit.  Oddly there doesn't seem
+to be configuration options to enable them.  Below is a possible patch
+to allow enabling this on i386.  Sadly the most obvious menu to add this
+to is the Kernel Hacking menu, but that is defined in architecture specific
+configuration.  If this makes sense I could patch the other arches?
 
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
------------------------------------------------------------
+Comments?
 
-From: Chris Mason <mason@suse.com>
+-apw
 
-BUG 40701 correct math errors for aio O_SYNC writes that lead
-to the aio code thinking the write is complete while we are still
-waiting for some pages
+=== 8< ===
+Add a configuration option to allow enabling TRAP_BAD_SYSCALL_EXITS to the
+Kernel Hacking menu.
 
+Revision: $Rev: 356 $
 
- filemap.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
+---
+ Kconfig |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
---- aio/mm/filemap.c	2004-06-26 15:50:43.132941192 -0700
-+++ O_SYNC-write/mm/filemap.c	2004-06-26 16:01:26.559125544 -0700
-@@ -208,7 +208,7 @@ static ssize_t wait_on_page_writeback_ra
- 	struct pagevec pvec;
- 	int nr_pages;
- 	int ret = 0, done = 0;
--	pgoff_t index, curr = start;
-+	pgoff_t index;
+diff -upN reference/arch/i386/Kconfig current/arch/i386/Kconfig
+--- reference/arch/i386/Kconfig	2004-07-02 14:00:51.000000000 +0100
++++ current/arch/i386/Kconfig	2004-07-02 16:40:49.000000000 +0100
+@@ -1492,6 +1492,13 @@ config X86_MPPARSE
+ 	depends on X86_LOCAL_APIC && !X86_VISWS
+ 	default y
  
- 	if (end < start)
- 		return 0;
-@@ -232,12 +232,9 @@ static ssize_t wait_on_page_writeback_ra
- 				unlock_page(page);
- 				continue;
-                        }
--			curr = page->index;
- 			unlock_page(page);
- 			ret = wait_on_page_writeback_wq(page, wait);
- 			if (ret == -EIOCBRETRY) {
--				if (curr > start)
--					ret = curr - start;
- 				done = 1;
- 				break;
- 			}
++config TRAP_BAD_SYSCALL_EXITS
++	bool "Debug bad system call exits"
++	help
++	  If you say Y here the kernel will check for system calls which
++	  return without clearing preempt.
++        default n
++
+ endmenu
+ 
+ source "security/Kconfig"

@@ -1,41 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVBFNZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVBFNcM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVBFNZi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 08:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVBFNZi
+	id S261241AbVBFNcM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 08:32:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVBFNcM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 08:25:38 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:33036 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261222AbVBFNZc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 08:25:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=X8plZ9h9yZ1hMbq/fwWH4dC2fRVf4yMs2zTUupNFkHZ60NZxUdRwjDbJ1wfVCEERjwug7ag3eKiNgjvb7DsG0dVyNyErHxYyJXMrEWm7qqUKkO2fl410prOL4euAOpKzC5/rbiBPYc9dvZykF69GUQcvFcRAuZ9PRTcBM/gBmag=
-Message-ID: <58cb370e05020605256b3ea00e@mail.gmail.com>
-Date: Sun, 6 Feb 2005 14:25:32 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [RFC: 2.6 patch] IDE: unsexport 3 functions
+	Sun, 6 Feb 2005 08:32:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:12301 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261241AbVBFNcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 08:32:05 -0500
+Date: Sun, 6 Feb 2005 14:32:01 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <20050205024404.GK19408@stusta.de>
+Subject: Re: [RFC: 2.6 patch] IDE: unsexport 3 functions
+Message-ID: <20050206133201.GO3129@stusta.de>
+References: <20050205024404.GK19408@stusta.de> <58cb370e05020605256b3ea00e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050205024404.GK19408@stusta.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <58cb370e05020605256b3ea00e@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> @@ -161,8 +161,6 @@
->         return ide_stopped;
->  }
+On Sun, Feb 06, 2005 at 02:25:32PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > @@ -161,8 +161,6 @@
+> >         return ide_stopped;
+> >  }
+> > 
+> > -EXPORT_SYMBOL(do_rw_taskfile);
+> > -
 > 
-> -EXPORT_SYMBOL(do_rw_taskfile);
-> -
+> Is this patch against -mm or ide-dev-2.6?
 
-Is this patch against -mm or ide-dev-2.6?
+This is against -mm.
+But the only changes regarding do_rw_taskfile in -mm come from 
+bk-ide-dev.
 
-do_rw_taskfile() is still needed for ide-disk.c in linus' tree,
-the other two exports can be removed
+> do_rw_taskfile() is still needed for ide-disk.c in linus' tree,
+> the other two exports can be removed
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

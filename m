@@ -1,43 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVAPTwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVAPT6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbVAPTwX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 14:52:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVAPTtp
+	id S262591AbVAPT6R (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 14:58:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbVAPT6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 14:49:45 -0500
-Received: from sycorax.lbl.gov ([128.3.5.196]:48313 "EHLO sycorax.lbl.gov")
-	by vger.kernel.org with ESMTP id S262600AbVAPTr4 (ORCPT
+	Sun, 16 Jan 2005 14:58:16 -0500
+Received: from soundwarez.org ([217.160.171.123]:51331 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S262591AbVAPTzj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 14:47:56 -0500
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: pavel@ucw.cz, bernard@blackham.com.au, linux-kernel@vger.kernel.org,
-       shawv@comcast.net
-Subject: Re: Screwy clock after apm suspend
-References: <200501151830.j0FIUnjR020458@harpo.it.uu.se>
-From: Alex Romosan <romosan@sycorax.lbl.gov>
-Date: Sun, 16 Jan 2005 11:47:25 -0800
-In-Reply-To: <200501151830.j0FIUnjR020458@harpo.it.uu.se> (message from
- Mikael Pettersson on Sat, 15 Jan 2005 19:30:49 +0100 (MET))
-Message-ID: <87mzv9i2b6.fsf@sycorax.lbl.gov>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 16 Jan 2005 14:55:39 -0500
+Date: Sun, 16 Jan 2005 20:55:39 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] floppy.c: pass physical device to device registration
+Message-ID: <20050116195539.GA29057@vrfy.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> writes:
+With this patch the floppy driver creates the usual symlink in sysfs to
+the physical device backing the block device:
 
-> I'm no longer seeing any time jumps after resumes with the
-> 2.6.11-rc1 kernel. It looks like the wall_jiffies change in
-> time.c fixed the bug.
+  $tree /sys/block/
+  /sys/block/
+  |-- fd0
+  |   |-- dev
+  |   |-- device -> ../../devices/platform/floppy0
+  ...
 
-i can also confirm the that the time no longer jumps after an acpi
-resume with the 2.6.11-rc1 kernel.
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 
---alex--
+===== drivers/block/floppy.c 1.111 vs edited =====
+--- 1.111/drivers/block/floppy.c	2005-01-08 06:44:29 +01:00
++++ edited/drivers/block/floppy.c	2005-01-16 20:24:56 +01:00
+@@ -4370,6 +4370,10 @@ int __init floppy_init(void)
+ 		goto out_flush_work;
+ 	}
+ 
++	err = platform_device_register(&floppy_device);
++	if (err)
++		goto out_flush_work;
++
+ 	for (drive = 0; drive < N_DRIVE; drive++) {
+ 		if (!(allowed_drive_mask & (1 << drive)))
+ 			continue;
+@@ -4379,23 +4383,12 @@ int __init floppy_init(void)
+ 		disks[drive]->private_data = (void *)(long)drive;
+ 		disks[drive]->queue = floppy_queue;
+ 		disks[drive]->flags |= GENHD_FL_REMOVABLE;
++		disks[drive]->driverfs_dev = &floppy_device.dev;
+ 		add_disk(disks[drive]);
+ 	}
+ 
+-	err = platform_device_register(&floppy_device);
+-	if (err)
+-		goto out_del_disk;
+-
+ 	return 0;
+ 
+-out_del_disk:
+-	for (drive = 0; drive < N_DRIVE; drive++) {
+-		if (!(allowed_drive_mask & (1 << drive)))
+-			continue;
+-		if (fdc_state[FDC(drive)].version == FDC_NONE)
+-			continue;
+-		del_gendisk(disks[drive]);
+-	}
+ out_flush_work:
+ 	flush_scheduled_work();
+ 	if (usage_count)
+@@ -4600,7 +4593,6 @@ void cleanup_module(void)
+ 	int drive;
+ 
+ 	init_completion(&device_release);
+-	platform_device_unregister(&floppy_device);
+ 	blk_unregister_region(MKDEV(FLOPPY_MAJOR, 0), 256);
+ 	unregister_blkdev(FLOPPY_MAJOR, "fd");
+ 
+@@ -4614,6 +4606,7 @@ void cleanup_module(void)
+ 		}
+ 		put_disk(disks[drive]);
+ 	}
++	platform_device_unregister(&floppy_device);
+ 	devfs_remove("floppy");
+ 
+ 	del_timer_sync(&fd_timeout);
 
--- 
-| I believe the moment is at hand when, by a paranoiac and active |
-|  advance of the mind, it will be possible (simultaneously with  |
-|  automatism and other passive states) to systematize confusion  |
-|  and thus to help to discredit completely the world of reality. |

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271409AbRHOUVh>; Wed, 15 Aug 2001 16:21:37 -0400
+	id <S271413AbRHOUaR>; Wed, 15 Aug 2001 16:30:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271407AbRHOUVS>; Wed, 15 Aug 2001 16:21:18 -0400
-Received: from ns.caldera.de ([212.34.180.1]:59292 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S271409AbRHOUVD>;
-	Wed, 15 Aug 2001 16:21:03 -0400
-Date: Wed, 15 Aug 2001 22:20:30 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: lvm-devel@sistina.com
-Cc: Joe Thornber <thornber@btconnect.com>, Kurt Garloff <garloff@suse.de>,
-        linux-lvm@sistina.com, linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] Re: [linux-lvm] Re: *** ANNOUNCEMENT *** LVM 1.0 available at www.sistina.com
-Message-ID: <20010815222030.A23962@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>, lvm-devel@sistina.com,
-	Joe Thornber <thornber@btconnect.com>,
-	Kurt Garloff <garloff@suse.de>, linux-lvm@sistina.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010815175659.A29749@sistina.com> <20010815182548.U3941@gum01m.etpnet.phys.tue.nl> <20010815185005.A32239@sistina.com> <20010815190428.A11146@athlon.random> <20010815210622.A1221@btconnect.com> <20010815221623.C11146@athlon.random>
-Mime-Version: 1.0
+	id <S271412AbRHOUaI>; Wed, 15 Aug 2001 16:30:08 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14862 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S271413AbRHOUaG>; Wed, 15 Aug 2001 16:30:06 -0400
+Subject: Re: Via chipset
+To: goemon@anime.net (Dan Hollis)
+Date: Wed, 15 Aug 2001 21:32:02 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        maxwax@mindspring.com (Maxwell Spangler),
+        oyhaare@online.no (=?ISO-8859-1?Q?=D8ystein?= Haare),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0108151326180.20571-100000@anime.net> from "Dan Hollis" at Aug 15, 2001 01:27:42 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010815221623.C11146@athlon.random>; from andrea@suse.de on Wed, Aug 15, 2001 at 10:16:23PM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15X7Kc-0003xP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 15, 2001 at 10:16:23PM +0200, Andrea Arcangeli wrote:
-> You can put the algorithm used by beta7 in a separate program and ask
-> this program where the pe start. Since the beta7 tools knows where the
-> pe_start (the proof is that I can use lvm in my machines), also this new
-> program will know where the pe_start.
+> But AMD would certainly be interested in knowing why it fails, especially
+> if it turns out to be a CPU errata with some northbridges, or a CPU errata
+> on its own.
+> 
+> I doubt anyone at VIA is going to cooperate in bug hunting.
 
-In principle yes, but beta7 is the wrong target, the one that needs to
-be converted easily is the old (=0.9) format, people using betas should
-really know what they are doing while a seamless upgrade from the latest
-release version is a must.
+Actually I've talked to a VIA person about it - the problem is I don't have
+clean concrete repeatably way to generate the problem and generate it
+rapidly. 
 
-	Christoph
-
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+Alan

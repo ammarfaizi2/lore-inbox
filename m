@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317081AbSHPIb5>; Fri, 16 Aug 2002 04:31:57 -0400
+	id <S317063AbSHPI0T>; Fri, 16 Aug 2002 04:26:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317107AbSHPIb5>; Fri, 16 Aug 2002 04:31:57 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:25619 "EHLO
+	id <S317078AbSHPI0T>; Fri, 16 Aug 2002 04:26:19 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:56594 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S317081AbSHPIb4>; Fri, 16 Aug 2002 04:31:56 -0400
-Message-Id: <200208160831.g7G8Uxp24080@Port.imtp.ilyichevsk.odessa.ua>
+	id <S317063AbSHPI0S>; Fri, 16 Aug 2002 04:26:18 -0400
+Message-Id: <200208160824.g7G8Ogp24070@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain;
   charset="us-ascii"
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Richard Zidlicky <rz@linux-m68k.org>, Scorpion <scorpionlab@ieg.com.br>
-Subject: Re: Flush issues in boot phase
-Date: Fri, 16 Aug 2002 11:27:50 -0200
+To: Christian Reis <kiko@async.com.br>
+Subject: Re: General network slowness on SIS 530 with eepro100
+Date: Fri, 16 Aug 2002 11:21:33 -0200
 X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <200208131425.19328.scorpionlab@ieg.com.br> <20020815121334.A1940@linux-m68k.org>
-In-Reply-To: <20020815121334.A1940@linux-m68k.org>
+Cc: eepro100@scyld.com, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+References: <20020813212923.L2219@blackjesus.async.com.br> <200208150844.g7F8iQp19827@Port.imtp.ilyichevsk.odessa.ua> <20020815162155.L30462@blackjesus.async.com.br>
+In-Reply-To: <20020815162155.L30462@blackjesus.async.com.br>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 August 2002 08:13, Richard Zidlicky wrote:
-> On Tue, Aug 13, 2002 at 02:25:19PM -0300, Scorpion wrote:
-> > Hi fellows,
-> > I'm still trying to boot my dual AMD 1800XP machines (not MP).
-> > I got one more step disabling MP 1.4 support on BIOS setup, but now
-> > (using 2.4.19 kernel) I have a more general question.
-> > The boot phase stop exactly with the message:
+On 15 August 2002 17:21, Christian Reis wrote:
+> On Thu, Aug 15, 2002 at 11:41:20AM -0200, Denis Vlasenko wrote:
+> > On 13 August 2002 22:29, Christian Reis wrote:
+> > > On tri, which is the referred SIS530 box, as you can see, for most runs
+> > > the CPU usage is just so much higher than minas, which has practically
+> > > the same setup: K6-500, old PCI (no AGP) board, eepro100 card. I'm
+> > > wondering if anybody has seen something like this before?
 > >
-> > Partition check:
-> > hda:
-> >
-> > Should I consider that the kernel stop exactly in this point
+> > Start swapping hardware between these two boxes
 >
-> it stops exactly between this printk and the next (unreached) one.
->
-> See fs/partitions, probably read_dev_sector hangs so put printk's
-> around that.
+> I've done it, actually. I've swapped processor, memory and video cards
+> (which are the only things the boxes actually contain) and there has
+> been no change. It's very strange - block read and block write consume
+> enormous amounts of CPU, no matter how much I tinker. I've tried 2.4.19,
+> 2.2.21, NFS patches, etc.
 
-Does it works with one CPU taken out?
+Network card?
+Motherboard? :-)
+BIOS? 8-)
+
+Compare BIOS/chipset setup (lspci -vvvxxx)
 --
 vda

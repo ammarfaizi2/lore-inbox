@@ -1,54 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267881AbTBRRHF>; Tue, 18 Feb 2003 12:07:05 -0500
+	id <S267868AbTBRQ75>; Tue, 18 Feb 2003 11:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267883AbTBRRHF>; Tue, 18 Feb 2003 12:07:05 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:14347 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267881AbTBRRGs>;
-	Tue, 18 Feb 2003 12:06:48 -0500
-Date: Tue, 18 Feb 2003 18:16:48 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Robert P. J. Day" <rpjday@mindspring.com>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: why is "scripts/elfconfig.h" not removed with "make mrproper"?
-Message-ID: <20030218171648.GA2470@mars.ravnborg.org>
-Mail-Followup-To: "Robert P. J. Day" <rpjday@mindspring.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302181059210.15334-100000@dell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302181059210.15334-100000@dell>
-User-Agent: Mutt/1.4i
+	id <S267875AbTBRQ75>; Tue, 18 Feb 2003 11:59:57 -0500
+Received: from tag.witbe.net ([81.88.96.48]:35850 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S267868AbTBRQ7y>;
+	Tue, 18 Feb 2003 11:59:54 -0500
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Randy.Dunlap'" <rddunlap@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Recovering .config from vmlinuz and System.map
+Date: Tue, 18 Feb 2003 18:09:55 +0100
+Message-ID: <015801c2d770$8ec77320$3f00a8c0@witbe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+In-Reply-To: <20030218090103.01365887.rddunlap@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 18, 2003 at 11:01:29AM -0500, Robert P. J. Day wrote:
-> 
->   i just verified that the original 2.5.62 kernel tree does not
-> start with the header file "scripts/elfconfig.h".  this file is
-> created by running "make xconfig", even when nothing is configured.
-> but that file is *not* removed by running "make mrproper", which
-> i would think it should be.
-> 
->   won't this cause a problem when generating patches, since
-> that elfconfig.h file will show up every time?
+Hello Randy,
 
-The following patch fixes this:
+Not sure if it's your patch that RH has included, but that was it,
+the .config stuff in the kernel...
 
-===== scripts/Makefile 1.30 vs edited =====
---- 1.30/scripts/Makefile	Mon Feb 17 04:20:26 2003
-+++ edited/scripts/Makefile	Tue Feb 18 18:12:22 2003
-@@ -11,6 +11,7 @@
- host-progs    := fixdep split-include conmakehash docproc kallsyms modpost \
- 		 mk_elfconfig
- build-targets := $(host-progs) empty.o
-+EXTRA_TARGETS := elfconfig.h
- 
- modpost-objs  := modpost.o file2alias.o
- 
-@@ -30,4 +31,3 @@
- $(obj)/elfconfig.h: $(obj)/empty.o $(obj)/mk_elfconfig FORCE
- 	$(call if_changed,elfconfig)
- 
--targets += $(obj)/elfconfig.h
+Thanks very much !
+
+Regards,
+Paul
+
+Paul Rolland, rol@witbe.net
+Witbe.net SA
+Directeur Associe
+
+--
+
+Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un
+navigateur
+
+"Some people dream of success... while others wake up and work hard at
+it"
+
+> -----Original Message-----
+> From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
+> Sent: Tuesday, February 18, 2003 6:01 PM
+> To: Paul Rolland
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Recovering .config from vmlinuz and System.map
+> 
+> 
+> On Tue, 18 Feb 2003 15:29:16 +0100
+> "Paul Rolland" <rol@as2917.net> wrote:
+> 
+> | I've a box running a linux 2.4.18-14 (RH stuff), for which 
+> I've lost 
+> | the .config file...
+> | 
+> | I've gone through a long .config recovery process by looking at the 
+> | entries in System.map, changing the configuration, building the 
+> | kernel, diffing the new System.map with the reference one, 
+> again and 
+> | again.
+> | 
+> | The diff process was done only on the symbol names and the 
+> last diff 
+> | states : diff -urN System.map-9 System.map-2.4.18-sound | less
+> | --- System.map-9        Tue Feb 18 13:36:33 2003
+> | +++ System.map-2.4.18-sound     Tue Feb 18 09:47:47 2003
+> | @@ -10776,6 +10776,7 @@
+> |  d __setup_str_console_setup
+> |  d __setup_str_reserve_setup
+> |  d startup.0
+> | +d configs
+> |  d zone_balance_ratio
+> |  d zone_balance_min
+> |  d zone_balance_max
+> | 
+> | Could someone direct me to where is located this "configs" 
+> stuff that 
+> | I can't find ?
+> 
+> I wrote an optional feature that stores kernel .config info 
+> inside the 'vmlinux' file in an array named 'configs'.  I 
+> don't know if it's included in your kernel or not.
+> 
+> Some patches for this in-kernel-config feature are available 
+> at http://www.osdl.org/archive/rddunlap/patches/ikconfig/
+> and it's in Alan Cox's 2.4.-recent patches.
+> 
+> --
+> ~Randy
+> 
+

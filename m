@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267268AbTGHMZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 08:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267275AbTGHMZ6
+	id S267275AbTGHM0n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 08:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267279AbTGHM0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 08:25:58 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:17674 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id S267268AbTGHMZz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 08:25:55 -0400
-Date: Tue, 8 Jul 2003 14:40:01 +0200
-From: Nico Schottelius <schottelius@wdt.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: IPSEC
-Message-ID: <20030708124001.GA2992@schottelius.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.5.72
-X-Abuse: try 'Disposition-Notification-To: dev@null.org' in your header.
+	Tue, 8 Jul 2003 08:26:42 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:53209 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267275AbTGHM0F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 08:26:05 -0400
+Date: Tue, 8 Jul 2003 14:40:05 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: siimage, 2.5.74 and irq 19: nobody cared!
+In-Reply-To: <20030708122519.GA7098@traveler.cistron.net>
+Message-ID: <Pine.SOL.4.30.0307081433320.20988-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 8 Jul 2003, Miquel van Smoorenburg wrote:
 
-Hello!
+> > Hi,
+> >
+> > Please send dmesg from 2.5.62-mm2 and 'lspci -vvv' output.
+>
+> You mean dmesg and lspci -vvv output of both 2.5.72-mm2 and 2.5.74 ?
+> Will do, as soon as I have a chance to play with the system again.
+> It's a newsfeeder, a few minutes downtime is not a problem, but I
+> had some serious problems and it was down for 2 hours - now it needs
+> several hours to "catch up" before I can take it down again.
+>
+> Mike.
 
-I opened an overview about Linux IPSec implementations at
-http://linux.schottelius.org/ipsec/
-I would like to add recent kernel changes in IPSec to the site.
-So it would be very nice if someone could forward
-latest IPSec news to nico-ipsec@schottelius.org..do you think this is possi=
-ble?
+lspci -vvv from any kernel version.
+dmesg from 2.5.72-mm2 and from 2.5.74.
 
-Greetings,
+You can extract dmesgs from logs if you still have them...
+--
+Bartlomiej
 
-Nico
-
-PS: please CC me.. I am not subscribed..
-
-
---=20
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---AqsLC8rIMeq19msA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE/CrugtnlUggLJsX0RAg5qAKCGC5CdMwXDCltoo9OUStgq5toD3gCfQvh0
-j1S9I84PhSjIHD2I5kurSTk=
-=msp0
------END PGP SIGNATURE-----
-
---AqsLC8rIMeq19msA--

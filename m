@@ -1,47 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131850AbRBQWMT>; Sat, 17 Feb 2001 17:12:19 -0500
+	id <S131975AbRBQWQB>; Sat, 17 Feb 2001 17:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131984AbRBQWMJ>; Sat, 17 Feb 2001 17:12:09 -0500
-Received: from mail2.rdc2.bc.home.com ([24.2.10.85]:8907 "EHLO
-	mail2.rdc2.bc.home.com") by vger.kernel.org with ESMTP
-	id <S131850AbRBQWL4>; Sat, 17 Feb 2001 17:11:56 -0500
+	id <S131984AbRBQWPw>; Sat, 17 Feb 2001 17:15:52 -0500
+Received: from web2104.mail.yahoo.com ([128.11.68.248]:4883 "HELO
+	web2104.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S131975AbRBQWPl>; Sat, 17 Feb 2001 17:15:41 -0500
+Message-ID: <20010217221540.23972.qmail@web2104.mail.yahoo.com>
+Date: Sat, 17 Feb 2001 14:15:40 -0800 (PST)
+From: Fireball Freddy <fireballfreddy@yahoo.com>
+Subject: Comparing buffer cache algorithms on 2.2.17.  Suggestions?
 To: linux-kernel@vger.kernel.org
-From: jpinpg@home.com
-Subject: Re: re. too long mac address for --mac-source netfilter option
-X-Mailer: Gmail 0.6.8 (http://gmail.linuxpower.org)
-Message-Id: <20010217221149.HDKR585.mail2.rdc2.bc.home.com@nonesuch.localdomain>
-Date: Sat, 17 Feb 2001 14:11:49 -0800
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Howdy,
 
-James L. wrote -
-> Hello All,
-> 
-> On Sat, 17 Feb 2001 jbinpg@home.com wrote:
-> > Stefan Hanse writes -
-> > >Umm..  An ethernet MAC address is 48bit long, ie AA:BB:CC:DD:EE:FF, 6
-> >groups, not 14. Is this really an ethernet
-> > >interface? (If it really has 14 groups).
-> >
-> >> Good question. I have determined by scanning my firewall logs that the
-> >"invalid" mac addresses are all coming from cable modem routers. And my
-> >linux kernel is recognizing them as being MAC addresses. Would it be
-> >better to write another module looking for these long "MAC"  rather than
-> >tamper with the mac module?
-> >
-> >> To illustrate, here is a cut from my system log showing a portscan from
-> >my cable modem provider (a routine part of their service contract since
-> >you are not allowed to run client-side servers). SRC and DST have been
-> >x'ed out:
-> >
-> >> Feb 17 08:49:42 nonesuch kernel: IN=eth0 OUT=
-> >MAC=00:01:02:69:49:4f:00:00:77:93:83:d2:08:00 SRC=xx.xx.xx.xx
->      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 	This appears to be an ATM NSAP address .  Hth ,  JimL
+  Trying to implement some different buffer caching
+algorithms in Linux.  This is just for comparison
+purposes for a thesis, not suggesting any problem with
+the current scheme.  Here is what I'm attempting:
 
-OK, thanks Jim. The question then becomes: could a netfilter module for recognizing ATM addresses be developed? Are all ATM addresses 14 groups?
+  o Eliminate BUF_CLEAN, BUF_DIRTY, and BUF_LOCKED
+lists in favor of a single BUF_LRU list.  This because
+I don't see the point of maintaining three lists...
+the only time I need to find all the dirty blocks is
+on a sync of some sort.  I don't mind if the sync
+takes a while longer if the normal operating condition
+is faster.
 
-Jack Bowling
-mailto: jbinpg@home.com
+  Once I have the cache working on a single list
+(assuming I can!) I plan on using an I/O generator to
+get some repeatable traces so I can compare the
+following:
+
+  o LRU vs SLRU with static region percentages vs SLRU
+with dynamic region percentages
+  o Periodic flushing of dirty blocks enabled vs
+disabled
+  o Write-through caching vs write-back caching vs
+adaptive (switching between wt and wb based on recent
+activity) vs my own method (write to disk on first
+write, only to buffer after that, write to disk again
+when block is flushed, if dirty)
+  o Of course, I'll also do a run with the default
+Linux 2.2.17 to see how it compares with the others
+
+  It looks like the ext2 fs is going to complicate
+this somewhat, as it sets blocks dirty and/or writes
+them itself sometimes.  Not sure how I'm going to get
+around this... will probably ignore it for now.
+
+  I'd appreciate any advice on this undertaking. 
+Specifically, how many things (tools, etc) is this
+going to break, warnings about common pitfalls, and
+other suggestions.  I would like to have started this
+on 2.4, but I wanted to work on a release that had
+been out for a bit, so I'd know that any problems were
+caused by *me* and not just kernel bugs.  :)
+
+  Also, are there any specific people to whom I should
+direct memory management questions?  I've had some in
+the past few months but haven't been able to get
+answers.  Or should I post them to this list (I assume
+not).  Finally, I have noticed references to a
+kernelnewbies chat room.  I prefer newsgroups to
+chat... is there a good mailing list devoted to kernel
+newbies?
+
+  Thanks to everyone for your hard work, and apologies
+for adding one more e-mail to the pile.
+
+    Andy Cottrell
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail - only $35 
+a year!  http://personal.mail.yahoo.com/

@@ -1,90 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274421AbRITK7l>; Thu, 20 Sep 2001 06:59:41 -0400
+	id <S274423AbRITLIv>; Thu, 20 Sep 2001 07:08:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274420AbRITK7b>; Thu, 20 Sep 2001 06:59:31 -0400
-Received: from prfdec.natur.cuni.cz ([195.113.56.1]:48388 "EHLO
-	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id <S274421AbRITK7Z>; Thu, 20 Sep 2001 06:59:25 -0400
-X-Envelope-From: mmokrejs
-Posted-Date: Thu, 20 Sep 2001 12:59:43 +0200 (MET DST)
-Date: Thu, 20 Sep 2001 12:59:42 +0200 (MET DST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: "Magnus Naeslund(f)" <mag@fbab.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Perf improvements in 2.4.10pre12aa1
-In-Reply-To: <05ab01c141bc$6c5a9f60$020a0a0a@totalmef>
-Message-ID: <Pine.OSF.4.21.0109201243080.24552-100000@prfdec.natur.cuni.cz>
+	id <S274424AbRITLIm>; Thu, 20 Sep 2001 07:08:42 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:50194 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S274423AbRITLId>;
+	Thu, 20 Sep 2001 07:08:33 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Dan Hollis <goemon@anime.net>
+Date: Thu, 20 Sep 2001 13:08:25 MET-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] Athlon bug stomper. Pls apply.
+CC: Arjan van de Ven <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>,
+        ebiederm@xmission.com
+X-mailer: Pegasus Mail v3.40
+Message-ID: <3FD9CFB2E5A@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I've just started some tests to try to repeat the memory allocation
-errors. I see the aa1 kernel is twice fast as -pre12!? Is this expected?
-I have 2x intelPIII 933MHz, 1GB RAM, HIGMEM kernel, ReiserFS, aic7xxx,
-eepro100.
+On 19 Sep 01 at 15:13, Dan Hollis wrote:
+> On 19 Sep 2001, Eric W. Biederman wrote:
+> > Of course VIA looking at what they have done and what that bit is
+> > supposed to be is easiest as they have the schemantics of those
+> > chips.  But there is not reason to be limited to just that approach.
 
+Well, I want to add some confusion into this thread...
+ 
+> We definitely need more data points too. So far we dont have any athlon.c
+> data for kt133a with the bit on and off, only kt133.
 
-linux-2.4.10-pre12
-dbench 16: Throughput 67.8566 MB/sec (NB=84.8208 MB/sec  678.566 MBit/sec)  16 procs
+... I have at home Asus A7V (with KT133, non A), it has register 0x55
+set to 0x89 and I thought that it works fine. I modified athlon.c
+so that it fills buffer with random data on start, and then it compares
+results of copy_page. And after about 10th run with 0x89 promise
+driver told me that func:13 (not 14...) is not supported and all HDDs
+became inaccessible. After reboot portion of /usr/include/bits (and 
+few other) was overwritten with 0xFF... I was not able to recreate 
+this problem after that crash (but I did not tried too hard, as I have
+important data on my hdds, and all hdds attached to promise were
+affected, not only one which was 'active' before crash (I was doing
+compilation & logged outputs on secondary master, but primary master
+was corrupted...)
 
-Yesterday after havy tests and after memory alloc. errors already
-appeared:
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1054490624 880287744 174202880        0  4653056 460627968
-Swap: 2147467264 42909696 2104557568
-MemTotal:      1029776 kB
-MemFree:        170120 kB
-MemShared:           0 kB
-Buffers:          4544 kB
-Cached:         448416 kB
-SwapCached:       1416 kB
-Active:         377868 kB
-Inactive:        76508 kB
-HighTotal:      131072 kB
-HighFree:         2044 kB
-LowTotal:       898704 kB
-LowFree:        168076 kB
-SwapTotal:     2097136 kB
-SwapFree:      2055232 kB
+After fsck, reinstalling libc6-dev and apache-doc, I started playing
+with 0x55 bits and found that bits 0x80 and 0x01 have no effect on
+performance, but CLEARING bit 0x08 increases my motherboard performace
+by 1% (I'm getting very consistent results, they vary around +-10 cycles,
+with 12200 cycles with 0x08 and 12060 with 0x00 in register 0x55).
 
-
-
-linux-2.4.10-pre12aa1
-dbench 16: Throughput 141.659 MB/sec (NB=177.074 MB/sec  1416.59 MBit/sec)  16 procs
-
-Now after fresh bootup and just after I started first tests:
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  1054412800 110338048 944074752        0  8560640 59211776
-Swap: 2147467264        0 2147467264
-MemTotal:      1029700 kB
-MemFree:        921948 kB
-MemShared:           0 kB
-Buffers:          8360 kB
-Cached:          57824 kB
-SwapCached:          0 kB
-Active:              0 kB
-Inactive:        66184 kB
-HighTotal:      131072 kB
-HighFree:        58612 kB
-LowTotal:       898628 kB
-LowFree:        863336 kB
-SwapTotal:     2097136 kB
-SwapFree:      2097136 kB
-
-
-The documentation to dbech is a bit sparse (README,INSTALL). It's a bit
-offtopic, but would someone explain me where does the dbench write, into
-which directory? I performed the tests above under same user and in same
-tmp/ directory, to be sure. Maybe it was not necessary at all. ;)
-
-Thanks
--- 
-Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
-MIPS / Institute for Bioinformatics <http://mips.gsf.de>
-GSF - National Research Center for Environment and Health
-Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
-
-
+So I personally will apply this patch even on my KT133... And just
+for completness, kernel 2.4.9-ac10 (with AMD opts), Athlon 1GHz, two
+singlesided 128MB DIMMs, interleaving enabled (disabling slows down
+K7 copy page system by 4%).
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

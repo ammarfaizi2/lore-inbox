@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310304AbSCGMli>; Thu, 7 Mar 2002 07:41:38 -0500
+	id <S310303AbSCGMm2>; Thu, 7 Mar 2002 07:42:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310303AbSCGMl2>; Thu, 7 Mar 2002 07:41:28 -0500
-Received: from mail.loewe-komp.de ([62.156.155.230]:50952 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S310300AbSCGMlX>; Thu, 7 Mar 2002 07:41:23 -0500
-Message-ID: <3C875FD1.4040904@loewe-komp.de>
-Date: Thu, 07 Mar 2002 13:40:49 +0100
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010923
-X-Accept-Language: de, en
+	id <S310300AbSCGMmT>; Thu, 7 Mar 2002 07:42:19 -0500
+Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:20374 "EHLO
+	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S310303AbSCGMmG>; Thu, 7 Mar 2002 07:42:06 -0500
+Date: Thu, 7 Mar 2002 13:42:02 +0100 (MET)
+From: Erich Focht <focht@ess.nec.de>
+To: Anton Blanchard <anton@samba.org>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scheduler: migration tasks startup
+In-Reply-To: <20020307092411.GB853@krispykreme>
+Message-ID: <Pine.LNX.4.21.0203071332440.12898-100000@sx6.ess.nec.de>
 MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
-        lse-tech@lists.sourceforge.net
-Subject: Re: furwocks: Fast Userspace Read/Write Locks
-In-Reply-To: <E16iwkE-000216-00@wagner.rustcorp.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
+On Thu, 7 Mar 2002, Anton Blanchard wrote:
 
-> This is a userspace implementation of rwlocks on top of futexes.
+> > we encountered problems with the initial distribution of the
+> > migration_tasks across the CPUs. Machines with 16 and more CPUs
+> > sometimes won't boot. 
 > 
+> We found this on a 31 way and have sent a fix to Ingo already, we needed
+> to do a set_current_state(TASK_UNINTERRUPTIBLE) before schedule_timeout()
+> or we just busy loop.
 
-With the futex approach in mind: Does anybody think it's desirable to have
+OK, good to know that it wasn't a tipical IA64 problem.
 
-pthread_cond_wait/signal and pthread_mutex_* with inter process scope build
-into the kernel as system call?
+As far as I understand, your solution still relies on the specific
+behavior of the scheduler for distributing the tasks uniformly and on
+synchronizing among migration_tasks. I'd really prefer replacing this
+shaky method by the usage of migration_task on CPU#0. Thich would always
+work, no matter how many tasks are around. This saves some debugging work
+to those who play around with the scheduler or want to start some kernel
+threads earlier...
 
-The only issue I see so far, is that libpthread should get a "reserved" namespace
-entry ( /dev/shm/.linuxthreads-locks ?) to hold all the PTHREAD_PROCESS_SHARE
-locks/condvars.
+Regards,
+Erich
 
-OTOH Irix seems to implement inter process locks as syscall, so that the kernel does
-all the bookkeeping. That approach denies a malicious program to trash all locks
-in the system...
 
-Hmh, then we could implement a per user /dev/shm/.linuxthreads-lock-<uid> with
-tight permissions?
 
-What do you think?
 

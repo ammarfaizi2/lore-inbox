@@ -1,35 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265700AbSLLJ7J>; Thu, 12 Dec 2002 04:59:09 -0500
+	id <S267447AbSLLKCC>; Thu, 12 Dec 2002 05:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267450AbSLLJ7J>; Thu, 12 Dec 2002 04:59:09 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:29422 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S265700AbSLLJ7J>; Thu, 12 Dec 2002 04:59:09 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-In-Reply-To: <1039686176.25186.195.camel@pc-16.office.scali.no>
-References: <1039610907.25187.190.camel@pc-16.office.scali.no>
-	<3DF78911.5090107@zytor.com> 
-	<1039686176.25186.195.camel@pc-16.office.scali.no>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Dec 2002 11:06:49 +0100
-Message-Id: <1039687609.1450.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
+	id <S267450AbSLLKCC>; Thu, 12 Dec 2002 05:02:02 -0500
+Received: from PA1-1C-u-0320.mc.onolab.com ([62.42.201.65]:21376 "EHLO
+	auditoriabalear.com") by vger.kernel.org with ESMTP
+	id <S267447AbSLLKCB>; Thu, 12 Dec 2002 05:02:01 -0500
+Date: Thu, 12 Dec 2002 11:08:23 +0100
+From: Nico <nico@auditoriabalear.com>
+Message-Id: <200212121008.gBCA8ND04353@auditoriabalear.com>
+To: linux-kernel@vger.kernel.org
+Subject: free entry in gdt_table
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-12 at 10:42, Terje Eggestad wrote:
 
-> It takes about 11 cycles on athlon, 34 on PII, and a whooping 84 on P4.
-> 
-> For a simple op like that, even 11 is a lot... Really makes you wonder.
+Hello
 
-wasn't rdtsc also supposed to be a pipeline sync of the cpu?
-(or am I confusing it with cpuid)
+I have a doubt, in kernels like 2.4.18 the second entry in gdt is not used
+
+ENTRY(gdt_table)
+        .quad 0x0000000000000000	/* NULL descriptor */
+	.quad 0x0000000000000000	/* not used */
+	.quad 0x00cf9a000000ffff	/* 0x10 kernel 4GB code at 0x00000000 */
+
+there are 4 bytes lost!        
+
+Why?

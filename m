@@ -1,63 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUHaXuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269338AbUHaXu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUHaXuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 19:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269171AbUHaXtB
+	id S269338AbUHaXu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 19:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUHaXsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 19:49:01 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:22915 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261451AbUHaXjZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 19:39:25 -0400
-Date: Wed, 1 Sep 2004 00:39:24 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [rfc][patch] DRM initial function table support.
-In-Reply-To: <20040831152015.GC22978@redhat.com>
-Message-ID: <Pine.LNX.4.58.0409010033370.31241@skynet>
-References: <Pine.LNX.4.58.0408311409530.18657@skynet> <20040831152015.GC22978@redhat.com>
+	Tue, 31 Aug 2004 19:48:12 -0400
+Received: from smtp-out3.blueyonder.co.uk ([195.188.213.6]:23236 "EHLO
+	smtp-out3.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S269162AbUHaXfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 19:35:06 -0400
+Message-ID: <41350B28.30700@blueyonder.co.uk>
+Date: Wed, 01 Sep 2004 00:35:04 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jason@stdbev.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm2 nvidia breakage
+References: <4134A5EE.5090003@blueyonder.co.uk> <d40d2dbcd4c9aaaeb94073ca00d7b3b7@stdbev.com>
+In-Reply-To: <d40d2dbcd4c9aaaeb94073ca00d7b3b7@stdbev.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Aug 2004 23:35:28.0824 (UTC) FILETIME=[32D95B80:01C48FB3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jason Munro wrote:
+
+>On 11:23:10 am 2004-08-31 Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+>nvidia-installer log file '/var/log/nvidia-installer.log'
+>creation time: Tue Aug 31 17:05:05 2004
 >
-> I like this. Lots.
-> Mostly because of this..
+>[snip]
 >
-> (16:14:11:davej@delerium:~)$ grep ^-# foo.diff  | wc -l
-> 87
+>   `PM_SAVE_STATE' undeclared (first use in this function)
+>   /tmp/selfgz12280/NVIDIA-Linux-x86-1.0-6111-pkg1/usr/src/nv/nv.c:3697:
+>
+>
+>A patch was posted a week or so ago to fix this which works for me.
+>
+>http://lkml.org/lkml/2004/8/20/209
+>  
+>
+Oops, built from a new tree and forgot I hadn't made the change.
 
-You think that one is good
- grep ^-# current_diffs | wc -l
-496
-
-is for my current CVS tree vs the in-kernel DRM ;-),
-
-> 	.preinit = gamma_driver_preinit,
-> 	.pretakedown = gamma_driver_pretakedown,
-> 	.dma_ready = gamma_driver_dma_ready,
-> 	.dma_quiescent = gamma_driver_dma_quiescent,
-> 	.dma_flush_block_and_flush = gamma_flush_block_and_flush,
-> 	.dma_flush_unblock = gamma_flush_unblock,
-> };
-
-With this patch it would be okay, with some of the functions I added to
-the table later, I had to set some defaults before calling the driver
-function, and also added another setting for AGP/MTRR type stuff to the
-device independent structure that needed to be set, I'll try and get the
-rest of the patches for macro removal merged up and then perhaps you could
-take a look at it (or take a look at CVS now) and we can cleanup the style
-if we still think it is necessary.. btw the setting ptrs in a fn table is
-the DRI/Mesa way of doing things .. so we have a bit of where two worlds
-collide... :-)
-
-Dave.
+>I also had to change calls to pci_find_class in nv.c to pci_get_class to
+>get the module to load with 2.6.9-rc1-mm2.
+>
+>  
+>
+Module builds and installs with the changes, but switches to a blank 
+screen on KDE 3.3.0 SuSE 9.1.
+Regards
+Sid.
 
 -- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+Sid Boyce .... Hamradio G3VBV and keen Flyer
+=====LINUX ONLY USED HERE=====
 

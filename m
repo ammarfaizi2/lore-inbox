@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUILXsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUILXxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264246AbUILXsc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 19:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUILXrb
+	id S264256AbUILXxq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 19:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbUILXxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 19:47:31 -0400
-Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:60430 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S264299AbUILXqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 19:46:25 -0400
-Date: Mon, 13 Sep 2004 01:46:19 +0200
-From: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
-To: linux-kernel@vger.kernel.org
-Subject: Re: iMac G3 IPv6 issue
-Message-ID: <20040912234619.GD11293@caladan.roxor.be>
-Reply-To: =?iso-8859-1?B?QXVy6WxpZW4gR8lS1E1F?= <ag@roxor.be>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040912133936.GA11099@caladan.roxor.be> <1095011851.4995.54.camel@localhost.localdomain> <20040912155850.0e8fd0b5.davem@davemloft.net> <20040912231730.GC11293@caladan.roxor.be> <20040912162847.109f1629.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nHwqXXcoX0o6fKCv"
-Content-Disposition: inline
-In-Reply-To: <20040912162847.109f1629.davem@davemloft.net>
-User-Agent: Mutt/1.5.6+20040818i
+	Sun, 12 Sep 2004 19:53:46 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:59831 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S264256AbUILXxn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 19:53:43 -0400
+Date: Mon, 13 Sep 2004 00:53:41 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jon Smirl <jonsmirl@gmail.com>, Christoph Hellwig <hch@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: radeon-pre-2
+In-Reply-To: <Pine.LNX.4.58.0409111723470.2341@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0409130046150.5648@skynet>
+References: <9e47339104090919015b5b5a4d@mail.gmail.com> 
+ <9e47339104091010221f03ec06@mail.gmail.com>  <1094835846.17932.11.camel@localhost.localdomain>
+  <9e47339104091011402e8341d0@mail.gmail.com>  <Pine.LNX.4.58.0409102254250.13921@skynet>
+  <20040911132727.A1783@infradead.org>  <9e47339104091109111c46db54@mail.gmail.com>
+  <Pine.LNX.4.58.0409110939200.2341@ppc970.osdl.org> 
+ <9e473391040911105448c3f089@mail.gmail.com>  <Pine.LNX.4.58.0409111058320.2341@ppc970.osdl.org>
+ <9e4733910409111721534b2e6d@mail.gmail.com> <Pine.LNX.4.58.0409111723470.2341@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >
+> > We already have a mechanism for this: suspend/resume.
+>
+> Jon, you're not making sense any more.
 
---nHwqXXcoX0o6fKCv
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> This discussion is just ridiculous, and I don't think it's worth cc'ing me
+> if people can't try to work together, since I'm sadly not going to have
+> time to actually implement any of this myself.
+>
+> If you are claiming that we should suspend/resume the whole chip just
+> because two different programs want to access it, you're just crazy.
+>
+> We clearly _do_ have different subsystems already working together
+> accessign the same chip, and they are _not_ doing stupid things like you
+> are suggesting. They _work_. Today. No suspend/resume involved.
 
-On Sun, Sep 12, 2004 at 04:28:47PM -0700, David S. Miller wrote:
-> On Mon, 13 Sep 2004 01:17:31 +0200
-> Aur=E9lien G=C9R=D4ME <ag@roxor.be> wrote:
->=20
-> > The board is this:
-> > 0002:02:0f.0 Ethernet controller: Apple Computer Inc. UniNorth GMAC (Sun
-> > GEM)
-> >=20
-> > So, it is Apple stuff wrapping a Sun GEM chip. The issue may come from
-> > that. Anyway, I am going to dig in the source code to find out.
->=20
-> It would be interesting if some other iMac users can reproduce
-> this too.
+I think you are missing Jon's point here, we do complete suspend/resume
+nowdays, just look at the radeon DDX Enter/Leave VT code, now I don't
+particularly want that code in the kernel, it assumes nothing about the
+chip after you switch back to X and restores the whole lot.. so we are
+doing this today, they work because of that code, the DRM doesn't do
+anything unless X is running in most scenarios today, so the DRM and fb
+never do anything that simulatenous that you might notice as when you
+switch away from X the drm is locked against working, and the fb can take
+over, in the future this isn't going to be true, the mesa-solo work being
+one case where fb and drm are going to be accessed from the one
+process....
 
-If it is reproducible on this board (actually, it is built-in on
-this machine), then it is really specific to this one. PowerBooks and
-iBooks have also Sun GEM, and it does not occur.
+So his statement didn't seem that idiotic to me... he might have explained
+himself better, and may have assumed everyone understands the internals of
+the X DDXes,
 
-> BTW, your signature is quite huge, could you trim it down
-> or (alternatively) not attach it when posting to this list?
-> Thanks a lot.
+Dave.
 
-I am sorry, please accept my apologies if I have bothered you or
-others with it. ;)
 
-Bests.
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 
---nHwqXXcoX0o6fKCv
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBRN/LkFH2kwPhoXIRAhbmAJ46fr0CYoitN3gkzAv0PdPS3ezWOwCff3MF
-JxKMVi4Pqh30GhF3B2gYk7Y=
-=ZQSh
------END PGP SIGNATURE-----
-
---nHwqXXcoX0o6fKCv--

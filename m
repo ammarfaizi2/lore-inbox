@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbUKLVrO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbUKLVsq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262628AbUKLVrO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 16:47:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbUKLVrN
+	id S262625AbUKLVsq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 16:48:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbUKLVru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 16:47:13 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:38102 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262628AbUKLVq3 (ORCPT
+	Fri, 12 Nov 2004 16:47:50 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:31190 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262625AbUKLVpg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 16:46:29 -0500
-Date: Fri, 12 Nov 2004 22:46:21 +0100 (MET)
-Message-Id: <200411122146.iACLkLdr004348@harpo.it.uu.se>
+	Fri, 12 Nov 2004 16:45:36 -0500
+Date: Fri, 12 Nov 2004 22:45:27 +0100 (MET)
+Message-Id: <200411122145.iACLjRdJ004339@harpo.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH][2.6.10-rc1-mm5][3/3] perfctr ppc32 driver update
+Subject: [PATCH][2.6.10-rc1-mm5][2/3] perfctr virtual cleanup
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ppc32 low-level driver updates:
-- Provide new API function for checking for pending interrupts:
-  on ppc32 it always returns false.
-- Enable performance counter interrupts on the later non-broken
-  IBM 750 series processors (FX DD2.3, and GX).
+Per-process virtualised counters driver cleanup to be applied
+on top of yesterday's perfctr interrupt fixes patches:
+- Check for pending overflow via new API function. Skip
+  clearing pending interrupt flag: the low-level driver
+  takes care of that. Both changes are required for ppc32.
 
 Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
- drivers/perfctr/ppc.c     |    8 ++++++++
- include/asm-ppc/perfctr.h |    4 ++++
- 2 files changed, 12 insertions(+)
+ drivers/perfctr/virtual.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
-diff -rupN linux-2.6.10-rc1-mm5/drivers/perfctr/ppc.c linux-2.6.10-rc1-mm5.perfctr-ppc32-driver-update/drivers/perfctr/ppc.c
---- linux-2.6.10-rc1-mm5/drivers/perfctr/ppc.c	2004-11-12 20:46:54.000000000 +0100
-+++ linux-2.6.10-rc1-mm5.perfctr-ppc32-driver-update/drivers/perfctr/ppc.c	2004-11-12 22:03:09.000000000 +0100
-@@ -191,6 +191,8 @@ static inline int perfctr_cstatus_has_mm
-  *
-  * 750FX adds dual-PLL support and programmable core frequency switching.
-  *
-+ * 750FX DD2.3 fixed the DEC/PMI SRR0 corruption erratum.
-+ *
-  * 74xx
-  * ----
-  * 7400 adds MMCR2 and BAMR.
-@@ -886,7 +888,13 @@ static int __init known_init(void)
- 		pll_type = PLL_750;
- 		break;
- 	case 0x7000: case 0x7001: /* IBM750FX */
-+		if ((pvr & 0xFF0F) >= 0x0203)
-+			features |= PERFCTR_FEATURE_PCINT;
-+		pm_type = PM_750;
-+		pll_type = PLL_750FX;
-+		break;
- 	case 0x7002: /* IBM750GX */
-+		features |= PERFCTR_FEATURE_PCINT;
- 		pm_type = PM_750;
- 		pll_type = PLL_750FX;
- 		break;
-diff -rupN linux-2.6.10-rc1-mm5/include/asm-ppc/perfctr.h linux-2.6.10-rc1-mm5.perfctr-ppc32-driver-update/include/asm-ppc/perfctr.h
---- linux-2.6.10-rc1-mm5/include/asm-ppc/perfctr.h	2004-11-12 20:46:55.000000000 +0100
-+++ linux-2.6.10-rc1-mm5.perfctr-ppc32-driver-update/include/asm-ppc/perfctr.h	2004-11-12 21:46:16.000000000 +0100
-@@ -160,6 +160,10 @@ extern unsigned int perfctr_cpu_identify
- #else
- static inline void perfctr_cpu_set_ihandler(perfctr_ihandler_t x) { }
- #endif
-+static inline int perfctr_cpu_has_pending_interrupt(const struct perfctr_cpu_state *state)
-+{
-+	return 0;
-+}
- 
- #endif	/* CONFIG_PERFCTR */
- 
+diff -rupN linux-2.6.10-rc1-mm5/drivers/perfctr/virtual.c linux-2.6.10-rc1-mm5.perfctr-virtual-update2/drivers/perfctr/virtual.c
+--- linux-2.6.10-rc1-mm5/drivers/perfctr/virtual.c	2004-11-12 21:45:01.000000000 +0100
++++ linux-2.6.10-rc1-mm5.perfctr-virtual-update2/drivers/perfctr/virtual.c	2004-11-12 21:45:21.000000000 +0100
+@@ -227,8 +227,7 @@ static inline void vperfctr_resume(struc
+ static inline void vperfctr_resume_with_overflow_check(struct vperfctr *perfctr)
+ {
+ #ifdef CONFIG_PERFCTR_INTERRUPT_SUPPORT
+-	if (perfctr->cpu_state.pending_interrupt) {
+-		perfctr->cpu_state.pending_interrupt = 0;
++	if (perfctr_cpu_has_pending_interrupt(&perfctr->cpu_state)) {
+ 		vperfctr_handle_overflow(current, perfctr);
+ 		return;
+ 	}

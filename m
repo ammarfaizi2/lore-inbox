@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268342AbRIDTqE>; Tue, 4 Sep 2001 15:46:04 -0400
+	id <S268432AbRIDTvy>; Tue, 4 Sep 2001 15:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268432AbRIDTpy>; Tue, 4 Sep 2001 15:45:54 -0400
-Received: from cs666822-222.austin.rr.com ([66.68.22.222]:20870 "EHLO
-	igor.taral.net") by vger.kernel.org with ESMTP id <S268342AbRIDTpp>;
-	Tue, 4 Sep 2001 15:45:45 -0400
-Date: Tue, 4 Sep 2001 14:46:05 -0500
-From: Taral <taral@taral.net>
-To: linux-kernel@vger.kernel.org
-Subject: DEVFS_FL_AUTO_DEVNUM on block devices
-Message-ID: <20010904144605.A5496@taral.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+	id <S268511AbRIDTve>; Tue, 4 Sep 2001 15:51:34 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:22154 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S268432AbRIDTvU>; Tue, 4 Sep 2001 15:51:20 -0400
+Subject: Re: [RFD] readonly/read-write semantics
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
+        Linus Torvalds <torvalds@transmeta.com>
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF40F28F05.61359C2E-ON87256ABD.006684BD@boulder.ibm.com>
+From: "Bryan Henderson" <hbryan@us.ibm.com>
+Date: Tue, 4 Sep 2001 12:50:48 -0700
+X-MIMETrack: Serialize by Router on D03NM088/03/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 09/04/2001 01:50:51 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>>
+>> 1) I want to see files open for write have nothing to do with it.  Unix
+>> open/close is not a transaction, it's just a connection.  Some
+applications
+>> manage to use open/close as a transaction, but we're seeing less and
+less
+>> of that as more sophisticated facilities for transactions become
+available.
+>>
+>> How many times have we all been frustrated trying to remount read only
+when
+>> some log file that hasn't been written to for hours is open for write?
+>>
+>> A file write is in progress when a write() system call hasn't returned,
+not
+>> when the file is open for write.
+>
+>Uh-oh...  How about shared mappings?
 
-I'm trying to write a device driver that dynamically creates block
-devices (kind of like loop does). I'd like to use DEVFS_FL_AUTO_DEVNUM,
-but it looks like devfs doesn't initialize the block queues in any
-useful way. Does anyone have any code that I can use? If so, Cc: me on
-replies. Thanks!
+It's always shared mappings, isn't it?  :-)
 
---=20
-Taral <taral@taral.net>
-This message is digitally signed. Please PGP encrypt mail to me.
-"Any technology, no matter how primitive, is magic to those who don't
-understand it." -- Florence Ambrose
+Virtual memory access to the file is even easier, though.  A write in
+progress is an individual store to virtual memory.  The only way you could
+even see it is if a page fault is in progress.  So the most you would need
+to wait for in going into the hard "read only" state I defined is for any
+page I/O to complete.  And for the "no new writes" state, you just write
+protect all the pages (and any new ones that fault in too).
 
---HlL+5n6rz5pIUxbD
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iEYEARECAAYFAjuVL3wACgkQoQQF8xCPwJR8kgCcC2QcEwoxEzIhxl2UEGJ4oNxF
-bb0AnAlbsAqAY1NDucOsq0LktjMvAGB3
-=wZl2
------END PGP SIGNATURE-----
-
---HlL+5n6rz5pIUxbD--

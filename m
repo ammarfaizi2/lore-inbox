@@ -1,44 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280563AbRKSScH>; Mon, 19 Nov 2001 13:32:07 -0500
+	id <S280585AbRKSSgH>; Mon, 19 Nov 2001 13:36:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280547AbRKSSbr>; Mon, 19 Nov 2001 13:31:47 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:61542 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S280538AbRKSSbj>; Mon, 19 Nov 2001 13:31:39 -0500
-To: Erik Gustavsson <cyrano@algonet.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap
-In-Reply-To: <3BF82443.5D3E2E11@starband.net>
-	<E165ZRi-000718-00@mauve.csi.cam.ac.uk>
-	<3BF827E1.5A2C7427@starband.net> <3BF82B3C.8070303@wanadoo.fr>
-	<1006124602.3890.0.camel@bettan>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Nov 2001 11:12:27 -0700
-In-Reply-To: <1006124602.3890.0.camel@bettan>
-Message-ID: <m1snba7hpw.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S280570AbRKSSfy>; Mon, 19 Nov 2001 13:35:54 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:30731 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S280547AbRKSSed>; Mon, 19 Nov 2001 13:34:33 -0500
+Date: Mon, 19 Nov 2001 13:34:32 -0500
+Message-Id: <200111191834.fAJIYWK30800@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [patch] scheduler cache affinity improvement for 2.4 kernels
+X-Newsgroups: linux.kernel
+In-Reply-To: <20011108170740.B14468@mikef-linux.matchmail.com>
+In-Reply-To: <20011108153749.A14468@mikef-linux.matchmail.com> <Pine.LNX.4.40.0111081632400.1501-100000@blue1.dev.mcafeelabs.com>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Gustavsson <cyrano@algonet.se> writes:
+In article <20011108170740.B14468@mikef-linux.matchmail.com> mfedyk@matchmail.com wrote:
 
-> I agree...   After a while it always seems that 80% or more of my RAM is
-> used for cache and buffers while my open, but not currently used apps
-> get pushed onto disk. Then when I decide to switch to that mozilla
-> window of emacs session I have to wait for it to be loaded from disk
-> again. Also considering the kind of disk activity this box has, the data
-> in the cache is mostly the last few hour's MP3's, in other words utterly
-> useless as that data will not be used again. I'd rather my apps stayed
-> in RAM...
+| Running one niced copy of cpuhog on a 2x366 mhz celeron box did pretty well.
+| Instead of switching several times in one second, it only switched a few
+| times per minute.
+| 
+| I was also able to merge it with just about everything else I was testing
+| (ext3, freeswan, elevator updates, -ac) except for the preempt patch.  Well, I
+| was able to manually merge it, but the cpu afinity broke.  (it wouldn't use
+| the second processor for anything except for interrupt processing...)
 
-> 
-> Is there a way to limit the size of the cache?
+  The problem with processor affinity is that for some *typical* loads
+the things which make things better for one load make it worse for
+another. If you wait longer for the "right" processor to be available
+then you increase the chances that the cache is mostly filled with what
+the CPU was doing in other processes, and affinity has done nothing but
+delay the scheduling of the process, since the cache is going to be of
+small use anyway.
 
-Reasonable.  It looks like the use once heuristics are failing for your
-mp3 files.   Find out why that is happening and they should push the
-rest of your system into swap.
+  The item of interest for making decisions about affinity would be
+number of cache misses (and obviously cache changes to satisfy them).
+This would allow a better estimate of how much of the cache is still
+useful if affinity is preserved. Given the number of processor types on
+which Linux runs this is not something likely to be included on all of
+them, and is related to cache size as well. So the things being done in
+the scheduler are not really measuring "how much of the cache is still
+useful to process X," which would be the best predictor of the value of
+affinity. I apologise to those who find this an old thought, not
+everyone on this list has noted this, I believe.
 
-Eric
+  I'm not surprised that you find the preempt doesn't work, it is
+somewhat counter to the process of affinity. Given the choice of better
+performance for cpu hogs or more responsive preformance and in some
+cases much higher network performance, I will take preempt. But it would
+be nice to have a choice at runtime or in /proc/sys so that systems
+could be tuned to optimize the characteristics most needed.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

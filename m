@@ -1,90 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267319AbUIAQbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267516AbUIAQbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267319AbUIAQbQ (ORCPT <rfc822;willy@w.ods.org>);
+	id S267516AbUIAQbQ (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Sep 2004 12:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267671AbUIAQay
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUIAQaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 12:30:54 -0400
-Received: from psems1.agilysys.com ([199.33.129.48]:12049 "HELO
-	psems1.pios.com") by vger.kernel.org with SMTP id S267662AbUIAQ1h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 12:27:37 -0400
-Subject: Re: Kernel or Grub bug.
-From: "Wise, Jeremey" <jeremey.wise@agilysys.com>
-To: "David B. Stevens" <dsteven3@maine.rr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200409011135.36537.dsteven3@maine.rr.com>
-References: <1094008341.4704.32.camel@wizej.agilysys.com>
-	 <200408312358.08153.dsteven3@maine.rr.com>
-	 <1094041227.4635.7.camel@wizej.agilysys.com>
-	 <200409011135.36537.dsteven3@maine.rr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 01 Sep 2004 12:26:25 -0400
-Message-Id: <1094055985.4635.44.camel@wizej.agilysys.com>
+	Wed, 1 Sep 2004 12:30:25 -0400
+Received: from holomorphy.com ([207.189.100.168]:41414 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267747AbUIAQ2A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 12:28:00 -0400
+Date: Wed, 1 Sep 2004 09:27:54 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: mita akinobu <amgta@yacht.ocn.ne.jp>
+Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aeb@cwi.nl>,
+       Alessandro Rubini <rubini@ipvvis.unipv.it>
+Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
+Message-ID: <20040901162754.GC5492@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
+	Andries Brouwer <aeb@cwi.nl>,
+	Alessandro Rubini <rubini@ipvvis.unipv.it>
+References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040831192559.GN5492@holomorphy.com> <20040831194552.GQ5492@holomorphy.com> <200409020109.32605.amgta@yacht.ocn.ne.jp>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409020109.32605.amgta@yacht.ocn.ne.jp>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-01 at 11:35 -0400, David B. Stevens wrote:
-> Jeremey,
-> 
-> Your default kernel (the 104 SuSE one) has EXT2 specified as included in the 
-> kernel.  The kernel you are trying to install has Reiser included in the 
-> kernel.
-My system is all reiserfs though the Fedora core box I also did testing
-on was EXT3. 
-wizej:/home/wisej/packages # mount
-/dev/hda3 on / type reiserfs (rw,acl,user_xattr)
-proc on /proc type proc (rw)
-tmpfs on /dev/shm type tmpfs (rw)
-devpts on /dev/pts type devpts (rw,mode=0620,gid=5)
-/dev/hda1 on /boot type reiserfs (rw,acl,user_xattr)
-/dev/hdc on /media/cdrecorder type subfs (ro,nosuid,nodev,fs=cdfss,
-procuid,iocharset=utf8)
-usbfs on /proc/bus/usb type usbfs (rw)
+On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
+> If you're passing profile=0 on boot, it exits very early.
+> (when readprofile saw the symbol whose address is same with next line's
+> symbol address)
+> and,
+> On ia64, the following System.map was generated:
+> [...]
+> a000000100000000 A _stext
+> a000000100000000 A _text		(*)
+> a000000100000000 T ia64_ivt
+> a000000100000000 t vhpt_miss
+> Since the symbol "_text" (*) has absolute symbol type, it could not pass the
+> is_text() check, and readprofile exits immediately.
 
-> 
-> Here is my bet on your problem, the root device is an EXT2 partition and since 
-> the EXT2 routines are not loaded the kernel goes belly up.
-> 
-> Please change  CONFIG_EXT2_FS=m to CONFIG_EXT2_FS=Y via the kernel config 
-> system and re build the 2.6.8.1 kernel.
-> 
-> Also check your /etc/fstab here is mine: 
-> 
-Here is mine in return:>)
-/dev/hda3            /                    reiserfs   acl,user_xattr
-1 1
-/dev/hda1            /boot                reiserfs   acl,user_xattr
-1 2
-/dev/hda2            swap                 swap       pri=42
-0 0
-devpts               /dev/pts             devpts     mode=0620,gid=5
-0 0
-proc                 /proc                proc       defaults
-0 0
-usbfs                /proc/bus/usb        usbfs      noauto
-0 0
-sysfs                /sys                 sysfs      noauto
-0 0
-/dev/cdrecorder      /media/cdrecorder    subfs      fs=cdfss,ro,
-procuid,nosuid,
-nodev,exec,iocharset=utf8 0 0
-
-> 
-> Cheers,
->   Dave
-Thanks for the suggestion. I appreciate any direction provided. I am
-sure it is something stupid and so I started recompile of kernel to have
-reiser, ext2, ext3 all modular (though I have tried that before).
+That is bizarre and very irritating, as at first glance it appears to
+require strcmp() on every entry until _stext is set.
 
 
--- 
-Thanks,
+On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
+> BTW, if profile=>1 is passed, The range between start and end in
+> state_transition() is overlapped every call. Is it intentional?
+> # readprofile -b (after applied below patch)
+> [...]
+> __wake_up_common:
+>           c011f1d8              47		(*)
+> __wake_up:
+>           c011f1d8              47		(*)
+>           c011f1dc               2
 
-Jeremey Wise
-jeremey.wise@agilysys.com
+Overlapping the symbols was intentional, yes. The way profiling works
+is that the shift passed by profile= represents a power-of-two-sized
+divisor that the virtual addresses are divided by. These bins don't
+respect symbol boundaries and in fact multiple functions may share them.
+I choose to account a bin to all symbols whose virtual address range
+overlaps it.
 
-All opinions or information expressed here are personal in nature and do
-not reflect the official position of Agilysys Inc.
+
+> --- readprofile.c.orig	2004-09-02 00:04:55.904405440 +0900
+> +++ readprofile.c	2004-09-02 00:37:37.277231448 +0900
+> @@ -25,6 +25,7 @@ struct profile_state {
+>  	int fd, shift;
+>  	uint32_t *buf;
+>  	size_t bufsz;
+> +	ssize_t bufcnt;
+>  	struct sym syms[2], *last, *this;
+>  	unsigned long long stext, vaddr;
+>  	unsigned long total;
+> @@ -60,6 +61,32 @@ static long profile_off(unsigned long lo
+>  	return (((vaddr - state->stext) >> state->shift) + 1)*sizeof(uint32_t);
+>  }
+>  
+> +int optBin;
+
+No global variables and no studlycaps...
+
+
+On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
+> +static void display_hits(struct profile_state *state)
+> +{
+> +	char *name = state->last->name;
+> +	unsigned long hits = state->last->hits;
+> +
+> +	if (!hits)
+> +		return;
+> +	if (!optBin)
+> +		printf("%*lu %s\n", digits(), hits, name);
+> +	else {
+> +		unsigned long long vaddr = state->last->vaddr;
+> +		int shift = state->shift;
+> +		unsigned int off;
+> +		
+> +		printf("%s:\n", name);
+> +		for (off = 0; off < state->bufcnt/sizeof(uint32_t); ++off)
+> +			if (state->buf[off]) {
+> +				printf("\t%*llx", digits(),
+> +					((vaddr >> shift) + off) << shift);
+> +				printf("\t%*lu\n", digits(), state->buf[off]);
+> +			}
+> +	}
+> +}
+
+Okay, now that you have a use for ->bufcnt in struct state, it may make
+sense to keep it around.
+
+
+On Thu, Sep 02, 2004 at 01:09:32AM +0900, mita akinobu wrote:
+>  static int state_transition(struct profile_state *state)
+>  {
+>  	int ret = 0;
+> @@ -101,16 +128,14 @@ static int state_transition(struct profi
+>  			exit(EXIT_FAILURE);
+>  		}
+>  	}
+> -	if (read(state->fd, state->buf, end - start) == end - start) {
+> -		for (off = 0; off < (end - start)/sizeof(uint32_t); ++off)
+> +	if ((state->bufcnt = read(state->fd, state->buf, end - start)) > 0) {
+> +		for (off = 0; off < state->bufcnt/sizeof(uint32_t); ++off)
+>  			state->last->hits += state->buf[off];
+>  	} else {
+>  		ret = 1;
+>  		strcpy(state->last->name, "*unknown*");
+>  	}
+> -	if (state->last->hits)
+> -		printf("%*lu %s\n", digits(), state->last->hits,
+> -							state->last->name);
+> +	display_hits(state);
+>  	state->total += state->last->hits;
+>  out:
+>  	return ret;
+
+It may make more sense to pass a display callback instead, particularly
+if potential future usage in a library wants to render to streams that
+are not stdout or cares to render to things that aren't streams. This
+looks like it's against an older version... this seems to qualify as
+enough interest to at least use source control.
+
+
+-- wli

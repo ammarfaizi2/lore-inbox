@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268894AbTGTXS7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 19:18:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268918AbTGTXS6
+	id S268893AbTGTXSl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 19:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268894AbTGTXSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 19:18:58 -0400
-Received: from mpdir2.jmu.edu ([134.126.12.41]:56417 "EHLO mpdir2.jmu.edu")
-	by vger.kernel.org with ESMTP id S268894AbTGTXS4 (ORCPT
+	Sun, 20 Jul 2003 19:18:40 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:65508
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S268893AbTGTXSk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 19:18:56 -0400
-Message-ID: <3F1B26E3.2010903@jmu.edu>
-Date: Sun, 20 Jul 2003 19:33:55 -0400
-From: "William M. Quarles" <quarlewm@jmu.edu>
-Organization: James Madison University
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4 CPU Arch issues
-References: <3F1B1E77.2020205@jmu.edu> <20030720230535.GA3708@werewolf.able.es>
-In-Reply-To: <20030720230535.GA3708@werewolf.able.es>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 20 Jul 2003 19:18:40 -0400
+Subject: Re: BUG in pdc202xx_old.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?J=FCrgen?= Stohr <juergen.stohr@gmx.de>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307202206.21872.juergen.stohr@gmx.de>
+References: <200307202206.21872.juergen.stohr@gmx.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1058743864.32464.5.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 21 Jul 2003 00:31:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> On 07.21, William M. Quarles wrote:
-> 
->>Hi,
->>
->>In the 2.4 kernel, is it possible for you to separate the Pentium II and 
->>Pentium Pro as confiugration options, as you have done for the 2.6 
->>kernel, or is it too late in the development for that?
->>
-> 
-> 
-> Something like this ?
-> 
-> --- linux-2.4.21-pre5-jam1/arch/i386/config.in.orig	2003-03-07 02:52:48.000000000 +0100
-> +++ linux-2.4.21-pre5-jam1/arch/i386/config.in	2003-03-07 02:57:27.000000000 +0100
+On Sul, 2003-07-20 at 21:06, JÃ¼rgen Stohr wrote:
+>                          * check to make sure drive on same channel
+>                          * is u66 capable
+>                          */
+> -                       if (hwif->drives[!(drive->dn%2)].id) {
+> +                       if (hwif->drives[!(drive->dn%2)].present) {
 
-Señor (or señora?) Magallon,
+This doesn't really seem to make sense for current IDE - drive[n].id is
+never NULL. On old systems it was and this test was needed so we didnt
+check ultra dma flags on an ident free drive (old ST506 etc)
 
-Thank you for writing back.  Am I to assume that this is essentially a 
-working patch that I could go ahead and apply to my kernel?
-
-Thanks a lot,
--- 
-William M. Quarles
-
-quarlewm@jmu.edu
-wquarles@bucknell.edu
-walrus@bellsouth.net
+That makes me curious as to what is really going on here.
 

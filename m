@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293138AbSBWNo3>; Sat, 23 Feb 2002 08:44:29 -0500
+	id <S293140AbSBWO2L>; Sat, 23 Feb 2002 09:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293139AbSBWNoT>; Sat, 23 Feb 2002 08:44:19 -0500
-Received: from 34dyn21.com21.casema.net ([212.64.15.21]:56520 "HELO
-	fruit.eu.org") by vger.kernel.org with SMTP id <S293138AbSBWNoF>;
-	Sat, 23 Feb 2002 08:44:05 -0500
-Date: Sat, 23 Feb 2002 14:44:01 +0100
-From: Wessel Dankers <wsl@fruit.eu.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HPT366: DMA errors?
-Message-ID: <20020223144400.D22191@fruit.eu.org>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.40.0202212304240.438-100000@sartre.linuxbr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.40.0202212304240.438-100000@sartre.linuxbr.com>; from sartre@linuxbr.com on Thu, Feb 21, 2002 at 11:14:11PM -0300
-X-oi: oi
+	id <S293139AbSBWO2B>; Sat, 23 Feb 2002 09:28:01 -0500
+Received: from freesurfmta01.sunrise.ch ([194.230.0.16]:20616 "EHLO
+	freesurfmail.sunrise.ch") by vger.kernel.org with ESMTP
+	id <S293140AbSBWO1p>; Sat, 23 Feb 2002 09:27:45 -0500
+Message-ID: <3C7793D8000013C1@freesurfmta01.sunrise.ch> (added by
+	    postmaster@sunrise.ch)
+From: "Per Jessen" <per@computer.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "Mark H. Wood" <mwood@IUPUI.Edu>,
+        "Dave Rattay [ITeX]" <Dave.Rattay@itexinc.com>
+Date: Sat, 23 Feb 2002 14:10:28 +0100
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: RE: Dlink DSL PCI Card
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-02-21 23:14:11-0300, Cesar Suga wrote:
-> 	Hello, all.
-> 
-> 	I am using an ABIT BP6 board (SMP, 2 Celerons at 366MHz, none
-> overclocked, *very* stable) which uses the HPT366 controller. I am getting
-> through these messages when using the *original* ATA cable (never touched
-> before) or a replacement one:
-> 
-> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
+On Sat, 23 Feb 2002 07:42:10 -0500 (EST), Mark H. Wood wrote:
 
-I got this very same error on my normal VIA ide controller with every cable
-I tried until I figured out that perhaps I should like, actually compile in
-the VIA driver :)
+>> comes out from Microsoft (such as XP) we are given beta copies 6 months
+>> in advance so that our drivers hit the market along side the new OS
+>> release.  This just doesn't happen with Linux.
+>
+>Sure it does.  It happens right here on LKML and some other lists.  You
+>can get early-release images of Linux 2.5 right now.  The distribution
+>builders won't pick up 2.5 for many months.
 
-Basically, reading would go without problems but writing would give the
-above error and make the controller go back to PIO mode access. I agree
-that it is most likely a cable problem but I wouldn't rule out the driver a
-priori.
+Isn't/wasn't 2.5 meant as a development release ? And 2.4 was meant as production, 
+but certainly had more iterations than you would have expected of such.
+If 2.5 is a development-release, I would not expect distros to pick it up
+any time soon - just like they never shipped anything with 2.3. Even when
+SuSE started shipping 2.4.0, the distro carried a clear recommendation of
+using 2.2.18.
 
---
-Wessel Dankers <wsl@fruit.eu.org>
+There are significant differences in the way Linux development happens and 
+the way in which commercial software is release-managed. It's a fact. 
+If Linux kernel development were to stick with the initial idea that odd releases 
+are development, even are production, then it might be easier to keep up. In 
+which case itexcinc would perhaps now be looking at 2.5x with an aim of releasing
+drivers for 2.6.
+
+>
+>(Stores need to understand this too.  A lot of sales have gone to one
+>rather than another because store B told me what chipset was used in a
+>board-level product, and store A would not.)
 
-Small animal kamikaze attack on power supplies
+Wishful thinking - people who understand the importance of which chipset on which
+board are usually not employed as shop-assistants.
+
+
+/Per
+PS: I'm all for the main point that's being argued here - but I do understand 
+itexcinc's point of view.
+
+regards,
+Per Jessen, Zurich
+http://www.enidan.com - home of the J1 serial console.
+
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+
+

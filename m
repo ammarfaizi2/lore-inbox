@@ -1,86 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVBWP4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVBWQPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbVBWP4i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 10:56:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVBWP4g
+	id S261452AbVBWQPM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 11:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVBWQPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 10:56:36 -0500
-Received: from mailhub.lss.emc.com ([168.159.2.31]:55249 "EHLO
-	mailhub.lss.emc.com") by vger.kernel.org with ESMTP id S261443AbVBWP4W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 10:56:22 -0500
-Message-ID: <421CA794.3070909@emc.com>
-Date: Wed, 23 Feb 2005 10:56:04 -0500
-From: Brett Russ <russb@emc.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Justin Cormack <justin@street-vision.com>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Re: AHCI oops
-References: <200502200256.j1K2uKJ23938@tench.street-vision.com> <421BEEE1.5080005@pobox.com>
-In-Reply-To: <421BEEE1.5080005@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PerlMx-Spam: Gauge=, SPAM=7%, Reasons='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_VERSION 0, __SANE_MSGID 0'
+	Wed, 23 Feb 2005 11:15:11 -0500
+Received: from webd.globtel.pl ([62.233.149.230]:16031 "EHLO globtel.pl")
+	by vger.kernel.org with ESMTP id S261452AbVBWQO6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 11:14:58 -0500
+Date: Sun, 20 Feb 2005 18:26:08 +0100
+From: Sebastian Fabrycki <cellsan@interia.pl>
+To: linux-kernel@vger.kernel.org
+Subject: USB Storage problem (usb hangs)
+Message-ID: <20050220172608.GA2944@globtel.pl>
+Reply-To: Sebastian Fabrycki <cellsan@interia.pl>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Can you try this patch?
-> 
-> If it fixes the oops, I'll forward upstream ASAP.
 
-Jeff,
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
 
-It fixes the oops (pasted below) for me; please do push it ASAP.
+Hi.
 
-thanks,
-BR
+The device is: USB2.0 to IDE 3.5" hard disk enclosure.
+Producer: Seven.
 
+Part of /var/log/messages with USB debug enabled in kernel is
+attached to this email.
 
-xlated vfy cmd LBA 0x14f500 cnt 20
-ahci_interrupt: int on port 2
-ahci_host_intr: fatal int seen
-ahci_intr_error: port 2 irq_stat 0x40000001
-struct ata_port *ap = 0xc1bf79bc
-ap->ioaddr.error_addr = 0x00000000
+Kernel: 2.6.9, 2.6.10 (i cant remember from which one is attached log).
+Distribution: Gentoo.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-  printing eip:
-c0279bfd
-*pde = 00000000
-Oops: 0000 [#1]
-Modules linked in: af_packet ipmi_devintf ipmi_msghandler
-CPU:    0
-EIP:    0060:[<c0279bfd>]    Not tainted VLI
-EFLAGS: 00010202   (2.6.11-rc4)
-EIP is at ata_to_sense_error+0x22d/0x3a0
-eax: 00000000   ebx: ffffffff   ecx: 563ff726   edx: 000007bf
-esi: c1bf79bc   edi: c1bf08bc   ebp: 00000000   esp: c03a5ed4
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c03a4000 task=c0350b20)
-Stack: c0329736 00000000 00000282 001f7934 c1bf0800 01000246 c1bf7e78 
-c1bf0800
-        c1bf7e78 40000001 c1bf7e78 c027a48e c1bf7e78 c1bf79bc c0277fd4 
-c0333e88
-        00000002 00000002 40000001 00000002 01bf79bc 00000002 c027baa2 
-c032995e
-Call Trace:
-  [<c027a48e>] ata_scsi_qc_complete+0x5e/0x60
-  [<c0277fd4>] ata_qc_complete+0x34/0xf0
-  [<c027baa2>] ahci_interrupt+0x152/0x1a0
-  [<c012b082>] handle_IRQ_event+0x32/0x70
-  [<c012b167>] __do_IRQ+0xa7/0x110
-  [<c01044a6>] do_IRQ+0x36/0x70
-  [<c0102cf2>] common_interrupt+0x1a/0x20
-  [<c0100675>] mwait_idle+0x25/0x50
-  [<c0100609>] cpu_idle+0x49/0x60
-  [<c03a680a>] start_kernel+0x16a/0x1b0
-  [<c03a6380>] unknown_bootoption+0x0/0x1e0
-Code: e9 ff 8d b6 00 00 00 00 8d bf 00 00 00 00 b8 58 89 41 00 4b e8 e5 
-e6 f7 f
-  <0>Kernel panic - not syncing: Fatal exception in interrupt
+I'm not subscribed to the list, pleas CC me.
+
+-- 
+Regards
+Sebastian Fabrycki
+cellsan@interia.pl
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: attachment; filename="usb-msg.txt"
+
+Jan 10 23:34:30 globtel usb-storage: USB Mass Storage device detected
+Jan 10 23:34:30 globtel usb-storage: -- associate_dev
+Jan 10 23:34:30 globtel usb-storage: Vendor: 0x05e3, Product: 0x0702, Revision: 0x0002
+Jan 10 23:34:30 globtel usb-storage: Interface Subclass: 0x06, Protocol: 0x50
+Jan 10 23:34:30 globtel usb-storage: Vendor: Genesys Logic,  Product: USB TO IDE
+Jan 10 23:34:30 globtel usb-storage: Transport: Bulk
+Jan 10 23:34:30 globtel usb-storage: Protocol: Transparent SCSI
+Jan 10 23:34:30 globtel usb-storage: usb_stor_control_msg: rq=fe rqtype=a1 value=0000 index=00 len=1
+Jan 10 23:34:30 globtel usb-storage: GetMaxLUN command result is 1, data is 0
+Jan 10 23:34:30 globtel usb-storage: *** thread sleeping.
+Jan 10 23:34:30 globtel scsi0 : SCSI emulation for USB Mass Storage devices
+Jan 10 23:34:30 globtel usb-storage: queuecommand called
+Jan 10 23:34:30 globtel usb-storage: *** thread awakened.
+Jan 10 23:34:30 globtel usb-storage: Faking INQUIRY command
+Jan 10 23:34:30 globtel usb-storage: scsi cmd done, result=0x0
+Jan 10 23:34:30 globtel usb-storage: *** thread sleeping.
+Jan 10 23:34:30 globtel Vendor: Genesys   Model: USB to IDE Disk   Rev: 0002
+Jan 10 23:34:30 globtel Type:   Direct-Access                      ANSI SCSI revision: 02
+Jan 10 23:34:30 globtel usb-storage: queuecommand called
+Jan 10 23:34:30 globtel usb-storage: *** thread awakened.
+Jan 10 23:34:30 globtel usb-storage: Command TEST_UNIT_READY (6 bytes)
+Jan 10 23:34:30 globtel usb-storage:  00 00 00 00 00 00
+Jan 10 23:34:30 globtel usb-storage: Bulk Command S 0x43425355 T 0x2 L 0 F 0 Trg 0 LUN 0 CL 6
+Jan 10 23:34:30 globtel usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+Jan 10 23:34:30 globtel usb-storage: Status code 0; transferred 31/31
+Jan 10 23:34:30 globtel usb-storage: -- transfer complete
+Jan 10 23:34:30 globtel usb-storage: Bulk command transfer result=0
+Jan 10 23:34:30 globtel usb-storage: Attempting to get CSW...
+Jan 10 23:34:30 globtel usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+Jan 10 23:34:40 globtel scsi.agent[7459]: Attribute /sys/devices/pci0000:00/0000:00:1d.7/usb1/1-4/1-4:1.0/host0/0:0:0:0/type does not exist
+Jan 10 23:35:00 globtel usb-storage: command_abort called
+Jan 10 23:35:00 globtel usb-storage: usb_stor_stop_transport called
+Jan 10 23:35:00 globtel usb-storage: -- cancelling URB
+Jan 10 23:35:00 globtel usb-storage: Status code -104; transferred 0/13
+Jan 10 23:35:00 globtel usb-storage: -- transfer cancelled
+Jan 10 23:35:00 globtel usb-storage: Bulk status result = 4
+Jan 10 23:35:00 globtel usb-storage: -- command was aborted
+Jan 10 23:35:00 globtel usb-storage: usb_stor_Bulk_reset called
+Jan 10 23:35:00 globtel usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+Jan 10 23:35:20 globtel usb-storage: Timeout -- cancelling URB
+Jan 10 23:35:20 globtel usb-storage: Soft reset failed: -104
+Jan 10 23:35:20 globtel usb-storage: scsi command aborted
+Jan 10 23:35:20 globtel usb-storage: *** thread sleeping.
+Jan 10 23:35:20 globtel usb-storage: queuecommand called
+Jan 10 23:35:20 globtel usb-storage: *** thread awakened.
+Jan 10 23:35:20 globtel usb-storage: Command TEST_UNIT_READY (6 bytes)
+Jan 10 23:35:20 globtel usb-storage:  00 00 00 00 00 00
+Jan 10 23:35:20 globtel usb-storage: Bulk Command S 0x43425355 T 0x2 L 0 F 0 Trg 0 LUN 0 CL 6
+Jan 10 23:35:20 globtel usb-storage: usb_stor_bulk_transfer_buf: xfer 31 bytes
+Jan 10 23:35:20 globtel usb-storage: Status code 0; transferred 31/31
+Jan 10 23:35:20 globtel usb-storage: -- transfer complete
+Jan 10 23:35:20 globtel usb-storage: Bulk command transfer result=0
+Jan 10 23:35:20 globtel usb-storage: Attempting to get CSW...
+Jan 10 23:35:20 globtel usb-storage: usb_stor_bulk_transfer_buf: xfer 13 bytes
+Jan 10 23:35:30 globtel usb-storage: command_abort called
+Jan 10 23:35:30 globtel usb-storage: usb_stor_stop_transport called
+Jan 10 23:35:30 globtel usb-storage: -- cancelling URB
+Jan 10 23:35:30 globtel usb-storage: Status code -104; transferred 0/13
+Jan 10 23:35:30 globtel usb-storage: -- transfer cancelled
+Jan 10 23:35:30 globtel usb-storage: Bulk status result = 4
+Jan 10 23:35:30 globtel usb-storage: -- command was aborted
+Jan 10 23:35:30 globtel usb-storage: usb_stor_Bulk_reset called
+Jan 10 23:35:30 globtel usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+Jan 10 23:35:50 globtel usb-storage: Timeout -- cancelling URB
+Jan 10 23:35:50 globtel usb-storage: Soft reset failed: -104
+Jan 10 23:35:50 globtel usb-storage: scsi command aborted
+Jan 10 23:35:50 globtel usb-storage: *** thread sleeping.
+Jan 10 23:35:50 globtel usb-storage: device_reset called
+Jan 10 23:35:50 globtel usb-storage: usb_stor_Bulk_reset called
+Jan 10 23:35:50 globtel usb-storage: usb_stor_control_msg: rq=ff rqtype=21 value=0000 index=00 len=0
+Jan 10 23:36:10 globtel usb-storage: Timeout -- cancelling URB
+Jan 10 23:36:10 globtel usb-storage: Soft reset failed: -104
+Jan 10 23:36:10 globtel usb-storage: bus_reset called
+...
+...
+
+--4Ckj6UjgE2iN1+kY--

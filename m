@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUEXRP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264411AbUEXRRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264386AbUEXRP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 13:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264385AbUEXRP1
+	id S264411AbUEXRRM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 13:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUEXRRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 13:15:27 -0400
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:46725 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S264382AbUEXRPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 13:15:10 -0400
-Date: Mon, 24 May 2004 11:16:56 -0600
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Tom Vier <tmv@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.6.6 IDE shutdown problems.
-Message-ID: <20040524171656.GA19026@bounceswoosh.org>
-Mail-Followup-To: Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
-References: <BAY18-F105X7rz6AvEm0002622f@hotmail.com> <200405151506.20765.bzolnier@elka.pw.edu.pl> <c8bdqv$lib$1@gatekeeper.tmr.com> <20040524024136.GB2502@zero>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20040524024136.GB2502@zero>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 24 May 2004 13:17:12 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:14269 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264411AbUEXRRG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 13:17:06 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 24 May 2004 10:16:57 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: scheduler: IRQs disabled over context switches
+In-Reply-To: <20040524090538.GA26183@elte.hu>
+Message-ID: <Pine.LNX.4.58.0405241012300.4174@bigblue.dev.mdolabs.com>
+References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu>
+ <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
+ <20040524090538.GA26183@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 23 at 22:41, Tom Vier wrote:
->On Mon, May 17, 2004 at 06:25:51PM -0400, Bill Davidsen wrote:
->> I would think that if the drive didn't properly flush cache on shutdown 
->> that it might cause corruption. Feel free to tell me no drive would 
->> bahave like that ;-)
->
->why not add a one or two second delay before? i doubt any drive holds its
->writeback that long.
+On Mon, 24 May 2004, Ingo Molnar wrote:
 
-That is an arbitrary delay that isn't guaranteed to work in all
-workloads.
+> 
+> * Davide Libenzi <davidel@xmailserver.org> wrote:
+> 
+> > We used to do it in 2.4. What changed to make it fragile? The
+> > threading (TLS) thing?
+> 
+> it _should_ work, but in the past we only had trouble from such changes
+> (at least in the O(1) tree of scheduling - 2.4 scheduler is OK.). We
+> could try the patch below. It certainly boots on SMP x86. But it causes
+> a 3.5% slowdown in lat_ctx so i'd not do it unless there are some really
+> good reasons.
 
-FLUSH CACHE is the way to do this, complain to vendors that don't
-support flush cache and get them to fix their drives.  (Like how Bart
-spoke to me and we both 1) worked out a solution for current drives
-and 2) fixed the root case in all future firmwares)
-
-
-Picture a nice fast drive doing 100 writes/second to the media... if
-you give it over 200 writes at a time, it'll occupy your 2 seconds.
-Newer drives with 8MB or larger buffers are certainly capable of
-caching a lot more than 200 writes...
-
-Drives are getting smarter so they can better work around these sorts
-of cases, but FLUSH CACHE (EXT) is the only way that should be
-guaranteed to work.
-
---eric
+IMO it is fine, as long as it works with IRQ disabled. There are archs 
+where IRQ latencies matters more than lat_ctx times (that BTW are bogus). 
+And we already have the infrastructure in place to let the arch to choose 
+the way better fits it. Russel reported that a guy trying it (IRQ enabled 
+ctx switch) with MIPS was having some problem with it though.
 
 
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
+BTW, the unlock_irq should go in prepare not finish.
+
+
+- Davide
 

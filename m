@@ -1,174 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbUK2WSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbUK2WTI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbUK2WSD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:18:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbUK2WRi
+	id S261831AbUK2WTI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbUK2WTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:17:38 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:43916 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261832AbUK2WP6
+	Mon, 29 Nov 2004 17:19:07 -0500
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:40454 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261831AbUK2WSk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:15:58 -0500
-Date: Mon, 29 Nov 2004 14:15:48 -0800
-From: Greg KH <greg@kroah.com>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] CKRM: 4/10 CKRM:  Full rcfs support
-Message-ID: <20041129221548.GD19892@kroah.com>
-References: <E1CYqZU-000588-00@w-gerrit.beaverton.ibm.com>
+	Mon, 29 Nov 2004 17:18:40 -0500
+Date: Mon, 29 Nov 2004 23:18:55 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6] I2C: macintoch/therm_* drivers cleanups
+Message-Id: <20041129231855.5e7f0bed.khali@linux-fr.org>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
+       LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Sylpheed version 1.0.0beta3 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CYqZU-000588-00@w-gerrit.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 10:48:24AM -0800, Gerrit Huizenga wrote:
-> +#include <linux/module.h>
-> +#include <linux/list.h>
-> +#include <linux/fs.h>
-> +#include <linux/namei.h>
-> +#include <linux/namespace.h>
-> +#include <linux/dcache.h>
-> +#include <linux/seq_file.h>
-> +#include <linux/pagemap.h>
-> +#include <linux/highmem.h>
-> +#include <linux/init.h>
-> +#include <linux/string.h>
-> +#include <linux/smp_lock.h>
-> +#include <linux/backing-dev.h>
-> +#include <linux/parser.h>
-> +#include <asm/uaccess.h>
-> +
-> +#include <linux/rcfs.h>
+Hi Greg,
 
-asm last please.
+This patch cleans the macintoch/therm_* drivers a bit. It removes
+useless IDs, cleans names (no white space), some coding style fixes as
+well, etc. It's exactly the same as what I posted yesterday as a
+candidate fix to bug #3823:
+http://bugzilla.kernel.org/show_bug.cgi?id=3823
 
-> +/*
-> + * Address of variable used as flag to indicate a magic file, 
-> + * value unimportant
-> + */ 
-> +int RCFS_IS_MAGIC;
+Although it isn't the proper fix for that bug, as you underlined, this
+still sounds like a sane set of cleanups for these drivers.
 
-Shouldn't this be static?
+Please apply,
+thanks.
 
-And what is a "magic" file used for?  I see where you set something to
-point to this, but no where do you check for it.  What's the use of it?
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
 
-> +int _rcfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
-> +{
-> +	struct inode *inode;
-> +	int error = -EPERM;
-> +
-> +	if (dentry->d_inode)
-> +		return -EEXIST;
-> +	inode = rcfs_get_inode(dir->i_sb, mode, dev);
-> +	if (inode) {
-> +		if (dir->i_mode & S_ISGID) {
-> +			inode->i_gid = dir->i_gid;
-> +			if (S_ISDIR(mode))
-> +				inode->i_mode |= S_ISGID;
-> +		}
-> +		d_instantiate(dentry, inode);
-> +		dget(dentry);
-> +		error = 0;
-> +	}
-> +	return error;
-> +}
-> +
-> +EXPORT_SYMBOL_GPL(_rcfs_mknod);
-> +
-> +int rcfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
-> +{
-> +	/* User can only create directories, not files */
-> +	if ((mode & S_IFMT) != S_IFDIR)
-> +		return -EINVAL;
-> +
-> +	return dir->i_op->mkdir(dir, dentry, mode);
-> +}
-> +
-> +EXPORT_SYMBOL_GPL(rcfs_mknod);
+diff -ruN linux-2.6.10-rc2/drivers/macintosh.orig/therm_adt746x.c linux-2.6.10-rc2/drivers/macintosh/therm_adt746x.c
+--- linux-2.6.10-rc2/drivers/macintosh.orig/therm_adt746x.c	2004-11-28 11:32:54.000000000 +0100
++++ linux-2.6.10-rc2/drivers/macintosh/therm_adt746x.c	2004-11-28 15:19:54.000000000 +0100
+@@ -169,11 +169,11 @@
+ }
+ 
+ static struct i2c_driver thermostat_driver = {  
+-	.name		="Apple Thermostat ADT746x",
+-	.id		=0xDEAD7467,
+-	.flags		=I2C_DF_NOTIFY,
+-	.attach_adapter	=&attach_thermostat,
+-	.detach_adapter	=&detach_thermostat,
++	.owner		= THIS_MODULE,
++	.name		= "therm_adt746x",
++	.flags		= I2C_DF_NOTIFY,
++	.attach_adapter	= attach_thermostat,
++	.detach_adapter	= detach_thermostat,
+ };
+ 
+ static int read_fan_speed(struct thermostat *th, u8 addr)
+@@ -380,7 +380,6 @@
+ 	th->clt.addr = addr;
+ 	th->clt.adapter = adapter;
+ 	th->clt.driver = &thermostat_driver;
+-	th->clt.id = 0xDEAD7467;
+ 	strcpy(th->clt.name, "thermostat");
+ 
+ 	rc = read_reg(th, 0);
+diff -ruN linux-2.6.10-rc2/drivers/macintosh.orig/therm_pm72.c linux-2.6.10-rc2/drivers/macintosh/therm_pm72.c
+--- linux-2.6.10-rc2/drivers/macintosh.orig/therm_pm72.c	2004-11-28 11:32:54.000000000 +0100
++++ linux-2.6.10-rc2/drivers/macintosh/therm_pm72.c	2004-11-28 13:43:25.000000000 +0100
+@@ -235,8 +235,8 @@
+ 
+ static struct i2c_driver therm_pm72_driver =
+ {
++	.owner		= THIS_MODULE,
+ 	.name		= "therm_pm72",
+-	.id		= 0xDEADBEEF,
+ 	.flags		= I2C_DF_NOTIFY,
+ 	.attach_adapter	= therm_pm72_attach,
+ 	.detach_adapter	= therm_pm72_detach,
+@@ -266,7 +266,6 @@
+ 	clt->addr = (id >> 1) & 0x7f;
+ 	clt->adapter = adap;
+ 	clt->driver = &therm_pm72_driver;
+-	clt->id = 0xDEADBEEF;
+ 	strncpy(clt->name, name, I2C_NAME_SIZE-1);
+ 
+ 	if (i2c_attach_client(clt)) {
+diff -ruN linux-2.6.10-rc2/drivers/macintosh.orig/therm_windtunnel.c linux-2.6.10-rc2/drivers/macintosh/therm_windtunnel.c
+--- linux-2.6.10-rc2/drivers/macintosh.orig/therm_windtunnel.c	2004-10-24 09:48:16.000000000 +0200
++++ linux-2.6.10-rc2/drivers/macintosh/therm_windtunnel.c	2004-11-28 15:19:42.000000000 +0100
+@@ -353,12 +353,12 @@
+ }
+ 
+ static struct i2c_driver g4fan_driver = {  
+-	.name		= "Apple G4 Thermostat/Fan",
++	.owner		= THIS_MODULE,
++	.name		= "therm_windtunnel",
+ 	.id		= I2C_DRIVERID_G4FAN,
+ 	.flags		= I2C_DF_NOTIFY,
+-	.attach_adapter = &do_attach,
+-	.detach_client	= &do_detach,
+-	.command	= NULL,
++	.attach_adapter = do_attach,
++	.detach_client	= do_detach,
+ };
+ 
+ static int
 
-Why 2 mknod functions?  Do they both really need to be exported?
 
-> +
-> +#define MAGIC_SHOW(FUNC)                                               \
-> +static int                                                             \
-
-You mix tabs and spaces in your #defines in this file, please just use
-tabs properly.
-
-> +static ssize_t
-> +target_reclassify_write(struct file *file, const char __user * buf,
-> +			size_t count, loff_t * ppos, int manual)
-> +{
-> +	struct rcfs_inode_info *ri = RCFS_I(file->f_dentry->d_inode);
-> +	char *optbuf;
-> +	int rc = -EINVAL;
-> +	ckrm_classtype_t *clstype;
-> +
-> +	if ((ssize_t) count < 0 || (ssize_t) count > TARGET_MAX_INPUT_SIZE)
-> +		return -EINVAL;
-
-But count is an unsigned variable, right?  How could it ever be
-negative?
-
-> +	if (!access_ok(VERIFY_READ, buf, count))
-> +		return -EFAULT;
-> +	down(&(ri->vfs_inode.i_sem));
-> +	optbuf = kmalloc(TARGET_MAX_INPUT_SIZE, GFP_KERNEL);
-
-kmalloc with a lock held?  Is that a good idea?
-
-You also don't check the return value of kmalloc, that's a bad idea.
-
-> +	__copy_from_user(optbuf, buf, count);
-> +	if (optbuf[count - 1] == '\n')
-> +		optbuf[count - 1] = '\0';
-
-Stripping off a single trailing \n character?  Why?
-
-> +inline struct rcfs_inode_info *RCFS_I(struct inode *inode)
-> +{
-> +	return container_of(inode, struct rcfs_inode_info, vfs_inode);
-> +}
-> +
-> +EXPORT_SYMBOL_GPL(RCFS_I);
-
-This should be named something sane, and just use a #define for it like
-most other container_of() users.
-
-> +void rcfs_destroy_inodecache(void)
-> +{
-> +	printk(KERN_WARNING "destroy inodecache was called\n");
-
-Do you really want to print this out in "production" code?
-
-> +	if (kmem_cache_destroy(rcfs_inode_cachep))
-> +		printk(KERN_INFO
-> +		       "rcfs_inode_cache: not all structures were freed\n");
-
-Shouldn't this really be INFO level?  What is a user going to do with
-this information?
-
-> +config RCFS_FS
-> +	tristate "Resource Class File System (User API)"
-> +	depends on CKRM
-> +	help
-> +	  RCFS is the filesystem API for CKRM. This separate configuration 
-> +	  option is provided only for debugging and will eventually disappear 
-> +	  since rcfs will be automounted whenever CKRM is configured. 
-> +
-> +	  Say N if unsure, Y if you've enabled CKRM, M to debug rcfs 
-> +	  initialization.
-> +
-
-So is this option going to stay around, or should it always be enabled
-if CKRM is enabled?  Why not just do that for the user?
-
-thanks,
-
-greg k-h
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

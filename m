@@ -1,75 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265548AbUATOuI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 09:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUATOuI
+	id S265505AbUATOpw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 09:45:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbUATOpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 09:50:08 -0500
-Received: from ns.suse.de ([195.135.220.2]:37357 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265548AbUATOuD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 09:50:03 -0500
-Date: Tue, 20 Jan 2004 15:48:32 +0100
-From: Olaf Dabrunz <od@suse.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Jaroslav Kysela <perex@suse.cz>
-Subject: Re: ALSA vs. OSS
-Message-ID: <20040120144832.GJ14815@suse.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	Jaroslav Kysela <perex@suse.cz>
-References: <1074532714.16759.4.camel@midux> <Pine.LNX.4.58.0401192036070.3707@pnote.perex-int.cz> <20040120142422.GA14811@suse.de> <Pine.LNX.4.58.0401201524230.2010@pnote.perex-int.cz>
+	Tue, 20 Jan 2004 09:45:52 -0500
+Received: from 82-68-84-57.dsl.in-addr.zen.co.uk ([82.68.84.57]:11181 "EHLO
+	lenin.trudheim.com") by vger.kernel.org with ESMTP id S265505AbUATOpt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 09:45:49 -0500
+Subject: Re: BK 2.6.1 Kernel
+From: Anders Karlsson <anders@trudheim.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040119155847.GL1748@srv-lnx2600.matchmail.com>
+References: <1074526887.5748.8.camel@tor.trudheim.com>
+	 <20040119155847.GL1748@srv-lnx2600.matchmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JBqWjKC86W8hPRL5rCvl"
+Organization: Trudheim Technology Limited
+Message-Id: <1074609976.10034.4.camel@tor.trudheim.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0401201524230.2010@pnote.perex-int.cz>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 Rubber Turnip www.usr-local-bin.org 
+Date: Tue, 20 Jan 2004 14:46:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20-Jan-04, Jaroslav Kysela wrote:
-> On Tue, 20 Jan 2004, Olaf Dabrunz wrote:
-> 
-> > > We don't do this in kernel. We implemented the direct stream mixing in our 
-> > > library (userspace). If your applications already uses ALSA APIs or if you 
-> > > redirect the OSS ioctls to ALSA library (our aoss library), you can enjoy 
-> >   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > How can this be done? Just by creating symlinks?
-> 
-> No. Use aoss script in our alsa-oss package.
 
-Ah, I see.
+--=-JBqWjKC86W8hPRL5rCvl
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-# objdump -t /usr/lib/libaoss.so.0.0.0
+On Mon, 2004-01-19 at 15:58, Mike Fedyk wrote:
+> On Mon, Jan 19, 2004 at 03:41:27PM +0000, Anders Karlsson wrote:
+> > Today I pulled the latest change-sets from
+> > http://linux.bkbits.net:8080/linux-2.5 and
+> > http://linux-acpi.bkbits.net:8080/linux-acpi-test-2.6.1 and built that
+> > kernel. (.config available on request).
+>=20
+> Does the acpi in stock 2.6 work on your laptop?
 
-/usr/lib/libaoss.so.0.0.0:     file format elf32-i386
+Hi there,
 
-SYMBOL TABLE:
-[...]
-000062a0 g     F .text	00000088              ioctl
-[...]
-00006490 g     F .text	0000008f              munmap
-[...]
-00006bc0 g     F .text	00000857              select
-[...]
-000063c0 g     F .text	000000cf              mmap
-[...]
-00006180 g     F .text	00000088              write
-[...]
-00006210 g     F .text	00000088              read
-[...]
-00006890 g     F .text	00000325              poll
-[...]
-00005fd0 g     F .text	000000da              open
-[...]
-00006330 g     F .text	00000088              fcntl
-[...]
-000060b0 g     F .text	000000c9              close
-[...]
+I am now running the stock 2.6.1 kernel, still extracted from the
+bitkeeper repository though. Not a problem, ACPI and the whole lot is
+working fine.
+So there must be something in the changes made between 2.6.1 and
+yesterday.
 
-So libaoss.so is a wrapper for all file-related system-calls, I suppose
-to catch calls involving /dev/dsp and /dev/audio.
+HTH,
 
--- 
-Olaf Dabrunz (od / odabrunz), SUSE Linux AG, Nürnberg
+--=20
+Anders Karlsson <anders@trudheim.com>
+Trudheim Technology Limited
 
+--=-JBqWjKC86W8hPRL5rCvl
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQBADT84LYywqksgYBoRAi79AJ9DHA9y9KVlqelhvIX3/H26Qad1ewCcD1Pf
+1oFWqSNqDlPQeLvqoBL/js8=
+=2wAi
+-----END PGP SIGNATURE-----
+
+--=-JBqWjKC86W8hPRL5rCvl--

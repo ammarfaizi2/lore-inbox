@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbUKZTrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263187AbUKZTrQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbUKZTrP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 14:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbUKZTqv
+	id S263187AbUKZTrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 14:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262416AbUKZTqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:46:51 -0500
+	Fri, 26 Nov 2004 14:46:46 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:65474 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262410AbUKZT1O (ORCPT
+	by vger.kernel.org with ESMTP id S262412AbUKZT1P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:27:14 -0500
-Date: Fri, 26 Nov 2004 00:37:53 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 37/51: Memory pool support.
-Message-ID: <20041125233753.GD2909@elf.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101298427.5805.338.camel@desktop.cunninghams>
+	Fri, 26 Nov 2004 14:27:15 -0500
+Subject: Re: pcnet32: 79c976 with fiber optic
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Guido Guenther <agx@sigxcpu.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       jonmason@us.ibm.com
+In-Reply-To: <20041124171427.GA29693@bogon.ms20.nix>
+References: <20041124171427.GA29693@bogon.ms20.nix>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1101420214.18354.69.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101298427.5805.338.camel@desktop.cunninghams>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 25 Nov 2004 22:03:36 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mer, 2004-11-24 at 17:14, Guido Guenther wrote:
+> it works fine. Any idea what exactly causes the problem?
 
-> This is the memory pool support. It handles all pages freed and
-> allocated between the preparation of the image and the completion of
-> resuming, except prior to restoring the original kernel at resume time.
-> It is designed for speed and to match the fact that suspend2 just about
-> exclusively uses order 0 allocations. ("Just about" is why a couple of
-> order one and two allocations are also available).
+I've no idea whether the workaround is simply not supposed to be used on
+fibre devices (I'm suprised the driver works on fibre full stop 8)). Its
+certainly possible to do a cleaner change though even if nobody can work
+out why.
 
-You really should use generic routines. Having your own malloc of
-course allows you to be slightly faster; but it also means that code
-is much bigger and much uglier.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Use lspci -v to find the subvendor/subdevice ID for the particular board
+assembly and then skip the fixup for that device alone. That should let
+you produce a diff that is safely mergable
+

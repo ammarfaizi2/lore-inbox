@@ -1,81 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271848AbRICWvR>; Mon, 3 Sep 2001 18:51:17 -0400
+	id <S271851AbRICWvR>; Mon, 3 Sep 2001 18:51:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271851AbRICWvI>; Mon, 3 Sep 2001 18:51:08 -0400
-Received: from mx2.port.ru ([194.67.57.12]:9486 "EHLO smtp2.port.ru")
-	by vger.kernel.org with ESMTP id <S271849AbRICWu6>;
-	Mon, 3 Sep 2001 18:50:58 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-Message-Id: <200109040313.f843DYc00623@vegae.deep.net>
-Subject: pmap revisited
-To: linux-kernel@vger.kernel.org
-Date: Tue, 4 Sep 2001 03:13:34 +0000 (UTC)
-Cc: marcelo@brutus.conectiva.com.br, riel@surriel.com
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271849AbRICWvI>; Mon, 3 Sep 2001 18:51:08 -0400
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:829 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S271848AbRICWuu>; Mon, 3 Sep 2001 18:50:50 -0400
+Subject: Re: Sound Blaster Live - OSS or Not?
+From: Robert Love <rml@tech9.net>
+To: Thiago Vinhas de Moraes <tvlists@networx.com.br>
+Cc: Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200109032224.f83MOqj17675@jupter.networx.com.br>
+In-Reply-To: <01090310483100.26387@faldara>
+	<200109032210.f83MA8j15720@jupter.networx.com.br>
+	<15e28I-09mKq8C@fmrl04.sul.t-online.com> 
+	<200109032224.f83MOqj17675@jupter.networx.com.br>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 03 Sep 2001 18:51:09 -0400
+Message-Id: <999557473.7696.1.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-             Ashes on my head guys...
-    Gotta wrong results in my previous perftest... (slightly different 
-  environments), so these are to be sure that on low VM load there isnt
-  any significant difference...
+On Mon, 2001-09-03 at 18:26, Thiago Vinhas de Moraes wrote:
+> > Use the alsa driver from www.alsa-project.org
+> Why isn't it on the kernel tree?
 
-  Here are new and revisited. Actually i maked sure that the environments
-differs only in kernels...
+Because ALSA is not in the kernel tree. ALSA is a completely different
+sound system from OSS, and ALSA is not in the tree. Many find ALSA
+superior, and suggest it replace OSS. ALSA may find its way into the
+tree during 2.5.
 
-  Bonus: two bugs! :)
-   1. Quintela`s (shmtest of memtest) and pmap{2,3} == 100% instant deadlock
-      plain ac12 demonstrates ignorance.
-   2. Swapoff oops 100% - only in pmap3! (okay, swapoff of reiserfs 
-      to be strict, but i think that doesnt actually matters)
-      swapoff oops will be in next mail.
+Of note, I don't know why SBLive does not work w/o these drivers. SBLive
+in the kernel tree is very functional, and the OSS version should work
+fine (assuming the game works with OSS).
 
-  Revisited results:
-
-time find / -xdev - done 5 times
-pmap 3
-real    1m5.175s
-real    1m4.699s
-real    1m3.579s
-============================
-pmap 2
-real    1m5.039s
-real    1m4.779s
-real    1m4.506s
-============================
-plain
-real    1m4.820s
-real    1m4.433s
-real    1m4.285s
-
-* fillmem == (fillmem of memtest)
-* dont count on differences - they are quite flaky, one is only known:
-  there are no much difference anyways...
-time fillmem - done 7 times, still giving strange results sometimes...
-pmap 3
-real    1m2.709s
-real    1m2.417s
-real    1m1.371s
-real    1m1.241s
-real    1m0.235s
-(1m3.~, 1m4.5~) - add results
-============================
-pmap 2
-real    1m5.294s
-real    1m5.169s
-real    1m4.431s
-real    1m3.878s
-real    1m3.523s
-(1m6.~, 1m0.~, 1m3.355) - add results
-============================
-plain
-real    1m1.570s
-real    1m1.063s
-real    1m1.007s
-real    1m0.201s
-real    0m59.677s
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283493AbRK3Dge>; Thu, 29 Nov 2001 22:36:34 -0500
+	id <S283499AbRK3DqG>; Thu, 29 Nov 2001 22:46:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283494AbRK3DgZ>; Thu, 29 Nov 2001 22:36:25 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:4870 "EHLO
-	c0mailgw10.prontomail.com") by vger.kernel.org with ESMTP
-	id <S283493AbRK3DgG>; Thu, 29 Nov 2001 22:36:06 -0500
-Message-ID: <3C06FE6D.CC61387B@starband.net>
-Date: Thu, 29 Nov 2001 22:35:09 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christian Lavoie <clavoie@bmed.mcgill.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Cadeaux de Noels
-In-Reply-To: <20011130031754Z283484-752+173@vger.kernel.org>
+	id <S283497AbRK3Dp4>; Thu, 29 Nov 2001 22:45:56 -0500
+Received: from codepoet.org ([166.70.14.212]:28179 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S283496AbRK3Dpl>;
+	Thu, 29 Nov 2001 22:45:41 -0500
+Date: Thu, 29 Nov 2001 20:45:43 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-via@gtf.org
+Subject: Re: via82cxxx_audio doesn't play audio?
+Message-ID: <20011129204543.A4717@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>, linux-via@gtf.org
+In-Reply-To: <20011129190617.A3975@codepoet.org> <3C06F125.A1D3EBD3@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C06F125.A1D3EBD3@mandrakesoft.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: 2.4.13-ac8-rmk1, Rebel NetWinder (Intel StrongARM-110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My mail server is crap.
+On Thu Nov 29, 2001 at 09:38:29PM -0500, Jeff Garzik wrote:
+> Erik Andersen wrote:
+> > 
+> > I went out the other day and bought an Athlon to replace my aging
+> > celeron 400.  I installed an Epox EP-8KHA+ with an Athlon XP 1600+.
+> > The VIA 8233 Southbridge on the motherboard has builtin audio
+[---------snip--------]
+> > 
+> > When I go to play audio, no sound is produced.  The mixer works.
+[---------snip--------]
+> 
+> You need ALSA drivers.
+> 
+> Via 686 audio is different from Via 8233 audio, and you have the
+> latter.  The PCI ids were added to via82cxxx_audio, but they need to be
+> removed since they apparently do not work (contrary to one report I
+> received).
 
-Christian Lavoie wrote:
+Thanks.  The ALSA drivers indeed work just great.  So yeah, do
+pull the Via 8233 audio PCI IDs from via82cxxx_audio.  ALSA seems
+to be the One True Path for these monsters.
 
-> On Thursday 29 November 2001 21:49, Christian Lavoie wrote:
->
-> By now you'll now me for having spammed LKML _twice_ by mistake.
->
-> The problem is a std user = id 10 t
->
-> Nothing to see anymore.
->
-> --
-> Christian Lavoie
-> clavoie@bmed.mcgill.ca
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ -Erik
 
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

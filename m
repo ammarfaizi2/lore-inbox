@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264010AbUDFU4p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 16:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264009AbUDFUyA
+	id S264013AbUDFU5K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 16:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264016AbUDFU5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 16:54:00 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:28676 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S264008AbUDFUxa
+	Tue, 6 Apr 2004 16:57:09 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45029 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264008AbUDFUyB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 16:53:30 -0400
-To: Timothy Miller <miller@techsource.com>
-Cc: Jesse Pollard <jesse@cats-chateau.net>, linux-kernel@vger.kernel.org
-Subject: Re: kernel stack challenge
-References: <20040405234957.69998.qmail@web40509.mail.yahoo.com>
-	<20040406132750$3d4e@grapevine.lcs.mit.edu>
-	<s5gisgd9ipj.fsf@patl=users.sf.net> <407300C3.9050109@techsource.com>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gd66kamde.fsf@patl=users.sf.net>
-Date: 06 Apr 2004 16:53:29 -0400
-In-Reply-To: <407300C3.9050109@techsource.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 6 Apr 2004 16:54:01 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "John Stoffel" <stoffel@lucent.com>
+Subject: Re: 2.6.5-rc3: cat /proc/ide/hpt366 kills disk on second channel
+Date: Tue, 6 Apr 2004 23:02:17 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org, andre@linux-ide.org
+References: <16496.41345.341470.807320@gargle.gargle.HOWL> <200404061900.36497.bzolnier@elka.pw.edu.pl> <16499.3204.604627.205193@gargle.gargle.HOWL>
+In-Reply-To: <16499.3204.604627.205193@gargle.gargle.HOWL>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404062302.17698.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller <miller@techsource.com> writes:
+On Tuesday 06 of April 2004 22:01, John Stoffel wrote:
+> Bart,
+>
+> You're patch does the trick, I can now do cat /proc/ide/hpt366 without
+> any problems.  Time to re-sync my md mirror.
+>
+> I'll also pull this patch forward to 2.6.5 and make sure to submit it
+> to Linus/Andrew, unless you'll do that part?
 
-> I think 100K is rather large for an interpretor to be included in the
-> kernel, but putting that aside...
+I'll take care of it. :)
 
-I think we are all putting that aside for the moment.  :-)
+> I do wish the cable detection stuff worked though... too bad about the
 
-> It's a limited number of people who would actually write these
-> policies. If those people follow certain coding rules, then we CAN
-> have such bounds, by convention.  Yes, those bounds could be violated,
-> but if the programmer (not sysadmin -- they would never write these
-> things in LISP) breaks something, it's just a bug.
+Cable detection works just fine, see init_hwif_hpt366().
 
-Fair enough.  But then I wonder how many of Lisp's advantages you
-would lose.  I am having trouble imagining "statically bounded Lisp"
-without being so stylized as to hardly be Lisp at all.
+> outb() stuff.  Maybe I can poke at it and figure out what kind of
+> locking is required here to make this work right.  Would it need to be
+> queued up as a regular HWIF command?  Can you tell I don't know what
+> I'm talking about?  *grin*
 
- - Pat
+regular HWIF command?  It can be fixed using REQ_SPECIAL special request
+but I don't think it's worth the work - remove #ifdef/#endif DEBUG around
+printk() in init_hwif_hpt366() if you need info about cable.
+
+Thanks,
+Bartlomiej
+

@@ -1,51 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263254AbUCTJBr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 04:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbUCTJBr
+	id S263256AbUCTJGW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 04:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbUCTJGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 04:01:47 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:30875 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263254AbUCTJBq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 04:01:46 -0500
-Message-ID: <405C0873.6080805@cyberone.com.au>
-Date: Sat, 20 Mar 2004 20:01:39 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Len Brown <len.brown@intel.com>
-CC: Mark Wong <markw@osdl.org>, Andrew Morton <akpm@osdl.org>, axboe@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm2
-References: <A6974D8E5F98D511BB910002A50A6647615F5E2B@hdsmsx402.hd.intel.com> <1079756877.7277.644.camel@dhcppc4>
-In-Reply-To: <1079756877.7277.644.camel@dhcppc4>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 04:06:22 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18188 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263256AbUCTJGO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 04:06:14 -0500
+Date: Sat, 20 Mar 2004 09:06:07 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Ian Campbell <icampbell@arcom.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PXA255 LCD Driver
+Message-ID: <20040320090607.A27266@flint.arm.linux.org.uk>
+Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
+	Ian Campbell <icampbell@arcom.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Frame Buffer Device Development <linux-fbdev-devel@lists.sourceforge.net>
+References: <1079607908.2175.67.camel@icampbell-debian> <Pine.LNX.4.44.0403192352580.14905-100000@phoenix.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0403192352580.14905-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Sat, Mar 20, 2004 at 12:01:03AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Mar 20, 2004 at 12:01:03AM +0000, James Simmons wrote:
+> We can have it so that we can pass in a monitor string that can be used to 
+> select the proper LCD panel in the database. How does that sound?
 
+That's still a little problematical because some hardware people put
+a CPLD between the LCD controller and the LCD panel itself which
+may change the characteristics.
 
-Len Brown wrote:
+It's fairly common to have one LCD controller appear in many different
+devices (because its part of the CPU) and have the same display, yet
+need different timing.
 
->On Fri, 2004-03-19 at 23:19, Brown, Len wrote:
->
->>CONFIG_X86_HT=y does not enable HT.
->>CONFIG_X86_HT=n does not disable HT.
->>It only controls if the cpu_sibling_map[] etc. are initialized.
->>
->>acpi=off does not disable HT
->>
->
->oops, that line incorrect.
->we fixed "acpi=off" to _really_ mean ACPI off -- table parsing
->and all, so it does disable HT, along w/ all the other stuff
->that depends on ACPI.
->
->
+For example, see sa1100fb.c:
 
-So how come oprofile seems to think there is a sibling?
-Can you verify both cases use physical only CPUs?
+static struct sa1100fb_mach_info lq039q2ds54_info __initdata = {
+        .pixclock       = 171521,       .bpp            = 16,
+        .xres           = 320,          .yres           = 240,
 
+        .hsync_len      = 5,            .vsync_len      = 1,
+        .left_margin    = 61,           .upper_margin   = 3,
+        .right_margin   = 9,            .lower_margin   = 0,
+
+        .sync           = FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+
+        .lccr0          = LCCR0_Color | LCCR0_Sngl | LCCR0_Act,
+        .lccr3          = LCCR3_OutEnH | LCCR3_PixRsEdg | LCCR3_ACBsDiv(2),
+};
+
+static struct sa1100fb_mach_info h3600_info __initdata = {
+        .pixclock       = 174757,       .bpp            = 16,
+        .xres           = 320,          .yres           = 240,
+
+        .hsync_len      = 3,            .vsync_len      = 3,
+        .left_margin    = 12,           .upper_margin   = 10,
+        .right_margin   = 17,           .lower_margin   = 1,
+
+        .cmap_static    = 1,
+
+        .lccr0          = LCCR0_Color | LCCR0_Sngl | LCCR0_Act,
+        .lccr3          = LCCR3_OutEnH | LCCR3_PixRsEdg | LCCR3_ACBsDiv(2),
+};
+
+Both of these are the same LCD panel (type LQ039Q2DS54) yet there are
+two different sets of timing information, including the polarity of
+the line and field clocks (which are equivalent to hsync and vsync.)
+
+Also note that such panels are generally fixed resolution, though there
+are a few rare exceptions where changing the colour depth is permitted.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,49 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265866AbUA1G4I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 01:56:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265869AbUA1G4I
+	id S264284AbUA1HlD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 02:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265833AbUA1HlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 01:56:08 -0500
-Received: from mail08a.verio.de ([213.198.55.73]:63648 "HELO mail08a.verio.de")
-	by vger.kernel.org with SMTP id S265866AbUA1G4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 01:56:06 -0500
-Message-ID: <40175CF0.9030903@physik.de>
-Date: Wed, 28 Jan 2004 07:55:44 +0100
-From: Detlef Schmicker <d.schmicker@physik.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 28 Jan 2004 02:41:02 -0500
+Received: from mta01-svc.ntlworld.com ([62.253.162.41]:13929 "EHLO
+	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S264284AbUA1HlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 02:41:01 -0500
+Date: Wed, 28 Jan 2004 07:42:41 +0000
+From: DaMouse Networks <damouse@ntlworld.com>
 To: linux-kernel@vger.kernel.org
-Subject: Lost characters on serial console
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: RE: [PATCH] ALSA 1.0.2
+Message-Id: <20040128074241.643a6179@EozVul.WORKGROUP>
+Organization: DaMouse Networks
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Loop-Detect: 1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+For all those people with problems for the Intel8x0 driver this seems to have fixed them.
 
-we loose characters on the serial consol during receiving at 115kbaud. 
-Especially if
-the ide harddisk is used during reception.
-
-We use a 300MHz Goede MediaGX, with a 16550A serial port (16 byte FIFO). We
-tuned the Harddisk with hdparm, which reduced the problem, but it still 
-exists.
-
-We tried several Kernels: 2.4.4, 2.4.20, 2.4.24 and 2.6.0 and several 
-patches "preempt" and "low-lattency".
-No changes at all.
-We used ext2 and ReiserFS file system.
-
-There were some messages on this problem in the mailing list, but they 
-are years old and we did not find
-real hints, how to solve.
-
-Can anybody help, can we help with debugging, testing?
-
-Thanks a lot
-Detlef Schmicker
-
+-DaMouse

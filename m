@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286282AbRLJPMt>; Mon, 10 Dec 2001 10:12:49 -0500
+	id <S286286AbRLJPRT>; Mon, 10 Dec 2001 10:17:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286283AbRLJPMj>; Mon, 10 Dec 2001 10:12:39 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46856 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286282AbRLJPMe>; Mon, 10 Dec 2001 10:12:34 -0500
-Subject: Re: mm question
-To: volodya@mindspring.com
-Date: Mon, 10 Dec 2001 15:21:49 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.20.0112101001220.17259-100000@node2.localnet.net> from "volodya@mindspring.com" at Dec 10, 2001 10:03:47 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286285AbRLJPRK>; Mon, 10 Dec 2001 10:17:10 -0500
+Received: from dsl-213-023-043-133.arcor-ip.net ([213.23.43.133]:21523 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286283AbRLJPQw>;
+	Mon, 10 Dec 2001 10:16:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: File copy system call proposal
+Date: Mon, 10 Dec 2001 16:19:33 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: quinn@nmt.edu (Quinn Harris),
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu>
+In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DSFZ-0002KX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16DSDU-0001EN-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Right, but then my card refuses to dma into anything with address smaller
-> than 04000000.
+On December 10, 2001 06:44 am, Albert D. Cahalan wrote:
+> Daniel Phillips writes:
+> 
+> > There's some merit to this idea.  As Peter pointed out,
+> > an in-kernel cp isn' needed: mmap+write does the job.
+> > The question is, how to avoid the copy_from_user and
+> > double caching of data?
+> 
+> No, mmap+write does not do the job. SMB file servers have
+> a remote copy operation. There shouldn't be any need to
+> pull data over the network only to push it back again!
 
-What was your board designer on when they decided to bar DMA below 64Mb ?
+Hi Albert,
 
-> amount) but this would place a big load on the system during buffer
-> allocation.
+I don't get it, you're saying that this zero-copy optimization, which happens 
+entirely within the vfs, shouldn't be done because smb can't do it over a 
+network?
 
-And might never terminate
+> The user-space copy operation is also highly likely to
+> lose stuff that the kernel would know about:
+> 
+> extended attributes   (IRIX, OS/2, NT)
+> forks / extra streams   (MacOS, NT)
+> creation time stamp   (Microsoft: not ctime or mtime)
+> author   (GNU HURD: person who created the file)
+> file type   (MacOS)
+> creator app   (MacOS)
+> unique ID   (Win2K)
+> mandatory access control data   (Trusted Foo)
+> non-UNIX permission bits   (every other OS)
+> ACLs   (NFSv4, NT, Solaris...)
+> translator   (HURD)
+> trustees   (NetWare)
 
-> I was hoping for something more elegant, but I am not adverse to writing
-> my own get_free_page_from_range().
+I'd think the mmap-based copy would only use the technique on the data 
+portion of a file.
 
-Thats not a trivial task.
+Note that I'm not seriously proposing to do this, there are about 1,000 more 
+important things.  I'm suggesting the original poster go take a look at the 
+issues involved in making it happen.
+
+--
+Daniel

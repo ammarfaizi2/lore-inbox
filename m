@@ -1,68 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130707AbQJaV5n>; Tue, 31 Oct 2000 16:57:43 -0500
+	id <S130248AbQJaV6x>; Tue, 31 Oct 2000 16:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130708AbQJaV5d>; Tue, 31 Oct 2000 16:57:33 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:1035 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130707AbQJaV5O>; Tue, 31 Oct 2000 16:57:14 -0500
-Message-ID: <39FF3F52.3847ACC6@timpanogas.org>
-Date: Tue, 31 Oct 2000 14:53:22 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Reto Baettig <baettig@scs.ch>, linux-kernel@vger.kernel.org
+	id <S130723AbQJaV6o>; Tue, 31 Oct 2000 16:58:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:41098 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130708AbQJaV6i>;
+	Tue, 31 Oct 2000 16:58:38 -0500
+Date: Tue, 31 Oct 2000 13:44:17 -0800
+Message-Id: <200010312144.NAA19788@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: jmerkey@timpanogas.org
+CC: pmenage@ensim.com, riel@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <39FF3D53.C46EB1A8@timpanogas.org> (jmerkey@timpanogas.org)
 Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <Pine.LNX.4.21.0010311943260.1190-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <E13qj56-0003h9-00@pmenage-dt.ensim.com> <39FF3D53.C46EB1A8@timpanogas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: 	Tue, 31 Oct 2000 14:44:51 -0700
+   From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
 
+   not web servers copying read only data from cache...
 
-Rik van Riel wrote:
-> 
-> On Tue, 31 Oct 2000, Jeff V. Merkey wrote:
-> > Rik van Riel wrote:
-> > > On Tue, 31 Oct 2000, Reto Baettig wrote:
-> > >
-> > > > When I'm following this thread, you guys seem to forget the
-> > > > _basics_: The Linux networking stack sucks!
-> > >
-> > > Ummm, last I looked Linux held the Specweb99 record;
-> > > by a wide margin...
-> >
-> > It doesn't hold the file and print scaling record.  NetWare
-> > does..
-> 
-> Indeed, we haven't made a file serving plugin for
-> the TUX zero-copy stuff yet...
-> 
-> Oh, and I haven't found a bunch of printers yet that are
-> fast enough to beat the printserving record ;))
+Actually, a sizable portion of SpecWEB99 is dynamic content, so it's
+not all read-only.
 
-You got me on this one.  I would also agree that NPDS is the worst piece
-of crap ever written.  
-
-:-)
-
-Jeff
-
-
->   *runs like hell*
-> 
-> cheers,
-> 
-> Rik
-> --
-> "What you're running that piece of shit Gnome?!?!"
->        -- Miguel de Icaza, UKUUG 2000
-> 
-> http://www.conectiva.com/               http://www.surriel.com/
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

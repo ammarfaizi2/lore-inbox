@@ -1,49 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265844AbTF3LQV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 07:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbTF3LQU
+	id S265846AbTF3L2K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 07:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbTF3L2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 07:16:20 -0400
-Received: from dp.samba.org ([66.70.73.150]:3820 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265830AbTF3LQT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 07:16:19 -0400
+	Mon, 30 Jun 2003 07:28:10 -0400
+Received: from 12-207-41-15.client.attbi.com ([12.207.41.15]:30475 "EHLO
+	skarpsey.home.lan") by vger.kernel.org with ESMTP id S265846AbTF3L2E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 07:28:04 -0400
+From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] ___arch__swab64() causing compile breakage
+Date: Mon, 30 Jun 2003 06:44:22 -0500
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16128.7306.58928.879567@cargo.ozlabs.ibm.com>
-Date: Mon, 30 Jun 2003 21:18:34 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org, linux-ppp@vger.kernel.org
-Subject: Re: [BUG]:   problem when shutting down ppp connection since 2.5.70
-In-Reply-To: <3EFFA1EA.7090502@nortelnetworks.com>
-References: <3EFFA1EA.7090502@nortelnetworks.com>
-X-Mailer: VM 7.16 under Emacs 21.3.2
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_WKCA/s58x3U96mm"
+Message-Id: <200306300644.22712.kelledin+LKML@skarpsey.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen writes:
 
-> I have a pppoe dsl connection and I use the roaring penguin stuff that 
-> comes default with Mandrake 9.  My connection is brought up at init 
-> time.  With kernels past 2.5.69, if I try and shut down the connection I 
-> get logs as follows:
+--Boundary-00=_WKCA/s58x3U96mm
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Is this the user-mode pppoe or the in-kernel pppoe?  IOW, are you
-using the pppoe channel type, or do you have the usermode program that
-runs pppd behind a pty?
+I just noticed that with the new implementation of 
+___arch__swab64 in 2.4.21 (i386), kdemultimedia-3.1.x won't 
+compile.  Basically it tries to include <linux/cdrom.h>, which 
+in turn tries to include <asm/byteorder.h>, and it tries to 
+compile it all with g++ -ansi.  ___arch__swab64() is partly to 
+blame.
 
-And, do you have any TCP connections open over the link when you take
-it down?  What version of pppd is it?
+Now as much as we may call this a KDE bug, the old 
+___arch__swab64 implementation didn't have this problem.  In the 
+old implementation, both the __u64 type (from <asm/types.h>) and 
+the ___arch__swab64() macro (which depends on the __u64 type) 
+didn't get defined in userland for __STRICT_ANSI__ code.
 
-Has anyone been able to replicate this without using pppoe?  The type
-of channel shouldn't make any difference, but I just tried ppp over a
-pty and it worked fine (except that Deflate is broken, but that's
-another problem).
+With the new implementation taken from SGI XFS, __u64 still isn't 
+defined for __STRICT_ANSI__ code, but ___arch__swab64() is 
+exposed to the world no matter what.  Run that through gcc 
+-ansi, and you get an instant parse error! ;)
 
-I have DSL and I could connect it up to a system running 2.5.  Maybe
-I'll go try that now...
+That's reason enough to rectify this annoying little 
+inconsistency.  I suggest we either let both code bits stay with 
+__STRICT_ANSI__ defined, or we leave out at least the 
+___arch__swab64() macro with __STRICT_ANSI__ defined.  I'm 
+personally in favor of putting the old __STRICT_ANSI__ check 
+around the new ___arch__swab64().
 
-Paul.
+-- 
+Kelledin
+"If a server crashes in a server farm and no one pings it, does 
+it still cost four figures to fix?"
+
+--Boundary-00=_WKCA/s58x3U96mm
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="linux-2.4.21-swab64.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="linux-2.4.21-swab64.patch"
+
+diff -Naur linux-2.4.20/include/asm-i386/byteorder.h linux-2.4.20-swab64/include/asm-i386/byteorder.h
+--- linux-2.4.20/include/asm-i386/byteorder.h	2003-05-26 23:29:50.000000000 -0500
++++ linux-2.4.20-swab64/include/asm-i386/byteorder.h	2003-05-26 23:32:52.000000000 -0500
+@@ -34,7 +34,7 @@
+ 		return x;
+ }
+ 
+-
++#if !defined(__STRICT_ANSI__) || defined(__KERNEL__)
+ static inline __u64 ___arch__swab64(__u64 val) 
+ { 
+ 	union { 
+@@ -55,10 +55,12 @@
+ } 
+ 
+ #define __arch__swab64(x) ___arch__swab64(x)
++#define __BYTEORDER_HAS_U64__
++#endif
++
+ #define __arch__swab32(x) ___arch__swab32(x)
+ #define __arch__swab16(x) ___arch__swab16(x)
+ 
+-#define __BYTEORDER_HAS_U64__
+ 
+ #endif /* __GNUC__ */
+ 
+
+--Boundary-00=_WKCA/s58x3U96mm--
+

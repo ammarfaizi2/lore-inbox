@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129823AbRCAT0B>; Thu, 1 Mar 2001 14:26:01 -0500
+	id <S129830AbRCATbB>; Thu, 1 Mar 2001 14:31:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129826AbRCATZx>; Thu, 1 Mar 2001 14:25:53 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:39303 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129823AbRCATZj>;
-	Thu, 1 Mar 2001 14:25:39 -0500
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15006.41335.378413.427127@pizda.ninka.net>
-Date: Thu, 1 Mar 2001 11:22:31 -0800 (PST)
+	id <S129833AbRCATaw>; Thu, 1 Mar 2001 14:30:52 -0500
+Received: from bacchus.veritas.com ([204.177.156.37]:64970 "EHLO
+	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
+	id <S129830AbRCATab>; Thu, 1 Mar 2001 14:30:31 -0500
+Date: Thu, 1 Mar 2001 18:09:07 +0000 (GMT)
+From: Mark Hemment <markhe@veritas.com>
 To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
 Subject: Re: Q: explicit alignment control for the slab allocator
 In-Reply-To: <3A9E8628.7CCD1162@colorfullife.com>
-In-Reply-To: <3A9E8628.7CCD1162@colorfullife.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Message-ID: <Pine.LNX.4.21.0103011800460.11260-100000@alloc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 1 Mar 2001, Manfred Spraul wrote:
 
-Manfred, why are you changing the cache alignment to
-SMP_CACHE_BYTES?  If you read the original SLAB papers
-and other documents, the code intends to color the L1
-cache not the L2 or subsidiary caches.
+> Alan added a CONFIG options for FORCED_DEBUG slab debugging, but there
+> is one minor problem with FORCED_DEBUG: FORCED_DEBUG disables
+> HW_CACHEALIGN, and several drivers assume that HW_CACHEALIGN implies a
+> certain alignment (iirc usb/uhci.c assumes 16-byte alignment)
+> 
+> I've attached a patch that fixes the explicit alignment control in
+> kmem_cache_create().
+> 
+> The parameter 'offset' [the minimum offset to be used for cache
+> coloring] actually is the guaranteed alignment, except that the
+> implementation was broken. I've fixed the implementation and renamed
+> 'offset' to 'align'.
 
-Later,
-David S. Miller
-davem@redhat.com
+  As the original author of the slab allocator, I can assure you there is
+nothing guaranteed about "offset".  Neither is it to do with any minimum.
+
+  The original idea behind offset was for objects with a "hot" area
+greater than a single L1 cache line.  By using offset correctly (and to my
+knowledge it has never been used anywhere in the Linux kernel), a SLAB
+cache creator (caller of kmem_cache_create()) could ask the SLAB for more
+than one colour (space/L1 cache lines) offset between objects.
+
+  As no one uses the feature it could well be broken, but is that a reason
+to change its meaning?
+
+Mark
+

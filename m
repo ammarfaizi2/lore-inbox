@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVACAEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVACAO5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261350AbVACAEX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 19:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVACAEX
+	id S261349AbVACAO5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 19:14:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVACAO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 19:04:23 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:53179 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261347AbVACAES (ORCPT
+	Sun, 2 Jan 2005 19:14:57 -0500
+Received: from pop.gmx.de ([213.165.64.20]:28810 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261349AbVACAOy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 19:04:18 -0500
-Date: Mon, 3 Jan 2005 01:04:17 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Linux-VServer <vserver@list.linux-vserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Vserver] Re: The Future of Linux Capabilities ...
-Message-ID: <20050103000417.GA31967@mail.13thfloor.at>
-Mail-Followup-To: Andreas Schwab <schwab@suse.de>,
-	Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@osdl.org>,
-	Linux-VServer <vserver@list.linux-vserver.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041227014041.GA30550@mail.13thfloor.at> <20041227193637.GH1043@openzaurus.ucw.cz> <jevfafy5uk.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 2 Jan 2005 19:14:54 -0500
+X-Authenticated: #438326
+From: Michael Geithe <warpy@gmx.de>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.10-bk5
+Date: Mon, 3 Jan 2005 01:14:55 +0100
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <jevfafy5uk.fsf@sykes.suse.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200501030114.55399.warpy@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 08:43:31PM +0100, Andreas Schwab wrote:
-> Pavel Machek <pavel@ucw.cz> writes:
-> 
-> > 1) seems acceptable, as long as 64bits is enough.
-> 
-> That cries for an extensible interface.
+Hi,
+when booting 2.6.10-bk5, my box generate the following:
 
-I guess using an array (with at compile time fixed size)
-of __u32 (or maybe __u64 on 64bit archs) would be a good
-solution to make it 'compatible' with the current interface
-(for the lower 32 bit) and allow to use an interface which
-can handle arbitrary sizes for the 'new' syscall interface
 
-best,
-Herbert
+ BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000d4000 - 00000000000de014 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000003fff0000 (usable)
+ BIOS-e820: 000000003fff0000 - 000000003fff8000 (ACPI data)
+ BIOS-e820: 000000003fff8000 - 0000000040000000 (ACPI NVS)
+ BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
+ BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
+ BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
+127MB HIGHMEM available.
+896MB LOWMEM available.
+found SMP MP-table at 000fc0f0
+On node 0 totalpages: 262128
+  DMA zone: 4096 pages, LIFO batch:1
+  Normal zone: 225280 pages, LIFO batch:16
+  HighMem zone: 32752 pages, LIFO batch:7
+DMI 2.3 present.
+__iounmap: bad address c00f0000
+ACPI: RSDP (v000 AMI                                   ) @ 0x000fa380
+ACPI: RSDT (v001 AMIINT INTEL875 0x00000010 MSFT 0x00000097) @ 0x3fff0000
+ACPI: FADT (v001 AMIINT INTEL875 0x00000011 MSFT 0x00000097) @ 0x3fff0030
+ACPI: MADT (v001 AMIINT INTEL875 0x00000009 MSFT 0x00000097) @ 0x3fff00c0
+ACPI: DSDT (v001  INTEL     I875 0x00001000 MSFT 0x0100000d) @ 0x00000000
 
-> Andreas.
-> 
-> -- 
-> Andreas Schwab, SuSE Labs, schwab@suse.de
-> SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-> Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-> "And now for something completely different."
-> _______________________________________________
-> Vserver mailing list
-> Vserver@list.linux-vserver.org
-> http://list.linux-vserver.org/mailman/listinfo/vserver
+These warnings/errors are new since 2.6.10-bk2
+__iounmap: bad address c00f0000
+
+
+Mainboard MSI 875P NEO-LSR
+Linux 2.6.10-bk5 #1 SMP Sun Jan 2 15:29:57 CET 2005 i686 Intel(R) Pentium(R) 4 
+CPU 2.80GHz GenuineIntel GNU/Linux
+
+-- 
+Michael Geithe
+
+
+
+
+
+
+
+
+

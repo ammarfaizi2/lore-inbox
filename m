@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264132AbUBEDLi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 22:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUBEDLi
+	id S264444AbUBEDfi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 22:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265993AbUBEDfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 22:11:38 -0500
-Received: from ns.suse.de ([195.135.220.2]:51098 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264132AbUBEDLg (ORCPT
+	Wed, 4 Feb 2004 22:35:38 -0500
+Received: from thunk.org ([140.239.227.29]:40619 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S264444AbUBEDff (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 22:11:36 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, amitkale@emsyssoft.com,
-       "La Monte H.P. Yarroll" <piggy@timesys.com>, trini@kernel.crashing.org
-Subject: Re: kgdb support in vanilla 2.6.2
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
-	<20040204152137.500e8319.akpm@osdl.org.suse.lists.linux.kernel>
-	<402182B8.7030900@timesys.com.suse.lists.linux.kernel>
-	<20040204155452.49c1eba8.akpm@osdl.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 05 Feb 2004 04:11:34 +0100
-In-Reply-To: <20040204155452.49c1eba8.akpm@osdl.org.suse.lists.linux.kernel>
-Message-ID: <p73n07ykyop.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Wed, 4 Feb 2004 22:35:35 -0500
+Date: Wed, 4 Feb 2004 22:35:12 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Valdis.Kletnieks@vt.edu
+Cc: Bill Davidsen <davidsen@tmr.com>, the grugq <grugq@hcunix.net>,
+       Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH - ext2fs privacy (i.e. secure deletion) patch
+Message-ID: <20040205033511.GA4452@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Valdis.Kletnieks@vt.edu,
+	Bill Davidsen <davidsen@tmr.com>, the grugq <grugq@hcunix.net>,
+	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+References: <4017E3B9.3090605@hcunix.net> <20040203222030.GB465@elf.ucw.cz> <40203DE1.3000302@hcunix.net> <20040204004318.GA253@elf.ucw.cz> <20040204062936.GA2663@thunk.org> <4020EEB0.50002@hcunix.net> <40212643.4000104@tmr.com> <200402041714.i14HEIVD005246@turing-police.cc.vt.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402041714.i14HEIVD005246@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Wed, Feb 04, 2004 at 12:14:18PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> > It would be useful to have this as a directory option, so that all files 
+> > in directory would be protected. I think wherever you do it you have to 
+> > prevent hard links, so that unlink really removes the data.
+> 
+> This of course implies that 'chattr +s' (or whatever it was) has to fail
+> if the link count isn't exactly one.  Also makes for lots of uglyiness
+> if it's a directory option - you then have to walk all the entries in the
+> directory and check *their* link counts.  Bad Juju doing it in the kernel
+> if you have a directory with a million entries - and racy as hell if you
+> do it in userspace.
 
-> need to take a look at such things and really convice ourselves that
-> they're worthwhile.  Personally, I'd only be interested in the basic stub.
+Disagree.  Unless you also want to make it illegal to establish a hard
+link if the +s option is set.
 
-What I found always extremly ugly in the i386 stub was that it uses
-magic globals to talk to the page fault handler. For the x86-64
-version I replaced that by just using __get/__put_user in the memory
-accesses, which is much cleaner. I would suggest doing that for i386
-too.
+A easier set of semantics is that when the inode count drops to zero,
+the inode is securely deleted, but that if there are hard links, there
+are hard links.  Basically the flag applies to inodes, and that in
+some cases, where you create a file in a parent directory, the inode
+may inherit the secure deletion flag.  But a creating a hard link
+doesn't count as creating a new inode.
 
-Also what's also ugly in i386 is that it uses ugly hooks in traps.c/fault.c.
-On x86-64 I instead added generic notifiers (see include/asm-x86_64/die.h
-and notify_die in arch/x86_64/kernel/traps.c) 
-where both kdb and kgdb and possibly dprobes and other debuggers can hook
-in without conflicting patches for the same files from everybody.
-I would strongly suggest to adopt such a generic framework for i386 too
-to clean up the core kernel <-> debugger interaction. As soon as this
-frame work is in just dropping the stub is is very clean.
+						- Ted
 
-The x86-64 version should be pretty simple to port to i386 if someone
-is interested ...
 
-Another issue is that for modern gdb and frame pointer less debugging
-with dwarf2 we really need dwarf2 cfi annotation on i386 too. It is
-not as ugly as it used to be because newer binutils have much nicer to
-use .cfi_* mnemonics to generate the dwarf2 unwind table. x86-64 uses
-that now thanks to Jim Houston. It only works with uptodate binutils,
-but I guess that's a reasonable requirement. It's a bit intrusive in
-entry.S, but not too bad compared to the old way (take a look at
-arch/i386/kernel/vsyscall-sysenter.S to see how the old way looks
-like) Having the dwarf2 unwind information in the kernel vmlinux is
-useful even independent of kgdb for other tools that look at crash
-dumps.
 
--Andi

@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312896AbSDOQID>; Mon, 15 Apr 2002 12:08:03 -0400
+	id <S312901AbSDOQN0>; Mon, 15 Apr 2002 12:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312899AbSDOQIC>; Mon, 15 Apr 2002 12:08:02 -0400
-Received: from ip68-13-184-34.om.om.cox.net ([68.13.184.34]:29182 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S312896AbSDOQIB>; Mon, 15 Apr 2002 12:08:01 -0400
-Date: Mon, 15 Apr 2002 10:05:09 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux as a minicomputer ?
-In-Reply-To: <20020414165056.GJ16692@gallifrey>
-Message-ID: <Pine.LNX.4.44.0204150936030.15442-100000@localhost.localdomain>
+	id <S312915AbSDOQNZ>; Mon, 15 Apr 2002 12:13:25 -0400
+Received: from mail.mojomofo.com ([208.248.233.19]:45326 "EHLO mojomofo.com")
+	by vger.kernel.org with ESMTP id <S312901AbSDOQNY>;
+	Mon, 15 Apr 2002 12:13:24 -0400
+Message-ID: <02db01c1e498$7180c170$58dc703f@bnscorp.com>
+From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
+To: "Jens Axboe" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020415125606.GR12608@suse.de>
+Subject: Re: [PATCH] IDE TCQ #4
+Date: Mon, 15 Apr 2002 12:13:12 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Apr 2002, Dr. David Alan Gilbert wrote:
+Simple question but hopefully it has a simple answer.. is there a command
+you can issue or flag you can look for from the output of hdparm to tell if
+your hard drive is capable of TCQ before installing the patch? I have a few
+IBM drives that I'm sure have TCQ abilities but I don't trust them as far as
+I can throw them (being Hungarian and cursed) but I'd like to give TCQ a
+whirl on my WD 120GB drives that should work OK, if they support TCQ..
 
-> OK, clearing aside the deep technical arguments about lengths of coax
-> and what you can do with a couple of celerons, it seems obvious to me
-> that for at least some menial jobs a box with multiple separate screens
-> is useful. (Think two or three secretarys sitting next to each other
-> with a PC in the middle, low processor needs, short leads).
+Sorry if it's already been asked.. :)
 
-Actually, it's not just about simple component cost.  There are other 
-considerations, especially in a business environment.  I actually did a 
-paper for my technical writing class a year ago and found the best 
-solution was cheap terminals connected to a good, single-processor server.  
-Target environment for the study was a 10-workstation medical services 
-company here in Omaha.  SMP didn't turn out to be the most cost effective 
-solution, much to my surprise.
 
-Key question is how much does it cost if data is compromised or lost, and 
-how much does it cost to ensure that bad things don't happen.
 

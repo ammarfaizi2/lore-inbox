@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264288AbTEZGfv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 02:35:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264301AbTEZGfv
+	id S264301AbTEZGu3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 02:50:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264302AbTEZGu3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 02:35:51 -0400
-Received: from dp.samba.org ([66.70.73.150]:63376 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S264288AbTEZGft (ORCPT
+	Mon, 26 May 2003 02:50:29 -0400
+Received: from smtp.b-online.gr ([212.152.79.22]:19638 "EHLO smtp.b-online.gr")
+	by vger.kernel.org with ESMTP id S264301AbTEZGu2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 02:35:49 -0400
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] const char* to char* update in console.h
-Date: Mon, 26 May 2003 16:32:58 +1000
-Message-Id: <20030526064900.F372D2C0B2@lists.samba.org>
+	Mon, 26 May 2003 02:50:28 -0400
+Date: Mon, 26 May 2003 10:08:35 +0300
+From: Natsakis Konstantinos <cyfex@mail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Proposal: Bastard floppy and ramdisk block device.
+Message-Id: <20030526100835.1949c872.cyfex@mail.com>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Amit Shah <shahamit@gmx.net>
+I've written a module for the kernel that handles a new binary block device (i call it /dev/flpemu) which acts partly as a virtual floppy. The handler is a stripped down version of the ramdisk driver with the addition that it supports the FDGETPRM ioctl. The return structure of this ioctl is arbitrarily defined in the source. For example it can be set to always return the parameters for a 1440k 3 1/2 floppy.
 
-  Hi all,
-  
-  (resending updated version for 2.5.69)
-  
-  The read function for consoles in include/linux/console.h contains const 
-  char* for a pointer that it will actually modify. Although no one seems 
-  to be using this as of now, it should be corrected.
-  
+The use of this bastard device is to be able to install lilo on a floppy disk image previously uploaded on the /dev/flpemu's buffer.
 
---- trivial-2.5.69-bk18/include/linux/console.h.orig	2003-05-26 16:17:30.000000000 +1000
-+++ trivial-2.5.69-bk18/include/linux/console.h	2003-05-26 16:17:30.000000000 +1000
-@@ -96,7 +96,7 @@
- {
- 	char	name[8];
- 	void	(*write)(struct console *, const char *, unsigned);
--	int	(*read)(struct console *, const char *, unsigned);
-+	int	(*read)(struct console *, char *, unsigned);
- 	struct tty_driver *(*device)(struct console *, int *);
- 	void	(*unblank)(void);
- 	int	(*setup)(struct console *, char *);
--- 
-  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
-  Don't blame me: the Monkey is driving
-  File: Amit Shah <shahamit@gmx.net>: [PATCH][2.5] const char_ to char_ update in console.h
+This allows the automation of the process of creating bootable floppy disks as there is no need for an actual floppy disk or even a floppy controller. It certainly made my life easier. So what I'm asking is:
+
+Is there any interest for such a strange thing?
+
+And if yes what would be the best way to implement it?
+Would it be better to add 2 ioctls to the ramdisk driver (One to set the parameters and one to get them) instead of creating a new device?
+
+Is this maybe stupid altogether?
+Should it be implemented on lilo's side alone?
+Should this be extended maybe to support a wider range of floppy ioctl in order to be usefull?
+
+thank you.
+
+cyfex

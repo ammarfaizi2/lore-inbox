@@ -1,2222 +1,849 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262201AbSLPWrl>; Mon, 16 Dec 2002 17:47:41 -0500
+	id <S261973AbSLPW6l>; Mon, 16 Dec 2002 17:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262040AbSLPWrl>; Mon, 16 Dec 2002 17:47:41 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:5616 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262201AbSLPWq7>;
-	Mon, 16 Dec 2002 17:46:59 -0500
-Subject: [PATCH][RESEND] linux-2.5.52_subarch-cleanup_A3
-From: john stultz <johnstul@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       James.Bottomley@HansenPartnership.com
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040079046.12538.6.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 16 Dec 2002 14:50:47 -0800
-Content-Transfer-Encoding: 7bit
+	id <S262040AbSLPW6k>; Mon, 16 Dec 2002 17:58:40 -0500
+Received: from office-NAT.rockwellfirstpoint.com ([199.191.58.7]:31957 "EHLO
+	ecsmtp01.rockwellfirstpoint.com") by vger.kernel.org with ESMTP
+	id <S261973AbSLPW6Y>; Mon, 16 Dec 2002 17:58:24 -0500
+Subject: i845PE chipset and 20276 Promise Controller boot failure with 2.4.20-ac2
+To: linux-kernel@vger.kernel.org
+Cc: edward.kuns@rockwellfirstpoint.com
+X-Mailer: Lotus Notes Release 6.0 September 26, 2002
+Message-ID: <OF4D4BDDD2.8FD534AB-ON86256C91.007B9286-86256C91.007EE995@rockwellfirstpoint.com>
+From: edward.kuns@rockwellfirstpoint.com
+Date: Mon, 16 Dec 2002 17:09:49 -0600
+X-MIMETrack: Serialize by Router on ECSMTP01/EC/Rockwell(Release 5.0.11  |July 24, 2002) at
+ 12/16/2002 05:06:37 PM
+MIME-Version: 1.0
+Content-type: multipart/mixed; 
+	Boundary="0__=09BBE602DFE814168f9e8a93df938690918c09BBE602DFE81416"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, James, all
-        Just a resend of my subarch cleanup patch (rediffed against bk
-current), which splits up the subarch .h and .c files. Also I've made it
-so the .h files not found in the platform subarch dir fall back to the
-default subarch dir. This makes it easier to add new subarches with
-minimal file duplication. 
+--0__=09BBE602DFE814168f9e8a93df938690918c09BBE602DFE81416
+Content-type: text/plain; charset=us-ascii
 
-The patch is largeish due to the number of file moves, however bk should
-pick these up as renames on import.
+Please CC me at edward.kuns at rockwellfirstpoint.com in your responses.
 
-Please apply.
+I have a Gigabyte GA-8PE667 Ultra motherboard (aka P4 Titan 667 Ultra) with
+the i845PE chipset plus a Promise RAID controller (PDC20276).  Earlier I
+sent a message about the sound problems I've been having.  (Thanks, Alan,
+I'll try enabling APIC, etc, tonight.  Since I was working with the Red Hat
+kernels, I didn't deeply investigate the default settings there.)  The
+other problem I'm having is trying to build my own kernel with 2.4.20-ac2
+-- where I have APIC et al enabled.  It builds fine but does not finish
+booting.  The failure appears related to the Promise RAID controller.  I
+didn't have this problem with earlier 2.4.20-pre*-ac* kernels on an i845G
+Intel motherboard which has only the IDE controller of the chipset.
 
-Thanks
--john
+Booting with the new kernel, it gets to the PDC20276 IDE controller, gives
+the three lines of 1) controller "not 100% native mode" line and 2,3) two
+lines for ide2 and ide3, and that is it.  At that point the machine is hung
+solid.  CTL-ALT-DEL does nothing, Magic SysRq does nothing.  I cannot
+scroll back.  Only the hardware reset button causes a response.  In case it
+matters, the BIOS for the Promise controller is "MBUltra133 (PDC20276) BIOS
+2.20.1020.13".  This motherboard allows you to set the Promise controller
+in RAID mode or in ATA mode.  I have it set in ATA mode.  I tried putting
+it in RAID mode and after setting up a "striped" RAID array of one disk
+(grin) grub complained of a disk error and refused to even load.  Feh.
+Grub is very, very picky about that sort of thing I guess.  So I set it
+back to ATA mode where it at least works with the RH8.0 kernels and grub.
 
-diff -Nru a/arch/i386/Makefile b/arch/i386/Makefile
---- a/arch/i386/Makefile	Mon Dec 16 14:34:13 2002
-+++ b/arch/i386/Makefile	Mon Dec 16 14:34:13 2002
-@@ -46,25 +46,31 @@
- 
- CFLAGS += $(cflags-y)
- 
--ifdef CONFIG_VISWS
--MACHINE	:= mach-visws
--else
--MACHINE	:= mach-generic
--endif
-+#default subarch .c files
-+mcore-y  := mach-default
-+
-+#VISWS subarch support
-+mflags-$(CONFIG_VISWS) := -Iinclude/asm-i386/mach-visws
-+mcore-$(CONFIG_VISWS)  := mach-visws
-+
-+#add other subarch support here
-+
-+#default subarch .h files
-+mflags-y += -Iinclude/asm-i386/mach-default
- 
- HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
- 
- libs-y 					+= arch/i386/lib/
- core-y					+= arch/i386/kernel/ \
- 					   arch/i386/mm/ \
--					   arch/i386/$(MACHINE)/
-+					   arch/i386/$(mcore-y)/
- drivers-$(CONFIG_MATH_EMULATION)	+= arch/i386/math-emu/
- drivers-$(CONFIG_PCI)			+= arch/i386/pci/
- # FIXME: is drivers- right ?
- drivers-$(CONFIG_OPROFILE)		+= arch/i386/oprofile/
- 
--CFLAGS += -Iarch/i386/$(MACHINE)
--AFLAGS += -Iarch/i386/$(MACHINE)
-+CFLAGS += $(mflags-y)
-+AFLAGS += $(mflags-y)
- 
- makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/i386/boot $(1)
- 
-diff -Nru a/arch/i386/kernel/apic.c b/arch/i386/kernel/apic.c
---- a/arch/i386/kernel/apic.c	Mon Dec 16 14:34:13 2002
-+++ b/arch/i386/kernel/apic.c	Mon Dec 16 14:34:13 2002
-@@ -31,7 +31,8 @@
- #include <asm/pgalloc.h>
- #include <asm/desc.h>
- #include <asm/arch_hooks.h>
--#include "mach_apic.h"
-+
-+#include <mach_apic.h>
- 
- void __init apic_intr_init(void)
- {
-diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
---- a/arch/i386/kernel/io_apic.c	Mon Dec 16 14:34:13 2002
-+++ b/arch/i386/kernel/io_apic.c	Mon Dec 16 14:34:13 2002
-@@ -35,7 +35,8 @@
- #include <asm/io.h>
- #include <asm/smp.h>
- #include <asm/desc.h>
--#include "mach_apic.h"
-+
-+#include <mach_apic.h>
- 
- #undef APIC_LOCKUP_DEBUG
- 
-diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
---- a/arch/i386/kernel/mpparse.c	Mon Dec 16 14:34:13 2002
-+++ b/arch/i386/kernel/mpparse.c	Mon Dec 16 14:34:13 2002
-@@ -30,7 +30,8 @@
- #include <asm/mpspec.h>
- #include <asm/pgalloc.h>
- #include <asm/io_apic.h>
--#include "mach_apic.h"
-+
-+#include <mach_apic.h>
- 
- /* Have we found an MP table */
- int smp_found_config;
-diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
---- a/arch/i386/kernel/smpboot.c	Mon Dec 16 14:34:13 2002
-+++ b/arch/i386/kernel/smpboot.c	Mon Dec 16 14:34:13 2002
-@@ -51,7 +51,8 @@
- #include <asm/desc.h>
- #include <asm/arch_hooks.h>
- #include "smpboot_hooks.h"
--#include "mach_apic.h"
-+
-+#include <mach_apic.h>
- 
- /* Set if we find a B stepping CPU */
- static int __initdata smp_b_stepping;
-diff -Nru a/arch/i386/mach-default/Makefile b/arch/i386/mach-default/Makefile
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/mach-default/Makefile	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for the linux kernel.
-+#
-+
-+EXTRA_CFLAGS	+= -I../kernel
-+
-+obj-y				:= setup.o topology.o
-diff -Nru a/arch/i386/mach-default/setup.c b/arch/i386/mach-default/setup.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/mach-default/setup.c	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,104 @@
-+/*
-+ *	Machine specific setup for generic
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/smp.h>
-+#include <linux/init.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <asm/arch_hooks.h>
-+
-+/**
-+ * pre_intr_init_hook - initialisation prior to setting up interrupt vectors
-+ *
-+ * Description:
-+ *	Perform any necessary interrupt initialisation prior to setting up
-+ *	the "ordinary" interrupt call gates.  For legacy reasons, the ISA
-+ *	interrupts should be initialised here if the machine emulates a PC
-+ *	in any way.
-+ **/
-+void __init pre_intr_init_hook(void)
-+{
-+	init_ISA_irqs();
-+}
-+
-+/*
-+ * IRQ2 is cascade interrupt to second interrupt controller
-+ */
-+static struct irqaction irq2 = { no_action, 0, 0, "cascade", NULL, NULL};
-+
-+/**
-+ * intr_init_hook - post gate setup interrupt initialisation
-+ *
-+ * Description:
-+ *	Fill in any interrupts that may have been left out by the general
-+ *	init_IRQ() routine.  interrupts having to do with the machine rather
-+ *	than the devices on the I/O bus (like APIC interrupts in intel MP
-+ *	systems) are started here.
-+ **/
-+void __init intr_init_hook(void)
-+{
-+#ifdef CONFIG_X86_LOCAL_APIC
-+	apic_intr_init();
-+#endif
-+
-+	setup_irq(2, &irq2);
-+}
-+
-+/**
-+ * pre_setup_arch_hook - hook called prior to any setup_arch() execution
-+ *
-+ * Description:
-+ *	generally used to activate any machine specific identification
-+ *	routines that may be needed before setup_arch() runs.  On VISWS
-+ *	this is used to get the board revision and type.
-+ **/
-+void __init pre_setup_arch_hook(void)
-+{
-+}
-+
-+/**
-+ * trap_init_hook - initialise system specific traps
-+ *
-+ * Description:
-+ *	Called as the final act of trap_init().  Used in VISWS to initialise
-+ *	the various board specific APIC traps.
-+ **/
-+void __init trap_init_hook(void)
-+{
-+}
-+
-+static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, "timer", NULL, NULL};
-+
-+/**
-+ * time_init_hook - do any specific initialisations for the system timer.
-+ *
-+ * Description:
-+ *	Must plug the system timer interrupt source at HZ into the IRQ listed
-+ *	in irq_vectors.h:TIMER_IRQ
-+ **/
-+void __init time_init_hook(void)
-+{
-+	setup_irq(0, &irq0);
-+}
-+
-+#ifdef CONFIG_MCA
-+/**
-+ * mca_nmi_hook - hook into MCA specific NMI chain
-+ *
-+ * Description:
-+ *	The MCA (Microchannel Arcitecture) has an NMI chain for NMI sources
-+ *	along the MCA bus.  Use this to hook into that chain if you will need
-+ *	it.
-+ **/
-+void __init mca_nmi_hook(void)
-+{
-+	/* If I recall correctly, there's a whole bunch of other things that
-+	 * we can do to check for NMI problems, but that's all I know about
-+	 * at the moment.
-+	 */
-+
-+	printk("NMI generated from unknown source!\n");
-+}
-+#endif
-diff -Nru a/arch/i386/mach-default/topology.c b/arch/i386/mach-default/topology.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/arch/i386/mach-default/topology.c	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,68 @@
-+/*
-+ * arch/i386/mach-generic/topology.c - Populate driverfs with topology information
-+ *
-+ * Written by: Matthew Dobson, IBM Corporation
-+ * Original Code: Paul Dorwin, IBM Corporation, Patrick Mochel, OSDL
-+ *
-+ * Copyright (C) 2002, IBM Corp.
-+ *
-+ * All rights reserved.          
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ * Send feedback to <colpatch@us.ibm.com>
-+ */
-+#include <linux/init.h>
-+#include <linux/smp.h>
-+#include <asm/cpu.h>
-+
-+struct i386_cpu cpu_devices[NR_CPUS];
-+
-+#ifdef CONFIG_NUMA
-+#include <linux/mmzone.h>
-+#include <asm/node.h>
-+#include <asm/memblk.h>
-+
-+struct i386_node node_devices[MAX_NUMNODES];
-+struct i386_memblk memblk_devices[MAX_NR_MEMBLKS];
-+
-+static int __init topology_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < num_online_nodes(); i++)
-+		arch_register_node(i);
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_possible(i)) arch_register_cpu(i);
-+	for (i = 0; i < num_online_memblks(); i++)
-+		arch_register_memblk(i);
-+	return 0;
-+}
-+
-+#else /* !CONFIG_NUMA */
-+
-+static int __init topology_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NR_CPUS; i++)
-+		if (cpu_possible(i)) arch_register_cpu(i);
-+	return 0;
-+}
-+
-+#endif /* CONFIG_NUMA */
-+
-+subsys_initcall(topology_init);
-diff -Nru a/arch/i386/mach-generic/Makefile b/arch/i386/mach-generic/Makefile
---- a/arch/i386/mach-generic/Makefile	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,7 +0,0 @@
--#
--# Makefile for the linux kernel.
--#
--
--EXTRA_CFLAGS	+= -I../kernel
--
--obj-y				:= setup.o topology.o
-diff -Nru a/arch/i386/mach-generic/do_timer.h b/arch/i386/mach-generic/do_timer.h
---- a/arch/i386/mach-generic/do_timer.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,82 +0,0 @@
--/* defines for inline arch setup functions */
--
--#include <asm/apic.h>
--
--/**
-- * do_timer_interrupt_hook - hook into timer tick
-- * @regs:	standard registers from interrupt
-- *
-- * Description:
-- *	This hook is called immediately after the timer interrupt is ack'd.
-- *	It's primary purpose is to allow architectures that don't possess
-- *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
-- *	timer interrupt as a means of triggering reschedules etc.
-- **/
--
--static inline void do_timer_interrupt_hook(struct pt_regs *regs)
--{
--	do_timer(regs);
--/*
-- * In the SMP case we use the local APIC timer interrupt to do the
-- * profiling, except when we simulate SMP mode on a uniprocessor
-- * system, in that case we have to call the local interrupt handler.
-- */
--#ifndef CONFIG_X86_LOCAL_APIC
--	x86_do_profile(regs);
--#else
--	if (!using_apic_timer)
--		smp_local_timer_interrupt(regs);
--#endif
--}
--
--
--/* you can safely undefine this if you don't have the Neptune chipset */
--
--#define BUGGY_NEPTUN_TIMER
--
--/**
-- * do_timer_overflow - process a detected timer overflow condition
-- * @count:	hardware timer interrupt count on overflow
-- *
-- * Description:
-- *	This call is invoked when the jiffies count has not incremented but
-- *	the hardware timer interrupt has.  It means that a timer tick interrupt
-- *	came along while the previous one was pending, thus a tick was missed
-- **/
--static inline int do_timer_overflow(int count)
--{
--	int i;
--
--	spin_lock(&i8259A_lock);
--	/*
--	 * This is tricky when I/O APICs are used;
--	 * see do_timer_interrupt().
--	 */
--	i = inb(0x20);
--	spin_unlock(&i8259A_lock);
--	
--	/* assumption about timer being IRQ0 */
--	if (i & 0x01) {
--		/*
--		 * We cannot detect lost timer interrupts ... 
--		 * well, that's why we call them lost, don't we? :)
--		 * [hmm, on the Pentium and Alpha we can ... sort of]
--		 */
--		count -= LATCH;
--	} else {
--#ifdef BUGGY_NEPTUN_TIMER
--		/*
--		 * for the Neptun bug we know that the 'latch'
--		 * command doesnt latch the high and low value
--		 * of the counter atomically. Thus we have to 
--		 * substract 256 from the counter 
--		 * ... funny, isnt it? :)
--		 */
--		
--		count -= 256;
--#else
--		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
--#endif
--	}
--	return count;
--}
-diff -Nru a/arch/i386/mach-generic/entry_arch.h b/arch/i386/mach-generic/entry_arch.h
---- a/arch/i386/mach-generic/entry_arch.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,34 +0,0 @@
--/*
-- * This file is designed to contain the BUILD_INTERRUPT specifications for
-- * all of the extra named interrupt vectors used by the architecture.
-- * Usually this is the Inter Process Interrupts (IPIs)
-- */
--
--/*
-- * The following vectors are part of the Linux architecture, there
-- * is no hardware IRQ pin equivalent for them, they are triggered
-- * through the ICC by us (IPIs)
-- */
--#ifdef CONFIG_X86_SMP
--BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
--BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
--BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
--#endif
--
--/*
-- * every pentium local APIC has two 'local interrupts', with a
-- * soft-definable vector attached to both interrupts, one of
-- * which is a timer interrupt, the other one is error counter
-- * overflow. Linux uses the local APIC timer interrupt to get
-- * a much simpler SMP time architecture:
-- */
--#ifdef CONFIG_X86_LOCAL_APIC
--BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
--BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
--BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
--
--#ifdef CONFIG_X86_MCE_P4THERMAL
--BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
--#endif
--
--#endif
-diff -Nru a/arch/i386/mach-generic/irq_vectors.h b/arch/i386/mach-generic/irq_vectors.h
---- a/arch/i386/mach-generic/irq_vectors.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,85 +0,0 @@
--/*
-- * This file should contain #defines for all of the interrupt vector
-- * numbers used by this architecture.
-- *
-- * In addition, there are some standard defines:
-- *
-- *	FIRST_EXTERNAL_VECTOR:
-- *		The first free place for external interrupts
-- *
-- *	SYSCALL_VECTOR:
-- *		The IRQ vector a syscall makes the user to kernel transition
-- *		under.
-- *
-- *	TIMER_IRQ:
-- *		The IRQ number the timer interrupt comes in at.
-- *
-- *	NR_IRQS:
-- *		The total number of interrupt vectors (including all the
-- *		architecture specific interrupts) needed.
-- *
-- */			
--#ifndef _ASM_IRQ_VECTORS_H
--#define _ASM_IRQ_VECTORS_H
--
--/*
-- * IDT vectors usable for external interrupt sources start
-- * at 0x20:
-- */
--#define FIRST_EXTERNAL_VECTOR	0x20
--
--#define SYSCALL_VECTOR		0x80
--
--/*
-- * Vectors 0x20-0x2f are used for ISA interrupts.
-- */
--
--/*
-- * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
-- *
-- *  some of the following vectors are 'rare', they are merged
-- *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
-- *  TLB, reschedule and local APIC vectors are performance-critical.
-- *
-- *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
-- */
--#define SPURIOUS_APIC_VECTOR	0xff
--#define ERROR_APIC_VECTOR	0xfe
--#define INVALIDATE_TLB_VECTOR	0xfd
--#define RESCHEDULE_VECTOR	0xfc
--#define CALL_FUNCTION_VECTOR	0xfb
--
--#define THERMAL_APIC_VECTOR	0xf0
--/*
-- * Local APIC timer IRQ vector is on a different priority level,
-- * to work around the 'lost local interrupt if more than 2 IRQ
-- * sources per level' errata.
-- */
--#define LOCAL_TIMER_VECTOR	0xef
--
--/*
-- * First APIC vector available to drivers: (vectors 0x30-0xee)
-- * we start at 0x31 to spread out vectors evenly between priority
-- * levels. (0x80 is the syscall vector)
-- */
--#define FIRST_DEVICE_VECTOR	0x31
--#define FIRST_SYSTEM_VECTOR	0xef
--
--#define TIMER_IRQ 0
--
--/*
-- * 16 8259A IRQ's, 208 potential APIC interrupt sources.
-- * Right now the APIC is mostly only used for SMP.
-- * 256 vectors is an architectural limit. (we can have
-- * more than 256 devices theoretically, but they will
-- * have to use shared interrupts)
-- * Since vectors 0x00-0x1f are used/reserved for the CPU,
-- * the usable vector space is 0x20-0xff (224 vectors)
-- */
--#ifdef CONFIG_X86_IO_APIC
--#define NR_IRQS 224
--#else
--#define NR_IRQS 16
--#endif
--
--#endif /* _ASM_IRQ_VECTORS_H */
-diff -Nru a/arch/i386/mach-generic/mach_apic.h b/arch/i386/mach-generic/mach_apic.h
---- a/arch/i386/mach-generic/mach_apic.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,46 +0,0 @@
--#ifndef __ASM_MACH_APIC_H
--#define __ASM_MACH_APIC_H
--
--static inline unsigned long calculate_ldr(unsigned long old)
--{
--	unsigned long id;
--
--	id = 1UL << smp_processor_id();
--	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
--}
--
--#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
--
--#ifdef CONFIG_SMP
-- #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
--#else
-- #define TARGET_CPUS 0x01
--#endif
--
--#define APIC_BROADCAST_ID      0x0F
--#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
--
--static inline void summit_check(char *oem, char *productid) 
--{
--}
--
--static inline void clustered_apic_check(void)
--{
--	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
--		(clustered_apic_mode ? "NUMA-Q" : "Flat"), nr_ioapics);
--}
--
--static inline int cpu_present_to_apicid(int mps_cpu)
--{
--	if (clustered_apic_mode)
--		return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
--	else
--		return mps_cpu;
--}
--
--static inline unsigned long apicid_to_cpu_present(int apicid)
--{
--	return (1ul << apicid);
--}
--
--#endif /* __ASM_MACH_APIC_H */
-diff -Nru a/arch/i386/mach-generic/setup.c b/arch/i386/mach-generic/setup.c
---- a/arch/i386/mach-generic/setup.c	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,104 +0,0 @@
--/*
-- *	Machine specific setup for generic
-- */
--
--#include <linux/config.h>
--#include <linux/smp.h>
--#include <linux/init.h>
--#include <linux/irq.h>
--#include <linux/interrupt.h>
--#include <asm/arch_hooks.h>
--
--/**
-- * pre_intr_init_hook - initialisation prior to setting up interrupt vectors
-- *
-- * Description:
-- *	Perform any necessary interrupt initialisation prior to setting up
-- *	the "ordinary" interrupt call gates.  For legacy reasons, the ISA
-- *	interrupts should be initialised here if the machine emulates a PC
-- *	in any way.
-- **/
--void __init pre_intr_init_hook(void)
--{
--	init_ISA_irqs();
--}
--
--/*
-- * IRQ2 is cascade interrupt to second interrupt controller
-- */
--static struct irqaction irq2 = { no_action, 0, 0, "cascade", NULL, NULL};
--
--/**
-- * intr_init_hook - post gate setup interrupt initialisation
-- *
-- * Description:
-- *	Fill in any interrupts that may have been left out by the general
-- *	init_IRQ() routine.  interrupts having to do with the machine rather
-- *	than the devices on the I/O bus (like APIC interrupts in intel MP
-- *	systems) are started here.
-- **/
--void __init intr_init_hook(void)
--{
--#ifdef CONFIG_X86_LOCAL_APIC
--	apic_intr_init();
--#endif
--
--	setup_irq(2, &irq2);
--}
--
--/**
-- * pre_setup_arch_hook - hook called prior to any setup_arch() execution
-- *
-- * Description:
-- *	generally used to activate any machine specific identification
-- *	routines that may be needed before setup_arch() runs.  On VISWS
-- *	this is used to get the board revision and type.
-- **/
--void __init pre_setup_arch_hook(void)
--{
--}
--
--/**
-- * trap_init_hook - initialise system specific traps
-- *
-- * Description:
-- *	Called as the final act of trap_init().  Used in VISWS to initialise
-- *	the various board specific APIC traps.
-- **/
--void __init trap_init_hook(void)
--{
--}
--
--static struct irqaction irq0  = { timer_interrupt, SA_INTERRUPT, 0, "timer", NULL, NULL};
--
--/**
-- * time_init_hook - do any specific initialisations for the system timer.
-- *
-- * Description:
-- *	Must plug the system timer interrupt source at HZ into the IRQ listed
-- *	in irq_vectors.h:TIMER_IRQ
-- **/
--void __init time_init_hook(void)
--{
--	setup_irq(0, &irq0);
--}
--
--#ifdef CONFIG_MCA
--/**
-- * mca_nmi_hook - hook into MCA specific NMI chain
-- *
-- * Description:
-- *	The MCA (Microchannel Arcitecture) has an NMI chain for NMI sources
-- *	along the MCA bus.  Use this to hook into that chain if you will need
-- *	it.
-- **/
--void __init mca_nmi_hook(void)
--{
--	/* If I recall correctly, there's a whole bunch of other things that
--	 * we can do to check for NMI problems, but that's all I know about
--	 * at the moment.
--	 */
--
--	printk("NMI generated from unknown source!\n");
--}
--#endif
-diff -Nru a/arch/i386/mach-generic/setup_arch_post.h b/arch/i386/mach-generic/setup_arch_post.h
---- a/arch/i386/mach-generic/setup_arch_post.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,40 +0,0 @@
--/**
-- * machine_specific_memory_setup - Hook for machine specific memory setup.
-- *
-- * Description:
-- *	This is included late in kernel/setup.c so that it can make
-- *	use of all of the static functions.
-- **/
--
--static inline char * __init machine_specific_memory_setup(void)
--{
--	char *who;
--
--
--	who = "BIOS-e820";
--
--	/*
--	 * Try to copy the BIOS-supplied E820-map.
--	 *
--	 * Otherwise fake a memory map; one section from 0k->640k,
--	 * the next section from 1mb->appropriate_mem_k
--	 */
--	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
--	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
--		unsigned long mem_size;
--
--		/* compare results from other methods and take the greater */
--		if (ALT_MEM_K < EXT_MEM_K) {
--			mem_size = EXT_MEM_K;
--			who = "BIOS-88";
--		} else {
--			mem_size = ALT_MEM_K;
--			who = "BIOS-e801";
--		}
--
--		e820.nr_map = 0;
--		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
--		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
--  	}
--	return who;
--}
-diff -Nru a/arch/i386/mach-generic/setup_arch_pre.h b/arch/i386/mach-generic/setup_arch_pre.h
---- a/arch/i386/mach-generic/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,5 +0,0 @@
--/* Hook to call BIOS initialisation function */
--
--/* no action for generic */
--
--#define ARCH_SETUP
-diff -Nru a/arch/i386/mach-generic/smpboot_hooks.h b/arch/i386/mach-generic/smpboot_hooks.h
---- a/arch/i386/mach-generic/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,33 +0,0 @@
--/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
-- * which needs to alter them. */
--
--static inline void smpboot_clear_io_apic_irqs(void)
--{
--	io_apic_irqs = 0;
--}
--
--static inline void smpboot_setup_warm_reset_vector(void)
--{
--	/*
--	 * Install writable page 0 entry to set BIOS data area.
--	 */
--	local_flush_tlb();
--
--	/*
--	 * Paranoid:  Set warm reset code and vector here back
--	 * to default values.
--	 */
--	CMOS_WRITE(0, 0xf);
--
--	*((volatile long *) phys_to_virt(0x467)) = 0;
--}
--
--static inline void smpboot_setup_io_apic(void)
--{
--	/*
--	 * Here we can be sure that there is an IO-APIC in the system. Let's
--	 * go and set it up:
--	 */
--	if (!skip_ioapic_setup && nr_ioapics)
--		setup_IO_APIC();
--}
-diff -Nru a/arch/i386/mach-generic/topology.c b/arch/i386/mach-generic/topology.c
---- a/arch/i386/mach-generic/topology.c	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,68 +0,0 @@
--/*
-- * arch/i386/mach-generic/topology.c - Populate driverfs with topology information
-- *
-- * Written by: Matthew Dobson, IBM Corporation
-- * Original Code: Paul Dorwin, IBM Corporation, Patrick Mochel, OSDL
-- *
-- * Copyright (C) 2002, IBM Corp.
-- *
-- * All rights reserved.          
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-- * NON INFRINGEMENT.  See the GNU General Public License for more
-- * details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-- *
-- * Send feedback to <colpatch@us.ibm.com>
-- */
--#include <linux/init.h>
--#include <linux/smp.h>
--#include <asm/cpu.h>
--
--struct i386_cpu cpu_devices[NR_CPUS];
--
--#ifdef CONFIG_NUMA
--#include <linux/mmzone.h>
--#include <asm/node.h>
--#include <asm/memblk.h>
--
--struct i386_node node_devices[MAX_NUMNODES];
--struct i386_memblk memblk_devices[MAX_NR_MEMBLKS];
--
--static int __init topology_init(void)
--{
--	int i;
--
--	for (i = 0; i < num_online_nodes(); i++)
--		arch_register_node(i);
--	for (i = 0; i < NR_CPUS; i++)
--		if (cpu_possible(i)) arch_register_cpu(i);
--	for (i = 0; i < num_online_memblks(); i++)
--		arch_register_memblk(i);
--	return 0;
--}
--
--#else /* !CONFIG_NUMA */
--
--static int __init topology_init(void)
--{
--	int i;
--
--	for (i = 0; i < NR_CPUS; i++)
--		if (cpu_possible(i)) arch_register_cpu(i);
--	return 0;
--}
--
--#endif /* CONFIG_NUMA */
--
--subsys_initcall(topology_init);
-diff -Nru a/arch/i386/mach-summit/mach_apic.h b/arch/i386/mach-summit/mach_apic.h
---- a/arch/i386/mach-summit/mach_apic.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,57 +0,0 @@
--#ifndef __ASM_MACH_APIC_H
--#define __ASM_MACH_APIC_H
--
--extern int x86_summit;
--
--#define XAPIC_DEST_CPUS_MASK    0x0Fu
--#define XAPIC_DEST_CLUSTER_MASK 0xF0u
--
--#define xapic_phys_to_log_apicid(phys_apic) ( (1ul << ((phys_apic) & 0x3)) |\
--		((phys_apic) & XAPIC_DEST_CLUSTER_MASK) )
--
--static inline unsigned long calculate_ldr(unsigned long old)
--{
--	unsigned long id;
--
--	if (x86_summit)
--		id = xapic_phys_to_log_apicid(hard_smp_processor_id());
--	else
--		id = 1UL << smp_processor_id();
--	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
--}
--
--#define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
--#define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
--
--#define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
--#define check_apicid_used(bitmap, apicid) (0)
--
--static inline void summit_check(char *oem, char *productid)
--{
--	if (!strncmp(oem, "IBM ENSW", 8) && !strncmp(str, "VIGIL SMP", 9))
--		x86_summit = 1;
--}
--
--static inline void clustered_apic_check(void)
--{
--	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
--		(x86_summit ? "Summit" : "Flat"), nr_ioapics);
--}
--
--static inline int cpu_present_to_apicid(int mps_cpu)
--{
--	if (x86_summit)
--		return (int) raw_phys_apicid[mps_cpu];
--	else
--		return mps_cpu;
--}
--
--static inline unsigned long apicid_to_phys_cpu_present(int apicid)
--{
--	if (x86_summit)
--		return (1ul << (((apicid >> 4) << 2) | (apicid & 0x3)));
--	else
--		return (1ul << apicid);
--}
--
--#endif /* __ASM_MACH_APIC_H */
-diff -Nru a/arch/i386/mach-visws/do_timer.h b/arch/i386/mach-visws/do_timer.h
---- a/arch/i386/mach-visws/do_timer.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,49 +0,0 @@
--/* defines for inline arch setup functions */
--
--#include <asm/fixmap.h>
--#include <asm/cobalt.h>
--
--static inline void do_timer_interrupt_hook(struct pt_regs *regs)
--{
--	/* Clear the interrupt */
--	co_cpu_write(CO_CPU_STAT,co_cpu_read(CO_CPU_STAT) & ~CO_STAT_TIMEINTR);
--
--	do_timer(regs);
--/*
-- * In the SMP case we use the local APIC timer interrupt to do the
-- * profiling, except when we simulate SMP mode on a uniprocessor
-- * system, in that case we have to call the local interrupt handler.
-- */
--#ifndef CONFIG_X86_LOCAL_APIC
--	x86_do_profile(regs);
--#else
--	if (!using_apic_timer)
--		smp_local_timer_interrupt(regs);
--#endif
--}
--
--static inline int do_timer_overflow(int count)
--{
--	int i;
--
--	spin_lock(&i8259A_lock);
--	/*
--	 * This is tricky when I/O APICs are used;
--	 * see do_timer_interrupt().
--	 */
--	i = inb(0x20);
--	spin_unlock(&i8259A_lock);
--	
--	/* assumption about timer being IRQ0 */
--	if (i & 0x01) {
--		/*
--		 * We cannot detect lost timer interrupts ... 
--		 * well, that's why we call them lost, don't we? :)
--		 * [hmm, on the Pentium and Alpha we can ... sort of]
--		 */
--		count -= LATCH;
--	} else {
--		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
--	}
--	return count;
--}
-diff -Nru a/arch/i386/mach-visws/entry_arch.h b/arch/i386/mach-visws/entry_arch.h
---- a/arch/i386/mach-visws/entry_arch.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,23 +0,0 @@
--/*
-- * The following vectors are part of the Linux architecture, there
-- * is no hardware IRQ pin equivalent for them, they are triggered
-- * through the ICC by us (IPIs)
-- */
--#ifdef CONFIG_X86_SMP
--BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
--BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
--BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
--#endif
--
--/*
-- * every pentium local APIC has two 'local interrupts', with a
-- * soft-definable vector attached to both interrupts, one of
-- * which is a timer interrupt, the other one is error counter
-- * overflow. Linux uses the local APIC timer interrupt to get
-- * a much simpler SMP time architecture:
-- */
--#ifdef CONFIG_X86_LOCAL_APIC
--BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
--BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
--BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
--#endif
-diff -Nru a/arch/i386/mach-visws/irq_vectors.h b/arch/i386/mach-visws/irq_vectors.h
---- a/arch/i386/mach-visws/irq_vectors.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,64 +0,0 @@
--#ifndef _ASM_IRQ_VECTORS_H
--#define _ASM_IRQ_VECTORS_H
--
--/*
-- * IDT vectors usable for external interrupt sources start
-- * at 0x20:
-- */
--#define FIRST_EXTERNAL_VECTOR	0x20
--
--#define SYSCALL_VECTOR		0x80
--
--/*
-- * Vectors 0x20-0x2f are used for ISA interrupts.
-- */
--
--/*
-- * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
-- *
-- *  some of the following vectors are 'rare', they are merged
-- *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
-- *  TLB, reschedule and local APIC vectors are performance-critical.
-- *
-- *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
-- */
--#define SPURIOUS_APIC_VECTOR	0xff
--#define ERROR_APIC_VECTOR	0xfe
--#define INVALIDATE_TLB_VECTOR	0xfd
--#define RESCHEDULE_VECTOR	0xfc
--#define CALL_FUNCTION_VECTOR	0xfb
--
--#define THERMAL_APIC_VECTOR	0xf0
--/*
-- * Local APIC timer IRQ vector is on a different priority level,
-- * to work around the 'lost local interrupt if more than 2 IRQ
-- * sources per level' errata.
-- */
--#define LOCAL_TIMER_VECTOR	0xef
--
--/*
-- * First APIC vector available to drivers: (vectors 0x30-0xee)
-- * we start at 0x31 to spread out vectors evenly between priority
-- * levels. (0x80 is the syscall vector)
-- */
--#define FIRST_DEVICE_VECTOR	0x31
--#define FIRST_SYSTEM_VECTOR	0xef
--
--#define TIMER_IRQ 0
--
--/*
-- * 16 8259A IRQ's, 208 potential APIC interrupt sources.
-- * Right now the APIC is mostly only used for SMP.
-- * 256 vectors is an architectural limit. (we can have
-- * more than 256 devices theoretically, but they will
-- * have to use shared interrupts)
-- * Since vectors 0x00-0x1f are used/reserved for the CPU,
-- * the usable vector space is 0x20-0xff (224 vectors)
-- */
--#ifdef CONFIG_X86_IO_APIC
--#define NR_IRQS 224
--#else
--#define NR_IRQS 16
--#endif
--
--#endif /* _ASM_IRQ_VECTORS_H */
-diff -Nru a/arch/i386/mach-visws/setup_arch_post.h b/arch/i386/mach-visws/setup_arch_post.h
---- a/arch/i386/mach-visws/setup_arch_post.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,37 +0,0 @@
--/* Hook for machine specific memory setup.
-- *
-- * This is included late in kernel/setup.c so that it can make use of all of
-- * the static functions. */
--
--static inline char * __init machine_specific_memory_setup(void)
--{
--	char *who;
--
--
--	who = "BIOS-e820";
--
--	/*
--	 * Try to copy the BIOS-supplied E820-map.
--	 *
--	 * Otherwise fake a memory map; one section from 0k->640k,
--	 * the next section from 1mb->appropriate_mem_k
--	 */
--	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
--	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
--		unsigned long mem_size;
--
--		/* compare results from other methods and take the greater */
--		if (ALT_MEM_K < EXT_MEM_K) {
--			mem_size = EXT_MEM_K;
--			who = "BIOS-88";
--		} else {
--			mem_size = ALT_MEM_K;
--			who = "BIOS-e801";
--		}
--
--		e820.nr_map = 0;
--		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
--		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
--  	}
--	return who;
--}
-diff -Nru a/arch/i386/mach-visws/setup_arch_pre.h b/arch/i386/mach-visws/setup_arch_pre.h
---- a/arch/i386/mach-visws/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,5 +0,0 @@
--/* Hook to call BIOS initialisation function */
--
--/* no action for visws */
--
--#define ARCH_SETUP
-diff -Nru a/arch/i386/mach-visws/smpboot_hooks.h b/arch/i386/mach-visws/smpboot_hooks.h
---- a/arch/i386/mach-visws/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,13 +0,0 @@
--/* for visws do nothing for any of these */
--
--static inline void smpboot_clear_io_apic_irqs(void)
--{
--}
--
--static inline void smpboot_setup_warm_reset_vector(void)
--{
--}
--
--static inline void smpboot_setup_io_apic(void)
--{
--}
-diff -Nru a/arch/i386/mach-voyager/do_timer.h b/arch/i386/mach-voyager/do_timer.h
---- a/arch/i386/mach-voyager/do_timer.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,22 +0,0 @@
--/* defines for inline arch setup functions */
--#include <asm/voyager.h>
--
--static inline void do_timer_interrupt_hook(struct pt_regs *regs)
--{
--	do_timer(regs);
--
--	voyager_timer_interrupt(regs);
--}
--
--static inline int do_timer_overflow(int count)
--{
--	/* can't read the ISR, just assume 1 tick
--	   overflow */
--	if(count > LATCH || count < 0) {
--		printk(KERN_ERR "VOYAGER PROBLEM: count is %d, latch is %d\n", count, LATCH);
--		count = LATCH;
--	}
--	count -= LATCH;
--
--	return count;
--}
-diff -Nru a/arch/i386/mach-voyager/entry_arch.h b/arch/i386/mach-voyager/entry_arch.h
---- a/arch/i386/mach-voyager/entry_arch.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,26 +0,0 @@
--/* -*- mode: c; c-basic-offset: 8 -*- */
--
--/* Copyright (C) 2002
-- *
-- * Author: James.Bottomley@HansenPartnership.com
-- *
-- * linux/arch/i386/voyager/entry_arch.h
-- *
-- * This file builds the VIC and QIC CPI gates
-- */
--
--/* initialise the voyager interrupt gates 
-- *
-- * This uses the macros in irq.h to set up assembly jump gates.  The
-- * calls are then redirected to the same routine with smp_ prefixed */
--BUILD_INTERRUPT(vic_sys_interrupt, VIC_SYS_INT)
--BUILD_INTERRUPT(vic_cmn_interrupt, VIC_CMN_INT)
--BUILD_INTERRUPT(vic_cpi_interrupt, VIC_CPI_LEVEL0);
--
--/* do all the QIC interrupts */
--BUILD_INTERRUPT(qic_timer_interrupt, QIC_TIMER_CPI);
--BUILD_INTERRUPT(qic_invalidate_interrupt, QIC_INVALIDATE_CPI);
--BUILD_INTERRUPT(qic_reschedule_interrupt, QIC_RESCHEDULE_CPI);
--BUILD_INTERRUPT(qic_enable_irq_interrupt, QIC_ENABLE_IRQ_CPI);
--BUILD_INTERRUPT(qic_call_function_interrupt, QIC_CALL_FUNCTION_CPI);
--
-diff -Nru a/arch/i386/mach-voyager/irq_vectors.h b/arch/i386/mach-voyager/irq_vectors.h
---- a/arch/i386/mach-voyager/irq_vectors.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,71 +0,0 @@
--/* -*- mode: c; c-basic-offset: 8 -*- */
--
--/* Copyright (C) 2002
-- *
-- * Author: James.Bottomley@HansenPartnership.com
-- *
-- * linux/arch/i386/voyager/irq_vectors.h
-- *
-- * This file provides definitions for the VIC and QIC CPIs
-- */
--
--#ifndef _ASM_IRQ_VECTORS_H
--#define _ASM_IRQ_VECTORS_H
--
--/*
-- * IDT vectors usable for external interrupt sources start
-- * at 0x20:
-- */
--#define FIRST_EXTERNAL_VECTOR	0x20
--
--#define SYSCALL_VECTOR		0x80
--
--/*
-- * Vectors 0x20-0x2f are used for ISA interrupts.
-- */
--
--/* These define the CPIs we use in linux */
--#define VIC_CPI_LEVEL0			0
--#define VIC_CPI_LEVEL1			1
--/* now the fake CPIs */
--#define VIC_TIMER_CPI			2
--#define VIC_INVALIDATE_CPI		3
--#define VIC_RESCHEDULE_CPI		4
--#define VIC_ENABLE_IRQ_CPI		5
--#define VIC_CALL_FUNCTION_CPI		6
--
--/* Now the QIC CPIs:  Since we don't need the two initial levels,
-- * these are 2 less than the VIC CPIs */
--#define QIC_CPI_OFFSET			1
--#define QIC_TIMER_CPI			(VIC_TIMER_CPI - QIC_CPI_OFFSET)
--#define QIC_INVALIDATE_CPI		(VIC_INVALIDATE_CPI - QIC_CPI_OFFSET)
--#define QIC_RESCHEDULE_CPI		(VIC_RESCHEDULE_CPI - QIC_CPI_OFFSET)
--#define QIC_ENABLE_IRQ_CPI		(VIC_ENABLE_IRQ_CPI - QIC_CPI_OFFSET)
--#define QIC_CALL_FUNCTION_CPI		(VIC_CALL_FUNCTION_CPI - QIC_CPI_OFFSET)
--
--#define VIC_START_FAKE_CPI		VIC_TIMER_CPI
--#define VIC_END_FAKE_CPI		VIC_CALL_FUNCTION_CPI
--
--/* this is the SYS_INT CPI. */
--#define VIC_SYS_INT			8
--#define VIC_CMN_INT			15
--
--/* This is the boot CPI for alternate processors.  It gets overwritten
-- * by the above once the system has activated all available processors */
--#define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
--#define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
--
--#define NR_IRQS 224
--
--#ifndef __ASSEMBLY__
--extern asmlinkage void vic_cpi_interrupt(void);
--extern asmlinkage void vic_sys_interrupt(void);
--extern asmlinkage void vic_cmn_interrupt(void);
--extern asmlinkage void qic_timer_interrupt(void);
--extern asmlinkage void qic_invalidate_interrupt(void);
--extern asmlinkage void qic_reschedule_interrupt(void);
--extern asmlinkage void qic_enable_irq_interrupt(void);
--extern asmlinkage void qic_call_function_interrupt(void);
--#endif /* !__ASSEMBLY__ */
--
--#endif /* _ASM_IRQ_VECTORS_H */
-diff -Nru a/arch/i386/mach-voyager/setup_arch_post.h b/arch/i386/mach-voyager/setup_arch_post.h
---- a/arch/i386/mach-voyager/setup_arch_post.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,73 +0,0 @@
--/* Hook for machine specific memory setup.
-- *
-- * This is included late in kernel/setup.c so that it can make use of all of
-- * the static functions. */
--
--static inline char * __init machine_specific_memory_setup(void)
--{
--	char *who;
--
--	who = "NOT VOYAGER";
--
--	if(voyager_level == 5) {
--		__u32 addr, length;
--		int i;
--
--		who = "Voyager-SUS";
--
--		e820.nr_map = 0;
--		for(i=0; voyager_memory_detect(i, &addr, &length); i++) {
--			add_memory_region(addr, length, E820_RAM);
--		}
--		return who;
--	} else if(voyager_level == 4) {
--		__u32 tom;
--		__u16 catbase = inb(VOYAGER_SSPB_RELOCATION_PORT)<<8;
--		/* select the DINO config space */
--		outb(VOYAGER_DINO, VOYAGER_CAT_CONFIG_PORT);
--		/* Read DINO top of memory register */
--		tom = ((inb(catbase + 0x4) & 0xf0) << 16)
--			+ ((inb(catbase + 0x5) & 0x7f) << 24);
--
--		if(inb(catbase) != VOYAGER_DINO) {
--			printk(KERN_ERR "Voyager: Failed to get DINO for L4, setting tom to EXT_MEM_K\n");
--			tom = (EXT_MEM_K)<<10;
--		}
--		who = "Voyager-TOM";
--		add_memory_region(0, 0x9f000, E820_RAM);
--		/* map from 1M to top of memory */
--		add_memory_region(1*1024*1024, tom - 1*1024*1024, E820_RAM);
--		/* FIXME: Should check the ASICs to see if I need to
--		 * take out the 8M window.  Just do it at the moment
--		 * */
--		add_memory_region(8*1024*1024, 8*1024*1024, E820_RESERVED);
--		return who;
--	}
--
--	who = "BIOS-e820";
--
--	/*
--	 * Try to copy the BIOS-supplied E820-map.
--	 *
--	 * Otherwise fake a memory map; one section from 0k->640k,
--	 * the next section from 1mb->appropriate_mem_k
--	 */
--	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
--	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
--		unsigned long mem_size;
--
--		/* compare results from other methods and take the greater */
--		if (ALT_MEM_K < EXT_MEM_K) {
--			mem_size = EXT_MEM_K;
--			who = "BIOS-88";
--		} else {
--			mem_size = ALT_MEM_K;
--			who = "BIOS-e801";
--		}
--
--		e820.nr_map = 0;
--		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
--		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
--  	}
--	return who;
--}
-diff -Nru a/arch/i386/mach-voyager/setup_arch_pre.h b/arch/i386/mach-voyager/setup_arch_pre.h
---- a/arch/i386/mach-voyager/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,10 +0,0 @@
--#include <asm/voyager.h>
--#define VOYAGER_BIOS_INFO ((struct voyager_bios_info *)(PARAM+0x40))
--
--/* Hook to call BIOS initialisation function */
--
--/* for voyager, pass the voyager BIOS/SUS info area to the detection 
-- * routines */
--
--#define ARCH_SETUP	voyager_detect(VOYAGER_BIOS_INFO);
--
-diff -Nru a/include/asm-i386/mach-default/do_timer.h b/include/asm-i386/mach-default/do_timer.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-default/do_timer.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,82 @@
-+/* defines for inline arch setup functions */
-+
-+#include <asm/apic.h>
-+
-+/**
-+ * do_timer_interrupt_hook - hook into timer tick
-+ * @regs:	standard registers from interrupt
-+ *
-+ * Description:
-+ *	This hook is called immediately after the timer interrupt is ack'd.
-+ *	It's primary purpose is to allow architectures that don't possess
-+ *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
-+ *	timer interrupt as a means of triggering reschedules etc.
-+ **/
-+
-+static inline void do_timer_interrupt_hook(struct pt_regs *regs)
-+{
-+	do_timer(regs);
-+/*
-+ * In the SMP case we use the local APIC timer interrupt to do the
-+ * profiling, except when we simulate SMP mode on a uniprocessor
-+ * system, in that case we have to call the local interrupt handler.
-+ */
-+#ifndef CONFIG_X86_LOCAL_APIC
-+	x86_do_profile(regs);
-+#else
-+	if (!using_apic_timer)
-+		smp_local_timer_interrupt(regs);
-+#endif
-+}
-+
-+
-+/* you can safely undefine this if you don't have the Neptune chipset */
-+
-+#define BUGGY_NEPTUN_TIMER
-+
-+/**
-+ * do_timer_overflow - process a detected timer overflow condition
-+ * @count:	hardware timer interrupt count on overflow
-+ *
-+ * Description:
-+ *	This call is invoked when the jiffies count has not incremented but
-+ *	the hardware timer interrupt has.  It means that a timer tick interrupt
-+ *	came along while the previous one was pending, thus a tick was missed
-+ **/
-+static inline int do_timer_overflow(int count)
-+{
-+	int i;
-+
-+	spin_lock(&i8259A_lock);
-+	/*
-+	 * This is tricky when I/O APICs are used;
-+	 * see do_timer_interrupt().
-+	 */
-+	i = inb(0x20);
-+	spin_unlock(&i8259A_lock);
-+	
-+	/* assumption about timer being IRQ0 */
-+	if (i & 0x01) {
-+		/*
-+		 * We cannot detect lost timer interrupts ... 
-+		 * well, that's why we call them lost, don't we? :)
-+		 * [hmm, on the Pentium and Alpha we can ... sort of]
-+		 */
-+		count -= LATCH;
-+	} else {
-+#ifdef BUGGY_NEPTUN_TIMER
-+		/*
-+		 * for the Neptun bug we know that the 'latch'
-+		 * command doesnt latch the high and low value
-+		 * of the counter atomically. Thus we have to 
-+		 * substract 256 from the counter 
-+		 * ... funny, isnt it? :)
-+		 */
-+		
-+		count -= 256;
-+#else
-+		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
-+#endif
-+	}
-+	return count;
-+}
-diff -Nru a/include/asm-i386/mach-default/entry_arch.h b/include/asm-i386/mach-default/entry_arch.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-default/entry_arch.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,34 @@
-+/*
-+ * This file is designed to contain the BUILD_INTERRUPT specifications for
-+ * all of the extra named interrupt vectors used by the architecture.
-+ * Usually this is the Inter Process Interrupts (IPIs)
-+ */
-+
-+/*
-+ * The following vectors are part of the Linux architecture, there
-+ * is no hardware IRQ pin equivalent for them, they are triggered
-+ * through the ICC by us (IPIs)
-+ */
-+#ifdef CONFIG_X86_SMP
-+BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
-+BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
-+BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
-+#endif
-+
-+/*
-+ * every pentium local APIC has two 'local interrupts', with a
-+ * soft-definable vector attached to both interrupts, one of
-+ * which is a timer interrupt, the other one is error counter
-+ * overflow. Linux uses the local APIC timer interrupt to get
-+ * a much simpler SMP time architecture:
-+ */
-+#ifdef CONFIG_X86_LOCAL_APIC
-+BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
-+BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
-+BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
-+
-+#ifdef CONFIG_X86_MCE_P4THERMAL
-+BUILD_INTERRUPT(thermal_interrupt,THERMAL_APIC_VECTOR)
-+#endif
-+
-+#endif
-diff -Nru a/include/asm-i386/mach-default/irq_vectors.h b/include/asm-i386/mach-default/irq_vectors.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-default/irq_vectors.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,85 @@
-+/*
-+ * This file should contain #defines for all of the interrupt vector
-+ * numbers used by this architecture.
-+ *
-+ * In addition, there are some standard defines:
-+ *
-+ *	FIRST_EXTERNAL_VECTOR:
-+ *		The first free place for external interrupts
-+ *
-+ *	SYSCALL_VECTOR:
-+ *		The IRQ vector a syscall makes the user to kernel transition
-+ *		under.
-+ *
-+ *	TIMER_IRQ:
-+ *		The IRQ number the timer interrupt comes in at.
-+ *
-+ *	NR_IRQS:
-+ *		The total number of interrupt vectors (including all the
-+ *		architecture specific interrupts) needed.
-+ *
-+ */			
-+#ifndef _ASM_IRQ_VECTORS_H
-+#define _ASM_IRQ_VECTORS_H
-+
-+/*
-+ * IDT vectors usable for external interrupt sources start
-+ * at 0x20:
-+ */
-+#define FIRST_EXTERNAL_VECTOR	0x20
-+
-+#define SYSCALL_VECTOR		0x80
-+
-+/*
-+ * Vectors 0x20-0x2f are used for ISA interrupts.
-+ */
-+
-+/*
-+ * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
-+ *
-+ *  some of the following vectors are 'rare', they are merged
-+ *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
-+ *  TLB, reschedule and local APIC vectors are performance-critical.
-+ *
-+ *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
-+ */
-+#define SPURIOUS_APIC_VECTOR	0xff
-+#define ERROR_APIC_VECTOR	0xfe
-+#define INVALIDATE_TLB_VECTOR	0xfd
-+#define RESCHEDULE_VECTOR	0xfc
-+#define CALL_FUNCTION_VECTOR	0xfb
-+
-+#define THERMAL_APIC_VECTOR	0xf0
-+/*
-+ * Local APIC timer IRQ vector is on a different priority level,
-+ * to work around the 'lost local interrupt if more than 2 IRQ
-+ * sources per level' errata.
-+ */
-+#define LOCAL_TIMER_VECTOR	0xef
-+
-+/*
-+ * First APIC vector available to drivers: (vectors 0x30-0xee)
-+ * we start at 0x31 to spread out vectors evenly between priority
-+ * levels. (0x80 is the syscall vector)
-+ */
-+#define FIRST_DEVICE_VECTOR	0x31
-+#define FIRST_SYSTEM_VECTOR	0xef
-+
-+#define TIMER_IRQ 0
-+
-+/*
-+ * 16 8259A IRQ's, 208 potential APIC interrupt sources.
-+ * Right now the APIC is mostly only used for SMP.
-+ * 256 vectors is an architectural limit. (we can have
-+ * more than 256 devices theoretically, but they will
-+ * have to use shared interrupts)
-+ * Since vectors 0x00-0x1f are used/reserved for the CPU,
-+ * the usable vector space is 0x20-0xff (224 vectors)
-+ */
-+#ifdef CONFIG_X86_IO_APIC
-+#define NR_IRQS 224
-+#else
-+#define NR_IRQS 16
-+#endif
-+
-+#endif /* _ASM_IRQ_VECTORS_H */
-diff -Nru a/include/asm-i386/mach-default/mach_apic.h b/include/asm-i386/mach-default/mach_apic.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-default/mach_apic.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,46 @@
-+#ifndef __ASM_MACH_APIC_H
-+#define __ASM_MACH_APIC_H
-+
-+static inline unsigned long calculate_ldr(unsigned long old)
-+{
-+	unsigned long id;
-+
-+	id = 1UL << smp_processor_id();
-+	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
-+}
-+
-+#define APIC_DFR_VALUE	(APIC_DFR_FLAT)
-+
-+#ifdef CONFIG_SMP
-+ #define TARGET_CPUS (clustered_apic_mode ? 0xf : cpu_online_map)
-+#else
-+ #define TARGET_CPUS 0x01
-+#endif
-+
-+#define APIC_BROADCAST_ID      0x0F
-+#define check_apicid_used(bitmap, apicid) (bitmap & (1 << apicid))
-+
-+static inline void summit_check(char *oem, char *productid) 
-+{
-+}
-+
-+static inline void clustered_apic_check(void)
-+{
-+	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
-+		(clustered_apic_mode ? "NUMA-Q" : "Flat"), nr_ioapics);
-+}
-+
-+static inline int cpu_present_to_apicid(int mps_cpu)
-+{
-+	if (clustered_apic_mode)
-+		return ( ((mps_cpu/4)*16) + (1<<(mps_cpu%4)) );
-+	else
-+		return mps_cpu;
-+}
-+
-+static inline unsigned long apicid_to_cpu_present(int apicid)
-+{
-+	return (1ul << apicid);
-+}
-+
-+#endif /* __ASM_MACH_APIC_H */
-diff -Nru a/include/asm-i386/mach-default/setup_arch_post.h b/include/asm-i386/mach-default/setup_arch_post.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-default/setup_arch_post.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,40 @@
-+/**
-+ * machine_specific_memory_setup - Hook for machine specific memory setup.
-+ *
-+ * Description:
-+ *	This is included late in kernel/setup.c so that it can make
-+ *	use of all of the static functions.
-+ **/
-+
-+static inline char * __init machine_specific_memory_setup(void)
-+{
-+	char *who;
-+
-+
-+	who = "BIOS-e820";
-+
-+	/*
-+	 * Try to copy the BIOS-supplied E820-map.
-+	 *
-+	 * Otherwise fake a memory map; one section from 0k->640k,
-+	 * the next section from 1mb->appropriate_mem_k
-+	 */
-+	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
-+	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
-+		unsigned long mem_size;
-+
-+		/* compare results from other methods and take the greater */
-+		if (ALT_MEM_K < EXT_MEM_K) {
-+			mem_size = EXT_MEM_K;
-+			who = "BIOS-88";
-+		} else {
-+			mem_size = ALT_MEM_K;
-+			who = "BIOS-e801";
-+		}
-+
-+		e820.nr_map = 0;
-+		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
-+		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
-+  	}
-+	return who;
-+}
-diff -Nru a/include/asm-i386/mach-default/setup_arch_pre.h b/include/asm-i386/mach-default/setup_arch_pre.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-default/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,5 @@
-+/* Hook to call BIOS initialisation function */
-+
-+/* no action for generic */
-+
-+#define ARCH_SETUP
-diff -Nru a/include/asm-i386/mach-default/smpboot_hooks.h b/include/asm-i386/mach-default/smpboot_hooks.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-default/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,33 @@
-+/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
-+ * which needs to alter them. */
-+
-+static inline void smpboot_clear_io_apic_irqs(void)
-+{
-+	io_apic_irqs = 0;
-+}
-+
-+static inline void smpboot_setup_warm_reset_vector(void)
-+{
-+	/*
-+	 * Install writable page 0 entry to set BIOS data area.
-+	 */
-+	local_flush_tlb();
-+
-+	/*
-+	 * Paranoid:  Set warm reset code and vector here back
-+	 * to default values.
-+	 */
-+	CMOS_WRITE(0, 0xf);
-+
-+	*((volatile long *) phys_to_virt(0x467)) = 0;
-+}
-+
-+static inline void smpboot_setup_io_apic(void)
-+{
-+	/*
-+	 * Here we can be sure that there is an IO-APIC in the system. Let's
-+	 * go and set it up:
-+	 */
-+	if (!skip_ioapic_setup && nr_ioapics)
-+		setup_IO_APIC();
-+}
-diff -Nru a/include/asm-i386/mach-summit/mach_apic.h b/include/asm-i386/mach-summit/mach_apic.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-summit/mach_apic.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,57 @@
-+#ifndef __ASM_MACH_APIC_H
-+#define __ASM_MACH_APIC_H
-+
-+extern int x86_summit;
-+
-+#define XAPIC_DEST_CPUS_MASK    0x0Fu
-+#define XAPIC_DEST_CLUSTER_MASK 0xF0u
-+
-+#define xapic_phys_to_log_apicid(phys_apic) ( (1ul << ((phys_apic) & 0x3)) |\
-+		((phys_apic) & XAPIC_DEST_CLUSTER_MASK) )
-+
-+static inline unsigned long calculate_ldr(unsigned long old)
-+{
-+	unsigned long id;
-+
-+	if (x86_summit)
-+		id = xapic_phys_to_log_apicid(hard_smp_processor_id());
-+	else
-+		id = 1UL << smp_processor_id();
-+	return ((old & ~APIC_LDR_MASK) | SET_APIC_LOGICAL_ID(id));
-+}
-+
-+#define APIC_DFR_VALUE	(x86_summit ? APIC_DFR_CLUSTER : APIC_DFR_FLAT)
-+#define TARGET_CPUS	(x86_summit ? XAPIC_DEST_CPUS_MASK : cpu_online_map)
-+
-+#define APIC_BROADCAST_ID     (x86_summit ? 0xFF : 0x0F)
-+#define check_apicid_used(bitmap, apicid) (0)
-+
-+static inline void summit_check(char *oem, char *productid)
-+{
-+	if (!strncmp(oem, "IBM ENSW", 8) && !strncmp(str, "VIGIL SMP", 9))
-+		x86_summit = 1;
-+}
-+
-+static inline void clustered_apic_check(void)
-+{
-+	printk("Enabling APIC mode:  %s.  Using %d I/O APICs\n",
-+		(x86_summit ? "Summit" : "Flat"), nr_ioapics);
-+}
-+
-+static inline int cpu_present_to_apicid(int mps_cpu)
-+{
-+	if (x86_summit)
-+		return (int) raw_phys_apicid[mps_cpu];
-+	else
-+		return mps_cpu;
-+}
-+
-+static inline unsigned long apicid_to_phys_cpu_present(int apicid)
-+{
-+	if (x86_summit)
-+		return (1ul << (((apicid >> 4) << 2) | (apicid & 0x3)));
-+	else
-+		return (1ul << apicid);
-+}
-+
-+#endif /* __ASM_MACH_APIC_H */
-diff -Nru a/include/asm-i386/mach-visws/do_timer.h b/include/asm-i386/mach-visws/do_timer.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-visws/do_timer.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,49 @@
-+/* defines for inline arch setup functions */
-+
-+#include <asm/fixmap.h>
-+#include <asm/cobalt.h>
-+
-+static inline void do_timer_interrupt_hook(struct pt_regs *regs)
-+{
-+	/* Clear the interrupt */
-+	co_cpu_write(CO_CPU_STAT,co_cpu_read(CO_CPU_STAT) & ~CO_STAT_TIMEINTR);
-+
-+	do_timer(regs);
-+/*
-+ * In the SMP case we use the local APIC timer interrupt to do the
-+ * profiling, except when we simulate SMP mode on a uniprocessor
-+ * system, in that case we have to call the local interrupt handler.
-+ */
-+#ifndef CONFIG_X86_LOCAL_APIC
-+	x86_do_profile(regs);
-+#else
-+	if (!using_apic_timer)
-+		smp_local_timer_interrupt(regs);
-+#endif
-+}
-+
-+static inline int do_timer_overflow(int count)
-+{
-+	int i;
-+
-+	spin_lock(&i8259A_lock);
-+	/*
-+	 * This is tricky when I/O APICs are used;
-+	 * see do_timer_interrupt().
-+	 */
-+	i = inb(0x20);
-+	spin_unlock(&i8259A_lock);
-+	
-+	/* assumption about timer being IRQ0 */
-+	if (i & 0x01) {
-+		/*
-+		 * We cannot detect lost timer interrupts ... 
-+		 * well, that's why we call them lost, don't we? :)
-+		 * [hmm, on the Pentium and Alpha we can ... sort of]
-+		 */
-+		count -= LATCH;
-+	} else {
-+		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
-+	}
-+	return count;
-+}
-diff -Nru a/include/asm-i386/mach-visws/entry_arch.h b/include/asm-i386/mach-visws/entry_arch.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-visws/entry_arch.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,23 @@
-+/*
-+ * The following vectors are part of the Linux architecture, there
-+ * is no hardware IRQ pin equivalent for them, they are triggered
-+ * through the ICC by us (IPIs)
-+ */
-+#ifdef CONFIG_X86_SMP
-+BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
-+BUILD_INTERRUPT(invalidate_interrupt,INVALIDATE_TLB_VECTOR)
-+BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
-+#endif
-+
-+/*
-+ * every pentium local APIC has two 'local interrupts', with a
-+ * soft-definable vector attached to both interrupts, one of
-+ * which is a timer interrupt, the other one is error counter
-+ * overflow. Linux uses the local APIC timer interrupt to get
-+ * a much simpler SMP time architecture:
-+ */
-+#ifdef CONFIG_X86_LOCAL_APIC
-+BUILD_INTERRUPT(apic_timer_interrupt,LOCAL_TIMER_VECTOR)
-+BUILD_INTERRUPT(error_interrupt,ERROR_APIC_VECTOR)
-+BUILD_INTERRUPT(spurious_interrupt,SPURIOUS_APIC_VECTOR)
-+#endif
-diff -Nru a/include/asm-i386/mach-visws/irq_vectors.h b/include/asm-i386/mach-visws/irq_vectors.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-visws/irq_vectors.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,64 @@
-+#ifndef _ASM_IRQ_VECTORS_H
-+#define _ASM_IRQ_VECTORS_H
-+
-+/*
-+ * IDT vectors usable for external interrupt sources start
-+ * at 0x20:
-+ */
-+#define FIRST_EXTERNAL_VECTOR	0x20
-+
-+#define SYSCALL_VECTOR		0x80
-+
-+/*
-+ * Vectors 0x20-0x2f are used for ISA interrupts.
-+ */
-+
-+/*
-+ * Special IRQ vectors used by the SMP architecture, 0xf0-0xff
-+ *
-+ *  some of the following vectors are 'rare', they are merged
-+ *  into a single vector (CALL_FUNCTION_VECTOR) to save vector space.
-+ *  TLB, reschedule and local APIC vectors are performance-critical.
-+ *
-+ *  Vectors 0xf0-0xfa are free (reserved for future Linux use).
-+ */
-+#define SPURIOUS_APIC_VECTOR	0xff
-+#define ERROR_APIC_VECTOR	0xfe
-+#define INVALIDATE_TLB_VECTOR	0xfd
-+#define RESCHEDULE_VECTOR	0xfc
-+#define CALL_FUNCTION_VECTOR	0xfb
-+
-+#define THERMAL_APIC_VECTOR	0xf0
-+/*
-+ * Local APIC timer IRQ vector is on a different priority level,
-+ * to work around the 'lost local interrupt if more than 2 IRQ
-+ * sources per level' errata.
-+ */
-+#define LOCAL_TIMER_VECTOR	0xef
-+
-+/*
-+ * First APIC vector available to drivers: (vectors 0x30-0xee)
-+ * we start at 0x31 to spread out vectors evenly between priority
-+ * levels. (0x80 is the syscall vector)
-+ */
-+#define FIRST_DEVICE_VECTOR	0x31
-+#define FIRST_SYSTEM_VECTOR	0xef
-+
-+#define TIMER_IRQ 0
-+
-+/*
-+ * 16 8259A IRQ's, 208 potential APIC interrupt sources.
-+ * Right now the APIC is mostly only used for SMP.
-+ * 256 vectors is an architectural limit. (we can have
-+ * more than 256 devices theoretically, but they will
-+ * have to use shared interrupts)
-+ * Since vectors 0x00-0x1f are used/reserved for the CPU,
-+ * the usable vector space is 0x20-0xff (224 vectors)
-+ */
-+#ifdef CONFIG_X86_IO_APIC
-+#define NR_IRQS 224
-+#else
-+#define NR_IRQS 16
-+#endif
-+
-+#endif /* _ASM_IRQ_VECTORS_H */
-diff -Nru a/include/asm-i386/mach-visws/setup_arch_post.h b/include/asm-i386/mach-visws/setup_arch_post.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-visws/setup_arch_post.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,37 @@
-+/* Hook for machine specific memory setup.
-+ *
-+ * This is included late in kernel/setup.c so that it can make use of all of
-+ * the static functions. */
-+
-+static inline char * __init machine_specific_memory_setup(void)
-+{
-+	char *who;
-+
-+
-+	who = "BIOS-e820";
-+
-+	/*
-+	 * Try to copy the BIOS-supplied E820-map.
-+	 *
-+	 * Otherwise fake a memory map; one section from 0k->640k,
-+	 * the next section from 1mb->appropriate_mem_k
-+	 */
-+	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
-+	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
-+		unsigned long mem_size;
-+
-+		/* compare results from other methods and take the greater */
-+		if (ALT_MEM_K < EXT_MEM_K) {
-+			mem_size = EXT_MEM_K;
-+			who = "BIOS-88";
-+		} else {
-+			mem_size = ALT_MEM_K;
-+			who = "BIOS-e801";
-+		}
-+
-+		e820.nr_map = 0;
-+		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
-+		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
-+  	}
-+	return who;
-+}
-diff -Nru a/include/asm-i386/mach-visws/setup_arch_pre.h b/include/asm-i386/mach-visws/setup_arch_pre.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-visws/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,5 @@
-+/* Hook to call BIOS initialisation function */
-+
-+/* no action for visws */
-+
-+#define ARCH_SETUP
-diff -Nru a/include/asm-i386/mach-visws/smpboot_hooks.h b/include/asm-i386/mach-visws/smpboot_hooks.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-visws/smpboot_hooks.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,13 @@
-+/* for visws do nothing for any of these */
-+
-+static inline void smpboot_clear_io_apic_irqs(void)
-+{
-+}
-+
-+static inline void smpboot_setup_warm_reset_vector(void)
-+{
-+}
-+
-+static inline void smpboot_setup_io_apic(void)
-+{
-+}
-diff -Nru a/include/asm-i386/mach-voyager/do_timer.h b/include/asm-i386/mach-voyager/do_timer.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-voyager/do_timer.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,22 @@
-+/* defines for inline arch setup functions */
-+#include <asm/voyager.h>
-+
-+static inline void do_timer_interrupt_hook(struct pt_regs *regs)
-+{
-+	do_timer(regs);
-+
-+	voyager_timer_interrupt(regs);
-+}
-+
-+static inline int do_timer_overflow(int count)
-+{
-+	/* can't read the ISR, just assume 1 tick
-+	   overflow */
-+	if(count > LATCH || count < 0) {
-+		printk(KERN_ERR "VOYAGER PROBLEM: count is %d, latch is %d\n", count, LATCH);
-+		count = LATCH;
-+	}
-+	count -= LATCH;
-+
-+	return count;
-+}
-diff -Nru a/include/asm-i386/mach-voyager/entry_arch.h b/include/asm-i386/mach-voyager/entry_arch.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-voyager/entry_arch.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,26 @@
-+/* -*- mode: c; c-basic-offset: 8 -*- */
-+
-+/* Copyright (C) 2002
-+ *
-+ * Author: James.Bottomley@HansenPartnership.com
-+ *
-+ * linux/arch/i386/voyager/entry_arch.h
-+ *
-+ * This file builds the VIC and QIC CPI gates
-+ */
-+
-+/* initialise the voyager interrupt gates 
-+ *
-+ * This uses the macros in irq.h to set up assembly jump gates.  The
-+ * calls are then redirected to the same routine with smp_ prefixed */
-+BUILD_INTERRUPT(vic_sys_interrupt, VIC_SYS_INT)
-+BUILD_INTERRUPT(vic_cmn_interrupt, VIC_CMN_INT)
-+BUILD_INTERRUPT(vic_cpi_interrupt, VIC_CPI_LEVEL0);
-+
-+/* do all the QIC interrupts */
-+BUILD_INTERRUPT(qic_timer_interrupt, QIC_TIMER_CPI);
-+BUILD_INTERRUPT(qic_invalidate_interrupt, QIC_INVALIDATE_CPI);
-+BUILD_INTERRUPT(qic_reschedule_interrupt, QIC_RESCHEDULE_CPI);
-+BUILD_INTERRUPT(qic_enable_irq_interrupt, QIC_ENABLE_IRQ_CPI);
-+BUILD_INTERRUPT(qic_call_function_interrupt, QIC_CALL_FUNCTION_CPI);
-+
-diff -Nru a/include/asm-i386/mach-voyager/irq_vectors.h b/include/asm-i386/mach-voyager/irq_vectors.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-voyager/irq_vectors.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,71 @@
-+/* -*- mode: c; c-basic-offset: 8 -*- */
-+
-+/* Copyright (C) 2002
-+ *
-+ * Author: James.Bottomley@HansenPartnership.com
-+ *
-+ * linux/arch/i386/voyager/irq_vectors.h
-+ *
-+ * This file provides definitions for the VIC and QIC CPIs
-+ */
-+
-+#ifndef _ASM_IRQ_VECTORS_H
-+#define _ASM_IRQ_VECTORS_H
-+
-+/*
-+ * IDT vectors usable for external interrupt sources start
-+ * at 0x20:
-+ */
-+#define FIRST_EXTERNAL_VECTOR	0x20
-+
-+#define SYSCALL_VECTOR		0x80
-+
-+/*
-+ * Vectors 0x20-0x2f are used for ISA interrupts.
-+ */
-+
-+/* These define the CPIs we use in linux */
-+#define VIC_CPI_LEVEL0			0
-+#define VIC_CPI_LEVEL1			1
-+/* now the fake CPIs */
-+#define VIC_TIMER_CPI			2
-+#define VIC_INVALIDATE_CPI		3
-+#define VIC_RESCHEDULE_CPI		4
-+#define VIC_ENABLE_IRQ_CPI		5
-+#define VIC_CALL_FUNCTION_CPI		6
-+
-+/* Now the QIC CPIs:  Since we don't need the two initial levels,
-+ * these are 2 less than the VIC CPIs */
-+#define QIC_CPI_OFFSET			1
-+#define QIC_TIMER_CPI			(VIC_TIMER_CPI - QIC_CPI_OFFSET)
-+#define QIC_INVALIDATE_CPI		(VIC_INVALIDATE_CPI - QIC_CPI_OFFSET)
-+#define QIC_RESCHEDULE_CPI		(VIC_RESCHEDULE_CPI - QIC_CPI_OFFSET)
-+#define QIC_ENABLE_IRQ_CPI		(VIC_ENABLE_IRQ_CPI - QIC_CPI_OFFSET)
-+#define QIC_CALL_FUNCTION_CPI		(VIC_CALL_FUNCTION_CPI - QIC_CPI_OFFSET)
-+
-+#define VIC_START_FAKE_CPI		VIC_TIMER_CPI
-+#define VIC_END_FAKE_CPI		VIC_CALL_FUNCTION_CPI
-+
-+/* this is the SYS_INT CPI. */
-+#define VIC_SYS_INT			8
-+#define VIC_CMN_INT			15
-+
-+/* This is the boot CPI for alternate processors.  It gets overwritten
-+ * by the above once the system has activated all available processors */
-+#define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
-+#define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
-+
-+#define NR_IRQS 224
-+
-+#ifndef __ASSEMBLY__
-+extern asmlinkage void vic_cpi_interrupt(void);
-+extern asmlinkage void vic_sys_interrupt(void);
-+extern asmlinkage void vic_cmn_interrupt(void);
-+extern asmlinkage void qic_timer_interrupt(void);
-+extern asmlinkage void qic_invalidate_interrupt(void);
-+extern asmlinkage void qic_reschedule_interrupt(void);
-+extern asmlinkage void qic_enable_irq_interrupt(void);
-+extern asmlinkage void qic_call_function_interrupt(void);
-+#endif /* !__ASSEMBLY__ */
-+
-+#endif /* _ASM_IRQ_VECTORS_H */
-diff -Nru a/include/asm-i386/mach-voyager/setup_arch_post.h b/include/asm-i386/mach-voyager/setup_arch_post.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-voyager/setup_arch_post.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,73 @@
-+/* Hook for machine specific memory setup.
-+ *
-+ * This is included late in kernel/setup.c so that it can make use of all of
-+ * the static functions. */
-+
-+static inline char * __init machine_specific_memory_setup(void)
-+{
-+	char *who;
-+
-+	who = "NOT VOYAGER";
-+
-+	if(voyager_level == 5) {
-+		__u32 addr, length;
-+		int i;
-+
-+		who = "Voyager-SUS";
-+
-+		e820.nr_map = 0;
-+		for(i=0; voyager_memory_detect(i, &addr, &length); i++) {
-+			add_memory_region(addr, length, E820_RAM);
-+		}
-+		return who;
-+	} else if(voyager_level == 4) {
-+		__u32 tom;
-+		__u16 catbase = inb(VOYAGER_SSPB_RELOCATION_PORT)<<8;
-+		/* select the DINO config space */
-+		outb(VOYAGER_DINO, VOYAGER_CAT_CONFIG_PORT);
-+		/* Read DINO top of memory register */
-+		tom = ((inb(catbase + 0x4) & 0xf0) << 16)
-+			+ ((inb(catbase + 0x5) & 0x7f) << 24);
-+
-+		if(inb(catbase) != VOYAGER_DINO) {
-+			printk(KERN_ERR "Voyager: Failed to get DINO for L4, setting tom to EXT_MEM_K\n");
-+			tom = (EXT_MEM_K)<<10;
-+		}
-+		who = "Voyager-TOM";
-+		add_memory_region(0, 0x9f000, E820_RAM);
-+		/* map from 1M to top of memory */
-+		add_memory_region(1*1024*1024, tom - 1*1024*1024, E820_RAM);
-+		/* FIXME: Should check the ASICs to see if I need to
-+		 * take out the 8M window.  Just do it at the moment
-+		 * */
-+		add_memory_region(8*1024*1024, 8*1024*1024, E820_RESERVED);
-+		return who;
-+	}
-+
-+	who = "BIOS-e820";
-+
-+	/*
-+	 * Try to copy the BIOS-supplied E820-map.
-+	 *
-+	 * Otherwise fake a memory map; one section from 0k->640k,
-+	 * the next section from 1mb->appropriate_mem_k
-+	 */
-+	sanitize_e820_map(E820_MAP, &E820_MAP_NR);
-+	if (copy_e820_map(E820_MAP, E820_MAP_NR) < 0) {
-+		unsigned long mem_size;
-+
-+		/* compare results from other methods and take the greater */
-+		if (ALT_MEM_K < EXT_MEM_K) {
-+			mem_size = EXT_MEM_K;
-+			who = "BIOS-88";
-+		} else {
-+			mem_size = ALT_MEM_K;
-+			who = "BIOS-e801";
-+		}
-+
-+		e820.nr_map = 0;
-+		add_memory_region(0, LOWMEMSIZE(), E820_RAM);
-+		add_memory_region(HIGH_MEMORY, mem_size << 10, E820_RAM);
-+  	}
-+	return who;
-+}
-diff -Nru a/include/asm-i386/mach-voyager/setup_arch_pre.h b/include/asm-i386/mach-voyager/setup_arch_pre.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/asm-i386/mach-voyager/setup_arch_pre.h	Mon Dec 16 14:34:13 2002
-@@ -0,0 +1,10 @@
-+#include <asm/voyager.h>
-+#define VOYAGER_BIOS_INFO ((struct voyager_bios_info *)(PARAM+0x40))
-+
-+/* Hook to call BIOS initialisation function */
-+
-+/* for voyager, pass the voyager BIOS/SUS info area to the detection 
-+ * routines */
-+
-+#define ARCH_SETUP	voyager_detect(VOYAGER_BIOS_INFO);
-+
+I've tried building with IDE-RAID in or not in.  I've tried building it
+with each Promise driver separately (pdc202xx_new.c and pdc202xx_old.c if I
+recall correctly) and with both Promise drivers compiled in at the same
+time.  With and without IDE-RAID.  They all acted exactly the same.  So
+then I added a bunch of printk's to see if I could localize where it was
+hanging and it died immediately after displaying info about the PIIX
+driver.  Hmm.  I guess there are places one cannot or should not put a
+printk?  I modified files like ide-disk.c and both pdc202xx_*.c files.  I
+might have added printk's to other files in that same tree.
+
+I searched for other complaints about the Promise controller and someone
+said they had success with pure 2.4.20, so I'll try that tonight.  (My
+understanding is that 2.4.21-pre1 will have essentially the same IDE code
+as earlier *-ac kernels, so it probably wouldn't add much for me to try
+that.)  The RedHat 8.0 kernels boot perfectly.  The dmesg related to IDE
+drives from the Red Hat kernels is below.  Note that I am missing the
+beginning part. The RAID code generates so many messages that I think my
+early boot messages have scrolled out of the circular message buffer before
+klogd starts.  (Is the size of that buffer adjustable by #define?)
+
+Dec 15 22:35:24 kilroy kernel:     ide0: BM-DMA at 0xcc00-0xcc07, BIOS
+settings: hda:DMA, hdb:pio
+Dec 15 22:35:24 kilroy kernel:     ide1: BM-DMA at 0xcc08-0xcc0f, BIOS
+settings: hdc:pio, hdd:DMA
+Dec 15 22:35:24 kilroy kernel: PDC20276: IDE controller on PCI bus 02 dev
+60
+Dec 15 22:35:24 kilroy kernel: PCI: Found IRQ 11 for device 02:0c.0
+Dec 15 22:35:24 kilroy kernel: PCI: Sharing IRQ 11 with 02:00.0
+Dec 15 22:35:24 kilroy kernel: PCI: Sharing IRQ 11 with 02:07.1
+Dec 15 22:35:24 kilroy kernel: PDC20276: chipset revision 1
+Dec 15 22:35:24 kilroy kernel: ide: Found promise 20265 in RAID mode.
+Dec 15 22:35:24 kilroy kernel: PDC20276: not 100%% native mode: will probe
+irqs later
+Dec 15 22:35:24 kilroy kernel:     ide2: BM-DMA at 0xa400-0xa407, BIOS
+settings: hde:pio, hdf:pio
+Dec 15 22:35:24 kilroy kernel:     ide3: BM-DMA at 0xa408-0xa40f, BIOS
+settings: hdg:pio, hdh:pio
+Dec 15 22:35:24 kilroy kernel: hda: IC35L060AVER07-0, ATA DISK drive
+Dec 15 22:35:24 kilroy kernel: hdd: HL-DT-ST RW/DVD GCC-4320B, ATAPI
+CD/DVD-ROM drive
+Dec 15 22:35:24 kilroy kernel: hde: IC35L060AVER07-0, ATA DISK drive
+Dec 15 22:35:24 kilroy kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Dec 15 22:35:24 kilroy kernel: ide1 at 0x170-0x177,0x376 on irq 15
+Dec 15 22:35:24 kilroy kernel: ide2 at 0x9400-0x9407,0x9802 on irq 11
+Dec 15 22:35:24 kilroy kernel: blk: queue c03afd84, I/O limit 4095Mb (mask
+0xffffffff)
+Dec 15 22:35:24 kilroy kernel: blk: queue c03afd84, I/O limit 4095Mb (mask
+0xffffffff)
+Dec 15 22:35:24 kilroy kernel: hda: 120103200 sectors (61493 MB) w/1916KiB
+Cache, CHS=7476/255/63, UDMA(33)
+Dec 15 22:35:24 kilroy kernel: blk: queue c03b040c, I/O limit 4095Mb (mask
+0xffffffff)
+Dec 15 22:35:24 kilroy kernel: blk: queue c03b040c, I/O limit 4095Mb (mask
+0xffffffff)
+Dec 15 22:35:24 kilroy kernel: hde: 120103200 sectors (61493 MB) w/1916KiB
+Cache, CHS=119150/16/63, UDMA(100)
+Dec 15 22:35:24 kilroy kernel: ide-floppy driver 0.99.newide
+Dec 15 22:35:24 kilroy kernel: Partition check:
+Dec 15 22:35:24 kilroy kernel:  hda: hda1 hda2 hda3 hda4 < hda5 hda6 hda7 >
+Dec 15 22:35:24 kilroy kernel:  hde: hde1 hde2 hde3 hde4 < hde5 hde6 >
+
+When I boot with 2.4.20-ac2, it halts after the "ide3: BM-DMA at
+0xa408-0xa40f, BIOS settings: hdg:pio, hdh:pio" line.  In addition, I do
+not see the previous lines about finding or sharing IRQ for that
+controller.  Nor do I see "ide: Found promise 20265 in RAID mode."
+
+Another interesting fact is that hda and hde are identical models, but the
+i845PE IDE controller only enabled the drive as UDMA33.  Hmm.  Curious. But
+I have not investigated this much yet except to see if the PIIX driver has
+a "quirk" drive list.  I didn't find one.
+
+My config file for 2.4.20-ac2 is attached to this message.  Given below is
+output of "lspci -vv":
+
+00:00.0 Host bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset Host
+Bridge (rev 02)
+      Subsystem: Giga-byte Technology: Unknown device 2560
+      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+      Latency: 0
+      Region 0: Memory at d0000000 (32-bit, prefetchable) [size=128M]
+      Capabilities: [e4] #09 [6105]
+      Capabilities: [a0] AGP version 2.0
+            Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2,x4
+            Command: RQ=0 SBA- AGP+ 64bit- FW- Rate=x4
+
+00:01.0 PCI bridge: Intel Corp. 82845G/GL [Brookdale-G] Chipset AGP Bridge
+(rev 02) (prog-if 00 [Normal decode])
+      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+      Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 64
+      Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+      Memory behind bridge: e8000000-e9ffffff
+      Prefetchable memory behind bridge: d8000000-e7ffffff
+      BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+
+00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 02) (prog-if
+00 [UHCI])
+      Subsystem: Giga-byte Technology: Unknown device 24c2
+      Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 0
+      Interrupt: pin A routed to IRQ 9
+      Region 4: I/O ports at b800 [size=32]
+
+00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 02) (prog-if
+00 [UHCI])
+      Subsystem: Giga-byte Technology: Unknown device 24c2
+      Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 0
+      Interrupt: pin B routed to IRQ 11
+      Region 4: I/O ports at b000 [size=32]
+
+00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 02) (prog-if
+00 [UHCI])
+      Subsystem: Giga-byte Technology: Unknown device 24c2
+      Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 0
+      Interrupt: pin C routed to IRQ 11
+      Region 4: I/O ports at b400 [size=32]
+
+00:1d.7 USB Controller: Intel Corp. 82801DB USB EHCI Controller (rev 02)
+(prog-if 20 [EHCI])
+      Subsystem: Giga-byte Technology: Unknown device 5004
+      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 0
+      Interrupt: pin D routed to IRQ 9
+      Region 0: Memory at ec000000 (32-bit, non-prefetchable) [size=1K]
+      Capabilities: [50] Power Management version 2
+            Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 82) (prog-if
+00 [Normal decode])
+      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR+ FastB2B-
+      Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR+
+      Latency: 0
+      Bus: primary=00, secondary=02, subordinate=02, sec-latency=32
+      I/O behind bridge: 00008000-0000afff
+      Memory behind bridge: ea000000-ebffffff
+      BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+
+00:1f.0 ISA bridge: Intel Corp. 82801DB ISA Bridge (LPC) (rev 02)
+      Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 0
+
+00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 02) (prog-if 8a
+[Master SecP PriP])
+      Subsystem: Giga-byte Technology: Unknown device 24c2
+      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 0
+      Interrupt: pin A routed to IRQ 9
+      Region 0: I/O ports at 01f0
+      Region 1: I/O ports at 03f4
+      Region 2: I/O ports at 0170
+      Region 3: I/O ports at 0374
+      Region 4: I/O ports at cc00 [size=16]
+      Region 5: Memory at 20000000 (32-bit, non-prefetchable) [size=1K]
+
+00:1f.3 SMBus: Intel Corp. 82801DB SMBus (rev 02)
+      Subsystem: Giga-byte Technology: Unknown device 24c2
+      Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Interrupt: pin B routed to IRQ 5
+      Region 4: I/O ports at 5000 [size=32]
+
+01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 MX440]
+(rev a3) (prog-if 00 [VGA])
+      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 248 (1250ns min, 250ns max)
+      Interrupt: pin A routed to IRQ 9
+      Region 0: Memory at e8000000 (32-bit, non-prefetchable) [size=16M]
+      Region 1: Memory at d8000000 (32-bit, prefetchable) [size=128M]
+      Region 2: Memory at e0000000 (32-bit, prefetchable) [size=512K]
+      Expansion ROM at <unassigned> [disabled] [size=128K]
+      Capabilities: [60] Power Management version 2
+            Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+      Capabilities: [44] AGP version 2.0
+            Status: RQ=31 SBA- 64bit- FW+ Rate=x1,x2,x4
+            Command: RQ=31 SBA- AGP+ 64bit- FW- Rate=x4
+
+02:00.0 SCSI storage controller: Adaptec AIC-7892B U160/m (rev 02)
+      Subsystem: Adaptec 19160 Ultra160 SCSI Controller
+      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32 (10000ns min, 6250ns max), cache line size 08
+      Interrupt: pin A routed to IRQ 11
+      BIST result: 00
+      Region 0: I/O ports at 8000 [disabled] [size=256]
+      Region 1: Memory at eb008000 (64-bit, non-prefetchable) [size=4K]
+      Expansion ROM at <unassigned> [disabled] [size=128K]
+      Capabilities: [dc] Power Management version 2
+            Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:02.0 Serial controller: US Robotics/3Com 56K FaxModem Model 5610 (rev
+01) (prog-if 02 [16550])
+      Subsystem: US Robotics/3Com: Unknown device 00d7
+      Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Interrupt: pin A routed to IRQ 11
+      Region 0: I/O ports at 8400 [size=8]
+      Capabilities: [dc] Power Management version 2
+            Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA
+PME(D0+,D1-,D2+,D3hot+,D3cold+)
+            Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+02:03.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
+04)
+      Subsystem: Creative Labs CT4850 SBLive! Value
+      Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32 (500ns min, 5000ns max)
+      Interrupt: pin A routed to IRQ 9
+      Region 0: I/O ports at 8800 [size=32]
+      Capabilities: [dc] Power Management version 1
+            Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:03.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev
+01)
+      Subsystem: Creative Labs Gameport Joystick
+      Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32
+      Region 0: I/O ports at 8c00 [size=8]
+      Capabilities: [dc] Power Management version 1
+            Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:07.0 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
+      Subsystem: NEC Corporation USB
+      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32 (250ns min, 10500ns max), cache line size 08
+      Interrupt: pin A routed to IRQ 9
+      Region 0: Memory at eb004000 (32-bit, non-prefetchable) [size=4K]
+      Capabilities: [40] Power Management version 2
+            Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:07.1 USB Controller: NEC Corporation USB (rev 41) (prog-if 10 [OHCI])
+      Subsystem: NEC Corporation USB
+      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32 (250ns min, 10500ns max), cache line size 08
+      Interrupt: pin B routed to IRQ 11
+      Region 0: Memory at eb005000 (32-bit, non-prefetchable) [size=4K]
+      Capabilities: [40] Power Management version 2
+            Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:07.2 USB Controller: NEC Corporation USB 2.0 (rev 02) (prog-if 20
+[EHCI])
+      Subsystem: Giga-byte Technology: Unknown device 5004
+      Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32 (4000ns min, 8500ns max), cache line size 08
+      Interrupt: pin C routed to IRQ 5
+      Region 0: Memory at eb006000 (32-bit, non-prefetchable) [size=256]
+      Capabilities: [40] Power Management version 2
+            Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+02:08.0 Ethernet controller: Intel Corp. 82801BD PRO/100 VE (CNR) Ethernet
+Controller (rev 82)
+      Subsystem: Intel Corp.: Unknown device 3013
+      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32 (2000ns min, 14000ns max), cache line size 08
+      Interrupt: pin A routed to IRQ 5
+      Region 0: Memory at eb007000 (32-bit, non-prefetchable) [size=4K]
+      Region 1: I/O ports at 9000 [size=64]
+      Capabilities: [dc] Power Management version 2
+            Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+            Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+02:0c.0 RAID bus controller: Promise Technology, Inc. PDC20276 IDE (rev 01)
+(prog-if 85)
+      Subsystem: Giga-byte Technology: Unknown device b001
+      Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+      Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=slow >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+      Latency: 32 (1000ns min, 4500ns max), cache line size 08
+      Interrupt: pin A routed to IRQ 11
+      Region 0: I/O ports at 9400 [size=8]
+      Region 1: I/O ports at 9800 [size=4]
+      Region 2: I/O ports at 9c00 [size=8]
+      Region 3: I/O ports at a000 [size=4]
+      Region 4: I/O ports at a400 [size=16]
+      Region 5: Memory at eb000000 (32-bit, non-prefetchable) [size=16K]
+      Capabilities: [60] Power Management version 1
+            Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+            Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
 
+Does anyone have any ideas where I can go from here?  I'm willing to do
+legwork, experiment, recompile, and all that, but I don't know where to
+begin.  To start with, where should one *not* put printk's?  (Specifically
+in the IDE subsystem, that is.)  Let me know what other information I can
+provide that will help.
+
+      Thanks
+
+      Eddie
+
+(See attached file: config-2.4.20-ac2.txt)
+--
+Edward Kuns
+Technical Staff Member
+Rockwell FirstPoint Contact
+edward.kuns@rockwellfirstpoint.com
+www.rockwellfirstpoint.com
+
+
+--0__=09BBE602DFE814168f9e8a93df938690918c09BBE602DFE81416
+Content-type: application/octet-stream; 
+	name="config-2.4.20-ac2.txt"
+Content-Disposition: attachment; filename="config-2.4.20-ac2.txt"
+Content-transfer-encoding: base64
+
+IwojIEF1dG9tYXRpY2FsbHkgZ2VuZXJhdGVkIG1ha2UgY29uZmlnOiBkb24ndCBlZGl0CiMKQ09O
+RklHX1g4Nj15CiMgQ09ORklHX1NCVVMgaXMgbm90IHNldApDT05GSUdfVUlEMTY9eQoKIwojIENv
+ZGUgbWF0dXJpdHkgbGV2ZWwgb3B0aW9ucwojCkNPTkZJR19FWFBFUklNRU5UQUw9eQoKIwojIExv
+YWRhYmxlIG1vZHVsZSBzdXBwb3J0CiMKQ09ORklHX01PRFVMRVM9eQpDT05GSUdfTU9EVkVSU0lP
+TlM9eQpDT05GSUdfS01PRD15CgojCiMgUHJvY2Vzc29yIHR5cGUgYW5kIGZlYXR1cmVzCiMKIyBD
+T05GSUdfTTM4NiBpcyBub3Qgc2V0CiMgQ09ORklHX000ODYgaXMgbm90IHNldAojIENPTkZJR19N
+NTg2IGlzIG5vdCBzZXQKIyBDT05GSUdfTTU4NlRTQyBpcyBub3Qgc2V0CiMgQ09ORklHX001ODZN
+TVggaXMgbm90IHNldAojIENPTkZJR19NNjg2IGlzIG5vdCBzZXQKIyBDT05GSUdfTVBFTlRJVU1J
+SUkgaXMgbm90IHNldApDT05GSUdfTVBFTlRJVU00PXkKIyBDT05GSUdfTUs2IGlzIG5vdCBzZXQK
+IyBDT05GSUdfTUs3IGlzIG5vdCBzZXQKIyBDT05GSUdfTUVMQU4gaXMgbm90IHNldAojIENPTkZJ
+R19NQ1JVU09FIGlzIG5vdCBzZXQKIyBDT05GSUdfTVdJTkNISVBDNiBpcyBub3Qgc2V0CiMgQ09O
+RklHX01XSU5DSElQMiBpcyBub3Qgc2V0CiMgQ09ORklHX01XSU5DSElQM0QgaXMgbm90IHNldAoj
+IENPTkZJR19NQ1lSSVhJSUkgaXMgbm90IHNldApDT05GSUdfWDg2X1dQX1dPUktTX09LPXkKQ09O
+RklHX1g4Nl9JTlZMUEc9eQpDT05GSUdfWDg2X0NNUFhDSEc9eQpDT05GSUdfWDg2X1hBREQ9eQpD
+T05GSUdfWDg2X0JTV0FQPXkKQ09ORklHX1g4Nl9QT1BBRF9PSz15CiMgQ09ORklHX1JXU0VNX0dF
+TkVSSUNfU1BJTkxPQ0sgaXMgbm90IHNldApDT05GSUdfUldTRU1fWENIR0FERF9BTEdPUklUSE09
+eQpDT05GSUdfWDg2X0wxX0NBQ0hFX1NISUZUPTcKQ09ORklHX1g4Nl9UU0M9eQpDT05GSUdfWDg2
+X0dPT0RfQVBJQz15CkNPTkZJR19YODZfUEdFPXkKQ09ORklHX1g4Nl9VU0VfUFBST19DSEVDS1NV
+TT15CkNPTkZJR19YODZfRjAwRl9XT1JLU19PSz15CkNPTkZJR19YODZfTUNFPXkKIyBDT05GSUdf
+Q1BVX0ZSRVEgaXMgbm90IHNldAojIENPTkZJR19UT1NISUJBIGlzIG5vdCBzZXQKIyBDT05GSUdf
+SThLIGlzIG5vdCBzZXQKIyBDT05GSUdfTUlDUk9DT0RFIGlzIG5vdCBzZXQKQ09ORklHX1g4Nl9N
+U1I9eQpDT05GSUdfWDg2X0NQVUlEPXkKQ09ORklHX05PSElHSE1FTT15CiMgQ09ORklHX0hJR0hN
+RU00RyBpcyBub3Qgc2V0CiMgQ09ORklHX0hJR0hNRU02NEcgaXMgbm90IHNldAojIENPTkZJR19I
+SUdITUVNIGlzIG5vdCBzZXQKIyBDT05GSUdfTUFUSF9FTVVMQVRJT04gaXMgbm90IHNldApDT05G
+SUdfTVRSUj15CiMgQ09ORklHX1NNUCBpcyBub3Qgc2V0CkNPTkZJR19YODZfVVBfQVBJQz15CkNP
+TkZJR19YODZfVVBfSU9BUElDPXkKQ09ORklHX1g4Nl9MT0NBTF9BUElDPXkKQ09ORklHX1g4Nl9J
+T19BUElDPXkKCiMKIyBHZW5lcmFsIHNldHVwCiMKQ09ORklHX05FVD15CkNPTkZJR19QQ0k9eQoj
+IENPTkZJR19QQ0lfR09CSU9TIGlzIG5vdCBzZXQKIyBDT05GSUdfUENJX0dPRElSRUNUIGlzIG5v
+dCBzZXQKQ09ORklHX1BDSV9HT0FOWT15CkNPTkZJR19QQ0lfQklPUz15CkNPTkZJR19QQ0lfRElS
+RUNUPXkKQ09ORklHX0lTQT15CiMgQ09ORklHX1NDeDIwMCBpcyBub3Qgc2V0CkNPTkZJR19QQ0lf
+TkFNRVM9eQojIENPTkZJR19FSVNBIGlzIG5vdCBzZXQKIyBDT05GSUdfTUNBIGlzIG5vdCBzZXQK
+Q09ORklHX0hPVFBMVUc9eQoKIwojIFBDTUNJQS9DYXJkQnVzIHN1cHBvcnQKIwojIENPTkZJR19Q
+Q01DSUEgaXMgbm90IHNldAoKIwojIFBDSSBIb3RwbHVnIFN1cHBvcnQKIwojIENPTkZJR19IT1RQ
+TFVHX1BDSSBpcyBub3Qgc2V0CkNPTkZJR19TWVNWSVBDPXkKQ09ORklHX0JTRF9QUk9DRVNTX0FD
+Q1Q9eQpDT05GSUdfU1lTQ1RMPXkKQ09ORklHX0tDT1JFX0VMRj15CiMgQ09ORklHX0tDT1JFX0FP
+VVQgaXMgbm90IHNldApDT05GSUdfQklORk1UX0FPVVQ9eQpDT05GSUdfQklORk1UX0VMRj15CkNP
+TkZJR19CSU5GTVRfTUlTQz15CkNPTkZJR19JS0NPTkZJRz15CkNPTkZJR19QTT15CkNPTkZJR19B
+Q1BJPXkKIyBDT05GSUdfQUNQSV9ERUJVRyBpcyBub3Qgc2V0CkNPTkZJR19BQ1BJX0JVU01HUj15
+CkNPTkZJR19BQ1BJX1NZUz15CkNPTkZJR19BQ1BJX0NQVT15CkNPTkZJR19BQ1BJX0JVVFRPTj15
+CkNPTkZJR19BQ1BJX0FDPXkKIyBDT05GSUdfQUNQSV9FQyBpcyBub3Qgc2V0CiMgQ09ORklHX0FQ
+TSBpcyBub3Qgc2V0CgojCiMgTWVtb3J5IFRlY2hub2xvZ3kgRGV2aWNlcyAoTVREKQojCiMgQ09O
+RklHX01URCBpcyBub3Qgc2V0CgojCiMgUGFyYWxsZWwgcG9ydCBzdXBwb3J0CiMKQ09ORklHX1BB
+UlBPUlQ9bQpDT05GSUdfUEFSUE9SVF9QQz1tCkNPTkZJR19QQVJQT1JUX1BDX0NNTDE9bQojIENP
+TkZJR19QQVJQT1JUX1NFUklBTCBpcyBub3Qgc2V0CkNPTkZJR19QQVJQT1JUX1BDX0ZJRk89eQoj
+IENPTkZJR19QQVJQT1JUX1BDX1NVUEVSSU8gaXMgbm90IHNldAojIENPTkZJR19QQVJQT1JUX0FN
+SUdBIGlzIG5vdCBzZXQKIyBDT05GSUdfUEFSUE9SVF9NRkMzIGlzIG5vdCBzZXQKIyBDT05GSUdf
+UEFSUE9SVF9BVEFSSSBpcyBub3Qgc2V0CiMgQ09ORklHX1BBUlBPUlRfR1NDIGlzIG5vdCBzZXQK
+IyBDT05GSUdfUEFSUE9SVF9TVU5CUFAgaXMgbm90IHNldAojIENPTkZJR19QQVJQT1JUX09USEVS
+IGlzIG5vdCBzZXQKQ09ORklHX1BBUlBPUlRfMTI4ND15CgojCiMgUGx1ZyBhbmQgUGxheSBjb25m
+aWd1cmF0aW9uCiMKQ09ORklHX1BOUD15CkNPTkZJR19JU0FQTlA9eQpDT05GSUdfUE5QQklPUz15
+CgojCiMgQmxvY2sgZGV2aWNlcwojCkNPTkZJR19CTEtfREVWX0ZEPXkKIyBDT05GSUdfQkxLX0RF
+Vl9YRCBpcyBub3Qgc2V0CiMgQ09ORklHX1BBUklERSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19D
+UFFfREEgaXMgbm90IHNldAojIENPTkZJR19CTEtfQ1BRX0NJU1NfREEgaXMgbm90IHNldAojIENP
+TkZJR19CTEtfREVWX0RBQzk2MCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfVU1FTSBpcyBu
+b3Qgc2V0CkNPTkZJR19CTEtfREVWX0xPT1A9bQpDT05GSUdfQkxLX0RFVl9OQkQ9bQpDT05GSUdf
+QkxLX0RFVl9SQU09eQpDT05GSUdfQkxLX0RFVl9SQU1fU0laRT00MDk2CkNPTkZJR19CTEtfREVW
+X0lOSVRSRD15CkNPTkZJR19CTEtfU1RBVFM9eQoKIwojIE11bHRpLWRldmljZSBzdXBwb3J0IChS
+QUlEIGFuZCBMVk0pCiMKQ09ORklHX01EPXkKQ09ORklHX0JMS19ERVZfTUQ9bQpDT05GSUdfTURf
+TElORUFSPW0KQ09ORklHX01EX1JBSUQwPW0KQ09ORklHX01EX1JBSUQxPW0KQ09ORklHX01EX1JB
+SUQ1PW0KIyBDT05GSUdfTURfTVVMVElQQVRIIGlzIG5vdCBzZXQKQ09ORklHX0JMS19ERVZfTFZN
+PW0KIyBDT05GSUdfQkxLX0RFVl9ETSBpcyBub3Qgc2V0CgojCiMgTmV0d29ya2luZyBvcHRpb25z
+CiMKQ09ORklHX1BBQ0tFVD15CiMgQ09ORklHX1BBQ0tFVF9NTUFQIGlzIG5vdCBzZXQKIyBDT05G
+SUdfTkVUTElOS19ERVYgaXMgbm90IHNldApDT05GSUdfTkVURklMVEVSPXkKQ09ORklHX05FVEZJ
+TFRFUl9ERUJVRz15CkNPTkZJR19GSUxURVI9eQpDT05GSUdfVU5JWD15CkNPTkZJR19JTkVUPXkK
+Q09ORklHX0lQX01VTFRJQ0FTVD15CiMgQ09ORklHX0lQX0FEVkFOQ0VEX1JPVVRFUiBpcyBub3Qg
+c2V0CiMgQ09ORklHX0lQX1BOUCBpcyBub3Qgc2V0CkNPTkZJR19ORVRfSVBJUD1tCiMgQ09ORklH
+X05FVF9JUEdSRSBpcyBub3Qgc2V0CiMgQ09ORklHX0lQX01ST1VURSBpcyBub3Qgc2V0CiMgQ09O
+RklHX0FSUEQgaXMgbm90IHNldAojIENPTkZJR19JTkVUX0VDTiBpcyBub3Qgc2V0CiMgQ09ORklH
+X1NZTl9DT09LSUVTIGlzIG5vdCBzZXQKCiMKIyAgIElQOiBOZXRmaWx0ZXIgQ29uZmlndXJhdGlv
+bgojCkNPTkZJR19JUF9ORl9DT05OVFJBQ0s9bQpDT05GSUdfSVBfTkZfRlRQPW0KQ09ORklHX0lQ
+X05GX0lSQz1tCkNPTkZJR19JUF9ORl9RVUVVRT1tCkNPTkZJR19JUF9ORl9JUFRBQkxFUz1tCkNP
+TkZJR19JUF9ORl9NQVRDSF9MSU1JVD1tCkNPTkZJR19JUF9ORl9NQVRDSF9NQUM9bQpDT05GSUdf
+SVBfTkZfTUFUQ0hfUEtUVFlQRT1tCkNPTkZJR19JUF9ORl9NQVRDSF9NQVJLPW0KQ09ORklHX0lQ
+X05GX01BVENIX01VTFRJUE9SVD1tCkNPTkZJR19JUF9ORl9NQVRDSF9UT1M9bQojIENPTkZJR19J
+UF9ORl9NQVRDSF9FQ04gaXMgbm90IHNldAojIENPTkZJR19JUF9ORl9NQVRDSF9EU0NQIGlzIG5v
+dCBzZXQKIyBDT05GSUdfSVBfTkZfTUFUQ0hfQUhfRVNQIGlzIG5vdCBzZXQKQ09ORklHX0lQX05G
+X01BVENIX0xFTkdUSD1tCkNPTkZJR19JUF9ORl9NQVRDSF9UVEw9bQojIENPTkZJR19JUF9ORl9N
+QVRDSF9UQ1BNU1MgaXMgbm90IHNldApDT05GSUdfSVBfTkZfTUFUQ0hfSEVMUEVSPW0KQ09ORklH
+X0lQX05GX01BVENIX1NUQVRFPW0KQ09ORklHX0lQX05GX01BVENIX0NPTk5UUkFDSz1tCkNPTkZJ
+R19JUF9ORl9NQVRDSF9VTkNMRUFOPW0KQ09ORklHX0lQX05GX01BVENIX09XTkVSPW0KQ09ORklH
+X0lQX05GX0ZJTFRFUj1tCkNPTkZJR19JUF9ORl9UQVJHRVRfUkVKRUNUPW0KQ09ORklHX0lQX05G
+X1RBUkdFVF9NSVJST1I9bQpDT05GSUdfSVBfTkZfTkFUPW0KQ09ORklHX0lQX05GX05BVF9ORUVE
+RUQ9eQpDT05GSUdfSVBfTkZfVEFSR0VUX01BU1FVRVJBREU9bQpDT05GSUdfSVBfTkZfVEFSR0VU
+X1JFRElSRUNUPW0KIyBDT05GSUdfSVBfTkZfTkFUX0xPQ0FMIGlzIG5vdCBzZXQKIyBDT05GSUdf
+SVBfTkZfTkFUX1NOTVBfQkFTSUMgaXMgbm90IHNldApDT05GSUdfSVBfTkZfTkFUX0lSQz1tCkNP
+TkZJR19JUF9ORl9OQVRfRlRQPW0KQ09ORklHX0lQX05GX01BTkdMRT1tCkNPTkZJR19JUF9ORl9U
+QVJHRVRfVE9TPW0KIyBDT05GSUdfSVBfTkZfVEFSR0VUX0VDTiBpcyBub3Qgc2V0CiMgQ09ORklH
+X0lQX05GX1RBUkdFVF9EU0NQIGlzIG5vdCBzZXQKQ09ORklHX0lQX05GX1RBUkdFVF9NQVJLPW0K
+Q09ORklHX0lQX05GX1RBUkdFVF9MT0c9bQojIENPTkZJR19JUF9ORl9UQVJHRVRfVUxPRyBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0lQX05GX1RBUkdFVF9UQ1BNU1MgaXMgbm90IHNldAojIENPTkZJR19J
+UF9ORl9BUlBUQUJMRVMgaXMgbm90IHNldAojIENPTkZJR19JUF9ORl9DT01QQVRfSVBDSEFJTlMg
+aXMgbm90IHNldAojIENPTkZJR19JUF9ORl9DT01QQVRfSVBGV0FETSBpcyBub3Qgc2V0CiMgQ09O
+RklHX0lQVjYgaXMgbm90IHNldAojIENPTkZJR19LSFRUUEQgaXMgbm90IHNldAojIENPTkZJR19B
+VE0gaXMgbm90IHNldAojIENPTkZJR19WTEFOXzgwMjFRIGlzIG5vdCBzZXQKCiMKIyAgCiMKIyBD
+T05GSUdfSVBYIGlzIG5vdCBzZXQKIyBDT05GSUdfQVRBTEsgaXMgbm90IHNldAoKIwojIEFwcGxl
+dGFsayBkZXZpY2VzCiMKIyBDT05GSUdfREVDTkVUIGlzIG5vdCBzZXQKIyBDT05GSUdfQlJJREdF
+IGlzIG5vdCBzZXQKIyBDT05GSUdfWDI1IGlzIG5vdCBzZXQKIyBDT05GSUdfTEFQQiBpcyBub3Qg
+c2V0CiMgQ09ORklHX0xMQyBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9ESVZFUlQgaXMgbm90IHNl
+dAojIENPTkZJR19FQ09ORVQgaXMgbm90IHNldAojIENPTkZJR19XQU5fUk9VVEVSIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfTkVUX0ZBU1RST1VURSBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9IV19GTE9X
+Q09OVFJPTCBpcyBub3Qgc2V0CgojCiMgUW9TIGFuZC9vciBmYWlyIHF1ZXVlaW5nCiMKIyBDT05G
+SUdfTkVUX1NDSEVEIGlzIG5vdCBzZXQKCiMKIyBOZXR3b3JrIHRlc3RpbmcKIwojIENPTkZJR19O
+RVRfUEtUR0VOIGlzIG5vdCBzZXQKCiMKIyBUZWxlcGhvbnkgU3VwcG9ydAojCiMgQ09ORklHX1BI
+T05FIGlzIG5vdCBzZXQKCiMKIyBBVEEvSURFL01GTS9STEwgc3VwcG9ydAojCkNPTkZJR19JREU9
+eQoKIwojIElERSwgQVRBIGFuZCBBVEFQSSBCbG9jayBkZXZpY2VzCiMKQ09ORklHX0JMS19ERVZf
+SURFPXkKCiMKIyBQbGVhc2Ugc2VlIERvY3VtZW50YXRpb24vaWRlLnR4dCBmb3IgaGVscC9pbmZv
+IG9uIElERSBkcml2ZXMKIwojIENPTkZJR19CTEtfREVWX0hEX0lERSBpcyBub3Qgc2V0CiMgQ09O
+RklHX0JMS19ERVZfSEQgaXMgbm90IHNldApDT05GSUdfQkxLX0RFVl9JREVESVNLPXkKQ09ORklH
+X0lERURJU0tfTVVMVElfTU9ERT15CiMgQ09ORklHX0lERURJU0tfU1RST0tFIGlzIG5vdCBzZXQK
+Q09ORklHX0JMS19ERVZfSURFQ0Q9eQojIENPTkZJR19CTEtfREVWX0lERVRBUEUgaXMgbm90IHNl
+dAojIENPTkZJR19CTEtfREVWX0lERUZMT1BQWSBpcyBub3Qgc2V0CkNPTkZJR19CTEtfREVWX0lE
+RVNDU0k9bQojIENPTkZJR19JREVfVEFTS19JT0NUTCBpcyBub3Qgc2V0CiMgQ09ORklHX0lERV9U
+QVNLRklMRV9JTyBpcyBub3Qgc2V0CgojCiMgSURFIGNoaXBzZXQgc3VwcG9ydC9idWdmaXhlcwoj
+CiMgQ09ORklHX0JMS19ERVZfQ01ENjQwIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9JU0FQ
+TlAgaXMgbm90IHNldApDT05GSUdfQkxLX0RFVl9JREVQQ0k9eQojIENPTkZJR19CTEtfREVWX0dF
+TkVSSUMgaXMgbm90IHNldApDT05GSUdfSURFUENJX1NIQVJFX0lSUT15CkNPTkZJR19CTEtfREVW
+X0lERURNQV9QQ0k9eQojIENPTkZJR19CTEtfREVWX09GRkJPQVJEIGlzIG5vdCBzZXQKIyBDT05G
+SUdfQkxLX0RFVl9JREVETUFfRk9SQ0VEIGlzIG5vdCBzZXQKQ09ORklHX0lERURNQV9QQ0lfQVVU
+Tz15CiMgQ09ORklHX0lERURNQV9PTkxZRElTSyBpcyBub3Qgc2V0CkNPTkZJR19CTEtfREVWX0lE
+RURNQT15CiMgQ09ORklHX0lERURNQV9QQ0lfV0lQIGlzIG5vdCBzZXQKQ09ORklHX0JMS19ERVZf
+QURNQT15CiMgQ09ORklHX0JMS19ERVZfQUVDNjJYWCBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19E
+RVZfQUxJMTVYMyBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfQU1ENzRYWCBpcyBub3Qgc2V0
+CiMgQ09ORklHX0JMS19ERVZfQ01ENjRYIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9DWTgy
+QzY5MyBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfQ1M1NTMwIGlzIG5vdCBzZXQKIyBDT05G
+SUdfQkxLX0RFVl9IUFQzNFggaXMgbm90IHNldAojIENPTkZJR19CTEtfREVWX0hQVDM2NiBpcyBu
+b3Qgc2V0CkNPTkZJR19CTEtfREVWX1BJSVg9eQojIENPTkZJR19CTEtfREVWX05GT1JDRSBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfTlM4NzQxNSBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19E
+RVZfT1BUSTYyMSBpcyBub3Qgc2V0CkNPTkZJR19CTEtfREVWX1BEQzIwMlhYX09MRD15CkNPTkZJ
+R19QREMyMDJYWF9CVVJTVD15CiMgQ09ORklHX0JMS19ERVZfUERDMjAyWFhfTkVXIGlzIG5vdCBz
+ZXQKQ09ORklHX0JMS19ERVZfUloxMDAwPXkKIyBDT05GSUdfQkxLX0RFVl9TQzEyMDAgaXMgbm90
+IHNldAojIENPTkZJR19CTEtfREVWX1NWV0tTIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9T
+SUlNQUdFIGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9TSVM1NTEzIGlzIG5vdCBzZXQKIyBD
+T05GSUdfQkxLX0RFVl9TTEM5MEU2NiBpcyBub3Qgc2V0CiMgQ09ORklHX0JMS19ERVZfVFJNMjkw
+IGlzIG5vdCBzZXQKIyBDT05GSUdfQkxLX0RFVl9WSUE4MkNYWFggaXMgbm90IHNldAojIENPTkZJ
+R19JREVfQ0hJUFNFVFMgaXMgbm90IHNldApDT05GSUdfSURFRE1BX0FVVE89eQojIENPTkZJR19J
+REVETUFfSVZCIGlzIG5vdCBzZXQKIyBDT05GSUdfRE1BX05PTlBDSSBpcyBub3Qgc2V0CkNPTkZJ
+R19CTEtfREVWX1BEQzIwMlhYPXkKQ09ORklHX0JMS19ERVZfSURFX01PREVTPXkKQ09ORklHX0JM
+S19ERVZfQVRBUkFJRD15CkNPTkZJR19CTEtfREVWX0FUQVJBSURfUERDPW0KIyBDT05GSUdfQkxL
+X0RFVl9BVEFSQUlEX0hQVCBpcyBub3Qgc2V0CgojCiMgU0NTSSBzdXBwb3J0CiMKQ09ORklHX1ND
+U0k9bQoKIwojIFNDU0kgc3VwcG9ydCB0eXBlIChkaXNrLCB0YXBlLCBDRC1ST00pCiMKQ09ORklH
+X0JMS19ERVZfU0Q9bQpDT05GSUdfU0RfRVhUUkFfREVWUz00MApDT05GSUdfQ0hSX0RFVl9TVD1t
+CiMgQ09ORklHX0NIUl9ERVZfT1NTVCBpcyBub3Qgc2V0CkNPTkZJR19CTEtfREVWX1NSPW0KIyBD
+T05GSUdfQkxLX0RFVl9TUl9WRU5ET1IgaXMgbm90IHNldApDT05GSUdfU1JfRVhUUkFfREVWUz0z
+CkNPTkZJR19DSFJfREVWX1NHPW0KCiMKIyBTb21lIFNDU0kgZGV2aWNlcyAoZS5nLiBDRCBqdWtl
+Ym94KSBzdXBwb3J0IG11bHRpcGxlIExVTnMKIwpDT05GSUdfU0NTSV9ERUJVR19RVUVVRVM9eQpD
+T05GSUdfU0NTSV9NVUxUSV9MVU49eQpDT05GSUdfU0NTSV9DT05TVEFOVFM9eQpDT05GSUdfU0NT
+SV9MT0dHSU5HPXkKCiMKIyBTQ1NJIGxvdy1sZXZlbCBkcml2ZXJzCiMKIyBDT05GSUdfQkxLX0RF
+Vl8zV19YWFhYX1JBSUQgaXMgbm90IHNldAojIENPTkZJR19TQ1NJXzcwMDBGQVNTVCBpcyBub3Qg
+c2V0CiMgQ09ORklHX1NDU0lfQUNBUkQgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX0FIQTE1Mlgg
+aXMgbm90IHNldAojIENPTkZJR19TQ1NJX0FIQTE1NDIgaXMgbm90IHNldAojIENPTkZJR19TQ1NJ
+X0FIQTE3NDAgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX0FBQ1JBSUQgaXMgbm90IHNldApDT05G
+SUdfU0NTSV9BSUM3WFhYPW0KQ09ORklHX0FJQzdYWFhfQ01EU19QRVJfREVWSUNFPTI1MwpDT05G
+SUdfQUlDN1hYWF9SRVNFVF9ERUxBWV9NUz0xNTAwMAojIENPTkZJR19BSUM3WFhYX1BST0JFX0VJ
+U0FfVkwgaXMgbm90IHNldAojIENPTkZJR19BSUM3WFhYX0JVSUxEX0ZJUk1XQVJFIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfU0NTSV9BSUM3WFhYX09MRCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfRFBU
+X0kyTyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfQURWQU5TWVMgaXMgbm90IHNldAojIENPTkZJ
+R19TQ1NJX0lOMjAwMCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfQU01M0M5NzQgaXMgbm90IHNl
+dAojIENPTkZJR19TQ1NJX01FR0FSQUlEIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9CVVNMT0dJ
+QyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfQ1BRRkNUUyBpcyBub3Qgc2V0CiMgQ09ORklHX1ND
+U0lfRE1YMzE5MUQgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX0RUQzMyODAgaXMgbm90IHNldAoj
+IENPTkZJR19TQ1NJX0VBVEEgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX0VBVEFfRE1BIGlzIG5v
+dCBzZXQKIyBDT05GSUdfU0NTSV9FQVRBX1BJTyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfRlVU
+VVJFX0RPTUFJTiBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfR0RUSCBpcyBub3Qgc2V0CiMgQ09O
+RklHX1NDU0lfR0VORVJJQ19OQ1I1MzgwIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9JUFMgaXMg
+bm90IHNldAojIENPTkZJR19TQ1NJX0lOSVRJTyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfSU5J
+QTEwMCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfUFBBIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NT
+SV9JTU0gaXMgbm90IHNldAojIENPTkZJR19TQ1NJX05DUjUzQzQwNkEgaXMgbm90IHNldAojIENP
+TkZJR19TQ1NJX05DUjUzQzd4eCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfU1lNNTNDOFhYXzIg
+aXMgbm90IHNldAojIENPTkZJR19TQ1NJX05DUjUzQzhYWCBpcyBub3Qgc2V0CiMgQ09ORklHX1ND
+U0lfU1lNNTNDOFhYIGlzIG5vdCBzZXQKIyBDT05GSUdfU0NTSV9QQVMxNiBpcyBub3Qgc2V0CiMg
+Q09ORklHX1NDU0lfUENJMjAwMCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfUENJMjIyMEkgaXMg
+bm90IHNldAojIENPTkZJR19TQ1NJX1BTSTI0MEkgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1FM
+T0dJQ19GQVMgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1FMT0dJQ19JU1AgaXMgbm90IHNldAoj
+IENPTkZJR19TQ1NJX1FMT0dJQ19GQyBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfUUxPR0lDXzEy
+ODAgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1NFQUdBVEUgaXMgbm90IHNldAojIENPTkZJR19T
+Q1NJX1NJTTcxMCBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfU1lNNTNDNDE2IGlzIG5vdCBzZXQK
+IyBDT05GSUdfU0NTSV9EQzM5MFQgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1QxMjggaXMgbm90
+IHNldAojIENPTkZJR19TQ1NJX1UxNF8zNEYgaXMgbm90IHNldAojIENPTkZJR19TQ1NJX1VMVFJB
+U1RPUiBpcyBub3Qgc2V0CiMgQ09ORklHX1NDU0lfTlNQMzIgaXMgbm90IHNldAojIENPTkZJR19T
+Q1NJX0RFQlVHIGlzIG5vdCBzZXQKCiMKIyBGdXNpb24gTVBUIGRldmljZSBzdXBwb3J0CiMKIyBD
+T05GSUdfRlVTSU9OIGlzIG5vdCBzZXQKIyBDT05GSUdfRlVTSU9OX0JPT1QgaXMgbm90IHNldAoj
+IENPTkZJR19GVVNJT05fSVNFTlNFIGlzIG5vdCBzZXQKIyBDT05GSUdfRlVTSU9OX0NUTCBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0ZVU0lPTl9MQU4gaXMgbm90IHNldAoKIwojIElFRUUgMTM5NCAoRmly
+ZVdpcmUpIHN1cHBvcnQgKEVYUEVSSU1FTlRBTCkKIwojIENPTkZJR19JRUVFMTM5NCBpcyBub3Qg
+c2V0CgojCiMgSTJPIGRldmljZSBzdXBwb3J0CiMKIyBDT05GSUdfSTJPIGlzIG5vdCBzZXQKCiMK
+IyBOZXR3b3JrIGRldmljZSBzdXBwb3J0CiMKQ09ORklHX05FVERFVklDRVM9eQoKIwojIEFSQ25l
+dCBkZXZpY2VzCiMKIyBDT05GSUdfQVJDTkVUIGlzIG5vdCBzZXQKQ09ORklHX0RVTU1ZPW0KIyBD
+T05GSUdfQk9ORElORyBpcyBub3Qgc2V0CiMgQ09ORklHX0VRVUFMSVpFUiBpcyBub3Qgc2V0CiMg
+Q09ORklHX1RVTiBpcyBub3Qgc2V0CiMgQ09ORklHX0VUSEVSVEFQIGlzIG5vdCBzZXQKIyBDT05G
+SUdfTkVUX1NCMTAwMCBpcyBub3Qgc2V0CgojCiMgRXRoZXJuZXQgKDEwIG9yIDEwME1iaXQpCiMK
+Q09ORklHX05FVF9FVEhFUk5FVD15CiMgQ09ORklHX0hBUFBZTUVBTCBpcyBub3Qgc2V0CiMgQ09O
+RklHX1NVTkdFTSBpcyBub3Qgc2V0CkNPTkZJR19ORVRfVkVORE9SXzNDT009eQojIENPTkZJR19F
+TDEgaXMgbm90IHNldAojIENPTkZJR19FTDIgaXMgbm90IHNldAojIENPTkZJR19FTFBMVVMgaXMg
+bm90IHNldAojIENPTkZJR19FTDE2IGlzIG5vdCBzZXQKIyBDT05GSUdfRUwzIGlzIG5vdCBzZXQK
+IyBDT05GSUdfM0M1MTUgaXMgbm90IHNldApDT05GSUdfVk9SVEVYPW0KIyBDT05GSUdfTEFOQ0Ug
+aXMgbm90IHNldAojIENPTkZJR19ORVRfVkVORE9SX1NNQyBpcyBub3Qgc2V0CiMgQ09ORklHX05F
+VF9WRU5ET1JfUkFDQUwgaXMgbm90IHNldAojIENPTkZJR19BVDE3MDAgaXMgbm90IHNldAojIENP
+TkZJR19ERVBDQSBpcyBub3Qgc2V0CiMgQ09ORklHX0hQMTAwIGlzIG5vdCBzZXQKIyBDT05GSUdf
+TkVUX0lTQSBpcyBub3Qgc2V0CkNPTkZJR19ORVRfUENJPXkKIyBDT05GSUdfUENORVQzMiBpcyBu
+b3Qgc2V0CiMgQ09ORklHX0FEQVBURUNfU1RBUkZJUkUgaXMgbm90IHNldAojIENPTkZJR19BQzMy
+MDAgaXMgbm90IHNldAojIENPTkZJR19BUFJJQ09UIGlzIG5vdCBzZXQKIyBDT05GSUdfQ1M4OXgw
+IGlzIG5vdCBzZXQKQ09ORklHX1RVTElQPW0KIyBDT05GSUdfVFVMSVBfTVdJIGlzIG5vdCBzZXQK
+IyBDT05GSUdfVFVMSVBfTU1JTyBpcyBub3Qgc2V0CiMgQ09ORklHX0RFNFg1IGlzIG5vdCBzZXQK
+IyBDT05GSUdfREdSUyBpcyBub3Qgc2V0CiMgQ09ORklHX0RNOTEwMiBpcyBub3Qgc2V0CkNPTkZJ
+R19FRVBSTzEwMD1tCkNPTkZJR19FMTAwPW0KIyBDT05GSUdfRkVBTE5YIGlzIG5vdCBzZXQKIyBD
+T05GSUdfTkFUU0VNSSBpcyBub3Qgc2V0CiMgQ09ORklHX05FMktfUENJIGlzIG5vdCBzZXQKIyBD
+T05GSUdfODEzOUNQIGlzIG5vdCBzZXQKIyBDT05GSUdfODEzOVRPTyBpcyBub3Qgc2V0CiMgQ09O
+RklHX1NJUzkwMCBpcyBub3Qgc2V0CiMgQ09ORklHX0VQSUMxMDAgaXMgbm90IHNldAojIENPTkZJ
+R19TVU5EQU5DRSBpcyBub3Qgc2V0CiMgQ09ORklHX1RMQU4gaXMgbm90IHNldAojIENPTkZJR19U
+QzM1ODE1IGlzIG5vdCBzZXQKIyBDT05GSUdfVklBX1JISU5FIGlzIG5vdCBzZXQKIyBDT05GSUdf
+V0lOQk9ORF84NDAgaXMgbm90IHNldAojIENPTkZJR19ORVRfUE9DS0VUIGlzIG5vdCBzZXQKCiMK
+IyBFdGhlcm5ldCAoMTAwMCBNYml0KQojCiMgQ09ORklHX0FDRU5JQyBpcyBub3Qgc2V0CiMgQ09O
+RklHX0RMMksgaXMgbm90IHNldAojIENPTkZJR19FMTAwMCBpcyBub3Qgc2V0CiMgQ09ORklHX05T
+ODM4MjAgaXMgbm90IHNldAojIENPTkZJR19IQU1BQ0hJIGlzIG5vdCBzZXQKIyBDT05GSUdfWUVM
+TE9XRklOIGlzIG5vdCBzZXQKIyBDT05GSUdfU0s5OExJTiBpcyBub3Qgc2V0CiMgQ09ORklHX1RJ
+R09OMyBpcyBub3Qgc2V0CiMgQ09ORklHX0ZEREkgaXMgbm90IHNldAojIENPTkZJR19ISVBQSSBp
+cyBub3Qgc2V0CiMgQ09ORklHX1BMSVAgaXMgbm90IHNldApDT05GSUdfUFBQPW0KIyBDT05GSUdf
+UFBQX01VTFRJTElOSyBpcyBub3Qgc2V0CiMgQ09ORklHX1BQUF9GSUxURVIgaXMgbm90IHNldApD
+T05GSUdfUFBQX0FTWU5DPW0KIyBDT05GSUdfUFBQX1NZTkNfVFRZIGlzIG5vdCBzZXQKQ09ORklH
+X1BQUF9ERUZMQVRFPW0KQ09ORklHX1BQUF9CU0RDT01QPW0KQ09ORklHX1BQUE9FPW0KIyBDT05G
+SUdfU0xJUCBpcyBub3Qgc2V0CgojCiMgV2lyZWxlc3MgTEFOIChub24taGFtcmFkaW8pCiMKIyBD
+T05GSUdfTkVUX1JBRElPIGlzIG5vdCBzZXQKCiMKIyBUb2tlbiBSaW5nIGRldmljZXMKIwojIENP
+TkZJR19UUiBpcyBub3Qgc2V0CiMgQ09ORklHX05FVF9GQyBpcyBub3Qgc2V0CiMgQ09ORklHX1JD
+UENJIGlzIG5vdCBzZXQKIyBDT05GSUdfU0hBUEVSIGlzIG5vdCBzZXQKCiMKIyBXYW4gaW50ZXJm
+YWNlcwojCiMgQ09ORklHX1dBTiBpcyBub3Qgc2V0CgojCiMgQW1hdGV1ciBSYWRpbyBzdXBwb3J0
+CiMKIyBDT05GSUdfSEFNUkFESU8gaXMgbm90IHNldAoKIwojIElyREEgKGluZnJhcmVkKSBzdXBw
+b3J0CiMKIyBDT05GSUdfSVJEQSBpcyBub3Qgc2V0CgojCiMgSVNETiBzdWJzeXN0ZW0KIwojIENP
+TkZJR19JU0ROIGlzIG5vdCBzZXQKCiMKIyBPbGQgQ0QtUk9NIGRyaXZlcnMgKG5vdCBTQ1NJLCBu
+b3QgSURFKQojCiMgQ09ORklHX0NEX05PX0lERVNDU0kgaXMgbm90IHNldAoKIwojIElucHV0IGNv
+cmUgc3VwcG9ydAojCkNPTkZJR19JTlBVVD1tCkNPTkZJR19JTlBVVF9LRVlCREVWPW0KQ09ORklH
+X0lOUFVUX01PVVNFREVWPW0KQ09ORklHX0lOUFVUX01PVVNFREVWX1NDUkVFTl9YPTEwMjQKQ09O
+RklHX0lOUFVUX01PVVNFREVWX1NDUkVFTl9ZPTc2OAojIENPTkZJR19JTlBVVF9KT1lERVYgaXMg
+bm90IHNldApDT05GSUdfSU5QVVRfRVZERVY9bQoKIwojIENoYXJhY3RlciBkZXZpY2VzCiMKQ09O
+RklHX1ZUPXkKQ09ORklHX1ZUX0NPTlNPTEU9eQpDT05GSUdfU0VSSUFMPXkKIyBDT05GSUdfU0VS
+SUFMX0NPTlNPTEUgaXMgbm90IHNldAojIENPTkZJR19TRVJJQUxfRVhURU5ERUQgaXMgbm90IHNl
+dAojIENPTkZJR19TRVJJQUxfTk9OU1RBTkRBUkQgaXMgbm90IHNldApDT05GSUdfVU5JWDk4X1BU
+WVM9eQpDT05GSUdfVU5JWDk4X1BUWV9DT1VOVD0yNTYKQ09ORklHX1BSSU5URVI9bQojIENPTkZJ
+R19MUF9DT05TT0xFIGlzIG5vdCBzZXQKQ09ORklHX1BQREVWPW0KIyBDT05GSUdfSFZDX0NPTlNP
+TEUgaXMgbm90IHNldAoKIwojIEkyQyBzdXBwb3J0CiMKQ09ORklHX0kyQz1tCkNPTkZJR19JMkNf
+QUxHT0JJVD1tCiMgQ09ORklHX0kyQ19QSElMSVBTUEFSIGlzIG5vdCBzZXQKIyBDT05GSUdfSTJD
+X0VMViBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19WRUxMRU1BTiBpcyBub3Qgc2V0CkNPTkZJR19T
+Q3gyMDBfSTJDX1NDTD0xMgpDT05GSUdfU0N4MjAwX0kyQ19TREE9MTMKIyBDT05GSUdfU0N4MjAw
+X0FDQiBpcyBub3Qgc2V0CiMgQ09ORklHX0kyQ19BTEdPUENGIGlzIG5vdCBzZXQKQ09ORklHX0ky
+Q19DSEFSREVWPW0KQ09ORklHX0kyQ19QUk9DPW0KCiMKIyBNaWNlCiMKIyBDT05GSUdfQlVTTU9V
+U0UgaXMgbm90IHNldApDT05GSUdfTU9VU0U9eQpDT05GSUdfUFNNT1VTRT15CiMgQ09ORklHXzgy
+QzcxMF9NT1VTRSBpcyBub3Qgc2V0CiMgQ09ORklHX1BDMTEwX1BBRCBpcyBub3Qgc2V0CiMgQ09O
+RklHX01LNzEyX01PVVNFIGlzIG5vdCBzZXQKCiMKIyBKb3lzdGlja3MKIwojIENPTkZJR19JTlBV
+VF9HQU1FUE9SVCBpcyBub3Qgc2V0CiMgQ09ORklHX0lOUFVUX1NFUklPIGlzIG5vdCBzZXQKCiMK
+IyBKb3lzdGlja3MKIwojIENPTkZJR19JTlBVVF9JRk9SQ0VfVVNCIGlzIG5vdCBzZXQKIyBDT05G
+SUdfSU5QVVRfREI5IGlzIG5vdCBzZXQKIyBDT05GSUdfSU5QVVRfR0FNRUNPTiBpcyBub3Qgc2V0
+CiMgQ09ORklHX0lOUFVUX1RVUkJPR1JBRlggaXMgbm90IHNldAojIENPTkZJR19RSUMwMl9UQVBF
+IGlzIG5vdCBzZXQKIyBDT05GSUdfSVBNSV9IQU5ETEVSIGlzIG5vdCBzZXQKCiMKIyBXYXRjaGRv
+ZyBDYXJkcwojCiMgQ09ORklHX1dBVENIRE9HIGlzIG5vdCBzZXQKIyBDT05GSUdfQU1EX1JORyBp
+cyBub3Qgc2V0CkNPTkZJR19JTlRFTF9STkc9bQojIENPTkZJR19BTURfUE03NjggaXMgbm90IHNl
+dApDT05GSUdfTlZSQU09bQpDT05GSUdfUlRDPW0KIyBDT05GSUdfRFRMSyBpcyBub3Qgc2V0CiMg
+Q09ORklHX1IzOTY0IGlzIG5vdCBzZXQKIyBDT05GSUdfQVBQTElDT00gaXMgbm90IHNldAojIENP
+TkZJR19TT05ZUEkgaXMgbm90IHNldAoKIwojIEZ0YXBlLCB0aGUgZmxvcHB5IHRhcGUgZGV2aWNl
+IGRyaXZlcgojCiMgQ09ORklHX0ZUQVBFIGlzIG5vdCBzZXQKQ09ORklHX0FHUD15CkNPTkZJR19B
+R1BfSU5URUw9eQpDT05GSUdfQUdQX0k4MTA9eQojIENPTkZJR19BR1BfVklBIGlzIG5vdCBzZXQK
+IyBDT05GSUdfQUdQX0FNRCBpcyBub3Qgc2V0CiMgQ09ORklHX0FHUF9BTURfODE1MSBpcyBub3Qg
+c2V0CiMgQ09ORklHX0FHUF9TSVMgaXMgbm90IHNldAojIENPTkZJR19BR1BfQUxJIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfQUdQX1NXT1JLUyBpcyBub3Qgc2V0CkNPTkZJR19EUk09eQojIENPTkZJR19E
+Uk1fT0xEIGlzIG5vdCBzZXQKCiMKIyBEUk0gNC4xIGRyaXZlcnMKIwpDT05GSUdfRFJNX05FVz15
+CiMgQ09ORklHX0RSTV9UREZYIGlzIG5vdCBzZXQKIyBDT05GSUdfRFJNX1IxMjggaXMgbm90IHNl
+dAojIENPTkZJR19EUk1fUkFERU9OIGlzIG5vdCBzZXQKIyBDT05GSUdfRFJNX0k4MTAgaXMgbm90
+IHNldAojIENPTkZJR19EUk1fSTgzMCBpcyBub3Qgc2V0CiMgQ09ORklHX0RSTV9NR0EgaXMgbm90
+IHNldAojIENPTkZJR19EUk1fU0lTIGlzIG5vdCBzZXQKIyBDT05GSUdfTVdBVkUgaXMgbm90IHNl
+dAoKIwojIE11bHRpbWVkaWEgZGV2aWNlcwojCkNPTkZJR19WSURFT19ERVY9bQoKIwojIFZpZGVv
+IEZvciBMaW51eAojCkNPTkZJR19WSURFT19QUk9DX0ZTPXkKIyBDT05GSUdfSTJDX1BBUlBPUlQg
+aXMgbm90IHNldAoKIwojIFZpZGVvIEFkYXB0ZXJzCiMKQ09ORklHX1ZJREVPX0JUODQ4PW0KIyBD
+T05GSUdfVklERU9fUE1TIGlzIG5vdCBzZXQKIyBDT05GSUdfVklERU9fQldRQ0FNIGlzIG5vdCBz
+ZXQKIyBDT05GSUdfVklERU9fQ1FDQU0gaXMgbm90IHNldAojIENPTkZJR19WSURFT19XOTk2NiBp
+cyBub3Qgc2V0CiMgQ09ORklHX1ZJREVPX0NQSUEgaXMgbm90IHNldAojIENPTkZJR19WSURFT19T
+QUE1MjQ5IGlzIG5vdCBzZXQKIyBDT05GSUdfVFVORVJfMzAzNiBpcyBub3Qgc2V0CiMgQ09ORklH
+X1ZJREVPX1NUUkFESVMgaXMgbm90IHNldAojIENPTkZJR19WSURFT19aT1JBTiBpcyBub3Qgc2V0
+CiMgQ09ORklHX1ZJREVPX1pSMzYxMjAgaXMgbm90IHNldAoKIwojIFJhZGlvIEFkYXB0ZXJzCiMK
+IyBDT05GSUdfUkFESU9fQ0FERVQgaXMgbm90IHNldAojIENPTkZJR19SQURJT19SVFJBQ0sgaXMg
+bm90IHNldAojIENPTkZJR19SQURJT19SVFJBQ0syIGlzIG5vdCBzZXQKIyBDT05GSUdfUkFESU9f
+QVpURUNIIGlzIG5vdCBzZXQKIyBDT05GSUdfUkFESU9fR0VNVEVLIGlzIG5vdCBzZXQKIyBDT05G
+SUdfUkFESU9fR0VNVEVLX1BDSSBpcyBub3Qgc2V0CiMgQ09ORklHX1JBRElPX01BWElSQURJTyBp
+cyBub3Qgc2V0CiMgQ09ORklHX1JBRElPX01BRVNUUk8gaXMgbm90IHNldAojIENPTkZJR19SQURJ
+T19TRjE2Rk1JIGlzIG5vdCBzZXQKIyBDT05GSUdfUkFESU9fU0YxNkZNUjIgaXMgbm90IHNldAoj
+IENPTkZJR19SQURJT19URVJSQVRFQyBpcyBub3Qgc2V0CiMgQ09ORklHX1JBRElPX1RSVVNUIGlz
+IG5vdCBzZXQKIyBDT05GSUdfUkFESU9fVFlQSE9PTiBpcyBub3Qgc2V0CiMgQ09ORklHX1JBRElP
+X1pPTFRSSVggaXMgbm90IHNldAoKIwojIEZpbGUgc3lzdGVtcwojCiMgQ09ORklHX1FVT1RBIGlz
+IG5vdCBzZXQKIyBDT05GSUdfQVVUT0ZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfQVVUT0ZTNF9G
+UyBpcyBub3Qgc2V0CiMgQ09ORklHX1JFSVNFUkZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfQURG
+U19GUyBpcyBub3Qgc2V0CiMgQ09ORklHX0FGRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19IRlNf
+RlMgaXMgbm90IHNldAojIENPTkZJR19CRUZTX0ZTIGlzIG5vdCBzZXQKIyBDT05GSUdfQkZTX0ZT
+IGlzIG5vdCBzZXQKQ09ORklHX0VYVDNfRlM9bQpDT05GSUdfSkJEPW0KQ09ORklHX0pCRF9ERUJV
+Rz15CkNPTkZJR19GQVRfRlM9bQpDT05GSUdfTVNET1NfRlM9bQojIENPTkZJR19VTVNET1NfRlMg
+aXMgbm90IHNldApDT05GSUdfVkZBVF9GUz1tCiMgQ09ORklHX0VGU19GUyBpcyBub3Qgc2V0CiMg
+Q09ORklHX0NSQU1GUyBpcyBub3Qgc2V0CkNPTkZJR19UTVBGUz15CkNPTkZJR19SQU1GUz15CkNP
+TkZJR19JU085NjYwX0ZTPXkKQ09ORklHX0pPTElFVD15CkNPTkZJR19aSVNPRlM9eQojIENPTkZJ
+R19KRlNfRlMgaXMgbm90IHNldAojIENPTkZJR19NSU5JWF9GUyBpcyBub3Qgc2V0CiMgQ09ORklH
+X1ZYRlNfRlMgaXMgbm90IHNldApDT05GSUdfTlRGU19GUz1tCiMgQ09ORklHX05URlNfUlcgaXMg
+bm90IHNldAojIENPTkZJR19IUEZTX0ZTIGlzIG5vdCBzZXQKQ09ORklHX1BST0NfRlM9eQojIENP
+TkZJR19ERVZGU19GUyBpcyBub3Qgc2V0CkNPTkZJR19ERVZQVFNfRlM9eQojIENPTkZJR19RTlg0
+RlNfRlMgaXMgbm90IHNldAojIENPTkZJR19ST01GU19GUyBpcyBub3Qgc2V0CkNPTkZJR19FWFQy
+X0ZTPXkKIyBDT05GSUdfU1lTVl9GUyBpcyBub3Qgc2V0CiMgQ09ORklHX1VERl9GUyBpcyBub3Qg
+c2V0CkNPTkZJR19VRlNfRlM9bQojIENPTkZJR19VRlNfRlNfV1JJVEUgaXMgbm90IHNldAoKIwoj
+IE5ldHdvcmsgRmlsZSBTeXN0ZW1zCiMKIyBDT05GSUdfQ09EQV9GUyBpcyBub3Qgc2V0CiMgQ09O
+RklHX0lOVEVSTUVaWk9fRlMgaXMgbm90IHNldApDT05GSUdfTkZTX0ZTPXkKIyBDT05GSUdfTkZT
+X1YzIGlzIG5vdCBzZXQKIyBDT05GSUdfTkZTX0RJUkVDVElPIGlzIG5vdCBzZXQKQ09ORklHX05G
+U0Q9eQojIENPTkZJR19ORlNEX1YzIGlzIG5vdCBzZXQKIyBDT05GSUdfTkZTRF9UQ1AgaXMgbm90
+IHNldApDT05GSUdfU1VOUlBDPXkKQ09ORklHX0xPQ0tEPXkKQ09ORklHX1NNQl9GUz1tCiMgQ09O
+RklHX1NNQl9OTFNfREVGQVVMVCBpcyBub3Qgc2V0CiMgQ09ORklHX05DUF9GUyBpcyBub3Qgc2V0
+CkNPTkZJR19aSVNPRlNfRlM9eQoKIwojIFBhcnRpdGlvbiBUeXBlcwojCkNPTkZJR19QQVJUSVRJ
+T05fQURWQU5DRUQ9eQojIENPTkZJR19BQ09STl9QQVJUSVRJT04gaXMgbm90IHNldAojIENPTkZJ
+R19PU0ZfUEFSVElUSU9OIGlzIG5vdCBzZXQKIyBDT05GSUdfQU1JR0FfUEFSVElUSU9OIGlzIG5v
+dCBzZXQKIyBDT05GSUdfQVRBUklfUEFSVElUSU9OIGlzIG5vdCBzZXQKIyBDT05GSUdfTUFDX1BB
+UlRJVElPTiBpcyBub3Qgc2V0CkNPTkZJR19NU0RPU19QQVJUSVRJT049eQojIENPTkZJR19CU0Rf
+RElTS0xBQkVMIGlzIG5vdCBzZXQKIyBDT05GSUdfTUlOSVhfU1VCUEFSVElUSU9OIGlzIG5vdCBz
+ZXQKQ09ORklHX1NPTEFSSVNfWDg2X1BBUlRJVElPTj15CiMgQ09ORklHX1VOSVhXQVJFX0RJU0tM
+QUJFTCBpcyBub3Qgc2V0CiMgQ09ORklHX0xETV9QQVJUSVRJT04gaXMgbm90IHNldAojIENPTkZJ
+R19TR0lfUEFSVElUSU9OIGlzIG5vdCBzZXQKIyBDT05GSUdfVUxUUklYX1BBUlRJVElPTiBpcyBu
+b3Qgc2V0CkNPTkZJR19TVU5fUEFSVElUSU9OPXkKIyBDT05GSUdfRUZJX1BBUlRJVElPTiBpcyBu
+b3Qgc2V0CkNPTkZJR19TTUJfTkxTPXkKQ09ORklHX05MUz15CgojCiMgTmF0aXZlIExhbmd1YWdl
+IFN1cHBvcnQKIwpDT05GSUdfTkxTX0RFRkFVTFQ9Imlzbzg4NTktMSIKQ09ORklHX05MU19DT0RF
+UEFHRV80Mzc9bQpDT05GSUdfTkxTX0NPREVQQUdFXzczNz1tCiMgQ09ORklHX05MU19DT0RFUEFH
+RV83NzUgaXMgbm90IHNldApDT05GSUdfTkxTX0NPREVQQUdFXzg1MD1tCkNPTkZJR19OTFNfQ09E
+RVBBR0VfODUyPW0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg1NSBpcyBub3Qgc2V0CiMgQ09ORklH
+X05MU19DT0RFUEFHRV84NTcgaXMgbm90IHNldAojIENPTkZJR19OTFNfQ09ERVBBR0VfODYwIGlz
+IG5vdCBzZXQKQ09ORklHX05MU19DT0RFUEFHRV84NjE9bQojIENPTkZJR19OTFNfQ09ERVBBR0Vf
+ODYyIGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2MyBpcyBub3Qgc2V0CkNPTkZJ
+R19OTFNfQ09ERVBBR0VfODY0PW0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2NSBpcyBub3Qgc2V0
+CkNPTkZJR19OTFNfQ09ERVBBR0VfODY2PW0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzg2OSBpcyBu
+b3Qgc2V0CkNPTkZJR19OTFNfQ09ERVBBR0VfOTM2PW0KQ09ORklHX05MU19DT0RFUEFHRV85NTA9
+bQpDT05GSUdfTkxTX0NPREVQQUdFXzkzMj1tCkNPTkZJR19OTFNfQ09ERVBBR0VfOTQ5PW0KQ09O
+RklHX05MU19DT0RFUEFHRV84NzQ9bQojIENPTkZJR19OTFNfSVNPODg1OV84IGlzIG5vdCBzZXQK
+Q09ORklHX05MU19DT0RFUEFHRV8xMjUwPW0KIyBDT05GSUdfTkxTX0NPREVQQUdFXzEyNTEgaXMg
+bm90IHNldApDT05GSUdfTkxTX0lTTzg4NTlfMT1tCkNPTkZJR19OTFNfSVNPODg1OV8yPW0KIyBD
+T05GSUdfTkxTX0lTTzg4NTlfMyBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5XzQgaXMg
+bm90IHNldAojIENPTkZJR19OTFNfSVNPODg1OV81IGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0lT
+Tzg4NTlfNiBpcyBub3Qgc2V0CkNPTkZJR19OTFNfSVNPODg1OV83PW0KIyBDT05GSUdfTkxTX0lT
+Tzg4NTlfOSBpcyBub3Qgc2V0CiMgQ09ORklHX05MU19JU084ODU5XzEzIGlzIG5vdCBzZXQKIyBD
+T05GSUdfTkxTX0lTTzg4NTlfMTQgaXMgbm90IHNldApDT05GSUdfTkxTX0lTTzg4NTlfMTU9bQoj
+IENPTkZJR19OTFNfS09JOF9SIGlzIG5vdCBzZXQKIyBDT05GSUdfTkxTX0tPSThfVSBpcyBub3Qg
+c2V0CkNPTkZJR19OTFNfVVRGOD1tCgojCiMgQ29uc29sZSBkcml2ZXJzCiMKQ09ORklHX1ZHQV9D
+T05TT0xFPXkKQ09ORklHX1ZJREVPX1NFTEVDVD15CiMgQ09ORklHX01EQV9DT05TT0xFIGlzIG5v
+dCBzZXQKCiMKIyBGcmFtZS1idWZmZXIgc3VwcG9ydAojCiMgQ09ORklHX0ZCIGlzIG5vdCBzZXQK
+CiMKIyBTb3VuZAojCkNPTkZJR19TT1VORD1tCiMgQ09ORklHX1NPVU5EX0FMSTU0NTUgaXMgbm90
+IHNldAojIENPTkZJR19TT1VORF9CVDg3OCBpcyBub3Qgc2V0CiMgQ09ORklHX1NPVU5EX0NNUENJ
+IGlzIG5vdCBzZXQKQ09ORklHX1NPVU5EX0VNVTEwSzE9bQojIENPTkZJR19NSURJX0VNVTEwSzEg
+aXMgbm90IHNldAojIENPTkZJR19TT1VORF9GVVNJT04gaXMgbm90IHNldAojIENPTkZJR19TT1VO
+RF9DUzQyODEgaXMgbm90IHNldAojIENPTkZJR19TT1VORF9FUzEzNzAgaXMgbm90IHNldApDT05G
+SUdfU09VTkRfRVMxMzcxPW0KIyBDT05GSUdfU09VTkRfRVNTU09MTzEgaXMgbm90IHNldAojIENP
+TkZJR19TT1VORF9NQUVTVFJPIGlzIG5vdCBzZXQKIyBDT05GSUdfU09VTkRfTUFFU1RSTzMgaXMg
+bm90IHNldAojIENPTkZJR19TT1VORF9GT1JURSBpcyBub3Qgc2V0CkNPTkZJR19TT1VORF9JQ0g9
+bQojIENPTkZJR19TT1VORF9STUU5NlhYIGlzIG5vdCBzZXQKIyBDT05GSUdfU09VTkRfU09OSUNW
+SUJFUyBpcyBub3Qgc2V0CiMgQ09ORklHX1NPVU5EX1RSSURFTlQgaXMgbm90IHNldAojIENPTkZJ
+R19TT1VORF9NU05EQ0xBUyBpcyBub3Qgc2V0CiMgQ09ORklHX1NPVU5EX01TTkRQSU4gaXMgbm90
+IHNldAojIENPTkZJR19TT1VORF9WSUE4MkNYWFggaXMgbm90IHNldAojIENPTkZJR19TT1VORF9P
+U1MgaXMgbm90IHNldApDT05GSUdfU09VTkRfVFZNSVhFUj1tCgojCiMgVVNCIHN1cHBvcnQKIwpD
+T05GSUdfVVNCPW0KIyBDT05GSUdfVVNCX0RFQlVHIGlzIG5vdCBzZXQKCiMKIyBNaXNjZWxsYW5l
+b3VzIFVTQiBvcHRpb25zCiMKQ09ORklHX1VTQl9ERVZJQ0VGUz15CiMgQ09ORklHX1VTQl9CQU5E
+V0lEVEggaXMgbm90IHNldAojIENPTkZJR19VU0JfTE9OR19USU1FT1VUIGlzIG5vdCBzZXQKCiMK
+IyBVU0IgSG9zdCBDb250cm9sbGVyIERyaXZlcnMKIwpDT05GSUdfVVNCX0VIQ0lfSENEPW0KQ09O
+RklHX1VTQl9VSENJPW0KIyBDT05GSUdfVVNCX1VIQ0lfQUxUIGlzIG5vdCBzZXQKQ09ORklHX1VT
+Ql9PSENJPW0KCiMKIyBVU0IgRGV2aWNlIENsYXNzIGRyaXZlcnMKIwojIENPTkZJR19VU0JfQVVE
+SU8gaXMgbm90IHNldAojIENPTkZJR19VU0JfQkxVRVRPT1RIIGlzIG5vdCBzZXQKIyBDT05GSUdf
+VVNCX01JREkgaXMgbm90IHNldApDT05GSUdfVVNCX1NUT1JBR0U9bQojIENPTkZJR19VU0JfU1RP
+UkFHRV9ERUJVRyBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9TVE9SQUdFX0RBVEFGQUIgaXMgbm90
+IHNldAojIENPTkZJR19VU0JfU1RPUkFHRV9GUkVFQ09NIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNC
+X1NUT1JBR0VfSVNEMjAwIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1NUT1JBR0VfRFBDTSBpcyBu
+b3Qgc2V0CiMgQ09ORklHX1VTQl9TVE9SQUdFX0hQODIwMGUgaXMgbm90IHNldApDT05GSUdfVVNC
+X1NUT1JBR0VfU0REUjA5PXkKIyBDT05GSUdfVVNCX1NUT1JBR0VfU0REUjU1IGlzIG5vdCBzZXQK
+Q09ORklHX1VTQl9TVE9SQUdFX0pVTVBTSE9UPXkKQ09ORklHX1VTQl9BQ009bQpDT05GSUdfVVNC
+X1BSSU5URVI9bQoKIwojIFVTQiBIdW1hbiBJbnRlcmZhY2UgRGV2aWNlcyAoSElEKQojCkNPTkZJ
+R19VU0JfSElEPW0KQ09ORklHX1VTQl9ISURJTlBVVD15CkNPTkZJR19VU0JfSElEREVWPXkKIyBD
+T05GSUdfVVNCX0tCRCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9NT1VTRSBpcyBub3Qgc2V0CiMg
+Q09ORklHX1VTQl9BSVBURUsgaXMgbm90IHNldAojIENPTkZJR19VU0JfV0FDT00gaXMgbm90IHNl
+dAoKIwojIFVTQiBJbWFnaW5nIGRldmljZXMKIwojIENPTkZJR19VU0JfREMyWFggaXMgbm90IHNl
+dAojIENPTkZJR19VU0JfTURDODAwIGlzIG5vdCBzZXQKQ09ORklHX1VTQl9TQ0FOTkVSPW0KIyBD
+T05GSUdfVVNCX01JQ1JPVEVLIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0hQVVNCU0NTSSBpcyBu
+b3Qgc2V0CgojCiMgVVNCIE11bHRpbWVkaWEgZGV2aWNlcwojCiMgQ09ORklHX1VTQl9JQk1DQU0g
+aXMgbm90IHNldAojIENPTkZJR19VU0JfT1Y1MTEgaXMgbm90IHNldAojIENPTkZJR19VU0JfUFdD
+IGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1NFNDAxIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1NU
+VjY4MCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9WSUNBTSBpcyBub3Qgc2V0CiMgQ09ORklHX1VT
+Ql9EU0JSIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0RBQlVTQiBpcyBub3Qgc2V0CgojCiMgVVNC
+IE5ldHdvcmsgYWRhcHRvcnMKIwpDT05GSUdfVVNCX1BFR0FTVVM9bQojIENPTkZJR19VU0JfUlRM
+ODE1MCBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9LQVdFVEggaXMgbm90IHNldAojIENPTkZJR19V
+U0JfQ0FUQyBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9DRENFVEhFUiBpcyBub3Qgc2V0CiMgQ09O
+RklHX1VTQl9VU0JORVQgaXMgbm90IHNldAoKIwojIFVTQiBwb3J0IGRyaXZlcnMKIwpDT05GSUdf
+VVNCX1VTUzcyMD1tCgojCiMgVVNCIFNlcmlhbCBDb252ZXJ0ZXIgc3VwcG9ydAojCkNPTkZJR19V
+U0JfU0VSSUFMPW0KQ09ORklHX1VTQl9TRVJJQUxfR0VORVJJQz15CkNPTkZJR19VU0JfU0VSSUFM
+X0JFTEtJTj1tCiMgQ09ORklHX1VTQl9TRVJJQUxfV0hJVEVIRUFUIGlzIG5vdCBzZXQKIyBDT05G
+SUdfVVNCX1NFUklBTF9ESUdJX0FDQ0VMRVBPUlQgaXMgbm90IHNldAojIENPTkZJR19VU0JfU0VS
+SUFMX0VNUEVHIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1NFUklBTF9GVERJX1NJTyBpcyBub3Qg
+c2V0CkNPTkZJR19VU0JfU0VSSUFMX1ZJU09SPW0KIyBDT05GSUdfVVNCX1NFUklBTF9JUEFRIGlz
+IG5vdCBzZXQKIyBDT05GSUdfVVNCX1NFUklBTF9JUiBpcyBub3Qgc2V0CiMgQ09ORklHX1VTQl9T
+RVJJQUxfRURHRVBPUlQgaXMgbm90IHNldAojIENPTkZJR19VU0JfU0VSSUFMX0VER0VQT1JUX1RJ
+IGlzIG5vdCBzZXQKQ09ORklHX1VTQl9TRVJJQUxfS0VZU1BBTl9QREE9bQpDT05GSUdfVVNCX1NF
+UklBTF9LRVlTUEFOPW0KIyBDT05GSUdfVVNCX1NFUklBTF9LRVlTUEFOX1VTQTI4IGlzIG5vdCBz
+ZXQKIyBDT05GSUdfVVNCX1NFUklBTF9LRVlTUEFOX1VTQTI4WCBpcyBub3Qgc2V0CiMgQ09ORklH
+X1VTQl9TRVJJQUxfS0VZU1BBTl9VU0EyOFhBIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1NFUklB
+TF9LRVlTUEFOX1VTQTI4WEIgaXMgbm90IHNldAojIENPTkZJR19VU0JfU0VSSUFMX0tFWVNQQU5f
+VVNBMTkgaXMgbm90IHNldAojIENPTkZJR19VU0JfU0VSSUFMX0tFWVNQQU5fVVNBMThYIGlzIG5v
+dCBzZXQKIyBDT05GSUdfVVNCX1NFUklBTF9LRVlTUEFOX1VTQTE5VyBpcyBub3Qgc2V0CiMgQ09O
+RklHX1VTQl9TRVJJQUxfS0VZU1BBTl9VU0ExOVFXIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX1NF
+UklBTF9LRVlTUEFOX1VTQTE5UUkgaXMgbm90IHNldApDT05GSUdfVVNCX1NFUklBTF9LRVlTUEFO
+X1VTQTQ5Vz15CiMgQ09ORklHX1VTQl9TRVJJQUxfTUNUX1UyMzIgaXMgbm90IHNldAojIENPTkZJ
+R19VU0JfU0VSSUFMX0tMU0kgaXMgbm90IHNldAojIENPTkZJR19VU0JfU0VSSUFMX1BMMjMwMyBp
+cyBub3Qgc2V0CiMgQ09ORklHX1VTQl9TRVJJQUxfQ1lCRVJKQUNLIGlzIG5vdCBzZXQKIyBDT05G
+SUdfVVNCX1NFUklBTF9YSVJDT00gaXMgbm90IHNldAojIENPTkZJR19VU0JfU0VSSUFMX09NTklO
+RVQgaXMgbm90IHNldAoKIwojIFVTQiBNaXNjZWxsYW5lb3VzIGRyaXZlcnMKIwojIENPTkZJR19V
+U0JfUklPNTAwIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0FVRVJTV0FMRCBpcyBub3Qgc2V0CiMg
+Q09ORklHX1VTQl9USUdMIGlzIG5vdCBzZXQKIyBDT05GSUdfVVNCX0JSTFZHRVIgaXMgbm90IHNl
+dAojIENPTkZJR19VU0JfTENEIGlzIG5vdCBzZXQKCiMKIyBCbHVldG9vdGggc3VwcG9ydAojCiMg
+Q09ORklHX0JMVUVaIGlzIG5vdCBzZXQKCiMKIyBLZXJuZWwgaGFja2luZwojCkNPTkZJR19ERUJV
+R19LRVJORUw9eQpDT05GSUdfREVCVUdfU1RBQ0tPVkVSRkxPVz15CkNPTkZJR19GUkFNRV9QT0lO
+VEVSPXkKIyBDT05GSUdfREVCVUdfSElHSE1FTSBpcyBub3Qgc2V0CiMgQ09ORklHX0RFQlVHX1NM
+QUIgaXMgbm90IHNldAojIENPTkZJR19ERUJVR19JT1ZJUlQgaXMgbm90IHNldApDT05GSUdfTUFH
+SUNfU1lTUlE9eQpDT05GSUdfUEFOSUNfTU9SU0U9eQojIENPTkZJR19ERUJVR19TUElOTE9DSyBp
+cyBub3Qgc2V0CgojCiMgTGlicmFyeSByb3V0aW5lcwojCkNPTkZJR19aTElCX0lORkxBVEU9eQpD
+T05GSUdfWkxJQl9ERUZMQVRFPW0K
+
+--0__=09BBE602DFE814168f9e8a93df938690918c09BBE602DFE81416--
 

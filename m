@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTDGNt4 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263438AbTDGNt4 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:49:56 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:9669 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S263436AbTDGNty convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 09:49:54 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Interactivity backport to 2.4.20-ck*
-Date: Mon, 7 Apr 2003 23:53:38 +1000
-User-Agent: KMail/1.5.1
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	id S263437AbTDGNth (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbTDGNth (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:49:37 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:61862 "EHLO
+	dickson.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263437AbTDGNtg (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 09:49:36 -0400
+Date: Mon, 7 Apr 2003 10:00:52 -0400
+From: Steve Dickson <SteveD@RedHat.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [NFS] [PATCH] mmap corruption
+Message-ID: <20030407140052.GA1471@RedHat.com>
+Reply-To: SteveD@RedHat.com
+References: <3E8DDB13.9020009@RedHat.com> <shsistt7wip.fsf@charged.uio.no> <20030405164741.GA6450@RedHat.com> <16016.7633.982870.860147@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200304072353.47664.kernel@kolivas.org>
+In-Reply-To: <16016.7633.982870.860147@charged.uio.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Apr 06, 2003 at 02:30:09PM +0200, Trond Myklebust wrote:
+> >>>>> " " == Steve Dickson <SteveD@RedHat.com> writes:
+>      > /*
+>      > * Every time either npages or ncommit had a value and the file
+>      > size is
+>      > * immediately changed (with in a microsecond or two) by another
+>      > * truncation, followed by a mmap read, the file would be
+>      > 	   corrupted.
+>      > 	 */
+>      > 	if (NFS_I(inode)->npages || NFS_I(inode)->ncommit ||
+>      > 	NFS_I(inode)->ndirty) {
+>      > 		printk("nfs_notify_change: fid %Ld npages %d ncommit
+>      > 		%d ndirty %d\n", NFS_FILEID(inode),
+>      > 		NFS_I(inode)->npages, ncommit, NFS_I(inode)->ndirty);
+>      > 	}
+>      > }
+> 
+> My point is that nfs_wb_all() is supposed to ensure that
+> NFS_I(inode)->ncommit, and/or NFS_I(inode)->ndirty are both
+> zero. i.e. you can have pending reads (in which case
+> NFS_I(inode)->npages != 0), but *no* pending writes.
+> 
+> Was this the case?
 
-I've had numerous requests for a backport of the interactivity changes to the 
-O(1) scheduler for the -ck* kernels. I have resisted posting my backport 
-because people had described real problems with these patches. However it 
-seems most, if not all of the problems are related to one patch. 
+OK, I understand your point.  And Yes, ndirty and ncommit 
+always seem to be zero when nfs_wb_all() returns. Only
+when npages != 0 is when I get the corruption.
 
-I've posted a special split out patch 
-(001_o1_int_pe_ll_030407_ck_2.4.20.patch) for ck that includes the new 
-interactivity changes, with the one patch responsible for problems backed 
-out. No desktop tuning patch is supposed to be necessary for this so I've 
-removed it from the site.Note that the full -ck4 patch does not include this 
-update. I would like some feedback from people using it before I make a more 
-substantial update to bring out a -ck5. The patches must be applied manually 
-in order as they're desired. I've been using them for a little while without 
-any problems. 
+I didn't realize that npages != 0 meant there are only pending 
+reads *not* pending writes... Thanks for that clarification....
 
-Get them here:
-
-http://kernel.kolivas.org
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+kYLlF6dfvkL3i1gRAk4+AKClVUe0bhxJKSM5rls1zEfNE9TymQCglChA
-xheK/JrNmZUnpm14LhgKMeQ=
-=/Vun
------END PGP SIGNATURE-----
-
+SteveD.

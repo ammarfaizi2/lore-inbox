@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288624AbSAQMMX>; Thu, 17 Jan 2002 07:12:23 -0500
+	id <S288414AbSAQMca>; Thu, 17 Jan 2002 07:32:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288633AbSAQMMN>; Thu, 17 Jan 2002 07:12:13 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:13787 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S288624AbSAQMMD>; Thu, 17 Jan 2002 07:12:03 -0500
-Date: Thu, 17 Jan 2002 12:14:13 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-To: Christoph Rohland <cr@sap.com>
-cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: pte-highmem-5
-In-Reply-To: <m3u1tll6pb.fsf@linux.local>
-Message-ID: <Pine.LNX.4.21.0201171206350.1051-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288637AbSAQMcT>; Thu, 17 Jan 2002 07:32:19 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:54542 "EHLO
+	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S288414AbSAQMcI>; Thu, 17 Jan 2002 07:32:08 -0500
+Date: Thu, 17 Jan 2002 13:31:42 +0100
+From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+To: Johan Adolfsson <johan.adolfsson@axis.com>
+Cc: quinlan@transmeta.com, Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cramfs updates for 2.4.17
+Message-ID: <20020117123142.GB28788@arthur.ubicom.tudelft.nl>
+In-Reply-To: <15430.14470.999605.380374@sodium.transmeta.com> <18e701c19f40$88d8fdd0$0a070d0a@axis.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <18e701c19f40$88d8fdd0$0a070d0a@axis.se>
+User-Agent: Mutt/1.3.25i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Christoph Rohland wrote:
-> On Wed, 16 Jan 2002, Andrea Arcangeli wrote:
-> > They were running out of pagetables, mapping 1G per-task (shm for
-> > example) will overflow the lowmem zone with PAE with some houndred
-> > tasks in the system. They were pointing the finger at the VM but the
-> > VM was just doing the very right thing to do.
+On Thu, Jan 17, 2002 at 11:20:06AM +0100, Johan Adolfsson wrote:
+> Daniel Quinlan wrote:
+> > Assuming it's okay with Linus and Marcelo, I'll remove scripts/cramfs
+> > in the next version of the patch (which should be fine for 2.5 too).
 > 
-> This lets me think about putting the swap vector of shmem into highmem
-> also. These can get big on highend servers and exactly these servers
-> tend to use a lot of shared mem.
+> Why move it?
 
-Yes, good idea.
+Because leaving it in the kernel tree would be an invitation to move
+mke2fs, mkreiserfs, mkxfsfs, etc. into the kernel source tree as well.
 
-But people should realize that moving page tables and other such
-structures into not-always-mapped highmem will make them harder to
-access with kernel debuggers - I think those will want some changes.
 
-Hugh
+Erik
 
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
+of Information Technology and Systems, Delft University of Technology,
+PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
+Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

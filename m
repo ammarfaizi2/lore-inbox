@@ -1,139 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265444AbTFSFwh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 01:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265457AbTFSFwh
+	id S265464AbTFSFy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 01:54:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265470AbTFSFy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 01:52:37 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:13250 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265444AbTFSFwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 01:52:31 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780DD16DB0@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Andrew Morton'" <akpm@digeo.com>,
-       "'george anzinger'" <george@mvista.com>
-Cc: "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'mingo@elte.hu'" <mingo@elte.hu>, "Li, Adam" <adam.li@intel.com>
-Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
-	sks
-Date: Wed, 18 Jun 2003 23:06:25 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C33628.EA41FA10"
+	Thu, 19 Jun 2003 01:54:58 -0400
+Received: from imap.gmx.net ([213.165.64.20]:23962 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265464AbTFSFyw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 01:54:52 -0400
+Message-Id: <5.2.0.9.2.20030619071327.00ce7ee8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Thu, 19 Jun 2003 08:13:08 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [PATCH] 2.5.72 O(1) interactivity bugfix
+Cc: Andreas Boman <aboman@midgaard.us>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200306191112.49621.kernel@kolivas.org>
+References: <1055983621.1753.23.camel@asgaard.midgaard.us>
+ <200306190043.14291.kernel@kolivas.org>
+ <200306190938.04430.kernel@kolivas.org>
+ <1055983621.1753.23.camel@asgaard.midgaard.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+At 11:12 AM 6/19/2003 +1000, Con Kolivas wrote:
+>On Thu, 19 Jun 2003 10:47, Andreas Boman wrote:
+> > On Wed, 2003-06-18 at 19:38, Con Kolivas wrote:
+> > >
+> > > I had another look at 2.5 and noticed the max sleep avg is set to 10
+> > > seconds instead of 2 seconds in 2.4. This could make a _big_ difference
+> > > to new forked tasks if they all start out penalised as most
+> > > non-interactive. It can take 5 times longer before they get the balance
+> > > right. Can you try with this set to 2 or even 1 second on 2.5?
+> >
+> > Ahh, thanks Con, setting MAX_SLEEP_AVG to 2 *almost* removes all xmms
+> > skipping here, a song *may* skip during desktop switches sometime during
+> > the first 5 sec or so of playback IFF make -j20 is running. On a mostly
+> > idle box (well LoadAvg 3 or so is mostly idle isnt it? ;) desktop
+> > switching doesnt cause skips anymore 8)
+>
+>That's nice; a MAX_SLEEP_AVG of 1 second will shorten that 5 seconds to half
+>that as well. What you describe makes perfect sense given that achieving a
+>balance is an exponential function where the MSA is the time constant.
 
-------_=_NextPart_000_01C33628.EA41FA10
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: quoted-printable
+However, that will also send X and friends go off to the expired array 
+_very_ quickly.  This will certainly destroy interactive feel under load 
+because your desktop can/will go away for seconds at a time.  Try to drag a 
+window while a make -j10 is running, and it'll get choppy as heck.  AFAIKT, 
+anything that you do to increase concurrency in a global manner is _going_ 
+to have the side effect of damaging interactive feel to some extent.  The 
+one and only source of desktop responsiveness is the large repository of 
+cpu ticks a task is allowed to save up for a rainy day.
 
+What I would love to figure out is a way to reintroduce back-boost without 
+it having global impact.  I think hogging the cpu is absolutely _wonderful_ 
+when the hogs are the tasks I'm interacting with.  Unfortunately, there 
+seems to be no way to determine whether a human is intimately involved or 
+not other than to specifically tell the scheduler this via renice.
 
-Hi All
+> > Doing make -j20 and staying on the same desktop doesnt cause any
+> > skipping at all (but it didnt cause much skipping at all on plain
+> > 2.5.72-mm1 either).
+>
+>So it is better than the default mm1? (doesnt cause any vs didnt cause much)
+>
+> > I also applied your p->sleep_avg = 0; stuff (keeping MAX_SLEEP_AVG 2 and
+> > HZ 1000) and it behaved just like I described earlier (songs started
+> > after the make never stop skipping).
+>
+>Well anything started will be penalised initially as being completely
+>non-interactive with the p->sleep_avg = 0. This seems to work fine for normal
+>usage patterns I've found on -ck1, as after a short while it gets a bonus up
+>to interactive. But you say that doesn't happen on 2.5?
+>
+> > I am fairly sure the winner for me here was the MAX_SLEEP_AVG since I
+> > have fiddled with HZ before without it making big noticable differences.
+>
+>Yes you're confirming pretty much what I'm finding now that I've played with
+>it a lot more.
+>
+> > I havent gotten a 2.4 kernel patched up yet (lazy), but I'll get that
+> > done and see how that sleep_avg patch behaves here then.
+>
+>Shouldn't be any different than what you've described on 2.5 now, if you make
+>CHILD_PENALTY match that on 2.5 (is 50 in 2.5, was 95 in -ck1)
 
-I have another test case that is showing this behavior.
-It is very similar to George's, however, it is a simplification
-of another one using threads that a co-worker, Adam Li found
-a few days ago.
+This is the easy way to cure xmms's problem of new thread starting at too 
+low priority, but it also shows the other side of the coin.  With this 
+change, your interactive feel will be wonderful.  However, when you start a 
+cpu hog, it starts it's life with a fully loaded starve-me battery.  What 
+happens when a highly charged task forks off a bunch of cpu hogs?  Yup, 
+mega-starvation until they burn off the pre-charge.
 
-Parent (FIFO 5) forks child that sets itself to FIFO 4 and=20
-busy loops, then it sleeps five seconds and kills the child.=20
+Sigh, scheduling is a _bitch_.
 
-Doing SysRq + T after a while shows the parent'd call trace=20
-to be at sys_rt_sigaction+0xd1, that is just inside the final=20
-copy_to_user() in signal.c:sys_rt_sigaction().
+         -Mike 
 
-Reprioritizing events/0 to FIFO 5+ fixes the inversion.=20
-
-If I call nanosleep directly (with system() instead of
-glibc's sleep(), so I avoid all the rt_sig calls),
-I get the parent process always stuck in work_resched+0x5,
-in entry.S:work_resched, just after the call to the
-scheduler - however, I cannot trace what is happening
-inside the scheduler.
-
-My point here is: I am trying to trace where this program
-is making use of workqueues inside of the kernel, and I
-can find none. The only place where I need to look some
-more is inside the timer code, but in a quick glance,
-it seems it is not being used, so why is it affected by
-the reprioritization of the events/0 thread? George, can
-you help me here?
-
-kernel is 2.5.67, SMP and PREEMPT with maxcpus=3D1; tomorrow
-I will try .72 ...=20
-
-I=F1aky P=E9rez-Gonz=E1lez -- Not speaking for Intel -- all opinions =
-are my own
-(and my fault)
-
-
-
-------_=_NextPart_000_01C33628.EA41FA10
-Content-Type: application/octet-stream;
-	name="sched-hang.c"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="sched-hang.c"
-
-#include <signal.h>=0A=
-#include <unistd.h>=0A=
-#include <linux/unistd.h>=0A=
-#include <stdlib.h>=0A=
-#include <sched.h>=0A=
-#include <stdio.h>=0A=
-#include <time.h>=0A=
-=0A=
-volatile int dummy;=0A=
-volatile int child_run =3D 1;=0A=
-=0A=
-/* #define DPRINTF(a...) fprintf(stderr, a) */=0A=
-#define DPRINTF(a...) do { } while (0)=0A=
-=0A=
-void child_signal_handler (int signum)=0A=
-{=0A=
-  child_run =3D 0;=0A=
-}=0A=
-=0A=
-int main (void)=0A=
-{=0A=
-  int child;=0A=
-  struct timespec tp =3D { 5, 0 };=0A=
-  struct sched_param param;=0A=
-  param.sched_priority =3D 5;=0A=
-  sched_setscheduler (0, SCHED_FIFO, &param);=0A=
-  child =3D fork();=0A=
-  switch (child)=0A=
-  {=0A=
-   case 0:=0A=
-    DPRINTF("Child starts\n");=0A=
-    signal (SIGTERM, child_signal_handler);=0A=
-    param.sched_priority =3D 4;=0A=
-    sched_setscheduler (0, SCHED_FIFO, &param);=0A=
-    for (; child_run;)=0A=
-      dummy =3D dummy + 1;=0A=
-    DPRINTF("Child dies\n");=0A=
-    break;=0A=
-   case -1:=0A=
-    perror ("fork failed");=0A=
-    abort();=0A=
-    break;    =0A=
-   default:=0A=
-/*     sleep (5); */=0A=
-    syscall (__NR_nanosleep, &tp, NULL);=0A=
-    kill (child, SIGTERM);=0A=
-   break;=0A=
-  }=0A=
-  return 0;=0A=
-}=0A=
-=0A=
-    =0A=
-  =0A=
-
-------_=_NextPart_000_01C33628.EA41FA10--

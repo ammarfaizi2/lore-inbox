@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264706AbTBGNM2>; Fri, 7 Feb 2003 08:12:28 -0500
+	id <S264886AbTBGNQD>; Fri, 7 Feb 2003 08:16:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264886AbTBGNM2>; Fri, 7 Feb 2003 08:12:28 -0500
-Received: from mons.uio.no ([129.240.130.14]:58592 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S264706AbTBGNM1>;
-	Fri, 7 Feb 2003 08:12:27 -0500
+	id <S264920AbTBGNQD>; Fri, 7 Feb 2003 08:16:03 -0500
+Received: from betty.seh.de ([195.145.22.40]:39698 "EHLO seh.de")
+	by vger.kernel.org with ESMTP id <S264886AbTBGNQC> convert rfc822-to-8bit;
+	Fri, 7 Feb 2003 08:16:02 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Zielinski <mz@seh.de>
+Organization: SEH Computertechnik GmbH
+To: linux-kernel@vger.kernel.org
+Subject: TCP Connection times out
+Date: Fri, 7 Feb 2003 14:30:33 +0100
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15939.45806.714661.655592@charged.uio.no>
-Date: Fri, 7 Feb 2003 14:21:50 +0100
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Race in RPC code
-In-Reply-To: <20030207123123.GA25807@unthought.net>
-References: <20030207123123.GA25807@unthought.net>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200302071430.34001.mz@seh.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jakob Oestergaard <jakob@unthought.net> writes:
+Hello,
+I'm not on the list, so I'm not really informed what's going on. But...
+
+our problem is a network printer the has paper empty.
+The socket connection to the printer broke down after ~45 minutes with
+errno 110 (Connection timed out).
+
+Linux base version is 2.4.18 on a strongarm machine.
+
+Tracking this down brought us to the tcp_send_probe0 function in 
+net/ipv4/tcp_output.c.
+The tp->backoff value becomes allways increased.
+on this machine from 31 on  (tp->rto << tp->backoff) is 0.
+
+The xmit timer is set to this timeout value - resulting in an ACK burst.
+If the TCP sender gets the (default) 16 ACKS out, before the receiver can 
+answer them, the connection dies.
+This happened every night, when the printer received a huge job from a foreign 
+office.
+
+If this isn't a bug, it should be made configurable. Or do we miss something?
+
+Thanks.
 
 
-     > We don't know whether req has been modified between the
-     > assignment and the spin_lock.
 
-It had better not be. If it is, then I want to know where so that we
-can fix it.
 
-req->rq_xprt is set up when the request is initialized. It
-is not meant to change until the request gets released. This again
-should not happen while the request is still on the wait queue.
-
-IOW the fix you propose would just be papering over another problem.
-
-Cheers,
-  Trond

@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269395AbRHRXlj>; Sat, 18 Aug 2001 19:41:39 -0400
+	id <S269417AbRHRXm6>; Sat, 18 Aug 2001 19:42:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269417AbRHRXl2>; Sat, 18 Aug 2001 19:41:28 -0400
-Received: from mercury.is.co.za ([196.4.160.222]:44556 "HELO mercury.is.co.za")
-	by vger.kernel.org with SMTP id <S268970AbRHRXlW>;
-	Sat, 18 Aug 2001 19:41:22 -0400
-Date: Sun, 19 Aug 2001 01:40:21 +0200
-From: Dewet Diener <dewet@dewet.org>
-To: Riley Williams <rhw@MemAlpha.CX>
-Cc: Stephen C Tweedie <sct@redhat.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 partition unmountable
-Message-ID: <20010819014021.B26332@darkwing.flatlit.net>
-In-Reply-To: <20010818235211.A24646@darkwing.flatlit.net> <Pine.LNX.4.33.0108182257490.9206-100000@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0108182257490.9206-100000@infradead.org>; from rhw@MemAlpha.CX on Sat, Aug 18, 2001 at 11:04:41PM +0100
+	id <S269455AbRHRXmq>; Sat, 18 Aug 2001 19:42:46 -0400
+Received: from chac.inf.utfsm.cl ([200.1.19.54]:8196 "EHLO chac.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id <S269417AbRHRXmG>;
+	Sat, 18 Aug 2001 19:42:06 -0400
+Message-Id: <200108181720.f7IHK8tr016948@sleipnir.valparaiso.cl>
+To: jlnance@intrex.net
+cc: linux-kernel@vger.kernel.org
+Subject: Re: more kernel .01 
+In-Reply-To: Message from jlnance@intrex.net 
+   of "Fri, 17 Aug 2001 23:09:01 -0400." <20010817230901.A15033@bessie.localdomain> 
+Date: Sat, 18 Aug 2001 13:20:08 -0400
+From: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 18, 2001 at 11:04:41PM +0100, Riley Williams wrote:
-> The relevant mount option is to specify the ext3 rather than the ext2
-> file system, and the flag you refer to gets set if ANYBODY sets the
-> "COMPRESS THIS FILE" flag on ANY file on that file system. As far as I
-> can tell, nothing ever resets that flag, even if the last file that
-> was compressed gets uncompressed.
+jlnance@intrex.net said:
 
-I doubt that ever happened - its pretty much a single-user system,
-and I can't say that I quite know *how* to set that flag in the first
-place :)
+[...]
 
-> You have an old version of tune2fs, and need to get the one that knows
-> about ext3 or alternatively apply the patch that was distributed some
-> time ago and recompile - I'm not sure which.
-> 
-> Stephen: What's the current status regarding tune2fs and ext3, I'm a
-> tad out of date in this respect?
+> Long long ago, before Red Hat or any other distributions, people installed
+> Linux using a pair of floppies called the boot disk and the root disk.  This
+> was how I first installed Linux, using the 0.11 or 0.12 kernel.  It was
+> pretty easy to install a minimal self hosting Linux system using these disks.
+> If you can find someone with a set of these disk images for 0.11 and the
+> associated gcc disks, you can probably get a very early linux system up
+> fairly quickly.  I dont know who might have a set laying around, but I
+> hope this mail generates some comments from people who do.
 
-I'm running e2fsprogs-1.22 (which is later than the one specified from
-Documentation/Changes), so I kinda assumed everything was fine...
+Machines have changed a lot since then, unless you get a vintage machine
+(with original disk, etc) I very much doubt this will work.
 
-Dewet
-
+Besides, I don't think learning about a *very* old, severely broken kernel
+will help in any way. Yes, the current kernel is huge, but most of that is
+drivers for all sort of exotic hardware.
+-- 
+Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
+Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616

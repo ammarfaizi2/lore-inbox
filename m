@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbUKAJwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbUKAKQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbUKAJwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 04:52:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbUKAJwV
+	id S261737AbUKAKQt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 05:16:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUKAKQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 04:52:21 -0500
-Received: from cantor.suse.de ([195.135.220.2]:60827 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261734AbUKAJwF (ORCPT
+	Mon, 1 Nov 2004 05:16:49 -0500
+Received: from mproxy.gmail.com ([216.239.56.247]:60176 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261737AbUKAKQr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 04:52:05 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16774.1839.343824.305232@suse.de>
-Date: Mon, 1 Nov 2004 10:51:43 +0100
-From: Egbert Eich <eich@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Thomas Zehetbauer <thomasz@hostmaster.org>, linux-kernel@vger.kernel.org,
-       idr@us.ibm.com, eich@suse.de
+	Mon, 1 Nov 2004 05:16:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=iDm3tGsdUZGMpy6YyBd7tPHqm1fQhaYHd+djyXBm0GaDQvx5kLV0HonUAoMdRccd+VKhUCUuFRb/sCk60pwiN4MmER+J1QogTbS8c9ugpHdqgGqBIIR5blViq9pc+wBmbvZbPT8EnMBA9y0kSWppJZwzAcdJQbjJsew5PMW2qy8=
+Message-ID: <21d7e99704110102161132d37b@mail.gmail.com>
+Date: Mon, 1 Nov 2004 21:16:43 +1100
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Egbert Eich <eich@suse.de>
 Subject: Re: status of DRM_MGA on x86_64
-In-Reply-To: ak@suse.de wrote on , 30 October 2004 at 03:56:24 +0200 
+Cc: Andi Kleen <ak@suse.de>, Thomas Zehetbauer <thomasz@hostmaster.org>,
+       linux-kernel@vger.kernel.org, idr@us.ibm.com
+In-Reply-To: <16774.1839.343824.305232@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 References: <1099052450.11282.72.camel@hostmaster.org.suse.lists.linux.kernel>
-	<1099061384.11918.4.camel@hostmaster.org.suse.lists.linux.kernel>
-	<41829E39.1000909@us.ibm.com.suse.lists.linux.kernel>
-	<1099097616.11918.26.camel@hostmaster.org.suse.lists.linux.kernel>
-	<p734qkd0y0n.fsf@verdi.suse.de>
-X-Mailer: VM 7.18 under Emacs 21.3.1
+	 <1099061384.11918.4.camel@hostmaster.org.suse.lists.linux.kernel>
+	 <41829E39.1000909@us.ibm.com.suse.lists.linux.kernel>
+	 <1099097616.11918.26.camel@hostmaster.org.suse.lists.linux.kernel>
+	 <p734qkd0y0n.fsf@verdi.suse.de> <16774.1839.343824.305232@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > Thomas Zehetbauer <thomasz@hostmaster.org> writes:
- > 
- > > On Fre, 2004-10-29 at 12:47 -0700, Ian Romanick wrote:
- > > > The problem, which exists with most (all?) DRM drivers, is that data 
- > > > types are used in the kernel/user interface that have different sizes on 
- > > > LP32 and LP64.  If your kernel is 64-bit, you will have problems with 
- > > > 32-bit applications.
- > 
- > That was not the reason I disabled it. I reenabled it now in my tree.
- >   
- > > Then either all or no DRM drivers should be enabled on x86_64, the
- > > DRM_TDFX, DRM_R128, DRM_RADEON and DRM_SIS are not currently disabled. I
- > > vote for enabling all drivers that work with 64-bit applications.
- >  
- > > I wonder if this should be the first and only place where different
- > > kernel/userland bitness causes problems. How has this been solved
- > > elsewhere?
- > 
- > It was solved long ago for the Radeon driver by Egbert Eich.
- > But for some unknown reason the DRI people never merged his patches.
- > 
+> 
+> I solved it for RADEON, MGA and R128.
+> It would be interesting to solve this for the i915 driver, too,
+> and possibly some others.
+> 
+> That it hasn't been merged into DRI yet is a shame. Appearantly
+> nobody has ever realized why this stuff is useful. Unfortunately
+> I don't have the time for lobbying it.
+> It's a very boring undertaking to have to port this from one DRI
+> version to the next.
 
-I solved it for RADEON, MGA and R128.
-It would be interesting to solve this for the i915 driver, too,
-and possibly some others.
+Ian, can you look at this I think you are the best person (maybe
+Keithw) to tell whether this stuff breaks compat in any direction,.
+Egbert you may not want to lobby for it but all I personally want to
+know is what it might potentially break in terms of backwards
+compatiblity.... from SuSEs point of view as long as a distro is
+consistent then you are okay, for us the whole keeping DRIs built
+against older kernels working with newer kernels is the only real
+issue...
 
-That it hasn't been merged into DRI yet is a shame. Appearantly 
-nobody has ever realized why this stuff is useful. Unfortunately
-I don't have the time for lobbying it.
-It's a very boring undertaking to have to port this from one DRI 
-version to the next. 
+Hopefully Ian can look at the patch and decide on it....
 
-Egbert.
+Dave.
 
+Dave.

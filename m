@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTHaHwP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 03:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbTHaHwP
+	id S261966AbTHaHyd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 03:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbTHaHyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 03:52:15 -0400
-Received: from rumms.uni-mannheim.de ([134.155.50.52]:65161 "EHLO
-	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
-	id S261909AbTHaHwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 03:52:13 -0400
-From: Thomas Schlichter <schlicht@uni-mannheim.de>
-To: Claas Langbehn <claas@rootdir.de>
-Subject: Re: 2.6.0-test4 acpi problems
-Date: Sun, 31 Aug 2003 09:52:03 +0200
-User-Agent: KMail/1.5.9
-Cc: kernel list <linux-kernel@vger.kernel.org>
-References: <20030830203353.GA967@rootdir.de>
-In-Reply-To: <20030830203353.GA967@rootdir.de>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_pkaU/H0c7lb2jjk";
-  charset="iso-8859-1"
+	Sun, 31 Aug 2003 03:54:32 -0400
+Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:49042 "HELO
+	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261966AbTHaHy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 03:54:27 -0400
+Date: Sun, 31 Aug 2003 04:52:20 -0300
+From: Gerardo Exequiel Pozzi <djgeray2k@yahoo.com.ar>
+To: Jeff Chua <jeff89@silk.corp.fedex.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] hda:end_request: I/O error, dev 03:00 (hda), sector 0
+Message-Id: <20030831045220.3ace5a34.djgeray2k@yahoo.com.ar>
+In-Reply-To: <Pine.LNX.4.42.0308311221430.17575-100000@silk.corp.fedex.com>
+References: <Pine.LNX.4.42.0308311221430.17575-100000@silk.corp.fedex.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200308310952.09713.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Boundary-02=_pkaU/H0c7lb2jjk
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Saturday 30 August 2003 22:33, Claas Langbehn wrote:
-> Hello!
-
-Hi Claas!
-
-> I have got an Epox 8K9A9i mainboard with an Athlon XP 1800+ CPU. The
-> chipset is an VIA KT400A. The bios is dated 12.05.2003.
-> When booting with ACPI enabled, the interrupts dont get enumerated
-> properly. with acpi=3Dht it works, but i dont have enough features.
-> Below you see my bootlog with acpi and further down the bootlog with
-> acpi=3Doff. Is there a way to use full acpi support and "normal"
-> interrupts? pci=3Dnoacpi was not really successful.
-
-My noacpi-option-fix should solve the pci=3Dnoacpi issue. It is available a=
-t:
-	http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-
-test4/2.6.0-test4-mm2/broken-out/noacpi-option-fix.patch
-
-Alternatively you may run 2.6.0-test4-mm2 or -mm3 as these include the patc=
-h=20
-(and many other things)...
-
-> How can I help acip development and do more debugging?
+On Sun, 31 Aug 2003 12:24:29 +0800 (SGT), Jeff Chua wrote:
 >
+>What do I need to get rid of these errors ...
 >
-> Regards, claas
+>dmesg after boot up ...
+>
+*snip*
+>Partition check:
+> hda:end_request: I/O error, dev 03:00 (hda), sector 0
+>end_request: I/O error, dev 03:00 (hda), sector 2
+>end_request: I/O error, dev 03:00 (hda), sector 4
+>end_request: I/O error, dev 03:00 (hda), sector 6
+>end_request: I/O error, dev 03:00 (hda), sector 0
+>end_request: I/O error, dev 03:00 (hda), sector 2
+>end_request: I/O error, dev 03:00 (hda), sector 4
+>end_request: I/O error, dev 03:00 (hda), sector 6
+> unable to read partition table
 
-   Thomas
+I suppose that your disk will be in good state, ok,
+A time ago I had the same error (with hdc), and was that had forgotten
+to clear the hdc=ide-scsi from of the line append in lilo.
 
---Boundary-02=_pkaU/H0c7lb2jjk
-Content-Type: application/pgp-signature
-Content-Description: signature
+Possibly it is your problem, although it is strange to me with hda.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Please check your command line at boot, and remove the bad apppend line in lilo.conf
 
-iD8DBQA/UakpYAiN+WRIZzQRArzOAJsGLa/xKmaDnB1hrQoPasQANpesMQCeJas+
-zpI0Lju6imWewAyAFMx56rs=
-=iFiM
------END PGP SIGNATURE-----
+chau,
+ djgera
 
---Boundary-02=_pkaU/H0c7lb2jjk--
+
+-- 
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

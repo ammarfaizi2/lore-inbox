@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288537AbSAHW5S>; Tue, 8 Jan 2002 17:57:18 -0500
+	id <S288544AbSAHXD2>; Tue, 8 Jan 2002 18:03:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288538AbSAHW5H>; Tue, 8 Jan 2002 17:57:07 -0500
-Received: from mxzilla3.xs4all.nl ([194.109.6.49]:6673 "EHLO
-	mxzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288537AbSAHW4z>; Tue, 8 Jan 2002 17:56:55 -0500
-Date: Tue, 8 Jan 2002 23:56:49 +0100
-From: jtv <jtv@xs4all.nl>
-To: Greg KH <greg@kroah.com>
-Cc: Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+	id <S288543AbSAHXDT>; Tue, 8 Jan 2002 18:03:19 -0500
+Received: from zero.tech9.net ([209.61.188.187]:62216 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288541AbSAHXDM>;
+	Tue, 8 Jan 2002 18:03:12 -0500
+Subject: Re: [PATCH] preempt abstraction
+From: Robert Love <rml@tech9.net>
+To: David Howells <dhowells@redhat.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Roger Larsson <roger.larsson@norran.net>,
+        Andrew Morton <akpm@zip.com.au>, Christoph Hellwig <hch@caldera.de>,
+        torvalds@transmeta.com, arjanv@redhat.com, mingo@redhat.com,
         linux-kernel@vger.kernel.org
-Subject: Re: __FUNCTION__
-Message-ID: <20020108235649.A26154@xs4all.nl>
-In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com>
+In-Reply-To: <12550.1010530018@warthog.cambridge.redhat.com>
+In-Reply-To: <12550.1010530018@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.0.99+cvs.2001.12.18.08.57 (Preview Release)
+Date: 08 Jan 2002 18:05:13 -0500
+Message-Id: <1010531114.3225.172.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020108220149.GA15816@kroah.com>; from greg@kroah.com on Tue, Jan 08, 2002 at 02:01:50PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 02:01:50PM -0800, Greg KH wrote:
+On Tue, 2002-01-08 at 17:46, David Howells wrote:
+
+> ftp://infradead.org/pub/people/dwh/yield-252p10.diff.bz2
 > 
-> Can you point me to the place in the spec this is defined?  I don't see
-> __FUNCTION__ defined anywhere in the ISO/IEC 9899:1999 (the official C99)
-> specification.
+> There's now a version of the patch with preempt/need_preempt changed to
+> yield/need_yield, and with the unlikely() claused moved into need_yield(),
+> should that be more to your preference.
 
-Don't have a C99 spec, but here's what info gcc has to say about it:
+Still not the name I would pick, but better :)
 
-[...description of "function names" extension as currently found in gcc...]
+Oh, and need_yield is still marked unlikely in sched.c
 
-   Note that these semantics are deprecated, and that GCC 3.2 will
-handle `__FUNCTION__' and `__PRETTY_FUNCTION__' the same way as
-`__func__'.  `__func__' is defined by the ISO standard C99:
+Good patch,
 
-     The identifier `__func__' is implicitly declared by the translator
-     as if, immediately following the opening brace of each function
-     definition, the declaration
-          static const char __func__[] = "function-name";
-     
-     appeared, where function-name is the name of the lexically-enclosing
-     function.  This name is the unadorned name of the function.
-
-
-Jeroen
+	Robert Love
 

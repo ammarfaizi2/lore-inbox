@@ -1,78 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbTENN6J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 09:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTENN5s
+	id S262282AbTENN4H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 09:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTENNzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 09:57:48 -0400
-Received: from mail.hometree.net ([212.34.181.120]:26286 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S262308AbTENN4q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 09:56:46 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: What exactly does "supports Linux" mean?
-Date: Wed, 14 May 2003 14:09:33 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b9timt$e3m$3@tangens.hometree.net>
-References: <200305131114_MC3-1-38B0-3C13@compuserve.com> <yw1x3cjifutq.fsf@zaphod.guide>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1052921373 14454 212.34.181.4 (14 May 2003 14:09:33 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Wed, 14 May 2003 14:09:33 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Wed, 14 May 2003 09:55:48 -0400
+Received: from netline-be1.netline.ch ([195.141.226.32]:9998 "EHLO
+	netline-be1.netline.ch") by vger.kernel.org with ESMTP
+	id S262249AbTENNzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 09:55:35 -0400
+Subject: Re: Improved DRM support for cant_use_aperture platforms
+From: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+To: davidm@hpl.hp.com
+Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+In-Reply-To: <16064.41491.952068.159814@napali.hpl.hp.com>
+References: <200305101009.h4AA9GZi012265@napali.hpl.hp.com>
+	 <1052653415.12338.159.camel@thor>
+	 <16062.37308.611438.5934@napali.hpl.hp.com>
+	 <20030511195543.GA15528@suse.de> <1052690133.10752.176.camel@thor>
+	 <16063.60859.712283.537570@napali.hpl.hp.com>
+	 <1052768911.10752.268.camel@thor>
+	 <16064.453.497373.127754@napali.hpl.hp.com>
+	 <1052774487.10750.294.camel@thor>
+	 <16064.5964.342357.501507@napali.hpl.hp.com>
+	 <1052786080.10763.310.camel@thor>
+	 <16064.41491.952068.159814@napali.hpl.hp.com>
+Content-Type: text/plain; charset=iso-8859-1
+Organization: Debian, XFree86
+Message-Id: <1052921284.18105.168.camel@thor>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.1.99 (Preview Release)
+Date: 14 May 2003 16:08:05 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=) writes:
+On Die, 2003-05-13 at 09:43, David Mosberger wrote: 
+> >>>>> On 13 May 2003 02:34:41 +0200, Michel Dänzer <michel@daenzer.net> said:
+> 
+>   >> It should be possible to add vmap() and vunmap() to kernel/vmalloc.c
+>   >> on older kernels.  I think those are the only dependencies
+> 
+>   Michel> There are a couple more, like pte_offset_kernel(), pte_pfn(),
+>   Michel> pfn_to_page() and flush_tlb_kernel_range(). Getting this working with
+>   Michel> 2.4 seems like a lot of work and/or ugly. :\
+> 
+> Actually, it turns out I'm really not well positioned to do this,
+> because the ia64 agp patch for 2.4 looks very different from the 2.5
+> and your tree looks rather different from the DRM stuff that's in the
+> official Linux tree (correct me if I'm wrong here).
+> 
+> Anyhow, this should get you close to compiling (and working,
+> hopefully), modulo vmap/vunmap:
+> 
+> #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
+> # define pte_offset_kernel(dir, address)	pte_offset(dir, address)
+> # define pte_pfn(pte)				(pte_page(pte) - mem_map)
+> # define flush_tlb_kernel_range(s,e)		flush_tlb_all()
+> #endif
 
->Even when they do, it's often far from what I would call "Linux
->support".  I've seen vendor drivers that made such assumptions about
->the machine that they would only work on IA-32 machines.  I'm talking
->about things like assuming that sizof(int) == sizeof(void *) == 4, or
->that physical memory addresses are the same seen from the CPU and from
->the PCI bus.
+[...]
 
-This is why "the other OS" has the WHQL, signs drivers and generally
-does many things (including getting some cash from driver vendors) to
-ensure (and enforce!) that the "designed for Windows xxx" logo really
-helps customers.
+> The above definition of pte_pfn() is not truly platform-independent,
+> but I believe it works on all platforms that support AGP.
 
-And might be one of the reasons why they're releasing a new 'kernel'
-version only once every two years and go through many pains to ensure,
-that old drivers still run most of the times. This is an area where
-Linux (and many of the Linux advocates) could really learn.
+Looks like it should work on sane PPC systems as well. :)
 
->From a user land perspective, only major Linux vendors or
-organizations could enforce such a logo program, it would cost wads of
-cash and it will really suck if you currently run the certification
-process for Linux 2.5.102 for your driver and right before you're
-done, 2.5.103 is released and you have to start all over again.
+# define pfn_to_page(pfn)			(mem_map + (pfn))
 
-That's why most of the companies that _do_ provide drivers, provide
-them for _one_ kernel release of some Linux distributions.
+is also needed.
 
-Heck, I was working with an IDS (won't tell you which one), which
-shipped its security relevant kernel module _only_ for a truly well
-known distribution with the stock kernel release which had remotely
-exploitable holes.
 
-While nVidia bashing is very popular on this list, this is one of the
-few companies that, while distributing binary only drivers, try to
-make an effort to keep their drivers reasonably up to date _and_ work
-with most new kernel releases.
+After some more thinking, the way to go for deciding whether or not to
+use the new code probably isn't by checking the version but by using
+some Makefile trickery as there is already for do_munmap and
+remap_page_range. Once that is in place, it looks like I can finally
+commit it. :)
 
-	Regards
-		Henning
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+Earthling Michel Dänzer   \  Debian (powerpc), XFree86 and DRI developer
+Software libre enthusiast  \     http://svcs.affero.net/rm.php?r=daenzer
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire

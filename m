@@ -1,76 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314513AbSDXC0g>; Tue, 23 Apr 2002 22:26:36 -0400
+	id <S315335AbSDXCmL>; Tue, 23 Apr 2002 22:42:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314514AbSDXC0f>; Tue, 23 Apr 2002 22:26:35 -0400
-Received: from [213.251.168.78] ([213.251.168.78]:11783 "HELO 2mails172.com")
-	by vger.kernel.org with SMTP id <S314513AbSDXC0e> convert rfc822-to-8bit;
-	Tue, 23 Apr 2002 22:26:34 -0400
-From: "bramkhumalo" <bramk@arabia.com>
-Reply-To: bramk@arabia.com
+	id <S315361AbSDXCmK>; Tue, 23 Apr 2002 22:42:10 -0400
+Received: from boo-mda02.boo.net ([216.200.67.22]:6930 "EHLO boo-mda02.boo.net")
+	by vger.kernel.org with ESMTP id <S315335AbSDXCmJ> convert rfc822-to-8bit;
+	Tue, 23 Apr 2002 22:42:09 -0400
+Message-Id: <3.0.6.32.20020423224811.007ce440@boo.net>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Tue, 23 Apr 2002 22:48:11 -0400
 To: linux-kernel@vger.kernel.org
-Date: Wed, 24 Apr 2002 04:30:09 +0200
-Subject: 
-X-Mailer: Microsoft Outlook Express 5.00.2919.7000 Demo
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Jason Papadopoulos <jasonp@boo.net>
+Subject: Re: [PATCH] page coloring for 2.4.18 kernel
+In-Reply-To: <1019598814.1465.254.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <20020424022634Z314513-22651+15514@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
-This letter may come to you as a surprise due to the fact that we have
-not yet met. The message could be strange but reel if you pay some 
-attention
-to it. I could have notified you about it at least for the sake of your
-integrity. Please accept my sincere apologies. In bringing this message
-of goodwill to you, I have to say that I have no intentions of causing
-you any pains.
-I am  Mr Bram Khumalo,son of the late rebel leader  
-Maubane Khumalo
-of Angola who was killed on the 22nd of febuary 2002 . I managed to get
-your contact details through "The World Business Journal", a journal
-of the Johannesburg Chamber of Commerce in South Africa in the time I
-was desperately looking for a trustworthy person to assist me in this
-confidential business.
-my late father, Maubane Khumalo was able to deposit a large sum of money
-in differnt banks in europe My father is presently death and the 
-movement
-of his family members (including me) is restricted. We are forbidden
-to either travel abroad or out of our localities. Presently, the 
-US$8,500,000.00
-EIGHT, MILLION, FIVE HUNDRED DOLLARS my father transfered to 
-Netherlands
-is safe and is in a security firm. Before you can get access to it i
-have to give you the password I am therefore soliciting your help to
-have this money transfered into your account. before my government get
-wind of this fund .You know my father was a rebel leader in Angola 
-before
-his death My reason for doing this is because it will be difficult for
-the Angolan government to trace my father's money to an individual's
-account, especially when such an individual has no relationship ,I 
-decided
-to keep that money for my family use. At present the money is
-kept in a Security Company in nertherland.
-I am currently and temporarily living in Angola with my husband my 
-brother
-has a refugee status, Moreover the political climate
-in Angola at the moment being so sensitive and unstable.With this 
-password
-and information I will send to you, and power of attorney to the 
-security
-firm, When you are ready i will give you the information needed before
-you can get access to the fund you will then proceed to Netherlands 
-where
-the US$8,500,000.00 EIGHT, MILLION, FIVE HUNDRED DOLLARS will be given
-to you as payment. Alternatively, you can have the fund transferred 
-into
-any account that suits you.
-Kindly get back to me through my email address,with all your coatacts addresses and send me your name as appear in your passport,and your Telephone and fax number.waiting to hear from you,
-God bless you.
-Yours sincerely,
-Bram Khumalo. 
+At 05:53 PM 4/23/02 -0400, Robert Love wrote:
 
+>On Tue, 2002-04-23 at 17:51, Dieter Nützel wrote:
+>
+>> Page coloring for 2.4.18+ isn't preempt save?
+>> 
+>> It gave ~10% speedup for memory intensive apps on my single  1 GHz Athlon II 
+>> SlotA (0,18µm, L2 512K) but look the system hard from time to time. Nothing 
+>> in the logs.
+>> 
+>> I've changed the patch for 2.4.19-pre7 + vm3 + latest rml-O(1) + preempt.
+>
+>Beats me.  Some of the implementations of page colouring I have seen are
+>not even SMP-safe.
+>
+>"Don't do that"
 
+While I haven't tested on an SMP system, the patch should at least be
+SMP safe. As for preempt-safe, I noticed in Dieter's previous tests that
+the free list had been sufficiently fragmented that there were no high-
+order groups of pages left available. Could this cause a problem?
 
+I can't track this list carefully enough to apply and test all the patches
+mentioned.
+
+jasonp

@@ -1,85 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbTHUEoz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 00:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTHUEoz
+	id S262417AbTHUEjI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 00:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTHUEhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 00:44:55 -0400
-Received: from front3.chartermi.net ([24.213.60.109]:11655 "EHLO
-	front3.chartermi.net") by vger.kernel.org with ESMTP
-	id S262420AbTHUEon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 00:44:43 -0400
-Message-ID: <3F444E3A.2010507@quark.didntduck.org>
-Date: Thu, 21 Aug 2003 00:44:42 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Use .incbin for piggy.o
-Content-Type: multipart/mixed;
- boundary="------------020905010706050702030002"
+	Thu, 21 Aug 2003 00:37:09 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:13067 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262408AbTHUEfJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 00:35:09 -0400
+Date: Thu, 21 Aug 2003 01:29:50 -0300
+From: Gerardo Exequiel Pozzi <vmlinuz386@yahoo.com.ar>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] 3/10 2.4.22-rc2 fix __FUNCTION__ warnings
+ drivers/isdn/hisax
+Message-Id: <20030821012950.4206d651.vmlinuz386@yahoo.com.ar>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i486-slackware-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020905010706050702030002
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+ st5481.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Simplify creation of piggy.o (i386 arch) using .incbin instead of an ld 
-script.
+http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.isdn.hisax.patch
+http://www.vmlinuz.com.ar/slackware/patch/kernel/drivers.isdn.hisax.patch.asc
 
-Several other arches use the same method, and should be changed 
-accordingly by the respective maintainers.
+chau,
+ djgera
 
---
-				Brian Gerst
 
---------------020905010706050702030002
-Content-Type: text/plain;
- name="piggy-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="piggy-1"
-
-diff -urN linux-2.6.0-test3-bk/arch/i386/boot/compressed/Makefile linux/arch/i386/boot/compressed/Makefile
---- linux-2.6.0-test3-bk/arch/i386/boot/compressed/Makefile	2003-07-27 13:06:05.000000000 -0400
-+++ linux/arch/i386/boot/compressed/Makefile	2003-08-19 10:31:35.201669976 -0400
-@@ -19,7 +19,4 @@
- $(obj)/vmlinux.bin.gz: $(obj)/vmlinux.bin FORCE
- 	$(call if_changed,gzip)
- 
--LDFLAGS_piggy.o := -r --format binary --oformat elf32-i386 -T
--
--$(obj)/piggy.o: $(obj)/vmlinux.scr $(obj)/vmlinux.bin.gz FORCE
--	$(call if_changed,ld)
-+$(obj)/piggy.o: $(obj)/vmlinux.bin.gz FORCE
-diff -urN linux-2.6.0-test3-bk/arch/i386/boot/compressed/piggy.S linux/arch/i386/boot/compressed/piggy.S
---- linux-2.6.0-test3-bk/arch/i386/boot/compressed/piggy.S	1969-12-31 19:00:00.000000000 -0500
-+++ linux/arch/i386/boot/compressed/piggy.S	2003-08-19 10:31:58.172177928 -0400
-@@ -0,0 +1,7 @@
-+.data
-+.globl input_len, input_data, input_data_end
-+input_len:
-+	.long input_data_end - input_data;
-+input_data:
-+	.incbin "arch/i386/boot/compressed/vmlinux.bin.gz"
-+input_data_end:
-diff -urN linux-2.6.0-test3-bk/arch/i386/boot/compressed/vmlinux.scr linux/arch/i386/boot/compressed/vmlinux.scr
---- linux-2.6.0-test3-bk/arch/i386/boot/compressed/vmlinux.scr	2003-07-27 13:09:42.000000000 -0400
-+++ linux/arch/i386/boot/compressed/vmlinux.scr	1969-12-31 19:00:00.000000000 -0500
-@@ -1,9 +0,0 @@
--SECTIONS
--{
--  .data : { 
--	input_len = .;
--	LONG(input_data_end - input_data) input_data = .; 
--	*(.data) 
--	input_data_end = .; 
--	}
--}
-
---------------020905010706050702030002--
-
+-- 
+Gerardo Exequiel Pozzi ( djgera )
+http://www.vmlinuz.com.ar http://www.djgera.com.ar
+KeyID: 0x1B8C330D
+Key fingerprint = 0CAA D5D4 CD85 4434 A219  76ED 39AB 221B 1B8C 330D

@@ -1,95 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVC3TYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVC3TYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbVC3TYx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVC3TWq
+	id S262427AbVC3TYt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVC3TWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:22:46 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:27408 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262411AbVC3TSh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:18:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=dHXJYP+GJIcMbAPtwAcgoT9mIQnwAeeC9dPxpzsvxu3mkvDDEjlatfDF8NQkEnlXAolkH8Lc55iefgkTlmEorgArDaVAxE+kcqOo6dYlPAkHE/ceeZnPL8u6C7SGwOM7wXR/6ViOlt5xO7AU8HsIReg8zlzmtVZXXFb+HsHbUF8=
-From: Vicente Feito <vicente.feito@gmail.com>
-Organization: none
-To: linux-os@analogic.com
-Subject: Re: How to debug kernel before there is no printk mechanism?
-Date: Wed, 30 Mar 2005 16:16:10 +0000
-User-Agent: KMail/1.7.1
-Cc: krishna <krishna.c@globaledgesoft.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <424AD247.4080409@globaledgesoft.com> <200503301454.41322.vicente.feito@gmail.com> <Pine.LNX.4.61.0503301305260.28280@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0503301305260.28280@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503301616.10450.vicente.feito@gmail.com>
+	Wed, 30 Mar 2005 14:22:22 -0500
+Received: from ctb-mesg2.saix.net ([196.25.240.74]:65254 "EHLO
+	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S262418AbVC3TTL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:19:11 -0500
+Subject: Re: How's the nforce4 support in Linux?
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Tomasz Torcz <zdzichu@irc.pl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050330150023.GB6878@irc.pl>
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+	 <1111792462.23430.25.camel@mindpipe> <20050329185825.GB20973@irc.pl>
+	 <1112128807.5141.14.camel@mindpipe>  <20050330150023.GB6878@irc.pl>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gsBpJB1qdkxPmswohJ8K"
+Date: Wed, 30 Mar 2005 21:19:29 +0200
+Message-Id: <1112210369.25867.7.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 March 2005 06:09 pm, linux-os wrote:
-> On Wed, 30 Mar 2005, Vicente Feito wrote:
-> > Video memory is at b800:0000, for humans 0x0000b800, not at 0x000b8000
->
-> Wrong. "real-mode" can use a segment address of b800, that doesn't
-> work in protected mode. A segment address of b800:0000 is never
-> under any conditions 0000b800.
-I was referring to the basic conditions, haven't played under protected mode 
-with that, only in real mode, I assumed the question was under that mode.
-What you mean is this:
-B800:0010 -> B8010H right?
 
->
-> FYI, a real-mode segment is a 16-byte entity, therefore there are
-> many segment:offset combinations that can get you to 0x000b8000.
-I'm aware of that, it has nothing to do with my statement.
+--=-gsBpJB1qdkxPmswohJ8K
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->
-> > On Wednesday 30 March 2005 04:47 pm, linux-os wrote:
-> >> On Wed, 30 Mar 2005, krishna wrote:
-> >>> Hi all,
-> >>>
-> >>> How can one debug kernel before there is no printk mechanism in kernel.
-> >>>
-> >>> Regards,
-> >>> Krishna Chaitanya
-> >>
-> >> Write directly to screen memory at 0x000b8000, or write to the
-> >> RS-232C UART while polling the TX buf empty bit, or just write
-> >> bits that mean something to you out the printer port.
-> >>
-> >> Screen - memory is 16-bit words with the high-word being
-> >> an attibute byte. FYI 0x07 is a good B&W byte. You can
-> >> initialize a pointer to it as:
-> >>
-> >> unsigned short *screen = 0xc00b8000; Since low memory
-> >> is always mapped, the above cheat will work. The 0xc0000000
-> >> is PAGE_OFFSET.
-> >>
-> >> An early '486 was brought up into a 32-bit protected-mode
-> >> (non linux) operating system using these debugging methods.
-> >> The first time I got to see some symbol written to the
-> >> screen in protected-mode marked the start of a week-end-
-> >> long party. Have fun!
-> >>
-> >> Cheers,
-> >> Dick Johnson
-> >> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-> >>   Notice : All mail here is now cached for review by Dictator Bush.
-> >>                   98.36% of all statistics are fiction.
-> >> -
-> >> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> >> in the body of a message to majordomo@vger.kernel.org
-> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >> Please read the FAQ at  http://www.tux.org/lkml/
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
->   Notice : All mail here is now cached for review by Dictator Bush.
->                   98.36% of all statistics are fiction.
+On Wed, 2005-03-30 at 17:00 +0200, Tomasz Torcz wrote:
+> On Tue, Mar 29, 2005 at 03:40:07PM -0500, Lee Revell wrote:
+> > On Tue, 2005-03-29 at 20:58 +0200, Tomasz Torcz wrote:
+> > > On Fri, Mar 25, 2005 at 06:14:22PM -0500, Lee Revell wrote:
+> > > > On Fri, 2005-03-25 at 23:59 +0100, Julien Wajsberg wrote:
+> > > > > - audio works too. The only problem is that two applications can'=
+t
+> > > > > open /dev/dsp in the same time.
+> > > >=20
+> > > > Not a problem.  ALSA does software mixing for chipsets that can't d=
+o it
+> > > > in hardware.  Google for dmix.
+> > > >=20
+> > > > However this doesn't (and can't be made to) work with the in-kernel=
+ OSS
+> > > > emulation (it works fine with the alsa-lib/libaoss emulation).  So =
+you
+> > >=20
+> > >  quake3 still segfaults when run through "aoss". And can't be fixed, =
+as
+> > > it's closed source still.
+> > >=20
+> > I guess that's Quake3's problem...
+>=20
+>  It an glaring example, dmix is unsufficient in one third of my sound
+> uses (other two beeing movie and music playback)
+>  But you advertise dmix like it was silver bullet.
+>=20
+
+Or goes limbo randomly and no mailing to lists seems to result in a
+reply (from the alsa peeps at least) ...
+
+
+--=20
+Martin Schlemmer
+
+
+--=-gsBpJB1qdkxPmswohJ8K
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCSvvBqburzKaJYLYRAhoIAJ0S9JPFwrdj4TaBGxgeZ896xSKWLwCcCdmi
+cSExEhGYwR69sTXG0W1lrB8=
+=rxhx
+-----END PGP SIGNATURE-----
+
+--=-gsBpJB1qdkxPmswohJ8K--
+

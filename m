@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267840AbUHTIcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267825AbUHTIbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267840AbUHTIcP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUHTIcP
+	id S267825AbUHTIbo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267810AbUHTIbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:32:15 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:51643 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267726AbUHTI2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:28:30 -0400
-Date: Fri, 20 Aug 2004 13:57:58 +0530
-From: Hariprasad Nellitheertha <hari@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, akpm@osdl.org,
-       Suparna Bhattacharya <suparna@in.ibm.com>, litke@us.ibm.com,
-       mbligh@aracnet.com
-Subject: Re: [Fastboot] [RFC]Kexec based crash dumping
-Message-ID: <20040820082758.GA6560@in.ibm.com>
-Reply-To: hari@in.ibm.com
-References: <20040817120239.GA3916@in.ibm.com> <m1n00q8c9p.fsf@ebiederm.dsl.xmission.com>
+	Fri, 20 Aug 2004 04:31:44 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62877 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267777AbUHTIbT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:31:19 -0400
+Date: Fri, 20 Aug 2004 04:28:47 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: remove dentry_open::file_ra_init_state() duplicated memset was Re: kernbench on 512p
+Message-ID: <20040820072847.GA8205@logos.cnet>
+References: <200408191216.33667.jbarnes@engr.sgi.com> <20040820005654.GC6374@logos.cnet> <20040819232145.2fd5c54a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1n00q8c9p.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040819232145.2fd5c54a.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 02:05:54AM -0600, Eric W. Biederman wrote:
-> Hariprasad Nellitheertha <hari@in.ibm.com> writes:
-> 
-> > Hi,
+On Thu, Aug 19, 2004 at 11:21:45PM -0700, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> > So this patch creates a __file_ra_state_init() function, which initializes
+> >  the file_ra_state fields, without the memset. 
 > > 
-> > The patches that follow contain the initial implementation for kexec based
-> > crash dumping that we are working on. I had sent this to the fastboot mailing 
-> > list a couple of weeks ago and this set of patches includes the changes made as
-> > per feedback from Andrew, Eric and others.
+> >  file_ra_state_init() does the memset + its __ counterpart. 
 > 
-> One significant change is missing.  You do not separate out the two
-> use cases of kexec.  So on a system that is configured to use
-> call sys_reboot(LINUX_REBOOT_CMD_KEXEC) on reboot I will get a core
-> dump if using your code.
+> Seems unnecessarily fiddly.  How about this?
 
-In some ways, whether we are doing a "crash dump" reboot or a "normal"
-kexec reboot is determined by the command line parameters that are
-passed to the kexec loaded kernel. If we do not restrict the memory
-size and do not add the keyword "dump" in the command line, it will do 
-a normal kexec reboot. The dump file will not show up in the second kernel.
+Thats cleaner yep. :)
 
-> 
-> Or alternatively if I call sys_kexec_load and then something in the
-> shutdown scripts triggers a kernel panic it is not OK to
-> start boot the new kernel instead of taking normal panic behavior.
-
-A way to disable kexec reboot from panic code is indeed needed. I will
-add the necessary code to do this.
-
-> 
-> Until the two uses of kexec are separated they two uses
-> of kexec remain mutually exclusive and incompatible, and it I cannot
-> merge your patches into the existing kexec patchset.
-> 
-> .....
-> 
-> In general I still your kexec on panic code is doing way to much,
-> and I think a lot of that  is that you don't have a kernel that will
-> run when loaded at a different physical address.  
-> 
-> To that end I have written a patch that accomplishes exactly that.
-> Please see my just released kexec patchset.
-
-Will work on the necessary changes so we can use your patchset.
-
-> 
-> Eric
-
-Thanks and Regards, Hari
--- 
-Hariprasad Nellitheertha
-Linux Technology Center
-India Software Labs
-IBM India, Bangalore
+> --- 25/mm/readahead.c~file_ra_state_init-speedup	2004-08-19 23:20:11.695876032 -0700
+> +++ 25-akpm/mm/readahead.c	2004-08-19 23:20:42.077257360 -0700
+> @@ -28,12 +28,12 @@ struct backing_dev_info default_backing_
+>  EXPORT_SYMBOL_GPL(default_backing_dev_info);
+>  
+>  /*
+> - * Initialise a struct file's readahead state
+> + * Initialise a struct file's readahead state.  Assumes that the caller has
+> + * memset *ra to zero.
+>   */
+>  void
+>  file_ra_state_init(struct file_ra_state *ra, struct address_space *mapping)
+>  {
+> -	memset(ra, 0, sizeof(*ra));
+>  	ra->ra_pages = mapping->backing_dev_info->ra_pages;
+>  	ra->average = ra->ra_pages / 2;
+>  }
+> diff -puN fs/nfsd/vfs.c~file_ra_state_init-speedup fs/nfsd/vfs.c
+> --- 25/fs/nfsd/vfs.c~file_ra_state_init-speedup	2004-08-19 23:20:11.713873296 -0700
+> +++ 25-akpm/fs/nfsd/vfs.c	2004-08-19 23:21:05.721662864 -0700
+> @@ -771,6 +771,7 @@ nfsd_get_raparms(dev_t dev, ino_t ino, s
+>  	ra = *frap;
+>  	ra->p_dev = dev;
+>  	ra->p_ino = ino;
+> +	memset(&ra->p_ra, 0, sizeof(ra->p_ra));
+>  	file_ra_state_init(&ra->p_ra, mapping);
+>  found:
+>  	if (rap != &raparm_cache) {
+> _

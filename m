@@ -1,17 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262770AbSJCDrz>; Wed, 2 Oct 2002 23:47:55 -0400
+	id <S262755AbSJCDrp>; Wed, 2 Oct 2002 23:47:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262769AbSJCDrz>; Wed, 2 Oct 2002 23:47:55 -0400
-Received: from dino.conectiva.com.br ([200.250.58.152]:15377 "EHLO
+	id <S262754AbSJCDrp>; Wed, 2 Oct 2002 23:47:45 -0400
+Received: from dino.conectiva.com.br ([200.250.58.152]:11025 "EHLO
 	dino.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S262768AbSJCDry>; Wed, 2 Oct 2002 23:47:54 -0400
+	id <S262751AbSJCDro>; Wed, 2 Oct 2002 23:47:44 -0400
 To: YOSHIFUJI@conectiva.com.br, UNEXPECTED_DATA_AFTER_ADDRESS@.SYNTAX-ERROR
 Subject: Re: [PATCH] IPv6: Allow Both IPv6 and IPv4 Sockets on the Same Port Number (IPV6_V6ONLY Support)
-Message-ID: <1033617195.3d9bbf2b900e4@webmail.conectiva.com.br>
-Date: Thu, 03 Oct 2002 00:53:15 -0300 (BRST)
+Message-ID: <1033617181.3d9bbf1d557a3@webmail.conectiva.com.br>
+Date: Thu, 03 Oct 2002 00:53:01 -0300 (BRST)
 From: acme@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
+References: <20021003.121350.119660876.yoshfuji@linux-ipv6.org>
+In-Reply-To: <20021003.121350.119660876.yoshfuji@linux-ipv6.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT

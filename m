@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263898AbTDYMSU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 08:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTDYMSU
+	id S262633AbTDYMXv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 08:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263900AbTDYMXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 08:18:20 -0400
-Received: from codepoet.org ([166.70.99.138]:38838 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id S263898AbTDYMST (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 08:18:19 -0400
-Date: Fri, 25 Apr 2003 06:24:00 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ALSA and 2.4.x
-Message-ID: <20030425122400.GA25090@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20030424212508.GI14661@codepoet.org> <200304251401.36430.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200304251401.36430.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	Fri, 25 Apr 2003 08:23:51 -0400
+Received: from [65.244.37.61] ([65.244.37.61]:1069 "EHLO
+	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
+	id S262633AbTDYMXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 08:23:50 -0400
+Message-ID: <170EBA504C3AD511A3FE00508BB89A9201FD92C9@exnanycmbx4.ipc.com>
+From: "Downing, Thomas" <Thomas.Downing@ipc.com>
+To: Adrian Bunk <bunk@fs.tum.de>, Linus Torvalds <torvalds@transmeta.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Flame Linus to a crisp!
+Date: Fri, 25 Apr 2003 08:36:00 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Apr 25, 2003 at 02:01:36PM +0200, Marc-Christian Petersen wrote:
-> On Thursday 24 April 2003 23:25, Erik Andersen wrote:
-> 
-> Hi Erik,
-> 
-> > > Is there a ALSA backport to 2.4.x anywhere?
-> > I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
-> > 2.4.x a week or two ago.  I just prefer to have ALSA be part of
-> > the kernel rather than needing to compile it seperately all the
-> > time.  The patch, along with various other things, is included as
-> > part of my 2.4.21-rc1-erik kernel:
-> Are you sure that this is 0.9.2 ALSA? I am afraid it is 0.9.0-rc6.
+From: Adrian Bunk [mailto:bunk@fs.tum.de]
 
-Why are you afraid of that?  Yes I am sure it is 0.9.2.  I do
-have a 0.9.0-rc6 patch on my site which is derived in part from
-your wolk code.  But that is a different animal,
+>On Wed, Apr 23, 2003 at 10:43:37PM -0700, Linus Torvalds wrote:
+>>...
+>> And hey, the fact is (at least as far as I'm concerned), that as long as
+>> you make the hardware, you can control what it runs.
+>>...
+>
+>Linux is currently widely used and through this there comes some power. 
+>Let me try to make examples where this might be important:
 
-To make my 082_alsa-0.9.2.bz2 patch, I used the wolk 0.9.0-rc6
-code, a copy of alsa-driver-0.9.2.tar.bz2, and a copy of the
-latest 2.5.x kernel source for reference.  I then hacked on it
-for a few hours till I made it work.
+You cast these comments in the context of corporate use, so -
 
-    <sound of checking>
+The primary reason corporations are beginning to adopt Linux is TCO
+- and such adoption is in its early stages, though growing.  Such
+adoption is _only_ to the extent that Linux will run specific
+applications.
 
-Hahaha!  It looks like I copied my 0.9.0-rc6 patch over the top
-of my 0.9.2 patch!  Oops.  I still have the source tree where I
-hacked together the 0.9.2 kernel patch, so I'll regenerate that
-and re-post it after I get some sleep.  <yawns, rubs eyes>
+Companies do _not_ adopt Linux because it is the only OS on which
+their critical applications run.  They don't adopt it because it's
+the coolest OS out there.  All the corporate required applications 
+run on other O$'s.  If support for a facility percieved as desirable
+or necessary (in this case, DRM)is not available in Linux due to the
+terms of the GPL, corporations will drop Linux in a heartbeat.
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Some companies (viz certain very large financial institutions) are
+only now just beginning to write applications _on_ Linux.  When
+Linux has a majority market share, with the rest of the market in
+disarray, _then_ you have some power; but only for a limitted time.

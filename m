@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266158AbUAUWuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 17:50:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266165AbUAUWuQ
+	id S266029AbUAUWm0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 17:42:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264267AbUAUWmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 17:50:16 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46052 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266158AbUAUWuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 17:50:12 -0500
-Date: Wed, 21 Jan 2004 23:50:00 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Confirmation Spam Blocking was: List 'linux-dvb' closed to public posts
-Message-ID: <20040121225000.GX6441@fs.tum.de>
-References: <ecartis-01212004203954.14209.1@mail.convergence2.de> <20040121194315.GE9327@redhat.com> <Pine.LNX.4.58.0401211155300.2123@home.osdl.org> <1074717499.18964.9.camel@localhost.localdomain> <20040121211550.GK9327@redhat.com> <20040121213027.GN23765@srv-lnx2600.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040121213027.GN23765@srv-lnx2600.matchmail.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Jan 2004 17:42:18 -0500
+Received: from h24-82-9-27.vw.shawcable.net ([24.82.9.27]:55561 "HELO
+	h24-82-9-27.vw.shawcable.net") by vger.kernel.org with SMTP
+	id S266076AbUAUWmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jan 2004 17:42:12 -0500
+Message-ID: <4q$0-1m5--oi5bgo@2bw64z>
+From: "Angelita Sherwood" <m0lxtstych@ahottieiswhatiwant.com>
+Reply-To: "Angelita Sherwood" <m0lxtstych@ahottieiswhatiwant.com>
+To: linux-admin@vger.kernel.org
+Subject: Adventure Awaits  Linux-admin
+Date: Thu, 22 Jan 04 03:39:10 -0500
+X-Mailer: MailerExpress v5.5
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="10C7.E2.8B"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 21, 2004 at 01:30:27PM -0800, Mike Fedyk wrote:
-> 
-> What do you think about individual email (non-list) using a confirmation
-> based spam blocking system.
-> 
-> I currently use spamassassin to filter my messages, but I saw recently a
-> project that asks you to reply to a confirmation message if you're not
-> already on the white-list.
-> 
-> I'm not sure how acceptable it would be, and this is a little OT, but I'm
-> wondering if I should spend the time testing that for my corp.
 
-I'm not a big fan of this solution, but it's definitely a better 
-solution than a closed list. The acceptance depends on whether the group 
-of people you want emails from accepts it (and if you subscribe to a 
-mailing list be sure to exclude it from this mechanism or the mailing 
-list administrator will immediately kick you from the list).
+--10C7.E2.8B
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-And be aware that it doesn't help against all spam - spammers know how 
-to fake headers...
+A mutual friend believes that you two belong together and has set up a
+meeting.
 
-> Mike
+Click here to accept the invitation:
+http://ahottieiswhatiwant.com/confirm/?oc=3D53038=
+883
 
-cu
-Adrian
 
--- 
+The FREE dating web site CREATED BY WOMEN
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+Click here if you do not wish to be invited again:
+http://ahottieiswhatiwant.com/remove/?oc=3D53035=
+432
+
+accustom
+
+--10C7.E2.8B--
 

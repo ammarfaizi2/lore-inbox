@@ -1,65 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315873AbSEGP2Z>; Tue, 7 May 2002 11:28:25 -0400
+	id <S315874AbSEGP0t>; Tue, 7 May 2002 11:26:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315875AbSEGP2Y>; Tue, 7 May 2002 11:28:24 -0400
-Received: from 216-42-72-144.ppp.netsville.net ([216.42.72.144]:10167 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S315873AbSEGP2W>; Tue, 7 May 2002 11:28:22 -0400
-Subject: Re: [reiserfs-dev] [BK] [2.4] Reiserfs changeset 2 out of 4, please
-	apply.
-From: Chris Mason <mason@suse.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-In-Reply-To: <200205071505.g47F5iE04039@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 07 May 2002 11:27:32 -0400
-Message-Id: <1020785252.32097.165.camel@tiny>
+	id <S315873AbSEGP0s>; Tue, 7 May 2002 11:26:48 -0400
+Received: from firewall.esrf.fr ([193.49.43.1]:27065 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S315872AbSEGP0q>;
+	Tue, 7 May 2002 11:26:46 -0400
+Date: Tue, 7 May 2002 17:26:32 +0200
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: Mickael Bailly <mickael.bailly@trader.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: eepro100: wait_for_cmd_done timeout (2.4.19-pre2/8)
+Message-ID: <20020507172632.F3155@pcmaftoul.esrf.fr>
+In-Reply-To: <Pine.LNX.4.44.0205071454270.16371-100000@dunlop.admin.ie.alphyra.com> <200205071712.21699.mickael.bailly@trader.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-07 at 11:05, Hans Reiser wrote:
-> Hello!
+On Tue, May 07, 2002 at 05:12:21PM +0200, Mickael Bailly wrote:
+> 	Hi,
 > 
->  You can get this changeset from bk://thebsh.namesys.com/bk/reiser3-linux-2.4
+> We got the same problem with PCI eepro NICs (not onboard) on Dell Poweredge.
+I'm on dell's also but not only poweredge
+> We got the same error messages
+> We tried the alternative 'e100' driver, but without success.
+We also did but we get  approximatively with the same message ( no
+really the same, but one talking about timeouts)
+> We tried on 2.2 kernels (RedHat 6.2), then on 2.4 (RedHat 7.1/7.2): problem 
+> still exist.
+I didn't tried 2.2
 > 
->  This changeset are cleaning up reiserfscode, removes stale comments, and
->  rewrites some "borrowed" functions so that all of the code in reiserfs subdir
->  should now only belong to NAMESYS.
+> At last we disabled APIC ( configuration line 'append=noapic' in your 
+> lilo.conf configuration file )
+I did also but my problem with firewire still exists 
+That's the first thing I did, disableapic and noapic ( it's an smp
+system so I have no idea what the consequences of this are )
 
-It is the end of a release cycle on a stable kernel with huge changes to
-the IDE layer, and we have at least one unconfirmed report of problems
-with reiserfs+IDE after a crash.
-
-This is not the right time to send in cleanups like this, especially
-when they bits as useless as the stuff below.  #1, #2 and #4 look like
-valid fixes.  #3 should probably be mixed with the iput deadlock fix
-like Oleg did in 2.5, and should wait until after 2.4.19.
-
--chris
-
-@@ -957,6 +875,7 @@
-     int windex ;
-     struct reiserfs_transaction_handle th ;
-     int jbegin_count = JOURNAL_PER_BALANCE_CNT * 3; 
-+    time_t ctime;
- 
- 
-     if (S_ISDIR(inode->i_mode))
-@@ -984,7 +903,8 @@
-     }
- 
-     inode->i_nlink++;
--    inode->i_ctime = CURRENT_TIME;
-+    ctime = CURRENT_TIME;
-+    inode->i_ctime = ctime;
-     reiserfs_update_sd (&th, inode);
- 
-     atomic_inc(&inode->i_count) ;
-@@ -1037,14 +957,6 @@
- }
-
+> 
+> Now it's working fine since 2 days... need a little more time to validate the 
+> change...
+> 
+> See you
+> Mickael
+> 
+Thanks for the tip.
+        Sam

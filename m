@@ -1,137 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVBTOBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVBTOdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVBTOBt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 09:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261834AbVBTOBt
+	id S261830AbVBTOdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 09:33:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVBTOdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 09:01:49 -0500
-Received: from lucidpixels.com ([66.45.37.187]:6784 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S261833AbVBTOBh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 09:01:37 -0500
-Date: Sun, 20 Feb 2005 09:01:33 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: linux-kernel@vger.kernel.org
-cc: linux.nics@intel.com, jun.nakajima@intel.com, len.brown@intel.com,
-       ganesh.venkatesan@intel.com, apiszcz@solarrain.com
-Subject: Intel Gigabit NIC (2.6.5 -> 2.6.10) Bug(?) Found
-Message-ID: <Pine.LNX.4.62.0502200814510.6305@p500>
+	Sun, 20 Feb 2005 09:33:16 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:29947 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S261830AbVBTOdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 09:33:00 -0500
+Date: Sun, 20 Feb 2005 15:24:56 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [BK PATCHES] ide-2.6 update
+Message-ID: <Pine.GSO.4.58.0502201522450.951@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is this e-mail about?
 
-Something in the kernel changed regarding the Intel e1000 driver from 
-2.6.5 to 2.6.10. The change resulted in thousands of errors when the NIC 
-is receiving data. For the past two weeks I have thought about this and 
-tried everything I could think of, it had really been pestering me. 
-Normally, I never really looked at my ifconfig eth0, eth1 etc because I 
-looked at it a long time ago and noticed it was just fine, this was with 
-earlier kernels.  I guess I should check my NIC statistics more often. I 
-have tried the following to figure out why I get so many dropped packets 
-and errors on an interface:
+Hi,
 
-1] New Intel [same model] NIC.
-2] Different ports in the switch.
-3] New cable.
-4] Switched PCI slots for the Intel Gigabit Card.
-5] Switched BIOS settings/parameters to exact settings as other, identical
-    machine.
+Please do a
 
-None of these fixed the problem. There are two machines (same model) here 
-with GigE nics, on one there are  very few (1-3) if any errors on the nic 
-ever.  The test that I used that reproduces the problem the quickest is dd 
-if=/dev/zero of=/nfsv3/udp/file.img where the dd is on another box sending 
-to the box that gets the RX errors on the NIC.  Generally, there would be 
-about 100 errors every 10 seconds.  There are two identical machines on 
-the network here, both with this same Intel Gigabit NIC (82541GI/PI).  So 
-one machine is running 2.6.5, the other 2.6.10, I figured it had to 
-something in the kernel that was causing this.  Therefore I grabbed 
-ethtool and installed it and did a basic query for network setting 
-parameters, immediately I noticed a difference, which is shown below:
+	bk pull bk://bart.bkbits.net/ide-2.6
 
-* Box with no problems.
-# ethtool -a eth0
-Pause parameters for eth0:
-Autonegotiate:  on
-RX:             on
-TX:             on
+This will update the following files:
 
-* Box with NIC that generates errors, dropped packets and overrun errors.
-# ethtool -a eth0
-Pause parameters for eth0:
-Autonegotiate:  on
-RX:             off
-TX:             off
+ drivers/ide/Kconfig  |    2 +-
+ drivers/ide/ide-io.c |    5 +++--
+ drivers/ide/ide.c    |    4 ++++
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
-According to the manpage:
+through these ChangeSets:
 
-        -A     change the pause parameters of the specified ethernet 
-device.
+<ben-linux@fluff.org> (05/02/20 1.2130)
+   [ide] Kconfig for VR1000 machine driver selection
 
-        rx on|off
-               Specify if RX pause is enabled.
+   Fix the use of CONFIG_MACH_VR1000, which was missing an
+   trailing zero from the configuration variable, so never
+   being shown if only the VR1000 was selected
 
-        tx on|off
-               Specify if TX pause is enabled.
+   Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+   Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 
+<mikukkon@gmail.com> (05/02/20 1.2129)
+   [ide] small compile fix to ide.c with !CONFIG_PCI
 
-# ethtool -A eth0 rx on
-# ethtool -A eth0 tx on
+   Small patch to fix following warning with CONFIG_IDE && !CONFIG_PCI:
 
-My machine now:
+     CC	drivers/ide/ide.o
+   drivers/ide/ide.c: In function 'ide_system_bus_speed':
+   drivers/ide/ide.c:338: warning: unused variable 'pci_default'
 
-# ethtool -a eth0
-Pause parameters for eth0:
-Autonegotiate:  on
-RX:             on
-TX:             on
+   I decided to save some bytes by #ifdef:ing the struct in question.
+   CC:ing Hanna because she did the change (and just to say hi ;-).
 
-Then, I re-run the dd command mentioned earlier and let it run for about 
-ten minutes, long and behold not a single dropped packet, overrun or frame
-error reported!
+   Signed-off-by: Mika Kukkonen <mikukkon@gmail.com>
+   Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 
-           RX packets:6157606 errors:0 dropped:0 overruns:0 frame:0
+<bzolnier@trik.(none)> (05/02/19 1.2128)
+   [ide] fix ide_get_error_location() for LBA28
 
-Previously, this is what I would get after only a minute of running that 
-dd command (I also get the errors copying files etc, dd command just 
-speeds things up):
+   Higher bits (16-23) of the address were ignored.
 
-           RX packets:6374096 errors:1419 dropped:1419 overruns:1419 frame:0
+   Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 
-Afterwards, I no longer have any errors:
+diff -Nru a/drivers/ide/Kconfig b/drivers/ide/Kconfig
+--- a/drivers/ide/Kconfig	2005-02-20 15:08:56 +01:00
++++ b/drivers/ide/Kconfig	2005-02-20 15:08:56 +01:00
+@@ -812,7 +812,7 @@
 
-To the Intel/Kernel guys:
+ config BLK_DEV_IDE_BAST
+ 	tristate "Simtec BAST / Thorcom VR1000 IDE support"
+-	depends on ARM && (ARCH_BAST || MACH_VR100)
++	depends on ARM && (ARCH_BAST || MACH_VR1000)
+ 	help
+ 	  Say Y here if you want to support the onboard IDE channels on the
+ 	  Simtec BAST or the Thorcom VR1000
+diff -Nru a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+--- a/drivers/ide/ide-io.c	2005-02-20 15:08:56 +01:00
++++ b/drivers/ide/ide-io.c	2005-02-20 15:08:56 +01:00
+@@ -238,9 +238,10 @@
+ 		high = ide_read_24(drive);
+ 	} else {
+ 		u8 cur = HWIF(drive)->INB(IDE_SELECT_REG);
+-		if (cur & 0x40)
++		if (cur & 0x40) {
++			high = cur & 0xf;
+ 			low = (hcyl << 16) | (lcyl << 8) | sect;
+-		else {
++		} else {
+ 			low = hcyl * drive->head * drive->sect;
+ 			low += lcyl * drive->sect;
+ 			low += sect - 1;
+diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	2005-02-20 15:08:56 +01:00
++++ b/drivers/ide/ide.c	2005-02-20 15:08:56 +01:00
+@@ -335,10 +335,14 @@
 
-Question, these are identical machines for the most part, even the same 
-nics are used in each box, why in 2.6.5 are the settings set differently 
-than that in 2.6.10?  I do not believe that it is a distribution specific 
-error as I did not even have ethtool installed before I checked this nor 
-do I see it any boot scripts?  For now, I will just have it set the 
-proper settings -A tx on and -A rx on but is there another way to do this 
-or did it change in the kernel at some point?
+ static int ide_system_bus_speed(void)
+ {
++#ifdef CONFIG_PCI
+ 	static struct pci_device_id pci_default[] = {
+ 		{ PCI_DEVICE(PCI_ANY_ID, PCI_ANY_ID) },
+ 		{ }
+ 	};
++#else
++#define pci_default 0
++#endif /* CONFIG_PCI */
 
-Further investigation reveals on my main machine with an onboard Intel/PRO 
-1000 built-in NIC which runs on the CSA bus (A-Bit IC7-G) the pause 
-feature is also off; HOWEVER, (2.6GHZ w/HT) this machine does not exhibit 
-any errors!
-
-           RX packets:2471666 errors:0 dropped:0 overruns:0 frame:0
-           TX packets:56413066 errors:0 dropped:0 overruns:0 carrier:0
-
-Is it a bug that it defaults to off in the newer kernel versions, as it 
-causes MASSIVE errors on the RX side of the fence?  Or should people who 
-run gigabit interfaces on slower machines just add the ethool commands to 
-their startup scripts to avoid the errors/etc?
-
-There may be some parallel between speed_OF_CPU and whether it can 
-handle it with the pause option on or off.  If anyone has any idea of what 
-the pause option is about and why it changed from 2.6.5 to 2.6.10, I'd 
-like to know!
-
-Thanks!
-
-
+ 	if (!system_bus_speed) {
+ 		if (idebus_parameter) {

@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131426AbRCKO0e>; Sun, 11 Mar 2001 09:26:34 -0500
+	id <S131429AbRCKOnp>; Sun, 11 Mar 2001 09:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131429AbRCKO0Y>; Sun, 11 Mar 2001 09:26:24 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16908 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131426AbRCKO0V>; Sun, 11 Mar 2001 09:26:21 -0500
-Subject: Re: 2.4.3pre1: kernel BUG at page_alloc.c:73!
-To: david@fortyoz.org
-Date: Sun, 11 Mar 2001 14:28:22 +0000 (GMT)
-Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org
-In-Reply-To: <20010310231250.A5391@fortyoz.org> from "David Raufeisen" at Mar 10, 2001 11:12:50 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131436AbRCKOnf>; Sun, 11 Mar 2001 09:43:35 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:34828 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131429AbRCKOnP>; Sun, 11 Mar 2001 09:43:15 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Mon, 12 Mar 2001 01:38:27 +1100
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: allow notsc option for buggy cpus
+Message-ID: <20010312013827.B5439@linuxcare.com>
+In-Reply-To: <20010310115828.A7514@linuxcare.com> <E14bY2D-00063q-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14c6pc-00006B-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E14bY2D-00063q-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Mar 10, 2001 at 01:19:03AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, the kernel module is open source..
+ 
+> Intel are being remarkably reluctant on the documentation front.  We have
+> the AMD speed change docs, but the intel ones (chipset not cpu based
+> primarily) don't seem to be publically available. In fact the 815M manual
+> looks like someone quite pointedly went through and removed the relevant
+> material before publication
 
-No the Nvidia kernel module is not. Try reading it, its obfuscated to point
-of being binary, it contains no permission to modify or redistribute either.
+But is there a reason we don't allow the notsc option at all on
+certain chipsets? Who would complain if I removed the CONFIG_X86_TSC
+option from the CONFIG_M686 definition or even got rid of it completely?
 
-In fact if you are using patched versions of it to make it work with later
-kernels you may well be breaking their licensing
+Anton

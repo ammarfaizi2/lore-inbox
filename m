@@ -1,85 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317568AbSFRTZd>; Tue, 18 Jun 2002 15:25:33 -0400
+	id <S317570AbSFRT2U>; Tue, 18 Jun 2002 15:28:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317570AbSFRTZc>; Tue, 18 Jun 2002 15:25:32 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61945 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S317568AbSFRTZb>; Tue, 18 Jun 2002 15:25:31 -0400
-Subject: RE: Question about sched_yield()
-From: Robert Love <rml@tech9.net>
-To: David Schwartz <davids@webmaster.com>
-Cc: mgix@mgix.com, root@chaos.analogic.com,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20020618191114.AAA27826@shell.webmaster.com@whenever>
-References: <20020618191114.AAA27826@shell.webmaster.com@whenever>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 18 Jun 2002 12:25:13 -0700
-Message-Id: <1024428314.3090.223.camel@sinai>
-Mime-Version: 1.0
+	id <S317580AbSFRT2T>; Tue, 18 Jun 2002 15:28:19 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:38359 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S317570AbSFRT2R>; Tue, 18 Jun 2002 15:28:17 -0400
+Date: Tue, 18 Jun 2002 14:28:02 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Various kbuild problems in 2.5.22
+In-Reply-To: <20020618211639.A2659@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.44.0206181417230.5695-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-06-18 at 12:11, David Schwartz wrote:
+On Tue, 18 Jun 2002, Sam Ravnborg wrote:
 
-> 	I'm sorry, but you are being entirely unreasonable.
+> > 	The standard for make is that if you name the target, it
+> > builds the target.  If I want to make bzImage and modules, I should type
+> > "make bzImage modules".
 
-No, sorry, you are.  Listen to everyone else here.
+Nitpick: 
+[kai@chaos linux-2.5.make]$ make bzImage && ls bzImage
+[..]
+ls: bzImage: No such file or directory
 
-> 	If you didn't mean to burn the CPU in an endless loop, WHY DID YOU?
+So you that bzImage isn't a real target (arch/i386/boot/bzImage would be).
 
-It is not an endless loop.  Here is the problem.  You have n tasks.  One
-type executes:
+> As it is in 2.5.22 make bzImage compares to make installable in kbuild-2.5.
+> What about combining best of both worlds?
+> 
+> Let
+> make bzImage	-> Build bzImage
+> make modules	-> Build modules
+> 
+> And the new member of the family:
+> make kernel	-> Build selected binary and modules.
+> 
+> So "make kernel" is similar to kbuild-2.5 "make installable" a name 
+> that I dislike. Obviously "make kernel" requires support for selecting
+> the appropriate binary utilising make *config.
 
-	while(1) ;
+Well, let's say I agree that the kind of semantics change regarding 
+building modules at the same time isn't the nicest. So I propose the 
+following:
 
-the others execute:
+make bzImage -> compile built-in, build bzImage
+make modules -> compile modules
+make bzImage modules -> build bzImage + modules (I found a way to do so
+                        without having to descend twice)
 
-	while(1)
-		sched_yield();
+make,
+make all     -> compile vmlinux + modules as a general default,
+                on i386 build bzImage + modules.
+	        (other archs can change the behavior as they wish)
 
-the second bunch should _not_ receive has much CPU time as the first. 
-This has nothing to do with intelligent work or blocking or picking your
-nose.  It has everything to do with the fact that yielding means
-"relinquish my timeslice" and "put me at the end of the runqueue".
+> >        If I want to the kernel to build to continue even when a module
+> > fails to compile, I should be able to do that by just using "-k".  Not
+> > being able to build include/linux/modversions.h prevents me from doing
+> > that.
+> >From a conceptual point I disagree here. I would like make to
+> avoid completion in case an error is flagged.
+> My prediction is that the new behaviour may result in more errors being
+> corrected, due to the incentitive to do it. Today you ignore it
+> and hardly cannot spot it in all the noise generated during the build
+> process.
 
-If we are doing this, then why does the sched_yield'ing task monopolize
-the CPU?  BECAUSE IT IS BROKEN.
+Let me second this. In particular, there is no way to reliably generate
+module versions when the affected files cannot even be preprocessed. So 
+it's the right thing to error out. If someone dislikes that, they can
+still turn MODVERSIONS of and proceed in their broken world.
 
-> 	You should never call sched_yield in a loop like this unless your intent is 
-> to burn the CPU until some other thread/process does something. Since you 
-> rarely want to do this, you should seldom if ever call sched_yield in a loop. 
+> By the way - anyone having feedback on the "make KBUILD_VERBOSE=0"
+> mode. Why not make it default?
 
-But there are other tasks that wish to do something in these examples...
+I fear there won't be feedback unless it is made default, since nobody 
+even notices otherwise.
 
-> 	But your expectation that it will reduce CPU usage is just plain wrong. If 
-> you have one thread spinning on sched_yield, on a single CPU machine it will 
-> definitely get 100% of the CPU. If you have two, they will each definitely 
-> get 50% of the CPU. There are blocking functions and scheduler priority 
-> functions for this purpose.
+Anyway, before making it default, I'm planning to call gcc from the 
+topdir, so error/warning messages get prefixed with the complete
+path to the source, which will allow a smart editor to automatically
+jump to the place where the message occured.
 
-If they are all by themselves, of course they will get 100% of the CPU. 
-No one is saying sched_yield is equivalent to blocking.  I am not even
-saying it should get no CPU!  It should get a bunch.  But all the
-processes being equal, one that keeps yielding its timeslice should not
-get as much CPU time as one that does not.  Why is that not logical to
-you?
+(Currently it works due to make's 'Entering directory [...]' messages,
+ which are disabled in quiet mode)
 
-The original report was that given one task of the second case (above)
-and two of the first, everything was fine - the yielding task received
-little CPU as it continually relinquishes its timeslice.  In the
-alternative case, there are two of each types of tasks.  Now, the CPU is
-split and the yielding tasks are receiving a chunk of it.  Why?  Because
-the yielding behavior is broken and the tasks are continually yielding
-and rescheduling back and forth.  So there is an example of how it
-should work and how it does.  It is broken.
+--Kai
 
-There isn't even really an argument.  Ingo and I have both identified
-this is a problem in 2.4 and 2.5 and Ingo fixed it in 2.5.  If 2.5 no
-longer has this behavior, then are you saying it is NOW broken?
-
-	Robert Love
 

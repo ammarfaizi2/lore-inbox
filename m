@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbTJTH02 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 03:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTJTHY0
+	id S262409AbTJTHWU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 03:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbTJTHWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 03:24:26 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:8832 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S262410AbTJTHWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 03:22:48 -0400
-Date: Mon, 20 Oct 2003 08:22:59 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200310200722.h9K7Mxkm000371@81-2-122-30.bradfords.org.uk>
-To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Hans Reiser <reiser@namesys.com>, Larry McVoy <lm@bitmover.com>,
-       Norman Diamond <ndiamond@wta.att.ne.jp>,
-       Wes Janzen <superchkn@sbcglobal.net>,
-       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       John Bradford <john@grabjohn.com>, nikita@namesys.com,
-       Pavel Machek <pavel@ucw.cz>, Justin Cormack <justin@street-vision.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Vitaly Fertman <vitaly@namesys.com>, Krzysztof Halasa <khc@pm.waw.pl>,
-       axboe@suse.de
-In-Reply-To: <20031019224952.GA7328@pegasys.ws>
-References: <1c6401c395e7$16630d00$3eee4ca5@DIAMONDLX60>
- <20031019041553.GA25372@work.bitmover.com>
- <3F924660.4040405@namesys.com>
- <20031019083551.GA1108@holomorphy.com>
- <20031019224952.GA7328@pegasys.ws>
-Subject: Re: Blockbusting news, results are in
+	Mon, 20 Oct 2003 03:22:20 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:51335 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262409AbTJTHWP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 03:22:15 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH][v850]  Use irqreturn_t on v850 rte-me2-cb platform
+Cc: linux-kernel@vger.kernel.org
+Reply-To: Miles Bader <miles@gnu.org>
+Message-Id: <20031020072157.A642B37E8@mcspd15.ucom.lsi.nec.co.jp>
+Date: Mon, 20 Oct 2003 16:21:57 +0900 (JST)
+From: miles@lsi.nec.co.jp (Miles Bader)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What is apparently missing is better handling of the
-> uncorrectable errors.  Specifically the ability to pass the
-> errors and warnings up to the OS for evaluation and for the
-> OS to be able to request a block remap or to undo a block
-> remap.
+The cb_pic_handle_irq function on this platform hadn't been updated to
+use irqreturn_t; do so.
 
-Why this suggestion keeping coming up, I have no idea.  If you take
-the idea to it's extreme, it's basically saying that we should
-off-load all processing on to the host.  Although there has been a
-move towards dumb peripherals in recent years, (E.G. software modems),
-I have seen almost no even vaguely convincing arguments other than
-cost as to why they are superior, (lower latency has been mentioned
-with regard to software modems - I fail to see the benefit, although I
-suppose it might exist for games players).  Apart from some data
-recovery applications, I don't see how it is possible to do anything
-really useful simply by adding the ability to pass some warnings and
-errors up to the OS, without giving the OS access to all of the data
-that the drive firmware has access to.
-
-Obviously drives with completely open and free firmware would be
-great, but that is not likely to happen in the near future, so for the
-time being, if you don't like the way drives handle defect management,
-complain to the manufactuers.  I am satisfied with the way Maxtor
-disks handle defect management, both Eric's explainations and my own
-observations.
-
-John.
+diff -ruN -X../cludes linux-2.6.0-test8-uc0/arch/v850/kernel/rte_me2_cb.c linux-2.6.0-test8-uc0-v850-20031020/arch/v850/kernel/rte_me2_cb.c
+--- linux-2.6.0-test8-uc0/arch/v850/kernel/rte_me2_cb.c	2003-07-28 10:13:58.000000000 +0900
++++ linux-2.6.0-test8-uc0-v850-20031020/arch/v850/kernel/rte_me2_cb.c	2003-10-20 13:47:42.000000000 +0900
+@@ -230,8 +217,10 @@
+ 	CB_PIC_INT1M &= ~(1 << (irq - CB_PIC_BASE_IRQ));
+ }
+ 
+-static void cb_pic_handle_irq (int irq, void *dev_id, struct pt_regs *regs)
++static irqreturn_t cb_pic_handle_irq (int irq, void *dev_id,
++				      struct pt_regs *regs)
+ {
++	irqreturn_t rval = IRQ_NONE;
+ 	unsigned status = CB_PIC_INTR;
+ 	unsigned enable = CB_PIC_INT1M;
+ 
+@@ -257,13 +246,16 @@
+ 
+ 			/* Recursively call handle_irq to handle it. */
+ 			handle_irq (irq, regs);
++			rval = IRQ_HANDLED;
+ 		} while (status);
+ 	}
+ 
+ 	CB_PIC_INTEN |= CB_PIC_INT1EN;
+-}
+ 
++	return rval;
++}
+ 
++
+ static void irq_nop (unsigned irq) { }
+ 
+ static unsigned cb_pic_startup_irq (unsigned irq)

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265035AbTFLWtO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbTFLWtO
+	id S265054AbTFLWwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265046AbTFLWuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:49:14 -0400
-Received: from vopmail.neto.com ([209.223.15.78]:13587 "EHLO vopmail.neto.com")
-	by vger.kernel.org with ESMTP id S265043AbTFLWrU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:47:20 -0400
-Message-ID: <3EE9070A.4040403@neto.com>
-Date: Thu, 12 Jun 2003 18:04:42 -0500
-From: John T Copeland <johnc@neto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030315
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linuxkernel <linux-kernel@vger.kernel.org>
-Subject: siimage driver
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 12 Jun 2003 18:50:20 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:11255 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S265039AbTFLWt6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:49:58 -0400
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+From: Robert Love <rml@tech9.net>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20030612225040.GA1492@kroah.com>
+References: <3EE8D038.7090600@mvista.com> <20030612214753.GA1087@kroah.com>
+	 <20030612150335.6710a94f.akpm@digeo.com>  <20030612225040.GA1492@kroah.com>
+Content-Type: text/plain
+Message-Id: <1055459124.662.332.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 12 Jun 2003 16:05:25 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
-A couple of questions if you please.
+On Thu, 2003-06-12 at 15:50, Greg KH wrote:
 
-1)  When I compile the siimage driver into the kernel, the ide buses are 
-scanned in the following order:
-  IDE0 - SATA primary - hda, hdb
-  IDE1 - SATA secondary - hdc, hdd
-  IDE2 - ATA tertiary - hde, hdf
-  IDE3 - ATA quandrary hdg, hdh
-I want the ATA to be IDE0/1  and SATA to be IDE2/3.  I have noticed from 
-some of the posts about the siimage driver on the ASUS nforce2 mobo this 
-is the apparent order scanned.  My mobo is an Abit NF7-S nforce2.  Is 
-there someway of controlling the order of scannin the IDE buses?  I 
-tried append="ide=reverse" to no avail.
+> 	- serialize the hotplug events in userspace:
+> 		- udev daemon running listening on named pipe
+> 		- small event generator kicked off from /sbin/hotplug
+> 		  call to write event to udev pipe
 
-2) To try and get the nforce2 IDE buses scanned first, I compiled 
-siimage as a module, but when I did an "insmod siimage" I get an 
-unresolved external, "noautodma", in siimage.
+What if you just passed a sequence number to /sbin/hotplug ?
 
-I'd appreciate any help you can offer.
-
-Thanks,
-John Copeland
- 
+	Robert Love
 

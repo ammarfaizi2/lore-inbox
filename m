@@ -1,51 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVDGTIO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262553AbVDGTIH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbVDGTIO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 15:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbVDGTIO
+	id S262553AbVDGTIH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 15:08:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVDGTIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 15:08:14 -0400
-Received: from extgw-uk.mips.com ([62.254.210.129]:3859 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262555AbVDGTHz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 15:07:55 -0400
-Date: Thu, 7 Apr 2005 20:07:32 +0100
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm1: ieee1394 process hang
-Message-ID: <20050407190732.GB26850@linux-mips.org>
-References: <4254F07B.1010500@goop.org> <20050407015845.6fb3c171.akpm@osdl.org>
+	Thu, 7 Apr 2005 15:08:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:40407 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262553AbVDGTHy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 15:07:54 -0400
+Date: Thu, 7 Apr 2005 12:06:42 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+Cc: stable@kernel.org
+Subject: Linux 2.6.11.7
+Message-ID: <20050407190642.GA4044@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050407015845.6fb3c171.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 01:58:45AM -0700, Andrew Morton wrote:
+As the -stable patch review cycle is now over, I've released the
+2.6.11.7 kernel in the normal kernel.org places.  Yes, I'm still using
+bk for this release, as we don't have any other system in place just
+yet...
 
-> > I'm having problems with 1394 in 2.6.12-rc2-mm1.  When I connect my
-> >  Apple iSight camera, it is not detected; repeated
-> >  connections/disconnections don't help.  When I tried to rmmod all the
-> >  appropriate modules (rmmod video1394 raw1394 ohci1394 ieee1394), the
-> >  rmmod command hung.  Alt-Sysreq-t shows this:
-> 
-> I don't think there have been any 1394 changes recently.  This bug might be
-> more fallout from Pat's recent changes.
-> 
-> More attempts have been made to fix that stuff up.  Maybe you could try
-> http://www.zip.com.au/~akpm/linux/patches/stuff/2.6.12-rc2-mm1.5.gz
+The diffstat and short summary of the fixes are below.  
 
-I'm not so sure, last week I had similar results with an external IEEE 1394
-disk drive.  On the first attempt it wasn't detected, in the 2nd and 3rd
-attempt detecting worked ok.  After copying a data for like 2min the system
-paniced with no useful data in the log.  Further attempts resulted in more
-hangs and panics.  The kernel was the latest and greatest FC3 kernel,
-kernel-2.6.10-1.770_FC3.
+I'll also be replying to this message with a copy of the patch between
+2.6.11.6 and 2.6.11.7, as it is small enough to do so.
 
-(I'm a 1h flight away from the system so can't do any more testing on that
-system)
+thanks,
+ 
+greg k-h
 
-  Ralf
+------
+ Makefile                      |    2 +-
+ arch/ia64/kernel/fsys.S       |    4 +++-
+ arch/ia64/kernel/signal.c     |    3 ++-
+ arch/um/kernel/skas/uaccess.c |    3 ++-
+ drivers/i2c/chips/eeprom.c    |    3 ++-
+ fs/jbd/transaction.c          |    6 +++---
+ lib/rwsem-spinlock.c          |   42 ++++++++++++++++++++++++++----------------
+ lib/rwsem.c                   |   16 ++++++++++------
+ net/ipv4/tcp_input.c          |    5 ++++-
+ net/ipv4/xfrm4_output.c       |   12 ++++++------
+ net/ipv6/xfrm6_output.c       |   12 ++++++------
+ sound/core/timer.c            |    5 ++++-
+ 12 files changed, 69 insertions(+), 44 deletions(-)
+
+
+Summary of changes from v2.6.11.6 to v2.6.11.7
+==============================================
+
+Amy Griffis:
+  o fix ia64 syscall auditing
+
+David Howells:
+  o rwsem fix
+
+David S. Miller:
+  o Fix BIC congestion avoidance algorithm error
+
+Greg Kroah-Hartman:
+  o Linux 2.6.11.7
+
+Jean Delvare:
+  o I2C: Fix oops in eeprom driver
+
+Paolo 'Blaisorblade' Giarrusso:
+  o [patch 1/1] uml: va_copy fix
+
+Patrick McHardy:
+  o Do not hold state lock while checking size
+
+Stephen C. Tweedie:
+  o Prevent race condition in jbd
+
+Takashi Iwai:
+  o Fix Oops with ALSA timer event notification
+

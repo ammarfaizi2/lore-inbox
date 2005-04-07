@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVDGBL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVDGBOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbVDGBL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 21:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVDGBL5
+	id S262374AbVDGBOp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 21:14:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVDGBO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 21:11:57 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:54408 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262367AbVDGBLr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 21:11:47 -0400
-Message-ID: <425488BB.9030004@nortel.com>
-Date: Wed, 06 Apr 2005 19:11:23 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Wed, 6 Apr 2005 21:14:27 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:51508 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262369AbVDGBNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 21:13:02 -0400
+Date: Thu, 7 Apr 2005 02:13:10 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Russell King <rmk@arm.linux.org.uk>,
+       David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 2/6] freepgt2: sys_mincore ignore FIRST_USER_PGD_NR
+In-Reply-To: <Pine.LNX.4.61.0504070204390.24723@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0504070210430.24723@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0504070204390.24723@goblin.wat.veritas.com>
 MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: Andrew Morton <akpm@osdl.org>, Alan Modra <amodra@bigpond.net.au>,
-       Marty Ridgeway <mridge@us.ibm.com>, linux-kernel@vger.kernel.org,
-       ltp-list@lists.sourceforge.net, ltp-announce@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] April Release of LTP now Available
-References: <OF98479217.2360E20E-ON85256FDA.00696BC9-86256FDA.00698E70@us.ibm.com>	<20050406043001.3f3d7c1c.akpm@osdl.org> <16980.33841.943558.94159@cargo.ozlabs.ibm.com>
-In-Reply-To: <16980.33841.943558.94159@cargo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras wrote:
+Remove use of FIRST_USER_PGD_NR from sys_mincore: it's inconsistent (no
+other syscall refers to it), unnecessary (sys_mincore loops over vmas
+further down) and incorrect (misses user addresses in ARM's first pgd).
 
-> 	if (__sc_err & 0x10000000)					\
-> 	{								\
-> 		errno = __sc_ret;					\
-> 		__sc_ret = -1;						\
-> 	}								\
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
+ mm/mincore.c |    3 ---
+ 1 files changed, 3 deletions(-)
 
-If you're messing with that code anyways, any chance of changing the 
-assignment to "__sc_ret = -1UL;", since __sc_ret is of type unsigned long?
-
-Chris
+--- 2.6.12-rc2-mm1/mm/mincore.c	2005-04-05 15:21:02.000000000 +0100
++++ linux/mm/mincore.c	2005-04-05 18:59:01.000000000 +0100
+@@ -118,9 +118,6 @@ asmlinkage long sys_mincore(unsigned lon
+  	if (start & ~PAGE_CACHE_MASK)
+ 		goto einval;
+ 
+-	if (start < FIRST_USER_PGD_NR * PGDIR_SIZE)
+-		goto enomem;
+-
+ 	limit = TASK_SIZE;
+ 	if (start >= limit)
+ 		goto enomem;

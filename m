@@ -1,114 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVDGS40@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262558AbVDGTAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbVDGS40 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 14:56:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVDGS4Z
+	id S262558AbVDGTAj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 15:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbVDGTAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 14:56:25 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:6332 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262553AbVDGSy0 (ORCPT
+	Thu, 7 Apr 2005 15:00:38 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:37004 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262563AbVDGTAO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 14:54:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=iqxdDcKLvmGNv2H/Ri+6gqqebkb4ZmUe85hLzVKmQINAQB9rM4E+eUboin9EU3FinQeWC33Pwz+AOxuqVPZiPjMWJMkENGh/GDmHShHfRKifpzrJRoF5dHYscNHhU4DBYscq5/QrcfGdPhdoov4i3HVDiJc0js0WVOwtLYqw8wE=
-Message-ID: <29495f1d05040711544695ce89@mail.gmail.com>
-Date: Thu, 7 Apr 2005 11:54:26 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Moritz Muehlenhoff <jmm@inutil.org>
-Subject: Re: Linux 2.6.12-rc2
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050407175026.GA5872@informatik.uni-bremen.de>
+	Thu, 7 Apr 2005 15:00:14 -0400
+Date: Thu, 7 Apr 2005 20:59:23 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: arjan@infradead.org, kaos@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2 in_atomic() picks up preempt_disable()
+Message-ID: <20050407185923.GA12012@elte.hu>
+References: <200504071840.j37Iei25019895@harpo.it.uu.se>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_7535_4489349.1112900066204"
-References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
-	 <E1DJE6t-0001T5-UD@localhost.localdomain>
-	 <1112827342.9567.189.camel@gaston>
-	 <20050407175026.GA5872@informatik.uni-bremen.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504071840.j37Iei25019895@harpo.it.uu.se>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_7535_4489349.1112900066204
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Apr 7, 2005 10:50 AM, Moritz Muehlenhoff <jmm@inutil.org> wrote:
-> Benjamin Herrenschmidt wrote:
-> > > 1. When resuming from S3 suspend and having switched off the backlight
-> > > with radeontool the backlight isn't switched back on any more.
+* Mikael Pettersson <mikpe@csd.uu.se> wrote:
+
+> On Thu, 07 Apr 2005 12:17:37 +0200, Arjan van de Ven wrote:
+> >On Thu, 2005-04-07 at 20:10 +1000, Keith Owens wrote:
+> >> 2.6.12-rc2, with CONFIG_PREEMPT and CONFIG_PREEMPT_DEBUG.  The
+> >> in_atomic() macro thinks that preempt_disable() indicates an atomic
+> >> region so calls to __might_sleep() result in a stack trace.
 > >
-> > I'm not sure what's up here, it's a nasty issue with backlight. Can
-> > radeontool bring it back ?
+> >but you're not allowed to schedule when preempt is disabled!
 > 
-> Before suspending I power down the backlight with "radeontool light off"
-> and with 2.6.11 the display is properly restored. With 2.6.12rc2 the
-> backlight remains switched off and if I switch it on with radeontool it
-> becomes lighter, but there's still no text from the fbcon, just the blank
-> screen.
+> That sounds draconian. Where is that requirement stated?
 
-FWIW, I have the same problem on a T41p with 2.6.11 and 2.6.12-rc2,
-except that neither returns from suspend-to-ram with video restored on
-the LCD. I believe I was able to get video restored on an external CRT
-in either 2.6.12-rc2 or 2.6.12-rc2-mm1, but the LCD still didn't
-restore (can verify later today, if you'd like). I had dumped out the
-radeontool regs values before & after the sleep, in case they help.
-They are attached.
+(in the code, and in lkml discussions, as usual. There's tons of code 
+that correctly handled it and continues to handle it. Let me be clear, 
+this isnt some obscure side-effect, this is one of the cornerstones, 
+preempt_disable()/enable() always had these semantics, and this is very 
+much being relied on in a number of areas.)
 
-I posted these problems in the "Call for help S3" thread, but no one responded.
+> A preempt-disabled region ought to have the same semantics as in a 
+> CONFIG_PREEMPT=n kernel, and since schedule is Ok in the latter case 
+> it should be Ok in the former too.
+> 
+> All that preempt_disable() should do is prevent involuntary schedules.  
+> But the conditional schedules introduced by may-sleep functions are 
+> _voluntary_, so there's no reason to forbid them.
 
-Thanks,
-Nish
+this just hides bugs and introduces bugs. From a critical section POV a 
+voluntary preemption is almost the same thing as a voluntary preemption 
+- the task may wander to another CPU, and smp_processor_id() might 
+become different. If it's not a problem for your code to preempt then 
+just enable preemption before calling it. Anyway, preempt_disable() / 
+preempt_enable() is pretty much an internal interface and shouldnt be 
+used lightly.
 
-------=_Part_7535_4489349.1112900066204
-Content-Type: application/octet-stream; name=radeontool_pre
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="radeontool_pre"
-
-RADEON_DAC_CNTL=ff002102
-RADEON_DAC_CNTL2=00000000
-RADEON_TV_DAC_CNTL=07770142
-RADEON_DISP_OUTPUT_CNTL=10000008
-RADEON_CONFIG_MEMSIZE=08000000
-RADEON_AUX_SC_CNTL=00000000
-RADEON_CRTC_EXT_CNTL=0d008048
-RADEON_CRTC_GEN_CNTL=03000200
-RADEON_CRTC2_GEN_CNTL=00800000
-RADEON_DEVICE_ID=00004e54
-RADEON_DISP_MISC_CNTL=5b300600
-RADEON_GPIO_MONID=00000000
-RADEON_GPIO_MONIDB=00000000
-RADEON_GPIO_CRT2_DDC=00000000
-RADEON_GPIO_DVI_DDC=00000300
-RADEON_GPIO_VGA_DDC=00000300
-RADEON_LVDS_GEN_CNTL=003cffa1
-
-------=_Part_7535_4489349.1112900066204
-Content-Type: application/octet-stream; name=radeontool_post
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="radeontool_post"
-
-RADEON_DAC_CNTL=ff002102
-RADEON_DAC_CNTL2=00000000
-RADEON_TV_DAC_CNTL=00770103
-RADEON_DISP_OUTPUT_CNTL=1000000a
-RADEON_CONFIG_MEMSIZE=08000000
-RADEON_AUX_SC_CNTL=00000000
-RADEON_CRTC_EXT_CNTL=00000048
-RADEON_CRTC_GEN_CNTL=03000200
-RADEON_CRTC2_GEN_CNTL=02000000
-RADEON_DEVICE_ID=00004e54
-RADEON_DISP_MISC_CNTL=5b300600
-RADEON_GPIO_MONID=00000000
-RADEON_GPIO_MONIDB=00000000
-RADEON_GPIO_CRT2_DDC=00000000
-RADEON_GPIO_DVI_DDC=00000300
-RADEON_GPIO_VGA_DDC=00000300
-RADEON_LVDS_GEN_CNTL=080c0089
-
-------=_Part_7535_4489349.1112900066204--
+	Ingo

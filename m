@@ -1,95 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVDGObT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVDGObp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVDGObT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 10:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVDGObT
+	id S262469AbVDGObp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 10:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVDGObp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 10:31:19 -0400
-Received: from hades.almg.gov.br ([200.198.60.36]:31392 "EHLO
-	hades.almg.gov.br") by vger.kernel.org with ESMTP id S262478AbVDGObP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 10:31:15 -0400
-Message-ID: <42554407.4010200@almg.gov.br>
-Date: Thu, 07 Apr 2005 11:30:31 -0300
-From: Humberto Massa <humberto.massa@almg.gov.br>
-User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+	Thu, 7 Apr 2005 10:31:45 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:59727 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262469AbVDGObl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 10:31:41 -0400
+Message-ID: <42554448.6080809@yahoo.com.au>
+Date: Fri, 08 Apr 2005 00:31:36 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-os@analogic.com, debian-kernel@lists.debian.org,
-       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-References: <vVUko.A.NkD.kNTVCB@murphy>
-In-Reply-To: <vVUko.A.NkD.kNTVCB@murphy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: David Howells <dhowells@redhat.com>
+CC: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/6] freepgt2: sys_mincore ignore FIRST_USER_PGD_NR
+References: <Pine.LNX.4.61.0504070210430.24723@goblin.wat.veritas.com>  <Pine.LNX.4.61.0504070204390.24723@goblin.wat.veritas.com> <19283.1112868864@redhat.com>
+In-Reply-To: <19283.1112868864@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
+David Howells wrote:
+> Hugh Dickins <hugh@veritas.com> wrote:
+> 
+> 
+>>Remove use of FIRST_USER_PGD_NR from sys_mincore: it's inconsistent (no
+>>other syscall refers to it), unnecessary (sys_mincore loops over vmas
+>>further down) and incorrect (misses user addresses in ARM's first pgd).
+> 
+> 
+> You should make it use FIRST_USER_ADDRESS instead. This check allows NULL
+> pointers and suchlike to be weeded out before having to take the semaphore.
+> 
 
->  Well it doesn't make any difference. If GPL has degenerated to where
->  one can't upload microcode to a device as part of its initialization,
->  without having the "source" that generated that microcode, we are in
->  a lot of hurt. Intel isn't going to give their designs away.
+I'm not sure whether it is worth keeping the singular special
+case here to slightly speed up what would probably be a bug in
+a userspace program.
 
-I don't recall anyone asking Intel to give theirs designs away. This 
-thread is about:
-
-1. (mainly) some firmware hexdumps present in the kernel source tree are 
-either expicitly marked as being GPL'd or unmarked, in which case one 
-would assume that they would be GPL'd;
-
-1a. this means that those firmware hexdumps are not legally 
-distributable by any person besides the firmware copyright holder, 
-because any other person could not comply with the terms of the Section 
-3 of the GPL (IOW, a third party cannot give you a source code they 
-don't have);
-
-1b. [1a], for its turn, means that the current pristine kernel tree is 
-not legally distributable and that any distributor is an easy prey for 
-lawyer attacks.
-
-2. (collaterally) some firmware hexdumps present in the kernel source 
-tree are marked with "(C) Holder All Rights Reserved";
-
-2a. copyright law FORBIDS anyone to distribute such pieces of 
-information without proper authorization.
-
-3. (corolary) for each of the problematic hexdumps, the following steps 
-should be taken:
-
-3a. the copyright holder should be asked for the source code to the 
-firmware -- if they do this, it would be great for a lot of Free 
-Software reasons;
-
-3b. if the copyright holder declines, it should be asked for a license 
-to freely redistribute the firmware; and
-
-3c. if the copyright holder declines, the firmware *must* be yanked from 
-the pristine kernel tree;
-
-3d. furthermore, all of this *should* be properly documented, IMHO, both 
-in a centralized file, and in the file where the firmware hexdump appears.
-
-
->  Last time I checked, GPL was about SOFTware, not FIRMware, and not
->  MICROcode. If somebody has decided to rename FIRMware to SOFTware,
->  then they need to complete the task and call it DORKware, named after
->  themselves.
-
-Last time I checked, the GPL was a COPYRIGHT LICENSE and, as such, not 
-"about" anything in particular. Yes, it was idealized to be used for the 
-licensing of computer programs and libraries. OTOH, many works of many 
-other kinds (music, literary works, etc) were licensed under the GPL.
-
->  This whole thread and gotten truly bizarre.
-
-Nah, it has a good reason to exist... With the passing of time, Debian, 
-that is supposed to be a Free Software OS, is depending more and more of 
-non-Free components. And yes, as it is today, the pristine kernel tree 
-is non-free.
-
-Regards,
-Massa
+-- 
+SUSE Labs, Novell Inc.
 

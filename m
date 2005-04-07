@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVDGT6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVDGUIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262581AbVDGT6I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 15:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVDGT6I
+	id S262584AbVDGUIe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 16:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVDGUIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 15:58:08 -0400
-Received: from zoe.ndcservers.net ([216.23.188.144]:33985 "EHLO
-	zoe.ndcservers.net") by vger.kernel.org with ESMTP id S262581AbVDGT5W
+	Thu, 7 Apr 2005 16:08:34 -0400
+Received: from digitalimplant.org ([64.62.235.95]:62144 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S262584AbVDGUIZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 15:57:22 -0400
-Message-ID: <014d01c53bac$02b95040$0201a8c0@ndciwkst01>
-From: "mailinglist@unix-scripts.com" <mailinglists@unix-scripts.com>
-To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <d2vu0u$oog$1@sea.gmane.org> <Pine.LNX.4.61.0504060209200.15520@montezuma.fsmlabs.com> <03f201c53aeb$a42d1270$0201a8c0@ndciwkst01> <Pine.LNX.4.61.0504070207430.12823@montezuma.fsmlabs.com>
-Subject: Re: kernel panic - not syncing: Fatal exception in interupt
-Date: Thu, 7 Apr 2005 12:57:21 -0700
+	Thu, 7 Apr 2005 16:08:25 -0400
+Date: Thu, 7 Apr 2005 13:08:17 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: David Brownell <david-b@pacbell.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: klists and struct device semaphores
+In-Reply-To: <Pine.LNX.4.44L0.0504061535140.1511-100000@ida.rowland.org>
+Message-ID: <Pine.LNX.4.50.0504071304040.5276-100000@monsoon.he.net>
+References: <Pine.LNX.4.44L0.0504061535140.1511-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2741.2600
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2742.200
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - zoe.ndcservers.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - unix-scripts.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The last time i crashed i changed the console resolution, i'm hoping it will
-give me the whole dump this time.  I will see if i can get a serial console
-on it.
 
-Best Regards,
+On Wed, 6 Apr 2005, Alan Stern wrote:
 
-Shaun Reitan
-Account Specialist
-www.NDCHost.com
-www.cPlicensing.net
-
------ Original Message -----
-From: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
-To: "mailinglist@unix-scripts.com" <mailinglists@unix-scripts.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, April 07, 2005 1:09 AM
-Subject: Re: kernel panic - not syncing: Fatal exception in interupt
-
-
-> On Wed, 6 Apr 2005, mailinglist@unix-scripts.com wrote:
+> The patch looks good.  But isn't there still a problem with
+> device_release_driver()?  It doesn't wait for the klist_node to be removed
+> from the klist before unlocking the device and moving on.  As a result, if
+> another driver was waiting to bind to the device you would corrupt the
+> list pointers, by calling klist_add_tail() for the new driver before
+> klist_release() had run for the old driver.
 >
-> > No, sorry, i have to run with bridging support other wise the
-guests(UML's)
-> > wont be able to communicate with the outside world.
->
-> Ok in that case, can you connect a serial console so that you can capture
-> the entire output?
->
-> Thanks,
-> Zwane
->
->
+> I'll be interested to see how you manage to solve this.  The only way I
+> can think of is to avoid using driver_for_each_device() in
+> driver_detach().
 
+I had implemented something along the lines of what you suggested in a
+previous email:
+
+  - Add flag to klist_node: n_attached.
+  - Use that in klist_node_attached()
+  - Check during klist_next(), and skip nodes that have been removed.
+  - Reset flag during klist_del().
+
+Based on the deadlock that occurs when using klist_remove() during an
+iteration over that the list, and the common indirect usage of it (parents
+and buses unregistering devices, drivers unbinding devices), I've just
+removed klist_remove() and the embedded completion. I'll post updated
+patches soon.
+
+Thanks,
+
+
+	Pat

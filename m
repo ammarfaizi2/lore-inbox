@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVDGT0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVDGTdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVDGT0P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 15:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVDGT0P
+	id S262573AbVDGTdR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 15:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVDGTdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 15:26:15 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:6598 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S262571AbVDGT0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 15:26:13 -0400
-Date: Thu, 7 Apr 2005 14:26:05 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@blarg.somerset.sps.mot.com
-To: Andrew Morton <akpm@osdl.org>
-cc: linuxppc-dev@ozlabs.org, linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+	Thu, 7 Apr 2005 15:33:16 -0400
+Received: from odpn1.odpn.net ([212.40.96.53]:54957 "EHLO odpn1.odpn.net")
+	by vger.kernel.org with ESMTP id S262573AbVDGTdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 15:33:14 -0400
+From: "Gabor Z. Papp" <gzp@papp.hu>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] ppc32: Allow adjust of pfn offset in pte
-Message-ID: <Pine.LNX.4.61.0504071414230.5277@blarg.somerset.sps.mot.com>
+Subject: Re: 2.4.30: pwc pwc_isoc_handler() called with status -84
+References: <x6ekdqgyfm@gzp> <20050405135552.GB7409@logos.cnet>
+	<20050406170746.048e5b58@lembas.zaitcev.lan>
+Date: Thu, 07 Apr 2005 21:33:11 +0200
+Message-ID: <x64qeiidqg@gzp>
+User-Agent: Gnus/5.110003 (No Gnus v0.3)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-Authenticated: gzp1 odpn1.odpn.net a3085bdc7b32ae4d7418f70f85f7cf5f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+* Pete Zaitcev <zaitcev@redhat.com>:
 
-Allow the pfn to be offset by more than just PAGE_SHIFT in the pte.  
-Today, PAGE_SHIFT tends to allow us to have 12-bits of flags in the pte.  
-In the future if we have a larger pte we can allocate more bits for flags 
-by offsetting the pfn even further.
+| > > pwc Too many ISOC errors, bailing out.
+| > > pwc pwc_isoc_handler() called with status -84 [CRC/Timeout (could be anything)].
+| 
+| There is no other way but to start splitting patches and diff-ing.
+| We can narrow this down a little by looking at what _might_ be involved.
+| Is this device driven by EHCI?
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+yes, i think so. Asus P4C800-E mobo. Details in the tarball.
 
----
+| A snapshot of /proc/bus/usb/devices would be useful (BTW, Gabor,
+| please do it on both 2.4.28 and 2.4.30-rc).
 
-diff -Nru a/include/asm-ppc/pgtable.h b/include/asm-ppc/pgtable.h
---- a/include/asm-ppc/pgtable.h	2005-04-07 14:25:07 -05:00
-+++ b/include/asm-ppc/pgtable.h	2005-04-07 14:25:07 -05:00
-@@ -431,10 +431,15 @@
-  * Conversions between PTE values and page frame numbers.
-  */
- 
--#define pte_pfn(x)		(pte_val(x) >> PAGE_SHIFT)
-+/* in some case we want to additionaly adjust where the pfn is in the pte to
-+ * allow room for more flags */
-+#define PFN_SHIFT_OFFSET	(PAGE_SHIFT)
-+
-+#define pte_pfn(x)		(pte_val(x) >> PFN_SHIFT_OFFSET)
- #define pte_page(x)		pfn_to_page(pte_pfn(x))
- 
--#define pfn_pte(pfn, prot)	__pte(((pte_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
-+#define pfn_pte(pfn, prot)	__pte(((pte_basic_t)(pfn) << PFN_SHIFT_OFFSET) |\
-+					pgprot_val(prot))
- #define mk_pte(page, prot)	pfn_pte(page_to_pfn(page), prot)
- 
- /*
+Right now I have .30-rc only: http://gzp.odpn.net/tmp/pwc/pwc.tgz
+I should compile a new 2.4.28, because I deleted...

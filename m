@@ -1,183 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbVDGV3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVDGVdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262614AbVDGV3z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 17:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVDGV3e
+	id S262610AbVDGVdg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 17:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVDGVdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 17:29:34 -0400
-Received: from smtp-104-thursday.nerim.net ([62.4.16.104]:45839 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262610AbVDGV2j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 17:28:39 -0400
-Date: Thu, 7 Apr 2005 23:29:08 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Ladislav Michl <ladis@linux-mips.org>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>,
-       James Chapman <jchapman@katalix.com>
-Subject: Re: [PATCH] i2c: new driver for ds1337 RTC
-Message-Id: <20050407232908.418d8878.khali@linux-fr.org>
-In-Reply-To: <20050407142804.GA11284@orphique>
-References: <20050407111631.GA21190@orphique>
-	<hOrXV5wl.1112879260.3338120.khali@localhost>
-	<20050407142804.GA11284@orphique>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 7 Apr 2005 17:33:36 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:1239 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262610AbVDGVd1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 17:33:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=HdIdOrBhv1/5HjUksokYlyepPa+8BezE6kpWS2UwQrJfoPT5F6NyWiX0T7xzE3Q8Rq7qu6tSOHPREUlY4PzW/9jbHZzQjDWgJtz6pLjCqMEHowEgajesj3o/wGG7EjAjCHQ8tiHHb2hoN7sBUmcUkEqXeXdrwGBhaqHtssaF2Uo=
+Message-ID: <aec7e5c3050407143345397639@mail.gmail.com>
+Date: Thu, 7 Apr 2005 23:33:25 +0200
+From: Magnus Damm <magnus.damm@gmail.com>
+Reply-To: Magnus Damm <magnus.damm@gmail.com>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: [PATCH][RFC] disable built-in modules V2
+Cc: AsterixTheGaul <asterixthegaul@gmail.com>,
+       Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
+In-Reply-To: <200504070238.j372cGQN005597@laptop11.inf.utfsm.cl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <asterixthegaul@gmail.com>
+	 <54b5dbf505040618324186678a@mail.gmail.com>
+	 <200504070238.j372cGQN005597@laptop11.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ladislav,
+On Apr 7, 2005 4:38 AM, Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> AsterixTheGaul <asterixthegaul@gmail.com> said:
+> > > -#define module_init(x) __initcall(x);
+> > > +#define module_init(x) __initcall(x); __module_init_disable(x);
+> >
+> > It would be better if there is brackets around them... like
+> >
+> > #define module_init(x) { __initcall(x); __module_init_disable(x); }
+> >
+> > then we know it wont break some code like
+> >
+> > if (..)
+> >  module_init(x);
+> 
+> But happily break:
+> 
+>    if (...)
+>     module_init(x);
+>    else
+>     ...
+> 
+> This should be:
+> 
+> #define module_init(x)  do {__initcall(x); __module_init_disable(x);}while(0)
 
-> Here is yet another patch this time fixes only.
-> CHANGELOG:
-> * use i2_tranfer function instead of adapter->algo->master_xfer, so
->   we have proper bus locking.
+Yes and no. =) Wrapping defines in do {} while(0) is nice when you are
+using the defined constants inside functions. module_init() OTOH is
+never used inside a function and your suggestion leads to compile
+errors:
 
-You are absolutely right. My mistake, I should have noticed when first
-reviewing the code, as calling master_xfer directly is unseen - for a
-reason.
+  CC      arch/i386/kernel/dmi_scan.o
+  CC      arch/i386/kernel/bootflag.o
+arch/i386/kernel/bootflag.c:99: error: parse error before "do"
+arch/i386/kernel/bootflag.c:99: error: parse error before '}' token
+make[1]: *** [arch/i386/kernel/bootflag.o] Error 1
+make: *** [arch/i386/kernel] Error 2
+damm@clementine linux-2.6.12-rc2-disable_builtin $
 
-> * BCD2BIN and BIN2BCD are proper macros to use here, see linux/bcd.h
-
-Looks correct to me as well.
-
-> * Move NULL argument checking from get/set date functions to
->   ds1337_command function, so it is only at one place. Note that other
->   drivers do not this checking at all and I think it is pointess,
->   because you have to know that you are passing struct rtc_time
->   anyway.
-
-I am not certain these are the right things to do (moving the check or
-removing it). I am not a specialist of ioctl, but it looks to me that
-ds1337_command acts as a dispatcher, branching to various functions
-depending on the value of cmd. I can imagine that some functions take an
-argument, and some don't, so checking for NULL pointer in the dispatcher
-doesn't make much sense. Now it is correct that for now all (two)
-functions need a parameter, but what if later a function is added, which
-takes no parameter? You'd have to undo your change and move the check in
-each function again.
-
-As for the check itself, the pointer somehow comes from user-space as I
-understand it, so you can't tell whether it's NULL or not - so checking
-makes full sense to me. If you take a look at the rtc8564 driver you'll
-see it *does* check for NULL pointers too.
-
-> * dev_dbg should probably print info about device driver we are
->   debugging so client->dev looks as better choice than
->   client->adapter->dev.
-
-You're correct.
-
-My comments to the code itself follows.
-
-> @@ -95,60 +96,38 @@
->   */
->  static int ds1337_get_datetime(struct i2c_client *client, struct
->  rtc_time *dt) {
-> -	struct ds1337_data *data = i2c_get_clientdata(client);
-> -	int result;
-> -	u8 buf[7];
-> -	u8 val;
-> -	struct i2c_msg msg[2];
-> -	u8 offs = 0;
-> -
-> -	if (!dt) {
-> -		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
-> -			__FUNCTION__);
-> -
-> -		return -EINVAL;
-> -	}
-> -
-> -	msg[0].addr = client->addr;
-> -	msg[0].flags = 0;
-> -	msg[0].len = 1;
-> -	msg[0].buf = &offs;
-> -
-> -	msg[1].addr = client->addr;
-> -	msg[1].flags = I2C_M_RD;
-> -	msg[1].len = sizeof(buf);
-> -	msg[1].buf = &buf[0];
-> +	unsigned char buf[7] = { 0, }, addr[1] = { 0 };
-> +	struct i2c_msg msgs[2] = {
-> +		{ client->addr, 0,        1, addr },
-> +		{ client->addr, I2C_M_RD, 7, buf  }
-> +	};
-> +	int result = i2c_transfer(client->adapter, msgs, 2);
->  
-> -	result = client->adapter->algo->master_xfer(client->adapter,
-> -						    &msg[0], 2);
-
-You are doing much more than just using i2c_transfer instead of
-master_xfer. You are also rewriting the way the message data is
-initialized. I see no reason to do that, as the previous code was
-correct as far as I can see.
-
-> -	dev_dbg(&client->adapter->dev,
-> +	dev_dbg(&client->dev,
-
-Yes, that's correct.
-
-> -	if (result >= 0) {
-(...)
-> +	if (result < 0) {
-
-By changing this you are making your patch much bigger and harder to
-review. Why do you do that?
-
-> -		val = buf[2] & 0x3f;
-> -		dt->tm_hour = BCD_TO_BIN(val);
-(...)
-> +		dt->tm_hour = BCD2BIN(buf[2] & 0x3f);
-
-No, James is correct. BCD2BIN (or BCD_TO_BIN for that matter) is a
-macro which evaluates its argument more than once. Using a temporary
-variable makes sense.
-
-> -		val = buf[5] & 0x7f;
-> -		dt->tm_mon = BCD_TO_BIN(val);
-(...)
-> +		dt->tm_mon  = BCD2BIN(buf[5] & 0x7f) - 1;
-
-Looks to me like you are silently changing the code here. Was there a
-bug? If so, please tell so.
-
-> +	unsigned char buf[8];
->  	int result;
-> -	u8 buf[8];
-
-Wow, what a useful change. Please please please... Focus on making your
-patch compact, have it do just the thing it is supposed (and advertised)
-to do. You know, I'll repeat it until you get it. No matter how many
-tries it takes.
-
->  	if (dt->tm_year >= 2000) {
-> -		val = dt->tm_year - 2000;
->  		buf[6] |= (1 << 7);
-> -	} else {
-> -		val = dt->tm_year - 1900;
-> -	}
-> -	buf[7] = BIN_TO_BCD(val);
-> +		buf[7] = BIN2BCD(dt->tm_year - 2000);
-> +	} else
-> +		buf[7] = BIN2BCD(dt->tm_year - 1900);
-
-Same as before, the use of a temporary variable makes full sense, don't
-change that. And you're again adding noise by dropping a pair of curly
-braces.
-
-> -	} else {
-> +	} else
->  		result = 0;
-> -	}
-
-And that's noise again.
-
-Please resubmit your patch without all the noise. Don't change things
-just because you like them the other way. Fix things which are broken,
-and only these.
-
-Thanks,
--- 
-Jean Delvare
+/ magnus

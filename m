@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVDGWWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVDGW2K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVDGWWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 18:22:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVDGWWQ
+	id S261527AbVDGW2K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 18:28:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVDGW2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 18:22:16 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:36621 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S262171AbVDGWWH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 18:22:07 -0400
-Message-ID: <4255B247.4080906@tuxrocks.com>
-Date: Thu, 07 Apr 2005 16:20:55 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tony Lindgren <tony@atomide.com>
-CC: linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, Thomas Renninger <trenn@suse.de>
-Subject: Re: [PATCH] Dynamic Tick version 050406-1
-References: <20050406083000.GA8658@atomide.com> <425451A0.7020000@tuxrocks.com> <20050407082136.GF13475@atomide.com> <4255A7AF.8050802@tuxrocks.com>
-In-Reply-To: <4255A7AF.8050802@tuxrocks.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Apr 2005 18:28:10 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59656 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261527AbVDGW2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 18:28:06 -0400
+Date: Fri, 8 Apr 2005 00:28:05 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jose =?iso-8859-1?Q?=C1ngel_De_Bustos_P=E9rez?= 
+	<jadebustos@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A problem with kswapd
+Message-ID: <20050407222805.GG4325@stusta.de>
+References: <59ab6ac105040400423fefd96a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <59ab6ac105040400423fefd96a@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Frank Sorenson wrote:
-> Tony Lindgren wrote:
+On Mon, Apr 04, 2005 at 09:42:39AM +0200, Jose Ángel De Bustos Pérez wrote:
+> Hi,
 > 
->>Thanks for trying it out. What kind of hardware do you have? Does it
->>have HPET? It looks like no suitable timer for dyn-tick is found...
->>Maybe the following patch helps?
->>
->>Tony
+> I have a problem with kswapd and I didn't find anything in the
+> archives of the list (I hope not having missed someone).
 > 
+> kswapd is using 100% of CPU in a suse sles8 with kernel 2.4.241. This
+> machine has its FS under LVM and ResiserFS, except for /boot which is
+> in ext2.
 > 
-> Does 'different crash' qualify as "helping"?  :)
+> Any idea? Thanks in advance.
 
-Update:
-The patch does seem to fix the crash.  This "different crash" I
-mentioned appears to be related to the netconsole I was using (serial
-console produces stairstepping text, netconsole seems to duplicate
-lines--go figure).  Without netconsole, dynamic tick appears to be
-working, so I'm not sure whether this is a netconsole bug or a dynamic
-tick bug.
+If your kernel is a kernel that came with SuSE, please contact SuSE 
+support.
 
-While dynamic tick no longer panics, with dynamic tick, my system slows
-to whatever is slower than a crawl.  It now takes 6 minutes 50 seconds
-to boot all the way up, compared to 1 minute 35 seconds with my 2.6.12
-kernel without the dynamic tick patch.  I'm not sure where this slowdown
-is occurring yet.
+If your kernel is a vanilla ftp.kernel.org kernel, please try whether 
+2.4.30 already fixes this issue.
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+cu
+Adrian
 
-iD8DBQFCVbJHaI0dwg4A47wRAmijAKCRgg9MTxrrNWKanMmmSS010BTWdgCeNMnJ
-4YJWhHAcizMgZNH/+643Hvk=
-=w9Ii
------END PGP SIGNATURE-----
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

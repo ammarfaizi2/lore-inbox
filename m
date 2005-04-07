@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVDGIfU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVDGIeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbVDGIfU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 04:35:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVDGIej
+	id S262398AbVDGIeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 04:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbVDGIeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 04:34:39 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:943 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262279AbVDGIXg (ORCPT
+	Thu, 7 Apr 2005 04:34:16 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18574 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262400AbVDGIc6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 04:23:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=fs4mwzUYyUYMF2LXYqK+kJ1waGiMx3wnR3A7pd+Ip9ZhQAeR7xDa7sgrdy+Zgg9umXdicLjnqDpcBVrkiv0hUlnDQSqpm9ySiJaEsZEgdXiji8F0QWX3WapRtS7HavNNABjjCgGgifIM8fFnYVDl0MA6mxfFdkzuL2xc+fCoXbE=
-Message-ID: <aec7e5c305040701236289aacd@mail.gmail.com>
-Date: Thu, 7 Apr 2005 10:23:32 +0200
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: Roland Dreier <roland@topspin.com>
-Subject: Re: [PATCH][RFC] disable built-in modules V2
-Cc: AsterixTheGaul <asterixthegaul@gmail.com>,
-       Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
-In-Reply-To: <528y3v72al.fsf@topspin.com>
+	Thu, 7 Apr 2005 04:32:58 -0400
+Date: Thu, 7 Apr 2005 01:32:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: johnpol@2ka.mipt.ru
+Cc: guillaume.thouvenin@bull.net, greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+Message-Id: <20050407013213.7bdb083e.akpm@osdl.org>
+In-Reply-To: <1112862232.28858.102.camel@uganda>
+References: <1112859412.18360.31.camel@frecb000711.frec.bull.fr>
+	<1112860419.28858.76.camel@uganda>
+	<20050407005852.36a1264b.akpm@osdl.org>
+	<1112862232.28858.102.camel@uganda>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050405225747.15125.8087.59570@clementine.local>
-	 <54b5dbf505040618324186678a@mail.gmail.com>
-	 <528y3v72al.fsf@topspin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 7, 2005 4:23 AM, Roland Dreier <roland@topspin.com> wrote:
->  > > -#define module_init(x) __initcall(x);
->  > > +#define module_init(x) __initcall(x); __module_init_disable(x);
->  >
->  > It would be better if there is brackets around them... like
->  >
->  > #define module_init(x) { __initcall(x); __module_init_disable(x); }
->  >
->  > then we know it wont break some code like
->  >
->  > if (..)
->  >  module_init(x);
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+>
+> > 
+> > Plus, I'm still quite unsettled about the whole object lifecycle
+> > management, refcounting and locking in there.  The fact that the code is
+> > littered with peculiar barriers says "something weird is happening here",
+> > and it remains unobvious to me why such a very common kernel pattern was
+> > implemented in such an unusual manner.
+> > 
+> > So.  I'd like to see the whole thing reexplained and resubmitted so we can
+> > think about it all again.
 > 
-> This is all completely academic, since module_init() is a declaration
-> that won't be inside any code, but in general it's better still to use
-> the do { } while (0) idiom like
-> 
-> #define module_init(x) do { __initcall(x); __module_init_disable(x); } while (0)
-> 
-> so it won't break code like
-> 
->         if (..)
->                 module_init(x);
->         else
->                 something_else();
-> 
-> (Yes, that code is nonsense but if you're going to nitpick, go all the way...)
+> All those barriers can be replaced with atomic_dec_and_test(), 
 
-Right. =)
-Anyway, besides nitpicking, is there any reason not to include this
-code? Or is the added feature considered plain bloat? Yes, the kernel
-will become a bit larger, but all the data added by this patch will go
-into the init section.
+What a shame you didn't say atomic_dec_and_lock()...
 
-/ magnus
+> i.e. with something that returns the value.
+> Methods that return value requires explicit barriers.
+> 
+> Actually there are quite many places where we have:
+> 
+> cpu0                             cpu1
+> use object
+> atomic_dec()
+>                                  if atomic_read/atomic_dec_and_test == 0
+>                                     free object.
+
+Yes, but those places normally also use locking to prevent the obvious race.
+
+Yes, atomic_dec_and_test() and barrier removal would be better.  Especially
+if it's associated with code commentary which explains why the whole thing
+isn't racy (ie: explains why no other CPU can look this object up).
+
+> > Which comments were not addressed?
+> 
+> CBUS code comments [I did not get ack on CBUS itself], and two below
+> issues.
+
+I continue to not see any point in cbus.  It moves work from one place to
+another while increasing the amount of code and quite probably increasing
+the net amount of work too.
+
+IOW it looks like a net loss which happens to provide gains in one rather
+uninteresting microbenchmark.
+
+I'll gleefully admit that I'm wrong, but I don't think that has been
+demonstrated yet.
+
+

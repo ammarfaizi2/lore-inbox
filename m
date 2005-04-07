@@ -1,76 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262389AbVDGC2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVDGCeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262389AbVDGC2M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 22:28:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVDGC2M
+	id S262390AbVDGCeH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 22:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVDGCeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 22:28:12 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:43496 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262389AbVDGC1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 22:27:51 -0400
-Subject: Re: scheduler/SCHED_FIFO behaviour
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arun Srinivas <getarunsri@hotmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <BAY10-F593A133679EB2005D70E1FD93E0@phx.gbl>
-References: <BAY10-F593A133679EB2005D70E1FD93E0@phx.gbl>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 06 Apr 2005 22:27:44 -0400
-Message-Id: <1112840864.22577.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Apr 2005 22:34:07 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:13039 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S262390AbVDGCeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 22:34:02 -0400
+Date: Wed, 6 Apr 2005 19:32:43 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Martin Pool <mbp@sourcefrog.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
+Message-ID: <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+ <20050406193911.GA11659@stingr.stingr.net> <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
+ <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 07:11 +0530, Arun Srinivas wrote:
-> I am not sure if my question was clear enough or I couldnt interpret you 
-> answer correctly.(If it was the case I apologise for that).
-> 
-> My question is, as I said I am measuring the schedule time difference 
-> between my 2 of my SCHED_FIFO process in schedule() .But, I get only one set 
-> of readings (i.e., schedule() is being called once which implies my process 
-> is being scheduled only once and run till completion)
-> 
-> Also, as I said my interrupts are being processed during this time.I 
-> inspected /proc/interrupts for this.So, my question was if interrupts heve 
-> been processed several times the 2 SCHED_FIFO process which has been 
-> interrupted must have been resecheduled several times and for this upon 
-> returning from the interrupt handler the schedule() function must have been 
-> called  several times to schedule the 2 process which were running.But, as I 
-> said I get only one reading??
-> 
-> >From your reply, I come to understand that when an interrupt interrupts my 
-> user process.....it runs straight way ....but upon return from the interrupt 
-> handler does it not call schedule() to again resume my interrupted process? 
+On Thu, 7 Apr 2005, Martin Pool wrote:
 
-Exactly! Even going back to a user process, if that process is the
-highest priority process than it does not need to call schedule.
-Actually the only time it would call schedule, is if the interrupt
-called wake_up_process, or did something that needed the need_resched
-for the running task set.  Even if wake_up_process was called, if the
-process was not higher in priority than the running process, then it
-would not preempt it.
+> I haven't tested importing all 60,000+ changesets of the current bk tree,
+> partly because I don't *have* all those changesets.  (Larry said
+> previously that someone (not me) tried to pull all of them using bkclient,
+> and he considered this abuse and blacklisted them.)
 
-So...
+pull the patches from the BK2CVS server. yes some patches are combined, 
+but it will get you in the ballpark.
 
-1) Task running in user land.
-2) interrupt goes off, switch to kernel mode.
-3) execute interrupt service routine.
-4) ISR calls wake_up_process (most likely on ksoftirqd)
-5) ksoftirqd not as high a priority as running process (don't set
-need_resched)
-6) return from interrupt. need_resched not set. 
-7) go back to user process running in user land.
+David Lang
 
-There, is that clear. schedule is never called. Set ksoftirqd higher in
-priority than your tasks, and you might start seeing scheduling. But
-sometimes the functions needed to execute are done on return from
-interrupt and not though ksoftirqd, so you still might not see a
-schedule. But I'm sure you will.
+> I have been testing pulling in release and rc patches, and it scales to
+> that level.  It probably could not handle 60,000 changesets yet, but there
+> is a plan to get there.  In the interim, although it cannot handle the
+> whole history forever it can handle large trees with moderate numbers of
+> commits -- perhaps as many as you might deal with in developing a feature
+> over a course of a few months.
+>
+> The most sensible place to try out bzr, if people want to, is as a way to
+> keep your own revisions before mailing a patch to linus or the subsystem
+> maintainer.
+>
+> -- 
+> Martin
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- Steve
-
-
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVDGT4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262581AbVDGT6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbVDGT4G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 15:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVDGT4G
+	id S262581AbVDGT6I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 15:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262583AbVDGT6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 15:56:06 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:39063 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262579AbVDGT4C
+	Thu, 7 Apr 2005 15:58:08 -0400
+Received: from zoe.ndcservers.net ([216.23.188.144]:33985 "EHLO
+	zoe.ndcservers.net") by vger.kernel.org with ESMTP id S262581AbVDGT5W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 15:56:02 -0400
-Date: Thu, 7 Apr 2005 21:56:25 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Daniel Phillips <phillips@istop.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050407195625.GA9439@mars.ravnborg.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <16980.55403.190197.751840@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org> <200504071300.51907.phillips@istop.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504071300.51907.phillips@istop.com>
-User-Agent: Mutt/1.5.8i
+	Thu, 7 Apr 2005 15:57:22 -0400
+Message-ID: <014d01c53bac$02b95040$0201a8c0@ndciwkst01>
+From: "mailinglist@unix-scripts.com" <mailinglists@unix-scripts.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+References: <d2vu0u$oog$1@sea.gmane.org> <Pine.LNX.4.61.0504060209200.15520@montezuma.fsmlabs.com> <03f201c53aeb$a42d1270$0201a8c0@ndciwkst01> <Pine.LNX.4.61.0504070207430.12823@montezuma.fsmlabs.com>
+Subject: Re: kernel panic - not syncing: Fatal exception in interupt
+Date: Thu, 7 Apr 2005 12:57:21 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2741.2600
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2742.200
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - zoe.ndcservers.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - unix-scripts.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 01:00:51PM -0400, Daniel Phillips wrote:
-> On Thursday 07 April 2005 11:10, Linus Torvalds wrote:
-> > On Thu, 7 Apr 2005, Paul Mackerras wrote:
-> > > Do you have it automated to the point where processing emailed patches
-> > > involves little more overhead than doing a bk pull?
-> >
-> > It's more overhead, but not a lot. Especially nice numbered sequences like
-> > Andrew sends (where I don't have to manually try to get the dependencies
-> > right by trying to figure them out and hope I'm right, but instead just
-> > sort by Subject: line)...
-> 
-> Hi Linus,
-> 
-> In that case, a nice refinement is to put the sequence number at the end of 
-> the subject line so patch sequences don't interleave:
-> 
->    Subject: [PATCH] Unbork OOM Killer (1 of 3)
->    Subject: [PATCH] Unbork OOM Killer (2 of 3)
->    Subject: [PATCH] Unbork OOM Killer (3 of 3)
->    Subject: [PATCH] Unbork OOM Killer (v2, 1 of 3)
->    Subject: [PATCH] Unbork OOM Killer (v2, 2 of 3)
+The last time i crashed i changed the console resolution, i'm hoping it will
+give me the whole dump this time.  I will see if i can get a serial console
+on it.
 
-This breaks the rule of a descriptive subject for each patch.
-Consider 30 subjetcs telling you "Subject: PCI updates [001/030]
-That is not good.
+Best Regards,
 
-	Sam
+Shaun Reitan
+Account Specialist
+www.NDCHost.com
+www.cPlicensing.net
+
+----- Original Message -----
+From: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
+To: "mailinglist@unix-scripts.com" <mailinglists@unix-scripts.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, April 07, 2005 1:09 AM
+Subject: Re: kernel panic - not syncing: Fatal exception in interupt
+
+
+> On Wed, 6 Apr 2005, mailinglist@unix-scripts.com wrote:
+>
+> > No, sorry, i have to run with bridging support other wise the
+guests(UML's)
+> > wont be able to communicate with the outside world.
+>
+> Ok in that case, can you connect a serial console so that you can capture
+> the entire output?
+>
+> Thanks,
+> Zwane
+>
+>
+

@@ -1,58 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVDGGzX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVDGHBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVDGGzX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 02:55:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261710AbVDGGzX
+	id S261710AbVDGHBN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVDGHBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 02:55:23 -0400
-Received: from orb.pobox.com ([207.8.226.5]:8883 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S261620AbVDGGzQ (ORCPT
+	Thu, 7 Apr 2005 03:01:13 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:47493 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261710AbVDGHBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 02:55:16 -0400
-Date: Wed, 6 Apr 2005 23:55:09 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Pavel Machek <pavel@ucw.cz>, mjg59@scrf.ucam.org
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050407065509.GA7888@ip68-4-98-123.oc.oc.cox.net>
-References: <20050405000524.592fc125.akpm@osdl.org> <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net> <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net> <20050405175600.644e2453.akpm@osdl.org> <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net> <20050406142749.6065b836.akpm@osdl.org> <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net>
+	Thu, 7 Apr 2005 03:01:09 -0400
+Date: Thu, 7 Apr 2005 09:00:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Subject: Re: [patch 1/5] sched: remove degenerate domains
+Message-ID: <20050407070037.GA26430@elte.hu>
+References: <425322E0.9070307@yahoo.com.au> <20050406054412.GA5853@elte.hu> <4253949A.3040707@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <4253949A.3040707@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 06, 2005 at 08:06:14PM -0700, Barry K. Nathan wrote:
-> > > BTW, there's another strange thing that's introduced by 2.6.11-rc2-mm1:
-> > > With that kernel, suspend is also ridiculously slow (speed is comparable
-> > > to the slow resume with the aforementioned patch). 2.6.11-rc2 does not
-> > > have that problem.
-> > 
-> > Does reverting swsusp-enable-resume-from-initrd.patch fix this also?
-> 
-> No. Reverting it from 2.6.12-rc2-mm1 (oops, I got the version number
-> wrong in my previous mail -- and that should also be 2.6.12-rc2 not
-> 2.6.11-rc2) speeds up resume to the original speed, but suspend is still
-> ridiculously slow. Time to narrow things down again, I presume...
-> 
-> > > Also, with 2.6.12-rc2-mm1, this computer happens to hit the bug where
-> > > all the printk timestamps are 0000000.0000000 (don't take the # of
-> > > digits too literally). Probably unrelated, but I may as well mention it.
-> > > (System is an Athlon XP 2200+ with SiS chipset. I can't remember which
-> > > model of SiS chipset.)
-> > 
-> > Yes, sorry.  Reverting
-> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm1/broken-out/sched-x86-sched_clock-to-use-tsc-on-config_hpet-or-config_numa-systems.patch
-> > will fix that one.
 
-Reverting
-sched-x86-sched_clock-to-use-tsc-on-config_hpet-or-config_numa-systems.patch
-fixed both the printk timestamps and the slow suspend. And it also fixed
-a **major** interactivity problem (running kernel compiles made X almost
-unusably slow) which I discovered since sending the previous e-mail. So,
-something about this patch is seriously evil.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
--Barry K. Nathan <barryn@pobox.com>
+> [...] Although I'd imagine it may be something distros may want. For 
+> example, a generic x86-64 kernel for both AMD and Intel systems could 
+> easily have SMT and NUMA turned on.
+
+yes, that's true - in fact reducing the number of separate kernel 
+packages is of utmost importance to all distributions. (I'm not sure we 
+are there yet with CONFIG_NUMA, but small steps wont hurt.)
+
+> I agree with the downside of exercising less code paths though.
+
+if we make CONFIG_NUMA good enough on small boxes so that distributors 
+can turn it on then in the long run the loss could be offset by the win 
+the extra QA gives.
+
+> >is there any case where we'd want to simplify the domain tree? One more 
+> >domain level is just one (and very minor) aspect of CONFIG_NUMA - i'd 
+> >not want to run a CONFIG_NUMA kernel on a non-NUMA box, even if the 
+> >domain tree got optimized. Hm?
+> 
+> I guess there is the SMT issue too, and even booting an SMP kernel on 
+> a UP system. Also small ia64 NUMA systems will probably have one 
+> redundant NUMA level.
+
+i think most factors of not running an SMP kernel on a UP box are not 
+due scheduler overhead: the biggest cost is spinlock overhead. Someone 
+should try a little prototype: use the 'alternate instructions' 
+framework to patch out calls to spinlock functions to NOPs, and 
+benchmark the resulting kernel against UP. If it's "good enough", 
+distros will use it. Having just a single binary kernel RPM that 
+supports everything from NUMA through SMP to UP is the holy grail of 
+distros. (especially the ones that offer commercial support and 
+services.)
+
+this is probably not possible on x86 - e.g. it would probably be 
+expensive (in terms of runtime cost) to make the PAE/non-PAE decision 
+runtime (the distro boot kernel needs to be non-PAE). But for newer 
+arches like x64 it should be easier.
+
+> If/when topologies get more complex (for example, the recent Altix 
+> discussions we had with Paul), it will be generally easier to set up 
+> all levels in a generic way, then weed them out using something like 
+> this, rather than put the logic in the domain setup code.
+
+ok. That should also make it easier to put more of the arch domain setup 
+code into sched.c. E.g. i'm still uneasy about it having so much 
+scheduler code in arch/ia64/kernel/domain.c, and all the ripple effects. 
+(the #ifdefs, include file impact, etc.)
+
+	Ingo

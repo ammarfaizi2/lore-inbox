@@ -1,384 +1,365 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVDGLZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVDGL1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbVDGLZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 07:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVDGLZZ
+	id S262425AbVDGL1f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 07:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVDGL1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 07:25:25 -0400
-Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:28681 "EHLO
-	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
-	id S262434AbVDGLWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 07:22:16 -0400
-In-Reply-To: <f3df5462ec032d492b47653a29cf0706@mac.com>
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <524d7fda64be6a3ab66a192027807f57@xs4all.nl> <1112559934.5268.9.camel@tiger> <d5b47c419f6e5aa280cebd650e7f6c8f@mac.com> <3821024b00b47598e66f504c51437f72@xs4all.nl> <42511BD8.4060608@osvik.no> <c3057294a216d19047bdca201fc97e2f@xs4all.nl> <20050404205718.GZ8859@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.61.0504041718580.5550@chaos.analogic.com> <62f8215dd556d5a50b307f5b6d4f578b@mac.com> <d5803044b1c7dcc631eda71863d44fa2@xs4all.nl> <a2a171644af3ab214c5bc612eecc9167@mac.com> <09142f748cc6ad2bf4fffab7a5519226@xs4all.nl> <18192dc3f079bc89f7028ed68a478f3c@mac.com> <eb65bccddde63541ae4b7b2d6c4c32d3@xs4all.nl> <f3df5462ec032d492b47653a29cf0706@mac.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <6ae66ae810a2558e0f3c623c699b7e5a@xs4all.nl>
-Content-Transfer-Encoding: 7bit
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-From: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: Use of C99 int types
-Date: Thu, 7 Apr 2005 13:28:03 +0200
-To: Kyle Moffett <mrmacman_g4@mac.com>
-X-Mailer: Apple Mail (2.619.2)
+	Thu, 7 Apr 2005 07:27:34 -0400
+Received: from smtp.seznam.cz ([212.80.76.43]:53411 "HELO smtp.seznam.cz")
+	by vger.kernel.org with SMTP id S262425AbVDGLXj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 07:23:39 -0400
+Date: Thu, 7 Apr 2005 13:16:31 +0200
+To: Jean Delvare <khali@linux-fr.org>
+Cc: greg@kroah.com, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>,
+       James Chapman <jchapman@katalix.com>
+Subject: Re: [PATCH] i2c: new driver for ds1337 RTC
+Message-ID: <20050407111631.GA21190@orphique>
+References: <20050407094506.GA19360@orphique> <8iOUo9nl.1112867945.5643950.khali@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8iOUo9nl.1112867945.5643950.khali@localhost>
+User-Agent: Mutt/1.5.6+20040907i
+From: Ladislav Michl <ladis@linux-mips.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 07, 2005 at 11:59:05AM +0200, Jean Delvare wrote:
+> Please slice this into separarte patches. Adding support for the DS1339
+> is one thing, bug fixes are another. I can't review patches which do
+> that many different things at once.
 
-On Apr 6, 2005, at 11:11 PM, Kyle Moffett wrote:
+I have objection ;-) Nothing in kernel seems to use that driver and
+driver wasn't reviewed well enough before including. Therefore I'm still
+considering it as a new driver which can be easily reviewed as whole.
 
-> On Apr 06, 2005, at 07:41, Renate Meijer wrote:
->> On Apr 6, 2005, at 12:11 AM, Kyle Moffett wrote:
->>> Please don't remove Linux-Kernel from the CC, I think this is an
->>> important discussion.
->
-> GAAH!!! Read my lips!!! Quit removing Linux-Kernel from the CC!!!
->
->> As I see it, there are a number of issues
->>
->> - Use of double underscores invades compiler namespace (except in 
->> those cases
->>   where kernel definitions end up as the basis for definitions in 
->> /usr/include/*, i.e.
->>   those that actually are part of the C-implementation for Linux.
->
-> It is these that I'm talking about.  This is exactly my point (The 
-> cases where
-> the kernel definitions are part of /usr/include).
+> As a side note, please avoid noise in your patch. Converting constants
+> from decimal to hexadecimal or renaming variables makes my review job
+> way harder, as it distracts me from the real point of your patch.
 
-Yes. And my point was all the other occurences. Specifically those in 
-*.c files. Btw. Not everything in the /usr/include/* path is part of 
-the compiler. For instance, the network definitions are *not* part, nor 
-  are the syscall interface or any filesystem code.
+Hexadecimal constant are there to match datasheet, local variables
+should be short and with new_client is was reaching 80 column limit,
+that's coding style and that's why I made that change.
 
->> - Some type that does not conflict with compiler namespace to replace 
->> the variety
->>    of definitions for e.g. 32-bit unsigned integers we have now.
->
-> As I said, I don't care about this, so do whatever you want.
+Please consider that I would suggest these changes to driver author
+before his patch went in tree in case I would read all that mailing
+lists around. I'm lazy, my bad... Driver's author should have probably
+last word anyway.
 
-Ok. But you are just one developer (as much as I respect that).
+> Once you realize that the time I need to review a patch increases in a
+> quadratic way (if not worse) relatively to the length of the patch, I am
+> sure you will see why it is important to send small patches doing just
+> one thing without noise.
 
->> - Removal of anything prefixed with a double underscore from 
->> non-C-implementation
->>   files.
->
-> ATM, much of the stuff in include/linux and include/asm-* is considered
-> "C-implementation" because it is used from userspace.  If you want to 
-> clean
-> that up and start moving abi files to include/kernel-abi or somesuch, 
-> feel
-> free, but that's a lot of work
+Ok, sending cleanup fixes only.  Support for ds1339 will be in separate
+patch. Sorry I won't do more, because my time is also limited.
 
-Agreed, and i'll probably won't have much time for that the coming five 
-weeks. So don't hold
-your breath. However, it would be a good thing if someone (or 
-preferably, more than one) would
-endeavour to do this.
+Here is patch which does cleanup/fixes only. It is still hard to review,
+but that's living. I won't split it to smaller parts just because I had
+to touch each single line in get/set date functions. Sorry if it sounds
+impolite, but now I can't spend more time on it. Perhaps later, if
+anyone don't buy it as is meanwhile... Please let me know when/if you will
+accept support for DS1339.
 
->>> Personally, I don't care what you feel like requiring for purely
->>> in-kernel interfaces, but __{s,u}{8,16,32,64} must stay to avoid
->>> namespace collisions with glibc in the kernel include files as used
->>> by userspace.
->>
->> Aye, but as I have pointed out several times, these types should be 
->> restricted
->> to those files and *only* those files which eventually end up in the 
->> compilers
->> includes. In every other place, they invite exactly the trouble they 
->> are intended
->> to avoid.
->
-> Precisely.
->
-> So if you want to make the millions of patches, go right ahead, be my 
-> guest. :-P
+Best regards,
+	ladis
 
-Well... Someone's got to do it, and "millions" seems to be a bit 
-exaggerated...
-
-> Until somebody steps forward to clean up the huge mess, nothing will 
-> get done.
-
-I think it's worth the efforts of more than just a single individual. 
-Especially since you
-seem to agree the current situation isn't exactly ideal.
-
->> So in every place exept those files which may actually cause a 
->> namespace conflict or
->> a bug because some newer version does not support __foobar, or 
->> changed the
->> semantics. Since using any __foobar type implies relying on the 
->> compiler internals,
->> which may change without prior notice, it is ipso facto undesirable.
->
-> Except the kernel wants to be optimized and work and use what features 
-> are available.
-> The kernel uses __foobar stuff provided by the compiler because it has 
-> gccX.h files
-> specifically designed to take compiler interfaces, provide backups 
-> when they don't
-> exist, and use them (and their better checking) when they do.
-
-I've checked those files, but the use of compiler specific tricks seems 
-a bit more widespread
-than that.
-
->>> This is kinda arguing semantics, but:
->>> A particular set of software (linux+libc+gcc), running in a 
->>> particular
->>> translation environment (userspace) under particular control options
->>> (Signals, nice values, etc), that performs translation of programs 
->>> for
->>> (emulating missing instructions), and supports execution of functions
->>> (syscalls) in, a particular execution environment (also userspace).
->>
->> Ok. And where exactly are linux and libc when compiling code for an
->> Atmel ATmega32 (40 pin DIL) using gcc?
->
-> Where do you get Atmel ATmega32 from?
-
-My local electronics shop. I brought it up just to make the point the 
-kernel is *not* part of the compilers implementation, since the 
-compiler will work happily without it.
-
-> I _only_ care about what symbols Linux can use,
-
-Ok. However, the gcc-crowd may see that in a completely different 
-perspective. For them the linux kernel is just one application and 
-linux (as a platform) just one platform they support.
-
->  and as I've mentioned, when running under *Linux*, then it just so
-> happens that *Linux* is part of my implementation, therefore the 
-> *Linux* sources,
-> which by definition aren't used elsewhere, can assume they are part of 
-> said
-> implementation.
-
-As i've said, I don't care what you are running, OS is *never* part of 
-the compiler. At most some interfaces
-are in a fuzzy, roundabout way. And even that is a questionable 
-practice.
-
->> The 'set of software' does
->> *not* include any OS. Not Windows, not Linux, not MacOSX, since the
->> whole thing might be directed at a lowly microcontroller, which DOES
->> NOT HAVE ANY OPERATING SYSTEM WHATSOEVER.
->>
->> Nevertheless, gcc works fine.
->
-> This is unrelated and off topic.
-
-Just to make the bloody point GCC is not dependent on Linux in any way 
-and hence the kernel is *not* part of GCC.
-
->   Heck, you've even consented above that
-> Linux can use
->
->>> Without the kernel userspace wouldn't have anything, because anything
->>> syscall-related (which is basically everything) involves the kernel.
->>
->> Sure. The same goes for every other program. However, it would be 
->> pretty
->> stoopid to say the kernel is an integral part of (say) the Gimp . 
->> More so, since
->> the Gimp and GCC run on completely different architectures aswell.
->>
->> By the same token, linux is part of XFree86 despite the fact XFree86 
->> does not
->> require linux to run.
->
-> But an XFree86 binary compiled on FreeBSD, or a GIMP binary compiled 
-> on FreeBSD,
-> for the most part, will not run on Linux, because the compiler uses 
-> the _Linux_
-> environment to build the binary, including the _Linux_ headers and 
-> such.
-
-No... A binary compiled for one platform will not run on another, 
-usually. This still does not imply the linux kernel is part of gcc.
-
-> The built binary is nearly useless without Linux, but not vice-versa, 
-> hence even
-> though the binary is not a derivative work of linux, it requires it to 
-> run.
-
-Weird. How come i'm running XFree86 and the Gimp on MacOSX? There ain't 
-no linux in sight.
-
->>> Heck, the kernel and its ABI is _more_ a part of the implementation
->>> than glibc is!  I can write an assembly program that doesn't link to
->>> or use libc, but without using syscalls I can do nothing whatsoever.
->>
->> I can write entire applications using gcc without even thinking of 
->> using
->> any 'syscall' or any other part of linux/bsd/whatever. Still... it's 
->> gcc.
->
-> Uhh, what exactly is your application going to do?
-
-Monitoring water levels and sending out alarm messages (by SMS) when 
-the level either
-gets too low or too high. Furthermore it controls a "stuw", a device 
-for regulating
-the waterlevel for which I do not know the english term.
-
-> So it wants to access memory, it faults to the kernel and gets stuff 
-> paged in.
-
-What kernel? What pages? What OS? There is no OS, just a set of library 
-functions
-i developed (pretty much) myself.
-
->   It wants to access
-> a file, it does a syscall.
-
-What files? I write to EEPROM directly. There is no filesystem. Hell 
-there isn't even a vfprintf. In case you are wondering, it's an 
-application for the Atmel ATMega I mentioned.
-
-> If it wants to allocate more memory, it calls
-> into the kernel.
-
-Allocate MORE MEMORY? The 4 kb available is full enough as it is.
-
->   This is all platform specific, and part of the implementation.
-
-And for that reason, not part of the implementation. The library (glibc 
-in your case) handles (or rather, should handle) the trickery involved. 
-But glibc isn't part of gcc.
-
->> <Wishful Thinking>
->> It would be nice if Linux became totally independent of any compiler, 
->> or at least that
->> coupling between them would be minimal and that the amount of 
->> assembly needed
->> would be minimal.
->
-> If you feel like fixing the compiler to provide good enough 
-> interfaces, or fixing the
-> kernel to abstract all of that out, then fine, but remember that the 
-> kernel has to
-> deal _directly_ with the hardware and is generally dependent on direct 
-> MMU twiddling,
-> which _can't_ be done from C :-P.
-
-Agreed. That why i said "minimal" instead of "absent". Personally I 
-think the compilers interfaces are pretty good.
-
->> It would be nice if linux defined and documented its own platform 
->> specific types
->> somewhere in the arch directory, using a consistent (across 
->> platforms) naming scheme
->> and used those types consistently throughout the kernel, 
->> drivers,daemons and other
->> associated code.
->
-> Got a patch?
-
-Not yet.
-
->> </Wishfull Thinking>
->>
->> <Nightmare>
->> Your scenario above. Never-ending streams of compatibility issues and 
->> gcc drifting
->> further and further from the ISO-C standard and more and more 
->> developers depending
->> on non-standard interfaces, linux growing ever more dependent on 
->> support fro features
->> ABC and XYZ being implemented consistently cross platform, so that if 
->> I want to use
->> gcc to compile for an AVR, i'm stuck with a shitload of linux issues, 
->> kept "for backward
->> compatibility".
->> </Nightmare>
->
-> Linux has a bunch of gcc headers that configure it based on the 
-> compiler version.
-> Change the compiler and we'll add another header, which, though messy, 
-> provides
-> us some safety.  It would be _nice_ however, if the compiler had a 
-> gcc/types.h file
-> that just provided it all for us, so we don't need to hardcode it all 
-> based on
-> the architecture specified.  Directly defined __gcc_u32 types (Or 
-> whatever the GCC
-> people like) would be even better.
-
-Why?
-
->>>> Nope. The syscall interface is employed by the library, no more,
->>>> no less. The C standard does not include *any* platform specific
->>>> stuff.
->>>
->>> Which is why it reserves __ for use by the implementation so it can
->>> play wherever it wants.
->>
->> The C-implementation,. which still does not include the kernel. At 
->> most
->> a few header files, which are used as a basis for standard types by 
->> the C
->> implementation, but no more. Any double underscore in a .c file is a 
->> blatant
->> error. Most used in .h files are, too.
->
-> So how do I get <linux/fb.h> to work?  There aren't "just a few", 
-> there are
-> __u32, etc in _everything_ with an ioctl or syscall interface, 
-> basically
-> anything with an ABI.
-
-
->> Fine. I assume it does. But #include <linux/fb.h> does not make the
->> framebuffer (nor linux, for that matter) part of the 
->> c-implementation. From
->> the two files mentioned above, only stdlib.h is.
->
-> Ok, so how do I fix linux/fb.h to _not_ use __u32?
-
-The way other libraries handle it. That ain't magic. The thing that 
-strikes me in the file you
-mention is that both versions (__u32 *and* u32) are used in parts of 
-the header that are
-(judging by #ifdef __KERNEL__) internal to the kernel.
-
-This implies that merely stripping the double underscore may suffice. 
-After all, that is code that will never be part of the 
-C-Implementation.
-
->>> I want it to get the correct types, I don't want it to clash with or 
->>> require the
->>> libc types (My old sources might redefine some stdint.h names, and I 
->>> don't want it
->>> to clash with my user-defined types.
->>
->> Redefining stdint types is (for this reason) a Bad Idea.
->
-> So how do I use them in <linux/*.h>?
-
-Either stdint.h becomes part of the kernel, which implies your 
-redefined versions in old source are up to some maintainance, or we 
-rely on the asm/types.h versions and use them consistently. In either 
-case, use of double underscores where none are required, is not good. 
-Nor is redefining stuff that's defined by gcc, or worse ISO.
-
->>>> Anything you like. 'kernel_' or simply 'k_' would be appropriate.
->>>> As long as you do not invade compiler namespace. It is separated
->>>> and uglyfied for a purpose.
->>>
->>> But the _entire_ non _ namespace is reserved for anything user
->>> programs want to do with it.
->>
->> The above prefix was an alternative to using a double underscore 
->> prefix.  Using *no*
->> prefix, should not conflict with the compiler, excepting, of course, 
->> the types required by
->> the standard.
->
-> But these are also used by c programs.
-
-Used, yes. Defined, no. The stuff the compiler headers define *without* 
-double underscores is the stuff that is exported for users to use. The 
-stuff that *has* double underscores isn't.
-
+===== drivers/i2c/chips/ds1337.c 1.1 vs edited =====
+--- 1.1/drivers/i2c/chips/ds1337.c	2005-03-31 22:58:08 +02:00
++++ edited/drivers/i2c/chips/ds1337.c	2005-04-07 13:02:18 +02:00
+@@ -2,8 +2,9 @@
+  *  linux/drivers/i2c/chips/ds1337.c
+  *
+  *  Copyright (C) 2005 James Chapman <jchapman@katalix.com>
++ *  Copyright (C) 2005 Ladislav Michl <ladis@linux-mips.org>
+  *
+- *	based on linux/drivers/acron/char/pcf8583.c
++ *	based on linux/drivers/acorn/char/pcf8583.c
+  *  Copyright (C) 2000 Russell King
+  *
+  * This program is free software; you can redistribute it and/or modify
+@@ -25,12 +26,13 @@
+ #include <linux/list.h>
+ 
+ /* Device registers */
+-#define DS1337_REG_HOUR		2
+-#define DS1337_REG_DAY		3
+-#define DS1337_REG_DATE		4
+-#define DS1337_REG_MONTH	5
+-#define DS1337_REG_CONTROL	14
+-#define DS1337_REG_STATUS	15
++#define DS1337_REG_HOUR		0x02
++#define DS1337_REG_DAY		0x03
++#define DS1337_REG_DATE		0x04
++#define DS1337_REG_MONTH	0x05
++#define DS1337_REG_CONTROL	0x0e
++#define DS1337_REG_STATUS	0x0f
++#define DS1339_REG_CHARGE	0x10
+ 
+ /* FIXME - how do we export these interface constants? */
+ #define DS1337_GET_DATE		0
+@@ -93,116 +95,74 @@
+ /*
+  * Chip access functions
+  */
+-static int ds1337_get_datetime(struct i2c_client *client, struct rtc_time *dt)
++static int ds1337_get_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
+-	struct ds1337_data *data = i2c_get_clientdata(client);
+-	int result;
+-	u8 buf[7];
+-	u8 val;
+-	struct i2c_msg msg[2];
+-	u8 offs = 0;
+-
+-	if (!dt) {
+-		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
+-			__FUNCTION__);
+-
+-		return -EINVAL;
+-	}
+-
+-	msg[0].addr = client->addr;
+-	msg[0].flags = 0;
+-	msg[0].len = 1;
+-	msg[0].buf = &offs;
+-
+-	msg[1].addr = client->addr;
+-	msg[1].flags = I2C_M_RD;
+-	msg[1].len = sizeof(buf);
+-	msg[1].buf = &buf[0];
+-
+-	result = client->adapter->algo->master_xfer(client->adapter,
+-						    &msg[0], 2);
++	unsigned char buf[7] = { 0, }, addr[1] = { 0 };
++	struct i2c_msg msgs[2] = {
++		{ client->addr, 0,        1, addr },
++		{ client->addr, I2C_M_RD, 7, buf  }
++	};
++	int result = i2c_transfer(client->adapter, msgs, 2);
+ 
+-	dev_dbg(&client->adapter->dev,
++	dev_dbg(&client->dev,
+ 		"%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
+ 		__FUNCTION__, result, buf[0], buf[1], buf[2], buf[3],
+ 		buf[4], buf[5], buf[6]);
+ 
+-	if (result >= 0) {
+-		dt->tm_sec = BCD_TO_BIN(buf[0]);
+-		dt->tm_min = BCD_TO_BIN(buf[1]);
+-		val = buf[2] & 0x3f;
+-		dt->tm_hour = BCD_TO_BIN(val);
+-		dt->tm_wday = BCD_TO_BIN(buf[3]) - 1;
+-		dt->tm_mday = BCD_TO_BIN(buf[4]);
+-		val = buf[5] & 0x7f;
+-		dt->tm_mon = BCD_TO_BIN(val);
+-		dt->tm_year = 1900 + BCD_TO_BIN(buf[6]);
++	if (result < 0) {
++		dev_err(&client->dev, "error reading data! %d\n", result);
++		result = -EIO;
++	} else {
++		tm->tm_sec  = BCD2BIN(buf[0]);
++		tm->tm_min  = BCD2BIN(buf[1]);
++		tm->tm_hour = BCD2BIN(buf[2] & 0x3f);
++		tm->tm_wday = BCD2BIN(buf[3]);
++		tm->tm_mday = BCD2BIN(buf[4]);
++		tm->tm_mon  = BCD2BIN(buf[5] & 0x7f) - 1;
++		tm->tm_year = BCD2BIN(buf[6]);
+ 		if (buf[5] & 0x80)
+-			dt->tm_year += 100;
++			tm->tm_year += 100;
+ 
+-		dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, "
+-			"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
+-			__FUNCTION__, dt->tm_sec, dt->tm_min,
+-			dt->tm_hour, dt->tm_mday,
+-			dt->tm_mon, dt->tm_year, dt->tm_wday);
+-	} else {
+-		dev_err(&client->adapter->dev, "ds1337[%d]: error reading "
+-			"data! %d\n", data->id, result);
+-		result = -EIO;
++		dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
++			"mday=%d, mon=%d, year=%d, wday=%d\n", __FUNCTION__,
++			tm->tm_sec, tm->tm_min, tm->tm_hour,
++			tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
++		
++		result = 0;
+ 	}
+ 
+ 	return result;
+ }
+ 
+-static int ds1337_set_datetime(struct i2c_client *client, struct rtc_time *dt)
++static int ds1337_set_datetime(struct i2c_client *client, struct rtc_time *tm)
+ {
+-	struct ds1337_data *data = i2c_get_clientdata(client);
++	unsigned char buf[8];
+ 	int result;
+-	u8 buf[8];
+-	u8 val;
+-	struct i2c_msg msg[1];
+-
+-	if (!dt) {
+-		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
+-			__FUNCTION__);
+ 
+-		return -EINVAL;
+-	}
+-
+-	dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, hours=%d, "
++	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
+ 		"mday=%d, mon=%d, year=%d, wday=%d\n", __FUNCTION__,
+-		dt->tm_sec, dt->tm_min, dt->tm_hour,
+-		dt->tm_mday, dt->tm_mon, dt->tm_year, dt->tm_wday);
++		tm->tm_sec, tm->tm_min, tm->tm_hour,
++		tm->tm_mday, tm->tm_mon, tm->tm_year, tm->tm_wday);
+ 
+ 	buf[0] = 0;		/* reg offset */
+-	buf[1] = BIN_TO_BCD(dt->tm_sec);
+-	buf[2] = BIN_TO_BCD(dt->tm_min);
+-	buf[3] = BIN_TO_BCD(dt->tm_hour) | (1 << 6);
+-	buf[4] = BIN_TO_BCD(dt->tm_wday) + 1;
+-	buf[5] = BIN_TO_BCD(dt->tm_mday);
+-	buf[6] = BIN_TO_BCD(dt->tm_mon);
+-	if (dt->tm_year >= 2000) {
+-		val = dt->tm_year - 2000;
++	buf[1] = BIN2BCD(tm->tm_sec);
++	buf[2] = BIN2BCD(tm->tm_min);
++	buf[3] = BIN2BCD(tm->tm_hour) | (1 << 6);
++	buf[4] = BIN2BCD(tm->tm_wday);
++	buf[5] = BIN2BCD(tm->tm_mday);
++	buf[6] = BIN2BCD(tm->tm_mon + 1);
++	if (tm->tm_year >= 100) {
++		tm->tm_year -= 100;
+ 		buf[6] |= (1 << 7);
+-	} else {
+-		val = dt->tm_year - 1900;
+ 	}
+-	buf[7] = BIN_TO_BCD(val);
++	buf[7] = BIN2BCD(tm->tm_year);
+ 
+-	msg[0].addr = client->addr;
+-	msg[0].flags = 0;
+-	msg[0].len = sizeof(buf);
+-	msg[0].buf = &buf[0];
+-
+-	result = client->adapter->algo->master_xfer(client->adapter,
+-						    &msg[0], 1);
++	result = i2c_master_send(client, (char *)buf, sizeof(buf));
+ 	if (result < 0) {
+-		dev_err(&client->adapter->dev, "ds1337[%d]: error "
+-			"writing data! %d\n", data->id, result);
++		dev_err(&client->dev, "error writing data! %d\n", result);
+ 		result = -EIO;
+-	} else {
++	} else
+ 		result = 0;
+-	}
+ 
+ 	return result;
+ }
+@@ -210,7 +170,7 @@
+ static int ds1337_command(struct i2c_client *client, unsigned int cmd,
+ 			  void *arg)
+ {
+-	dev_dbg(&client->adapter->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
++	dev_dbg(&client->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
+ 
+ 	switch (cmd) {
+ 	case DS1337_GET_DATE:
+@@ -254,10 +214,10 @@
+  */
+ static int ds1337_detect(struct i2c_adapter *adapter, int address, int kind)
+ {
+-	struct i2c_client *new_client;
++	struct i2c_client *client;
+ 	struct ds1337_data *data;
++	char *name;
+ 	int err = 0;
+-	const char *name = "";
+ 
+ 	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
+ 				     I2C_FUNC_I2C))
+@@ -273,12 +233,12 @@
+ 	/* The common I2C client data is placed right before the
+ 	 * DS1337-specific data. 
+ 	 */
+-	new_client = &data->client;
+-	i2c_set_clientdata(new_client, data);
+-	new_client->addr = address;
+-	new_client->adapter = adapter;
+-	new_client->driver = &ds1337_driver;
+-	new_client->flags = 0;
++	client = &data->client;
++	i2c_set_clientdata(client, data);
++	client->addr = address;
++	client->adapter = adapter;
++	client->driver = &ds1337_driver;
++	client->flags = 0;
+ 
+ 	/*
+ 	 * Now we do the remaining detection. A negative kind means that
+@@ -303,47 +263,52 @@
+ 		u8 data;
+ 
+ 		/* Check that status register bits 6-2 are zero */
+-		if ((ds1337_read(new_client, DS1337_REG_STATUS, &data) < 0) ||
++		if ((ds1337_read(client, DS1337_REG_STATUS, &data) < 0) ||
+ 		    (data & 0x7c))
+ 			goto exit_free;
+ 
+ 		/* Check for a valid day register value */
+-		if ((ds1337_read(new_client, DS1337_REG_DAY, &data) < 0) ||
++		if ((ds1337_read(client, DS1337_REG_DAY, &data) < 0) ||
+ 		    (data == 0) || (data & 0xf8))
+ 			goto exit_free;
+ 
+ 		/* Check for a valid date register value */
+-		if ((ds1337_read(new_client, DS1337_REG_DATE, &data) < 0) ||
++		if ((ds1337_read(client, DS1337_REG_DATE, &data) < 0) ||
+ 		    (data == 0) || (data & 0xc0) || ((data & 0x0f) > 9) ||
+ 		    (data >= 0x32))
+ 			goto exit_free;
+ 
+ 		/* Check for a valid month register value */
+-		if ((ds1337_read(new_client, DS1337_REG_MONTH, &data) < 0) ||
++		if ((ds1337_read(client, DS1337_REG_MONTH, &data) < 0) ||
+ 		    (data == 0) || (data & 0x60) || ((data & 0x0f) > 9) ||
+ 		    ((data >= 0x13) && (data <= 0x19)))
+ 			goto exit_free;
+ 
+ 		/* Check that control register bits 6-5 are zero */
+-		if ((ds1337_read(new_client, DS1337_REG_CONTROL, &data) < 0) ||
++		if ((ds1337_read(client, DS1337_REG_CONTROL, &data) < 0) ||
+ 		    (data & 0x60))
+ 			goto exit_free;
+ 
+ 		kind = ds1337;
+ 	}
+ 
+-	if (kind == ds1337)
++	switch (kind) {
++	case ds1337:
+ 		name = "ds1337";
++		break;
++	default:
++		name = "";
++	}
+ 
+ 	/* We can fill in the remaining client fields */
+-	strlcpy(new_client->name, name, I2C_NAME_SIZE);
++	strlcpy(client->name, name, I2C_NAME_SIZE);
+ 
+ 	/* Tell the I2C layer a new client has arrived */
+-	if ((err = i2c_attach_client(new_client)))
++	if ((err = i2c_attach_client(client)))
+ 		goto exit_free;
+ 
+ 	/* Initialize the DS1337 chip */
+-	ds1337_init_client(new_client);
++	ds1337_init_client(client);
+ 
+ 	/* Add client to local list */
+ 	data->id = ds1337_id++;

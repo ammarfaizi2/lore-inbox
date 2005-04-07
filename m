@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVDGHtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVDGHvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbVDGHtD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 03:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVDGHtC
+	id S262003AbVDGHvE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVDGHvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 03:49:02 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:14500 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261998AbVDGHst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 03:48:49 -0400
+	Thu, 7 Apr 2005 03:51:04 -0400
+Received: from 71-33-33-84.albq.qwest.net ([71.33.33.84]:54716 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262003AbVDGHuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 03:50:54 -0400
+Date: Thu, 7 Apr 2005 01:53:02 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Martin Pool <mbp@sourcefrog.net>, linux-kernel@vger.kernel.org
 Subject: Re: Kernel SCM saga..
-From: Arjan van de Ven <arjan@infradead.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <16980.55403.190197.751840@cargo.ozlabs.ibm.com>
+In-Reply-To: <20050407014727.GA17970@havoc.gtf.org>
+Message-ID: <Pine.LNX.4.61.0504070152240.12823@montezuma.fsmlabs.com>
 References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	 <16980.55403.190197.751840@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
-Date: Thu, 07 Apr 2005 09:48:44 +0200
-Message-Id: <1112860124.6290.24.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+ <20050406193911.GA11659@stingr.stingr.net> <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
+ <20050407014727.GA17970@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 16:51 +1000, Paul Mackerras wrote:
-> Linus,
-> 
-> > That "individual patches" is one of the keywords, btw. One thing that BK 
-> > has been extremely good at, and that a lot of people have come to like 
-> > even when they didn't use BK, is how we've been maintaining a much finer- 
-> > granularity view of changes. That isn't going to go away. 
-> 
-> Are you happy with processing patches + descriptions, one per mail?
-> Do you have it automated to the point where processing emailed patches
-> involves little more overhead than doing a bk pull?  If so, then your
-> mailbox (or patch queue) becomes a natural serialization point for the
-> changes, and the need for a tool that can handle a complex graph of
-> changes is much reduced.
+On Wed, 6 Apr 2005, Jeff Garzik wrote:
 
-alternatively you could send an mbox with your series in... that has a
-natural sequence in it ;)
+> On Thu, Apr 07, 2005 at 11:40:23AM +1000, Martin Pool wrote:
+> > On Wed, 06 Apr 2005 23:39:11 +0400, Paul P Komkoff Jr wrote:
+> > 
+> > > http://bazaar-ng.org/
+> > 
+> > I'd like bazaar-ng to be considered too.  It is not ready for adoption
+> > yet, but I am working (more than) full time on it and hope to have it
+> > be usable in a couple of months.  
+> > 
+> > bazaar-ng is trying to integrate a lot of the work done in other systems
+> > to make something that is simple to use but also fast and powerful enough
+> > to handle large projects.
+> > 
+> > The operations that are already done are pretty fast: ~60s to import a
+> > kernel tree, ~10s to import a new revision from a patch.  
+> 
+> By "importing", are you saying that importing all 60,000+ changesets of
+> the current kernel tree took only 60 seconds?
 
+Probably `cvs import` equivalent.

@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262523AbVDGSPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVDGST1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262523AbVDGSPd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 14:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVDGSPc
+	id S262539AbVDGST1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 14:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVDGST0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 14:15:32 -0400
-Received: from ns1.s2io.com ([142.46.200.198]:56032 "EHLO ns1.s2io.com")
-	by vger.kernel.org with ESMTP id S262553AbVDGSOa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 14:14:30 -0400
-Subject: Re: Kernel SCM saga..
-From: Dmitry Yusupov <dima@neterion.com>
-To: Daniel Phillips <phillips@istop.com>
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200504071354.34581.phillips@istop.com>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org>
-	 <20050407171006.GF8859@parcelfarce.linux.theplanet.co.uk>
-	 <200504071354.34581.phillips@istop.com>
-Content-Type: text/plain
-Organization: Neterion, Inc
-Date: Thu, 07 Apr 2005 11:13:40 -0700
-Message-Id: <1112897620.3893.62.camel@beastie>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+	Thu, 7 Apr 2005 14:19:26 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:24406 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262539AbVDGSTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 14:19:20 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Renate Meijer <kleuske@xs4all.nl>
+Subject: Re: [08/08] uml: va_copy fix
+Date: Thu, 7 Apr 2005 20:25:34 +0200
+User-Agent: KMail/1.7.2
+Cc: jdike@karaya.com, linux-kernel@vger.kernel.org,
+       =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       stable@kernel.org, Greg KH <gregkh@suse.de>
+References: <20050405164539.GA17299@kroah.com> <200504062109.51344.blaisorblade@yahoo.it> <448f048a060cc7db1fc00a489c86ac05@xs4all.nl>
+In-Reply-To: <448f048a060cc7db1fc00a489c86ac05@xs4all.nl>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -102
-X-Spam-Outlook-Score: ()
-X-Spam-Features: EMAIL_ATTRIBUTION,IN_REP_TO,REFERENCES,REPLY_WITH_QUOTES,USER_IN_WHITELIST
+Message-Id: <200504072025.34976.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 13:54 -0400, Daniel Phillips wrote:
-> Three years ago, there was no fully working open source distributed scm code 
-> base to use as a starting point, so extending BK would have been the only 
-> easy alternative.  But since then the situation has changed.  There are now 
-> several working code bases to provide a good starting point: Monotone, Arch, 
-> SVK, Bazaar-ng and others.
+On Thursday 07 April 2005 11:16, Renate Meijer wrote:
+> On Apr 6, 2005, at 9:09 PM, Blaisorblade wrote:
 
-Right. For example, SVK is pretty mature project and very close to 1.0
-release now. And it supports all kind of merges including Cherry-Picking
-Mergeback:
+> > Btw: I've not investigated which one of the two behaviours is the
+> > buggy one -
+> > if you know, maybe you or I can report it.
+>
+>  From a strict ISO-C point of view, both are. It's a gcc-specific
+> "feature" which (agreed) does come in handy sometimes.
 
-http://svk.elixus.org/?MergeFeatures
+Well, for "range" assignments GCC mustn't complain, but for the rest the 
+double assignment laziness is not very useful. Could they at least add a 
+-Wsomething inside -Wall or -W for this problem?
 
-Dmitry
+> However it makes 
+> it quite hard to say which is the buggy version, since the
+> "appropriate" behavior
+> is a question of definition (by the gcc-folks). They may even argue
+> that, having changed their minds about it, neither is buggy, but both
+> conform to the specifications (for that specific functionality).
+>
+> That's pretty much the trouble with relying on gcc-extensions: since
+> there's no standard, it's difficult to tell what's wrong and what's
+> right. I'll dive into it.
+>
+> Regards,
+>
+> Renate Meijer.
+
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 

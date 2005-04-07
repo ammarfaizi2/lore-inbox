@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVDGURR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262586AbVDGURf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbVDGURR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 16:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVDGURR
+	id S262586AbVDGURf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 16:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbVDGURf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 16:17:17 -0400
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:5075 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S262583AbVDGURN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 16:17:13 -0400
-Date: Thu, 7 Apr 2005 16:16:58 -0400
-From: Raul Miller <moth@debian.org>
-To: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050407161658.S32136@links.magenta.com>
-References: <yq08y3vxd3x.fsf@jaguar.mkp.net> <MDEHLPKNGKAHNMBLJOLKAEKLCPAB.davids@webmaster.com>
+	Thu, 7 Apr 2005 16:17:35 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19599 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262586AbVDGUR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 16:17:29 -0400
+Subject: Re: 2.6.12-rc2 in_atomic() picks up preempt_disable()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: kaos@sgi.com, linux-kernel@vger.kernel.org, mingo@elte.hu
+In-Reply-To: <200504071840.j37Iei25019895@harpo.it.uu.se>
+References: <200504071840.j37Iei25019895@harpo.it.uu.se>
+Content-Type: text/plain
+Date: Thu, 07 Apr 2005 22:17:18 +0200
+Message-Id: <1112905038.6290.77.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEKLCPAB.davids@webmaster.com>; from davids@webmaster.com on Thu, Apr 07, 2005 at 01:26:17AM -0700
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 01:26:17AM -0700, David Schwartz wrote:
-> If you believe the linker "merely aggregates" the object code for the
-> driver with the data for the firmware, I can't see how you can argue
-> that any linking is anything but mere aggregation. In neither case can
-> you separate the linked work into the two separate works and in both
-> cases the linker provides one work direct access to the other.
+On Thu, 2005-04-07 at 20:40 +0200, Mikael Pettersson wrote:
+> On Thu, 07 Apr 2005 12:17:37 +0200, Arjan van de Ven wrote:
+> >On Thu, 2005-04-07 at 20:10 +1000, Keith Owens wrote:
+> >> 2.6.12-rc2, with CONFIG_PREEMPT and CONFIG_PREEMPT_DEBUG.  The
+> >> in_atomic() macro thinks that preempt_disable() indicates an atomic
+> >> region so calls to __might_sleep() result in a stack trace.
+> >
+> >but you're not allowed to schedule when preempt is disabled!
+> 
+> That sounds draconian. Where is that requirement stated?
+> 
+> A preempt-disabled region ought to have the same semantics
+> as in a CONFIG_PREEMPT=n kernel, and since schedule is Ok
+> in the latter case it should be Ok in the former too.
+> 
+> All that preempt_disable() should do is prevent involuntary
+> schedules. But the conditional schedules introduced by may-sleep
+> functions are _voluntary_, so there's no reason to forbid them.
 
-You can indeed separate the firmware and the kernel into two separate
-works.  That's what people have been proposing as the solution to this
-problem.
+but that implies you need to remember this after schedule. all in all it
+starts to smell more and more like the local irq disable flag, and I at
+least thing of it in a very similar way as well.
 
-Also, "mere aggregation" is a term from the GPL.  You can read what
-it says there yourself.  But basically it's there so that people make
-a distinction between the program itself and other stuff that isn't
-the program.
 
-Without that mere aggregation clause, people might be claiming that
-text on a disk has to be GPLed because of emacs, or that postscript
-files have to be GPLed because of ghostscript, or more generally that
-arbitrary object FOO has to be GPLed because of gpled program BAR.
-
-Put another way, what the linker does or doesn't do isn't really the
-issue.
-
-People like to think that the linker is somehow special for copyright,
-but it's not.  Either the stuff being linked is protected by copyright
-even when it's not linked or it's not protected by copyright after it is
-linked.  If the license says something about linking then that matters,
-but only for cases where the code was protected by copyright even before
-it was linked.  And then linking only matters in the specific way that
-that license says it matters.
-
--- 
-Raul

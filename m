@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVDGPFH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVDGPHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbVDGPFH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 11:05:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVDGPFH
+	id S262482AbVDGPHb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 11:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVDGPHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 11:05:07 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:15187 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262476AbVDGPFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 11:05:02 -0400
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [stable] [patch 1/1] uml: quick fix syscall table [urgent]
-Date: Thu, 7 Apr 2005 17:11:15 +0200
-User-Agent: KMail/1.7.2
-Cc: stable@kernel.org, jdike@addtoit.com, linux-kernel@vger.kernel.org
-References: <20050406183802.48AF7C5D4E@zion> <20050406202109.GA31699@kroah.com>
-In-Reply-To: <20050406202109.GA31699@kroah.com>
+	Thu, 7 Apr 2005 11:07:30 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:49865 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262482AbVDGPHJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 11:07:09 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Humberto Massa <humberto.massa@almg.gov.br>
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Date: Thu, 7 Apr 2005 17:07:04 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-os@analogic.com, debian-kernel@lists.debian.org,
+       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
+       linux-acenic@sunsite.dk
+References: <200504071653.43259.oliver@neukum.org> <42554B36.3080702@almg.gov.br>
+In-Reply-To: <42554B36.3080702@almg.gov.br>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200504071711.15669.blaisorblade@yahoo.it>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200504071707.04254.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 April 2005 22:21, Greg KH wrote:
-> On Wed, Apr 06, 2005 at 08:38:00PM +0200, blaisorblade@yahoo.it wrote:
-> > CC: <stable@kernel.org>
+Am Donnerstag, 7. April 2005 17:01 schrieb Humberto Massa:
+> Oliver Neukum wrote:
+> 
 > >
-> > I'm resending this for inclusion in the -stable tree. I've deleted
-> > whitespace cleanups, and hope this can be merged. I've been asked to
-> > split the former patch, I don't know if I must split again this one, even
-> > because I don't want to split this correct patch into multiple
-> > non-correct ones by mistake.
->
-> Is this patch already in 2.6.12-rc2?
-Yes, with whitespace cleanups.
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+> >  As this has been discussed numerous times and consensus never
+> >  achieved and is unlikely to be achieved, I suggest that you keep this
+> >  discussion internal to Debian until at least you have patches which
+> >  can be evaluated and discussed.  Until then Debian may do to its
+> >  kernel whatever it pleases and should be prepared to explain to its
+> >  users why it removed or altered drivers.
+> >
+> >  Regards Oliver
+> >
+> 
+> Hi, Oliver.
+> 
+> You seemed to answer my e-mail without reading it; what I was explaining 
+> in it was: this is not a matter of patches, but of asking Where are the 
+> copyrights notices, Who are the copyright owners, and Which license are 
+> the firmwares under, and AFTER that, patching what should be patched.
+> 
+> Those three questions (Where, Who, Which) can only be answered by the 
+> kernel maintainers, and this is in *NO* way a Debian-only discussion. As 
+> I mentioned before, kernel.org kernel tree is, as of today, non-free and 
+> undistributable IMHO.
 
+Those who care got you after the second message at the latest.
+Anything more just annoys people. Some even pay for their online time.
+Who doesn't care will not start caring. Your oppinion on that matter frankly
+is exactly that.
+If you care that deeply about it you'll have to track down copyright
+holders yourself. Good luck.
+
+	Regards
+		Oliver

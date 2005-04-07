@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVDGNI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVDGNJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbVDGNI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 09:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVDGNI2
+	id S262453AbVDGNJM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 09:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVDGNJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 09:08:28 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:51089 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262453AbVDGNIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 09:08:05 -0400
-Message-ID: <425530AB.90605@yahoo.com.au>
-Date: Thu, 07 Apr 2005 23:07:55 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: george@mvista.com, mingo@elte.hu,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: VST and Sched Load Balance
-References: <20050407124629.GA17268@in.ibm.com>
-In-Reply-To: <20050407124629.GA17268@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 7 Apr 2005 09:09:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:27112 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262453AbVDGNI7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 09:08:59 -0400
+Subject: Re: ext3 allocate-with-reservation latencies
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mingming Cao <cmm@us.ibm.com>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050407081434.GA28008@elte.hu>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Thu, 07 Apr 2005 14:08:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
+Hi,
 
-> I think a potential area which VST may need to address is 
-> scheduler load balance. If idle CPUs stop taking local timer ticks for 
-> some time, then during that period it could cause the various runqueues to 
-> go out of balance, since the idle CPUs will no longer pull tasks from 
-> non-idle CPUs. 
-> 
+On Thu, 2005-04-07 at 09:14, Ingo Molnar wrote:
 
-Yep.
+> doesnt the first option also allow searches to be in parallel?
 
-> Do we care about this imbalance? Especially considering that most 
-> implementations will let the idle CPUs sleep only for some max duration
-> (~900 ms in case of x86).
-> 
+In terms of CPU usage, yes.  But either we use large windows, in which
+case we *can't* search remotely near areas of the disk in parallel; or
+we use small windows, in which case failure to find a free bit becomes
+disproportionately expensive (we have to do an rbtree link and unlink
+for each window we search.)
 
-I think we do care, yes. It could be pretty harmful to sleep for
-even a few 10s of ms on a regular basis for some workloads. Although
-I guess many of those will be covered by try_to_wake_up events...
+>  This 
+> particular one took over 1 msec, so it seems there's a fair room for 
+> parallellizing multiple writers and thus improving scalability. (or is 
+> this codepath serialized globally anyway?)
 
-Not sure in practice, I would imagine it will hurt some multiprocessor
-workloads.
+No, the rbtree ops are serialised per-sb, and allocations within any one
+inode are serialised, but the bitmap searches need not be serialised
+globally.  (They are in the case of new window searches right now, which
+is what we're trying to fix.)
 
-> If we do care about this imbalance, then we could hope that the balance logic
-> present in try_to_wake_up and sched_exec may avoid this imbalance, but can we 
-> bank upon these events to restore the runqueue balance?
-> 
-> If we cannot, then I had something in mind on these lines:
-> 
-> 1. A non-idle CPU (having nr_running > 1) can wakeup a idle sleeping CPU if it 
->    finds that the sleeping CPU has not balanced itself for it's 
->    "balance_interval" period.
-> 
-> 2. It would be nice to minimize the "cross-domain" wakeups. For ex: we may want 
->    to avoid a non-idle CPU in node B sending a wakeup to a idle sleeping CPU in 
->    another node A, when this wakeup could have been sent from another non-idle
->    CPU in node A itself. 
->  
-
-3. This is exactly one of the situations that the balancing backoff code
-    was designed for. Can you just schedule interrupts to fire when the
-    next balance interval has passed? This may require some adjustments to
-    the backoff code in order to get good powersaving, but it would be the
-    cleanest approach from the scheduler's point of view.
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
+--Stephen
 

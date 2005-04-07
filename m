@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVDGSHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVDGSJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbVDGSHB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 14:07:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVDGSHB
+	id S262549AbVDGSJY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 14:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVDGSJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 14:07:01 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:2267 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262543AbVDGSGr (ORCPT
+	Thu, 7 Apr 2005 14:09:24 -0400
+Received: from 219-86-42-190.dynamic.tfn.net.tw ([219.86.42.190]:34319 "HELO
+	KEVIN") by vger.kernel.org with SMTP id S262542AbVDGSJC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 14:06:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=gW5RYo47VSJgneMvUa+dqFjKSfYExaojDoRjyUZygWTGidTVj35Gk4E28AuaM+DAV9g5vH+5zdbsqBFefNkyzUcZHhsWXxCTPQlp+MfKnyvZ9zRMZWpvH+11AZha5l8s+ozC0WYr24rNAK8jQgR7tp5knZElVVZ+2c4PzO8Cco4=
-Message-ID: <aec7e5c3050407110647927c1e@mail.gmail.com>
-Date: Thu, 7 Apr 2005 20:06:46 +0200
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Kernel SCM saga..
-Cc: Daniel Phillips <phillips@istop.com>, Paul Mackerras <paulus@samba.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504071023190.28951@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	 <16980.55403.190197.751840@cargo.ozlabs.ibm.com>
-	 <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org>
-	 <200504071300.51907.phillips@istop.com>
-	 <Pine.LNX.4.58.0504071023190.28951@ppc970.osdl.org>
+	Thu, 7 Apr 2005 14:09:02 -0400
+Message-ID: <9PtLdvEdp@tpts8.seed.net.tw>
+From: aabbaa123aa@yahoo.com.tw
+To: aabbaa123bb@yahoo.com.tw
+Subject: =?ISO-8859-1?Q?=20=A5=FE=B9=A9=B1M=B7~=A5=BC=A4W=A5=AB(=BF?= =?ISO-8859-1?Q?=B3=C2d?=) =?ISO-8859-1?Q?=AA?=
+	=?ISO-8859-1?Q?=D1=B2=BC=A5=E6=A9=F6=A4=A4=A4=DF?=
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+Content-Type: text/plain;
+X-Priority: 3
+X-MSMail-Priority: Normal
+Date: Thu, 7 Apr 2005 14:09:02 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id j37ID0gO002356
 
-On Apr 7, 2005 7:38 PM, Linus Torvalds <torvalds@osdl.org> wrote:
-> So my prefernce is _overwhelmingly_ for the format that Andrew uses (which
-> is partly explained by the fact that I am used to it, but also by the fact
-> that I've asked for Andrew to make trivial changes to match my usage).
-> 
-> That canonical format is:
-> 
->         Subject: [PATCH 001/123] [<area>:] <explanation>
-> 
-> together with the first line of the body being a
-> 
->         From: Original Author <origa@email.com>
-> 
-> followed by an empty line and then the body of the explanation.
-> 
-> After the body of the explanation comes the "Signed-off-by:" lines, and
-> then a simple "---" line, and below that comes the diffstat of the patch
-> and then the patch itself.
+您好~不好意思打擾您了~如不需要本訊息~請多多包含按關閉~
+如您需要請跟我們聯絡~~再次謝謝您~
 
-While specifying things, wouldn't it be useful to have a line
-containing tags that specifies if the patch contains new features, a
-bug fix or a high-priority security fix? Then that information could
-be used to find patches for the sucker-tree.
 
-/ magnus
+㊣㊣●●全鼎專業未上市股票交易中心【02-6625-9867】●●㊣㊣ 
+
+全省各類未上市(含興櫃)股票行情查詢..買賣代辦...請撥 
+【02-6625-9867】 
+※交易迅速..價格透明合理..服務優良..是您唯一選擇ㄉ好盤商 
+
+§備有各公司資料歡迎索取..歡迎各位來電索取!!§ 
+
+大額股權轉讓~認購~零股收購~熱門股~興櫃股~未上市股~準上市股~中籤書~ 
+
+→想投資未上市卻不知從何做起嗎？歡迎來電索取推薦各股資料← 
+
+您有未上市股票要賣嗎~
+您有未上市股票要買嗎~
+
+全鼎專業未上市股票(興櫃)交易中心
+股票行情查詢~買賣代辦~皆可以來電~
+
+~~手續費挑戰全國最便宜~價格保證一手盤價~歡迎各位比價~~
+
+如不方便來電也歡迎來信洽詢
+
+mail to:a0914243352@yahoo.com.tw
+
+http://a0914243352.groups.com.tw
+
+您要買或要賣皆可來電洽詢~全國最大的未上市股票交易系統~備有數萬支股票可供查詢~歡迎您的來電
+
+

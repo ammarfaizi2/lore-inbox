@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVDGKPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVDGKRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262417AbVDGKPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 06:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVDGKPJ
+	id S261347AbVDGKRx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 06:17:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVDGKRx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 06:15:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31386 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262417AbVDGKOv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 06:14:51 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0504070210430.24723@goblin.wat.veritas.com> 
-References: <Pine.LNX.4.61.0504070210430.24723@goblin.wat.veritas.com>  <Pine.LNX.4.61.0504070204390.24723@goblin.wat.veritas.com> 
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/6] freepgt2: sys_mincore ignore FIRST_USER_PGD_NR 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Thu, 07 Apr 2005 11:14:24 +0100
-Message-ID: <19283.1112868864@redhat.com>
+	Thu, 7 Apr 2005 06:17:53 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19111 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261347AbVDGKRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 06:17:43 -0400
+Subject: Re: 2.6.12-rc2 in_atomic() picks up preempt_disable()
+From: Arjan van de Ven <arjan@infradead.org>
+To: Keith Owens <kaos@sgi.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <13730.1112868613@kao2.melbourne.sgi.com>
+References: <13730.1112868613@kao2.melbourne.sgi.com>
+Content-Type: text/plain
+Date: Thu, 07 Apr 2005 12:17:37 +0200
+Message-Id: <1112869057.6290.36.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
+On Thu, 2005-04-07 at 20:10 +1000, Keith Owens wrote:
+> 2.6.12-rc2, with CONFIG_PREEMPT and CONFIG_PREEMPT_DEBUG.  The
+> in_atomic() macro thinks that preempt_disable() indicates an atomic
+> region so calls to __might_sleep() result in a stack trace.
 
-> 
-> Remove use of FIRST_USER_PGD_NR from sys_mincore: it's inconsistent (no
-> other syscall refers to it), unnecessary (sys_mincore loops over vmas
-> further down) and incorrect (misses user addresses in ARM's first pgd).
+but you're not allowed to schedule when preempt is disabled!
 
-You should make it use FIRST_USER_ADDRESS instead. This check allows NULL
-pointers and suchlike to be weeded out before having to take the semaphore.
+> preempt_count() returns 1, no soft or hard irqs are running and no
+> spinlocks are held.  It looks like there is no way to distinguish
+> between the use of preempt_disable() in the lock functions (atomic) and
+> preempt_disable() outside the lock functions (do nothing that might
+> migrate me).
 
-Also, just because no other syscall refers to such a value doesn't mean that
-this one shouldn't and that others shouldn't.
+in what code are you seeing this?
 
-David
+

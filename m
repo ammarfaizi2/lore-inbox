@@ -1,98 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVDGBm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVDGBmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbVDGBm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 21:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVDGBm5
+	id S262372AbVDGBmI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 21:42:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVDGBmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 21:42:57 -0400
-Received: from ns1.lanforge.com ([66.165.47.210]:37345 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S262376AbVDGBmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 21:42:22 -0400
-Message-ID: <42548FFC.7000004@candelatech.com>
-Date: Wed, 06 Apr 2005 18:42:20 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: hard lockup on nx5000 laptop with 2.6.11+hack and FC2's 2.6.10-1.770_FC2
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Apr 2005 21:42:08 -0400
+Received: from bay10-f59.bay10.hotmail.com ([64.4.37.59]:51611 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262372AbVDGBl5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 21:41:57 -0400
+Message-ID: <BAY10-F593A133679EB2005D70E1FD93E0@phx.gbl>
+X-Originating-IP: [68.62.239.65]
+X-Originating-Email: [getarunsri@hotmail.com]
+From: "Arun Srinivas" <getarunsri@hotmail.com>
+To: rostedt@goodmis.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: scheduler/SCHED_FIFO behaviour
+Date: Thu, 07 Apr 2005 07:11:56 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 07 Apr 2005 01:41:56.0642 (UTC) FILETIME=[FB980020:01C53B12]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am not sure if my question was clear enough or I couldnt interpret you 
+answer correctly.(If it was the case I apologise for that).
 
-Several wierd things with my laptop since I upgraded from 2.6.9+hack,
-which works beautifully.
+My question is, as I said I am measuring the schedule time difference 
+between my 2 of my SCHED_FIFO process in schedule() .But, I get only one set 
+of readings (i.e., schedule() is being called once which implies my process 
+is being scheduled only once and run till completion)
 
-1)  With 2.6.11+hack, compiled for the Pentium-M, the system
-   freezes at or soon after I close the LCD screen.  Out of curiosity,
-   I tried the FN - [F4] combination, which I believe should try to flip
-   the video output to the external monitor port (I have nothing plugged in there).
-   This immediately made the machine starting counting memory, and it turns out it
-   had completely erased the BIOS settings to defaults and set the date back to
-   Jan 4 of this year!
+Also, as I said my interrupts are being processed during this time.I 
+inspected /proc/interrupts for this.So, my question was if interrupts heve 
+been processed several times the 2 SCHED_FIFO process which has been 
+interrupted must have been resecheduled several times and for this upon 
+returning from the interrupt handler the schedule() function must have been 
+called  several times to schedule the 2 process which were running.But, as I 
+said I get only one reading??
 
-2) With 2.6.10-1.770_FC2 I totally froze the system when I tried to
-   'ifup eth0'.  eth0 is BCM5705M (b44 driver)
+>From your reply, I come to understand that when an interrupt interrupts my 
+user process.....it runs straight way ....but upon return from the interrupt 
+handler does it not call schedule() to again resume my interrupted process? 
+Please help.
 
-3) When it freezes, the machine gets really hot, and the fan does not increase
-   in speed like it normally does.  I am not sure if this means anything, but I thought
-   I'd share it.
-
-For now, I'm back at 2.6.9+hack, but I'm willing to try the newer kernels if someone
-has a suggestion or needs more debugging.
-
-Install is:  FC2, mostly up-to-date when I was having these problems, fully
-              up-to-date now.
-
-cpu:
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 13
-model name      : Intel(R) Pentium(R) M processor 1.50GHz
-stepping        : 6
-cpu MHz         : 1495.769
-cache size      : 2048 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 apic sep mtrr pge mca cmov pat clflush dts acpi mmx fxsr sse sse2 ss tm pbe est tm2
-bogomips        : 2965.50
+Thanks
+arun
 
 
-lspci of this system:
-00:00.0 Host bridge: Intel Corp. 82852/855GM Host Bridge (rev 02)
-00:00.1 System peripheral: Intel Corp. 855GM/GME GMCH Memory I/O Control Registers (rev 02)
-00:00.3 System peripheral: Intel Corp. 855GM/GME GMCH Configuration Process Registers (rev 02)
-00:02.0 VGA compatible controller: Intel Corp. 82852/855GM Integrated Graphics Device (rev 02)
-00:02.1 Display controller: Intel Corp. 82852/855GM Integrated Graphics Device (rev 02)
-00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev 01)
-00:1d.1 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #2 (rev 01)
-00:1d.2 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #3 (rev 01)
-00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller (rev 01)
-00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 81)
-00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 01)
-00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller (rev 01)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801DB (ICH4) AC'97 Audio Controller (rev 01)
-00:1f.6 Modem: Intel Corp. 82801DB (ICH4) AC'97 Modem Controller (rev 01)
-01:04.0 Ethernet controller: Atheros Communications, Inc. AR5212 802.11abg NIC (rev 01)
-01:06.0 CardBus bridge: Texas Instruments PCI7420 CardBus Controller
-01:06.1 CardBus bridge: Texas Instruments PCI7420 CardBus Controller
-01:06.3 Unknown mass storage controller: Texas Instruments PCI7420 Flash Media Controller
-01:0d.0 FireWire (IEEE 1394): Texas Instruments TSB43AB22/A IEEE-1394a-2000 Controller (PHY/Link)
-01:0e.0 Ethernet controller: Broadcom Corporation BCM5705M 10/100/1000Base T (rev 02)
 
+>From: Steven Rostedt <rostedt@goodmis.org>
+>To: Arun Srinivas <getarunsri@hotmail.com>
+>CC: juhl-lkml@dif.dk, LKML <linux-kernel@vger.kernel.org>
+>Subject: Re: scheduler/SCHED_FIFO behaviour
+>Date: Mon, 04 Apr 2005 23:33:05 -0400
+>
+>On Tue, 2005-04-05 at 07:46 +0530, Arun Srinivas wrote:
+>
+> >
+> > So, what I want from the above code is whenever process1 or process2 is
+> > being scheduled measure the time and print the timedifference. But, when 
+>I
+> > run my 2 processes as SCHED_FIFO processes i get only one set of
+> > readings....indicating they have been scheduled only once and run till
+> > completion.
+> >
+> > But, as we saw above if interrupts have been processed they must have 
+>been
+> > scheduled several times(i.e., schedule() called several times). Is my
+> > measurement procedure not correct?
+>
+>No! Interrupts are not scheduled. When an interrupt goes off, the
+>interrupt service routine (ISR) is executed. It doesn't need to be
+>scheduled. It runs right where it interrupted the CPU. That's why you
+>need to be careful about protecting data that ISRs manipulate with
+>spin_lock_irqsave. This not only protects against multiple CPUs, but
+>turns off interrupts so that an interrupt wont be called and one of the
+>ISRs modify the data you need to be atomic.
+>
+>Your tasks are running and will be interrupted by an ISR, on return from
+>the routine, a check is made to see if your tasks should be preempted.
+>But since they are the highest running tasks and in FIFO mode, the check
+>determines that schedule should not be called.  So you will not see any
+>schedules while your tasks are running.
+>
+>Now, if you where running Ingo's RT patch with PREEMPT_HARDIRQ enabled,
+>and your tasks were of lower priority than the ISR thread handlers, then
+>you would see the scheduling. Maybe that is what you want?
+>
+>-- Steve
+>
+>
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+_________________________________________________________________
+Send money to India 
+http://ads.mediaturf.net/event.ng/Type=click&FlightID=17307&AdID=44925&TargetID=9763&Targets=9763&Values=414,868,1093,2385&Redirect=http:%2F%2Fwww.icicibanknripromotions.com%2Fm2i_feb%2Fnri_M2I_feb.jsp%3Fadid%3D44925%26siteid%3D1093%26flightid%3D17307 
+Get a FREE 30 minute India Calling Card.
 

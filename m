@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVDGJLY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVDGJMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbVDGJLY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 05:11:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVDGJLY
+	id S262399AbVDGJMx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 05:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVDGJMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 05:11:24 -0400
-Received: from mtaout2.barak.net.il ([212.150.49.172]:43938 "EHLO
-	mtaout2.barak.net.il") by vger.kernel.org with ESMTP
-	id S262396AbVDGJLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 05:11:21 -0400
-Date: Thu, 07 Apr 2005 12:11:13 +0300
-From: Leonid Podolny <leonid99@mail.ru>
-Subject: Bug in mm.h?
-To: lkml <linux-kernel@vger.kernel.org>
-Message-id: <4254F931.6010200@mail.ru>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.91.0.0
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+	Thu, 7 Apr 2005 05:12:53 -0400
+Received: from smtpout19.mailhost.ntl.com ([212.250.162.19]:11805 "EHLO
+	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S262399AbVDGJMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 05:12:43 -0400
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+From: Ian Campbell <ijc@hellion.org.uk>
+To: johnpol@2ka.mipt.ru
+Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1112861638.28858.92.camel@uganda>
+References: <1112859412.18360.31.camel@frecb000711.frec.bull.fr>
+	 <1112860419.28858.76.camel@uganda>  <1112861638.28858.92.camel@uganda>
+Content-Type: text/plain
+Date: Thu, 07 Apr 2005 10:12:32 +0100
+Message-Id: <1112865153.3086.134.camel@icampbell-debian>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I fail to understand whether the following is a bug. From what I see, if
-the page is reserved, page->count is not decreased. The order of the
-conditions should be reversed.
+On Thu, 2005-04-07 at 12:13 +0400, Evgeniy Polyakov wrote:
+> The main idea was to simplify userspace control and notification
+> system - so people did not waste it's time learning how skb's are
+> allocated
+> and processed, how socket layer is designed and what all those
+> netlink_* and NLMSG* mean if they do not need it.
 
->From mm.h:
+Isn't connector built on top of netlink? If so, is there any reason for
+it to be a new subsystem rather than an extension the the netlink API?
 
-static inline void put_page(struct page *page)
-{
-        if (!PageReserved(page) && put_page_testzero(page))
-                __page_cache_release(page);
-}
+Ian.
+-- 
+Ian Campbell
 
-static inline void get_page(struct page *page)
-{
-        atomic_inc(&page->_count);
-}
-
-#define put_page_testzero(p)                            \
-        ({                                              \
-                BUG_ON(page_count(p) == 0);             \
-                atomic_add_negative(-1, &(p)->_count);  \
-        })
+Employees and their families are not eligible.
 

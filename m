@@ -1,123 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVDGMPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVDGMTK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVDGMPX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 08:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVDGMPX
+	id S262443AbVDGMTK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 08:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVDGMTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 08:15:23 -0400
-Received: from hades.almg.gov.br ([200.198.60.36]:12416 "EHLO
-	hades.almg.gov.br") by vger.kernel.org with ESMTP id S261247AbVDGMPH
+	Thu, 7 Apr 2005 08:19:09 -0400
+Received: from r3az252.chello.upc.cz ([213.220.243.252]:36490 "EHLO
+	aquarius.doma") by vger.kernel.org with ESMTP id S262437AbVDGMS4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 08:15:07 -0400
-Message-ID: <4255244B.6070204@almg.gov.br>
-Date: Thu, 07 Apr 2005 09:15:07 -0300
-From: Humberto Massa <humberto.massa@almg.gov.br>
-User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+	Thu, 7 Apr 2005 08:18:56 -0400
+Message-ID: <4255252D.4050708@ribosome.natur.cuni.cz>
+Date: Thu, 07 Apr 2005 14:18:53 +0200
+From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b2) Gecko/20050407
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-References: <08Gc5.A.AFC.QJPVCB@murphy>
-In-Reply-To: <08Gc5.A.AFC.QJPVCB@murphy>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic
+ links
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
+Hi,
+  again I've hit some wird problem doing "make dep" for 2.4 kernel:
 
- >>Well whoever wrote that seems to have taken the stand that
- >>the openfirmware package was were the firmware came from.
- >>The person obviously made a lot of statements without
- >>bothering checking out the real source. Well it didn't come
- >>from there, I got it from Alteon under a written agreement
- >>stating I could distribute the image under the GPL. Since
- >>the firmware is simply data to Linux, hence keeping it under
- >>the GPL should be just fine.
- >
- >
- >You cannot distribute anything under the GPL if you cannot
- >also distribute the source code (the preferred form of the
- >software for the purpose of making modifications to it). How
- >Linux sees it is irrelevant. For any piece of software, one
- >can imagine some processor that can only see it as data.  The
- >GPL doesn't distinguish between processors.
+I've extracted the linxu-2.4.30.tar.gz file, copied .config from
+previous src-tree, ran `make oldconfig', did `make menuconfig',
+and finally `make dep':
 
-I think this is undisputed.
+[cut]
+make[2]: Leaving directory `/usr/src/linux-2.4.30/arch/i386/lib'
+make[1]: Leaving directory `/usr/src/linux-2.4.30'
+make update-modverfile
+make[1]: Entering directory `/usr/src/linux-2.4.30'
+/usr/src/linux-2.4.30/include/linux/modversions.h was not updated
+make[1]: Leaving directory `/usr/src/linux-2.4.30'
+scripts/mkdep -- `find /usr/src/linux-2.4.30/include/asm /usr/src/linux-2.4.30/include/linux /usr/src/linux-2.4.30/include/scsi /usr/src/linux-2.4.30/include/net /usr/src/linux-2.4.30/include/math-emu \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
+find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic links
+scripts/mkdep -- init/*.c > .depend
+# 
 
- >Alteon's written agreement notwithstanding, you cannot
- >distribute the firmware under the GPL if you cannot provide
- >the preferred form of the firmware for the purpose of making
- >modifications to it. The firmware does not run on Linux, so
- >saying "linux sees it as data" is as absurd as saying I can
- >distribute the x86 Linux kernel without the source because my
- >calculator can only see it as data.
- >
- >You cannot distribute the firmware binary under the GPL.
- >Period.
 
-This is where you are wrong IMMHO. All that is needed for you
-to distribute the hexdump blob under the GPL is a declaration
-from the copyright holder saying "this, to me, is the
-preferred form for modification of the firmware and hence the
-source code under the GPL."
+Executing `find /usr/src/linux-2.4.30/include/asm /usr/src/linux-2.4.30/include/linux /usr/src/linux-2.4.30/include/scsi /usr/src/linux-2.4.30/include/net /usr/src/linux-2.4.30/include/math-emu \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print` works just fine.
 
- >Now, if you were trying to say that you could aggregate the
- >firmware with another work and distribute the result under
- >the GPL, the test would be whether the final result is "mere
- >aggregation" or not.  This is a fantastically tricky question
- >and I don't think anyone on this list could give you
- >particularly useful guidance.
 
-After a *lot* of discussion, it was deliberated on d-l that
-this is not that tricky at all, and that the "mere
-aggregation" clause applies to the combination, for various
-reasons, with a great degree of safety.  (Safer than that,
-only after court) :-)
+aquarius linux-2.4.30 # scripts/mkdep -- `find /usr/src/linux-2.4.30/include/asm /usr/src/linux-2.4.30/include/linux /usr/src/linux-2.4.30/include/scsi /usr/src/linux-2.4.30/include/net /usr/src/linux-2.4.30/include/math-emu \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print`
+find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic links
+mkdep: HPATH not set in environment.  Don't bypass the top level Makefile.
+aquarius linux-2.4.30 # 
 
- >My own opinion is that it's a threshold issue based upon
- >several factors.  For example -- has the firmware been
- >specifically designed to work with the Linux driver or is it
- >"generic" firmware? If you can't take the thing you're
- >distributing (the combined binary) and extract two works from
- >it (the firmware and the work whose source you are offering),
- >I cannot see how you can claim it's mere aggregation.
+aquarius linux-2.4.30 # ls -la /usr/src/linux-2.4.30/include/asm
+lrwxrwxrwx  1 root root 8 Apr  7 14:07 /usr/src/linux-2.4.30/include/asm -> asm-i386
+aquarius linux-2.4.30 # ls -la /usr/src/linux-2.4.30/include/asm-i
+asm-i386/ asm-ia64/ 
+aquarius linux-2.4.30 # ls -la /usr/src/linux-2.4.30/include/asm-i386/
+total 692
+drwxr-xr-x   2 573 573  1741 Apr  4 03:42 .
+drwxr-xr-x  28 573 573   397 Apr  7 14:07 ..
+-rw-r--r--   1 573 573   764 Jun 16  1995 a.out.h
+-rw-rw-r--   1 573 573  4974 Apr  4 03:42 acpi.h
+-rw-r--r--   1 573 573  2528 Nov 17 12:54 apic.h
+-rw-r--r--   1 573 573  9610 Aug 25  2003 apicdef.h
+-rw-r--r--   1 573 573  5066 Nov 22  2001 atomic.h
+-rw-r--r--   1 573 573  9568 Aug  8  2004 bitops.h
+-rw-r--r--   1 573 573   409 Apr 16  1997 boot.h
+[cut]
+There are no symlinks under /usr/src/linux-2.4.30/include/asm-i386/
 
-Now, if the firmware was specifically designed to work with
-the linux driver, than it *is* a derivative work on the kernel
-as a whole and the source code should be provided upon
-redistribution as per GPL section 3 etc.
-
-*BUT* this does not preclude Broadcom from stating: "our
-engineers generated by hand the hex codes that make our
-hardware work."
-
- >If you believe the linker "merely aggregates" the object code
- >for the driver with the data for the firmware, I can't see
- >how you can argue that any linking is anything but mere
- >aggregation. In neither case can you separate the linked work
- >into the two separate works and in both cases the linker
- >provides one work direct access to the other.
-
-No-one is saying that the linker "merely aggregates" object
-code for the driver; what *is* being said is: in the case of
-firmware, especially if the firmware is neither a derivative
-work on the kernel (see above) nor the firmware includes part
-of the kernel (duh), it is *fairly* *safe* to consider the
-intermixing of firmware bytes with kernel binary image bytes
-in an ELF object file as mere aggregation.
-
- >If you only distribute the source to the driver and don't put
- >a GPL notice in the files that contain the firmware data, I
- >think you're okay. I think you're asking for trouble if you
- >distribute a combined compiled/linked driver.
-
-Disagreed.
-
- >DS
-
-HTH,
-
-Massa
-
+Any clues? :( Please Cc: me in replies.
+-- 
+Martin Mokrejs
+Email: 'bW9rcmVqc21Acmlib3NvbWUubmF0dXIuY3VuaS5jeg==\n'.decode('base64')
+GPG key is at http://www.natur.cuni.cz/~mmokrejs

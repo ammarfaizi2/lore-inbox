@@ -1,82 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVDGRX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262510AbVDGRZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262507AbVDGRX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 13:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVDGRX4
+	id S262510AbVDGRZG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 13:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVDGRY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 13:23:56 -0400
-Received: from alog0304.analogic.com ([208.224.222.80]:9395 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262507AbVDGRXs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 13:23:48 -0400
-Date: Thu, 7 Apr 2005 13:22:57 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: Magnus Damm <magnus.damm@gmail.com>, roland@topspin.com,
-       asterixthegaul@gmail.com, damm@opensource.se,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] disable built-in modules V2
-In-Reply-To: <20050407100147.7b91a2d2.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.61.0504071319430.5977@chaos.analogic.com>
-References: <20050405225747.15125.8087.59570@clementine.local><54b5dbf505040618324186678a@mail.gmail.com><528y3v72al.fsf@topspin.com><aec7e5c305040701236289aacd@mail.gmail.com>
- <20050407100147.7b91a2d2.rddunlap@osdl.org>
+	Thu, 7 Apr 2005 13:24:27 -0400
+Received: from hammer.engin.umich.edu ([141.213.40.79]:49077 "EHLO
+	hammer.engin.umich.edu") by vger.kernel.org with ESMTP
+	id S262510AbVDGRYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 13:24:08 -0400
+Date: Thu, 7 Apr 2005 13:23:58 -0400 (EDT)
+From: Christopher Allen Wing <wingc@engin.umich.edu>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: clock runs at double speed on x86_64 system w/ATI
+ RS200 chipset (workaround for APIC mode?)
+In-Reply-To: <20050407073713.GA74220@muc.de>
+Message-ID: <Pine.LNX.4.58.0504071319180.17904@hammer.engin.umich.edu>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se>
+ <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de>
+ <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu>
+ <20050405183141.GA27195@muc.de> <Pine.LNX.4.58.0504061758150.4573@hammer.engin.umich.edu>
+ <20050407073713.GA74220@muc.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005, Randy.Dunlap wrote:
 
-> On Thu, 7 Apr 2005 10:23:32 +0200 Magnus Damm wrote:
->
-> | On Apr 7, 2005 4:23 AM, Roland Dreier <roland@topspin.com> wrote:
-> | >  > > -#define module_init(x) __initcall(x);
-> | >  > > +#define module_init(x) __initcall(x); __module_init_disable(x);
-> | >  >
-> | >  > It would be better if there is brackets around them... like
-> | >  >
-> | >  > #define module_init(x) { __initcall(x); __module_init_disable(x); }
-> | >  >
-> | >  > then we know it wont break some code like
-> | >  >
-> | >  > if (..)
-> | >  >  module_init(x);
-> | >
-> | > This is all completely academic, since module_init() is a declaration
-> | > that won't be inside any code, but in general it's better still to use
-> | > the do { } while (0) idiom like
-> | >
-> | > #define module_init(x) do { __initcall(x); __module_init_disable(x); } while (0)
-> | >
-> | > so it won't break code like
-> | >
-> | >         if (..)
-> | >                 module_init(x);
-> | >         else
-> | >                 something_else();
-> | >
-> | > (Yes, that code is nonsense but if you're going to nitpick, go all the way...)
-> |
-> | Right. =)
-> | Anyway, besides nitpicking, is there any reason not to include this
-> | code? Or is the added feature considered plain bloat? Yes, the kernel
-> | will become a bit larger, but all the data added by this patch will go
-> | into the init section.
->
-> Looks like a good idea to me.
->
-> ---
-> ~Randy
 
-Can't you disable module-loading with a module? I think so.
-You don't need to modify the kernel. Boot-scripts could
-just load the "final" module and there is nothing that
-can be done to add another module (or even unload existing
-ones).
+On Thu, 7 Apr 2005, Andi Kleen wrote:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+> >
+> > I'm still seeing 'APIC error on CPU0: 00(40)' messages from time to time.
+>
+> Thanks for the analysis. The clear_IO_APIC_pin looks quite hackish,
+> I am not sure I want to put that into the mainline kernel.
+
+Of course. The patch was a simplification, the idea was to just prevent it
+from using the default routing; here's a patch that's functionally
+equivalent for me:
+
+
+
+--- arch/x86_64/kernel/io_apic.c.orig	2005-03-25 22:28:21.000000000 -0500
++++ arch/x86_64/kernel/io_apic.c	2005-04-07 13:13:58.813193024 -0400
+@@ -1564,6 +1564,8 @@
+  * is so screwy.  Thanks to Brian Perkins for testing/hacking this beast
+  * fanatically on his truly buggy board.
+  */
++static int timer_hack = 0;
++
+ static inline void check_timer(void)
+ {
+ 	int pin1, pin2;
+@@ -1597,7 +1599,7 @@
+ 		 * Ok, does IRQ0 through the IOAPIC work?
+ 		 */
+ 		unmask_IO_APIC_irq(0);
+-		if (timer_irq_works()) {
++		if ((!timer_hack) && timer_irq_works()) {
+ 			nmi_watchdog_default();
+ 			if (nmi_watchdog == NMI_IO_APIC) {
+ 				disable_8259A_irq(0);
+@@ -1669,6 +1671,14 @@
+ 	panic("IO-APIC + timer doesn't work! Try using the 'noapic' kernel parameter\n");
+ }
+
++static int __init timerhack(char *str)
++{
++	timer_hack = 1;
++	return 1;
++}
++__setup("timerhack", timerhack);
++
++
+ /*
+  *
+  * IRQ's that are handled by the PIC in the MPS IOAPIC case.
+
+
+
+
+With that patch I get the same behavior; the timer interrupt is labeled
+'local-APIC-edge' and it ticks at the correct rate.
+
+
+
+> The APIC errors are also suspicious.
+>
+> I don't want to blacklist ATI from just a single report,
+> but if there are more it is probably best to just disable
+> the IO-APIC by default there for now.
+
+It will be interesting to see if anyone else has problems when systems
+with this ATI integrated chipset (Radeon Xpress 200) become more common.
+
+
+Thanks,
+
+Chris
+wingc@engin.umich.edu

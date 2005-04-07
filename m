@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVDGNF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVDGNI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbVDGNF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 09:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVDGNF6
+	id S262456AbVDGNI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 09:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVDGNI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 09:05:58 -0400
-Received: from alog0663.analogic.com ([208.224.223.200]:57784 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262454AbVDGNFq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 09:05:46 -0400
-Date: Thu, 7 Apr 2005 09:03:01 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Humberto Massa <humberto.massa@almg.gov.br>
-cc: David Schmitt <david@black.co.at>, debian-kernel@lists.debian.org,
-       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-In-Reply-To: <4255278E.4000303@almg.gov.br>
-Message-ID: <Pine.LNX.4.61.0504070855510.29251@chaos.analogic.com>
-References: <L0f93D.A.68G.D2OVCB@murphy> <4255278E.4000303@almg.gov.br>
+	Thu, 7 Apr 2005 09:08:28 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:51089 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262453AbVDGNIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 09:08:05 -0400
+Message-ID: <425530AB.90605@yahoo.com.au>
+Date: Thu, 07 Apr 2005 23:07:55 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: vatsa@in.ibm.com
+CC: george@mvista.com, mingo@elte.hu,
+       high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: VST and Sched Load Balance
+References: <20050407124629.GA17268@in.ibm.com>
+In-Reply-To: <20050407124629.GA17268@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005, Humberto Massa wrote:
+Srivatsa Vaddagiri wrote:
 
-> David Schmitt wrote:
->
->>  On Thursday 07 April 2005 09:25, Jes Sorensen wrote:
->>
->>> [snip] I got it from Alteon under a written agreement stating I
->>> could distribute the image under the GPL. Since the firmware is
->>> simply data to Linux, hence keeping it under the GPL should be just
->>> fine.
->>
->>
->>  Then I would like to exercise my right under the GPL to aquire the
->>  source code for the firmware (and the required compilers, starting
->>  with genfw.c which is mentioned in acenic_firmware.h) since - as far
->>  as I know - firmware is coded today in VHDL, C or some assembler and
->>  the days of hexcoding are long gone.
->
-> First, there is *NOT* any requirement in the GPL at all that requires
-> making compilers available. Otherwise it would not be possible, for
-> instance, have a Visual Basic GPL'd application. And yes, it is possible.
->
-> Second, up until the present day I have personal experience with
-> hardware producers that do not have enough money to buy expensive
-> toolchains and used a lot of hand-work to code hardware parameters. So,
-> at least for them, hand-hexcoding-days are still going.
->
-> HTH,
->
-> Massa
+> I think a potential area which VST may need to address is 
+> scheduler load balance. If idle CPUs stop taking local timer ticks for 
+> some time, then during that period it could cause the various runqueues to 
+> go out of balance, since the idle CPUs will no longer pull tasks from 
+> non-idle CPUs. 
+> 
 
-Well it doesn't make any difference. If GPL has degenerated to
-where one can't upload microcode to a device as part of its
-initialization, without having the "source" that generated that
-microcode, we are in a lot of hurt. Intel isn't going to give their
-designs away.
+Yep.
 
-Last time I checked, GPL was about SOFTware, not FIRMware, and
-not MICROcode. If somebody has decided to rename FIRMware to
-SOFTware, then they need to complete the task and call it DORKware,
-named after themselves.
+> Do we care about this imbalance? Especially considering that most 
+> implementations will let the idle CPUs sleep only for some max duration
+> (~900 ms in case of x86).
+> 
 
-This whole thread and gotten truly bizarre.
+I think we do care, yes. It could be pretty harmful to sleep for
+even a few 10s of ms on a regular basis for some workloads. Although
+I guess many of those will be covered by try_to_wake_up events...
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Not sure in practice, I would imagine it will hurt some multiprocessor
+workloads.
+
+> If we do care about this imbalance, then we could hope that the balance logic
+> present in try_to_wake_up and sched_exec may avoid this imbalance, but can we 
+> bank upon these events to restore the runqueue balance?
+> 
+> If we cannot, then I had something in mind on these lines:
+> 
+> 1. A non-idle CPU (having nr_running > 1) can wakeup a idle sleeping CPU if it 
+>    finds that the sleeping CPU has not balanced itself for it's 
+>    "balance_interval" period.
+> 
+> 2. It would be nice to minimize the "cross-domain" wakeups. For ex: we may want 
+>    to avoid a non-idle CPU in node B sending a wakeup to a idle sleeping CPU in 
+>    another node A, when this wakeup could have been sent from another non-idle
+>    CPU in node A itself. 
+>  
+
+3. This is exactly one of the situations that the balancing backoff code
+    was designed for. Can you just schedule interrupts to fire when the
+    next balance interval has passed? This may require some adjustments to
+    the backoff code in order to get good powersaving, but it would be the
+    cleanest approach from the scheduler's point of view.
+
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+

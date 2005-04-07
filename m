@@ -1,76 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVDGKak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVDGKbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbVDGKak (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 06:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVDGKak
+	id S262426AbVDGKbt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 06:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262421AbVDGKbt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 06:30:40 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:30419 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262422AbVDGKaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 06:30:25 -0400
-Date: Thu, 7 Apr 2005 12:30:18 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050407103018.GA22906@merlin.emma.line.org>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <87d5t73pnf.fsf@osv.topcon.com>
+	Thu, 7 Apr 2005 06:31:49 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9118 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262424AbVDGKb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 06:31:27 -0400
+Date: Thu, 7 Apr 2005 11:31:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] Use proper seq_file api for /proc/scsi/scsi
+Message-ID: <20050407103123.GB9586@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Hannes Reinecke <hare@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>
+References: <42550173.1040503@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87d5t73pnf.fsf@osv.topcon.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <42550173.1040503@suse.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 07 Apr 2005, Sergei Organov wrote:
-
-> David Woodhouse <dwmw2@infradead.org> writes:
+On Thu, Apr 07, 2005 at 11:46:27AM +0200, Hannes Reinecke wrote:
+> Hi all,
 > 
-> > On Wed, 2005-04-06 at 08:42 -0700, Linus Torvalds wrote:
-> > > PS. Don't bother telling me about subversion. If you must, start reading
-> > > up on "monotone". That seems to be the most viable alternative, but don't
-> > > pester the developers so much that they don't get any work done. They are
-> > > already aware of my problems ;)
-> > 
-> > One feature I'd want to see in a replacement version control system is
-> > the ability to _re-order_ patches, and to cherry-pick patches from my
-> > tree to be sent onwards. The lack of that capability is the main reason
-> > I always hated BitKeeper.
-> 
-> darcs? <http://www.abridgegame.org/darcs/>
+> /proc/scsi/scsi currently has a very dumb implementation of the seq_file
+> api which causes 'cat /proc/scsi/scsi' to return with -ENOMEM when a
+> large amount of devices are connected.
 
-Close. Some things:
+/proc/scsi/scsi is deprecated and even only compiled in if
+"legacy /proc/scsi/ support" is enabled.  Please move over to lssci which
+is using sysfs ASAP.
 
-1. It's rather slow and quite CPU consuming and certainly I/O consuming
-   at times - I keep, to try it out, leafnode-2 in a DARCS repo, which
-   has a mere 20,000 lines in 140 files, with 1,436 changes so far, on a
-   RAID-1 with two 7200/min disk drives, with an Athlon XP 2500+ with
-   512 MB RAM. The repo has 1,700 files in 11.5 MB, the source itself
-   189 files in 1.8 MB.
-
-   Example: darcs annotate nntpd.c takes 23 s. (2,660 lines, 60 kByte)
-
-   The maintainer himself states that there's still optimization required.
-
-2. It has an impressive set of dependencies around Glasgow Haskell
-   Compiler. I don't personally have issues with that, but I can already
-   hear the moaning and bitching.
-
-3. DARCS is written in Haskell. This is not a problem either, but I'd
-   think there are fewer people who can hack Haskell than people who
-   can hack C, C++, Java, Python or similar. It is still better than
-   BitKeeper from the hacking POV as the code is available and under an
-   acceptable license.
-
-Getting DARCS up to the task would probably require some polishing, and
-should probably be discussed with the DARCS maintainer before making
-this decision.
-
-Don't get me wrong, DARCS looks promising, but I'm not convinced it's
-ready for the linux kernel yet.
-
--- 
-Matthias Andree

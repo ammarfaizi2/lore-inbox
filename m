@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVDGT4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVDGT4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbVDGT4L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 15:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVDGT4L
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 15:56:11 -0400
-Received: from main.gmane.org ([80.91.229.2]:3751 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262582AbVDGT4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S262579AbVDGT4G (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 7 Apr 2005 15:56:06 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ian Pilcher <i.pilcher@comcast.net>
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Thu, 07 Apr 2005 14:52:49 -0500
-Message-ID: <d342u5$2rt$1@sea.gmane.org>
-References: <200503201557.58055.pmcfarland@downeast.net> <200503270624.02153.pmcfarland@downeast.net> <200503302359.39200.pmcfarland@downeast.net> <200504070717.34113.pmcfarland@downeast.net>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVDGT4G
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 7 Apr 2005 15:56:06 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:39063 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262579AbVDGT4C
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 15:56:02 -0400
+Date: Thu, 7 Apr 2005 21:56:25 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Daniel Phillips <phillips@istop.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050407195625.GA9439@mars.ravnborg.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <16980.55403.190197.751840@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org> <200504071300.51907.phillips@istop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-0-215-239.hsd1.tx.comcast.net
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-In-Reply-To: <200504070717.34113.pmcfarland@downeast.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504071300.51907.phillips@istop.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland wrote:
-> On Wednesday 30 March 2005 11:59 pm, Patrick McFarland wrote:
+On Thu, Apr 07, 2005 at 01:00:51PM -0400, Daniel Phillips wrote:
+> On Thursday 07 April 2005 11:10, Linus Torvalds wrote:
+> > On Thu, 7 Apr 2005, Paul Mackerras wrote:
+> > > Do you have it automated to the point where processing emailed patches
+> > > involves little more overhead than doing a bk pull?
+> >
+> > It's more overhead, but not a lot. Especially nice numbered sequences like
+> > Andrew sends (where I don't have to manually try to get the dependencies
+> > right by trying to figure them out and hope I'm right, but instead just
+> > sort by Subject: line)...
 > 
->>2.6.8 is also fubar. Now to 2.6.7....
+> Hi Linus,
 > 
+> In that case, a nice refinement is to put the sequence number at the end of 
+> the subject line so patch sequences don't interleave:
 > 
-> Nope, 2.6.7 is also fubar. Now to 2.6.6.
-> 
-> BTW, can the ALSA userland in anyway screw me here? I mean,the joystick stuff 
-> shouldn't have anything to do with it at all... but....
-> 
+>    Subject: [PATCH] Unbork OOM Killer (1 of 3)
+>    Subject: [PATCH] Unbork OOM Killer (2 of 3)
+>    Subject: [PATCH] Unbork OOM Killer (3 of 3)
+>    Subject: [PATCH] Unbork OOM Killer (v2, 1 of 3)
+>    Subject: [PATCH] Unbork OOM Killer (v2, 2 of 3)
 
-Any chance the joystick is just broken?
+This breaks the rule of a descriptive subject for each patch.
+Consider 30 subjetcs telling you "Subject: PCI updates [001/030]
+That is not good.
 
--- 
-========================================================================
-Ian Pilcher                                        i.pilcher@comcast.net
-========================================================================
-
+	Sam

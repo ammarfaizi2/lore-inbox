@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbVDGUiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262588AbVDGUtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbVDGUiU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 16:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVDGUiT
+	id S262588AbVDGUtv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 16:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVDGUtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 16:38:19 -0400
-Received: from web54107.mail.yahoo.com ([206.190.37.242]:26528 "HELO
-	web54107.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262594AbVDGUiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 16:38:00 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=JNJ41jhQ1x1vbt2Y+QdnSPJbpDRTJouTRmkMw8YWVjqC8cCy23ZQFJfi4zcpWh2CE4qHHRVZmJtIuGm0yh8YBJtLPUdzpQ7eC1YJz3tlmDtuBwYulwwQQ6yXlFaNlKh79PE5i/4bP/cE4W/Nh8thMTm/fIl5htrU2wI+WB6zsIk=  ;
-Message-ID: <20050407203755.26507.qmail@web54107.mail.yahoo.com>
-Date: Thu, 7 Apr 2005 13:37:55 -0700 (PDT)
-From: sai narasimhamurthy <sai_narasi@yahoo.com>
-Subject: Increasing MAX_SECTORS  in blkdev.h -2.4.29
-To: linux-kernel@vger.kernel.org
-In-Reply-To: 6667
+	Thu, 7 Apr 2005 16:49:51 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:19628 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S262588AbVDGUt0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 16:49:26 -0400
+From: David Brownell <david-b@pacbell.net>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: fix u32 vs. pm_message_t in usb
+Date: Thu, 7 Apr 2005 13:49:23 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050405104202.GD1330@openzaurus.ucw.cz> <20050405213832.GJ1380@elf.ucw.cz>
+In-Reply-To: <20050405213832.GJ1380@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504071349.23531.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 05 April 2005 2:38 pm, Pavel Machek wrote:
+> It seems to me that USB stack still needs some u32-vs-pm_message_t
+> changes (in rc2-mm1):
+> 
+> Could you apply them?
 
+I see someone changed the requirements for platform_device too ... :)
 
- Hi, 
- I wanted to increase the number of sectors that
- could be requested/Written  per SCSI READ(10)/WRITE
- command , and varying MAX_SECTORS in blkdev.h helped
-me to do it. However I could not request more than 256
- sectors and could not write more than 1024 inspite of
- changing MAX_SECTORS to higher numbers. 
- Why is that? There is probably some other variable
- that should be varied. Please let me know if anyone
-has an idea. 
- I am working on the UNH iSCSI initiator driver , and
- am on kernel 2.4.29 .  
- 
- Sai 
- 
- 
- 
- 
- 		
+This patch is mostly NOPs, but many of them tromp on other patches I have
+in the works.  So I'd rather hold off for now, using the rest of the
+2.6.12-rc series for only real honest-to-gosh bugfixes.  (Isn't that
+supposed to be the current goal, in any case?)
 
+Something that's not exactly a NOP:
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Take Yahoo! Mail with you! Get it on your mobile phone. 
-http://mobile.yahoo.com/maildemo 
+> --- clean-mm/drivers/usb/host/ohci-omap.c	2005-04-05 10:55:21.000000000 +0200
+> +++ linux-mm/drivers/usb/host/ohci-omap.c	2005-04-05 12:13:38.000000000 +0200
+> @@ -458,9 +458,11 @@
+>  
+>  /* states match PCI usage, always suspending the root hub except that
+>   * 4 ~= D3cold (ACPI D3) with clock off (resume sees reset).
+> + *
+> + * FIXME: above comment is not right, and code is wrong, too :-(.
+
+The comment is exactly right, and matches the code.  Has done so for
+most of a year now, in fact.
+
+What's wrong is the way that the pm_message_t changes have discarded
+functionality ... including, as a specific example, the ability for
+drivers to do the right thing based on what kind of suspend state
+they're entering.  (Because pm_message_t is effectively a boolean,
+rather than a something that's multi-valued.)
+
+I'll repeat myself again, at the risk of being redundant:  we need
+to actually fix this pm_message_t thing to _work_ rather than paper
+over its botches by discarding functionality.
+
+- Dave

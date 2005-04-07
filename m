@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbVDGQxi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVDGQ7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbVDGQxi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 12:53:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVDGQxh
+	id S262527AbVDGQ7w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 12:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVDGQ7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 12:53:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:26569 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262528AbVDGQxZ (ORCPT
+	Thu, 7 Apr 2005 12:59:52 -0400
+Received: from smtp.istop.com ([66.11.167.126]:21213 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262527AbVDGQ7i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 12:53:25 -0400
-Date: Thu, 7 Apr 2005 09:55:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Stas Sergeev <stsp@aknet.ru>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-In-Reply-To: <425563D6.30108@aknet.ru>
-Message-ID: <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru>
- <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru>
- <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru>
- <20050407080004.GA27252@elte.hu> <42555BBF.6090704@aknet.ru>
- <Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org> <425563D6.30108@aknet.ru>
+	Thu, 7 Apr 2005 12:59:38 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Kernel SCM saga..
+Date: Thu, 7 Apr 2005 13:00:51 -0400
+User-Agent: KMail/1.7
+Cc: Paul Mackerras <paulus@samba.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <16980.55403.190197.751840@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504071300.51907.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 7 Apr 2005, Stas Sergeev wrote:
+On Thursday 07 April 2005 11:10, Linus Torvalds wrote:
+> On Thu, 7 Apr 2005, Paul Mackerras wrote:
+> > Do you have it automated to the point where processing emailed patches
+> > involves little more overhead than doing a bk pull?
 >
-> 1. Does the "later sti" fixes the problem
-> also in case of an NMI? I mean, why can't
-> you just be NMI'ed before you did sti?
-> NMI uses the restore_all too IIRC.
+> It's more overhead, but not a lot. Especially nice numbered sequences like
+> Andrew sends (where I don't have to manually try to get the dependencies
+> right by trying to figure them out and hope I'm right, but instead just
+> sort by Subject: line)...
 
-The NMI code had better be really careful, and yeah, I suspect it needs 
-fixing.
+Hi Linus,
 
-> 2. How can one be sure there are no more
-> of the like places where the stack is left
-> empty?
+In that case, a nice refinement is to put the sequence number at the end of 
+the subject line so patch sequences don't interleave:
 
-That's a good argument, and may be the strongest reason for _not_ doing 
-the speculation. However, I don't think it really can happen anywhere 
-else. 
+   Subject: [PATCH] Unbork OOM Killer (1 of 3)
+   Subject: [PATCH] Unbork OOM Killer (2 of 3)
+   Subject: [PATCH] Unbork OOM Killer (3 of 3)
+   Subject: [PATCH] Unbork OOM Killer (v2, 1 of 3)
+   Subject: [PATCH] Unbork OOM Killer (v2, 2 of 3)
+   ...
 
-If people feel very nervous about the speculation, we can certainly just 
-make it do the two branches. It _is_ a hotspot, though, and the 
-optimization of the speculatiom may well be worth it.
+Regards,
 
-
-		Linus
+Daniel

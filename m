@@ -1,72 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVDGKmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbVDGKyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbVDGKmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 06:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVDGKmp
+	id S262424AbVDGKyR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 06:54:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262425AbVDGKyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 06:42:45 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:65236 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262423AbVDGKmh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 06:42:37 -0400
-Date: Thu, 7 Apr 2005 12:41:33 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Paul Mackerras <paulus@samba.org>
-cc: Andrew Morton <akpm@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
+	Thu, 7 Apr 2005 06:54:17 -0400
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:34706 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S262424AbVDGKyN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 06:54:13 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Kernel SCM saga..
-In-Reply-To: <16980.64324.87931.513333@cargo.ozlabs.ibm.com>
-Message-ID: <Pine.LNX.4.62.0504071236080.9236@numbat.sonytel.be>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
- <1112858331.6924.17.camel@localhost.localdomain> <20050407015019.4563afe0.akpm@osdl.org>
- <16980.64324.87931.513333@cargo.ozlabs.ibm.com>
+Date: Thu, 7 Apr 2005 11:54:01 +0100
+User-Agent: KMail/1.7.2
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <87d5t73pnf.fsf@osv.topcon.com> <20050407103018.GA22906@merlin.emma.line.org>
+In-Reply-To: <20050407103018.GA22906@merlin.emma.line.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200504071154.01163.andrew@walrond.org>
+X-Spam-Score: -4.8 (----)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005, Paul Mackerras wrote:
-> Andrew Morton writes:
-> > The problem with those is letting other people get access to it.  I guess
-> > that could be fixed with a bit of scripting and rsyncing.
-> 
-> Yes.
+I recently switched from bk to darcs (actually looked into it after the author 
+mentioned on LKML that he had imported the kernel tree). Very impressed so 
+far, but as you say,
 
-Me too ;-)
+> 1. It's rather slow and quite CPU consuming and certainly I/O consuming
 
-> > (I don't do that for -mm because -mm basically doesn't work for 99% of the
-> > time.  Takes 4-5 hours to out a release out assuming that nothing's busted,
-> > and usually something is).
-> 
-> With -mm we get those nice little automatic emails saying you've put
-> the patch into -mm, which removes one of the main reasons for wanting
-> to be able to get an up-to-date image of your tree.  The other reason,
+I expect something as large as the kernel tree would cause problems in this 
+respect.
 
-FYI, for Linus' BK tree procmail was telling me, if it encountered a patch on
-the commits list which was signed-off by me.
+> 2. It has an impressive set of dependencies around Glasgow Haskell
+>    Compiler. I don't personally have issues with that, but I can already
+>    hear the moaning and bitching.
 
-> of course, is to be able to see if a patch I'm about to send conflicts
-> with something you have already taken, and rebase it if necessary.
+:) I try to built everthing from the original source, but in this case I 
+couldn't. The GHC needs the GHC + some GHC addons in order  to compile 
+itself...
 
-And yet another reason: to monitor if files/subsystems I'm interested in are
-changed.
+>
+> 3. DARCS is written in Haskell. This is not a problem either, but I'd
+>    think there are fewer people who can hack Haskell than people who
+>    can hack C, C++, Java, Python or similar. It is still better than
 
-Summarized: I'd be happy with a mailing list that would send out all patches
-(incl. full comment headers, cfr. bk-commit) that Linus commits.
+True, though as you say, not a show-stopper.
 
-An added bonus would be that people would really be able to reconstruct the
-full tree from the mails, unlike with bk-commits (due to `strange' csets caused
-by merges). Just make sure there are strictly monotone sequence numbers in the
-individual mails.
+>From a functionality standpoint, darcs seem very similar to monotone, with a 
+couple minor trade-offs in either direction.
 
-Gr{oetje,eeting}s,
+I wonder if Linus would mind publishing his feature requests to the monotone 
+developers, so that other projects, like darcs, would know what needs working 
+on.
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Andrew Walrond

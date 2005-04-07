@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262628AbVDGX2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVDGX1W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262628AbVDGX2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 19:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVDGX1e
+	id S262622AbVDGX1W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 19:27:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVDGXYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 19:27:34 -0400
-Received: from fire.osdl.org ([65.172.181.4]:10677 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262612AbVDGXZw (ORCPT
+	Thu, 7 Apr 2005 19:24:54 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:51859 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262592AbVDGXV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 19:25:52 -0400
-Date: Thu, 7 Apr 2005 16:27:44 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Martin Pool <mbp@sourcefrog.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       David Lang <dlang@digitalinsight.com>
+	Thu, 7 Apr 2005 19:21:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=VfXJEP/sYN6V5EJQan53A9TIdiDHHbVQfwjz7yyOhdhLXoiGxdIqhluqFMl39kJnkw7HFmZbD/hnljzgPeYUZU6c8SptIogTVnXS/jAO9zNigLn6yzk8/5yPBbqJpj5IYuFR8rIuZR87KZzaj/jFVA7k6NdbL1wRBLx3ppdsT/8=
+Message-ID: <21d7e99705040716214fb21fae@mail.gmail.com>
+Date: Fri, 8 Apr 2005 09:21:56 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Subject: Re: Kernel SCM saga..
-In-Reply-To: <1112852302.29544.75.camel@hope>
-Message-ID: <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> 
- <20050406193911.GA11659@stingr.stingr.net>  <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
-  <20050407014727.GA17970@havoc.gtf.org>  <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
-  <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Paul Mackerras <paulus@samba.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	 <16980.55403.190197.751840@cargo.ozlabs.ibm.com>
+	 <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 7 Apr 2005, Martin Pool wrote:
+> > Are you happy with processing patches + descriptions, one per mail?
 > 
-> Importing the first snapshot (2004-01-01) took 41.77s user, 1:23.79
-> total.  Each subsequent day takes about 10s user, 30s elapsed to commit
-> into bzr.  The speeds are comparable to CVS or a bit faster, and may be
-> faster than other distributed systems. (This on a laptop with a 5400rpm
-> disk.)  Pulling out a complete copy of the tree as it was on a previous
-> date takes about 14 user, 60s elapsed.
+> Yes. That's going to be my interim, I was just hoping that with 2.6.12-rc2
+> out the door, and us in a "calming down" period, I could afford to not
+> even do that for a while.
+> 
+> The real problem with the email thing is that it ends up piling up: what
+> BK did in this respect was that anythign that piled up in a BK repository
+> ended up still being there, and a single "bk pull" got it anyway - so if
+> somebody got ignored because I was busy with something else, it didn't add
+> any overhead. The queue didn't get "congested".
+> 
+> And that's a big thing. It comes from the "Linus pulls" model where people
+> just told me that they were ready, instead of the "everybody pushes to
+> Linus" model, where the destination gets congested at times.
 
-If you have an exportable tree, can you just make it pseudo-public, tell
-me where to get a buildable system that works well enough, point me to
-some documentation, and maybe I can get some feel for it?
+Something I think we'll miss is bkbits.net in the long run, being able
+to just push all patches for Linus to a tree and then forget about
+that tree until Linus pulled from it was invaluable.. the fact that
+this tree was online the whole time and you didn't queue up huge mails
+for Linus's INBOX to be missed, meant a lot to me compared to pre-bk
+workings..
 
-		Linus
+Maybe now that kernel.org has been 'pimped out' we could set some sort
+of system up where maintainers can drop a big load of patchsets or
+even one big patch into some sort of public area and say this is my
+diffs for Linus for his next pull and let Linus pull it at his
+lesuire... some kinda rsync'y type thing comes to mind ...
+
+so I can mail Linus and say hey Linus please grab
+rsync://pimpedout.kernel.org/airlied/drm-linus and you grab everything
+in there and I get notified perhaps or just a log like the bkbits
+stats page, and Andrew can grab the patchsets the same as he does for
+bk-drm now ... and I can have airlied/drm-2.6 where I can queue stuff
+for -mm then just re-generate the patches for drm-linus later on..
+
+Dave.

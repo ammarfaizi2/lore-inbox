@@ -1,45 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVDGFFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVDGFOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVDGFFU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 01:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVDGFFU
+	id S261251AbVDGFOn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 01:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVDGFOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 01:05:20 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:8291 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S261290AbVDGFFN
+	Thu, 7 Apr 2005 01:14:42 -0400
+Received: from CPE-144-136-221-26.sa.bigpond.net.au ([144.136.221.26]:48139
+	"EHLO modra.org") by vger.kernel.org with ESMTP id S261251AbVDGFOl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 01:05:13 -0400
-Date: Thu, 07 Apr 2005 01:03:39 -0400
-From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Subject: Low latency patches
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <1112850219.7153.30.camel@localhost>
-Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
-MIME-version: 1.0
-X-Mailer: Evolution 2.0.4
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
+	Thu, 7 Apr 2005 01:14:41 -0400
+Date: Thu, 7 Apr 2005 14:44:39 +0930
+From: Alan Modra <amodra@bigpond.net.au>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Andrew Morton <akpm@osdl.org>, Marty Ridgeway <mridge@us.ibm.com>,
+       linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
+       ltp-announce@lists.sourceforge.net
+Subject: Re: [ANNOUNCE] April Release of LTP now Available
+Message-ID: <20050407051439.GK29412@bubble.modra.org>
+References: <OF98479217.2360E20E-ON85256FDA.00696BC9-86256FDA.00698E70@us.ibm.com> <20050406043001.3f3d7c1c.akpm@osdl.org> <16980.33841.943558.94159@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16980.33841.943558.94159@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, Apr 07, 2005 at 10:52:01AM +1000, Paul Mackerras wrote:
+> Looks to me like gcc is objecting to our (ppc64's) _syscall2
+> definition; Alan Modra (cc'd) can probably say what we're doing wrong.
 
-I've recently come across Con Kolivas' isochronous scheduler and Ingo's
-RLIMIT_RT_CPU patch. I cannot comment on Ingo's patch, but I've been
-using Con's scheduler for a few days and I only have good things to say
-about it (latency is as good as running the process as root). The only
-thing missing is perhaps a way to enable the feature on a per-user basis
-(e.g. enable only for owner of the console), though I'm not sure whether
-it goes in kernel or user space.
-
-Are there any plans on merging some of that work? I think it would
-really help everyone doing audio (or other real-time stuff) on Linux.
-
-	Jean-Marc
-
-P.S. Please include me in CC, I'm not subscribed.
+I can't spot anything wrong.  Take a look at preprocessed source.
 
 -- 
-Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Université de Sherbrooke
-
+Alan Modra
+IBM OzLabs - Linux Technology Centre

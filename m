@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVDGOyC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVDGOzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbVDGOyC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 10:54:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbVDGOyC
+	id S262445AbVDGOzH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 10:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbVDGOzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 10:54:02 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:31976 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S262476AbVDGOxt (ORCPT
+	Thu, 7 Apr 2005 10:55:07 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:51675 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262445AbVDGOyc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 10:53:49 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Humberto Massa <humberto.massa@almg.gov.br>
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Date: Thu, 7 Apr 2005 16:53:43 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-os@analogic.com, debian-kernel@lists.debian.org,
-       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-acenic@sunsite.dk
-References: <vVUko.A.NkD.kNTVCB@murphy> <42554407.4010200@almg.gov.br>
-In-Reply-To: <42554407.4010200@almg.gov.br>
-MIME-Version: 1.0
+	Thu, 7 Apr 2005 10:54:32 -0400
+Date: Thu, 7 Apr 2005 16:54:12 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Keith Owens <kaos@sgi.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc2 in_atomic() picks up preempt_disable()
+Message-ID: <20050407145412.GA6520@elte.hu>
+References: <13730.1112868613@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504071653.43259.oliver@neukum.org>
+In-Reply-To: <13730.1112868613@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 7. April 2005 16:30 schrieb Humberto Massa:
-> I don't recall anyone asking Intel to give theirs designs away. This 
-> thread is about:
-> 
-> 1. (mainly) some firmware hexdumps present in the kernel source tree are 
-> either expicitly marked as being GPL'd or unmarked, in which case one 
-> would assume that they would be GPL'd;
-> 
-> 1a. this means that those firmware hexdumps are not legally 
-> distributable by any person besides the firmware copyright holder, 
-> because any other person could not comply with the terms of the Section 
-> 3 of the GPL (IOW, a third party cannot give you a source code they 
-> don't have);
 
-As this has been discussed numerous times and consensus never achieved
-and is unlikely to be achieved, I suggest that you keep this discussion
-internal to Debian until at least you have patches which can be evaluated
-and discussed.  Until then Debian may do to its kernel whatever it pleases
-and should be prepared to explain to its users why it removed or altered
-drivers.
+* Keith Owens <kaos@sgi.com> wrote:
 
-	Regards
-		Oliver
+> 2.6.12-rc2, with CONFIG_PREEMPT and CONFIG_PREEMPT_DEBUG.  The 
+> in_atomic() macro thinks that preempt_disable() indicates an atomic 
+> region so calls to __might_sleep() result in a stack trace. 
+> preempt_count() returns 1, no soft or hard irqs are running and no 
+> spinlocks are held.  It looks like there is no way to distinguish 
+> between the use of preempt_disable() in the lock functions (atomic) 
+> and preempt_disable() outside the lock functions (do nothing that 
+> might migrate me).
+
+preempt_disable() sections are just as much atomic as spinlocked 
+regions. Like the name suggests it.
+
+	Ingo

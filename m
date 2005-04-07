@@ -1,81 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVDGLtl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVDGMPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVDGLtl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 07:49:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVDGLtl
+	id S261247AbVDGMPX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 08:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVDGMPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 07:49:41 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:944 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261328AbVDGLte (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 07:49:34 -0400
-Date: Thu, 7 Apr 2005 14:49:33 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [bk tree] DRM add a version check.. for 2.6.12 (distro kernel maintainers + drm users plz read also...)
-Message-ID: <20050407114933.GH3858@mea-ext.zmailer.org>
-References: <Pine.LNX.4.58.0503281236330.27073@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503281236330.27073@skynet>
+	Thu, 7 Apr 2005 08:15:23 -0400
+Received: from hades.almg.gov.br ([200.198.60.36]:12416 "EHLO
+	hades.almg.gov.br") by vger.kernel.org with ESMTP id S261247AbVDGMPH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 08:15:07 -0400
+Message-ID: <4255244B.6070204@almg.gov.br>
+Date: Thu, 07 Apr 2005 09:15:07 -0300
+From: Humberto Massa <humberto.massa@almg.gov.br>
+User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <08Gc5.A.AFC.QJPVCB@murphy>
+In-Reply-To: <08Gc5.A.AFC.QJPVCB@murphy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dropping Linus off this list...
+David Schwartz wrote:
 
-On Mon, Mar 28, 2005 at 12:40:16PM +0100, Dave Airlie wrote:
-> Hi Linus,
-> 
-> In order to stop someone loading a drm driver on a wrong core this patch
-> makes the driver pass in the version is was built against, this mainly
-> useful for people using the DRI snapshots for cards that aren't their
-> normal cards...
-> 
-> Also for anyone who maintains a kernel for distros or builds their own
-> please build your kernels with CONFIG_DRM=m not =y, from 2.6.11 onwards..
-> as if you build with =y then DRI snapshots will no longer work..
+ >>Well whoever wrote that seems to have taken the stand that
+ >>the openfirmware package was were the firmware came from.
+ >>The person obviously made a lot of statements without
+ >>bothering checking out the real source. Well it didn't come
+ >>from there, I got it from Alteon under a written agreement
+ >>stating I could distribute the image under the GPL. Since
+ >>the firmware is simply data to Linux, hence keeping it under
+ >>the GPL should be just fine.
+ >
+ >
+ >You cannot distribute anything under the GPL if you cannot
+ >also distribute the source code (the preferred form of the
+ >software for the purpose of making modifications to it). How
+ >Linux sees it is irrelevant. For any piece of software, one
+ >can imagine some processor that can only see it as data.  The
+ >GPL doesn't distinguish between processors.
 
-I tried 2.6.12-rc2 which includes this patch, and I get DRM failures
-here, which causes application and X to hang.  (I got failures with 2.6.11
-also.) 
+I think this is undisputed.
 
-When accessing the machine from network, I can see that either application,
-or X itself is running as close as possible to 100% CPU utilization.
+ >Alteon's written agreement notwithstanding, you cannot
+ >distribute the firmware under the GPL if you cannot provide
+ >the preferred form of the firmware for the purpose of making
+ >modifications to it. The firmware does not run on Linux, so
+ >saying "linux sees it as data" is as absurd as saying I can
+ >distribute the x86 Linux kernel without the source because my
+ >calculator can only see it as data.
+ >
+ >You cannot distribute the firmware binary under the GPL.
+ >Period.
 
-Symptom is such that the application, or X-server, is executing an ioctl()
-on a file-handle that has node:   /dev/drm/card0    open in r/w mode.
+This is where you are wrong IMMHO. All that is needed for you
+to distribute the hexdump blob under the GPL is a declaration
+from the copyright holder saying "this, to me, is the
+preferred form for modification of the firmware and hence the
+source code under the GPL."
 
-Following is from memory:
+ >Now, if you were trying to say that you could aggregate the
+ >firmware with another work and distribute the result under
+ >the GPL, the test would be whether the final result is "mere
+ >aggregation" or not.  This is a fantastically tricky question
+ >and I don't think anyone on this list could give you
+ >particularly useful guidance.
 
-    ioctl(5, something, something)
-    -- Received ALARM(0) --
-    ioctl(5, something, something)
-    -- Received ALARM(0) --
+After a *lot* of discussion, it was deliberated on d-l that
+this is not that tricky at all, and that the "mere
+aggregation" clause applies to the combination, for various
+reasons, with a great degree of safety.  (Safer than that,
+only after court) :-)
 
-that repeats as fast as possible.
+ >My own opinion is that it's a threshold issue based upon
+ >several factors.  For example -- has the firmware been
+ >specifically designed to work with the Linux driver or is it
+ >"generic" firmware? If you can't take the thing you're
+ >distributing (the combined binary) and extract two works from
+ >it (the firmware and the work whose source you are offering),
+ >I cannot see how you can claim it's mere aggregation.
 
-I have now  Radeon 9200SE card with 128 MB memory (I used to have Matrox
-MGA G400 AGP with 8 MB memory - no room for anything but pixel maps), but
-then I absolutely needed accelerated 3D, and had to go and get a "modern"
-card.
+Now, if the firmware was specifically designed to work with
+the linux driver, than it *is* a derivative work on the kernel
+as a whole and the source code should be provided upon
+redistribution as per GPL section 3 etc.
 
-System is running  Fedora Core 4 Test-1  application space codes along
-with fresh baseline 2.6.11 + 2.6.12-rc2 patchset ( = "2.6.12-rc2" ).
+*BUT* this does not preclude Broadcom from stating: "our
+engineers generated by hand the hex codes that make our
+hardware work."
 
+ >If you believe the linker "merely aggregates" the object code
+ >for the driver with the data for the firmware, I can't see
+ >how you can argue that any linking is anything but mere
+ >aggregation. In neither case can you separate the linked work
+ >into the two separate works and in both cases the linker
+ >provides one work direct access to the other.
 
-I observed that xscreensaver-demo running "GLForestFire" is reliably
-able to hangup the desktop within minutes, IF media-automounter is
-snooping around in /dev/cdrom and there is some disk.  (I had FC4test1
-rescue disk in there. )
+No-one is saying that the linker "merely aggregates" object
+code for the driver; what *is* being said is: in the case of
+firmware, especially if the firmware is neither a derivative
+work on the kernel (see above) nor the firmware includes part
+of the kernel (duh), it is *fairly* *safe* to consider the
+intermixing of firmware bytes with kernel binary image bytes
+in an ELF object file as mere aggregation.
 
-With disk taken out, the system ran some 8 hours without a glitch.
+ >If you only distribute the source to the driver and don't put
+ >a GPL notice in the files that contain the firmware data, I
+ >think you're okay. I think you're asking for trouble if you
+ >distribute a combined compiled/linked driver.
 
-Nevertheless, I then tried some fun with TuxRacer, and was able to
-get the same drm hangup after an hour or so.
+Disagreed.
 
+ >DS
 
-ANY ideas ?
+HTH,
 
-/Matti Aarnio
+Massa
+

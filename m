@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVDGJMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVDGJT5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbVDGJMx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 05:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262401AbVDGJMx
+	id S262272AbVDGJT5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 05:19:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVDGJT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 05:12:53 -0400
-Received: from smtpout19.mailhost.ntl.com ([212.250.162.19]:11805 "EHLO
-	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
-	id S262399AbVDGJMn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 05:12:43 -0400
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-From: Ian Campbell <ijc@hellion.org.uk>
-To: johnpol@2ka.mipt.ru
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112861638.28858.92.camel@uganda>
-References: <1112859412.18360.31.camel@frecb000711.frec.bull.fr>
-	 <1112860419.28858.76.camel@uganda>  <1112861638.28858.92.camel@uganda>
-Content-Type: text/plain
-Date: Thu, 07 Apr 2005 10:12:32 +0100
-Message-Id: <1112865153.3086.134.camel@icampbell-debian>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Thu, 7 Apr 2005 05:19:57 -0400
+Received: from ozlabs.org ([203.10.76.45]:52716 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262272AbVDGJT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 05:19:56 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16980.64324.87931.513333@cargo.ozlabs.ibm.com>
+Date: Thu, 7 Apr 2005 19:20:04 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <20050407015019.4563afe0.akpm@osdl.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	<1112858331.6924.17.camel@localhost.localdomain>
+	<20050407015019.4563afe0.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 12:13 +0400, Evgeniy Polyakov wrote:
-> The main idea was to simplify userspace control and notification
-> system - so people did not waste it's time learning how skb's are
-> allocated
-> and processed, how socket layer is designed and what all those
-> netlink_* and NLMSG* mean if they do not need it.
+Andrew Morton writes:
 
-Isn't connector built on top of netlink? If so, is there any reason for
-it to be a new subsystem rather than an extension the the netlink API?
+> The problem with those is letting other people get access to it.  I guess
+> that could be fixed with a bit of scripting and rsyncing.
 
-Ian.
--- 
-Ian Campbell
+Yes.
 
-Employees and their families are not eligible.
+> (I don't do that for -mm because -mm basically doesn't work for 99% of the
+> time.  Takes 4-5 hours to out a release out assuming that nothing's busted,
+> and usually something is).
 
+With -mm we get those nice little automatic emails saying you've put
+the patch into -mm, which removes one of the main reasons for wanting
+to be able to get an up-to-date image of your tree.  The other reason,
+of course, is to be able to see if a patch I'm about to send conflicts
+with something you have already taken, and rebase it if necessary.
+
+Paul.

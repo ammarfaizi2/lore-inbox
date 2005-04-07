@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVDGQtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbVDGQxi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbVDGQtP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 12:49:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVDGQtP
+	id S262524AbVDGQxi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 12:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVDGQxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 12:49:15 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:23287 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262525AbVDGQsx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 12:48:53 -0400
-X-ME-UUID: 20050407164846553.873541C0021A@mwinf0607.wanadoo.fr
-Message-ID: <410-22005447164513484@Franck1>
-Organization: MobileBugtraq
-From: "Franckl - MobileBugtraq" <franckl@mobilebugtraq.Com>
-To: linux-kernel@vger.kernel.org
-Subject: MobileBugtraq Mailing List
-Date: Thu, 7 Apr 2005 18:45:13 +0200
+	Thu, 7 Apr 2005 12:53:37 -0400
+Received: from fire.osdl.org ([65.172.181.4]:26569 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262528AbVDGQxZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 12:53:25 -0400
+Date: Thu, 7 Apr 2005 09:55:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
+In-Reply-To: <425563D6.30108@aknet.ru>
+Message-ID: <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
+References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru>
+ <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru>
+ <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru>
+ <20050407080004.GA27252@elte.hu> <42555BBF.6090704@aknet.ru>
+ <Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org> <425563D6.30108@aknet.ru>
 MIME-Version: 1.0
-Content-type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-MobileBugtraq is a new discussion mailing list about security of mobile terminals systems including all sorts of platforms. Topics of discussion might be related to hacking, protecting against break-ins, system bugs and exploits, etc. 
-
-The postings in this list may be written either in English. 
-
-To subscribe to the MobileBugtraq list, one should send an e-mail to: subscribe@mobilebugtraq.com
-(just including in the main message body (no subject is needed): subscription) 
-
-After having subscribed, one might send messages to the MobileBugtraq List at the address: post@mobilebugtraq.com
-
-See you soon to talk about mobile security and share your knowledge.
-
-Regards,
-
-Franckl - http://www.mobilebugtraq.com - Symbian, 3G, Drm, Bluetooth, Java, Windows Mobile, and a lot of fun.
 
 
+On Thu, 7 Apr 2005, Stas Sergeev wrote:
+>
+> 1. Does the "later sti" fixes the problem
+> also in case of an NMI? I mean, why can't
+> you just be NMI'ed before you did sti?
+> NMI uses the restore_all too IIRC.
+
+The NMI code had better be really careful, and yeah, I suspect it needs 
+fixing.
+
+> 2. How can one be sure there are no more
+> of the like places where the stack is left
+> empty?
+
+That's a good argument, and may be the strongest reason for _not_ doing 
+the speculation. However, I don't think it really can happen anywhere 
+else. 
+
+If people feel very nervous about the speculation, we can certainly just 
+make it do the two branches. It _is_ a hotspot, though, and the 
+optimization of the speculatiom may well be worth it.
 
 
-
+		Linus

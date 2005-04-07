@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVDGIud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVDGIwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262289AbVDGIud (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 04:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVDGIud
+	id S262380AbVDGIwb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 04:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVDGIwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 04:50:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:404 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262289AbVDGIu3 (ORCPT
+	Thu, 7 Apr 2005 04:52:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:36500 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262380AbVDGIwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 04:50:29 -0400
-Date: Thu, 7 Apr 2005 01:50:19 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM saga..
-Message-Id: <20050407015019.4563afe0.akpm@osdl.org>
-In-Reply-To: <1112858331.6924.17.camel@localhost.localdomain>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	<1112858331.6924.17.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 7 Apr 2005 04:52:19 -0400
+Date: Thu, 7 Apr 2005 01:51:59 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Out of memory with Java 1.5 and 2.6.11.6
+Message-ID: <20050407085159.GU28536@shell0.pdx.osdl.net>
+References: <200504062131.36204.robin.rosenberg.lists@dewire.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504062131.36204.robin.rosenberg.lists@dewire.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
->
-> One feature I'd want to see in a replacement version control system is
->  the ability to _re-order_ patches, and to cherry-pick patches from my
->  tree to be sent onwards.
+* Robin Rosenberg (robin.rosenberg.lists@dewire.com) wrote:
+> 
+> I see regular crashes with 2.6.11.6 (mandrake-patched) and Java 1.5.02 (01 too
+> btw, but not 1.4.2). Gentoo people report the same problem sugesting that it
+> may have appeared between 2.6.11.4 and 2.6.11.5.
 
-You just described quilt & patch-scripts.
+Sounds very unlikely, we didn't change anything in -stable that would
+trigger.
 
-The problem with those is letting other people get access to it.  I guess
-that could be fixed with a bit of scripting and rsyncing.
+Any chance 
 
-(I don't do that for -mm because -mm basically doesn't work for 99% of the
-time.  Takes 4-5 hours to out a release out assuming that nothing's busted,
-and usually something is).
+# echo 1 >  /proc/sys/vm/legacy_va_layout
 
+makes any difference?  I've seen this once before (apparently with old
+glibc threading library as well).
+
+thanks,
+-chris

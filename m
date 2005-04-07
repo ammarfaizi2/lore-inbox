@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVDGNaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVDGNcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbVDGNaO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 09:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262467AbVDGNaO
+	id S262470AbVDGNcF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 09:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVDGNcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 09:30:14 -0400
-Received: from mxsf13.cluster1.charter.net ([209.225.28.213]:31878 "EHLO
-	mxsf13.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262463AbVDGNaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 09:30:08 -0400
-X-Ironport-AV: i="3.92,84,1112587200"; 
-   d="scan'208"; a="971268748:sNHT34430648"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Apr 2005 09:32:05 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:57765 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262467AbVDGNbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 09:31:08 -0400
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Jens Axboe <axboe@suse.de>, Chris Rankin <rankincj@yahoo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050407132205.GA16517@infradead.org>
+References: <20050329115405.97559.qmail@web52909.mail.yahoo.com>
+	 <20050329120311.GO16636@suse.de> <1112804840.5476.16.camel@mulgrave>
+	 <20050406175838.GC15165@suse.de> <1112811607.5555.15.camel@mulgrave>
+	 <20050406190838.GE15165@suse.de> <1112821799.5850.19.camel@mulgrave>
+	 <20050407064934.GJ15165@suse.de> <1112879919.5842.3.camel@mulgrave>
+	 <20050407132205.GA16517@infradead.org>
+Content-Type: text/plain
+Date: Thu, 07 Apr 2005 09:30:58 -0400
+Message-Id: <1112880658.5842.10.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <16981.13789.837394.883476@smtp.charter.net>
-Date: Thu, 7 Apr 2005 09:30:05 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: linux-os@analogic.com
-Cc: Humberto Massa <humberto.massa@almg.gov.br>,
-       David Schmitt <david@black.co.at>, debian-kernel@lists.debian.org,
-       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-In-Reply-To: <Pine.LNX.4.61.0504070855510.29251@chaos.analogic.com>
-References: <L0f93D.A.68G.D2OVCB@murphy>
-	<4255278E.4000303@almg.gov.br>
-	<Pine.LNX.4.61.0504070855510.29251@chaos.analogic.com>
-X-Mailer: VM 7.19 under Emacs 21.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Richard" == Richard B Johnson <linux-os@analogic.com> writes:
+On Thu, 2005-04-07 at 14:22 +0100, Christoph Hellwig wrote:
+> Do we really need the sdev_lock pointer?  There's just a single place
+> where we're using it and the code would be much more clear if it had just
+> one name.
 
-Richard> Last time I checked, GPL was about SOFTware, not FIRMware,
-Richard> and not MICROcode. 
+Humour me for a while.  I don't believe we have any way the lock can be
+used after calling queue free, but nulling the sdev_lock pointer will
+surely catch them.  If nothing turns up after a few kernel revisions,
+feel free to kill it.
 
-Oh be real, there's no real difference between them and you know it.
-It's all about where the bits are stored and what they tend to do in a
-system design that makes the difference.  
+James
 
-This entire arguement is meaningless until someone posts the patches
-to move firmware out of the kernel, and until I see that, it's not
-worth re-hashing.   And no, I don't have the time or knowledge to do
-this.  
 
-John

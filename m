@@ -1,63 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbVDGPhj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVDGPjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbVDGPhj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 11:37:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVDGPhj
+	id S262495AbVDGPjE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 11:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVDGPjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 11:37:39 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:39345 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262493AbVDGPhU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 11:37:20 -0400
-Date: Thu, 7 Apr 2005 17:36:59 +0200 (CEST)
-From: Simon Derr <simon.derr@bull.net>
-X-X-Sender: derr@localhost.localdomain
-To: Yura Pakhuchiy <pakhuchiy@iptel.by>
-Cc: Patrice Martinez <patrice.martinez@ext.bull.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /dev/random problem on 2.6.12-rc1
-In-Reply-To: <1112879666.2035.10.camel@chaos.void>
-Message-ID: <Pine.LNX.4.58.0504071727080.5654@localhost.localdomain>
-References: <42552A33.6070704@ext.bull.net> <1112879666.2035.10.camel@chaos.void>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 07/04/2005 17:47:02,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 07/04/2005 17:47:04,
-	Serialize complete at 07/04/2005 17:47:04
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Apr 2005 11:39:04 -0400
+Received: from unthought.net ([212.97.129.88]:24963 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262495AbVDGPit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 11:38:49 -0400
+Date: Thu, 7 Apr 2005 17:38:48 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Greg Banks <gnb@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make sense
+Message-ID: <20050407153848.GN347@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Greg Banks <gnb@sgi.com>, linux-kernel@vger.kernel.org
+References: <20050406160123.GH347@unthought.net> <20050406231906.GA4473@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050406231906.GA4473@sgi.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 07, 2005 at 09:19:06AM +1000, Greg Banks wrote:
+...
+> How large is the client's RAM? 
 
+2GB - (32 bit kernel because it's dual PIII, so I use highmem)
 
-On Thu, 7 Apr 2005, Yura Pakhuchiy wrote:
+A few more details:
 
-> On Thu, 2005-04-07 at 14:40 +0200, Patrice Martinez wrote:
-> > When  using a machine with a  2612-rc 1kernel, I encounter problems
-> > reading /dev/random:
-> >  it simply nevers returns anything, and the process is blocked in the
-> > read...
-> > The easiest way to see it is to type:
-> >  od < /dev/random
-> >
-> > Any idea?
->
-> Because, /dev/random use user input, mouse movements and other things to
-> generate next random number. Use /dev/urandom if you want version that
-> will never block your machine.
->
-> Read "man 4 random" for details.
->
-Something changed since previous versions of the kernel, I guess.
-Running `find /usr | wc' on a ssh session generates both network and disk
-activity, and you should not expect any other kind of input on a networked
-server.
+With standard VM settings, the client will be laggy during the copy, but
+it will also have a load average around 10 (!)   And really, the only
+thing I do with it is one single 'cp' operation.  The CPU hogs are
+pdflush, rpciod/0 and rpciod/1.
 
-Anyway, still zero bytes coming from /dev/random, for the few minutes I
-waited.
+I tweaked the VM a bit, put the following in /etc/sysctl.conf:
+ vm.dirty_writeback_centisecs=100
+ vm.dirty_expire_centisecs=200
 
-This on Linux-2.6.12-rc-bk1, on IA64.
+The defaults are 500 and 3000 respectively...
 
+This improved things a lot; the client is now "almost not very laggy",
+and load stays in the saner 1-2 range.
 
+Still, system CPU utilization is very high (still from rpciod and
+pdflush - more rpciod and less pdflush though), and the file copying
+performance over NFS is roughly half of what I get locally on the server
+(8G file copy with 16MB/sec over NFS versus 32 MB/sec locally).
+
+(I run with plenty of knfsd threads on the server, and generally the
+server is not very loaded when the client is pounding it as much as it
+can)
+
+> What does the following command report
+> before and during the write?
+> 
+> egrep 'nfs_page|nfs_write_data' /proc/slabinfo
+
+During the copy I typically see:
+
+nfs_write_data  681   952 480  8 1 : tunables  54 27 8 : slabdata 119 119 108
+nfs_page      15639 18300  64 61 1 : tunables 120 60 8 : slabdata 300 300 180
+
+The "18300" above typically goes from 12000 to 25000...
+
+After the copy I see:
+
+nfs_write_data  36  48 480  8 1 : tunables   54   27 8 : slabdata  5  6  0
+nfs_page         1  61  64 61 1 : tunables  120   60 8 : slabdata  1  1  0
+
+-- 
+
+ / jakob
 

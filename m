@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVDGRKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVDGRSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262481AbVDGRKT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 13:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVDGRKT
+	id S262492AbVDGRSk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 13:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbVDGRSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 13:10:19 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33226 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262481AbVDGRKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 13:10:08 -0400
-Date: Thu, 7 Apr 2005 18:10:07 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050407171006.GF8859@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 7 Apr 2005 13:18:40 -0400
+Received: from alog0304.analogic.com ([208.224.222.80]:47244 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262492AbVDGRSg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 13:18:36 -0400
+Date: Thu, 7 Apr 2005 13:17:28 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Dave Jones <davej@redhat.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, stsp@aknet.ru,
+       linux-kernel@vger.kernel.org, VANDROVE@vc.cvut.cz
+Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
+In-Reply-To: <20050407164734.GB19016@redhat.com>
+Message-ID: <Pine.LNX.4.61.0504071310050.5977@chaos.analogic.com>
+References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru>
+ <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru>
+ <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru>
+ <20050407080004.GA27252@elte.hu> <20050407041006.4c9db8b2.akpm@osdl.org>
+ <Pine.LNX.4.58.0504070737190.28951@ppc970.osdl.org> <20050407164734.GB19016@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 08:32:04AM -0700, Linus Torvalds wrote:
-> Also, there's actually a second reason why I've decided that cherry-
-> picking is wrong, and it's non-technical. 
-> 
-> The thing is, cherry-picking very much implies that the people "up" the 
-> foodchain end up editing the work of the people "below" them. The whole 
-> reason you want cherry-picking is that you want to fix up somebody elses 
-> mistakes, ie something you disagree with.
+On Thu, 7 Apr 2005, Dave Jones wrote:
 
-No.  There's another reason - when you are cherry-picking and reordering
-*your* *own* *patches*.  That's what I had been unable to explain to
-Larry and that's what made BK unusable for me.
+> On Thu, Apr 07, 2005 at 07:47:41AM -0700, Linus Torvalds wrote:
+>
+> > So the sysenter sequence might as well look like
+> >
+> > 	pushl $(__USER_DS)
+> > 	pushl %ebp
+> > 	sti
+> > 	pushfl
+> > 	..
+> >
+> > which actually does three protected pushes thanks to the one-instruction
+> > "interrupt shadow" after an sti.
+>
+> Is this guaranteed on every x86 variant (or rather, every one
+> that has SEP). ?
+>
+> 		Dave
 
-As for the immutable history...  Ever had to read or grade students'
-homework?
-	* the dumbest kind: "here's an answer <expression>, whaddya
-mean 'where's the solution'?".
-	* next one: "here's how I've solved the problem: <pages of text
-documenting the attempts, with many 'oops, there had been a mistake,
-here's how we fix it'>".  
-	* what you really want to see: series of steps leading to answer,
-with clean logical structure that allows to understand what's being
-done and verify correctness.
+The i486 book says that if the next instruction lets the IF
+flag remain enabled, then any interrupts pending occur after
+the next instruction. If the next instruction is CLI, no
+interrupts will occur. There is a note:
 
-The first corresponds to "here's a half-meg of patch, it fixes everything".
-The second is chronological history (aka "this came from our CVS, all bugs
-are fixed by now, including those introduced in the middle of it; see
-CVS history for details").  The third is a decent patch series.
+"In case of an NM1, trap, or fault following ST1, the interrupt
+will be taken before executing the next sequential instruction
+in the code." The use of "NM1" and "ST1" is (sic). I don't
+know what NM1 is, it can't be NMI because, by definition NMI
+is not maskable so CLI and STI could not affect this pin.
 
-And to get from "here's how I came up to solution" to "here's a clean way
-to reach the solution" you _have_ to reorder.  There's also "here are
-misc notes from today, here are misc notes from yesterday, etc." and to
-get that into sane shape you will need to split, reorder and probably
-collapse several into combined delta (possibly getting an empty delta
-as the result, if later ones negate the prior).
-
-The point being, both history and well, publishable result can be expressed
-as series of small steps, but they are not the same thing.  So far all I've
-seen in the area (and that includes BK) is heavily biased towards history part
-and attempts to use this stuff for manipulating patch series turn into fighting
-the tool.
-
-I'd *love* to see something that can handle both - preferably with
-history of reordering, etc. being kept.  IOW, not just a tree of changesets
-but a lattice - with multiple paths leading to the same node.  So far
-I've seen nothing of that kind ;-/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

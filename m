@@ -1,52 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVDGHqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVDGHr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVDGHqH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 03:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVDGHqG
+	id S261916AbVDGHr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVDGHr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 03:46:06 -0400
-Received: from 71-33-33-84.albq.qwest.net ([71.33.33.84]:48828 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261997AbVDGHpw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 03:45:52 -0400
-Date: Thu, 7 Apr 2005 01:47:50 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Magnus Damm <magnus.damm@gmail.com>
-cc: Malcolm Rowe <malcolm-linux@farside.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] disable built-in modules V2
-In-Reply-To: <aec7e5c305040615146766e121@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0504070142190.12823@montezuma.fsmlabs.com>
-References: <20050405225747.15125.8087.59570@clementine.local> 
- <courier.4253BAD7.000018D2@mail.farside.org.uk>  <aec7e5c305040606104c86712c@mail.gmail.com>
-  <courier.4253F216.00001A20@mail.farside.org.uk> <aec7e5c305040615146766e121@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Apr 2005 03:47:26 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:19127 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S261916AbVDGHrF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 03:47:05 -0400
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1112859412.18360.31.camel@frecb000711.frec.bull.fr>
+References: <1112859412.18360.31.camel@frecb000711.frec.bull.fr>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-00y2qTYuy9bKBTN3YUhE"
+Organization: MIPT
+Date: Thu, 07 Apr 2005 11:53:39 +0400
+Message-Id: <1112860419.28858.76.camel@uganda>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Thu, 07 Apr 2005 11:46:49 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005, Magnus Damm wrote:
 
-> On Apr 6, 2005 4:28 PM, Malcolm Rowe <malcolm-linux@farside.org.uk> wrote:
-> > Magnus Damm writes:
-> > > And I guess the idea of replacing the initcall pointer with NULL will
-> > > work both with and without function descriptors, right? So we should
-> > > be safe on IA64 and PPC64.
-> > 
-> > I think so, though I don't really know a great deal about this area.
-> > 
-> > An IA64 descriptor is of the form { &code, &data_context }, and a function
-> > pointer is a pointer to such a descriptor. Presumably, setting a function
-> > pointer to NULL will either end up setting the pointer-to-descriptor to NULL
-> > or the code pointer to NULL, but either way, I would expect the 'if
-> > (!*call)' comparison to work as intended.
-> > 
-> > Best thing would be to get someone on IA64 and/or PPC64 to check this for
-> > you. 
-> 
-> I agree. Do we have any friendly IA64/PPC64 user out there?
+--=-00y2qTYuy9bKBTN3YUhE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-In C code it is consistent across all architectures, you only have to 
-worry about the descriptors when you do modifications in assembly.
+On Thu, 2005-04-07 at 09:36 +0200, Guillaume Thouvenin wrote:
+> Hi Evgeniy,
+>=20
+>  I forgot to put you in the CC of the email so I'm forwarding a post
+> about the connector sent on lkml.
 
-	Zwane
+Ok, I'm in.
+
+> Best regards,
+> Guillaume
+
+> email message attachment, "Forwarded message - Re: connector is
+> missing in 2.6.12-rc2-mm1"
+> On Thu, 2005-04-07 at 09:36 +0200, Guillaume Thouvenin wrote:
+> > Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
+> > >
+> > > Hello,
+> > >=20
+> > >  I don't see the connector directory in the 2.6.12-rc2-mm1 tree. So i=
+t
+> > > seems that you removed the connector?
+> >=20
+> > Greg dropped it for some reason.  I think that's best because it needed=
+ a
+> > significant amount of rework.  I'd like to see it resubitted in totalit=
+y so
+> > we can take another look at it.
+
+Hmm, what exactly do you think _must_ be changed?
+Most of your comments are addressed in 4 patches I sent to you and Greg.
+Others [mostly atomic allocation] are API extensions and will be added.
+There also not included flush on callback removal.
+
+> > It's a new piece of core kernel infrastructure and the barriers for tha=
+t
+> > are necessarily high.
+> >=20
+> > > Will you include it again in futur
+> > > release? At the same time, will you include the fork connector?
+> >=20
+> > I could put the fork connector into -mm, but would like to be convinced
+> > that it's acceptable to and useful for all system accounting requiremen=
+ts,
+> > not just the one project.  That means code, please.
+
+SuperIO and kobject_uevent are also dropped as far as I can see.
+
+Acrypto is being reviewed but it also depends on it, although=20
+it takes to much time, probably will be dropped too.
+
+Proper w1 notification also requires connector.
+
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-00y2qTYuy9bKBTN3YUhE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCVOcDIKTPhE+8wY0RAqOcAJ9tvF1v+oF9xgan33MAzqsMLDqzIgCbBXoN
+4IVpktRLQ1sMaTEqrcHPipA=
+=XEpb
+-----END PGP SIGNATURE-----
+
+--=-00y2qTYuy9bKBTN3YUhE--
 

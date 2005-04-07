@@ -1,198 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVDGWmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVDGWpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbVDGWmt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 18:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVDGWmt
+	id S262276AbVDGWpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 18:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVDGWpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 18:42:49 -0400
-Received: from fire.osdl.org ([65.172.181.4]:31399 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262279AbVDGWmk (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 18:42:40 -0400
-Date: Thu, 7 Apr 2005 15:42:34 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: derek.cheung@sympatico.ca, akpm@osdl.org, greg@kroah.com,
-       Linux-kernel@vger.kernel.org
-Subject: [PATCH] Add dontdiff file
-Message-Id: <20050407154234.09ccccea.rddunlap@osdl.org>
-In-Reply-To: <20050407223751.GL25554@waste.org>
-References: <003901c53a51$0093b7d0$1501a8c0@Mainframe>
-	<42535323.8040403@osdl.org>
-	<20050407223751.GL25554@waste.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Thu, 7 Apr 2005 18:45:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:45534 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262276AbVDGWoR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 18:44:17 -0400
+Subject: Re: Linux 2.6.12-rc2
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Moritz Muehlenhoff <jmm@inutil.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050407175026.GA5872@informatik.uni-bremen.de>
+References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
+	 <E1DJE6t-0001T5-UD@localhost.localdomain>
+	 <1112827342.9567.189.camel@gaston>
+	 <20050407175026.GA5872@informatik.uni-bremen.de>
+Content-Type: text/plain
+Date: Fri, 08 Apr 2005 08:43:10 +1000
+Message-Id: <1112913790.9567.302.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005 15:37:51 -0700 Matt Mackall wrote:
+On Thu, 2005-04-07 at 19:50 +0200, Moritz Muehlenhoff wrote:
+> Benjamin Herrenschmidt wrote:
+> > > 1. When resuming from S3 suspend and having switched off the backlight
+> > > with radeontool the backlight isn't switched back on any more.
+> > 
+> > I'm not sure what's up here, it's a nasty issue with backlight. Can
+> > radeontool bring it back ?
+> 
+> Before suspending I power down the backlight with "radeontool light off"
+> and with 2.6.11 the display is properly restored. With 2.6.12rc2 the
+> backlight remains switched off and if I switch it on with radeontool it
+> becomes lighter, but there's still no text from the fbcon, just the blank
+> screen.
+> 
+> > > 2. I'm using fbcon as my primary work environment, but tty switching has
+> > > become _very_ sloppy, it's at least a second now, while with 2.6.11 it
+> > > was as fast as a few ms. Is this caused by the "proper PLL accesses"?
+> > 
+> > Yes. Unfortunately. It's surprised it is that slow though, there
+> > shouldn't be more than 5 or 6 PLL accesses on a normal mode switch, with
+> > 5ms pause for each, that should still be very reasonable. It looks like
+> > we are doing a lot more accesses which I don't completely understand.
+> 
+> Can you tell me which function you have in mind, so that I can insert
+> some printks to see how often it's called?
 
-| On Tue, Apr 05, 2005 at 08:10:27PM -0700, Randy.Dunlap wrote:
-| > There is a fairly up-to-date dontdiff file available at
-| > http://developer.osdl.org/rddunlap/doc/dontdiff-osdl
-| 
-| Can we stash a copy in Documentation?
+radeon_pll_errata_after_data() calls radeon_msleep() (it's in
+radeonfb.h)
 
-certainly.
-
-
-Add a current 'dontdiff' file for use with 'diff -X dontdiff'.
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-
-diffstat:=
- Documentation/dontdiff |  137 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 137 insertions(+)
-
-diff -Naurp ./Documentation/dontdiff~add_dontdiff ./Documentation/dontdiff
---- ./Documentation/dontdiff~add_dontdiff	2005-04-07 15:39:51.000000000 -0700
-+++ ./Documentation/dontdiff	2005-03-01 16:07:56.000000000 -0800
-@@ -0,0 +1,137 @@
-+.*
-+*~
-+53c8xx_d.h*
-+*.a
-+aic7*reg.h*
-+aic7*seq.h*
-+aic7*reg_print.c*
-+53c700_d.h
-+aicasm
-+aicdb.h*
-+asm
-+asm_offsets.*
-+autoconf.h*
-+*.aux
-+bbootsect
-+*.bin
-+bin2c
-+binkernel.spec
-+BitKeeper
-+bootsect
-+bsetup
-+btfixupprep
-+build
-+bvmlinux
-+bzImage*
-+ChangeSet
-+classlist.h*
-+compile.h*
-+comp*.log
-+config
-+config-*
-+config_data.h*
-+conmakehash
-+consolemap_deftbl.c*
-+COPYING
-+CREDITS
-+.cscope
-+*cscope*
-+cscope.*
-+*.out
-+*.css
-+CVS
-+defkeymap.c*
-+devlist.h*
-+docproc
-+dummy_sym.c*
-+*.dvi
-+*.eps
-+filelist
-+fixdep
-+fore200e_mkfirm
-+fore200e_pca_fw.c*
-+gen-devlist
-+gen_init_cpio
-+gen_crc32table
-+crc32table.h*
-+*.cpio
-+gen-kdb_cmds.c*
-+gentbl
-+genksyms
-+*.gif
-+*.gz
-+*.html
-+ikconfig.h*
-+initramfs_list
-+*.jpeg
-+kconfig
-+kconfig.tk
-+Kerntypes
-+keywords.c*
-+ksym.c*
-+ksym.h*
-+kallsyms
-+mk_elfconfig
-+elfconfig.h*
-+modpost
-+pnmtologo
-+logo_*.c
-+*.log
-+lex.c*
-+logo_*_clut224.c
-+logo_*_mono.c
-+lxdialog
-+make_times_h
-+map
-+mkdep
-+*_MODULES
-+MODS.txt
-+modversions.h*
-+Module.symvers
-+*.mod.c
-+*.o
-+*.ko
-+*.orig
-+*.lst
-+*.grp
-+*.grep
-+oui.c*
-+mktables
-+raid6tables.c
-+raid6int*.c
-+raid6altivec*.c
-+wanxlfw.inc
-+maui_boot.h
-+pss_boot.h
-+trix_boot.h
-+*.pdf
-+parse.c*
-+parse.h*
-+PENDING
-+ppc_defs.h*
-+promcon_tbl.c*
-+*.png
-+*.ps
-+*.rej
-+SCCS
-+setup
-+*.s
-+*.so
-+*.sgml
-+sim710_d.h*
-+sm_tbl*
-+split-include
-+System.map*
-+tags
-+TAGS
-+*.tex
-+times.h*
-+tkparse
-+*.ver
-+version.h*
-+*_vga16.c
-+vmlinux
-+vmlinux.lds
-+vmlinux-*
-+vsyscall.lds
-+zImage
+Ben.
 
 
-
----

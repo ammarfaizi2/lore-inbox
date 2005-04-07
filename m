@@ -1,110 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVDGUI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVDGURR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbVDGUI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 16:08:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVDGUI1
+	id S262583AbVDGURR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 16:17:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVDGURR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 16:08:27 -0400
-Received: from fire.osdl.org ([65.172.181.4]:35757 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262585AbVDGUIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 16:08:18 -0400
-Date: Thu, 7 Apr 2005 13:08:14 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: linux-os@analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.6.11 can't disable CAD
-Message-Id: <20050407130814.46f70fbc.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0504071538120.7168@chaos.analogic.com>
-References: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com>
-	<20050407115904.1d1ee28f.rddunlap@osdl.org>
-	<Pine.LNX.4.61.0504071538120.7168@chaos.analogic.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Thu, 7 Apr 2005 16:17:17 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:5075 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S262583AbVDGURN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 16:17:13 -0400
+Date: Thu, 7 Apr 2005 16:16:58 -0400
+From: Raul Miller <moth@debian.org>
+To: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050407161658.S32136@links.magenta.com>
+References: <yq08y3vxd3x.fsf@jaguar.mkp.net> <MDEHLPKNGKAHNMBLJOLKAEKLCPAB.davids@webmaster.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEKLCPAB.davids@webmaster.com>; from davids@webmaster.com on Thu, Apr 07, 2005 at 01:26:17AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005 15:46:20 -0400 (EDT) Richard B. Johnson wrote:
+On Thu, Apr 07, 2005 at 01:26:17AM -0700, David Schwartz wrote:
+> If you believe the linker "merely aggregates" the object code for the
+> driver with the data for the firmware, I can't see how you can argue
+> that any linking is anything but mere aggregation. In neither case can
+> you separate the linked work into the two separate works and in both
+> cases the linker provides one work direct access to the other.
 
-| On Thu, 7 Apr 2005, Randy.Dunlap wrote:
-| 
-| > On Thu, 7 Apr 2005 11:16:14 -0400 (EDT) Richard B. Johnson wrote:
-| >
-| > |
-| > | In the not-too distant past, one could disable Ctl-Alt-DEL.
-| > | Can't do it anymore.
-| >
-| > What should disabling C_A_D do?
-| >
-| > | Script started on Thu 07 Apr 2005 10:58:11 AM EDT
-| > | [SNIPPED leading stuff...]
-| > |
-| > | mprotect(0xb7fe4000, 28672, PROT_READ|PROT_EXEC) = 0
-| > | brk(0)                                  = 0x804a000
-| > | brk(0x8053000)                          = 0x8053000
-| > | reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, LINUX_REBOOT_CMD_CAD_OFF)
-| > = 0
-| > | pause( <unfinished ...>
-| > | _exit(0)                                = ?
-| > | # exit
-| > | Script done on Thu 07 Apr 2005 10:58:21 AM EDT
-| >
-| 
-| It's a program that executes the __NR_reboot syscall (88) after
-| putting the documented values into the appropriate registers.
+You can indeed separate the firmware and the kernel into two separate
+works.  That's what people have been proposing as the solution to this
+problem.
 
-Yeah, I understood that much.  Just wondering if it was
-available somewhere...
+Also, "mere aggregation" is a term from the GPL.  You can read what
+it says there yourself.  But basically it's there so that people make
+a distinction between the program itself and other stuff that isn't
+the program.
 
-| > What program is that?  I'm just echoing 0 | 1 into
-| > /proc/sys/kernel/ctrl-alt-del , is that equivalent?
-| > or have you tried that?
-| >
-| 
-| Doesn't matter. Many embedded systems don't have /proc because
-| they don't have any file-systems.
+Without that mere aggregation clause, people might be claiming that
+text on a disk has to be GPLed because of emacs, or that postscript
+files have to be GPLed because of ghostscript, or more generally that
+arbitrary object FOO has to be GPLed because of gpled program BAR.
 
-It matters if they are equivalent (and I don't have that
-program above).
+Put another way, what the linker does or doesn't do isn't really the
+issue.
 
-| > | Observe that reboot() returns 0 and `strace` understands what
-| > | parameters were passed. The result is that, if I hit Ctl-Alt-Del,
-| > | `init` will still execute the shutdown-order (INIT 0).
-| >
-| > echo 0 > /proc/sys/kernel/ctrl-alt-del
-| >  is same as CAD_OFF
-| > echo 1
-| >  is same as CAD_ON
-| >
-| > I tested 2.4.28, 2.6.3, 2.6.9, 2.6.11, and all of them behaved
-| > the same way for me.  If it's an issue with using a syscall
-| > to change the setting, I'll be glad to look into that too.
-| >
-| > observed behaviors:
-| > CAD enabled + C_A_D keys => call machine_reboot()
-| >  to reboot quickly, no normal shutdown sequence;
-| > CAD disabled + C_A_D keys => kill init, go thru normal
-| >  clean shutdown sequence;
-| > are these the expected behaviors?
-| 
-| The expected behavior of the reported operation is for
-| Ctl-Alt-Del to no longer do anything. If the system-call
-| has been depreciated, then the call should return -1 and
-| errno should be ENOSYS. In such a case, I would have
-| to trap the key-sequence in some other way, not that
-| I know how without modifying the kernel.
+People like to think that the linker is somehow special for copyright,
+but it's not.  Either the stuff being linked is protected by copyright
+even when it's not linked or it's not protected by copyright after it is
+linked.  If the license says something about linking then that matters,
+but only for cases where the code was protected by copyright even before
+it was linked.  And then linking only matters in the specific way that
+that license says it matters.
 
-Have you looked at 'man 2 reboot'?  It seems to agree with
-the observed behavior (above).
-or where should I look to find documentation of the
-expected behavior that you described?
-
----
-~Randy
+-- 
+Raul

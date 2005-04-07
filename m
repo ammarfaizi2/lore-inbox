@@ -1,69 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVDGQd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262514AbVDGQhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVDGQd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 12:33:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVDGQd7
+	id S262514AbVDGQhz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 12:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVDGQhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 12:33:59 -0400
-Received: from fire.osdl.org ([65.172.181.4]:51905 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262511AbVDGQd4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 12:33:56 -0400
-Date: Thu, 7 Apr 2005 09:35:49 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Stas Sergeev <stsp@aknet.ru>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-In-Reply-To: <42555BBF.6090704@aknet.ru>
-Message-ID: <Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org>
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru>
- <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru>
- <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru>
- <20050407080004.GA27252@elte.hu> <42555BBF.6090704@aknet.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Apr 2005 12:37:54 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46290 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262514AbVDGQgt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 12:36:49 -0400
+Subject: Re: [PATCH 1/4] create mm/Kconfig for arch-independent memory
+	options
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <Pine.LNX.4.61.0504070219160.15339@scrub.home>
+References: <E1DIViE-0006Kf-00@kernel.beaverton.ibm.com>
+	 <42544D7E.1040907@linux-m68k.org> <1112821319.14584.28.camel@localhost>
+	 <Pine.LNX.4.61.0504070133380.25131@scrub.home>
+	 <1112831857.14584.43.camel@localhost>
+	 <Pine.LNX.4.61.0504070219160.15339@scrub.home>
+Content-Type: multipart/mixed; boundary="=-+NT4aJDhSPSrBstK9P2p"
+Date: Thu, 07 Apr 2005 09:36:38 -0700
+Message-Id: <1112891799.21749.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--=-+NT4aJDhSPSrBstK9P2p
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Thu, 7 Apr 2005, Stas Sergeev wrote:
-> 
-> > because it adds the 2 words space that is needed - but the information 
-> > relied on by your irq-return test is still bogus.
->
-> But as an example for demonstrating the problem,
-> I thought, it could do:)
+Hi Roman,
 
-Ingo: the information is bogus, but you're wrong: the code doesn't "rely"  
-on it.
+How does the attached patch look?  It will still give us the flexibility
+to override the memory models, but only in the presence of
+CONFIG_EXPERIMENTAL.
 
-The fact is, bogus information is _fine_. That's what speculative work is 
-all about: working with bogus information, with the assumption that some 
-later test will ignore it if it's not relevant.
+It also adds some better help text to the DISCONTIGMEM menu.  Is that
+something like what you were looking  for?
 
-And the later test _will_ ignore it if it isn't relevant. Look for 
-yourself:
+-- Dave
 
-        cmpl $((4 << 8) | 3), %eax
-        je ldt_ss                       # returning to user-space with LDT SS
+--=-+NT4aJDhSPSrBstK9P2p
+Content-Disposition: attachment; filename=Kconfig-experimental.patch
+Content-Type: text/x-patch; name=Kconfig-experimental.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 7bit
 
-notice how the "cmpl" _only_ triggers if the old CS had the low three bits 
-set and if EFLAGS_VM is clear. So if we return to kernel mode (or vm86) 
-mode, we _know_ that the SS is bogus, but we don't care. We've tested for 
-the proper thing, and we only do the special user-space LDT SS case if
- - the LDT bit was set in SS (possibly bogus)
-AND
- - old CS was user space
-AND
- - old eflags wasn't vm86 mode.
 
-Ie the two second checks are what validates the first (possibly bogus) 
-one.
 
-So I really think that the _correct_ fix is literally to move the "cli" 
-in the sysenter path down two lines. It doesn't just "hide" the bug, it 
-literally fixes is.
+---
 
-		Linus
+ memhotplug-dave/mm/Kconfig |   27 +++++++++++++++++++++++----
+ 1 files changed, 23 insertions(+), 4 deletions(-)
+
+diff -puN mm/Kconfig~Kconfig-experimenta mm/Kconfig
+--- memhotplug/mm/Kconfig~Kconfig-experimenta	2005-04-07 09:24:59.000000000 -0700
++++ memhotplug-dave/mm/Kconfig	2005-04-07 09:32:06.000000000 -0700
+@@ -1,9 +1,10 @@
+ choice
+ 	prompt "Memory model"
+-	default DISCONTIGMEM if ARCH_DISCONTIGMEM_DEFAULT
+-	default FLATMEM
++	depends on EXPERIMENTAL
++	default DISCONTIGMEM_MANUAL if ARCH_DISCONTIGMEM_DEFAULT
++	default FLATMEM_MANUAL
+ 
+-config FLATMEM
++config FLATMEM_MANUAL
+ 	bool "Flat Memory"
+ 	depends on !ARCH_DISCONTIGMEM_ENABLE || ARCH_FLATMEM_ENABLE
+ 	help
+@@ -14,14 +15,32 @@ config FLATMEM
+ 
+ 	  If unsure, choose this option over any other.
+ 
+-config DISCONTIGMEM
++config DISCONTIGMEM_MANUAL
+ 	bool "Discontigious Memory"
+ 	depends on ARCH_DISCONTIGMEM_ENABLE
+ 	help
++	  This option provides enhanced support for discontiguous
++	  memory systems, over FLATMEM.  These systems have holes
++	  in their physical address spaces, and this option provides
++	  more efficient handling of these holes.  However, the vast
++	  majority of hardware has quite flat address spaces, and
++	  can have degraded performance from extra overhead that
++	  this option imposes.
++
++	  Many NUMA configurations will have this as the only option.
++
+ 	  If unsure, choose "Flat Memory" over this option.
+ 
+ endchoice
+ 
++config DISCONTIGMEM
++	def_bool y
++	depends on (!EXPERIMENTAL && ARCH_DISCONTIGMEM_ENABLE) || DISCONTIGMEM_MANUAL
++
++config FLATMEM
++	def_bool y
++	depends on !DISCONTIGMEM || FLATMEM_MANUAL
++
+ #
+ # Both the NUMA code and DISCONTIGMEM use arrays of pg_data_t's
+ # to represent different areas of memory.  This variable allows
+_
+
+--=-+NT4aJDhSPSrBstK9P2p--
+

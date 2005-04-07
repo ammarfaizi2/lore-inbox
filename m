@@ -1,83 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVDGXUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVDGXXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVDGXUx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 19:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVDGXUx
+	id S262613AbVDGXXe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 19:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262616AbVDGXWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 19:20:53 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:44714 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S262611AbVDGXSU (ORCPT
+	Thu, 7 Apr 2005 19:22:22 -0400
+Received: from gate.crashing.org ([63.228.1.57]:10719 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262613AbVDGXUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 19:18:20 -0400
-Date: Fri, 8 Apr 2005 01:18:20 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>,
-       James Chapman <jchapman@katalix.com>
-Subject: [PATCH] ds1337 2/4
-Message-ID: <20050407231820.GC27226@orphique>
-References: <20050407111631.GA21190@orphique> <hOrXV5wl.1112879260.3338120.khali@localhost> <20050407142804.GA11284@orphique> <20050407211839.GA5357@kroah.com>
+	Thu, 7 Apr 2005 19:20:22 -0400
+Subject: Re: [PATCH] radeonfb: (#2)  Implement proper workarounds for PLL
+	accesses
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <jevf6y6uzo.fsf@sykes.suse.de>
+References: <1110519743.5810.13.camel@gaston>
+	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	 <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
+	 <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
+	 <1112914051.9518.306.camel@gaston>  <jevf6y6uzo.fsf@sykes.suse.de>
+Content-Type: text/plain
+Date: Fri, 08 Apr 2005 09:19:13 +1000
+Message-Id: <1112915953.9517.329.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050407211839.GA5357@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Ladislav Michl <ladis@linux-mips.org>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-04-08 at 01:13 +0200, Andreas Schwab wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+> 
+> > Can you cound how many times radeonfb_set_par is called and dump your
+> > "counter" at the beginning and end of each of these calls ?
+> 
+> Switch from X to console:
+> 
+> kernel: radeonfb_set_par
+> kernel: radeon_pll_errata_after_data
+> last message repeated 774 times
+> kernel: radeonfb_set_par
+> kernel: radeon_pll_errata_after_data
+> last message repeated 918 times
 
-Use correct macros to convert between bdc and bin. See linux/bcd.h
+Ok, so somebody is calling set_par twice ... I suppose I know why but
+it's not a very nice thing to do. Still, it doesn't explain why there
+are so many calls to the errata. Please read my other email and try to
+figure out where those big numbers come from...
 
---- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-04-08 00:32:45.234203040 +0200
-+++ linux-omap/drivers/i2c/chips/ds1337.c	2005-04-08 00:34:58.457949952 +0200
-@@ -127,15 +127,15 @@
- 		buf[4], buf[5], buf[6]);
- 
- 	if (result >= 0) {
--		dt->tm_sec = BCD_TO_BIN(buf[0]);
--		dt->tm_min = BCD_TO_BIN(buf[1]);
-+		dt->tm_sec = BCD2BIN(buf[0]);
-+		dt->tm_min = BCD2BIN(buf[1]);
- 		val = buf[2] & 0x3f;
--		dt->tm_hour = BCD_TO_BIN(val);
--		dt->tm_wday = BCD_TO_BIN(buf[3]) - 1;
--		dt->tm_mday = BCD_TO_BIN(buf[4]);
-+		dt->tm_hour = BCD2BIN(val);
-+		dt->tm_wday = BCD2BIN(buf[3]) - 1;
-+		dt->tm_mday = BCD2BIN(buf[4]);
- 		val = buf[5] & 0x7f;
--		dt->tm_mon = BCD_TO_BIN(val);
--		dt->tm_year = 1900 + BCD_TO_BIN(buf[6]);
-+		dt->tm_mon = BCD2BIN(val);
-+		dt->tm_year = 1900 + BCD2BIN(buf[6]);
- 		if (buf[5] & 0x80)
- 			dt->tm_year += 100;
- 
-@@ -174,19 +174,19 @@
- 		dt->tm_mday, dt->tm_mon, dt->tm_year, dt->tm_wday);
- 
- 	buf[0] = 0;		/* reg offset */
--	buf[1] = BIN_TO_BCD(dt->tm_sec);
--	buf[2] = BIN_TO_BCD(dt->tm_min);
--	buf[3] = BIN_TO_BCD(dt->tm_hour) | (1 << 6);
--	buf[4] = BIN_TO_BCD(dt->tm_wday) + 1;
--	buf[5] = BIN_TO_BCD(dt->tm_mday);
--	buf[6] = BIN_TO_BCD(dt->tm_mon);
-+	buf[1] = BIN2BCD(dt->tm_sec);
-+	buf[2] = BIN2BCD(dt->tm_min);
-+	buf[3] = BIN2BCD(dt->tm_hour) | (1 << 6);
-+	buf[4] = BIN2BCD(dt->tm_wday) + 1;
-+	buf[5] = BIN2BCD(dt->tm_mday);
-+	buf[6] = BIN2BCD(dt->tm_mon);
- 	if (dt->tm_year >= 2000) {
- 		val = dt->tm_year - 2000;
- 		buf[6] |= (1 << 7);
- 	} else {
- 		val = dt->tm_year - 1900;
- 	}
--	buf[7] = BIN_TO_BCD(val);
-+	buf[7] = BIN2BCD(val);
- 
- 	msg[0].addr = client->addr;
- 	msg[0].flags = 0;
+Ben.
+
+

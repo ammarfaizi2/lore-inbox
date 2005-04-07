@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVDGQrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVDGQtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbVDGQrw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 12:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbVDGQrw
+	id S262525AbVDGQtP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 12:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVDGQtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 12:47:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41101 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262521AbVDGQrn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 12:47:43 -0400
-Date: Thu, 7 Apr 2005 12:47:34 -0400
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>, stsp@aknet.ru,
-       linux-kernel@vger.kernel.org, VANDROVE@vc.cvut.cz
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-Message-ID: <20050407164734.GB19016@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Ingo Molnar <mingo@elte.hu>, stsp@aknet.ru,
-	linux-kernel@vger.kernel.org, VANDROVE@vc.cvut.cz
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru> <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru> <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru> <20050407080004.GA27252@elte.hu> <20050407041006.4c9db8b2.akpm@osdl.org> <Pine.LNX.4.58.0504070737190.28951@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504070737190.28951@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 7 Apr 2005 12:49:15 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:23287 "EHLO smtp6.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262525AbVDGQsx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 12:48:53 -0400
+X-ME-UUID: 20050407164846553.873541C0021A@mwinf0607.wanadoo.fr
+Message-ID: <410-22005447164513484@Franck1>
+Organization: MobileBugtraq
+From: "Franckl - MobileBugtraq" <franckl@mobilebugtraq.Com>
+To: linux-kernel@vger.kernel.org
+Subject: MobileBugtraq Mailing List
+Date: Thu, 7 Apr 2005 18:45:13 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 07:47:41AM -0700, Linus Torvalds wrote:
+MobileBugtraq is a new discussion mailing list about security of mobile terminals systems including all sorts of platforms. Topics of discussion might be related to hacking, protecting against break-ins, system bugs and exploits, etc. 
 
- > So the sysenter sequence might as well look like
- > 
- > 	pushl $(__USER_DS)	
- > 	pushl %ebp
- > 	sti
- > 	pushfl
- > 	..
- > 
- > which actually does three protected pushes thanks to the one-instruction 
- > "interrupt shadow" after an sti.
+The postings in this list may be written either in English. 
 
-Is this guaranteed on every x86 variant (or rather, every one
-that has SEP). ?
+To subscribe to the MobileBugtraq list, one should send an e-mail to: subscribe@mobilebugtraq.com
+(just including in the main message body (no subject is needed): subscription) 
 
-		Dave
+After having subscribed, one might send messages to the MobileBugtraq List at the address: post@mobilebugtraq.com
+
+See you soon to talk about mobile security and share your knowledge.
+
+Regards,
+
+Franckl - http://www.mobilebugtraq.com - Symbian, 3G, Drm, Bluetooth, Java, Windows Mobile, and a lot of fun.
+
+
+
+
 

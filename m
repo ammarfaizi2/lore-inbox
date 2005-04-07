@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVDGIV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbVDGIV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVDGIV1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S262273AbVDGIV1 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 7 Apr 2005 04:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVDGIUT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVDGITb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 04:20:19 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:50920 "EHLO smtp3.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262277AbVDGIRq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 04:17:46 -0400
-X-ME-UUID: 20050407081737505.7B77220000BC@mwinf0308.wanadoo.fr
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
-	copyright notice.
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: David Schmitt <david@black.co.at>
-Cc: debian-kernel@lists.debian.org, Jes Sorensen <jes@wildopensource.com>,
-       Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
-       Sven Luther <sven.luther@wanadoo.fr>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       linux-kernel@vger.kernel.org, linux-acenic@sunsite.dk
-In-Reply-To: <200504071004.32692@zion.black.co.at>
-References: <20050404100929.GA23921@pegasos>
-	 <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
-	 <yq08y3vxd3x.fsf@jaguar.mkp.net>  <200504071004.32692@zion.black.co.at>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 07 Apr 2005 10:17:15 +0200
-Message-Id: <1112861835.8281.204.camel@gonzales>
+	Thu, 7 Apr 2005 04:19:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:1710 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262314AbVDGISH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 04:18:07 -0400
+Date: Thu, 7 Apr 2005 01:17:19 -0700
+From: Greg KH <greg@kroah.com>
+To: johnpol@2ka.mipt.ru
+Cc: Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: connector is missing in 2.6.12-rc2-mm1
+Message-ID: <20050407081718.GA4402@kroah.com>
+References: <1112855509.18360.27.camel@frecb000711.frec.bull.fr> <20050406234257.460edb9a.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050406234257.460edb9a.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 07 avril 2005 à 10:04 +0200, David Schmitt a écrit :
+On Wed, Apr 06, 2005 at 11:42:57PM -0700, Andrew Morton wrote:
+> Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
+> >
+> > Hello,
+> > 
+> >  I don't see the connector directory in the 2.6.12-rc2-mm1 tree. So it
+> > seems that you removed the connector?
+> 
+> Greg dropped it for some reason.  I think that's best because it needed a
+> significant amount of rework.  I'd like to see it resubitted in totality so
+> we can take another look at it.
 
-> Then I would like to exercise my right under the GPL to aquire the source code 
-> for the firmware (and the required compilers, starting with genfw.c which is 
-> mentioned in acenic_firmware.h) since - as far as I know - firmware is coded 
-> today in VHDL, C or some assembler and the days of hexcoding are long gone.
+Greg dropped it because he's radically changing the way he handles
+patches.  I still have them around here somewhere...
 
-VHDL is a hardware description language. You don't code firmware in
-VHDL.
+Yeah, here they are.  Hm, I'd really like to stop carrying them around,
+as my workload doesn't lend itself to handling these.
 
-	Xav
+If you don't mind, can you create up a new connector, super-io, and
+kobject-connector patch and send them to andrew for him to add to -mm?
+That way I'll not have to worry about them anymore, as they keep
+floating in-and-out of the -mm releases depending on the state of my
+trees.  I can still handle your w1 patches, and have 2 of them pending.
 
+Is that ok with you?
 
+thanks,
+
+greg k-h

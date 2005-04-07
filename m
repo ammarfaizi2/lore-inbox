@@ -1,85 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVDGDgZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVDGFFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVDGDgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 23:36:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVDGDgZ
+	id S261290AbVDGFFU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 01:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVDGFFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 23:36:25 -0400
-Received: from [61.185.204.103] ([61.185.204.103]:3488 "EHLO
-	dns.angelltech.com") by vger.kernel.org with ESMTP id S261239AbVDGDf7
+	Thu, 7 Apr 2005 01:05:20 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:8291 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S261290AbVDGFFN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 23:35:59 -0400
-Message-ID: <4254AB72.8070704@angelltech.com>
-Date: Thu, 07 Apr 2005 11:39:30 +0800
-From: rjy <rjy@angelltech.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Subject: Re: init process freezed after run_init_process
-References: <424B7A87.2070100@angelltech.com> <Pine.LNX.4.61.0503311113550.17113@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0503311113550.17113@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Apr 2005 01:05:13 -0400
+Date: Thu, 07 Apr 2005 01:03:39 -0400
+From: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Subject: Low latency patches
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Message-id: <1112850219.7153.30.camel@localhost>
+Organization: =?ISO-8859-1?Q?Universit=E9?= de Sherbrooke
+MIME-version: 1.0
+X-Mailer: Evolution 2.0.4
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for kindly reply, :)
+Hi,
 
-Jan Engelhardt wrote:
->>This is my grub config:
->>-----------------------------
->>root (hd0,0)
->>kernel /bzImage.via.386 root=/dev/ram0 rw ramdisk=49152
->>initrd /initrd.gz
->>-----------------------------
-> 
-> 
-> Does it work if you add "  ramdisk=65536 init=/linuxrc " ?
+I've recently come across Con Kolivas' isochronous scheduler and Ingo's
+RLIMIT_RT_CPU patch. I cannot comment on Ingo's patch, but I've been
+using Con's scheduler for a few days and I only have good things to say
+about it (latency is as good as running the process as root). The only
+thing missing is perhaps a way to enable the feature on a per-user basis
+(e.g. enable only for owner of the console), though I'm not sure whether
+it goes in kernel or user space.
 
-No. I got the same problem without linuxrc.
-As I mount ram0 as root, linuxrc is not necessary. Right?
+Are there any plans on merging some of that work? I think it would
+really help everyone doing audio (or other real-time stuff) on Linux.
 
-> 
-> 
->>returned OK: initrd decompressed properly and open_exec
->>returned non-zero.
-> 
-> 
-> If you use k[g]db, you should be able to find out where the kernel actually 
-> hangs.
+	Jean-Marc
 
-After some digging, I found that the starting process of the VIA platform
-and the intel platform is exactly the same:
+P.S. Please include me in CC, I'm not subscribed.
 
-1) checking if image is initramfs...it isn't (no cpio magic); looks like 
-an initrd
-    Freeing initrd memory: 9553k freed
-2) loading drivers ...
-3) RAMDISK: Compressed image found at block 0
-    kjournald starting.  Commit interval 5 seconds
-    EXT3 FS on ram0, internal journal
-    EXT3-fs: mounted filesystem with ordered data mode.
-    VFS: Mounted root (ext3 filesystem).
-    Freeing unused kernel memory: 128k freed
-
-If I put the same hard disk into a intel platform without any change, it
-can start properly, loading the same initrd as rootfs.
-
-And also, if I remote the initrd config in VIA platform and mount my 
-hard disk as rootfs, it also works properly.
-
-I missed some driver for VIA platform?  Why it can work without initrd?
-My initrd has an invalid format? Why it can work on intel platform?
-I am really confused...
-
-After the starting process, the /sbin/init is loaded: I found that in
-a breakpoint of do_schedule. It keeps scheduling init and pdflush.
-I am still finding the way to debug the init process...
-
-> 
-> 
-> 
-> Jan Engelhardt
-
+-- 
+Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+Université de Sherbrooke
 

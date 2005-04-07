@@ -1,94 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVDGIKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVDGIPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVDGIKd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 04:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262239AbVDGIJz
+	id S262239AbVDGIPT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 04:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbVDGIPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 04:09:55 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:16018 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262196AbVDGIGQ (ORCPT
+	Thu, 7 Apr 2005 04:15:19 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:2960 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262239AbVDGIOx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 04:06:16 -0400
-Date: Thu, 7 Apr 2005 10:00:04 +0200
+	Thu, 7 Apr 2005 04:14:53 -0400
+Date: Thu, 7 Apr 2005 10:14:34 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-Message-ID: <20050407080004.GA27252@elte.hu>
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru> <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru> <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: sct@redhat.com, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: ext3 allocate-with-reservation latencies
+Message-ID: <20050407081434.GA28008@elte.hu>
+References: <1112673094.14322.10.camel@mindpipe> <20050405041359.GA17265@elte.hu> <1112765751.3874.14.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <425403F6.409@aknet.ru>
+In-Reply-To: <1112765751.3874.14.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
 X-ELTE-SpamCheck: no
 X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
+	autolearn=not spam, BAYES_00 -4.90
 X-ELTE-SpamLevel: 
 X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Stas Sergeev <stsp@aknet.ru> wrote:
+* Mingming Cao <cmm@us.ibm.com> wrote:
 
-> ENTRY(sysenter_entry)
-> 	movl TSS_sysenter_esp0(%esp),%esp
-> sysenter_past_esp:
-> -	sti
-> 	pushl $(__USER_DS)
-> 	pushl %ebp
-> +	sti
+> It seems we are holding the rsv_block while searching the bitmap for a 
+> free bit.  In alloc_new_reservation(), we first find a available to 
+> create a reservation window, then we check the bitmap to see if it 
+> contains any free block. If not, we will search for next available 
+> window, so on and on. During the whole process we are holding the 
+> global rsv_lock.  We could, and probably should, avoid that.  Just 
+> unlock the rsv_lock before the bitmap search and re-grab it after it.  
+> We need to make sure that the available space that are still available 
+> after we re- grab the lock.
+> 
+> Another option is to hold that available window before we release the 
+> rsv_lock, and if there is no free bit inside that window, we will 
+> remove it from the tree in the next round of searching for next 
+> available window.
+> 
+> I prefer the second option, and plan to code it up soon. Any comments?
 
-ah, yes, sysenter. SYSENTER creates a degenerate 'small' stackframe with 
-an esp0 that is missing the 5 entry words relative to the normal entry 
-(int80 or irq) esp0 stackframe. These 5 words are: xss, esp, eflags, 
-xcs, eip. The sysenter code sets them up manually.
-
-now if an interrupt hits at this point, it will set up a 'same privilege 
-level' stackframe, which has eip/xcs/eflags, i.e. no esp/xss. If upon 
-irq-return we then examine the stack due to your patch, it will be an 
-incorrect stackframe -> kaboom.
-
-your patch doesnt remove the condition, it only removes the crash, 
-because it adds the 2 words space that is needed - but the information 
-relied on by your irq-return test is still bogus. At this point i'd 
-suggest to remove the ESP patch altogether.
-
-the correct solution is to always let the sysenter path set up a full 
-and correct stackframe, before allowing preemption (see the attached 
-patch). This was a nasty bug in the waiting. (I have not made this 
-conditional on CONFIG_PREEMPT, to keep it simple and because the impact 
-to irq latency is small and predictable. There's no runtime overhead.)
-
-so i think with the help of Stas the mystery has been fully explained 
-and solved. Linus?
+doesnt the first option also allow searches to be in parallel? This 
+particular one took over 1 msec, so it seems there's a fair room for 
+parallellizing multiple writers and thus improving scalability. (or is 
+this codepath serialized globally anyway?)
 
 	Ingo
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/arch/i386/kernel/entry.S.orig
-+++ linux/arch/i386/kernel/entry.S
-@@ -179,12 +179,17 @@ need_resched:
- ENTRY(sysenter_entry)
- 	movl TSS_sysenter_esp0(%esp),%esp
- sysenter_past_esp:
--	sti
-+	#
-+	# irqs are disabled: set up an entry stackframe without
-+	# allowing irqs to potentially preempt us with an
-+	# incomplete entry frame!
-+	#
- 	pushl $(__USER_DS)
- 	pushl %ebp
- 	pushfl
- 	pushl $(__USER_CS)
- 	pushl $SYSENTER_RETURN
-+	sti
- 
- /*
-  * Load the potential sixth argument from user stack.

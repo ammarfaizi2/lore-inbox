@@ -1,94 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbVDGVHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVDGVJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbVDGVHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 17:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVDGVHi
+	id S262601AbVDGVJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 17:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVDGVJf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 17:07:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58631 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262600AbVDGVH1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 17:07:27 -0400
-Date: Thu, 7 Apr 2005 23:07:23 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Josselin Mouette <joss@debian.org>
-Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+	Thu, 7 Apr 2005 17:09:35 -0400
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:43805 "EHLO smtp8.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262601AbVDGVJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 17:09:08 -0400
+X-ME-UUID: 20050407210903191.2ED3A180009E@mwinf0801.wanadoo.fr
+Date: Thu, 7 Apr 2005 23:05:05 +0200
+To: Adrian Bunk <bunk@stusta.de>, Sven Luther <sven.luther@wanadoo.fr>,
+       Humberto Massa <humberto.massa@almg.gov.br>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
        linux-kernel@vger.kernel.org
 Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050407210722.GC4325@stusta.de>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Josselin Mouette <joss@debian.org>, debian-legal@lists.debian.org,
-	debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404190518.GA17087@wonderland.linux.it> <20050404193204.GD4087@stusta.de> <1112709907.30856.17.camel@silicium.ccc.cea.fr>
+Message-ID: <20050407210505.GB17963@pegasos>
+References: <h-GOHD.A.KL.s2aUCB@murphy> <42527E89.4040506@almg.gov.br> <20050405135701.GA24361@pegasos> <20050407205647.GB4325@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1112709907.30856.17.camel@silicium.ccc.cea.fr>
+In-Reply-To: <20050407205647.GB4325@stusta.de>
 User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 04:05:07PM +0200, Josselin Mouette wrote:
-> Le lundi 04 avril 2005 à 21:32 +0200, Adrian Bunk a écrit :
-> > On Mon, Apr 04, 2005 at 09:05:18PM +0200, Marco d'Itri wrote:
-> > > On Apr 04, Greg KH <greg@kroah.com> wrote:
-> > > 
-> > > > What if we don't want to do so?  I know I personally posted a solution
-> > > Then probably the extremists in Debian will manage to kill your driver,
-> > > like they did with tg3 and others.
-> > 
-> > And as they are doing with e.g. the complete gcc documentation.
-> > 
-> > No documentation for the C compiler (not even a documentation of the 
-> > options) will be neither fun for the users of Debian nor for the Debian 
-> > maintainers - but it's the future of Debian...
+On Thu, Apr 07, 2005 at 10:56:47PM +0200, Adrian Bunk wrote:
+> On Tue, Apr 05, 2005 at 03:57:01PM +0200, Sven Luther wrote:
+> >...
+> > The other point is that other entities, like redhat, or suse (which is now
+> > novel and thus ibm) and so have stronger backbones, and can more easily muster
+> > the ressources to fight of a legal case, even one which is a dubious one,
+> > especially given the particularities of the US judicial system, where it is
+> > less important to be right, and more important to have lot of money to throw
+> > at your legal machine. Debian has nothing such, and SPI which would stand for
+> > this, is not really upto it either, so in this case, apart from all ideology
+> > and fanatism, it is for purely pragmatic reasons that they don't distribute
+> > undistributable files from the non-free part of our archive. You would do the
+> > same in their case.
+> >...
 > 
-> You are mixing apples and oranges. The fact that the GFDL sucks has
-> nothing to do with the firmware issue. With the current situation of
-> firmwares in the kernel, it is illegal to redistribute binary images of
-> the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may still
-> be willing to distribute such binary images, but it isn't our problem.
->...
+> 
+> There are many possible legal risks for a Linux distribution.
+> 
+> 
+> This thread is about one.
+> 
+> Another one is that RedHat removed MP3 support in their distribution 
+> from programs like xmms ages ago because of the legal risks due to 
+> patents. The Debian distribution still contains software that is capable 
+> of playing MP3's.
+> 
+> 
+> I'd say of the two above cases, the MP3 patents are far more likely to 
+> cause a lawsuit.
+> 
+> YMMV.
 
+Yes, possibly, especially in these troubled times.
 
-It's a grey area.
+> If your statement was true that Debian must take more care regarding 
+> legal risks than commercial distributions, can you explain why Debian 
+> exposes the legal risks of distributing software capable of decoding 
+> MP3's to all of it's mirrors?
 
-debian-legal did pick one of the possible opinions on this matter.
+I don't know and don't really care. I don't maintain any mp3 player (err,
+actually i do, i package quark, but use it mostly to play .oggs, maybe i
+should think twice about this now that you made me aware of it), but in any
+case, i am part of the debian kernel maintainer team, and as such have a
+responsability to get those packages uploaded and past the screening of the
+ftp-masters. I believe the planned solution is vastly superior to the current
+one of simply removing said firmware blobs from the drivers, which caused more
+harm than helped, which is why we are set to clarifying this for the
+post-sarge kernels. 
 
+That said, i was under the understanding that after the SCO disaster,
+clarification of licencing issues and copyright attributions was a welcome
+thing here, but maybe i misunderstood those whole issues.
 
-The similarities between the GFDL and the firmware discussion can be 
-described with the following two questions:
+Friendly,
 
-
-Is it true, that the removal of much of the documentation in Debian is 
-scheduled soon because it's covered by the GFDL, that this is called an 
-"editorial change", and that Debian doesn't actually care that this will 
-e.g. remove all documentation about available options of the standard C 
-compiler used by and shipped with Debian?
-
-Is it true, that Debian will leave users with hardware affected by the 
-firmware problem without a working installer in Debian 3.1?
-
-
-The point is simply, that Debian does more and more look dogmatic at 
-it's definition of "free software" without caring about the effects to 
-it's users.
-
-
-As a contrast, read the discussion between Christoph and Arjan in a part 
-of this thread how to move firmware out of kernel drivers without 
-problems for the users. This might not happen today, but it's better for 
-the users.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Sven Luther
 

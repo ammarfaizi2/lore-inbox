@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVDGAaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVDGAkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVDGAaT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 20:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVDGAaT
+	id S262359AbVDGAkc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 20:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVDGAkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 20:30:19 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:13984 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262360AbVDGAaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 20:30:10 -0400
-Date: Thu, 7 Apr 2005 02:30:00 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: [PATCH 1/4] create mm/Kconfig for arch-independent memory options
-In-Reply-To: <1112831857.14584.43.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0504070219160.15339@scrub.home>
-References: <E1DIViE-0006Kf-00@kernel.beaverton.ibm.com>  <42544D7E.1040907@linux-m68k.org>
- <1112821319.14584.28.camel@localhost>  <Pine.LNX.4.61.0504070133380.25131@scrub.home>
- <1112831857.14584.43.camel@localhost>
+	Wed, 6 Apr 2005 20:40:32 -0400
+Received: from mail.aei.ca ([206.123.6.14]:24008 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S262359AbVDGAk1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 20:40:27 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc2-mm1
+Date: Wed, 6 Apr 2005 20:40:21 -0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050405000524.592fc125.akpm@osdl.org>
+In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504062040.21393.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 05 April 2005 03:05, Andrew Morton wrote:
+> - x86 NMI handling seems to be bust in 2.6.12-rc2.  Try using
+>   `nmi_watchdog=0' if you experience weird crashes.
+> 
+> - The possible kernel-timer related hangs might possibly be fixed.  We
+>   haven't heard yet.
+> 
+> - Nobody said anything about the PM resume and DRI behaviour in
+>   2.6.12-rc1-mm4.  So it's all perfect now?
+> 
+> - Various fixes and updates.  Nothing earth-shattering.
 
-On Wed, 6 Apr 2005, Dave Hansen wrote:
+This refuses to boot here.  It dies when assigning the EHCI driver.  The mb is an MSI-7030 K8N Neo Platinium
+based on a nForce 3 250Gb Chipset (x86_64).  I`ve been on vacation - the last kernel tried was 11-mm3 which
+booted fine but refuses to use all the usb ports supplied by the system (two work, three do not all using low 
+speed).
 
-> > Why is this choice needed at all? Why would one choose SPARSEMEM over 
-> > DISCONTIGMEM?
-> 
-> For now, it's only so people can test either one, and we don't have to
-> try to toss DICONTIGMEM out of the kernel in fell swoop.  When the
-> memory hotplug options are enabled, the DISCONTIG option goes away, and
-> SPARSEMEM is selected as the only option.
-> 
-> I hope to, in the future, make the options more like this:
-> 
-> config MEMORY_HOTPLUG...
-> config NUMA...
-> 
-> config DISCONTIGMEM
-> 	depends on NUMA && !MEMORY_HOTPLUG
-> 
-> config SPARSEMEM
-> 	depends on MEMORY_HOTPLUG || OTHER_ARCH_THING
-> 
-> config FLATMEM
-> 	depends on !DISCONTIGMEM && !SPARSEMEM
+Any ideas what might be happening?
+Ed Tomlinson 
 
-I was hoping for this too, in the meantime can't you simply make it a 
-suboption of DISCONTIGMEM? So an extra option is only visible when it's 
-enabled and most people can ignore it completely by just disabling a 
-single option.
-
-> > Help texts such as "If unsure, choose <something else>" make 
-> > the complete config option pretty useless.
-> 
-> They don't make it useless, they just guide a clueless user to the right
-> place, without them having to think about it at all.  Those of us that
-> need to test the various configurations are quite sure of what we're
-> doing, and can ignore the messages. :)
-> 
-> I'm not opposed to creating some better help text for those things, I'm
-> just not sure that we really need it, or that it will help end users get
-> to the right place.  I guess more explanation never hurt anyone.
-
-Some basic explanation with a link for more information can't hurt.
-
-bye, Roman

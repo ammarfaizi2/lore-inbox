@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbVDGUVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVDGUVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262589AbVDGUVY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 16:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVDGUVY
+	id S262587AbVDGUVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 16:21:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVDGUVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 16:21:24 -0400
-Received: from DELFT.AURA.CS.CMU.EDU ([128.2.206.88]:29371 "EHLO
-	delft.aura.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id S262589AbVDGUVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 16:21:15 -0400
+Received: from ns.suse.de ([195.135.220.2]:3504 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262587AbVDGUVF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 7 Apr 2005 16:21:05 -0400
-Date: Thu, 7 Apr 2005 16:20:59 -0400
-To: "Richard B. Johnson" <linux-os@analogic.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.11 can't disable CAD
-Message-ID: <20050407202059.GA414@delft.aura.cs.cmu.edu>
-Mail-Followup-To: "Richard B. Johnson" <linux-os@analogic.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb: (#2)  Implement proper workarounds for PLL
+ accesses
+References: <1110519743.5810.13.camel@gaston>
+	<1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	<1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
+	<1112827655.9518.194.camel@gaston>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Yow!  I want to mail a bronzed artichoke to Nicaragua!
+Date: Thu, 07 Apr 2005 22:21:03 +0200
+In-Reply-To: <1112827655.9518.194.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Thu, 07 Apr 2005 08:47:35 +1000")
+Message-ID: <jehdii8hjk.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 11:16:14AM -0400, Richard B. Johnson wrote:
-> In the not-too distant past, one could disable Ctl-Alt-DEL.
-> Can't do it anymore.
-...
-> Observe that reboot() returns 0 and `strace` understands what
-> parameters were passed. The result is that, if I hit Ctl-Alt-Del,
-> `init` will still execute the shutdown-order (INIT 0).
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Actually, if CAD is enabled in the kernel, it will just reboot.
-If CAD is disabled in the kernel a SIGINT is sent to pid 1 (/sbin/init).
+> It is weird tho. Could you try adding a printk or something to figure
+> out how much this is called during a typical swich ?
 
-So what you probably had in the not-too-distant past was a disabled CAD
-in the kernel _and_ you had modified the following line in /etc/inittab,
+There are 1694 calls to radeon_pll_errata_after_data during a switch from
+X to the console and 393 calls the other way.
 
-    # What to do when CTRL-ALT-DEL is pressed.
-    ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now
+Andreas.
 
-AFAIK this hasn't ever really changed.
-
-Jan
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

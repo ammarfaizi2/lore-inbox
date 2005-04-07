@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVDGJq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVDGJt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262405AbVDGJq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 05:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVDGJq1
+	id S262408AbVDGJt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 05:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVDGJt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 05:46:27 -0400
-Received: from fire.osdl.org ([65.172.181.4]:24231 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262405AbVDGJqR (ORCPT
+	Thu, 7 Apr 2005 05:49:57 -0400
+Received: from fire.osdl.org ([65.172.181.4]:19368 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262408AbVDGJt2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 05:46:17 -0400
-Date: Thu, 7 Apr 2005 02:46:05 -0700
+	Thu, 7 Apr 2005 05:49:28 -0400
+Date: Thu, 7 Apr 2005 02:49:12 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: dwmw2@infradead.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: Kernel SCM saga..
-Message-Id: <20050407024605.35515dcc.akpm@osdl.org>
-In-Reply-To: <16980.64324.87931.513333@cargo.ozlabs.ibm.com>
+Message-Id: <20050407024912.1c8c445b.akpm@osdl.org>
+In-Reply-To: <1112865919.24487.442.camel@hades.cambridge.redhat.com>
 References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
 	<1112858331.6924.17.camel@localhost.localdomain>
 	<20050407015019.4563afe0.akpm@osdl.org>
-	<16980.64324.87931.513333@cargo.ozlabs.ibm.com>
+	<1112865919.24487.442.camel@hades.cambridge.redhat.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,38 +27,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Mackerras <paulus@samba.org> wrote:
+David Woodhouse <dwmw2@infradead.org> wrote:
 >
-> With -mm we get those nice little automatic emails saying you've put
->  the patch into -mm, which removes one of the main reasons for wanting
->  to be able to get an up-to-date image of your tree.
+> On Thu, 2005-04-07 at 01:50 -0700, Andrew Morton wrote:
+> > (I don't do that for -mm because -mm basically doesn't work for 99% of
+> > the time.  Takes 4-5 hours to out a release out assuming that
+> > nothing's busted, and usually something is).
+> 
+> On the subject of -mm: are you going to keep doing the BK imports to
+> that for the time being, or would it be better to leave the BK trees
+> alone now and send you individual patches.
 
-Should have done that ages ago..
+I really don't know - I'll continue to pull the bk trees for a while, until
+we work out what the new (probably interim) regime looks like.
 
->  The other reason,
->  of course, is to be able to see if a patch I'm about to send conflicts
->  with something you have already taken, and rebase it if necessary.
+> For that matter, will there be a brief amnesty after 2.6.12 where Linus
+> will use BK to pull those trees which were waiting for that, or will we
+> all need to export from BK manually?
+> 
 
-<hack, hack>
+I think Linus has stopped using bk already.
 
-How's this?
-
-
-This is a note to let you know that I've just added the patch titled
-
-     ppc32: Fix AGP and sleep again
-
-to the -mm tree.  Its filename is
-
-     ppc32-fix-agp-and-sleep-again.patch
-
-Patches currently in -mm which might be from yourself are
-
-add-suspend-method-to-cpufreq-core.patch
-ppc32-fix-cpufreq-problems.patch
-ppc32-fix-agp-and-sleep-again.patch
-ppc32-fix-errata-for-some-g3-cpus.patch
-ppc64-fix-semantics-of-__ioremap.patch
-ppc64-improve-mapping-of-vdso.patch
-ppc64-detect-altivec-via-firmware-on-unknown-cpus.patch
-ppc64-remove-bogus-f50-hack-in-promc.patch

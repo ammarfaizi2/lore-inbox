@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVDGBSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVDGBYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVDGBSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 21:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVDGBQI
+	id S262375AbVDGBYA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 21:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVDGBX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 21:16:08 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:53162 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262369AbVDGBPl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 21:15:41 -0400
-X-ORBL: [69.107.61.180]
-From: David Brownell <david-b@pacbell.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [linux-usb-devel] USB glitches after suspend on ppc
-Date: Wed, 6 Apr 2005 18:15:17 -0700
-User-Agent: KMail/1.7.1
-Cc: Linux-USB <linux-usb-devel@lists.sourceforge.net>,
-       Colin Leroy <colin@colino.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       "debian-powerpc@lists.debian.org" <debian-powerpc@lists.debian.org>
-References: <20050405204449.5ab0cdea@jack.colino.net> <200504061628.05527.david-b@pacbell.net> <1112831456.9568.217.camel@gaston>
-In-Reply-To: <1112831456.9568.217.camel@gaston>
+	Wed, 6 Apr 2005 21:23:59 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:30361 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262380AbVDGBTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 21:19:43 -0400
+Date: Thu, 7 Apr 2005 02:19:48 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Russell King <rmk@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 6/6] freepgt2: remove FIRST_USER_ADDRESS hack
+In-Reply-To: <Pine.LNX.4.61.0504070204390.24723@goblin.wat.veritas.com>
+Message-ID: <Pine.LNX.4.61.0504070218440.24723@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0504070204390.24723@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504061815.19073.david-b@pacbell.net>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 06 April 2005 4:50 pm, Benjamin Herrenschmidt wrote:
-> On Wed, 2005-04-06 at 16:28 -0700, David Brownell wrote:
-> > On Wednesday 06 April 2005 4:02 pm, Benjamin Herrenschmidt wrote:
-> > > 
-> > > > Thanks for the testing update.  I'm glad to know that there seems to
-> > > > be only one (minor) glitch that's PPC-specific!
-> > > 
-> > > Which is just an off-the-shelves NEC EHCI chip.
-> > 
-> > The wakeup-after-suspend hasn't been reported by anyone else.
-> 
-> Looks like the root hub is set for triggering wakeups on connect, isn't
-> that just a setting in there ? The old Apple ASIC had a bit somewhere to
-> control that, but I don't know about the NEC
+Once all the MMU architectures define FIRST_USER_ADDRESS,
+remove hack from mmap.c which derived it from FIRST_USER_PGD_NR.
 
-The NEC chip uses PME# for PCI wakeup, which pci_enable_wake(..., 0)
-is supposed to have disabled.  If it's not disabling PME#, that's a
-bug in the PCI infrastructure on that platform.  If some other signal
-is causing a wakeup, that's a different platform-specific issue.  :)
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
+ mm/mmap.c |    5 -----
+ 1 files changed, 5 deletions(-)
 
+--- 2.6.12-rc2-mm1+/mm/mmap.c	2005-04-05 18:59:01.000000000 +0100
++++ linux/mm/mmap.c	2005-04-07 00:32:43.000000000 +0100
+@@ -1608,11 +1608,6 @@ static void unmap_vma_list(struct mm_str
+ 	validate_mm(mm);
+ }
+ 
+-#ifndef FIRST_USER_ADDRESS	/* temporary hack */
+-#define THIS_IS_ARM		FIRST_USER_PGD_NR
+-#define FIRST_USER_ADDRESS	(THIS_IS_ARM * PAGE_SIZE)
+-#endif
+-
+ /*
+  * Get rid of page table information in the indicated region.
+  *

@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVDGH26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVDGHba@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVDGH26 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 03:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVDGH26
+	id S261841AbVDGHba (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVDGHba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 03:28:58 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:53996 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261640AbVDGH2w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 03:28:52 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, Matthew Wilcox <matthew@wil.cx>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-References: <20050404100929.GA23921@pegasos>
-	<87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos>
-	<20050404175130.GA11257@kroah.com>
-	<20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
-	<42519BCB.2030307@pobox.com> <20050404202706.GB3140@pegasos>
-	<4251A7E8.6050200@pobox.com>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 07 Apr 2005 03:28:50 -0400
-In-Reply-To: <4251A7E8.6050200@pobox.com>
-Message-ID: <yq04qejxcy5.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Thu, 7 Apr 2005 03:31:30 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:53129 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261841AbVDGHbX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 03:31:23 -0400
+Date: Thu, 7 Apr 2005 09:31:14 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched: consolidate sbe sbf
+Message-ID: <20050407073114.GD26607@elte.hu>
+References: <42549D76.9040701@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42549D76.9040701@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
 
-Jeff> Sven Luther wrote:
->> Yep, but in the meantime, let's clearly mark said firmware as
->> not-covered-by-the-GPL. In the acenic case it seems to be even
->> easier, as the firmware is in a separate acenic_firmware.h file,
->> and it just needs to have the proper licencing statement added,
->> saying that it is not covered by the GPL, and then giving the
->> information under what licence it is being distributed.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Jeff> Who has meaningfully contacted Alteon (probably "Neterion" now)
-Jeff> about this?  What is the progress of that request?
+> Hi Ingo,
+> 
+> What do you think of the following patch? I won't send the
+> whole series again, I'll queue them up with Andrew if you
+> think this one looks OK (which is the only major change).
 
-Whoever actually owns the rights to the firmware these days is going
-to be practically impossible to track down. The rights were sold off
-left and right when Alteon sold out to Nortel and Nortel then
-imploded. 
+this one looks good too.
 
-The s2io/neterion guys may or may not know, but I doubt anyone is
-willing to spend real company manhours trying to track down a legal
-trace for a dead product which hasn't been manufactured for years and
-nobody really cares about technology wise anymore.
+  Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Regards,
-Jes
+	Ingo

@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVDGNgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbVDGNkP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbVDGNgd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 09:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVDGNgd
+	id S262477AbVDGNkP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 09:40:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262478AbVDGNkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 09:36:33 -0400
-Received: from main.gmane.org ([80.91.229.2]:10147 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262471AbVDGNgX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 09:36:23 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-Date: Thu, 07 Apr 2005 15:34:26 +0200
-Message-ID: <yw1xhdii90d9.fsf@ford.inprovide.com>
-References: <L0f93D.A.68G.D2OVCB@murphy> <4255278E.4000303@almg.gov.br>
- <Pine.LNX.4.61.0504070855510.29251@chaos.analogic.com>
+	Thu, 7 Apr 2005 09:40:15 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:3238 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262477AbVDGNjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 09:39:49 -0400
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Chris Rankin <rankincj@yahoo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050407133222.GJ1847@suse.de>
+References: <20050329120311.GO16636@suse.de>
+	 <1112804840.5476.16.camel@mulgrave> <20050406175838.GC15165@suse.de>
+	 <1112811607.5555.15.camel@mulgrave> <20050406190838.GE15165@suse.de>
+	 <1112821799.5850.19.camel@mulgrave> <20050407064934.GJ15165@suse.de>
+	 <1112879919.5842.3.camel@mulgrave> <20050407132205.GA16517@infradead.org>
+	 <1112880658.5842.10.camel@mulgrave>  <20050407133222.GJ1847@suse.de>
+Content-Type: text/plain
+Date: Thu, 07 Apr 2005 09:39:43 -0400
+Message-Id: <1112881183.5842.13.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:YxlRl0+WhKqyGLh3GxEQjd3FXpA=
-Cc: debian-kernel@lists.debian.org, debian-legal@lists.debian.org
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <linux-os@analogic.com> writes:
+On Thu, 2005-04-07 at 15:32 +0200, Jens Axboe wrote:
+> I think Christophs point is that why add sdev_lock as a pointer, instead
+> of just killing it? It's only used in one location, so it's not really
+> that confusing (and a comment could fix that).
 
-> Last time I checked, GPL was about SOFTware, not FIRMware, and
-> not MICROcode. If somebody has decided to rename FIRMware to
-> SOFTware,
+Because any use of sdev->request_queue->queue_lock would likely succeed
+even after we've freed the device and released the queue.  If it's a
+pointer and we null it after free and release, then any later use will
+trigger an immediate NULL deref oops.
 
-Debian has undertaken to change the meaning of a whole lot of words,
-including "software" and "free".
+Since we've had so many nasty problems around refcounting, I just would
+like to assure myself that we're doing everything correctly (I really
+believe we are, but empirical evidence is also nice).
 
-> This whole thread and gotten truly bizarre.
+James
 
-Surprised?
-
--- 
-Måns Rullgård
-mru@inprovide.com
 

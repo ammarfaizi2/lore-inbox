@@ -1,84 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262557AbVDGTRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVDGTWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbVDGTRN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 15:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVDGTRM
+	id S262568AbVDGTWW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 15:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVDGTWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 15:17:12 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:18863 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262557AbVDGTQu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 15:16:50 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: Mingming Cao <cmm@us.ibm.com>
-Reply-To: cmm@us.ibm.com
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: text/plain
-Organization: IBM LTC
-Date: Thu, 07 Apr 2005 12:16:44 -0700
-Message-Id: <1112901405.3787.50.camel@dyn318043bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Apr 2005 15:22:22 -0400
+Received: from mail.dif.dk ([193.138.115.101]:61880 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262568AbVDGTWG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 15:22:06 -0400
+Date: Thu, 7 Apr 2005 21:24:34 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steve French <smfrench@austin.rr.com>
+Cc: Steven French <sfrench@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] cifs: whitespace cleanups for fcntl.c
+Message-ID: <Pine.LNX.4.62.0504072119110.2479@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 14:08 +0100, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Thu, 2005-04-07 at 09:14, Ingo Molnar wrote:
-> 
-> > doesnt the first option also allow searches to be in parallel?
-> 
-> In terms of CPU usage, yes.  But either we use large windows, in which
-> case we *can't* search remotely near areas of the disk in parallel; or
-> we use small windows, in which case failure to find a free bit becomes
-> disproportionately expensive (we have to do an rbtree link and unlink
-> for each window we search.)
-> 
+From: Jesper Juhl <juhl-lkml@dif.dk>
 
-I was thinking that at the end of find_next_reservable_window(), since
-we already know the previous node in the rbtree to insert, we could just
-link the window there, that way the rbtree link cost will be minimized.
+Here's a patch with cleanups for fs/cifs/fcntl.c
+This time the file is so small and the cleanups so trivial that I chose to 
+just put the whole thing in a single patch - if you want it split, then 
+just say so.
 
-Then I realize in rbtree, previous node is not necessary the parent
-node, we still have to search part of the rbtree to find the parent
-node, which is really expensive in the case the insertion operations are
-very frequent. Hmmm...
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-> >  This particular one took over 1 msec, 
+---
 
-If you look at the pattern in the latency report:
-	.........
-     cvs-14981 0.n.2 1044us : find_next_zero_bit (bitmap_search_next_usable_block)
-     cvs-14981 0.n.2 1045us : ext3_test_allocatable (bitmap_search_next_usable_block)
-     cvs-14981 0.n.2 1045us : find_next_zero_bit (bitmap_search_next_usable_block)
-     cvs-14981 0.n.2 1046us : find_next_zero_bit (bitmap_search_next_usable_block)
-     cvs-14981 0.n.2 1047us : ext3_test_allocatable (bitmap_search_next_usable_block)
-     cvs-14981 0.n.2 1048us : find_next_zero_bit (bitmap_search_next_usable_block)
-     cvs-14981 0.n.2 1049us : find_next_zero_bit (bitmap_search_next_usable_block)
-     cvs-14981 0.n.2 1049us : ext3_test_allocatable (bitmap_search_next_usable_block)
-	........
+ fcntl.c |   65 
+++++++++++++++++++++++++++++++++--------------------------------
+ 1 files changed, 33 insertions(+), 32 deletions(-)
 
-the patten is: two calls to find_next_zero_bit() followed by a
-ext3_test_allocatabl(). And we have about 440 iteration in this report.
+--- linux-2.6.12-rc2-mm1-orig/fs/cifs/fcntl.c	2005-04-05 21:21:42.000000000 +0200
++++ linux-2.6.12-rc2-mm1/fs/cifs/fcntl.c	2005-04-07 21:15:27.000000000 +0200
+@@ -34,40 +34,39 @@ static __u32 convert_to_cifs_notify_flag
+ 	__u32 cifs_ntfy_flags = 0;
+ 
+ 	/* No way on Linux VFS to ask to monitor xattr
+-	changes (and no stream support either */
+-	if(fcntl_notify_flags & DN_ACCESS) {
++	   changes (and no stream support either) */
++	if (fcntl_notify_flags & DN_ACCESS) {
+ 		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_LAST_ACCESS;
+ 	}
+-	if(fcntl_notify_flags & DN_MODIFY) {
++	if (fcntl_notify_flags & DN_MODIFY) {
+ 		/* What does this mean on directories? */
+ 		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_LAST_WRITE |
+-			FILE_NOTIFY_CHANGE_SIZE;
++				   FILE_NOTIFY_CHANGE_SIZE;
+ 	}
+-	if(fcntl_notify_flags & DN_CREATE) {
+-		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_CREATION | 
+-			FILE_NOTIFY_CHANGE_LAST_WRITE;
++	if (fcntl_notify_flags & DN_CREATE) {
++		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_CREATION |
++				   FILE_NOTIFY_CHANGE_LAST_WRITE;
+ 	}
+-	if(fcntl_notify_flags & DN_DELETE) {
++	if (fcntl_notify_flags & DN_DELETE) {
+ 		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_LAST_WRITE;
+ 	}
+-	if(fcntl_notify_flags & DN_RENAME) {
++	if (fcntl_notify_flags & DN_RENAME) {
+ 		/* BB review this - checking various server behaviors */
+-		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_DIR_NAME | 
+-			FILE_NOTIFY_CHANGE_FILE_NAME;
++		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_DIR_NAME |
++				   FILE_NOTIFY_CHANGE_FILE_NAME;
+ 	}
+-	if(fcntl_notify_flags & DN_ATTRIB) {
+-		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_SECURITY | 
+-			FILE_NOTIFY_CHANGE_ATTRIBUTES;
++	if (fcntl_notify_flags & DN_ATTRIB) {
++		cifs_ntfy_flags |= FILE_NOTIFY_CHANGE_SECURITY |
++				   FILE_NOTIFY_CHANGE_ATTRIBUTES;
+ 	}
+-/*	if(fcntl_notify_flags & DN_MULTISHOT) {
++/*	if (fcntl_notify_flags & DN_MULTISHOT) {
+ 		cifs_ntfy_flags |= ;
+ 	} */ /* BB fixme - not sure how to handle this with CIFS yet */
+ 
+-
+ 	return cifs_ntfy_flags;
+ }
+ 
+-int cifs_dir_notify(struct file * file, unsigned long arg)
++int cifs_dir_notify(struct file *file, unsigned long arg)
+ {
+ 	int xid;
+ 	int rc = -EINVAL;
+@@ -86,32 +85,34 @@ int cifs_dir_notify(struct file * file, 
+ 	full_path = build_path_from_dentry(file->f_dentry);
+ 	up(&file->f_dentry->d_sb->s_vfs_rename_sem);
+ 
+-	if(full_path == NULL) {
++	if (full_path == NULL) {
+ 		rc = -ENOMEM;
+ 	} else {
+-		cERROR(1,("cifs dir notify on file %s with arg 0x%lx",full_path,arg)); /* BB removeme BB */
+-		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN, 
++		cERROR(1, ("cifs dir notify on file %s with arg 0x%lx",
++			   full_path, arg)); /* BB removeme BB */
++		rc = CIFSSMBOpen(xid, pTcon, full_path, FILE_OPEN,
+ 			GENERIC_READ | SYNCHRONIZE, 0 /* create options */,
+-			&netfid, &oplock,NULL, cifs_sb->local_nls);
++			&netfid, &oplock, NULL, cifs_sb->local_nls);
+ 		/* BB fixme - add this handle to a notify handle list */
+-		if(rc) {
+-			cERROR(1,("Could not open directory for notify"));  /* BB remove BB */
++		if (rc) {
++     /* BB remove BB */	cERROR(1, ("Could not open directory for notify"));
+ 		} else {
+ 			filter = convert_to_cifs_notify_flags(arg);
+-			if(filter != 0) {
+-				rc = CIFSSMBNotify(xid, pTcon, 0 /* no subdirs */, netfid, 
+-					filter, cifs_sb->local_nls);
++			if (filter != 0) {
++				rc = CIFSSMBNotify(xid, pTcon,
++						   0 /* no subdirs */, netfid,
++						   filter, cifs_sb->local_nls);
+ 			} else {
+ 				rc = -EINVAL;
+ 			}
+-			/* BB add code to close file eventually (at unmount
+-			it would close automatically but may be a way
+-			to do it easily when inode freed or when
+-			notify info is cleared/changed */
+-            cERROR(1,("notify rc %d",rc));
++			/* BB add code to close file eventually (at unmount it
++			   would close automatically but may be a way to do it
++			   easily when inode freed or when notify info is
++			   cleared/changed */
++			cERROR(1, ("notify rc %d", rc));
+ 		}
+ 	}
+-	
++
+ 	FreeXid(xid);
+ 	return rc;
+ }
 
-That means we are really unlucky: Checked the on disk bitmap, found a
-free bit, but it's not free in the journal copy, then we check the
-journal copy, find a free bit, but it's not free on disk....I could
-imagine we need to check the journal copy once or twice(to prevent re-
-use the just freed bit before it is been commited), but how could this
-many (440) iterations happen?
-
-
-Mingming
 

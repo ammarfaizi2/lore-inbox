@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVDHAEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVDHAKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbVDHAEW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 20:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVDHAEW
+	id S262627AbVDHAKl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 20:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262632AbVDHAKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 20:04:22 -0400
-Received: from gate.crashing.org ([63.228.1.57]:46303 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262623AbVDHAET (ORCPT
+	Thu, 7 Apr 2005 20:10:41 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55277 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262627AbVDHAKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 20:04:19 -0400
-Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
-	accesses
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Dave Airlie <airlied@gmail.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <jemzsa6sxg.fsf@sykes.suse.de>
-References: <1110519743.5810.13.camel@gaston>
-	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
-	 <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
-	 <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
-	 <21d7e9970504071422349426eb@mail.gmail.com>
-	 <1112914795.9568.320.camel@gaston>  <jemzsa6sxg.fsf@sykes.suse.de>
-Content-Type: text/plain
-Date: Fri, 08 Apr 2005 10:03:05 +1000
-Message-Id: <1112918586.9567.343.camel@gaston>
+	Thu, 7 Apr 2005 20:10:35 -0400
+Date: Thu, 7 Apr 2005 16:08:50 -0700
+From: Greg KH <greg@kroah.com>
+To: Ed L Cashin <ecashin@coraid.com>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.11] aoe [7/12]: support configuration of AOE_PARTITIONS from Kconfig
+Message-ID: <20050407230850.GB6305@kroah.com>
+References: <20050317234641.GA7091@kroah.com> <1111677688.29912@geode.he.net> <20050328170735.GA9567@infradead.org> <87hdiuv3lz.fsf@coraid.com> <20050329162506.GA30401@infradead.org> <87wtrqtn2n.fsf@coraid.com> <20050329165705.GA31013@infradead.org> <8764yywidw.fsf@coraid.com> <20050407184917.GA3771@kroah.com> <87k6nev2jc.fsf@coraid.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k6nev2jc.fsf@coraid.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-08 at 01:58 +0200, Andreas Schwab wrote:
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+On Thu, Apr 07, 2005 at 02:56:39PM -0400, Ed L Cashin wrote:
+> Greg KH <greg@kroah.com> writes:
 > 
-> > Yes, that's very extreme, I suspect somebody is banging on set_par or
-> > something like that.
+> ...
+> > So, which one of the aoe patches listed at:
+> > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/
+> > do you want me to drop?  This one:
+> > 	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/driver/aoe-AOE_PARTITIONS.patch
+> > ?
+> > Or some other one too?
 > 
-> fb_setcolreg is it.
+> Just aoe-AOE_PARTITIONS.patch, the seventh of the twelve, should be
+> dropped.
 
-Ahhh... interesting. I'll see if I can find a way to work around that
-one. Best would be to "cache" the current PLL register index in fact,
-but I'm afraid that may not work terribly well with userland apps
-hacking it ...
+Ok, dropped.
 
-Ben.
+> Then later I'll send a batch of patches that will include a change to
+> make aoe disks non-partitionable by default.
 
+That's fine.  Mind if I forward the other aoe patches in that directory
+to Linus soon?
 
+thanks,
+
+greg k-h

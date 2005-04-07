@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVDGSJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVDGSK1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262549AbVDGSJY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 14:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVDGSJY
+	id S262550AbVDGSK1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 14:10:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVDGSK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 14:09:24 -0400
-Received: from 219-86-42-190.dynamic.tfn.net.tw ([219.86.42.190]:34319 "HELO
-	KEVIN") by vger.kernel.org with SMTP id S262542AbVDGSJC (ORCPT
+	Thu, 7 Apr 2005 14:10:26 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:48655 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S262548AbVDGSKK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 14:09:02 -0400
-Message-ID: <9PtLdvEdp@tpts8.seed.net.tw>
-From: aabbaa123aa@yahoo.com.tw
-To: aabbaa123bb@yahoo.com.tw
-Subject: =?ISO-8859-1?Q?=20=A5=FE=B9=A9=B1M=B7~=A5=BC=A4W=A5=AB(=BF?= =?ISO-8859-1?Q?=B3=C2d?=) =?ISO-8859-1?Q?=AA?=
-	=?ISO-8859-1?Q?=D1=B2=BC=A5=E6=A9=F6=A4=A4=A4=DF?=
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-Content-Type: text/plain;
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Thu, 7 Apr 2005 14:09:02 -0400
+	Thu, 7 Apr 2005 14:10:10 -0400
+Message-ID: <42557786.8090502@aknet.ru>
+Date: Thu, 07 Apr 2005 22:10:14 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
+References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru> <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru> <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru> <20050407080004.GA27252@elte.hu> <42555BBF.6090704@aknet.ru> <Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org> <425563D6.30108@aknet.ru> <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id j37ID0gO002356
 
-您好~不好意思打擾您了~如不需要本訊息~請多多包含按關閉~
-如您需要請跟我們聯絡~~再次謝謝您~
+Hi Linus.
 
+Linus Torvalds wrote:
+> The NMI code had better be really careful, and yeah, I suspect it needs 
+> fixing.
+And since the NMI return will need a
+ESP fixup too, it will require the
+"branched" version of the restore_all
+checks I suppose.
 
-㊣㊣●●全鼎專業未上市股票交易中心【02-6625-9867】●●㊣㊣ 
-
-全省各類未上市(含興櫃)股票行情查詢..買賣代辦...請撥 
-【02-6625-9867】 
-※交易迅速..價格透明合理..服務優良..是您唯一選擇ㄉ好盤商 
-
-§備有各公司資料歡迎索取..歡迎各位來電索取!!§ 
-
-大額股權轉讓~認購~零股收購~熱門股~興櫃股~未上市股~準上市股~中籤書~ 
-
-→想投資未上市卻不知從何做起嗎？歡迎來電索取推薦各股資料← 
-
-您有未上市股票要賣嗎~
-您有未上市股票要買嗎~
-
-全鼎專業未上市股票(興櫃)交易中心
-股票行情查詢~買賣代辦~皆可以來電~
-
-~~手續費挑戰全國最便宜~價格保證一手盤價~歡迎各位比價~~
-
-如不方便來電也歡迎來信洽詢
-
-mail to:a0914243352@yahoo.com.tw
-
-http://a0914243352.groups.com.tw
-
-您要買或要賣皆可來電洽詢~全國最大的未上市股票交易系統~備有數萬支股票可供查詢~歡迎您的來電
-
+>> 2. How can one be sure there are no more
+>> of the like places where the stack is left
+>> empty?
+> That's a good argument, and may be the strongest reason for _not_ doing 
+> the speculation.
+I haven't said that explicitly, only
+implied:) My another idea was to adjust
+the tss.esp0 to always point 8 bytes below
+the real top of the stack, so that even in
+case of an NMI we are still safe. And in
+case of another such instance - too.
+This may look more like a hack than shifting
+the "sti", but it is probably more reliable.
+At least something to consider as soon as we
+are at it.
 

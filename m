@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVDGQ7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262529AbVDGRCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVDGQ7w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 12:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVDGQ7w
+	id S262529AbVDGRCd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 13:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262502AbVDGRCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 12:59:52 -0400
-Received: from smtp.istop.com ([66.11.167.126]:21213 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262527AbVDGQ7i (ORCPT
+	Thu, 7 Apr 2005 13:02:33 -0400
+Received: from fire.osdl.org ([65.172.181.4]:43725 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262492AbVDGRCI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 12:59:38 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Kernel SCM saga..
-Date: Thu, 7 Apr 2005 13:00:51 -0400
-User-Agent: KMail/1.7
-Cc: Paul Mackerras <paulus@samba.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <16980.55403.190197.751840@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 7 Apr 2005 13:02:08 -0400
+Date: Thu, 7 Apr 2005 10:01:47 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: roland@topspin.com, asterixthegaul@gmail.com, damm@opensource.se,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] disable built-in modules V2
+Message-Id: <20050407100147.7b91a2d2.rddunlap@osdl.org>
+In-Reply-To: <aec7e5c305040701236289aacd@mail.gmail.com>
+References: <20050405225747.15125.8087.59570@clementine.local>
+	<54b5dbf505040618324186678a@mail.gmail.com>
+	<528y3v72al.fsf@topspin.com>
+	<aec7e5c305040701236289aacd@mail.gmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504071300.51907.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 April 2005 11:10, Linus Torvalds wrote:
-> On Thu, 7 Apr 2005, Paul Mackerras wrote:
-> > Do you have it automated to the point where processing emailed patches
-> > involves little more overhead than doing a bk pull?
->
-> It's more overhead, but not a lot. Especially nice numbered sequences like
-> Andrew sends (where I don't have to manually try to get the dependencies
-> right by trying to figure them out and hope I'm right, but instead just
-> sort by Subject: line)...
+On Thu, 7 Apr 2005 10:23:32 +0200 Magnus Damm wrote:
 
-Hi Linus,
+| On Apr 7, 2005 4:23 AM, Roland Dreier <roland@topspin.com> wrote:
+| >  > > -#define module_init(x) __initcall(x);
+| >  > > +#define module_init(x) __initcall(x); __module_init_disable(x);
+| >  >
+| >  > It would be better if there is brackets around them... like
+| >  >
+| >  > #define module_init(x) { __initcall(x); __module_init_disable(x); }
+| >  >
+| >  > then we know it wont break some code like
+| >  >
+| >  > if (..)
+| >  >  module_init(x);
+| > 
+| > This is all completely academic, since module_init() is a declaration
+| > that won't be inside any code, but in general it's better still to use
+| > the do { } while (0) idiom like
+| > 
+| > #define module_init(x) do { __initcall(x); __module_init_disable(x); } while (0)
+| > 
+| > so it won't break code like
+| > 
+| >         if (..)
+| >                 module_init(x);
+| >         else
+| >                 something_else();
+| > 
+| > (Yes, that code is nonsense but if you're going to nitpick, go all the way...)
+| 
+| Right. =)
+| Anyway, besides nitpicking, is there any reason not to include this
+| code? Or is the added feature considered plain bloat? Yes, the kernel
+| will become a bit larger, but all the data added by this patch will go
+| into the init section.
 
-In that case, a nice refinement is to put the sequence number at the end of 
-the subject line so patch sequences don't interleave:
+Looks like a good idea to me.
 
-   Subject: [PATCH] Unbork OOM Killer (1 of 3)
-   Subject: [PATCH] Unbork OOM Killer (2 of 3)
-   Subject: [PATCH] Unbork OOM Killer (3 of 3)
-   Subject: [PATCH] Unbork OOM Killer (v2, 1 of 3)
-   Subject: [PATCH] Unbork OOM Killer (v2, 2 of 3)
-   ...
-
-Regards,
-
-Daniel
+---
+~Randy

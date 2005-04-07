@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVDGOwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVDGOyC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVDGOwI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 10:52:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVDGOwI
+	id S262435AbVDGOyC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 10:54:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbVDGOyC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 10:52:08 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:25307 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261500AbVDGOwE (ORCPT
+	Thu, 7 Apr 2005 10:54:02 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:31976 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262476AbVDGOxt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 10:52:04 -0400
-Date: Thu, 7 Apr 2005 16:51:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, stsp@aknet.ru, linux-kernel@vger.kernel.org,
-       VANDROVE@vc.cvut.cz
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-Message-ID: <20050407145150.GA6215@elte.hu>
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru> <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru> <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru> <20050407080004.GA27252@elte.hu> <20050407041006.4c9db8b2.akpm@osdl.org> <Pine.LNX.4.58.0504070737190.28951@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Apr 2005 10:53:49 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Humberto Massa <humberto.massa@almg.gov.br>
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Date: Thu, 7 Apr 2005 16:53:43 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-os@analogic.com, debian-kernel@lists.debian.org,
+       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
+       linux-acenic@sunsite.dk
+References: <vVUko.A.NkD.kNTVCB@murphy> <42554407.4010200@almg.gov.br>
+In-Reply-To: <42554407.4010200@almg.gov.br>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504070737190.28951@ppc970.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200504071653.43259.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> > >   	pushfl
-
-> After all, I very strongly suspect that we don't actually really 
-> _care_ if eflags stays the same over a system call, and I could see 
-> that some dynamic CPU's might prefer not having to push an eflags 
-> value that just got changed by the "sti", so it _might_ save several 
-> cycles to avoid that dependency, and also obviously avoid a subtle 
-> dependency on a sw level that the previous patch clearly introduced.
+Am Donnerstag, 7. April 2005 16:30 schrieb Humberto Massa:
+> I don't recall anyone asking Intel to give theirs designs away. This 
+> thread is about:
 > 
-> Anybody willing to time it? ;)
+> 1. (mainly) some firmware hexdumps present in the kernel source tree are 
+> either expicitly marked as being GPL'd or unmarked, in which case one 
+> would assume that they would be GPL'd;
+> 
+> 1a. this means that those firmware hexdumps are not legally 
+> distributable by any person besides the firmware copyright holder, 
+> because any other person could not comply with the terms of the Section 
+> 3 of the GPL (IOW, a third party cannot give you a source code they 
+> don't have);
 
-i can tell you without any measurement that pushfl is slower by a couple 
-of cycles than a simple pushl $0x00010046, on basically all x86 CPUs.  
-And since we only support SYENTER from 32-bit mode and we dont guarantee 
-flags to be saved, it isnt all that incorrect to do?
+As this has been discussed numerous times and consensus never achieved
+and is unlikely to be achieved, I suggest that you keep this discussion
+internal to Debian until at least you have patches which can be evaluated
+and discussed.  Until then Debian may do to its kernel whatever it pleases
+and should be prepared to explain to its users why it removed or altered
+drivers.
 
-	Ingo
+	Regards
+		Oliver

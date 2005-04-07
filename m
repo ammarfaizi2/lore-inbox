@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVDGHch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVDGHhU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVDGHch (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 03:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVDGHch
+	id S261842AbVDGHhU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:37:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVDGHhU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 03:32:37 -0400
-Received: from main.gmane.org ([80.91.229.2]:50862 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261728AbVDGHcb (ORCPT
+	Thu, 7 Apr 2005 03:37:20 -0400
+Received: from colin2.muc.de ([193.149.48.15]:57616 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261842AbVDGHhO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 03:32:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Paolo Bonzini <bonzini@gnu.org>
-Subject: Re: [BUG mm] "fixed" i386 memcpy inlining buggy
-Date: Wed, 06 Apr 2005 17:18:35 +0200
-Message-ID: <d30uga$2j0$1@sea.gmane.org>
-References: <200503291542.j2TFg4ER027715@earth.phy.uc.edu>	 <200504021526.53990.vda@ilport.com.ua>	 <1112718844.22591.15.camel@leto.cs.pocnet.net>	 <200504061314.27740.vda@port.imtp.ilyichevsk.odessa.ua> <1112789157.32279.13.camel@leto.cs.pocnet.net>
+	Thu, 7 Apr 2005 03:37:14 -0400
+Date: 7 Apr 2005 09:37:13 +0200
+Date: Thu, 7 Apr 2005 09:37:13 +0200
+From: Andi Kleen <ak@muc.de>
+To: Christopher Allen Wing <wingc@engin.umich.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: clock runs at double speed on x86_64 system w/ATI RS200 chipset (workaround for APIC mode?)
+Message-ID: <20050407073713.GA74220@muc.de>
+References: <200504031231.j33CVtHp021214@harpo.it.uu.se> <Pine.LNX.4.58.0504041050250.32159@hammer.engin.umich.edu> <m18y3x16rj.fsf@muc.de> <Pine.LNX.4.58.0504051351200.13242@hammer.engin.umich.edu> <20050405183141.GA27195@muc.de> <Pine.LNX.4.58.0504061758150.4573@hammer.engin.umich.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: usilu-ge.ti-edu.ch
-User-Agent: Mozilla Thunderbird 0.9 (Macintosh/20041103)
-X-Accept-Language: en-us, en
-In-Reply-To: <1112789157.32279.13.camel@leto.cs.pocnet.net>
-Cc: gcc@gcc.gnu.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504061758150.4573@hammer.engin.umich.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> I'm still seeing 'APIC error on CPU0: 00(40)' messages from time to time.
 
-> The only thing that would avoid this is to either tell the compiler to
-> never put esi/edi in memory (which I think is not possibly across
-> different versions of gcc) or to always generate a single asm section
-> for all the different cases.
+Thanks for the analysis. The clear_IO_APIC_pin looks quite hackish,
+I am not sure I want to put that into the mainline kernel.
+The APIC errors are also suspicious.
 
-Use __asm__ ("%esi") and __asm__ ("%edi").  It is not guaranteed that 
-they access the registers always (you can still have copy propagation 
-etcetera); but, if your __asm__ statement constraints match the register 
-you specify, then you can be reasonably sure that good code is produced.
+I don't want to blacklist ATI from just a single report,
+but if there are more it is probably best to just disable
+the IO-APIC by default there for now.
 
-Paolo
+-Andi
+
 

@@ -1,74 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVDGUy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVDGU5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbVDGUy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 16:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVDGUye
+	id S262597AbVDGU5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 16:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVDGU5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 16:54:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:8127 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262600AbVDGUy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 16:54:28 -0400
-Subject: Re: Kernel SCM saga..
-From: Arjan van de Ven <arjan@infradead.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050407180412.GA31861@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	 <1112858331.6924.17.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org>
-	 <20050407171006.GF8859@parcelfarce.linux.theplanet.co.uk>
-	 <Pine.LNX.4.58.0504071038320.28951@ppc970.osdl.org>
-	 <20050407180412.GA31861@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 07 Apr 2005 22:54:18 +0200
-Message-Id: <1112907259.6290.81.camel@laptopd505.fenrus.org>
+	Thu, 7 Apr 2005 16:57:16 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48903 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262597AbVDGU4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 16:56:52 -0400
+Date: Thu, 7 Apr 2005 22:56:47 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Sven Luther <sven.luther@wanadoo.fr>
+Cc: Humberto Massa <humberto.massa@almg.gov.br>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050407205647.GB4325@stusta.de>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Sven Luther <sven.luther@wanadoo.fr>,
+	Humberto Massa <humberto.massa@almg.gov.br>,
+	debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+	linux-kernel@vger.kernel.org
+References: <h-GOHD.A.KL.s2aUCB@murphy> <42527E89.4040506@almg.gov.br> <20050405135701.GA24361@pegasos>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050405135701.GA24361@pegasos>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 20:04 +0200, Jörn Engel wrote:
-> On Thu, 7 April 2005 10:47:18 -0700, Linus Torvalds wrote:
-> > On Thu, 7 Apr 2005, Al Viro wrote:
-> > > 
-> > > No.  There's another reason - when you are cherry-picking and reordering
-> > > *your* *own* *patches*.
-> > 
-> > Yes. I agree. There should be some support for cherry-picking in between a
-> > temporary throw-away tree and a "cleaned-up-tree". However, it should be
-> > something you really do need to think about, and in most cases it really
-> > does boil down to "export as patch, re-import from patch". Especially
-> > since you potentially want to edit things in between anyway when you
-> > cherry-pick.
+On Tue, Apr 05, 2005 at 03:57:01PM +0200, Sven Luther wrote:
+>...
+> The other point is that other entities, like redhat, or suse (which is now
+> novel and thus ibm) and so have stronger backbones, and can more easily muster
+> the ressources to fight of a legal case, even one which is a dubious one,
+> especially given the particularities of the US judicial system, where it is
+> less important to be right, and more important to have lot of money to throw
+> at your legal machine. Debian has nothing such, and SPI which would stand for
+> this, is not really upto it either, so in this case, apart from all ideology
+> and fanatism, it is for purely pragmatic reasons that they don't distribute
+> undistributable files from the non-free part of our archive. You would do the
+> same in their case.
+>...
+
+
+There are many possible legal risks for a Linux distribution.
+
+
+This thread is about one.
+
+Another one is that RedHat removed MP3 support in their distribution 
+from programs like xmms ages ago because of the legal risks due to 
+patents. The Debian distribution still contains software that is capable 
+of playing MP3's.
+
+
+I'd say of the two above cases, the MP3 patents are far more likely to 
+cause a lawsuit.
+
+YMMV.
+
+
+If your statement was true that Debian must take more care regarding 
+legal risks than commercial distributions, can you explain why Debian 
+exposes the legal risks of distributing software capable of decoding 
+MP3's to all of it's mirrors?
+
+
+> Friendly,
 > 
-> For reordering, using patcher, you can simply edit the sequence file
-> and move lines around.  Nice and simple interface.
-> 
-> There is no checking involved, though.  If you mode dependent patches,
-> you end up with a mess and either throw it all away or seriously
-> scratch your head.  So a serious SCM might do something like this:
+> Sven Luther
 
+cu
+Adrian
 
-just fyi, patchutils has a tool that can "flip" the order of patches
-even if they patch the same line of code in the files.... with it you
-can make a "bubble sort" to move stuff about safely...
+-- 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

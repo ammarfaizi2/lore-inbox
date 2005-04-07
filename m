@@ -1,84 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbVDGOXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVDGObT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262465AbVDGOXz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 10:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbVDGOXz
+	id S262478AbVDGObT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 10:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVDGObT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 10:23:55 -0400
-Received: from soundwarez.org ([217.160.171.123]:28806 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S262465AbVDGOXv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 10:23:51 -0400
-Date: Thu, 7 Apr 2005 16:23:49 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Ian Campbell <ijc@hellion.org.uk>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>, greg@kroah.com,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-Message-ID: <20050407142349.GA26743@vrfy.org>
-References: <1112859412.18360.31.camel@frecb000711.frec.bull.fr> <1112860419.28858.76.camel@uganda> <1112861638.28858.92.camel@uganda> <1112865153.3086.134.camel@icampbell-debian> <1112867556.28858.135.camel@uganda> <1112870517.3279.42.camel@localhost.localdomain> <1112873074.28858.167.camel@uganda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112873074.28858.167.camel@uganda>
-User-Agent: Mutt/1.5.8i
+	Thu, 7 Apr 2005 10:31:19 -0400
+Received: from hades.almg.gov.br ([200.198.60.36]:31392 "EHLO
+	hades.almg.gov.br") by vger.kernel.org with ESMTP id S262478AbVDGObP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 10:31:15 -0400
+Message-ID: <42554407.4010200@almg.gov.br>
+Date: Thu, 07 Apr 2005 11:30:31 -0300
+From: Humberto Massa <humberto.massa@almg.gov.br>
+User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+MIME-Version: 1.0
+To: linux-os@analogic.com, debian-kernel@lists.debian.org,
+       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <vVUko.A.NkD.kNTVCB@murphy>
+In-Reply-To: <vVUko.A.NkD.kNTVCB@murphy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 03:24:34PM +0400, Evgeniy Polyakov wrote:
-> On Thu, 2005-04-07 at 12:41 +0200, Kay Sievers wrote:
-> > On Thu, 2005-04-07 at 13:52 +0400, Evgeniy Polyakov wrote:
-> > > On Thu, 2005-04-07 at 10:12 +0100, Ian Campbell wrote:
-> > > > On Thu, 2005-04-07 at 12:13 +0400, Evgeniy Polyakov wrote:
-> > > > > The main idea was to simplify userspace control and notification
-> > > > > system - so people did not waste it's time learning how skb's are
-> > > > > allocated
-> > > > > and processed, how socket layer is designed and what all those
-> > > > > netlink_* and NLMSG* mean if they do not need it.
-> > > > 
-> > > > Isn't connector built on top of netlink? If so, is there any reason for
-> > > > it to be a new subsystem rather than an extension the the netlink API?
-> > > 
-> > > Connector is not netlink API extension in any way.
-> > > It uses netlink as transport layer, one can change
-> > > cn_netlink_send()/cn_input() 
-> > > into something like bidirectional ioctl and use it.
-> > > 
-> > > Only one cn_netlink_send() function can be "described" as API
-> > > extension, 
-> > > although even it is not entirely true.
-> > 
-> > I see much overlap here too. Wouldn't it be nice to see the transport
-> > part of the connector code to be implemented as a generic netlink
-> > multicast? We already have uni- and broadcast for netlink.
-> 
-> Netlink broadcast is multicast actually,
-> if listener exists, then message will be sent to him, 
-> if no - skb will be just freed.
-> 
-> > Isn't the whole purpose of the connector to hook in notifications that
-> > act only if someone is listening? That is a perfect multicast case. :)
-> 
-> Connector can be used to send data from userspace to kernelspace,
-> so it allows sending controlling messages without ioctl() compatibility 
-> mess and so on.
-> 
-> One may use cn_netlink_send() to send notification without being
-> registered 
-> in connector, if it's second parameter is 0, then appropriate 
-> connector listener will be searched for.
+Richard B. Johnson wrote:
 
-Sure, but seems I need to ask again: What is the exact reason not to implement
-the muticast message multiplexing/subscription part of the connector as a
-generic part of netlink? That would be nice to have and useful for other
-subsystems too as an option to the current broadcast.
+>  Well it doesn't make any difference. If GPL has degenerated to where
+>  one can't upload microcode to a device as part of its initialization,
+>  without having the "source" that generated that microcode, we are in
+>  a lot of hurt. Intel isn't going to give their designs away.
 
-> It is different from netlink messages, 
-> netlink is a transport layer for connector.
+I don't recall anyone asking Intel to give theirs designs away. This 
+thread is about:
 
-That's still possible and the kernel usually doesn't care about unimplemented
-alternatives. :)
+1. (mainly) some firmware hexdumps present in the kernel source tree are 
+either expicitly marked as being GPL'd or unmarked, in which case one 
+would assume that they would be GPL'd;
 
-Thanks,
-Kay
+1a. this means that those firmware hexdumps are not legally 
+distributable by any person besides the firmware copyright holder, 
+because any other person could not comply with the terms of the Section 
+3 of the GPL (IOW, a third party cannot give you a source code they 
+don't have);
+
+1b. [1a], for its turn, means that the current pristine kernel tree is 
+not legally distributable and that any distributor is an easy prey for 
+lawyer attacks.
+
+2. (collaterally) some firmware hexdumps present in the kernel source 
+tree are marked with "(C) Holder All Rights Reserved";
+
+2a. copyright law FORBIDS anyone to distribute such pieces of 
+information without proper authorization.
+
+3. (corolary) for each of the problematic hexdumps, the following steps 
+should be taken:
+
+3a. the copyright holder should be asked for the source code to the 
+firmware -- if they do this, it would be great for a lot of Free 
+Software reasons;
+
+3b. if the copyright holder declines, it should be asked for a license 
+to freely redistribute the firmware; and
+
+3c. if the copyright holder declines, the firmware *must* be yanked from 
+the pristine kernel tree;
+
+3d. furthermore, all of this *should* be properly documented, IMHO, both 
+in a centralized file, and in the file where the firmware hexdump appears.
+
+
+>  Last time I checked, GPL was about SOFTware, not FIRMware, and not
+>  MICROcode. If somebody has decided to rename FIRMware to SOFTware,
+>  then they need to complete the task and call it DORKware, named after
+>  themselves.
+
+Last time I checked, the GPL was a COPYRIGHT LICENSE and, as such, not 
+"about" anything in particular. Yes, it was idealized to be used for the 
+licensing of computer programs and libraries. OTOH, many works of many 
+other kinds (music, literary works, etc) were licensed under the GPL.
+
+>  This whole thread and gotten truly bizarre.
+
+Nah, it has a good reason to exist... With the passing of time, Debian, 
+that is supposed to be a Free Software OS, is depending more and more of 
+non-Free components. And yes, as it is today, the pristine kernel tree 
+is non-free.
+
+Regards,
+Massa
+

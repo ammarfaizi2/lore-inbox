@@ -1,33 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVDGW36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVDGWh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVDGW36 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 18:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVDGW36
+	id S262195AbVDGWh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 18:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVDGWh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 18:29:58 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:22153 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262180AbVDGW3W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 18:29:22 -0400
-Message-ID: <4255B43F.80606@us.ibm.com>
-Date: Thu, 07 Apr 2005 15:29:19 -0700
-From: Vernon Mauery <vernux@us.ibm.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: set keyboard repeat rate: EVIOCGREP and EVIOCSREP
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Apr 2005 18:37:59 -0400
+Received: from waste.org ([216.27.176.166]:30132 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262195AbVDGWh5 (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 18:37:57 -0400
+Date: Thu, 7 Apr 2005 15:37:51 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Derek Cheung <derek.cheung@sympatico.ca>,
+       "'Andrew Morton'" <akpm@osdl.org>, greg@kroah.com,
+       Linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
+Message-ID: <20050407223751.GL25554@waste.org>
+References: <003901c53a51$0093b7d0$1501a8c0@Mainframe> <42535323.8040403@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42535323.8040403@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was wondering if anyone knows how to change the repeatrate on a USB keyboard with a 2.4 kernel.  The system is a legacy free system (no ps2 port), so kbdrate does nothing.  With evdev loaded, the keyboard and mouse (both USB devices) get registered with the event system and show up as /dev/input/event[01].  I know the event subsystem does software key repeating and was wondering how to change that.
+On Tue, Apr 05, 2005 at 08:10:27PM -0700, Randy.Dunlap wrote:
+> There is a fairly up-to-date dontdiff file available at
+> http://developer.osdl.org/rddunlap/doc/dontdiff-osdl
 
-I poked around and found the EVIOCGREP and EVIOCSREP ioctls, but when I tried using them, the ioctl returned invalid parameter.  Upon further investigation, I found that the ioctl definitions (located in the linux/input.h header file) are not used in kernel land.  That would explain why it failed, but that just means I ran into a dead end.  Were those definitions legacy code from 2.2 or is it something that never got implemented, only defined?  I also noticed that the defines are gone in 2.6.  So how _does_ one go about changing the repeat rate on a keyboard input device in 2.4?
+Can we stash a copy in Documentation?
 
-Thanks in advance for your help.
-
---Vernon Mauery
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262462AbVDGNx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVDGOAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbVDGNx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 09:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVDGNx2
+	id S262464AbVDGOAR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 10:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262465AbVDGOAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 09:53:28 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:16514 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262462AbVDGNxY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 09:53:24 -0400
-Message-Id: <200504070238.j372cGQN005597@laptop11.inf.utfsm.cl>
-To: AsterixTheGaul <asterixthegaul@gmail.com>
-cc: Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] disable built-in modules V2 
-In-Reply-To: Message from AsterixTheGaul <asterixthegaul@gmail.com> 
-   of "Thu, 07 Apr 2005 07:02:53 +0530." <54b5dbf505040618324186678a@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Wed, 06 Apr 2005 22:38:16 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Thu, 07 Apr 2005 09:52:52 -0400 (CLT)
+	Thu, 7 Apr 2005 10:00:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:51921 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262464AbVDGOAK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 10:00:10 -0400
+Date: Thu, 7 Apr 2005 19:30:40 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: george@mvista.com, mingo@elte.hu,
+       high-res-timers-discourse@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: VST and Sched Load Balance
+Message-ID: <20050407140040.GD17268@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050407124629.GA17268@in.ibm.com> <425530AB.90605@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425530AB.90605@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AsterixTheGaul <asterixthegaul@gmail.com> said:
-> > -#define module_init(x) __initcall(x);
-> > +#define module_init(x) __initcall(x); __module_init_disable(x);
-> 
-> It would be better if there is brackets around them... like
-> 
-> #define module_init(x) { __initcall(x); __module_init_disable(x); }
-> 
-> then we know it wont break some code like
-> 
-> if (..)
->  module_init(x);
+On Thu, Apr 07, 2005 at 11:07:55PM +1000, Nick Piggin wrote:
+> 3. This is exactly one of the situations that the balancing backoff code
+>    was designed for. Can you just schedule interrupts to fire when the
+>    next balance interval has passed? This may require some adjustments to
+>    the backoff code in order to get good powersaving, but it would be the
+>    cleanest approach from the scheduler's point of view.
 
-But happily break:
 
-   if (...)
-    module_init(x);
-   else
-    ...
+Hmm ..I guess we could restrict the max time a idle CPU will sleep taking
+into account its balance interval. But whatever heuristics we follow to 
+maximize balance_interval of about-to-sleep idle CPU, don't we still run the 
+risk of idle cpu being woken up and going immediately back to sleep (because 
+there was no imbalance)?
 
-This should be:
+Moreover we may be greatly reducing the amount of time a CPU is allowed to 
+sleep this way ...
 
-#define module_init(x)  do {__initcall(x); __module_init_disable(x);}while(0)
+
+
+
+
+
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

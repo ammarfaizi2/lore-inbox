@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVDGXUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVDGXUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVDGXUB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 19:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVDGXTi
+	id S262611AbVDGXUx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 19:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVDGXUx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 19:19:38 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:10155 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S262612AbVDGXSx (ORCPT
+	Thu, 7 Apr 2005 19:20:53 -0400
+Received: from smtp.seznam.cz ([212.80.76.43]:44714 "HELO smtp.seznam.cz")
+	by vger.kernel.org with SMTP id S262611AbVDGXSU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 19:18:53 -0400
-Date: Fri, 8 Apr 2005 01:18:48 +0200
+	Thu, 7 Apr 2005 19:18:20 -0400
+Date: Fri, 8 Apr 2005 01:18:20 +0200
 To: Greg KH <greg@kroah.com>
 Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
        LM Sensors <sensors@Stimpy.netroedge.com>,
        James Chapman <jchapman@katalix.com>
-Subject: [PATCH] ds1337 3/4
-Message-ID: <20050407231848.GD27226@orphique>
+Subject: [PATCH] ds1337 2/4
+Message-ID: <20050407231820.GC27226@orphique>
 References: <20050407111631.GA21190@orphique> <hOrXV5wl.1112879260.3338120.khali@localhost> <20050407142804.GA11284@orphique> <20050407211839.GA5357@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,97 +27,57 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-dev_{dbg,err} functions should print client's device name. data->id can
-be dropped from message, because device is determined by bus it hangs on
-(it has fixed address).
+Use correct macros to convert between bdc and bin. See linux/bcd.h
 
---- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-04-08 00:36:15.072302800 +0200
-+++ linux-omap/drivers/i2c/chips/ds1337.c	2005-04-08 00:44:44.130914128 +0200
-@@ -95,7 +95,6 @@ static inline int ds1337_read(struct i2c
-  */
- static int ds1337_get_datetime(struct i2c_client *client, struct rtc_time *dt)
- {
--	struct ds1337_data *data = i2c_get_clientdata(client);
- 	int result;
- 	u8 buf[7];
- 	u8 val;
-@@ -103,9 +102,7 @@ static int ds1337_get_datetime(struct i2
- 	u8 offs = 0;
- 
- 	if (!dt) {
--		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
--			__FUNCTION__);
--
-+		dev_dbg(&client->dev, "%s: EINVAL: dt=NULL\n", __FUNCTION__);
- 		return -EINVAL;
- 	}
- 
-@@ -121,8 +118,7 @@ static int ds1337_get_datetime(struct i2
- 
- 	result = i2c_transfer(client->adapter, msg, 2);
- 
--	dev_dbg(&client->adapter->dev,
--		"%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
-+	dev_dbg(&client->dev, "%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
- 		__FUNCTION__, result, buf[0], buf[1], buf[2], buf[3],
+--- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-04-08 00:32:45.234203040 +0200
++++ linux-omap/drivers/i2c/chips/ds1337.c	2005-04-08 00:34:58.457949952 +0200
+@@ -127,15 +127,15 @@
  		buf[4], buf[5], buf[6]);
  
-@@ -139,14 +135,13 @@ static int ds1337_get_datetime(struct i2
+ 	if (result >= 0) {
+-		dt->tm_sec = BCD_TO_BIN(buf[0]);
+-		dt->tm_min = BCD_TO_BIN(buf[1]);
++		dt->tm_sec = BCD2BIN(buf[0]);
++		dt->tm_min = BCD2BIN(buf[1]);
+ 		val = buf[2] & 0x3f;
+-		dt->tm_hour = BCD_TO_BIN(val);
+-		dt->tm_wday = BCD_TO_BIN(buf[3]) - 1;
+-		dt->tm_mday = BCD_TO_BIN(buf[4]);
++		dt->tm_hour = BCD2BIN(val);
++		dt->tm_wday = BCD2BIN(buf[3]) - 1;
++		dt->tm_mday = BCD2BIN(buf[4]);
+ 		val = buf[5] & 0x7f;
+-		dt->tm_mon = BCD_TO_BIN(val);
+-		dt->tm_year = 1900 + BCD_TO_BIN(buf[6]);
++		dt->tm_mon = BCD2BIN(val);
++		dt->tm_year = 1900 + BCD2BIN(buf[6]);
  		if (buf[5] & 0x80)
  			dt->tm_year += 100;
  
--		dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, "
-+		dev_dbg(&client->dev, "%s: secs=%d, mins=%d, "
- 			"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
- 			__FUNCTION__, dt->tm_sec, dt->tm_min,
- 			dt->tm_hour, dt->tm_mday,
- 			dt->tm_mon, dt->tm_year, dt->tm_wday);
- 	} else {
--		dev_err(&client->adapter->dev, "ds1337[%d]: error reading "
--			"data! %d\n", data->id, result);
-+		dev_err(&client->dev, "error reading data! %d\n", result);
- 		result = -EIO;
- 	}
- 
-@@ -155,20 +150,17 @@ static int ds1337_get_datetime(struct i2
- 
- static int ds1337_set_datetime(struct i2c_client *client, struct rtc_time *dt)
- {
--	struct ds1337_data *data = i2c_get_clientdata(client);
- 	int result;
- 	u8 buf[8];
- 	u8 val;
- 	struct i2c_msg msg[1];
- 
- 	if (!dt) {
--		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
--			__FUNCTION__);
--
-+		dev_dbg(&client->dev, "%s: EINVAL: dt=NULL\n", __FUNCTION__);
- 		return -EINVAL;
- 	}
- 
--	dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, hours=%d, "
-+	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n", __FUNCTION__,
- 		dt->tm_sec, dt->tm_min, dt->tm_hour,
+@@ -174,19 +174,19 @@
  		dt->tm_mday, dt->tm_mon, dt->tm_year, dt->tm_wday);
-@@ -195,8 +187,7 @@ static int ds1337_set_datetime(struct i2
  
- 	result = i2c_transfer(client->adapter, msg, 1);
- 	if (result < 0) {
--		dev_err(&client->adapter->dev, "ds1337[%d]: error "
--			"writing data! %d\n", data->id, result);
-+		dev_err(&client->dev, "error writing data! %d\n", result);
- 		result = -EIO;
+ 	buf[0] = 0;		/* reg offset */
+-	buf[1] = BIN_TO_BCD(dt->tm_sec);
+-	buf[2] = BIN_TO_BCD(dt->tm_min);
+-	buf[3] = BIN_TO_BCD(dt->tm_hour) | (1 << 6);
+-	buf[4] = BIN_TO_BCD(dt->tm_wday) + 1;
+-	buf[5] = BIN_TO_BCD(dt->tm_mday);
+-	buf[6] = BIN_TO_BCD(dt->tm_mon);
++	buf[1] = BIN2BCD(dt->tm_sec);
++	buf[2] = BIN2BCD(dt->tm_min);
++	buf[3] = BIN2BCD(dt->tm_hour) | (1 << 6);
++	buf[4] = BIN2BCD(dt->tm_wday) + 1;
++	buf[5] = BIN2BCD(dt->tm_mday);
++	buf[6] = BIN2BCD(dt->tm_mon);
+ 	if (dt->tm_year >= 2000) {
+ 		val = dt->tm_year - 2000;
+ 		buf[6] |= (1 << 7);
  	} else {
- 		result = 0;
-@@ -208,7 +199,7 @@ static int ds1337_set_datetime(struct i2
- static int ds1337_command(struct i2c_client *client, unsigned int cmd,
- 			  void *arg)
- {
--	dev_dbg(&client->adapter->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
-+	dev_dbg(&client->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
+ 		val = dt->tm_year - 1900;
+ 	}
+-	buf[7] = BIN_TO_BCD(val);
++	buf[7] = BIN2BCD(val);
  
- 	switch (cmd) {
- 	case DS1337_GET_DATE:
+ 	msg[0].addr = client->addr;
+ 	msg[0].flags = 0;

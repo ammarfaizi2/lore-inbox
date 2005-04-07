@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbVDGMeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVDGMin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbVDGMeD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 08:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVDGMeD
+	id S262447AbVDGMin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 08:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVDGMim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 08:34:03 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:9709 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262446AbVDGMd1
+	Thu, 7 Apr 2005 08:38:42 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:58009 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262447AbVDGMil
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 08:33:27 -0400
-Date: Thu, 7 Apr 2005 14:34:07 +0200
-From: DervishD <lkml@dervishd.net>
-To: Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic links
-Message-ID: <20050407123407.GF12342@DervishD>
-Mail-Followup-To: Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <4255252D.4050708@ribosome.natur.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4255252D.4050708@ribosome.natur.cuni.cz>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 7 Apr 2005 08:38:41 -0400
+Message-ID: <42552A33.6070704@ext.bull.net>
+Date: Thu, 07 Apr 2005 14:40:19 +0200
+From: Patrice Martinez <patrice.martinez@ext.bull.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org,
+       "Philippe Garrigues (openX2)" <garrigue@openx2.frec.bull.fr>
+Subject: /dev/random problem on 2.6.12-rc1
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 07/04/2005 14:48:24,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 07/04/2005 14:48:26,
+	Serialize complete at 07/04/2005 14:48:26
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Martin :)
+When  using a machine with a  2612-rc 1kernel, I encounter problems 
+reading /dev/random:
+ it simply nevers returns anything, and the process is blocked in the 
+read...
+The easiest way to see it is to type:
+ od < /dev/random
 
- * Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz> dixit:
->  again I've hit some wird problem doing "make dep" for 2.4 kernel:
-
-    Not a kernel problem but a findutils problem. Fixed in 4.2.19,
-but 4.2.20 was released recently. Upgrade.
-
-    Raúl Núñez de Arenas Coronado
+Any idea?
 
 -- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+
+Best regards
+
+Patrice Martinez
+
+Linux Kernel Architect.
+
+OFFICE : B1-405
+PHONE  : +33 (0)4 76 29 74 69
+EMAIL  : Patrice.martinez@ext.bull.net
+ADDR   : BULL, 1 rue de Provence, BP 208, 38432 Echirolles Cedex, FRANCE
+

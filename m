@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVDGNJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVDGNLN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVDGNJM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 09:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVDGNJM
+	id S262458AbVDGNLN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 09:11:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVDGNLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 09:09:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:27112 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262453AbVDGNI7 (ORCPT
+	Thu, 7 Apr 2005 09:11:12 -0400
+Received: from ns1.iptel.by ([80.94.225.5]:959 "EHLO iptel.by")
+	by vger.kernel.org with ESMTP id S262455AbVDGNJf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 09:08:59 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mingming Cao <cmm@us.ibm.com>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050407081434.GA28008@elte.hu>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
+	Thu, 7 Apr 2005 09:09:35 -0400
+Subject: Re: /dev/random problem on 2.6.12-rc1
+From: Yura Pakhuchiy <pakhuchiy@iptel.by>
+To: Patrice Martinez <patrice.martinez@ext.bull.net>
+Cc: linux-kernel@vger.kernel.org,
+       "Philippe Garrigues (openX2)" <garrigue@openx2.frec.bull.fr>
+In-Reply-To: <42552A33.6070704@ext.bull.net>
+References: <42552A33.6070704@ext.bull.net>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+Date: Thu, 07 Apr 2005 16:08:44 +0300
+Message-Id: <1112879324.2035.8.camel@chaos.void>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Thu, 07 Apr 2005 14:08:24 +0100
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2005-04-07 at 14:40 +0200, Patrice Martinez wrote:
+> When  using a machine with a  2612-rc 1kernel, I encounter problems 
+> reading /dev/random:
+>  it simply nevers returns anything, and the process is blocked in the 
+> read...
+> The easiest way to see it is to type:
+>  od < /dev/random
+> 
+> Any idea?
 
-On Thu, 2005-04-07 at 09:14, Ingo Molnar wrote:
+Because, /dev/random use user input, mouse movements and other things to
+generate next random number. Use /dev/urandom if you want version that
+will never block your machine.
 
-> doesnt the first option also allow searches to be in parallel?
+Read "man 4 random" for details.
 
-In terms of CPU usage, yes.  But either we use large windows, in which
-case we *can't* search remotely near areas of the disk in parallel; or
-we use small windows, in which case failure to find a free bit becomes
-disproportionately expensive (we have to do an rbtree link and unlink
-for each window we search.)
-
->  This 
-> particular one took over 1 msec, so it seems there's a fair room for 
-> parallellizing multiple writers and thus improving scalability. (or is 
-> this codepath serialized globally anyway?)
-
-No, the rbtree ops are serialised per-sb, and allocations within any one
-inode are serialised, but the bitmap searches need not be serialised
-globally.  (They are in the case of new window searches right now, which
-is what we're trying to fix.)
-
---Stephen
+Best regards,
+	Yura
 

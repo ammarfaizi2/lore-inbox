@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVDGHVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVDGHZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVDGHVe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 03:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVDGHVe
+	id S261839AbVDGHZo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVDGHZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 03:21:34 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:36747 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261749AbVDGHVV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 03:21:21 -0400
-Date: Thu, 7 Apr 2005 09:15:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [patch 5/5] sched: consolidate sbe sbf
-Message-ID: <20050407071553.GB26607@elte.hu>
-References: <425322E0.9070307@yahoo.com.au> <42532317.5000901@yahoo.com.au> <42532346.5050308@yahoo.com.au> <425323A1.5030603@yahoo.com.au> <42532427.3030100@yahoo.com.au> <20050406062723.GC5973@elte.hu> <4253993C.4020505@yahoo.com.au>
-Mime-Version: 1.0
+	Thu, 7 Apr 2005 03:25:44 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:49132 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261839AbVDGHZZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 03:25:25 -0400
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Greg KH <greg@kroah.com>, Sven Luther <sven.luther@wanadoo.fr>,
+       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+References: <20050404100929.GA23921@pegasos>
+	<87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos>
+	<20050404175130.GA11257@kroah.com>
+	<20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 07 Apr 2005 03:25:22 -0400
+In-Reply-To: <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <yq08y3vxd3x.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4253993C.4020505@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Matthew" == Matthew Wilcox <matthew@wil.cx> writes:
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Matthew> On Mon, Apr 04, 2005 at 10:51:30AM -0700, Greg KH wrote:
+>> Then let's see some acts.  We (lkml) are not the ones with the
+>> percieved problem, or the ones discussing it.
 
-> We could just do a set_cpus_allowed, or take the lock, 
-> set_cpus_allowed, and take the new lock, but that's probably a bit 
-> heavy if we can avoid it. In the interests of speed in this fast path, 
-> do you think we can do this in sched_fork, before the task has even 
-> been put on the tasklist?
+Matthew> Actually, there are some legitimate problems with some of the
+Matthew> files in the Linux source base.  Last time this came up, the
+Matthew> Acenic firmware was mentioned:
 
-yeah, that shouldnt be a problem. Technically we set cpus_allowed up 
-under the tasklist lock just to be non-preemptible and to copy the 
-parent's _current_ affinity to the child. But sched_fork() is called 
-just before and if the parent got its affinity changed between the two 
-calls, so what? I'd move all of this code into sched_fork().
+Matthew> http://lists.debian.org/debian-legal/2004/12/msg00078.html
 
-> That would avoid all locking problems. Passing clone_flags into 
-> sched_fork would not be a problem if we want to distinguish fork() and 
-> clone(CLONE_VM).
+Matthew> Seems to me that situation is still not resolved.
 
-sure, that was the plan all along with sched_fork() anyway. (i think the 
-initial versions had the flag)
+Well whoever wrote that seems to have taken the stand that the
+openfirmware package was were the firmware came from. The person
+obviously made a lot of statements without bothering checking out the
+real source. Well it didn't come from there, I got it from Alteon
+under a written agreement stating I could distribute the image under
+the GPL. Since the firmware is simply data to Linux, hence keeping it
+under the GPL should be just fine.
 
-> Yes? I'll cut a new patch to do just that.
+If someone wishes to post a patch adding a GPL header to the
+acenic_firmware.h file, fine with me. But beyond that I consider the
+case closed.
 
-sure, fine by me.
-
-	Ingo
+Regards,
+Jes

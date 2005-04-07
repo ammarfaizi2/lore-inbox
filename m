@@ -1,40 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262609AbVDGVYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbVDGVYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbVDGVYM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 17:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262607AbVDGVXJ
+	id S262607AbVDGVYN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 17:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVDGVXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 17:23:09 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:24746 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262609AbVDGVWK (ORCPT
+	Thu, 7 Apr 2005 17:23:05 -0400
+Received: from waste.org ([216.27.176.166]:51623 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262607AbVDGVWC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 17:22:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=GnWhDUQlowJqxh5vaZ3EntcgZD5iLnxaZCNOLTb4SsreE8AGcePDPSrxnmWb/tBXL2kxPJO0M/qXwftik43ZarXujoUhO9piT7h7AxZOlvQG0rzZ1qiDDORNo21qxgWLjcIRAyTf8PoKuDPAN1hda6oNG8SE0u6mgU1YevBP4oA=
-Message-ID: <21d7e9970504071422349426eb@mail.gmail.com>
-Date: Fri, 8 Apr 2005 07:22:09 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Andreas Schwab <schwab@suse.de>
-Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL accesses
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <jehdii8hjk.fsf@sykes.suse.de>
+	Thu, 7 Apr 2005 17:22:02 -0400
+Date: Thu, 7 Apr 2005 14:20:59 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Subject: [PATCH] update maintainer for /dev/random
+Message-ID: <20050407212058.GU3174@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <1110519743.5810.13.camel@gaston> <1110672745.5787.60.camel@gaston>
-	 <je8y3wyk3g.fsf@sykes.suse.de> <1112743901.9568.67.camel@gaston>
-	 <jeoecr1qk8.fsf@sykes.suse.de> <1112827655.9518.194.camel@gaston>
-	 <jehdii8hjk.fsf@sykes.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There are 1694 calls to radeon_pll_errata_after_data during a switch from
-> X to the console and 393 calls the other way.
+Ted has agreed to let me take over as maintainer of /dev/random and friends.
+I've gone ahead and added a line to his entry in CREDITS.
 
-Wow... Ben that seems a bit extreme... there's not even close to 393 plls :-)
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Dave.
+Index: mm/drivers/char/random.c
+===================================================================
+--- mm.orig/drivers/char/random.c	2005-04-06 13:41:34.000000000 -0700
++++ mm/drivers/char/random.c	2005-04-07 14:13:23.000000000 -0700
+@@ -1,7 +1,7 @@
+ /*
+  * random.c -- A strong random number generator
+  *
+- * Version 1.89, last modified 19-Sep-99
++ * Copyright Matt Mackall <mpm@selenic.com>, 2003, 2004, 2005
+  *
+  * Copyright Theodore Ts'o, 1994, 1995, 1996, 1997, 1998, 1999.  All
+  * rights reserved.
+Index: mm/MAINTAINERS
+===================================================================
+--- mm.orig/MAINTAINERS	2005-04-06 13:42:21.000000000 -0700
++++ mm/MAINTAINERS	2005-04-07 14:13:23.000000000 -0700
+@@ -1914,6 +1914,11 @@ M:	corey@world.std.com
+ L:	linux-kernel@vger.kernel.org
+ S:	Maintained
+ 
++RANDOM NUMBER DRIVER
++P:	Matt Mackall
++M:	mpm@selenic.com
++S:	Maintained
++
+ REAL TIME CLOCK DRIVER
+ P:	Paul Gortmaker
+ M:	p_gortmaker@yahoo.com
+Index: mm/CREDITS
+===================================================================
+--- mm.orig/CREDITS	2005-04-06 13:42:09.000000000 -0700
++++ mm/CREDITS	2005-04-07 14:13:25.000000000 -0700
+@@ -3299,6 +3299,7 @@ D: Author of the new e2fsck
+ D: Author of job control and system call restart code
+ D: Author of ramdisk device driver
+ D: Author of loopback device driver
++D: Author of /dev/random driver
+ S: MIT Room E40-343
+ S: 1 Amherst Street
+ S: Cambridge, Massachusetts 02139
+
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVDGC5a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVDGDBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVDGC5a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 22:57:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVDGC5a
+	id S261199AbVDGDBE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 23:01:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVDGDBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 22:57:30 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:6036 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261179AbVDGC50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 22:57:26 -0400
-To: AsterixTheGaul <asterixthegaul@gmail.com>
-Cc: Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] disable built-in modules V2
-X-Message-Flag: Warning: May contain useful information
-References: <20050405225747.15125.8087.59570@clementine.local>
-	<54b5dbf505040618324186678a@mail.gmail.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 06 Apr 2005 19:23:30 -0700
-In-Reply-To: <54b5dbf505040618324186678a@mail.gmail.com> (asterixthegaul@gmail.com's
- message of "Thu, 7 Apr 2005 07:02:53 +0530")
-Message-ID: <528y3v72al.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 07 Apr 2005 02:23:30.0476 (UTC) FILETIME=[CA08DEC0:01C53B18]
+	Wed, 6 Apr 2005 23:01:04 -0400
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:62162 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S261199AbVDGDA6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 23:00:58 -0400
+Message-Id: <6.0.0.20.2.20050407113355.03cce2d0@mailsv2.y.ecl.ntt.co.jp>
+X-Mailer: QUALCOMM Windows Eudora Version 6J-Jr3
+Date: Thu, 07 Apr 2005 12:00:30 +0900
+To: "Stephen C. Tweedie" <sct@redhat.com>
+From: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
+Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please
+  check)
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
+       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1112797205.3377.16.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <20050326162801.GA20729@logos.cnet>
+ <20050328073405.GQ16169@viasys.com>
+ <20050328165501.GR16169@viasys.com>
+ <16968.40186.628410.152511@cse.unsw.edu.au>
+ <20050329215207.GE5018@logos.cnet>
+ <16970.9679.874919.876412@cse.unsw.edu.au>
+ <20050330115946.GA7331@logos.cnet>
+ <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
+ <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
+ <1112797205.3377.16.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > -#define module_init(x) __initcall(x);
- > > +#define module_init(x) __initcall(x); __module_init_disable(x);
- > 
- > It would be better if there is brackets around them... like
- >
- > #define module_init(x) { __initcall(x); __module_init_disable(x); }
- >
- > then we know it wont break some code like
- > 
- > if (..)
- >  module_init(x);
+Hi,
 
-This is all completely academic, since module_init() is a declaration
-that won't be inside any code, but in general it's better still to use
-the do { } while (0) idiom like
+At 23:20 05/04/06, Stephen C. Tweedie wrote:
+ >Yes.  But it is conventional to interpret a short write as being a
+ >failure.  Returning less bytes than were requested in the write
+ >indicates that the rest failed.  It just doesn't give the exact nature
+ >of the failure (EIO vs ENOSPC etc.)  For regular files, a short write is
+ >never permitted unless there are errors of some description.
 
-#define module_init(x) do { __initcall(x); __module_init_disable(x); } while (0)
+When commit_write() FULLY succeed (requested bytes == returned bytes) but
+generic_osync_inode() return error due to I/O failure, current 
+do_generic_file_write() cannot
+return error. I encountered above situation a lot under an I/O trouble 
+condition .
 
-so it won't break code like
+In ver 2.6.11, the return value of generic_osync_inode() is returned 
+directry to user
+when I/O failure occur.
 
-	if (..)
-		module_init(x);
-	else
-		something_else();
 
-(Yes, that code is nonsense but if you're going to nitpick, go all the way...)
+thanks.
 
- - R.
+   
+

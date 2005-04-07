@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbVDGLc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVDGLfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbVDGLc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 07:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVDGLc6
+	id S262441AbVDGLfB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 07:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVDGLdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 07:32:58 -0400
-Received: from smtp7.wanadoo.fr ([193.252.22.24]:22167 "EHLO smtp7.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262436AbVDGLbb (ORCPT
+	Thu, 7 Apr 2005 07:33:19 -0400
+Received: from smtp5.wanadoo.fr ([193.252.22.26]:2466 "EHLO smtp5.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262435AbVDGLbA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 07:31:31 -0400
-X-ME-UUID: 20050407113130355.56D671C00096@mwinf0706.wanadoo.fr
-Date: Thu, 7 Apr 2005 13:27:38 +0200
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Christoph Hellwig <hch@lst.de>,
-       Ian Campbell <ijc@hellion.org.uk>, Sven Luther <sven.luther@wanadoo.fr>,
-       "Theodore Ts'o" <tytso@mit.edu>, Greg KH <greg@kroah.com>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+	Thu, 7 Apr 2005 07:31:00 -0400
+X-ME-UUID: 20050407113052954.E911C1C00107@mwinf0503.wanadoo.fr
+Date: Thu, 7 Apr 2005 13:27:01 +0200
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Sven Luther <sven.luther@wanadoo.fr>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
 Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050407112738.GB8508@pegasos>
-References: <20050404191745.GB12141@kroah.com> <20050404192945.GB1829@pegasos> <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693287.6275.30.camel@laptopd505.fenrus.org> <m1wtrfk8w3.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <20050407112701.GA8508@pegasos>
+References: <20050404100929.GA23921@pegasos> <1112610065.6270.46.camel@laptopd505.fenrus.org> <20050404105937.GB24882@pegasos> <yq0d5t7xdgy.fsf@jaguar.mkp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <m1wtrfk8w3.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <yq0d5t7xdgy.fsf@jaguar.mkp.net>
 User-Agent: Mutt/1.5.6+20040907i
 From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 06, 2005 at 01:22:36PM -0600, Eric W. Biederman wrote:
-> Arjan van de Ven <arjan@infradead.org> writes:
-> 
-> > On Tue, 2005-04-05 at 11:11 +0200, Christoph Hellwig wrote:
-> > > On Tue, Apr 05, 2005 at 09:49:25AM +0100, Ian Campbell wrote:
-> > > > I don't think you did get a rejection, a few people said that _they_
-> > > > weren't going to do it, but if you want to then go ahead. I think people
-> > > > are just fed up of people bringing up the issue and then failing to do
-> > > > anything about it -- so prove them wrong ;-)
-> > > 
-> > > Actually patches to add firmware loader support to tg3 got rejected.
-> > 
-> > I think they will be accepted if they first introduce a transition
-> > period where tg3 will do request_firmware() and only use the built-in
-> > firmware if that fails. Second step is to make the built-in firmware a
-> > config option and then later on when the infrastructure matures for
-> > firmware loading/providing firmware it can be removed from the driver
-> > entirely.
-> 
-> For tg3 a transition period shouldn't be needed as firmware loading
-> is only needed on old/buggy hardware which is not the common case.
-> Or to support advanced features which can be disabled.
-> 
-> I am fairly certain in that case the firmware came from the bcm5701 
-> broadcom driver for the tg3 which I think is gpl'd.   So the firmware
-> may legitimately be under the GPL.
+Hi Jes, long time without hearing about you :)
 
-So, where is the source for it ? 
+On Thu, Apr 07, 2005 at 03:17:33AM -0400, Jes Sorensen wrote:
+> Sven> On Mon, Apr 04, 2005 at 12:21:05PM +0200, Arjan van de Ven
+> Sven> wrote:
+> 
+> Sven> Ok, can you please point to me where is the place it should be
+> Sven> taken off ? I suppose you mean LKML ?
+> 
+> Yes please!
+
+Why ? It does concern you all, doesn't it ? or we will be working to get the
+actual firmware problem solved, and then people will introduce new problematic
+firmware case.
+
+> If you want the firmware situation changed, I'd recommend spending
+> your time on improving the firmware loader interface instead.
+
+Which will not help without the copyright licencing issue being solved first
+though, as we do not have any right to distribute most of those firmwares.
+
+And no, we are not only bringing this issue and bothering everyone else, we
+are also doing the work needed to solve the issue with upstream, see : 
+
+  http://wiki.debian.net/?KernelFirmwareLicensing
 
 Friendly,
 

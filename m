@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVDGIqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVDGIud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbVDGIqg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 04:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVDGIqg
+	id S262289AbVDGIud (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 04:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVDGIud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 04:46:36 -0400
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:19053 "EHLO
-	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S262278AbVDGIqa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 04:46:30 -0400
-X-ME-UUID: 20050407084629686.A7AE32000343@mwinf1003.wanadoo.fr
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
-	copyright notice.
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Olivier Galibert <galibert@pobox.com>
-Cc: David Schmitt <david@black.co.at>, debian-kernel@lists.debian.org,
-       Jes Sorensen <jes@wildopensource.com>, Matthew Wilcox <matthew@wil.cx>,
-       Greg KH <greg@kroah.com>, Sven Luther <sven.luther@wanadoo.fr>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       linux-kernel@vger.kernel.org, linux-acenic@sunsite.dk
-In-Reply-To: <20050407083205.GA74679@dspnet.fr.eu.org>
-References: <20050404100929.GA23921@pegasos>
-	 <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk>
-	 <yq08y3vxd3x.fsf@jaguar.mkp.net> <200504071004.32692@zion.black.co.at>
-	 <1112861835.8281.204.camel@gonzales>
-	 <20050407083205.GA74679@dspnet.fr.eu.org>
-Content-Type: text/plain; charset=utf-8
-Date: Thu, 07 Apr 2005 10:46:11 +0200
-Message-Id: <1112863572.8281.209.camel@gonzales>
+	Thu, 7 Apr 2005 04:50:33 -0400
+Received: from fire.osdl.org ([65.172.181.4]:404 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262289AbVDGIu3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 04:50:29 -0400
+Date: Thu, 7 Apr 2005 01:50:19 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+Message-Id: <20050407015019.4563afe0.akpm@osdl.org>
+In-Reply-To: <1112858331.6924.17.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	<1112858331.6924.17.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeudi 07 avril 2005 à 10:32 +0200, Olivier Galibert a écrit :
-> On Thu, Apr 07, 2005 at 10:17:15AM +0200, Xavier Bestel wrote:
-> > Le jeudi 07 avril 2005 à 10:04 +0200, David Schmitt a écrit :
-> > 
-> > > Then I would like to exercise my right under the GPL to aquire the source code 
-> > > for the firmware (and the required compilers, starting with genfw.c which is 
-> > > mentioned in acenic_firmware.h) since - as far as I know - firmware is coded 
-> > > today in VHDL, C or some assembler and the days of hexcoding are long gone.
-> > 
-> > VHDL is a hardware description language. You don't code firmware in
-> > VHDL.
-> 
-> If the firmware, or part of it, is uploaded to a fpga you do (or
-> Verilog instead of VHDL, same difference).
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> One feature I'd want to see in a replacement version control system is
+>  the ability to _re-order_ patches, and to cherry-pick patches from my
+>  tree to be sent onwards.
 
-Oh yes, I was dense. 
+You just described quilt & patch-scripts.
 
-	Xav
+The problem with those is letting other people get access to it.  I guess
+that could be fixed with a bit of scripting and rsyncing.
 
+(I don't do that for -mm because -mm basically doesn't work for 99% of the
+time.  Takes 4-5 hours to out a release out assuming that nothing's busted,
+and usually something is).
 

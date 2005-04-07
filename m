@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVDGLqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVDGLtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbVDGLqz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 07:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVDGLqz
+	id S261328AbVDGLtl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 07:49:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVDGLtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 07:46:55 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:49304 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S262432AbVDGLqv (ORCPT
+	Thu, 7 Apr 2005 07:49:41 -0400
+Received: from mail.zmailer.org ([62.78.96.67]:944 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id S261328AbVDGLte (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 07:46:51 -0400
-Date: Thu, 7 Apr 2005 13:46:16 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: rjy <rjy@angelltech.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: init process freezed after run_init_process
-In-Reply-To: <4254AB72.8070704@angelltech.com>
-Message-ID: <Pine.LNX.4.61.0504071341500.27692@yvahk01.tjqt.qr>
-References: <424B7A87.2070100@angelltech.com> <Pine.LNX.4.61.0503311113550.17113@yvahk01.tjqt.qr>
- <4254AB72.8070704@angelltech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 7 Apr 2005 07:49:34 -0400
+Date: Thu, 7 Apr 2005 14:49:33 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [bk tree] DRM add a version check.. for 2.6.12 (distro kernel maintainers + drm users plz read also...)
+Message-ID: <20050407114933.GH3858@mea-ext.zmailer.org>
+References: <Pine.LNX.4.58.0503281236330.27073@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0503281236330.27073@skynet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks for kindly reply, :)
->
-> No. I got the same problem without linuxrc.
-> As I mount ram0 as root, linuxrc is not necessary. Right?
+Dropping Linus off this list...
 
-Apply these rules:
-1.) If you do provide an initrd= thing, the initrd is being looked for 
-/linuxrc.
-2.) If the root is the same as the ramdisk, then the initrd is _not_ run 
-_implicitly_, and thus /sbin/init is executed, _instead of_ /linuxrc.
+On Mon, Mar 28, 2005 at 12:40:16PM +0100, Dave Airlie wrote:
+> Hi Linus,
+> 
+> In order to stop someone loading a drm driver on a wrong core this patch
+> makes the driver pass in the version is was built against, this mainly
+> useful for people using the DRI snapshots for cards that aren't their
+> normal cards...
+> 
+> Also for anyone who maintains a kernel for distros or builds their own
+> please build your kernels with CONFIG_DRM=m not =y, from 2.6.11 onwards..
+> as if you build with =y then DRI snapshots will no longer work..
 
-> I missed some driver for VIA platform?  Why it can work without initrd?
+I tried 2.6.12-rc2 which includes this patch, and I get DRM failures
+here, which causes application and X to hang.  (I got failures with 2.6.11
+also.) 
 
-Only VIA IDE chipset maybe, but you don't usually need that for just-initrd.
-You'd need that for the harddisks...
+When accessing the machine from network, I can see that either application,
+or X itself is running as close as possible to 100% CPU utilization.
 
-> After the starting process, the /sbin/init is loaded: I found that in
-> a breakpoint of do_schedule. It keeps scheduling init and pdflush.
-> I am still finding the way to debug the init process...
+Symptom is such that the application, or X-server, is executing an ioctl()
+on a file-handle that has node:   /dev/drm/card0    open in r/w mode.
 
-Make your own initrd and put a bash into it. Then start that, e.g. (for our 
-linux live cd), initrd=initrd.sqfs root=/dev/ram0 init=/bin/bash
+Following is from memory:
+
+    ioctl(5, something, something)
+    -- Received ALARM(0) --
+    ioctl(5, something, something)
+    -- Received ALARM(0) --
+
+that repeats as fast as possible.
+
+I have now  Radeon 9200SE card with 128 MB memory (I used to have Matrox
+MGA G400 AGP with 8 MB memory - no room for anything but pixel maps), but
+then I absolutely needed accelerated 3D, and had to go and get a "modern"
+card.
+
+System is running  Fedora Core 4 Test-1  application space codes along
+with fresh baseline 2.6.11 + 2.6.12-rc2 patchset ( = "2.6.12-rc2" ).
 
 
-Jan Engelhardt
--- 
-No TOFU for me, please.
+I observed that xscreensaver-demo running "GLForestFire" is reliably
+able to hangup the desktop within minutes, IF media-automounter is
+snooping around in /dev/cdrom and there is some disk.  (I had FC4test1
+rescue disk in there. )
+
+With disk taken out, the system ran some 8 hours without a glitch.
+
+Nevertheless, I then tried some fun with TuxRacer, and was able to
+get the same drm hangup after an hour or so.
+
+
+ANY ideas ?
+
+/Matti Aarnio

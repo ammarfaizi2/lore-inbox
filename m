@@ -1,75 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVDGMTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVDGMUs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbVDGMTK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 08:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVDGMTJ
+	id S262437AbVDGMUs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 08:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVDGMUr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 08:19:09 -0400
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:36490 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S262437AbVDGMS4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 08:18:56 -0400
-Message-ID: <4255252D.4050708@ribosome.natur.cuni.cz>
-Date: Thu, 07 Apr 2005 14:18:53 +0200
-From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b2) Gecko/20050407
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic
- links
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Apr 2005 08:20:47 -0400
+Received: from ns.schottelius.org ([213.146.113.242]:27657 "HELO
+	scice.schottelius.org") by vger.kernel.org with SMTP
+	id S262437AbVDGMUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 08:20:10 -0400
+Date: Thu, 7 Apr 2005 14:22:17 +0200
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: linux-kernel@vger.kernel.org
+Subject: PMTU, MSS and "fragmentation needed" problem with linux?
+Message-ID: <20050407122217.GE5211@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xo44VMWPx7vlQ2+2"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.11.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  again I've hit some wird problem doing "make dep" for 2.4 kernel:
 
-I've extracted the linxu-2.4.30.tar.gz file, copied .config from
-previous src-tree, ran `make oldconfig', did `make menuconfig',
-and finally `make dep':
+--xo44VMWPx7vlQ2+2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[cut]
-make[2]: Leaving directory `/usr/src/linux-2.4.30/arch/i386/lib'
-make[1]: Leaving directory `/usr/src/linux-2.4.30'
-make update-modverfile
-make[1]: Entering directory `/usr/src/linux-2.4.30'
-/usr/src/linux-2.4.30/include/linux/modversions.h was not updated
-make[1]: Leaving directory `/usr/src/linux-2.4.30'
-scripts/mkdep -- `find /usr/src/linux-2.4.30/include/asm /usr/src/linux-2.4.30/include/linux /usr/src/linux-2.4.30/include/scsi /usr/src/linux-2.4.30/include/net /usr/src/linux-2.4.30/include/math-emu \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print` > .hdepend
-find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic links
-scripts/mkdep -- init/*.c > .depend
-# 
+Hello!
 
+[I hope this is the correct list, if not, please tell me where to ask]
 
-Executing `find /usr/src/linux-2.4.30/include/asm /usr/src/linux-2.4.30/include/linux /usr/src/linux-2.4.30/include/scsi /usr/src/linux-2.4.30/include/net /usr/src/linux-2.4.30/include/math-emu \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print` works just fine.
+The following scenario:
 
+Linux-client <-- Ethernet --> Linux-router <-- PPPoE --> Internet.
+Linux-client has MTU=3D=3D1500, so the MSS is 1460.
+Linux-router has MTU=3D=3D1500 on eth0 and MTU=3D1492 on ppp0.
+The MSS is set to 1452 via pppoe command line.
 
-aquarius linux-2.4.30 # scripts/mkdep -- `find /usr/src/linux-2.4.30/include/asm /usr/src/linux-2.4.30/include/linux /usr/src/linux-2.4.30/include/scsi /usr/src/linux-2.4.30/include/net /usr/src/linux-2.4.30/include/math-emu \( -name SCCS -o -name .svn \) -prune -o -follow -name \*.h ! -name modversions.h -print`
-find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic links
-mkdep: HPATH not set in environment.  Don't bypass the top level Makefile.
-aquarius linux-2.4.30 # 
+My question: May the MSS on ppp0 be 1460? Imho not, as
 
-aquarius linux-2.4.30 # ls -la /usr/src/linux-2.4.30/include/asm
-lrwxrwxrwx  1 root root 8 Apr  7 14:07 /usr/src/linux-2.4.30/include/asm -> asm-i386
-aquarius linux-2.4.30 # ls -la /usr/src/linux-2.4.30/include/asm-i
-asm-i386/ asm-ia64/ 
-aquarius linux-2.4.30 # ls -la /usr/src/linux-2.4.30/include/asm-i386/
-total 692
-drwxr-xr-x   2 573 573  1741 Apr  4 03:42 .
-drwxr-xr-x  28 573 573   397 Apr  7 14:07 ..
--rw-r--r--   1 573 573   764 Jun 16  1995 a.out.h
--rw-rw-r--   1 573 573  4974 Apr  4 03:42 acpi.h
--rw-r--r--   1 573 573  2528 Nov 17 12:54 apic.h
--rw-r--r--   1 573 573  9610 Aug 25  2003 apicdef.h
--rw-r--r--   1 573 573  5066 Nov 22  2001 atomic.h
--rw-r--r--   1 573 573  9568 Aug  8  2004 bitops.h
--rw-r--r--   1 573 573   409 Apr 16  1997 boot.h
-[cut]
-There are no symlinks under /usr/src/linux-2.4.30/include/asm-i386/
+RFC 879 defines the MSS as MTU-40, which would be 1452.
+But tcpdump says 1460 on ppp0.
+On another box the MTU is set to 1460 and I still see packets
+with MSS 1460. Is this correct?
+Should not the Linux-router send the client a packet ICMP type 3,
+subtype 4, Frag needed, but DF-Bit set?
 
-Any clues? :( Please Cc: me in replies.
--- 
-Martin Mokrejs
-Email: 'bW9rcmVqc21Acmlib3NvbWUubmF0dXIuY3VuaS5jeg==\n'.decode('base64')
-GPG key is at http://www.natur.cuni.cz/~mmokrejs
+I ask htis, because of a problem I  have on the first box:
+If the clients have a mtu of 1500, theycannot connect
+to some servers and get timeouts.
+
+The firewall was tested with iptables of (only MASQUERADE on), so that
+all icmp packets are allowed.
+
+Thank you for any hint!
+
+Nico
+
+--=20
+Keep it simple & stupid, use what's available.
+Please use pgp encryption: 8D0E 27A4 is my id.
+http://nico.schotteli.us | http://linux.schottelius.org
+
+--xo44VMWPx7vlQ2+2
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iQIVAwUBQlUl97OTBMvCUbrlAQKn5g/+IH3W32vJfIaZW4T59XXCw2l2gsO+Pndj
+UsqzRLInRLnwDQbQFBM5bHoEzNLHUsuxE2QPu9G2Ww+XpJVjQVBI/+EnjDi9HYly
+jTSplI/YbbyedlW9K8E1n29MMVkew9ylIBKcQ+QNQaBeixVLOz6JaU3URScwV++W
+qbsYsoEEqQ3p5+c4aosXZvig7G2jpOgi4/L6rOBW8FcGsp5uXIjGTaG7XFS1DCrN
+sm4+kwP8dWItCd8Q0CHxA2l5Ahr8Kz9PrVYW+piiWWyUZ+N3SWxMeivTWZe0IIY+
+tobLoufYjb+4PgHPo2vOyKpJBPR+DaZ3rLIlfvuVioQ7Tx6ZY+CRkHDEaQsWa3tU
+u4b+Z1bETOBG3/fB4If37NFq8QR4ZGdYLp3gpprvBI+nhiFh7xqk/JpaY2fXf4RI
+lIYVTs46EWnaJkVVmQHiP6KVq71PRU79/Lm2jHJIyEah320vVWzitNennoIWDJ/Z
+yzSFpA6FRADsLSwY4wqYnD1THvDKhCDR0jBBjE9V71Z5BDtWb/3A3W3fHcN04WMW
+OKH9MoKq47iI2UEmBYJpC7S6zMFinNulNKaAI+1QNq+K9fb6VjAAV7n/ezm2Py88
+Gei+Zg++reiePDsDgAJH3J1PF9YD0i9hlvisFgO8ZzdYH15SdSH7cv3S6I+PbYMe
+5BnrwaTaxQE=
+=6TeK
+-----END PGP SIGNATURE-----
+
+--xo44VMWPx7vlQ2+2--

@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262548AbVDGSqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVDGSqq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262548AbVDGSqV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 14:46:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbVDGSqV
+	id S262547AbVDGSqq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 14:46:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVDGSqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 14:46:21 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:32579 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S262548AbVDGSqM (ORCPT
+	Thu, 7 Apr 2005 14:46:46 -0400
+Received: from smtp7.wanadoo.fr ([193.252.22.24]:43907 "EHLO smtp7.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262547AbVDGSqj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 14:46:12 -0400
-To: Christoph Hellwig <hch@infradead.org>
-CC: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11] aoe [7/12]: support configuration of
- AOE_PARTITIONS from Kconfig
-References: <87mztbi79d.fsf@coraid.com> <20050317234641.GA7091@kroah.com>
-	<1111677688.29912@geode.he.net> <20050328170735.GA9567@infradead.org>
-	<87hdiuv3lz.fsf@coraid.com> <20050329162506.GA30401@infradead.org>
-	<87wtrqtn2n.fsf@coraid.com> <20050329165705.GA31013@infradead.org>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Thu, 07 Apr 2005 14:28:59 -0400
-In-Reply-To: <20050329165705.GA31013@infradead.org> (Christoph Hellwig's
- message of "Tue, 29 Mar 2005 17:57:05 +0100")
-Message-ID: <8764yywidw.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 7 Apr 2005 14:46:39 -0400
+X-ME-UUID: 20050407184638574.8C2901000094@mwinf0703.wanadoo.fr
+Date: Thu, 7 Apr 2005 20:42:41 +0200
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Sven Luther <sven.luther@wanadoo.fr>,
+       Arjan van de Ven <arjan@infradead.org>, Christoph Hellwig <hch@lst.de>,
+       Ian Campbell <ijc@hellion.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
+       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050407184241.GA13620@pegasos>
+References: <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos> <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693287.6275.30.camel@laptopd505.fenrus.org> <m1wtrfk8w3.fsf@ebiederm.dsl.xmission.com> <20050407112738.GB8508@pegasos> <m1mzsakdws.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <m1mzsakdws.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+On Thu, Apr 07, 2005 at 05:46:27AM -0600, Eric W. Biederman wrote:
+> Sven Luther <sven.luther@wanadoo.fr> writes:
+> 
+> > On Wed, Apr 06, 2005 at 01:22:36PM -0600, Eric W. Biederman wrote:
+> > > For tg3 a transition period shouldn't be needed as firmware loading
+> > > is only needed on old/buggy hardware which is not the common case.
+> > > Or to support advanced features which can be disabled.
+> > > 
+> > > I am fairly certain in that case the firmware came from the bcm5701 
+> > > broadcom driver for the tg3 which I think is gpl'd.   So the firmware
+> > > may legitimately be under the GPL.
+> > 
+> > So, where is the source for it ? 
+> 
+> The GPL'd driver that broadcom distributes.  The history of tg3.c
+> is that broadcom's bcm57xx driver drove the hardware correctly but
+> not linux so it was rewritten from scratch. 
 
-> On Tue, Mar 29, 2005 at 11:48:48AM -0500, Ed L Cashin wrote:
->> I don't know if it matters now that we have udev.  When udev manages
->> the device nodes it all just works,
->
-> But most peopel still don't use udev.
->
->> If you're saying that it's bad in principal, then that's another
->> story.  If that's what you mean, then it's a Linux policy issue, and
->> to follow convention I'd think that we'd need another major number.
->> That would be like the partitionable md devices, etc.
->
-> Yes, it's a policy issue.  We don't do this weird config option anywhere
-> else.
+Ok, thanks for that clarification.
 
-A couple support calls later, I think I've come around to your point
-of view.  This patch isn't needed and may cause confusion.
+> Beyond that you need to talk to Broadcom.  But if the originator
+> of the bits  distributes them gpl from a redistribution point the
+> kernel is fine.  
 
-Few aoe users really use partitions on their aoe disks, so I can make
-the aoe driver have one minor number per disk as the default to avoid
-the most common problems people encounter.
+As you may know, i have contacted Broadcom about this issue, the information
+passed from the driver support contact to their linux developers, but i have
+not heard from them yet.
 
-Then, aoe users who really need to partition their network disks can
-use the partitionable md driver to "wrap" the aoe disk, like this:
+> It sounds like you are now looking at the question of are the
+> huge string of hex characters the preferred form for making
+> modifications to firmware.  Personally I would be surprised
+> but those hunks are small enough it could have been written
+> in machine code.
 
-  mdadm -B -l linear --force -n 1 --auto=mdp /dev/md_p0 /dev/etherd/e7.0
-  fdisk /dev/md_p0
+Yep, i also think it is in broadcom's best interest to modify the licencing
+text accordyingly, since i suppose someone could technicaly come after them
+legally to obtain said source code to this firmware. Unprobable though.
 
+> So I currently have no reason to believe that anything has been
+> done improperly with that code.
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+Well, it all depends if you consider this firmware blob as software, which i
+feel it is without doubt, or we have not the same definition of software,
+i.e., the program which runs on the hardware, or not. We cannot claim this is data,
+since there should be at least some kind of executable code in it,
+independenlty of the fact that we claim that data is also software.
+
+Thanks for the info, i will add it to the Wiki.
+
+Friendly,
+
+Sven Luther
 

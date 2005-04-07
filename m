@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262580AbVDGXym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVDGX6L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262580AbVDGXym (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 19:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVDGXym
+	id S262612AbVDGX6L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 19:58:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVDGX6L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 19:54:42 -0400
-Received: from smtpout.mac.com ([17.250.248.44]:35027 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262580AbVDGXyj (ORCPT
+	Thu, 7 Apr 2005 19:58:11 -0400
+Received: from ns1.suse.de ([195.135.220.2]:14739 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S262612AbVDGX6F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 19:54:39 -0400
-In-Reply-To: <42540560.2000205@grupopie.com>
-References: <4252BC37.8030306@grupopie.com> <Pine.LNX.4.62.0504052052230.2444@dragon.hyggekrogen.localhost> <521x9pc9o6.fsf@topspin.com> <Pine.LNX.4.62.0504052148480.2444@dragon.hyggekrogen.localhost> <20050406112837.GC7031@wohnheim.fh-wedel.de> <4253D2CD.2040600@grupopie.com> <84144f02050406061077de4c2e@mail.gmail.com> <42540560.2000205@grupopie.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <360495f04d557922068b477d7e149778@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Pekka Enberg <penberg@gmail.com>, Roland Dreier <roland@topspin.com>,
-       =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       LKML <linux-kernel@vger.kernel.org>, penberg@cs.helsinki.fi,
-       Jesper Juhl <juhl-lkml@dif.dk>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
-Date: Thu, 7 Apr 2005 19:54:17 -0400
-To: Paulo Marques <pmarques@grupopie.com>
-X-Mailer: Apple Mail (2.619.2)
+	Thu, 7 Apr 2005 19:58:05 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Dave Airlie <airlied@gmail.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
+ accesses
+References: <1110519743.5810.13.camel@gaston>
+	<1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	<1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
+	<1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
+	<21d7e9970504071422349426eb@mail.gmail.com>
+	<1112914795.9568.320.camel@gaston>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Are you still SEXUALLY ACTIVE?  Did you BRING th' REINFORCEMENTS?
+Date: Fri, 08 Apr 2005 01:58:03 +0200
+In-Reply-To: <1112914795.9568.320.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Fri, 08 Apr 2005 08:59:55 +1000")
+Message-ID: <jemzsa6sxg.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 06, 2005, at 11:50, Paulo Marques wrote:
-> kzalloc it is, then.
->
-> [...]
->
-> So we gain 8kB on the uncompressed image and 1347 bytes on the 
-> compressed one. This was just a dumb test and actual results might be 
-> better due to smarter human cleanups.
->
-> Not a spectacular gain per se, but the increase in code readability is 
-> still worth it, IMHO.
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Perhaps this could eventually be modified to draw from a prezeroed 
-block of
-memory, similar to the current code for doing the same thing for 
-userspace.
-It probably wouldn't give much performance gain, especially since it's 
-not
-used for large blocks or large numbers of small objects (As you would 
-use a
-slabcache for those), but it might help a bit.  Of course, the code 
-would
-need to fall back quickly if such an allocation would be messy or 
-expensive
-for any reason.
+> Yes, that's very extreme, I suspect somebody is banging on set_par or
+> something like that.
 
-Cheers,
-Kyle Moffett
+fb_setcolreg is it.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+kernel: radeonfb_set_par
+kernel: radeon_write_pll_regs: radeon_pll_errata_after_data
+kernel: radeon_write_pll_regs: radeon_pll_errata_after_data
+kernel: radeon_write_mode: radeon_pll_errata_after_data
+kernel: radeonfb_engine_reset: radeon_pll_errata_after_data
+last message repeated 2 times
+kernel: radeonfb_setcolreg: radeon_pll_errata_after_data
+last message repeated 767 times
+kernel: radeonfb_set_par
+kernel: radeon_write_pll_regs: radeon_pll_errata_after_data
+kernel: radeon_write_pll_regs: radeon_pll_errata_after_data
+kernel: radeon_write_mode: radeon_pll_errata_after_data
+kernel: radeonfb_engine_reset: radeon_pll_errata_after_data
+last message repeated 2 times
+kernel: radeonfb_setcolreg: radeon_pll_errata_after_data
+last message repeated 911 times
 
+kernel: radeonfb_set_par
+kernel: radeon_write_pll_regs: radeon_pll_errata_after_data
+kernel: radeon_write_pll_regs: radeon_pll_errata_after_data
+kernel: radeon_write_mode: radeon_pll_errata_after_data
+kernel: radeonfb_engine_reset: radeon_pll_errata_after_data
+last message repeated 2 times
+kernel: radeonfb_setcolreg: radeon_pll_errata_after_data
+last message repeated 193 times
+kernel: agpgart: Putting AGP V2 device at 0000:00:0b.0 into 1x mode
+kernel: agpgart: Putting AGP V2 device at 0000:00:10.0 into 1x mode
+kernel: radeonfb_setcolreg: radeon_pll_errata_after_data
+last message repeated 191 times
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

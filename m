@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVDGCtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVDGC5a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVDGCtM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 22:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVDGCtM
+	id S261179AbVDGC5a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 22:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVDGC5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 22:49:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19155 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261155AbVDGCtH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 22:49:07 -0400
-Date: Wed, 6 Apr 2005 22:49:03 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86-64 bad pmds in 2.6.11.6
-Message-ID: <20050407024902.GA9017@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20050330214455.GF10159@redhat.com> <20050331104117.GD1623@wotan.suse.de>
-Mime-Version: 1.0
+	Wed, 6 Apr 2005 22:57:30 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:6036 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S261179AbVDGC50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 22:57:26 -0400
+To: AsterixTheGaul <asterixthegaul@gmail.com>
+Cc: Magnus Damm <damm@opensource.se>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] disable built-in modules V2
+X-Message-Flag: Warning: May contain useful information
+References: <20050405225747.15125.8087.59570@clementine.local>
+	<54b5dbf505040618324186678a@mail.gmail.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 06 Apr 2005 19:23:30 -0700
+In-Reply-To: <54b5dbf505040618324186678a@mail.gmail.com> (asterixthegaul@gmail.com's
+ message of "Thu, 7 Apr 2005 07:02:53 +0530")
+Message-ID: <528y3v72al.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050331104117.GD1623@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 07 Apr 2005 02:23:30.0476 (UTC) FILETIME=[CA08DEC0:01C53B18]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 12:41:17PM +0200, Andi Kleen wrote:
- > On Wed, Mar 30, 2005 at 04:44:55PM -0500, Dave Jones wrote:
- > > [apologies to Andi for getting this twice, I goofed the l-k address
- > >  the first time]
- > > 
- > >  
- > >  I arrived at the office today to find my workstation had this spew
- > >  in its dmesg buffer..
+ > > -#define module_init(x) __initcall(x);
+ > > +#define module_init(x) __initcall(x); __module_init_disable(x);
  > 
- > Looks like random memory corruption to me.
+ > It would be better if there is brackets around them... like
+ >
+ > #define module_init(x) { __initcall(x); __module_init_disable(x); }
+ >
+ > then we know it wont break some code like
  > 
- > Can you enable slab debugging etc.?
- > 
- > >  mm/memory.c:97: bad pmd ffff81004b017438(00000038a5500a88).
- > >  mm/memory.c:97: bad pmd ffff81004b017440(0000000000000003).
- > >  mm/memory.c:97: bad pmd ffff81004b017448(00007ffffffff73b).
- > >  mm/memory.c:97: bad pmd ffff81004b017450(00007ffffffff73c).
- > > etc..
+ > if (..)
+ >  module_init(x);
 
-I realised today that this happens every time X starts up for
-the first time.   I did some experiments, and found that with 2.6.12rc1
-it's gone. Either it got fixed accidentally, or its hidden now
-by one of the many changes in 4-level patches.
+This is all completely academic, since module_init() is a declaration
+that won't be inside any code, but in general it's better still to use
+the do { } while (0) idiom like
 
-I'll try and narrow this down a little more tomorrow, to see if I
-can pinpoint the exact -bk snapshot (may be tricky given they were
-broken for a while), as it'd be good to get this fixed in 2.6.11.x
-if .12 isn't going to show up any time soon.
+#define module_init(x) do { __initcall(x); __module_init_disable(x); } while (0)
 
-		Dave
+so it won't break code like
 
+	if (..)
+		module_init(x);
+	else
+		something_else();
+
+(Yes, that code is nonsense but if you're going to nitpick, go all the way...)
+
+ - R.

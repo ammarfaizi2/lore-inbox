@@ -1,38 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVDGQLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVDGQSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbVDGQLx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 12:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVDGQLx
+	id S262506AbVDGQSH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 12:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVDGQSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 12:11:53 -0400
-Received: from r3az252.chello.upc.cz ([213.220.243.252]:11169 "EHLO
-	aquarius.doma") by vger.kernel.org with ESMTP id S262505AbVDGQLv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 12:11:51 -0400
-Message-ID: <42555BC5.8050307@ribosome.natur.cuni.cz>
-Date: Thu, 07 Apr 2005 18:11:49 +0200
-From: =?ISO-8859-1?Q?Martin_MOKREJS=28?= 
-	<mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8b2) Gecko/20050407
-MIME-Version: 1.0
-To: Martin MOKREJ? <mmokrejs@ribosome.natur.cuni.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: find: /usr/src/linux-2.4.30/include/asm: Too many levels of symbolic
- links
-References: <4255252D.4050708@ribosome.natur.cuni.cz> <20050407123407.GF12342@DervishD>
-In-Reply-To: <20050407123407.GF12342@DervishD>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+	Thu, 7 Apr 2005 12:18:06 -0400
+Received: from pat.uio.no ([129.240.130.16]:52456 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262506AbVDGQSB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 12:18:01 -0400
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make
+	sense
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: Greg Banks <gnb@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050407153848.GN347@unthought.net>
+References: <20050406160123.GH347@unthought.net>
+	 <20050406231906.GA4473@sgi.com>  <20050407153848.GN347@unthought.net>
+Content-Type: text/plain
+Date: Thu, 07 Apr 2005 12:17:51 -0400
+Message-Id: <1112890671.10366.44.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.842, required 12,
+	autolearn=disabled, AWL 1.16, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DervishD wrote:
+to den 07.04.2005 Klokka 17:38 (+0200) skreiv Jakob Oestergaard:
 
->> again I've hit some wird problem doing "make dep" for 2.4 kernel:
+> I tweaked the VM a bit, put the following in /etc/sysctl.conf:
+>  vm.dirty_writeback_centisecs=100
+>  vm.dirty_expire_centisecs=200
 > 
+> The defaults are 500 and 3000 respectively...
 > 
->     Not a kernel problem but a findutils problem. Fixed in 4.2.19,
-> but 4.2.20 was released recently. Upgrade.
+> This improved things a lot; the client is now "almost not very laggy",
+> and load stays in the saner 1-2 range.
 
-You were right. Thanks!
-M.
+OK. That hints at what is causing the latencies on the server: I'll bet
+it is the fact that the page reclaim code tries to be clever, and uses
+NFSv3 STABLE writes in order to be able to free up the dirty pages
+immediately. Could you try the following patch, and see if that makes a
+difference too?
+
+Cheers,
+  Trond
+----
+ fs/nfs/write.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+Index: linux-2.6.12-rc2/fs/nfs/write.c
+===================================================================
+--- linux-2.6.12-rc2.orig/fs/nfs/write.c
++++ linux-2.6.12-rc2/fs/nfs/write.c
+@@ -305,7 +305,7 @@ do_it:
+ 		if (err >= 0) {
+ 			err = 0;
+ 			if (wbc->for_reclaim)
+-				nfs_flush_inode(inode, 0, 0, FLUSH_STABLE);
++				nfs_flush_inode(inode, 0, 0, 0);
+ 		}
+ 	} else {
+ 		err = nfs_writepage_sync(ctx, inode, page, 0,
+
+
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
+

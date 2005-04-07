@@ -1,62 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVDGWpQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVDGWpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVDGWpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 18:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVDGWpP
+	id S262619AbVDGWpA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 18:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbVDGWoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 18:45:15 -0400
-Received: from gate.crashing.org ([63.228.1.57]:45534 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262276AbVDGWoR (ORCPT
+	Thu, 7 Apr 2005 18:44:37 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:12270 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262440AbVDGWoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 18:44:17 -0400
-Subject: Re: Linux 2.6.12-rc2
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Moritz Muehlenhoff <jmm@inutil.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050407175026.GA5872@informatik.uni-bremen.de>
-References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
-	 <E1DJE6t-0001T5-UD@localhost.localdomain>
-	 <1112827342.9567.189.camel@gaston>
-	 <20050407175026.GA5872@informatik.uni-bremen.de>
-Content-Type: text/plain
-Date: Fri, 08 Apr 2005 08:43:10 +1000
-Message-Id: <1112913790.9567.302.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Thu, 7 Apr 2005 18:44:16 -0400
+Message-ID: <4255B6D2.7050102@engr.sgi.com>
+Date: Thu, 07 Apr 2005 15:40:18 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: johnpol@2ka.mipt.ru
+Cc: Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, efocht@hpce.nec.com, linuxram@us.ibm.com,
+       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, aquynh@gmail.com,
+       dean-list-linux-kernel@arctic.org, pj@sgi.com
+Subject: Re: [patch 2.6.12-rc1-mm4] fork_connector: add a fork connector
+References: <1112277542.20919.215.camel@frecb000711.frec.bull.fr>	 <20050331144428.7bbb4b32.akpm@osdl.org>  <424C9177.1070404@engr.sgi.com> <1112341968.9334.109.camel@uganda>
+In-Reply-To: <1112341968.9334.109.camel@uganda>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 19:50 +0200, Moritz Muehlenhoff wrote:
-> Benjamin Herrenschmidt wrote:
-> > > 1. When resuming from S3 suspend and having switched off the backlight
-> > > with radeontool the backlight isn't switched back on any more.
-> > 
-> > I'm not sure what's up here, it's a nasty issue with backlight. Can
-> > radeontool bring it back ?
-> 
-> Before suspending I power down the backlight with "radeontool light off"
-> and with 2.6.11 the display is properly restored. With 2.6.12rc2 the
-> backlight remains switched off and if I switch it on with radeontool it
-> becomes lighter, but there's still no text from the fbcon, just the blank
-> screen.
-> 
-> > > 2. I'm using fbcon as my primary work environment, but tty switching has
-> > > become _very_ sloppy, it's at least a second now, while with 2.6.11 it
-> > > was as fast as a few ms. Is this caused by the "proper PLL accesses"?
-> > 
-> > Yes. Unfortunately. It's surprised it is that slow though, there
-> > shouldn't be more than 5 or 6 PLL accesses on a normal mode switch, with
-> > 5ms pause for each, that should still be very reasonable. It looks like
-> > we are doing a lot more accesses which I don't completely understand.
-> 
-> Can you tell me which function you have in mind, so that I can insert
-> some printks to see how often it's called?
+Hi Evgeniy,
 
-radeon_pll_errata_after_data() calls radeon_msleep() (it's in
-radeonfb.h)
+Should i be concerned about this bugcheck?
 
-Ben.
+I have seen this happening a number of times, all with the same signature
+in my testing. I ran a mix of AIM7,  ubench,  fork-test (continuously 
+fork new
+processes), and another program reading from the fork connector socket.
+
+Thanks,
+ - jay
+
+
+
+cqueue/1[656]: bugcheck! 0 [1]
+Modules linked in: nfs lockd sunrpc sg st sr_mod ipv6 usbcore
+
+Pid: 656, CPU 1, comm:             cqueue/1
+psr : 00001010085a6010 ifs : 8000000000000289 ip  : 
+[<a0000001005cee50>]    Not tainted
+ip is at __kfree_skb+0x1b0/0x220
+unat: 0000000000000000 pfs : 0000000000000289 rsc : 0000000000000003
+rnat: 0000000000000000 bsps: 0000000000000000 pr  : 0000000000009641
+ldrs: 0000000000000000 ccv : 0000000000000000 fpsr: 0009804c8a70433f
+csd : 0000000000000000 ssd : 0000000000000000
+b0  : a0000001005cee50 b6  : a00000010000e7e0 b7  : a0000001003ae440
+f6  : 0fffbccccccccc8c00000 f7  : 0ffdaa200000000000000
+f8  : 100008000000000000000 f9  : 10002a000000000000000
+f10 : 0fffcccccccccc8c00000 f11 : 1003e0000000000000000
+r1  : a000000100c0ec00 r2  : 0000000000004000 r3  : 0000000000004000
+r8  : 0000000000000028 r9  : a0000001008eaac8 r10 : 0000000000000004
+r11 : 0000000000000028 r12 : e00000307a99fd60 r13 : e00000307a998000
+r14 : a000000100887c00 r15 : a000000100a24b18 r16 : a000000100a22e18
+r17 : ffffffffffffffff r18 : a000000100887bec r19 : a000000100a9080f
+r20 : 0000000000003517 r21 : 00000000000fffff r22 : 0000000000000034
+r23 : 0000000000000034 r24 : a000000100a90810 r25 : 0000000000003518
+r26 : 0000000000003518 r27 : 00000010085a6010 r28 : a000000100a90811
+r29 : 0000000000003519 r30 : 0000000000000000 r31 : a000000100a24ae8
+
+Call Trace:
+ [<a0000001000126a0>] show_stack+0x80/0xa0
+                                sp=e00000307a99f920 bsp=e00000307a999078
+ [<a000000100012f00>] show_regs+0x840/0x880
+                                sp=e00000307a99faf0 bsp=e00000307a999018
+ [<a000000100034890>] die+0x150/0x1c0
+                                sp=e00000307a99fb00 bsp=e00000307a998fd0
+ [<a000000100034940>] die_if_kernel+0x40/0x60
+                                sp=e00000307a99fb00 bsp=e00000307a998fa0
+ [<a000000100035d20>] ia64_bad_break+0x300/0x380
+                                sp=e00000307a99fb00 bsp=e00000307a998f78
+ [<a00000010000b5e0>] ia64_leave_kernel+0x0/0x280
+                                sp=e00000307a99fb90 bsp=e00000307a998f78
+ [<a0000001005cee50>] __kfree_skb+0x1b0/0x220
+                                sp=e00000307a99fd60 bsp=e00000307a998f30
+ [<a00000010044f630>] kfree_skb+0x50/0xa0
+                                sp=e00000307a99fd60 bsp=e00000307a998f10
+ [<a00000010044e400>] cn_queue_wrapper+0xe0/0x100
+                                sp=e00000307a99fd60 bsp=e00000307a998ee8
+ [<a0000001000cb880>] worker_thread+0x3e0/0x520
+                                sp=e00000307a99fd60 bsp=e00000307a998e60
+ [<a0000001000d7210>] kthread+0x290/0x300
+                                sp=e00000307a99fdd0 bsp=e00000307a998e20
+ [<a000000100010a00>] kernel_thread_helper+0xe0/0x100
+                                sp=e00000307a99fe30 bsp=e00000307a998df0
+ [<a000000100009120>] start_kernel_thread+0x20/0x40
+                                sp=e00000307a99fe30 bsp=e00000307a998df0
+ 
 
 

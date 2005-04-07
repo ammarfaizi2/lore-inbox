@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVDGST1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbVDGSZ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVDGST1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 14:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVDGST0
+	id S262501AbVDGSZ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 14:25:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVDGSZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 14:19:26 -0400
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:24406 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262539AbVDGSTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 14:19:20 -0400
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Renate Meijer <kleuske@xs4all.nl>
-Subject: Re: [08/08] uml: va_copy fix
-Date: Thu, 7 Apr 2005 20:25:34 +0200
-User-Agent: KMail/1.7.2
-Cc: jdike@karaya.com, linux-kernel@vger.kernel.org,
-       =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       stable@kernel.org, Greg KH <gregkh@suse.de>
-References: <20050405164539.GA17299@kroah.com> <200504062109.51344.blaisorblade@yahoo.it> <448f048a060cc7db1fc00a489c86ac05@xs4all.nl>
-In-Reply-To: <448f048a060cc7db1fc00a489c86ac05@xs4all.nl>
+	Thu, 7 Apr 2005 14:25:57 -0400
+Received: from smtp.istop.com ([66.11.167.126]:9187 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S262501AbVDGSZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 14:25:50 -0400
+From: Daniel Phillips <phillips@istop.com>
+To: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Subject: Re: Kernel SCM saga..
+Date: Thu, 7 Apr 2005 14:27:03 -0400
+User-Agent: KMail/1.7
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <Pine.LNX.4.58.0504071038320.28951@ppc970.osdl.org> <20050407180412.GA31861@wohnheim.fh-wedel.de>
+In-Reply-To: <20050407180412.GA31861@wohnheim.fh-wedel.de>
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504072025.34976.blaisorblade@yahoo.it>
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200504071427.04162.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 April 2005 11:16, Renate Meijer wrote:
-> On Apr 6, 2005, at 9:09 PM, Blaisorblade wrote:
-
-> > Btw: I've not investigated which one of the two behaviours is the
-> > buggy one -
-> > if you know, maybe you or I can report it.
+On Thursday 07 April 2005 14:04, Jörn Engel wrote:
+> On Thu, 7 April 2005 10:47:18 -0700, Linus Torvalds wrote:
+>> ... There should be some support for cherry-picking in between
+> > a temporary throw-away tree and a "cleaned-up-tree". However, it should
+> > be something you really do need to think about, and in most cases it
+> > really does boil down to "export as patch, re-import from patch".
+> > Especially since you potentially want to edit things in between anyway
+> > when you cherry-pick.
 >
->  From a strict ISO-C point of view, both are. It's a gcc-specific
-> "feature" which (agreed) does come in handy sometimes.
-
-Well, for "range" assignments GCC mustn't complain, but for the rest the 
-double assignment laziness is not very useful. Could they at least add a 
--Wsomething inside -Wall or -W for this problem?
-
-> However it makes 
-> it quite hard to say which is the buggy version, since the
-> "appropriate" behavior
-> is a question of definition (by the gcc-folks). They may even argue
-> that, having changed their minds about it, neither is buggy, but both
-> conform to the specifications (for that specific functionality).
+> For reordering, using patcher, you can simply edit the sequence file
+> and move lines around.  Nice and simple interface.
 >
-> That's pretty much the trouble with relying on gcc-extensions: since
-> there's no standard, it's difficult to tell what's wrong and what's
-> right. I'll dive into it.
+> There is no checking involved, though.  If you mode dependent patches,
+> you end up with a mess and either throw it all away or seriously
+> scratch your head.  So a serious SCM might do something like this:
 >
-> Regards,
+> $ cp series new_series
+> $ vi new_series
+> $ SCM --reorder new_series
+>   # essentially "mv new_series series", if no checks fail
 >
-> Renate Meijer.
+> Merging patches isn't that hard either.  Splitting them would remain
+> manual, as you described it.
 
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+Well it's clear that adding cherry picking, patch reordering, splitting and 
+merging (two patches into one) is not even hard, it's just a matter of making 
+it convenient by _building it into the tool_.  Now, can we just pick a tool 
+and do it, please?  :-)
 
+Regards,
+
+Daniel

@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVDGHR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVDGHRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbVDGHR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 03:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVDGHR2
+	id S261713AbVDGHRr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 03:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVDGHRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 03:17:28 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:648 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261418AbVDGHRQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 03:17:16 -0400
-Date: Thu, 7 Apr 2005 09:17:02 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Subject: Re: [patch 5/5] sched: consolidate sbe sbf
-Message-ID: <20050407071702.GC26607@elte.hu>
-References: <425322E0.9070307@yahoo.com.au> <42532317.5000901@yahoo.com.au> <42532346.5050308@yahoo.com.au> <425323A1.5030603@yahoo.com.au> <42532427.3030100@yahoo.com.au> <20050406062723.GC5973@elte.hu> <4253993C.4020505@yahoo.com.au> <42539AEC.6000204@yahoo.com.au>
-Mime-Version: 1.0
+	Thu, 7 Apr 2005 03:17:47 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:47340 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261713AbVDGHRf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 03:17:35 -0400
+To: Sven Luther <sven.luther@wanadoo.fr>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+References: <20050404100929.GA23921@pegasos>
+	<1112610065.6270.46.camel@laptopd505.fenrus.org>
+	<20050404105937.GB24882@pegasos>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 07 Apr 2005 03:17:33 -0400
+In-Reply-To: <20050404105937.GB24882@pegasos>
+Message-ID: <yq0d5t7xdgy.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42539AEC.6000204@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Sven" == Sven Luther <sven.luther@wanadoo.fr> writes:
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Sven> On Mon, Apr 04, 2005 at 12:21:05PM +0200, Arjan van de Ven
+Sven> wrote:
+>> On Mon, 2005-04-04 at 12:09 +0200, Sven Luther wrote:
+>> 
+>> please take this discussion elsewhere. Also please never cc three
+>> such
 
-> Nick Piggin wrote:
-> 
-> >
-> >One problem I just noticed, sorry. This is doing set_cpus_allowed
-> >without holding the runqueue lock and without checking the hard
-> >affinity mask either.
-> >
-> 
-> Err, that is to say set_task_cpu, not set_cpus_allowed.
+Sven> Ok, can you please point to me where is the place it should be
+Sven> taken off ? I suppose you mean LKML ?
 
-yes. The whole cpus_allowed+set_task_cpu() section in copy_process() 
-should move into sched_fork().
+Yes please!
 
-	Ingo
+>> lists on the same posting, there is absolutely no point in doing
+>> that.
+
+Sven> We already had this discussion on debian-legal and
+Sven> debian-kernel, so i included them for documentation purpose, so
+Sven> people there can follow the discussion even if they don't follow
+Sven> LKML which is rather high volume. As the discussion already was
+Sven> hold there, i don't believe you will see many comments from
+Sven> them.
+
+Sven> So, i posted to LKML directly, as i believe that it is where
+Sven> this needs to be solved, as only the copyright holders can fix
+Sven> this licencing problem, and currently the kernels distributed
+Sven> from ftp.kernel.org are not legally distributable.
+
+Feel free to have your own legal oppinion about whether or not those
+kernels can be distributed. However please keep that discussion
+elsewhere.
+
+If you want the firmware situation changed, I'd recommend spending
+your time on improving the firmware loader interface instead.
+
+Thanks,
+Jes

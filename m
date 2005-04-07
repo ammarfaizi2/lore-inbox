@@ -1,148 +1,337 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVDGCho@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVDGClw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVDGCho (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 22:37:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262394AbVDGCho
+	id S262394AbVDGClw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 22:41:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVDGClw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 22:37:44 -0400
-Received: from 60-240-77-24-nsw-pppoe.tpgi.com.au ([60.240.77.24]:63944 "EHLO
-	sydlxfw01.samad.com.au") by vger.kernel.org with ESMTP
-	id S262393AbVDGChP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 22:37:15 -0400
-Date: Thu, 7 Apr 2005 12:37:13 +1000
-To: linux-kernel@vger.kernel.org
-Subject: Kernel oops and debugging (help wanted)
-Message-ID: <20050407023713.GA9188@samad.com.au>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6c2NcOVqGQ03X4Wi"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: Alexander Samad <alex@samad.com.au>
+	Wed, 6 Apr 2005 22:41:52 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:64677 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262394AbVDGCj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 22:39:58 -0400
+Message-ID: <42549D76.9040701@yahoo.com.au>
+Date: Thu, 07 Apr 2005 12:39:50 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [patch] sched: consolidate sbe sbf
+Content-Type: multipart/mixed;
+ boundary="------------000109050707020809060702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000109050707020809060702
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---6c2NcOVqGQ03X4Wi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Ingo,
 
-Hi
+What do you think of the following patch? I won't send the
+whole series again, I'll queue them up with Andrew if you
+think this one looks OK (which is the only major change).
 
-I recently installed a new kernel 2.6.11 with some netfilter patches, I
-also upgraded iproute2.
+Thanks,
+Nick
 
-No I have been getting oops like this one
+-- 
+SUSE Labs, Novell Inc.
 
-Apr  6 15:46:24 sydlxfw01 kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000221
-Apr  6 15:46:24 sydlxfw01 kernel:  printing eip:
-Apr  6 15:46:24 sydlxfw01 kernel: c01ebec0
-Apr  6 15:46:24 sydlxfw01 kernel: *pde =3D 00000000
-Apr  6 15:46:24 sydlxfw01 kernel: Oops: 0002 [#1]
-Apr  6 15:46:24 sydlxfw01 kernel: PREEMPT=20
-Apr  6 15:46:24 sydlxfw01 kernel: Modules linked in: rtc nvidia tun
-l2cap bluetooth nfsd exportfs lockd sunrpc ipt_ULOG defl
-ate twofish serpent aes_i586 blowfish des sha256 sha1 crypto_null
-xfrm_user ipcomp esp4 ah4 af_key lp autofs4 ppp_deflate zl
-ib_deflate bsd_comp capability commoncap ip_nat_ftp ip_conntrack_ftp
-binfmt_misc binfmt_aout raw ppp_async crc_ccitt ppp_gen
-eric slhc eepro100 eth1394 bridge atm sch_tbf sch_sfq sch_prio af_packet
-ip6t_limit ip6t_LOG ip6t_mac ip6t_MARK ip6table_man
-gle ip6table_filter ip6_tables md5 ipv6 ipt_TARPIT ipt_limit ipt_REJECT
-ipt_LOG ipt_mac ipt_mark ipt_MASQUERADE iptable_nat=20
-ipt_owner ipt_MARK ipt_state ip_conntrack iptable_mangle iptable_filter
-ip_tables tsdev psmouse parport_pc parport evdev flo
-ppy pcspkr sundance mii crc32 ohci1394 ieee1394 snd_intel8x0
-snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd=20
-soundcore snd_page_alloc i2c_i801 i2c_core ehci_hcd usbhid usblp
-uhci_hcd intel_agp intel_mch_agp agpgart i8xx_tco ide_cd cd
-rom usb_storage usbcore sg aic7xxx id
-Apr  6 15:46:24 sydlxfw01 kernel: _disk ide_generic via82cxxx trm290
-triflex slc90e66 sis5513 siimage serverworks sc1200 rz1
-000 pdc202xx_old opti621 ns87415 hpt366 hpt34x generic cy82c693 cs5530
-cs5520 cmd64x amd74xx alim15x3 aec62xx pdc202xx_new u
-nix ext2 ext3 jbd mbcache dm_mod raid5 xor raid1 md sd_mod ata_piix
-libata scsi_mod piix ide_core
-Apr  6 15:46:24 sydlxfw01 kernel: CPU:    0
-Apr  6 15:46:24 sydlxfw01 kernel: EIP:
-0060:[tty_ldisc_ref_wait+144/192]    Tainted: P      VLI
-Apr  6 15:46:24 sydlxfw01 kernel: EFLAGS: 00210286   (2.6.11-1-ntf)=20
-Apr  6 15:46:24 sydlxfw01 kernel: EIP is at tty_ldisc_ref_wait+0x90/0xc0
-Apr  6 15:46:24 sydlxfw01 kernel: eax: 00000221   ebx: e895b00c   ecx:
-c01f3ce0   edx: c8751000
-Apr  6 15:46:24 sydlxfw01 kernel: esi: 00000000   edi: 00200246   ebp:
-00000000   esp: ded97e94
-Apr  6 15:46:24 sydlxfw01 kernel: ds: 007b   es: 007b   ss: 0068
-Apr  6 15:46:24 sydlxfw01 kernel: Process screen (pid: 17625,
-threadinfo=3Dded96000 task=3Dd8b5da20)
-Apr  6 15:46:24 sydlxfw01 kernel: Stack: c01ebf06 e895b000 e895b000
-c01ec558 e895b000 c8751000 00000000 c01f3cfd=20
-Apr  6 15:46:24 sydlxfw01 kernel:        e895b000 c8751000 c01f050b
-c8751000 c01f28d8 c8751000 e5f64f43 00000049=20
-Apr  6 15:46:24 sydlxfw01 kernel:        00000000 c02d4c40 ded96000
-c875193c 7fffffff 00000000 00000000 00000001=20
-Apr  6 15:46:24 sydlxfw01 kernel: Call Trace:
-Apr  6 15:46:24 sydlxfw01 kernel:  [tty_ldisc_ref+22/48]
-tty_ldisc_ref+0x16/0x30
-Apr  6 15:46:24 sydlxfw01 kernel:  [tty_wakeup+72/112]
-tty_wakeup+0x48/0x70
-Apr  6 15:46:24 sydlxfw01 kernel:  [pty_unthrottle+29/48]
-pty_unthrottle+0x1d/0x30
-Apr  6 15:46:24 sydlxfw01 kernel:  [check_unthrottle+59/64]
-check_unthrottle+0x3b/0x40
-Apr  6 15:46:24 sydlxfw01 kernel:  [read_chan+1080/2016]
-read_chan+0x438/0x7e0
-Apr  6 15:46:24 sydlxfw01 kernel:  [default_wake_function+0/32]
-default_wake_function+0x0/0x20
-Apr  6 15:46:24 sydlxfw01 last message repeated 2 times
-Apr  6 15:46:24 sydlxfw01 kernel:  [tty_read+246/288]
-tty_read+0xf6/0x120
-Apr  6 15:46:24 sydlxfw01 kernel:  [vfs_read+229/352]
-vfs_read+0xe5/0x160
-Apr  6 15:46:24 sydlxfw01 kernel:  [sys_read+81/128] sys_read+0x51/0x80
-Apr  6 15:46:24 sydlxfw01 kernel:  [sysenter_past_esp+82/117]
-sysenter_past_esp+0x52/0x75
-Apr  6 15:46:24 sydlxfw01 kernel: Code: 54 24 34 90 8d b4 26 00 00 00 00
-b9 02 00 00 00 89 fa b8 2c b2 30 c0 e8 cf 3a f4 ff=20
-89 1c 24 e8 07 ff ff ff 85 c0 75 07 e8 fe ed <09> 00 eb dc 89 fa b8 2c
-b2 30 c0 e8 f0 3b f4 ff 8b 7b 54 85 ff=20
+--------------000109050707020809060702
+Content-Type: text/plain;
+ name="sched-consolidate-sbe-sbf.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched-consolidate-sbe-sbf.patch"
 
+Consolidate balance-on-exec with balance-on-fork. This is made easy
+by the sched-domains RCU patches.
 
-this is followed by these
+As well as the general goodness of code reduction, this allows
+the runqueues to be unlocked during balance-on-fork.
 
-Apr  6 15:46:24 sydlxfw01 kernel:  ve!
-Apr  6 15:46:24 sydlxfw01 kernel: release_dev: ptm5: read/write wait
-queue active!
-Apr  6 15:46:29 sydlxfw01 last message repeated 119552 times
-Apr  6 15:46:29 sydlxfw01 kernel: ve!
-Apr  6 15:46:29 sydlxfw01 kernel: release_dev: ptm5: read/write wait
-queue active!
+schedstats is a problem. Maybe just have balance-on-event instead
+of distinguishing fork and exec?
 
+Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
 
-I was wondering how I decode this to the location that cause the problem
-do I do a search through the source tree (still have it - built from
-debian kernel-source-2.6.11-1) and look for  tty_ldisc_ref_wait - I
-presume the error occured 0x90 bytes into the code ?
+Index: linux-2.6/kernel/sched.c
+===================================================================
+--- linux-2.6.orig/kernel/sched.c	2005-04-07 02:39:21.000000000 +1000
++++ linux-2.6/kernel/sched.c	2005-04-07 12:34:06.000000000 +1000
+@@ -1022,8 +1022,57 @@ static int find_idlest_cpu(struct sched_
+ 	return idlest;
+ }
+ 
++/*
++ * sched_balance_self: balance the current task (running on cpu) in domains
++ * that have the 'flag' flag set. In practice, this is SD_BALANCE_FORK and
++ * SD_BALANCE_EXEC.
++ *
++ * Balance, ie. select the least loaded group.
++ *
++ * Returns the target CPU number, or the same CPU if no balancing is needed.
++ *
++ * preempt must be disabled.
++ */
++static int sched_balance_self(int cpu, int flag)
++{
++	struct task_struct *t = current;
++	struct sched_domain *tmp, *sd = NULL;
+ 
+-#endif
++	for_each_domain(cpu, tmp)
++		if (tmp->flags & flag)
++			sd = tmp;
++
++	while (sd) {
++		cpumask_t span;
++		struct sched_group *group;
++		int new_cpu;
++
++		span = sd->span;
++		group = find_idlest_group(sd, t, cpu);
++		if (!group)
++			goto nextlevel;
++
++		new_cpu = find_idlest_cpu(group, cpu);
++		if (new_cpu == -1 || new_cpu == cpu)
++			goto nextlevel;
++
++		/* Now try balancing at a lower domain level */
++		cpu = new_cpu;
++nextlevel:
++		sd = NULL;
++		for_each_domain(cpu, tmp) {
++			if (cpus_subset(span, tmp->span))
++				break;
++			if (tmp->flags & flag)
++				sd = tmp;
++		}
++		/* while loop will break here if sd == NULL */
++	}
++
++	return cpu;
++}
++
++#endif /* CONFIG_SMP */
+ 
+ /*
+  * wake_idle() will wake a task on an idle cpu if task->cpu is
+@@ -1241,8 +1290,17 @@ int fastcall wake_up_state(task_t *p, un
+  * Perform scheduler related setup for a newly forked process p.
+  * p is forked by current.
+  */
+-void fastcall sched_fork(task_t *p)
++void fastcall sched_fork(task_t *p, int clone_flags)
+ {
++	int cpu = smp_processor_id();
++	
++#ifdef CONFIG_SMP
++	preempt_disable();
++	cpu = sched_balance_self(cpu, SD_BALANCE_FORK);
++	preempt_enable();
++#endif
++	set_task_cpu(p, cpu);
++
+ 	/*
+ 	 * We mark the process as running here, but have not actually
+ 	 * inserted it onto the runqueue yet. This guarantees that
+@@ -1303,64 +1361,12 @@ void fastcall wake_up_new_task(task_t * 
+ 	unsigned long flags;
+ 	int this_cpu, cpu;
+ 	runqueue_t *rq, *this_rq;
+-#ifdef CONFIG_SMP
+-	struct sched_domain *tmp, *sd = NULL;
+-#endif
+ 
+ 	rq = task_rq_lock(p, &flags);
+ 	BUG_ON(p->state != TASK_RUNNING);
+ 	this_cpu = smp_processor_id();
+ 	cpu = task_cpu(p);
+ 
+-#ifdef CONFIG_SMP
+-	for_each_domain(cpu, tmp)
+-		if (tmp->flags & SD_BALANCE_FORK)
+-			sd = tmp;
+-
+-	if (sd) {
+-		cpumask_t span;
+-		int new_cpu;
+-		struct sched_group *group;
+-
+-again:
+-		schedstat_inc(sd, sbf_cnt);
+-		span = sd->span;
+-		cpu = task_cpu(p);
+-		group = find_idlest_group(sd, p, cpu);
+-		if (!group) {
+-			schedstat_inc(sd, sbf_balanced);
+-			goto nextlevel;
+-		}
+-
+-		new_cpu = find_idlest_cpu(group, cpu);
+-		if (new_cpu == -1 || new_cpu == cpu) {
+-			schedstat_inc(sd, sbf_balanced);
+-			goto nextlevel;
+-		}
+-
+-		if (cpu_isset(new_cpu, p->cpus_allowed)) {
+-			schedstat_inc(sd, sbf_pushed);
+-			set_task_cpu(p, new_cpu);
+-			task_rq_unlock(rq, &flags);
+-			rq = task_rq_lock(p, &flags);
+-			cpu = task_cpu(p);
+-		}
+-
+-		/* Now try balancing at a lower domain level */
+-nextlevel:
+-		sd = NULL;
+-		for_each_domain(cpu, tmp) {
+-			if (cpus_subset(span, tmp->span))
+-				break;
+-			if (tmp->flags & SD_BALANCE_FORK)
+-				sd = tmp;
+-		}
+-
+-		if (sd)
+-			goto again;
+-	}
+-
+-#endif
+ 	/*
+ 	 * We decrease the sleep average of forking parents
+ 	 * and children as well, to keep max-interactive tasks
+@@ -1708,59 +1714,17 @@ out:
+ 	task_rq_unlock(rq, &flags);
+ }
+ 
+-/*
+- * sched_exec(): find the highest-level, exec-balance-capable
+- * domain and try to migrate the task to the least loaded CPU.
+- *
+- * execve() is a valuable balancing opportunity, because at this point
+- * the task has the smallest effective memory and cache footprint.
++/* 
++ * sched_exec - execve() is a valuable balancing opportunity, because at
++ * this point the task has the smallest effective memory and cache footprint.
+  */
+ void sched_exec(void)
+ {
+-	struct sched_domain *tmp, *sd = NULL;
+ 	int new_cpu, this_cpu = get_cpu();
+-
+-	for_each_domain(this_cpu, tmp)
+-		if (tmp->flags & SD_BALANCE_EXEC)
+-			sd = tmp;
+-
+-	if (sd) {
+-		cpumask_t span;
+-		struct sched_group *group;
+-again:
+-		schedstat_inc(sd, sbe_cnt);
+-		span = sd->span;
+-		group = find_idlest_group(sd, current, this_cpu);
+-		if (!group) {
+-			schedstat_inc(sd, sbe_balanced);
+-			goto nextlevel;
+-		}
+-		new_cpu = find_idlest_cpu(group, this_cpu);
+-		if (new_cpu == -1 || new_cpu == this_cpu) {
+-			schedstat_inc(sd, sbe_balanced);
+-			goto nextlevel;
+-		}
+-
+-		schedstat_inc(sd, sbe_pushed);
+-		put_cpu();
+-		sched_migrate_task(current, new_cpu);
+-		
+-		/* Now try balancing at a lower domain level */
+-		this_cpu = get_cpu();
+-nextlevel:
+-		sd = NULL;
+-		for_each_domain(this_cpu, tmp) {
+-			if (cpus_subset(span, tmp->span))
+-				break;
+-			if (tmp->flags & SD_BALANCE_EXEC)
+-				sd = tmp;
+-		}
+-
+-		if (sd)
+-			goto again;
+-	}
+-
++	new_cpu = sched_balance_self(this_cpu, SD_BALANCE_EXEC);
+ 	put_cpu();
++	if (new_cpu != this_cpu)
++		sched_migrate_task(current, new_cpu);
+ }
+ 
+ /*
+Index: linux-2.6/include/linux/sched.h
+===================================================================
+--- linux-2.6.orig/include/linux/sched.h	2005-04-07 02:31:47.000000000 +1000
++++ linux-2.6/include/linux/sched.h	2005-04-07 02:39:21.000000000 +1000
+@@ -923,7 +923,7 @@ extern void FASTCALL(wake_up_new_task(st
+ #else
+  static inline void kick_process(struct task_struct *tsk) { }
+ #endif
+-extern void FASTCALL(sched_fork(task_t * p));
++extern void FASTCALL(sched_fork(task_t * p, int clone_flags));
+ extern void FASTCALL(sched_exit(task_t * p));
+ 
+ extern int in_group_p(gid_t);
+Index: linux-2.6/kernel/fork.c
+===================================================================
+--- linux-2.6.orig/kernel/fork.c	2005-04-07 02:31:47.000000000 +1000
++++ linux-2.6/kernel/fork.c	2005-04-07 02:39:21.000000000 +1000
+@@ -1000,9 +1000,6 @@ static task_t *copy_process(unsigned lon
+ 	p->pdeath_signal = 0;
+ 	p->exit_state = 0;
+ 
+-	/* Perform scheduler related setup */
+-	sched_fork(p);
+-
+ 	/*
+ 	 * Ok, make it visible to the rest of the system.
+ 	 * We dont wake it up yet.
+@@ -1011,19 +1008,25 @@ static task_t *copy_process(unsigned lon
+ 	INIT_LIST_HEAD(&p->ptrace_children);
+ 	INIT_LIST_HEAD(&p->ptrace_list);
+ 
++	/* Perform scheduler related setup. Assign this task to a CPU. */
++	sched_fork(p, clone_flags);
++
+ 	/* Need tasklist lock for parent etc handling! */
+ 	write_lock_irq(&tasklist_lock);
+ 
+ 	/*
+-	 * The task hasn't been attached yet, so cpus_allowed mask cannot
+-	 * have changed. The cpus_allowed mask of the parent may have
+-	 * changed after it was copied first time, and it may then move to
+-	 * another CPU - so we re-copy it here and set the child's CPU to
+-	 * the parent's CPU. This avoids alot of nasty races.
++	 * The task hasn't been attached yet, so its cpus_allowed mask will
++	 * not be changed, nor will its assigned CPU.
++	 * 
++	 * The cpus_allowed mask of the parent may have changed after it was
++	 * copied first time - so re-copy it here, then check the child's CPU
++	 * to ensure it is on a valid CPU (and if not, just force it back to
++	 * parent's CPU). This avoids alot of nasty races.
+ 	 */
+ 	p->cpus_allowed = current->cpus_allowed;
+-	set_task_cpu(p, smp_processor_id());
+-
++	if (unlikely(!cpu_isset(task_cpu(p), p->cpus_allowed)))
++		set_task_cpu(p, smp_processor_id());
++		
+ 	/*
+ 	 * Check for pending SIGKILL! The new thread should not be allowed
+ 	 * to slip out of an OOM kill. (or normal SIGKILL.)
 
-Or how do I work out who to contact to say there might be a problem.
+--------------000109050707020809060702--
 
-Thanks
-Alex
-
-
---6c2NcOVqGQ03X4Wi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCVJzZkZz88chpJ2MRApfPAKDz3OSqvg/4prwVen/42v4siGTiBACg8W8I
-BVPLtLmFM2wSyR00HhwGvVI=
-=xKzL
------END PGP SIGNATURE-----
-
---6c2NcOVqGQ03X4Wi--

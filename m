@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262558AbVDGTAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262569AbVDGS7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262558AbVDGTAj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 15:00:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbVDGTAi
+	id S262569AbVDGS7x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 14:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVDGS7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 15:00:38 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:37004 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262563AbVDGTAO (ORCPT
+	Thu, 7 Apr 2005 14:59:30 -0400
+Received: from fire.osdl.org ([65.172.181.4]:12690 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262553AbVDGS7M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 15:00:14 -0400
-Date: Thu, 7 Apr 2005 20:59:23 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: arjan@infradead.org, kaos@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2 in_atomic() picks up preempt_disable()
-Message-ID: <20050407185923.GA12012@elte.hu>
-References: <200504071840.j37Iei25019895@harpo.it.uu.se>
+	Thu, 7 Apr 2005 14:59:12 -0400
+Date: Thu, 7 Apr 2005 11:59:04 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.6.11 can't disable CAD
+Message-Id: <20050407115904.1d1ee28f.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com>
+References: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504071840.j37Iei25019895@harpo.it.uu.se>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 7 Apr 2005 11:16:14 -0400 (EDT) Richard B. Johnson wrote:
 
-* Mikael Pettersson <mikpe@csd.uu.se> wrote:
+| 
+| In the not-too distant past, one could disable Ctl-Alt-DEL.
+| Can't do it anymore.
 
-> On Thu, 07 Apr 2005 12:17:37 +0200, Arjan van de Ven wrote:
-> >On Thu, 2005-04-07 at 20:10 +1000, Keith Owens wrote:
-> >> 2.6.12-rc2, with CONFIG_PREEMPT and CONFIG_PREEMPT_DEBUG.  The
-> >> in_atomic() macro thinks that preempt_disable() indicates an atomic
-> >> region so calls to __might_sleep() result in a stack trace.
-> >
-> >but you're not allowed to schedule when preempt is disabled!
-> 
-> That sounds draconian. Where is that requirement stated?
+What should disabling C_A_D do?
 
-(in the code, and in lkml discussions, as usual. There's tons of code 
-that correctly handled it and continues to handle it. Let me be clear, 
-this isnt some obscure side-effect, this is one of the cornerstones, 
-preempt_disable()/enable() always had these semantics, and this is very 
-much being relied on in a number of areas.)
+| Script started on Thu 07 Apr 2005 10:58:11 AM EDT
+| [SNIPPED leading stuff...]
+| 
+| mprotect(0xb7fe4000, 28672, PROT_READ|PROT_EXEC) = 0
+| brk(0)                                  = 0x804a000
+| brk(0x8053000)                          = 0x8053000
+| reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, LINUX_REBOOT_CMD_CAD_OFF) = 0
+| pause( <unfinished ...>
+| _exit(0)                                = ?
+| # exit
+| Script done on Thu 07 Apr 2005 10:58:21 AM EDT
 
-> A preempt-disabled region ought to have the same semantics as in a 
-> CONFIG_PREEMPT=n kernel, and since schedule is Ok in the latter case 
-> it should be Ok in the former too.
-> 
-> All that preempt_disable() should do is prevent involuntary schedules.  
-> But the conditional schedules introduced by may-sleep functions are 
-> _voluntary_, so there's no reason to forbid them.
+What program is that?  I'm just echoing 0 | 1 into
+/proc/sys/kernel/ctrl-alt-del , is that equivalent?
+or have you tried that?
 
-this just hides bugs and introduces bugs. From a critical section POV a 
-voluntary preemption is almost the same thing as a voluntary preemption 
-- the task may wander to another CPU, and smp_processor_id() might 
-become different. If it's not a problem for your code to preempt then 
-just enable preemption before calling it. Anyway, preempt_disable() / 
-preempt_enable() is pretty much an internal interface and shouldnt be 
-used lightly.
+| Observe that reboot() returns 0 and `strace` understands what
+| parameters were passed. The result is that, if I hit Ctl-Alt-Del,
+| `init` will still execute the shutdown-order (INIT 0).
 
-	Ingo
+echo 0 > /proc/sys/kernel/ctrl-alt-del
+  is same as CAD_OFF
+echo 1
+  is same as CAD_ON
+
+I tested 2.4.28, 2.6.3, 2.6.9, 2.6.11, and all of them behaved
+the same way for me.  If it's an issue with using a syscall
+to change the setting, I'll be glad to look into that too.
+
+observed behaviors:
+CAD enabled + C_A_D keys => call machine_reboot()
+  to reboot quickly, no normal shutdown sequence;
+CAD disabled + C_A_D keys => kill init, go thru normal
+  clean shutdown sequence;
+are these the expected behaviors?
+
+| A side note, while researching this problem, I think I found
+| that LINUX_REBOOT_MAGIC2 is Linus' birthday (in hex). Maybe
+| the problem is that he no longer observes his birthday?
+
+---
+~Randy

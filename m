@@ -1,43 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262483AbVDGOrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262480AbVDGOrI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262483AbVDGOrP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 10:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbVDGOrP
+	id S262480AbVDGOrI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 10:47:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVDGOrI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 10:47:15 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:62340 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262481AbVDGOqF (ORCPT
+	Thu, 7 Apr 2005 10:47:08 -0400
+Received: from fire.osdl.org ([65.172.181.4]:44182 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262480AbVDGOpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 10:46:05 -0400
-Date: Thu, 7 Apr 2005 16:45:58 +0200
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Chris Rankin <rankincj@yahoo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
-Message-ID: <20050407144557.GK1847@suse.de>
-References: <20050406175838.GC15165@suse.de> <1112811607.5555.15.camel@mulgrave> <20050406190838.GE15165@suse.de> <1112821799.5850.19.camel@mulgrave> <20050407064934.GJ15165@suse.de> <1112879919.5842.3.camel@mulgrave> <20050407132205.GA16517@infradead.org> <1112880658.5842.10.camel@mulgrave> <20050407133222.GJ1847@suse.de> <1112881183.5842.13.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112881183.5842.13.camel@mulgrave>
+	Thu, 7 Apr 2005 10:45:51 -0400
+Date: Thu, 7 Apr 2005 07:47:41 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: Ingo Molnar <mingo@elte.hu>, stsp@aknet.ru, linux-kernel@vger.kernel.org,
+       VANDROVE@vc.cvut.cz
+Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
+In-Reply-To: <20050407041006.4c9db8b2.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0504070737190.28951@ppc970.osdl.org>
+References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru>
+ <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru>
+ <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru>
+ <20050407080004.GA27252@elte.hu> <20050407041006.4c9db8b2.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07 2005, James Bottomley wrote:
-> On Thu, 2005-04-07 at 15:32 +0200, Jens Axboe wrote:
-> > I think Christophs point is that why add sdev_lock as a pointer, instead
-> > of just killing it? It's only used in one location, so it's not really
-> > that confusing (and a comment could fix that).
+
+
+On Thu, 7 Apr 2005, Andrew Morton wrote:
+>
+> Ingo Molnar <mingo@elte.hu> wrote:
+> >
+> > --- linux/arch/i386/kernel/entry.S.orig
+> >  +++ linux/arch/i386/kernel/entry.S
+> >  @@ -179,12 +179,17 @@ need_resched:
+> >   ENTRY(sysenter_entry)
+> >   	movl TSS_sysenter_esp0(%esp),%esp
+> >   sysenter_past_esp:
+> >  -	sti
+> >  +	#
+> >  +	# irqs are disabled: set up an entry stackframe without
+> >  +	# allowing irqs to potentially preempt us with an
+> >  +	# incomplete entry frame!
+> >  +	#
+> >   	pushl $(__USER_DS)
+> >   	pushl %ebp
+> >   	pushfl
+> >   	pushl $(__USER_CS)
+> >   	pushl $SYSENTER_RETURN
+> >  +	sti
+> >   
 > 
-> Because any use of sdev->request_queue->queue_lock would likely succeed
-> even after we've freed the device and released the queue.  If it's a
-> pointer and we null it after free and release, then any later use will
-> trigger an immediate NULL deref oops.
+> Well that bites the big one.
+>> 
+> Program received signal SIGTRAP, Trace/breakpoint trap.
+> 0xc015c4ba in __find_get_block (bdev=0xc18cd988, block=2818614, size=4096) at fs/buffer.c:1371
+> 1371            BUG_ON(irqs_disabled());
 
-So clear ->request_queue instead.
+Yes. With the change in place "entry.S" will always save the wrogn EIP, so 
+we'll return with interrupts disabled.
 
--- 
-Jens Axboe
+Your suggested patch is pretty horrid, though. It's sufficient to enable
+interrupts after the two first pushes, since that has already now set up
+enough of a kernel stack that any subsequent interrupt will always have at
+least a "fake" SS/ESP (ie some values there, although not anything
+relevant).
 
+So the sysenter sequence might as well look like
+
+	pushl $(__USER_DS)	
+	pushl %ebp
+	sti
+	pushfl
+	..
+
+which actually does three protected pushes thanks to the one-instruction 
+"interrupt shadow" after an sti.
+
+Another alternative (and to some degree a maybe a better one) is to not
+use "pushfl" at all in the sysenter sequence, but instead just push a
+fixed default value. At that point, the "sti" can stay where it was.
+
+After all, I very strongly suspect that we don't actually really _care_ if
+eflags stays the same over a system call, and I could see that some
+dynamic CPU's might prefer not having to push an eflags value that just
+got changed by the "sti", so it _might_ save several cycles to avoid that
+dependency, and also obviously avoid a subtle dependency on a sw level
+that the previous patch clearly introduced.
+
+Anybody willing to time it? ;)
+
+		Linus

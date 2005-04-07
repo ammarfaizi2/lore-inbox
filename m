@@ -1,69 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVDGXYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262615AbVDGXf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVDGXYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 19:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbVDGXV1
+	id S262615AbVDGXf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 19:35:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVDGXf1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 19:21:27 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:18602 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S262592AbVDGXR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 19:17:57 -0400
-Date: Fri, 8 Apr 2005 01:17:58 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>,
-       James Chapman <jchapman@katalix.com>
-Subject: [PATCH] ds1337 1/4
-Message-ID: <20050407231758.GB27226@orphique>
-References: <20050407111631.GA21190@orphique> <hOrXV5wl.1112879260.3338120.khali@localhost> <20050407142804.GA11284@orphique> <20050407211839.GA5357@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050407211839.GA5357@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Ladislav Michl <ladis@linux-mips.org>
+	Thu, 7 Apr 2005 19:35:27 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:31238 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262615AbVDGXVC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 19:21:02 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>, <debian-legal@lists.debian.org>,
+       <linux-acenic@sunsite.dk>
+Subject: RE: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Date: Thu, 7 Apr 2005 16:20:50 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKEEPFCPAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+In-Reply-To: <20050407161658.S32136@links.magenta.com>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 07 Apr 2005 16:20:03 -0700
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 07 Apr 2005 16:20:07 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 02:18:39PM -0700, Greg KH wrote:
-> Jean's point is that you should send an individual patch for each type
-> of individual change.  It's ok to say "patch 3 requires you to have
-> applied patches 1 and 2" and so on.  Please split this up better.
 
-Here it is...
+> On Thu, Apr 07, 2005 at 01:26:17AM -0700, David Schwartz wrote:
 
-Use i2c_transfer to send message, so we get proper bus locking.
+> > If you believe the linker "merely aggregates" the object code for the
+> > driver with the data for the firmware, I can't see how you can argue
+> > that any linking is anything but mere aggregation. In neither case can
+> > you separate the linked work into the two separate works and in both
+> > cases the linker provides one work direct access to the other.
 
-===== drivers/i2c/chips/ds1337.c 1.1 vs edited =====
---- 1.1/drivers/i2c/chips/ds1337.c	2005-03-31 22:58:08 +02:00
-+++ edited/drivers/i2c/chips/ds1337.c	2005-04-08 00:18:45 +02:00
-@@ -3,7 +3,7 @@
-  *
-  *  Copyright (C) 2005 James Chapman <jchapman@katalix.com>
-  *
-- *	based on linux/drivers/acron/char/pcf8583.c
-+ *	based on linux/drivers/acorn/char/pcf8583.c
-  *  Copyright (C) 2000 Russell King
-  *
-  * This program is free software; you can redistribute it and/or modify
-@@ -119,8 +119,7 @@
- 	msg[1].len = sizeof(buf);
- 	msg[1].buf = &buf[0];
- 
--	result = client->adapter->algo->master_xfer(client->adapter,
--						    &msg[0], 2);
-+	result = i2c_transfer(client->adapter, msg, 2);
- 
- 	dev_dbg(&client->adapter->dev,
- 		"%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
-@@ -194,8 +193,7 @@
- 	msg[0].len = sizeof(buf);
- 	msg[0].buf = &buf[0];
- 
--	result = client->adapter->algo->master_xfer(client->adapter,
--						    &msg[0], 1);
-+	result = i2c_transfer(client->adapter, msg, 1);
- 	if (result < 0) {
- 		dev_err(&client->adapter->dev, "ds1337[%d]: error "
- 			"writing data! %d\n", data->id, result);
+> You can indeed separate the firmware and the kernel into two separate
+> works.  That's what people have been proposing as the solution to this
+> problem.
+
+> Also, "mere aggregation" is a term from the GPL.  You can read what
+> it says there yourself.  But basically it's there so that people make
+> a distinction between the program itself and other stuff that isn't
+> the program.
+
+	It's also there because the GPL can only apply to either works placed under
+it by their authors and works that are legally classified as derivative. If
+you merely aggregate two works, there is no derivation. The GPL is making
+clear that it's not trying to exceed the scope of its authority (which is
+copyright law).
+
+> Without that mere aggregation clause, people might be claiming that
+> text on a disk has to be GPLed because of emacs, or that postscript
+> files have to be GPLed because of ghostscript, or more generally that
+> arbitrary object FOO has to be GPLed because of gpled program BAR.
+
+	They could, but they would still be wrong. Because if you "merely
+aggregate" two works, the result is still two works that can each be under
+their own license. The GPL is only making clear what is outside its
+authority, but it does not set the scope of its own authority anyway.
+
+> Put another way, what the linker does or doesn't do isn't really the
+> issue.
+
+	Well it is. The question is whether you can link two object files together
+and distribute the result under the license of each independent file,
+treating it like a disk with two files on it, rather than as a single work.
+
+> People like to think that the linker is somehow special for copyright,
+> but it's not.  Either the stuff being linked is protected by copyright
+> even when it's not linked or it's not protected by copyright after it is
+> linked.  If the license says something about linking then that matters,
+> but only for cases where the code was protected by copyright even before
+> it was linked.  And then linking only matters in the specific way that
+> that license says it matters.
+
+	Regardless of what the GPL says, there is a genuine question of whether
+linking together file A and file B results in a file C that contains the two
+separate works or is a single work that is derivative of both A and B. This
+is important because of aspects of copyright law that the GPL acknowledges
+explicitly but does not get to decide.
+
+	DS
+
+

@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVDHAAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbVDHAEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbVDHAAu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 20:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbVDHAAt
+	id S262623AbVDHAEW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 20:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVDHAEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 20:00:49 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13540 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262617AbVDHAAf (ORCPT
+	Thu, 7 Apr 2005 20:04:22 -0400
+Received: from gate.crashing.org ([63.228.1.57]:46303 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262623AbVDHAET (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 20:00:35 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: iomapping a big endian area
-Date: Thu, 7 Apr 2005 16:57:53 -0700
-User-Agent: KMail/1.7.2
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "David S. Miller" <davem@davemloft.net>, matthew@wil.cx,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Thu, 7 Apr 2005 20:04:19 -0400
+Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
+	accesses
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Dave Airlie <airlied@gmail.com>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <1112475134.5786.29.camel@mulgrave> <20050404141616.GA10384@infradead.org> <1112624705.5813.19.camel@mulgrave>
-In-Reply-To: <1112624705.5813.19.camel@mulgrave>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+In-Reply-To: <jemzsa6sxg.fsf@sykes.suse.de>
+References: <1110519743.5810.13.camel@gaston>
+	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	 <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
+	 <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
+	 <21d7e9970504071422349426eb@mail.gmail.com>
+	 <1112914795.9568.320.camel@gaston>  <jemzsa6sxg.fsf@sykes.suse.de>
+Content-Type: text/plain
+Date: Fri, 08 Apr 2005 10:03:05 +1000
+Message-Id: <1112918586.9567.343.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504071657.54172.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, April 4, 2005 7:25 am, James Bottomley wrote:
-> On Mon, 2005-04-04 at 15:16 +0100, Christoph Hellwig wrote:
-> > The IOC4 device that provides IDE, serial ports and external interrupts
-> > on Altix systems has a big endian register layour, and the PCI-X bridge
-> > in those Altix systems can do the swapping if a special bit is set.
-> >
-> > In older kernels that bit was set from the driver through a special API,
-> > but it seems the firmware does that automatically now.
->
-> We already have some unusual code in drivers to support other altix
-> design ... features ... do you regard this as something that's likely to
-> be replicated on other platforms, or is it more in the category of a one
-> off mistake that can be corrected in firmware?
+On Fri, 2005-04-08 at 01:58 +0200, Andreas Schwab wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+> 
+> > Yes, that's very extreme, I suspect somebody is banging on set_par or
+> > something like that.
+> 
+> fb_setcolreg is it.
 
-The whole line of altix pci bridges can do byteswapping, so it's more than 
-just one product that could benefit (however slightly).  Not sure about other 
-bridges though.
+Ahhh... interesting. I'll see if I can find a way to work around that
+one. Best would be to "cache" the current PLL register index in fact,
+but I'm afraid that may not work terribly well with userland apps
+hacking it ...
 
-Jesse
+Ben.
+
+

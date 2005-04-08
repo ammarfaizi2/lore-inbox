@@ -1,32 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262727AbVDHKbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVDHKc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262727AbVDHKbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 06:31:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262798AbVDHKa7
+	id S262690AbVDHKc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 06:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVDHKc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 06:30:59 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:22987 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262791AbVDHKaU (ORCPT
+	Fri, 8 Apr 2005 06:32:27 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5527 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262690AbVDHKcB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 06:30:20 -0400
-Date: Fri, 8 Apr 2005 12:28:54 +0200
+	Fri, 8 Apr 2005 06:32:01 -0400
+Date: Fri, 8 Apr 2005 12:31:42 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Lee Revell <rlrevell@joe-job.com>, Thomas Renninger <trenn@suse.de>
-Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1
-Message-ID: <20050408102854.GB1392@elf.ucw.cz>
-References: <20050406083000.GA8658@atomide.com> <425451A0.7020000@tuxrocks.com> <20050407082136.GF13475@atomide.com> <4255A7AF.8050802@tuxrocks.com> <4255B247.4080906@tuxrocks.com> <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com>
+To: Adam Belay <abelay@novell.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
+       Greg KH <greg@kroah.com>, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] Re: [RFC] Driver States
+Message-ID: <20050408103142.GC1392@elf.ucw.cz>
+References: <1111963367.3503.152.camel@localhost.localdomain> <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net> <1112222717.3503.213.camel@localhost.localdomain> <20050405092423.GA7254@elf.ucw.cz> <1112817072.8517.15.camel@linux.site>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050408075001.GC4477@atomide.com>
+In-Reply-To: <1112817072.8517.15.camel@linux.site>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -34,55 +29,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > I think I have an idea on what's going on; Your system does not wake to
-> > APIC interrupt, and the system timer updates time only on other interrupts.
-> > I'm experiencing the same on a loaner ThinkPad T30.
+> > > > You have a few things here that can easily conflict, and that will be
+> > > > developed at different paces. I like the direction that it's going, but
+> > > > how do you intend to do it gradually. I.e. what to do first?
+> > > 
+> > > I think the first step would be for us to all agree on a design, whether
+> > > it be this one or another, so we can began planning for long term
+> > > changes.
+> > > 
+> > > My arguments for these changes are as follows:
 > > 
-> > I'll try to do another patch today. Meanwhile it now should work
-> > without lapic in cmdline.
+> > 0. I do not see how to gradually roll this in.
+> > 
+> > >      4. Having responsibilities at each driver level encourages a
+> > >         layered and object based design, reducing code duplication and
+> > >         complexity.
+> > 
+> > Unfortunately, you'll be retrofiting this to existing drivers. AFAICS,
+> > trying to force existing driver to "layered and object based design"
+> > can only result in mess.
+> > 								Pavel
 > 
-> Following is an updated patch. Anybody having trouble, please try
-> disabling CONFIG_DYN_TICK_USE_APIC Kconfig option.
-> 
-> I'm hoping this might work on Pavel's machine too?
+> Fair enough.  How does this sound?  I'd like to add "*attach" and
+> "*detach" to "struct device_driver".  These functions would act as one
+> time initializers and decontructors.  Then we could rename "*probe" to
+> "*start", and "*remove" to "*stop", which should be rather trivial to
 
-The "volume hang" was explained: I was using CPU frequency scaling, it
-probably did not like that. After disabling CPU frequency scaling, it
-seems to work ok:
+I do not think you'll find rename across all the drivers easy. You
+could get away with "I create start, and if it does not exist, probe
+is called instead", but you need pretty good justification for that, too.
 
 								Pavel
-
-pavel@Elf:~$ cat /proc/interrupts ; sleep  1 ; cat /proc/interrupts
-           CPU0
-  0:      33288          XT-PIC  timer
-  1:       1021          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  9:          2          XT-PIC  acpi
- 10:      94036          XT-PIC  yenta, yenta, ehci_hcd:usb1,
-uhci_hcd:usb2, uhci_hcd:usb3, uhci_hcd:usb4
- 11:       3941          XT-PIC  Intel 82801DB-ICH4, eth0
- 12:         17          XT-PIC  i8042
- 14:       5119          XT-PIC  ide0
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
-           CPU0
-  0:      33568          XT-PIC  timer
-  1:       1022          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  9:          2          XT-PIC  acpi
- 10:      94323          XT-PIC  yenta, yenta, ehci_hcd:usb1,
-uhci_hcd:usb2, uhci_hcd:usb3, uhci_hcd:usb4
- 11:       3951          XT-PIC  Intel 82801DB-ICH4, eth0
- 12:         17          XT-PIC  i8042
- 14:       5192          XT-PIC  ide0
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
-pavel@Elf:~$
-
-
 -- 
 Boycott Kodak -- for their patent abuse against Java.

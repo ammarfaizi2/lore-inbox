@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVDHFwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVDHF4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVDHFwi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 01:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262690AbVDHFwf
+	id S262691AbVDHF4E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 01:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVDHF4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 01:52:35 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:9636 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261196AbVDHFwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 01:52:32 -0400
-Message-ID: <42561C5B.2060507@soft.fujitsu.com>
-Date: Fri, 08 Apr 2005 14:53:31 +0900
-From: Kenji Kaneshige <kaneshige.kenji@soft.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: ja, en-us, en
+	Fri, 8 Apr 2005 01:56:04 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49628 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262691AbVDHFz5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 01:55:57 -0400
+Date: Fri, 8 Apr 2005 01:55:01 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+cc: Kay Sievers <kay.sievers@vrfy.org>, Ian Campbell <ijc@hellion.org.uk>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+In-Reply-To: <1112931695.28858.188.camel@uganda>
+Message-ID: <Xine.LNX.4.44.0504080152540.24105-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 'is_enabled' flag should be set/cleared when the device is
- actually enabled/disabled
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 8 Apr 2005, Evgeniy Polyakov wrote:
 
-I think 'is_enabled' flag in pci_dev structure should be set/cleared
-when the device actually enabled/disabled. Especially about
-pci_enable_device(), it can be failed. By this change, we will also
-get the possibility of refering 'is_enabled' flag from the functions
-called through pci_enable_device()/pci_disable_device().
+> > > Sure, but seems I need to ask again: What is the exact reason not to implement
+> > > the muticast message multiplexing/subscription part of the connector as a
+> > > generic part of netlink? That would be nice to have and useful for other
+> > > subsystems too as an option to the current broadcast.
+> > 
+> > This is a good point, in general, consider generically extending Netlink 
+> > itself instead of creating these separate things.
+> 
 
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+> Connector requires it's own registration technique for
+> 1. hide all transport [netlink] layer from higher protocols which use
+> connector
+
+Why?
+
+> 2. create different group appointment for the given connector's ID
+> [it was different, now new group which is eqal to idx field is appointed
+> to 
+> the new callback]
+
+I don't understand.
+
+> 3. provide more generic set of ids
+
+What do you mean by "ids"?
 
 
----
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
- linux-2.6.12-rc2-kanesige/drivers/pci/pci.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
 
-diff -puN drivers/pci/pci.c~fix_update_is_enabled drivers/pci/pci.c
---- linux-2.6.12-rc2/drivers/pci/pci.c~fix_update_is_enabled	2005-04-07 18:59:47.058814755 +0900
-+++ linux-2.6.12-rc2-kanesige/drivers/pci/pci.c	2005-04-07 19:02:25.843969060 +0900
-@@ -398,10 +398,10 @@ pci_enable_device(struct pci_dev *dev)
- {
- 	int err;
- 
--	dev->is_enabled = 1;
- 	if ((err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1)))
- 		return err;
- 	pci_fixup_device(pci_fixup_enable, dev);
-+	dev->is_enabled = 1;
- 	return 0;
- }
- 
-@@ -427,16 +427,15 @@ pci_disable_device(struct pci_dev *dev)
- {
- 	u16 pci_command;
- 	
--	dev->is_enabled = 0;
--	dev->is_busmaster = 0;
--
- 	pci_read_config_word(dev, PCI_COMMAND, &pci_command);
- 	if (pci_command & PCI_COMMAND_MASTER) {
- 		pci_command &= ~PCI_COMMAND_MASTER;
- 		pci_write_config_word(dev, PCI_COMMAND, pci_command);
- 	}
-+	dev->is_busmaster = 0;
- 
- 	pcibios_disable_device(dev);
-+	dev->is_enabled = 0;
- }
- 
- /**
-
-_

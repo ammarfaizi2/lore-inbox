@@ -1,67 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262952AbVDHU0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262949AbVDHUby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262952AbVDHU0u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 16:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262950AbVDHU0u
+	id S262949AbVDHUby (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 16:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262954AbVDHUby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 16:26:50 -0400
-Received: from relay00.pair.com ([209.68.1.20]:1543 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S262949AbVDHUZz (ORCPT
+	Fri, 8 Apr 2005 16:31:54 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:24192 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262951AbVDHU25 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 16:25:55 -0400
-X-pair-Authenticated: 24.241.238.70
-Message-ID: <4256E8DB.1000104@cybsft.com>
-Date: Fri, 08 Apr 2005 15:26:03 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Fri, 8 Apr 2005 16:28:57 -0400
+Message-ID: <4256E940.9050306@engr.sgi.com>
+Date: Fri, 08 Apr 2005 13:27:44 -0700
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Rui Nuno Capela <rncbc@rncbc.org>, Steven Rostedt <rostedt@goodmis.org>,
-       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>	 <46802.192.168.1.5.1112727980.squirrel@www.rncbc.org>	 <1112729762.5147.62.camel@localhost.localdomain>	 <39754.192.168.1.5.1112973759.squirrel@www.rncbc.org>	 <1112980542.10271.4.camel@mindpipe>  <4256E671.4040303@cybsft.com> <1112991421.11000.39.camel@mindpipe>
-In-Reply-To: <1112991421.11000.39.camel@mindpipe>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: johnpol@2ka.mipt.ru
+CC: Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>, greg@kroah.com,
+       linux-kernel@vger.kernel.org, efocht@hpce.nec.com, linuxram@us.ibm.com,
+       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, aquynh@gmail.com,
+       dean-list-linux-kernel@arctic.org, pj@sgi.com
+Subject: Re: [patch 2.6.12-rc1-mm4] fork_connector: add a fork connector
+References: <1112277542.20919.215.camel@frecb000711.frec.bull.fr>	 <20050331144428.7bbb4b32.akpm@osdl.org>  <424C9177.1070404@engr.sgi.com>	 <1112341968.9334.109.camel@uganda> <4255B6D2.7050102@engr.sgi.com>	 <4255B868.6040600@engr.sgi.com>  <1112955840.28858.236.camel@uganda> <1112957563.28858.240.camel@uganda>
+In-Reply-To: <1112957563.28858.240.camel@uganda>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Fri, 2005-04-08 at 15:15 -0500, K.R. Foley wrote:
+My workarea was based on 2.6.12-rc1-mm4 plus Guilluame's patch.
+
+Your patch caused 5 out of 8 hunks failure at connector.c
+and one failure at connector.h.
+
+Could you generate a new patch based on my version? A tar
+file of complete source of drivers/connector would work
+also. :)
+
+Thanks!
+  - jay
+
+Evgeniy Polyakov wrote:
+> Could you give attached patch a try instead of previous one.
+> It adds gfp mask into cn_netlink_send() call also.
+> If you need updated CBUS sources, feel free to ask, 
+> I will send updated sources with Andrew's comments resolved too.
 > 
->>Lee Revell wrote:
->>
->>>On Fri, 2005-04-08 at 16:22 +0100, Rui Nuno Capela wrote:
->>>
->>>
->>>>>Our first victim!! :-)
->>>>>
->>>>
->>>>No kidding!?
->>>>
->>>
->>>
->>>V0.7.44-02 does not even compile for me.  It appears to be full of merge
->>>errors.
->>>
->>
->>I must be in the twilight zone over here. V0.7.44-02 runs fine on my UP 
->>system, my older SMP system (although I have to compile in my SCSI 
->>drivers, but that has nothing to do with this patch) and my faster P4/HT 
->>SMP system at the office.
+> I do not know exactly your connector version, 
+> so patch will probably be applied with fuzz.
+> 
+> feel free to contact if it does not apply, I will send
+> the whole sources.
+> 
+> Thank you.
+> 
+> * looking for johnpol@2ka.mipt.ru-2004/connector--main--0--patch-38 to compare with
+> * comparing to johnpol@2ka.mipt.ru-2004/connector--main--0--patch-38
+> M  connector.c
+> M  connector.h
+> M  cbus.c
+> 
+> * modified files
+> 
+> --- orig/drivers/connector/connector.c
+> +++ mod/drivers/connector/connector.c
+> @@ -70,7 +70,7 @@
+>   * then it is new message.
+>   *
+>   */
+> -void cn_netlink_send(struct cn_msg *msg, u32 __groups)
+> +void cn_netlink_send(struct cn_msg *msg, u32 __groups, int gfp_mask)
+>  {
+>  	struct cn_callback_entry *n, *__cbq;
+>  	unsigned int size;
+> @@ -102,7 +102,7 @@
+>  
+>  	size = NLMSG_SPACE(sizeof(*msg) + msg->len);
+>  
+> -	skb = alloc_skb(size, GFP_ATOMIC);
+> +	skb = alloc_skb(size, gfp_mask);
+>  	if (!skb) {
+>  		printk(KERN_ERR "Failed to allocate new skb with size=%u.\n", size);
+>  		return;
+> @@ -119,11 +119,11 @@
+>  #endif
+>  	
+>  	NETLINK_CB(skb).dst_groups = groups;
+> -
+> -	uskb = skb_clone(skb, GFP_ATOMIC);
+> -	if (uskb)
+> +#if 0
+> +	uskb = skb_clone(skb, gfp_mask);
+> +	if (uskb && 0)
+>  		netlink_unicast(dev->nls, uskb, 0, 0);
+> -	
+> +#endif	
+>  	netlink_broadcast(dev->nls, skb, 0, groups, GFP_ATOMIC);
+>  
+>  	return;
+> @@ -158,7 +158,7 @@
+>  	}
+>  	spin_unlock_bh(&dev->cbdev->queue_lock);
+>  
+> -	return found;
+> +	return (found)?0:-ENODEV;
+>  }
+>  
+>  /*
+> @@ -181,7 +181,6 @@
+>  				"requested msg->len=%u[%u], nlh->nlmsg_len=%u, skb->len=%u.\n",
+>  				msg->len, NLMSG_SPACE(msg->len + sizeof(*msg)),
+>  				nlh->nlmsg_len, skb->len);
+> -		kfree_skb(skb);
+>  		return -EINVAL;
+>  	}
+>  #if 0
+> @@ -215,17 +214,18 @@
+>  	       skb->len, skb->data_len, skb->truesize, skb->protocol,
+>  	       skb_cloned(skb), skb_shared(skb));
+>  #endif
+> -	while (skb->len >= NLMSG_SPACE(0)) {
+> +	if (skb->len >= NLMSG_SPACE(0)) {
+>  		nlh = (struct nlmsghdr *)skb->data;
+> +
+>  		if (nlh->nlmsg_len < sizeof(struct cn_msg) ||
+>  		    skb->len < nlh->nlmsg_len ||
+>  		    nlh->nlmsg_len > CONNECTOR_MAX_MSG_SIZE) {
+> -#if 0
+> +#if 1
+>  			printk(KERN_INFO "nlmsg_len=%u, sizeof(*nlh)=%u\n",
+>  			       nlh->nlmsg_len, sizeof(*nlh));
+>  #endif
+>  			kfree_skb(skb);
+> -			break;
+> +			goto out;
+>  		}
+>  
+>  		len = NLMSG_ALIGN(nlh->nlmsg_len);
+> @@ -233,22 +233,11 @@
+>  			len = skb->len;
+>  
+>  		err = __cn_rx_skb(skb, nlh);
+> -		if (err) {
+> -#if 0
+> -			if (err < 0 && (nlh->nlmsg_flags & NLM_F_ACK))
+> -				netlink_ack(skb, nlh, -err);
+> -#endif
+> -			break;
+> -		} else {
+> -#if 0
+> -			if (nlh->nlmsg_flags & NLM_F_ACK)
+> -				netlink_ack(skb, nlh, 0);
+> -#endif
+> -			break;
+> -		}
+> -		skb_pull(skb, len);
+> +		if (err < 0)
+> +			kfree_skb(skb);
+>  	}
+> -			
+> +
+> +out:
+>  	kfree_skb(__skb);
+>  }
+>  
+> @@ -310,7 +299,7 @@
+>  			m.ack = notify_event;
+>  
+>  			memcpy(&m.id, id, sizeof(m.id));
+> -			cn_netlink_send(&m, ctl->group);
+> +			cn_netlink_send(&m, ctl->group, GFP_ATOMIC);
+>  		}
+>  	}
+>  	spin_unlock_bh(&notify_lock);
 > 
 > 
-> Meh, I'll try again, maybe it's some weird NFS problem.
+> --- orig/include/linux/connector.h
+> +++ mod/include/linux/connector.h
+> @@ -148,7 +148,7 @@
+>  
+>  int cn_add_callback(struct cb_id *, char *, void (* callback)(void *));
+>  void cn_del_callback(struct cb_id *);
+> -void cn_netlink_send(struct cn_msg *, u32);
+> +void cn_netlink_send(struct cn_msg *, u32, int);
+>  
+>  int cn_queue_add_callback(struct cn_queue_dev *dev, struct cn_callback *cb);
+>  void cn_queue_del_callback(struct cn_queue_dev *dev, struct cb_id *id);
 > 
-> Lee
+> 
+> 
+> 
 > 
 
-Hmm. Maybe. I should probably mention that I am doing an FC3 install via 
-NFS from my older SMP system right now while also building V0.7.44-03.
-
--- 
-    kr

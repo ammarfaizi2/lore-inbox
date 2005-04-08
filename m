@@ -1,70 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVDHNCg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262818AbVDHNGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262806AbVDHNCg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 09:02:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVDHNCB
+	id S262818AbVDHNGS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 09:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVDHNFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 09:02:01 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:21912 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S262806AbVDHNAU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 09:00:20 -0400
-Date: Fri, 8 Apr 2005 15:00:21 +0200
-To: Greg KH <greg@kroah.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>,
-       James Chapman <jchapman@katalix.com>
-Subject: Re: [PATCH] ds1337 1/4
-Message-ID: <20050408130021.GA7054@orphique>
-References: <20050407111631.GA21190@orphique> <hOrXV5wl.1112879260.3338120.khali@localhost> <20050407142804.GA11284@orphique> <20050407211839.GA5357@kroah.com> <20050407231758.GB27226@orphique> <20050407233628.GA6703@kroah.com>
+	Fri, 8 Apr 2005 09:05:38 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:11702 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262808AbVDHNEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 09:04:22 -0400
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Christoph Hellwig <hch@infradead.org>, Chris Rankin <rankincj@yahoo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050407144557.GK1847@suse.de>
+References: <20050406175838.GC15165@suse.de>
+	 <1112811607.5555.15.camel@mulgrave> <20050406190838.GE15165@suse.de>
+	 <1112821799.5850.19.camel@mulgrave> <20050407064934.GJ15165@suse.de>
+	 <1112879919.5842.3.camel@mulgrave> <20050407132205.GA16517@infradead.org>
+	 <1112880658.5842.10.camel@mulgrave> <20050407133222.GJ1847@suse.de>
+	 <1112881183.5842.13.camel@mulgrave>  <20050407144557.GK1847@suse.de>
+Content-Type: text/plain
+Date: Fri, 08 Apr 2005 09:04:09 -0400
+Message-Id: <1112965449.5838.9.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050407233628.GA6703@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Ladislav Michl <ladis@linux-mips.org>
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 04:36:29PM -0700, Greg KH wrote:
-> Oops, you forgot to add a Signed-off-by: line for every patch, as per
-> Documentation/SubmittingPatches.  Care to redo them?
+On Thu, 2005-04-07 at 16:45 +0200, Jens Axboe wrote:
+> So clear ->request_queue instead.
 
-Here it is (I'm sorry about that).
 
-Use i2c_transfer to send message, so we get proper bus locking.
+Will do.  Did you want me to look after your patch and add this, or do
+you want to send it to Linus (after the purdah is over)?
 
-Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+James
 
-===== drivers/i2c/chips/ds1337.c 1.1 vs edited =====
---- 1.1/drivers/i2c/chips/ds1337.c	2005-03-31 22:58:08 +02:00
-+++ edited/drivers/i2c/chips/ds1337.c	2005-04-08 00:18:45 +02:00
-@@ -3,7 +3,7 @@
-  *
-  *  Copyright (C) 2005 James Chapman <jchapman@katalix.com>
-  *
-- *	based on linux/drivers/acron/char/pcf8583.c
-+ *	based on linux/drivers/acorn/char/pcf8583.c
-  *  Copyright (C) 2000 Russell King
-  *
-  * This program is free software; you can redistribute it and/or modify
-@@ -119,8 +119,7 @@
- 	msg[1].len = sizeof(buf);
- 	msg[1].buf = &buf[0];
- 
--	result = client->adapter->algo->master_xfer(client->adapter,
--						    &msg[0], 2);
-+	result = i2c_transfer(client->adapter, msg, 2);
- 
- 	dev_dbg(&client->adapter->dev,
- 		"%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
-@@ -194,8 +193,7 @@
- 	msg[0].len = sizeof(buf);
- 	msg[0].buf = &buf[0];
- 
--	result = client->adapter->algo->master_xfer(client->adapter,
--						    &msg[0], 1);
-+	result = i2c_transfer(client->adapter, msg, 1);
- 	if (result < 0) {
- 		dev_err(&client->adapter->dev, "ds1337[%d]: error "
- 			"writing data! %d\n", data->id, result);
+

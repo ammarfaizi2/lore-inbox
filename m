@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVDHKc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVDHKf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262690AbVDHKc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 06:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVDHKc1
+	id S261669AbVDHKf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 06:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbVDHKf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 06:32:27 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5527 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262690AbVDHKcB (ORCPT
+	Fri, 8 Apr 2005 06:35:56 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6551 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262717AbVDHKds (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 06:32:01 -0400
-Date: Fri, 8 Apr 2005 12:31:42 +0200
+	Fri, 8 Apr 2005 06:33:48 -0400
+Date: Fri, 8 Apr 2005 12:33:27 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Adam Belay <abelay@novell.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Patrick Mochel <mochel@digitalimplant.org>,
-       Greg KH <greg@kroah.com>, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] Re: [RFC] Driver States
-Message-ID: <20050408103142.GC1392@elf.ucw.cz>
-References: <1111963367.3503.152.camel@localhost.localdomain> <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net> <1112222717.3503.213.camel@localhost.localdomain> <20050405092423.GA7254@elf.ucw.cz> <1112817072.8517.15.camel@linux.site>
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       mjg59@scrf.ucam.org, hare@suse.de
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050408103327.GD1392@elf.ucw.cz>
+References: <20050405000524.592fc125.akpm@osdl.org> <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net> <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net> <20050405175600.644e2453.akpm@osdl.org> <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net> <20050406142749.6065b836.akpm@osdl.org> <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112817072.8517.15.camel@linux.site>
+In-Reply-To: <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,36 +28,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > You have a few things here that can easily conflict, and that will be
-> > > > developed at different paces. I like the direction that it's going, but
-> > > > how do you intend to do it gradually. I.e. what to do first?
-> > > 
-> > > I think the first step would be for us to all agree on a design, whether
-> > > it be this one or another, so we can began planning for long term
-> > > changes.
-> > > 
-> > > My arguments for these changes are as follows:
+> > > Ok, I've narrowed the problem down to one patch. In 2.6.11-mm3, the
+> > > problem goes away if I remove this patch:
+> > > swsusp-enable-resume-from-initrd.patch
 > > 
-> > 0. I do not see how to gradually roll this in.
-> > 
-> > >      4. Having responsibilities at each driver level encourages a
-> > >         layered and object based design, reducing code duplication and
-> > >         complexity.
-> > 
-> > Unfortunately, you'll be retrofiting this to existing drivers. AFAICS,
-> > trying to force existing driver to "layered and object based design"
-> > can only result in mess.
-> > 								Pavel
+> > That really helps, thanks.
 > 
-> Fair enough.  How does this sound?  I'd like to add "*attach" and
-> "*detach" to "struct device_driver".  These functions would act as one
-> time initializers and decontructors.  Then we could rename "*probe" to
-> "*start", and "*remove" to "*stop", which should be rather trivial to
+> You're welcome.
+> 
+> > The patch looks fairly innocent.  I'll give up on this and cc the
+> > developers.
+> 
+> Yeah, it *seemed* innocent enough -- that's why I had to do a binary
+> search on the 2.6.11-mm3 "series" file in order to find it as the
+> culprit...
 
-I do not think you'll find rename across all the drivers easy. You
-could get away with "I create start, and if it does not exist, probe
-is called instead", but you need pretty good justification for that, too.
+Do you have XFS compiled in, by chance?
 
+You are not actually resuming from initrd, right?
 								Pavel
+
 -- 
 Boycott Kodak -- for their patent abuse against Java.

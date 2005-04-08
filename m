@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262919AbVDHSUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVDHSUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262919AbVDHSUp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 14:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbVDHSUn
+	id S262912AbVDHSUW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 14:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVDHSUU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 14:20:43 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:50949 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262913AbVDHSRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 14:17:17 -0400
-Date: Fri, 8 Apr 2005 20:17:13 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Allison <fireflyblue@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel compile
-Message-ID: <20050408181713.GD15688@stusta.de>
-References: <17d798805040716097d82c0d@mail.gmail.com>
+	Fri, 8 Apr 2005 14:20:20 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:39097 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262919AbVDHSRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 14:17:43 -0400
+Date: Fri, 8 Apr 2005 20:17:41 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: Re: [PATCH] restrict inter_module_* to its last users
+Message-ID: <20050408181741.GA12170@wohnheim.fh-wedel.de>
+References: <20050408170805.GE2292@wohnheim.fh-wedel.de> <20050408104826.3ca70fb4.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <17d798805040716097d82c0d@mail.gmail.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050408104826.3ca70fb4.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 07:09:18PM -0400, Allison wrote:
-
-> Hi,
+On Fri, 8 April 2005 10:48:26 -0700, Andrew Morton wrote:
+> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+> >
+> > Next step for inter_module removal.  This patch makes the code
+> >  conditional on its last users and shrinks the kernel binary for the
+> >  huge majority of people.
 > 
-> Is it possible to compile a 2.4.20 kernel on a 2.6 system ?
-> And use the new image successfully ?
+> If we do this, nobody will get around to fixing up the remaining users.
 
-It doesn't matter what the system you are compiling on is running.
+I would do that personally if someone explained inter_module_* to me.
+Right now, I have absolutely no clue what the perceived problem was
+and how inter_module_* supposedly solved that problem.
 
-> thanks,
-> Allison
-
-cu
-Adrian
+Jörn
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+The strong give up and move away, while the weak give up and stay.
+-- unknown

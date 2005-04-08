@@ -1,80 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVDHDqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbVDHDtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbVDHDqm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 23:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVDHDqm
+	id S262669AbVDHDtV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 23:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262675AbVDHDtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 23:46:42 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:31924 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262675AbVDHDqZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 23:46:25 -0400
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: akpm@osdl.org, guillaume.thouvenin@bull.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050408033246.GA31344@gondor.apana.org.au>
-References: <E1DJjiR-000850-00@gondolin.me.apana.org.au>
-	 <1112931238.28858.180.camel@uganda>
-	 <20050408033246.GA31344@gondor.apana.org.au>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t/P9MTnnfGVhuhp2MEgo"
-Organization: MIPT
-Date: Fri, 08 Apr 2005 07:52:34 +0400
-Message-Id: <1112932354.28858.192.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 08 Apr 2005 07:45:42 +0400 (MSD)
+	Thu, 7 Apr 2005 23:49:21 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39612 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262669AbVDHDtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 23:49:14 -0400
+To: Sven Luther <sven.luther@wanadoo.fr>
+Cc: Arjan van de Ven <arjan@infradead.org>, Christoph Hellwig <hch@lst.de>,
+       Ian Campbell <ijc@hellion.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
+       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+References: <20050404205527.GB8619@thunk.org> <20050404211931.GB3421@pegasos>
+	<1112689164.3086.100.camel@icampbell-debian>
+	<20050405083217.GA22724@pegasos>
+	<1112690965.3086.107.camel@icampbell-debian>
+	<20050405091144.GA18219@lst.de>
+	<1112693287.6275.30.camel@laptopd505.fenrus.org>
+	<m1wtrfk8w3.fsf@ebiederm.dsl.xmission.com>
+	<20050407112738.GB8508@pegasos>
+	<m1mzsakdws.fsf@ebiederm.dsl.xmission.com>
+	<20050407184241.GA13620@pegasos>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Apr 2005 21:06:58 -0600
+In-Reply-To: <20050407184241.GA13620@pegasos>
+Message-ID: <m11x9mge5p.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sven Luther <sven.luther@wanadoo.fr> writes:
 
---=-t/P9MTnnfGVhuhp2MEgo
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > It sounds like you are now looking at the question of are the
+> > huge string of hex characters the preferred form for making
+> > modifications to firmware.  Personally I would be surprised
+> > but those hunks are small enough it could have been written
+> > in machine code.
+> 
+> Yep, i also think it is in broadcom's best interest to modify the licencing
+> text accordyingly, since i suppose someone could technicaly come after them
+> legally to obtain said source code to this firmware. Unprobable though.
 
-On Fri, 2005-04-08 at 13:32 +1000, Herbert Xu wrote:
-> On Fri, Apr 08, 2005 at 07:33:58AM +0400, Evgeniy Polyakov wrote:
-> > On Fri, 2005-04-08 at 12:59 +1000, Herbert Xu wrote:
-> > > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > > >
-> > > > atomic_dec_and_test() is more expensive than 2 barriers + atomic_de=
-c(),
-> > > > but in case of connector I think the price is not so high.
-> > >=20
-> > > Can you list the platforms on which this is true?
-> >=20
-> > sparc64, some mips [at least in UP].
->=20
-> Are you sure? The implementations of atomic_sub and atomic_sub_return
-> (which correspond to atomic_dec and atomic_dec_and_test) seem to be
-> comparable in cost on those two architectures.
+Possibly.  It sounds like that is what you want to do.
+ 
+> > So I currently have no reason to believe that anything has been
+> > done improperly with that code.
+> 
+> Well, it all depends if you consider this firmware blob as software, which i
+> feel it is without doubt, or we have not the same definition of software,
+> i.e., the program which runs on the hardware, or not. We cannot claim this is
+> data,
+> 
+> since there should be at least some kind of executable code in it,
+> independenlty of the fact that we claim that data is also software.
 
-mips has additional sync.
-sparc64 has 32->64 conversation on exit.
+Do you have any evidence that ``software'' was not written directly in
+machine code?   Software is written directly in machine code when a programmer
+looks at the instruction set and writes down the binary representation
+of the instructions.  I know ISC dhcpd has packet filter code that was written
+in that manner, so it is not a lost art.   And it is done often enough when
+an assembler will not cooperate, and generate the correct instruction.
 
-> Perhaps Dave can clarify for us about sparc64?
+Without evidence that we don't have the preferred form of the software
+for making modifications I don't see how you can complain.
 
-Dave?
+Eric
 
-> Cheers,
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-t/P9MTnnfGVhuhp2MEgo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCVgACIKTPhE+8wY0RAjZpAJ4mUm9ZF14S6O84BDrdLHFiJSW5mQCdFMvv
-+qwozrkP+JkRHWCUOy70pEk=
-=oD0a
------END PGP SIGNATURE-----
-
---=-t/P9MTnnfGVhuhp2MEgo--
 

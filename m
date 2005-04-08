@@ -1,57 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVDHM6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262804AbVDHM7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbVDHM6w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 08:58:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVDHM6v
+	id S262804AbVDHM7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 08:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVDHM7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 08:58:51 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:44743 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262790AbVDHM6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 08:58:42 -0400
-Message-ID: <42568000.9090400@gmx.net>
-Date: Fri, 08 Apr 2005 14:58:40 +0200
-From: Wotan23 <robert-maillist@gmx.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: de-DE, de, en-us, en
+	Fri, 8 Apr 2005 08:59:17 -0400
+Received: from mx2.suse.de ([195.135.220.15]:14799 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262804AbVDHM7A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 08:59:00 -0400
+Message-ID: <4256800A.6040407@suse.de>
+Date: Fri, 08 Apr 2005 14:58:50 +0200
+From: Thomas Renninger <trenn@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050317
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: linker error lib/lib.a (lib/string.c)
-Content-Type: text/plain; charset=ISO-8859-15
+To: Tony Lindgren <tony@atomide.com>
+Cc: Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1
+References: <20050406083000.GA8658@atomide.com> <425451A0.7020000@tuxrocks.com> <20050407082136.GF13475@atomide.com> <4255A7AF.8050802@tuxrocks.com> <4255B247.4080906@tuxrocks.com> <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com> <42564584.4080606@tuxrocks.com> <42566C22.4040509@suse.de> <20050408115535.GI4477@atomide.com>
+In-Reply-To: <20050408115535.GI4477@atomide.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:a6d64f00942060a8b48ccf3803478cad
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-when i compile the 2.6.12-rc2-mm1 on a ppc with "make all" i got for line:
+Tony Lindgren wrote:
+> * Thomas Renninger <trenn@suse.de> [050408 04:34]:
+>>Here are some figures about idle/C-states:
+>>
+>>Passing bm_history=0xF to processor module makes it going into C3 and deeper.
+>>Passing lower values, deeper states are reached more often, but system could freeze:
+> 
+> Hmm, I wonder why it freezes? Is it ACPI issue or related to dyn-tick?
+> 
+It's an ACPI issue.
+As far as I understand: If there has been bus master activity in the last
+xx(~30?!?) ms, C3 and deeper sleep states must not be triggered.
+If running into it, the system just freezes without any further output
+or response.
 
-ld -m elf32ppc -o arch/ppc/boot/openfirmware/coffboot -T
-/usr/src/linux-2.6.12-rc2-mm1/arch/ppc/boot/ld.script -e _start -Ttext
-0x00500000 -Bstatic arch/ppc/boot/openfirmware/coffcrt0.o
-arch/ppc/boot/openfirmware/start.o arch/ppc/boot/openfirmware/misc.o
-arch/ppc/boot/openfirmware/common.o
-arch/ppc/boot/openfirmware/coffmain.o arch/ppc/boot/openfirmware/image.o
-lib/lib.a arch/ppc/boot/lib/lib.a arch/ppc/boot/of1275/lib.a
-arch/ppc/boot/common/lib.a && objcopy
-arch/ppc/boot/openfirmware/coffboot arch/ppc/boot/openfirmware/coffboot
--R .comment
+>>Figures NO_IDLE_HZ disabled, HZ=1000 (max sleep 1ms)
+> ...
+>>Total switches between C-states:  20205
+>>Switches between C-states per second:  1063 per second
+>>
+>>Figures NO_IDLE_HZ enabled, processor.bm_history=0xF HZ=1000:
+> ...
+>>Total switches between C-states:  4659
+>>Switches between C-states per second:  65 per second
+> 
+> The reduction in C state changes should produce some power savings,
+> assuming the C states do something...
+>
+I heard on this machine battery lasts half an hour longer since
+C4 state is used, hopefully we can get some more minutes by using it
+more often and longer ...
 
-the output :
+>>I buffer C-state times in an array and write them to /dev/cstX.
+>>From there I calc the stats from userspace.
+>>
+>>Tony: If you like I can send you the patch and dump prog for
+>>http://www.muru.com/linux/dyntick/ ?
+> 
+> Yeah, that would nice to have!
 
-lib/lib.a(string.o)(.text+0x57c): In function `kstrdup':
-: undefined reference to `__kmalloc'
-objcopy: 'arch/ppc/boot/openfirmware/coffboot': No such file
-make[2]: *** [arch/ppc/boot/images/vmlinux.coff] Error 1
-make[1]: *** [openfirmware] Error 2
-make: *** [zImage] Error 2
+-> I'll send you privately.
+> 
+>>I try to find a better algorithm (directly adjust slept time to
+>>C-state latency or something) for NO_IDLE_HZ (hints are very welcome)
+>>and try to come up with new figures soon.
+> 
+> I suggest we modify idle so we can call it with the estimated sleep
+> length in usecs. Then the idle loop can directly decide when to go to
+> C2 or C3 depening on the estimated sleep length.
 
-it seem that :
+The sleep time history could be enough?
 
-+create-a-kstrdup-library-function.patch
-+create-a-kstrdup-library-function-fixes.patch
- kstrdup().
+I don't know how to calc C1 state sleep time (from drivers/acpi/processor_idle.c):
+		/*
+                 * TBD: Can't get time duration while in C1, as resumes
+		 *      go to an ISR rather than here.  Need to instrument
+		 *      base interrupt handler.
+		 */
 
-is responsible for that.
+It probably would help to go to deeper states faster.
 
-Thx
+Whatabout reprogramming timer interrupt for C1 (latency==0), so that it comes out after e.g. 1 ms again.
+If it really stayed sleeping for 1ms, 5 times, the machine is really idle and deeper
+states are adjusted after sleep time and C-state latency...
+(Or only disable timer interrupt after C1 slept long enough X times?)
 
+      Thomas

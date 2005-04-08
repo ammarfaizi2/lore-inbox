@@ -1,60 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbVDHChT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVDHCqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262595AbVDHChT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 22:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262654AbVDHChT
+	id S262654AbVDHCqC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 22:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVDHCqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 22:37:19 -0400
-Received: from [61.185.204.103] ([61.185.204.103]:42403 "EHLO
-	dns.angelltech.com") by vger.kernel.org with ESMTP id S262595AbVDHChN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 22:37:13 -0400
-Message-ID: <4255EF2A.709@angelltech.com>
-Date: Fri, 08 Apr 2005 10:40:42 +0800
-From: rjy <rjy@angelltech.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Thu, 7 Apr 2005 22:46:02 -0400
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:39826 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262654AbVDHCpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 22:45:40 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck@vds.kolivas.org
+Subject: 2.6.11-ck4
+Date: Fri, 8 Apr 2005 12:45:46 +1000
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: init process freezed after run_init_process
-References: <424B7A87.2070100@angelltech.com> <Pine.LNX.4.61.0503311113550.17113@yvahk01.tjqt.qr> <4254AB72.8070704@angelltech.com> <Pine.LNX.4.61.0504071341500.27692@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0504071341500.27692@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1232059.0KEPQvUf3f";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200504081245.48577.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Apply these rules:
-> 1.) If you do provide an initrd= thing, the initrd is being looked for 
-> /linuxrc.
+--nextPart1232059.0KEPQvUf3f
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I have add /linuxrc, /init and /bin/init, all link to /sbin/init.
-It just refuses to work ... :(
+These are patches designed to improve system responsiveness. It is=20
+configurable to any workload but the default ck* patch is aimed at the=20
+desktop and ck*-server is available with more emphasis on serverspace.
 
-> Only VIA IDE chipset maybe, but you don't usually need that for just-initrd.
-> You'd need that for the harddisks...
+Apply to 2.6.11:
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck4/patch-2.6.11-ck4.bz2
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck4/patch-2.6.11-ck4-server=
+=2Ebz2
 
-My harddisk works fine without initrd.
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
 
-> 
-> Make your own initrd and put a bash into it. Then start that, e.g. (for our 
-> linux live cd), initrd=initrd.sqfs root=/dev/ram0 init=/bin/bash
 
-I have tried these kernel parameters:
-	init=/bin/bash
-	init=/linuxrc
-	init=/init
-	init=/sbin/init
-None works.
+Changes since 2.6.11-ck2 (last public announcement):
 
-Also, after some google, I found that the format of initrd has changed.
-I also tried a new initrd with cpio format. The kernel recognized it:
-	Boot Logs:
-	1) checking if image is initramfs... it is
-	   Freeing initrd memory: 17583k freed
-	2) loading drivers
-	3) Freeing unused kernel memory: 128k freed
+Changed:
+~schediso2.12.diff
+Small policy fix to ensure real time tasks without privileges get dropped t=
+o=20
+SCHED_ISO
 
-After the kernel start, I add breakpoints at cpu_idle and do_schedule.
-cpu_idle never reached, only do_schedule did. Is that strange?
+
+Added:
++cfq-ts21-fix1.diff
++cfq-ts21-fix2.diff
+Two small cfq bugfixes
+
++s10.6_s10.7.diff
+Micro-optimisations for staircase cpu scheduler
+
++patch-2.6.11.7
+Latest stable version
+
++2611ck4-version.diff
+Version
+
+
+Removed:
+=2Dnvidia_6111-6629_compat2.diff
+Nvidia compatibility no longer required with new nvidia driver
+
+=2Dpatch-2.6.11.1
+=2Dpatch-2.6.11.2
+=2D2611ck2-version.diff
+obvious
+
+
+=46ull patchlist:
+ 2.6.11_to_staircase10.5.diff
+ s10.5_s10.6.diff
+ s10.6_s10.7.diff
+Latest version of the staircase O(1) single priority array=20
+foreground-background cpu scheduler
+
+ schedrange.diff
+Eases addition of scheduling policies
+
+ schedbatch2.7.diff
+Idle cpu scheduling
+
+ schediso2.12.diff
+Unprivileged low latency cpu scheduling
+
+ mapped_watermark3.diff
+Lighter memory scanning under light loads and far less swapping
+
+ 1g_lowmem1_i386.diff
+Support 1GB of memory without enabling HIGHMEM
+
+ cddvd-cmdfilter-drop.patch
+Support normal user burning of cds
+
+ cfq-ts-21.diff
+ cfq-ts21-fix.diff
+ cfq-ts21-fix1.diff
+ cfq-ts21-fix2.diff
+Complete fair queueing timeslice i/o scheduler v21
+
+ defaultcfq.diff
+Enable the cfq I/O scheduler by default (-ck)
+
+default_deadline.diff=20
+Enable the deadline I/O scheduler by default (-server)
+
+ isobatch_ionice2.diff
+Support for i/o priorities suitable for SCHED_ISO and SCHED_BATCH tasks
+
+ rt_ionice.diff
+Support for i/o priority suitable for real time tasks
+
+ patch-2.6.11.7
+The latest stable tree.
+
+ 2611ck4-version.diff
+Version
+
+and available separately in the patches/ dir as an addon:
+ supermount-ng208-2611.diff
+Simplest way to automount removable media
+
+
+And don't forget to pour one of these before booting this kernel:
+http://ck.kolivas.org/patches/2.6/2.6.11/cognac.JPG
+
+
+Cheers,
+Con
+=20
+
+--nextPart1232059.0KEPQvUf3f
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCVfBcZUg7+tp6mRURAvJSAJ9HeeaW9y5hbtzF16aeASMjM5piIgCfaTZY
+PEXBy1VnG7iHRQ1wlTfXsCo=
+=1QJ/
+-----END PGP SIGNATURE-----
+
+--nextPart1232059.0KEPQvUf3f--

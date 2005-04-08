@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVDHVa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVDHVgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVDHVa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 17:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVDHVa4
+	id S261152AbVDHVgL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 17:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVDHVgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 17:30:56 -0400
-Received: from [83.246.78.200] ([83.246.78.200]:36803 "EHLO
-	srvh02.vc-server.de") by vger.kernel.org with ESMTP id S261151AbVDHVao convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 17:30:44 -0400
-Date: Fri, 08 Apr 2005 21:32:45 +0000
-From: Dennis Heuer <dh@triple-media.com>
-Subject: A way to smoothly overgive graphics control to an other
- process/program
-To: linux-kernel@vger.kernel.org
-X-Mailer: Balsa 2.2.5
-Message-Id: <1112995965l.18701l.3l@Foo>
+	Fri, 8 Apr 2005 17:36:11 -0400
+Received: from relay00.pair.com ([209.68.1.20]:42763 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261152AbVDHVgH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 17:36:07 -0400
+X-pair-Authenticated: 24.241.238.70
+Message-ID: <4256F954.4000305@cybsft.com>
+Date: Fri, 08 Apr 2005 16:36:20 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - srvh02.vc-server.de
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - triple-media.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Rui Nuno Capela <rncbc@rncbc.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>	 <46802.192.168.1.5.1112727980.squirrel@www.rncbc.org>	 <1112729762.5147.62.camel@localhost.localdomain>	 <39754.192.168.1.5.1112973759.squirrel@www.rncbc.org>	 <1112980542.10271.4.camel@mindpipe>  <4256E671.4040303@cybsft.com>	 <1112991421.11000.39.camel@mindpipe>  <4256E8DB.1000104@cybsft.com> <1112994037.11000.63.camel@mindpipe>
+In-Reply-To: <1112994037.11000.63.camel@mindpipe>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Lee Revell wrote:
+> On Fri, 2005-04-08 at 15:26 -0500, K.R. Foley wrote:
+> 
+>>Lee Revell wrote:
+>>
+>>>Meh, I'll try again, maybe it's some weird NFS problem.
+>>>
+>>>Lee
+>>>
+>>
+>>Hmm. Maybe. I should probably mention that I am doing an FC3 install via 
+>>NFS from my older SMP system right now while also building V0.7.44-03.
+>>
+> 
+> 
+> Tried again and it works.  Weird...
+> 
+> Lee
+> 
+> 
+Very wierd. It worries me when things like that happen. ;-)
 
-I feel disturbed by the fact that when display-controlling programs are started in line (like the bootloader, linux, and finally xdm/gdm/kdm), there appear several switches of display resolution, text- and graphics mode, and background images. I asked myself how to get that more smooth as if there was only one presentation from the time the bootloader started up to the gnome/kde session. I thought that one could implement a small api that allows a running process to freeze display updates until the next process has overtaken the display, loaded the same presentation (from same location or just by similar configuration), dumped it to the working buffer of the graphics card, and released the display (a timeout with fallback-mode could make this transaction more fault-resistent). This way, the image loaded by the bootloader could be held on display up to the graphical login, and even as the desktop background, without any visible effect.
-
-Is this technically feasible?
-
-Regards
-
-Dennis Heuer
-
+-- 
+    kr

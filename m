@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262757AbVDHITN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbVDHITK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262757AbVDHITN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 04:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbVDHIPu
+	id S262768AbVDHITK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 04:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVDHIRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 04:15:50 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26787 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262770AbVDHILr (ORCPT
+	Fri, 8 Apr 2005 04:17:10 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.28]:13103 "EHLO smtp3.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262759AbVDHIK5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 04:11:47 -0400
-Date: Fri, 8 Apr 2005 01:10:11 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>, Hannes Reinecke <hare@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] Use proper seq_file api for /proc/scsi/scsi
-Message-ID: <20050408081011.GB1018765@sgi.com>
-References: <42550173.1040503@suse.de> <20050407103123.GB9586@infradead.org> <425517B3.2010702@suse.de> <20050407112412.GA12072@infradead.org> <20050408072345.GA1018765@sgi.com> <20050408075643.GA5514@infradead.org>
+	Fri, 8 Apr 2005 04:10:57 -0400
+X-ME-UUID: 20050408081043410.6423C1C00380@mwinf0303.wanadoo.fr
+Date: Fri, 8 Apr 2005 10:06:25 +0200
+To: Josselin Mouette <joss@debian.org>
+Cc: linux-os@analogic.com, debian-kernel@lists.debian.org,
+       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050408080625.GH9057@pegasos>
+References: <L0f93D.A.68G.D2OVCB@murphy> <4255278E.4000303@almg.gov.br> <Pine.LNX.4.61.0504070855510.29251@chaos.analogic.com> <1112883345.6421.42.camel@silicium.ccc.cea.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050408075643.GA5514@infradead.org>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1112883345.6421.42.camel@silicium.ccc.cea.fr>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 08:56:43AM +0100, Christoph Hellwig wrote:
-> On Fri, Apr 08, 2005 at 12:23:46AM -0700, Jeremy Higdon wrote:
-> > Even if it's deprecated, wouldn't it be good to fix it as long as
-> > it's there, unless it hurts something else?  Or at least fix the
-> > out of memory error, even if it doesn't display all the luns?
+On Thu, Apr 07, 2005 at 04:15:45PM +0200, Josselin Mouette wrote:
+> Le jeudi 07 avril 2005 à 09:03 -0400, Richard B. Johnson a écrit :
+> > Well it doesn't make any difference. If GPL has degenerated to
+> > where one can't upload microcode to a device as part of its
+> > initialization, without having the "source" that generated that
+> > microcode, we are in a lot of hurt. Intel isn't going to give their
+> > designs away.
 > 
-> What other error would you return?  I don't particularly care what exact
+> The GPL doesn't forbid that. The GPL forbids to put this microcode
+> directly in the same binary as the GPL code. Of course, nothing forbids
+> some GPL'ed code to take a binary elsewhere and to upload it into the
+> hardware.
 
-Hmm.  Well maybe you're right -- an error is probably better than no
-error if not printing all devices.
+No, i am arguing, that we can consider here the binary as a media
+distribution, in the same way as we would clearly separate the compressor from
+the compressed data in a auto-uncompressing executable, or the firmware from
+the firmware flasher in a all-in-one firmware upgrade binary.
 
-> error code to return, but putting in Hannes patch would be a bad idea because
-> it
-> 
->   a) poke deep into driver model internals, and we absolutely want to avoid
->      that
->   b) sets a bad precedence that we'll continue adding features to deprecated
->      interface and thus encurage people to contiue using it.  Note that
->      /proc/scsi/* has been deprecated since mid-2.5.x.
+> At least that's my opinion; AIUI, Sven Luther believes it is possible if
+> the firmware has a decent (but not necessarily free) license.
 
-Just as a sanity check, you meant "lsscsi" and not "lssci" in your original
-reply, right?
+Indeed, the sole problem is that the current copyright and licencing
+attributions de-facto sets those firmware blobs under the GPL, which of course
+makes them undistributable since the GPL clearly claims that we need source
+code for it, and if any condition of the GPL fails, the program becomes
+undistributable as a whole.
 
-jeremy
+Friendly,
+
+Sven Luther
+

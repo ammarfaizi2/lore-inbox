@@ -1,72 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262809AbVDHNPi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVDHNSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262809AbVDHNPi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 09:15:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbVDHNOn
+	id S262827AbVDHNSG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 09:18:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVDHNKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 09:14:43 -0400
-Received: from nevyn.them.org ([66.93.172.17]:26523 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262828AbVDHNLn (ORCPT
+	Fri, 8 Apr 2005 09:10:54 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:33960 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262820AbVDHNJU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 09:11:43 -0400
-Date: Fri, 8 Apr 2005 09:11:06 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au, akpm@osdl.org,
-       guillaume.thouvenin@bull.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-Message-ID: <20050408131106.GB32099@nevyn.them.org>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	johnpol@2ka.mipt.ru, herbert@gondor.apana.org.au, akpm@osdl.org,
-	guillaume.thouvenin@bull.net, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-References: <1112932969.28858.194.camel@uganda> <20050408040237.GA31761@gondor.apana.org.au> <1112934088.28858.199.camel@uganda> <20050408041724.GA32243@gondor.apana.org.au> <1112936127.28858.206.camel@uganda> <20050408045302.GA32600@gondor.apana.org.au> <1112937116.28858.212.camel@uganda> <20050408050814.GA32722@gondor.apana.org.au> <1112937579.28858.218.camel@uganda> <20050407230222.3a76ba46.davem@davemloft.net>
+	Fri, 8 Apr 2005 09:09:20 -0400
+Date: Fri, 8 Apr 2005 15:09:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Chris Rankin <rankincj@yahoo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
+Message-ID: <20050408130909.GS22988@suse.de>
+References: <20050406190838.GE15165@suse.de> <1112821799.5850.19.camel@mulgrave> <20050407064934.GJ15165@suse.de> <1112879919.5842.3.camel@mulgrave> <20050407132205.GA16517@infradead.org> <1112880658.5842.10.camel@mulgrave> <20050407133222.GJ1847@suse.de> <1112881183.5842.13.camel@mulgrave> <20050407144557.GK1847@suse.de> <1112965449.5838.9.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050407230222.3a76ba46.davem@davemloft.net>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <1112965449.5838.9.camel@mulgrave>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 11:02:22PM -0700, David S. Miller wrote:
-> On Fri, 08 Apr 2005 09:19:39 +0400
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+On Fri, Apr 08 2005, James Bottomley wrote:
+> On Thu, 2005-04-07 at 16:45 +0200, Jens Axboe wrote:
+> > So clear ->request_queue instead.
 > 
-> > > I know, the same thing holds for most architectures, including i386.
-> > > However, this is not an issue for uni-processor kernels anywhere else,
-> > > so what's so special about MIPS?
-> > 
-> > Does i386 or ppc has cached and uncached memory?
 > 
-> Yes, they do.
-> 
-> > No, i386, ppc and others do not require sync on uncached memory access,
-> > and only instruction not data cache sync on SMP.
-> 
-> On MIPS, all the MIPS atomic operations will operate on cached memory.
-> And as far as a uniprocessor cpu is concerned, updating the cache is
-> all that matters.
-> 
-> In fact, this SYNC instruction seems unnecessary even on SMP.  If the
-> cache is updated, it is part of the coherent memory space and thus
-> MOESI main bus SMP cache coherency transactions will see the update
-> value.  When another processor does a "read-to-share" or "read-to-own"
-> request on the main bus, the processor which did the atomic OP will
-> provide the correct data from it's cache in response to that transaction.
-> 
-> So what you have to do is show me an example where the MIPS kernel can
-> do an atomic.h operation on uncached memory.  I even think that is
-> invalid, come to think of it.
+> Will do.  Did you want me to look after your patch and add this, or do
+> you want to send it to Linus (after the purdah is over)?
 
-It better be...
-
-My impression is that the MIPS story isn't so simple, because the
-architecture only offers very weak coherency guarantees.  Most of the
-SMP implementations offer strong coherency in practice, but at least
-one (RM9000) doesn't.
+Just queue it with the rest of your changes, that is fine with me.
 
 -- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+Jens Axboe
+

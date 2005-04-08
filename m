@@ -1,40 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262827AbVDHNSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262833AbVDHNSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbVDHNSG (ORCPT <rfc822;willy@w.ods.org>);
+	id S262833AbVDHNSG (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Apr 2005 09:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVDHNKy
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbVDHNLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 09:10:54 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:33960 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262820AbVDHNJU (ORCPT
+	Fri, 8 Apr 2005 09:11:32 -0400
+Received: from nevyn.them.org ([66.93.172.17]:12764 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S262805AbVDHNF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 09:09:20 -0400
-Date: Fri, 8 Apr 2005 15:09:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Chris Rankin <rankincj@yahoo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
-Message-ID: <20050408130909.GS22988@suse.de>
-References: <20050406190838.GE15165@suse.de> <1112821799.5850.19.camel@mulgrave> <20050407064934.GJ15165@suse.de> <1112879919.5842.3.camel@mulgrave> <20050407132205.GA16517@infradead.org> <1112880658.5842.10.camel@mulgrave> <20050407133222.GJ1847@suse.de> <1112881183.5842.13.camel@mulgrave> <20050407144557.GK1847@suse.de> <1112965449.5838.9.camel@mulgrave>
+	Fri, 8 Apr 2005 09:05:29 -0400
+Date: Fri, 8 Apr 2005 09:05:22 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.11 can't disable CAD
+Message-ID: <20050408130522.GA32099@nevyn.them.org>
+Mail-Followup-To: "Richard B. Johnson" <linux-os@analogic.com>,
+	Jan Harkes <jaharkes@cs.cmu.edu>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com> <20050407202059.GA414@delft.aura.cs.cmu.edu> <Pine.LNX.4.61.0504071639060.4895@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1112965449.5838.9.camel@mulgrave>
+In-Reply-To: <Pine.LNX.4.61.0504071639060.4895@chaos.analogic.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08 2005, James Bottomley wrote:
-> On Thu, 2005-04-07 at 16:45 +0200, Jens Axboe wrote:
-> > So clear ->request_queue instead.
+On Thu, Apr 07, 2005 at 04:50:32PM -0400, Richard B. Johnson wrote:
+> On Thu, 7 Apr 2005, Jan Harkes wrote:
 > 
+> >On Thu, Apr 07, 2005 at 11:16:14AM -0400, Richard B. Johnson wrote:
+> >>In the not-too distant past, one could disable Ctl-Alt-DEL.
+> >>Can't do it anymore.
+> >...
+> >>Observe that reboot() returns 0 and `strace` understands what
+> >>parameters were passed. The result is that, if I hit Ctl-Alt-Del,
+> >>`init` will still execute the shutdown-order (INIT 0).
+> >
+> >Actually, if CAD is enabled in the kernel, it will just reboot.
+> >If CAD is disabled in the kernel a SIGINT is sent to pid 1 (/sbin/init).
+> >
 > 
-> Will do.  Did you want me to look after your patch and add this, or do
-> you want to send it to Linus (after the purdah is over)?
+> No, that's not how it ever worked. There are parameters that are
+> available in the reboot-system call that define the operation that
+> will occur when the 3-finger salute occurs.
+> 
+> Execute man 2 reboot.
 
-Just queue it with the rest of your changes, that is fine with me.
+Take your own advice.  From the man page:
+
+       LINUX_REBOOT_CMD_CAD_ON
+              (RB_ENABLE_CAD, 0x89abcdef).  CAD is enabled.  This means
+              that the CAD keystroke will immediately cause the action
+              associated with LINUX_REBOOT_CMD_RESTART.
+
+       LINUX_REBOOT_CMD_CAD_OFF
+              (RB_DISABLE_CAD, 0).  CAD is disabled. This means that the CAD
+              keystroke will cause a SIGINT signal to be sent to init
+              (process 1), whereupon this process may decide upon a
+              proper action (maybe: kill all processes, sync, reboot).
 
 -- 
-Jens Axboe
-
+Daniel Jacobowitz
+CodeSourcery, LLC

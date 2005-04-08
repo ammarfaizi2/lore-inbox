@@ -1,67 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262955AbVDHVLT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262956AbVDHVLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbVDHVLT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 17:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbVDHVLT
+	id S262956AbVDHVLu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 17:11:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbVDHVLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 17:11:19 -0400
-Received: from cantor.suse.de ([195.135.220.2]:16806 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262955AbVDHVLP (ORCPT
+	Fri, 8 Apr 2005 17:11:50 -0400
+Received: from cc15467-a.groni1.gr.home.nl ([82.73.222.20]:10682 "HELO
+	boetes.org") by vger.kernel.org with SMTP id S262956AbVDHVLk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 17:11:15 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Dave Airlie <airlied@gmail.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
- accesses
-References: <1110519743.5810.13.camel@gaston>
-	<1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
-	<1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
-	<1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
-	<21d7e9970504071422349426eb@mail.gmail.com>
-	<1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de>
-	<1112923186.9567.349.camel@gaston>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: If I pull this SWITCH I'll be RITA HAYWORTH!!  Or a SCIENTOLOGIST!
-Date: Fri, 08 Apr 2005 23:11:12 +0200
-In-Reply-To: <1112923186.9567.349.camel@gaston> (Benjamin Herrenschmidt's
- message of "Fri, 08 Apr 2005 11:19:46 +1000")
-Message-ID: <jezmw9ug7j.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 8 Apr 2005 17:11:40 -0400
+Date: Fri, 8 Apr 2005 23:11:38 +0159
+From: Han Boetes <han@mijncomputer.nl>
+To: linux-kernel@vger.kernel.org
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>
+Subject: patch to fix bashism
+Message-ID: <20050408211200.GX15412@boetes.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Martin Schlemmer <azarah@nosferatu.za.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Hi,
 
-> On Fri, 2005-04-08 at 01:58 +0200, Andreas Schwab wrote:
->> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
->> 
->> > Yes, that's very extreme, I suspect somebody is banging on set_par or
->> > something like that.
->> 
->> fb_setcolreg is it.
->
-> Ok, what about that patch:
->
-> ---
->
-> This patch adds to the fbdev interface a set_cmap callback that allow
-> the driver to "batch" palette changes. This is useful for drivers like
-> radeonfb which might require lenghtly workarounds on palette accesses,
-> thus allowing to factor out those workarounds efficiently.
+This patch fixes a three bashisms in
+scripts/gen_initramfs_list.sh;
 
-This makes it better. But there is still a delay of half a second, and
-there is an annoying flicker when switching from X to the console.
+I'm not sure of the intention of the second change (local
+name=...). So it's very well possible that:
 
-Andreas.
++       local name="${location%/$srcdir}"
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+is more appropriate.
+
+
+--- scripts/gen_initramfs_list.sh.orig	2005-03-27 14:53:15.628883408 +0200
++++ scripts/gen_initramfs_list.sh	2005-03-27 15:12:20.093898280 +0200
+@@ -1,4 +1,7 @@
+-#!/bin/bash
++#!/bin/sh
++
++# script is sourced, the shebang is ignored.
++
+ # Copyright (C) Martin Schlemmer <azarah@nosferatu.za.org>
+ # Released under the terms of the GNU GPL
+ #
+@@ -56,9 +59,9 @@
+ 
+ parse() {
+ 	local location="$1"
+-	local name="${location/${srcdir}//}"
++	local name="${location#$srcdir/}"
+ 	# change '//' into '/'
+-	name="${name//\/\///}"
++	name=`echo $name|sed -e 's|//|/|g'`
+ 	local mode="$2"
+ 	local uid="$3"
+ 	local gid="$4"
+@@ -68,8 +71,8 @@
+ 	[ "$gid" -eq "$root_gid" ] && gid=0
+ 	local str="${mode} ${uid} ${gid}"
+ 
+-	[ "${ftype}" == "invalid" ] && return 0
+-	[ "${location}" == "${srcdir}" ] && return 0
++	[ "${ftype}" = "invalid" ] && return 0
++	[ "${location}" = "${srcdir}" ] && return 0
+ 
+ 	case "${ftype}" in
+ 		"file")
+
+
+
+# Han

@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262649AbVDHBdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVDHBwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262649AbVDHBdn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 21:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbVDHBdn
+	id S262542AbVDHBwj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 21:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbVDHBwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 21:33:43 -0400
-Received: from downeast.net ([204.176.212.2]:35804 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S262649AbVDHBdk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 21:33:40 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Ian Pilcher <i.pilcher@comcast.net>
-Subject: Re: alsa es1371's joystick functionality broken in 2.6.11-mm4
-Date: Thu, 7 Apr 2005 21:33:33 -0400
-User-Agent: KMail/1.8
+	Thu, 7 Apr 2005 21:52:39 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:64900 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262542AbVDHBwg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 21:52:36 -0400
+Subject: Re: [patch] inotify for 2.6.11
+From: Robert Love <rml@novell.com>
+To: Rusty Lynch <rusty.lynch@intel.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200503201557.58055.pmcfarland@downeast.net> <200504070717.34113.pmcfarland@downeast.net> <d342u5$2rt$1@sea.gmane.org>
-In-Reply-To: <d342u5$2rt$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart4350888.rNbrKNfG4j";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+In-Reply-To: <pan.2005.04.08.01.37.42.462474@intel.com>
+References: <3Q7wT-4HJ-11@gated-at.bofh.it> <3Q7wT-4HJ-13@gated-at.bofh.it>
+	 <3Q7wT-4HJ-15@gated-at.bofh.it> <3Q7wT-4HJ-17@gated-at.bofh.it>
+	 <3Q7wT-4HJ-19@gated-at.bofh.it> <3Q7wT-4HJ-21@gated-at.bofh.it>
+	 <3Q7wT-4HJ-9@gated-at.bofh.it>  <pan.2005.04.08.01.37.42.462474@intel.com>
+Content-Type: text/plain
+Date: Thu, 07 Apr 2005 21:52:35 -0400
+Message-Id: <1112925155.23323.2.camel@phantasy.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200504072133.38977.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4350888.rNbrKNfG4j
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 2005-04-07 at 18:37 -0700, Rusty Lynch wrote:
 
-On Thursday 07 April 2005 03:52 pm, Ian Pilcher wrote:
-> Any chance the joystick is just broken?
+> Looking into this a little more I realized that the lack of /proc
+> notifications (for processes coming and going) is a common problem anytime
+> a file is modified without going through the VFS.  Other examples are
+> remote file changes on a mounted NFS partition, remote file changes on a
+> mounted cluster filesystem (like ocfs or gfs), and just about any virtual
+> file system where the kernel is adding/deleting/modifying files from below
+> the VFS.
 
-Nope.=20
+Indeed it is.  But none of those are anything that we care about (except
+maybe /proc).
 
-What works:
-1) _Both_ joysticks (one that uses the analog driver, the other that uses t=
-he=20
-sidewinder driver) work fine under Win2k.
-2) Sound works under both Linux and Win2k.
-3) The analog joystick (I didn't have the sidewinder yet) use to work at so=
-me=20
-point in the past on this system with a 2.6 kernel.
+The problem of changes on remote filesystems is solved by FAM.
 
-What doesn't work:
-1) Either the analog or sidewinder joysticks using any kernel I've tested s=
-o=20
-far, loading snd_ens1371 using either joystick=3D1 or joystick_port=3D1 (I =
-test=20
-both out of habit). (Loaded in the order of snd_ens1371 (which loads=20
-gameport), joydev, and then analog or sidewinder. Putting joydev or gamepor=
-t=20
-or both before snd_ens1371 doesn't improve the situation.)
+	Robert Love
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
---nextPart4350888.rNbrKNfG4j
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCVd9y8Gvouk7G1cURAhiwAJ0U+0MNXUhUAzcX0mHR4jVgX0NZiQCdHEet
-UcgcrSYVPkg0pF2HNythv9o=
-=mrAM
------END PGP SIGNATURE-----
-
---nextPart4350888.rNbrKNfG4j--

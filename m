@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVDHDmD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262673AbVDHDqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262668AbVDHDmD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 23:42:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVDHDmD
+	id S262673AbVDHDqm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 23:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVDHDqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 23:42:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54147 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262668AbVDHDln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 23:41:43 -0400
-Message-ID: <4255FD66.7060803@pobox.com>
-Date: Thu, 07 Apr 2005 23:41:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org> <20050407171006.GF8859@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0504071038320.28951@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504071038320.28951@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Warning: 24.25.22.197 is listed at orbz.gst-group.uk.com
+	Thu, 7 Apr 2005 23:46:42 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:31924 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S262675AbVDHDqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 23:46:25 -0400
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: akpm@osdl.org, guillaume.thouvenin@bull.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050408033246.GA31344@gondor.apana.org.au>
+References: <E1DJjiR-000850-00@gondolin.me.apana.org.au>
+	 <1112931238.28858.180.camel@uganda>
+	 <20050408033246.GA31344@gondor.apana.org.au>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-t/P9MTnnfGVhuhp2MEgo"
+Organization: MIPT
+Date: Fri, 08 Apr 2005 07:52:34 +0400
+Message-Id: <1112932354.28858.192.camel@uganda>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 08 Apr 2005 07:45:42 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> In other words, this cherry-picking can generally be scripted and done
-> "outside" the SCM (you can trivially have a script that takes a revision
-> from one tree and applies it to the other). I don't believe that the SCM
-> needs to support it in any fundamentally inherent manner. After all, why 
-> should it, when it really boilds down to 
-> 
-> 	(cd old-tree ; scm export-as-patch-plus-comments) |
-> 		(cd new-tree ; scm import-patch-plus-comments)
-> 
-> where the "patch-plus-comments" part is just basically an extended patch
-> (including rename information etc, not just the comments).
 
+--=-t/P9MTnnfGVhuhp2MEgo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Not that it matters anymore, but that's precisely what the script
-	Documentation/BK-usage/cpcset
-did, for BitKeeper.
+On Fri, 2005-04-08 at 13:32 +1000, Herbert Xu wrote:
+> On Fri, Apr 08, 2005 at 07:33:58AM +0400, Evgeniy Polyakov wrote:
+> > On Fri, 2005-04-08 at 12:59 +1000, Herbert Xu wrote:
+> > > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> > > >
+> > > > atomic_dec_and_test() is more expensive than 2 barriers + atomic_de=
+c(),
+> > > > but in case of connector I think the price is not so high.
+> > >=20
+> > > Can you list the platforms on which this is true?
+> >=20
+> > sparc64, some mips [at least in UP].
+>=20
+> Are you sure? The implementations of atomic_sub and atomic_sub_return
+> (which correspond to atomic_dec and atomic_dec_and_test) seem to be
+> comparable in cost on those two architectures.
 
-	Jeff
+mips has additional sync.
+sparc64 has 32->64 conversation on exit.
 
+> Perhaps Dave can clarify for us about sparc64?
+
+Dave?
+
+> Cheers,
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-t/P9MTnnfGVhuhp2MEgo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCVgACIKTPhE+8wY0RAjZpAJ4mUm9ZF14S6O84BDrdLHFiJSW5mQCdFMvv
++qwozrkP+JkRHWCUOy70pEk=
+=oD0a
+-----END PGP SIGNATURE-----
+
+--=-t/P9MTnnfGVhuhp2MEgo--
 

@@ -1,45 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVDHIA1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262764AbVDHIfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbVDHIA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 04:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVDHH7g
+	id S262764AbVDHIfj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 04:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVDHIfU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 03:59:36 -0400
-Received: from coderock.org ([193.77.147.115]:11488 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262733AbVDHHvT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:51:19 -0400
-Subject: [patch 5/8] printk : drivers/char/applicom.c
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, clucas@rotomalug.org
-From: domen@coderock.org
-Date: Fri, 08 Apr 2005 09:51:04 +0200
-Message-Id: <20050408075104.8FDE11F39A@trashy.coderock.org>
+	Fri, 8 Apr 2005 04:35:20 -0400
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:55492 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S262753AbVDHIca (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 04:32:30 -0400
+Date: Fri, 8 Apr 2005 10:32:24 +0200
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Signing modules in Kernel 2.4
+Message-Id: <20050408103224.44ba104f.Christoph.Pleger@uni-dortmund.de>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-sun-solaris2.7)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
+I found a patch for Kernels 2.6 that ensures kernel integrity by
+digitally signing kernel modules. Is something similar available for
+2.4-Kernels?
 
-printk() calls should include appropriate KERN_* constant.
-
-Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
-
-
- kj-domen/drivers/char/applicom.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN drivers/char/applicom.c~printk-drivers_char_applicom drivers/char/applicom.c
---- kj/drivers/char/applicom.c~printk-drivers_char_applicom	2005-04-05 12:58:02.000000000 +0200
-+++ kj-domen/drivers/char/applicom.c	2005-04-05 12:58:02.000000000 +0200
-@@ -599,7 +599,7 @@ static ssize_t ac_read (struct file *fil
- 
- #ifdef DEBUG
- 		if (loopcount++ > 2) {
--			printk("Looping in ac_read. loopcount %d\n", loopcount);
-+			printk(KERN_DEBUG "Looping in ac_read. loopcount %d\n", loopcount);
- 		}
- #endif
- 	} 
-_
+Kind regards
+  Christoph

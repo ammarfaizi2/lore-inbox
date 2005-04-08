@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVDHCJ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262655AbVDHCKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbVDHCJ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 22:09:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVDHCJ7
+	id S262655AbVDHCKx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 22:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVDHCKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 22:09:59 -0400
-Received: from 219-86-42-190.dynamic.tfn.net.tw ([219.86.42.190]:16657 "HELO
-	KEVIN") by vger.kernel.org with SMTP id S262656AbVDHCJf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 22:09:35 -0400
-Message-ID: <HBQ@saturn.seed.net.tw>
-From: aabbaa123aa@yahoo.com.tw
-To: aabbaa123dd@yahoo.com.tw
-Subject: =?ISO-8859-1?Q?=20=A5=FE=B9=A9=B1M=B7~=A5=BC=A4W=A5=AB(=BF?= =?ISO-8859-1?Q?=B3=C2d?=) =?ISO-8859-1?Q?=AA?=
-	=?ISO-8859-1?Q?=D1=B2=BC=B3=F8=BB=F9~=B6R=BD=E6=A5N=BF=EC?=
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-Content-Type: text/plain;
-X-Priority: 3
-X-MSMail-Priority: Normal
-Date: Thu, 7 Apr 2005 22:09:35 -0400
+	Thu, 7 Apr 2005 22:10:53 -0400
+Received: from [81.168.75.8] ([81.168.75.8]:47476 "EHLO henning.makholm.net")
+	by vger.kernel.org with ESMTP id S262655AbVDHCKp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 22:10:45 -0400
+To: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <08Gc5.A.AFC.QJPVCB@murphy> <4255244B.6070204@almg.gov.br>
+From: Henning Makholm <henning@makholm.net>
+Date: Fri, 08 Apr 2005 03:10:43 +0100
+In-Reply-To: <4255244B.6070204@almg.gov.br> (Humberto Massa's message of
+ "Thu, 07 Apr 2005 09:15:07 -0300")
+Message-ID: <87is2ydnmk.fsf@kreon.lan.henning.makholm.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from Quoted-Printable to 8bit by alpha.home.local id j382CrgO003936
 
-±z¦n~¤£¦n·N«ä¥´ÂZ±z¤F~¦p¤£»Ý­n¥»°T®§~½Ð¦h¦h¥]§t«öÃö³¬~
-¦p±z»Ý­n½Ð¸ò§Ú­ÌÁpµ¸~~¦A¦¸ÁÂÁÂ±z~
+Scripsit Humberto Massa <humberto.massa@almg.gov.br>
 
+> After a *lot* of discussion, it was deliberated on d-l that
+> this is not that tricky at all, and that the "mere
+> aggregation" clause applies to the combination, for various
+> reasons, with a great degree of safety.
 
-¡À¡À¡´¡´¥þ¹©±M·~¥¼¤W¥«ªÑ²¼¥æ©ö¤¤¤ß¡i02-6625-9867¡j¡´¡´¡À¡À 
+When was this alleged conclusion reached? I remember nothing like
+that.
 
-¥þ¬Ù¦UÃþ¥¼¤W¥«(§t¿³Âd)ªÑ²¼¦æ±¡¬d¸ß..¶R½æ¥N¿ì...½Ð¼· 
-¡i02-6625-9867¡j 
-¡°¥æ©ö¨³³t..»ù®æ³z©ú¦X²z..ªA°ÈÀu¨}..¬O±z°ß¤@¿ï¾Ü£x¦n½L°Ó 
+> No-one is saying that the linker "merely aggregates" object
+> code for the driver; what *is* being said is: in the case of
+> firmware, especially if the firmware is neither a derivative
+> work on the kernel (see above) nor the firmware includes part
+> of the kernel (duh), it is *fairly* *safe* to consider the
+> intermixing of firmware bytes with kernel binary image bytes
+> in an ELF object file as mere aggregation.
 
-¡±³Æ¦³¦U¤½¥q¸ê®ÆÅwªï¯Á¨ú..Åwªï¦U¦ì¨Ó¹q¯Á¨ú!!¡± 
+No, it is completely wrong to say that the object file is merely an
+aggregation. The two components are being coupled much more tightly
+than in the situation that the GPL discribes as "mere aggregation".
 
-¤jÃBªÑÅvÂàÅý~»{ÁÊ~¹sªÑ¦¬ÁÊ~¼öªùªÑ~¿³ÂdªÑ~¥¼¤W¥«ªÑ~·Ç¤W¥«ªÑ~¤¤ÅÒ®Ñ~ 
-
-¡÷·Q§ë¸ê¥¼¤W¥««o¤£ª¾±q¦ó°µ°_¶Ü¡HÅwªï¨Ó¹q¯Á¨ú±ÀÂË¦UªÑ¸ê®Æ¡ö 
-
-±z¦³¥¼¤W¥«ªÑ²¼­n½æ¶Ü~
-±z¦³¥¼¤W¥«ªÑ²¼­n¶R¶Ü~
-
-¥þ¹©±M·~¥¼¤W¥«ªÑ²¼(¿³Âd)¥æ©ö¤¤¤ß
-ªÑ²¼¦æ±¡¬d¸ß~¶R½æ¥N¿ì~¬Ò¥i¥H¨Ó¹q~
-
-~~¤âÄò¶O¬D¾Ô¥þ°ê³Ì«K©y~»ù®æ«OÃÒ¤@¤â½L»ù~Åwªï¦U¦ì¤ñ»ù~~
-
-¦p¤£¤è«K¨Ó¹q¤]Åwªï¨Ó«H¬¢¸ß
-
-mail to:a0914243352@yahoo.com.tw
-
-http://a0914243352.groups.com.tw
-
-±z­n¶R©Î­n½æ¬Ò¥i¨Ó¹q¬¢¸ß~¥þ°ê³Ì¤jªº¥¼¤W¥«ªÑ²¼¥æ©ö¨t²Î~³Æ¦³¼Æ¸U¤äªÑ²¼¥i¨Ñ¬d¸ß~Åwªï±zªº¨Ó¹q
-
-
+-- 
+Henning Makholm                                   "Hør, hvad er det egentlig
+                                          der ikke kan blive ved med at gå?"

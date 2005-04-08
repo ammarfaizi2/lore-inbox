@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVDHV1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVDHVa4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVDHV1j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 17:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVDHV1e
+	id S261151AbVDHVa4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 17:30:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVDHVa4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 17:27:34 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:7836 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261158AbVDHV1Q convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 17:27:16 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 8 Apr 2005 17:30:56 -0400
+Received: from [83.246.78.200] ([83.246.78.200]:36803 "EHLO
+	srvh02.vc-server.de") by vger.kernel.org with ESMTP id S261151AbVDHVao convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 17:30:44 -0400
+Date: Fri, 08 Apr 2005 21:32:45 +0000
+From: Dennis Heuer <dh@triple-media.com>
+Subject: A way to smoothly overgive graphics control to an other
+ process/program
+To: linux-kernel@vger.kernel.org
+X-Mailer: Balsa 2.2.5
+Message-Id: <1112995965l.18701l.3l@Foo>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Priority Lists for the RT mutex
-Date: Fri, 8 Apr 2005 14:25:21 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02F64643@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Priority Lists for the RT mutex
-Thread-Index: AcU8YrbjpHrqd6ATSdSnSEYh/X8+jAAHnUpA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <dwalker@mvista.com>, "Ingo Molnar" <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>, <sdietrich@mvista.com>,
-       "Steven Rostedt" <rostedt@goodmis.org>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-X-OriginalArrivalTime: 08 Apr 2005 21:25:22.0295 (UTC) FILETIME=[78AC9070:01C53C81]
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - srvh02.vc-server.de
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - triple-media.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Daniel Walker [mailto:dwalker@mvista.com]
->
->On Thu, 2005-04-07 at 23:28, Ingo Molnar wrote:
->
->> this one looks really clean.
->>
->> it makes me wonder, what is the current status of fusyn's? Such a
-light
->> datastructure would be much more mergeable upstream than the former
->> 100-queues approach.
->
->	Inaky was telling me that 100 queues approach is two years old.
->
->The biggest problem is that fusyn has it's own PI system .. So it's not
->clear if that will work with the RT mutex,. I was thinking the PI stuff
->could be made generic so, fusyn, maybe futex, can use it also .
+Hello,
 
-I concur with Daniel. If we can decide how to deal with that (toss
-one out, keep one, merge them, whatever), we could reuse all the user
-space glue that is the hardest part to get right.
+I feel disturbed by the fact that when display-controlling programs are started in line (like the bootloader, linux, and finally xdm/gdm/kdm), there appear several switches of display resolution, text- and graphics mode, and background images. I asked myself how to get that more smooth as if there was only one presentation from the time the bootloader started up to the gnome/kde session. I thought that one could implement a small api that allows a running process to freeze display updates until the next process has overtaken the display, loaded the same presentation (from same location or just by similar configuration), dumped it to the working buffer of the graphics card, and released the display (a timeout with fallback-mode could make this transaction more fault-resistent). This way, the image loaded by the bootloader could be held on display up to the graphical login, and even as the desktop background, without any visible effect.
 
-Current tip of development has some issues with conditional variables
-and broadcasts (requeue stuff) that I need to sink my teeth in. Joe
-Korty is fixing up a lot of corner cases I wasn't catching, but 
-other than that is doing fine.
+Is this technically feasible?
 
-How long ago since you saw it? I also implemented the futex redirection
-stuff we discussed some months ago.
+Regards
 
--- Inaky
+Dennis Heuer
+

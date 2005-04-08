@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262898AbVDHUM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262942AbVDHUOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262898AbVDHUM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 16:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbVDHUM1
+	id S262942AbVDHUOe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 16:14:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbVDHUOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 16:12:27 -0400
-Received: from [217.149.127.10] ([217.149.127.10]:24286 "EHLO
-	stine.vestdata.no") by vger.kernel.org with ESMTP id S262898AbVDHUMW
+	Fri, 8 Apr 2005 16:14:34 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:56553 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262942AbVDHUOb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 16:12:22 -0400
-Date: Fri, 8 Apr 2005 22:11:51 +0200
-From: Ragnar =?iso-8859-15?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chris Wedgwood <cw@f00f.org>,
+	Fri, 8 Apr 2005 16:14:31 -0400
+X-ORBL: [68.120.153.162]
+Date: Fri, 8 Apr 2005 13:14:25 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Ragnar Kj?rstad <kernel@ragnark.vestdata.no>
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Matthias-Christian Ott <matthias.christian@tiscali.de>,
        Andrea Arcangeli <andrea@suse.de>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Uncached stat performace [ Was: Re: Kernel SCM saga.. ]
-Message-ID: <20050408201150.GL20644@vestdata.no>
-References: <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org> <20050408171518.GA4201@taniwha.stupidest.org> <Pine.LNX.4.58.0504081037310.28951@ppc970.osdl.org> <20050408180540.GA4522@taniwha.stupidest.org> <Pine.LNX.4.58.0504081149010.28951@ppc970.osdl.org> <20050408191638.GA5792@taniwha.stupidest.org> <Pine.LNX.4.58.0504081232430.28951@ppc970.osdl.org>
+Subject: Re: Uncached stat performace [ Was: Re: Kernel SCM saga.. ]
+Message-ID: <20050408201425.GB6509@taniwha.stupidest.org>
+References: <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org> <20050408171518.GA4201@taniwha.stupidest.org> <Pine.LNX.4.58.0504081037310.28951@ppc970.osdl.org> <20050408180540.GA4522@taniwha.stupidest.org> <Pine.LNX.4.58.0504081149010.28951@ppc970.osdl.org> <20050408191638.GA5792@taniwha.stupidest.org> <Pine.LNX.4.58.0504081232430.28951@ppc970.osdl.org> <20050408201150.GL20644@vestdata.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0504081232430.28951@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Zet.no-MailScanner-Information: Please contact the ISP for more information
-X-Zet.no-MailScanner: Found to be clean
-X-MailScanner-From: ragnark@stine.vestdata.no
+In-Reply-To: <20050408201150.GL20644@vestdata.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 12:39:26PM -0700, Linus Torvalds wrote:
-> One of the reasons I do inode numbers in the "index" file (apart from 
-> checking that the inode hasn't changed) is in fact that "stat()" is damn 
-> slow if it causes seeks. Since your stat loop is entirely 
-> 
-> You can optimize your stat() patterns on traditional unix-like filesystems
-> by just sorting the stats by inode number (since the inode number is
-> historically a special index into the inode table - even when filesystems
-> distribute the inodes over several tables, sorting will generally do the
-> right thing from a seek perspective). It's a disgusting hack, but it
-> literally gets you orders-of-magnitude performance improvments in many
-> real-life cases.
+On Fri, Apr 08, 2005 at 10:11:51PM +0200, Ragnar Kj?rstad wrote:
 
-It does, so why isn't there a way to do this without the disgusting
-hack? (Your words, not mine :) )
+> It does, so why isn't there a way to do this without the disgusting
+> hack? (Your words, not mine :) )
 
-E.g, wouldn't a aio_stat() allow simular or better speedups in a way
-that doesn't depend on ext2/3 internals?
+inode sorting probably a good guess for a number of filesystems, you
+can map the blocks used to do better still (somewhat fs specific)
 
-I bet it would make a significant difference from things like "ls -l" in
-large uncached directories and imap-servers with maildir?
+you can do better still if you multiple stats in parallel (up to a
+point) and let the elevator sort things out
 
+> I bet it would make a significant difference from things like "ls -l" in
+> large uncached directories and imap-servers with maildir?
 
+sort + concurrent stats would help here i think
 
--- 
-Ragnar Kjørstad
-Software Engineer
-Scali - http://www.scali.com
-Scaling the Linux Datacenter
+i'm not sure i like the idea of ls using lots of threads though :)

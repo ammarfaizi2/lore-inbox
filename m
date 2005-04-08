@@ -1,78 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262805AbVDHNwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbVDHNzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbVDHNwh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 09:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVDHNwg
+	id S262810AbVDHNzg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 09:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262808AbVDHNze
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 09:52:36 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:38367 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S262805AbVDHNwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 09:52:33 -0400
-Date: Fri, 8 Apr 2005 15:52:22 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Alexey Dobriyan <adobriyan@mail.ru>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: 2.6.12-rc2-mm2
-Message-ID: <20050408135222.GM23237@admingilde.org>
-Mail-Followup-To: Alexey Dobriyan <adobriyan@mail.ru>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <20050408030835.4941cd98.akpm@osdl.org> <200504081728.25974.adobriyan@mail.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wwtQuX191/I956S7"
-Content-Disposition: inline
-In-Reply-To: <200504081728.25974.adobriyan@mail.ru>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 8 Apr 2005 09:55:34 -0400
+Received: from alog0501.analogic.com ([208.224.223.38]:23984 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262820AbVDHNzS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 09:55:18 -0400
+Date: Fri, 8 Apr 2005 09:54:32 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Daniel Jacobowitz <dan@debian.org>
+cc: Jan Harkes <jaharkes@cs.cmu.edu>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.6.11 can't disable CAD
+In-Reply-To: <20050408130522.GA32099@nevyn.them.org>
+Message-ID: <Pine.LNX.4.61.0504080938480.6960@chaos.analogic.com>
+References: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com>
+ <20050407202059.GA414@delft.aura.cs.cmu.edu> <Pine.LNX.4.61.0504071639060.4895@chaos.analogic.com>
+ <20050408130522.GA32099@nevyn.them.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 8 Apr 2005, Daniel Jacobowitz wrote:
 
---wwtQuX191/I956S7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Thu, Apr 07, 2005 at 04:50:32PM -0400, Richard B. Johnson wrote:
+>> On Thu, 7 Apr 2005, Jan Harkes wrote:
+>>
+>>> On Thu, Apr 07, 2005 at 11:16:14AM -0400, Richard B. Johnson wrote:
+>>>> In the not-too distant past, one could disable Ctl-Alt-DEL.
+>>>> Can't do it anymore.
+>>> ...
+>>>> Observe that reboot() returns 0 and `strace` understands what
+>>>> parameters were passed. The result is that, if I hit Ctl-Alt-Del,
+>>>> `init` will still execute the shutdown-order (INIT 0).
+>>>
+>>> Actually, if CAD is enabled in the kernel, it will just reboot.
+>>> If CAD is disabled in the kernel a SIGINT is sent to pid 1 (/sbin/init).
+>>>
+>>
+>> No, that's not how it ever worked. There are parameters that are
+>> available in the reboot-system call that define the operation that
+>> will occur when the 3-finger salute occurs.
+>>
+>> Execute man 2 reboot.
+>
+> Take your own advice.  From the man page:
+>
+>       LINUX_REBOOT_CMD_CAD_ON
+>              (RB_ENABLE_CAD, 0x89abcdef).  CAD is enabled.  This means
+>              that the CAD keystroke will immediately cause the action
+>              associated with LINUX_REBOOT_CMD_RESTART.
+>
+>       LINUX_REBOOT_CMD_CAD_OFF
+>              (RB_DISABLE_CAD, 0).  CAD is disabled. This means that the CAD
+>              keystroke will cause a SIGINT signal to be sent to init
+>              (process 1), whereupon this process may decide upon a
+>              proper action (maybe: kill all processes, sync, reboot).
+>
+> -- 
+> Daniel Jacobowitz
+> CodeSourcery, LLC
+>
 
-hoi :)
+The 'init' in use is not SYS-V init. Instead, it is the startup
+program, mother-of-all-programs, of a complete embedded system
+that has no shells, etc. It's just a system that's designed to
+make images.
 
-On Fri, Apr 08, 2005 at 05:28:25PM +0000, Alexey Dobriyan wrote:
-> htmldocs (haven't look at pdf, etc...) became K&R'ish.
+There are handlers in place for all signals, either to ignore
+signals or to perform things like X-ON and X-OFF. This 'init'
+will never shut down the system. It doesn't know how. It also
+ignores any "harmful" signals and, in fact, will never exit
+the main program. Again, it doesn't know how. It just forks off
+some processes and then sleeps, occasionally waking to
+get and throw away the exit-status of some child's
+children.
 
-> Also, Documentation/Docbook/*.html uses book1.html, but there are only=20
-> Documentation/Docbook/*/index.html
+Also, this has been working for many years. It is unknown
+how many linux-versions this worked with since it was first
+tested with 2.4.x circa 2000 to 2001.
 
-> Functions are not hyperlinked from index.html. IIRC, they were in jadetex=
-=20
-> days.
+It appears that the 'C' runtime library is now trapping
+reboot() and turning it into a single-parameter function
+call. It is possible that the correct 4-parameter reboot()
+is not even making it to the kernel. I am investigating this.
+I made another function called disable() that will directly
+make a system-call, thereby bypassing the 'C' runtime library
+altogether. I am working on this.
 
-I'll take a look at the stylesheetes
 
---=20
-Martin Waitz
-
---wwtQuX191/I956S7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFCVoyWj/Eaxd/oD7IRApLHAJ4meYJjWV1xPx6y3JM7Lo+zgKwAvQCeLHLn
-Lb6pHuSVhNUbeOQn/PzDM7c=
-=q13E
------END PGP SIGNATURE-----
-
---wwtQuX191/I956S7--
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

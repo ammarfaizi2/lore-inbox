@@ -1,59 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVDHQGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbVDHQL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbVDHQGj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 12:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbVDHQGj
+	id S262862AbVDHQL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 12:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262863AbVDHQLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 12:06:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29118 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262861AbVDHQGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 12:06:37 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: Arjan van de Ven <arjan@infradead.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Mingming Cao <cmm@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: text/plain
-Date: Fri, 08 Apr 2005 18:06:30 +0200
-Message-Id: <1112976390.6278.72.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 8 Apr 2005 12:11:25 -0400
+Received: from web88004.mail.re2.yahoo.com ([206.190.37.191]:64094 "HELO
+	web88004.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S262862AbVDHQLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 12:11:19 -0400
+Message-ID: <20050408161119.67370.qmail@web88004.mail.re2.yahoo.com>
+Date: Fri, 8 Apr 2005 12:11:19 -0400 (EDT)
+From: Shawn Starr <shawn.starr@rogers.com>
+Subject: RE: [PATCH 2.6.11.6] Add power cycle to ipmi_poweroff module
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  And rw locking is much better for concurrency, so
-> we might be able to hold it over the whole bitmap search rather than
-> taking it and dropping it at each window advance.
+Shouldn't IPMI be using /sys instead /proc? I thought
+we're trying to cleanup /proc? 
 
-rw locks only help if readers are 10x more common than writers generally
-speaking. They are quite expensive locks, so they really should be used
-with the utmost care. 
-(if you have really long hold times the dynamics are different, but if
-you have really long hold times your latency sucks too and wasn't that
-what this thread was trying to fix?)
+---------------
 
+List:       linux-kernel
+Subject:    RE: [PATCH 2.6.11.6] Add power cycle to
+ipmi_poweroff module
+From:       <Chris_Poblete () Dell ! com>
+Date:       2005-04-08 15:53:54
+Message-ID: <D69989B48C25DB489BBB0207D0BF51F70262F423
+() ausx2kmpc104 ! aus ! amer ! dell ! com>
+[Download message RAW]
+
+
+The message handler and si are already using
+/proc/ipmi/<intf_num>. The
+patch code simply reuse it. By the way, shouldn't we
+be using sysfs?
+
+As for separating from power_off, it just seem so
+simple to integrate
+the power cycle command into the power_off code. It
+could definitely be
+a separate module.
+
+Thanks,
+-Chris Poblete
+
+
+-----Original Message-----
+From: Corey Minyard [mailto:cminyard@mvista.com] 
+Sent: Friday, April 08, 2005 10:35 AM
+To: Poblete, Chris
+Cc: linux-kernel@vger.kernel.org; sdake@mvista.com
+Subject: Re: [PATCH 2.6.11.6] Add power cycle to
+ipmi_poweroff module
+
+Chris_Poblete@Dell.com wrote:
+
+>Below is a patch to add "power cycle" functionality
+to the IPMI power 
+>off module ipmi_poweroff.
+>
+>A new module param is added to support this:
+>parmtype:       do_power_cycle:int
+>parm:           do_power_cycle: Set to 1 to enable
+power cycle instead
+>of power down. Power cycle is contingent on hardware
+support, otherwise
+
+>it defaults back to power down.
+>
+>This parameter can also be dynamically modified
+through the proc
+>filesystem:
+>/proc/ipmi/<interface_num>/poweroff
+>  
+>
+This should probably be
+/proc/sys/dev/ipmi/power_cycle_on_halt.  Most
+things to control a system go there.  The
+/proc/sys/dev/ipmi directory
+should probably be created by the base IPMI file, too.
+
+Thinking about it a little more, this should really be
+an option for
+reset, not for power off (thus making the name
+power_cycle_on_reset).  
+I'm not sure how easy that will be to tie into.  It
+doesn't look easy;
+there's not something like pm_power_off for reset.
+
+All the proc fs stuff should be ifdef-ed appropriately
+so it will
+compile with procfs turned off.
+
+-Corey
+
+>The power cycle action is considered an optional
+chassis control in the
+
+>IPMI specification.  However, it is definitely useful
+when the hardware
+
+>supports it.  A power cycle is usually required in
+order to reset a 
+>firmware in a bad state.  This action is critical to
+allow remote 
+>management of servers.
+>
+>The implementation adds power cycle as optional to
+the ipmi_poweroff 
+>module. It can be modified dynamically through the
+proc entry mentioned
+
+>above. During a power down and enabled, the power
+cycle command is sent
+
+>to the BMC firmware. If it fails either due to
+non-support or some 
+>error, it will retry to send the command as power
+off.
+>
+>Signed-off-by: Christopher A. Poblete
+<Chris_Poblete@dell.com>
+>
+>--
+>Chris Poblete
+>Software Engineer
+>Dell OpenManage Instrumentation

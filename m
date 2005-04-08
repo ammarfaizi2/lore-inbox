@@ -1,101 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262750AbVDHIAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbVDHIKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262750AbVDHIAb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 04:00:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbVDHIAG
+	id S262766AbVDHIKk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 04:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbVDHIFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 04:00:06 -0400
-Received: from waste.org ([216.27.176.166]:20620 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262749AbVDHH5D (ORCPT
+	Fri, 8 Apr 2005 04:05:45 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:40793 "EHLO smtp6.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262758AbVDHICK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:57:03 -0400
-Date: Fri, 8 Apr 2005 00:55:32 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: Yura Pakhuchiy <pakhuchiy@iptel.by>,
-       Patrice Martinez <patrice.martinez@ext.bull.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /dev/random problem on 2.6.12-rc1
-Message-ID: <20050408075532.GX3174@waste.org>
-References: <42552A33.6070704@ext.bull.net> <1112879666.2035.10.camel@chaos.void> <Pine.LNX.4.58.0504071727080.5654@localhost.localdomain> <20050407211257.GK25554@waste.org> <Pine.LNX.4.61.0504080817370.15652@openx3.frec.bull.fr>
+	Fri, 8 Apr 2005 04:02:10 -0400
+X-ME-UUID: 20050408080202411.63F981C001F7@mwinf0603.wanadoo.fr
+Date: Fri, 8 Apr 2005 09:57:44 +0200
+To: Henning Makholm <henning@makholm.net>
+Cc: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050408075744.GF9057@pegasos>
+Reply-To: debian-legal@lists.debian.org
+References: <MDEHLPKNGKAHNMBLJOLKIEAEDAAB.davids@webmaster.com> <87zmw9dipp.fsf@kreon.lan.henning.makholm.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504080817370.15652@openx3.frec.bull.fr>
+In-Reply-To: <87zmw9dipp.fsf@kreon.lan.henning.makholm.net>
 User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 08:56:51AM +0200, Simon Derr wrote:
-> On Thu, 7 Apr 2005, Matt Mackall wrote:
+On Fri, Apr 08, 2005 at 04:56:50AM +0100, Henning Makholm wrote:
+> Scripsit "David Schwartz" <davids@webmaster.com>
+> [quoting me]
 > 
-> > On Thu, Apr 07, 2005 at 05:36:59PM +0200, Simon Derr wrote:
-> > > 
-> > > 
-> > > On Thu, 7 Apr 2005, Yura Pakhuchiy wrote:
-> > > 
-> > > > On Thu, 2005-04-07 at 14:40 +0200, Patrice Martinez wrote:
-> > > > > When  using a machine with a  2612-rc 1kernel, I encounter problems
-> > > > > reading /dev/random:
-> > > > >  it simply nevers returns anything, and the process is blocked in the
-> > > > > read...
-> > > > > The easiest way to see it is to type:
-> > > > >  od < /dev/random
-> > > > >
-> > > > > Any idea?
-> > > >
-> > > > Because, /dev/random use user input, mouse movements and other things to
-> > > > generate next random number. Use /dev/urandom if you want version that
-> > > > will never block your machine.
-> > > >
-> > > > Read "man 4 random" for details.
-> > > >
-> > > Something changed since previous versions of the kernel, I guess.
-> > > Running `find /usr | wc' on a ssh session generates both network and disk
-> > > activity, and you should not expect any other kind of input on a networked
-> > > server.
-> > 
-> Oops, the command is actually "find /usr | xargs wc", witch causes lots of 
-> disk activity.
+> >> No, it is completely wrong to say that the object file is merely an
+> >> aggregation. The two components are being coupled much more tightly
+> >> than in the situation that the GPL discribes as "mere aggregation".
 > 
-> > FYI, network activity only generates entropy on a very small subset of
-> > NICs, and probably not the one you're using. This is good, as network
-> > activity is assumed passively observable/timable.
-> Offtopic, but why isn't the policy the same for all NICs ?
+> >         Would you maintain this position even if the firmware is identical
+> > across operating systems and the Linux driver is identical across different
+> > firmware builds for different hardware implementations?
+> 
+> Yes I would. Linking forms a tighter coupling than just placing the
+> two parts side by side on a filesystem designed for general storage of
+> byte streams. There is more to say about the situation than the naked
 
-The policy is the same, it just hasn't been implemented. SA_RANDOM
-is scheduled for abolishment.
-  
-> > > Anyway, still zero bytes coming from /dev/random, for the few minutes I
-> > > waited.
-> > 
-> > Are you and Patrice both experiencing this on the same machine? 
-> Both IA-64, but that's the only common point.
-> 
-> > What
-> > was the last kernel that was known to work for you? Do you see the
-> > contents of /proc/sys/kernel/random/entropy_avail change over time?
-> > Are there any other entropy consumers on your machine?
-> None that I am aware of.
-> 
-> I run:
-> # dd if=/dev/random bs=1 count=1 | od
+So, why didn't you say it when i posted my analysis to debian-legal a month
+ago and asked for comments ? 
 
-strace the dd process, please. This works fine here.
-  
-> Another shell:
-> # lsof /dev/random
-> COMMAND  PID USER   FD   TYPE DEVICE SIZE  NODE NAME
-> dd      1496 root    0r   CHR    1,8      99952 /dev/random
+> fact that that they are aggreated on the same medium; ergo the
+> sutiation does not constitute *only* aggregation, and the "mere
+> aggregation" language of the GPL does not apply.
 > 
-> Now, find /usr | xargs wc running in background.
-> 
-> About /proc/sys/kernel/random/entropy_avail:
-> (5 second refresh interval)
+> In particular, the end of GPL #2 does not provide a blanket exception
+> for all forms of aggregation; it specifically speaks about aggregation
+> "on a volume of a storage or distribution medium".
 
-That may not be sufficient resolution. The upper layers will pull from
-it whenever it rises above 64 and bash it back down to within 7 bits
-of 0. What does it do when no one is reading from it?
+Read my argumentation, comment on it, and be prepared to consider the same
+copy of the firmware as a derived work if shipped on a prom on the device
+itself.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Friendly,
+
+Sven Luther
+

@@ -1,61 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262768AbVDHITK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262760AbVDHITL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262768AbVDHITK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 04:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262760AbVDHIRK
+	id S262760AbVDHITL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 04:19:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVDHIQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 04:17:10 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:13103 "EHLO smtp3.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262759AbVDHIK5 (ORCPT
+	Fri, 8 Apr 2005 04:16:48 -0400
+Received: from [213.85.5.168] ([213.85.5.168]:29174 "EHLO crimson.namesys.com")
+	by vger.kernel.org with ESMTP id S262760AbVDHIKA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 04:10:57 -0400
-X-ME-UUID: 20050408081043410.6423C1C00380@mwinf0303.wanadoo.fr
-Date: Fri, 8 Apr 2005 10:06:25 +0200
-To: Josselin Mouette <joss@debian.org>
-Cc: linux-os@analogic.com, debian-kernel@lists.debian.org,
-       debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050408080625.GH9057@pegasos>
-References: <L0f93D.A.68G.D2OVCB@murphy> <4255278E.4000303@almg.gov.br> <Pine.LNX.4.61.0504070855510.29251@chaos.analogic.com> <1112883345.6421.42.camel@silicium.ccc.cea.fr>
+	Fri, 8 Apr 2005 04:10:00 -0400
+Date: Fri, 8 Apr 2005 12:10:47 +0400
+From: Alex Zarochentsev <zam@namesys.com>
+To: blaisorblade@yahoo.it
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+       reiserfs-list@namesys.com, mtk-manpages@gmx.net
+Subject: Re: [patch 1/1] reiserfs: make resize option auto-get new device size
+Message-ID: <20050408081047.GX6211@backtop.namesys.com>
+References: <20050408045553.278CA11B7FE@zion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1112883345.6421.42.camel@silicium.ccc.cea.fr>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+In-Reply-To: <20050408045553.278CA11B7FE@zion>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 04:15:45PM +0200, Josselin Mouette wrote:
-> Le jeudi 07 avril 2005 à 09:03 -0400, Richard B. Johnson a écrit :
-> > Well it doesn't make any difference. If GPL has degenerated to
-> > where one can't upload microcode to a device as part of its
-> > initialization, without having the "source" that generated that
-> > microcode, we are in a lot of hurt. Intel isn't going to give their
-> > designs away.
+Hi,
+
+On Fri, Apr 08, 2005 at 06:55:50AM +0200, blaisorblade@yahoo.it wrote:
 > 
-> The GPL doesn't forbid that. The GPL forbids to put this microcode
-> directly in the same binary as the GPL code. Of course, nothing forbids
-> some GPL'ed code to take a binary elsewhere and to upload it into the
-> hardware.
+> Cc: <reiserfs-dev@namesys.com>, <reiserfs-list@namesys.com>, <mtk-manpages@gmx.net>
+> 
+> It's trivial for the resize option to auto-get the underlying device size, while
+> it's harder for the user. I've copied the code from jfs.
+> 
+> Since of the different reiserfs option parser (which does not use the superior
+> match_token used by almost every other filesystem), I've had to use the
+> "resize=auto" and not "resize" option to specify this behaviour. Changing the
+> option parser to the kernel one wouldn't be bad but I've no time to do this
+> cleanup in this moment.
 
-No, i am arguing, that we can consider here the binary as a media
-distribution, in the same way as we would clearly separate the compressor from
-the compressed data in a auto-uncompressing executable, or the firmware from
-the firmware flasher in a all-in-one firmware upgrade binary.
+do people really need it?
 
-> At least that's my opinion; AIUI, Sven Luther believes it is possible if
-> the firmware has a decent (but not necessarily free) license.
+user-level utility reisize_reiserfs, being called w/o size argument,
+calculates the device size and uses resize mount option with correct value. 
 
-Indeed, the sole problem is that the current copyright and licencing
-attributions de-facto sets those firmware blobs under the GPL, which of course
-makes them undistributable since the GPL clearly claims that we need source
-code for it, and if any condition of the GPL fails, the program becomes
-undistributable as a whole.
+> Btw, the mount(8) man page should be updated to include this option. Cc the
+> relevant people, please (I hope I cc'ed the right people).
+> 
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> ---
+> 
+>  linux-2.6.11-paolo/fs/reiserfs/super.c |   21 ++++++++++++++-------
+>  1 files changed, 14 insertions(+), 7 deletions(-)
+> 
+> diff -puN fs/reiserfs/super.c~reiserfs-resize-option-like-jfs-auto-get fs/reiserfs/super.c
+> --- linux-2.6.11/fs/reiserfs/super.c~reiserfs-resize-option-like-jfs-auto-get	2005-04-07 20:37:58.000000000 +0200
+> +++ linux-2.6.11-paolo/fs/reiserfs/super.c	2005-04-08 01:01:18.000000000 +0200
+> @@ -889,12 +889,18 @@ static int reiserfs_parse_options (struc
+>  	    char * p;
+>  	    
+>  	    p = NULL;
+> -	    /* "resize=NNN" */
+> -	    *blocks = simple_strtoul (arg, &p, 0);
+> -	    if (*p != '\0') {
+> -		/* NNN does not look like a number */
+> -		reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);
+> -		return 0;
+> +	    /* "resize=NNN" or "resize=auto" */
+> +
+> +	    if (!strcmp(arg, "auto")) {
+> +		    /* From JFS code, to auto-get the size.*/
+> +		    *blocks = s->s_bdev->bd_inode->i_size >> s->s_blocksize_bits;
+> +	    } else {
+> +		    *blocks = simple_strtoul (arg, &p, 0);
+> +		    if (*p != '\0') {
+> +			/* NNN does not look like a number */
+> +			reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);
+> +			return 0;
+> +		    }
+>  	    }
+>  	}
+>  
+> @@ -903,7 +909,8 @@ static int reiserfs_parse_options (struc
+>  		unsigned long val = simple_strtoul (arg, &p, 0);
+>  		/* commit=NNN (time in seconds) */
+>  		if ( *p != '\0' || val >= (unsigned int)-1) {
+> -			reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);			return 0;
+> +			reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);
+> +			return 0;
+>  		}
+>  		*commit_max_age = (unsigned int)val;
+>  	}
+> _
 
-Friendly,
-
-Sven Luther
-
+-- 
+Alex.

@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVDHDz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262679AbVDHD4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbVDHDz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 23:55:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbVDHDz7
+	id S262679AbVDHD4L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 23:56:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVDHD4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 23:55:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56761 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262680AbVDHDzp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 23:55:45 -0400
-Date: Thu, 7 Apr 2005 20:55:38 -0700
-Message-Id: <200504080355.j383tcxa029807@magilla.sf.frob.com>
-MIME-Version: 1.0
+	Thu, 7 Apr 2005 23:56:10 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:34265 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S262677AbVDHDzz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 23:55:55 -0400
+Date: Thu, 7 Apr 2005 23:55:44 -0400
+From: Raul Miller <moth@debian.org>
+To: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
+       linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050407235544.Y32136@links.magenta.com>
+Reply-To: debian-legal@lists.debian.org
+References: <20050407161658.S32136@links.magenta.com> <MDEHLPKNGKAHNMBLJOLKEEPFCPAB.davids@webmaster.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] x86-64: i386 vDSO: add PT_NOTE segment
-In-Reply-To: Roland McGrath's message of  Thursday, 7 April 2005 20:53:52 -0700 <200504080353.j383rqf8029792@magilla.sf.frob.com>
-X-Fcc: ~/Mail/linus
-X-Shopping-List: (1) Vitriolic ostentatious yies
-   (2) Sudsing malevolent mountains
-   (3) Sunburnt commanders
-   (4) Symbolical mountain lips
-   (5) Obnoxious condensers
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEPFCPAB.davids@webmaster.com>; from davids@webmaster.com on Thu, Apr 07, 2005 at 04:20:50PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Assuming my previous patch goes into the native i386 vDSO,
-this patch makes the x86_64's 32-bit vDSO match it.
+> > Also, "mere aggregation" is a term from the GPL.  You can read what
+> > it says there yourself.  But basically it's there so that people make
+> > a distinction between the program itself and other stuff that isn't
+> > the program.
 
-Thanks,
-Roland
+On Thu, Apr 07, 2005 at 04:20:50PM -0700, David Schwartz wrote:
+>	It's also there because the GPL can only apply to either works
+> placed under it by their authors and works that are legally classified
+> as derivative. If you merely aggregate two works, there is no
+> derivation. The GPL is making clear that it's not trying to exceed the
+> scope of its authority (which is copyright law).
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+The issue of whether or not the combined work is a derivative under
+copyright law is a copyright law issue.  The GPL does concern itself
+with that issue, but not in the "mere aggregation" clause.
 
---- linux-2.6/arch/x86_64/ia32/vsyscall-sigreturn.S
-+++ linux-2.6/arch/x86_64/ia32/vsyscall-sigreturn.S
-@@ -118,3 +118,6 @@ __kernel_rt_sigreturn:
- 
- 	.align 4
- .LENDFDE3:
-+
-+#include "../../i386/kernel/vsyscall-note.S"
-+	    
+The "mere aggregation" clause holds regardless of whether or not the
+combined work is a derivative under copyright law.
+
+[P.S. I've set the Reply-To: header on this message because I think this
+thread has drifted away from kernel issues.]
+
+-- 
+Raul

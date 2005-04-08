@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVDHXJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVDHXKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVDHXJW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 19:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDHXJW
+	id S261189AbVDHXKq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 19:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVDHXKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 19:09:22 -0400
-Received: from smtp2.primushost.com ([209.58.220.66]:25587 "EHLO
-	smtp2.primushost.com") by vger.kernel.org with ESMTP
-	id S261186AbVDHXJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 19:09:03 -0400
-Message-ID: <42570F07.6080406@shore.net>
-Date: Fri, 08 Apr 2005 19:08:55 -0400
-From: "Eric A. Cottrell" <eac@shore.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Fri, 8 Apr 2005 19:10:45 -0400
+Received: from mail.hypersurf.com ([209.237.0.6]:34575 "EHLO
+	mail.hypersurf.com") by vger.kernel.org with ESMTP id S261189AbVDHXKd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 19:10:33 -0400
+Message-ID: <42570EB3.3000905@hypersurf.com>
+Date: Fri, 08 Apr 2005 16:07:31 -0700
+From: Kevin Diggs <kevdig@hypersurf.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i486; en-US; rv:1.7b) Gecko/20040809
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: LIBATA AHCI engine timeout hang with ATAPI devices
-References: <4256D1A9.6080401@shore.net> <4256D7CA.7030908@pobox.com>
-In-Reply-To: <4256D7CA.7030908@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org
+CC: Kevin Diggs <kevdig@hypersurf.com>
+Subject: 2.4.25+ ppc32 "make xconfig" error
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> You need something like the attached patch.
-> 
-> In general, ATAPI is still very much experimental at this point.  One 
-> known bug that affects libata is that ATAPI DMA is not aligned to a 
-> 4-byte boundary.
-> 
-Hello,
+Hi,
 
-Thanks.
+	The make xconfig command spits out the following error (warning):
 
-I already have that patch applied.  I will poke around the code over the weekend and see if I can figure out the problem.
-I am alittle rusty as my last disk driver code was modifying Heathkit CPM BIOS to support a SMS SASI board for 8 inch floppies and 
-Shugart SA1000 series hard drives!
+ERROR - Attempting to write value for unconfigured variable 
+(CONFIG_ALTIVEC).
 
-I would like to help get ATAPI to work as I suspect more SATA ATAPI stuff will appear as motherboards use SATA.  It appears that the 
-ahci/libata code is missing some needed steps that the ata_piix/libata code does.  Looking at the code and patches I can see that 
-libata had to change to permit the hardware to perform tasks that libata did.
+This is on a PowerMac 8600 running YellowDog 2.1.
 
-Thank you for your web page on IDE drives.  I downloaded alot of specs and even read a small bit of them.
+Commenting the VMX thing for the Power4 in arch/ppc/config.in fixes the 
+problem:
 
-73 Eric eac@shore.net
+[kevdig@PowerMac8600B ppc]$ diff -U 3 config-{old,new}_in
+--- config-old_in       Thu Apr  7 22:25:11 2005
++++ config-new_in       Fri Apr  8 15:56:32 2005
+@@ -176,9 +176,9 @@
+    fi
+    define_bool CONFIG_PPC_ISATIMER y
+  fi
+-if [ "$CONFIG_POWER4" = "y" ]; then
+-  bool 'VMX (same as AltiVec) support' CONFIG_ALTIVEC
+-fi
++#if [ "$CONFIG_POWER4" = "y" ]; then
++#  bool 'VMX (same as AltiVec) support' CONFIG_ALTIVEC
++#fi
+
+  if [ "$CONFIG_4xx" = "y" -o "$CONFIG_8xx" = "y" ]; then
+    bool 'Math emulation' CONFIG_MATH_EMULATION
+
+This problem also prevents you from enabling AltiVec (UI unresponsive).
+
+					kevin

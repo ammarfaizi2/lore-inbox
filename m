@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262728AbVDHH0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262723AbVDHHev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262728AbVDHH0I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 03:26:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbVDHH0I
+	id S262723AbVDHHev (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 03:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVDHHev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 03:26:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:42900 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262728AbVDHHZw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:25:52 -0400
-Date: Fri, 8 Apr 2005 00:23:46 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>, Hannes Reinecke <hare@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] Use proper seq_file api for /proc/scsi/scsi
-Message-ID: <20050408072345.GA1018765@sgi.com>
-References: <42550173.1040503@suse.de> <20050407103123.GB9586@infradead.org> <425517B3.2010702@suse.de> <20050407112412.GA12072@infradead.org>
+	Fri, 8 Apr 2005 03:34:51 -0400
+Received: from adsl-212-101-16-178.solnet.ch ([212.101.16.178]:27761 "EHLO
+	defiant.ds9.ch") by vger.kernel.org with ESMTP id S262723AbVDHHed
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 03:34:33 -0400
+Date: Fri, 8 Apr 2005 09:34:31 +0200
+From: Marcel Lanz <marcel.lanz@ds9.ch>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050408073431.GA5463@ds9.ch>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050407112412.GA12072@infradead.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 12:24:12PM +0100, Christoph Hellwig wrote:
-> On Thu, Apr 07, 2005 at 01:21:23PM +0200, Hannes Reinecke wrote:
-> > > /proc/scsi/scsi is deprecated and even only compiled in if
-> > > "legacy /proc/scsi/ support" is enabled.  Please move over to lssci which
-> > > is using sysfs ASAP.
-> > > 
-> > Ah. And that's enough reason for it not to work properly?
-> > Deprecated as it may be, but one could at least expect it to _work_.
-> 
-> It works for those setups that already worked with 2.4.x, aka only a few
-> luns.
+git on sarge
 
-Even if it's deprecated, wouldn't it be good to fix it as long as
-it's there, unless it hurts something else?  Or at least fix the
-out of memory error, even if it doesn't display all the luns?
-
-jeremy
+--- git-0.02/Makefile.orig      2005-04-07 23:06:19.000000000 +0200
++++ git-0.02/Makefile   2005-04-08 09:24:28.472672224 +0200
+@@ -8,7 +8,7 @@ all: $(PROG)
+ install: $(PROG)
+        install $(PROG) $(HOME)/bin/
+ 
+-LIBS= -lssl
++LIBS= -lssl -lz
+ 
+ init-db: init-db.o
+ 

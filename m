@@ -1,77 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVDHUyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262943AbVDHVAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262953AbVDHUyu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 16:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVDHUyu
+	id S262943AbVDHVAo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 17:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbVDHVAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 16:54:50 -0400
-Received: from mail.ccur.com ([208.248.32.212]:41281 "EHLO flmx.iccur.com")
-	by vger.kernel.org with ESMTP id S262953AbVDHUyr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 16:54:47 -0400
-Subject: Re: [PATCH] mtime attribute is not being updated on client
-From: Linda Dunaphant <linda.dunaphant@ccur.com>
-Reply-To: linda.dunaphant@ccur.com
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1112965872.15565.34.camel@lade.trondhjem.org>
-References: <1112921570.6182.16.camel@lindad>
-	 <1112965872.15565.34.camel@lade.trondhjem.org>
+	Fri, 8 Apr 2005 17:00:44 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:22716 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262943AbVDHVAk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 17:00:40 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
+From: Lee Revell <rlrevell@joe-job.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <4256E8DB.1000104@cybsft.com>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
+	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>
+	 <46802.192.168.1.5.1112727980.squirrel@www.rncbc.org>
+	 <1112729762.5147.62.camel@localhost.localdomain>
+	 <39754.192.168.1.5.1112973759.squirrel@www.rncbc.org>
+	 <1112980542.10271.4.camel@mindpipe>  <4256E671.4040303@cybsft.com>
+	 <1112991421.11000.39.camel@mindpipe>  <4256E8DB.1000104@cybsft.com>
 Content-Type: text/plain
-Organization: CCUR
-Message-Id: <1112993686.7459.4.camel@lindad>
+Date: Fri, 08 Apr 2005 17:00:37 -0400
+Message-Id: <1112994037.11000.63.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 08 Apr 2005 16:54:47 -0400
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Apr 2005 20:54:47.0400 (UTC) FILETIME=[32FDCE80:01C53C7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-08 at 09:11, Trond Myklebust wrote:
+On Fri, 2005-04-08 at 15:26 -0500, K.R. Foley wrote:
+> Lee Revell wrote:
+> > 
+> > Meh, I'll try again, maybe it's some weird NFS problem.
+> > 
+> > Lee
+> > 
+> 
+> Hmm. Maybe. I should probably mention that I am doing an FC3 install via 
+> NFS from my older SMP system right now while also building V0.7.44-03.
+> 
 
-> I'm a bit unclear as to what your end-goal is here. Is it basically to
->ensure that fstat() always return the correct value for the mtime?
->
-> The reason I ask is that I think your change is likely to have nasty
->consequences for the general performance in a lot of other syscalls that
->use nfs_revalidate_inode(). I would expect a particularly nasty hit in
->the of the write() syscalls themselves, and they really shouldn't have
->to worry about the value of mtime in the close-to-open cache consistency
->model.
->I therefore think we should look for a more fine-grained solution that
->addresses more precisely the issues you see.
->
->Cheers,
->  Trond
+Tried again and it works.  Weird...
 
-Hi Trond,
-
-The goal wasn't to ensure that fstat() always return the correct value for
-mtime. The goal is to update the mtime within the bounds of the min and max
-attribute cache timeouts, which was not happening before if the test ran
-for more than a minute.
-
-nfs_refresh_inode() was already being called after every write to the server
-and fattr->mtime was already set to the server's updated mtime value. However,
-it didn't check for an updated mtime value if data_unstable was set. Since
-nfs_refresh_inode() always resets the attribute timer (even when it skipped
-the mtime check), and the calls to it occurred more frequently than the
-attribute timer could expire, nfs_update_inode() was never being called
-again to update the inode's mtime.
-
-With the change I proposed, the test shows an mtime change every ~32 secs
-which corresponds to when the client writes the data to the server. Before
-this change, the test only showed one mtime change, even when it was run
-for > 10 mins. I did not see any increase in the calls to either
-nfs_revalidate_inode() or __nfs_revalidate_inode().
-
-Do you think it would be better for nfs_refresh_inode() to check the mtime,
-perform the mtime update if needed, and not set the NFS_INO_INVALID_ATTR
-flag if the data_unstable flag is set? This is how nfs_update_inode()
-handles its mtime check.
-
-Regards,
-Linda
-
+Lee
 

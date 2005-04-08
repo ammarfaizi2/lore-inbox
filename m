@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVDHDf4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262672AbVDHDiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbVDHDf4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 23:35:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDHDf4
+	id S262672AbVDHDiD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 23:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDHDiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 23:35:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39811 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262666AbVDHDfp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 23:35:45 -0400
-Message-ID: <4255FBFC.3050602@pobox.com>
-Date: Thu, 07 Apr 2005 23:35:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Thu, 7 Apr 2005 23:38:02 -0400
+Received: from web54107.mail.yahoo.com ([206.190.37.242]:3172 "HELO
+	web54107.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262669AbVDHDg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 23:36:58 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=VBi23UAPbq+Nnh/No04zbzO2d4m7t+fEHTVPEMY8m7IdW4nHekyf1g+w5xPR5qXEVS4h11gL8BMNqUdjZv+sm5XcIcRZRpVhsfBe9q606Z9zOj2Q+eY3KyilvR0bz0EZ6PqzUtmoW4zWNQBCAYL+PxHFD8dSW5OopBHl/eNesIk=  ;
+Message-ID: <20050408033658.51618.qmail@web54107.mail.yahoo.com>
+Date: Thu, 7 Apr 2005 20:36:58 -0700 (PDT)
+From: sai narasimhamurthy <sai_narasi@yahoo.com>
+Subject: Maximum data read/writes per SCSI Command
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Daniel Phillips <phillips@istop.com>, Paul Mackerras <paulus@samba.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <16980.55403.190197.751840@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0504070747580.28951@ppc970.osdl.org> <200504071300.51907.phillips@istop.com> <Pine.LNX.4.58.0504071023190.28951@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504071023190.28951@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Warning: 24.25.22.197 is listed at orbz.gst-group.uk.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Thu, 7 Apr 2005, Daniel Phillips wrote:
-> 
->>In that case, a nice refinement is to put the sequence number at the end of 
->>the subject line so patch sequences don't interleave:
-> 
-> 
-> No. That makes it unsortable, and also much harder to pick put which part 
-> of the subject line is the explanation, and which part is just metadata 
-> for me.
-> 
-> So my prefernce is _overwhelmingly_ for the format that Andrew uses (which 
-> is partly explained by the fact that I am used to it, but also by the fact 
-> that I've asked for Andrew to make trivial changes to match my usage).
-> 
-> That canonical format is:
-> 
-> 	Subject: [PATCH 001/123] [<area>:] <explanation>
-> 
-> together with the first line of the body being a
-> 
-> 	From: Original Author <origa@email.com>
+Hi, 
+I wanted to increase the number of sectors that could
+be requested/Written  per SCSI READ(10)/WRITE command
+, and varying MAX_SECTORS in blkdev.h helped me to do
+it. However I could not request more than 256 sectors
+and could not write more than 1632 inspite of changing
+MAX_SECTORS to higher numbers. 
+(request_bufflen stands still at 835584 for every
+command) 
 
 
-Nod.  For future reference, people can refer to
+Why is that? There is probably some other variable
+that should be varied. Please let me know. 
+I am working on the UNH iSCSI initiator driver , and
+am on kernel 2.4.29 .  
 
-http://linux.yyz.us/patch-format.html
-	and/or
-http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
+Sai 
 
-	Jeff
-
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

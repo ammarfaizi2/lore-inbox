@@ -1,67 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262695AbVDHGFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262697AbVDHGHp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262695AbVDHGFz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 02:05:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262696AbVDHGFz
+	id S262697AbVDHGHp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 02:07:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVDHGHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 02:05:55 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:43944
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262695AbVDHGFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 02:05:49 -0400
-Date: Thu, 7 Apr 2005 23:02:22 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: johnpol@2ka.mipt.ru
-Cc: herbert@gondor.apana.org.au, akpm@osdl.org, guillaume.thouvenin@bull.net,
-       greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-Message-Id: <20050407230222.3a76ba46.davem@davemloft.net>
-In-Reply-To: <1112937579.28858.218.camel@uganda>
-References: <20050408033246.GA31344@gondor.apana.org.au>
-	<1112932354.28858.192.camel@uganda>
-	<20050408035052.GA31451@gondor.apana.org.au>
-	<1112932969.28858.194.camel@uganda>
-	<20050408040237.GA31761@gondor.apana.org.au>
-	<1112934088.28858.199.camel@uganda>
-	<20050408041724.GA32243@gondor.apana.org.au>
-	<1112936127.28858.206.camel@uganda>
-	<20050408045302.GA32600@gondor.apana.org.au>
-	<1112937116.28858.212.camel@uganda>
-	<20050408050814.GA32722@gondor.apana.org.au>
-	<1112937579.28858.218.camel@uganda>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Apr 2005 02:07:45 -0400
+Received: from lantana.tenet.res.in ([202.144.28.166]:23712 "EHLO
+	lantana.cs.iitm.ernet.in") by vger.kernel.org with ESMTP
+	id S262697AbVDHGG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 02:06:58 -0400
+Date: Fri, 8 Apr 2005 11:37:17 +0530 (IST)
+From: "P.Manohar" <pmanohar@lantana.cs.iitm.ernet.in>
+To: linux-kernel@vger.kernel.org
+Subject: scancodes to X-Windows
+In-Reply-To: <000b01c51db7$9492da80$8e3c65cb@y3e5j4>
+Message-ID: <Pine.LNX.4.60.0504081124520.6201@lantana.cs.iitm.ernet.in>
+References: <000b01c51db7$9492da80$8e3c65cb@y3e5j4>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Mail-scanner Found to be clean
+X-MailScanner-From: pmanohar@lantana.cs.iitm.ernet.in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Apr 2005 09:19:39 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 
-> > I know, the same thing holds for most architectures, including i386.
-> > However, this is not an issue for uni-processor kernels anywhere else,
-> > so what's so special about MIPS?
-> 
-> Does i386 or ppc has cached and uncached memory?
+hai all,
+The following is the code snippet from  drivers/char/keyboard.c
 
-Yes, they do.
+if ((raw_mode = (kbd->kbdmode == VC_RAW))) {
+                 /*
+                  *      The following is a workaround for hardware
+                  *      which sometimes send the key release event twice
+                  */
+                 unsigned char next_scancode = scancode|up_flag;
+                 if (up_flag && next_scancode==prev_scancode) {
+                         /* unexpected 2nd release event */
+                 } else {
+                         prev_scancode=next_scancode;
+                         put_queue(next_scancode);
+                 }
+                 /* we do not return yet, because we want to maintain
+                    the key_down array, so that we have the correct
+                    values when finishing RAW mode or when changing VT's */
+         }
 
-> No, i386, ppc and others do not require sync on uncached memory access,
-> and only instruction not data cache sync on SMP.
+   I did so much googling, unable find 
+My doubts are,
 
-On MIPS, all the MIPS atomic operations will operate on cached memory.
-And as far as a uniprocessor cpu is concerned, updating the cache is
-all that matters.
+   1)Is in raw mode also the scancodes are send to tty buffer (as we are 
+using put_queue() here.
+   2) whether X will read from tty buffer are will it take scancodes 
+directly ,in this case where it will store those scancodes,if X is busy doing
+some other work.
 
-In fact, this SYNC instruction seems unnecessary even on SMP.  If the
-cache is updated, it is part of the coherent memory space and thus
-MOESI main bus SMP cache coherency transactions will see the update
-value.  When another processor does a "read-to-share" or "read-to-own"
-request on the main bus, the processor which did the atomic OP will
-provide the correct data from it's cache in response to that transaction.
+In the put_queue function
 
-So what you have to do is show me an example where the MIPS kernel can
-do an atomic.h operation on uncached memory.  I even think that is
-invalid, come to think of it.
+#ifdef CONFIG_FORWARD_KEYBOARD
+extern int forward_chars;
+
+void put_queue(int ch)
+{
+         if (forward_chars == fg_console+1){
+                 kbd_forward_char (ch);
+         } else {
+                 if (tty) {
+                         tty_insert_flip_char(tty, ch, 0);
+                         con_schedule_flip(tty);
+                 }
+         }
+}
+
+Where that kbd_forward_char is defined or what it will do.
+what CONFIG_FORWARD_KEYBOARD signifies.
+This is not present in my config file,(I am using RH linux 2.4.20)
+
+I got confused of it , if you know about please mail me.
+
+   Thanks&Regards,
+   P.Manohar,
+
+

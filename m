@@ -1,103 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbVDHSme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262897AbVDHSpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262916AbVDHSme (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 14:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbVDHSme
+	id S262897AbVDHSpl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 14:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbVDHSpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 14:42:34 -0400
-Received: from vbo91-1-82-238-217-224.fbx.proxad.net ([82.238.217.224]:57733
-	"EHLO mirchusko.localnet") by vger.kernel.org with ESMTP
-	id S262916AbVDHSm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 14:42:26 -0400
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
-	copyright notice.
-From: Josselin Mouette <joss@debian.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050408180109.GB15688@stusta.de>
-References: <87ekdq1xlp.fsf@sanosuke.troilus.org>
-	 <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com>
-	 <20050404190518.GA17087@wonderland.linux.it>
-	 <20050404193204.GD4087@stusta.de>
-	 <1112709907.30856.17.camel@silicium.ccc.cea.fr>
-	 <20050407210722.GC4325@stusta.de>
-	 <1112944920.11027.13.camel@silicium.ccc.cea.fr>
-	 <20050408173400.GA15688@stusta.de>
-	 <1112982171.5017.6.camel@mirchusko.localnet>
-	 <20050408180109.GB15688@stusta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ypoh58opPbdl3Z6OUIDI"
-Date: Fri, 08 Apr 2005 20:42:17 +0200
-Message-Id: <1112985737.8705.9.camel@mirchusko.localnet>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Fri, 8 Apr 2005 14:45:41 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18658 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262897AbVDHSpW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 14:45:22 -0400
+Date: Fri, 8 Apr 2005 11:47:10 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <4256C0F8.6030008@pobox.com>
+Message-ID: <Pine.LNX.4.58.0504081114220.28951@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+ <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
+ <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
+ <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
+ <4256C0F8.6030008@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-Ypoh58opPbdl3Z6OUIDI
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Le vendredi 08 avril 2005 =C3=A0 20:01 +0200, Adrian Bunk a =C3=A9crit :
-> > Because we already know that patents on MP3 decoders are not
-> > enforceable. Furthermore, the holders of these patents have repeatedly
->=20
-> How do you know the patents aren't enforceable?
+On Fri, 8 Apr 2005, Jeff Garzik wrote:
+> 
+> Well...  it took me over 30 seconds just to 'rm -rf' the unpacked 
+> tarballs of git and sparse-git, over my LAN's NFS.
 
-Because decoding a MP3 is a trivial operation.
+Don't use NFS for development. It sucks for BK too. 
 
-> > stated they won't ask for fees on MP3 decoders.
->=20
->   http://www.mp3licensing.com/royalty/index.html
->=20
-> talks about 0.75 Dollar for a decoder.
+That said, normal _use_ should actually be pretty efficient even over NFS.  
+It will "stat" a hell of a lot of files to do the "show-diff", but that
+part you really can't avoid unless you depend on all the tools marking
+their changes somewhere. Which BK does, actually, but that was pretty
+painful, and means that bk needed to re-implement all the normal ops (ie
+"bk patch").
 
-I can't find the reference, but IIRC it was stated later that they don't
-want to apply this to free (as in beer) software.
+What's also nice is that exactly because "git" depends on totally 
+immutable files, they actually cache very well over NFS. Even if you were 
+to share a database across machines (which is _not_ what git is meant to 
+do, but it's certainly possible). 
 
-> > > Documentation is "software"?
-> >=20
-> > Sure.
->=20
-> Every book in my book shelf is software?
+So I actually suspect that if you actually _work_ with a tree in "git", 
+you will find performance very good indeed. The fact that it creates a 
+number of files when you pull in a new repository is a different thing.
 
-If you digitalize it, yes.
+> Granted that this sort of stuff works well with (a) rsync and (b) 
+> hardlinks, but it's still punishment on the i/dcache.
 
-> That doesn't match how people outside of Debian use the word "software".
+Actually, it's not. Not once it is set up. Exactly because "git" doesn't
+actually access those files unless it literally needs the data in one
+file, and then it's always set up so that it needs either none or _all_ of
+the file. There is no data sharing anywhere, so you are never in the
+situation where it needs "ten bytes from file X" and "25 bytes from file
+Y".
 
-When we tried to define what is "software", the only acceptable
-definitions we found were things like "every kind of numeric stuff" or
-"everything that can be included in Debian". You can try to come up with
-your own, you'll see it's not that easy.
+For example, if you don't have any changes in your tree, there is exactly 
+_one_ file that a "show-diff" will read: the .dircache/index file. That's 
+it. After that, it will "stat()" exactly the files you are tracking, and 
+nothing more. It will not touch any internal "git" data AT ALL. That 
+"stat" will be somewhat expensive unless your client caches stat data too, 
+but that's it.
 
-> > GFDL documentation will still be available in the non-free archive.
->=20
-> Assuming you have an online connection and a friend told you how to=20
-> manually edit your /etc/apt/sources.list for non-free.
->=20
-> But where's the documentation if you don't have an online connection but=20
-> only the dozen binary CDs of Debian?
+And if it turns out that you have changed a file (or even just touched it, 
+so that the data is the same, but the index file can no longer guarantee 
+it with just a single "stat()"), then git will open have exactly _one_ 
+file (no searching, no messing around), which contains absolutely nothing 
+except for the compressed (and SHA1-signed) old contents of the file. It 
+obviously _has_ to do that, because in order to know whether you've 
+changed it, it needs to now compare it to the original.
 
-Without the GFDL documentation, you'll have the right to lock the room
-in which you put the CDs. The GFDL forbids that, because you'd be "using
-technical measures to obstruct further copying" of the documentations.
---=20
- .''`.           Josselin Mouette        /\./\
-: :' :           josselin.mouette@ens-lyon.org
-`. `'                        joss@debian.org
-  `-  Debian GNU/Linux -- The power of freedom
+IOW, "git" will literally touch the minimum IO necessary, and absolutely 
+minimum cache-footprint.
 
---=-Ypoh58opPbdl3Z6OUIDI
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+The fact is, when tracking the 17,000 files in the kernel directory, most
+of them are never actually changed. They literally are "free". They aren't
+brought into the cache by "git" - not the file itself, not the backing
+store. You set up the index file once, and you never ever touch them
+again.  You could put the sha1 files on a tape, for all git cares.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+The one exception obviously being when you actually instantiate the git 
+archive for the first time (or when you throw it away). At that time you 
+do touch all of the data, but that should be the only time.
 
-iD8DBQBCVtCJrSla4ddfhTMRAntlAJwJvyJHfqO6FpLUTvee8s5Fi1SbmQCg352h
-AM7KCOPGIBy8HYj5veadFq8=
-=8tm1
------END PGP SIGNATURE-----
+THAT is what git is good at. It optimized for the "not a lot of changes"  
+things, and pretty much all the operations are O(n) in the "size of
+change", not in "size of repo".
 
---=-Ypoh58opPbdl3Z6OUIDI--
+That includes even things like "give me the diff between the top of tree
+and the tree 10 days ago". If you know what your head was 10 days ago,
+"git" will open exactly _four_ small files for this operation (the current
+"top"  commit, the commit file of ten days ago, and the two "tree" files
+associated with those). It will then need to open the backing store files 
+for the files that are different between the two versions, but IT WILL 
+NEVER EVEN LOOK at the files that it immediately sees are the same.
+
+And that's actually true whether we're talking about the top-of-tree or
+not. If I had the kernel history in git format (I don't - I estimate that
+it would be about 1.5GB - 2GB in size, and would take me about ten days to
+extract from BK ;), I could do a diff between _any_ tagged version (and I
+mention "tagged" only as a way to look up the commit ID - it doesn't have
+to be tagged if you know it some other way) in O(n) where 'n' is the
+number of files that have changed between the revisions.
+
+Number of changesets doesn't matter. Number of files doesn't matter. The
+_only_ thing that matters is the size of the change.
+
+Btw, I don't actually have a git command to do this yet. A bit of
+scripting required to do it, but it's pretty trivial: you open the two
+"commit" files that are the beginning/end of the thing, you look up what
+the tree state was at each point, you open up the two tree files involved,
+and you ignore all entries that match.
+
+Since the tree files are already sorted, that "ignoring matches" is
+basically free (technically that's O(n) in the number of files described,
+but we're talking about something that even a slow machine can do so fast
+you probably can't even time it with a stop-watch). You now have the 
+complete list of files that have been changed (removed, added or "exists 
+in both trees, but different contents"), and you can thus trivially create 
+the whole tree with opening up _only_ the indexes for those files.
+
+Ergo: O(n) in size of change. Both in work and in disk/cache access (where
+the latter is often the more important one). Absolutely _zero_ indirection
+anywhere apart from the initial stage to go from "commit" to "tree", so
+there's no seeking except to actually read the files once you know what
+they are (and since you know them up-front and there are no dependencies
+at that point, you could even tell the OS to prefetch them if you really
+cared about getting minimal disk seeks).
+
+		Linus

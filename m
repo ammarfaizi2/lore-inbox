@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVDHAyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVDHAzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVDHAyb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 20:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVDHAwD
+	id S262576AbVDHAzV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 20:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVDHAzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 20:52:03 -0400
-Received: from fire.osdl.org ([65.172.181.4]:9426 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262638AbVDHAvS (ORCPT
+	Thu, 7 Apr 2005 20:55:04 -0400
+Received: from mail.ccur.com ([208.248.32.212]:26289 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S262576AbVDHAwu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 20:51:18 -0400
-Date: Thu, 7 Apr 2005 17:51:45 -0700
-From: Nick Wilson <njw@osdl.org>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, rddunlap@osdl.org
-Subject: [PATCH 5/6] lib/bitmap.c: use generic round_up_pow2() macro
-Message-ID: <20050408005145.GF4260@njw.pdx.osdl.net>
-References: <20050408004428.GA4260@njw.pdx.osdl.net>
+	Thu, 7 Apr 2005 20:52:50 -0400
+Subject: [PATCH] mtime attribute is not being updated on client
+From: Linda Dunaphant <linda.dunaphant@ccur.com>
+Reply-To: linda.dunaphant@ccur.com
+To: trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: CCUR
+Message-Id: <1112921570.6182.16.camel@lindad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050408004428.GA4260@njw.pdx.osdl.net>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Thu, 07 Apr 2005 20:52:50 -0400
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Apr 2005 00:52:50.0439 (UTC) FILETIME=[49EED970:01C53BD5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nick Wilson <njw@osdl.org>
-
-Use the generic round_up_pow2() instead of a custom rounding method.
-
-Signed-off-by: Nick Wilson <njw@osdl.org>
----
-
-
- bitmap.c |    3 +--
- 1 files changed, 1 insertion(+), 2 deletions(-)
-
-Index: linux/lib/bitmap.c
-===================================================================
---- linux.orig/lib/bitmap.c	2005-04-07 15:13:56.000000000 -0700
-+++ linux/lib/bitmap.c	2005-04-07 15:46:15.000000000 -0700
-@@ -289,7 +289,6 @@ EXPORT_SYMBOL(__bitmap_weight);
+Hi Trond,
  
- #define CHUNKSZ				32
- #define nbits_to_hold_value(val)	fls(val)
--#define roundup_power2(val,modulus)	(((val) + (modulus) - 1) & ~((modulus) - 1))
- #define unhex(c)			(isdigit(c) ? (c - '0') : (toupper(c) - 'A' + 10))
- #define BASEDEC 10		/* fancier cpuset lists input in decimal */
+The acregmin (default=3) and acregmax (default=60) NFS attributes that
+control the min and max attribute cache lifetimes don't appear to be
+working after the first few timeouts. Using a test program that loops
+on the following sequence:
+        - write to a file on an NFS3 mounted filesystem from the client
+        - sleep for one second
+        - stat the file to get the mtime
+you see the mtime change once after ~56 seconds, but no further mtime
+changes are detected by the test.
+  
+nfs_refresh_inode() currently bypasses the inode vs fattr mtime comparison
+if data_unstable is true. At the end of nfs_refresh_inode(), it resets the
+attribute timer. Since nfs_refresh_inode() is being called after every
+write to the server (which occurs more often than the attribute timer is
+set to expire), the attribute timer never expires again for this file past
+the ~56 sec point.
  
-@@ -316,7 +315,7 @@ int bitmap_scnprintf(char *buf, unsigned
- 	if (chunksz == 0)
- 		chunksz = CHUNKSZ;
+In nfs_refresh_inode() I believe the mtime comparison should be moved outside
+the check for data_unstable. The server might already have a newer value for
+mtime than the value on the client. With this change, the test sees the mtime
+change after each write completes on the server.
  
--	i = roundup_power2(nmaskbits, CHUNKSZ) - CHUNKSZ;
-+	i = round_up_pow2(nmaskbits, CHUNKSZ) - CHUNKSZ;
- 	for (; i >= 0; i -= CHUNKSZ) {
- 		chunkmask = ((1ULL << chunksz) - 1);
- 		word = i / BITS_PER_LONG;
-_
+Regards,
+Linda
+  
+The following patch is for 2.6.12-rc2:
+  
+diff -Nura base/fs/nfs/inode.c new/fs/nfs/inode.c
+--- base/fs/nfs/inode.c 2005-04-07 16:04:40.933611205 -0400
++++ new/fs/nfs/inode.c  2005-04-07 16:12:34.484299540 -0400
+@@ -1176,9 +1176,11 @@
+        }
+   
+        /* Verify a few of the more important attributes */
++       if (!timespec_equal(&inode->i_mtime, &fattr->mtime))
++               nfsi->flags |= NFS_INO_INVALID_ATTR;
++
+        if (!data_unstable) {
+-               if (!timespec_equal(&inode->i_mtime, &fattr->mtime)
+-                               || cur_size != new_isize)
++               if (cur_size != new_isize)
+                        nfsi->flags |= NFS_INO_INVALID_ATTR;
+        } else if (S_ISREG(inode->i_mode) && new_isize > cur_size)
+                        nfsi->flags |= NFS_INO_INVALID_ATTR;
+
+

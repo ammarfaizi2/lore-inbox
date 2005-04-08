@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262889AbVDHR0P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262886AbVDHR0P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262889AbVDHR0P (ORCPT <rfc822;willy@w.ods.org>);
+	id S262886AbVDHR0P (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Apr 2005 13:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbVDHRZV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262890AbVDHRZM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 13:25:21 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6592 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262888AbVDHRZB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 13:25:01 -0400
-Subject: Re: [PATCH] restrict inter_module_* to its last users
-From: Arjan van de Ven <arjan@infradead.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <20050408170805.GE2292@wohnheim.fh-wedel.de>
-References: <20050408170805.GE2292@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 08 Apr 2005 19:24:51 +0200
-Message-Id: <1112981091.6278.75.camel@laptopd505.fenrus.org>
+	Fri, 8 Apr 2005 13:25:12 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:50348 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262886AbVDHRYb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 13:24:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Pz/4P6VGVmRaFcfvxSBqcONP1NpbXXtt40uh3wFiHhjRWaTmM4JZda20wMstNy30joXe4termy1Agef35/PCiC4+GAZGqsLJmiKa7OnSxYPUREnIufui/3eybC9qpE0lrZYaNY1cI3qvKBCB6/sDMOWyYUJQAd/epQ/KOUDhF7U=
+Message-ID: <35fb2e59050408102463710324@mail.gmail.com>
+Date: Fri, 8 Apr 2005 18:24:29 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Daniel Phillips <phillips@istop.com>
+Subject: Re: Kernel SCM saga..
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200504071354.34581.phillips@istop.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org>
+	 <20050407171006.GF8859@parcelfarce.linux.theplanet.co.uk>
+	 <200504071354.34581.phillips@istop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-08 at 19:08 +0200, Jörn Engel wrote:
-> Derived from a patch Arjan sent around.
-> 
+On Apr 7, 2005 6:54 PM, Daniel Phillips <phillips@istop.com> wrote:
 
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+> So I propose that everybody who is interested, pick one of the above projects
+> and join it, to help get it to the point of being able to losslessly import
+> the version graph.  Given the importance, I think that _all_ viable
+> alternatives need to be worked on in parallel, so that two months from now we
+> have several viable options.
 
+What about BitKeeper licensing constraints on such involvement?
 
-
-
+Jon.

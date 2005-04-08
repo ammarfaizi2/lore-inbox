@@ -1,32 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262939AbVDHTtB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVDHTxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262939AbVDHTtB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 15:49:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262940AbVDHTtB
+	id S262940AbVDHTxc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 15:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVDHTxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 15:49:01 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:18861 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262939AbVDHTtA
+	Fri, 8 Apr 2005 15:53:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42895 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262940AbVDHTx0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 15:49:00 -0400
-X-ORBL: [68.120.153.162]
-Date: Fri, 8 Apr 2005 12:48:58 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050408194858.GC6294@taniwha.stupidest.org>
-References: <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org> <20050408171518.GA4201@taniwha.stupidest.org> <Pine.LNX.4.58.0504081037310.28951@ppc970.osdl.org> <20050408180540.GA4522@taniwha.stupidest.org> <Pine.LNX.4.58.0504081149010.28951@ppc970.osdl.org> <20050408191638.GA5792@taniwha.stupidest.org> <878y3t5aam.fsf@deneb.enyo.de>
+	Fri, 8 Apr 2005 15:53:26 -0400
+Date: Fri, 8 Apr 2005 12:49:55 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: pmarques@grupopie.com, linux-kernel@vger.kernel.org, yum.rayan@gmail.com
+Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
+Message-Id: <20050408124955.6b36048e.rddunlap@osdl.org>
+In-Reply-To: <20050408194355.GH15688@stusta.de>
+References: <4252BC37.8030306@grupopie.com>
+	<20050407214747.GD4325@stusta.de>
+	<42567B3E.8010403@grupopie.com>
+	<20050408130008.GA6653@stusta.de>
+	<4256B04A.8070909@grupopie.com>
+	<20050408194355.GH15688@stusta.de>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <878y3t5aam.fsf@deneb.enyo.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 09:38:09PM +0200, Florian Weimer wrote:
+On Fri, 8 Apr 2005 21:43:55 +0200 Adrian Bunk wrote:
 
-> Does sorting by inode number make a difference?
+| On Fri, Apr 08, 2005 at 05:24:42PM +0100, Paulo Marques wrote:
+| > Adrian Bunk wrote:
+| > >[...]
+| > >>>On Tue, Apr 05, 2005 at 05:26:31PM +0100, Paulo Marques wrote:
+| > >>
+| > >>Hi Adrian,
+| > >
+| >...
+| > >Joerg's list of recursions should be valid independent of the kernel 
+| > >version. Fixing any real stack problems [1] that might be in this list 
+| > >is a valuable task.
+| > >
+| > >And "make checkstack" in a kernel compiled with unit-at-a-time lists 
+| > >several possible problems at the top.
+| > 
+| > Ok, I've read Jörn's mail also and I think I can help out. It seems 
+| > however that there are more people working on this. Will it be better to 
+| > coordinate so we don't duplicate efforts or is the "everyone looks at 
+| > everything" approach better, so that its harder to miss something?
+| 
+| The only other person that seemed very interested n stack issues was
+| Yum Rayan <yum.rayan@gmail.com>.
 
-It almost certainly would.  But I can sort more intelligently than
-that even (all the world isn't ext2/3).
+Well, I am, but they are not high on my list right now,
+so no coordination is needed with me currently.
+
+| You could coordinate with him, but in the end it should be possible to 
+| have a first set of patches ready a few hours or even minutes after you 
+| started, so duplicate efforts would require a very unlucky timing.
+| 
+| > Paulo Marques
+| 
+| cu
+| Adrian
+
+---
+~Randy

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVDHRLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262878AbVDHRMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVDHRLf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 13:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbVDHRLe
+	id S262878AbVDHRMr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 13:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262880AbVDHRMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 13:11:34 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21489 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261824AbVDHRL3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 13:11:29 -0400
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, sdietrich@mvista.com,
-       inaky.perez-gonzalez@intel.com, Steven Rostedt <rostedt@goodmis.org>,
-       Esben Nielsen <simlo@phys.au.dk>
-In-Reply-To: <20050408062811.GA19204@elte.hu>
-References: <1112896344.16901.26.camel@dhcp153.mvista.com>
-	 <20050408062811.GA19204@elte.hu>
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1112980281.22429.9.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 08 Apr 2005 10:11:23 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Apr 2005 13:12:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:13199 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262878AbVDHRMf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 13:12:35 -0400
+Date: Fri, 8 Apr 2005 10:14:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+cc: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <4256AE0D.201@tiscali.de>
+Message-ID: <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+ <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
+ <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
+ <4256AE0D.201@tiscali.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Thu, 2005-04-07 at 23:28, Ingo Molnar wrote:
 
-> this one looks really clean.
-> 
-> it makes me wonder, what is the current status of fusyn's? Such a light 
-> datastructure would be much more mergeable upstream than the former 
-> 100-queues approach.
+On Fri, 8 Apr 2005, Matthias-Christian Ott wrote:
+>
+> SQL Databases like SQLite aren't slow.
 
+After applying a patch, I can do a complete "show-diff" on the kernel tree
+to see the effect of it in about 0.15 seconds.
 
-	Inaky was telling me that 100 queues approach is two years old. 
+Also, I can use rsync to efficiently replicate my database without having 
+to re-send the whole crap - it only needs to send the new stuff.
 
-The biggest problem is that fusyn has it's own PI system .. So it's not
-clear if that will work with the RT mutex,. I was thinking the PI stuff
-could be made generic so, fusyn, maybe futex, can use it also .
+You do that with an sql database, and I'll be impressed.
 
-Daniel
-
+		Linus

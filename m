@@ -1,135 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262711AbVDHG5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262712AbVDHG7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262711AbVDHG5T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 02:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262712AbVDHG5T
+	id S262712AbVDHG7L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 02:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbVDHG7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 02:57:19 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:49794 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262711AbVDHG5B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 02:57:01 -0400
-Date: Fri, 8 Apr 2005 08:56:51 +0200 (CEST)
-From: Simon Derr <Simon.Derr@bull.net>
-X-X-Sender: derrs@openx3.frec.bull.fr
-To: Matt Mackall <mpm@selenic.com>
-Cc: Simon Derr <simon.derr@bull.net>, Yura Pakhuchiy <pakhuchiy@iptel.by>,
-       Patrice Martinez <patrice.martinez@ext.bull.net>,
+	Fri, 8 Apr 2005 02:59:11 -0400
+Received: from smtp9.wanadoo.fr ([193.252.22.22]:11391 "EHLO smtp9.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262712AbVDHG6s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 02:58:48 -0400
+X-ME-UUID: 20050408065844306.4AA141C00149@mwinf0908.wanadoo.fr
+Date: Fri, 8 Apr 2005 08:54:40 +0200
+To: Adrian Bunk <bunk@stusta.de>, Sven Luther <sven.luther@wanadoo.fr>,
+       Humberto Massa <humberto.massa@almg.gov.br>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
        linux-kernel@vger.kernel.org
-Subject: Re: /dev/random problem on 2.6.12-rc1
-In-Reply-To: <20050407211257.GK25554@waste.org>
-Message-ID: <Pine.LNX.4.61.0504080817370.15652@openx3.frec.bull.fr>
-References: <42552A33.6070704@ext.bull.net> <1112879666.2035.10.camel@chaos.void>
- <Pine.LNX.4.58.0504071727080.5654@localhost.localdomain> <20050407211257.GK25554@waste.org>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 08/04/2005 09:06:48,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 08/04/2005 09:06:49,
-	Serialize complete at 08/04/2005 09:06:49
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050408065440.GC27346@pegasos>
+References: <h-GOHD.A.KL.s2aUCB@murphy> <42527E89.4040506@almg.gov.br> <20050405135701.GA24361@pegasos> <20050407205647.GB4325@stusta.de> <20050407210505.GB17963@pegasos> <20050408003136.GI4325@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20050408003136.GI4325@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Apr 2005, Matt Mackall wrote:
-
-> On Thu, Apr 07, 2005 at 05:36:59PM +0200, Simon Derr wrote:
+On Fri, Apr 08, 2005 at 02:31:36AM +0200, Adrian Bunk wrote:
+> On Thu, Apr 07, 2005 at 11:05:05PM +0200, Sven Luther wrote:
+> > On Thu, Apr 07, 2005 at 10:56:47PM +0200, Adrian Bunk wrote:
+> >...
+> > > If your statement was true that Debian must take more care regarding 
+> > > legal risks than commercial distributions, can you explain why Debian 
+> > > exposes the legal risks of distributing software capable of decoding 
+> > > MP3's to all of it's mirrors?
 > > 
-> > 
-> > On Thu, 7 Apr 2005, Yura Pakhuchiy wrote:
-> > 
-> > > On Thu, 2005-04-07 at 14:40 +0200, Patrice Martinez wrote:
-> > > > When  using a machine with a  2612-rc 1kernel, I encounter problems
-> > > > reading /dev/random:
-> > > >  it simply nevers returns anything, and the process is blocked in the
-> > > > read...
-> > > > The easiest way to see it is to type:
-> > > >  od < /dev/random
-> > > >
-> > > > Any idea?
-> > >
-> > > Because, /dev/random use user input, mouse movements and other things to
-> > > generate next random number. Use /dev/urandom if you want version that
-> > > will never block your machine.
-> > >
-> > > Read "man 4 random" for details.
-> > >
-> > Something changed since previous versions of the kernel, I guess.
-> > Running `find /usr | wc' on a ssh session generates both network and disk
-> > activity, and you should not expect any other kind of input on a networked
-> > server.
+> > I don't know and don't really care. I don't maintain any mp3 player (err,
+> > actually i do, i package quark, but use it mostly to play .oggs, maybe i
+> > should think twice about this now that you made me aware of it), but in any
+> > case, i am part of the debian kernel maintainer team, and as such have a
+> > responsability to get those packages uploaded and past the screening of the
+> > ftp-masters. I believe the planned solution is vastly superior to the current
+> > one of simply removing said firmware blobs from the drivers, which caused more
+> > harm than helped, which is why we are set to clarifying this for the
+> > post-sarge kernels. 
 > 
-Oops, the command is actually "find /usr | xargs wc", witch causes lots of 
-disk activity.
-
-> FYI, network activity only generates entropy on a very small subset of
-> NICs, and probably not the one you're using. This is good, as network
-> activity is assumed passively observable/timable.
-Offtopic, but why isn't the policy the same for all NICs ?
- 
-> > Anyway, still zero bytes coming from /dev/random, for the few minutes I
-> > waited.
 > 
-> Are you and Patrice both experiencing this on the same machine? 
-Both IA-64, but that's the only common point.
+> Debian doesn't seem to care much about the possible legal problems of 
+> patents.
 
-> What
-> was the last kernel that was known to work for you? Do you see the
-> contents of /proc/sys/kernel/random/entropy_avail change over time?
-> Are there any other entropy consumers on your machine?
-None that I am aware of.
+patents are problematic, and upto recently there where no software patents in
+europe, so i don't really care. I am not sure about the details of the above
+problem you mention, could you provide me some link to the problem at hand. I
+also believe that in the larger scheme restriction of this kind, as is the US
+restriction on distribution to cuba and everything else, is not-right and even
+immoral, and *I* personally would fight back if i was ever sued for such
+things, and there may be higher courts involved than just the US judicial
+system, which is for sale anyway, where redhat is dependent on. I cannot talk
+about the whole of debian on this though, and i feel it is for someone else to
+tackle and handle. If you feel strongly about this, you are free to go take it
+over with whoever handles this, post to debian-legal and debian-project about
+it, and help get the issue solved.
 
-I run:
-# dd if=/dev/random bs=1 count=1 | od
- 
-Another shell:
-# lsof /dev/random
-COMMAND  PID USER   FD   TYPE DEVICE SIZE  NODE NAME
-dd      1496 root    0r   CHR    1,8      99952 /dev/random
+(/me believes such restrictions of the above are a violation of the elemental
+human rights to go where one wants and run what operating system on wants).
 
-Now, find /usr | xargs wc running in background.
+> The firmware issues are an urgent real problem?
 
-About /proc/sys/kernel/random/entropy_avail:
-(5 second refresh interval)
+It is a problem that concerns me and the debian kernel team, thus we are out
+to fix it. If you have a problem at hand, even if it is not as important as
+others, would you sit back and not do anything just because others didn't
+solve other problems ? 
 
-0
-0
-0
-0
-[lots of 0]
-0
-0
-0
-6
-0
-8
-2
-0
-0
-[lots of 0]
-0
-0
-0
-3
-1
-0
-0
-[lots of 0]
-0
-0
-0
+> Debian should define how much legal risk they are willing to impose on 
+> their mirrors and distributors and should act accordingly in all areas.
 
-...
+That is for the ftp-masters to decide, i am not in best speaking term with
+them, so you are free to go ask the question directly.
 
+> But ignoring some areas while being more religious than RMS in other 
+> areas is simply silly.
 
-After 10 minutes, dd is still running.
+Come on, i am just asking for a damn explicit declaration that the firmware is
+not something covered by the GPL, and that we should have explicit
+distribution licence for it. We all agree that these are not covered by the
+GPL for various reasons, so why not have the copyright holder state it
+explicitly ? I don't see how do you jump to "more religious than RMS" from
+that, given that my analysis making the firmware aggregate works are a wee bit
+different from what they explicitly write in their GPL FAQ.
 
-This is on Linux 2.6.12-rc1-bk1, same results for 2.6.12-rc2.
+> > That said, i was under the understanding that after the SCO disaster,
+> > clarification of licencing issues and copyright attributions was a welcome
+> > thing here, but maybe i misunderstood those whole issues.
+> 
+> "SCO disaster"?
+> 
+> It is a disaster for SCO.
 
-And /dev/random works fine on the same machine with Linux 2.6.11.
-(i.e when running "find /usr | xargs wc", /dev/random spits out lots of 
-bytes)
+Now, yes. but we did strengthen our admission of patches policy for more
+tracability, didn't we, and there where companies who paid SCO for fear of
+retribution, and they where project who post-poned their linux adoptions, and
+what not. If nothing else, be it only for all the time we all lost following
+that story over the past tree years.
 
+Friendly,
 
-	Simon.
+Sven Luther
 

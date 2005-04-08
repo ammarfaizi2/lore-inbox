@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVDHSUW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262927AbVDHS0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbVDHSUW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 14:20:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVDHSUU
+	id S262927AbVDHS0S (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 14:26:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262923AbVDHS0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 14:20:20 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:39097 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262919AbVDHSRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 14:17:43 -0400
-Date: Fri, 8 Apr 2005 20:17:41 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: [PATCH] restrict inter_module_* to its last users
-Message-ID: <20050408181741.GA12170@wohnheim.fh-wedel.de>
-References: <20050408170805.GE2292@wohnheim.fh-wedel.de> <20050408104826.3ca70fb4.akpm@osdl.org>
+	Fri, 8 Apr 2005 14:26:17 -0400
+Received: from coderock.org ([193.77.147.115]:16610 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262927AbVDHSZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 14:25:49 -0400
+Date: Fri, 8 Apr 2005 20:25:38 +0200
+From: Domen Puncer <domen@coderock.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, wharms@bfs.de
+Subject: Re: [patch 3/8] lib/c: documentation strncpy()
+Message-ID: <20050408182538.GA26061@nd47.coderock.org>
+References: <20050408075057.3C9EE1EE91@trashy.coderock.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050408104826.3ca70fb4.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050408075057.3C9EE1EE91@trashy.coderock.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 April 2005 10:48:26 -0700, Andrew Morton wrote:
-> Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
-> >
-> > Next step for inter_module removal.  This patch makes the code
-> >  conditional on its last users and shrinks the kernel binary for the
-> >  huge majority of people.
-> 
-> If we do this, nobody will get around to fixing up the remaining users.
+this clarifys the documentation on the behavier of strncpy().
 
-I would do that personally if someone explained inter_module_* to me.
-Right now, I have absolutely no clue what the perceived problem was
-and how inter_module_* supposedly solved that problem.
+From: walter harms <wharms@bfs.de>
+Signed-off-by: Domen Puncer <domen@coderock.org>
+---
+[Geez, again, next time i'll send them to myself first]
 
-Jörn
 
--- 
-The strong give up and move away, while the weak give up and stay.
--- unknown
+ kj-domen/lib/string.c |    4 ++++
+ 1 files changed, 4 insertions(+)
+
+diff -puN lib/string.c~comment-lib_string lib/string.c
+--- kj/lib/string.c~comment-lib_string	2005-04-05 12:57:42.000000000 +0200
++++ kj-domen/lib/string.c	2005-04-05 12:57:42.000000000 +0200
+@@ -85,6 +85,10 @@ EXPORT_SYMBOL(strcpy);
+  *
+  * The result is not %NUL-terminated if the source exceeds
+  * @count bytes.
++ *
++ * In the case where the length of @src is less than  that  of
++ * count, the remainder of @dest will be padded with %NUL.
++ *
+  */
+ char * strncpy(char * dest,const char *src,size_t count)
+ {
+_

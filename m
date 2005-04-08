@@ -1,75 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262940AbVDHTxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVDHTyY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262940AbVDHTxc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 15:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVDHTxb
+	id S262941AbVDHTyY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 15:54:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVDHTyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 15:53:31 -0400
-Received: from fire.osdl.org ([65.172.181.4]:42895 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262940AbVDHTx0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 15:53:26 -0400
-Date: Fri, 8 Apr 2005 12:49:55 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: pmarques@grupopie.com, linux-kernel@vger.kernel.org, yum.rayan@gmail.com
-Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
-Message-Id: <20050408124955.6b36048e.rddunlap@osdl.org>
-In-Reply-To: <20050408194355.GH15688@stusta.de>
-References: <4252BC37.8030306@grupopie.com>
-	<20050407214747.GD4325@stusta.de>
-	<42567B3E.8010403@grupopie.com>
-	<20050408130008.GA6653@stusta.de>
-	<4256B04A.8070909@grupopie.com>
-	<20050408194355.GH15688@stusta.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Fri, 8 Apr 2005 15:54:24 -0400
+Received: from main.gmane.org ([80.91.229.2]:40666 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262941AbVDHTyG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 15:54:06 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Rich Walker <rw@shadow.org.uk>
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+Date: Fri, 08 Apr 2005 19:16:16 +0100
+Organization: Shadow Robot Company
+Message-ID: <m3r7hldthr.fsf@shadow.org.uk>
+References: <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos>
+ <20050404175130.GA11257@kroah.com>
+ <20050404190518.GA17087@wonderland.linux.it>
+ <20050404193204.GD4087@stusta.de>
+ <1112709907.30856.17.camel@silicium.ccc.cea.fr>
+ <20050407210722.GC4325@stusta.de>
+ <1112944920.11027.13.camel@silicium.ccc.cea.fr>
+ <20050408173400.GA15688@stusta.de>
+ <1112982171.5017.6.camel@mirchusko.localnet>
+ <20050408180109.GB15688@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsl-80-46-125-164.access.as9105.com
+X-Plan: Building the future with general-purpose robots
+X-Plan2: mail contact@shadow.org.uk for more details and to help
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:SDP4a+ytJnvjmMeMbz2j4qLv19c=
+Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Apr 2005 21:43:55 +0200 Adrian Bunk wrote:
+Adrian Bunk <bunk@stusta.de> writes:
 
-| On Fri, Apr 08, 2005 at 05:24:42PM +0100, Paulo Marques wrote:
-| > Adrian Bunk wrote:
-| > >[...]
-| > >>>On Tue, Apr 05, 2005 at 05:26:31PM +0100, Paulo Marques wrote:
-| > >>
-| > >>Hi Adrian,
-| > >
-| >...
-| > >Joerg's list of recursions should be valid independent of the kernel 
-| > >version. Fixing any real stack problems [1] that might be in this list 
-| > >is a valuable task.
-| > >
-| > >And "make checkstack" in a kernel compiled with unit-at-a-time lists 
-| > >several possible problems at the top.
-| > 
-| > Ok, I've read Jörn's mail also and I think I can help out. It seems 
-| > however that there are more people working on this. Will it be better to 
-| > coordinate so we don't duplicate efforts or is the "everyone looks at 
-| > everything" approach better, so that its harder to miss something?
-| 
-| The only other person that seemed very interested n stack issues was
-| Yum Rayan <yum.rayan@gmail.com>.
+> On Fri, Apr 08, 2005 at 07:42:51PM +0200, Josselin Mouette wrote:
+>> Le vendredi 08 avril 2005 à 19:34 +0200, Adrian Bunk a écrit :
+>> GFDL documentation will still be available in the non-free archive.
+>
+> Assuming you have an online connection and a friend told you how to 
+> manually edit your /etc/apt/sources.list for non-free.
 
-Well, I am, but they are not high on my list right now,
-so no coordination is needed with me currently.
+You *do* know that current versions of the installer ask you if you want
+non-free, don't you?
 
-| You could coordinate with him, but in the end it should be possible to 
-| have a first set of patches ready a few hours or even minutes after you 
-| started, so duplicate efforts would require a very unlucky timing.
-| 
-| > Paulo Marques
-| 
-| cu
-| Adrian
 
----
-~Randy
+> But where's the documentation if you don't have an online connection but 
+> only the dozen binary CDs of Debian?
+
+Clearly, since the judgement is "it can't be legally distributed as part
+of a package of Debian CD's", it isn't on a package of Debian CD's.
+
+
+
+cheers, Rich.
+
+-- 
+rich walker         |  Shadow Robot Company | rw@shadow.org.uk
+technical director     251 Liverpool Road   |
+need a Hand?           London  N1 1LX       | +UK 20 7700 2487
+www.shadow.org.uk/products/newhand.shtml
+

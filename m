@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262704AbVDHGdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVDHGin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbVDHGdP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 02:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbVDHGdP
+	id S262703AbVDHGin (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 02:38:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbVDHGin
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 02:33:15 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:61093 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262704AbVDHGdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 02:33:09 -0400
-Message-ID: <4256259E.2080102@yahoo.com.au>
-Date: Fri, 08 Apr 2005 16:33:02 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-CC: Ingo Molnar <mingo@elte.hu>, george@mvista.com,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: VST and Sched Load Balance
-References: <20050407124629.GA17268@in.ibm.com> <20050407151024.GA6565@elte.hu> <20050408053405.GA5392@in.ibm.com>
-In-Reply-To: <20050408053405.GA5392@in.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Apr 2005 02:38:43 -0400
+Received: from mailout1.samsung.com ([203.254.224.24]:42439 "EHLO
+	mailout1.samsung.com") by vger.kernel.org with ESMTP
+	id S262703AbVDHGim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 02:38:42 -0400
+Date: Fri, 08 Apr 2005 09:32:43 -0400
+From: karthik <karthik.r@samsung.com>
+Subject: accessing i2c-driver
+To: linux-kernel@vger.kernel.org
+Message-id: <200504080932.43962.karthik.r@samsung.com>
+Organization: samsung
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: KMail/1.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> On Thu, Apr 07, 2005 at 05:10:24PM +0200, Ingo Molnar wrote:
-> 
->>Interaction with VST is not a big issue right now because this only matters 
->>on SMP boxes which is a rare (but not unprecedented) target for embedded 
->>platforms.  
-> 
-> 
-> Well, I don't think VST is targetting just power management in embedded 
-> platforms. Even (virtualized) servers will benefit from this patch, by
-> making use of the (virtual) CPU resources more efficiently.
-> 
+Hi,
 
-I still think looking at just using the rebalance backoff would be
-a good start.
 
-What would be really nice is to measure the power draw on your favourite
-SMP system with your current patches that *don't* schedule ticks to
-service rebalancing.
+       i want to write an application to access the i2c-matroxfb driver. can 
+anybody tell me how to start with ie if u r accessing a char driver similar 
+to File ie first we have to opne the driver, then when we call read it call 
+the  driver specific read etc.
 
-Then measure again with the current rebalance backoff settings (which
-will likely be not very good, because some intervals are constrained to
-quite small values).
+        Likewise how can i write one application to check what is happening in 
+i2c-matroxfb module. if anybody got anyidea regarding this please mail me.
 
-Then we can aim for something like 80-90% of the first (ie perfect)
-efficiency rating.
-
--- 
-SUSE Labs, Novell Inc.
-
+Karthik

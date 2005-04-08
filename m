@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVDHHsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbVDHHu0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262731AbVDHHsz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 03:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVDHHsz
+	id S262730AbVDHHu0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 03:50:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVDHHu0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 03:48:55 -0400
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:49869 "EHLO
-	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S262731AbVDHHsx
+	Fri, 8 Apr 2005 03:50:26 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:27621 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262730AbVDHHt3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:48:53 -0400
-X-ME-UUID: 20050408074851864.D2F722400143@mwinf1012.wanadoo.fr
-Date: Fri, 8 Apr 2005 09:44:47 +0200
-To: "Richard B. Johnson" <linux-os@analogic.com>
-Cc: Humberto Massa <humberto.massa@almg.gov.br>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050408074447.GB9057@pegasos>
-References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br> <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+	Fri, 8 Apr 2005 03:49:29 -0400
+Message-ID: <42563776.2000207@zytor.com>
+Date: Fri, 08 Apr 2005 00:49:10 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@istop.com>
+CC: Rogan Dawes <rogan@dawes.za.net>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <d353vk$72m$1@terminus.zytor.com> <42562D47.9080705@dawes.za.net> <200504080321.02462.phillips@istop.com>
+In-Reply-To: <200504080321.02462.phillips@istop.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 11:50:54AM -0400, Richard B. Johnson wrote:
-> On Tue, 5 Apr 2005, Humberto Massa wrote:
+Daniel Phillips wrote:
+> On Friday 08 April 2005 03:05, Rogan Dawes wrote:
 > 
-> >Josselin Mouette wrote:
-> >
-> >>You are mixing apples and oranges. The fact that the GFDL sucks has
-> >>nothing to do with the firmware issue. With the current situation of
-> >>firmwares in the kernel, it is illegal to redistribute binary images of
-> >>the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may still
-> >>be willing to distribute such binary images, but it isn't our problem.
-> >>
+>>Take a look at
+>>http://www.linuxshowcase.org/2001/full_papers/ezolt/ezolt_html/
+>>
+>>Abstract
+>>
+>>GNU libc's default setting for malloc can cause a significant
+>>performance penalty for applications that use it extensively, such as
+>>Compaq's high performance extended math library, CXML.  The default
+>>malloc tuning can cause a significant number of minor page faults, and
+>>result in application performance of only half of the true potential.
 > 
-> Wrong! It is perfectly legal in the United States, and I'm pretty
-> sure in your country, to distribute or redistribute copyrighted
-> works. Otherwise there wouldn't be any bookstores or newspaper
-> stands.
+> 
+> This does not smell like an n*2 suckage, more like n^something suckage.  
+> Finding the elephant under the rug should not be hard.  Profile?
+> 
 
-Mmm, so you are claiming it is perfectly right to make copies of the windows
-installation CD, or for that matter to duplicate music CDs ? 
+Lack of hysteresis can do that, with large swats of memory constantly 
+being claimed and returned to the system.  One way to implement 
+hysteresis would be based on a decaying peak-based threshold; 
+unfortunately for optimal performance that requires the C runtime to 
+have a notion of time, and in extreme cases even be able to do 
+asynchronous deallocation, but in reality one can probably assume that 
+the rate of malloc/free is roughly constant over time.
 
-I would be rather interested in knowing how you came to that conclusion :)
-
-Friendly,
-
-Sven Luther
-
+	-hpa

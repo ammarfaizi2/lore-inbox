@@ -1,84 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVDHHjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbVDHHpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbVDHHjA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 03:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbVDHHjA
+	id S262729AbVDHHpv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 03:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVDHHpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 03:39:00 -0400
-Received: from tirith.ics.muni.cz ([147.251.4.36]:23947 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S262724AbVDHHi4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:38:56 -0400
-Date: Fri, 8 Apr 2005 09:38:54 +0200
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11.3 slab error crash
-Message-ID: <20050408073854.GC30441@fi.muni.cz>
+	Fri, 8 Apr 2005 03:45:50 -0400
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:23276 "EHLO smtp2.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262729AbVDHHpm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 03:45:42 -0400
+X-ME-UUID: 20050408074540886.D85F51C002A9@mwinf0208.wanadoo.fr
+Date: Fri, 8 Apr 2005 09:41:35 +0200
+To: debian-legal@lists.debian.org
+Cc: linux-kernel@vger.kernel.org, linux-acenic@sunsite.dk
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050408074135.GA9057@pegasos>
+References: <20050407161658.S32136@links.magenta.com> <MDEHLPKNGKAHNMBLJOLKEEPFCPAB.davids@webmaster.com> <20050407235544.Y32136@links.magenta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+In-Reply-To: <20050407235544.Y32136@links.magenta.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi all,
+On Thu, Apr 07, 2005 at 11:55:44PM -0400, Raul Miller wrote:
+> > > Also, "mere aggregation" is a term from the GPL.  You can read what
+> > > it says there yourself.  But basically it's there so that people make
+> > > a distinction between the program itself and other stuff that isn't
+> > > the program.
+> 
+> On Thu, Apr 07, 2005 at 04:20:50PM -0700, David Schwartz wrote:
+> >	It's also there because the GPL can only apply to either works
+> > placed under it by their authors and works that are legally classified
+> > as derivative. If you merely aggregate two works, there is no
+> > derivation. The GPL is making clear that it's not trying to exceed the
+> > scope of its authority (which is copyright law).
+> 
+> The issue of whether or not the combined work is a derivative under
+> copyright law is a copyright law issue.  The GPL does concern itself
+> with that issue, but not in the "mere aggregation" clause.
+> 
+> The "mere aggregation" clause holds regardless of whether or not the
+> combined work is a derivative under copyright law.
+> 
+> [P.S. I've set the Reply-To: header on this message because I think this
+> thread has drifted away from kernel issues.]
 
-yesterday our HP DL-585 quad opteron server running 2.6.11.3 crashed
-with the attached messages. The main load is NFS serving and running
-postfix as well as some other userland processes. The server uses XFS
-on top of LVM for NFS-exported volumes. More details available at request.
+Thanks.
 
-	Thanks,
+BTW, have any of you read the analysis i made, where i claim, rooted in the
+GPL FAQ and with examples, why i believe that the firmware can be considerated
+a non derivative of the linux kernel. The main points is that the firmware is
+not aimed to run in the same address space, even not the same cpu, as the rest
+of the linux kernel, and that there is a clearly defined communication channel
+between the GPLed driver and the target processor running the firmware.
 
--Yenya
+I further argumented that taking any different stance would bring us worlds of
+hurt as we would consider the bios as being a derivative work of the kernel
+they are running, or the bootloader, or the firmware present in proms on
+devices loaded into the system and so on.
 
-Apr  7 16:25:11 opteron kernel: slab error in cache_free_debugcheck(): cache `size-1024': double free, or memory outside object was overwritten
-Apr  7 16:25:11 opteron kernel: 
-Apr  7 16:25:11 opteron kernel: Call Trace:<ffffffff8015b493>{cache_free_debugcheck+371} <ffffffff8015c615>{kfree+213} 
-Apr  7 16:25:11 opteron kernel:        <ffffffff8021ec16>{nlm4svc_callback+150} <ffffffff8021e6f0>{nlm4svc_proc_unlock_msg+112} 
-Apr  7 16:25:11 opteron kernel:        <ffffffff8021d7d0>{nlm4svc_decode_unlockargs+48} <ffffffff803ff445>{svc_process+853} 
-Apr  7 16:25:11 opteron kernel:        <ffffffff80218987>{lockd+359} <ffffffff80218820>{lockd+0} 
-Apr  7 16:25:11 opteron kernel:        <ffffffff8010ddbf>{child_rip+8} <ffffffff80218820>{lockd+0} 
-Apr  7 16:25:11 opteron kernel:        <ffffffff80218820>{lockd+0} <ffffffff8010ddb7>{child_rip+0} 
-Apr  7 16:25:11 opteron kernel:        
-Apr  7 16:25:11 opteron kernel: ffff81050ffacae8: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf071.
-Apr  7 16:25:11 opteron kernel: ----------- [cut here ] --------- [please bite here ] ---------
-Apr  7 16:25:11 opteron kernel: Kernel BUG at host:250
-Apr  7 16:25:11 opteron kernel: invalid operand: 0000 [1] SMP 
-Apr  7 16:25:11 opteron kernel: CPU 2 
-Apr  7 16:25:11 opteron kernel: Modules linked in: ide_cd cdrom
-Apr  7 16:25:12 opteron kernel: Pid: 18003, comm: rpciod/2 Not tainted 2.6.11.3
-Apr  7 16:25:12 opteron kernel: RIP: 0010:[<ffffffff8021841f>] <ffffffff8021841f>{nlm_release_host+47}
-Apr  7 16:25:12 opteron kernel: RSP: 0000:ffff810207177da8  EFLAGS: 00010286
-Apr  7 16:25:12 opteron kernel: RAX: 00000000ffffffff RBX: ffff8103cb093248 RCX: ffff810064b23470
-Apr  7 16:25:12 opteron kernel: RDX: 00000000fffffffb RSI: 0000000000000296 RDI: ffff8103cb093248
-Apr  7 16:25:12 opteron kernel: RBP: ffff810142def688 R08: 0000000000000000 R09: ffff810142def9a8
-Apr  7 16:25:12 opteron kernel: R10: ffffffff80582a80 R11: 0000000000002000 R12: ffff8100bfc33678
-Apr  7 16:25:12 opteron kernel: R13: ffffffff80149380 R14: 0000000000000000 R15: ffffffff80149380
-Apr  7 16:25:12 opteron kernel: FS:  00002aaaaae054c0(0000) GS:ffffffff80582b80(0000) knlGS:00000000556b7080
-Apr  7 16:25:12 opteron kernel: CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-Apr  7 16:25:12 opteron kernel: CR2: 00002aaaab1a5970 CR3: 0000000082e30000 CR4: 00000000000006e0
-Apr  7 16:25:12 opteron kernel: Process rpciod/2 (pid: 18003, threadinfo ffff810207176000, task ffff810207281210)
-Apr  7 16:25:12 opteron kernel: Stack: ffff8101467b8658 ffffffff8021ec79 0000000000000000 ffffffff803fcc47 
-Apr  7 16:25:12 opteron kernel:        ffff810207177e58 ffffffff8040e71a 0000000000002000 00000076000027d8 
-Apr  7 16:25:12 opteron kernel:        0000000300000000 ffff8100bfc336b8 
-Apr  7 16:25:12 opteron kernel: Call Trace:<ffffffff8021ec79>{nlm4svc_callback_exit+57} <ffffffff803fcc47>{__rpc_execute+855} 
-Apr  7 16:25:12 opteron kernel:        <ffffffff8040e71a>{thread_return+42} <ffffffff8012f483>{__wake_up+67} 
-Apr  7 16:25:12 opteron kernel:        <ffffffff803fcd20>{rpc_async_schedule+0} <ffffffff8014477c>{worker_thread+476} 
-Apr  7 16:25:12 opteron kernel:        <ffffffff8012f3c0>{default_wake_function+0} <ffffffff8012f3c0>{default_wake_function+0} 
-Apr  7 16:25:12 opteron kernel:        <ffffffff80148d80>{keventd_create_kthread+0} <ffffffff801445a0>{worker_thread+0} 
-Apr  7 16:25:12 opteron kernel:        <ffffffff80148d80>{keventd_create_kthread+0} <ffffffff80148d42>{kthread+146} 
-Apr  7 16:25:12 opteron kernel:        <ffffffff8010ddbf>{child_rip+8} <ffffffff80148d80>{keventd_create_kthread+0} 
-Apr  7 16:25:12 opteron kernel:        <ffffffff80148cb0>{kthread+0} <ffffffff8010ddb7>{child_rip+0} 
-Apr  7 16:25:12 opteron kernel:        
-Apr  7 16:25:12 opteron kernel: 
-Apr  7 16:25:12 opteron kernel: Code: 0f 0b 7b 1d 45 80 ff ff ff ff fa 00 66 66 90 66 90 5b c3 66 
+I think only the fact that if you consider firmware as being a derivative
+work, you should consider it a derivative work also when it is flashed on the
+prom of a pci card or what not, is decisive enough to make those firmware
+blobs not derivative works of the kernel they are under.
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-> Whatever the Java applications and desktop dances may lead to, Unix will <
-> still be pushing the packets around for a quite a while.      --Rob Pike <
+Friendly,
+
+Sven Luther
+

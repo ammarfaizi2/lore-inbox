@@ -1,33 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262896AbVDHRuR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262899AbVDHRuR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262896AbVDHRuR (ORCPT <rfc822;willy@w.ods.org>);
+	id S262899AbVDHRuR (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Apr 2005 13:50:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbVDHRtM
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbVDHRrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 13:49:12 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57778 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262907AbVDHRs4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 13:48:56 -0400
-Date: Fri, 8 Apr 2005 10:48:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: =?ISO-8859-1?B?SvZybg==?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
-Subject: Re: [PATCH] restrict inter_module_* to its last users
-Message-Id: <20050408104826.3ca70fb4.akpm@osdl.org>
-In-Reply-To: <20050408170805.GE2292@wohnheim.fh-wedel.de>
-References: <20050408170805.GE2292@wohnheim.fh-wedel.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 8 Apr 2005 13:47:05 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:42916 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262895AbVDHRqO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 13:46:14 -0400
+Date: Fri, 8 Apr 2005 19:45:47 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: rjy <rjy@angelltech.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: init process freezed after run_init_process
+In-Reply-To: <4255EF2A.709@angelltech.com>
+Message-ID: <Pine.LNX.4.61.0504081944120.19971@yvahk01.tjqt.qr>
+References: <424B7A87.2070100@angelltech.com> <Pine.LNX.4.61.0503311113550.17113@yvahk01.tjqt.qr>
+ <4254AB72.8070704@angelltech.com> <Pine.LNX.4.61.0504071341500.27692@yvahk01.tjqt.qr>
+ <4255EF2A.709@angelltech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+>> Make your own initrd and put a bash into it. Then start that, e.g. (for
+>> our linux live cd), initrd=initrd.sqfs root=/dev/ram0 init=/bin/bash
 >
-> Next step for inter_module removal.  This patch makes the code
->  conditional on its last users and shrinks the kernel binary for the
->  huge majority of people.
+> I have tried these kernel parameters:
+> init=/bin/bash
+> init=/linuxrc
+> init=/init
+> init=/sbin/init
+> None works.
 
-If we do this, nobody will get around to fixing up the remaining users.
+What's the error message?
+
+> Also, after some google, I found that the format of initrd has changed.
+> I also tried a new initrd with cpio format. The kernel recognized it:
+
+cpio initrd's (aka initramfs) are new - the "old style" initrd where you
+`mksquasfs mydir initrd.sqfs` (see above) continues to work, though.
+
+> After the kernel start, I add breakpoints at cpu_idle and do_schedule.
+> cpu_idle never reached, only do_schedule did. Is that strange?
+
+Until pid 1 is started, the cpu should never be idle.
+
+
+Jan Engelhardt
+-- 
+No TOFU for me, please.

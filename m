@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbVDHOid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262834AbVDHOk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbVDHOid (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 10:38:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbVDHOid
+	id S262834AbVDHOk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 10:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbVDHOk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 10:38:33 -0400
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:50408 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S262835AbVDHOia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 10:38:30 -0400
-Date: Fri, 8 Apr 2005 07:38:28 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linuxppc-dev@ozlabs.org
-Cc: Giovambattista Pulcini <gpulcini@swintel.it>,
-       Gabriel Paubert <paubert@iram.es>
-Subject: [PATCH 2.6.12-rc2]: ppc32: Fix a problem with NTP on !(chrp||gemini)
-Message-ID: <20050408143828.GW3396@smtp.west.cox.net>
+	Fri, 8 Apr 2005 10:40:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5586 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262834AbVDHOkv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 10:40:51 -0400
+Subject: Re: ext3 allocate-with-reservation latencies
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 08 Apr 2005 15:40:37 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following problem was found by Giovambattista Pulcini
-<gpulcini@swintel.it>, who also provided a partial patch, and this has
-been verified by our time guru Gabriel Paubert <paubert@iram.es>.
+Hi,
 
-The problem is that in do_settimeofday() we always set time_state to
-TIME_ERROR and except on two platforms, never re-set it.  This meant
-that ntp_gettime() and ntp_adjtime() always returned TIME_ERROR,
-incorrectly.  Based on Gabriel's analysis, time_state is used for
-leap-second processing, and ppc shouldn't be mucking with it.
+On Fri, 2005-04-08 at 00:37, Mingming Cao wrote:
 
-From: Giovambattista Pulcini <gpulcini@swintel.it>
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> Actually, we do not have to do an rbtree link and unlink for every
+> window we search.  If the reserved window(old) has no free bit and the
+> new reservable window's is right after the old one, no need to unlink
+> the old window from the rbtree and then link the new window, just update
+> the start and end of the old one.
 
---- 1.37/arch/ppc/kernel/time.c	2005-01-20 22:02:08 -07:00
-+++ edited/arch/ppc/kernel/time.c	2005-04-08 07:30:46 -07:00
-@@ -272,7 +272,6 @@
- 
- 	time_adjust = 0;                /* stop active adjtime() */
- 	time_status |= STA_UNSYNC;
--	time_state = TIME_ERROR;        /* p. 24, (a) */
- 	time_maxerror = NTP_PHASE_LIMIT;
- 	time_esterror = NTP_PHASE_LIMIT;
- 	write_sequnlock_irqrestore(&xtime_lock, flags);
---- 1.11/arch/ppc/platforms/chrp_time.c	2005-01-25 14:50:14 -07:00
-+++ edited/arch/ppc/platforms/chrp_time.c	2005-04-08 07:30:53 -07:00
-@@ -115,8 +115,6 @@
- 	chrp_cmos_clock_write(save_control, RTC_CONTROL);
- 	chrp_cmos_clock_write(save_freq_select, RTC_FREQ_SELECT);
- 
--	if ( (time_state == TIME_ERROR) || (time_state == TIME_BAD) )
--		time_state = TIME_OK;
- 	spin_unlock(&rtc_lock);
- 	return 0;
- }
---- 1.17/arch/ppc/platforms/gemini_setup.c	2005-03-13 16:29:43 -07:00
-+++ edited/arch/ppc/platforms/gemini_setup.c	2005-04-08 07:30:56 -07:00
-@@ -433,9 +433,6 @@
- 	/* done writing */
- 	gemini_rtc_write(reg, M48T35_RTC_CONTROL);
- 
--	if ((time_state == TIME_ERROR) || (time_state == TIME_BAD))
--		time_state = TIME_OK;
--
- 	return 0;
- }
+It still needs to be done under locking to prevent us from expanding
+over the next window, though.  And having to take and drop a spinlock a
+dozen times or more just to find out that there are no usable free
+blocks in the current block group is still expensive, even if we're not
+actually fully unlinking the window each time.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+I wonder if this can possibly be done safely without locking?  It would
+be really good if we could rotate windows forward with no global locks. 
+At the very least, a fair rwlock would let us freeze the total layout of
+the tree, while still letting us modify individual windows safely.  As
+long as we use wmb() to make sure that we always extend the end of the
+window before we shrink the start of it, I think we could get away with
+such shared locking.  And rw locking is much better for concurrency, so
+we might be able to hold it over the whole bitmap search rather than
+taking it and dropping it at each window advance.
+
+--Stephen
+

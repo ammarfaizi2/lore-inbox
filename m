@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVDHOGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262819AbVDHOMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbVDHOGn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 10:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVDHOGn
+	id S262819AbVDHOMK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 10:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVDHOMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 10:06:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:29376 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262820AbVDHOGk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 10:06:40 -0400
-Subject: Re: Problem in log_do_checkpoint()?
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jan Kara <jack@suse.cz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, jeffm@suse.com,
-       Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050404090414.GB20219@atrey.karlin.mff.cuni.cz>
-References: <20050404090414.GB20219@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
+	Fri, 8 Apr 2005 10:12:10 -0400
+Received: from mail.portrix.net ([212.202.157.208]:37835 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S262819AbVDHOMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 10:12:06 -0400
+Message-ID: <42569122.9070003@portrix.net>
+Date: Fri, 08 Apr 2005 16:11:46 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, pmarques@grupopie.com
+Subject: Re: 2.6.12-rc2-mm2
+References: <20050408030835.4941cd98.akpm@osdl.org>
+In-Reply-To: <20050408030835.4941cd98.akpm@osdl.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <1112969175.1975.96.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Fri, 08 Apr 2005 15:06:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andrew Morton wrote:
+> create-a-kstrdup-library-function.patch
+>   create a kstrdup library function
+> 
+> create-a-kstrdup-library-function-fixes.patch
+>   create-a-kstrdup-library-function-fixes
 
-On Mon, 2005-04-04 at 10:04, Jan Kara wrote:
+ppc defconfig build is broken due to this
 
->   In log_do_checkpoint() we go through the t_checkpoint_list of a
-> transaction and call __flush_buffer() on each buffer. Suppose there is
-> just one buffer on the list and it is dirty. __flush_buffer() sees it and
-> puts it to an array of buffers for flushing. Then the loop finishes,
-> retry=0, drop_count=0, batch_count=1. So __flush_batch() is called - we
-> drop all locks and sleep. While we are sleeping somebody else comes and
-> makes the buffer dirty again (OK, that is not probable, but I think it
-> could be possible). 
+make ARCH=ppc CROSS_COMPILE=powerpc-linux- O=/usr/src/ctest/mm/out/ppc
+  CC      arch/ppc/boot/openfirmware/dummy.o
+  GEN     arch/ppc/boot/openfirmware/image.o
+  AS      arch/ppc/boot/openfirmware/coffcrt0.o
+  CC      arch/ppc/boot/openfirmware/start.o
+  AS      arch/ppc/boot/openfirmware/misc.o
+  CC      arch/ppc/boot/openfirmware/common.o
+  CC      arch/ppc/boot/openfirmware/coffmain.o
+  COFF    arch/ppc/boot/openfirmware/coffboot
+lib/lib.a(string.o)(.text+0x5cc): In function `kstrdup':
+: undefined reference to `__kmalloc'
+  COFF    arch/ppc/boot/images/vmlinux.coff
+powerpc-linux-objcopy: 'arch/ppc/boot/openfirmware/coffboot': No such file
+make[3]: *** [arch/ppc/boot/images/vmlinux.coff] Error 1
+make[2]: *** [openfirmware] Error 2
+make[1]: *** [zImage] Error 2
+make: *** [_all] Error 2
 
-Yes, there's no reason why not at that point.
+See http://l4x.org/k/?d=3218
 
-> Now we wake up and call __cleanup_transaction().
-> It's not able to do anything and returns 0.
-
-I think the _right_ answer here is to have two separate checkpoint
-lists: the current one, plus one for which the checkpoint write has
-already been submitted.  That way, we can wait for IO completion on
-submitted writes without (a) getting conned into doing multiple rewrites
-if there's somebody else dirtying the buffer; or (b) getting confused
-about how much progress we're making.  Buffers on the pre-write list get
-written; buffers on the post-write list get waited for; and both count
-as progress (eliminating the false assert-failure when we failed to
-detect progress).
-
-The prevention of multiple writes in this case should also improve
-performance a little.
-
-That ought to be pretty straightforward, I think.  The existing cases
-where we remove buffers from a checkpoint shouldn't have to care about
-which list_head we're removing from; those cases already handle buffers
-in both states.  It's only when doing the flush/wait that we have to
-distinguish the two.
-
-Sounds good?
-
---Stephen
-
+Jan

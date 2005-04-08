@@ -1,71 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262941AbVDHTyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262900AbVDHT5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbVDHTyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 15:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbVDHTyY
+	id S262900AbVDHT5K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 15:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262898AbVDHT5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 15:54:24 -0400
-Received: from main.gmane.org ([80.91.229.2]:40666 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262941AbVDHTyG (ORCPT
+	Fri, 8 Apr 2005 15:57:09 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:9940 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S262900AbVDHT4j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 15:54:06 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Fri, 8 Apr 2005 15:56:39 -0400
+Date: Fri, 8 Apr 2005 21:56:33 +0200
+From: Tomas =?iso-8859-1?Q?=D6gren?= <stric@acc.umu.se>
 To: linux-kernel@vger.kernel.org
-From: Rich Walker <rw@shadow.org.uk>
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-Date: Fri, 08 Apr 2005 19:16:16 +0100
-Organization: Shadow Robot Company
-Message-ID: <m3r7hldthr.fsf@shadow.org.uk>
-References: <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos>
- <20050404175130.GA11257@kroah.com>
- <20050404190518.GA17087@wonderland.linux.it>
- <20050404193204.GD4087@stusta.de>
- <1112709907.30856.17.camel@silicium.ccc.cea.fr>
- <20050407210722.GC4325@stusta.de>
- <1112944920.11027.13.camel@silicium.ccc.cea.fr>
- <20050408173400.GA15688@stusta.de>
- <1112982171.5017.6.camel@mirchusko.localnet>
- <20050408180109.GB15688@stusta.de>
+Subject: [2.4] "Fix" introduced in 2.4.27pre2 for bluetooth hci_usb race causes kernel hang
+Message-ID: <20050408195632.GA17621@shaka.acc.umu.se>
+Mail-Followup-To: Tomas =?iso-8859-1?Q?=D6gren?= <stric@acc.umu.se>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: dsl-80-46-125-164.access.as9105.com
-X-Plan: Building the future with general-purpose robots
-X-Plan2: mail contact@shadow.org.uk for more details and to help
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:SDP4a+ytJnvjmMeMbz2j4qLv19c=
-Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> writes:
+Hello.
 
-> On Fri, Apr 08, 2005 at 07:42:51PM +0200, Josselin Mouette wrote:
->> Le vendredi 08 avril 2005 à 19:34 +0200, Adrian Bunk a écrit :
->> GFDL documentation will still be available in the non-free archive.
->
-> Assuming you have an online connection and a friend told you how to 
-> manually edit your /etc/apt/sources.list for non-free.
+I have noticed a problem with a race condition fix introduced in
+2.4.27-pre2 that causes the kernel to hang when disconnecting a
+Bluetooth USB dongle or doing 'hciconfig hci0 down'. No message is
+printed, the kernel just doesn't respond anymore.
 
-You *do* know that current versions of the installer ask you if you want
-non-free, don't you?
+Seen in Changelog:
+Marcel Holtmann:
+  o [Bluetooth] Fix race in RX complete routine of the USB drivers
+
+Reversing the following patch to hci_usb_rx_complete() makes 2.4.27-pre2
+up until 2.4.30 happy and does not hang when removing the dongle
+anymore. (bfusb.c has the same patch applied)
+
+2.6.11.7 does not show the same problem, but has similar code to the
+"fixed" (that hangs) code in 2.4, so the real problem is probably
+somewhere else.
+
+I have tested this on Dell Optiplex GX150, 260 and 280's which has Intel
+P3 and P4 with Intel UHCI USB chipset. I have tested both usb-uhci.o and
+uhci.o with the same results. Tested with USB Bluetooth dongles with
+both Broadcom and Cambridge Silicon Radio chipsets, same results.
+
+modules loaded: l2cap, hci_usb, bluez, (usb-)uhci, usbcore
+
+diff -ruN linux-2.4.27-pre1/drivers/bluetooth/hci_usb.c linux-2.4.27-pre2/drivers/bluetooth/hci_usb.c
+--- linux-2.4.27-pre1/drivers/bluetooth/hci_usb.c       2004-04-14 15:05:29.000000000 +0200
++++ linux-2.4.27-pre2/drivers/bluetooth/hci_usb.c       2005-04-08 20:16:51.000000000 +0200
+@@ -699,11 +699,11 @@
+        BT_DBG("%s urb %p type %d status %d count %d flags %x", hdev->name, urb,
+                        _urb->type, urb->status, count, urb->transfer_flags);
+
+-       if (!test_bit(HCI_RUNNING, &hdev->flags))
+-               return;
+-
+        read_lock(&husb->completion_lock);
+
++       if (!test_bit(HCI_RUNNING, &hdev->flags))
++               goto unlock;
++
+        if (urb->status || !count)
+                goto resubmit;
+
+@@ -740,6 +740,8 @@
+                BT_DBG("%s urb %p type %d resubmit status %d", hdev->name, urb,
+                                _urb->type, err);
+        }
++
++unlock:
+        read_unlock(&husb->completion_lock);
+ }
 
 
-> But where's the documentation if you don't have an online connection but 
-> only the dozen binary CDs of Debian?
+Please CC me for any responses, not on the list.
 
-Clearly, since the judgement is "it can't be legally distributed as part
-of a package of Debian CD's", it isn't on a package of Debian CD's.
-
-
-
-cheers, Rich.
-
+/Tomas
 -- 
-rich walker         |  Shadow Robot Company | rw@shadow.org.uk
-technical director     251 Liverpool Road   |
-need a Hand?           London  N1 1LX       | +UK 20 7700 2487
-www.shadow.org.uk/products/newhand.shtml
-
+Tomas Ögren, stric@acc.umu.se, http://www.acc.umu.se/~stric/
+|- Student at Computing Science, University of Umeå
+`- Sysadmin at {cs,acc}.umu.se

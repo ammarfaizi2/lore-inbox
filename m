@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262818AbVDHNGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262815AbVDHNF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262818AbVDHNGS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 09:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbVDHNFi
+	id S262815AbVDHNF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 09:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVDHNEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 09:05:38 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:11702 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262808AbVDHNEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 09:04:22 -0400
-Subject: Re: [OOPS] 2.6.11 - NMI lockup with CFQ scheduler
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Chris Rankin <rankincj@yahoo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050407144557.GK1847@suse.de>
-References: <20050406175838.GC15165@suse.de>
-	 <1112811607.5555.15.camel@mulgrave> <20050406190838.GE15165@suse.de>
-	 <1112821799.5850.19.camel@mulgrave> <20050407064934.GJ15165@suse.de>
-	 <1112879919.5842.3.camel@mulgrave> <20050407132205.GA16517@infradead.org>
-	 <1112880658.5842.10.camel@mulgrave> <20050407133222.GJ1847@suse.de>
-	 <1112881183.5842.13.camel@mulgrave>  <20050407144557.GK1847@suse.de>
+	Fri, 8 Apr 2005 09:04:06 -0400
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:45209 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S262808AbVDHNBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 09:01:40 -0400
+Subject: Re: Crash during boot for 2.6.12-rc2.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1112965096.3140.4.camel@desktop.cunningham.myip.net.au>
+References: <Xine.LNX.4.44.0504051325520.12266-100000@thoron.boston.redhat.com>
+	 <1112965096.3140.4.camel@desktop.cunningham.myip.net.au>
 Content-Type: text/plain
-Date: Fri, 08 Apr 2005 09:04:09 -0400
-Message-Id: <1112965449.5838.9.camel@mulgrave>
+Message-Id: <1112965386.3140.7.camel@desktop.cunningham.myip.net.au>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 08 Apr 2005 23:03:06 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-07 at 16:45 +0200, Jens Axboe wrote:
-> So clear ->request_queue instead.
+Hi.
 
+On Fri, 2005-04-08 at 22:58, Nigel Cunningham wrote:
+> Hi.
+> 
+> I got exactly the same thing on both my P4 HT and my Celeron 933 :<.
+> Trying fresh builds.
 
-Will do.  Did you want me to look after your patch and add this, or do
-you want to send it to Linus (after the purdah is over)?
+Actually I tell a lie. I looked at James' trace too quickly. I'll see
+what I can collect :>
 
-James
+Nigel
 
+> Regards,
+> 
+> Nigel
+> 
+> On Wed, 2005-04-06 at 03:26, James Morris wrote:
+> > On Tue, 5 Apr 2005, James Morris wrote:
+> > 
+> > > > Surprise, surprise, it works OK here.
+> > > > 
+> > > > What compiler version?
+> > > 
+> > > gcc -v
+> > > Using built-in specs.
+> > > Target: i386-redhat-linux
+> > > Configured with: ../configure --prefix=/usr --mandir=/usr/share/man 
+> > > --infodir=/usr/share/info --enable-shared --enable-threads=posix 
+> > > --enable-checking=release --with-system-zlib --enable-__cxa_atexit 
+> > > --disable-libunwind-exceptions --enable-languages=c,c++,objc,java,f95,ada 
+> > > --enable-java-awt=gtk --host=i386-redhat-linux
+> > > Thread model: posix
+> > > gcc version 4.0.0 20050329 (Red Hat 4.0.0-0.38)
+> > > 
+> > > 
+> > > I'll try a fresh compile later.
+> > 
+> > Looks like it was a miscompile, newly compiled (without ccache, too) 
+> > kernel works fine.
+> > 
+> > 
+> > - James
+-- 
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
 

@@ -1,64 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262736AbVDHIp0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262747AbVDHIuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262736AbVDHIp0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 04:45:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVDHIpZ
+	id S262747AbVDHIuU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 04:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbVDHIuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 04:45:25 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:39502
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S262736AbVDHIpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 04:45:05 -0400
-Date: Fri, 8 Apr 2005 10:38:39 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Martin Pool <mbp@sourcefrog.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       David Lang <dlang@digitalinsight.com>
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050408083839.GC3957@opteron.random>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050406193911.GA11659@stingr.stingr.net> <pan.2005.04.07.01.40.20.998237@sourcefrog.net> <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net> <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope> <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope> <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Fri, 8 Apr 2005 04:50:20 -0400
+Received: from www.tuxrocks.com ([64.62.190.123]:785 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S262747AbVDHIuG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 04:50:06 -0400
+Message-ID: <42564584.4080606@tuxrocks.com>
+Date: Fri, 08 Apr 2005 02:49:08 -0600
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tony Lindgren <tony@atomide.com>
+CC: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, Thomas Renninger <trenn@suse.de>
+Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1
+References: <20050406083000.GA8658@atomide.com> <425451A0.7020000@tuxrocks.com> <20050407082136.GF13475@atomide.com> <4255A7AF.8050802@tuxrocks.com> <4255B247.4080906@tuxrocks.com> <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com>
+In-Reply-To: <20050408075001.GC4477@atomide.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 11:41:29PM -0700, Linus Torvalds wrote:
-> I know I can import things myself, but the reason I ask is because I've
-> got several SCM's I should check out _and_ I've been spending the last two
-> days writing my own fallback system so that I don't get screwed if nothing
-> out there works right now. 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I tend to like bzr too (and I tend to like too many things ;), but even
-if the export of the data would be available it seems still too early in
-development to be able to help you this week, it seems to miss any form
-of network export too.
+Tony Lindgren wrote:
+| * Tony Lindgren <tony@atomide.com> [050407 23:28]:
+|
+|>I think I have an idea on what's going on; Your system does not wake to
+|>APIC interrupt, and the system timer updates time only on other
+interrupts.
+|>I'm experiencing the same on a loaner ThinkPad T30.
+|>
+|>I'll try to do another patch today. Meanwhile it now should work
+|>without lapic in cmdline.
+|
+|
+| Following is an updated patch. Anybody having trouble, please try
+| disabling CONFIG_DYN_TICK_USE_APIC Kconfig option.
+|
+| I'm hoping this might work on Pavel's machine too?
+|
+| Tony
 
-> I'd like many people to test out many alternatives, to get a feel for 
-> where they are especially for a project the size of the kernel..
+This updated patch seems to work just fine on my machine with lapic on
+the cmdline and CONFIG_DYN_TICK_USE_APIC disabled.
 
-The huge number of changesets is the crucial point, there are good
-distributed SCM already but they are apparently not efficient enough at
-handling 60k changesets.
+Also, you were correct that removing lapic from the cmdline allowed the
+previous version to run at full speed.
 
-We'd need a regenerated coherent copy of BKCVS to pipe into those SCM to
-evaluate how well they scale.
+Now, how can I tell if the patch is doing its thing?  What should I be
+seeing? :)
 
-OTOH if your git project already allows storing the data in there,
-that looks nice ;). I don't yet fully understand how the algorithms of
-the trees are meant to work (I only understand well the backing store
-and I tend to prefer DBMS over tree of dirs with hashes). So I've no
-idea how it can plug in well for a SCM replacement or how you want to
-use it. It seems a kind of fully lockless thing where you can merge from
-one tree to the other without locks and where you can make quick diffs.
-It looks similar to a diff -ur of two hardlinked trees, except this one
-can save a lot of bandwidth to copy with rsync (i.e.  hardlinks becomes
-worthless after using rsync in the network, but hashes not). Clearly the
-DBMS couldn't use the rsync binary to distribute the objects, but a
-network protocol could do the same thing rsync does.
+Functionally, it looks like it's working.  There were a number of
+compiler warnings you might wish to fix before calling it good.  Such as
+"initialization from incompatible pointer type" several times in
+dyn-tick-timer.c and a "too many arguments for format" in
+dyn_tick_late_init.
 
-Thanks.
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCVkWDaI0dwg4A47wRAgzOAKCHcx8p59ZbihYtZJ84p62v2rMauQCfUuzz
+D7O98hHvjtTa/CvFHHtJe4c=
+=G2I/
+-----END PGP SIGNATURE-----

@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVDHIFG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262739AbVDHIFE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbVDHIFG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 04:05:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVDHIBE
+	id S262739AbVDHIFE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 04:05:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262759AbVDHIB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 04:01:04 -0400
-Received: from smtp5.wanadoo.fr ([193.252.22.26]:41129 "EHLO smtp5.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262739AbVDHH7C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:59:02 -0400
-X-ME-UUID: 20050408075900620.977A41C00104@mwinf0508.wanadoo.fr
-Date: Fri, 8 Apr 2005 09:54:35 +0200
-To: Henning Makholm <henning@makholm.net>
-Cc: linux-kernel@vger.kernel.org, debian-legal@lists.debian.org,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050408075435.GE9057@pegasos>
-Reply-To: debian-legal@lists.debian.org
-References: <08Gc5.A.AFC.QJPVCB@murphy> <4255244B.6070204@almg.gov.br> <87is2ydnmk.fsf@kreon.lan.henning.makholm.net>
+	Fri, 8 Apr 2005 04:01:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:60597 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262757AbVDHIAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 04:00:02 -0400
+Subject: Re: [PATCH] Use proper seq_file api for /proc/scsi/scsi
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Jeremy Higdon <jeremy@sgi.com>, Hannes Reinecke <hare@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050408075643.GA5514@infradead.org>
+References: <42550173.1040503@suse.de> <20050407103123.GB9586@infradead.org>
+	 <425517B3.2010702@suse.de> <20050407112412.GA12072@infradead.org>
+	 <20050408072345.GA1018765@sgi.com>  <20050408075643.GA5514@infradead.org>
+Content-Type: text/plain
+Date: Fri, 08 Apr 2005 09:59:57 +0200
+Message-Id: <1112947198.6278.20.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <87is2ydnmk.fsf@kreon.lan.henning.makholm.net>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 03:10:43AM +0100, Henning Makholm wrote:
-> Scripsit Humberto Massa <humberto.massa@almg.gov.br>
+On Fri, 2005-04-08 at 08:56 +0100, Christoph Hellwig wrote:
+> On Fri, Apr 08, 2005 at 12:23:46AM -0700, Jeremy Higdon wrote:
+> > > It works for those setups that already worked with 2.4.x, aka only a few
+> > > luns.
+> > 
+> > Even if it's deprecated, wouldn't it be good to fix it as long as
+> > it's there, unless it hurts something else?  Or at least fix the
+> > out of memory error, even if it doesn't display all the luns?
 > 
-> > After a *lot* of discussion, it was deliberated on d-l that
-> > this is not that tricky at all, and that the "mere
-> > aggregation" clause applies to the combination, for various
-> > reasons, with a great degree of safety.
+> What other error would you return?  I don't particularly care what exact
+> error code to return, but putting in Hannes patch would be a bad idea because
+> it
 > 
-> When was this alleged conclusion reached? I remember nothing like
-> that.
+>   a) poke deep into driver model internals, and we absolutely want to avoid
+>      that
+>   b) sets a bad precedence that we'll continue adding features to deprecated
+>      interface and thus encurage people to contiue using it.  Note that
+>      /proc/scsi/* has been deprecated since mid-2.5.x.
 
-  http://lists.debian.org/debian-legal/2005/03/msg00273.html
 
-and :
+so how about starting to remove it?
+eg give it its final resting date, start defaulting the config option to
+"n" and such...
 
-  http://lists.debian.org/debian-legal/2005/03/msg00283.html
-
-and the following thread. These where linked from the original mail in this
-thread.
-
-> > No-one is saying that the linker "merely aggregates" object
-> > code for the driver; what *is* being said is: in the case of
-> > firmware, especially if the firmware is neither a derivative
-> > work on the kernel (see above) nor the firmware includes part
-> > of the kernel (duh), it is *fairly* *safe* to consider the
-> > intermixing of firmware bytes with kernel binary image bytes
-> > in an ELF object file as mere aggregation.
-> 
-> No, it is completely wrong to say that the object file is merely an
-> aggregation. The two components are being coupled much more tightly
-> than in the situation that the GPL discribes as "mere aggregation".
-
-So read the analysis and comment on it if you disagree, but let's take it to
-debian-legal alone, ok ? 
-
-Friendly,
-
-Sven Luther
 

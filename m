@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262738AbVDHH5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVDHIAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262738AbVDHH5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 03:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVDHH5w
+	id S262761AbVDHIAU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 04:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVDHH6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 03:57:52 -0400
-Received: from coderock.org ([193.77.147.115]:5856 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S262738AbVDHHvF (ORCPT
+	Fri, 8 Apr 2005 03:58:03 -0400
+Received: from coderock.org ([193.77.147.115]:7648 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262736AbVDHHvJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:51:05 -0400
-Subject: [patch 2/8] correctly name the Shell sort
+	Fri, 8 Apr 2005 03:51:09 -0400
+Subject: [patch 3/8] string.linux-2.6.10/lib/c: documentation strncpy()
 To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, didickman@yahoo.com
+Cc: linux-kernel@vger.kernel.org, domen@coderock.org, wharms@bfs.de
 From: domen@coderock.org
-Date: Fri, 08 Apr 2005 09:50:53 +0200
-Message-Id: <20050408075054.25DF41F3A3@trashy.coderock.org>
+Date: Fri, 08 Apr 2005 09:50:56 +0200
+Message-Id: <20050408075057.3C9EE1EE91@trashy.coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-As per http://www.nist.gov/dads/HTML/shellsort.html, this should be referred to
-as a Shell sort. Shell-Metzner is a misnomer.
+this clarifys the documentation on the behavier of strncpy().
 
-Signed-off-by: Daniel Dickman <didickman@yahoo.com>
+
 Signed-off-by: Domen Puncer <domen@coderock.org>
 ---
 
 
- kj-domen/kernel/sys.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ kj-domen/lib/string.c |    4 ++++
+ 1 files changed, 4 insertions(+)
 
-diff -puN kernel/sys.c~comment-kernel_sys kernel/sys.c
---- kj/kernel/sys.c~comment-kernel_sys	2005-04-05 12:57:41.000000000 +0200
-+++ kj-domen/kernel/sys.c	2005-04-05 12:57:41.000000000 +0200
-@@ -1194,7 +1194,7 @@ static int groups_from_user(struct group
- 	return 0;
- }
- 
--/* a simple shell-metzner sort */
-+/* a simple Shell sort */
- static void groups_sort(struct group_info *group_info)
+diff -L lib/c.bak -puN /dev/null /dev/null
+diff -puN lib/string.c~comment-lib_string lib/string.c
+--- kj/lib/string.c~comment-lib_string	2005-04-05 12:57:42.000000000 +0200
++++ kj-domen/lib/string.c	2005-04-05 12:57:42.000000000 +0200
+@@ -85,6 +85,10 @@ EXPORT_SYMBOL(strcpy);
+  *
+  * The result is not %NUL-terminated if the source exceeds
+  * @count bytes.
++ *
++ * In the case where the length of @src is less than  that  of
++ * count, the remainder of @dest will be padded with %NUL.
++ *
+  */
+ char * strncpy(char * dest,const char *src,size_t count)
  {
- 	int base, max, stride;
 _

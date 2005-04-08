@@ -1,94 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbVDHUy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262953AbVDHUyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262954AbVDHUy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 16:54:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVDHUy6
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 16:54:58 -0400
-Received: from alog0213.analogic.com ([208.224.220.228]:64226 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262954AbVDHUyu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S262953AbVDHUyu (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 8 Apr 2005 16:54:50 -0400
-Date: Fri, 8 Apr 2005 16:54:07 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.6.11 can't disable CAD
-In-Reply-To: <Pine.LNX.4.61.0504080822150.8739@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0504081647260.6253@chaos.analogic.com>
-References: <Pine.LNX.4.61.0504071102590.4871@chaos.analogic.com>
- <20050407202059.GA414@delft.aura.cs.cmu.edu> <Pine.LNX.4.61.0504071639060.4895@chaos.analogic.com>
- <20050407210144.GA8181@delft.aura.cs.cmu.edu> <Pine.LNX.4.61.0504080822150.8739@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1879706418-102673905-1112993647=:6253"
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbVDHUyu
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 8 Apr 2005 16:54:50 -0400
+Received: from mail.ccur.com ([208.248.32.212]:41281 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S262953AbVDHUyr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 16:54:47 -0400
+Subject: Re: [PATCH] mtime attribute is not being updated on client
+From: Linda Dunaphant <linda.dunaphant@ccur.com>
+Reply-To: linda.dunaphant@ccur.com
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1112965872.15565.34.camel@lade.trondhjem.org>
+References: <1112921570.6182.16.camel@lindad>
+	 <1112965872.15565.34.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Organization: CCUR
+Message-Id: <1112993686.7459.4.camel@lindad>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Fri, 08 Apr 2005 16:54:47 -0400
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Apr 2005 20:54:47.0400 (UTC) FILETIME=[32FDCE80:01C53C7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Fri, 2005-04-08 at 09:11, Trond Myklebust wrote:
 
---1879706418-102673905-1112993647=:6253
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+> I'm a bit unclear as to what your end-goal is here. Is it basically to
+>ensure that fstat() always return the correct value for the mtime?
+>
+> The reason I ask is that I think your change is likely to have nasty
+>consequences for the general performance in a lot of other syscalls that
+>use nfs_revalidate_inode(). I would expect a particularly nasty hit in
+>the of the write() syscalls themselves, and they really shouldn't have
+>to worry about the value of mtime in the close-to-open cache consistency
+>model.
+>I therefore think we should look for a more fine-grained solution that
+>addresses more precisely the issues you see.
+>
+>Cheers,
+>  Trond
+
+Hi Trond,
+
+The goal wasn't to ensure that fstat() always return the correct value for
+mtime. The goal is to update the mtime within the bounds of the min and max
+attribute cache timeouts, which was not happening before if the test ran
+for more than a minute.
+
+nfs_refresh_inode() was already being called after every write to the server
+and fattr->mtime was already set to the server's updated mtime value. However,
+it didn't check for an updated mtime value if data_unstable was set. Since
+nfs_refresh_inode() always resets the attribute timer (even when it skipped
+the mtime check), and the calls to it occurred more frequently than the
+attribute timer could expire, nfs_update_inode() was never being called
+again to update the inode's mtime.
+
+With the change I proposed, the test shows an mtime change every ~32 secs
+which corresponds to when the client writes the data to the server. Before
+this change, the test only showed one mtime change, even when it was run
+for > 10 mins. I did not see any increase in the calls to either
+nfs_revalidate_inode() or __nfs_revalidate_inode().
+
+Do you think it would be better for nfs_refresh_inode() to check the mtime,
+perform the mtime update if needed, and not set the NFS_INO_INVALID_ATTR
+flag if the data_unstable flag is set? This is how nfs_update_inode()
+handles its mtime check.
+
+Regards,
+Linda
 
 
-It wasn't the kernel.
-
-Many thanks to those who helped me track down this problem.
-It seems that the 'C' runtime library was trapping the call
-to reboot() which probably should have been _reboot() in
-earlier code to prevent this. Anyway, the fix is to call
-the kernel directly so it doesn't get blamed for something
-it didn't do.
-
-Simple external procedure is attached if anybody else is
-interested. It ends up being only 0x30 bytes in length.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
---1879706418-102673905-1112993647=:6253
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="disable.S"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.61.0504081654070.6253@chaos.analogic.com>
-Content-Description: 
-Content-Disposition: attachment; filename="disable.S"
-
-Iy09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09
-LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0NCiMNCiMgIENvcHly
-aWdodChjKSAgMjAwNSAgQW5hbG9naWMgQ29ycG9yYXRpb24NCiMNCiMgIFRo
-aXMgcHJvZ3JhbSBtYXkgYmUgZGlzdHJpYnV0ZWQgdW5kZXIgdGhlIEdOVSBQ
-dWJsaWMgTGljZW5zZQ0KIyAgdmVyc2lvbiAyLCBhcyBwdWJsaXNoZWQgYnkg
-dGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbiwgSW5jLiwNCiMgIDU5IFRl
-bXBsZSBQbGFjZSwgU3VpdGUgMzMwIEJvc3RvbiwgTUEsIDAyMTExLg0KIw0K
-Iy09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09
-LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0NCiMNCiMgICBEaXNh
-YmxlIEN0bC1BbHQtRGVsDQojICAgVGVzdCBlbnZpcm9ubWVudCAnQycgcnVu
-dGltZSBsaWJyYXJpZXMgYXJlIHNjcmV3aW5nIHdpdGgNCiMgICB0aGlzIHNv
-IEkgaGF2ZSB0byBjYWxsIHRoZSBrZXJuZWwgZGlyZWN0bHkuIFRoaXMgaXMg
-bm93DQojICAgaGFuZGxlZCBpbiBhc3NlbWJseS4NCiMNCiMtPS09LT0tPS09
-LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0t
-PS09LT0tPS09LT0tPS09LT0tPS09DQoNCi5leHRlcm4JX19zZXRfZXJybm8N
-Ci5MUkVCT09UID0gODgNCi5MTUFHSUMxID0gMHhmZWUxZGVhZA0KLkxNQUdJ
-QzIgPSA2NzIyNzQ3OTMNCi5MQ0FET0ZGID0gMHgwMDAwMDAwMA0KDQpkaXNh
-YmxlX3NodXRkb3duOg0KCXB1c2hsCSVlYngJCSMgU2F2ZSBwcmVjaW91cyBy
-ZWdpc3RlcnMNCglwdXNobAklZXNpDQoJbW92bAkkLkxSRUJPT1QsICVlYXgJ
-IyBSZWJvb3QgY29tbWFuZA0KCW1vdmwJJC5MTUFHSUMxLCAlZWJ4CSMgRmly
-c3QgbWFnaWMgcGFyYW1ldGVyDQoJbW92bAkkLkxNQUdJQzIsICVlY3gJIyBT
-ZWNvbmQgbWFnaWMgcGFyYW1ldGVyDQoJbW92bAkkLkxDQURPRkYsICVlZHgJ
-IyBDb21tYW5kDQoJeG9ybAklZXNpLCAlZXNpCSMgWmVybyBpZ25vcmVkIHBv
-aW50ZXINCglpbnQJJDB4ODAJCSMgTWFrZSB0aGUgY2FsbA0KCXBvcGwJJWVz
-aQkJIyBSZXN0b3JlIHByZWNpb3VzIHJlZ2lzdGVycw0KCXBvcGwJJWVieA0K
-CW9ybAklZWF4LCVlYXgJIyBDaGVjayByZXR1cm4gdmFsdWUNCglqbnMJMWYJ
-CSMgSXQncyBva2F5DQoJbmVnbAklZWF4CQkjIE1ha2UgcG9zaXRpdmUNCglw
-dXNobAklZWF4DQoJY2FsbAlfX3NldF9lcnJubwkjIFNldCBuZXcgZXJybm8N
-CglhZGRsCSQweDA0LCAlZXNwCSMgTGV2ZWwgc3RhY2sNCgltb3ZsCSQtMSwg
-JWVheA0KMToJcmV0DQoNCi5zaXplCWRpc2FibGVfc2h1dGRvd24sLi1kaXNh
-YmxlX3NodXRkb3duDQoudHlwZQlkaXNhYmxlX3NodXRkb3duLEBmdW5jdGlv
-bg0KLmdsb2JhbAlkaXNhYmxlX3NodXRkb3duDQojLT0tPS09LT0tPS09LT0t
-PS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09LT0tPS09
-LT0tPS09LT0tPS09LT0tPQ0KLmVuZA0KDQo=
-
---1879706418-102673905-1112993647=:6253--

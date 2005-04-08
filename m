@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVDHXID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVDHXJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVDHXID (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 19:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDHXID
+	id S261190AbVDHXJW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 19:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDHXJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 19:08:03 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:37013 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261188AbVDHXGb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 19:06:31 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 8 Apr 2005 19:09:22 -0400
+Received: from smtp2.primushost.com ([209.58.220.66]:25587 "EHLO
+	smtp2.primushost.com") by vger.kernel.org with ESMTP
+	id S261186AbVDHXJD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 19:09:03 -0400
+Message-ID: <42570F07.6080406@shore.net>
+Date: Fri, 08 Apr 2005 19:08:55 -0400
+From: "Eric A. Cottrell" <eac@shore.net>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Priority Lists for the RT mutex
-Date: Fri, 8 Apr 2005 16:05:37 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02F64800@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Priority Lists for the RT mutex
-Thread-Index: AcU8jc9XWkIDlbn8TnaFPfBssZFsQgAAWaGA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <dwalker@mvista.com>
-Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <sdietrich@mvista.com>, "Steven Rostedt" <rostedt@goodmis.org>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-X-OriginalArrivalTime: 08 Apr 2005 23:05:39.0262 (UTC) FILETIME=[7B10DDE0:01C53C8F]
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: LIBATA AHCI engine timeout hang with ATAPI devices
+References: <4256D1A9.6080401@shore.net> <4256D7CA.7030908@pobox.com>
+In-Reply-To: <4256D7CA.7030908@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Daniel Walker [mailto:dwalker@mvista.com]
->
->> Current tip of development has some issues with conditional variables
->> and broadcasts (requeue stuff) that I need to sink my teeth in. Joe
->> Korty is fixing up a lot of corner cases I wasn't catching, but
->> other than that is doing fine.
->
->You try to get out, and they suck you right back in.
+Jeff Garzik wrote:
+> You need something like the attached patch.
+> 
+> In general, ATAPI is still very much experimental at this point.  One 
+> known bug that affects libata is that ATAPI DMA is not aligned to a 
+> 4-byte boundary.
+> 
+Hello,
 
-Don't mention it :] That's why I want to get some more people
-hooked up to this...so I can move on to do other things :)
+Thanks.
 
->> How long ago since you saw it? I also implemented the futex
-redirection
->> stuff we discussed some months ago.
->
->It's been a while since I've seen the fusyn scheduler changes. I have
->the curernt fusyn CVS, I'll take a look at it.
+I already have that patch applied.  I will poke around the code over the weekend and see if I can figure out the problem.
+I am alittle rusty as my last disk driver code was modifying Heathkit CPM BIOS to support a SMS SASI board for 8 inch floppies and 
+Shugart SA1000 series hard drives!
 
-All that stuff is in futex.c; bear in mind what I said at
-the confcall, it is just a hacky proof-of-concept--it doesn't
-even implement the async interface.
+I would like to help get ATAPI to work as I suspect more SATA ATAPI stuff will appear as motherboards use SATA.  It appears that the 
+ahci/libata code is missing some needed steps that the ata_piix/libata code does.  Looking at the code and patches I can see that 
+libata had to change to permit the hardware to perform tasks that libata did.
 
-It kind of works, but is not all that solid [last time I tried
-the JVMs locked up].
+Thank you for your web page on IDE drives.  I downloaded alot of specs and even read a small bit of them.
 
--- Inaky
+73 Eric eac@shore.net

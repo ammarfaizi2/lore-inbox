@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262780AbVDHJ6C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262781AbVDHKCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262780AbVDHJ6C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 05:58:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbVDHJ6B
+	id S262781AbVDHKCo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 06:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbVDHKCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 05:58:01 -0400
-Received: from gate.corvil.net ([213.94.219.177]:11538 "EHLO corvil.com")
-	by vger.kernel.org with ESMTP id S262780AbVDHJ5o (ORCPT
+	Fri, 8 Apr 2005 06:02:44 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:63924 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262781AbVDHKCl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 05:57:44 -0400
-Message-ID: <42565587.4000103@draigBrady.com>
-Date: Fri, 08 Apr 2005 10:57:27 +0100
-From: P@draigBrady.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Nick Wilson <njw@osdl.org>, linux-kernel@vger.kernel.org,
-       rddunlap@osdl.org
-Subject: Re: [PATCH 0/6] add generic round_up_pow2() macro
-References: <20050408004428.GA4260@njw.pdx.osdl.net> <20050407175042.43c02ae9.akpm@osdl.org>
-In-Reply-To: <20050407175042.43c02ae9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 8 Apr 2005 06:02:41 -0400
+Date: Fri, 8 Apr 2005 12:02:36 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] use cheaper elv_queue_empty when unplug a device
+Message-ID: <20050408100235.GI22988@suse.de>
+References: <200503290253.j2T2rqg25691@unix-os.sc.intel.com> <20050329080646.GE16636@suse.de> <42491DBE.6020303@yahoo.com.au> <20050329092819.GK16636@suse.de> <424928A1.8060400@yahoo.com.au> <4249F98D.9040706@yahoo.com.au> <20050408094557.GG22988@suse.de> <425654F5.70707@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425654F5.70707@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Wilson <njw@osdl.org> wrote:
+On Fri, Apr 08 2005, Nick Piggin wrote:
+> Jens Axboe wrote:
+> >On Wed, Mar 30 2005, Nick Piggin wrote:
 > 
->>The first patch adds a generic round_up_pow2() macro to kernel.h. The
->> remaining patches modify a few files to make use of the new macro.
+> >>So Kenneth if you could look into this one as well, to see if
+> >>it is worthwhile, that would be great.
+> >
+> >
+> >For that to work, you have to change the get_io_context() allocation to
+> >be GFP_ATOMIC.
+> >
 > 
+> Yes of course, thanks for picking that up.
 > 
-> We already have ALIGN() and roundup_pow_of_two().
+> I guess this isn't a problem, as io contexts should be allocated
+> comparatively rarely. It would be possible to move it out of the
+> lock though if we really want to.
 
-cool. It doesn't handle x={0,1} though.
-Maybe we should have:
-
-static inline unsigned long __attribute_const__ 
-__roundup_pow_of_two(unsigned long x)
-{
-         return (1UL << fls(x - 1));
-}
-
-static inline unsigned long __attribute_const__ 
-roundup_pow_of_two(unsigned long x)
-{
-         return (unlikely(x<2)?2:__roundup_pow_of_two(x));
-}
+Lets just keep it inside the lock, for the fast case it should just be
+an increment of the already existing io context.
 
 -- 
-Pádraig Brady - http://www.pixelbeat.org
---
+Jens Axboe
+

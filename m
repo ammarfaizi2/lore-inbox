@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262640AbVDHA60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262646AbVDHBAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262640AbVDHA60 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 20:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVDHAzs
+	id S262646AbVDHBAI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 21:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVDHA6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 20:55:48 -0400
-Received: from fire.osdl.org ([65.172.181.4]:15058 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262642AbVDHAv4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 20:51:56 -0400
-Date: Thu, 7 Apr 2005 17:52:25 -0700
-From: Nick Wilson <njw@osdl.org>
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, rddunlap@osdl.org
-Subject: [PATCH 6/6] mm/bootmem.c: use generic round_up_pow2() macro
-Message-ID: <20050408005225.GG4260@njw.pdx.osdl.net>
-References: <20050408004428.GA4260@njw.pdx.osdl.net>
+	Thu, 7 Apr 2005 20:58:48 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:48609 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S262646AbVDHA5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 20:57:13 -0400
+From: Ian Wienand <ianw@gelato.unsw.edu.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Date: Fri, 8 Apr 2005 10:57:03 +1000
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050408005703.GB25765@cse.unsw.EDU.AU>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yNb1oOkm5a9FJOVX"
 Content-Disposition: inline
-In-Reply-To: <20050408004428.GA4260@njw.pdx.osdl.net>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Nick Wilson <njw@osdl.org>
 
-Use the generic round_up_pow2() instead of a custom rounding method.
+--yNb1oOkm5a9FJOVX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Nick Wilson <njw@osdl.org>
----
+On Wed, Apr 06, 2005 at 08:42:08AM -0700, Linus Torvalds wrote:
+> If you must, start reading up on "monotone".
 
+One slightly annoying thing is that monotone doesn't appear to have a
+web interface.  I used to use the bk one a lot when tracking down
+bugs, because it was really fast to have a web browser window open and
+click through the revisions of a file reading checkin comments, etc.
+Does anyone know if one is being worked on?
 
- bootmem.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+bazaar-ng at least mention this is important in their design docs and
+arch has one in development too.
 
-Index: linux/mm/bootmem.c
-===================================================================
---- linux.orig/mm/bootmem.c	2005-04-07 15:13:56.000000000 -0700
-+++ linux/mm/bootmem.c	2005-04-07 15:46:41.000000000 -0700
-@@ -57,7 +57,7 @@ static unsigned long __init init_bootmem
- 	pgdat->pgdat_next = pgdat_list;
- 	pgdat_list = pgdat;
- 
--	mapsize = (mapsize + (sizeof(long) - 1UL)) & ~(sizeof(long) - 1UL);
-+	mapsize = round_up_pow2(mapsize, sizeof(long));
- 	bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
- 	bdata->node_boot_start = (start << PAGE_SHIFT);
- 	bdata->node_low_pfn = end;
-@@ -178,7 +178,7 @@ __alloc_bootmem_core(struct bootmem_data
- 	} else
- 		preferred = 0;
- 
--	preferred = ((preferred + align - 1) & ~(align - 1)) >> PAGE_SHIFT;
-+	preferred = round_up_pow2(preferred, align) >> PAGE_SHIFT;
- 	preferred += offset;
- 	areasize = (size+PAGE_SIZE-1)/PAGE_SIZE;
- 	incr = align >> PAGE_SHIFT ? : 1;
-@@ -219,7 +219,7 @@ found:
- 	 */
- 	if (align < PAGE_SIZE &&
- 	    bdata->last_offset && bdata->last_pos+1 == start) {
--		offset = (bdata->last_offset+align-1) & ~(align-1);
-+		offset = round_up_pow2(bdata->last_offset, align);
- 		BUG_ON(offset > PAGE_SIZE);
- 		remaining_size = PAGE_SIZE-offset;
- 		if (size < remaining_size) {
-_
+-i
+ianw@gelato.unsw.edu.au
+http://www.gelato.unsw.edu.au
+
+--yNb1oOkm5a9FJOVX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFCVdbfWDlSU/gp6ecRAgtJAJ9IChlb7P/yLvD1B0DHcnaBQ7c9TwCgyy6z
+5c4O4PiIonfd0EvL5KoLAUE=
+=pBmm
+-----END PGP SIGNATURE-----
+
+--yNb1oOkm5a9FJOVX--

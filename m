@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVDHWER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVDHWHB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVDHWER (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 18:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVDHWER
+	id S261159AbVDHWHB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 18:07:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVDHWHB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 18:04:17 -0400
-Received: from smtp.istop.com ([66.11.167.126]:64422 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S261158AbVDHWEO (ORCPT
+	Fri, 8 Apr 2005 18:07:01 -0400
+Received: from mail.kroah.org ([69.55.234.183]:23465 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261159AbVDHWG5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 18:04:14 -0400
-From: Daniel Phillips <phillips@istop.com>
-To: jonathan@jonmasters.org
-Subject: Re: Kernel SCM saga..
-Date: Fri, 8 Apr 2005 18:05:38 -0400
-User-Agent: KMail/1.7
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <200504071354.34581.phillips@istop.com> <35fb2e59050408102463710324@mail.gmail.com>
-In-Reply-To: <35fb2e59050408102463710324@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Apr 2005 18:06:57 -0400
+Date: Fri, 8 Apr 2005 15:06:09 -0700
+From: Greg KH <greg@kroah.com>
+To: blaisorblade@yahoo.it
+Cc: stable@kernel.org, jdike@addtoit.com, linux-kernel@vger.kernel.org
+Subject: Re: [stable] [patch 1/1] uml: quick fix syscall table [urgent]
+Message-ID: <20050408220607.GB3399@kroah.com>
+References: <20050406183802.48AF7C5D4E@zion>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504081805.38629.phillips@istop.com>
+In-Reply-To: <20050406183802.48AF7C5D4E@zion>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 April 2005 13:24, Jon Masters wrote:
-> On Apr 7, 2005 6:54 PM, Daniel Phillips <phillips@istop.com> wrote:
-> > So I propose that everybody who is interested, pick one of the above
-> > projects and join it, to help get it to the point of being able to
-> > losslessly import the version graph.  Given the importance, I think that
-> > _all_ viable alternatives need to be worked on in parallel, so that two
-> > months from now we have several viable options.
->
-> What about BitKeeper licensing constraints on such involvement?
+On Wed, Apr 06, 2005 at 08:38:00PM +0200, blaisorblade@yahoo.it wrote:
+> 
+> CC: <stable@kernel.org>
+> 
+> I'm resending this for inclusion in the -stable tree. I've deleted whitespace
+> cleanups, and hope this can be merged. I've been asked to split the former
+> patch, I don't know if I must split again this one, even because I don't want
+> to split this correct patch into multiple non-correct ones by mistake.
 
-They don't apply to me, for one.
+Thanks, I've added this to the stable queue.
 
-Regards,
-
-Daniel
+greg k-h

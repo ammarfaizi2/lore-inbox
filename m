@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262648AbVDHBAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVDHA60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262648AbVDHBAP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 21:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVDHA7A
+	id S262637AbVDHA60 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 20:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVDHA4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 20:59:00 -0400
-Received: from mailout3.samsung.com ([203.254.224.33]:20718 "EHLO
-	mailout3.samsung.com") by vger.kernel.org with ESMTP
-	id S262641AbVDHA4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 20:56:12 -0400
-Date: Fri, 08 Apr 2005 09:54:14 +0900
-From: Kalyanjeet Gogoi <kalyanjeet.gogoi@samsung.com>
-Subject: VRRP multiple VIP VMAC problem
-To: linux-kernel@vger.kernel.org
-Message-id: <007e01c53bd5$7c3b96c0$cc8ed5a5@samsungm20ouop>
-Organization: Samsung
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Importance: Normal
-X-Priority: 3 (Normal)
-X-MSMail-priority: Normal
+	Thu, 7 Apr 2005 20:56:03 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50565 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262641AbVDHAyp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 20:54:45 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Rik van Riel <riel@redhat.com>
+Subject: Re: Kernel SCM saga..
+Date: Thu, 7 Apr 2005 17:53:08 -0700
+User-Agent: KMail/1.7.2
+Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050406160041.GA28839@kroah.com> <Pine.LNX.4.61.0504071239490.12298@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0504071239490.12298@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504071753.08756.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am working on VRRP and want to set multiple VIP <==> VMAC on a single
-interface, is it possible
+On Thursday, April 7, 2005 9:40 am, Rik van Riel wrote:
+> Larry, thanks for the help you have given us by making
+> bitkeeper available for all these years.
 
-The mailing list had one thread long time back which was taking about a
-kernel patch for this, but I don't if this is done or not.
+A big thank you from me too, I've really enjoyed using BK and I think it's 
+made me much more productive than I would have been otherwise.  I don't envy 
+you having to put up with the frequent flamefests...
 
-What options do I have for doing the above?
-
-Thanks,
-Kalyanjeet Gogoi
-
+Jesse

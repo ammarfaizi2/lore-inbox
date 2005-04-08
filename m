@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262637AbVDHA60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262641AbVDHBIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262637AbVDHA60 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 20:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262642AbVDHA4D
+	id S262641AbVDHBIf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 21:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVDHBIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 20:56:03 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:50565 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262641AbVDHAyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 20:54:45 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Rik van Riel <riel@redhat.com>
-Subject: Re: Kernel SCM saga..
-Date: Thu, 7 Apr 2005 17:53:08 -0700
-User-Agent: KMail/1.7.2
-Cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050406160041.GA28839@kroah.com> <Pine.LNX.4.61.0504071239490.12298@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.61.0504071239490.12298@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Apr 2005 21:08:34 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:55238 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262641AbVDHBIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 21:08:24 -0400
+Date: Thu, 7 Apr 2005 18:08:10 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050407180810.A10873@unix-os.sc.intel.com>
+References: <20050405000524.592fc125.akpm@osdl.org> <42523F5D.7020201@yahoo.com.au> <20050405115113.A17809@unix-os.sc.intel.com> <42541830.1010201@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504071753.08756.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42541830.1010201@yahoo.com.au>; from nickpiggin@yahoo.com.au on Thu, Apr 07, 2005 at 03:11:12AM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, April 7, 2005 9:40 am, Rik van Riel wrote:
-> Larry, thanks for the help you have given us by making
-> bitkeeper available for all these years.
+On Thu, Apr 07, 2005 at 03:11:12AM +1000, Nick Piggin wrote:
+> Using the attached patch, a puny dual PIII-650 with ~400MB RAM swapped
+> itself to death after 20000 infinite loop tasks had been pinned to one
+> of the CPUs. See how you go.
 
-A big thank you from me too, I've really enjoyed using BK and I think it's 
-made me much more productive than I would have been otherwise.  I don't envy 
-you having to put up with the frequent flamefests...
+Its goes well beyond the initial 7000 number I mentioned. Thanks.
 
-Jesse
+One side-effect of this patch is: for example we have only two processes 
+running on a cpu and both are pinned to that cpu. If someone comes and 
+changes the affinity of one of these processes to all cpu's in the system, 
+then it might take MAX_PINNED_INTERVAL before this process moves to an idle cpu.
+
+thanks,
+suresh

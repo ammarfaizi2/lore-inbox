@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbVDHM4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262790AbVDHM6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbVDHM4z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 08:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbVDHM4z
+	id S262790AbVDHM6w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 08:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVDHM6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 08:56:55 -0400
-Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:30091 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262803AbVDHM4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 08:56:52 -0400
-Subject: Re: Crash during boot for 2.6.12-rc2.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Xine.LNX.4.44.0504051325520.12266-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0504051325520.12266-100000@thoron.boston.redhat.com>
-Content-Type: text/plain
-Message-Id: <1112965096.3140.4.camel@desktop.cunningham.myip.net.au>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 08 Apr 2005 22:58:17 +1000
+	Fri, 8 Apr 2005 08:58:51 -0400
+Received: from moutng.kundenserver.de ([212.227.126.189]:44743 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262790AbVDHM6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 08:58:42 -0400
+Message-ID: <42568000.9090400@gmx.net>
+Date: Fri, 08 Apr 2005 14:58:40 +0200
+From: Wotan23 <robert-maillist@gmx.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: linker error lib/lib.a (lib/string.c)
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:a6d64f00942060a8b48ccf3803478cad
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+when i compile the 2.6.12-rc2-mm1 on a ppc with "make all" i got for line:
 
-I got exactly the same thing on both my P4 HT and my Celeron 933 :<.
-Trying fresh builds.
+ld -m elf32ppc -o arch/ppc/boot/openfirmware/coffboot -T
+/usr/src/linux-2.6.12-rc2-mm1/arch/ppc/boot/ld.script -e _start -Ttext
+0x00500000 -Bstatic arch/ppc/boot/openfirmware/coffcrt0.o
+arch/ppc/boot/openfirmware/start.o arch/ppc/boot/openfirmware/misc.o
+arch/ppc/boot/openfirmware/common.o
+arch/ppc/boot/openfirmware/coffmain.o arch/ppc/boot/openfirmware/image.o
+lib/lib.a arch/ppc/boot/lib/lib.a arch/ppc/boot/of1275/lib.a
+arch/ppc/boot/common/lib.a && objcopy
+arch/ppc/boot/openfirmware/coffboot arch/ppc/boot/openfirmware/coffboot
+-R .comment
 
-Regards,
+the output :
 
-Nigel
+lib/lib.a(string.o)(.text+0x57c): In function `kstrdup':
+: undefined reference to `__kmalloc'
+objcopy: 'arch/ppc/boot/openfirmware/coffboot': No such file
+make[2]: *** [arch/ppc/boot/images/vmlinux.coff] Error 1
+make[1]: *** [openfirmware] Error 2
+make: *** [zImage] Error 2
 
-On Wed, 2005-04-06 at 03:26, James Morris wrote:
-> On Tue, 5 Apr 2005, James Morris wrote:
-> 
-> > > Surprise, surprise, it works OK here.
-> > > 
-> > > What compiler version?
-> > 
-> > gcc -v
-> > Using built-in specs.
-> > Target: i386-redhat-linux
-> > Configured with: ../configure --prefix=/usr --mandir=/usr/share/man 
-> > --infodir=/usr/share/info --enable-shared --enable-threads=posix 
-> > --enable-checking=release --with-system-zlib --enable-__cxa_atexit 
-> > --disable-libunwind-exceptions --enable-languages=c,c++,objc,java,f95,ada 
-> > --enable-java-awt=gtk --host=i386-redhat-linux
-> > Thread model: posix
-> > gcc version 4.0.0 20050329 (Red Hat 4.0.0-0.38)
-> > 
-> > 
-> > I'll try a fresh compile later.
-> 
-> Looks like it was a miscompile, newly compiled (without ccache, too) 
-> kernel works fine.
-> 
-> 
-> - James
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
-Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+it seem that :
 
-Maintainer of Suspend2 Kernel Patches http://suspend2.net
++create-a-kstrdup-library-function.patch
++create-a-kstrdup-library-function-fixes.patch
+ kstrdup().
+
+is responsible for that.
+
+Thx
 

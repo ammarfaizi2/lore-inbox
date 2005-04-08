@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVDHX1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVDHXc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVDHX1s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 19:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVDHX1s
+	id S261198AbVDHXc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 19:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVDHXc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 19:27:48 -0400
-Received: from fire.osdl.org ([65.172.181.4]:53400 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261195AbVDHX1R (ORCPT
+	Fri, 8 Apr 2005 19:32:27 -0400
+Received: from pat.uio.no ([129.240.130.16]:15350 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261198AbVDHXcW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 19:27:17 -0400
-Date: Fri, 8 Apr 2005 16:29:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM saga..
-In-Reply-To: <4257055A.7010908@umich.edu>
-Message-ID: <Pine.LNX.4.58.0504081613180.28951@ppc970.osdl.org>
-References: <4257055A.7010908@umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Apr 2005 19:32:22 -0400
+Subject: Re: [RFC] Add support for semaphore-like structure with support
+	for asynchronous I/O
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-aio@kvack.org
+In-Reply-To: <20050408223927.GA22217@kvack.org>
+References: <1112224663.18019.39.camel@lade.trondhjem.org>
+	 <1112309586.27458.19.camel@lade.trondhjem.org>
+	 <20050331161350.0dc7d376.akpm@osdl.org>
+	 <1112318537.11284.10.camel@lade.trondhjem.org>
+	 <20050401141225.GA3707@in.ibm.com> <20050404155245.GA4659@in.ibm.com>
+	 <20050404162216.GA18469@kvack.org>
+	 <1112637395.10602.95.camel@lade.trondhjem.org>
+	 <20050405154641.GA27279@kvack.org> <20050407114302.GA13363@infradead.org>
+	 <20050408223927.GA22217@kvack.org>
+Content-Type: text/plain
+Date: Fri, 08 Apr 2005 19:31:46 -0400
+Message-Id: <1113003106.10596.46.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.684, required 12,
+	autolearn=disabled, AWL 1.27, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+fr den 08.04.2005 Klokka 18:39 (-0400) skreiv Benjamin LaHaise:
 
-
-On Fri, 8 Apr 2005, Rajesh Venkatasubramanian wrote:
+> On the aio side of things, I introduced the owner field in the mutex (as 
+> opposed to the flag in Trond's iosem) for the next patch in the series to 
+> enable something like the following api:
 > 
-> Although directory changes are tracked using change-sets, there 
-> seems to be no easy way to answer "give me the diff corresponding to
-> the commit (change-set) object <sha1>".  That will be really helpful to
-> review the changes.
+> 	int aio_lock_mutex(struct mutex *lock, struct iocb *iocb);
 
-Actually, it is very easy indeed. Here's what you do:
+Any chance of a more generic interface too?
 
- - look up the commit object ("cat-file commit <sha1>")
+iocbs are fairly high level objects, and so I do not see them helping to
+resolve low level filesystem problems such as the NFSv4 state cleanup.
 
-   This object starts out with "tree <sha1>", followed by a list of
-   parent commit objects: "parent <sha1>"
+Cheers,
+  Trond
 
-   Remember the tree object (it defines what the tree looks like at
-   the time of the commit). Pick the parent object you want to diff
-   against (normally the first one).
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-   Also, print the checking messages at the end of the commit object.
-
- - look up the parent object ("cat-file commit <parentsha1>")
-
-   Here you have the same kind of object, but this time you don't care
-   about going deeper, you just pick up the tree <sha1> that describes
-   the tree at the parent.
-
- - look up the two tree objects. Unlike a commit object, a tree object
-   is a binary data blob, but the format is an _extremely_ simple table
-   of thse guys:
-
-	<ascii octal filemode> <space> <pathname> <NUL character> <20-byte sha1>
-
-  and the reason it's binary is really that that way "git" doesn't end
-  up having any issues with strange pathnames. If you want to have spaces
-  and newlines in your pathname, go wild.
-
-  In particular, the tree object is also _sorted_ by the pathname. This 
-  makes things simple, because you now have to sorted trees, and the 
-  first thing you do is just walk the two trees in lock-step, which is 
-  trivial thanks to the sorted nature of the tree "array".
-
-  So now you have three cases:
-	- you have the same name, and the same sha1
-
-	  ignore it - the file didn't change, you don't even have to look 
-	  at the contents (although if the file mode changed you might
-	  want to note that)
-
-	- you have the same name in parent and child tree lists, but the
-	  sha differs. Now you just need to do a "cat-file" on both of the 
-	  SHA1 values, and do a "diff -u" between them.
-
-	- you have the filename in only parent or only child. Do a 
-	  "create" or "delete" diff with the content of the sha1 file.
-
-See? Very efficient. For any files that didn't change, you didn't have to 
-do anything at all - you didn't even have to look at their data.
-
-Also note that the above algorithm really works for _any_ two commit 
-points (apart for the two first steps, which are obviously all about 
-finding the parent tree when you want to diff against a predecessor). 
-
-It doesn't have to be parent and child. Pick any commit you have. And pick
-them in the other order, and you'll automatically get the reverse diff.
-
-You can even do diffs between unrelated projects this way if you use the
-shared sha1 directory model, although that obviously doesn't tend to be
-all that sensible ;)
-
-		Linus

@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbVDHLmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262751AbVDHLqr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262744AbVDHLmg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 07:42:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVDHLmg
+	id S262751AbVDHLqr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 07:46:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVDHLqr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 07:42:36 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:18835 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S262744AbVDHLme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 07:42:34 -0400
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	<20050408041341.GA8720@taniwha.stupidest.org>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Fri, 08 Apr 2005 12:42:19 +0100
-Message-ID: <tnxk6ndtrz8.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Fri, 8 Apr 2005 07:46:47 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:25013 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262751AbVDHLqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 07:46:44 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc2-mm2
+Date: Fri, 8 Apr 2005 13:46:58 +0200
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050408030835.4941cd98.akpm@osdl.org>
+In-Reply-To: <20050408030835.4941cd98.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504081346.59282.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood <cw@f00f.org> wrote:
-> I'm playing with monotone right now.  Superficially it looks like it
-> has tons of gee-whiz neato stuff...  however, it's *agonizingly* slow.
-> I mean glacial.  A heavily sedated sloth with no legs is probably
-> faster.
+On Friday, 8 of April 2005 12:08, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm2/
+> 
+> 
+> - Although small, bk-audit.patch was causing conflits with a couple of
+>   other projects.  Dropped for now.
+> 
+> - Greg is not using bk now, so bk-pci.patch, bk-i2c.patch,
+>   bk-driver-core.patch and bk-usb.patch have been replaced with gregkh-*.patch
+>   in -mm.
+> 
+> - Largeish x86_64 update
 
-I tried some time ago to import the BKCVS revisions since Linux 2.6.9
-into a monotone-0.16 repository. I later tried to upgrade the database
-(repository) to monotone version 0.17. The result - converting ~3500
-revisions would have taken more than *one year*, fact confirmed by the
-monotone developers. The bottleneck seemed to be the big size of the
-manifest (which stores the file names and the corresponding SHA1
-values) and all the validation performed when converting. The
-solution, unsafe, is to disable the revision checks in monotone but
-you can end up with an inconsistent repository (haven't tried this).
+It does not compile on a uniprocessor x86-64:
+
+  CC      arch/x86_64/kernel/process.o
+  CC      arch/x86_64/kernel/semaphore.o
+  CC      arch/x86_64/kernel/signal.o
+  AS      arch/x86_64/kernel/entry.o
+  CC      arch/x86_64/kernel/traps.o
+  CC      arch/x86_64/kernel/irq.o
+  CC      arch/x86_64/kernel/ptrace.o
+  CC      arch/x86_64/kernel/time.o
+  CC      arch/x86_64/kernel/ioport.o
+  CC      arch/x86_64/kernel/ldt.o
+  CC      arch/x86_64/kernel/setup.o
+arch/x86_64/kernel/setup.c: In function `amd_detect_cmp':
+arch/x86_64/kernel/setup.c:759: error: `cpu_core_id' undeclared (first use in this function)
+arch/x86_64/kernel/setup.c:759: error: (Each undeclared identifier is reported only once
+arch/x86_64/kernel/setup.c:759: error: for each function it appears in.)
+make[1]: *** [arch/x86_64/kernel/setup.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
+
+Greets,
+Rafael
+
 
 -- 
-Catalin
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

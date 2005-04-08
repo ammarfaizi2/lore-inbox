@@ -1,136 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262929AbVDHTNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbVDHTQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262929AbVDHTNm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 15:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbVDHTNm
+	id S262932AbVDHTQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 15:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbVDHTQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 15:13:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53993 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262929AbVDHTN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 15:13:27 -0400
-Message-ID: <4256D7CA.7030908@pobox.com>
-Date: Fri, 08 Apr 2005 15:13:14 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+	Fri, 8 Apr 2005 15:16:49 -0400
+Received: from relay1.tiscali.de ([62.26.116.129]:3325 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262932AbVDHTQX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 15:16:23 -0400
+Message-ID: <4256D87C.5090207@tiscali.de>
+Date: Fri, 08 Apr 2005 21:16:12 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050406)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Eric A. Cottrell" <eac@shore.net>
-CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Re: LIBATA AHCI engine timeout hang with ATAPI devices
-References: <4256D1A9.6080401@shore.net>
-In-Reply-To: <4256D1A9.6080401@shore.net>
-Content-Type: multipart/mixed;
- boundary="------------030507070202010503020401"
-X-Warning: 24.25.22.197 is listed at orbz.gst-group.uk.com
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org> <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org> <4256BE7D.5040308@tiscali.de> <Pine.LNX.4.58.0504081047200.28951@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504081047200.28951@ppc970.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030507070202010503020401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Linus Torvalds wrote:
 
-Eric A. Cottrell wrote:
-> Hello,
-> 
-> I made the mistake of getting the Plextor SATA DVD Recorder with my new 
-> system not realizing that SATA support is just coming online.  I want to 
-> turn this into an opportunity to make the Plextor work.  Thanks to the 
-> IDE information pages I got a good start.
-> 
-> I have success using the ata_piix and ahci drivers with SATA Hard 
-> Drives.  I noticed that the Plextor works with the ata_piix driver  but 
-> not with the AHCI driver.  The AHCI driver hangs after the INQUIRY is 
-> printed.
+>On Fri, 8 Apr 2005, Matthias-Christian Ott wrote:
+>  
+>
+>>Ok, but if you want to search for information in such big text files it 
+>>slow, because you do linear search 
+>>    
+>>
+>
+>No I don't. I don't search for _anything_. I have my own
+>content-addressable filesystem, and I guarantee you that it's faster than
+>mysql, because it depends on the kernel doing the right thing (which it
+>does).
+>
+>  
+>
+I'm not talking about mysql, i'm talking about fast databases like 
+sqlite or db4.
 
-You need something like the attached patch.
+>I never do a single "readdir". It's all direct data lookup, no "searching"  
+>anywhere.
+>
+>Databases aren't magical. Quite the reverse. They easily end up being
+>_slower_ than doing it by hand, simply because they have to solve a much
+>more generic issue. If you design your data structures and abstractions
+>right, a database is pretty much guaranteed to only incur overhead.
+>
+>The advantage of a database is the abstraction and management it gives 
+>you. But I did my own special-case abstraction in git.
+>
+>Yeah, I bet "git" might suck if your OS sucks. I definitely depend on name
+>caching at an OS level so that I know that opening a file is fast. In
+>other words, there _is_ an indexing and caching database in there, and
+>it's called the Linux VFS layer and the dentry cache.
+>
+>The proof is in the pudding. git is designed for _one_ thing, and one 
+>thing only: tracking a series of directory states in a way that can be 
+>replicated. It's very very fast at that. A database with a more flexible 
+>abstraction migt be faster at other things, but the fact is, you do take a 
+>hit.
+>
+>The problem with databases are:
+>
+> - they are damn hard to just replicate wildly and without control. The 
+>   database backing file inherently has a lot of internal state. You may 
+>   be able to "just copy it", but you have to copy the whole damn thing.
+>  
+>
+This is _not_ true for every database (specialy plain/text databases 
+with meta information).
 
-In general, ATAPI is still very much experimental at this point.  One 
-known bug that affects libata is that ATAPI DMA is not aligned to a 
-4-byte boundary.
+>   In "git", the data is all there in immutable blobs that you can just 
+>   rsync. In fact, you don't even need rsync: you can just look at the 
+>   filenames, and anything new you copy. No need for any fancy "read the 
+>   files to see that they match". They _will_ match, or you can tell 
+>   immediately that a file is corrupt.
+>
+>   Look at this:
+>
+>	torvalds@ppc970:~/git> sha1sum .dircache/objects/e7/bfaadd5d2331123663a8f14a26604a3cdcb678 
+>	e7bfaadd5d2331123663a8f14a26604a3cdcb678  .dircache/objects/e7/bfaadd5d2331123663a8f14a26604a3cdcb678
+>
+>   see a pattern anywhere? Imagine that you know the list of files you 
+>   have, and the list of files the other side has (never mind the 
+>   contents), and how _easy_ it is to synchronize. Without ever having to 
+>   even read the remote files that you know you already have.
+>   How do you replicate your database incrementally? I've given you enough 
+>   clues to do it for "git" in probably five lines of perl.
+>  
+>
+I replicate my database incremently by using a hash list like you (the 
+client sends its hash list, the server compares the lists and acquaints 
+the client behind which data (data = hash + data) the data has to added 
+(this is like your solution -- you also submit the data and the location 
+(you have directories too, right?)). A database is in some cases (like 
+this one) like a filesystem, but it's build one top of better filesystem 
+like xfs, reiser4 or ext3 which support features like LVM, Quotas or 
+Journaling (Is your filesystem also build on top of existing filesystem? 
+I don't think so because you're talking about vfs operatations on the 
+filesystem).
 
-	Jeff
+> - they tend to take time to set up and prime.
+>
+>   In contrast, the filesystem is always there. Sure, you effectively have 
+>   to "prime" that one too, but the thing is, if your OS is doing its job, 
+>   you basically only need to prime it once per reboot. No need to prime 
+>   it for each process you start or play games with connecting to servers 
+>   etc. It's just there. Always.
+>  
+>
+The database -- single file (sqlite or db4) -- is always there too 
+because it's on the filesystem and doesn't need a server.
 
+>So if you think of the filesystem as a database, you're all set. If you 
+>design your data structure so that there is just one index, you make that 
+>the name, and the kernel will do all the O(1) hashed lookups etc for you. 
+>You do have to limit yourself in some ways. 
+>  
+>
+But as mentioned you need to _open_ each file (It doesn't matter if it's 
+cached (this speeds up only reading it) -- you need a _slow_ system call 
+and _very slow_ hardware access anyway).
+Have a look at this comparison:
+If you have big chest and lots of small chests containing the same bulk 
+of gold, it's more work to collect the gold from the small chests than 
+from the big one (which would contain as many a cases as little chests 
+exist). You can faster find your gold because you don't have to walk to 
+the other chests and you don't have to open that much caps which saves 
+also time.
 
+>Oh, and you have to be willing to waste diskspace. "git" is _not_
+>space-efficient. The good news is that it is cache-friendly, since it is
+>also designed to never actually look at any old files that aren't part of
+>the immediate history, so while it wastes diskspace, it does not waste the
+>(much more precious) page cache.
+>
+>IOW big file-sets are always bad for performance if you need to traverse
+>them to get anywhere, but if you index things so that you only read the 
+>stuff you really really _need_ (which git does), big file-sets are just an 
+>excuse to buy a new disk ;)
+>
+>			Linus
+>
+>  
+>
+I hope my idea/opinion is clear now.
 
---------------030507070202010503020401
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2005/02/17 04:43:52-05:00 jgarzik@pobox.com 
-#   [libata ahci] finish ATAPI support
-# 
-# drivers/scsi/ahci.c
-#   2005/02/17 04:42:57-05:00 jgarzik@pobox.com +9 -13
-#   [libata ahci] finish ATAPI support
-# 
-diff -Nru a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
---- a/drivers/scsi/ahci.c	2005-04-08 15:10:54 -04:00
-+++ b/drivers/scsi/ahci.c	2005-04-08 15:10:54 -04:00
-@@ -38,7 +38,7 @@
- #include <asm/io.h>
- 
- #define DRV_NAME	"ahci"
--#define DRV_VERSION	"1.00"
-+#define DRV_VERSION	"1.10"
- 
- 
- enum {
-@@ -49,6 +49,7 @@
- 	AHCI_CMD_SLOT_SZ	= 32 * 32,
- 	AHCI_RX_FIS_SZ		= 256,
- 	AHCI_CMD_TBL_HDR	= 0x80,
-+	AHCI_CMD_TBL_CDB	= 0x40,
- 	AHCI_CMD_TBL_SZ		= AHCI_CMD_TBL_HDR + (AHCI_MAX_SG * 16),
- 	AHCI_PORT_PRIV_DMA_SZ	= AHCI_CMD_SLOT_SZ + AHCI_CMD_TBL_SZ +
- 				  AHCI_RX_FIS_SZ,
-@@ -477,7 +478,8 @@
- 
- static void ahci_qc_prep(struct ata_queued_cmd *qc)
- {
--	struct ahci_port_priv *pp = qc->ap->private_data;
-+	struct ata_port *ap = qc->ap;
-+	struct ahci_port_priv *pp = ap->private_data;
- 	u32 opts;
- 	const u32 cmd_fis_len = 5; /* five dwords */
- 
-@@ -489,18 +491,8 @@
- 	opts = (qc->n_elem << 16) | cmd_fis_len;
- 	if (qc->tf.flags & ATA_TFLAG_WRITE)
- 		opts |= AHCI_CMD_WRITE;
--
--	switch (qc->tf.protocol) {
--	case ATA_PROT_ATAPI:
--	case ATA_PROT_ATAPI_NODATA:
--	case ATA_PROT_ATAPI_DMA:
-+	if (is_atapi_taskfile(&qc->tf))
- 		opts |= AHCI_CMD_ATAPI;
--		break;
--
--	default:
--		/* do nothing */
--		break;
--	}
- 
- 	pp->cmd_slot[0].opts = cpu_to_le32(opts);
- 	pp->cmd_slot[0].status = 0;
-@@ -512,6 +504,10 @@
- 	 * a SATA Register - Host to Device command FIS.
- 	 */
- 	ata_tf_to_fis(&qc->tf, pp->cmd_tbl, 0);
-+	if (opts & AHCI_CMD_ATAPI) {
-+		memset(pp->cmd_tbl + AHCI_CMD_TBL_CDB, 0, 32);
-+		memcpy(pp->cmd_tbl + AHCI_CMD_TBL_CDB, qc->cdb, ap->cdb_len);
-+	}
- 
- 	if (!(qc->flags & ATA_QCFLAG_DMAMAP))
- 		return;
-
---------------030507070202010503020401--
+Matthias-Christian

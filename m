@@ -1,132 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262807AbVDHNKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262821AbVDHNgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262807AbVDHNKk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 09:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbVDHNHx
+	id S262821AbVDHNgY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 09:36:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbVDHNgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 09:07:53 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:16800 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S262812AbVDHNGn (ORCPT
+	Fri, 8 Apr 2005 09:36:22 -0400
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:45719 "EHLO smtp8.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S262821AbVDHNdh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 09:06:43 -0400
-Date: Fri, 8 Apr 2005 15:06:39 +0200
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>,
-       James Chapman <jchapman@katalix.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] ds1337 3/4
-Message-ID: <20050408130639.GC7054@orphique>
-References: <20050407231848.GD27226@orphique> <u5mZNEX1.1112954918.3200720.khali@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <u5mZNEX1.1112954918.3200720.khali@localhost>
-User-Agent: Mutt/1.5.6+20040907i
-From: Ladislav Michl <ladis@linux-mips.org>
+	Fri, 8 Apr 2005 09:33:37 -0400
+X-ME-UUID: 20050408133336433.0A8D71C000A2@mwinf0806.wanadoo.fr
+Message-ID: <425687DB.4000205@innova-card.com>
+Date: Fri, 08 Apr 2005 15:32:11 +0200
+From: Franck Bui-Huu <franck.bui-huu@innova-card.com>
+Reply-To: franck.bui-huu@innova-card.com
+Organization: Innova Card
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] bootmem.c clean up bad pfn convertions
+Content-Type: multipart/mixed;
+ boundary="------------000004060108060508070604"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 12:08:38PM +0200, Jean Delvare wrote:
-> Looks OK to me.
+This is a multi-part message in MIME format.
+--------------000004060108060508070604
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ok, I have few more fixes for this driver and will send them later
-when I find time to split them out into smaller chunks. Again, here is
-patch with signed off line.
+Hi,
+
+As I described in my previous email, bootmem.c does improper
+pfn convertions into phys addr. This simple patch fixes that.
+
+Regards,
+
+       Franck.
 
 
-dev_{dbg,err} functions should print client's device name. data->id can
-be dropped from message, because device is determined by bus it hangs on
-(it has fixed address).
 
-Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
+-------------------------------------------------------------------------------
+This message contains confidential information and is intended only for the
+individual named. If you are not the named addressee you should not
+disseminate, distribute or copy this e-mail. Please notify the sender
+immediately by e-mail if you have received this e-mail by mistake and delete
+this e-mail from your system. E-mail transmission cannot be guaranteed to be
+secure or error-free as information could be intercepted, corrupted, lost,
+destroyed, arrive late or incomplete, or contain viruses. The sender therefore
+does not accept liability for any errors or omissions in the contents of this
+message, which arise as a result of e-mail transmission. If verification is
+required please request a hard-copy version.
+INNOVA CARD will not therefore be liable for the message if modified.
+-------------------------------------------------------------------------------
 
---- linux-omap/drivers/i2c/chips/ds1337.c.orig	2005-04-08 00:36:15.072302800 +0200
-+++ linux-omap/drivers/i2c/chips/ds1337.c	2005-04-08 00:44:44.130914128 +0200
-@@ -95,7 +95,6 @@ static inline int ds1337_read(struct i2c
-  */
- static int ds1337_get_datetime(struct i2c_client *client, struct rtc_time *dt)
- {
--	struct ds1337_data *data = i2c_get_clientdata(client);
- 	int result;
- 	u8 buf[7];
- 	u8 val;
-@@ -103,9 +102,7 @@ static int ds1337_get_datetime(struct i2
- 	u8 offs = 0;
+--------------000004060108060508070604
+Content-Type: text/x-patch;
+ name="bootmem.c.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bootmem.c.patch"
+
+--- bootmem.c	7 Apr 2005 16:39:24 -0000	1.2
++++ bootmem.c	8 Apr 2005 13:20:02 -0000
+@@ -58,8 +58,8 @@ static unsigned long __init init_bootmem
+ 	pgdat_list = pgdat;
  
- 	if (!dt) {
--		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
--			__FUNCTION__);
--
-+		dev_dbg(&client->dev, "%s: EINVAL: dt=NULL\n", __FUNCTION__);
- 		return -EINVAL;
- 	}
+ 	mapsize = (mapsize + (sizeof(long) - 1UL)) & ~(sizeof(long) - 1UL);
+-	bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
+-	bdata->node_boot_start = (start << PAGE_SHIFT);
++	bdata->node_bootmem_map = phys_to_virt(pfn_to_phys(mapstart));
++	bdata->node_boot_start = pfn_to_phys(start);
+ 	bdata->node_low_pfn = end;
  
-@@ -121,8 +118,7 @@ static int ds1337_get_datetime(struct i2
+ 	/*
+@@ -86,11 +86,11 @@ static void __init reserve_bootmem_core(
+ 	unsigned long sidx = (addr - bdata->node_boot_start)/PAGE_SIZE;
+ 	unsigned long eidx = (addr + size - bdata->node_boot_start + 
+ 							PAGE_SIZE-1)/PAGE_SIZE;
+-	unsigned long end = (addr + size + PAGE_SIZE-1)/PAGE_SIZE;
++	unsigned long end = phys_to_pfn(PAGE_ALIGN(addr + size));
  
- 	result = i2c_transfer(client->adapter, msg, 2);
+ 	BUG_ON(!size);
+ 	BUG_ON(sidx >= eidx);
+-	BUG_ON((addr >> PAGE_SHIFT) >= bdata->node_low_pfn);
++	BUG_ON(phys_to_pfn(addr) >= bdata->node_low_pfn);
+ 	BUG_ON(end > bdata->node_low_pfn);
  
--	dev_dbg(&client->adapter->dev,
--		"%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
-+	dev_dbg(&client->dev, "%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
- 		__FUNCTION__, result, buf[0], buf[1], buf[2], buf[3],
- 		buf[4], buf[5], buf[6]);
+ 	for (i = sidx; i < eidx; i++)
+@@ -111,7 +111,7 @@ static void __init free_bootmem_core(boo
+ 	 */
+ 	unsigned long sidx;
+ 	unsigned long eidx = (addr + size - bdata->node_boot_start)/PAGE_SIZE;
+-	unsigned long end = (addr + size)/PAGE_SIZE;
++	unsigned long end = phys_to_pfn(addr + size);
  
-@@ -139,14 +135,13 @@ static int ds1337_get_datetime(struct i2
- 		if (buf[5] & 0x80)
- 			dt->tm_year += 100;
+ 	BUG_ON(!size);
+ 	BUG_ON(end > bdata->node_low_pfn);
+@@ -260,6 +260,7 @@ static unsigned long __init free_all_boo
+ 	unsigned long i, count, total = 0;
+ 	unsigned long idx;
+ 	unsigned long *map; 
++	unsigned long mapsize;
+ 	int gofast = 0;
  
--		dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, "
-+		dev_dbg(&client->dev, "%s: secs=%d, mins=%d, "
- 			"hours=%d, mday=%d, mon=%d, year=%d, wday=%d\n",
- 			__FUNCTION__, dt->tm_sec, dt->tm_min,
- 			dt->tm_hour, dt->tm_mday,
- 			dt->tm_mon, dt->tm_year, dt->tm_wday);
- 	} else {
--		dev_err(&client->adapter->dev, "ds1337[%d]: error reading "
--			"data! %d\n", data->id, result);
-+		dev_err(&client->dev, "error reading data! %d\n", result);
- 		result = -EIO;
- 	}
- 
-@@ -155,20 +150,17 @@ static int ds1337_get_datetime(struct i2
- 
- static int ds1337_set_datetime(struct i2c_client *client, struct rtc_time *dt)
- {
--	struct ds1337_data *data = i2c_get_clientdata(client);
- 	int result;
- 	u8 buf[8];
- 	u8 val;
- 	struct i2c_msg msg[1];
- 
- 	if (!dt) {
--		dev_dbg(&client->adapter->dev, "%s: EINVAL: dt=NULL\n",
--			__FUNCTION__);
--
-+		dev_dbg(&client->dev, "%s: EINVAL: dt=NULL\n", __FUNCTION__);
- 		return -EINVAL;
- 	}
- 
--	dev_dbg(&client->adapter->dev, "%s: secs=%d, mins=%d, hours=%d, "
-+	dev_dbg(&client->dev, "%s: secs=%d, mins=%d, hours=%d, "
- 		"mday=%d, mon=%d, year=%d, wday=%d\n", __FUNCTION__,
- 		dt->tm_sec, dt->tm_min, dt->tm_hour,
- 		dt->tm_mday, dt->tm_mon, dt->tm_year, dt->tm_wday);
-@@ -195,8 +187,7 @@ static int ds1337_set_datetime(struct i2
- 
- 	result = i2c_transfer(client->adapter, msg, 1);
- 	if (result < 0) {
--		dev_err(&client->adapter->dev, "ds1337[%d]: error "
--			"writing data! %d\n", data->id, result);
-+		dev_err(&client->dev, "error writing data! %d\n", result);
- 		result = -EIO;
- 	} else {
- 		result = 0;
-@@ -208,7 +199,7 @@ static int ds1337_set_datetime(struct i2
- static int ds1337_command(struct i2c_client *client, unsigned int cmd,
- 			  void *arg)
- {
--	dev_dbg(&client->adapter->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
-+	dev_dbg(&client->dev, "%s: cmd=%d\n", __FUNCTION__, cmd);
- 
- 	switch (cmd) {
- 	case DS1337_GET_DATE:
+ 	BUG_ON(!bdata->node_bootmem_map);
+@@ -267,7 +268,7 @@ static unsigned long __init free_all_boo
+ 	count = 0;
+ 	/* first extant page of the node */
+ 	page = virt_to_page(phys_to_virt(bdata->node_boot_start));
+-	idx = bdata->node_low_pfn - (bdata->node_boot_start >> PAGE_SHIFT);
++	idx = bdata->node_low_pfn - phys_to_pfn(bdata->node_boot_start);
+ 	map = bdata->node_bootmem_map;
+ 	/* Check physaddr is O(LOG2(BITS_PER_LONG)) page aligned */
+ 	if (bdata->node_boot_start == 0 ||
+@@ -313,7 +314,9 @@ static unsigned long __init free_all_boo
+ 	 */
+ 	page = virt_to_page(bdata->node_bootmem_map);
+ 	count = 0;
+-	for (i = 0; i < ((bdata->node_low_pfn-(bdata->node_boot_start >> PAGE_SHIFT))/8 + PAGE_SIZE-1)/PAGE_SIZE; i++,page++) {
++	mapsize = (bdata->node_low_pfn - phys_to_pfn(bdata->node_boot_start)+7)/8;
++	mapsize = (mapsize + PAGE_SIZE-1)/PAGE_SIZE;
++	for (i = 0; i < mapsize; i++, page++) {
+ 		count++;
+ 		__ClearPageReserved(page);
+ 		set_page_count(page, 1);
+
+--------------000004060108060508070604--
+

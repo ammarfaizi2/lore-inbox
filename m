@@ -1,112 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVDHGn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbVDHGqk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbVDHGn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 02:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVDHGn6
+	id S262710AbVDHGqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 02:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVDHGqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 02:43:58 -0400
-Received: from dea.vocord.ru ([217.67.177.50]:62928 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262705AbVDHGmS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 02:42:18 -0400
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: James Morris <jmorris@redhat.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Ian Campbell <ijc@hellion.org.uk>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <Xine.LNX.4.44.0504080152540.24105-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0504080152540.24105-100000@thoron.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nZRkz/jkxvDw8zFNpBOk"
-Organization: MIPT
-Date: Fri, 08 Apr 2005 10:48:44 +0400
-Message-Id: <1112942924.28858.234.camel@uganda>
+	Fri, 8 Apr 2005 02:46:40 -0400
+Received: from smtp10.wanadoo.fr ([193.252.22.21]:48283 "EHLO
+	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S262705AbVDHGqM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 02:46:12 -0400
+X-ME-UUID: 20050408064556823.C9062180008B@mwinf1001.wanadoo.fr
+Date: Fri, 8 Apr 2005 08:41:52 +0200
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Sven Luther <sven.luther@wanadoo.fr>,
+       Arjan van de Ven <arjan@infradead.org>, Christoph Hellwig <hch@lst.de>,
+       Ian Campbell <ijc@hellion.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
+       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
+       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050408064152.GB27346@pegasos>
+References: <1112689164.3086.100.camel@icampbell-debian> <20050405083217.GA22724@pegasos> <1112690965.3086.107.camel@icampbell-debian> <20050405091144.GA18219@lst.de> <1112693287.6275.30.camel@laptopd505.fenrus.org> <m1wtrfk8w3.fsf@ebiederm.dsl.xmission.com> <20050407112738.GB8508@pegasos> <m1mzsakdws.fsf@ebiederm.dsl.xmission.com> <20050407184241.GA13620@pegasos> <m11x9mge5p.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 08 Apr 2005 10:41:51 +0400 (MSD)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <m11x9mge5p.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 07, 2005 at 09:06:58PM -0600, Eric W. Biederman wrote:
+> Sven Luther <sven.luther@wanadoo.fr> writes:
+> 
+> > > It sounds like you are now looking at the question of are the
+> > > huge string of hex characters the preferred form for making
+> > > modifications to firmware.  Personally I would be surprised
+> > > but those hunks are small enough it could have been written
+> > > in machine code.
+> > 
+> > Yep, i also think it is in broadcom's best interest to modify the licencing
+> > text accordyingly, since i suppose someone could technicaly come after them
+> > legally to obtain said source code to this firmware. Unprobable though.
+> 
+> Possibly.  It sounds like that is what you want to do.
 
---=-nZRkz/jkxvDw8zFNpBOk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+No, i am making them aware of the possibility, and hoping they fix the issue,
+but we will see. If they fail to act on this, i don't understand why though,
+since it is just addition of a clarification. It is not as if i am asking for
+the release of all their chip specs or something such.
 
-On Fri, 2005-04-08 at 01:55 -0400, James Morris wrote:
-> On Fri, 8 Apr 2005, Evgeniy Polyakov wrote:
->=20
-> > > > Sure, but seems I need to ask again: What is the exact reason not t=
-o implement
-> > > > the muticast message multiplexing/subscription part of the connecto=
-r as a
-> > > > generic part of netlink? That would be nice to have and useful for =
-other
-> > > > subsystems too as an option to the current broadcast.
-> > >=20
-> > > This is a good point, in general, consider generically extending Netl=
-ink=20
-> > > itself instead of creating these separate things.
-> >=20
->=20
-> > Connector requires it's own registration technique for
-> > 1. hide all transport [netlink] layer from higher protocols which use
-> > connector
->=20
-> Why?
+> > since there should be at least some kind of executable code in it,
+> > independenlty of the fact that we claim that data is also software.
+> 
+> Do you have any evidence that ``software'' was not written directly in
+> machine code?   Software is written directly in machine code when a programmer
 
-User should not know about low-level transport -=20
-it is like socket layer -  write only data and do not care about
-how it will be delivered.
+So what, i seriously doubt they where written using an vi in C, as the code
+currently stands, so we do need an additional level of source code, being it
+only some asm code or something.
 
-> > 2. create different group appointment for the given connector's ID
-> > [it was different, now new group which is eqal to idx field is appointe=
-d
-> > to=20
-> > the new callback]
->=20
-> I don't understand.
+> looks at the instruction set and writes down the binary representation
+> of the instructions.  I know ISC dhcpd has packet filter code that was written
+> in that manner, so it is not a lost art.   And it is done often enough when
+> an assembler will not cooperate, and generate the correct instruction.
 
-In the previous versions netlink group was assigned as incremented
-counter,=20
-that was not convenient, but now we have 2-way ID, which is better
-from users point of view - idx is supposed to be major id, val -=20
-some subsystem of that set.
+But again, this is not the common assumption, so if this is so, they should
+write it down black on white in the copyright notice, and everyone would be
+happy.
 
-> > 3. provide more generic set of ids
->=20
-> What do you mean by "ids"?
+> Without evidence that we don't have the preferred form of the software
+> for making modifications I don't see how you can complain.
 
-Each connector message requires pair of u32 ids - idx and val.
-Idx is generic system id [which is equal to the appropriate netlink
-group
-in current implementation], while val is id of some subsytem
-inside idx.
+No, it goes the other way around. Without evidence that all is clean, we have
+no right to distribute that code, and if what you describe was the case, a
+couple of lines telling us that fact would solve the issue, and not even need
+the involvement of their legal department. I would be somewhat suspisious
+though if all these guys came up and said they just wrote said firmware in
+binary directly though.
 
-Using only group without it's own connector's id will heavily
-complex callback register/unregister notification [Jamal's suggested
-feature]
-for example.
+Friendly,
 
->=20
-> - James
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-nZRkz/jkxvDw8zFNpBOk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCVilMIKTPhE+8wY0RArKEAKCQEBVWtuYDPOPT/DjFXRphpo00eACfTtBo
-xgTGthRK5L8eJD/mIN1FLWQ=
-=+VfP
------END PGP SIGNATURE-----
-
---=-nZRkz/jkxvDw8zFNpBOk--
+Sven Luther
 

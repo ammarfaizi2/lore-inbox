@@ -1,243 +1,312 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262854AbVDHPZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbVDHPgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbVDHPZS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 11:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVDHPYz
+	id S262850AbVDHPgR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 11:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262853AbVDHPgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 11:24:55 -0400
-Received: from smtp3.netcabo.pt ([212.113.174.30]:11154 "EHLO
-	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262850AbVDHPYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 11:24:12 -0400
-Message-ID: <39754.192.168.1.5.1112973759.squirrel@www.rncbc.org>
-In-Reply-To: <1112729762.5147.62.camel@localhost.localdomain>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu> 
-    <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu> 
-    <46802.192.168.1.5.1112727980.squirrel@www.rncbc.org>
-    <1112729762.5147.62.camel@localhost.localdomain>
-Date: Fri, 8 Apr 2005 16:22:39 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Steven Rostedt" <rostedt@goodmis.org>
-Cc: "Ingo Molnar" <mingo@elte.hu>, "LKML" <linux-kernel@vger.kernel.org>,
-       "Lee Revell" <rlrevell@joe-job.com>
-User-Agent: SquirrelMail/1.4.4
+	Fri, 8 Apr 2005 11:36:16 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:64252 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262850AbVDHPfh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 11:35:37 -0400
+Message-ID: <4256A4BE.8090308@mvista.com>
+Date: Fri, 08 Apr 2005 10:35:26 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20050408162239_91098"
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 08 Apr 2005 15:24:10.0786 (UTC) FILETIME=[0372B820:01C53C4F]
+To: Chris_Poblete@Dell.com
+CC: linux-kernel@vger.kernel.org, sdake@mvista.com
+Subject: Re: [PATCH 2.6.11.6] Add power cycle to ipmi_poweroff module
+References: <D69989B48C25DB489BBB0207D0BF51F701F4ECD4@ausx2kmpc104.aus.amer.dell.com>
+In-Reply-To: <D69989B48C25DB489BBB0207D0BF51F701F4ECD4@ausx2kmpc104.aus.amer.dell.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20050408162239_91098
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
+Chris_Poblete@Dell.com wrote:
 
-> Our first victim!! :-)
+>Below is a patch to add "power cycle" functionality to the IPMI power
+>off module ipmi_poweroff.
 >
-
-No kidding!?
-
-
-> On Tue, 2005-04-05 at 20:06 +0100, Rui Nuno Capela wrote:
->> >
->> I'm having plenty of this on boot, on my SMP/HT desktop (P4/x86), while
->> running RT-V0.7.44-01 (SMP+PREEMPT_RT):
->>
->>   BUG: kstopmachine:xxxx RT task yield()-ing!
->>
->> See sample dmesg and .config on attach.
->>
->> OTOH, on my laptop (P4/UP), all seems to be clear fine.
->>
+>A new module param is added to support this:
+>parmtype:       do_power_cycle:int
+>parm:           do_power_cycle: Set to 1 to enable power cycle instead
+>of power down. Power cycle is contingent on hardware support, otherwise
+>it defaults back to power down.
 >
-> The kstopmachine is only run on SMP environments, so it won't show up on
-> your UP machine.
+>This parameter can also be dynamically modified through the proc
+>filesystem:
+>/proc/ipmi/<interface_num>/poweroff
+>  
+>
+This should probably be /proc/sys/dev/ipmi/power_cycle_on_halt.  Most 
+things to control a system go there.  The /proc/sys/dev/ipmi directory 
+should probably be created by the base IPMI file, too.
+
+Thinking about it a little more, this should really be an option for 
+reset, not for power off (thus making the name power_cycle_on_reset).  
+I'm not sure how easy that will be to tie into.  It doesn't look easy; 
+there's not something like pm_power_off for reset.
+
+All the proc fs stuff should be ifdef-ed appropriately so it will 
+compile with procfs turned off.
+
+-Corey
+
+>The power cycle action is considered an optional chassis control in the
+>IPMI specification.  However, it is definitely useful when the hardware
+>supports it.  A power cycle is usually required in order to reset a
+>firmware in a bad state.  This action is critical to allow remote
+>management of servers.
+>
+>The implementation adds power cycle as optional to the ipmi_poweroff
+>module. It can be modified dynamically through the proc entry mentioned
+>above. During a power down and enabled, the power cycle command is sent
+>to the BMC firmware. If it fails either due to non-support or some
+>error, it will retry to send the command as power off.
+>
+>Signed-off-by: Christopher A. Poblete <Chris_Poblete@dell.com>
+>
+>--
+>Chris Poblete
+>Software Engineer
+>Dell OpenManage Instrumentation
 >
 >
->> Is this something to be affraid of? :)
->>
+>===== drivers/char/ipmi/ipmi_poweroff.c linux-2.6.11.6 vi edited =====
+>--- linux-2.6.11.6/drivers/char/ipmi/ipmi_poweroff.c.orig
+>2005-03-25 21:28:22.000000000 -0600
+>+++ linux-2.6.11.6/drivers/char/ipmi/ipmi_poweroff.c	2005-04-07
+>18:36:10.656537656 -0500
+>@@ -34,6 +34,8 @@
+> #include <asm/semaphore.h>
+> #include <linux/kdev_t.h>
+> #include <linux/module.h>
+>+#include <linux/moduleparam.h>
+>+#include <linux/proc_fs.h>
+> #include <linux/string.h>
+> #include <linux/ipmi.h>
+> #include <linux/ipmi_smi.h>
+>@@ -41,6 +43,13 @@
+> #define PFX "IPMI poweroff: "
+> #define IPMI_POWEROFF_VERSION	"v33"
+> 
+>+/* container to flag power cycle instead of power down */
+>+static int do_power_cycle = 0;
+>+
+>+/* parameter definition to allow user to flag power cycle */
+>+module_param(do_power_cycle, int, 0);
+>+MODULE_PARM_DESC(do_power_cycle, " Set to 1 to enable power cycle
+>instead of power down. Power cycle is contingent on hardware support,
+>otherwise it defaults back to power down.");
+>+
+> /* Where to we insert our poweroff function? */
+> extern void (*pm_power_off)(void);
+> 
+>@@ -349,23 +358,37 @@ static void ipmi_poweroff_chassis (ipmi_
+>         smi_addr.channel = IPMI_BMC_CHANNEL;
+>         smi_addr.lun = 0;
+> 
+>-	printk(KERN_INFO PFX "Powering down via IPMI chassis control
+>command\n");
+>+ powercyclefailed:
+>+	printk(KERN_INFO PFX "Powering %s via IPMI chassis control
+>command\n",
+>+		((do_power_cycle != 1) ? "down" : "cycle"));
+> 
+> 	/*
+> 	 * Power down
+> 	 */
+> 	send_msg.netfn = IPMI_NETFN_CHASSIS_REQUEST;
+> 	send_msg.cmd = IPMI_CHASSIS_CONTROL_CMD;
+>-	data[0] = 0; /* Power down */
+>+	if (do_power_cycle != 1) {
+>+		data[0] = 0; /* Power down */
+>+	} else {
+>+		data[0] = 2; /* Power cycle */
+>+	}
+> 	send_msg.data = data;
+> 	send_msg.data_len = sizeof(data);
+> 	rv = ipmi_request_in_rc_mode(user,
+> 				     (struct ipmi_addr *) &smi_addr,
+> 				     &send_msg);
+> 	if (rv) {
+>-		printk(KERN_ERR PFX "Unable to send chassis powerdown
+>message,"
+>-		       " IPMI error 0x%x\n", rv);
+>-		goto out;
+>+		if (do_power_cycle != 1) {
+>+			printk(KERN_ERR PFX "Unable to send chassis
+>power " \
+>+				"down message, IPMI error 0x%x\n", rv);
+>+			goto out;
+>+                } else {
+>+			/* power cycle failed, default to power down */
+>+			printk(KERN_ERR PFX "Unable to send chassis
+>power " \
+>+				"cycle message, IPMI error 0x%x\n", rv);
+>+			do_power_cycle = 0;
+>+			goto powercyclefailed;
+>+                }
+> 	}
+> 
+>  out:
+>@@ -418,6 +441,110 @@ static void ipmi_poweroff_function (void
+> 	ipmi_user_set_run_to_completion(ipmi_user, 0);
+> }
+> 
+>+/* procfs global memory */
+>+static struct proc_dir_entry *proc_ipo_root = NULL;
+>+static struct proc_dir_entry *proc_ipo_dir = NULL;
+>+static char ipo_dirname[4];
+>+
+>+/* displays properties to proc */
+>+static int proc_read_do_power_cycle(char *page, char **start,
+>+			off_t off, int count,
+>+			int *eof, void *data)
+>+{
+>+	/* sanity check */
+>+	if (data != NULL) {
+>+		return sprintf(page, "do_power_cycle = '%s'\n",
+>+			(*((int *)data) != 0 ? "enabled" : "disabled"));
+>+	}
+>+
+>+	return -EINVAL;
+>+}
+>+
+>+/* process property writes from proc */
+>+static int proc_write_do_power_cycle(struct file *file,
+>+			const char *buffer,
+>+			unsigned long count,
+>+			void *data)
+>+{
+>+	int rv = count;
+>+	int newval = 0;
+>+
+>+	/* sanity check */
+>+	if ((buffer != NULL) && (data != NULL)) {
+>+		sscanf(buffer, "%d", &newval);
+>+		if (newval != 0) {
+>+			*((int *)data) = 1;
+>+			printk(KERN_INFO PFX "power cycle is now
+>enabled\n");
+>+		} else {
+>+			*((int *)data) = 0;
+>+			printk(KERN_INFO PFX "power cycle is now
+>disabled\n");
+>+		}
+>+	}
+>+
+>+	return rv;
+>+}
+>+
+>+/* removes proc entries */
+>+static void ipmi_po_remove_proc_entries(void)
+>+{
+>+	remove_proc_entry("poweroff", proc_ipo_dir);
+>+	if (ipo_dirname[0] != '\0') {
+>+		remove_proc_entry(ipo_dirname, proc_ipo_root);
+>+		ipo_dirname[0] = '\0';
+>+	}
+>+	remove_proc_entry("ipmi", NULL);
+>+}
+>+
+>+/* creates proc entries */
+>+static int ipmi_po_add_proc_entries(int if_num)
+>+{
+>+	struct proc_dir_entry *proc_ipo_pc = NULL;
+>+	int rv = -ENOMEM;
+>+
+>+	/* check for unreasonable value, besides buffer has room for
+>only 3 */
+>+	if ((if_num < 0) || (if_num > 255)) {
+>+		printk(KERN_ERR PFX "invalid interface num: %d\n",
+>if_num);
+>+		goto error1;
+>+	}
+>+	proc_ipo_root = proc_mkdir("ipmi", NULL);
+>+	if (!proc_ipo_root) {
+>+		printk(KERN_ERR PFX "failed to create ipmi proc dir\n");
+>+		goto error1;
+>+	}
+>+	proc_ipo_root->owner = THIS_MODULE;
+>+	ipo_dirname[0] = '\0';
+>+	sprintf(ipo_dirname, "%d", if_num);
+>+	if (ipo_dirname[0] == '\0') {
+>+		goto error2;
+>+	}
+>+	proc_ipo_dir = proc_mkdir(ipo_dirname, proc_ipo_root);
+>+	if (!proc_ipo_dir) {
+>+		printk(KERN_ERR PFX "failed to create ipmi/%d proc
+>dir\n", if_num);
+>+		goto error2;
+>+	}
+>+	proc_ipo_dir->owner = THIS_MODULE;
+>+	proc_ipo_pc = create_proc_entry("poweroff", 0, proc_ipo_dir);
+>+	if (!proc_ipo_pc) {
+>+		printk(KERN_ERR PFX "failed to create poweroff proc
+>entry\n");
+>+		goto error3;
+>+	}
+>+	proc_ipo_pc->owner = THIS_MODULE;
+>+	proc_ipo_pc->data = &do_power_cycle;
+>+	proc_ipo_pc->read_proc = proc_read_do_power_cycle;
+>+	proc_ipo_pc->write_proc = proc_write_do_power_cycle;
+>+
+>+	/* success only at this point */
+>+	return 0;
+>+
+>+ error3:
+>+	remove_proc_entry(ipo_dirname, proc_ipo_root);
+>+ error2:
+>+	ipo_dirname[0] = '\0';
+>+	remove_proc_entry("ipmi", NULL);
+>+ error1:
+>+	return rv;
+>+}
+>+
+> /* Wait for an IPMI interface to be installed, the first one installed
+>    will be grabbed by this code and used to perform the powerdown. */
+> static void ipmi_po_new_smi(int if_num)
+>@@ -430,6 +557,13 @@ static void ipmi_po_new_smi(int if_num)
+> 	if (ready)
+> 		return;
+> 
+>+	/* add procfs entries for setting properties */
+>+	rv = ipmi_po_add_proc_entries(if_num);
+>+	if (rv) {
+>+		printk(KERN_ERR PFX "failed to create procfs
+>entries\n");
+>+		return;
+>+	}
+>+
+> 	rv = ipmi_create_user(if_num, &ipmi_poweroff_handler, NULL,
+>&ipmi_user);
+> 	if (rv) {
+> 		printk(KERN_ERR PFX "could not create IPMI user, error
+>%d\n",
+>@@ -520,6 +654,10 @@ static int ipmi_poweroff_init (void)
+> 		" IPMI Powerdown via sys_reboot version "
+> 		IPMI_POWEROFF_VERSION ".\n");
+> 
+>+	if (do_power_cycle == 1) {
+>+		printk (KERN_INFO PFX "Power cycle is enabled.\n");
+>+	}
+>+
+> 	rv = ipmi_smi_watcher_register(&smi_watcher);
+> 	if (rv)
+> 		printk(KERN_ERR PFX "Unable to register SMI watcher:
+>%d\n", rv);
+>@@ -532,6 +670,7 @@ static __exit void ipmi_poweroff_cleanup
+> {
+> 	int rv;
+> 
+>+	ipmi_po_remove_proc_entries();
+> 	ipmi_smi_watcher_unregister(&smi_watcher);
+> 
+> 	if (ready) {
+>  
 >
-> If your box is still running, then no.  But it's now a chore to remove
-> the yield from this algorithm, since yields have a possibility to
-> deadlock the system.  Although in this particular case, it may not be a
-> problem, since the threads that are being waited on are created for
-> other CPUs.  But I haven't looked too much into what stop_machine is
-> doing so I can very well be wrong.
->
-> Thank you for reporting it, we want to weed out all the yields that a RT
-> task may call.
->
-
-Now, I'm sure my fears were reasonable. With RT-V0.7.44-02 SMP a can't
-even reach an usable system state. This weird BUG: kstopmachine:xxxx RT
-task yield()-ing! is flooding the init process to death.
-
-Completely. Hard-reset is the only viable solution to a fast scrolling
-console dump, which seems to be in a terrible, nasty and endless loop.
-
-I'm not afraid anymore. RT-0.7.44-02 is useless on my P4 SMP/HT desktop
-machine. ;)
-
-Bye.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
-------=_20050408162239_91098
-Content-Type: application/x-gzip;
-      name="config-2.6.12-rc2-RT-V0.7.44-02.0smp.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-      filename="config-2.6.12-rc2-RT-V0.7.44-02.0smp.gz"
-
-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
-------=_20050408162239_91098--
-
 

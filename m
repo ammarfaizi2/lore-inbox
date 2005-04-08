@@ -1,157 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVDHCqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVDHDAl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262654AbVDHCqC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 22:46:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbVDHCqC
+	id S262657AbVDHDAl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 23:00:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVDHDAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 22:46:02 -0400
-Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:39826 "EHLO
-	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262654AbVDHCpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 22:45:40 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck@vds.kolivas.org
-Subject: 2.6.11-ck4
-Date: Fri, 8 Apr 2005 12:45:46 +1000
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1232059.0KEPQvUf3f";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504081245.48577.kernel@kolivas.org>
+	Thu, 7 Apr 2005 23:00:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32170 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262657AbVDHDAZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 23:00:25 -0400
+Date: Thu, 7 Apr 2005 20:00:13 -0700
+Message-Id: <200504080300.j3830DkA016351@magilla.sf.frob.com>
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] i386: Use loaddebug macro consistently
+X-Shopping-List: (1) Iniquitous consolation
+   (2) Amorphous docks
+   (3) Dark soil
+   (4) Cavernous artery prescriptions
+   (5) Turbulent suspenders
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1232059.0KEPQvUf3f
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+This moves the macro loaddebug from asm-i386/suspend.h to asm-i386/processor.h,
+which is the place that makes sense for it to be defined, removes the
+extra copy of the same macro in arch/i386/kernel/process.c, and makes
+arch/i386/kernel/signal.c use the macro in place of its expansion.
 
-These are patches designed to improve system responsiveness. It is=20
-configurable to any workload but the default ck* patch is aimed at the=20
-desktop and ck*-server is available with more emphasis on serverspace.
-
-Apply to 2.6.11:
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck4/patch-2.6.11-ck4.bz2
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck4/patch-2.6.11-ck4-server=
-=2Ebz2
-
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
+This is a purely cosmetic cleanup for the normal i386 kernel.  
+However, it is handy for Xen to be able to just redefine the loaddebug
+macro once instead of also changing the signal.c code.
 
 
-Changes since 2.6.11-ck2 (last public announcement):
+Thanks,
+Roland
 
-Changed:
-~schediso2.12.diff
-Small policy fix to ensure real time tasks without privileges get dropped t=
-o=20
-SCHED_ISO
+Signed-off-by: Roland McGrath <roland@redhat.com>
 
-
-Added:
-+cfq-ts21-fix1.diff
-+cfq-ts21-fix2.diff
-Two small cfq bugfixes
-
-+s10.6_s10.7.diff
-Micro-optimisations for staircase cpu scheduler
-
-+patch-2.6.11.7
-Latest stable version
-
-+2611ck4-version.diff
-Version
-
-
-Removed:
-=2Dnvidia_6111-6629_compat2.diff
-Nvidia compatibility no longer required with new nvidia driver
-
-=2Dpatch-2.6.11.1
-=2Dpatch-2.6.11.2
-=2D2611ck2-version.diff
-obvious
-
-
-=46ull patchlist:
- 2.6.11_to_staircase10.5.diff
- s10.5_s10.6.diff
- s10.6_s10.7.diff
-Latest version of the staircase O(1) single priority array=20
-foreground-background cpu scheduler
-
- schedrange.diff
-Eases addition of scheduling policies
-
- schedbatch2.7.diff
-Idle cpu scheduling
-
- schediso2.12.diff
-Unprivileged low latency cpu scheduling
-
- mapped_watermark3.diff
-Lighter memory scanning under light loads and far less swapping
-
- 1g_lowmem1_i386.diff
-Support 1GB of memory without enabling HIGHMEM
-
- cddvd-cmdfilter-drop.patch
-Support normal user burning of cds
-
- cfq-ts-21.diff
- cfq-ts21-fix.diff
- cfq-ts21-fix1.diff
- cfq-ts21-fix2.diff
-Complete fair queueing timeslice i/o scheduler v21
-
- defaultcfq.diff
-Enable the cfq I/O scheduler by default (-ck)
-
-default_deadline.diff=20
-Enable the deadline I/O scheduler by default (-server)
-
- isobatch_ionice2.diff
-Support for i/o priorities suitable for SCHED_ISO and SCHED_BATCH tasks
-
- rt_ionice.diff
-Support for i/o priority suitable for real time tasks
-
- patch-2.6.11.7
-The latest stable tree.
-
- 2611ck4-version.diff
-Version
-
-and available separately in the patches/ dir as an addon:
- supermount-ng208-2611.diff
-Simplest way to automount removable media
-
-
-And don't forget to pour one of these before booting this kernel:
-http://ck.kolivas.org/patches/2.6/2.6.11/cognac.JPG
-
-
-Cheers,
-Con
-=20
-
---nextPart1232059.0KEPQvUf3f
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCVfBcZUg7+tp6mRURAvJSAJ9HeeaW9y5hbtzF16aeASMjM5piIgCfaTZY
-PEXBy1VnG7iHRQ1wlTfXsCo=
-=1QJ/
------END PGP SIGNATURE-----
-
---nextPart1232059.0KEPQvUf3f--
+--- linux-2.6/arch/i386/kernel/signal.c
++++ linux-2.6/arch/i386/kernel/signal.c
+@@ -618,7 +618,7 @@ int fastcall do_signal(struct pt_regs *r
+ 		 * inside the kernel.
+ 		 */
+ 		if (unlikely(current->thread.debugreg[7])) {
+-			__asm__("movl %0,%%db7"	: : "r" (current->thread.debugreg[7]));
++			loaddebug(&current->thread, 7);
+ 		}
+ 
+ 		/* Whee!  Actually deliver the signal.  */
+--- linux-2.6/arch/i386/kernel/process.c
++++ linux-2.6/arch/i386/kernel/process.c
+@@ -548,13 +548,6 @@ handle_io_bitmap(struct thread_struct *n
+ 	 */
+ 	tss->io_bitmap_base = INVALID_IO_BITMAP_OFFSET_LAZY;
+ }
+-/*
+- * This special macro can be used to load a debugging register
+- */
+-#define loaddebug(thread,register) \
+-		__asm__("movl %0,%%db" #register  \
+-			: /* no output */ \
+-			:"r" (thread->debugreg[register]))
+ 
+ /*
+  *	switch_to(x,yn) should switch tasks from x to y.
+--- linux-2.6/include/asm-i386/processor.h
++++ linux-2.6/include/asm-i386/processor.h
+@@ -499,6 +499,14 @@ static inline void load_esp0(struct tss_
+ 	regs->esp = new_esp;					\
+ } while (0)
+ 
++/*
++ * This special macro can be used to load a debugging register
++ */
++#define loaddebug(thread,register) \
++               __asm__("movl %0,%%db" #register  \
++                       : /* no output */ \
++                       :"r" ((thread)->debugreg[register]))
++
+ /* Forward declaration, a strange C thing */
+ struct task_struct;
+ struct mm_struct;
+--- linux-2.6/include/asm-i386/suspend.h
++++ linux-2.6/include/asm-i386/suspend.h
+@@ -36,11 +36,6 @@ struct saved_context {
+ 	unsigned long return_address;
+ } __attribute__((packed));
+ 
+-#define loaddebug(thread,register) \
+-               __asm__("movl %0,%%db" #register  \
+-                       : /* no output */ \
+-                       :"r" ((thread)->debugreg[register]))
+-
+ #ifdef CONFIG_ACPI_SLEEP
+ extern unsigned long saved_eip;
+ extern unsigned long saved_esp;

@@ -1,74 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262811AbVDHNBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVDHNCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262811AbVDHNBg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 09:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVDHNBf
+	id S262806AbVDHNCg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 09:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262809AbVDHNCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 09:01:35 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:64417 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262808AbVDHNAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 09:00:37 -0400
-Date: Fri, 8 Apr 2005 15:00:31 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: stack checking (was: Re: RFC: turn kmalloc+memset(,0,) into kcalloc)
-Message-ID: <20050408130031.GB2292@wohnheim.fh-wedel.de>
-References: <4252BC37.8030306@grupopie.com> <20050407214747.GD4325@stusta.de> <42567B3E.8010403@grupopie.com>
+	Fri, 8 Apr 2005 09:02:01 -0400
+Received: from smtp.seznam.cz ([212.80.76.43]:21912 "HELO smtp.seznam.cz")
+	by vger.kernel.org with SMTP id S262806AbVDHNAU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 09:00:20 -0400
+Date: Fri, 8 Apr 2005 15:00:21 +0200
+To: Greg KH <greg@kroah.com>
+Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <sensors@Stimpy.netroedge.com>,
+       James Chapman <jchapman@katalix.com>
+Subject: Re: [PATCH] ds1337 1/4
+Message-ID: <20050408130021.GA7054@orphique>
+References: <20050407111631.GA21190@orphique> <hOrXV5wl.1112879260.3338120.khali@localhost> <20050407142804.GA11284@orphique> <20050407211839.GA5357@kroah.com> <20050407231758.GB27226@orphique> <20050407233628.GA6703@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42567B3E.8010403@grupopie.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050407233628.GA6703@kroah.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Ladislav Michl <ladis@linux-mips.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 April 2005 13:38:22 +0100, Paulo Marques wrote:
-> Adrian Bunk wrote:
-> 
-> >E.g. read my "Stack usage tasks" email. The benefits would only be 
-> >present for people using GNU gcc 3.4 or SuSE gcc 3.3 on i386, but this 
-> >is a reasonable subset of the kernel users - and it brings them a
-> >2% kernel size improvement.
-> 
-> I've read that thread, but it seems that it is at a dead end right now, 
-> since we don't have a good tool to find out which functions are abusing 
-> the stack with unit-at-a-time.
-> 
-> Is there some way to even limit the search, like using a stack usage log 
-> from a compilation without unit-at-a-time, and going over the hotspots 
-> to check for problems?
-> 
-> If we can get a list, even if it contains a lot of false positives, I 
-> would more than happy to help out...
+On Thu, Apr 07, 2005 at 04:36:29PM -0700, Greg KH wrote:
+> Oops, you forgot to add a Signed-off-by: line for every patch, as per
+> Documentation/SubmittingPatches.  Care to redo them?
 
-The situation is bad, but not that bad.
+Here it is (I'm sorry about that).
 
-As a starter, you can compile the kernel with gcc 3.4 and run "make
-checkstack" on it.  No call graph information in there, but getting
-all functions on the list below 2k would help.
+Use i2c_transfer to send message, so we get proper bus locking.
 
-Next step would be a small hack to my private tool to read stack
-consumption from gcc 3.4 and call graph from gcc 3.1.  Obviously you
-get tons of "these five functions in the call graph are actually a
-single one in the real binary".  Quick and dirty.
+Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
 
-Then someone (doesn't have to be me) should spend some time to port
-the callgraph extraction code from 3.1 to 3.4 or 4.0.  Before the
-unit-at-a-time thing came up, I wanted to port things to sparse.  But
-sparse would suffer from the same problem of not inlining functions
-identically to the real compiler, so current gcc appears to be a
-better target.
-
-Step 1 is possible right now, step 2 might take a while (i'm on
-vacation) and step 3 may not happen this year anymore, unless someone
-else wants to start hacking on it.
-
-Jörn
-
--- 
-Courage is not the absence of fear, but rather the judgement that
-something else is more important than fear.
--- Ambrose Redmoon
+===== drivers/i2c/chips/ds1337.c 1.1 vs edited =====
+--- 1.1/drivers/i2c/chips/ds1337.c	2005-03-31 22:58:08 +02:00
++++ edited/drivers/i2c/chips/ds1337.c	2005-04-08 00:18:45 +02:00
+@@ -3,7 +3,7 @@
+  *
+  *  Copyright (C) 2005 James Chapman <jchapman@katalix.com>
+  *
+- *	based on linux/drivers/acron/char/pcf8583.c
++ *	based on linux/drivers/acorn/char/pcf8583.c
+  *  Copyright (C) 2000 Russell King
+  *
+  * This program is free software; you can redistribute it and/or modify
+@@ -119,8 +119,7 @@
+ 	msg[1].len = sizeof(buf);
+ 	msg[1].buf = &buf[0];
+ 
+-	result = client->adapter->algo->master_xfer(client->adapter,
+-						    &msg[0], 2);
++	result = i2c_transfer(client->adapter, msg, 2);
+ 
+ 	dev_dbg(&client->adapter->dev,
+ 		"%s: [%d] %02x %02x %02x %02x %02x %02x %02x\n",
+@@ -194,8 +193,7 @@
+ 	msg[0].len = sizeof(buf);
+ 	msg[0].buf = &buf[0];
+ 
+-	result = client->adapter->algo->master_xfer(client->adapter,
+-						    &msg[0], 1);
++	result = i2c_transfer(client->adapter, msg, 1);
+ 	if (result < 0) {
+ 		dev_err(&client->adapter->dev, "ds1337[%d]: error "
+ 			"writing data! %d\n", data->id, result);

@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262870AbVDHQbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262871AbVDHQdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262870AbVDHQbh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 12:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262871AbVDHQbh
+	id S262871AbVDHQdc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 12:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbVDHQdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 12:31:37 -0400
-Received: from s14.s14avahost.net ([66.98.146.55]:1453 "EHLO
-	s14.s14avahost.net") by vger.kernel.org with ESMTP id S262870AbVDHQbb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 12:31:31 -0400
-Message-ID: <4256B1D2.5080502@katalix.com>
-Date: Fri, 08 Apr 2005 17:31:14 +0100
-From: James Chapman <jchapman@katalix.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Ladislav Michl <ladis@linux-mips.org>
-CC: Greg KH <greg@kroah.com>, Jean Delvare <khali@linux-fr.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>
-Subject: Re: [PATCH] ds1337 1/4
-References: <20050407111631.GA21190@orphique> <hOrXV5wl.1112879260.3338120.khali@localhost> <20050407142804.GA11284@orphique> <20050407211839.GA5357@kroah.com> <20050407231758.GB27226@orphique> <20050407233628.GA6703@kroah.com> <20050408130021.GA7054@orphique>
-In-Reply-To: <20050408130021.GA7054@orphique>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 8 Apr 2005 12:33:32 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:23089 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262871AbVDHQdR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 12:33:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=V8LcH3n0pHZ7TdpMFT2K8JsBSIi4nzGmV/OOUPj0b6A60WOUPIQRPk5kvCBj7sDAwt+ifFWCH0sd4p+bvHU9ciWHByIrkkcYrr4/SRc1vH+789Fw5zxYEEdf9D2KlFi4lLbYYH5nQfottImqmJI51RLb9c7EpRBQSNxjMxfHJjs=
+Message-ID: <ecb4efd1050408093378a376d4@mail.gmail.com>
+Date: Fri, 8 Apr 2005 12:33:15 -0400
+From: Clem Taylor <clem.taylor@gmail.com>
+Reply-To: Clem Taylor <clem.taylor@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: re: x86-64 bad pmds in 2.6.11.6
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-PopBeforeSMTPSenders: jchapman@katalix.com
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - s14.s14avahost.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - katalix.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry for joining this thread late.
+Dave Jones reported seeing bad pmd messages in 2.6.11.6. I've been
+seeing them with 2.6.11 and today with 2.6.11.6. When I first saw the
+problem I ran memtest86 and it didn't catch anything after ~3hours.
+However, I don't see them when X starts. They tend to happen after a
+program segfaults:
 
-Patches 1-3 are fine with me.
+2.6.11:
+Apr  3 23:23:33 klaatu kernel: sh[16361]: segfault at 0000000000000000
+rip 0000000000000000 rsp 00007ffffffff020 error 14
+Apr  3 23:23:33 klaatu kernel: mm/memory.c:97: bad pmd
+ffff810027171010(00000000006b68b9).
+.. many more ...
 
-/james
+2.6.11.6:
+Apr  8 12:03:17 klaatu kernel: grep[20971]: segfault at
+0000000000000000 rip 0000000000000000 rsp 00007ffffffff090 error 14
+Apr  8 12:03:17 klaatu kernel: mm/memory.c:97: bad pmd
+ffff810095929010(0000000000000015).
+.... many more ...
+Apr  8 12:03:18 klaatu kernel: mm/memory.c:97: bad pmd
+ffff8100959299d0(000034365f363878).
+Apr  8 12:03:18 klaatu kernel: grep[21116]: segfault at
+0000000000000000 rip 0000000000000000 rsp 00007ffffffff0a0 error 14
+Apr  8 12:03:18 klaatu kernel: mm/memory.c:97: bad pmd
+ffff810095f5b000(000000000000000f).
+...
 
-Ladislav Michl wrote:
+At the time I was doing a
+find ... -exec grep -H ...
+over a linux kernel tree.
 
-> On Thu, Apr 07, 2005 at 04:36:29PM -0700, Greg KH wrote:
-> 
->>Oops, you forgot to add a Signed-off-by: line for every patch, as per
->>Documentation/SubmittingPatches.  Care to redo them?
-> 
-> 
-> Here it is (I'm sorry about that).
-> 
-> Use i2c_transfer to send message, so we get proper bus locking.
-> 
-> Signed-off-by: Ladislav Michl <ladis@linux-mips.org>
-> 
+I repeated the find and I didn't see segfaults the second run.
+
+                                --Clem

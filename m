@@ -1,89 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262907AbVDHSJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbVDHSK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbVDHSJW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 14:09:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbVDHSJW
+	id S262908AbVDHSK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 14:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbVDHSK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 14:09:22 -0400
-Received: from vsmtp4.tin.it ([212.216.176.224]:29650 "EHLO vsmtp4.tin.it")
-	by vger.kernel.org with ESMTP id S262907AbVDHSJJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 14:09:09 -0400
-Message-ID: <4256C89C.4090207@tin.it>
-Date: Fri, 08 Apr 2005 13:08:28 -0500
-From: "Franco \"Sensei\"" <senseiwa@tin.it>
-Reply-To: Sensei <senseiwa@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [INFO] Kernel strict versioning
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig4290C8904D482068719B7792"
+	Fri, 8 Apr 2005 14:10:28 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:33789 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262911AbVDHSKF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 14:10:05 -0400
+Subject: Re: ext3 allocate-with-reservation latencies
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+Content-Type: text/plain
+Organization: IBM LTC
+Date: Fri, 08 Apr 2005 11:10:01 -0700
+Message-Id: <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4290C8904D482068719B7792
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2005-04-08 at 15:40 +0100, Stephen C. Tweedie wrote:
+> Hi,
+> 
+> On Fri, 2005-04-08 at 00:37, Mingming Cao wrote:
+> 
+> > Actually, we do not have to do an rbtree link and unlink for every
+> > window we search.  If the reserved window(old) has no free bit and the
+> > new reservable window's is right after the old one, no need to unlink
+> > the old window from the rbtree and then link the new window, just update
+> > the start and end of the old one.
+> 
+> It still needs to be done under locking to prevent us from expanding
+> over the next window, though.  And having to take and drop a spinlock a
+> dozen times or more just to find out that there are no usable free
+> blocks in the current block group is still expensive, even if we're not
+> actually fully unlinking the window each time.
+> 
 
-Hi. I'm new in the list... please excuse me, I'm probably naive.
+Isn't this a rare case? The whole group is relatively full and the free
+bits are all reserved by other files.  Probably we should avoid trying
+to make reservation in this block group at the first place, if we could
+find a way to detect the number of _usable_ free bits are less than the
+requested window size. 
 
-I'm using linux from 1997, and now I'm wondering why the kernel 
-versioning system has been so strict. I've been following the thread 
-``RFD: Kernel release numbering'', but still I have some concerns...
 
-Earlier versions used the odd/even numbering, unstable/stable 
-versioning. That was quite good from a user's point of view, since it 
-carried significant meaning immediately.
+> I wonder if this can possibly be done safely without locking?  It would
+> be really good if we could rotate windows forward with no global locks. 
+> At the very least, a fair rwlock would let us freeze the total layout of
+> the tree, while still letting us modify individual windows safely.  As
+> long as we use wmb() to make sure that we always extend the end of the
+> window before we shrink the start of it, I think we could get away with
+> such shared locking.  And rw locking is much better for concurrency, so
+> we might be able to hold it over the whole bitmap search rather than
+> taking it and dropping it at each window advance.
+> 
 
-The fact that we face a multilevel versioning number, say 
-2.6.11-14.4.whatever-2 is quite a pain. I'm saying not that it's a bad 
-idea that a product has more versions, my product follow the even/odd 
-and subversion numbering. I'm saying that the scripts used in the kernel 
-building should be quite smarter.
+You are proposing that we hold the read lock first, do the window search
+and bitmap scan, then once we confirm there is free bit in the candidate
+window, we grab the write lock and update the tree?  
 
-Actually changing a kernel results in creating a /lib/modules/version 
-directory, creating a heavy confusion for a user, especially when 
-compiling other modules outside the official kernel release: he juts 
-looses the modules and has to recompile them.
+I think this is a good idea to address case you have concerned: when we
+need to do lots of window search before settle down. Also if later we
+decide (I think we have discussed this before) to always try to reserve
+the window with at least 8 contigous free blocks, the search will be
+more expensive and the read lock will help.
 
-I was wondering about the feasibility of handling just a MAJOR.MINOR 
-versioning. This would be quite an increment for a user to mantain his 
-kernel. Modules can still be loaded and found. We would have a single 
-/lib/modules/2.6 being much compatible with other modules, working with 
-2.6.x and 2.6.y without any difficulty. Also the source tree from a 
-user's point of view is much cleaner, identifying the ongoing kernel 
-much easily.
+However I am still worried that the rw lock will allow concurrent files
+trying to lock the same window at the same time. Only one succeed
+though., high cpu usage then.  And also, in the normal case the
+filesystem is not really full, probably rw lock becomes expensive.
 
-I'm not talking about the developing process, which still uses 2.6.x, 
-and it's good as it identifies the current subversion, but there's no 
-use in collecting so many other kernels when considering them ``stable''.
 
-I'm just wondering...
 
--- 
-Sensei <mailto:senseiwa@tin.it> <pgp:8998A2DB>
-        <icqnum:241572242>
-        <yahoo!:sensei_sen>
-        <msn-id:sensei_sen@hotmail.com>
-
---------------enig4290C8904D482068719B7792
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCVsif4LBKhYmYotsRAko/AJwK2BMMVU31FXcrECSduK+iUxb0NACdFNa7
-R7xdiWv1viOyAN2ohroS6Nw=
-=Au8X
------END PGP SIGNATURE-----
-
---------------enig4290C8904D482068719B7792--

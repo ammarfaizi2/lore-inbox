@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262911AbVDHSNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262915AbVDHSRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262911AbVDHSNd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 14:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262913AbVDHSNc
+	id S262915AbVDHSRH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 14:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVDHSQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 14:13:32 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60078 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262911AbVDHSMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 14:12:51 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: Lee Revell <rlrevell@joe-job.com>
-To: cmm@us.ibm.com
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Fri, 08 Apr 2005 14:12:49 -0400
-Message-Id: <1112983970.10565.0.camel@mindpipe>
+	Fri, 8 Apr 2005 14:16:54 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:47621 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262913AbVDHSNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 14:13:43 -0400
+Date: Fri, 8 Apr 2005 20:13:40 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Mickael Marchand <marchand@kde.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       jfv@bluesong.net
+Subject: [-mm patch] x86_64: kill obsolete check_nmi_watchdog prototype
+Message-ID: <20050408181340.GC15688@stusta.de>
+References: <20050405000524.592fc125.akpm@osdl.org> <4254DDCB.2070704@kde.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4254DDCB.2070704@kde.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-08 at 11:10 -0700, Mingming Cao wrote:
-> However I am still worried that the rw lock will allow concurrent files
-> trying to lock the same window at the same time. Only one succeed
-> though., high cpu usage then.  And also, in the normal case the
-> filesystem is not really full, probably rw lock becomes expensive.
+On Thu, Apr 07, 2005 at 09:14:19AM +0200, Mickael Marchand wrote:
+>...
+> -> compiling 2.6.12-rc2-mm1 on amd64 :
+> 
+> arch/x86_64/kernel/nmi.c:116: error: static declaration of
+> 'check_nmi_watchdog' follows non-static declaration
+> include/asm/apic.h:102: error: previous declaration of
+> 'check_nmi_watchdog' was here
 
-FWIW this was a 125GB filesystem, about 70% full.
+Is this with gcc 4.0?
 
-Lee
+> I guess the fix is easy enough :)
+>...
+
+Yup, fix below.
+
+> Cheers,
+> Mik
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+This patch kills an obsolete check_nmi_watchdog prototype 
+(check_nmi_watchdog is now static) found by
+Mickael Marchand <marchand@kde.org>.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.12-rc2-mm1-full/include/asm-x86_64/apic.h.old	2005-04-08 20:12:01.000000000 +0200
++++ linux-2.6.12-rc2-mm1-full/include/asm-x86_64/apic.h	2005-04-08 20:12:11.000000000 +0200
+@@ -99,7 +99,6 @@
+ extern void enable_APIC_timer(void);
+ extern void clustered_apic_check(void);
+ 
+-extern int check_nmi_watchdog(void);
+ extern void nmi_watchdog_default(void);
+ extern int setup_nmi_watchdog(char *);
+ 
 

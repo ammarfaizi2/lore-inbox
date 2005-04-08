@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262935AbVDHTaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262934AbVDHTiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262935AbVDHTaW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 15:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbVDHTaW
+	id S262934AbVDHTiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 15:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262937AbVDHTiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 15:30:22 -0400
-Received: from fire.osdl.org ([65.172.181.4]:13959 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262935AbVDHTaS (ORCPT
+	Fri, 8 Apr 2005 15:38:16 -0400
+Received: from mail.enyo.de ([212.9.189.167]:30906 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S262934AbVDHTiN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 15:30:18 -0400
-Date: Fri, 8 Apr 2005 12:32:10 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthias-Christian Ott <matthias.christian@tiscali.de>
-cc: Andrea Arcangeli <andrea@suse.de>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 8 Apr 2005 15:38:13 -0400
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Kernel SCM saga..
-In-Reply-To: <4256D87C.5090207@tiscali.de>
-Message-ID: <Pine.LNX.4.58.0504081231130.28951@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
- <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
- <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
- <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
- <4256BE7D.5040308@tiscali.de> <Pine.LNX.4.58.0504081047200.28951@ppc970.osdl.org>
- <4256D87C.5090207@tiscali.de>
+References: <20050408041341.GA8720@taniwha.stupidest.org>
+	<Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
+	<20050408071428.GB3957@opteron.random>
+	<Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
+	<4256AE0D.201@tiscali.de>
+	<Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
+	<20050408171518.GA4201@taniwha.stupidest.org>
+	<Pine.LNX.4.58.0504081037310.28951@ppc970.osdl.org>
+	<20050408180540.GA4522@taniwha.stupidest.org>
+	<Pine.LNX.4.58.0504081149010.28951@ppc970.osdl.org>
+	<20050408191638.GA5792@taniwha.stupidest.org>
+Date: Fri, 08 Apr 2005 21:38:09 +0200
+In-Reply-To: <20050408191638.GA5792@taniwha.stupidest.org> (Chris Wedgwood's
+	message of "Fri, 8 Apr 2005 12:16:38 -0700")
+Message-ID: <878y3t5aam.fsf@deneb.enyo.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Chris Wedgwood:
 
-
-On Fri, 8 Apr 2005, Matthias-Christian Ott wrote:
+>> It doesn't matter so much for the cached case, but it _does_ matter
+>> for the uncached one.
 >
-> But as mentioned you need to _open_ each file (It doesn't matter if it's 
-> cached (this speeds up only reading it) -- you need a _slow_ system call 
-> and _very slow_ hardware access anyway).
+> Doing the minimal stat cold-cache here is about 6s for local disk.
 
-Nope. System calls aren't slow. What crappy OS are you running?
-
-> I hope my idea/opinion is clear now.
-
-Numbers talk. I've got something that you can test ;)
-
-		Linus
+Does sorting by inode number make a difference?

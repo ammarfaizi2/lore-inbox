@@ -1,90 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262847AbVDHPRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262848AbVDHPSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262847AbVDHPRK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 11:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbVDHPRK
+	id S262848AbVDHPSL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 11:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbVDHPSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 11:17:10 -0400
-Received: from gw.exalead.com ([212.234.111.157]:37194 "EHLO exalead.com")
-	by vger.kernel.org with ESMTP id S262847AbVDHPRC (ORCPT
+	Fri, 8 Apr 2005 11:18:11 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:3285 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262848AbVDHPRr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 11:17:02 -0400
-Message-ID: <4256A06C.8020304@exalead.com>
-Date: Fri, 08 Apr 2005 17:17:00 +0200
-From: Xavier Roche <roche+kml2@exalead.com>
-Organization: Exalead
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: fr, en-us, en, ja
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Timestamp of file modified through mmap are not changed in 2.6
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 8 Apr 2005 11:17:47 -0400
+X-T2-Posting-ID: dB8bZLHXm6KAmbp1mi7F+A==
+Subject: Re: 2.6.12-rc2-mm2
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050408030835.4941cd98.akpm@osdl.org>
+References: <20050408030835.4941cd98.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 08 Apr 2005 17:17:41 +0200
+Message-Id: <1112973461.16451.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timestamp of file modified through mmap are not changed in 2.6 (even 
-after msync()). Observations on 2.4 and 2.6 kernels:
-- on 2.4, timestamps are altered a few seconds after the program exits.
-- on 2.6, timestamps are never altered.
+fre 2005-04-08 klockan 03:08 -0700 skrev Andrew Morton:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm2/
+> 
 
-Is this behaviour a normal behaviour ?
+I got this running ./runltp -x 2, can't recall this happening before. It
+bothers me a bit as it's a GFP_KERNEL allocation and there's lots of
+swap available. I don't think I've learned to fully decipher these
+oom-dumps fully yet (especially the active/inactive stat) but this looks
+fishy to me.
 
-Program example to reproduce the bug (you need to create a "test" file 
-in the current directory first):
+Run with /proc/sys/vm/swappiness=1
 
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
+After the killing /proc/meminfo reports lots of MemFree.
 
-int main(void) {
-   int fd = open("test", O_RDWR);
-   struct stat st;
-   char* file;
-   if (fd == -1) {
-     printf("error opening file\n");
-     return 1;
-   }
-   if (fstat(fd, &st) != 0) {
-     printf("error fstating file\n");
-     return 1;
-   }
+oom-killer: gfp_mask=0x80d2
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+cpu 1 hot: low 2, high 6, batch 1
+cpu 1 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+cpu 1 hot: low 32, high 96, batch 16
+cpu 1 cold: low 0, high 32, batch 16
+HighMem per-cpu: empty
 
-   if (st.st_size == 0) {
-     printf("error empty file\n");
-     return 1;
-   }
+Free pages:        8220kB (0kB HighMem)
+Active:240716 inactive:2631 dirty:0 writeback:1162 unstable:0 free:2055 slab:5340 mapped:242023 pagetables:1441
+DMA free:4100kB min:60kB low:72kB high:88kB active:172kB inactive:7956kB present:16384kB pages_scanned:363 all_unreclaimable? no
+lowmem_reserve[]: 0 1007 1007
+Normal free:4120kB min:4028kB low:5032kB high:6040kB active:962692kB inactive:2568kB present:1032128kB pages_scanned:6421 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: 1*4kB 2*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4100kB
+Normal: 32*4kB 1*8kB 1*16kB 2*32kB 1*64kB 0*128kB 1*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4120kB
+HighMem: empty
+Swap cache: add 921, delete 257, find 0/0, race 0+0
+Free swap  = 4880036kB
+Total swap = 4883720kB
+Out of Memory: Killed process 2327 (firefox-bin).
+oom-killer: gfp_mask=0xd0
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+cpu 1 hot: low 2, high 6, batch 1
+cpu 1 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+cpu 1 hot: low 32, high 96, batch 16
+cpu 1 cold: low 0, high 32, batch 16
+HighMem per-cpu: empty
 
-   printf("Modified date before change: %u\n", st.st_mtime);
+Free pages:        8112kB (0kB HighMem)
+Active:224482 inactive:19068 dirty:0 writeback:285 unstable:0 free:2028 slab:5089 mapped:243275 pagetables:1407
+DMA free:4088kB min:60kB low:72kB high:88kB active:6432kB inactive:1744kB present:16384kB pages_scanned:10438 all_unreclaimable? yes
+lowmem_reserve[]: 0 1007 1007
+Normal free:4024kB min:4028kB low:5032kB high:6040kB active:891496kB inactive:74528kB present:1032128kB pages_scanned:686 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: 0*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4088kB
+Normal: 6*4kB 4*8kB 0*16kB 4*32kB 2*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4024kB
+HighMem: empty
+Swap cache: add 2900, delete 2557, find 0/0, race 0+0
+Free swap  = 4872120kB
+Total swap = 4883720kB
+Out of Memory: Killed process 2305 (evolution).
+oom-killer: gfp_mask=0xd0
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+cpu 1 hot: low 2, high 6, batch 1
+cpu 1 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+cpu 1 hot: low 32, high 96, batch 16
+cpu 1 cold: low 0, high 32, batch 16
+HighMem per-cpu: empty
 
-   file = mmap(NULL, st.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+Free pages:        8096kB (0kB HighMem)
+Active:229514 inactive:14617 dirty:0 writeback:0 unstable:0 free:2024 slab:4233 mapped:244389 pagetables:1568
+DMA free:4088kB min:60kB low:72kB high:88kB active:8228kB inactive:0kB present:16384kB pages_scanned:9771 all_unreclaimable? yes
+lowmem_reserve[]: 0 1007 1007
+Normal free:4008kB min:4028kB low:5032kB high:6040kB active:909060kB inactive:59364kB present:1032128kB pages_scanned:1623064 all_unreclaimable? yes
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: 0*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4088kB
+Normal: 0*4kB 1*8kB 2*16kB 0*32kB 4*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4008kB
+HighMem: empty
+Swap cache: add 125467, delete 125298, find 70/196, race 0+0
+Free swap  = 4383340kB
+Total swap = 4883720kB
+Out of Memory: Killed process 2330 (gnome-pty-helpe).
+oom-killer: gfp_mask=0xd0
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+cpu 1 hot: low 2, high 6, batch 1
+cpu 1 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+cpu 1 hot: low 32, high 96, batch 16
+cpu 1 cold: low 0, high 32, batch 16
+HighMem per-cpu: empty
 
-   if (file == NULL) {
-     printf("error mmaping file");
-     return 1;
-   }
+Free pages:        8224kB (0kB HighMem)
+Active:88815 inactive:155432 dirty:0 writeback:244 unstable:0 free:2056 slab:4233 mapped:243992 pagetables:1561
+DMA free:4088kB min:60kB low:72kB high:88kB active:8100kB inactive:128kB present:16384kB pages_scanned:9805 all_unreclaimable? yes
+lowmem_reserve[]: 0 1007 1007
+Normal free:4072kB min:4028kB low:5032kB high:6040kB active:347160kB inactive:621600kB present:1032128kB pages_scanned:63219 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: 0*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4088kB
+Normal: 0*4kB 1*8kB 0*16kB 1*32kB 5*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4072kB
+HighMem: empty
+Swap cache: add 126311, delete 125768, find 70/198, race 0+0
+Free swap  = 4380112kB
+Total swap = 4883720kB
+Out of Memory: Killed process 2331 (bash).
+oom-killer: gfp_mask=0xd0
+DMA per-cpu:
+cpu 0 hot: low 2, high 6, batch 1
+cpu 0 cold: low 0, high 2, batch 1
+cpu 1 hot: low 2, high 6, batch 1
+cpu 1 cold: low 0, high 2, batch 1
+Normal per-cpu:
+cpu 0 hot: low 32, high 96, batch 16
+cpu 0 cold: low 0, high 32, batch 16
+cpu 1 hot: low 32, high 96, batch 16
+cpu 1 cold: low 0, high 32, batch 16
+HighMem per-cpu: empty
 
-   file[0] = file[0] + 1;
+Free pages:        8192kB (0kB HighMem)
+Active:200715 inactive:43662 dirty:0 writeback:0 unstable:0 free:2048 slab:4027 mapped:244172 pagetables:1818
+DMA free:4088kB min:60kB low:72kB high:88kB active:8228kB inactive:0kB present:16384kB pages_scanned:10298 all_unreclaimable? yes
+lowmem_reserve[]: 0 1007 1007
+Normal free:4040kB min:4028kB low:5032kB high:6040kB active:794632kB inactive:174648kB present:1032128kB pages_scanned:1236 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+HighMem free:0kB min:128kB low:160kB high:192kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0
+DMA: 0*4kB 1*8kB 1*16kB 1*32kB 1*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4088kB
+Normal: 0*4kB 5*8kB 2*16kB 0*32kB 4*64kB 1*128kB 0*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 4040kB
+HighMem: empty
+Swap cache: add 283299, delete 280461, find 1810/2841, race 0+1
+Free swap  = 3771728kB
+Total swap = 4883720kB
+Out of Memory: Killed process 2227 (XFree86).
 
-   if (msync((void*) file, st.st_size, MS_SYNC) != 0) {
-     printf("error syncing file");
-     return 1;
-   }
-
-   if (munmap(file, st.st_size) != 0) {
-     printf("error closing file");
-     return 1;
-   }
-
-   if (fstat(fd, &st) != 0) {
-     printf("error fstating file\n");
-     return 1;
-   }
-
-   printf("Modified date after change: %u\n", st.st_mtime);
-
-   return 0;
-}
 

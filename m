@@ -1,83 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbVDHGkB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVDHGn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262709AbVDHGkB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 02:40:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVDHGje
+	id S262708AbVDHGn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 02:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262706AbVDHGn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 02:39:34 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:53386 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262705AbVDHGjT (ORCPT
+	Fri, 8 Apr 2005 02:43:58 -0400
+Received: from dea.vocord.ru ([217.67.177.50]:62928 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S262705AbVDHGmS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 02:39:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=HlKid2d8EzOAK21IK1R2xIpTZHuFjzBmcK09jy9MMO5hAEhVQuNpEBQ6UxgWsoViUPfdBKl5AbIAGEHEpGrUE3Ea8ztpxt93fGYWgV2FEs1b+PvnXaklYBgZOXuxKqREtNNo76yUQmDsXVoA+ugPO1tNndJFZA6+5zI65X5DvB4=
-Message-ID: <54b5dbf505040723392f29b18c@mail.gmail.com>
-Date: Fri, 8 Apr 2005 12:09:19 +0530
-From: AsterixTheGaul <asterixthegaul@gmail.com>
-Reply-To: AsterixTheGaul <asterixthegaul@gmail.com>
-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-Subject: Re: Linux 2.6.12-rc2
-Cc: Moritz Muehlenhoff <jmm@inutil.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <54b5dbf5050407232810f7a20d@mail.gmail.com>
+	Fri, 8 Apr 2005 02:42:18 -0400
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: James Morris <jmorris@redhat.com>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, Ian Campbell <ijc@hellion.org.uk>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Xine.LNX.4.44.0504080152540.24105-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0504080152540.24105-100000@thoron.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nZRkz/jkxvDw8zFNpBOk"
+Organization: MIPT
+Date: Fri, 08 Apr 2005 10:48:44 +0400
+Message-Id: <1112942924.28858.234.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0504040945100.32180@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504041430070.2215@ppc970.osdl.org>
-	 <E1DJE6t-0001T5-UD@localhost.localdomain>
-	 <1112827342.9567.189.camel@gaston>
-	 <20050407175026.GA5872@informatik.uni-bremen.de>
-	 <29495f1d05040711544695ce89@mail.gmail.com>
-	 <54b5dbf5050407232810f7a20d@mail.gmail.com>
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 08 Apr 2005 10:41:51 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Err... never mind... I was not doing any radeon control. 
 
-On Apr 8, 2005 11:58 AM, AsterixTheGaul <asterixthegaul@gmail.com> wrote:
-> > FWIW, I have the same problem on a T41p with 2.6.11 and 2.6.12-rc2,
-> > except that neither returns from suspend-to-ram with video restored on
-> > the LCD. I believe I was able to get video restored on an external CRT
-> > in either 2.6.12-rc2 or 2.6.12-rc2-mm1, but the LCD still didn't
-> > restore (can verify later today, if you'd like). I had dumped out the
-> > radeontool regs values before & after the sleep, in case they help.
-> > They are attached.
-> 
-> Hmm... I have 2.6.12-rc2 on a T41 and "suspend to ram" works good (well
-> except for a backtrace complaining about __might_sleep but otherwise ok).
-> 
-> Apr  7 23:17:10 localhost kernel: Debug: sleeping function called from
-> invalid context at mm/slab.c:2090
-> Apr  7 23:17:10 localhost kernel: in_atomic():0, irqs_disabled():1
-> Apr  7 23:17:10 localhost kernel:  [<c011d9e3>] __might_sleep+0xa3/0xc0
-> Apr  7 23:17:10 localhost kernel:  [<c015beb0>] kmem_cache_alloc+0x50/0x60
-> Apr  7 23:17:10 localhost kernel:  [<c0269750>] acpi_pci_link_set+0x4a/0x1a2
-> Apr  7 23:17:10 localhost kernel:  [<c0269bc9>] irqrouter_resume+0x1c/0x24
-> Apr  7 23:17:10 localhost kernel:  [<c02b70f6>] sysdev_resume+0x66/0xc4
-> Apr  7 23:17:10 localhost kernel:  [<c02bbcc5>] device_power_up+0x5/0xa
-> Apr  7 23:17:10 localhost kernel:  [<c014a426>] suspend_enter+0x36/0x60
-> Apr  7 23:17:10 localhost kernel:  [<c014a3a3>] suspend_prepare+0x63/0xb0
-> Apr  7 23:17:10 localhost kernel:  [<c014a4ec>] enter_state+0x5c/0x70
-> Apr  7 23:17:10 localhost kernel:  [<c014a639>] state_store+0xa9/0xbc
-> Apr  7 23:17:10 localhost kernel:  [<c014a590>] state_store+0x0/0xbc
-> Apr  7 23:17:10 localhost kernel:  [<c01d27c6>] subsys_attr_store+0x36/0x50
-> Apr  7 23:17:10 localhost kernel:  [<c01d2a6e>] flush_write_buffer+0x2e/0x40
-> Apr  7 23:17:10 localhost kernel:  [<c01d2ace>] sysfs_write_file+0x4e/0x80
-> Apr  7 23:17:10 localhost kernel:  [<c017bdee>] vfs_write+0x12e/0x130
-> Apr  7 23:17:10 localhost kernel:  [<c017bea1>] sys_write+0x41/0x70
-> Apr  7 23:17:10 localhost kernel:  [<c01039ff>] sysenter_past_esp+0x54/0x75
-> 
-> 
-> >
-> > I posted these problems in the "Call for help S3" thread, but no one responded.
-> >
-> > Thanks,
-> > Nish
-> >
-> >
-> >
->
+--=-nZRkz/jkxvDw8zFNpBOk
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2005-04-08 at 01:55 -0400, James Morris wrote:
+> On Fri, 8 Apr 2005, Evgeniy Polyakov wrote:
+>=20
+> > > > Sure, but seems I need to ask again: What is the exact reason not t=
+o implement
+> > > > the muticast message multiplexing/subscription part of the connecto=
+r as a
+> > > > generic part of netlink? That would be nice to have and useful for =
+other
+> > > > subsystems too as an option to the current broadcast.
+> > >=20
+> > > This is a good point, in general, consider generically extending Netl=
+ink=20
+> > > itself instead of creating these separate things.
+> >=20
+>=20
+> > Connector requires it's own registration technique for
+> > 1. hide all transport [netlink] layer from higher protocols which use
+> > connector
+>=20
+> Why?
+
+User should not know about low-level transport -=20
+it is like socket layer -  write only data and do not care about
+how it will be delivered.
+
+> > 2. create different group appointment for the given connector's ID
+> > [it was different, now new group which is eqal to idx field is appointe=
+d
+> > to=20
+> > the new callback]
+>=20
+> I don't understand.
+
+In the previous versions netlink group was assigned as incremented
+counter,=20
+that was not convenient, but now we have 2-way ID, which is better
+from users point of view - idx is supposed to be major id, val -=20
+some subsystem of that set.
+
+> > 3. provide more generic set of ids
+>=20
+> What do you mean by "ids"?
+
+Each connector message requires pair of u32 ids - idx and val.
+Idx is generic system id [which is equal to the appropriate netlink
+group
+in current implementation], while val is id of some subsytem
+inside idx.
+
+Using only group without it's own connector's id will heavily
+complex callback register/unregister notification [Jamal's suggested
+feature]
+for example.
+
+>=20
+> - James
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-nZRkz/jkxvDw8zFNpBOk
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCVilMIKTPhE+8wY0RArKEAKCQEBVWtuYDPOPT/DjFXRphpo00eACfTtBo
+xgTGthRK5L8eJD/mIN1FLWQ=
+=+VfP
+-----END PGP SIGNATURE-----
+
+--=-nZRkz/jkxvDw8zFNpBOk--
+

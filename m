@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262816AbVDHOAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVDHOGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262816AbVDHOAm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 10:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVDHOAl
+	id S262820AbVDHOGn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 10:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVDHOGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 10:00:41 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:5202 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S262816AbVDHOAh (ORCPT
+	Fri, 8 Apr 2005 10:06:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:29376 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262820AbVDHOGk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 10:00:37 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11] aoe [7/12]: support configuration of
- AOE_PARTITIONS from Kconfig
-References: <20050317234641.GA7091@kroah.com> <1111677688.29912@geode.he.net>
-	<20050328170735.GA9567@infradead.org> <87hdiuv3lz.fsf@coraid.com>
-	<20050329162506.GA30401@infradead.org> <87wtrqtn2n.fsf@coraid.com>
-	<20050329165705.GA31013@infradead.org> <8764yywidw.fsf@coraid.com>
-	<20050407184917.GA3771@kroah.com> <87k6nev2jc.fsf@coraid.com>
-	<20050407230850.GB6305@kroah.com>
-From: Ed L Cashin <ecashin@coraid.com>
-Date: Fri, 08 Apr 2005 09:54:15 -0400
-In-Reply-To: <20050407230850.GB6305@kroah.com> (Greg KH's message of "Thu, 7
- Apr 2005 16:08:50 -0700")
-Message-ID: <87aco9pe60.fsf@coraid.com>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 8 Apr 2005 10:06:40 -0400
+Subject: Re: Problem in log_do_checkpoint()?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, jeffm@suse.com,
+       Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050404090414.GB20219@atrey.karlin.mff.cuni.cz>
+References: <20050404090414.GB20219@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1112969175.1975.96.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 08 Apr 2005 15:06:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+Hi,
 
-> On Thu, Apr 07, 2005 at 02:56:39PM -0400, Ed L Cashin wrote:
-...
->> Just aoe-AOE_PARTITIONS.patch, the seventh of the twelve, should be
->> dropped.
->
-> Ok, dropped.
->
->> Then later I'll send a batch of patches that will include a change to
->> make aoe disks non-partitionable by default.
->
-> That's fine.  Mind if I forward the other aoe patches in that directory
-> to Linus soon?
+On Mon, 2005-04-04 at 10:04, Jan Kara wrote:
 
-Go ahead.  I have a new batch of patches to send, but it looks like I
-might not get to it for a few days.
+>   In log_do_checkpoint() we go through the t_checkpoint_list of a
+> transaction and call __flush_buffer() on each buffer. Suppose there is
+> just one buffer on the list and it is dirty. __flush_buffer() sees it and
+> puts it to an array of buffers for flushing. Then the loop finishes,
+> retry=0, drop_count=0, batch_count=1. So __flush_batch() is called - we
+> drop all locks and sleep. While we are sleeping somebody else comes and
+> makes the buffer dirty again (OK, that is not probable, but I think it
+> could be possible). 
 
--- 
-  Ed L Cashin <ecashin@coraid.com>
+Yes, there's no reason why not at that point.
+
+> Now we wake up and call __cleanup_transaction().
+> It's not able to do anything and returns 0.
+
+I think the _right_ answer here is to have two separate checkpoint
+lists: the current one, plus one for which the checkpoint write has
+already been submitted.  That way, we can wait for IO completion on
+submitted writes without (a) getting conned into doing multiple rewrites
+if there's somebody else dirtying the buffer; or (b) getting confused
+about how much progress we're making.  Buffers on the pre-write list get
+written; buffers on the post-write list get waited for; and both count
+as progress (eliminating the false assert-failure when we failed to
+detect progress).
+
+The prevention of multiple writes in this case should also improve
+performance a little.
+
+That ought to be pretty straightforward, I think.  The existing cases
+where we remove buffers from a checkpoint shouldn't have to care about
+which list_head we're removing from; those cases already handle buffers
+in both states.  It's only when doing the flush/wait that we have to
+distinguish the two.
+
+Sounds good?
+
+--Stephen
 

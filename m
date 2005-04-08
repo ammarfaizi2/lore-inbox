@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262729AbVDHHpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVDHHsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbVDHHpv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 03:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbVDHHpu
+	id S262731AbVDHHsz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 03:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbVDHHsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 03:45:50 -0400
-Received: from smtp2.wanadoo.fr ([193.252.22.29]:23276 "EHLO smtp2.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S262729AbVDHHpm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:45:42 -0400
-X-ME-UUID: 20050408074540886.D85F51C002A9@mwinf0208.wanadoo.fr
-Date: Fri, 8 Apr 2005 09:41:35 +0200
-To: debian-legal@lists.debian.org
-Cc: linux-kernel@vger.kernel.org, linux-acenic@sunsite.dk
+	Fri, 8 Apr 2005 03:48:55 -0400
+Received: from smtp10.wanadoo.fr ([193.252.22.21]:49869 "EHLO
+	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S262731AbVDHHsx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 03:48:53 -0400
+X-ME-UUID: 20050408074851864.D2F722400143@mwinf1012.wanadoo.fr
+Date: Fri, 8 Apr 2005 09:44:47 +0200
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Humberto Massa <humberto.massa@almg.gov.br>, debian-legal@lists.debian.org,
+       debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
 Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050408074135.GA9057@pegasos>
-References: <20050407161658.S32136@links.magenta.com> <MDEHLPKNGKAHNMBLJOLKEEPFCPAB.davids@webmaster.com> <20050407235544.Y32136@links.magenta.com>
+Message-ID: <20050408074447.GB9057@pegasos>
+References: <lLj-vC.A.92G.w4pUCB@murphy> <4252A821.9030506@almg.gov.br> <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050407235544.Y32136@links.magenta.com>
+In-Reply-To: <Pine.LNX.4.61.0504051123100.16479@chaos.analogic.com>
 User-Agent: Mutt/1.5.6+20040907i
 From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 11:55:44PM -0400, Raul Miller wrote:
-> > > Also, "mere aggregation" is a term from the GPL.  You can read what
-> > > it says there yourself.  But basically it's there so that people make
-> > > a distinction between the program itself and other stuff that isn't
-> > > the program.
+On Tue, Apr 05, 2005 at 11:50:54AM -0400, Richard B. Johnson wrote:
+> On Tue, 5 Apr 2005, Humberto Massa wrote:
 > 
-> On Thu, Apr 07, 2005 at 04:20:50PM -0700, David Schwartz wrote:
-> >	It's also there because the GPL can only apply to either works
-> > placed under it by their authors and works that are legally classified
-> > as derivative. If you merely aggregate two works, there is no
-> > derivation. The GPL is making clear that it's not trying to exceed the
-> > scope of its authority (which is copyright law).
+> >Josselin Mouette wrote:
+> >
+> >>You are mixing apples and oranges. The fact that the GFDL sucks has
+> >>nothing to do with the firmware issue. With the current situation of
+> >>firmwares in the kernel, it is illegal to redistribute binary images of
+> >>the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may still
+> >>be willing to distribute such binary images, but it isn't our problem.
+> >>
 > 
-> The issue of whether or not the combined work is a derivative under
-> copyright law is a copyright law issue.  The GPL does concern itself
-> with that issue, but not in the "mere aggregation" clause.
-> 
-> The "mere aggregation" clause holds regardless of whether or not the
-> combined work is a derivative under copyright law.
-> 
-> [P.S. I've set the Reply-To: header on this message because I think this
-> thread has drifted away from kernel issues.]
+> Wrong! It is perfectly legal in the United States, and I'm pretty
+> sure in your country, to distribute or redistribute copyrighted
+> works. Otherwise there wouldn't be any bookstores or newspaper
+> stands.
 
-Thanks.
+Mmm, so you are claiming it is perfectly right to make copies of the windows
+installation CD, or for that matter to duplicate music CDs ? 
 
-BTW, have any of you read the analysis i made, where i claim, rooted in the
-GPL FAQ and with examples, why i believe that the firmware can be considerated
-a non derivative of the linux kernel. The main points is that the firmware is
-not aimed to run in the same address space, even not the same cpu, as the rest
-of the linux kernel, and that there is a clearly defined communication channel
-between the GPLed driver and the target processor running the firmware.
-
-I further argumented that taking any different stance would bring us worlds of
-hurt as we would consider the bios as being a derivative work of the kernel
-they are running, or the bootloader, or the firmware present in proms on
-devices loaded into the system and so on.
-
-I think only the fact that if you consider firmware as being a derivative
-work, you should consider it a derivative work also when it is flashed on the
-prom of a pci card or what not, is decisive enough to make those firmware
-blobs not derivative works of the kernel they are under.
+I would be rather interested in knowing how you came to that conclusion :)
 
 Friendly,
 

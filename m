@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262672AbVDHDiD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVDHDki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262672AbVDHDiD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Apr 2005 23:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbVDHDiC
+	id S262670AbVDHDki (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Apr 2005 23:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbVDHDki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Apr 2005 23:38:02 -0400
-Received: from web54107.mail.yahoo.com ([206.190.37.242]:3172 "HELO
-	web54107.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262669AbVDHDg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Apr 2005 23:36:58 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=VBi23UAPbq+Nnh/No04zbzO2d4m7t+fEHTVPEMY8m7IdW4nHekyf1g+w5xPR5qXEVS4h11gL8BMNqUdjZv+sm5XcIcRZRpVhsfBe9q606Z9zOj2Q+eY3KyilvR0bz0EZ6PqzUtmoW4zWNQBCAYL+PxHFD8dSW5OopBHl/eNesIk=  ;
-Message-ID: <20050408033658.51618.qmail@web54107.mail.yahoo.com>
-Date: Thu, 7 Apr 2005 20:36:58 -0700 (PDT)
-From: sai narasimhamurthy <sai_narasi@yahoo.com>
-Subject: Maximum data read/writes per SCSI Command
-To: linux-kernel@vger.kernel.org
+	Thu, 7 Apr 2005 23:40:38 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:48891 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262670AbVDHDkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Apr 2005 23:40:16 -0400
+Date: Fri, 8 Apr 2005 04:40:18 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: David Howells <dhowells@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/6] freepgt2: sys_mincore ignore FIRST_USER_PGD_NR
+In-Reply-To: <42554448.6080809@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0504080425370.26784@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0504070210430.24723@goblin.wat.veritas.com> 
+    <Pine.LNX.4.61.0504070204390.24723@goblin.wat.veritas.com> 
+    <19283.1112868864@redhat.com> <42554448.6080809@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
-I wanted to increase the number of sectors that could
-be requested/Written  per SCSI READ(10)/WRITE command
-, and varying MAX_SECTORS in blkdev.h helped me to do
-it. However I could not request more than 256 sectors
-and could not write more than 1632 inspite of changing
-MAX_SECTORS to higher numbers. 
-(request_bufflen stands still at 835584 for every
-command) 
+On Fri, 8 Apr 2005, Nick Piggin wrote:
+> David Howells wrote:
+> > Hugh Dickins <hugh@veritas.com> wrote:
+> > 
+> > > Remove use of FIRST_USER_PGD_NR from sys_mincore: it's inconsistent
+> > > (no
+> > > other syscall refers to it), unnecessary (sys_mincore loops over vmas
+> > > further down) and incorrect (misses user addresses in ARM's first
+> > > pgd).
+> > 
+> > You should make it use FIRST_USER_ADDRESS instead. This check allows NULL
+> > pointers and suchlike to be weeded out before having to take the
+> > semaphore.
+> 
+> I'm not sure whether it is worth keeping the singular special
+> case here to slightly speed up what would probably be a bug in
+> a userspace program.
 
+Well put - though you're more diffident about it than I would be!
 
-Why is that? There is probably some other variable
-that should be varied. Please let me know. 
-I am working on the UNH iSCSI initiator driver , and
-am on kernel 2.4.29 .  
+Furthermore, it only allows NULL pointers and suchlike to be weeded
+out on the ARM (and ARM26) architecture, no other.  I'm not averse
+to optimizing ARM and ARM26, but it's much too insignificant an
+optimization to warrant reference to such an architectural detail.
 
-Sai 
+And it breaks the (peculiar) sys_mincore convention of doing all the
+work while returning -ENOMEM, if there were any holes in the address
+range.  David's check stops it from doing any work in that case.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+FIRST_USER_ADDRESS should be used in the very few places
+it is necessary, and not spread around beyond them.
+
+Hugh

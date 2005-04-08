@@ -1,84 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVDHHCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVDHHGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262715AbVDHHCx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 03:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVDHHCx
+	id S262716AbVDHHGb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 03:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVDHHGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 03:02:53 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:49583 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S262715AbVDHHCc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 03:02:32 -0400
-From: Rolf Eike Beer <eike-hotplug@sf-tec.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] PCI Hotplug: remove code duplication in drivers/pci/hotplug/ibmphp_pci.c
-Date: Fri, 8 Apr 2005 09:02:21 +0200
-User-Agent: KMail/1.7.2
-References: <1112399271636@kroah.com> <200504021420.16772@bilbo.math.uni-mannheim.de> <20050408000745.GA7010@kroah.com>
-In-Reply-To: <20050408000745.GA7010@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+	Fri, 8 Apr 2005 03:06:30 -0400
+Received: from z-iris2a.zipa.com ([204.251.14.252]:19384 "HELO
+	z-iris2.zipa.com") by vger.kernel.org with SMTP id S262716AbVDHHF4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 03:05:56 -0400
+X-Iris-Host: 3274119041/[195.39.23.129]
+Message-ID: <42562D47.9080705@dawes.za.net>
+Date: Fri, 08 Apr 2005 09:05:43 +0200
+From: Rogan Dawes <rogan@dawes.za.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1746927.Wtk02xoCJZ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: "H. Peter Anvin" <hpa@zytor.com>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org> <20050408050458.GB8720@taniwha.stupidest.org> <d353vk$72m$1@terminus.zytor.com>
+In-Reply-To: <d353vk$72m$1@terminus.zytor.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200504080902.31933@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1746927.Wtk02xoCJZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+H. Peter Anvin wrote:
+> Followup to:  <20050408050458.GB8720@taniwha.stupidest.org>
+> By author:    Chris Wedgwood <cw@f00f.org>
+> In newsgroup: linux.dev.kernel
+> 
+>>On Thu, Apr 07, 2005 at 09:42:04PM -0700, Linus Torvalds wrote:
+>>
+>>
+>>>Yes. The silly thing is, at least in my local tests it doesn't
+>>>actually seem to be _doing_ anything while it's slow (there are no
+>>>system calls except for a few memory allocations and
+>>>de-allocations). It seems to have some exponential function on the
+>>>number of pathnames involved etc.
+>>
+>>I see lots of brk calls changing the heap size, up, down, up, down,
+>>over and over.
+>>
+>>This smells a bit like c++ new/delete behavior to me.
+>>
+> 
+> 
+> Hmmm... can glibc be clued in to do some hysteresis on the memory
+> allocation?
+> 
+> 	-hpa
 
-Greg KH wrote:
-> On Sat, Apr 02, 2005 at 02:20:11PM +0200, Rolf Eike Beer wrote:
-> > Greg KH wrote:
-> > > ChangeSet 1.2181.16.9, 2005/03/17 13:54:33-08:00,
-> > > eike-hotplug@sf-tec.de
-> > >
-> > > [PATCH] PCI Hotplug: remove code duplication in
-> > > drivers/pci/hotplug/ibmphp_pci.c
-> > >
-> > > This patch removes some code duplication where if and else have the
-> > > same code at the beginning and the end of the branch.
-> >
-> > Greg, as you correctly pointed out this patch if broken. It could never
-> > reach the if branch and always uses the else branch. Please drop this o=
-ne
-> > and review the patch I sent on March 21th to pcihp-discuss for inclusio=
-n.
-> > It removes much more duplication and handles this case correctly. Sorry,
-> > it looks like I forgot to CC you. I'll bounce this mail to you.
->
-> Hm, care to send me a patch that backs the old one out?  Or just one
-> that fixes it properly, I can't really revert the old patch, now that
-> I'm not using bitkeeper :)
+Take a look at 
+http://www.linuxshowcase.org/2001/full_papers/ezolt/ezolt_html/
 
-Yes, I'll prepare one at the weekend when I have access to my patches again=
-=2E=20
-Mail will be sent out on monday. I'll send you two patches: first one to fi=
-x=20
-it properly and then one that cleans up a bit more. The second one will do=
-=20
-the same things like the patch I forwarded you on April 2nd. It would be ni=
-ce=20
-if you could have a look on this patch in the mean time so you maybe can=20
-apply the second one immediately.
+Abstract
 
-Eike
+GNU libc's default setting for malloc can cause a significant 
+performance penalty for applications that use it extensively, such as 
+Compaq's high performance extended math library, CXML.  The default 
+malloc tuning can cause a significant number of minor page faults, and 
+result in application performance of only half of the true potential. 
+This paper describes how to remove the performance penalty using 
+environmental variables and the method used to discover the cause of the 
+malloc performance penalty.
 
---nextPart1746927.Wtk02xoCJZ
-Content-Type: application/pgp-signature
+Regards,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD4DBQBCViyHXKSJPmm5/E4RAuPHAJdIZ2jTEv8E/xYDfAIPglnz/JudAKCAPIfz
-AaOIouw/F+UkpP9Ao7r/0w==
-=HO/w
------END PGP SIGNATURE-----
-
---nextPart1746927.Wtk02xoCJZ--
+Rogan

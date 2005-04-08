@@ -1,82 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVDHEwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVDHEyE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVDHEwq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 00:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbVDHEwq
+	id S262653AbVDHEyE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 00:54:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbVDHEyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 00:52:46 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:35335 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261375AbVDHEwl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 00:52:41 -0400
-Subject: [patch 1/1] reiserfs: make resize option auto-get new device size
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade@yahoo.it,
-       reiserfs-dev@namesys.com, reiserfs-list@namesys.com,
-       mtk-manpages@gmx.net
-From: blaisorblade@yahoo.it
-Date: Fri, 08 Apr 2005 06:55:50 +0200
-Message-Id: <20050408045553.278CA11B7FE@zion>
+	Fri, 8 Apr 2005 00:54:04 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:37124 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262653AbVDHExy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 00:53:54 -0400
+Date: Fri, 8 Apr 2005 14:53:02 +1000
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: akpm@osdl.org, guillaume.thouvenin@bull.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+Message-ID: <20050408045302.GA32600@gondor.apana.org.au>
+References: <E1DJjiR-000850-00@gondolin.me.apana.org.au> <1112931238.28858.180.camel@uganda> <20050408033246.GA31344@gondor.apana.org.au> <1112932354.28858.192.camel@uganda> <20050408035052.GA31451@gondor.apana.org.au> <1112932969.28858.194.camel@uganda> <20050408040237.GA31761@gondor.apana.org.au> <1112934088.28858.199.camel@uganda> <20050408041724.GA32243@gondor.apana.org.au> <1112936127.28858.206.camel@uganda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112936127.28858.206.camel@uganda>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 08, 2005 at 08:55:27AM +0400, Evgeniy Polyakov wrote:
+>
+> > > Unfortunately not, that sync is required exactly for return value store.
+> > 
+> > On UP?
+> 
+> Yes, some quotes:
 
-Cc: <reiserfs-dev@namesys.com>, <reiserfs-list@namesys.com>, <mtk-manpages@gmx.net>
+Yes but what will go wrong on uni-processor MIPS when you don't do the
+sync in atomic_sub_return?
 
-It's trivial for the resize option to auto-get the underlying device size, while
-it's harder for the user. I've copied the code from jfs.
-
-Since of the different reiserfs option parser (which does not use the superior
-match_token used by almost every other filesystem), I've had to use the
-"resize=auto" and not "resize" option to specify this behaviour. Changing the
-option parser to the kernel one wouldn't be bad but I've no time to do this
-cleanup in this moment.
-
-Btw, the mount(8) man page should be updated to include this option. Cc the
-relevant people, please (I hope I cc'ed the right people).
-
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.11-paolo/fs/reiserfs/super.c |   21 ++++++++++++++-------
- 1 files changed, 14 insertions(+), 7 deletions(-)
-
-diff -puN fs/reiserfs/super.c~reiserfs-resize-option-like-jfs-auto-get fs/reiserfs/super.c
---- linux-2.6.11/fs/reiserfs/super.c~reiserfs-resize-option-like-jfs-auto-get	2005-04-07 20:37:58.000000000 +0200
-+++ linux-2.6.11-paolo/fs/reiserfs/super.c	2005-04-08 01:01:18.000000000 +0200
-@@ -889,12 +889,18 @@ static int reiserfs_parse_options (struc
- 	    char * p;
- 	    
- 	    p = NULL;
--	    /* "resize=NNN" */
--	    *blocks = simple_strtoul (arg, &p, 0);
--	    if (*p != '\0') {
--		/* NNN does not look like a number */
--		reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);
--		return 0;
-+	    /* "resize=NNN" or "resize=auto" */
-+
-+	    if (!strcmp(arg, "auto")) {
-+		    /* From JFS code, to auto-get the size.*/
-+		    *blocks = s->s_bdev->bd_inode->i_size >> s->s_blocksize_bits;
-+	    } else {
-+		    *blocks = simple_strtoul (arg, &p, 0);
-+		    if (*p != '\0') {
-+			/* NNN does not look like a number */
-+			reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);
-+			return 0;
-+		    }
- 	    }
- 	}
- 
-@@ -903,7 +909,8 @@ static int reiserfs_parse_options (struc
- 		unsigned long val = simple_strtoul (arg, &p, 0);
- 		/* commit=NNN (time in seconds) */
- 		if ( *p != '\0' || val >= (unsigned int)-1) {
--			reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);			return 0;
-+			reiserfs_warning (s, "reiserfs_parse_options: bad value %s", arg);
-+			return 0;
- 		}
- 		*commit_max_age = (unsigned int)val;
- 	}
-_
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

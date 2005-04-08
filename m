@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVDHXEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVDHXID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVDHXEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 19:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVDHXEJ
+	id S261188AbVDHXID (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 19:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDHXID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 19:04:09 -0400
-Received: from mail.dif.dk ([193.138.115.101]:25228 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261185AbVDHXEF (ORCPT
+	Fri, 8 Apr 2005 19:08:03 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:37013 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261188AbVDHXGb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 19:04:05 -0400
-Date: Sat, 9 Apr 2005 01:06:37 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Steve French <smfrench@austin.rr.com>, Steven French <sfrench@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] cifs: cleanup asn1.c - kfree
-In-Reply-To: <20050407220622.GE4325@stusta.de>
-Message-ID: <Pine.LNX.4.62.0504090105170.2455@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504042300520.2496@dragon.hyggekrogen.localhost>
- <20050407220622.GE4325@stusta.de>
+	Fri, 8 Apr 2005 19:06:31 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Priority Lists for the RT mutex
+Date: Fri, 8 Apr 2005 16:05:37 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02F64800@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Priority Lists for the RT mutex
+Thread-Index: AcU8jc9XWkIDlbn8TnaFPfBssZFsQgAAWaGA
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <dwalker@mvista.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       <sdietrich@mvista.com>, "Steven Rostedt" <rostedt@goodmis.org>,
+       "Esben Nielsen" <simlo@phys.au.dk>
+X-OriginalArrivalTime: 08 Apr 2005 23:05:39.0262 (UTC) FILETIME=[7B10DDE0:01C53C8F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Apr 2005, Adrian Bunk wrote:
+>From: Daniel Walker [mailto:dwalker@mvista.com]
+>
+>> Current tip of development has some issues with conditional variables
+>> and broadcasts (requeue stuff) that I need to sink my teeth in. Joe
+>> Korty is fixing up a lot of corner cases I wasn't catching, but
+>> other than that is doing fine.
+>
+>You try to get out, and they suck you right back in.
 
-> On Mon, Apr 04, 2005 at 11:01:45PM +0200, Jesper Juhl wrote:
-> > Remove redundant NULL pointer check before calling kfree().
-> > 
-> > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-> > 
-> > 
-> > --- linux-2.6.12-rc1-mm4/fs/cifs/asn1.c.with_patch1	2005-04-04 22:25:50.000000000 +0200
-> > +++ linux-2.6.12-rc1-mm4/fs/cifs/asn1.c	2005-04-04 22:33:34.000000000 +0200
-> > @@ -540,7 +540,6 @@ int decode_negTokenInit(unsigned char *s
-> >  					   *(oid + 3)));
-> >  					rc = compare_oid(oid, oidlen, NTLMSSP_OID,
-> >  						 NTLMSSP_OID_LEN);
-> > -					if(oid)
-> >  						kfree(oid);
-> >  					if (rc)
-> >  						use_ntlmssp = TRUE;
-> 
-> 
-> Please fix the indentation of the kfree after removing the if.
-> 
-I do, in the next patch in the series, the 
-"fs_cifs_asn1-spacing-and-long-lines.patch" patch. That one fixes the 
-indentation along with lots of other whitespace issues.
+Don't mention it :] That's why I want to get some more people
+hooked up to this...so I can move on to do other things :)
 
+>> How long ago since you saw it? I also implemented the futex
+redirection
+>> stuff we discussed some months ago.
+>
+>It's been a while since I've seen the fusyn scheduler changes. I have
+>the curernt fusyn CVS, I'll take a look at it.
 
--- 
-Jesper Juhl
+All that stuff is in futex.c; bear in mind what I said at
+the confcall, it is just a hacky proof-of-concept--it doesn't
+even implement the async interface.
 
+It kind of works, but is not all that solid [last time I tried
+the JVMs locked up].
 
+-- Inaky

@@ -1,53 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVDIIBU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVDIIKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVDIIBU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 04:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVDIIBU
+	id S261310AbVDIIKT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 04:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVDIIKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 04:01:20 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:44040 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261309AbVDIIBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 04:01:14 -0400
-Date: Sat, 9 Apr 2005 10:00:56 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050409080056.GA8551@alpha.home.local>
-References: <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org> <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org> <4256C0F8.6030008@pobox.com> <Pine.LNX.4.58.0504081114220.28951@ppc970.osdl.org> <20050408185608.GA5638@taniwha.stupidest.org> <20050409073726.GC7858@alpha.home.local> <16983.34940.197017.568255@cse.unsw.edu.au>
+	Sat, 9 Apr 2005 04:10:19 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:52131 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261310AbVDIIKM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 04:10:12 -0400
+Date: Sat, 9 Apr 2005 01:09:19 -0700
+To: Frank Sorenson <frank@tuxrocks.com>
+Cc: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Pavel Machek <pavel@suse.cz>, Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, Thomas Renninger <trenn@suse.de>
+Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1
+Message-ID: <20050409080919.GA29867@atomide.com>
+References: <20050406083000.GA8658@atomide.com> <425451A0.7020000@tuxrocks.com> <20050407082136.GF13475@atomide.com> <4255A7AF.8050802@tuxrocks.com> <4255B247.4080906@tuxrocks.com> <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com> <42564584.4080606@tuxrocks.com> <20050408091757.GD4477@atomide.com> <4256FAE3.30500@tuxrocks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16983.34940.197017.568255@cse.unsw.edu.au>
-User-Agent: Mutt/1.4i
+In-Reply-To: <4256FAE3.30500@tuxrocks.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Tony Lindgren <tony@atomide.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 09, 2005 at 05:47:08PM +1000, Neil Brown wrote:
-> On Saturday April 9, willy@w.ods.org wrote:
+On Fri, Apr 08, 2005 at 03:42:59PM -0600, Frank Sorenson wrote:
+> Tony Lindgren wrote:
 > > 
-> > I've just checked, it takes 5.7s to compare 2.4.29{,-hf3} over NFS (13300
-> > files each) and 1.3s once the trees are cached locally. This is without
-> > comparing file contents, just meta-data. And it takes 19.33s to compare
-> > the file's md5 sums once the trees are cached. I don't know if there are
-> > ways to avoid some NFS operations when everything is cached.
-> > 
-> > Anyway, the system does not seem much efficient on hard links, it caches
-> > the files twice :-(
+> > Then you might as well run timetest from same location too to make
+> > sure your clock keeps correct time.
 > 
-> I suspect you'll be wanting to add a "no_subtree_check" export option
-> on your NFS server...
+> Seems to be going up when under load, and down when idle, so I suppose
+> it's working :)  The clock is only a little jittery, but not more than
+> I'd expect across the network, so it looks like it's keeping time okay.
 
-Thanks a lot, Neil ! This is very valuable information. I didn't
-understand such implications from the exports(5) man page, but it
-makes a great difference. And the diff sped up from 5.7 to 3.9s
-and from 19.3 to 15.3s.
+Good.
 
-Cheers,
-Willy
+> Would it be possible to determine whether the system will wake to the
+> APIC interrupt at system boot, rather than hardcoded in the config?
+> After you explained the problem, I noticed that creating my own
+> interrupts (holding down a key on the keyboard for example) kept the
+> system moving and not slow.  For example, something like this (sorry, I
+> don't know the code well enough yet to attempt to code it myself):
+> 
+> set the APIC timer to fire in X
+> set another timer/interrupt to fire in 2X
+> wait for the interrupt
+> if (time_elapsed >= 2X) disable the APIC timer
+> else APIC timer should work
+> 
+> Or, determine which timer woke us up, etc.
 
+Yeah, I was thinking that too. But maybe there's some way of stopping
+PIT interrupts while keeping APIC timer interrupts running on all chips.
+It seems to work OK on my P3 boxes, but seems to fail on newer machines.
+
+BTW, stopping PIT interrupts (like the HRT VST patch does) seems to
+kill APIC timer interrupts too, the same way as reprogamming PIT does.
+Or maybe there's something else that needs to be done to get APIC
+interrupts going after PIT interrupts are disabled.
+
+Tony

@@ -1,36 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVDIL36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVDILvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVDIL36 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 07:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVDIL36
+	id S261336AbVDILvk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 07:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVDILvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 07:29:58 -0400
-Received: from f31.mail.ru ([194.67.57.70]:3333 "EHLO f31.mail.ru")
-	by vger.kernel.org with ESMTP id S261335AbVDIL35 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 07:29:57 -0400
-From: Samium Gromoff <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM saga..
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 10.128.0.1 via proxy [80.92.100.69]
-Date: Sat, 09 Apr 2005 15:29:56 +0400
-Reply-To: Samium Gromoff <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1DKEA0-0001Zp-00._deepfire-mail-ru@f31.mail.ru>
+	Sat, 9 Apr 2005 07:51:40 -0400
+Received: from merke.itea.ntnu.no ([129.241.7.61]:12953 "EHLO
+	merke.itea.ntnu.no") by vger.kernel.org with ESMTP id S261336AbVDILvg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 07:51:36 -0400
+From: Per Christian Henden <perchrh@pvv.org>
+To: benh@kernel.crashing.org
+Subject: [PATCH] Add Mac mini sound support
+Date: Sat, 9 Apr 2005 13:51:27 +0200
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Disposition: inline
+X-Length: 3215
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200504091351.27430.perchrh@pvv.org>
+X-Content-Scanned: with sophos and spamassassin at mailgw.ntnu.no.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that Tom Lord, the primary architect behind GNU Arch
-has recently published an open letter to Linus Torvalds.
+The patch below adds sound support on the Mac Mini by making a small change to the PowerMac sound card detection code.
 
-Because no open letter to Linus would be really open without an
-accompanying reference post on lkml, here it is:
+Details: 
 
-http://lists.seyza.com/pipermail/gnu-arch-dev/2005-April/001001.html
+Original code:
+>From sound/ppc/pmac.c  __init snd_pmac_detect(pmac_t *chip) :
 
----
-cheers,
-   Samium Gromoff
+ chip->model = PMAC_AWACS;
+ ...
+ if (device_is_compatible(sound, "AOAKeylargo")) {
+  ...
+  chip->model = PMAC_SNAPPER;
+  ...
+ }
+
+The chip model is first set to AWACS, then because the check above returns true, it gets set to SNAPPER.
+Using AWACS gives perfect sound, using SNAPPER gives no sound at all, so it should use AWACS instead.
+Note that the mixer still doesn't work.
+
+My simple patch makes the mentioned check return false on a Mac Mini.
+
+Patch against 2.6.12-rc2:
+
+diff -urpN -X dontdiff linux-2.6.12-rc2.orig/sound/ppc/pmac.c linux-2.6.12-rc2/sound/ppc/pmac.c
+--- linux-2.6.12-rc2.orig/sound/ppc/pmac.c      2005-04-09 11:59:18.000000000 +0200
++++ linux-2.6.12-rc2/sound/ppc/pmac.c   2005-04-09 12:35:50.000000000 +0200
+@@ -904,6 +904,8 @@ static int __init snd_pmac_detect(pmac_t
+        else if (machine_is_compatible("PowerBook1,1")
+                 || machine_is_compatible("AAPL,PowerBook1998"))
+                chip->is_pbook_G3 = 1;
++       else if (machine_is_compatible("PowerMac10,1"))
++               chip->is_macmini = 1;
+        chip->node = find_devices("awacs");
+        if (chip->node)
+                return 0; /* ok */
+@@ -961,7 +963,7 @@ static int __init snd_pmac_detect(pmac_t
+                chip->freq_table = tumbler_freqs;
+                chip->control_mask = MASK_IEPC | 0x11; /* disable IEE */
+        }
+-       if (device_is_compatible(sound, "AOAKeylargo")) {
++       if (device_is_compatible(sound, "AOAKeylargo") && chip->is_macmini!=1) {
+                /* Seems to support the stock AWACS frequencies, but has
+                   a snapper mixer */
+                chip->model = PMAC_SNAPPER;
+diff -urpN -X dontdiff linux-2.6.12-rc2.orig/sound/ppc/pmac.h linux-2.6.12-rc2/sound/ppc/pmac.h
+--- linux-2.6.12-rc2.orig/sound/ppc/pmac.h      2005-03-02 08:38:12.000000000 +0100
++++ linux-2.6.12-rc2/sound/ppc/pmac.h   2005-04-09 12:04:42.000000000 +0200
+@@ -110,6 +110,7 @@ struct snd_pmac {
+        unsigned int has_iic : 1;
+        unsigned int is_pbook_3400 : 1;
+        unsigned int is_pbook_G3 : 1;
++       unsigned int is_macmini : 1;
+
+        unsigned int can_byte_swap : 1;
+        unsigned int can_duplex : 1;
+
+
+-------------
+
+The patch was tested by checking if I got sound support with the patch applied on my Mac Mini.
+
+Thanks to Owen Stampflee at Yellowdog Linux for discovering that sound works when setting chip->model=PMAC_AWACS on the mini.
+
+Please CC replies.
+
+Cheers,
+Per Christian Henden

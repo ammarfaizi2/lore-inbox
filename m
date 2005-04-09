@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVDIAYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261218AbVDIA1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVDIAYW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 20:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVDIAYW
+	id S261218AbVDIA1h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 20:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVDIA1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 20:24:22 -0400
-Received: from mail.dif.dk ([193.138.115.101]:49806 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261217AbVDIAYS (ORCPT
+	Fri, 8 Apr 2005 20:27:37 -0400
+Received: from fire.osdl.org ([65.172.181.4]:43950 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261218AbVDIA1f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 20:24:18 -0400
-Date: Sat, 9 Apr 2005 02:26:52 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Eberhard Moenkeberg <emoenke@gwdg.de>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cosmetic fixes for example programs in Documentation/cdrom/sbpcd
-In-Reply-To: <Pine.LNX.4.61.0504090214070.15755@gwdu05.gwdg.de>
-Message-ID: <Pine.LNX.4.62.0504090225380.2455@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504090205250.2455@dragon.hyggekrogen.localhost>
- <Pine.LNX.4.61.0504090214070.15755@gwdu05.gwdg.de>
+	Fri, 8 Apr 2005 20:27:35 -0400
+Date: Fri, 8 Apr 2005 17:29:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <Pine.LNX.4.58.0504081613180.28951@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0504081718570.28951@ppc970.osdl.org>
+References: <4257055A.7010908@umich.edu> <Pine.LNX.4.58.0504081613180.28951@ppc970.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Apr 2005, Eberhard Moenkeberg wrote:
 
-> Hi,
+
+On Fri, 8 Apr 2005, Linus Torvalds wrote:
 > 
-> On Sat, 9 Apr 2005, Jesper Juhl wrote:
-> 
-> > Hi Andrew,
-> > 
-> > I'm sending this to you directly since Eberhard Moenkeberg already
-> > indicated to me that he approves of the patch.
-> 
-> Yes OK (I didn't say it yet, did I?), but I guess it is only cosmetic, as you
-> already said.
-> 
-Unless I interpreted you wrong I'd say you did (in the "[PATCH] small 
-fixes for example programs in Documentation/cdrom/sbpcd" thread): 
+> Also note that the above algorithm really works for _any_ two commit 
+> points (apart for the two first steps, which are obviously all about 
+> finding the parent tree when you want to diff against a predecessor). 
 
-On Thu, 17 Mar 2005, Eberhard Moenkeberg wrote:
-...
-> Do it.
-> I'm kind of proud, only "cosmetical" changes after a whole decennium. ;-))
->
-...
+Btw, if you want to try this, you should get an updated copy. I've pushed 
+a "raw" git archive of both git and sparse (the latter is much more 
+interesting from an archive standpoint, since it actually has 1400 
+changesets in it) to kernel.org, but I'm not convinced it gets mirrored 
+out. I think the mirror scripts may mirror only things they understand.
 
+I've also added a partial "fsck" for the "git filesystem". It doesn't do
+the connectivity analysis yet, but that should be pretty straightforward
+to add - it already parses all the data, it just doesn't save it away (and
+the connectivity analysis will automatically show how many "root"
+changesets you have, and what the different HEADs are).
 
--- 
-Jesper
+I'll make a tar-file (git-0.03), although at this point I've actually been 
+maintaining it in itself, so to some degree it's almost getting easier if 
+I'd just have a place to rsync it..
 
+		Linus

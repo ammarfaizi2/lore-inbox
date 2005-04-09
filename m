@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVDIAKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVDIARi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVDIAKx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 20:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVDIAKx
+	id S261213AbVDIARi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 20:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVDIARe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 20:10:53 -0400
-Received: from fire.osdl.org ([65.172.181.4]:16552 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261211AbVDIAKd (ORCPT
+	Fri, 8 Apr 2005 20:17:34 -0400
+Received: from mailer.gwdg.de ([134.76.10.26]:62922 "EHLO mailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S261213AbVDIARd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 20:10:33 -0400
-Date: Fri, 8 Apr 2005 17:10:26 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 8 Apr 2005 20:17:33 -0400
+Date: Sat, 9 Apr 2005 02:17:21 +0200 (CEST)
+From: Eberhard Moenkeberg <emoenke@gwdg.de>
 To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: zwane@arm.linux.org.uk, mingo@redhat.com, rml@tech9.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] silence spinlock/rwlock uninitialized break_lock member
- warnings
-Message-Id: <20050408171026.5b822eeb.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0504090150520.2455@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504090150520.2455@dragon.hyggekrogen.localhost>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cosmetic fixes for example programs in Documentation/cdrom/sbpcd
+In-Reply-To: <Pine.LNX.4.62.0504090205250.2455@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.61.0504090214070.15755@gwdu05.gwdg.de>
+References: <Pine.LNX.4.62.0504090205250.2455@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
+Hi,
+
+On Sat, 9 Apr 2005, Jesper Juhl wrote:
+
+> Hi Andrew,
 >
-> Any chance this patch could be added to -mm (and possibly mainline)?
+> I'm sending this to you directly since Eberhard Moenkeberg already
+> indicated to me that he approves of the patch.
 
-Spose I can stick it in -mm.
+Yes OK (I didn't say it yet, did I?), but I guess it is only cosmetic, as 
+you already said.
 
-> It removes a bunch of warnings when building with gcc -W, like these:
-> include/linux/wait.h:82: warning: missing initializer
-> include/linux/wait.h:82: warning: (near initialization for `(anonymous).break_lock')
-> include/asm/rwsem.h:88: warning: missing initializer
-> include/asm/rwsem.h:88: warning: (near initialization for `(anonymous).break_lock')
-> so there's less to sift through when looking for real problems with this 
-> patch applied. 
-> I've been using it for a while with no ill effects.
-
-But I'd rather not add a bunch of even-more-ifdefs to support a compiler
-flag which we're not going to use.  It's easy enough for the `gcc -W' user
-to add the patch himself.
-
-
+Cheers -e
+-- 
+Eberhard Moenkeberg (emoenke@gwdg.de, em@kki.org)

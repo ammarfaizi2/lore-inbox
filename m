@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVDIDeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVDIEDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVDIDeg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 23:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVDIDeg
+	id S261267AbVDIEDd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 00:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVDIEDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 23:34:36 -0400
-Received: from ccerelrim03.cce.hp.com ([161.114.21.24]:6822 "EHLO
-	ccerelrim03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S261265AbVDIDe1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 23:34:27 -0400
-Message-ID: <1539.24.9.197.67.1113017666.squirrel@mail.cce.hp.com>
-In-Reply-To: <4257247B.8030604@pin.if.uz.zgora.pl>
-References: <424D44F0.6090707@web.de> <424D5E2E.8040207@pin.if.uz.zgora.pl>	
-    <424D71DE.5060703@web.de> <424D91B5.50404@pin.if.uz.zgora.pl>	
-    <424D9A9C.2070705@web.de>  <424D9FCE.6020200@pin.if.uz.zgora.pl>
-    <1112993039.12025.65.camel@eeyore>
-    <4257247B.8030604@pin.if.uz.zgora.pl>
-Date: Fri, 8 Apr 2005 21:34:26 -0600 (MDT)
-Subject: Re: PCI-Express not working/unuseable on Intel 925XE Chipset since 
-     2.6.12-rc1[mm1-4]
-From: "Bjorn Helgaas" <bjorn.helgaas@hp.com>
-To: "Jacek Luczak" <difrost@pin.if.uz.zgora.pl>
-Cc: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
-       "Michael Thonke" <tk-shockwave@web.de>
-User-Agent: SquirrelMail/1.4.4
+	Sat, 9 Apr 2005 00:03:33 -0400
+Received: from web53902.mail.yahoo.com ([206.190.36.212]:46015 "HELO
+	web53902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261267AbVDIED2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 00:03:28 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=yBW3ZS6ARaRK5gfz0Mtd0J/PUK4iC8R/E3X8nZCiICCj+lEXZivbTgoyiXKfpxXQ17myqYT4vwwMk7Rc2WAfWc5izyhFHNyKXIYrSxKETTaOmv1PSpg2bIxJrvWqdrg1OEuK7Hnh4aCWML86tVYNglC/G/ZF5JaljI5NCz4wiDA=  ;
+Message-ID: <20050409040327.93029.qmail@web53902.mail.yahoo.com>
+Date: Fri, 8 Apr 2005 21:03:27 -0700 (PDT)
+From: nobin matthew <nobin_matthew@yahoo.com>
+Subject: HELP:porting linux PXA audio driver to RTLinux(RTLinux core driver)
+To: kernelnewbies@nl.linux.org, linux-arm-kernel@lists.arm.linux.org.uk,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-PMX-Version: 5.0.0.131485, Antispam-Engine: 2.0.3.1, Antispam-Data: 2005.4.8.20
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Version from syskonnect site require only changing usage of
-> pci_dev->slot_name to pci_name(pci_dev) in skge.c and skethtool.c. After
-> that everything should work fine. So I think there is no need to post my
-> path here but if you really whant I may do this. Whole path agains
-> 2.6.12-rc2 take about 1.2 MB (diffstat attached below).
+Dear Friends,
 
-I agree, no need to post a whole 1.2MB patch (goodness, what's
-in this driver, anyway, that it would need a 1.2MB *patch*? :-))
+              I am trying to port Linux PXA audio
+driver to RTLinux. I am using pxa-ac7.c and
+pxa-audio.c
+ and eliminated sound_core.c, and i will register two
+device /dev/mixer and /dev/dsp to RTLinux kernel.
 
-But you seem to be saying that the driver from syskonnect (and possibly
-the one in 2.6.12-rc1-bk3 as well) does not work as-is, and that you have
-a small patch that makes it work.
+           The real need is, i wants to generate a sin
+wave using audio codec. With in 600us DMA controller
+should fill the codec FIFO, if that is not met
+distortion will happen. I think normal linux
+interrupts and Process scheduling may cause some
+problems.
 
-If so, I think it's worth posting the small patch, so other users
-of the device can at least get it working until syskonnect gets
-things squared away.
+In porting it seems difficult to port kernel
+scheduling , dynamic memory allocation(for DMA) and
+synchronization.
 
-My apologies if I'm misunderstanding the situation.
+Please help me
 
+
+Nobin Mathew
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

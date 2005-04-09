@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVDIXPQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVDIXPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVDIXPQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 19:15:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVDIXOs
+	id S261399AbVDIXPT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 19:15:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVDIXLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 19:14:48 -0400
-Received: from fire.osdl.org ([65.172.181.4]:16870 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261404AbVDIXMF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 19:12:05 -0400
-Date: Sat, 9 Apr 2005 16:13:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-cc: andrea@suse.de, mbp@sourcefrog.net, linux-kernel@vger.kernel.org,
-       dlang@digitalinsight.com
-Subject: Re: Kernel SCM saga..
-In-Reply-To: <20050409155511.7432d5c7.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org>
-References: <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
- <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
- <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope>
- <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope>
- <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random>
- <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org> <20050409022701.GA14085@opteron.random>
- <Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
- <20050409155511.7432d5c7.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Apr 2005 19:11:37 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261414AbVDIXLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 19:11:02 -0400
+Date: Sun, 10 Apr 2005 01:10:57 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: lw_linux@hotmail.com
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/scsi/sym53c416.c: fix a wrong check
+Message-ID: <20050409231057.GS3632@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The Coverity checker found that this for loop was wrong.
 
+This patch changes it to what seems to be intended.
 
-On Sat, 9 Apr 2005, David S. Miller wrote:
-> 
-> I understand the arguments for compression, but I hate it for one
-> simple reason: recovery is more difficult when you corrupt some
-> file in your repository.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Trust me, the way git does things, you'll have so much redundancy that 
-you'll have to really _work_ at losing data.
+--- linux-2.6.12-rc2-mm2-full/drivers/scsi/sym53c416.c.old	2005-04-09 22:16:04.000000000 +0200
++++ linux-2.6.12-rc2-mm2-full/drivers/scsi/sym53c416.c	2005-04-09 22:16:28.000000000 +0200
+@@ -803,19 +803,19 @@
+ static int sym53c416_host_reset(Scsi_Cmnd *SCpnt)
+ {
+ 	int base;
+ 	int scsi_id = -1;	
+ 	int i;
+ 
+ 	/* printk("sym53c416_reset\n"); */
+ 	base = SCpnt->device->host->io_port;
+ 	/* search scsi_id - fixme, we shouldnt need to iterate for this! */
+-	for(i = 0; i < host_index && scsi_id != -1; i++)
++	for(i = 0; i < host_index && scsi_id == -1; i++)
+ 		if(hosts[i].base == base)
+ 			scsi_id = hosts[i].scsi_id;
+ 	outb(RESET_CHIP, base + COMMAND_REG);
+ 	outb(NOOP | PIO_MODE, base + COMMAND_REG);
+ 	outb(RESET_SCSI_BUS, base + COMMAND_REG);
+ 	sym53c416_init(base, scsi_id);
+ 	return SUCCESS;
+ }
+ 
 
-That's the good news.
-
-The bad news is that this is obviously why it does eat a lot of disk. 
-Since it saves full-file commits, you're going to have a lot of 
-(compressed) full files around.
-
-		Linus

@@ -1,56 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVDIW6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVDIW7k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVDIW6H (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 18:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVDIW6H
+	id S261402AbVDIW7k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 18:59:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVDIW7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 18:58:07 -0400
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:44989
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261398AbVDIW6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 18:58:04 -0400
-Date: Sat, 9 Apr 2005 15:55:11 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: andrea@suse.de, mbp@sourcefrog.net, linux-kernel@vger.kernel.org,
-       dlang@digitalinsight.com
-Subject: Re: Kernel SCM saga..
-Message-Id: <20050409155511.7432d5c7.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
-References: <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
-	<20050407014727.GA17970@havoc.gtf.org>
-	<pan.2005.04.07.02.25.56.501269@sourcefrog.net>
-	<Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz>
-	<1112852302.29544.75.camel@hope>
-	<Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org>
-	<1112939769.29544.161.camel@hope>
-	<Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org>
-	<20050408083839.GC3957@opteron.random>
-	<Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
-	<20050409022701.GA14085@opteron.random>
-	<Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sat, 9 Apr 2005 18:59:34 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:52998 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261401AbVDIW7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 18:59:03 -0400
+Date: Sun, 10 Apr 2005 00:59:01 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/block/sx8.c: remove unused code
+Message-ID: <20050409225901.GM3632@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Apr 2005 22:45:18 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+Is it planned to ever #define IF_64BIT_DMA_IS_POSSIBLE ?
 
-> Also, I don't want people editing repostitory files by hand. Sure, the 
-> sha1 catches it, but still... I'd rather force the low-level ops to use 
-> the proper helper routines. Which is why it's a raw zlib compressed blob, 
-> not a gzipped file.
+If not, the patch below removes this currently completely unused code.
 
-I understand the arguments for compression, but I hate it for one
-simple reason: recovery is more difficult when you corrupt some
-file in your repository.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-It's happened to me more than once and I did lose data.
+---
 
-Without compression, I might be able to recover if something
-causes a block of zeros to be written to the middle of some
-repository file.  With compression, you pretty much just lose.
+ drivers/block/sx8.c |   30 ++++++------------------------
+ 1 files changed, 6 insertions(+), 24 deletions(-)
+
+--- linux-2.6.12-rc2-mm2-full/drivers/block/sx8.c.old	2005-04-09 21:51:31.000000000 +0200
++++ linux-2.6.12-rc2-mm2-full/drivers/block/sx8.c	2005-04-09 21:52:46.000000000 +0200
+@@ -176,7 +176,6 @@ enum {
+ 	FL_NON_RAID		= FW_VER_NON_RAID,
+ 	FL_4PORT		= FW_VER_4PORT,
+ 	FL_FW_VER_MASK		= (FW_VER_NON_RAID | FW_VER_4PORT),
+-	FL_DAC			= (1 << 16),
+ 	FL_DYN_MAJOR		= (1 << 17),
+ };
+ 
+@@ -1565,7 +1564,6 @@ static int carm_init_one (struct pci_dev
+ {
+ 	static unsigned int printed_version;
+ 	struct carm_host *host;
+-	unsigned int pci_dac;
+ 	int rc;
+ 	request_queue_t *q;
+ 	unsigned int i;
+@@ -1581,28 +1579,12 @@ static int carm_init_one (struct pci_dev
+ 	if (rc)
+ 		goto err_out;
+ 
+-#if IF_64BIT_DMA_IS_POSSIBLE /* grrrr... */
+-	rc = pci_set_dma_mask(pdev, 0xffffffffffffffffULL);
+-	if (!rc) {
+-		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL);
+-		if (rc) {
+-			printk(KERN_ERR DRV_NAME "(%s): consistent DMA mask failure\n",
+-				pci_name(pdev));
+-			goto err_out_regions;
+-		}
+-		pci_dac = 1;
+-	} else {
+-#endif
+-		rc = pci_set_dma_mask(pdev, 0xffffffffULL);
+-		if (rc) {
+-			printk(KERN_ERR DRV_NAME "(%s): DMA mask failure\n",
+-				pci_name(pdev));
+-			goto err_out_regions;
+-		}
+-		pci_dac = 0;
+-#if IF_64BIT_DMA_IS_POSSIBLE /* grrrr... */
++	rc = pci_set_dma_mask(pdev, 0xffffffffULL);
++	if (rc) {
++		printk(KERN_ERR DRV_NAME "(%s): DMA mask failure\n",
++			pci_name(pdev));
++		goto err_out_regions;
+ 	}
+-#endif
+ 
+ 	host = kmalloc(sizeof(*host), GFP_KERNEL);
+ 	if (!host) {
+@@ -1614,7 +1596,7 @@ static int carm_init_one (struct pci_dev
+ 
+ 	memset(host, 0, sizeof(*host));
+ 	host->pdev = pdev;
+-	host->flags = pci_dac ? FL_DAC : 0;
++	host->flags = 0;
+ 	spin_lock_init(&host->lock);
+ 	INIT_WORK(&host->fsm_task, carm_fsm_task, host);
+ 	init_MUTEX_LOCKED(&host->probe_sem);
+

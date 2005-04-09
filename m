@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVDIXbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVDIXeC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVDIXbz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 19:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVDIXby
+	id S261416AbVDIXeC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 19:34:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVDIXeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 19:31:54 -0400
-Received: from gate.crashing.org ([63.228.1.57]:61317 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261408AbVDIXaQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 19:30:16 -0400
-Subject: Re: [PATCH] Add Mac mini sound support
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Per Christian Henden <perchrh@pvv.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200504091351.27430.perchrh@pvv.org>
-References: <200504091351.27430.perchrh@pvv.org>
-Content-Type: text/plain
-Date: Sun, 10 Apr 2005 09:28:32 +1000
-Message-Id: <1113089313.9568.435.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Sat, 9 Apr 2005 19:34:02 -0400
+Received: from adsl-69-233-54-142.dsl.pltn13.pacbell.net ([69.233.54.142]:41736
+	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
+	id S261416AbVDIXb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 19:31:57 -0400
+Message-ID: <425865BC.6090006@tupshin.com>
+Date: Sat, 09 Apr 2005 16:31:08 -0700
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>, Martin Pool <mbp@sourcefrog.net>,
+       David Lang <dlang@digitalinsight.com>
+Subject: Re: Kernel SCM saga..
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050406193911.GA11659@stingr.stingr.net> <pan.2005.04.07.01.40.20.998237@sourcefrog.net> <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net> <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope> <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope> <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random> <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org> <Pine.LNX.4.61.0504091547320.15339@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0504091547320.15339@scrub.home>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-04-09 at 13:51 +0200, Per Christian Henden wrote:
-> The patch below adds sound support on the Mac Mini by making a small change to the PowerMac sound card detection code.
-> 
-> Details: 
-> 
-> Original code:
-> >From sound/ppc/pmac.c  __init snd_pmac_detect(pmac_t *chip) :
-> 
->  chip->model = PMAC_AWACS;
->  ...
->  if (device_is_compatible(sound, "AOAKeylargo")) {
->   ...
->   chip->model = PMAC_SNAPPER;
->   ...
->  }
-> 
-> The chip model is first set to AWACS, then because the check above returns true, it gets set to SNAPPER.
-> Using AWACS gives perfect sound, using SNAPPER gives no sound at all, so it should use AWACS instead.
-> Note that the mixer still doesn't work.
-> 
-> My simple patch makes the mentioned check return false on a Mac Mini.
+Roman Zippel wrote:
 
-And is not correct. It might appear to work but it is not the right
-thing to do. There is no AWACS chip in there. There is a fixed function
-codec controlled by a couple of GPIOs afaik. I'm working on a major
-rework of the alsa driver that will include support for the mini and the
-G5s.
+>It seems you exported the complete parent information and this is exactly 
+>the "nitty-gritty" I was "whining" about and which is not available via 
+>bkcvs or bkweb and it's the most crucial information to make the bk data 
+>useful outside of bk. Larry was previously very clear about this that he 
+>considers this proprietary bk meta data and anyone attempting to export 
+>this information is in violation with the free bk licence, so you indeed 
+>just took the important parts and this is/was explicitly verboten for 
+>normal bk users.
+>  
+>
+Yes, this is exactly the information that would be necessary to create a 
+general interop tool between bk and darcs|arch|monotone, and is the 
+fundamental objection I and others have had to open source projects 
+using BK. Is Bitmover willing to grant a special dispensation to allow a 
+lossless conversion of the linux history to another format?
 
-Ben.
-
-
+-Tupshin

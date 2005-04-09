@@ -1,88 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVDIOVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVDIOiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVDIOVT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 10:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVDIOVT
+	id S261346AbVDIOiY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 10:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVDIOiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 10:21:19 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22409 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261345AbVDIOVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 10:21:12 -0400
-Date: Sat, 9 Apr 2005 07:19:13 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
-Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
-Message-Id: <20050409071913.7f2aab65.pj@engr.sgi.com>
-In-Reply-To: <42567B3E.8010403@grupopie.com>
-References: <4252BC37.8030306@grupopie.com>
-	<20050407214747.GD4325@stusta.de>
-	<42567B3E.8010403@grupopie.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 9 Apr 2005 10:38:24 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7184 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261346AbVDIOiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 10:38:17 -0400
+Date: Sat, 9 Apr 2005 16:38:15 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Raul Miller <moth@debian.org>
+Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050409143815.GA5208@stusta.de>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Raul Miller <moth@debian.org>, debian-legal@lists.debian.org,
+	debian-kernel@lists.debian.org, linux-kernel@vger.kernel.org
+References: <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404190518.GA17087@wonderland.linux.it> <20050404193204.GD4087@stusta.de> <1112709907.30856.17.camel@silicium.ccc.cea.fr> <20050407210722.GC4325@stusta.de> <1112944920.11027.13.camel@silicium.ccc.cea.fr> <20050408173400.GA15688@stusta.de> <20050408203122.E32136@links.magenta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050408203122.E32136@links.magenta.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo wrote:
-> In the first case you have to read carefully to make sure that the size 
-> argument in both the kmalloc and the memset are the same.
-
-If that were the only concern (which it isn't, and I don't pretend to be
-addressing the other concerns on this thread) then pulling out the
-common sub-expression would help readability, and reduce the chance of a
-coding bug should the size change in the future.
-
-Anytime you find yourself coding the same complex expression twice, an
-alarm should go off in your mind, and you should ask yourself if there
-is a reasonable way to get by with only one instance of the coding in
-the source.
-
-The following patch shows what I mean here.
-
-It also replaces the less conventional form:
-
-	if (!(ptr = some_function(args)) do-something;
-
-with the more conventional form:
-
-	if ((ptr = some_function(args)) == NULL)
-		do-something;
+On Fri, Apr 08, 2005 at 08:31:22PM -0400, Raul Miller wrote:
+> On Fri, Apr 08, 2005 at 07:34:00PM +0200, Adrian Bunk wrote:
+> > If Debian was at least consistent.
+> > 
+> > Why has Debian a much more liberal interpretation of MP3 patent issues 
+> > than RedHat?
+> 
+> It's impossible to treat patents consistently.
+> 
+> The U.S. patent office, at least, has granted patents on natural laws,
+> on stuff that's already patented, on stuff with clear prior art, on
+> trivial math operations and so on.  Patents are being granted so quickly
+> there's no way of even knowing what's patented.
+> 
+> Or were you hoping that Debian would follow Red Hat's lead?
 
 
-diff -Naurp 2.6.12-rc2.orig/drivers/usb/input/hid-core.c 2.6.12-rc2/drivers/usb/input/hid-core.c
---- 2.6.12-rc2.orig/drivers/usb/input/hid-core.c	2005-04-09 06:57:47.000000000 -0700
-+++ 2.6.12-rc2/drivers/usb/input/hid-core.c	2005-04-09 07:05:14.000000000 -0700
-@@ -90,17 +90,18 @@ static struct hid_report *hid_register_r
- static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
- {
- 	struct hid_field *field;
-+	int sz;
- 
- 	if (report->maxfield == HID_MAX_FIELDS) {
- 		dbg("too many fields in report");
- 		return NULL;
- 	}
- 
--	if (!(field = kmalloc(sizeof(struct hid_field) + usages * sizeof(struct hid_usage)
--		+ values * sizeof(unsigned), GFP_KERNEL))) return NULL;
--
--	memset(field, 0, sizeof(struct hid_field) + usages * sizeof(struct hid_usage)
--		+ values * sizeof(unsigned));
-+	sz = sizeof(struct hid_field) + usages * sizeof(struct hid_usage) +
-+			values * sizeof(unsigned);
-+	if ((field = kmalloc(sz, GFP_KERNEL)) == NULL)
-+		return NULL;
-+	memset(field, 0, sz);
- 
- 	field->index = report->maxfield++;
- 	report->field[field->index] = field;
+Even RedHat with a stronger financial background than Debian considered 
+the MP3 patents being serious enough to remove MP3 support.
 
+Yes, Debian can choose to put a higher risk on their distributors and 
+mirrors - there's nothing wrong with this.
+
+
+Note that this is a respose to Josselin's statement:
+
+<--  snip  -->
+
+When there are several possible interpretations, you have to pick up the
+more conservative one, as it's not up to us to make the interpretation,
+but to a court.
+
+<--  snip  -->
+
+
+It's simply silly to be extremely picky on copyright issues while being 
+extremely liberal on patent issues - the risk of a Debian distributor 
+being sued for patent violations (no matter how the lawsuit might end) 
+is definitely present.
+
+
+> As for this particular patent, I'm not really sure what's being patented.
+>...
+
+
+Which one of the 23 patents they list do you call "this particular 
+patent"?
+
+
+> Raul
+
+
+cu
+Adrian
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

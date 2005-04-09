@@ -1,40 +1,30 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVDJIaX (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 10 Apr 2005 04:30:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDJIaW
+	id S261451AbVDJJ2h (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 10 Apr 2005 05:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVDJJ2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 04:30:22 -0400
-Received: from ms006msg.fastweb.it ([213.140.2.54]:28159 "EHLO
-	ms006msg.fastweb.it") by vger.kernel.org with ESMTP id S261441AbVDJIaS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 04:30:18 -0400
-Message-ID: <4251CC370008E673@ms006msg.mail.fw> (added by
-	    postmaster@fastwebnet.it)
-Reply-To: "valter" <infomail@dauphintel.com>
-From: "valter" <valter@dauphintel.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Dauphintel Nuovi listini 09/04/2005 New Price list
-Date: Sun, 10 Apr 2005 10:30:20 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+	Sun, 10 Apr 2005 05:28:37 -0400
+Received: from [211.36.37.129] ([211.36.37.129]:6838 "HELO mail.qsv08.com")
+	by vger.kernel.org with SMTP id S261451AbVDJJ2g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 05:28:36 -0400
+Date: 10 Apr 2005 04:24:04 +0900
+Message-ID: <20050409192404.22221.qmail@mail.qsv08.com>
+From: info@qsv08.com
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20=1B$B!y!!=1B(BNEW=1B$B?= =?ISO-8859-1?Q?!!=1B(BOPEN=1B$B!!!y?=
+	=?ISO-8859-1?Q?=1B(B?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261441AbVDJIaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261451AbVDJJ2h@vger.kernel.org>
 
 
-DAUPHINTEL
-import export cellular accessories & spare parts
 
-Valter Paoli
-www.dauphintel.com
-****************************************************************************************************************************************************************************************************
-Questo messaggio e mail e' confidenziale e indirizzato solo ai destinatari specificati, che sono gli unici autorizzati alla lettura delle informazioni contenute.
-E' proibito distribuire, diffondere e copiare questo messaggio senza la nostra preventiva autorizzazione.Nel caso abbiate ricevuto questo messaggio per errore ci scusiamo e vi chiediamo di comunicarcelo con una mail , e di cancellare il messaggio in questione.
-This email message is confidential and addressed only to the mentioned recipients.
-Only the specified addresses can read and use the informations included.
-Any distribution, copy , dissemination of this mail is prohibited.If you have received this mail by mistake, please send us a return mail to advice us aní
+    $B!!!z!y!z!!$D$$$K#O#P#E#N!*!!!z!y!z(B
+$B!!!!!!!!!!!!4JC1A`:n$G4JC1EPO?!*(B
+$B!!!!!!!!!!??7u$J=P2q$$$O$3$3$+$i(B
+$B!!(B  $B=i$a$F$NJ}$OL5NA%(%s%H%j!<$+$i$I$&$>(B
+
+      $B!!!!(Bhttp://www.getluck.net/
+
+$B!!!!"(GI<j$J%$%s%A%-=-$$%5%$%H$O0c$$$^$9!#(B

@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVDIPSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVDIPmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVDIPSL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 11:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVDIPSL
+	id S261253AbVDIPmf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 11:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVDIPme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 11:18:11 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:41376 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261348AbVDIPSD (ORCPT
+	Sat, 9 Apr 2005 11:42:34 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42666 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261253AbVDIPmd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 11:18:03 -0400
-Date: Sat, 9 Apr 2005 08:15:53 -0700
+	Sat, 9 Apr 2005 11:42:33 -0400
+Date: Sat, 9 Apr 2005 08:40:03 -0700
 From: Paul Jackson <pj@engr.sgi.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: cw@f00f.org, matthias.christian@tiscali.de, andrea@suse.de,
-       linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com, matthias.christian@tiscali.de, andrea@suse.de,
+       cw@f00f.org, linux-kernel@vger.kernel.org
 Subject: Re: Kernel SCM saga..
-Message-Id: <20050409081553.744bbb55.pj@engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0504081149010.28951@ppc970.osdl.org>
+Message-Id: <20050409084003.02c83b9f.pj@engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0504081114220.28951@ppc970.osdl.org>
 References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
 	<20050408041341.GA8720@taniwha.stupidest.org>
 	<Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
@@ -24,10 +24,8 @@ References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
 	<Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
 	<4256AE0D.201@tiscali.de>
 	<Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
-	<20050408171518.GA4201@taniwha.stupidest.org>
-	<Pine.LNX.4.58.0504081037310.28951@ppc970.osdl.org>
-	<20050408180540.GA4522@taniwha.stupidest.org>
-	<Pine.LNX.4.58.0504081149010.28951@ppc970.osdl.org>
+	<4256C0F8.6030008@pobox.com>
+	<Pine.LNX.4.58.0504081114220.28951@ppc970.osdl.org>
 Organization: SGI
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -37,64 +35,17 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus wrote:
-> you need to reuse the same inode/dev numbers
-> (again - I didn't worry about portability, and filesystems where those
-> aren't stable are a "don't do that then") 
+> then git will open have exactly _one_ 
+> file (no searching, no messing around), which contains absolutely nothing 
+> except for the compressed (and SHA1-signed) old contents of the file. It 
+> obviously _has_ to do that, because in order to know whether you've 
+> changed it, it needs to now compare it to the original.
 
-On filesystems that don't have a stable inode number, I use the md5sum
-of the full (relative to mount point) pathname as the inode number. 
+I must be missing something here ...
 
-Since these same file systems (not surprisingly) lack hard links as
-well, the pathname _is_ essentially the stable inode number.
-
-
-Off-topic details ...
-
-This is on my backup program, which does a full snapshot of my 90 Gb
-system, including some FAT file systems, in 6 or 7 minutes, plus time
-proportional to actual changes.  I have given up finding a backup
-program I can tolerate, and write my own.  It stores each md5sum unique
-blob exactly once, but uses the same sort of tricks you describe to
-detect changes from examining just the stat information so as to avoid
-reading every damn byte on the disk.  It works with smb, fat, vfat,
-ntfs, reiserfs, xfs, ext2/3, ...  A single manifest file, in plain
-ascii, one file per line, captures a full snapshot, disk-to-disk, every
-few hours.
-
-This comment from my backup source explains more:
-
-# Unfortunately, fat, vfat, smb, and ncpfs (Netware) file systems
-# do not have unique disk-based persistent inode numbers.
-# The kernel constructs transient inode numbers for inodes
-# in its cache.  But after an umount and re-mount, the inode
-# numbers are all different.  So we would end up recalculating
-# the md5sums of all files in any such file systems.
-#
-# To avoid this, we keep track of which directories are on such
-# file systems, and for files in any such directory, instead
-# of using the inode value from stat'ing a file, we use the
-# md5sum of its path as a pseudo-inode number.  This digest of
-# a file's path has improved persistance over it's transiently
-# assigned inode number.  Fields 5,6,7 (files total, free and
-# avail) happen to be zero on file systems (fat, vfat, smb,
-# ...) with no real inodes, so we we use this fallback means
-# of getting a persistent pseudo-inode if a statvfs() call on
-# its directory has fields 5,6,7 summing to zero:
-#       sum(os.statvfs(dir)[5:8]) == 0
-# We include that dir in the fat_directories set in this case.
-
-fat_directories = sets.Set()    # set of directory paths on FAT file systems
-
-# The Python statvfs() on Linux is a tad expensive - the
-# glibc statvfs(2) code does several system calls, including
-# scanning /proc/mounts and stat'ing its entries.  We need
-# to know for each file whether it is on a "fat" file system
-# (see above), but for efficiency we only statvfs at mount
-# points, then propagate the file system type from there down.
-
-mountpoints = [m.split()[1] for m in open("/proc/mounts")]
-
-
+If the stat shows a possible change, then you shouldn't have to open the
+original version to determine if it really changed - just compute the
+SHA1 of the new file, and see if that changed from the original SHA1.
 
 -- 
                   I won't rest till it's the best ...

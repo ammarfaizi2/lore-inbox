@@ -1,50 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVDIAFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVDIAIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVDIAFM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 20:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVDIAFM
+	id S261209AbVDIAIs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 20:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVDIAIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 20:05:12 -0400
-Received: from gate.crashing.org ([63.228.1.57]:37867 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261208AbVDIAFI (ORCPT
+	Fri, 8 Apr 2005 20:08:48 -0400
+Received: from mail.dif.dk ([193.138.115.101]:13966 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261209AbVDIAH5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 20:05:08 -0400
-Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
-	accesses
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Dave Airlie <airlied@gmail.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <jezmw9ug7j.fsf@sykes.suse.de>
-References: <1110519743.5810.13.camel@gaston>
-	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
-	 <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
-	 <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
-	 <21d7e9970504071422349426eb@mail.gmail.com>
-	 <1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de>
-	 <1112923186.9567.349.camel@gaston>  <jezmw9ug7j.fsf@sykes.suse.de>
-Content-Type: text/plain
-Date: Sat, 09 Apr 2005 10:03:25 +1000
-Message-Id: <1113005006.9568.402.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Apr 2005 20:07:57 -0400
+Date: Sat, 9 Apr 2005 02:10:27 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Eberhard Moenkeberg <emoenke@gwdg.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] cosmetic fixes for example programs in Documentation/cdrom/sbpcd
+Message-ID: <Pine.LNX.4.62.0504090205250.2455@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > This patch adds to the fbdev interface a set_cmap callback that allow
-> > the driver to "batch" palette changes. This is useful for drivers like
-> > radeonfb which might require lenghtly workarounds on palette accesses,
-> > thus allowing to factor out those workarounds efficiently.
-> 
-> This makes it better. But there is still a delay of half a second, and
-> there is an annoying flicker when switching from X to the console.
+Hi Andrew,
 
-Can you redo the counting of the workarounds with the patch ?
+I'm sending this to you directly since Eberhard Moenkeberg already 
+indicated to me that he approves of the patch.
 
-Ben.
+This patch makes a few minor changes to the example programs in 
+Documentation/cdrom/sbpcd to kill off some warnings and build failures.
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
+
+ sbpcd |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
+
+--- linux-2.6.12-rc2-mm2-orig/Documentation/cdrom/sbpcd	2005-03-02 08:38:13.000000000 +0100
++++ linux-2.6.12-rc2-mm2/Documentation/cdrom/sbpcd	2005-04-09 02:04:11.000000000 +0200
+@@ -419,6 +419,7 @@
+  */
+ #include <stdio.h>
+ #include <sys/ioctl.h>
++#include <sys/types.h>
+ #include <linux/cdrom.h>
+ 
+ static struct cdrom_tochdr hdr;
+@@ -429,7 +430,7 @@
+ static int i, j, limit, track, err;
+ static char filename[32];
+ 
+-main(int argc, char *argv[])
++int main(int argc, char *argv[])
+ {
+ /*
+  * open /dev/cdrom
+@@ -516,6 +517,7 @@
+ 	}
+       arg.addr.lba++;
+     }
++    return 0;
+ }
+ /*===================== end program ========================================*/
+ 
+@@ -564,15 +566,16 @@
+ #include <stdio.h>
+ #include <malloc.h>
+ #include <sys/ioctl.h>
++#include <sys/types.h>
+ #include <linux/cdrom.h>
+ 
+ #ifdef AZT_PRIVATE_IOCTLS
+ #include <linux/../../drivers/cdrom/aztcd.h>
+-#endif AZT_PRIVATE_IOCTLS
++#endif /* AZT_PRIVATE_IOCTLS */
+ #ifdef SBP_PRIVATE_IOCTLS
+ #include <linux/../../drivers/cdrom/sbpcd.h>
+ #include <linux/fs.h>
+-#endif SBP_PRIVATE_IOCTLS
++#endif /* SBP_PRIVATE_IOCTLS */
+ 
+ struct cdrom_tochdr hdr;
+ struct cdrom_tochdr tocHdr;
+@@ -590,7 +593,7 @@
+ 	struct cdrom_msf msf;
+ 	unsigned char buf[CD_FRAMESIZE_RAW];
+ } azt;
+-#endif AZT_PRIVATE_IOCTLS
++#endif /* AZT_PRIVATE_IOCTLS */
+ int i, i1, i2, i3, j, k;
+ unsigned char sequence=0;
+ unsigned char command[80];
+@@ -738,7 +741,7 @@
+ 	} 
+ } 
+ 
+-main(int argc, char *argv[])
++int main(int argc, char *argv[])
+ {
+ 	printf("\nTesting tool for a CDROM driver's audio functions V0.1\n");
+ 	printf("(C) 1995 Eberhard Moenkeberg <emoenke@gwdg.de>\n");
+@@ -1046,12 +1049,13 @@
+ 			rc=ioctl(drive,CDROMAUDIOBUFSIZ,j);
+ 			printf("%d frames granted.\n",rc);
+ 			break;
+-#endif SBP_PRIVATE_IOCTLS
++#endif /* SBP_PRIVATE_IOCTLS */
+ 		default:
+ 			printf("unknown command: \"%s\".\n",command);
+ 			break;
+ 		}
+ 	}
++	return 0;
+ }
+ /*==========================================================================*/
+ 
 
 

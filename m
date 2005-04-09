@@ -1,83 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVDIUSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVDIUbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVDIUSd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 16:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVDIUSd
+	id S261381AbVDIUbm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 16:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVDIUbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 16:18:33 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:57545 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S261380AbVDIUS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 16:18:28 -0400
-Date: Sat, 9 Apr 2005 22:18:25 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: linux-kernel@vger.kernel.org, Martin Schlemmer <azarah@nosferatu.za.org>
-Subject: Re: patch to fix bashism
-Message-ID: <20050409201825.GF7969@khan.acc.umu.se>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Martin Schlemmer <azarah@nosferatu.za.org>
-References: <20050408211200.GX15412@boetes.org>
+	Sat, 9 Apr 2005 16:31:41 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:5248 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S261381AbVDIUbi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 16:31:38 -0400
+Date: Sat, 9 Apr 2005 16:31:33 -0400
+From: Raul Miller <moth@debian.org>
+To: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050409163133.O32136@links.magenta.com>
+References: <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404190518.GA17087@wonderland.linux.it> <20050404193204.GD4087@stusta.de> <1112709907.30856.17.camel@silicium.ccc.cea.fr> <20050407210722.GC4325@stusta.de> <1112944920.11027.13.camel@silicium.ccc.cea.fr> <20050408173400.GA15688@stusta.de> <20050408203122.E32136@links.magenta.com> <20050409143815.GA5208@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050408211200.GX15412@boetes.org>
-User-Agent: Mutt/1.4.1i
-X-Editor: Vi Improved <http://www.vim.org/>
-X-Accept-Language: Swedish, English
-X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
-X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050409143815.GA5208@stusta.de>; from bunk@stusta.de on Sat, Apr 09, 2005 at 04:38:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 11:11:38PM +0159, Han Boetes wrote:
-> Hi,
+> > It's impossible to treat patents consistently.
+
+On Sat, Apr 09, 2005 at 04:38:15PM +0200, Adrian Bunk wrote:
+> Even RedHat with a stronger financial background than Debian considered 
+> the MP3 patents being serious enough to remove MP3 support.
+
+It's silly to treat financial risk as being a one dimensional quantity.
+
+It could easily be that Red Hat decided that the mp3 patent owners would
+be going after people with deep pockets.  If this is the risk model,
+Red Hat's risk would be much much higher than Debian's.
+
+> Note that this is a respose to Josselin's statement:
 > 
-> This patch fixes a three bashisms in
-> scripts/gen_initramfs_list.sh;
-> 
-> I'm not sure of the intention of the second change (local
-> name=...). So it's very well possible that:
-> 
-> +       local name="${location%/$srcdir}"
-> 
-> is more appropriate.
+< When there are several possible interpretations, you have to pick up the
+< more conservative one, as it's not up to us to make the interpretation,
+< but to a court.
 
-This patch is not going to work; local is a bash:ism too, hence this
-will fail when /bin/sh is a more strict POSIX-shell.  However,
-it is quite likely that the use of local is merely due to the
-(totally correct) instinct of always limiting the scope of variables.
-Most scripts that I've POSIX-fixed so far could just have the local
-removed with no bad effects.
+Sure, if you have several plausible interpretations, you pick the one
+you feel is likely to be the most important, and if all of them seem
+likely you pick the one that seems worst.
 
-> --- scripts/gen_initramfs_list.sh.orig	2005-03-27 14:53:15.628883408 +0200
-> +++ scripts/gen_initramfs_list.sh	2005-03-27 15:12:20.093898280 +0200
-> @@ -1,4 +1,7 @@
-> -#!/bin/bash
-> +#!/bin/sh
-> +
-> +# script is sourced, the shebang is ignored.
-> +
->  # Copyright (C) Martin Schlemmer <azarah@nosferatu.za.org>
->  # Released under the terms of the GNU GPL
->  #
-> @@ -56,9 +59,9 @@
->  
->  parse() {
->  	local location="$1"
-> -	local name="${location/${srcdir}//}"
-> +	local name="${location#$srcdir/}"
->  	# change '//' into '/'
-> -	name="${name//\/\///}"
-> +	name=`echo $name|sed -e 's|//|/|g'`
+But, ultimately, you can't treat software patents consistently.
+There's no reasonable way to do so.
 
-Using $(...) instead of `...` helps readability quite a lot for
-things like this...
+> It's simply silly to be extremely picky on copyright issues while being 
+> extremely liberal on patent issues - the risk of a Debian distributor 
+> being sued for patent violations (no matter how the lawsuit might end) 
+> is definitely present.
 
-[snip]
+Anything to do with software patents is silly.  Being liberal about
+software patents is silly.  Being conservative about software patents
+is silly.
 
+Copyright, while far from perfect, can at least be reasoned about.
 
-Regards: David Weinehall
+> > As for this particular patent, I'm not really sure what's being patented.
+> >...
+
+> Which one of the 23 patents they list do you call "this particular
+> patent"?
+
+What makes you think I'm sure about what's being patented in 22 of
+those patents?
+
+I should probably have said "As for patent claims applying to mp3,
+...", but the issue is thorny enough that even that might not have been
+accurate enough.
+
+But, treating "this particular patent" as a meta-syntactic variable
+should be adequate for you to understand what I was saying.
+
+Bottom line, though: softare patents generally make very little sense.
+
 -- 
- /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/
+Raul

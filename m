@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVDIXPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVDIXPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVDIXPT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 19:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVDIXLh
+	id S261424AbVDIXPS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 19:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVDIXNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 19:11:37 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:7 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261414AbVDIXLC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 19:11:02 -0400
-Date: Sun, 10 Apr 2005 01:10:57 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: lw_linux@hotmail.com
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/sym53c416.c: fix a wrong check
-Message-ID: <20050409231057.GS3632@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 9 Apr 2005 19:13:35 -0400
+Received: from terminus.zytor.com ([209.128.68.124]:51370 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261424AbVDIXMp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 19:12:45 -0400
+Message-ID: <42586168.4030002@zytor.com>
+Date: Sat, 09 Apr 2005 16:12:40 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andre Tomt <andre@tomt.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Status of new kernel.org servers
+References: <d39kad$a33$1@terminus.zytor.com> <425860A1.8050209@tomt.net>
+In-Reply-To: <425860A1.8050209@tomt.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Coverity checker found that this for loop was wrong.
+Andre Tomt wrote:
+> H. Peter Anvin wrote:
+> 
+>> For those of you that are interested...
+> 
+> <snip>
+> 
+> I kind of sort of miss the load and bandwidth statistics on the 
+> kernel.org front page. Did they just go boring now with sufficient 
+> hardware resources? :-)
 
-This patch changes it to what seems to be intended.
+No; the issue there is that with multiple servers we have to change the 
+way they're generated and distributed.  Nathan Laredo is working on 
+that, but it's so obviously not a high priority item.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.12-rc2-mm2-full/drivers/scsi/sym53c416.c.old	2005-04-09 22:16:04.000000000 +0200
-+++ linux-2.6.12-rc2-mm2-full/drivers/scsi/sym53c416.c	2005-04-09 22:16:28.000000000 +0200
-@@ -803,19 +803,19 @@
- static int sym53c416_host_reset(Scsi_Cmnd *SCpnt)
- {
- 	int base;
- 	int scsi_id = -1;	
- 	int i;
- 
- 	/* printk("sym53c416_reset\n"); */
- 	base = SCpnt->device->host->io_port;
- 	/* search scsi_id - fixme, we shouldnt need to iterate for this! */
--	for(i = 0; i < host_index && scsi_id != -1; i++)
-+	for(i = 0; i < host_index && scsi_id == -1; i++)
- 		if(hosts[i].base == base)
- 			scsi_id = hosts[i].scsi_id;
- 	outb(RESET_CHIP, base + COMMAND_REG);
- 	outb(NOOP | PIO_MODE, base + COMMAND_REG);
- 	outb(RESET_SCSI_BUS, base + COMMAND_REG);
- 	sym53c416_init(base, scsi_id);
- 	return SUCCESS;
- }
- 
-
+	-hpa

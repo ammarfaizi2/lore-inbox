@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVDIIvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVDIJAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVDIIvD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 04:51:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVDIIvD
+	id S261187AbVDIJAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 05:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVDIJAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 04:51:03 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:48032 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261184AbVDIIu5 (ORCPT
+	Sat, 9 Apr 2005 05:00:09 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:57831 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261187AbVDIJAE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 04:50:57 -0400
-Date: Sat, 9 Apr 2005 11:50:56 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Dave Airlie <airlied@linux.ie>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [bk tree] DRM add a version check.. for 2.6.12 (distro kernel maintainers + drm users plz read also...)
-Message-ID: <20050409085056.GK3858@mea-ext.zmailer.org>
-References: <Pine.LNX.4.58.0503281236330.27073@skynet> <20050407114933.GH3858@mea-ext.zmailer.org> <Pine.LNX.4.58.0504071334560.25035@skynet> <20050407125345.GI3858@mea-ext.zmailer.org> <Pine.LNX.4.58.0504071357020.25035@skynet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504071357020.25035@skynet>
+	Sat, 9 Apr 2005 05:00:04 -0400
+Date: Sat, 9 Apr 2005 10:56:45 +0200 (CEST)
+From: Manfred Spraul <manfred@colorfullife.com>
+X-X-Sender: manfred@dbl.q-ag.de
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: Francois Romieu <romieu@fr.zoreil.com>, <linux-kernel@vger.kernel.org>,
+       <dipankar@in.ibm.com>, <antonb@au1.ibm.com>, <davej@codemonkey.org.uk>,
+       <hpa@zytor.com>, <len.brown@intel.com>, <andmike@us.ibm.com>,
+       <rth@twiddle.net>, <rusty@au1.ibm.com>, <schwidefsky@de.ibm.com>,
+       <jgarzik@pobox.com>
+Subject: Re: [RFC,PATCH 3/4] Change synchronize_kernel to _rcu and _sched
+In-Reply-To: <20050408010949.GB1299@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0504091047510.18763-100000@dbl.q-ag.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 02:00:07PM +0100, Dave Airlie wrote:
-> > My lattest runs were with 2 days old FC development (a.k.a. "bleeding edge")
-> > environment with  xorg-11-** of same age.  Then I noticed that these DRM
-> > patches didn't make it into  kernel-smp-2.6.11-1.1226_FC4.i686.rpm,
-> > and I made 2.6.12-rc2 -- just in case it had fixed the problem...
-> 
-> well these patches shouldn't really affect it..
+[Jeff added to cc list - it's a network driver question]
 
-  :-(
- 
-> > Could the card-lockups be recovered in a bit nicer way ?
-> > (And detected, too!)
-> 
-> In theory yes, but there isn't really anything you can do except reboot,
-> as usually the CP (command processor) is hung, and you have to do a full
-> GPU reset, I can't imagine X or Linux consoles surviving it too well...
-> ATI have a VPU Recover in their windows driver which does it.. but they
-> know their cards a bit better than we do..
-> 
-> it might be worth turning Render acceleration off Option "RenderAccel"
-> "No" in xorg.conf and see if it gets any stabler...
+On Thu, 7 Apr 2005, Paul E. McKenney wrote:
 
-With that option set, the TuxRacer didn't hang anywhere in practice
-fields, but choosing "Credits" did hang the system in seconds.
+> > >
+> > >  	/* Give a racing hard_start_xmit a few cycles to complete. */
+> > > -	synchronize_kernel();
+I haven't read the whole driver, but what about
+	spin_unlock_wait(&dev->xmit_lock);
+?
+hard_start_xmit is called under dev->xmit_lock, waiting until the lock is
+free would guarantee that all running instances of hard_start_xmit have
+completed.
 
-> Dave.
-> -- 
-> David Airlie, Software Engineer
-> http://www.skynet.ie/~airlied / airlied at skynet.ie
-> Linux kernel - DRI, VAX / pam_smb / ILUG
+Jeff: Is that still correct?
 
-  /Matti
+--
+	Manfred
+

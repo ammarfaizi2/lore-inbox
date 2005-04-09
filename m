@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVDIBnq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVDIBpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVDIBnq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 21:43:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVDIBnq
+	id S261245AbVDIBpO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 21:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVDIBpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 21:43:46 -0400
-Received: from mail.dif.dk ([193.138.115.101]:54672 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261243AbVDIBno (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 21:43:44 -0400
-Date: Sat, 9 Apr 2005 03:46:17 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, arjan@infradead.org, ecashin@noserose.net,
-       greg@kroah.com, axboe@suse.de
-Subject: Re: [PATCH] make mempool_destroy resilient against NULL pointers.
-In-Reply-To: <20050408184121.0a498a3d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0504090345070.2455@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0504090334490.2455@dragon.hyggekrogen.localhost>
- <20050408184121.0a498a3d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Apr 2005 21:45:13 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:40459 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261245AbVDIBpD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 21:45:03 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Magnus Damm <magnus.damm@gmail.com>
+Subject: Re: [PATCH][RFC] disable built-in modules V2
+Cc: rddunlap@osdl.org, linux-os@analogic.com, roland@topspin.com,
+       asterixthegaul@gmail.com, damm@opensource.se,
+       linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <aec7e5c305040711535bbe07d3@mail.gmail.com>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DK4zA-0005rr-00@gondolin.me.apana.org.au>
+Date: Sat, 09 Apr 2005 11:42:08 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Apr 2005, Andrew Morton wrote:
-
-> Jesper Juhl <juhl-lkml@dif.dk> wrote:
-> >
-> > 
-> > General rule (as I understand it) is that functions that free resources 
-> > should handle being passed NULL pointers - mempool_destroy() will 
-> > currently explode if passed a NULL pointer, the patch below makes it safe 
-> > to pass it NULL.
+Magnus Damm <magnus.damm@gmail.com> wrote:
 > 
-> The best response to mempool_destroy(0) is an oops.  There's no legitimate
-> reason for doing it.
-> 
-Ok, ignore the patch then.
+> Say a kernel shipped with your favourite distribution crashes your
+> machine during boot-up - wouldn't it be nice to be able to just
+> disable the problematic module from the kernel command line instead of
 
+Perhaps your favourite distribution could build that as a module to
+start with.
 -- 
-Jesper
-
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

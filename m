@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVDIAEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVDIAFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVDIAEL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 20:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVDIAEL
+	id S261208AbVDIAFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 20:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVDIAFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 20:04:11 -0400
-Received: from waste.org ([216.27.176.166]:40892 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261207AbVDIAEI (ORCPT
+	Fri, 8 Apr 2005 20:05:12 -0400
+Received: from gate.crashing.org ([63.228.1.57]:37867 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261208AbVDIAFI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 20:04:08 -0400
-Date: Fri, 8 Apr 2005 17:03:56 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: domen@coderock.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       didickman@yahoo.com
-Subject: Re: [patch 2/8] correctly name the Shell sort
-Message-ID: <20050409000356.GM25554@waste.org>
-References: <20050408075054.25DF41F3A3@trashy.coderock.org> <200504081552.j38FqBCH012050@laptop11.inf.utfsm.cl>
+	Fri, 8 Apr 2005 20:05:08 -0400
+Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
+	accesses
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Dave Airlie <airlied@gmail.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <jezmw9ug7j.fsf@sykes.suse.de>
+References: <1110519743.5810.13.camel@gaston>
+	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	 <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
+	 <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
+	 <21d7e9970504071422349426eb@mail.gmail.com>
+	 <1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de>
+	 <1112923186.9567.349.camel@gaston>  <jezmw9ug7j.fsf@sykes.suse.de>
+Content-Type: text/plain
+Date: Sat, 09 Apr 2005 10:03:25 +1000
+Message-Id: <1113005006.9568.402.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504081552.j38FqBCH012050@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 11:52:10AM -0400, Horst von Brand wrote:
-> domen@coderock.org said:
-> 
-> > As per http://www.nist.gov/dads/HTML/shellsort.html, this should be
-> > referred to as a Shell sort. Shell-Metzner is a misnomer.
-> 
-> > Signed-off-by: Daniel Dickman <didickman@yahoo.com>
-> > Signed-off-by: Domen Puncer <domen@coderock.org>
-> 
-> Why not use the sort routine from lib/sort.c?
 
-Because the groups are not in an array. They're in a bunch of
-page-sized blocks and the indexing function knows how to look at the
-index block and make everything look like an array from the point of
-view of the shell sort. I couldn't come up with a clean way to handle
-it.
+> > This patch adds to the fbdev interface a set_cmap callback that allow
+> > the driver to "batch" palette changes. This is useful for drivers like
+> > radeonfb which might require lenghtly workarounds on palette accesses,
+> > thus allowing to factor out those workarounds efficiently.
+> 
+> This makes it better. But there is still a delay of half a second, and
+> there is an annoying flicker when switching from X to the console.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Can you redo the counting of the workarounds with the patch ?
+
+Ben.
+
+

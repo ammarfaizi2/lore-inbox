@@ -1,69 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVDIQXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVDIQYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVDIQXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 12:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVDIQXI
+	id S261352AbVDIQYi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 12:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVDIQYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 12:23:08 -0400
-Received: from user-10mt71s.cable.mindspring.com ([65.110.156.60]:64111 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S261354AbVDIQWy (ORCPT
+	Sat, 9 Apr 2005 12:24:38 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8849 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261352AbVDIQYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 12:22:54 -0400
-Date: Sat, 9 Apr 2005 12:17:58 -0400
-From: David Roundy <droundy@darcs.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 9 Apr 2005 12:24:16 -0400
+Date: Sat, 9 Apr 2005 09:26:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Jackson <pj@engr.sgi.com>
+cc: ross@jose.lug.udel.edu, cw@f00f.org, linux-kernel@vger.kernel.org
 Subject: Re: Kernel SCM saga..
-Message-ID: <20050409161748.GM14943@abridgegame.org>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <87d5t73pnf.fsf@osv.topcon.com> <20050407103018.GA22906@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050407103018.GA22906@merlin.emma.line.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050409085017.7edf2c9a.pj@engr.sgi.com>
+Message-ID: <Pine.LNX.4.58.0504090916550.1267@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+ <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
+ <20050408071720.GA23128@jose.lug.udel.edu> <Pine.LNX.4.58.0504080758420.28951@ppc970.osdl.org>
+ <20050409085017.7edf2c9a.pj@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 07, 2005 at 12:30:18PM +0200, Matthias Andree wrote:
-> On Thu, 07 Apr 2005, Sergei Organov wrote:
-> > darcs? <http://www.abridgegame.org/darcs/>
-> 
-> Close. Some things:
-> 
-> 1. It's rather slow and quite CPU consuming and certainly I/O consuming
->    at times - I keep, to try it out, leafnode-2 in a DARCS repo, which
->    has a mere 20,000 lines in 140 files, with 1,436 changes so far, on a
->    RAID-1 with two 7200/min disk drives, with an Athlon XP 2500+ with
->    512 MB RAM. The repo has 1,700 files in 11.5 MB, the source itself
->    189 files in 1.8 MB.
-> 
->    Example: darcs annotate nntpd.c takes 23 s. (2,660 lines, 60 kByte)
-> 
->    The maintainer himself states that there's still optimization required.
 
-Indeed, there's still a lot of optimization to be done.  I've recently made
-some improvements recently which will reduce the memory use (and speed
-things up) for a few of the worst-performing commands.  No improvement to
-the initial record, but on the plus side, that's only done once.  But I was
-able to cut down the memory used checking out a kernel repository to 500m.
-(Which, sadly enough, is a major improvement.)
 
-You would do much better if you recorded the initial state one directory at
-a time, since it's the size of the largest changeset that determines the
-memory use on checkout, but that's ugly.
-
-> Getting DARCS up to the task would probably require some polishing, and
-> should probably be discussed with the DARCS maintainer before making
-> this decision.
+On Sat, 9 Apr 2005, Paul Jackson wrote:
+>
+> > in order to avoid having to worry about special characters
+> > they are NUL-terminated)
 > 
-> Don't get me wrong, DARCS looks promising, but I'm not convinced it's
-> ready for the linux kernel yet.
+> Would this be a possible alternative - newline terminated (convert any
+> newlines embedded in filenames to the 3 chars '%0A', and leave it as an
+> exercise to the reader to de-convert them.)
 
-Indeed, I do believe that darcs has a way to go before it'll perform
-acceptably on the kernel.  On the other hand, tar seems to perform
-unacceptably slow on the kernel, so I'm not sure how slow is too slow.
-Definitely input from interested kernel developers on which commands are
-too slow would be welcome.
--- 
-David Roundy
-http://www.darcs.net
+Sure, you could obviously do escaping (you need to remember to escape '%' 
+too when you do that ;).
+
+However, whenever you do escaping, that means that you're already going to 
+have to use a tool to unpack the dang thing. So you didn't actually win 
+anything. I pretty much guarantee that my existing format is easier to 
+unpack than your escaped format.
+
+ASCII isn't magical.
+
+This is "fsck_tree()", which walks the unpacked tree representation and 
+checks that it looks sane and marks the sha1's it finds as being 
+needed (so that you can do reachability analysis in a second pass). It's 
+not exactly complicated:
+
+	static int fsck_tree(unsigned char *sha1, void *data, unsigned long size)
+	{
+	        while (size) {
+	                int len = 1+strlen(data);
+	                unsigned char *file_sha1 = data + len;
+	                char *path = strchr(data, ' ');
+	                if (size < len + 20 || !path)
+	                        return -1;
+	                data += len + 20;
+	                size -= len + 20;
+	                mark_needs_sha1(sha1, "blob", file_sha1);
+	        }
+	        return 0;
+	}
+
+and there's one HUGE advantage to _not_ having escaping: sorting and
+comparing.
+
+If you escape things, you now have to decide how you sort filenames. Do
+you sort them by the escaped representation, or by the "raw"  
+representation? Do you always have to escape or unescape the name in order 
+to sort it.
+
+So I like ASCII as much as the next guy, but it's not a religion. If there 
+isn't any point to it, there isn't any point to it.
+
+The biggest irritation I have with the "tree" format I chose is actually
+not the name (which is trivial), it's the <sha1> part. Almost everything
+else keeps the <sha1> in the ASCII hexadecimal representation, and I
+should have done that here too. Why? Not because it's a <sha1> - hey, the 
+binary representation is certainly denser and equivalent - but because an 
+ASCII representation there would have allowed me to much more easily 
+change the key format if I ever wanted to. Now it's very SHA1-specific.
+
+Which I guess is fine - I don't really see any reason to change, and if I 
+do change, I could always just re-generate the whole tree. But I think it 
+would have been cleaner to have _that_ part in ASCII.
+
+			Linus

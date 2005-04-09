@@ -1,44 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVDIMW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVDIMk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVDIMW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 08:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVDIMW3
+	id S261338AbVDIMk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 08:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVDIMk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 08:22:29 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:32746 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261337AbVDIMW0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 08:22:26 -0400
-Date: Sat, 9 Apr 2005 14:20:45 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, linux-kernel@vger.kernel.org,
-       dipankar@in.ibm.com, antonb@au1.ibm.com, davej@codemonkey.org.uk,
-       hpa@zytor.com, len.brown@intel.com, andmike@us.ibm.com, rth@twiddle.net,
-       rusty@au1.ibm.com, schwidefsky@de.ibm.com, jgarzik@pobox.com
-Subject: Re: [RFC,PATCH 3/4] Change synchronize_kernel to _rcu and _sched
-Message-ID: <20050409122045.GA6073@electric-eye.fr.zoreil.com>
-References: <20050408010949.GB1299@us.ibm.com> <Pine.LNX.4.44.0504091047510.18763-100000@dbl.q-ag.de>
+	Sat, 9 Apr 2005 08:40:59 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:25063 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261338AbVDIMkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 08:40:51 -0400
+Date: Sat, 9 Apr 2005 14:40:49 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Paul Jackson <pj@engr.sgi.com>
+Subject: [PATCH] cpuset: remove function attribute const
+Message-ID: <20050409124048.GD8908@ens-lyon.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0504091047510.18763-100000@dbl.q-ag.de>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+User-Agent: Mutt/1.5.8i
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> :
-> [Jeff added to cc list - it's a network driver question]
-[...]
-> I haven't read the whole driver, but what about
-> 	spin_unlock_wait(&dev->xmit_lock);
-> ?
+gcc-4 warns with 
+include/linux/cpuset.h:21: warning: type qualifiers ignored on function
+return type
 
-The race here is a dev->close() against dev->hard_start_xmit() one where
-dev->hard_start_xmit() does not do any locking at all.
+cpuset_cpus_allowed is declared with const
+extern const cpumask_t cpuset_cpus_allowed(const struct task_struct *p);
 
-(so far, so good...)
+First const should be __attribute__((const)), but the gcc manual
+explains that:
 
---
-Ueimor
+"Note that a function that has pointer arguments and examines the data
+pointed to must not be declared const. Likewise, a function that calls a
+non-const function usually must not be const. It does not make sense for
+a const function to return void."
+
+The following patch remove const from the function declaration.
+
+Signed-off-by: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+--- ./kernel/cpuset.c.orig	2005-04-09 14:14:23.000000000 +0200
++++ ./kernel/cpuset.c	2005-04-09 14:15:19.000000000 +0200
+@@ -1432,7 +1432,7 @@ void cpuset_exit(struct task_struct *tsk
+  * tasks cpuset.
+  **/
+ 
+-const cpumask_t cpuset_cpus_allowed(const struct task_struct *tsk)
++cpumask_t cpuset_cpus_allowed(const struct task_struct *tsk)
+ {
+ 	cpumask_t mask;
+ 
+--- ./include/linux/cpuset.h.orig	2005-04-09 14:14:32.000000000 +0200
++++ ./include/linux/cpuset.h	2005-04-09 14:15:30.000000000 +0200
+@@ -18,7 +18,7 @@ extern int cpuset_init(void);
+ extern void cpuset_init_smp(void);
+ extern void cpuset_fork(struct task_struct *p);
+ extern void cpuset_exit(struct task_struct *p);
+-extern const cpumask_t cpuset_cpus_allowed(const struct task_struct *p);
++extern cpumask_t cpuset_cpus_allowed(const struct task_struct *p);
+ void cpuset_init_current_mems_allowed(void);
+ void cpuset_update_current_mems_allowed(void);
+ void cpuset_restrict_to_mems_allowed(unsigned long *nodes);

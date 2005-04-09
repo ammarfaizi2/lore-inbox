@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVDIBZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVDIBih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVDIBZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 21:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVDIBZI
+	id S261201AbVDIBih (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 21:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVDIBih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 21:25:08 -0400
-Received: from adsl-69-233-54-142.dsl.pltn13.pacbell.net ([69.233.54.142]:5385
-	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
-	id S261247AbVDIBYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 21:24:17 -0400
-Message-ID: <42572E8E.3000200@tupshin.com>
-Date: Fri, 08 Apr 2005 18:23:26 -0700
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Fri, 8 Apr 2005 21:38:37 -0400
+Received: from mail.dif.dk ([193.138.115.101]:40080 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261201AbVDIBif (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 21:38:35 -0400
+Date: Sat, 9 Apr 2005 03:41:07 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
+       ecashin@noserose.net, Greg K-H <greg@kroah.com>,
+       Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] make mempool_destroy resilient against NULL pointers.
+Message-ID: <Pine.LNX.4.62.0504090334490.2455@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org> <Pine.LNX.4.61.0504072318010.15339@scrub.home> <425717CB.6020405@tupshin.com> <Pine.LNX.4.61.0504090242531.15339@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0504090242531.15339@scrub.home>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
 
->
->
->Please show me how you would do a binary search with arch.
->
->I don't really like the arch model, it's far too restrictive and it's 
->jumping through hoops to get to an acceptable speed.
->What I expect from a SCM is that it maintains both a version index of the 
->directory structure and a version index of the individual files. Arch 
->makes it especially painful to extract this data quickly. For the common 
->cases it throws disk space at the problem and does a lot of caching, but 
->there are still enough problems (e.g. annotate), which require scanning of 
->lots of tarballs.
->
->bye, Roman
->  
->
-I'm not going to defend or attack arch since I haven't used it enough. I 
-will say that darcs largely does suffer from the same problem that you 
-describe since its fundamental unit of storage is individual patches 
-(though it avoids the tarball issue). This is why David Roundy has 
-indicated his intention of eventually having a per-file cache:
-http://kerneltrap.org/mailarchive/1/message/24317/flat
+General rule (as I understand it) is that functions that free resources 
+should handle being passed NULL pointers - mempool_destroy() will 
+currently explode if passed a NULL pointer, the patch below makes it safe 
+to pass it NULL.
 
-You could then make the argument that if you have a per-file 
-representation of the history, why do you also need/want a per-patch 
-representation as the canonical format, but that's been argued plenty on 
-both the darcs and arch mailing lists and probably isn't worth going 
-into here.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
--Tupshin
+ mempool.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+
+--- linux-2.6.12-rc2-mm2-orig/mm/mempool.c	2005-04-05 21:21:56.000000000 +0200
++++ linux-2.6.12-rc2-mm2/mm/mempool.c	2005-04-09 03:33:58.000000000 +0200
+@@ -176,6 +176,8 @@ EXPORT_SYMBOL(mempool_resize);
+  */
+ void mempool_destroy(mempool_t *pool)
+ {
++	if (!pool)
++		return;
+ 	if (pool->curr_nr != pool->min_nr)
+ 		BUG();		/* There were outstanding elements */
+ 	free_pool(pool);
+
+

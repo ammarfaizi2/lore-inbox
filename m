@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVDIBLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVDIBNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVDIBLw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 21:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVDIBLv
+	id S261230AbVDIBNa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 21:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVDIBMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 21:11:51 -0400
-Received: from ds01.webmacher.de ([213.239.192.226]:63659 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261236AbVDIBKk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 21:10:40 -0400
-In-Reply-To: <Pine.LNX.4.58.0504081047200.28951@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org> <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org> <4256BE7D.5040308@tiscali.de> <Pine.LNX.4.58.0504081047200.28951@ppc970.osdl.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <1ebb1ef119c97acc5981e57f4d02bc99@dalecki.de>
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Apr 2005 21:12:03 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:27638 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261231AbVDIBJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 21:09:41 -0400
+Date: Fri, 8 Apr 2005 18:09:19 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Marcin Dalecki <martin@dalecki.de>
 Cc: Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       Chris Wedgwood <cw@f00f.org>, Andrea Arcangeli <andrea@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Marcin Dalecki <martin@dalecki.de>
 Subject: Re: Kernel SCM saga..
-Date: Sat, 9 Apr 2005 03:09:56 +0200
-To: Linus Torvalds <torvalds@osdl.org>
-X-Mailer: Apple Mail (2.619.2)
+Message-ID: <20050409010919.GA10215@taniwha.stupidest.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org> <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <29524f727cac1be01c35cafa3409c2e3@dalecki.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <29524f727cac1be01c35cafa3409c2e3@dalecki.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 09, 2005 at 03:00:44AM +0200, Marcin Dalecki wrote:
 
-On 2005-04-08, at 20:14, Linus Torvalds wrote:
+> Yes it sucks less for this purpose. See subversion as reference.
 
->
->
-> On Fri, 8 Apr 2005, Matthias-Christian Ott wrote:
->>
->> Ok, but if you want to search for information in such big text files 
->> it
->> slow, because you do linear search
->
-> No I don't. I don't search for _anything_. I have my own
-> content-addressable filesystem, and I guarantee you that it's faster 
-> than
-> mysql, because it depends on the kernel doing the right thing (which it
-> does).
+Whatever solution people come up with, ideally it should be tolerant
+to minor amounts of corruption (so I can recover the rest of my data
+if need be) and it should also have decent sanity checks to find
+corruption as soon as reasonable possible.
 
-Linus.... Sorry but you mistake the frequently seen SQL db abuse as DATA
-storage for what SQL databases are good at storing: well defined 
-RELATIONS.
-Sure a filesystem is for data. SQL is for relations.
+I've been bitten by problems that subversion didn't catch but bk did.
+In the subversion case by the time I noticed much data was lost and
+none of the subversion tools were able to recover the rest of it.
 
+In the bk case, the data-loss was almost immediately noticeable and
+only affected a few files making recovery much easier.

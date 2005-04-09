@@ -1,68 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVDIVxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVDIV6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVDIVxg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 17:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVDIVxg
+	id S261390AbVDIV6w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 17:58:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVDIV6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 17:53:36 -0400
-Received: from pat.uio.no ([129.240.130.16]:49905 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261391AbVDIVxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 17:53:34 -0400
-Subject: Re: bdflush/rpciod high CPU utilization, profile does not make
-	sense
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jakob Oestergaard <jakob@unthought.net>
-Cc: Greg Banks <gnb@sgi.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050409213549.GW347@unthought.net>
-References: <20050406160123.GH347@unthought.net>
-	 <20050406231906.GA4473@sgi.com> <20050407153848.GN347@unthought.net>
-	 <1112890671.10366.44.camel@lade.trondhjem.org>
-	 <20050409213549.GW347@unthought.net>
-Content-Type: text/plain
-Date: Sat, 09 Apr 2005 17:52:32 -0400
-Message-Id: <1113083552.11982.17.camel@lade.trondhjem.org>
+	Sat, 9 Apr 2005 17:58:52 -0400
+Received: from dsl092-000-086.sfo1.dsl.speakeasy.net ([66.92.0.86]:12782 "EHLO
+	tumblerings.org") by vger.kernel.org with ESMTP id S261390AbVDIV6t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 17:58:49 -0400
+Date: Sat, 9 Apr 2005 14:58:40 -0700
+From: Zack Brown <zbrown@tumblerings.org>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org, akpm@osdl.org, marcelo@hera.kernel.org, greg@kroah.com,
+       chrisw@osdl.org
+Subject: Unified changelogs for parsing by scripts
+Message-ID: <20050409215840.GA14253@tumblerings.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.537, required 12,
-	autolearn=disabled, AWL 1.41, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lau den 09.04.2005 Klokka 23:35 (+0200) skreiv Jakob Oestergaard:
+Hi Linus, Andrew, Marcelo, Greg, Chris, and folks,
 
-> 2.6.11.6: (dual PIII 1GHz, 2G RAM, Intel e1000)
-> 
->          File   Block  Num  Seq Read    Rand Read   Seq Write  Rand Write
->   Dir    Size   Size   Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-> ------- ------ ------- --- ----------- ----------- ----------- -----------
->    .     2000   4096    1  38.34 18.8% 19.61 6.77% 22.53 23.4% 6.947 15.6%
->    .     2000   4096    2  52.82 29.0% 24.42 9.37% 24.20 27.0% 7.755 16.7%
->    .     2000   4096    4  62.48 34.8% 33.65 17.0% 24.73 27.6% 8.027 15.4%
-> 
-> 
-> 44MiB/sec for 2.4 versus 22MiB/sec for 2.6 - any suggestions as to how
-> this could be improved?
+Since the SCM situation is changing, I thought I'd put in a word for those of us
+who like parsing changelogs via scripts. Hopefully the loss of BitKeeper will
+not involve a loss of detail in the changelogs as well. Maybe the changelogs
+could even be improved now.
 
-What happened to the retransmission rates when you changed to TCP?
+I parse the 2.6 and 2.4 changelogs, including all -pre, -rc, and w.x.y.z
+kernels, and I find that there's a wide variety of formatting that's been
+used over the past few years. This makes it impossible to produce a working
+web application for outside consumption, because I can never tell when the
+whole thing will break because of some new anomaly.
 
-Note that on TCP (besides bumping the value for timeo) I would also
-recommend using a full 32k r/wsize instead of 4k (if the network is of
-decent quality, I'd recommend 32k for UDP too).
+So this email is to make some of the following suggestions for future changelog
+formats:
 
-The other tweak you can apply for TCP is to bump the value
-for /proc/sys/sunrpc/tcp_slot_table_entries. That will allow you to have
-several more RPC requests in flight (although that will also tie up more
-threads on the server).
+1) the date of the particular entry, the date of the kernel release, the full
+name (if available) of the author of the patch, the email of the author of
+the patch, and the changelog entry itself should all have specific, easily
+parsable locations. The start of each entry should also be completely
+unambiguous.
 
-Don't forget that you need to unmount then mount again after making
-these changes (-oremount won't suffice).
+2) there should be no extraneous information (i.e. nothing other than changelog
+entries) in the file. (no version number header at the top of the file, no
+multiple changelogs for multiple kernel releases in the same file, no dashed
+lines as line separators, etc). Or at least, extraneous data should be easily
+siftable.
 
-Cheers,
-  Trond
+3) the changelog system for the kernel should standardize on what information
+it contains, and where and how this information is delineated. Currently
+for example, the 2.4 changelog is against the previous full release, rather
+than the most recent -rc release; while the 2.6 changelog is against the
+most recent -rc release. Whenever a new 2.4 kernel comes out, I have to extract
+the -rc changelog information from it, then go in by hand and date them all
+by looking at mailing list archives. There are also tons of special cases,
+especially in the earlier days of BitKeeper, oddly formatted entries, entries
+with some kinds of information in one part of the file, and different
+information in another. It's a mess.
+
+4) the locations of changelogs on kernel.org should be completely predictable
+programmatically.
+
+5) when the format of changelogs changes, all previous changelogs should be
+regenerated in the new format. There should be a mailing list for people
+who would like to know in advance when the changelog format will change,
+so they can update their web page CGI and not crash and burn.
+
+All I'm really asking is that the various kernel maintainers recognize
+that the issue exists, and take the opportunity, while changing version
+control systems, to come up with a clean solution for those of us tracking
+developments automatically. Or trying to.
+
+Be well,
+Zack
 
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Zack Brown
 

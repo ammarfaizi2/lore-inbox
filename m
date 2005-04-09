@@ -1,87 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVDICSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVDIC05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVDICSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 22:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVDICSu
+	id S261259AbVDIC05 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 22:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVDIC05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 22:18:50 -0400
-Received: from mail.dif.dk ([193.138.115.101]:62353 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261258AbVDICSr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 22:18:47 -0400
-Date: Sat, 9 Apr 2005 04:21:18 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Paul Jackson <pj@engr.sgi.com>, Pekka J Enberg <penberg@cs.helsinki.fi>,
-       jengelh@linux01.gwdg.de, penberg@gmail.com, rlrevell@joe-job.com,
-       davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
-In-Reply-To: <Pine.LNX.4.62.0503302105320.2463@dragon.hyggekrogen.localhost>
-Message-ID: <Pine.LNX.4.62.0504090417390.2455@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
- <1111825958.6293.28.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
- <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
- <1111881955.957.11.camel@mindpipe> <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
- <20050327065655.6474d5d6.pj@engr.sgi.com> <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
- <20050327174026.GA708@redhat.com> <1112064777.19014.17.camel@mindpipe>
- <84144f02050328223017b17746@mail.gmail.com> <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>
- <courier.42490293.000032B0@courier.cs.helsinki.fi> <20050329184411.1faa71eb.pj@engr.sgi.com>
- <Pine.LNX.4.62.0503302105320.2463@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 8 Apr 2005 22:26:57 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51493
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S261259AbVDIC04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 22:26:56 -0400
+Date: Sat, 9 Apr 2005 04:27:01 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Martin Pool <mbp@sourcefrog.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       David Lang <dlang@digitalinsight.com>
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050409022701.GA14085@opteron.random>
+References: <pan.2005.04.07.01.40.20.998237@sourcefrog.net> <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net> <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope> <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope> <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random> <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, Jesper Juhl wrote:
+On Fri, Apr 08, 2005 at 05:12:49PM -0700, Linus Torvalds wrote:
+> really designed for something like a offline http grabber, in that you can 
+> just grab files purely by filename (and verify that you got them right by 
+> running sha1sum on the resulting local copy). So think "wget".
 
-> On Tue, 29 Mar 2005, Paul Jackson wrote:
-> 
-> > Pekka wrote:
-> > >  (4) The cleanups Jesper and others are doing are to remove the
-> > >      _redundant_ NULL checks (i.e. it is now checked twice). 
-> > 
-> > Even such obvious changes as removing redundant checks doesn't
-> > seem to ensure a performance improvement.  Jesper Juhl posted
-> > performance data for such changes in his microbenchmark a couple
-> > of days ago.
-> > 
-> > As I posted then, I could swear that his numbers show:
-> > 
-> > > Just looking at the third run, it seems to me that "if (likely(p))
-> > > kfree(p);" beats a naked "kfree(p);" everytime, whether p is half
-> > > NULL's, or very few NULL's, or almost all NULL's.
-> > 
-> > Twice now I have asked Jesper to explain this strange result.
-> > 
-> I've been kept busy with other things for a while and haven't had the time 
-> to reply to your emails, sorry.   As I just said in another post I don't 
-> know how valid my numbers are, but I'll try and craft a few more tests to 
-> see if I can get some more solid results.
-> 
-> > 
-> > Maybe we should be following your good advice:
-> > 
-> > > You don't know that until you profile! 
-> > 
-> > instead of continuing to make these code changes.
-> > 
-> I'll gather some more numbers and post them along with any conclusions I 
-> believe can be drawn from them within a day or two, untill then I'll hold 
-> back on the patches...
-> 
-Ok, I never got around to doing some more benchmarks, mainly since it 
-seems that people converged on the oppinion that the kfree() cleanups are 
-OK and we can fix up any regressions by inlining kfree if needed (the 
-difference these changes make to performance seem to be small and in the 
-noice anyway).
-If anyone would /like/ me to do more benchmarks, then speak up and I will 
-do them - I guess I could also build a kernel with an inline kfree() as a 
-comparison.. but, unless someone speaks up I'll just carry on making these 
-kfree() cleanups and not bother with benchmarks...
-
-
--- 
-Jesper
-
-
+I'm not entirely convinced wget is going to be an efficient way to
+synchronize and fetch your tree, its simplicitly is great though. It's a
+tradeoff between optimzing and re-using existing tools (like webservers).
+Perhaps that's why you were compressing the stuff too? It sounds better
+not to compress the stuff on-disk, and to synchronize with a rsync-like
+protocol (rsync server would make it) that handles the compression in
+the network protocol itself, and in turn that can apply compression to a
+large blob (i.e. the diff between the trees), and not to the single tiny
+files.

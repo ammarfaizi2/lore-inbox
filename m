@@ -1,56 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVDIQdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVDIQg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVDIQdz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 12:33:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVDIQdz
+	id S261356AbVDIQg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 12:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVDIQgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 12:33:55 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:14000 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261353AbVDIQdx (ORCPT
+	Sat, 9 Apr 2005 12:36:25 -0400
+Received: from bender.bawue.de ([193.7.176.20]:27573 "EHLO bender.bawue.de")
+	by vger.kernel.org with ESMTP id S261356AbVDIQgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 12:33:53 -0400
-Date: Sat, 9 Apr 2005 18:33:23 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andrea Arcangeli <andrea@suse.de>, Martin Pool <mbp@sourcefrog.net>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       David Lang <dlang@digitalinsight.com>
-Subject: Re: Kernel SCM saga..
-In-Reply-To: <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0504091547320.15339@scrub.home>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
- <20050406193911.GA11659@stingr.stingr.net> <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
- <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
- <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope>
- <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope>
- <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random>
- <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Apr 2005 12:36:00 -0400
+Date: Sat, 9 Apr 2005 18:35:52 +0200
+From: Joerg Sommrey <jo@sommrey.de>
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-rc2: Promise SATA150 TX4 failures
+Message-ID: <20050409163552.GA30263@sommrey.de>
+Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
+	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all,
 
-On Fri, 8 Apr 2005, Linus Torvalds wrote:
+just tried 2.6.12-rc2 and I still have the same errors from my SATA
+disks as with 2.6.11.  The setup is a bit complex.  The relevant parts (I
+think) are:
 
-> Also, I suspect that BKCVS actually bothers to get more details out of a
-> BK tree than I cared about. People have pestered Larry about it, so BKCVS
-> exports a lot of the nitty-gritty (per-file comments etc) that just
-> doesn't actually _matter_, but people whine about. Me, I don't care. My
-> sparse-conversion just took the important parts.
+Adaptec AHA-2940UW SCSI-controller, attached are:
+1 harddisk /dev/sda
+1 DDS3 streamer /dev/st0
 
-As soon as you want to synchronize and merge two trees, you will know why 
-this information does matter.
-(/me looks closer at the sparse-conversion...)
-It seems you exported the complete parent information and this is exactly 
-the "nitty-gritty" I was "whining" about and which is not available via 
-bkcvs or bkweb and it's the most crucial information to make the bk data 
-useful outside of bk. Larry was previously very clear about this that he 
-considers this proprietary bk meta data and anyone attempting to export 
-this information is in violation with the free bk licence, so you indeed 
-just took the important parts and this is/was explicitly verboten for 
-normal bk users.
+Promise SATA150 TX4 controller, attached are:
+2 identical hardisks /dev/sdb and /dev/sdc
 
-bye, Roman
+/dev/sda consists of the root partition, a swap partition and 4 other
+partitions that are physical volumes for dm volume group /dev/vg1
+
+/dev/sdb and /dev/sdc have two partitions each, the first of both make
+a RAID-0 array /dev/md0 and the second of both make a md RAID-1 array
+/dev/md1
+
+/dev/md0 and /dev/md1 are the physical volumes for dm volume groups
+/dev/vg2 and /dev/vg3 resp.
+
+To trigger the failure:
+- For all logical volumes in /dev/vg1, /dev/vg2 and /dev/vg3 a snapshot is
+  created.
+- All snapshots are mounted read-only in a "snapshot hierarchy" under
+  /snap.
+- A backup to tape is taken using something like:
+  find /snap -print | cpio -oaH crc -F /dev/st0
+  Backup must go to tape, no problem with /dev/null
+- At this point, some additional i/o on the SATA disks cause the whole
+  box to hang. Mostly some errors are written to syslog, they are
+  always similar:
+Apr  9 01:30:35 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }Apr  9 01:30:35 bear kernel: ata2: called with no error (51)!
+Apr  9 01:30:35 bear kernel: SCSI error : <2 0 0 0> return code = 0x8000002
+Apr  9 01:30:35 bear kernel: sdc: Current: sense key: Medium Error
+Apr  9 01:30:35 bear kernel:     Additional sense: Unrecovered read error - auto reallocate failed
+Apr  9 01:30:35 bear kernel: end_request: I/O error, dev sdc, sector 43100350
+Apr  9 01:30:35 bear kernel: raid1: Disk failure on sdc2, disabling device.
+Apr  9 01:30:35 bear kernel: ^IOperation continuing on 1 devices
+
+The errors are always reported for /dev/sdc2, the second device of a
+RAID-1 array.  After reboot I am able to raidhotadd the failed partition
+without problems.
+
+The problem is 100% reproducible.
+
+The hang is not a "hard hang": X keeps running, the watchdog doesn't hit
+but no new processes can be started.  Syslog entries stop after some time
+(from a few seconds to several minutes).
+
+The problem appeared somewhere between 2.6.10 and 2.6.11.
+2.6.10:		ok
+2.6.10-ac8:	ok
+2.6.10-ac11:	failed
+2.6.11:		failed
+2.6.12-rc2:	failed
+
+I'd be glad if there would be a solution for this problem as it prevents
+me from using any newer kernel.
+
+-jo
+
+-- 
+-rw-r--r--  1 jo users 63 2005-04-09 09:31 /home/jo/.signature

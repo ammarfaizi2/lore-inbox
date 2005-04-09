@@ -1,144 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVDINMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVDINN1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVDINMh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 09:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDINMh
+	id S261340AbVDINN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 09:13:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVDINNZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 09:12:37 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:27091 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261250AbVDINMR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 09:12:17 -0400
-Date: Sat, 9 Apr 2005 15:12:08 +0200 (MEST)
-Message-Id: <200504091312.j39DC8aW004244@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: akpm@osdl.org
-Subject: [PATCH 2.6.12-rc2-mm2 2/3] perfctr: ppc32 ABI update
-Cc: linux-kernel@vger.kernel.org
+	Sat, 9 Apr 2005 09:13:25 -0400
+Received: from pin.if.uz.zgora.pl ([212.109.128.251]:22214 "EHLO
+	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S261340AbVDINMo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 09:12:44 -0400
+Message-ID: <4257D524.3080002@pin.if.uz.zgora.pl>
+Date: Sat, 09 Apr 2005 15:14:12 +0200
+From: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: linux-kernel@vger.kernel.org, Michael Thonke <tk-shockwave@web.de>
+Subject: [PATCH] Against sk98lin driver from syskonnect [was: Re: PCI-Express
+ not working/unuseable on Intel 925XE since 2.6.12-rc1[mm1-4]]
+References: <424D44F0.6090707@web.de> <424D5E2E.8040207@pin.if.uz.zgora.pl>	    <424D71DE.5060703@web.de> <424D91B5.50404@pin.if.uz.zgora.pl>	    <424D9A9C.2070705@web.de>  <424D9FCE.6020200@pin.if.uz.zgora.pl>    <1112993039.12025.65.camel@eeyore>    <4257247B.8030604@pin.if.uz.zgora.pl> <1539.24.9.197.67.1113017666.squirrel@mail.cce.hp.com>
+In-Reply-To: <1539.24.9.197.67.1113017666.squirrel@mail.cce.hp.com>
+Content-Type: multipart/mixed;
+ boundary="------------090901020407000506070103"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-perfctr ppc32 ABI update:
-- <asm-ppc/perfctr.h>: In user-visible state, make start fields
-  64 bits (for future-proofing the ABI). Remove map field from
-  pmc[] array to avoid underutilised cache lines.
-- ppc.c: retrieve mapping from ->control.pmc_map[].
-- ppc32: Add sampling counter to user-visible state, and
-  increment it in perfctr_cpu_resume() and perfctr_cpu_sample().
+This is a multi-part message in MIME format.
+--------------090901020407000506070103
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
+Bjorn Helgaas napisał(a):
+>>Version from syskonnect site require only changing usage of
+>>pci_dev->slot_name to pci_name(pci_dev) in skge.c and skethtool.c. After
+>>that everything should work fine. So I think there is no need to post my
+>>path here but if you really whant I may do this. Whole path agains
+>>2.6.12-rc2 take about 1.2 MB (diffstat attached below).
+> 
+> 
+> I agree, no need to post a whole 1.2MB patch (goodness, what's
+> in this driver, anyway, that it would need a 1.2MB *patch*? :-))
 
- drivers/perfctr/ppc.c     |   16 ++++++++--------
- include/asm-ppc/perfctr.h |   15 +++++++++------
- 2 files changed, 17 insertions(+), 14 deletions(-)
+I'm wondering too :)
 
-diff -rupN linux-2.6.12-rc2-mm2/drivers/perfctr/ppc.c linux-2.6.12-rc2-mm2.perfctr-ppc32-update/drivers/perfctr/ppc.c
---- linux-2.6.12-rc2-mm2/drivers/perfctr/ppc.c	2005-04-08 13:14:23.000000000 +0200
-+++ linux-2.6.12-rc2-mm2.perfctr-ppc32-update/drivers/perfctr/ppc.c	2005-04-09 13:52:34.000000000 +0200
-@@ -1,4 +1,4 @@
--/* $Id: ppc.c,v 1.35 2005/03/17 23:50:05 mikpe Exp $
-+/* $Id: ppc.c,v 1.39 2005/04/08 14:36:49 mikpe Exp $
-  * PPC32 performance-monitoring counters driver.
-  *
-  * Copyright (C) 2004-2005  Mikael Pettersson
-@@ -237,7 +237,7 @@ static void ppc_read_counters(struct per
- 		ctrs->tsc = get_tbl();
- 	nrctrs = perfctr_cstatus_nractrs(cstatus);
- 	for(i = 0; i < nrctrs; ++i) {
--		unsigned int pmc = state->user.pmc[i].map;
-+		unsigned int pmc = state->control.pmc_map[i];
- 		ctrs->pmc[i] = read_pmc(pmc);
- 	}
- }
-@@ -299,7 +299,6 @@ static int ppc_check_control(struct perf
- 
- 	for(i = 0; i < nrctrs; ++i) {
- 		pmc = state->control.pmc_map[i];
--		state->user.pmc[i].map = pmc;
- 		if (pmc >= nr_pmcs || (pmc_mask & (1<<pmc)))
- 			return -EINVAL;
- 		pmc_mask |= (1<<pmc);
-@@ -380,7 +379,7 @@ static void ppc_isuspend(struct perfctr_
- 	cstatus = state->user.cstatus;
- 	nrctrs = perfctr_cstatus_nrctrs(cstatus);
- 	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
--		unsigned int pmc = state->user.pmc[i].map;
-+		unsigned int pmc = state->control.pmc_map[i];
- 		unsigned int now = read_pmc(pmc);
- 		state->user.pmc[i].sum += now - state->user.pmc[i].start;
- 		state->user.pmc[i].start = now;
-@@ -420,7 +419,7 @@ static void ppc_iresume(const struct per
- 	cstatus = state->user.cstatus;
- 	nrctrs = perfctr_cstatus_nrctrs(cstatus);
- 	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i)
--		pmc[state->user.pmc[i].map] = state->user.pmc[i].start;
-+		pmc[state->control.pmc_map[i]] = state->user.pmc[i].start;
- 
- 	switch (pm_type) {
- 	case PM_7450:
-@@ -560,7 +559,7 @@ unsigned int perfctr_cpu_identify_overfl
- 	pmc_mask = 0;
- 	for(i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
- 		if ((int)state->user.pmc[i].start < 0) { /* PPC-specific */
--			unsigned int pmc = state->user.pmc[i].map;
-+			unsigned int pmc = state->control.pmc_map[i];
- 			/* XXX: "+=" to correct for overshots */
- 			state->user.pmc[i].start = state->control.ireset[pmc];
- 			pmc_mask |= (1 << i);
-@@ -578,7 +577,7 @@ static inline int check_ireset(struct pe
- 	i = state->control.header.nractrs;
- 	nrctrs = i + state->control.header.nrictrs;
- 	for(; i < nrctrs; ++i) {
--		unsigned int pmc = state->user.pmc[i].map;
-+		unsigned int pmc = state->control.pmc_map[i];
- 		if ((int)state->control.ireset[pmc] < 0) /* PPC-specific */
- 			return -EINVAL;
- 		state->user.pmc[i].start = state->control.ireset[pmc];
-@@ -734,7 +733,7 @@ void perfctr_cpu_resume(struct perfctr_c
- 		for(i = 0; i < nrctrs; ++i)
- 			state->user.pmc[i].start = now.pmc[i];
- 	}
--	/* XXX: if (SMP && start.tsc == now.tsc) ++now.tsc; */
-+	++state->user.samplecnt;
- }
- 
- void perfctr_cpu_sample(struct perfctr_cpu_state *state)
-@@ -753,6 +752,7 @@ void perfctr_cpu_sample(struct perfctr_c
- 		state->user.pmc[i].sum += now.pmc[i] - state->user.pmc[i].start;
- 		state->user.pmc[i].start = now.pmc[i];
- 	}
-+	++state->user.samplecnt;
- }
- 
- static void perfctr_cpu_clear_counters(void)
-diff -rupN linux-2.6.12-rc2-mm2/include/asm-ppc/perfctr.h linux-2.6.12-rc2-mm2.perfctr-ppc32-update/include/asm-ppc/perfctr.h
---- linux-2.6.12-rc2-mm2/include/asm-ppc/perfctr.h	2005-04-08 13:14:24.000000000 +0200
-+++ linux-2.6.12-rc2-mm2.perfctr-ppc32-update/include/asm-ppc/perfctr.h	2005-04-09 13:52:34.000000000 +0200
-@@ -1,4 +1,4 @@
--/* $Id: perfctr.h,v 1.16 2005/03/17 23:58:54 mikpe Exp $
-+/* $Id: perfctr.h,v 1.19 2005/04/08 14:36:49 mikpe Exp $
-  * PPC32 Performance-Monitoring Counters driver
-  *
-  * Copyright (C) 2004-2005  Mikael Pettersson
-@@ -21,13 +21,16 @@ struct perfctr_cpu_control_header {
- 
- struct perfctr_cpu_state_user {
- 	__u32 cstatus;
--	/* The two tsc fields must be inlined. Placing them in a
--	   sub-struct causes unwanted internal padding on x86-64. */
--	__u32 tsc_start;
-+	/* 'samplecnt' is incremented every time the 'start'
-+	   fields have been updated by a sampling operation.
-+	   Unfortunately the PPC timebase (tsc_start) has too
-+	   low frequency for it to be a reliable context-switch
-+	   indicator for user-space. */
-+	__u32 samplecnt;
-+	__u64 tsc_start;
- 	__u64 tsc_sum;
- 	struct {
--		__u32 map;
--		__u32 start;
-+		__u64 start;
- 		__u64 sum;
- 	} pmc[8];	/* the size is not part of the user ABI */
- };
+> But you seem to be saying that the driver from syskonnect (and possibly
+> the one in 2.6.12-rc1-bk3 as well) does not work as-is, and that you have
+> a small patch that makes it work.
+
+The one that is in 2.6.12-rc1-bk2 and latest 2.6.13-rc2 doesn't work
+with Marvell Yukon 88E8053 GigE.
+
+Attached patch convert pci_dev->slot_name usage to pci_name() in skge.c
+and skethtool.c. First you must apply patch generated by install script
+and after that apply this patch:-)
+
+Regards
+	Jacek
+
+---
+
+ drivers/net/sk98lin/skethtool.c |    2 +-
+ drivers/net/sk98lin/skge.c      |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+---
+
+
+--------------090901020407000506070103
+Content-Type: text/plain;
+ name="sk98lin_syskonnect.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="sk98lin_syskonnect.patch"
+
+LS0tIGxpbnV4LTIuNi4xMi1yYzIvZHJpdmVycy9uZXQvc2s5OGxpbi9za2dlLmMJMjAwNS0w
+NC0wOSAxNDo0OTozOS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4L2RyaXZlcnMvbmV0L3Nr
+OThsaW4vc2tnZS5jCTIwMDUtMDQtMDkgMDI6MDQ6NDkuMDAwMDAwMDAwICswMjAwCkBAIC00
+MDI2LDcgKzQwMjYsNyBAQAogCQkqLwogCQkqICgoU0tfVTMyICopcE1lbUJ1ZikgPSAwOwog
+CQkqICgoU0tfVTMyICopcE1lbUJ1ZiArIDEpID0gcGRldi0+YnVzLT5udW1iZXI7Ci0JCSog
+KChTS19VMzIgKilwTWVtQnVmICsgMikgPSBQYXJzZURldmljZU5ickZyb21TbG90TmFtZShw
+ZGV2LT5zbG90X25hbWUpOworCQkqICgoU0tfVTMyICopcE1lbUJ1ZiArIDIpID0gUGFyc2VE
+ZXZpY2VOYnJGcm9tU2xvdE5hbWUocGNpX25hbWUocGRldikpOwogCQlpZihjb3B5X3RvX3Vz
+ZXIoSW9jdGwucERhdGEsIHBNZW1CdWYsIExlbmd0aCkgKSB7CiAJCQlFcnIgPSAtRUZBVUxU
+OwogCQkJZ290byBmYXVsdF9kaWFnOwotLS0gbGludXgtMi42LjEyLXJjMi9kcml2ZXJzL25l
+dC9zazk4bGluL3NrZXRodG9vbC5jCTIwMDUtMDQtMDkgMTQ6NDk6MzkuMDAwMDAwMDAwICsw
+MjAwCisrKyBsaW51eC9kcml2ZXJzL25ldC9zazk4bGluL3NrZXRodG9vbC5jCTIwMDUtMDQt
+MDkgMDI6MDQ6NDkuMDAwMDAwMDAwICswMjAwCkBAIC0xMTM2LDcgKzExMzYsNyBAQAogCXN0
+cm5jcHkoZWRydmluZm8tPmRyaXZlciwgRFJJVkVSX0ZJTEVfTkFNRSAsIDMyKTsKIAlzdHJu
+Y3B5KGVkcnZpbmZvLT52ZXJzaW9uLCB2ZXJzaW9uU3RyaW5nICwgMzIpOwogCXN0cm5jcHko
+ZWRydmluZm8tPmZ3X3ZlcnNpb24sICJOL0EiLCAzMik7Ci0Jc3RybmNweShlZHJ2aW5mby0+
+YnVzX2luZm8sIHBBQy0+UGNpRGV2LT5zbG90X25hbWUsIDMyKTsKKwlzdHJuY3B5KGVkcnZp
+bmZvLT5idXNfaW5mbywgcGNpX25hbWUocEFDLT5QY2lEZXYpLCAzMik7CiAjaWZkZWYgIEVU
+SFRPT0xfR1NUQVRTCiAJZWRydmluZm8tPm5fc3RhdHMgPSBTSzk4TElOX1NUQVRTX0xFTjsK
+ICNlbmRpZgo=
+--------------090901020407000506070103--

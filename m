@@ -1,26 +1,24 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVDHW34 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 8 Apr 2005 18:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVDHW34
+	id S261268AbVDIDgw (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 8 Apr 2005 23:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVDIDgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 18:29:56 -0400
-Received: from CPE-65-27-106-16.mn.res.rr.com ([65.27.106.16]:38929 "HELO
-	CPE-65-27-106-16.mn.res.rr.com") by vger.kernel.org with SMTP
-	id S261177AbVDHW22 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 18:28:28 -0400
-Date: Fri, 08 Apr 2005 22:24:25 +0000
-From: edaphology <edaphology@osemultimedia.com>
-Subject: PC&MAC: 130US$ == Adobe Photoshop v7 ++ Adobe Premiere v7 ++ Adobe Illustrator v10, for download
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <2FDFJ5498HEGB83F@vger.kernel.org>
-In-Reply-To: <2FDFJ5498HEGB83F@vger.kernel.org>
-Message-ID: <9FKGI58CJCB0LEE2@osemultimedia.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	Fri, 8 Apr 2005 23:36:51 -0400
+Received: from [211.36.37.213] ([211.36.37.213]:63413 "HELO mail.qsv17.com")
+	by vger.kernel.org with SMTP id S261268AbVDIDgp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 23:36:45 -0400
+Date: 9 Apr 2005 09:09:11 +0900
+Message-ID: <20050409000911.17914.qmail@mail.qsv17.com>
+From: info@qsv17.com
+To: linux-kernel@vger.kernel.org
+Subject: =?ISO-8859-1?Q?=20=1B$B$h$m$7$/$G$9!?= =?ISO-8859-1?Q?y=1B(B?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261179AbVDHW34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261268AbVDIDgw@vger.kernel.org>
 
-www.lspz6s59pelkmo3.knalkoxylhe.com
 
+遂にオープンしました(^-^)
+お金がない人、出会いたい人、いままで仕事の関係で女の子と付き合うチャンスが少
+ない人、
+ここ必見→http://www.getluck.net/

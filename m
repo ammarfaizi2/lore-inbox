@@ -1,118 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVDIAIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVDIALm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbVDIAIs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 20:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVDIAIs
+	id S261210AbVDIALm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 20:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVDIALl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 20:08:48 -0400
-Received: from mail.dif.dk ([193.138.115.101]:13966 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261209AbVDIAH5 (ORCPT
+	Fri, 8 Apr 2005 20:11:41 -0400
+Received: from fire.osdl.org ([65.172.181.4]:25512 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261210AbVDIALG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 20:07:57 -0400
-Date: Sat, 9 Apr 2005 02:10:27 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Eberhard Moenkeberg <emoenke@gwdg.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] cosmetic fixes for example programs in Documentation/cdrom/sbpcd
-Message-ID: <Pine.LNX.4.62.0504090205250.2455@dragon.hyggekrogen.localhost>
+	Fri, 8 Apr 2005 20:11:06 -0400
+Date: Fri, 8 Apr 2005 17:12:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Martin Pool <mbp@sourcefrog.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       David Lang <dlang@digitalinsight.com>
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <20050408083839.GC3957@opteron.random>
+Message-ID: <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+ <20050406193911.GA11659@stingr.stingr.net> <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
+ <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
+ <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope>
+ <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope>
+ <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Andrew,
 
-I'm sending this to you directly since Eberhard Moenkeberg already 
-indicated to me that he approves of the patch.
+On Fri, 8 Apr 2005, Andrea Arcangeli wrote:
+> 
+> We'd need a regenerated coherent copy of BKCVS to pipe into those SCM to
+> evaluate how well they scale.
 
-This patch makes a few minor changes to the example programs in 
-Documentation/cdrom/sbpcd to kill off some warnings and build failures.
+Yes, that makes most sense, I believe. Especially as BKCVS does the 
+linearization that makes other SCM's _able_ to take the data in the first 
+place. Few enough SCM's really understand the BK merge model, although the 
+distributed ones obviously have to do something similar.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+> OTOH if your git project already allows storing the data in there,
+> that looks nice ;).
 
- sbpcd |   16 ++++++++++------
- 1 files changed, 10 insertions(+), 6 deletions(-)
+I can express the data, and I did a sparse .git archive to prove the 
+concept. It doesn't even try to save BK-specific details, but as far as I 
+can tell, my git-conversion did capture all the basic things (ie not just 
+the actual source tree, but hopefully all the "who did what" parts too).
 
---- linux-2.6.12-rc2-mm2-orig/Documentation/cdrom/sbpcd	2005-03-02 08:38:13.000000000 +0100
-+++ linux-2.6.12-rc2-mm2/Documentation/cdrom/sbpcd	2005-04-09 02:04:11.000000000 +0200
-@@ -419,6 +419,7 @@
-  */
- #include <stdio.h>
- #include <sys/ioctl.h>
-+#include <sys/types.h>
- #include <linux/cdrom.h>
- 
- static struct cdrom_tochdr hdr;
-@@ -429,7 +430,7 @@
- static int i, j, limit, track, err;
- static char filename[32];
- 
--main(int argc, char *argv[])
-+int main(int argc, char *argv[])
- {
- /*
-  * open /dev/cdrom
-@@ -516,6 +517,7 @@
- 	}
-       arg.addr.lba++;
-     }
-+    return 0;
- }
- /*===================== end program ========================================*/
- 
-@@ -564,15 +566,16 @@
- #include <stdio.h>
- #include <malloc.h>
- #include <sys/ioctl.h>
-+#include <sys/types.h>
- #include <linux/cdrom.h>
- 
- #ifdef AZT_PRIVATE_IOCTLS
- #include <linux/../../drivers/cdrom/aztcd.h>
--#endif AZT_PRIVATE_IOCTLS
-+#endif /* AZT_PRIVATE_IOCTLS */
- #ifdef SBP_PRIVATE_IOCTLS
- #include <linux/../../drivers/cdrom/sbpcd.h>
- #include <linux/fs.h>
--#endif SBP_PRIVATE_IOCTLS
-+#endif /* SBP_PRIVATE_IOCTLS */
- 
- struct cdrom_tochdr hdr;
- struct cdrom_tochdr tocHdr;
-@@ -590,7 +593,7 @@
- 	struct cdrom_msf msf;
- 	unsigned char buf[CD_FRAMESIZE_RAW];
- } azt;
--#endif AZT_PRIVATE_IOCTLS
-+#endif /* AZT_PRIVATE_IOCTLS */
- int i, i1, i2, i3, j, k;
- unsigned char sequence=0;
- unsigned char command[80];
-@@ -738,7 +741,7 @@
- 	} 
- } 
- 
--main(int argc, char *argv[])
-+int main(int argc, char *argv[])
- {
- 	printf("\nTesting tool for a CDROM driver's audio functions V0.1\n");
- 	printf("(C) 1995 Eberhard Moenkeberg <emoenke@gwdg.de>\n");
-@@ -1046,12 +1049,13 @@
- 			rc=ioctl(drive,CDROMAUDIOBUFSIZ,j);
- 			printf("%d frames granted.\n",rc);
- 			break;
--#endif SBP_PRIVATE_IOCTLS
-+#endif /* SBP_PRIVATE_IOCTLS */
- 		default:
- 			printf("unknown command: \"%s\".\n",command);
- 			break;
- 		}
- 	}
-+	return 0;
- }
- /*==========================================================================*/
- 
+Of course, my git visualization tools are so horribly crappy that it is 
+hard to make sure ;)
 
+Also, I suspect that BKCVS actually bothers to get more details out of a
+BK tree than I cared about. People have pestered Larry about it, so BKCVS
+exports a lot of the nitty-gritty (per-file comments etc) that just
+doesn't actually _matter_, but people whine about. Me, I don't care. My
+sparse-conversion just took the important parts.
 
+> I don't yet fully understand how the algorithms of the trees are meant
+> to work
+
+Well, things like actually merging two git trees is not even something git
+tries to do. It leaves that to somebody else - you can see what the
+relationship is, and you can see all the data, but as far as I'm
+concerned, git is really a "filesystem". It's a way of expression
+revisions, but it's not a way of creating them.
+
+> It looks similar to a diff -ur of two hardlinked trees
+
+Yes. You could really think of it that way. It's not really about
+hardlinking, but the fact that objects are named by their content does
+mean that two objects (regardless of their type) can be seen as
+"hardlinked" whenever their contents match.
+
+But the more interesting part is the hierarchical virtual format it has,
+ie it is not only hardlinked, but it also has the three different levels
+of "views" into those hardlinked objects ("blob", "tree", "revision").
+
+So even though the hash tree looks flat in the _physcal_ filesystem, it 
+detinitely isn't flat in its own virtual world. It's just flattened to fit 
+in a normal filesystem ;)
+
+[ There's also a fourth level view in "trust", but that one hasn't been
+  implemented yet since I think it might as well be done at a higher
+  level. ]
+
+Btw, the sha1 file format isn't actually designed for "rsync", since rsync 
+is really a hell of a lot more capable than my format needs. The format is 
+really designed for something like a offline http grabber, in that you can 
+just grab files purely by filename (and verify that you got them right by 
+running sha1sum on the resulting local copy). So think "wget".
+
+				Linus

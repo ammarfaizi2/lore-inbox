@@ -1,68 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVDIS4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVDITiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVDIS4M (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 14:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVDIS4M
+	id S261378AbVDITiv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 15:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVDITiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 14:56:12 -0400
-Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:47569 "EHLO
-	madrabbit.org") by vger.kernel.org with ESMTP id S261372AbVDIS4I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 14:56:08 -0400
-Subject: Re: Kernel SCM saga..
-From: Ray Lee <ray-lk@madrabbit.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Eric D. Mudama" <edmudama@gmail.com>
-In-Reply-To: <Pine.LNX.4.61.0504091930250.15339@scrub.home>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	 <1112858331.6924.17.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org>
-	 <Pine.LNX.4.61.0504072318010.15339@scrub.home>
-	 <311601c905040909525ef8242e@mail.gmail.com>
-	 <Pine.LNX.4.61.0504091930250.15339@scrub.home>
-Content-Type: text/plain
-Organization: http://madrabbit.org/
-Date: Sat, 09 Apr 2005 11:56:06 -0700
-Message-Id: <1113072966.27590.35.camel@orca.madrabbit.org>
+	Sat, 9 Apr 2005 15:38:51 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4869 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261373AbVDITio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 15:38:44 -0400
+Date: Sat, 9 Apr 2005 21:38:41 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: herbert@gondor.apana.org.au, davem@davemloft.net
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] crypto/api.c: make crypto_alg_lookup static
+Message-ID: <20050409193841.GK3632@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-04-09 at 19:40 +0200, Roman Zippel wrote:
-> On Sat, 9 Apr 2005, Eric D. Mudama wrote:
-> > > For example bk does something like this:
-> > > 
-> > >         A1 -> A2 -> A3 -> BM
-> > >           \-> B1 -> B2 --^
-> > > 
-> > > and instead of creating the merge changeset, one could merge them like
-> > > this:
-> > > 
-> > >         A1 -> A2 -> A3 -> B1 -> B2
+This patch makes a needlessly global function static.
 
-> > I believe that flattening the change graph makes history reproduction
-> > impossible, or alternately, you are imposing on each developer to test
-> > the merge results at B1 + A1..3 before submission, but in doing so,
-> > the test time may require additional test periods etc and with
-> > sufficient velocity, might never close.
-> 
-> The merge result has to be tested either way, so I'm not exactly sure, 
-> what you're trying to say.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-The kernel changes. A lot. And often.
+---
 
-With that in mind, if (for example) A2 and A3 are simple changes that
-are quick to test and B1 is large, or complex, or requires hours (days,
-weeks) of testing to validate, then a maintainer's decision can
-legitimately be to rebase a tree (say, -mm) upon the B1 line of
-development, and toss the A2 branch back to those developers with a
-"Sorry it didn't work out, something here causes Unhappiness with B1,
-can you track down the problem and try again?"
+ crypto/api.c      |    9 ++++++++-
+ crypto/internal.h |    9 ---------
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
-Ray
+--- linux-2.6.12-rc2-mm2-full/crypto/internal.h.old	2005-04-09 21:13:40.000000000 +0200
++++ linux-2.6.12-rc2-mm2-full/crypto/internal.h	2005-04-09 21:15:14.000000000 +0200
+@@ -47,15 +47,6 @@
+ 	return (void *)&tfm[1];
+ }
+ 
+-struct crypto_alg *crypto_alg_lookup(const char *name);
+-
+-/* A far more intelligent version of this is planned.  For now, just
+- * try an exact match on the name of the algorithm. */
+-static inline struct crypto_alg *crypto_alg_mod_lookup(const char *name)
+-{
+-	return try_then_request_module(crypto_alg_lookup(name), name);
+-}
+-
+ #ifdef CONFIG_CRYPTO_HMAC
+ int crypto_alloc_hmac_block(struct crypto_tfm *tfm);
+ void crypto_free_hmac_block(struct crypto_tfm *tfm);
+--- linux-2.6.12-rc2-mm2-full/crypto/api.c.old	2005-04-09 21:13:59.000000000 +0200
++++ linux-2.6.12-rc2-mm2-full/crypto/api.c	2005-04-09 21:15:07.000000000 +0200
+@@ -33,7 +33,7 @@
+ 	module_put(alg->cra_module);
+ }
+ 
+-struct crypto_alg *crypto_alg_lookup(const char *name)
++static struct crypto_alg *crypto_alg_lookup(const char *name)
+ {
+ 	struct crypto_alg *q, *alg = NULL;
+ 
+@@ -54,6 +54,13 @@
+ 	return alg;
+ }
+ 
++/* A far more intelligent version of this is planned.  For now, just
++ * try an exact match on the name of the algorithm. */
++static inline struct crypto_alg *crypto_alg_mod_lookup(const char *name)
++{
++	return try_then_request_module(crypto_alg_lookup(name), name);
++}
++
+ static int crypto_init_flags(struct crypto_tfm *tfm, u32 flags)
+ {
+ 	tfm->crt_flags = 0;
 

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVDJLzq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVDJMAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVDJLzq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 07:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVDJLzq
+	id S261480AbVDJMAr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 08:00:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVDJMAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 07:55:46 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:3202 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261478AbVDJLzm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 07:55:42 -0400
-Date: Sun, 10 Apr 2005 15:54:43 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: johnpol@2ka.mipt.ru
-Cc: Kay Sievers <kay.sievers@vrfy.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>, jmorris@redhat.com,
-       ijc@hellion.org.uk, guillaume.thouvenin@bull.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, netdev@oss.sgi.com,
-       jamal <hadi@cyberus.ca>
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-Message-ID: <20050410155443.2d4fe469@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050410153757.104fe611@zanzibar.2ka.mipt.ru>
-References: <1112942924.28858.234.camel@uganda>
-	<E1DKZ7e-00070D-00@gondolin.me.apana.org.au>
-	<20050410143205.18bff80d@zanzibar.2ka.mipt.ru>
-	<1113131325.6994.66.camel@localhost.localdomain>
-	<20050410153757.104fe611@zanzibar.2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Sun, 10 Apr 2005 15:54:44 +0400 (MSD)
+	Sun, 10 Apr 2005 08:00:46 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:30098 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261480AbVDJMAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 08:00:39 -0400
+From: tony.luck@intel.com
+Message-Id: <200504101200.j3AC0Mu13146@unix-os.sc.intel.com>
+Date: Sat, 9 Apr 2005 14:00:09 -0700 (PDT)
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: more git updates..
+In-Reply-To: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+ <20050409200709.GC3451@pasky.ji.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Apr 2005 15:37:57 +0400
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+>In other words, each "commit" file is very small and cheap, but since 
+>almost every commit will also imply a totally new tree-file, "git" is 
+>going to have an overhead of half a megabyte per commit. Oops.
+>
+>Damn, that's painful. I suspect I will have to change the format somehow.
 
-> The second one is a huge monster that can not be used in embedded
-> systems, calling userspace process from inside the kernel is 
-> now very flexible way.
+Having dodged that bullet with the change to make tree files point at
+other tree files ... here's another (potential) issue.
 
-is NOT very flexible way...
+A changeset that touches just one file a few levels down from the top
+of the tree (say arch/i386/kernel/setup.c) will make six new files in
+the git repository (one for the changeset, four tree files, and a new
+blob for the new version of the file). More complex changes make more
+files ... but say the average is ten new files per changeset since most
+changes touch few files.  With 60,000 changesets in the current tree, we
+will start out our git repository with about 600,000 files.  Assuming
+the first byte of the SHA1 hash is random, that means an average of 2343
+files in each of the objects/xx directories.  Give it a few more years at
+the current pace, and we'll have over 10,000 files per directory.  This
+sounds like a lot to me ... but perhaps filesystems now handle large
+directories enough better than they used to for this to not be a problem?
 
+Or maybe the files should be named objects/xx/yy/zzzzzzzzzzzzzzzz?
 
-	Evgeniy Polyakov
-
-Only failure makes us experts. -- Theo de Raadt
+-Tony

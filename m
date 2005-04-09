@@ -1,76 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVDICJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVDICSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVDICJK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 22:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVDICJK
+	id S261258AbVDICSu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 22:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVDICSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 22:09:10 -0400
-Received: from mail.dif.dk ([193.138.115.101]:44177 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261254AbVDICJD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 22:09:03 -0400
-Date: Sat, 9 Apr 2005 04:11:37 +0200 (CEST)
+	Fri, 8 Apr 2005 22:18:50 -0400
+Received: from mail.dif.dk ([193.138.115.101]:62353 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261258AbVDICSr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 22:18:47 -0400
+Date: Sat, 9 Apr 2005 04:21:18 +0200 (CEST)
 From: Jesper Juhl <juhl-lkml@dif.dk>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Roland Dreier <roland@topspin.com>, Paulo Marques <pmarques@grupopie.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
-In-Reply-To: <20050406112837.GC7031@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.62.0504090409520.2455@dragon.hyggekrogen.localhost>
-References: <4252BC37.8030306@grupopie.com>
- <Pine.LNX.4.62.0504052052230.2444@dragon.hyggekrogen.localhost>
- <521x9pc9o6.fsf@topspin.com> <Pine.LNX.4.62.0504052148480.2444@dragon.hyggekrogen.localhost>
- <20050406112837.GC7031@wohnheim.fh-wedel.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Paul Jackson <pj@engr.sgi.com>, Pekka J Enberg <penberg@cs.helsinki.fi>,
+       jengelh@linux01.gwdg.de, penberg@gmail.com, rlrevell@joe-job.com,
+       davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: no need to check for NULL before calling kfree() -fs/ext2/
+In-Reply-To: <Pine.LNX.4.62.0503302105320.2463@dragon.hyggekrogen.localhost>
+Message-ID: <Pine.LNX.4.62.0504090417390.2455@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
+ <1111825958.6293.28.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
+ <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
+ <1111881955.957.11.camel@mindpipe> <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
+ <20050327065655.6474d5d6.pj@engr.sgi.com> <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
+ <20050327174026.GA708@redhat.com> <1112064777.19014.17.camel@mindpipe>
+ <84144f02050328223017b17746@mail.gmail.com> <Pine.LNX.4.61.0503290903530.13383@yvahk01.tjqt.qr>
+ <courier.42490293.000032B0@courier.cs.helsinki.fi> <20050329184411.1faa71eb.pj@engr.sgi.com>
+ <Pine.LNX.4.62.0503302105320.2463@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Apr 2005, Jörn Engel wrote:
+On Wed, 30 Mar 2005, Jesper Juhl wrote:
 
-> On Tue, 5 April 2005 22:01:49 +0200, Jesper Juhl wrote:
-> > On Tue, 5 Apr 2005, Roland Dreier wrote:
+> On Tue, 29 Mar 2005, Paul Jackson wrote:
+> 
+> > Pekka wrote:
+> > >  (4) The cleanups Jesper and others are doing are to remove the
+> > >      _redundant_ NULL checks (i.e. it is now checked twice). 
 > > 
-> > >     > or simply
-> > >     > 	if (!(ptr = kcalloc(n, size, ...)))
-> > >     > 		goto out;
-> > >     > and save an additional line of screen realestate while you are at it...
-> > > 
-> > > No, please don't do that.  The general kernel style is to avoid
-> > > assignments within conditionals.
-> > > 
-> > It may be the prefered style to avoid assignments in conditionals, but in 
-> > that case we have a lot of cleanup to do. What I wrote above is quite 
-> > common in the current tree - a simple  egrep -r "if\ *\(\!\(.+=" *  in 
-> > 2.6.12-rc2-mm1 will find you somewhere between 1000 and 2000 cases 
-> > scattered all over the tree.
+> > Even such obvious changes as removing redundant checks doesn't
+> > seem to ensure a performance improvement.  Jesper Juhl posted
+> > performance data for such changes in his microbenchmark a couple
+> > of days ago.
 > > 
-> > Personally I don't see why thy should not be used. They are short, not any 
-> > harder to read (IMHO), save screen space & are quite common in userspace 
-> > code as well (so people should be used to seeing them).
+> > As I posted then, I could swear that his numbers show:
 > > 
-> > If such statements are generally frawned upon then I'd suggest an addition 
-> > be made to Documentation/CodingStyle mentioning that fact, and I wonder if 
-> > patches to clean up current users would be welcome?
+> > > Just looking at the third run, it seems to me that "if (likely(p))
+> > > kfree(p);" beats a naked "kfree(p);" everytime, whether p is half
+> > > NULL's, or very few NULL's, or almost all NULL's.
+> > 
+> > Twice now I have asked Jesper to explain this strange result.
+> > 
+> I've been kept busy with other things for a while and haven't had the time 
+> to reply to your emails, sorry.   As I just said in another post I don't 
+> know how valid my numbers are, but I'll try and craft a few more tests to 
+> see if I can get some more solid results.
 > 
-> I _do_ change them whenever they occur in code I maintain.  And each
-> time, it is an improvement.
+> > 
+> > Maybe we should be following your good advice:
+> > 
+> > > You don't know that until you profile! 
+> > 
+> > instead of continuing to make these code changes.
+> > 
+> I'll gather some more numbers and post them along with any conclusions I 
+> believe can be drawn from them within a day or two, untill then I'll hold 
+> back on the patches...
 > 
-> o Functional code always has the same indentation.  I can mentally
->   ignore the error path by ignoring all indented code.  Getting a
->   quick overview is quite nice.
-> 
-> o Rather often, your preferred variant violates the 80 columns rule.
->   If I need the line break anyway,...
-> 
-> o Keeping condition and functional code seperate avoids the Lisp-style
->   bracket maze.  Some editors can help you here, but not needing any
->   help would be even better, no?
-> 
-Ok, I accept those arguments, they make sense. I may still have a personal 
-preference that differ slightly, but I see your point(s).
+Ok, I never got around to doing some more benchmarks, mainly since it 
+seems that people converged on the oppinion that the kfree() cleanups are 
+OK and we can fix up any regressions by inlining kfree if needed (the 
+difference these changes make to performance seem to be small and in the 
+noice anyway).
+If anyone would /like/ me to do more benchmarks, then speak up and I will 
+do them - I guess I could also build a kernel with an inline kfree() as a 
+comparison.. but, unless someone speaks up I'll just carry on making these 
+kfree() cleanups and not bother with benchmarks...
+
 
 -- 
 Jesper
+
 

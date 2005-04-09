@@ -1,51 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVDINwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVDIOVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVDINwM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 09:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVDINwM
+	id S261345AbVDIOVT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 10:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVDIOVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 09:52:12 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:53124 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261342AbVDINwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 09:52:08 -0400
-Date: Sat, 9 Apr 2005 15:52:05 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       netdev@oss.sgi.com
-Subject: Re: [PATCH] s390: claw network device driver
-Message-ID: <20050409135205.GA13305@wohnheim.fh-wedel.de>
-References: <200503290533.j2T5XEYT028850@hera.kernel.org> <4248FBFD.5000809@pobox.com> <20050328230830.5e90396f.akpm@osdl.org> <20050329071002.GA16204@havoc.gtf.org> <20050329152057.GA27840@wohnheim.fh-wedel.de> <4249B52C.2000300@pobox.com> <20050408201606.GA1429@elf.ucw.cz>
+	Sat, 9 Apr 2005 10:21:19 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:22409 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261345AbVDIOVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 10:21:12 -0400
+Date: Sat, 9 Apr 2005 07:19:13 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: RFC: turn kmalloc+memset(,0,) into kcalloc
+Message-Id: <20050409071913.7f2aab65.pj@engr.sgi.com>
+In-Reply-To: <42567B3E.8010403@grupopie.com>
+References: <4252BC37.8030306@grupopie.com>
+	<20050407214747.GD4325@stusta.de>
+	<42567B3E.8010403@grupopie.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050408201606.GA1429@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 April 2005 22:16:07 +0200, Pavel Machek wrote:
-> 
-> More importantly, it is still listed as "the list" for network
-> drivers...
-> 
-> NETWORK DEVICE DRIVERS
-> P:      Andrew Morton
-> M:      akpm@osdl.org
-> P:      Jeff Garzik
-> M:      jgarzik@pobox.com
-> L:      linux-net@vger.kernel.org
-> S:      Maintained
+Paulo wrote:
+> In the first case you have to read carefully to make sure that the size 
+> argument in both the kmalloc and the memset are the same.
 
-Maybe one of the two maintainers might want to change that? ;)
+If that were the only concern (which it isn't, and I don't pretend to be
+addressing the other concerns on this thread) then pulling out the
+common sub-expression would help readability, and reduce the chance of a
+coding bug should the size change in the future.
 
-Jörn
+Anytime you find yourself coding the same complex expression twice, an
+alarm should go off in your mind, and you should ask yourself if there
+is a reasonable way to get by with only one instance of the coding in
+the source.
+
+The following patch shows what I mean here.
+
+It also replaces the less conventional form:
+
+	if (!(ptr = some_function(args)) do-something;
+
+with the more conventional form:
+
+	if ((ptr = some_function(args)) == NULL)
+		do-something;
+
+
+diff -Naurp 2.6.12-rc2.orig/drivers/usb/input/hid-core.c 2.6.12-rc2/drivers/usb/input/hid-core.c
+--- 2.6.12-rc2.orig/drivers/usb/input/hid-core.c	2005-04-09 06:57:47.000000000 -0700
++++ 2.6.12-rc2/drivers/usb/input/hid-core.c	2005-04-09 07:05:14.000000000 -0700
+@@ -90,17 +90,18 @@ static struct hid_report *hid_register_r
+ static struct hid_field *hid_register_field(struct hid_report *report, unsigned usages, unsigned values)
+ {
+ 	struct hid_field *field;
++	int sz;
+ 
+ 	if (report->maxfield == HID_MAX_FIELDS) {
+ 		dbg("too many fields in report");
+ 		return NULL;
+ 	}
+ 
+-	if (!(field = kmalloc(sizeof(struct hid_field) + usages * sizeof(struct hid_usage)
+-		+ values * sizeof(unsigned), GFP_KERNEL))) return NULL;
+-
+-	memset(field, 0, sizeof(struct hid_field) + usages * sizeof(struct hid_usage)
+-		+ values * sizeof(unsigned));
++	sz = sizeof(struct hid_field) + usages * sizeof(struct hid_usage) +
++			values * sizeof(unsigned);
++	if ((field = kmalloc(sz, GFP_KERNEL)) == NULL)
++		return NULL;
++	memset(field, 0, sz);
+ 
+ 	field->index = report->maxfield++;
+ 	report->field[field->index] = field;
+
 
 -- 
-There are two ways of constructing a software design: one way is to make
-it so simple that there are obviously no deficiencies, and the other is
-to make it so complicated that there are no obvious deficiencies.
--- C. A. R. Hoare
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

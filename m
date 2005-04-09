@@ -1,100 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVDIBYr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVDIBZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261248AbVDIBYr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 21:24:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVDIBYq
+	id S261247AbVDIBZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 21:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVDIBZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 21:24:46 -0400
-Received: from mail.ccur.com ([208.248.32.212]:64605 "EHLO flmx.iccur.com")
-	by vger.kernel.org with ESMTP id S261248AbVDIBXY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 21:23:24 -0400
-Subject: Re: [PATCH] mtime attribute is not being updated on client
-From: Linda Dunaphant <linda.dunaphant@ccur.com>
-Reply-To: linda.dunaphant@ccur.com
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1112993686.7459.4.camel@lindad>
-References: <1112921570.6182.16.camel@lindad>
-	 <1112965872.15565.34.camel@lade.trondhjem.org>
-	 <1112993686.7459.4.camel@lindad>
-Content-Type: text/plain
-Organization: CCUR
-Message-Id: <1113009804.7459.9.camel@lindad>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 08 Apr 2005 21:23:24 -0400
+	Fri, 8 Apr 2005 21:25:08 -0400
+Received: from adsl-69-233-54-142.dsl.pltn13.pacbell.net ([69.233.54.142]:5385
+	"EHLO bastard.smallmerchant.com") by vger.kernel.org with ESMTP
+	id S261247AbVDIBYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 21:24:17 -0400
+Message-ID: <42572E8E.3000200@tupshin.com>
+Date: Fri, 08 Apr 2005 18:23:26 -0700
+From: Tupshin Harper <tupshin@tupshin.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org> <Pine.LNX.4.61.0504072318010.15339@scrub.home> <425717CB.6020405@tupshin.com> <Pine.LNX.4.61.0504090242531.15339@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0504090242531.15339@scrub.home>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Apr 2005 01:23:24.0726 (UTC) FILETIME=[B9AA9560:01C53CA2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-08 at 16:54, Linda Dunaphant wrote:
+Roman Zippel wrote:
 
->Do you think it would be better for nfs_refresh_inode() to check the mtime,
->perform the mtime update if needed, and not set the NFS_INO_INVALID_ATTR
->flag if the data_unstable flag is set? This is how nfs_update_inode()
->handles its mtime check.
+>
+>
+>Please show me how you would do a binary search with arch.
+>
+>I don't really like the arch model, it's far too restrictive and it's 
+>jumping through hoops to get to an acceptable speed.
+>What I expect from a SCM is that it maintains both a version index of the 
+>directory structure and a version index of the individual files. Arch 
+>makes it especially painful to extract this data quickly. For the common 
+>cases it throws disk space at the problem and does a lot of caching, but 
+>there are still enough problems (e.g. annotate), which require scanning of 
+>lots of tarballs.
+>
+>bye, Roman
+>  
+>
+I'm not going to defend or attack arch since I haven't used it enough. I 
+will say that darcs largely does suffer from the same problem that you 
+describe since its fundamental unit of storage is individual patches 
+(though it avoids the tarball issue). This is why David Roundy has 
+indicated his intention of eventually having a per-file cache:
+http://kerneltrap.org/mailarchive/1/message/24317/flat
 
-Hi again Trond,
+You could then make the argument that if you have a per-file 
+representation of the history, why do you also need/want a per-patch 
+representation as the canonical format, but that's been argued plenty on 
+both the darcs and arch mailing lists and probably isn't worth going 
+into here.
 
-I updated my first patch to nfs_refresh_inode() to be similar to the way
-nfs_update_inode() does the check and update of the mtime. nfs_refresh_inode()
-now checks to see if the mtime changed, and if so, it does the update of
-the mtime. It only sets NFS_INO_INVALID_ATTR if data_unstable is not set.
-
-I temporarily added some printk's to selected functions to monitor some of
-the functions called after the data write to the server occurs. With this
-latest patch, the sequence that I see with the test program is now the
-same as it was originally without any patch - except the mtime is has been
-updated:
-	nfs3_xdr_writeargs
-	xdr_decode_fattr  		<--- new mtime from server
-	nfs_refresh_inode		<--- updates mtime in inode
-	nfs_attribute_timeout
-	nfs_attribute_timeout
-	xdr_decode_fattr  
-	nfs_refresh_inode
-
-With the first patch I proposed this sequence was:
-	nfs3_xdr_writeargs
-	xdr_decode_fattr  		<--- new mtime from server
-	nfs_refresh_inode               <--- NFS_INO_INVALID_ATTR set
-	xdr_decode_fattr  
-	nfs_update_inode		<--- updates mtime in inode
-	nfs_attribute_timeout
-	xdr_decode_fattr  
-
-Thank you for pointing out that there may be other consequences if the
-NFS_INO_INVALID_ATTR is always set by nfs_refresh_inode() when the mtime
-values are different. I believe this second patch fixes the original
-problem without affecting any other behaviour.
-
-Cheers,
-Linda
-
-diff -ura base/fs/nfs/inode.c new/fs/nfs/inode.c
---- base/fs/nfs/inode.c	2005-04-07 16:04:40.000000000 -0400
-+++ new/fs/nfs/inode.c	2005-04-08 19:23:44.151698674 -0400
-@@ -1176,9 +1176,17 @@
- 	}
- 
- 	/* Verify a few of the more important attributes */
-+	if (!timespec_equal(&inode->i_mtime, &fattr->mtime)) {
-+		memcpy(&inode->i_mtime, &fattr->mtime, sizeof(inode->i_mtime));
-+#ifdef NFS_DEBUG_VERBOSE
-+		printk(KERN_DEBUG "NFS: mtime change on %s/%ld\n", inode->i_sb->s_id, inode->i_ino);
-+#endif
-+		if (!data_unstable)
-+			nfsi->flags |= NFS_INO_INVALID_ATTR;
-+	}
-+
- 	if (!data_unstable) {
--		if (!timespec_equal(&inode->i_mtime, &fattr->mtime)
--				|| cur_size != new_isize)
-+		if (cur_size != new_isize)
- 			nfsi->flags |= NFS_INO_INVALID_ATTR;
- 	} else if (S_ISREG(inode->i_mode) && new_isize > cur_size)
- 			nfsi->flags |= NFS_INO_INVALID_ATTR;
-
-
+-Tupshin

@@ -1,79 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVDIUHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVDIUSd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVDIUHV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 16:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVDIUHV
+	id S261380AbVDIUSd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 16:18:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVDIUSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 16:07:21 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:10443 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261379AbVDIUHM (ORCPT
+	Sat, 9 Apr 2005 16:18:33 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:57545 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id S261380AbVDIUS2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 16:07:12 -0400
-Date: Sat, 9 Apr 2005 22:07:09 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-Message-ID: <20050409200709.GC3451@pasky.ji.cz>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Ross Vandegrift <ross@jose.lug.udel.edu>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	Sat, 9 Apr 2005 16:18:28 -0400
+Date: Sat, 9 Apr 2005 22:18:25 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: linux-kernel@vger.kernel.org, Martin Schlemmer <azarah@nosferatu.za.org>
+Subject: Re: patch to fix bashism
+Message-ID: <20050409201825.GF7969@khan.acc.umu.se>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Martin Schlemmer <azarah@nosferatu.za.org>
+References: <20050408211200.GX15412@boetes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+In-Reply-To: <20050408211200.GX15412@boetes.org>
+User-Agent: Mutt/1.4.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Dear diary, on Sat, Apr 09, 2005 at 09:45:52PM CEST, I got a letter
-where Linus Torvalds <torvalds@osdl.org> told me that...
-> The good news is, the data structures/indexes haven't changed, but many of 
-> the tools to interface with them have new (and improved!) semantics:
+On Fri, Apr 08, 2005 at 11:11:38PM +0159, Han Boetes wrote:
+> Hi,
 > 
-> In particular, I changed how "read-tree" works, so that it now mirrors
-> "write-tree", in that instead of actually changing the working directory,
-> it only updates the index file (aka "current directory cache" file from
-> the tree).
+> This patch fixes a three bashisms in
+> scripts/gen_initramfs_list.sh;
 > 
-> To actually change the working directory, you'd first get the index file
-> setup, and then you do a "checkout-cache -a" to update the files in your
-> working directory with the files from the sha1 database.
+> I'm not sure of the intention of the second change (local
+> name=...). So it's very well possible that:
+> 
+> +       local name="${location%/$srcdir}"
+> 
+> is more appropriate.
 
-that's great. I was planning to do something with this since currently
-it really annoyed me. I think I will like this, even though I didn't
-look at the code itself yet (just on my way).
+This patch is not going to work; local is a bash:ism too, hence this
+will fail when /bin/sh is a more strict POSIX-shell.  However,
+it is quite likely that the use of local is merely due to the
+(totally correct) instinct of always limiting the scope of variables.
+Most scripts that I've POSIX-fixed so far could just have the local
+removed with no bad effects.
 
-> Also, I wrote the "diff-tree" thing I talked about: 
-..snip..
+> --- scripts/gen_initramfs_list.sh.orig	2005-03-27 14:53:15.628883408 +0200
+> +++ scripts/gen_initramfs_list.sh	2005-03-27 15:12:20.093898280 +0200
+> @@ -1,4 +1,7 @@
+> -#!/bin/bash
+> +#!/bin/sh
+> +
+> +# script is sourced, the shebang is ignored.
+> +
+>  # Copyright (C) Martin Schlemmer <azarah@nosferatu.za.org>
+>  # Released under the terms of the GNU GPL
+>  #
+> @@ -56,9 +59,9 @@
+>  
+>  parse() {
+>  	local location="$1"
+> -	local name="${location/${srcdir}//}"
+> +	local name="${location#$srcdir/}"
+>  	# change '//' into '/'
+> -	name="${name//\/\///}"
+> +	name=`echo $name|sed -e 's|//|/|g'`
 
-Hmm, I wonder, is this better done in C instead of a simple shell
-script, like my gitdiff.sh? I'd say it is more flexible and probably
-hardly performance-critical to have this scripted, and not difficult at
-all provided you have ls-tree. But maybe I'm just too fond of my
-script... ;-) (Ok, there's some trouble when you want to have newlines
-and spaces in file names, and join appears to be awfully ignorant about
-this... :[ )
+Using $(...) instead of `...` helps readability quite a lot for
+things like this...
 
-BTW, do we care about changed modes? If so, they should probably have
-their place in the diff-tree output.
+[snip]
 
-BTW#2, I hope you will merge my ls-tree anyway, even though there is no
-user for it currently... I should quickly figure out some. :-)
 
-> Can you guys re-send the scripts you wrote? They probably need some 
-> updating for the new semantics. Sorry about that ;(
-
-I'll try to merge ASAP.
-
+Regards: David Weinehall
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

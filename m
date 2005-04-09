@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVDISm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVDISpu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbVDISm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 14:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVDISmZ
+	id S261369AbVDISpu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 14:45:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVDISpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 14:42:25 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:6890 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261318AbVDISmW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 14:42:22 -0400
-Date: Sat, 9 Apr 2005 20:42:21 +0200 (CEST)
-From: Manfred Spraul <manfred@colorfullife.com>
-X-X-Sender: manfred@dbl.q-ag.de
-To: Francois Romieu <romieu@fr.zoreil.com>
-cc: "Paul E. McKenney" <paulmck@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-       <dipankar@in.ibm.com>, <antonb@au1.ibm.com>, <davej@codemonkey.org.uk>,
-       <hpa@zytor.com>, <len.brown@intel.com>, <andmike@us.ibm.com>,
-       <rth@twiddle.net>, <rusty@au1.ibm.com>, <schwidefsky@de.ibm.com>,
-       <jgarzik@pobox.com>
-Subject: Re: [RFC,PATCH 3/4] Change synchronize_kernel to _rcu and _sched
-In-Reply-To: <20050409122045.GA6073@electric-eye.fr.zoreil.com>
-Message-ID: <Pine.LNX.4.44.0504092039280.20335-100000@dbl.q-ag.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Apr 2005 14:45:50 -0400
+Received: from ds01.webmacher.de ([213.239.192.226]:22445 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261369AbVDISpq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 14:45:46 -0400
+In-Reply-To: <20050409084240.26b4a7d8.pj@engr.sgi.com>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org> <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org> <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org> <8d65eed9745d8ecb2ad027bc0c310b17@dalecki.de> <20050409084240.26b4a7d8.pj@engr.sgi.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <49af0ef74e81023b213a5b0a6fc89c7f@dalecki.de>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, matthias.christian@tiscali.de,
+       andrea@suse.de, cw@f00f.org, torvalds@osdl.org
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: Kernel SCM saga..
+Date: Sat, 9 Apr 2005 20:45:00 +0200
+To: Paul Jackson <pj@engr.sgi.com>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 2005-04-09, at 17:42, Paul Jackson wrote:
 
-On Sat, 9 Apr 2005, Francois Romieu wrote:
-
-> Manfred Spraul <manfred@colorfullife.com> :
-> > [Jeff added to cc list - it's a network driver question]
-> [...]
-> > I haven't read the whole driver, but what about
-> > 	spin_unlock_wait(&dev->xmit_lock);
-> > ?
+> Marcin wrote:
+>> But what will impress you are either the price tag the
+>> DB comes with or
+>> the hardware it runs on :-)
 >
-> The race here is a dev->close() against dev->hard_start_xmit() one where
-> dev->hard_start_xmit() does not do any locking at all.
->
-I always thought that all callers of dev->hard_start_xmit() acquire
-dev->xmit_lock before calling hard_start_xmit().
+> The payroll for the staffing to care and feed for these
+> babies is often impressive as well.
 
-Is that assumption wrong? I think I even rely on that in one of my
-drivers.
-
---
-	Manfred
+Please don't forget the bill from the electric plant behind it!
 

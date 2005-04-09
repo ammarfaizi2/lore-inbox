@@ -1,104 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVDIJ0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVDIJeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVDIJ0X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 05:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDIJ0X
+	id S261322AbVDIJeh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 05:34:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDIJef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 05:26:23 -0400
-Received: from av4-1-sn3.vrr.skanova.net ([81.228.9.111]:34973 "EHLO
-	av4-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
-	id S261317AbVDIJZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 05:25:43 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Soeren Sonnenburg <kernel@nn7.de>, Nix <nix@esperi.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: pktcddvd -> immediate crash
-References: <1112640251.5410.30.camel@localhost>
-	<87fyy5jgt6.fsf@amaterasu.srvr.nix>
-	<1112724384.5410.61.camel@localhost>
-From: Peter Osterlund <petero2@telia.com>
-Date: 09 Apr 2005 11:25:32 +0200
-In-Reply-To: <1112724384.5410.61.camel@localhost>
-Message-ID: <m3ekdkqp2r.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 9 Apr 2005 05:34:35 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:65226 "EHLO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261324AbVDIJeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 05:34:31 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Willy Tarreau <willy@w.ods.org>
+Date: Sat, 9 Apr 2005 19:34:10 +1000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16983.41362.375073.942173@cse.unsw.edu.au>
+Cc: Chris Wedgwood <cw@f00f.org>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+In-Reply-To: message from Willy Tarreau on Saturday April 9
+References: <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
+	<20050408071428.GB3957@opteron.random>
+	<Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
+	<4256AE0D.201@tiscali.de>
+	<Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
+	<4256C0F8.6030008@pobox.com>
+	<Pine.LNX.4.58.0504081114220.28951@ppc970.osdl.org>
+	<20050408185608.GA5638@taniwha.stupidest.org>
+	<20050409073726.GC7858@alpha.home.local>
+	<16983.34940.197017.568255@cse.unsw.edu.au>
+	<20050409080056.GA8551@alpha.home.local>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Soeren Sonnenburg <kernel@nn7.de> writes:
-
-> On Tue, 2005-04-05 at 18:04 +0100, Nix wrote:
-> > On 5 Apr 2005, Soeren Sonnenburg whispered secretively:
-> > > I wonder whether anyone could use the pktcddvd device without killing
-> > > random jobs (due to sudden out of memory or better memory leaks in
-> > > pktcddvd) and finally a complete freeze of the machine ?
+On Saturday April 9, willy@w.ods.org wrote:
+> On Sat, Apr 09, 2005 at 05:47:08PM +1000, Neil Brown wrote:
+> > On Saturday April 9, willy@w.ods.org wrote:
+> > > 
+> > > I've just checked, it takes 5.7s to compare 2.4.29{,-hf3} over NFS (13300
+> > > files each) and 1.3s once the trees are cached locally. This is without
+> > > comparing file contents, just meta-data. And it takes 19.33s to compare
+> > > the file's md5 sums once the trees are cached. I don't know if there are
+> > > ways to avoid some NFS operations when everything is cached.
+> > > 
+> > > Anyway, the system does not seem much efficient on hard links, it caches
+> > > the files twice :-(
 > > 
-> > I'm using it without difficulty.
-> > 
-> > > To reproduce just create an udf filesystem on some dvdrw, mount it rw
-> > > and copy some large file to the mount point.
-> > 
-> > Well, I copied a 502Mb file to a CD/RW yesterday as part of my
-> > regular backups. No problems.
-> >
-> > I think we need more details (a .config would be nice, and preferably
-> > a cat of /proc/slabinfo and a dmesg dump when the problem starts).
+> > I suspect you'll be wanting to add a "no_subtree_check" export option
+> > on your NFS server...
 > 
-> .config is attached (gzipped) and dmesg see below. unfortunately I
-> cannot provide a cat of /proc/slabinfo after the problem started...
+> Thanks a lot, Neil ! This is very valuable information. I didn't
+> understand such implications from the exports(5) man page, but it
+> makes a great difference. And the diff sped up from 5.7 to 3.9s
+> and from 19.3 to 15.3s.
 
->From config.gz:
+No, that implication had never really occurred to me before either.
+But when you said "caches the file twice" it suddenly made sense.
+With subtree_check, the NFS file handle contains information about the
+directory, and NFS uses the filehandle as the primary key to tell if
+two things are the same or not.
 
-# Linux kernel version: 2.6.11
+Trond keeps prodding me to make no_subtree_check the default.  Maybe it
+is time that I actually did....
 
-ONFIG_CDROM_PKTCDVD=y
-CONFIG_CDROM_PKTCDVD_BUFFERS=32
-# CONFIG_CDROM_PKTCDVD_WCACHE is not set
-
-> however this machine has like 1.5G mem 2G swap and was doing no serious
-> stuff, i.e. no high load no high memory requirements (I guess <500M)
-...
-> pktcdvd: inserted media is DVD+RW
-> pktcdvd: write speed 2822kB/s
-> pktcdvd: 4590208kB available on disc
-> UDF-fs INFO UDF 0.9.8.1 (2004/29/09) Mounting volume 'LinuxUDF', timestamp 2005/03/27 18:49 (103c)
-> rtc: lost some interrupts at 1024Hz.
-> rtc: lost some interrupts at 1024Hz.
-> rtc: lost some interrupts at 1024Hz.
-> rtc: lost some interrupts at 1024Hz.
-> oom-killer: gfp_mask=0xd0
-> DMA per-cpu:
-> cpu 0 hot: low 2, high 6, batch 1
-> cpu 0 cold: low 0, high 2, batch 1
-> Normal per-cpu:
-> cpu 0 hot: low 32, high 96, batch 16
-> cpu 0 cold: low 0, high 32, batch 16
-> HighMem per-cpu:
-> cpu 0 hot: low 32, high 96, batch 16
-> cpu 0 cold: low 0, high 32, batch 16
-> 
-> Free pages:       28944kB (896kB HighMem)
-> Active:46742 inactive:158822 dirty:666 writeback:114320 unstable:0 free:7236 slab:18648 mapped:44732 pagetables:845
-> DMA free:3960kB min:584kB low:728kB high:876kB active:1996kB inactive:1104kB present:16384kB pages_scanned:3747 all_unreclaimable? yes
-> lowmem_reserve[]: 0 880 1519
-> Normal free:24088kB min:32180kB low:40224kB high:48268kB active:5780kB inactive:167540kB present:901120kB pages_scanned:29844 all_unreclaimable? no
-> lowmem_reserve[]: 0 0 5119
-> HighMem free:896kB min:512kB low:640kB high:768kB active:179192kB inactive:466644kB present:655344kB pages_scanned:0 all_unreclaimable? no
-> lowmem_reserve[]: 0 0 0
-> DMA: 0*4kB 1*8kB 1*16kB 1*32kB 1*64kB 0*128kB 1*256kB 1*512kB 1*1024kB 1*2048kB 0*4096kB = 3960kB
-> Normal: 0*4kB 1*8kB 1*16kB 0*32kB 0*64kB 0*128kB 2*256kB 0*512kB 1*1024kB 1*2048kB 5*4096kB = 24088kB
-> HighMem: 62*4kB 7*8kB 5*16kB 0*32kB 0*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 896kB
-> Swap cache: add 35451, delete 35184, find 371/482, race 0+0
-> Free swap  = 1838852kB
-> Total swap = 1975976kB
-> Out of Memory: Killed process 18330 (cat).
-
-I don't know how the OOM killer is supposed to work, but I think it's
-strange that it is triggered when there is 28MB RAM available and when
-"writeback" is 114320, which means that a lot more memory will become
-available by just waiting for the I/O to complete.
-
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+NeilBrown

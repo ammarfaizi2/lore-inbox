@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVDIRgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVDIRlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVDIRgG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 13:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVDIRgG
+	id S261359AbVDIRlG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 13:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVDIRlF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 13:36:06 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:40657 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261358AbVDIRgC (ORCPT
+	Sat, 9 Apr 2005 13:41:05 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:30128 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261359AbVDIRlD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 13:36:02 -0400
-Date: Sat, 9 Apr 2005 10:35:25 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: jgarzik@pobox.com, matthias.christian@tiscali.de, andrea@suse.de,
-       cw@f00f.org, linux-kernel@vger.kernel.org
+	Sat, 9 Apr 2005 13:41:03 -0400
+Date: Sat, 9 Apr 2005 19:40:52 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: "Eric D. Mudama" <edmudama@gmail.com>
+cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Kernel SCM saga..
-Message-Id: <20050409103525.6f65d550.pj@engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0504090902170.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	<20050408041341.GA8720@taniwha.stupidest.org>
-	<Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
-	<20050408071428.GB3957@opteron.random>
-	<Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
-	<4256AE0D.201@tiscali.de>
-	<Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
-	<4256C0F8.6030008@pobox.com>
-	<Pine.LNX.4.58.0504081114220.28951@ppc970.osdl.org>
-	<20050409084003.02c83b9f.pj@engr.sgi.com>
-	<Pine.LNX.4.58.0504090902170.1267@ppc970.osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <311601c905040909525ef8242e@mail.gmail.com>
+Message-ID: <Pine.LNX.4.61.0504091930250.15339@scrub.home>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> 
+ <1112858331.6924.17.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org> 
+ <Pine.LNX.4.61.0504072318010.15339@scrub.home> <311601c905040909525ef8242e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  (b) while I depend on the fact that if the SHA of an object matches, the 
->      objects are the same, I generally try to avoid the reverse 
->      dependency.
+Hi,
 
-It might be a valid point that you want to leave the door open to using
-a different (than SHA1) digest.  (So this means you going to store it
-as an ASCII string, right?)
+On Sat, 9 Apr 2005, Eric D. Mudama wrote:
 
-But I don't see how that applies here.  Any optimization that avoids
-rereading old versions if the digests match will never trigger on the
-day you change digests.  No problem here - you doomed to reread the old
-version in any case.
+> > For example bk does something like this:
+> > 
+> >         A1 -> A2 -> A3 -> BM
+> >           \-> B1 -> B2 --^
+> > 
+> > and instead of creating the merge changeset, one could merge them like
+> > this:
+> > 
+> >         A1 -> A2 -> A3 -> B1 -> B2
+> > 
+> > This results in a simpler repository, which is more scalable and which
+> > is easier for users to work with (e.g. binary bug search).
+> > The disadvantage would be it will cause more minor conflicts, when changes
+> > are pulled back into the original tree, but which should be easily
+> > resolvable most of the time.
+> 
+> The kicker comes that B1 was developed based on A1, so any test
+> results were based on B1 being a single changeset delta away from A1. 
+> If the resulting 'BM' fails testing, and you've converted into the
+> linear model above where B2 has failed, you lose the ability to
+> isolate B1's changes and where they came from, to revalidate the
+> developer's results.
 
-Either you got your logic backwards, or I need another cup of coffee.
+What good does it do if you can revalidate the original B1? The important 
+point is that the end result works and if it only fails in the merged 
+version you have a big problem. The serialized version gives you the 
+chance to test whether it fails in B1 or B2.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+> I believe that flattening the change graph makes history reproduction
+> impossible, or alternately, you are imposing on each developer to test
+> the merge results at B1 + A1..3 before submission, but in doing so,
+> the test time may require additional test periods etc and with
+> sufficient velocity, might never close.
+
+The merge result has to be tested either way, so I'm not exactly sure, 
+what you're trying to say.
+
+bye, Roman

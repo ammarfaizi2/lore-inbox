@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVDIByG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVDIBze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVDIByG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 21:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVDIByG
+	id S261255AbVDIBze (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 21:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVDIBzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 21:54:06 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:36518 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261252AbVDIByB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 21:54:01 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Marcin Dalecki <martin@dalecki.de>
-Cc: Jon Smirl <jonsmirl@gmail.com>, Chris Wedgwood <cw@f00f.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Matthias-Christian Ott <matthias.christian@tiscali.de>
-Date: Fri, 8 Apr 2005 18:50:52 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Kernel SCM saga..
-In-Reply-To: <7dc90bec2ef0a67aa307b8e81005fa84@dalecki.de>
-Message-ID: <Pine.LNX.4.62.0504081849110.12437@qynat.qvtvafvgr.pbz>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
- <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
- <20050408071428.GB3957@opteron.random> <Pine.LNX.4.58.0504080724550.28951@ppc970.osdl.org>
- <4256AE0D.201@tiscali.de> <Pine.LNX.4.58.0504081010540.28951@ppc970.osdl.org>
- <4256BE7D.5040308@tiscali.de> <Pine.LNX.4.58.0504081047200.28951@ppc970.osdl.org>
- <9e473391050408112865ed5d17@mail.gmail.com> <7dc90bec2ef0a67aa307b8e81005fa84@dalecki.de>
+	Fri, 8 Apr 2005 21:55:33 -0400
+Received: from mail.dif.dk ([193.138.115.101]:18321 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261253AbVDIBzM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 21:55:12 -0400
+Date: Sat, 9 Apr 2005 03:57:42 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm2
+In-Reply-To: <20050409014940.GB4770@stusta.de>
+Message-ID: <Pine.LNX.4.62.0504090356140.2455@dragon.hyggekrogen.localhost>
+References: <20050408030835.4941cd98.akpm@osdl.org>
+ <Pine.LNX.4.62.0504090125171.2455@dragon.hyggekrogen.localhost>
+ <20050409014940.GB4770@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Apr 2005, Marcin Dalecki wrote:
+On Sat, 9 Apr 2005, Adrian Bunk wrote:
 
-> On 2005-04-08, at 20:28, Jon Smirl wrote:
->
->> On Apr 8, 2005 2:14 PM, Linus Torvalds <torvalds@osdl.org> wrote:
->>>    How do you replicate your database incrementally? I've given you enough
->>>    clues to do it for "git" in probably five lines of perl.
->> 
->> Efficient database replication is achieved by copying the transaction
->> logs and then replaying them. Most mid to high end databases support
->> this. You only need to copy the parts of the logs that you don't
->> already have.
->> 
-> Databases supporting replication are called high end. You forgot the cats 
-> dance
-> around the network this issue involves.
+> On Sat, Apr 09, 2005 at 01:28:47AM +0200, Jesper Juhl wrote:
+> > On Fri, 8 Apr 2005, Andrew Morton wrote:
+> > 
+> > > 
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm2/
+> > > 
+> > 
+> > Still doesn't build for me with my usual config (available upon request) 
+> > unless I enable ACPI :
+> > 
+> > ...
+> >   CC      arch/i386/kernel/setup.o
+> > arch/i386/kernel/setup.c:96: error: parse error before "acpi_sci_flags"
+> > arch/i386/kernel/setup.c:96: warning: type defaults to `int' in declaration of `acpi_sci_flags'
+> > arch/i386/kernel/setup.c:96: warning: data definition has no type or storage class
+> > arch/i386/kernel/setup.c: In function `parse_cmdline_early':
+> > arch/i386/kernel/setup.c:811: error: request for member `trigger' in something not a structure or union
+> > arch/i386/kernel/setup.c:814: error: request for member `trigger' in something not a structure or union
+> > arch/i386/kernel/setup.c:817: error: request for member `polarity' in something not a structure or union
+> > arch/i386/kernel/setup.c:820: error: request for member `polarity' in something not a structure or union
+> > make[1]: *** [arch/i386/kernel/setup.o] Error 1
+> > make: *** [arch/i386/kernel] Error 2
+> 
+> This seem to be the ACPI=y, ACPI_BOOT=n errors we already saw in -mm1 
 
-And Postgres (which is Free in all senses of the word) is high end by this 
-definition.
+Actually, I get these errors with ACPI=n, ACPI_BOOT=y, not the reverse as 
+you say.
 
-I'm not saying that it's an efficiant thing to use for this task, but 
-don't be fooled into thinking you need something on the price of Oracle to 
-do this job.
 
-David Lang
+> Len will send a patch for.
+> 
+Ok, I was not aware of that, will be looking forward to it :)
+
 
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Jesper
+

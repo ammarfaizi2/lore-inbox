@@ -1,91 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVDIQg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVDIQwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVDIQg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 12:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVDIQgZ
+	id S261240AbVDIQwe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 12:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVDIQwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 12:36:25 -0400
-Received: from bender.bawue.de ([193.7.176.20]:27573 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S261356AbVDIQgA (ORCPT
+	Sat, 9 Apr 2005 12:52:34 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:49381 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261240AbVDIQwc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 12:36:00 -0400
-Date: Sat, 9 Apr 2005 18:35:52 +0200
-From: Joerg Sommrey <jo@sommrey.de>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.12-rc2: Promise SATA150 TX4 failures
-Message-ID: <20050409163552.GA30263@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Sat, 9 Apr 2005 12:52:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=oY04axRbgxBgux4Ja++1vGZW3fSmi9es5nuH3Ap227Gk5fAyt+3EqalluBTNKhpPD4UngoXhbJbLaL3Jzp5FWmdNGWZS8b1DRcNy6VEr85lboDOzB3kMHx6Ir3txIY0YLr3T4E8KzvjxWNLUdmceEmDR7a8hItSAKT+xfxiHWNY=
+Message-ID: <311601c905040909525ef8242e@mail.gmail.com>
+Date: Sat, 9 Apr 2005 10:52:30 -0600
+From: "Eric D. Mudama" <edmudama@gmail.com>
+Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: Kernel SCM saga..
+Cc: Linus Torvalds <torvalds@osdl.org>, David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0504072318010.15339@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+	 <1112858331.6924.17.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0504070810270.28951@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0504072318010.15339@scrub.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Apr 8, 2005 4:52 PM, Roman Zippel <zippel@linux-m68k.org> wrote:
+> The problem is you pay a price for this. There must be a reason developers
+> were adding another GB of memory just to run BK.
+> Preserving the complete merge history does indeed make repeated merges
+> simpler, but it builds up complex meta data, which has to be managed
+> forever. I doubt that this is really an advantage in the long term. I
+> expect that we were better off serializing changesets in the main
+> repository. For example bk does something like this:
+> 
+>         A1 -> A2 -> A3 -> BM
+>           \-> B1 -> B2 --^
+> 
+> and instead of creating the merge changeset, one could merge them like
+> this:
+> 
+>         A1 -> A2 -> A3 -> B1 -> B2
+> 
+> This results in a simpler repository, which is more scalable and which
+> is easier for users to work with (e.g. binary bug search).
+> The disadvantage would be it will cause more minor conflicts, when changes
+> are pulled back into the original tree, but which should be easily
+> resolvable most of the time.
 
-just tried 2.6.12-rc2 and I still have the same errors from my SATA
-disks as with 2.6.11.  The setup is a bit complex.  The relevant parts (I
-think) are:
+The kicker comes that B1 was developed based on A1, so any test
+results were based on B1 being a single changeset delta away from A1. 
+If the resulting 'BM' fails testing, and you've converted into the
+linear model above where B2 has failed, you lose the ability to
+isolate B1's changes and where they came from, to revalidate the
+developer's results.
 
-Adaptec AHA-2940UW SCSI-controller, attached are:
-1 harddisk /dev/sda
-1 DDS3 streamer /dev/st0
+With bugs and fixes that can be validated in a few hours, this may not
+be a problem, but when chasing a bug that takes days or weeks to
+manifest, that a developer swears they fixed, one has to be able to
+reproduce their exact test environment.
 
-Promise SATA150 TX4 controller, attached are:
-2 identical hardisks /dev/sdb and /dev/sdc
+I believe that flattening the change graph makes history reproduction
+impossible, or alternately, you are imposing on each developer to test
+the merge results at B1 + A1..3 before submission, but in doing so,
+the test time may require additional test periods etc and with
+sufficient velocity, might never close.  This is the problem CVS has
+if you don't create micro branches for every single modification.
 
-/dev/sda consists of the root partition, a swap partition and 4 other
-partitions that are physical volumes for dm volume group /dev/vg1
-
-/dev/sdb and /dev/sdc have two partitions each, the first of both make
-a RAID-0 array /dev/md0 and the second of both make a md RAID-1 array
-/dev/md1
-
-/dev/md0 and /dev/md1 are the physical volumes for dm volume groups
-/dev/vg2 and /dev/vg3 resp.
-
-To trigger the failure:
-- For all logical volumes in /dev/vg1, /dev/vg2 and /dev/vg3 a snapshot is
-  created.
-- All snapshots are mounted read-only in a "snapshot hierarchy" under
-  /snap.
-- A backup to tape is taken using something like:
-  find /snap -print | cpio -oaH crc -F /dev/st0
-  Backup must go to tape, no problem with /dev/null
-- At this point, some additional i/o on the SATA disks cause the whole
-  box to hang. Mostly some errors are written to syslog, they are
-  always similar:
-Apr  9 01:30:35 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }Apr  9 01:30:35 bear kernel: ata2: called with no error (51)!
-Apr  9 01:30:35 bear kernel: SCSI error : <2 0 0 0> return code = 0x8000002
-Apr  9 01:30:35 bear kernel: sdc: Current: sense key: Medium Error
-Apr  9 01:30:35 bear kernel:     Additional sense: Unrecovered read error - auto reallocate failed
-Apr  9 01:30:35 bear kernel: end_request: I/O error, dev sdc, sector 43100350
-Apr  9 01:30:35 bear kernel: raid1: Disk failure on sdc2, disabling device.
-Apr  9 01:30:35 bear kernel: ^IOperation continuing on 1 devices
-
-The errors are always reported for /dev/sdc2, the second device of a
-RAID-1 array.  After reboot I am able to raidhotadd the failed partition
-without problems.
-
-The problem is 100% reproducible.
-
-The hang is not a "hard hang": X keeps running, the watchdog doesn't hit
-but no new processes can be started.  Syslog entries stop after some time
-(from a few seconds to several minutes).
-
-The problem appeared somewhere between 2.6.10 and 2.6.11.
-2.6.10:		ok
-2.6.10-ac8:	ok
-2.6.10-ac11:	failed
-2.6.11:		failed
-2.6.12-rc2:	failed
-
-I'd be glad if there would be a solution for this problem as it prevents
-me from using any newer kernel.
-
--jo
-
--- 
--rw-r--r--  1 jo users 63 2005-04-09 09:31 /home/jo/.signature
+--eric

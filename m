@@ -1,65 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVDIBze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVDIB5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVDIBze (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 21:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVDIBzd
+	id S261257AbVDIB5r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 21:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVDIB5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 21:55:33 -0400
-Received: from mail.dif.dk ([193.138.115.101]:18321 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261253AbVDIBzM (ORCPT
+	Fri, 8 Apr 2005 21:57:46 -0400
+Received: from hcoop.net ([63.246.10.45]:59597 "EHLO Abulafia.hcoop.net")
+	by vger.kernel.org with ESMTP id S261253AbVDIB5g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 21:55:12 -0400
-Date: Sat, 9 Apr 2005 03:57:42 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm2
-In-Reply-To: <20050409014940.GB4770@stusta.de>
-Message-ID: <Pine.LNX.4.62.0504090356140.2455@dragon.hyggekrogen.localhost>
-References: <20050408030835.4941cd98.akpm@osdl.org>
- <Pine.LNX.4.62.0504090125171.2455@dragon.hyggekrogen.localhost>
- <20050409014940.GB4770@stusta.de>
+	Fri, 8 Apr 2005 21:57:36 -0400
+Message-ID: <2183.130.76.32.15.1113011853.squirrel@130.76.32.15>
+Date: Fri, 8 Apr 2005 18:57:33 -0700 (PDT)
+Subject: Re: IDE CMD 64x PCI driver (BUG REPORT; CMD 648 DMA INITIALIZATION)
+From: "Rob Gubler" <rob@gubler.net>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3-RC1
+X-Mailer: SquirrelMail/1.4.3-RC1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Apr 2005, Adrian Bunk wrote:
+Quick follow up:  I decided to disable the DMA controller as a near term
+solution.  This works but it is not optimal for obvious reasons.
 
-> On Sat, Apr 09, 2005 at 01:28:47AM +0200, Jesper Juhl wrote:
-> > On Fri, 8 Apr 2005, Andrew Morton wrote:
-> > 
-> > > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm2/
-> > > 
-> > 
-> > Still doesn't build for me with my usual config (available upon request) 
-> > unless I enable ACPI :
-> > 
-> > ...
-> >   CC      arch/i386/kernel/setup.o
-> > arch/i386/kernel/setup.c:96: error: parse error before "acpi_sci_flags"
-> > arch/i386/kernel/setup.c:96: warning: type defaults to `int' in declaration of `acpi_sci_flags'
-> > arch/i386/kernel/setup.c:96: warning: data definition has no type or storage class
-> > arch/i386/kernel/setup.c: In function `parse_cmdline_early':
-> > arch/i386/kernel/setup.c:811: error: request for member `trigger' in something not a structure or union
-> > arch/i386/kernel/setup.c:814: error: request for member `trigger' in something not a structure or union
-> > arch/i386/kernel/setup.c:817: error: request for member `polarity' in something not a structure or union
-> > arch/i386/kernel/setup.c:820: error: request for member `polarity' in something not a structure or union
-> > make[1]: *** [arch/i386/kernel/setup.o] Error 1
-> > make: *** [arch/i386/kernel] Error 2
-> 
-> This seem to be the ACPI=y, ACPI_BOOT=n errors we already saw in -mm1 
+I believe that the chipset initialization for utilizing the DMA controller
+is incorrectly setup, for the particular model I am using (CMD 648).  I
+don't know when/if I will look into this further.
 
-Actually, I get these errors with ACPI=n, ACPI_BOOT=y, not the reverse as 
-you say.
+For more information regarding my analysis of the problem refer to my
+first email, with the email subject as "IDE CMD 64x PCI driver."
 
-
-> Len will send a patch for.
-> 
-Ok, I was not aware of that, will be looking forward to it :)
-
-
--- 
-Jesper
+-Rob
 

@@ -1,546 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261371AbVDISSS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVDISWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261371AbVDISSS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 14:18:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVDISSF
+	id S261365AbVDISWN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 14:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVDISWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 14:18:05 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:38345 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261371AbVDISGV (ORCPT
+	Sat, 9 Apr 2005 14:22:13 -0400
+Received: from coderock.org ([193.77.147.115]:45540 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261365AbVDISVk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 14:06:21 -0400
-Date: Sat, 9 Apr 2005 20:06:13 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: torvalds@osdl.org, ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: Kernel SCM saga..
-Message-ID: <20050409180613.GB9052@pasky.ji.cz>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>, torvalds@osdl.org,
-	ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org> <20050408071720.GA23128@jose.lug.udel.edu> <Pine.LNX.4.58.0504080758420.28951@ppc970.osdl.org> <20050409025357.GA9052@pasky.ji.cz> <20050409000859.73bf221f.rddunlap@osdl.org>
+	Sat, 9 Apr 2005 14:21:40 -0400
+Date: Sat, 9 Apr 2005 20:21:28 +0200
+From: Domen Puncer <domen@coderock.org>
+To: Magnus Damm <damm@opensource.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/5] autoparam
+Message-ID: <20050409182128.GA5542@nd47.coderock.org>
+References: <20050320223814.25305.52695.65404@clementine.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="tThc/1wpZn/ma/RB"
 Content-Disposition: inline
-In-Reply-To: <20050409000859.73bf221f.rddunlap@osdl.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+In-Reply-To: <20050320223814.25305.52695.65404@clementine.local>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sat, Apr 09, 2005 at 09:08:59AM CEST, I got a letter
-where "Randy.Dunlap" <rddunlap@osdl.org> told me that...
-> On Sat, 9 Apr 2005 04:53:57 +0200 Petr Baudis wrote:
-..snip..
-> |   FWIW, I made few small fixes (to prevent some trivial usage errors to
-> | cause cache corruption) and added scripts gitcommit.sh, gitadd.sh and
-> | gitlog.sh - heavily inspired by what already went through the mailing
-> | list. Everything is available at http://pasky.or.cz/~pasky/dev/git/
-> | (including .dircache, even though it isn't shown in the index), the
-> | cumulative patch can be found below. The scripts aim to provide some
-> | (obviously very interim) more high-level interface for git.
-> | 
-> |   I'm now working on tree-diff.c which will (surprise!) produce a diff
-> | of two trees (I'll finish it after I get some sleep, though), and then I
-> | will probably do some dwimmy gitdiff.sh wrapper for tree-diff and
-> | show-diff. At that point I might get my hand on some pull more kind to
-> | local changes.
+
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On 21/03/05 00:06 +0100, Magnus Damm wrote:
+> Here are a set of patches that makes it possible to autogenerate kernel command
+> line documentation from the source code. The approach is rather straightforward
+> - the parameter name, the type and the description are stored in a section 
+> called __param_strings. After vmlinux is built this section is extracted using
+> objcopy and a script is used to generate a primitive - but up to date - 
+> document.
+
+I think it's a great idea. A needed feature with simple implementation.
+I like it.
+
 > 
-> Hi,
+> Right now the section is left in the kernel binary. The document is currently
+> not generated from the Makefile, so the curious user should perform:
 
-  Hi,
+Any plans to make this a complete patch?
 
-> I'll look at your scripts this weekend.  I've also been
-> working on some, but mine are a bit more experimental (cruder)
-> than yours are.  Anyway, here they are (attached) -- also
-> available at http://developer.osdl.org/rddunlap/git/
 > 
-> gitin : checkin/commit
-> gitwhat sha1 : what is that sha1 file (type and contents if blob or commit)
-> gitlist (blob, commit, tree, or all) :
-> 	list all objects with type (commit, tree, blob, or all)
+> $ objcopy -j __param_strings vmlinux -O binary foo
+> $ chmod a+x scripts/section2text.rb
+> $ cat foo | ./scripts/section2text.rb
+> 
+> And yeah, you need to install ruby to run the script.
 
-  thanks - I had a look, but so far I borrowed only the prompt message
-from your gitin. ;-) I'm not sure if gitwhat would be useful for me in
-any way and gitlist doesn't appear too practical to me either.
+Attached a perl script, that has almost the same output. (I think
+perl is more usual on linux machines)
 
-  In the meantime, I've made some progress too. I made ls-tree, which
-will just convert the tree object to a human readable (and script
-processable) form, and wrapper gitls.sh, which will also try to guess
-the tree ID. parent-id will just return the commit ID(s) of the previous
-commit(s), practical if you want to diff against the previous commit
-easily etc.  And finally, there is gitdiff.sh, which will produce a diff
-of any two trees.
+> 
+> The ruby script section2text.rb does some checks to see if MODULE_PARM_DESC()
+> is used without module_param(). You will find interesting typos.
+> 
+> Future work that extends this idea could include replacing __setup(name) with 
+> __setup(name, descr). And storing the documentation somewhere to make it easy
+> for the end user to look up the generated parameter list from the boot loader.
 
-  Everything is again available at http://pasky.or.cz/~pasky/dev/git/
-and again including .dircache, even though it's invisible in the index.
-The cumulative patch (against 0.03) is there as well as below, generated
-by the
+And kernel-parameters.txt will never again have obsoleted options :-)
 
-	./gitdiff.sh 0af20307bb4c634722af0f9203dac7b3222c4a4f
 
-command. The empty entries are changed modes (664 vs 644), I will yet
-have to think about how to denote them if the content didn't change;
-or I might ignore them altogether...?
+	Domen
 
-  You can obviously fetch any arbitrary change by doing the appropriate
-gitdiff.sh call. You can find the ids in the ChangeLog, which was
-generated by the plain
+--tThc/1wpZn/ma/RB
+Content-Type: application/x-perl
+Content-Disposition: attachment; filename="section2text.pl"
+Content-Transfer-Encoding: quoted-printable
 
-	./gitlog.sh
-
-command. (That is for HEAD. 0af20307bb4c634722af0f9203dac7b3222c4a4f is
-the last commit on the Linus' branch, pass that to gitlog.sh to get his
-ChangeLog. ;-)
-
-  Next, I will probably do some bk-style pull tool. Or perhaps first
-a gitpatch.sh which will verify the sha1s and do the mode changes.
-
-  Linus, could you please have a look and tell me what do you think
-about it so far?
-
-  Thanks,
-
-				Petr Baudis
-
-Index: Makefile
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/Makefile (mode:100664 sha1:270cd4f8a8bf10cd513b489c4aaf76c14d4504a7)
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/Makefile (mode:100644 sha1:185ff422e68984e68da011509dec116f05fc6f8d)
-@@ -1,7 +1,7 @@
- CFLAGS=-g -O3 -Wall
- CC=gcc
- 
--PROG=update-cache show-diff init-db write-tree read-tree commit-tree cat-file fsck-cache
-+PROG=update-cache show-diff init-db write-tree read-tree commit-tree cat-file fsck-cache ls-tree
- 
- all: $(PROG)
- 
-@@ -30,6 +30,9 @@
- cat-file: cat-file.o read-cache.o
- 	$(CC) $(CFLAGS) -o cat-file cat-file.o read-cache.o $(LIBS)
- 
-+ls-tree: ls-tree.o read-cache.o
-+	$(CC) $(CFLAGS) -o ls-tree ls-tree.o read-cache.o $(LIBS)
-+
- fsck-cache: fsck-cache.o read-cache.o
- 	$(CC) $(CFLAGS) -o fsck-cache fsck-cache.o read-cache.o $(LIBS)
- 
-Index: README
-===================================================================
-Index: cache.h
-===================================================================
-Index: cat-file.c
-===================================================================
-Index: commit-tree.c
-===================================================================
-Index: fsck-cache.c
-===================================================================
-Index: gitadd.sh
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/gitadd.sh
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/gitadd.sh (mode:100755 sha1:d23be758c0c9fc1cf9756bcd3ee4d7266c60a2c9)
-@@ -0,0 +1,13 @@
-+#!/bin/sh
-+#
-+# Add new file to a GIT repository.
-+# Copyright (c) Petr Baudis, 2005
-+#
-+# Takes a list of file names at the command line, and schedules them
-+# for addition to the GIT repository at the next commit.
-+#
-+# FIXME: Those files are omitted from show-diff output!
-+
-+for file in "$@"; do
-+	echo $file >>.dircache/add-queue
-+done
-Index: gitcommit.sh
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/gitcommit.sh
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/gitcommit.sh (mode:100755 sha1:67a743c6cbc9dffaa6f571d3dc83ceec2bd0c039)
-@@ -0,0 +1,38 @@
-+#!/bin/sh
-+#
-+# Commit into a GIT repository.
-+# Copyright (c) Petr Baudis, 2005
-+# Based on an example script fragment sent to LKML by Linus Torvalds.
-+#
-+# Ignores any parameters for now, excepts changelog entry on stdin.
-+#
-+# FIXME: Gets it wrong for filenames containing spaces.
-+
-+
-+if [ -r .dircache/add-queue ]; then
-+	mv .dircache/add-queue .dircache/add-queue-progress
-+	addedfiles=$(cat .dircache/add-queue-progress)
-+else
-+	addedfiles=
-+fi
-+changedfiles=$(show-diff -s | grep -v ': ok$' | cut -d : -f 1)
-+commitfiles="$addedfiles $changedfiles"
-+if [ ! "$commitfiles" ]; then
-+	echo 'Nothing to commit.' >&2
-+	exit
-+fi
-+update-cache $commitfiles
-+rm -f .dircache/add-queue-progress
-+
-+
-+oldhead=$(cat .dircache/HEAD)
-+treeid=$(write-tree)
-+
-+echo "Enter commit message, terminated by ctrl-D on a separate line:" >&2
-+newhead=$(commit-tree $treeid -p $oldhead)
-+
-+if [ "$newhead" ]; then
-+	echo $newhead >.dircache/HEAD
-+else
-+	echo "Error during commit (oldhead $oldhead, treeid $treeid)" >&2
-+fi
-Index: gitdiff.sh
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/gitdiff.sh
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/gitdiff.sh (mode:100755 sha1:17aec840c7c0e0b4e4e78fd94b754fe6bc2f2ff2)
-@@ -0,0 +1,104 @@
-+#!/bin/sh
-+#
-+# Make a diff between two GIT trees.
-+# Copyright (c) Petr Baudis, 2005
-+#
-+# Takes two parameters identifying the two trees/commits to compare.
-+# Empty string will be substitued to HEAD revision.
-+#
-+# Outputs a diff converting the first tree to the second one.
-+
-+
-+TREE="^tree [A-z0-9]{40}$"
-+
-+tree1ls=$(mktemp -t gitdiff.XXXXXX)
-+tree2ls=$(mktemp -t gitdiff.XXXXXX)
-+diffdir=$(mktemp -d -t gitdiff.XXXXXX)
-+
-+function die () {
-+	echo gitdiff: $@ >&2
-+	rm -f "$tree1ls" "$tree2ls"
-+	rm -rf "$diffdir"
-+	exit
-+}
-+
-+function normalize_id () {
-+	# XXX: This is basically a copy of gitls.sh
-+	id=$1
-+	if [ ! "$id" ]; then
-+		id=$(cat .dircache/HEAD)
-+	fi
-+	if [ $(cat-file -t "$id") = "commit" ]; then
-+		id=$(cat-file commit $id | egrep "$TREE" | cut -d ' ' -f 2)
-+	fi
-+	if [ ! $(cat-file -t "$id") = "tree" ]; then
-+		die "Invalid ID supplied: $id"
-+	fi
-+	echo $id
-+}
-+
-+function mkdiff () {
-+	loc=$1; treeid=$2; fname=$3; mode=$4; sha1=$5;
-+
-+	if [ x"$sha1" != x"!" ]; then
-+		cat-file blob $sha1 >$loc
-+	else
-+		>$loc
-+	fi
-+
-+	label="$treeid/$fname";
-+
-+	labelapp=""
-+	[ x"$mode" != x"!" ] && labelapp="$labelapp mode:$mode"
-+	[ x"$sha1" != x"!" ] && labelapp="$labelapp sha1:$sha1"
-+	labelapp=$(echo "$labelapp" | sed 's/^ *//')
-+
-+	[ "$labelapp" ] && label="$label  ($labelapp)"
-+
-+	echo $label
-+}
-+
-+id1=$(normalize_id "$1")
-+id2=$(normalize_id "$2")
-+
-+[ "$2" != "$1" ] || die "Cannot diff tree against itself."
-+
-+ls-tree "$id1" >$tree1ls
-+[ -s "$tree1ls" ] || die "Error retrieving the first tree."
-+ls-tree "$id2" >$tree2ls
-+[ -s "$tree2ls" ] || die "Error retrieving the second tree."
-+
-+diffdir1="$diffdir/$id1"
-+diffdir2="$diffdir/$id2"
-+mkdir $diffdir1 $diffdir2
-+
-+join -e ! -a 1 -a 2 -j 4 -o 0,1.1,1.3,2.1,2.3 $tree1ls $tree2ls | {
-+	while read line; do
-+		name=$(echo $line | cut -d ' ' -f 1)
-+		mode1=$(echo $line | cut -d ' ' -f 2)
-+		sha1=$(echo $line | cut -d ' ' -f 3)
-+		mode2=$(echo $line | cut -d ' ' -f 4)
-+		sha2=$(echo $line | cut -d ' ' -f 5)
-+
-+		# XXX: The diff format is currently pretty ugly;
-+		# ideally, we should print the sha1 and mode at the
-+		# +++ and --- lines, but
-+
-+		if [ "$mode1" != "$mode2" ] || [ "$sha1" != "$sha2" ]; then
-+			echo "Index: $name"
-+			echo "==================================================================="
-+
-+			loc1="$diffdir1/$name"
-+			loc2="$diffdir2/$name"
-+			mkdir -p $(dirname $loc1) $(dirname $loc2)
-+
-+			label1=$(mkdiff "$loc1" $id1 "$name" $mode1 $sha1)
-+			label2=$(mkdiff "$loc2" $id2 "$name" $mode2 $sha2)
-+
-+			diff -L "$label1" -L "$label2" -u "$loc1" "$loc2"
-+		fi
-+	done
-+}
-+
-+rm -f "$tree1ls" "$tree2ls"
-+rm -rf "$diffdir"
-Index: gitlog.sh
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/gitlog.sh
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/gitlog.sh (mode:100755 sha1:e7a4eed8c0526821d00b08094c73fabb72eff4df)
-@@ -0,0 +1,61 @@
-+#!/bin/sh
-+####
-+#### Call this script with an object and it will produce the change
-+#### information for all the parents of that object
-+####
-+#### This script was originally written by Ross Vandegrift.
-+# multiple parents test 1d0f4aec21e5b66c441213643426c770dc6dedc0
-+# parents: ffa098b2e187b71b86a76d3cd5eb77d074a2503c
-+# 6860e0d9197c7f52155466c225baf39b42d62f63
-+
-+# regex for parent declarations
-+PARENTS="^parent [A-z0-9]{40}$"
-+
-+TMPCL="/tmp/gitlog.$$"
-+
-+# takes an object and generates the object's parent(s)
-+function unpack_parents () {
-+	echo "me $1"
-+	echo "me $1" >>$TMPCL
-+	RENTS=""
-+
-+	TMPCM=$(mktemp)
-+	cat-file commit $1 >$TMPCM
-+	while read line; do
-+		if echo "$line" | egrep -q "$PARENTS"; then
-+			RENTS="$RENTS "$(echo $line | sed 's/parent //g')
-+		fi
-+		echo $line
-+	done <$TMPCM
-+	rm $TMPCM
-+
-+	echo -e "\n--------------------------\n"
-+
-+	# if the last object had no parents, return
-+	if [ ! "$RENTS" ]; then
-+		return;
-+	fi
-+
-+	#useful for testing
-+	#echo $RENTS
-+	#read
-+	for i in `echo $RENTS`; do
-+		# break cycles
-+		if grep -q "me $i" $TMPCL; then
-+			echo "Already visited $i" >&2
-+			continue
-+		else
-+			unpack_parents $i
-+		fi
-+	done
-+}
-+
-+base=$1
-+if [ ! "$base" ]; then
-+	base=$(cat .dircache/HEAD)
-+fi
-+
-+rm -f $TMPCL
-+unpack_parents $base
-+rm -f $TMPCL
-+
-Index: gitls.sh
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/gitls.sh
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/gitls.sh (mode:100755 sha1:4fe78b764ac0ab3cdb16631bbfdd65edb138e47b)
-@@ -0,0 +1,22 @@
-+#!/bin/sh
-+#
-+# List contents of a particular tree in a GIT repository.
-+# Copyright (c) Petr Baudis, 2005
-+#
-+# Optionally takes commit or tree id as a parameter, defaulting to HEAD.
-+
-+TREE="^tree [A-z0-9]{40}$"
-+
-+id=$1
-+if [ ! "$id" ]; then
-+	id=$(cat .dircache/HEAD)
-+fi
-+if [ $(cat-file -t "$id") = "commit" ]; then
-+	id=$(cat-file commit $id | egrep "$TREE" | cut -d ' ' -f 2)
-+fi
-+if [ ! $(cat-file -t "$id") = "tree" ]; then
-+	echo "Invalid ID supplied: $id" >&2
-+	exit
-+fi
-+
-+ls-tree "$id"
-Index: init-db.c
-===================================================================
-Index: ls-tree.c
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/ls-tree.c
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/ls-tree.c (mode:100644 sha1:ed5b82cd7f41c3ea4140fa1ee4b80b786f190151)
-@@ -0,0 +1,51 @@
-+/*
-+ * GIT - The information manager from hell
-+ *
-+ * Copyright (C) Linus Torvalds, 2005
-+ */
-+#include "cache.h"
-+
-+static int list(unsigned char *sha1)
-+{
-+	void *buffer;
-+	unsigned long size;
-+	char type[20];
-+
-+	buffer = read_sha1_file(sha1, type, &size);
-+	if (!buffer)
-+		usage("unable to read sha1 file");
-+	if (strcmp(type, "tree"))
-+		usage("expected a 'tree' node");
-+	while (size) {
-+		int len = strlen(buffer)+1;
-+		unsigned char *sha1 = buffer + len;
-+		char *path = strchr(buffer, ' ')+1;
-+		unsigned int mode;
-+
-+		if (size < len + 20 || sscanf(buffer, "%o", &mode) != 1)
-+			usage("corrupt 'tree' file");
-+		buffer = sha1 + 20;
-+		size -= len + 20;
-+		/* XXX: We just assume the type is "blob" as it should be.
-+		 * It seems worthless to read each file just to get this
-+		 * and the file size. -- pasky@ucw.cz */
-+		printf("%03o\t%s\t%s\t%s\n", mode, "blob", sha1_to_hex(sha1), path);
-+	}
-+	return 0;
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	unsigned char sha1[20];
-+
-+	if (argc != 2)
-+		usage("ls-tree <key>");
-+	if (get_sha1_hex(argv[1], sha1) < 0)
-+		usage("ls-tree <key>");
-+	sha1_file_directory = getenv(DB_ENVIRONMENT);
-+	if (!sha1_file_directory)
-+		sha1_file_directory = DEFAULT_DB_ENVIRONMENT;
-+	if (list(sha1) < 0)
-+		usage("list failed");
-+	return 0;
-+}
-Index: parent-id
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/parent-id
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/parent-id (mode:100755 sha1:198c551b7367988b48aa7a69876e098d73c19e88)
-@@ -0,0 +1,15 @@
-+#!/bin/sh
-+#
-+# Get ID of parent commit to a given revision or HEAD.
-+# Copyright (c) Petr Baudis, 2005
-+#
-+# Takes ID of the current commit, defaults to HEAD.
-+
-+PARENT="^parent [A-z0-9]{40}$"
-+
-+id=$1
-+if [ ! "$id" ]; then
-+	id=$(cat .dircache/HEAD)
-+fi
-+
-+cat-file commit $id | egrep "$PARENT" | cut -d ' ' -f 2
-Index: read-cache.c
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/read-cache.c (mode:100664 sha1:e51c9ee84874b5ff0f22b11dcd4fe1f905e72a5e)
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/read-cache.c (mode:100644 sha1:3dbe6db46933683721ceafdcdd70da521a32269a)
-@@ -264,11 +264,12 @@
- 	size = 0; // avoid gcc warning
- 	map = (void *)-1;
- 	if (!fstat(fd, &st)) {
--		map = NULL;
- 		size = st.st_size;
- 		errno = EINVAL;
- 		if (size > sizeof(struct cache_header))
- 			map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
-+		else
-+			return (!hdr->entries) ? 0 : error("inconsistent cache");
- 	}
- 	close(fd);
- 	if (-1 == (int)(long)map)
-Index: read-tree.c
-===================================================================
-Index: show-diff.c
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/show-diff.c (mode:100664 sha1:45f6e3140b3923497fdec808aec0e86ecf358b92)
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/show-diff.c (mode:100644 sha1:9beda1382103df29914d965fc135def0e6e7e839)
-@@ -49,9 +49,17 @@
- 
- int main(int argc, char **argv)
- {
-+	int silent = 0;
- 	int entries = read_cache();
- 	int i;
- 
-+	while (argc-- > 1) {
-+		if (!strcmp(argv[1], "-s"))
-+			silent = 1;
-+		else if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))
-+			usage("show-diff [-s]");
-+	}
-+
- 	if (entries < 0) {
- 		perror("read_cache");
- 		exit(1);
-@@ -77,6 +85,9 @@
- 		for (n = 0; n < 20; n++)
- 			printf("%02x", ce->sha1[n]);
- 		printf("\n");
-+		if (silent)
-+			continue;
-+
- 		new = read_sha1_file(ce->sha1, type, &size);
- 		show_differences(ce, &st, new, size);
- 		free(new);
-Index: update-cache.c
-===================================================================
---- 6be98a9e92a3f131a3fdf0dc3a8576fba6421569/update-cache.c (mode:100664 sha1:9dcee6f628d5accaa5219f72a2e790c082d9dd9a)
-+++ 3f6cc0ad3e076e05281438b0de69a7d6a5522d17/update-cache.c (mode:100644 sha1:916430a05a9da088dae1ea82eb8d5392033f548a)
-@@ -231,6 +231,9 @@
- 		return -1;
- 	}
- 
-+	if (argc < 2)
-+		usage("update-cache <file>*");
-+
- 	newfd = open(".dircache/index.lock", O_RDWR | O_CREAT | O_EXCL, 0600);
- 	if (newfd < 0) {
- 		perror("unable to create new cachefile");
-Index: write-tree.c
-===================================================================
+#!/usr/bin/perl=0Ause strict;=0Amy ($p, @params, %param_t, %param_d);=0A=0A=
+while (<>) {=0A	my @params =3D split '\0', $_;=0A	foreach $p (@params) {=0A=
+		next if (!$p);=0A		# description, it has " () "=0A		if ($p =3D~ /(\S+) \(=
+\) (.+)/) {=0A			$param_d{$1} =3D $2;=0A			next;=0A		}=0A		# type in parens=
+=0A		if ($p =3D~ /(\S+)\s+(.*)/) {=0A			$param_t{$1} =3D $2;=0A			next;=0A	=
+	}=0A		# what's after '=3D'=0A		if ($p =3D~ /(\S+=3D).*/) {=0A			$param_t{$=
+1} =3D '(string)';=0A			next;=0A		}=0A		# parameter has no value=0A		if ($p=
+ =3D~ /(\S+)/) {=0A			$param_t{$1} =3D '';=0A			next;=0A		}=0A	}=0A}=0A=0A#=
+ print it=0Aforeach $p (sort(keys(%param_t))) {=0A	print "$p $param_t{$p}\n=
+";=0A	if (!$param_d{$p}) {=0A		print "  No description\n";=0A	} else {=0A		=
+print "  $param_d{$p}\n";=0A	}=0A	print "\n";=0A}=0A=0A# descriptions alone=
+; typos=0Aforeach $p (sort(keys(%param_d))) {=0A	if (!$param_t{$p}) {=0A		p=
+rint STDERR "$p only has description\n";=0A	}=0A}=0A
+--tThc/1wpZn/ma/RB--

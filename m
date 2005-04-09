@@ -1,81 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVDNMmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVDNNAo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVDNMmi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 08:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVDNMmi
+	id S261493AbVDNNAo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 09:00:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVDNNAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 08:42:38 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:14602 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261490AbVDNMmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 08:42:18 -0400
-Message-ID: <425E6627.9080405@aitel.hist.no>
-Date: Thu, 14 Apr 2005 14:46:31 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: John M Collins <jmc@xisl.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Exploit in 2.6 kernels
-References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no> <20050413125921.GN17865@csclub.uwaterloo.ca>
-In-Reply-To: <20050413125921.GN17865@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Apr 2005 09:00:43 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5015 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261493AbVDNNAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 09:00:37 -0400
+Date: Sat, 9 Apr 2005 11:56:08 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Frank Sorenson <frank@tuxrocks.com>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>, George Anzinger <george@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Lee Revell <rlrevell@joe-job.com>, Thomas Renninger <trenn@suse.de>
+Subject: Re: [PATCH] Updated: Dynamic Tick version 050408-1
+Message-ID: <20050409095608.GA5158@openzaurus.ucw.cz>
+References: <20050406083000.GA8658@atomide.com> <425451A0.7020000@tuxrocks.com> <20050407082136.GF13475@atomide.com> <4255A7AF.8050802@tuxrocks.com> <4255B247.4080906@tuxrocks.com> <20050408062537.GB4477@atomide.com> <20050408075001.GC4477@atomide.com> <20050408102854.GB1392@elf.ucw.cz> <20050408105411.GH4477@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050408105411.GH4477@atomide.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
+Hi!
 
->On Wed, Apr 13, 2005 at 11:47:46AM +0200, Helge Hafting wrote:
->  
->
->>You're not.  Complain to nvidia - using both email and snailmail.
->>If everybody with such problems did that, chances are they see
->>the light someday. Oh, and complain to the guy handing out
->>nvidia cards like confetti, state your preference for some other
->>card.  Perhaps that is easier to achieve.
->>    
->>
->
->What card would you recomend to people?
->  
->
-If all else fail - an *old* card.  This wasn't a problem before,
-therefore it doesn't have to be now.  Unless you want to run
-very new software that won't perform on those older cards.
-Todays faster cpus may help though.
+> > > > I think I have an idea on what's going on; Your system does not wake to
+> > > > APIC interrupt, and the system timer updates time only on other interrupts.
+> > > > I'm experiencing the same on a loaner ThinkPad T30.
+> > > > 
+> > > > I'll try to do another patch today. Meanwhile it now should work
+> > > > without lapic in cmdline.
+> > > 
+> > > Following is an updated patch. Anybody having trouble, please try
+> > > disabling CONFIG_DYN_TICK_USE_APIC Kconfig option.
+> > > 
+> > > I'm hoping this might work on Pavel's machine too?
+> > 
+> > The "volume hang" was explained: I was using CPU frequency scaling, it
+> > probably did not like that. After disabling CPU frequency scaling, it
+> > seems to work ok:
+> 
+> OK, good. I assume this was the same machine that did not work with
+> any of the earlier patches
 
-Look to http://dri.freedesktop.org/wiki/ for information about
-which cards have open drivers and how well they work.
-Some cards have specs available, others are reverse-engineered
-to the extent that a driver have been written.
-
->  
->
->>Whats wrong with tainting?  It is just a message, telling you that
->>the kernel is unsupported.  In this case because you're running a
->>closed-source module.  The tainting message itself does not do
->>anything bad.  There is a way - which is to write an open nvidia
->>driver.  To do that, you'll need to get the specs out of nvidia or
->>figure it out by reverse-engineering some other nvidia driver. Either
->>approach is hard, so people generally find it cheaper to just buy
->>a supported card.
->>    
->>
->
->It is becoming harder and harder to find supported cards it seems.
->Finding a card with decent 2D drivers for X can still be done, but 3D is
->just not really an option it seems.  Even 2D seems to be a problem on
->many cards if you don't use a binary only driver.
->  
->
-I have the impression that 2D is fine with ATI cards, even those
-that doesn't have open 3D drivers.  And even a really old low-end
-card performs fine for 2D work.  Even the unaccelerated
-framebuffer drivers seems to have enough performance
-for 2D in most cases. The cpu is fast these days. :-)
-
-Helge Hafting
+I did testing on that machine today, and yes it works okay if I disable the
+NO_IDLE_HZ_USE_APIC (or how is it called) option. Time problems are gone.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

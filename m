@@ -1,98 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVDIQZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVDIQdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVDIQZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 12:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVDIQZ0
+	id S261353AbVDIQdz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 12:33:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVDIQdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 12:25:26 -0400
-Received: from mx1.suse.de ([195.135.220.2]:16594 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261355AbVDIQYs (ORCPT
+	Sat, 9 Apr 2005 12:33:55 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:14000 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261353AbVDIQdx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 12:24:48 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Dave Airlie <airlied@gmail.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
- accesses
-References: <1110519743.5810.13.camel@gaston>
-	<1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
-	<1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
-	<1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
-	<21d7e9970504071422349426eb@mail.gmail.com>
-	<1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de>
-	<1112923186.9567.349.camel@gaston> <jezmw9ug7j.fsf@sykes.suse.de>
-	<1113005006.9568.402.camel@gaston>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: This is PLEASANT!
-Date: Sat, 09 Apr 2005 18:24:42 +0200
-In-Reply-To: <1113005006.9568.402.camel@gaston> (Benjamin Herrenschmidt's
- message of "Sat, 09 Apr 2005 10:03:25 +1000")
-Message-ID: <jey8brj4tx.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+	Sat, 9 Apr 2005 12:33:53 -0400
+Date: Sat, 9 Apr 2005 18:33:23 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Andrea Arcangeli <andrea@suse.de>, Martin Pool <mbp@sourcefrog.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       David Lang <dlang@digitalinsight.com>
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.61.0504091547320.15339@scrub.home>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
+ <20050406193911.GA11659@stingr.stingr.net> <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
+ <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
+ <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope>
+ <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope>
+ <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random>
+ <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+Hi,
 
-> Can you redo the counting of the workarounds with the patch ?
+On Fri, 8 Apr 2005, Linus Torvalds wrote:
 
-Switching from X to console:
+> Also, I suspect that BKCVS actually bothers to get more details out of a
+> BK tree than I cared about. People have pestered Larry about it, so BKCVS
+> exports a lot of the nitty-gritty (per-file comments etc) that just
+> doesn't actually _matter_, but people whine about. Me, I don't care. My
+> sparse-conversion just took the important parts.
 
-radeon_write_pll_regs: INPLL
-radeon_write_pll_regs: INPLL
-radeon_write_mode: OUTPLL
-radeonfb_engine_reset: INPLL
-radeonfb_engine_reset: OUTPLL
-radeonfb_engine_reset: OUTPLL
-radeonfb_setcmap: INPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: OUTPLL
-radeon_write_pll_regs: INPLL
-radeon_write_pll_regs: INPLL
-radeon_write_mode: OUTPLL
-radeonfb_engine_reset: INPLL
-radeonfb_engine_reset: OUTPLL
-radeonfb_engine_reset: OUTPLL
-radeonfb_setcmap: INPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: INPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: INPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: INPLL
-radeonfb_setcmap: OUTPLL
+As soon as you want to synchronize and merge two trees, you will know why 
+this information does matter.
+(/me looks closer at the sparse-conversion...)
+It seems you exported the complete parent information and this is exactly 
+the "nitty-gritty" I was "whining" about and which is not available via 
+bkcvs or bkweb and it's the most crucial information to make the bk data 
+useful outside of bk. Larry was previously very clear about this that he 
+considers this proprietary bk meta data and anyone attempting to export 
+this information is in violation with the free bk licence, so you indeed 
+just took the important parts and this is/was explicitly verboten for 
+normal bk users.
 
-Switching from console to X:
-
-radeonfb_setcmap: OUTPLL
-radeon_write_pll_regs: INPLL
-radeon_write_pll_regs: INPLL
-radeon_write_mode: OUTPLL
-radeonfb_engine_reset: INPLL
-radeonfb_engine_reset: OUTPLL
-radeonfb_engine_reset: OUTPLL
-radeonfb_setcmap: INPLL
-radeonfb_setcmap: OUTPLL
-radeonfb_setcmap: OUTPLL
-agpgart: Putting AGP V2 device at 0000:00:0b.0 into 1x mode
-agpgart: Putting AGP V2 device at 0000:00:10.0 into 1x mode
-radeonfb_setcolreg: INPLL
-radeonfb_setcolreg: OUTPLL
-radeonfb_setcolreg: OUTPLL
-... last three lines repeated 63 times
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+bye, Roman

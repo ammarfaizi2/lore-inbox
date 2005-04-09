@@ -1,120 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVDIFCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVDIFne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVDIFCp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 01:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVDIFCp
+	id S261290AbVDIFne (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 01:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVDIFnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 01:02:45 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:436 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261283AbVDIFCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 01:02:39 -0400
-Date: Sat, 09 Apr 2005 01:02:52 -0400
-From: philip dahlquist <dahlquist@kreative.net>
-Subject: easy softball jiffies quest(ion)
-To: linux-kernel@vger.kernel.org
-Message-id: <20050409010252.2eca2177.dahlquist@kreative.net>
-MIME-version: 1.0
-X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7bit
+	Sat, 9 Apr 2005 01:43:33 -0400
+Received: from fire.osdl.org ([65.172.181.4]:23172 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261290AbVDIFnb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 01:43:31 -0400
+Date: Fri, 8 Apr 2005 22:45:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Martin Pool <mbp@sourcefrog.net>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       David Lang <dlang@digitalinsight.com>
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <20050409022701.GA14085@opteron.random>
+Message-ID: <Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
+References: <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
+ <20050407014727.GA17970@havoc.gtf.org> <pan.2005.04.07.02.25.56.501269@sourcefrog.net>
+ <Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz> <1112852302.29544.75.camel@hope>
+ <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope>
+ <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random>
+ <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org> <20050409022701.GA14085@opteron.random>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-
-i'm on a quest to get access to jiffies in user space so i can write a
-simple stepper motor driver program.  i co-opted the "#includes" list 
-from alessandro rubini's jit.c file from "linux device drivers" to write
-jfi.c.
-
-this is it:
-------------------------------------------------------------------
-#include <linux/config.h>
-#include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/init.h>
-
-#include <linux/time.h>
-#include <linux/timer.h>
-#include <linux/kernel.h>
-#include <linux/proc_fs.h>
-#include <linux/types.h>
-#include <linux/spinlock.h>
-#include <linux/interrupt.h>
-
-#include <asm/hardirq.h>
 
 
-int main(void)
-{
-	unsigned long j = jiffies + (50 * HZ);
-	printf("start jiffies = %9li\n",jiffies);
-	while(jiffies < j)
-		;
-	
-	printf("done jiffies = %9li\n", jiffies);
-	return 0;
-}
+On Sat, 9 Apr 2005, Andrea Arcangeli wrote:
+> 
+> I'm not entirely convinced wget is going to be an efficient way to
+> synchronize and fetch your tree
 
------------------------------------------------------------
-all right, you can giggle, but no laughing out loud, my kernel ego is
-nacent and fragile.
+I don't think it's efficient per se, but I think it's important that 
+people can just "pass the files along". Ie it's a huge benefit if any 
+everyday mirror script (whether rsync, wget, homebrew or whatever) will 
+just automatically do the right thing. 
 
-when i compile it with:
+> Perhaps that's why you were compressing the stuff too? It sounds better
+> not to compress the stuff on-disk
 
-gcc -o jfi.x jfi.c
+I much prefer to waste some CPU time to save disk cache. Especially since 
+the compression is "free" if you do it early on (ie it's done only once, 
+since the files are stable). Also, if the difference is a 1.5GB kernel 
+repository or a 3GB kernel repository, I know which one I'll pick ;)
 
-i get a handful of errors regarding various #include statements:
--------------------------------------------------
-jfi.c:3:31: linux/moduleparam.h: No such file or directory
-In file included from jfi.c:6:
-/usr/include/linux/time.h:10: error: syntax error before "time_t"
-/usr/include/linux/time.h:12: error: syntax error before '}' token
-/usr/include/linux/time.h:18: error: syntax error before "time_t"
-/usr/include/linux/time.h:44: error: field `it_interval' has incomplete type
-/usr/include/linux/time.h:45: error: field `it_value' has incomplete type
-/usr/include/linux/time.h:49: error: field `it_interval' has incomplete type
-/usr/include/linux/time.h:50: error: field `it_value' has incomplete type
-jfi.c:7:25: linux/timer.h: No such file or directory
-In file included from /usr/include/linux/interrupt.h:9,
-                 from jfi.c:12:
-/usr/include/asm/bitops.h:327:2: warning: #warning This include file is
-not available on all architectures.
-/usr/include/asm/bitops.h:328:2: warning: #warning Using kernel headers
-in userspace: atomicity not guaranteed
-In file included from jfi.c:12:
-/usr/include/linux/interrupt.h:12:25: asm/hardirq.h: No such file or directory
-/usr/include/linux/interrupt.h:13:25: asm/softirq.h: No such file or directory
+Also, I don't want people editing repostitory files by hand. Sure, the 
+sha1 catches it, but still... I'd rather force the low-level ops to use 
+the proper helper routines. Which is why it's a raw zlib compressed blob, 
+not a gzipped file.
 
-jfi.c: In function `main':
-jfi.c:19: error: `jiffies' undeclared (first use in this function)
-jfi.c:19: error: (Each undeclared identifier is reported only once
-jfi.c:19: error: for each function it appears in.)
-./jfsh: line 8: jfi.x: command not found
----------------------------------------------------------------------
-
-i kind of figured you guys would know what to do.  it's sort of a rarefied
-group.  anyway, if you can help, i'd really appreciate it, because 
-alessandro's makefile was somewhat cryptic.
-
-  
-you know, the operating systems class this semester at the university 
-of maryland, college park, was taught based on that new, exciting os, win xp.
-and he managed to turn a 2 day class, where a day has a lecture and a lab,
-into a 4 day affair, monday lecture, tuesday lab, wednesday lecture, thursday
-lab. i took data structures instead. i am not taking any win xp os
-class. it's linux or nothing.  can you believe that, win xp?
-
-one more thing, um, i'm paralyzed from the shoulders down, but i can type
-with both hands using typing aids, and i also use a kensington "expert mouse"
-trackball.  i would like to write a mouse manager where i could assign 
-different actions for each button, something very similar to the kensington
-interface that's available for, um, windows.  i found some xwindow functions
-for button pressing events, but i don't know how to get into the mouse driver 
-or button events in xwindows or gnome, etc.
-
-if somebody has a direction to go for that, that would be a big help.
-
-thanks, or tgfl(inux),
-philip dahlquist
+		Linus

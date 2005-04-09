@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVDHXwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVDHX7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVDHXwt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Apr 2005 19:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVDHXwt
+	id S261204AbVDHX7M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Apr 2005 19:59:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVDHX7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Apr 2005 19:52:49 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:55974 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261203AbVDHXwr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Apr 2005 19:52:47 -0400
-Subject: Re: [PATCH] bootmem.c clean up bad pfn convertions
-From: Dave Hansen <haveblue@us.ibm.com>
-To: franck.bui-huu@innova-card.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <425687DB.4000205@innova-card.com>
-References: <425687DB.4000205@innova-card.com>
-Content-Type: text/plain
-Date: Fri, 08 Apr 2005 16:52:39 -0700
-Message-Id: <1113004359.16633.6.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Apr 2005 19:59:12 -0400
+Received: from mail.dif.dk ([193.138.115.101]:910 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261204AbVDHX7F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Apr 2005 19:59:05 -0400
+Date: Sat, 9 Apr 2005 02:01:37 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Ingo Molnar <mingo@redhat.com>,
+       Robert Love <rml@tech9.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] silence spinlock/rwlock uninitialized break_lock member
+ warnings
+Message-ID: <Pine.LNX.4.62.0504090150520.2455@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-08 at 15:32 +0200, Franck Bui-Huu wrote:
-> As I described in my previous email, bootmem.c does improper
-> pfn convertions into phys addr. This simple patch fixes that.
-...
-> -       bdata->node_bootmem_map = phys_to_virt(mapstart << PAGE_SHIFT);
-> -       bdata->node_boot_start = (start << PAGE_SHIFT);
-> +       bdata->node_bootmem_map = phys_to_virt(pfn_to_phys(mapstart));
-> +       bdata->node_boot_start = pfn_to_phys(start);
 
-The only arch with phys_to_pfn() defined is UML, so the patch simply
-won't compile anything but UML on current kernels (unless I'm missing
-something).
+Hi Andrew,
 
-Could you try to give us a more complete description of your problem?  I
-know your memory doesn't start at 0x0, but what problems does that
-cause?  Does the mem_map[] allocation blow up, etc...  
+Any chance this patch could be added to -mm (and possibly mainline)?
 
-If it's just mem_map[], That calculation could be fixed pretty easily.
-Something like
+It removes a bunch of warnings when building with gcc -W, like these:
+include/linux/wait.h:82: warning: missing initializer
+include/linux/wait.h:82: warning: (near initialization for `(anonymous).break_lock')
+include/asm/rwsem.h:88: warning: missing initializer
+include/asm/rwsem.h:88: warning: (near initialization for `(anonymous).break_lock')
+so there's less to sift through when looking for real problems with this 
+patch applied. 
+I've been using it for a while with no ill effects.
 
-+#ifdef CONFIG_CRAZY_MIPS_FOO_MEM_MAP_START... 
-+extern unsigned long mem_map_start_pfn
+This patch has surfaced previously, please see the lkml thread 
+"[RFC] spinlock_t & rwlock_t break_lock member initialization (patch seeking comments included)" 
+
+
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+---
+
+ spinlock.h |   16 ++++++++++++++--
+ 1 files changed, 14 insertions(+), 2 deletions(-)
+
+
+--- linux-2.6.12-rc2-mm2-orig/include/asm-i386/spinlock.h	2005-03-02 08:37:50.000000000 +0100
++++ linux-2.6.12-rc2-mm2/include/asm-i386/spinlock.h	2005-04-09 01:49:48.000000000 +0200
+@@ -32,7 +32,13 @@ typedef struct {
+ #define SPINLOCK_MAGIC_INIT	/* */
+ #endif
+ 
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
++#ifdef CONFIG_PREEMPT
++#define SPINLOCK_BREAK_INIT	, 0
 +#else
-+#define mem_map_start_pfn 0UL
++#define SPINLOCK_BREAK_INIT	/* */
 +#endif
--#define pfn_to_page(pfn)        (mem_map + (pfn))
-+#define pfn_to_page(pfn)        (mem_map + (pfn) - mem_map_start_pfn)
++
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT SPINLOCK_BREAK_INIT }
+ 
+ #define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+ 
+@@ -182,7 +188,13 @@ typedef struct {
+ #define RWLOCK_MAGIC_INIT	/* */
+ #endif
+ 
+-#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
++#ifdef CONFIG_PREEMPT
++#define RWLOCK_BREAK_INIT	, 0
++#else
++#define RWLOCK_BREAK_INIT	/* */
++#endif
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT RWLOCK_BREAK_INIT }
+ 
+ #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ 
 
-(those names are horrid, please improve them, if you plan to do this)
 
-All of the zone (and allocator) calculations should be just fine,
-because it already has a zone_start_pfn.
-
--- Dave
 

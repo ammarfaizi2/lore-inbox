@@ -1,92 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVDIQYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVDIQZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVDIQYi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 12:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVDIQYi
+	id S261355AbVDIQZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 12:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVDIQZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 12:24:38 -0400
-Received: from fire.osdl.org ([65.172.181.4]:8849 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261352AbVDIQYQ (ORCPT
+	Sat, 9 Apr 2005 12:25:26 -0400
+Received: from mx1.suse.de ([195.135.220.2]:16594 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261355AbVDIQYs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 12:24:16 -0400
-Date: Sat, 9 Apr 2005 09:26:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Paul Jackson <pj@engr.sgi.com>
-cc: ross@jose.lug.udel.edu, cw@f00f.org, linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM saga..
-In-Reply-To: <20050409085017.7edf2c9a.pj@engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0504090916550.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
- <20050408041341.GA8720@taniwha.stupidest.org> <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
- <20050408071720.GA23128@jose.lug.udel.edu> <Pine.LNX.4.58.0504080758420.28951@ppc970.osdl.org>
- <20050409085017.7edf2c9a.pj@engr.sgi.com>
+	Sat, 9 Apr 2005 12:24:48 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Dave Airlie <airlied@gmail.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
+ accesses
+References: <1110519743.5810.13.camel@gaston>
+	<1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	<1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
+	<1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
+	<21d7e9970504071422349426eb@mail.gmail.com>
+	<1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de>
+	<1112923186.9567.349.camel@gaston> <jezmw9ug7j.fsf@sykes.suse.de>
+	<1113005006.9568.402.camel@gaston>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: This is PLEASANT!
+Date: Sat, 09 Apr 2005 18:24:42 +0200
+In-Reply-To: <1113005006.9568.402.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Sat, 09 Apr 2005 10:03:25 +1000")
+Message-ID: <jey8brj4tx.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
+> Can you redo the counting of the workarounds with the patch ?
 
-On Sat, 9 Apr 2005, Paul Jackson wrote:
->
-> > in order to avoid having to worry about special characters
-> > they are NUL-terminated)
-> 
-> Would this be a possible alternative - newline terminated (convert any
-> newlines embedded in filenames to the 3 chars '%0A', and leave it as an
-> exercise to the reader to de-convert them.)
+Switching from X to console:
 
-Sure, you could obviously do escaping (you need to remember to escape '%' 
-too when you do that ;).
+radeon_write_pll_regs: INPLL
+radeon_write_pll_regs: INPLL
+radeon_write_mode: OUTPLL
+radeonfb_engine_reset: INPLL
+radeonfb_engine_reset: OUTPLL
+radeonfb_engine_reset: OUTPLL
+radeonfb_setcmap: INPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: OUTPLL
+radeon_write_pll_regs: INPLL
+radeon_write_pll_regs: INPLL
+radeon_write_mode: OUTPLL
+radeonfb_engine_reset: INPLL
+radeonfb_engine_reset: OUTPLL
+radeonfb_engine_reset: OUTPLL
+radeonfb_setcmap: INPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: INPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: INPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: INPLL
+radeonfb_setcmap: OUTPLL
 
-However, whenever you do escaping, that means that you're already going to 
-have to use a tool to unpack the dang thing. So you didn't actually win 
-anything. I pretty much guarantee that my existing format is easier to 
-unpack than your escaped format.
+Switching from console to X:
 
-ASCII isn't magical.
+radeonfb_setcmap: OUTPLL
+radeon_write_pll_regs: INPLL
+radeon_write_pll_regs: INPLL
+radeon_write_mode: OUTPLL
+radeonfb_engine_reset: INPLL
+radeonfb_engine_reset: OUTPLL
+radeonfb_engine_reset: OUTPLL
+radeonfb_setcmap: INPLL
+radeonfb_setcmap: OUTPLL
+radeonfb_setcmap: OUTPLL
+agpgart: Putting AGP V2 device at 0000:00:0b.0 into 1x mode
+agpgart: Putting AGP V2 device at 0000:00:10.0 into 1x mode
+radeonfb_setcolreg: INPLL
+radeonfb_setcolreg: OUTPLL
+radeonfb_setcolreg: OUTPLL
+... last three lines repeated 63 times
 
-This is "fsck_tree()", which walks the unpacked tree representation and 
-checks that it looks sane and marks the sha1's it finds as being 
-needed (so that you can do reachability analysis in a second pass). It's 
-not exactly complicated:
+Andreas.
 
-	static int fsck_tree(unsigned char *sha1, void *data, unsigned long size)
-	{
-	        while (size) {
-	                int len = 1+strlen(data);
-	                unsigned char *file_sha1 = data + len;
-	                char *path = strchr(data, ' ');
-	                if (size < len + 20 || !path)
-	                        return -1;
-	                data += len + 20;
-	                size -= len + 20;
-	                mark_needs_sha1(sha1, "blob", file_sha1);
-	        }
-	        return 0;
-	}
-
-and there's one HUGE advantage to _not_ having escaping: sorting and
-comparing.
-
-If you escape things, you now have to decide how you sort filenames. Do
-you sort them by the escaped representation, or by the "raw"  
-representation? Do you always have to escape or unescape the name in order 
-to sort it.
-
-So I like ASCII as much as the next guy, but it's not a religion. If there 
-isn't any point to it, there isn't any point to it.
-
-The biggest irritation I have with the "tree" format I chose is actually
-not the name (which is trivial), it's the <sha1> part. Almost everything
-else keeps the <sha1> in the ASCII hexadecimal representation, and I
-should have done that here too. Why? Not because it's a <sha1> - hey, the 
-binary representation is certainly denser and equivalent - but because an 
-ASCII representation there would have allowed me to much more easily 
-change the key format if I ever wanted to. Now it's very SHA1-specific.
-
-Which I guess is fine - I don't really see any reason to change, and if I 
-do change, I could always just re-generate the whole tree. But I think it 
-would have been cleaner to have _that_ part in ASCII.
-
-			Linus
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

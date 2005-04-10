@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVDJIY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVDJIsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVDJIY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 04:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVDJIY4
+	id S261445AbVDJIsb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 04:48:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDJIsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 04:24:56 -0400
-Received: from [83.246.78.200] ([83.246.78.200]:1961 "EHLO srvh02.vc-server.de")
-	by vger.kernel.org with ESMTP id S261439AbVDJIYy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 04:24:54 -0400
-Date: Sun, 10 Apr 2005 08:26:09 +0000
-From: Dennis Heuer <dh@triple-media.com>
-Subject: 2.6.11.x: bootprompt: ALSA: no soundcard detected
-To: linux-kernel@vger.kernel.org
-X-Mailer: Balsa 2.2.5
-Message-Id: <1113121569l.584l.0l@Foo>
+	Sun, 10 Apr 2005 04:48:30 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:47537 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S261448AbVDJImp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 04:42:45 -0400
+Date: Sun, 10 Apr 2005 01:39:25 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Paul Jackson <pj@engr.sgi.com>, ross@jose.lug.udel.edu, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <Pine.LNX.4.58.0504090916550.1267@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.62.0504100136290.14436@qynat.qvtvafvgr.pbz>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org><20050408041341.GA8720@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org><20050408071720.GA23128@jose.lug.udel.edu>
+ <Pine.LNX.4.58.0504080758420.28951@ppc970.osdl.org><20050409085017.7edf2c9a.pj@engr.sgi.com>
+ <Pine.LNX.4.58.0504090916550.1267@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - srvh02.vc-server.de
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - triple-media.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, 9 Apr 2005, Linus Torvalds wrote:
 
-I switched from 2.4 to 2.6.11 and found that the hard power-down now definetly needs ACPI, which stopped my soundplayer life from playing (stucking display and no sound), though. I installed 2.6.11.4, 2.6.11.5, and 2.6.11.7 but all three broke the hardware detection on my system. Now, with or without ACPI, the soundcard isn't even found.
+>
+> The biggest irritation I have with the "tree" format I chose is actually
+> not the name (which is trivial), it's the <sha1> part. Almost everything
+> else keeps the <sha1> in the ASCII hexadecimal representation, and I
+> should have done that here too. Why? Not because it's a <sha1> - hey, the
+> binary representation is certainly denser and equivalent - but because an
+> ASCII representation there would have allowed me to much more easily
+> change the key format if I ever wanted to. Now it's very SHA1-specific.
+>
+> Which I guess is fine - I don't really see any reason to change, and if I
+> do change, I could always just re-generate the whole tree. But I think it
+> would have been cleaner to have _that_ part in ASCII.
+>
 
-There is no further error message, linux installs as always.
+just wanted to point out that recent news shows that sha1 isn't as good as 
+it was thought to be (far easier to deliberatly create collisions then it 
+should be)
 
-Regards,
+this hasn't reached a point where you HAVE to quit useing it (especially 
+since you have the other validity checks in place), but it's a good reason 
+to expect that you may want to change to something else in a few years.
 
-Dennis Heuer
+it's a lot easier to change things now to make that move easier then once 
+this is being used extensively
 
+David Lang
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

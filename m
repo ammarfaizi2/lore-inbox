@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVDJUC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVDJUMc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbVDJUC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 16:02:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVDJUC1
+	id S261594AbVDJUMc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 16:12:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVDJUMc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 16:02:27 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:50826 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261588AbVDJUCY (ORCPT
+	Sun, 10 Apr 2005 16:12:32 -0400
+Received: from pop.gmx.net ([213.165.64.20]:961 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261594AbVDJUMb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 16:02:24 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Subject: Re: [PATCH] zero disk pages used by swsusp on resume
-Date: Sun, 10 Apr 2005 22:03:29 +0200
-User-Agent: KMail/1.7.1
-Cc: pavel@suse.cz, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <42592697.8060909@domdv.de> <200504102040.38403.oliver@neukum.org> <42597E99.8010802@domdv.de>
-In-Reply-To: <42597E99.8010802@domdv.de>
+	Sun, 10 Apr 2005 16:12:31 -0400
+X-Authenticated: #222744
+From: "Dieter Ferdinand" <dieter.ferdinand@gmx.de>
+To: linux-kernel@vger.kernel.org
+Date: Sun, 10 Apr 2005 22:12:28 +1
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504102203.29602.oliver@neukum.org>
+Subject: Problem with dual pentium on hx-board and kernel 2.4.x
+Reply-To: Dieter.Ferdinand@gmx.de
+Message-ID: <4259A4CC.27908.979BF4D7@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a, DE v4.12a R1a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 10. April 2005 21:29 schrieb Andreas Steinmetz:
-> Oliver Neukum wrote:
-> > What is the point in doing so after they've rested on the disk for ages?
-> 
-> The point is not physical access to the disk but data gathering after
-> resume or reboot.
+hello,
+i have problems with the new kernel on my old systems.
 
-After resume or reboot normal access control mechanisms will work
-again. Those who can read a swap partition under normal circumstances
-can also read /dev/kmem. It seems to me like you are putting an extra
-lock on a window on the third floor while leaving the front door open.
+with kernel 2.2.x it works fine, with kernel 2.4.x (last testet 2.4.29), the system 
+hangs after some time (some minutes to some hours).
 
-	Regards
-		Oliver
+on new p3-systems (also dual-systems) i don't have this problem.
+
+can you give me some help to solve this problem or i can't update this systems to 
+newer kernel.
+
+goodby
+Schau auch einmal auf meine Homepage (http://go.to/dieter-ferdinand).
+Dort findest du Information zu Linux, Novell, Win95, WinNT, ...
+

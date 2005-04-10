@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVDJN3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVDJNcQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVDJN3r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 09:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVDJN3r
+	id S261501AbVDJNcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 09:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVDJNcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 09:29:47 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:28802 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261497AbVDJN3c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 09:29:32 -0400
-Date: Sun, 10 Apr 2005 15:26:01 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: TommyDrum <mycooc@yahoo.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: r8169 native module problems on 2.6.11
-Message-ID: <20050410132601.GA9027@electric-eye.fr.zoreil.com>
-References: <42591914.2000800@yahoo.it>
+	Sun, 10 Apr 2005 09:32:15 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:60086 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261498AbVDJNb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 09:31:59 -0400
+X-T2-Posting-ID: dB8bZLHXm6KAmbp1mi7F+A==
+Subject: Re: 2.6.12-rc2-mm2
+From: Alexander Nyberg <alexn@dsv.su.se>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, pavel@suse.cz
+In-Reply-To: <20050408030835.4941cd98.akpm@osdl.org>
+References: <20050408030835.4941cd98.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sun, 10 Apr 2005 15:31:55 +0200
+Message-Id: <1113139915.723.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42591914.2000800@yahoo.it>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TommyDrum <mycooc@yahoo.it> :
-[new brand of r8169 adapter coming into town]
-> and dmesg for both:
-> 
-> kernel native:
-> 
-> ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 11 (level, low) -> IRQ 11
-> eth0: Identified chip type is 'RTL8169s/8110s'.
-> eth0: U.S. Robotics 10/100/1000 PCI NIC driver version 2.0 at
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 0xe08ee000, 00:c0:49:f2:86:1e, IRQ 11
-> eth0: Auto-negotiation Enabled.
+> - Largeish x86_64 update
 
-Can you check that the message above is _really_ the output of your
-native kernel ? I have not checked gentoo's sources but the real vanilla
-kernel can not issue this string.
+Hi Pavel
 
-> USR module:
-> 
-> ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 11 (level, low) -> IRQ 11
-> eth0: Identified chip type is 'RTL8169s/8110s'.
-> eth0: U.S. Robotics 10/100/1000 PCI NIC driver version 2.0 at
-> 0xe08e6000, 00:c0:49:f2:86:1e, IRQ 11
-> eth0: Auto-negotiation Enabled.
+I'm playing a bit with suspend on smp, we need something like this:
+As the cpu-mask is set to only this cpu _smp_processor_id() is safe.
 
-> I don't understand exactly the difference between the two, thought I
-> could help by posting this fact. Please if you find it irrelevant don't
-> flame me, since it's my first post to the kernel mailing list, I'd
-> welcome any suggestions and I will try to post any other information you
-> request.
+Index: linux-2.6.11/kernel/power/smp.c
+===================================================================
+--- linux-2.6.11.orig/kernel/power/smp.c	2005-04-10 09:43:13.000000000 +0200
++++ linux-2.6.11/kernel/power/smp.c	2005-04-10 15:23:36.000000000 +0200
+@@ -46,13 +46,13 @@
+ 
+ void disable_nonboot_cpus(void)
+ {
+-	printk("Freezing CPUs (at %d)", smp_processor_id());
+ 	oldmask = current->cpus_allowed;
+ 	set_cpus_allowed(current, cpumask_of_cpu(0));
++	printk("Freezing CPUs (at %d)", _smp_processor_id());
+ 	current->state = TASK_INTERRUPTIBLE;
+ 	schedule_timeout(HZ);
+ 	printk("...");
+-	BUG_ON(smp_processor_id() != 0);
++	BUG_ON(_smp_processor_id() != 0);
+ 
+ 	/* FIXME: for this to work, all the CPUs must be running
+ 	 * "idle" thread (or we deadlock). Is that guaranteed? */
 
-You can send for both working/non-working after module insertion (wait
-for a few seconds):
-- complete dmesg (the beginning of it could be in /var/log/dmesg or such)
-- lspci -vx
-- lsmod
-- ifconfig -a
-- ethtool eth0
-- cat /proc/interrupts
-- source code
 
-Also:
-- brand name of the motherboard
-- the name given by USR to the adapter (check the box)
-
-I do not mind if the info is mailed, available on some web site or stuffed
-at bugzilla.kernel.org. Please Cc: netdev@oss.sgi.com on further messages.
-
---
-Ueimor

@@ -1,56 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVDJTNG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVDJTN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVDJTNG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 15:13:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVDJTNF
+	id S261583AbVDJTN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 15:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDJTNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 15:13:05 -0400
-Received: from smtp1.wanadoo.fr ([193.252.22.30]:29749 "EHLO smtp1.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261581AbVDJTMt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 15:12:49 -0400
-X-ME-UUID: 20050410191246639.9BFF61C00205@mwinf0109.wanadoo.fr
-Subject: Is it possible to "reset" the processor to a sane state at boot?
-From: Olivier Fourdan <fourdan@xfce.org>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: http://www.xfce.org
-Date: Sun, 10 Apr 2005 21:12:46 +0200
-Message-Id: <1113160366.6102.30.camel@shuttle>
+	Sun, 10 Apr 2005 15:13:55 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:46600 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261583AbVDJTN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 15:13:29 -0400
+Date: Sun, 10 Apr 2005 21:13:19 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: Re: [ANNOUNCE] git-pasky-0.1
+Message-ID: <20050410191319.GE7858@alpha.home.local>
+References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050410173349.GA17549@elte.hu> <20050410174221.GD7858@alpha.home.local> <20050410174512.GA18768@elte.hu> <20050410184522.GA5902@pasky.ji.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410184522.GA5902@pasky.ji.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Apr 10, 2005 at 08:45:22PM +0200, Petr Baudis wrote:
+ 
+> It turns out to be the forks for doing all the cuts and such what is
+> bogging it down so awfully (doing diff-tree takes 0.48s ;-). I do about
+> 15 forks per change, I guess, and for some reason cut takes a long of
+> time on its own.
+> 
+> I've rewritten the cuts with the use of bash arrays and other smart
+> stuff. I somehow don't feel comfortable using this and prefer the
+> old-fashioned ways, but it would be plain unusable without this.
 
-Sorry if this post sounds a bit off topic now. It seems I've narrowed
-down the issue with the timer running too fast on my AMD 64 based Compaq
-laptop.
+I've encountered the same problem in a config-generation script a while
+ago. Fortunately, bash provides enough ways to remove most of the forks,
+but the result is less portable.
 
-As said previously, after a cold restart, the system runs 3x too fast.
-The processor speed as reported by both the Linux kernel and memtest86
-is 266MHz while the lowest speed is actually 800MHz (1).
+I've downloaded your code, but it does not compile here because of the
+tv_nsec fields in struct stat (2.4, glibc 2.2), so I cannot use it to
+get the most up to date version to take a look at the script. Basically,
+all the 'cut' and 'sed' can be removed, as well as the 'dirname'. You
+can also call mkdir only if the dirs don't exist. I really think you
+should end up with only one fork in the loop to call 'diff'.
 
-Even the BIOS shows that problem, instead of reporting the correct
-800MHz speed for the CPU (like it does normally when the system is
-fine), it shows "???MHz" at boot instead. So it's probably a hardware or
-a BIOS issue (or both).
+> Now I'm down to
+> 
+> 	real    1m21.440s
+> 	user    0m32.374s
+> 	sys     0m42.200s
+> 
+> and I kinda doubt if it is possible to cut this much down. Almost no
+> disk activity, I have almost everything cached by now, apparently.
 
-What is puzzling me is that doesn't make a single difference for WinXP.
-Everything works just fine in WinXP (2). So I wonder, is there a way to
-"reset" the processor to a sane state? If such a workaround is doable,
-could someone point me to where I should look?
+It is very common to cut times by a factor of 10 or more when replacing
+common unix tools by pure shell. Dynamic library initialization also
+takes a lot of time nowadays, and probably you have localisation which
+is big too. Sometimes, just wiping a few variables at the top of the
+shell might remove some useless overhead.
 
-Thanks in advance
+> Anyway, you can git pull to get the optimized version.
+> 
+> Thanks for the help,
 
-Olivier
-
-
-(1) memtest86 uses "rdtsc" to compute cpu speed.
-(2) The laptop came preloaded with WinXP and it runs fine with it, so I
-guess that from a "support" point of view, the system is fine.
-
-
+Willy
 

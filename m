@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVDJHYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVDJHwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVDJHYW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 03:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVDJHYW
+	id S261438AbVDJHwD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 03:52:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDJHwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 03:24:22 -0400
-Received: from are.twiddle.net ([64.81.246.98]:34181 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S261440AbVDJHYR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 03:24:17 -0400
-Date: Sun, 10 Apr 2005 00:23:57 -0700
-From: Richard Henderson <rth@twiddle.net>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, mingo@elte.hu,
-       tony.luck@intel.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       nickpiggin@yahoo.com.au, linux-arch@vger.kernel.org
-Subject: Re: [patch] sched: unlocked context-switches
-Message-ID: <20050410072357.GA2155@twiddle.net>
-Mail-Followup-To: "David S. Miller" <davem@davemloft.net>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, mingo@elte.hu,
-	tony.luck@intel.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-	nickpiggin@yahoo.com.au, linux-arch@vger.kernel.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F033DB07E@scsmsx401.amr.corp.intel.com> <20050409043848.GA2677@elte.hu> <1113038543.9568.430.camel@gaston> <20050409154612.55d6a6fa.davem@davemloft.net>
-Mime-Version: 1.0
+	Sun, 10 Apr 2005 03:52:03 -0400
+Received: from fed1rmmtao11.cox.net ([68.230.241.28]:19672 "EHLO
+	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
+	id S261438AbVDJHwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 03:52:01 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: more git updates..
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	<20050409200709.GC3451@pasky.ji.cz>
+	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+From: Junio C Hamano <junkio@cox.net>
+Date: Sun, 10 Apr 2005 00:51:59 -0700
+In-Reply-To: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> (Linus
+ Torvalds's message of "Sat, 9 Apr 2005 14:00:09 -0700 (PDT)")
+Message-ID: <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050409154612.55d6a6fa.davem@davemloft.net>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 09, 2005 at 03:46:12PM -0700, David S. Miller wrote:
-> On Sat, 09 Apr 2005 19:22:23 +1000
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
-> 
-> > ppc64 already has a local_irq_save/restore in switch_to, around the low
-> > level asm bits, so it should be fine.
-> 
-> Sparc64 essentially does as well.  In fact, it uses an IRQ disable
-> which is stronger  than local_irq_save in that it disables reception
-> of CPU cross-calls as well.
+Listing the file paths and their sigs included in a tree to make
+a snapshot of a tree state sounds fine, and diffing two trees by
+looking at the sigs between two such files sounds fine as well.
 
-Alpha does the switch in PALmode, which is never interruptable.
+But I am wondering what your plans are to handle renames---or
+does git already represent them?
 
-
-r~

@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVDJWcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVDJWdh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbVDJWcp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 18:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVDJWcp
+	id S261624AbVDJWdh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 18:33:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVDJWdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 18:32:45 -0400
-Received: from fire.osdl.org ([65.172.181.4]:58298 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261623AbVDJWcm (ORCPT
+	Sun, 10 Apr 2005 18:33:37 -0400
+Received: from kalmia.hozed.org ([209.234.73.41]:20642 "EHLO kalmia.hozed.org")
+	by vger.kernel.org with ESMTP id S261624AbVDJWdb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 18:32:42 -0400
-Date: Sun, 10 Apr 2005 15:32:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: torvalds@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       VANDROVE@vc.cvut.cz
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-Message-Id: <20050410153228.1452365a.akpm@osdl.org>
-In-Reply-To: <42592813.5020005@aknet.ru>
-References: <20050405065544.GA21360@elte.hu>
-	<4252E2C9.9040809@aknet.ru>
-	<Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org>
-	<4252EA01.7000805@aknet.ru>
-	<Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org>
-	<425403F6.409@aknet.ru>
-	<20050407080004.GA27252@elte.hu>
-	<42555BBF.6090704@aknet.ru>
-	<Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org>
-	<425563D6.30108@aknet.ru>
-	<Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
-	<42592813.5020005@aknet.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Sun, 10 Apr 2005 18:33:31 -0400
+Date: Sun, 10 Apr 2005 17:33:30 -0500
+From: Troy Benjegerdes <hozer@hozed.org>
+To: Daniel Phillips <phillips@istop.com>
+Cc: Dmitry Yusupov <dima@neterion.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linus Torvalds <torvalds@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050410223330.GA26127@kalmia.hozed.org>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <200504071354.34581.phillips@istop.com> <1112897620.3893.62.camel@beastie> <200504071429.25073.phillips@istop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200504071429.25073.phillips@istop.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev <stsp@aknet.ru> wrote:
->
-> -	p->thread.esp0 = (unsigned long) (childregs+1);
->  +	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
+On Thu, Apr 07, 2005 at 02:29:24PM -0400, Daniel Phillips wrote:
+> On Thursday 07 April 2005 14:13, Dmitry Yusupov wrote:
+> > On Thu, 2005-04-07 at 13:54 -0400, Daniel Phillips wrote:
+> > > Three years ago, there was no fully working open source distributed scm
+> > > code base to use as a starting point, so extending BK would have been the
+> > > only easy alternative.  But since then the situation has changed.  There
+> > > are now several working code bases to provide a good starting point:
+> > > Monotone, Arch, SVK, Bazaar-ng and others.
+> >
+> > Right. For example, SVK is pretty mature project and very close to 1.0
+> > release now. And it supports all kind of merges including Cherry-Picking
+> > Mergeback:
+> >
+> > http://svk.elixus.org/?MergeFeatures
+> 
+> So for an interim way to get the patch flow back online, SVK is ready to try 
+> _now_, and we only need a way to import the version graph?  (true/false)
 
-This is utterly obscure - it needs a comment so that readers know what that
-"- 8" is doing there.
+Well, I followed some of the instructions to mirror the kernel tree on
+svn.clkao.org/linux/cvs, and although it took around 12 hours to import
+28232 versions, I seem to have a mirror of it on my own subversion
+server now. I think the svn.clkao.org mirror was taken from bkcvs... the
+last log message I see is "Rev 28232 - torvalds - 2005-04-04 09:08:33"
 
+I have no idea what's missing. What is everyone's favorite web frontend
+to subversion? I've got websvn (debian package) on there now, and it's a
+bit sluggish, but it seems to work.
+
+I hope to have time this week or next to actually make this machine
+publicly accessible.

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVDJStu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVDJSzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261579AbVDJStu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 14:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVDJSsT
+	id S261572AbVDJSzv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 14:55:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVDJSuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 14:48:19 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:12704 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261566AbVDJSpZ (ORCPT
+	Sun, 10 Apr 2005 14:50:18 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:45864 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261572AbVDJSpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 14:45:25 -0400
+	Sun, 10 Apr 2005 14:45:41 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=mGxRfZ+b7tRPnbXdEw/nG2fmS4xGuxGLdWCfKPCGn838YxF8Pkm5Lm5gkbtxNji//5PENZCXjVfptzSt2vZhv1H/uOxfNFQt+Nva1oup1deJtWXwgJLF+n3lwkN/VhSB4BP84xpYLTB/B6BJ3K+g0H/xgUdMiXpRatsdMOE1dbU=
+        b=CFy+7jXxbH3fscpQgQkp1t3lEihuX0LjnfaDCUidimoGh/tjMJIs6cX+6kDwdvlZPTUBW00Hn4GjMwrNkpcmQnDZ0DlZ+9tyjsu60bVVtVgfgy786k2OofDPkvFtbTPA2M7/j0T7Ah7n01h4T+AptGVEaMvKfF234tykze4QMjU=
 From: Tejun Heo <htejun@gmail.com>
 To: James.Bottomley@steeleye.com, axboe@suse.de,
        Christoph Hellwig <hch@infradead.org>
@@ -21,141 +21,189 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20050410184214.4AAD0992@htj.dyndns.org>
 In-Reply-To: <20050410184214.4AAD0992@htj.dyndns.org>
-Subject: Re: [PATCH scsi-misc-2.6 02/07] scsi: make scsi_send_eh_cmnd use its own timer instead of scmd->eh_timeout
-Message-ID: <20050410184214.B68C4CBA@htj.dyndns.org>
-Date: Mon, 11 Apr 2005 03:45:16 +0900 (KST)
+Subject: Re: [PATCH scsi-misc-2.6 05/07] scsi: unexport scsi_{add|delete}_timer()
+Message-ID: <20050410184214.B4CD5D43@htj.dyndns.org>
+Date: Mon, 11 Apr 2005 03:45:31 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-02_scsi_timer_eh_timer_fix.patch
+05_scsi_timer_unexport_timer_functions.patch
 
-	scmd->eh_timeout is used to resolve the race between command
-	completion and timeout.  However, during error handling,
-	scsi_send_eh_cmnd uses scmd->eh_timeout.  This creates a race
-	condition between eh and normal completion for a request which
-	has timed out and in the process of error handling.  If the
-	request completes while scmd->eh_timeout is being used by eh,
-	eh timeout is lost and the command will be handled by both eh
-	and completion path.  This patch fixes the race by making
-	scsi_send_eh_cmnd() use its own timer.
+	SCSI cmd timer has specific synchronization/semantic
+	requirements and shouldn't be directly used outside SCSI
+	midlayer.  With aic7xxx driver updated, there's no user left.
+	This patch unexports scsi_{add|delete}_timer() routines and
+	also removes @complete argument from scsi_add_timer().  The
+	change makes the use of scsi_times_out() confined in
+	scsi_error.c, so move it upward such that no prototype is
+	needed and make it static.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- scsi_error.c |   64 ++++++++++++++++++-----------------------------------------
- scsi_priv.h  |    1 
- 2 files changed, 20 insertions(+), 45 deletions(-)
+ drivers/scsi/scsi.c       |    2 -
+ drivers/scsi/scsi_error.c |   80 +++++++++++++++++++++-------------------------
+ drivers/scsi/scsi_priv.h  |    3 +
+ include/scsi/scsi_eh.h    |    3 -
+ 4 files changed, 41 insertions(+), 47 deletions(-)
 
+Index: scsi-reqfn-export/drivers/scsi/scsi.c
+===================================================================
+--- scsi-reqfn-export.orig/drivers/scsi/scsi.c	2005-04-11 03:42:12.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi.c	2005-04-11 03:42:12.000000000 +0900
+@@ -600,7 +600,7 @@ int scsi_dispatch_cmd(struct scsi_cmnd *
+ 	 * AK: unlikely race here: for some reason the timer could
+ 	 * expire before the serial number is set up below.
+ 	 */
+-	scsi_add_timer(cmd, cmd->timeout_per_command, scsi_times_out);
++	scsi_add_timer(cmd, cmd->timeout_per_command);
+ 
+ 	scsi_log_send(cmd);
+ 
 Index: scsi-reqfn-export/drivers/scsi/scsi_error.c
 ===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_error.c	2005-04-11 03:42:11.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_error.c	2005-04-11 03:42:11.000000000 +0900
-@@ -420,46 +420,12 @@ static int scsi_eh_completed_normally(st
+--- scsi-reqfn-export.orig/drivers/scsi/scsi_error.c	2005-04-11 03:42:12.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi_error.c	2005-04-11 03:42:12.000000000 +0900
+@@ -88,6 +88,42 @@ int scsi_eh_scmd_add(struct scsi_cmnd *s
  }
  
  /**
-- * scsi_eh_times_out - timeout function for error handling.
++ * scsi_times_out - Timeout function for normal scsi commands.
++ * @scmd:	Cmd that is timing out.
++ *
++ * Notes:
++ *     We do not need to lock this.  There is the potential for a race
++ *     only in that the normal completion handling might run, but if the
++ *     normal completion function determines that the timer has already
++ *     fired, then it mustn't do anything.
++ **/
++static void scsi_times_out(struct scsi_cmnd *scmd)
++{
++	scsi_log_completion(scmd, TIMEOUT_ERROR);
++
++	if (scmd->device->host->hostt->eh_timed_out)
++		switch (scmd->device->host->hostt->eh_timed_out(scmd)) {
++		case EH_HANDLED:
++			__scsi_done(scmd);
++			return;
++		case EH_RESET_TIMER:
++			/* This allows a single retry even of a command
++			 * with allowed == 0 */
++			if (scmd->retries++ > scmd->allowed)
++				break;
++			scsi_add_timer(scmd, scmd->timeout_per_command);
++			return;
++		case EH_NOT_HANDLED:
++			break;
++		}
++
++	if (unlikely(!scsi_eh_scmd_add(scmd, SCSI_EH_CANCEL_CMD))) {
++		panic("Error handler thread not present at %p %p %s %d",
++		      scmd, scmd->device->host, __FILE__, __LINE__);
++	}
++}
++
++/**
+  * scsi_add_timer - Start timeout timer for a single scsi command.
+  * @scmd:	scsi command that is about to start running.
+  * @timeout:	amount of time to allow this command to run.
+@@ -98,8 +134,7 @@ int scsi_eh_scmd_add(struct scsi_cmnd *s
+  *    has its own timer, and as it is added to the queue, we set up the
+  *    timer.  When the command completes, we cancel the timer.
+  **/
+-void scsi_add_timer(struct scsi_cmnd *scmd, int timeout,
+-		    void (*complete)(struct scsi_cmnd *))
++void scsi_add_timer(struct scsi_cmnd *scmd, int timeout)
+ {
+ 
+ 	/*
+@@ -112,7 +147,7 @@ void scsi_add_timer(struct scsi_cmnd *sc
+ 
+ 	scmd->eh_timeout.data = (unsigned long)scmd;
+ 	scmd->eh_timeout.expires = jiffies + timeout;
+-	scmd->eh_timeout.function = (void (*)(unsigned long)) complete;
++	scmd->eh_timeout.function = (void (*)(unsigned long))scsi_times_out;
+ 
+ 	SCSI_LOG_ERROR_RECOVERY(5, printk("%s: scmd: %p, time:"
+ 					  " %d, (%p)\n", __FUNCTION__,
+@@ -120,7 +155,6 @@ void scsi_add_timer(struct scsi_cmnd *sc
+ 
+ 	add_timer(&scmd->eh_timeout);
+ }
+-EXPORT_SYMBOL(scsi_add_timer);
+ 
+ /**
+  * scsi_delete_timer - Delete/cancel timer for a given function.
+@@ -148,44 +182,6 @@ int scsi_delete_timer(struct scsi_cmnd *
+ 
+ 	return rtn;
+ }
+-EXPORT_SYMBOL(scsi_delete_timer);
+-
+-/**
+- * scsi_times_out - Timeout function for normal scsi commands.
 - * @scmd:	Cmd that is timing out.
 - *
 - * Notes:
-- *    During error handling, the kernel thread will be sleeping waiting
-- *    for some action to complete on the device.  our only job is to
-- *    record that it timed out, and to wake up the thread.
+- *     We do not need to lock this.  There is the potential for a race
+- *     only in that the normal completion handling might run, but if the
+- *     normal completion function determines that the timer has already
+- *     fired, then it mustn't do anything.
 - **/
--static void scsi_eh_times_out(struct scsi_cmnd *scmd)
+-void scsi_times_out(struct scsi_cmnd *scmd)
 -{
--	scsi_eh_eflags_set(scmd, SCSI_EH_REC_TIMEOUT);
--	SCSI_LOG_ERROR_RECOVERY(3, printk("%s: scmd:%p\n", __FUNCTION__,
--					  scmd));
+-	scsi_log_completion(scmd, TIMEOUT_ERROR);
 -
--	if (scmd->device->host->eh_action)
--		up(scmd->device->host->eh_action);
--}
+-	if (scmd->device->host->hostt->eh_timed_out)
+-		switch (scmd->device->host->hostt->eh_timed_out(scmd)) {
+-		case EH_HANDLED:
+-			__scsi_done(scmd);
+-			return;
+-		case EH_RESET_TIMER:
+-			/* This allows a single retry even of a command
+-			 * with allowed == 0 */
+-			if (scmd->retries++ > scmd->allowed)
+-				break;
+-			scsi_add_timer(scmd, scmd->timeout_per_command,
+-				       scsi_times_out);
+-			return;
+-		case EH_NOT_HANDLED:
+-			break;
+-		}
 -
--/**
-  * scsi_eh_done - Completion function for error handling.
-  * @scmd:	Cmd that is done.
-  **/
- static void scsi_eh_done(struct scsi_cmnd *scmd)
- {
--	/*
--	 * if the timeout handler is already running, then just set the
--	 * flag which says we finished late, and return.  we have no
--	 * way of stopping the timeout handler from running, so we must
--	 * always defer to it.
--	 */
--	if (del_timer(&scmd->eh_timeout)) {
--		scmd->request->rq_status = RQ_SCSI_DONE;
--		scmd->owner = SCSI_OWNER_ERROR_HANDLER;
--
--		SCSI_LOG_ERROR_RECOVERY(3, printk("%s scmd: %p result: %x\n",
--					   __FUNCTION__, scmd, scmd->result));
--
--		if (scmd->device->host->eh_action)
--			up(scmd->device->host->eh_action);
+-	if (unlikely(!scsi_eh_scmd_add(scmd, SCSI_EH_CANCEL_CMD))) {
+-		panic("Error handler thread not present at %p %p %s %d",
+-		      scmd, scmd->device->host, __FILE__, __LINE__);
 -	}
-+	up(scmd->device->host->eh_action);
- }
+-}
  
  /**
-@@ -478,6 +444,7 @@ static int scsi_send_eh_cmnd(struct scsi
- {
- 	struct scsi_device *sdev = scmd->device;
- 	struct Scsi_Host *shost = sdev->host;
-+	struct timer_list timer;
- 	DECLARE_MUTEX_LOCKED(sem);
- 	unsigned long flags;
- 	int rtn = SUCCESS;
-@@ -492,7 +459,11 @@ static int scsi_send_eh_cmnd(struct scsi
- 		scmd->cmnd[1] = (scmd->cmnd[1] & 0x1f) |
- 			(sdev->lun << 5 & 0xe0);
- 
--	scsi_add_timer(scmd, timeout, scsi_eh_times_out);
-+	init_timer(&timer);
-+	timer.expires = jiffies + timeout;
-+	timer.function = (void (*)(unsigned long))scsi_eh_done;
-+	timer.data = (unsigned long)scmd;
-+	add_timer(&timer);
- 
- 	/*
- 	 * set up the semaphore so we wait for the command to complete.
-@@ -508,14 +479,19 @@ static int scsi_send_eh_cmnd(struct scsi
- 	down(&sem);
- 	scsi_log_completion(scmd, SUCCESS);
- 
--	shost->eh_action = NULL;
--
--	/*
--	 * see if timeout.  if so, tell the host to forget about it.
--	 * in other words, we don't want a callback any more.
--	 */
--	if (scsi_eh_eflags_chk(scmd, SCSI_EH_REC_TIMEOUT)) {
--		scsi_eh_eflags_clr(scmd,  SCSI_EH_REC_TIMEOUT);
-+	if (del_timer(&timer)) {
-+		SCSI_LOG_ERROR_RECOVERY(3,
-+			printk("scsi_eh_done scmd: %p result: %x\n",
-+			       scmd, scmd->result));
-+		scmd->request->rq_status = RQ_SCSI_DONE;
-+		scmd->owner = SCSI_OWNER_ERROR_HANDLER;
-+	} else {
-+		/*
-+		 * Timed out.  Tell the host to forget about it.  In
-+		 * other words, we don't want a callback any more.
-+		 */
-+		SCSI_LOG_ERROR_RECOVERY(3,
-+			printk("scsi_eh_times_out scmd: %p\n", scmd));
- 		scmd->owner = SCSI_OWNER_LOWLEVEL;
- 
- 		/*
+  * scsi_block_when_processing_errors - Prevent cmds from being queued.
 Index: scsi-reqfn-export/drivers/scsi/scsi_priv.h
 ===================================================================
---- scsi-reqfn-export.orig/drivers/scsi/scsi_priv.h	2005-04-11 03:42:10.000000000 +0900
-+++ scsi-reqfn-export/drivers/scsi/scsi_priv.h	2005-04-11 03:42:11.000000000 +0900
-@@ -42,7 +42,6 @@ struct Scsi_Host;
- 	(scp->eh_eflags = 0)
+--- scsi-reqfn-export.orig/drivers/scsi/scsi_priv.h	2005-04-11 03:42:11.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi_priv.h	2005-04-11 03:42:12.000000000 +0900
+@@ -84,7 +84,8 @@ extern int __init scsi_init_devinfo(void
+ extern void scsi_exit_devinfo(void);
  
- #define SCSI_EH_CANCEL_CMD	0x0001	/* Cancel this cmd */
--#define SCSI_EH_REC_TIMEOUT	0x0002	/* EH retry timed out */
+ /* scsi_error.c */
+-extern void scsi_times_out(struct scsi_cmnd *cmd);
++extern void scsi_add_timer(struct scsi_cmnd *scmd, int timeout);
++extern int scsi_delete_timer(struct scsi_cmnd *scmd);
+ extern int scsi_error_handler(void *host);
+ extern int scsi_decide_disposition(struct scsi_cmnd *cmd);
+ extern void scsi_eh_wakeup(struct Scsi_Host *shost);
+Index: scsi-reqfn-export/include/scsi/scsi_eh.h
+===================================================================
+--- scsi-reqfn-export.orig/include/scsi/scsi_eh.h	2005-04-11 03:42:10.000000000 +0900
++++ scsi-reqfn-export/include/scsi/scsi_eh.h	2005-04-11 03:42:12.000000000 +0900
+@@ -27,9 +27,6 @@ struct scsi_sense_hdr {		/* See SPC-3 se
+ };
  
- #define SCSI_SENSE_VALID(scmd) \
- 	(((scmd)->sense_buffer[0] & 0x70) == 0x70)
+ 
+-extern void scsi_add_timer(struct scsi_cmnd *, int,
+-		void (*)(struct scsi_cmnd *));
+-extern int scsi_delete_timer(struct scsi_cmnd *);
+ extern void scsi_report_bus_reset(struct Scsi_Host *, int);
+ extern void scsi_report_device_reset(struct Scsi_Host *, int, int);
+ extern int scsi_block_when_processing_errors(struct scsi_device *);
 

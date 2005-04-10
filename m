@@ -1,66 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVDJP7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVDJQ1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVDJP7d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 11:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVDJP7d
+	id S261510AbVDJQ1c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 12:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVDJQ1c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 11:59:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:17618 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261517AbVDJP72 (ORCPT
+	Sun, 10 Apr 2005 12:27:32 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:26585 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261510AbVDJQ10 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 11:59:28 -0400
-Date: Sun, 10 Apr 2005 09:01:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: tony.luck@intel.com
-cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-In-Reply-To: <200504101200.j3AC0Mu13146@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.58.0504100854110.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
- <20050409200709.GC3451@pasky.ji.cz> <200504101200.j3AC0Mu13146@unix-os.sc.intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Apr 2005 12:27:26 -0400
+Date: Sun, 10 Apr 2005 18:27:23 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: [ANNOUNCE] git-pasky-0.1
+Message-ID: <20050410162723.GC26537@pasky.ji.cz>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410024157.GE3451@pasky.ji.cz>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hello,
 
+  so I "released" git-pasky-0.1, my set of patches and scripts upon
+Linus' git, aimed at human usability and to an extent a SCM-like usage.
 
-On Sat, 9 Apr 2005 tony.luck@intel.com wrote:
->
-> With 60,000 changesets in the current tree, we will start out our git
-> repository with about 600,000 files.  Assuming the first byte of the
-> SHA1 hash is random, that means an average of 2343 files in each of the
-> objects/xx directories.  Give it a few more years at the current pace,
-> and we'll have over 10,000 files per directory.  This sounds like a lot
-> to me ... but perhaps filesystems now handle large directories enough
-> better than they used to for this to not be a problem?
+  You can get it at
 
-The good news is that git itself doesn't really care. I think it's
-literally _one_ function ("get_sha1_filename()") that you need to change,
-and then you need to write a small script that moves files around, and
-you're really much done.
+	http://pasky.or.cz/~pasky/dev/git/git-pasky-base.tar.bz2
 
-Also, I did actually debate that issue with myself, and decided that even
-if we do have tons of files per directory, git doesn't much care. The
-reason? Git never _searches_ for them. Assuming you have enough memory to
-cache the tree, you just end up doing a "lookup", and inside the kernel
-that's done using an efficient hash, which doesn't actually care _at_all_
-about how many files there are per directory.
+and after unpacking and building (make) do
 
-So I was for a while debating having a totally flat directory space, but 
-since there are _some_ downsides (linear lookup for cold-cache, and just 
-that "ls -l" ends up being O(n**2) and things), I decided that a single 
-fan-out is probably a good idea.
+	git pull pasky
 
-> Or maybe the files should be named objects/xx/yy/zzzzzzzzzzzzzzzz?
+to get the latest changes from my branch. If you already have some git
+from my branch which can do pulling, you can bring yourself up to date
+by doing just
 
-Hey, I may end up being wrong, and yes, maybe I should have done a 
-two-level one. The good news is that we can trivially fix it later (even 
-dynamically - we can make the "sha1 object tree layout" be a per-tree 
-config option, and there would be no real issue, so you could make small 
-projects use a flat version and big projects use a very deep structure 
-etc). You'd just have to script some renames to move the files around..
+	gitpull.sh pasky
 
-		Linus
+(but this style of usage is deprecated now). Please see the README for
+some details regarding usage etc. You can find the changes from the last
+announcement in the ChangeLog (the previous announcement corresponds to
+commit id 5125d089ad862f16a306b4942155092e1dce1c2d). The most important
+change is probably recursive diff addition, and making git ignore the
+nsec of ctime and mtime, since it is totally unreliable and likes to
+taint random files as modified.
+
+  My near future plans include especially some merge support; I think it
+should be rather easy, actually. I'll also add some simple tagging
+mechanism. I've decided to postpone the file moving detection, since
+there's no big demand for it now. ;-)
+
+  I will also need to do more testing on the linux kernel tree.
+Committing patch-2.6.7 on 2.6.6 kernel and then diffing results in
+
+	$ time gitdiff.sh `parent-id` `tree-id` >p
+	real    5m37.434s
+	user    1m27.113s
+	sys     2m41.036s
+
+which is pretty horrible, it seems to me. Any benchmarking help is of
+course welcomed, as well as any other feedback.
+
+  BTW, what would be the best (most complete) source for the BK tree
+metadata? Should I dig it from the BKCVS gateway, or is there a better
+source? Where did you get the sparse git database from, Linus? (BTW, it
+would be nice to get sparse.git with the directories as separate.)
+
+  Have fun,
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

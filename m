@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVDJRgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVDJRkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVDJRgW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 13:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVDJRgW
+	id S261530AbVDJRkX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 13:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVDJRkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 13:36:22 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:61081 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261536AbVDJRgI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 13:36:08 -0400
-Date: Sun, 10 Apr 2005 19:35:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rik van Riel <riel@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Petr Baudis <pasky@ucw.cz>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, Dave Jones <davej@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-Message-ID: <20050410173554.GB17549@elte.hu>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <Pine.LNX.4.61.0504101326210.16675@chimarrao.boston.redhat.com>
+	Sun, 10 Apr 2005 13:40:22 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:59088 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261530AbVDJRkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 13:40:05 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20050410172759.GA16654@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
+	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>
+	 <42596101.3010205@cybsft.com>  <20050410172759.GA16654@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Sun, 10 Apr 2005 13:39:53 -0400
+Message-Id: <1113154793.20980.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504101326210.16675@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Rik van Riel <riel@redhat.com> wrote:
-
-> GCC 4 isn't very happy.  Mostly sign changes, but also something that 
-> looks like a real error:
+On Sun, 2005-04-10 at 19:27 +0200, Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
-> gcc -g -O3 -Wall   -c -o fsck-cache.o fsck-cache.c
-> fsck-cache.c: In function 'main':
-> fsck-cache.c:59: warning: control may reach end of non-void function 'fsck_tree' being inlined
-> fsck-cache.c:62: warning: control may reach end of non-void function 'fsck_commit' being inlined
+> > Ingo,
+> > 
+> > It would seem that in the latest patch RT-V0.7.45-00 we have reverted 
+> > back to removing the define of jbd_debug which the attached patch 
+> > (against one of the 2.6.11 versions) fixed.
 > 
-> I assume that fsck_tree and fsck_commit should complain loudly if they 
-> ever get to that point - but since I'm not quite sure there's no 
-> patch, sorry.
+> > +#define jbd_debug(f, a...)   /**/
+> 
+> oops, indeed. '/**/' happens to be my private marker for 'debug code', 
+> which the release scripts automatically strip from the files ...
+> 
+> i've uploaded -45-01 with the fix.
+> 
 
-i sent a patch for most of the sign errors, but the above is a case gcc 
-not noticing that the function can never ever exit the loop, and thus 
-cannot get to the 'return' point.
+Would there be any harm with changing that to 
 
-	Ingo
+#define jbd_debug(f, a...) do {} while(0)
+
+The compiler would strip it anyway, and you wouldn't have to worry about
+your scripts removing the macro.
+
+-- Steve
+
+

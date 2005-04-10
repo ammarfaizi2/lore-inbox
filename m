@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVDJSSe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVDJSVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVDJSSe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 14:18:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVDJSRo
+	id S261563AbVDJSVV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 14:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVDJSUR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 14:17:44 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27921 "HELO
+	Sun, 10 Apr 2005 14:20:17 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25617 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261550AbVDJSPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 14:15:20 -0400
-Date: Sun, 10 Apr 2005 20:15:19 +0200
+	id S261553AbVDJSO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 14:14:26 -0400
+Date: Sun, 10 Apr 2005 20:14:22 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/block/rd.c: make a variable static
-Message-ID: <20050410181519.GG4204@stusta.de>
+Subject: [2.6 patch] drivers/cdrom/mcdx.c: make code static
+Message-ID: <20050410181422.GF4204@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,19 +21,91 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global variable static.
+This patch makes needlessly global code static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.12-rc2-mm2-full/drivers/block/rd.c.old	2005-04-10 02:00:08.000000000 +0200
-+++ linux-2.6.12-rc2-mm2-full/drivers/block/rd.c	2005-04-10 02:01:00.000000000 +0200
-@@ -74,7 +74,7 @@
-  * architecture-specific setup routine (from the stored boot sector
-  * information).
-  */
--int rd_size = CONFIG_BLK_DEV_RAM_SIZE;		/* Size of the RAM disks */
-+static int rd_size = CONFIG_BLK_DEV_RAM_SIZE;	/* Size of the RAM disks */
- /*
-  * It would be very desirable to have a soft-blocksize (that in the case
-  * of the ramdisk driver is also the hardblocksize ;) of PAGE_SIZE because
+---
+
+ drivers/cdrom/mcdx.c |   28 +++++++++++++---------------
+ 1 files changed, 13 insertions(+), 15 deletions(-)
+
+--- linux-2.6.12-rc2-mm2-full/drivers/cdrom/mcdx.c.old	2005-04-10 02:16:00.000000000 +0200
++++ linux-2.6.12-rc2-mm2-full/drivers/cdrom/mcdx.c	2005-04-10 02:18:28.000000000 +0200
+@@ -107,20 +107,20 @@
+    The _direct_ size is the number of sectors we're allowed to skip
+    directly (performing a read instead of requesting the new sector
+    needed */
+-const int REQUEST_SIZE = 800;	/* should be less then 255 * 4 */
+-const int DIRECT_SIZE = 400;	/* should be less then REQUEST_SIZE */
++static const int REQUEST_SIZE = 800;	/* should be less then 255 * 4 */
++static const int DIRECT_SIZE = 400;	/* should be less then REQUEST_SIZE */
+ 
+ enum drivemodes { TOC, DATA, RAW, COOKED };
+ enum datamodes { MODE0, MODE1, MODE2 };
+ enum resetmodes { SOFT, HARD };
+ 
+-const int SINGLE = 0x01;	/* single speed drive (FX001S, LU) */
+-const int DOUBLE = 0x02;	/* double speed drive (FX001D, ..? */
+-const int DOOR = 0x04;		/* door locking capability */
+-const int MULTI = 0x08;		/* multi session capability */
++static const int SINGLE = 0x01;		/* single speed drive (FX001S, LU) */
++static const int DOUBLE = 0x02;		/* double speed drive (FX001D, ..? */
++static const int DOOR = 0x04;		/* door locking capability */
++static const int MULTI = 0x08;		/* multi session capability */
+ 
+-const unsigned char READ1X = 0xc0;
+-const unsigned char READ2X = 0xc1;
++static const unsigned char READ1X = 0xc0;
++static const unsigned char READ2X = 0xc1;
+ 
+ 
+ /* DECLARATIONS ****************************************************/
+@@ -210,9 +210,7 @@
+  	repeated here to show what's going on.  And to sense, if they're
+ 	changed elsewhere. */
+ 
+-/* declared in blk.h */
+-int mcdx_init(void);
+-void do_mcdx_request(request_queue_t * q);
++static int mcdx_init(void);
+ 
+ static int mcdx_block_open(struct inode *inode, struct file *file)
+ {
+@@ -569,7 +567,7 @@
+ 	}
+ }
+ 
+-void do_mcdx_request(request_queue_t * q)
++static void do_mcdx_request(request_queue_t * q)
+ {
+ 	struct s_drive_stuff *stuffp;
+ 	struct request *req;
+@@ -1028,7 +1026,7 @@
+ 	return 0;
+ }
+ 
+-void __exit mcdx_exit(void)
++static void __exit mcdx_exit(void)
+ {
+ 	int i;
+ 
+@@ -1075,7 +1073,7 @@
+ 
+ /* Support functions ************************************************/
+ 
+-int __init mcdx_init_drive(int drive)
++static int __init mcdx_init_drive(int drive)
+ {
+ 	struct s_version version;
+ 	struct gendisk *disk;
+@@ -1261,7 +1259,7 @@
+ 	return 0;
+ }
+ 
+-int __init mcdx_init(void)
++static int __init mcdx_init(void)
+ {
+ 	int drive;
+ 	xwarn("Version 2.14(hs) \n");
 

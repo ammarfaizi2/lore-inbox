@@ -1,84 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVDJStu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVDJSwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVDJStu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 14:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVDJSsi
+	id S261578AbVDJSwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 14:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVDJSwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 14:48:38 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:29659 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261567AbVDJSp3 (ORCPT
+	Sun, 10 Apr 2005 14:52:00 -0400
+Received: from wproxy.gmail.com ([64.233.184.194]:33580 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261578AbVDJSpu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 14:45:29 -0400
-Date: Sun, 10 Apr 2005 20:45:22 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.1
-Message-ID: <20050410184522.GA5902@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050410173349.GA17549@elte.hu> <20050410174221.GD7858@alpha.home.local> <20050410174512.GA18768@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050410174512.GA18768@elte.hu>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Sun, 10 Apr 2005 14:45:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
+        b=OqLAAtfmajn1d01KSpdW/kUBSofRm20dz+iSAEgfIMW/YwcpxhLXUdc9WrR0/bWQ2ZeNFV9EWLIEJdtyhnktWZdmQy+5jt55CkaUV8LIomeYmk00KwN+sxJiuISxuA27r8Mlgrf03Hfe26ysCKqWozCHL9zf+dRWrVk+ldy9k7o=
+From: Tejun Heo <htejun@gmail.com>
+To: James.Bottomley@steeleye.com, axboe@suse.de,
+       Christoph Hellwig <hch@infradead.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+References: <20050410184214.4AAD0992@htj.dyndns.org>
+In-Reply-To: <20050410184214.4AAD0992@htj.dyndns.org>
+Subject: Re: [PATCH scsi-misc-2.6 07/07] scsi: make reuse of SCSI cmd timer strict
+Message-ID: <20050410184215.FFD7AAEA@htj.dyndns.org>
+Date: Mon, 11 Apr 2005 03:45:41 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Apr 10, 2005 at 07:45:12PM CEST, I got a letter
-where Ingo Molnar <mingo@elte.hu> told me that...
-> 
-> * Willy Tarreau <willy@w.ods.org> wrote:
-> 
-> > > >   I will also need to do more testing on the linux kernel tree.
-> > > > Committing patch-2.6.7 on 2.6.6 kernel and then diffing results in
-> > > > 
-> > > > 	$ time gitdiff.sh `parent-id` `tree-id` >p
-> > > > 	real    5m37.434s
-> > > > 	user    1m27.113s
-> > > > 	sys     2m41.036s
-> > > > 
-> > > > which is pretty horrible, it seems to me. Any benchmarking help is of
-> > > > course welcomed, as well as any other feedback.
-> > > 
-> > > it seems from the numbers that your system doesnt have enough RAM for 
-> > > this and is getting IO-bound?
-> > 
-> > Not the only problem, without I/O, he will go down to 4m8s (u+s) which 
-> > is still in the same order of magnitude.
-> 
-> probably not the only problem - but if we are lucky then his system was 
-> just trashing within the kernel repository and then most of the overhead 
-> is the _unnecessary_ IO that happened due to that (which causes CPU 
-> overhead just as much). The dominant system time suggests so, to a 
-> certain degree. Maybe this is wishful thinking.
+07_scsi_timer_strict_reuse.patch
 
-It turns out to be the forks for doing all the cuts and such what is
-bogging it down so awfully (doing diff-tree takes 0.48s ;-). I do about
-15 forks per change, I guess, and for some reason cut takes a long of
-time on its own.
+	SCSI cmd timer shouldn't be reused while it's active.  Make
+	sure that the unused condition is marked with
+	eh_timeout->function = NULL and BUG() active reuse path.
 
-I've rewritten the cuts with the use of bash arrays and other smart
-stuff. I somehow don't feel comfortable using this and prefer the
-old-fashioned ways, but it would be plain unusable without this.
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-Now I'm down to
+ scsi_error.c |   12 +++---------
+ 1 files changed, 3 insertions(+), 9 deletions(-)
 
-	real    1m21.440s
-	user    0m32.374s
-	sys     0m42.200s
+Index: scsi-reqfn-export/drivers/scsi/scsi_error.c
+===================================================================
+--- scsi-reqfn-export.orig/drivers/scsi/scsi_error.c	2005-04-11 03:42:12.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi_error.c	2005-04-11 03:42:13.000000000 +0900
+@@ -99,6 +99,8 @@ int scsi_eh_scmd_add(struct scsi_cmnd *s
+  **/
+ static void scsi_times_out(struct scsi_cmnd *scmd)
+ {
++	scmd->eh_timeout.function = NULL;
++
+ 	scsi_log_completion(scmd, TIMEOUT_ERROR);
+ 
+ 	if (scmd->device->host->hostt->eh_timed_out)
+@@ -136,14 +138,7 @@ static void scsi_times_out(struct scsi_c
+  **/
+ void scsi_add_timer(struct scsi_cmnd *scmd, int timeout)
+ {
+-
+-	/*
+-	 * If the clock was already running for this command, then
+-	 * first delete the timer.  The timer handling code gets rather
+-	 * confused if we don't do this.
+-	 */
+-	if (scmd->eh_timeout.function)
+-		del_timer(&scmd->eh_timeout);
++	BUG_ON(scmd->eh_timeout.function);
+ 
+ 	scmd->eh_timeout.data = (unsigned long)scmd;
+ 	scmd->eh_timeout.expires = jiffies + timeout;
+@@ -177,7 +172,6 @@ int scsi_delete_timer(struct scsi_cmnd *
+ 					 " rtn: %d\n", __FUNCTION__,
+ 					 scmd, rtn));
+ 
+-	scmd->eh_timeout.data = (unsigned long)NULL;
+ 	scmd->eh_timeout.function = NULL;
+ 
+ 	return rtn;
 
-and I kinda doubt if it is possible to cut this much down. Almost no
-disk activity, I have almost everything cached by now, apparently.
-
-Anyway, you can git pull to get the optimized version.
-
-Thanks for the help,
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.

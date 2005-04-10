@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVDJNcQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVDJN4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVDJNcQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 09:32:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVDJNcP
+	id S261220AbVDJN4e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 09:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVDJN4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 09:32:15 -0400
-Received: from mailfe02.swip.net ([212.247.154.33]:60086 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261498AbVDJNb7 (ORCPT
+	Sun, 10 Apr 2005 09:56:34 -0400
+Received: from user-10mt71s.cable.mindspring.com ([65.110.156.60]:19497 "EHLO
+	localhost") by vger.kernel.org with ESMTP id S261220AbVDJN4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 09:31:59 -0400
-X-T2-Posting-ID: dB8bZLHXm6KAmbp1mi7F+A==
-Subject: Re: 2.6.12-rc2-mm2
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz
-In-Reply-To: <20050408030835.4941cd98.akpm@osdl.org>
-References: <20050408030835.4941cd98.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sun, 10 Apr 2005 15:31:55 +0200
-Message-Id: <1113139915.723.5.camel@localhost.localdomain>
+	Sun, 10 Apr 2005 09:56:33 -0400
+Date: Sun, 10 Apr 2005 09:51:37 -0400
+From: David Roundy <droundy@abridgegame.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050410135136.GI809@abridgegame.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <87d5t73pnf.fsf@osv.topcon.com> <20050407103018.GA22906@merlin.emma.line.org> <20050409161748.GM14943@abridgegame.org> <1w4vjipg6p8rz$.13acy97i9ayhl.dlg@40tude.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1w4vjipg6p8rz$.13acy97i9ayhl.dlg@40tude.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Largeish x86_64 update
+On Sun, Apr 10, 2005 at 11:24:07AM +0200, Giuseppe Bilotta wrote:
+> On Sat, 9 Apr 2005 12:17:58 -0400, David Roundy wrote:
+> 
+> > I've recently made some improvements recently which will reduce the
+> > memory use
+> 
+> Does this include check for redundancy? ;)
 
-Hi Pavel
-
-I'm playing a bit with suspend on smp, we need something like this:
-As the cpu-mask is set to only this cpu _smp_processor_id() is safe.
-
-Index: linux-2.6.11/kernel/power/smp.c
-===================================================================
---- linux-2.6.11.orig/kernel/power/smp.c	2005-04-10 09:43:13.000000000 +0200
-+++ linux-2.6.11/kernel/power/smp.c	2005-04-10 15:23:36.000000000 +0200
-@@ -46,13 +46,13 @@
- 
- void disable_nonboot_cpus(void)
- {
--	printk("Freezing CPUs (at %d)", smp_processor_id());
- 	oldmask = current->cpus_allowed;
- 	set_cpus_allowed(current, cpumask_of_cpu(0));
-+	printk("Freezing CPUs (at %d)", _smp_processor_id());
- 	current->state = TASK_INTERRUPTIBLE;
- 	schedule_timeout(HZ);
- 	printk("...");
--	BUG_ON(smp_processor_id() != 0);
-+	BUG_ON(_smp_processor_id() != 0);
- 
- 	/* FIXME: for this to work, all the CPUs must be running
- 	 * "idle" thread (or we deadlock). Is that guaranteed? */
-
-
+Yeah, the only catch is that if the redundancy checks fail, we now may
+leave the repository in an inconsistent, but repairable, state.  (Only a
+cache of the pristine tree is affected.)  The recent improvements mostly
+came by increasing the laziness of a few operations, which meant we don't
+need to store the entire parsed tree (or parsed patch) in memory for
+certain operations.
+-- 
+David Roundy
+http://www.darcs.net

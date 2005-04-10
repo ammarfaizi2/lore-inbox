@@ -1,43 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVDJNJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVDJNON@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVDJNJH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 09:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVDJNJH
+	id S261493AbVDJNON (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 09:14:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVDJNON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 09:09:07 -0400
-Received: from zproxy.gmail.com ([64.233.162.204]:33767 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261492AbVDJNJF (ORCPT
+	Sun, 10 Apr 2005 09:14:13 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:16403 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261493AbVDJNOD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 09:09:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=och46b1B/jPiCLWiQeCJq0tTXs079TeX6YE5aYh70Uqohmtm0rGg8sgF6MHIGKYS8I9whaqS0JJTbTdPvutWvseV9wmXRUGWl3lRCLU6CgkckbQaIc8/USV4uggfFvE7SdpYpN3KkLdTbqxLwNUh5SKa6TrQHsEfhfNqpuWTkQ0=
-Message-ID: <2a4f155d05041006096b203aed@mail.gmail.com>
-Date: Sun, 10 Apr 2005 16:09:04 +0300
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: Dennis Heuer <dh@triple-media.com>
-Subject: Re: 2.6.11.x: bootprompt: ALSA: no soundcard detected
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1113128209l.588l.0l@Foo>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <1113121569l.584l.0l@Foo>
-	 <2a4f155d05041002022788ae8b@mail.gmail.com> <1113128209l.588l.0l@Foo>
+	Sun, 10 Apr 2005 09:14:03 -0400
+Message-ID: <42592697.8060909@domdv.de>
+Date: Sun, 10 Apr 2005 15:13:59 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: pavel@suse.cz, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [PATCH] zero disk pages used by swsusp on resume
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------040704000506030306030407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That means you didn't load the correct module for your soundcard.
+This is a multi-part message in MIME format.
+--------------040704000506030306030407
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
+It may not be desireable to leave swsusp saved pages on disk after
+resume as they may contain sensitive data that was never intended to be
+stored on disk in an way (e.g. in-kernel dm-crypt keys, mlocked pages).
 
-On Sun, 10 Apr 2005 10:16:49 +0000, Dennis Heuer <dh@triple-media.com> wrote:
-> This doesn't help. Alsamixer prints:
-> 
-> failure in snd_ctl_open: no such device
-> 
-> Dennis
+The attached simple patch against 2.6.11.2 should fix this by zeroing
+the swap pages after reading them.
 
+The patch is by no means perfect. Especially it isn't invoked on error
+conditions. However it seems to work during regular operation.
+
+Note that it is not possible to do this from userspace in a performant
+way, one has to zero the whole swap partition used for swsusp to achive
+a similar effect which quite often means clearing 2GB instead of about a
+few 100MB. The difference in speed and power consumption is important
+especially for laptops when resuming on battery. The userspace method
+also allows for a window in which at least some of the data may still be
+read.
 -- 
-Time is what you make of it
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+
+--------------040704000506030306030407
+Content-Type: text/plain;
+ name="swsusp.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="swsusp.diff"
+
+--- linux-2.6.11.2/kernel/power/swsusp.c.ast	2005-04-10 14:08:55.000000000 +0200
++++ linux-2.6.11.2/kernel/power/swsusp.c	2005-04-10 14:24:10.000000000 +0200
+@@ -112,6 +112,10 @@
+ 
+ static struct swsusp_info swsusp_info;
+ 
++static struct swsusp_clear {
++	char zero[PAGE_SIZE];
++} __attribute__((packed, aligned(PAGE_SIZE))) swsusp_clear __initdata;
++
+ /*
+  * XXX: We try to keep some more pages free so that I/O operations succeed
+  * without paging. Might this be more?
+@@ -1169,6 +1173,29 @@
+ 
+ }
+ 
++static int __init data_clear(void)
++{
++	struct pbe * p;
++	int error = 0;
++	int i;
++	int mod = nr_copy_pages / 100;
++
++	if (!mod)
++		mod = 1;
++
++	memset(&swsusp_clear, 0, sizeof(swsusp_clear));
++
++	printk( "Clearing disk data (%d pages):     ", nr_copy_pages );
++	for(i = 0, p = pagedir_nosave; i < nr_copy_pages && !error; i++, p++) {
++		if (!(i%mod))
++			printk( "\b\b\b\b%3d%%", i / mod );
++		error = bio_write_page(swp_offset(p->swap_address),
++				  (void *)&swsusp_clear);
++	}
++	printk(" %d done.\n",i);
++	return error;
++}
++
+ extern dev_t __init name_to_dev_t(const char *line);
+ 
+ static int __init read_pagedir(void)
+@@ -1208,6 +1235,8 @@
+ 		return error;
+ 	if ((error = data_read()))
+ 		free_pages((unsigned long)pagedir_nosave, pagedir_order);
++	else
++		data_clear();
+ 	return error;
+ }
+ 
+
+--------------040704000506030306030407--

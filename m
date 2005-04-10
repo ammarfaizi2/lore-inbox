@@ -1,112 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVDJNON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVDJNUX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVDJNON (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 09:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVDJNON
+	id S261494AbVDJNUX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 09:20:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVDJNUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 09:14:13 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:16403 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261493AbVDJNOD (ORCPT
+	Sun, 10 Apr 2005 09:20:23 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:25605 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261494AbVDJNUO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 09:14:03 -0400
-Message-ID: <42592697.8060909@domdv.de>
-Date: Sun, 10 Apr 2005 15:13:59 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
+	Sun, 10 Apr 2005 09:20:14 -0400
+Message-ID: <42592813.5020005@aknet.ru>
+Date: Sun, 10 Apr 2005 17:20:19 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-To: pavel@suse.cz, Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: [PATCH] zero disk pages used by swsusp on resume
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
+Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
+References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru> <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru> <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru> <20050407080004.GA27252@elte.hu> <42555BBF.6090704@aknet.ru> <Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org> <425563D6.30108@aknet.ru> <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
 Content-Type: multipart/mixed;
- boundary="------------040704000506030306030407"
+ boundary="------------090304070509030301000509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------040704000506030306030407
-Content-Type: text/plain; charset=ISO-8859-15
+--------------090304070509030301000509
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-It may not be desireable to leave swsusp saved pages on disk after
-resume as they may contain sensitive data that was never intended to be
-stored on disk in an way (e.g. in-kernel dm-crypt keys, mlocked pages).
+Hello.
 
-The attached simple patch against 2.6.11.2 should fix this by zeroing
-the swap pages after reading them.
+Linus Torvalds wrote:
+>> 2. How can one be sure there are no more
+>> of the like places where the stack is left
+>> empty?
+> That's a good argument, and may be the strongest reason for _not_ doing 
+> the speculation. However, I don't think it really can happen anywhere 
+> else. 
+OK, so how do you feel about the attached
+patch? I understand that from some point
+of view it may look like a hack, but at
+the same time it:
+1. Allows to preserve the valueable optimization
+2. Works for NMIs
+3. Doesn't care whether or not there are more
+of the like instances where the stack is left
+empty.
+4. Seems to work for me without the crashes:) 
 
-The patch is by no means perfect. Especially it isn't invoked on error
-conditions. However it seems to work during regular operation.
 
-Note that it is not possible to do this from userspace in a performant
-way, one has to zero the whole swap partition used for swsusp to achive
-a similar effect which quite often means clearing 2GB instead of about a
-few 100MB. The difference in speed and power consumption is important
-especially for laptops when resuming on battery. The userspace method
-also allows for a window in which at least some of the data may still be
-read.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
-
---------------040704000506030306030407
-Content-Type: text/plain;
- name="swsusp.diff"
+--------------090304070509030301000509
+Content-Type: text/x-patch;
+ name="esp0.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="swsusp.diff"
+ filename="esp0.diff"
 
---- linux-2.6.11.2/kernel/power/swsusp.c.ast	2005-04-10 14:08:55.000000000 +0200
-+++ linux-2.6.11.2/kernel/power/swsusp.c	2005-04-10 14:24:10.000000000 +0200
-@@ -112,6 +112,10 @@
+--- linux/arch/i386/kernel/process.c.old	2005-03-20 14:12:18.000000000 +0300
++++ linux/arch/i386/kernel/process.c	2005-04-10 16:54:39.000000000 +0400
+@@ -394,7 +394,7 @@
+ 	childregs->esp = esp;
  
- static struct swsusp_info swsusp_info;
+ 	p->thread.esp = (unsigned long) childregs;
+-	p->thread.esp0 = (unsigned long) (childregs+1);
++	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
  
-+static struct swsusp_clear {
-+	char zero[PAGE_SIZE];
-+} __attribute__((packed, aligned(PAGE_SIZE))) swsusp_clear __initdata;
-+
- /*
-  * XXX: We try to keep some more pages free so that I/O operations succeed
-  * without paging. Might this be more?
-@@ -1169,6 +1173,29 @@
- 
- }
- 
-+static int __init data_clear(void)
-+{
-+	struct pbe * p;
-+	int error = 0;
-+	int i;
-+	int mod = nr_copy_pages / 100;
-+
-+	if (!mod)
-+		mod = 1;
-+
-+	memset(&swsusp_clear, 0, sizeof(swsusp_clear));
-+
-+	printk( "Clearing disk data (%d pages):     ", nr_copy_pages );
-+	for(i = 0, p = pagedir_nosave; i < nr_copy_pages && !error; i++, p++) {
-+		if (!(i%mod))
-+			printk( "\b\b\b\b%3d%%", i / mod );
-+		error = bio_write_page(swp_offset(p->swap_address),
-+				  (void *)&swsusp_clear);
-+	}
-+	printk(" %d done.\n",i);
-+	return error;
-+}
-+
- extern dev_t __init name_to_dev_t(const char *line);
- 
- static int __init read_pagedir(void)
-@@ -1208,6 +1235,8 @@
- 		return error;
- 	if ((error = data_read()))
- 		free_pages((unsigned long)pagedir_nosave, pagedir_order);
-+	else
-+		data_clear();
- 	return error;
- }
+ 	p->thread.eip = (unsigned long) ret_from_fork;
  
 
---------------040704000506030306030407--
+
+--------------090304070509030301000509--

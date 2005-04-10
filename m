@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVDJXBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVDJXDS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbVDJXBP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 19:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVDJXBP
+	id S261629AbVDJXDS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 19:03:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVDJXDS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 19:01:15 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29884 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261628AbVDJXBL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 19:01:11 -0400
-Date: Mon, 11 Apr 2005 01:00:53 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, hare@suse.de
-Subject: Re: 2.6.12-rc2-mm1
-Message-ID: <20050410230053.GD12794@elf.ucw.cz>
-References: <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net> <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net> <20050405175600.644e2453.akpm@osdl.org> <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net> <20050406142749.6065b836.akpm@osdl.org> <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net> <20050408103327.GD1392@elf.ucw.cz> <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz> <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net>
+	Sun, 10 Apr 2005 19:03:18 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:37626 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261629AbVDJXDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 19:03:10 -0400
+Date: Sun, 10 Apr 2005 15:53:54 -0400
+From: Christopher Li <lkml@chrisli.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Jackson <pj@engr.sgi.com>, junkio@cox.net, rddunlap@osdl.org,
+       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-ID: <20050410195354.GH13853@64m.dyndns.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org> <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org> <20050410190331.GG13853@64m.dyndns.org> <Pine.LNX.4.58.0504101533020.1267@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.58.0504101533020.1267@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > Can you try without XFS?
+On Sun, Apr 10, 2005 at 03:38:39PM -0700, Linus Torvalds wrote:
 > 
-> No, XFS is my root filesystem. :( (Now that I think about it, would
-> modularizing XFS and using an initrd be OK?)
-
-Yes, loading xfs from initrd should help. [At least it did during
-suse9.3 testing.]
-
-> I'll see if I can reproduce this on one of my test boxes. I'll *try* to
-> get to it later today, but it's possible that I won't be able to get to
-> it until next Friday or Saturday.
 > 
-> > I do not why it interferes, but I've seen that before on suse
-> > kernels...
+> On Sun, 10 Apr 2005, Christopher Li wrote:
+> > 
+> > BTW, one thing I learn from ext3 is that it is very useful to have some
+> > compatible flag for future development. I think if we want to reserve some
+> > room in the file format for further development of git
 > 
-> Have you seen it without the resume-from-initrd patch too, or only with
-> that patch?
+> Way ahead of you.
+> 
+> This is (one reason) why all git objects have the type embedded inside of 
+> them. The format of all objects is totally regular: they are all 
+> compressed with zlib, they are all named by the sha1 file, and they all 
+> start out with a magic header of "<typename> <typesize><nul byte>".
+> 
+> So if I want to create a new kind of tree object that does the same thing 
+> as the old one but has some other layout, I'd just call it something else. 
+> Like "dir". That was what I initially planned to do about the change to 
+> recursive tree objects, but it turned out to actually be a lot easier to 
+> just encode it in the old type (that way the routines that read it don't 
+> even have to care about old/new types - it's all the same to them).
 
-Only with resume-from-initrd.
-									Pavel
+Ha, that is right. You put the new type into same object trick me into
+thinking I have to do the same way. Totally forget I can introduce new type
+of objects. It is even cleaner. Cool.
 
--- 
-Boycott Kodak -- for their patent abuse against Java.
+How about deleting trees from the caches? I don't need to delete stuff from
+the official tree. It is more for my local version control.
+Here is the usage case,
+- I check out the git.git.
+- using quilt to build my series of patches, git-hack1, git-hack2.. git-hack6.
+  let's say those are store in git cache as well
+- I pick some of them come up with a clean one "submit.patch"
+- submit.patch get merged into official git tree.
+- Now I want to get rid of the hack1 to hack6, but how?
+
+One way to do it is never commit hack1 to hack6 into git or cache. They stay as quilt
+patches only. But it is very tempting to let quilt using git instead of the
+.pc/ directory, quilt can simplify as some usage case of patch and git.
+
+Chris
+

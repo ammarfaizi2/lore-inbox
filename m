@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVDJVot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVDJVwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVDJVot (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 17:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVDJVot
+	id S261614AbVDJVwO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 17:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVDJVwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 17:44:49 -0400
-Received: from [83.246.78.200] ([83.246.78.200]:8924 "EHLO srvh02.vc-server.de")
-	by vger.kernel.org with ESMTP id S261613AbVDJVor convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 17:44:47 -0400
-Date: Sun, 10 Apr 2005 21:46:45 +0000
-From: Dennis Heuer <dh@triple-media.com>
-Subject: Re: 2.6.11.x: bootprompt: ALSA: no soundcard detected
-To: linux-kernel@vger.kernel.org
-References: <1113121569l.584l.0l@Foo>
-	<2a4f155d05041002022788ae8b@mail.gmail.com> <1113128209l.588l.0l@Foo>
-	<2a4f155d05041006096b203aed@mail.gmail.com> <1113165575l.556l.1l@Foo>
-In-Reply-To: <1113165575l.556l.1l@Foo> (from dh@triple-media.com on Sun Apr
-	10 22:39:35 2005)
-X-Mailer: Balsa 2.2.5
-Message-Id: <1113169605l.556l.6l@Foo>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
+	Sun, 10 Apr 2005 17:52:14 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:2535 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261614AbVDJVwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 17:52:09 -0400
+Date: Sun, 10 Apr 2005 14:42:53 -0400
+From: Christopher Li <lkml@chrisli.org>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-ID: <20050410184253.GF13853@64m.dyndns.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410065307.GC13853@64m.dyndns.org> <20050410122352.19890f6d.pj@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - srvh02.vc-server.de
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - triple-media.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20050410122352.19890f6d.pj@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aehhm, you are completely on the wrong track! I installed 2.6.11.7 the same way I installed 2.6.11, with sound support statically included, but, though it worked fine without ACPI under 2.6.11, the same configuration under 2.6.11.7 does not work. There was no change in practise, only a change in behaviour.
- 
-Dennis
+I totally agree that odds is really really small.
+That is why it is not worthy to handle the case. People hit that
+can just add a new line or some thing to avoid it, if
+it happen after all.
 
+It is the little peace of mind to know for sure that did
+not happen. I am just paranoid. 
 
-> That means you didn't load the correct module for your soundcard.
+Chris
+
+On Sun, Apr 10, 2005 at 12:23:52PM -0700, Paul Jackson wrote:
+> > Some thing like the following patch, may be turn off able.
 > 
+> Take out an old envelope and compute on it the odds of this
+> happening.
 > 
-> On Sun, 10 Apr 2005 10:16:49 +0000, Dennis Heuer <dh@triple-media.com> wrote:
-> > This doesn't help. Alsamixer prints:
-> > 
-> > failure in snd_ctl_open: no such device
-> > 
-> > Dennis
+> Say we have 10,000 kernel hackers, each producing one
+> new file every minute, for 100 hours a week.  And we've
+> cloned a small army of Andrew Morton's to integrate
+> the resulting tsunamai of patches.  And Linus is well
+> cared for in the state funny farm.
+> 
+> What is the probability that this check will fire even
+> once, between now and 10 billion years from now, when
+> the Sun has become a red giant destroying all life on
+> planet Earth?
 > 
 > -- 
-> Time is what you make of it
-> 
-> 
-> 
-> 
-> 
-
-
+>                   I won't rest till it's the best ...
+>                   Programmer, Linux Scalability
+>                   Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

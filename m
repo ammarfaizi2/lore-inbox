@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVDJRqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVDJRt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVDJRqw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 13:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVDJRqw
+	id S261535AbVDJRt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 13:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVDJRtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 13:46:52 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:63716 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261537AbVDJRqi (ORCPT
+	Sun, 10 Apr 2005 13:49:25 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:5605 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261535AbVDJRre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 13:46:38 -0400
-Date: Sun, 10 Apr 2005 19:46:23 +0200
+	Sun, 10 Apr 2005 13:47:34 -0400
+Date: Sun, 10 Apr 2005 19:47:23 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: cw@f00f.org, torvalds@osdl.org, davem@davemloft.net, andrea@suse.de,
-       mbp@sourcefrog.net, linux-kernel@vger.kernel.org,
-       dlang@digitalinsight.com
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050410174623.GB18768@elte.hu>
-References: <20050408083839.GC3957@opteron.random> <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org> <20050409022701.GA14085@opteron.random> <Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org> <20050409155511.7432d5c7.davem@davemloft.net> <Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org> <20050410001435.GA23401@taniwha.stupidest.org> <20050409185636.0945abdf.pj@engr.sgi.com> <20050410120331.GA8878@elte.hu> <20050410103805.7eee2fea.pj@engr.sgi.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
+Message-ID: <20050410174723.GC18768@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu> <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu> <42596101.3010205@cybsft.com> <20050410172759.GA16654@elte.hu> <1113154793.20980.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050410103805.7eee2fea.pj@engr.sgi.com>
+In-Reply-To: <1113154793.20980.15.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -34,17 +33,17 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Paul Jackson <pj@engr.sgi.com> wrote:
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> Ingo wrote:
-> > With default gzip it's 3.3 seconds though,
-> > and that still compresses it down to 57 MB.
+> Would there be any harm with changing that to 
 > 
-> Interesting.  I'm surprised how much a bunch of separate, modest sized
-> files can be compressed.
+> #define jbd_debug(f, a...) do {} while(0)
+> 
+> The compiler would strip it anyway, and you wouldn't have to worry 
+> about your scripts removing the macro.
 
-sorry, what i measured was in essence the tarball. I.e. not the 
-compression of every file separately. I should have been clear about 
-that ...
+yeah, that's what i did in -45-01. Since it's not the first time this 
+has happened i might have to change the marker to /*I*/ or something 
+like that :-)
 
 	Ingo

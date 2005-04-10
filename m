@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVDJR2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVDJRbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbVDJR2l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 13:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVDJR2l
+	id S261528AbVDJRbu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 13:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVDJRbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 13:28:41 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:64920 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261523AbVDJR22 (ORCPT
+	Sun, 10 Apr 2005 13:31:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:40130 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261528AbVDJRbn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 13:28:28 -0400
-Date: Sun, 10 Apr 2005 19:27:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
-Message-ID: <20050410172759.GA16654@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu> <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu> <42596101.3010205@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42596101.3010205@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 10 Apr 2005 13:31:43 -0400
+Date: Sun, 10 Apr 2005 13:31:29 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>, Ingo Molnar <mingo@elte.hu>,
+       Dave Jones <davej@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: more git updates..
+In-Reply-To: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.61.0504101326210.16675@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 9 Apr 2005, Linus Torvalds wrote:
 
-* K.R. Foley <kr@cybsft.com> wrote:
+> I've rsync'ed the new git repository to kernel.org, it should all be there
+> in /pub/linux/kernel/people/torvalds/git.git/ (and it looks like the
+> mirror scripts already picked it up on the public side too).
 
-> Ingo,
-> 
-> It would seem that in the latest patch RT-V0.7.45-00 we have reverted 
-> back to removing the define of jbd_debug which the attached patch 
-> (against one of the 2.6.11 versions) fixed.
+GCC 4 isn't very happy.  Mostly sign changes, but also something
+that looks like a real error:
 
-> +#define jbd_debug(f, a...)   /**/
+gcc -g -O3 -Wall   -c -o fsck-cache.o fsck-cache.c
+fsck-cache.c: In function 'main':
+fsck-cache.c:59: warning: control may reach end of non-void function 'fsck_tree' being inlined
+fsck-cache.c:62: warning: control may reach end of non-void function 'fsck_commit' being inlined
 
-oops, indeed. '/**/' happens to be my private marker for 'debug code', 
-which the release scripts automatically strip from the files ...
+I assume that fsck_tree and fsck_commit should complain loudly
+if they ever get to that point - but since I'm not quite sure
+there's no patch, sorry.
 
-i've uploaded -45-01 with the fix.
-
-	Ingo
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

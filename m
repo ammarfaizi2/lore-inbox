@@ -1,137 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVDJLIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVDJLKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVDJLIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 07:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDJLIx
+	id S261473AbVDJLKy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 07:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVDJLKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 07:08:53 -0400
-Received: from soundwarez.org ([217.160.171.123]:39616 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261471AbVDJLIr (ORCPT
+	Sun, 10 Apr 2005 07:10:52 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:64956 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261473AbVDJLKZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 07:08:47 -0400
-Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: johnpol@2ka.mipt.ru
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, jmorris@redhat.com,
-       ijc@hellion.org.uk, guillaume.thouvenin@bull.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, netdev@oss.sgi.com,
-       jamal <hadi@cyberus.ca>
-In-Reply-To: <20050410143205.18bff80d@zanzibar.2ka.mipt.ru>
-References: <1112942924.28858.234.camel@uganda>
-	 <E1DKZ7e-00070D-00@gondolin.me.apana.org.au>
-	 <20050410143205.18bff80d@zanzibar.2ka.mipt.ru>
-Content-Type: text/plain
-Date: Sun, 10 Apr 2005 13:08:44 +0200
-Message-Id: <1113131325.6994.66.camel@localhost.localdomain>
+	Sun, 10 Apr 2005 07:10:25 -0400
+Date: Sun, 10 Apr 2005 13:09:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       inaky.perez-gonzalez@intel.com, Steven Rostedt <rostedt@goodmis.org>,
+       Esben Nielsen <simlo@phys.au.dk>, Joe Korty <joe.korty@ccur.com>
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+Message-ID: <20050410110945.GA7871@elte.hu>
+References: <1112896344.16901.26.camel@dhcp153.mvista.com> <20050408062811.GA19204@elte.hu> <1112947503.7093.28.camel@sdietrich-xp.vilm.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112947503.7093.28.camel@sdietrich-xp.vilm.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-10 at 14:32 +0400, Evgeniy Polyakov wrote:
-> On Sun, 10 Apr 2005 19:52:54 +1000
-> Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> > Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> > > 
-> > > User should not know about low-level transport - 
-> > > it is like socket layer -  write only data and do not care about
-> > > how it will be delivered.
+
+* Sven-Thorsten Dietrich <sdietrich@mvista.com> wrote:
+
+> On Fri, 2005-04-08 at 08:28 +0200, Ingo Molnar wrote:
+> > * Daniel Walker <dwalker@mvista.com> wrote:
 > > 
-> > The delineation between transport and upper layer is fuzzy.
-> > In one situation the protocol might be transport and in another
-> > it could be above the transport.
+> > > 	This patch adds the priority list data structure from Inaky 
+> > > Perez-Gonzalez to the Preempt Real-Time mutex.
 > > 
-> > So I don't buy this argument.
+> > this one looks really clean.
+> > 
+> > it makes me wonder, what is the current status of fusyn's? Such a light 
+> > datastructure would be much more mergeable upstream than the former 
+> > 100-queues approach.
 > 
-> Connector allows to hide transport layer completely - 
-> concider acrypto or superio - that subsystems do not know
-> about network, author of the temperature driver for superio
-> should not know how skb is allocated and processed, 
-> and acrypto is not network related system, so why
-> they should know about network API?
-> Why should they know what is skb, how it is allocated, 
-> why shared skb can not be used in netlink and so on?
-> Users of the connector are only cared about
-> destination ID and how to send/receive message.
-> And what to do if we do not want something like connector
-> to be used for userspace control - we need to create
-> each time new netlink socket unit, like kobject's one,
-> or netlink_ulog, we need to register it in netlink.h, 
-> where already there too many units.
+> Ingo,
 > 
-> > > In the previous versions netlink group was assigned as incremented
-> > > counter, 
-> > > that was not convenient, but now we have 2-way ID, which is better
-> > > from users point of view - idx is supposed to be major id, val - 
-> > > some subsystem of that set.
-> > 
-> > Actually netlink does let you bind to a specific ID.
-> > 
-> > Of course you may argue that a single u32 is not enough.  However,
-> > nothing is stopping you from introducing netlink v2 that extends
-> > this.
-> > 
-> > In fact this is my main gripe with your patch: Why aren't you
-> > extending netlink instead of hacking something on top of the existing
-> > netlink? If the extensions require breaking compatibility: Fine,
-> > you just need to call it netlink v2.
+> Joe Korty has been doing a lot of work on Fusyn recently.
 > 
-> When connector was created in the middle of 2004, it's main aim
-> was allowing easy userspace control over netlink.
-> Creating it's own skb receive parser was acceptible for
-> one project, for two, but it is definitely not the solution
-> for general use. And also I think it is not so easy to include new
-> netlink family unit for some completely unrelated to network subsystem.
+> Fusyn is now a generic implementation, similar to the RT mutex. SMP 
+> scalability is somewhat better for decoupled locks on PI (last I 
+> checked). It has the extra bulk required to support user space.
 > 
-> So I decided to create only one skb parser, and put all skb processing
-> in one place, so any user has to do only registration with it's 
-> own receive callback, and sending function.
+> The major issue that concerns the Fusym and the real-time patch is 
+> that merging the kernel portion of Fusyn creates a collision of 
+> redundant PI implementations with respect to the RT mutex.
 
-Sure, but that would apply the a generic netlink extension too, right?
+i'd not mind merging the extra bits to PREEMPT_RT to enable fusyn's, if 
+they come in small, clean steps. E.g. Daniel's plist.h stuff was nice 
+and clean.
 
-> Thus, transport layer was completely hidden from connector users,
-> there are no complex netlink macros there, no network API
-> and all complex related issues, no huge code duplication in each device,
-> which does not want to mess with 32/64 ioctl issues, but 
-> want easy userspace control.
+> There are a few mistakes on the page, (RT mutex does not do priority 
+> ceiling), but for the most part the info is current.
 
-I don't see the need for unimplemented abstractions here. You can
-replace a generic netlink-use just the same way as you can replace the
-connector's own netlink code below the connector API. There is not much
-difference.
+is priority ceiling coming in via some POSIX feature that fusyn's need
+to address? What would be needed precisely - a way to set a priority for
+a lock (independently of the owner's task priority), and let that
+control the PI mechanism?
 
-> Later connector was changed a bit to allow easy notification
-> ability and new bus was added.
-> Connector is the solution for d-bus related projects, since
-> all control is in one place, there are destination ID,
-> there is no complex API.
+Unless i'm missing something, this could be implemented by detaching
+lock->owner_prio from lock->owner - via e.g. negative values. Thus some
+minimal code would check whether we need the owner's priority in the PI
+logic, or the semaphore's "own" priority level.
 
-Sorry, what does this have to do with DBUS?
+i.e. this doesnt seem to really affect the core design of RT mutexes.
 
-> Concider the latest xfrm event changes - good that we already
-> have netlink socket there, but in each sending function 
-> [there are at least three new]
-> we have all those skb_alloc, skb_put, NLMSG_* and so on which are
-> absolutely identical.
-> According to names and structures itself, they are too close
-> to what connector is for, and how it is implemented, so we already
-> have several connectors in the tree, and do we really want 
-> to proceed with it all over the place?
+OTOH, deadlock detection is another issue. It's quite expensive and i'm 
+not sure we want to make it a runtime thing. But for fusyn's deadlock 
+detection and safe teardown on owner-exit is a must-have i suspect?
 
-That's not the point. Nobody asks to replace the whole connector by raw
-netlink. But the message subscription and multicasting could be part of
-the generic netlink framework. The connector API would  still be on-top
-if it and nothing changes besides that we would have a nice low-level
-api to use for other systems too.
-The basic idea behind the connector as a nice generic framework for
-netlink, as it fills the missing multicast case, while we already can do
-singlecast and broadcast with netlink.
-It is just the same way the kernel plays with other core functionality
-too. If something is not represented in the vfs-layer your are asked to
-add it to the generic part and not implement it privately for your
-filesystem only.
+> If the RT mutex could be exposed in non PREEMPT_RT configurations, the 
+> fulock portion could be superseded by the RT mutex, and the remaining 
+> pieces merged in. Or vice versa.
 
-Thanks,
-Kay
+sure, RT mutexes could be exposed in !PREEMPT_RT.
 
+	Ingo

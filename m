@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVDJWaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVDJWcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVDJWaP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 18:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVDJWaP
+	id S261623AbVDJWcp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 18:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVDJWcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 18:30:15 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:11231 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261621AbVDJWaK (ORCPT
+	Sun, 10 Apr 2005 18:32:45 -0400
+Received: from fire.osdl.org ([65.172.181.4]:58298 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261623AbVDJWcm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 18:30:10 -0400
-Date: Mon, 11 Apr 2005 00:30:09 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Christopher Li <lkml@chrisli.org>
-Cc: Paul Jackson <pj@engr.sgi.com>, torvalds@osdl.org, rddunlap@osdl.org,
-       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
-Subject: Re: Re: more git updates..
-Message-ID: <20050410223009.GD5902@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410065307.GC13853@64m.dyndns.org> <20050410122352.19890f6d.pj@engr.sgi.com> <20050410184253.GF13853@64m.dyndns.org>
+	Sun, 10 Apr 2005 18:32:42 -0400
+Date: Sun, 10 Apr 2005 15:32:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: torvalds@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       VANDROVE@vc.cvut.cz
+Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
+Message-Id: <20050410153228.1452365a.akpm@osdl.org>
+In-Reply-To: <42592813.5020005@aknet.ru>
+References: <20050405065544.GA21360@elte.hu>
+	<4252E2C9.9040809@aknet.ru>
+	<Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org>
+	<4252EA01.7000805@aknet.ru>
+	<Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org>
+	<425403F6.409@aknet.ru>
+	<20050407080004.GA27252@elte.hu>
+	<42555BBF.6090704@aknet.ru>
+	<Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org>
+	<425563D6.30108@aknet.ru>
+	<Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
+	<42592813.5020005@aknet.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050410184253.GF13853@64m.dyndns.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Apr 10, 2005 at 08:42:53PM CEST, I got a letter
-where Christopher Li <lkml@chrisli.org> told me that...
-> I totally agree that odds is really really small.
-> That is why it is not worthy to handle the case. People hit that
-> can just add a new line or some thing to avoid it, if
-> it happen after all.
-> 
-> It is the little peace of mind to know for sure that did
-> not happen. I am just paranoid. 
+Stas Sergeev <stsp@aknet.ru> wrote:
+>
+> -	p->thread.esp0 = (unsigned long) (childregs+1);
+>  +	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
 
-BTW, I've merged the check to git-pasky some time ago, you can disable
-it in the Makefile. It is by default on now, until someone convinces me
-it actually affects performance measurably.
+This is utterly obscure - it needs a comment so that readers know what that
+"- 8" is doing there.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.

@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVDLMXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVDLM1Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbVDLMXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVDLMT1
+	id S262335AbVDLM1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:27:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVDLMYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:19:27 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:3971 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262365AbVDLMRr (ORCPT
+	Tue, 12 Apr 2005 08:24:35 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:59587 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S262381AbVDLMT1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:17:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=RmmW9Ei/1sqLxbXQfaZplTJrIKJoRpuuFQv3qnGW+TnsJ87bG5wXjwJ0NBM978eydxPC7trOeyIM91dHAwQGWx1NOiuNEkMa2xrWottTxBVtxavJuR3zydHzeYv7rumlFLXKY8mPkI9R52BwBgcOp8pyHKQivdcEvPwQDMzXavU=
-Message-ID: <e3da09a705041205176403fe27@mail.gmail.com>
-Date: Tue, 12 Apr 2005 08:17:46 -0400
-From: Dan Berger <danberger@gmail.com>
-Reply-To: Dan Berger <danberger@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Error When Booting: Resize Inode Not Valid
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 12 Apr 2005 08:19:27 -0400
+Message-ID: <4258F74D.2010905@keyaccess.nl>
+Date: Sun, 10 Apr 2005 11:52:13 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-rc2: Compose key doesn't work
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello. I have recently switched to Linux to prevent any big errors...
-but I guess I just have bad luck :)
+Hi Vojtech.
 
-Distro: Fedora Core 3
-Kernel: 2.6.10-1.FC3_770
-File system: ext3
-Mobo: Gigabyte GA7VAXP+
+I have mapped my right windows key to "Compose" in X:
 
-This morning I went to reboot my machine normally after an 8 day
-uptime. At boot, when it checked the root partition's integrity, I got
-the error "Resize inode not valid" and I was dropped to the repair fs
-console.
+Section "InputDevice"
+         Identifier      "Keyboard0"
+         Driver          "kbd"
+         Option          "XkbModel" "pc104"
+         Option          "XkbLayout" "us"
+         Option          "XkbOptions" "compose:rwin"
+EndSection
 
-I ran fsck.ext3 numerous times, always answering yes to recreating the
-resize inode... but to no avail. I even tried doing this from FC3's
-rescue CD.
+This worked fine upto  2.6.11.7, but doesn't under 2.6.12-rc2. The key 
+doesn't seem to be doing anything anymore: "Compose-'-e" just gets me 
+"'e" and so on.
 
-Interestingly enough, I can mount and unmount root and the rest of the
-partitions when in the rescue CD.
+X is X.org 6.8.1, keyboard is regular PS/2 keyboard, directly connected.
 
-I should mention that the last 2 bytes of the 512 byte MBR is aa 55
-and the PBR of my root partition is entirely null. There is no aa 55
-at the end.
-
-I also checked out /var/log/dmesg and /var/log/messages and they both
-ave nothing out of the ordinary.
-
-Here is the Grub conf:
-default=0
-timeout=5
-hiddenmenu
-title Fedora Core (2.6.10-1.770_FC3)
-root (hd0,0)
-kernel /vmlinuz-2.6.10-1.770_FC3 ro root=LABEL=/1
-initrd /initrd-2.6.10-1.770_FC3.img
-
-Any light that you can shed on this troubling subject would be highly
-appreciated,
-
-Respectfully yours,
-
-Dan J. Berger
+Rene.

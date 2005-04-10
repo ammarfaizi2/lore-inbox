@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVDJJTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVDJJYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVDJJTM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 05:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVDJJTM
+	id S261449AbVDJJYi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 05:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVDJJYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 05:19:12 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:18705 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261449AbVDJJTJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 05:19:09 -0400
-Date: Sun, 10 Apr 2005 19:18:20 +1000
-To: Adrian Bunk <bunk@stusta.de>
-Cc: davem@davemloft.net, linux-crypto@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] crypto/api.c: make crypto_alg_lookup static
-Message-ID: <20050410091818.GA26119@gondor.apana.org.au>
-References: <20050409193841.GK3632@stusta.de>
+	Sun, 10 Apr 2005 05:24:38 -0400
+Received: from main.gmane.org ([80.91.229.2]:57751 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261449AbVDJJYh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 05:24:37 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: Kernel SCM saga..
+Date: Sun, 10 Apr 2005 11:24:07 +0200
+Message-ID: <1w4vjipg6p8rz$.13acy97i9ayhl.dlg@40tude.net>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <87d5t73pnf.fsf@osv.topcon.com> <20050407103018.GA22906@merlin.emma.line.org> <20050409161748.GM14943@abridgegame.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050409193841.GK3632@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-244-252.37-151.net24.it
+User-Agent: 40tude_Dialog/2.0.15.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 09, 2005 at 09:38:41PM +0200, Adrian Bunk wrote:
-> This patch makes a needlessly global function static.
+On Sat, 9 Apr 2005 12:17:58 -0400, David Roundy wrote:
 
-Thanks Adrian, patch applied.
+> I've recently made some improvements
+> recently which will reduce the memory use
+
+Does this include check for redundancy? ;)
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Giuseppe "Oblomov" Bilotta
+
+Hic manebimus optime
+

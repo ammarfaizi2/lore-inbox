@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVDJRpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVDJRqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVDJRpv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 13:45:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVDJRpv
+	id S261537AbVDJRqw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 13:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVDJRqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 13:45:51 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:52964 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261536AbVDJRpf (ORCPT
+	Sun, 10 Apr 2005 13:46:52 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63716 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261537AbVDJRqi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 13:45:35 -0400
-Date: Sun, 10 Apr 2005 19:45:12 +0200
+	Sun, 10 Apr 2005 13:46:38 -0400
+Date: Sun, 10 Apr 2005 19:46:23 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Petr Baudis <pasky@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-Subject: Re: [ANNOUNCE] git-pasky-0.1
-Message-ID: <20050410174512.GA18768@elte.hu>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050410173349.GA17549@elte.hu> <20050410174221.GD7858@alpha.home.local>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: cw@f00f.org, torvalds@osdl.org, davem@davemloft.net, andrea@suse.de,
+       mbp@sourcefrog.net, linux-kernel@vger.kernel.org,
+       dlang@digitalinsight.com
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050410174623.GB18768@elte.hu>
+References: <20050408083839.GC3957@opteron.random> <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org> <20050409022701.GA14085@opteron.random> <Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org> <20050409155511.7432d5c7.davem@davemloft.net> <Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org> <20050410001435.GA23401@taniwha.stupidest.org> <20050409185636.0945abdf.pj@engr.sgi.com> <20050410120331.GA8878@elte.hu> <20050410103805.7eee2fea.pj@engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050410174221.GD7858@alpha.home.local>
+In-Reply-To: <20050410103805.7eee2fea.pj@engr.sgi.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -35,29 +34,17 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Willy Tarreau <willy@w.ods.org> wrote:
+* Paul Jackson <pj@engr.sgi.com> wrote:
 
-> > >   I will also need to do more testing on the linux kernel tree.
-> > > Committing patch-2.6.7 on 2.6.6 kernel and then diffing results in
-> > > 
-> > > 	$ time gitdiff.sh `parent-id` `tree-id` >p
-> > > 	real    5m37.434s
-> > > 	user    1m27.113s
-> > > 	sys     2m41.036s
-> > > 
-> > > which is pretty horrible, it seems to me. Any benchmarking help is of
-> > > course welcomed, as well as any other feedback.
-> > 
-> > it seems from the numbers that your system doesnt have enough RAM for 
-> > this and is getting IO-bound?
+> Ingo wrote:
+> > With default gzip it's 3.3 seconds though,
+> > and that still compresses it down to 57 MB.
 > 
-> Not the only problem, without I/O, he will go down to 4m8s (u+s) which 
-> is still in the same order of magnitude.
+> Interesting.  I'm surprised how much a bunch of separate, modest sized
+> files can be compressed.
 
-probably not the only problem - but if we are lucky then his system was 
-just trashing within the kernel repository and then most of the overhead 
-is the _unnecessary_ IO that happened due to that (which causes CPU 
-overhead just as much). The dominant system time suggests so, to a 
-certain degree. Maybe this is wishful thinking.
+sorry, what i measured was in essence the tarball. I.e. not the 
+compression of every file separately. I should have been clear about 
+that ...
 
 	Ingo

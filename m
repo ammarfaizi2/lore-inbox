@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVDJPnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVDJP7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVDJPnL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 11:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVDJPnL
+	id S261517AbVDJP7d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 11:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVDJP7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 11:43:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:34768 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261514AbVDJPnD (ORCPT
+	Sun, 10 Apr 2005 11:59:33 -0400
+Received: from fire.osdl.org ([65.172.181.4]:17618 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261517AbVDJP72 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 11:43:03 -0400
-Date: Sun, 10 Apr 2005 08:44:56 -0700 (PDT)
+	Sun, 10 Apr 2005 11:59:28 -0400
+Date: Sun, 10 Apr 2005 09:01:22 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Junio C Hamano <junkio@cox.net>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+To: tony.luck@intel.com
+cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
        Ross Vandegrift <ross@jose.lug.udel.edu>,
        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: more git updates..
-In-Reply-To: <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net>
-Message-ID: <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org>
+In-Reply-To: <200504101200.j3AC0Mu13146@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.58.0504100854110.1267@ppc970.osdl.org>
 References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
- <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net>
+ <20050409200709.GC3451@pasky.ji.cz> <200504101200.j3AC0Mu13146@unix-os.sc.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,72 +27,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 10 Apr 2005, Junio C Hamano wrote:
-> 
-> But I am wondering what your plans are to handle renames---or
-> does git already represent them?
+On Sat, 9 Apr 2005 tony.luck@intel.com wrote:
+>
+> With 60,000 changesets in the current tree, we will start out our git
+> repository with about 600,000 files.  Assuming the first byte of the
+> SHA1 hash is random, that means an average of 2343 files in each of the
+> objects/xx directories.  Give it a few more years at the current pace,
+> and we'll have over 10,000 files per directory.  This sounds like a lot
+> to me ... but perhaps filesystems now handle large directories enough
+> better than they used to for this to not be a problem?
 
-You can represent renames on top of git - git itself really doesn't care.  
-In many ways you can just see git as a filesystem - it's content-
-addressable, and it has a notion of versioning, but I really really
-designed it coming at the problem from the viewpoint of a _filesystem_
-person (hey, kernels is what I do), and I actually have absolutely _zero_
-interest in creating a traditional SCM system.
+The good news is that git itself doesn't really care. I think it's
+literally _one_ function ("get_sha1_filename()") that you need to change,
+and then you need to write a small script that moves files around, and
+you're really much done.
 
-So to take renaming a file as an example - why do you actually want to 
-track renames? In traditional SCM's, you do it for two reasons:
+Also, I did actually debate that issue with myself, and decided that even
+if we do have tons of files per directory, git doesn't much care. The
+reason? Git never _searches_ for them. Assuming you have enough memory to
+cache the tree, you just end up doing a "lookup", and inside the kernel
+that's done using an efficient hash, which doesn't actually care _at_all_
+about how many files there are per directory.
 
- - space efficiency. Most SCM's are based on describing changes to a file, 
-   and compress the data by doing revisions on the same file. In order to 
-   continue that process past a rename, such an SCM _has_ to track 
-   renames, or lose the delta-based approach.
+So I was for a while debating having a totally flat directory space, but 
+since there are _some_ downsides (linear lookup for cold-cache, and just 
+that "ls -l" ends up being O(n**2) and things), I decided that a single 
+fan-out is probably a good idea.
 
-   The most trivial example of this is "diff", ie a rename ends up 
-   generating a _huge_ diff unless you track the rename explicitly.
+> Or maybe the files should be named objects/xx/yy/zzzzzzzzzzzzzzzz?
 
-   GIT doesn't care. There is _zero_ space efficiency in trying to track 
-   renames. In fact, it would add overhead to the system, not lessen it. 
-   That's because GIT fundamentally doesn't do the "delta-within-a-file"  
-   model.
-
- - annotate/blame. This is a valid concern, but the fact is, I never use 
-   it. It may be a deficiency of mine, but I simply don't do the per-line 
-   thing when I debug or try to find who was responsible. I do "blame" on 
-   a much bigger-picture level, and I personally believe (pretty strongly) 
-   that per-line annotations are not actually a good thing - they come not 
-   because people _want_ to do things at that low level, but because 
-   historically, you didn't _have_ the bigger-picture thing.
-
-   In other words, pretty much every SCM out there is based on SCCS 
-   "mentally", even if not in any other model. That's why people think 
-   per-line blame is important - you have that mental model. 
-
-So consider me deficient, or consider me radical. It boils down to the 
-same thing. Renames don't matter. 
-
-That said, if somebody wants to create a _real_ SCM (rather than my notion
-of a pure content tracker) on top of GIT, you probably could fairly easily
-do so by imposing a few limitations on a higher level. For example, most
-SCM's that track renames require that the user _tell_ them about the
-renames: you do a "bk mv" or a "svn rename" or something.
-
-If you want to do the same on top of GIT, then you should think of GIT as
-what it is: GIT just tracks contents. It's a filesystem - although a
-fairly strange one. How would you track renames on top of that? Easy: add
-your own fields to the GIT revision messages: GIT enforces the header, but
-you can add anything you want to the "free-form" part that follows it. 
-
-Same goes for any other information where you care about what happens 
-"within" a file. GIT simply doesn't track it. You can build things on top 
-of GIT if you want to, though. They may not be as efficient as they would 
-be if they were built _into_ GIT, but on the other hand GIT does a lot of 
-other things a hell of a lot faster thanks to it's design.
-
-So whether you agree with the things that _I_ consider important probably
-depends on how you work. The real downside of GIT may be that _my_ way of 
-doing things is quite possibly very rare.
-
-But it clearly is the only right way. The fact that everybody else does it 
-some other way only means that they are wrong.
+Hey, I may end up being wrong, and yes, maybe I should have done a 
+two-level one. The good news is that we can trivially fix it later (even 
+dynamically - we can make the "sha1 object tree layout" be a per-tree 
+config option, and there would be no real issue, so you could make small 
+projects use a flat version and big projects use a very deep structure 
+etc). You'd just have to script some renames to move the files around..
 
 		Linus

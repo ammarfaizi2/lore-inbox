@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVDJVwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVDJWHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVDJVwO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 17:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVDJVwO
+	id S261616AbVDJWHv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 18:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVDJWHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 17:52:14 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:2535 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261614AbVDJVwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 17:52:09 -0400
-Date: Sun, 10 Apr 2005 14:42:53 -0400
-From: Christopher Li <lkml@chrisli.org>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: more git updates..
-Message-ID: <20050410184253.GF13853@64m.dyndns.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410065307.GC13853@64m.dyndns.org> <20050410122352.19890f6d.pj@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050410122352.19890f6d.pj@engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Sun, 10 Apr 2005 18:07:51 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:60639 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261616AbVDJWHp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 18:07:45 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: more git updates..
+Date: Sun, 10 Apr 2005 15:07:37 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F033DB629@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: more git updates..
+Thread-Index: AcU95kUFdW5fclLmQN+Bk1hUG9vxBQAMRCEQ
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Cc: "Petr Baudis" <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       "Ross Vandegrift" <ross@jose.lug.udel.edu>,
+       "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 10 Apr 2005 22:07:34.0480 (UTC) FILETIME=[B2CCD500:01C53E19]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I totally agree that odds is really really small.
-That is why it is not worthy to handle the case. People hit that
-can just add a new line or some thing to avoid it, if
-it happen after all.
+>Also, I did actually debate that issue with myself, and decided that even
+>if we do have tons of files per directory, git doesn't much care. The
+>reason? Git never _searches_ for them. Assuming you have enough memory to
+>cache the tree, you just end up doing a "lookup", and inside the kernel
+>that's done using an efficient hash, which doesn't actually care _at_all_
+>about how many files there are per directory.
 
-It is the little peace of mind to know for sure that did
-not happen. I am just paranoid. 
+So long as the hash *is* efficient when the directory is packed full of
+38 character filenames made only of [0-9a-f] ... which might not match
+the test cases under which the hash was picked :-)  When there are some
+full-sized kernel git images, someone should do a sanity check.
 
-Chris
+>Hey, I may end up being wrong, and yes, maybe I should have done a 
+>two-level one. The good news is that we can trivially fix it later (even 
+>dynamically - we can make the "sha1 object tree layout" be a per-tree 
+>config option, and there would be no real issue, so you could make small 
+>projects use a flat version and big projects use a very deep structure 
+>etc). You'd just have to script some renames to move the files around.
 
-On Sun, Apr 10, 2005 at 12:23:52PM -0700, Paul Jackson wrote:
-> > Some thing like the following patch, may be turn off able.
-> 
-> Take out an old envelope and compute on it the odds of this
-> happening.
-> 
-> Say we have 10,000 kernel hackers, each producing one
-> new file every minute, for 100 hours a week.  And we've
-> cloned a small army of Andrew Morton's to integrate
-> the resulting tsunamai of patches.  And Linus is well
-> cared for in the state funny farm.
-> 
-> What is the probability that this check will fire even
-> once, between now and 10 billion years from now, when
-> the Sun has become a red giant destroying all life on
-> planet Earth?
-> 
-> -- 
->                   I won't rest till it's the best ...
->                   Programmer, Linux Scalability
->                   Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+It depends on how many eco-system shell scripts get built that need to
+know about the layout ... if some shell/perl "libraries" encode this
+filename layout (and people use them) ... then switching later would
+indeed be painless.
+
+-Tony

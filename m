@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVDJJdD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVDJJkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVDJJdD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 05:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVDJJdC
+	id S261456AbVDJJkU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 05:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVDJJkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 05:33:02 -0400
-Received: from main.gmane.org ([80.91.229.2]:63640 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261453AbVDJJc6 (ORCPT
+	Sun, 10 Apr 2005 05:40:19 -0400
+Received: from levante.wiggy.net ([195.85.225.139]:35815 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261456AbVDJJkK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 05:32:58 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Date: Sun, 10 Apr 2005 11:24:10 +0200
-Message-ID: <1n1euyqoz7akm$.1hq68bv2s0l5e.dlg@40tude.net>
-References: <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404190518.GA17087@wonderland.linux.it> <20050404193204.GD4087@stusta.de> <1112709907.30856.17.camel@silicium.ccc.cea.fr> <20050407210722.GC4325@stusta.de> <1112944920.11027.13.camel@silicium.ccc.cea.fr> <20050408173400.GA15688@stusta.de> <1112982171.5017.6.camel@mirchusko.localnet> <20050408180109.GB15688@stusta.de> <1112985737.8705.9.camel@mirchusko.localnet>
+	Sun, 10 Apr 2005 05:40:10 -0400
+Date: Sun, 10 Apr 2005 11:40:08 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Christopher Li <lkml@chrisli.org>
+Cc: Junio C Hamano <junkio@cox.net>, Linus Torvalds <torvalds@osdl.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: more git updates..
+Message-ID: <20050410094007.GC28436@wiggy.net>
+Mail-Followup-To: Christopher Li <lkml@chrisli.org>,
+	Junio C Hamano <junkio@cox.net>, Linus Torvalds <torvalds@osdl.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	Ross Vandegrift <ross@jose.lug.udel.edu>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <20050410055340.GB13853@64m.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-244-252.37-151.net24.it
-User-Agent: 40tude_Dialog/2.0.15.1
-Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org
-Cc: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410055340.GB13853@64m.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Apr 2005 20:42:17 +0200, Josselin Mouette wrote:
+Previously Christopher Li wrote:
+> Rename should just work.  It will create a new tree object and you
+> will notice that in the entry that changed, the hash for the blob
+> object is the same.
 
->> Every book in my book shelf is software?
-> 
-> If you digitalize it, yes.
+What if you rename and change a file within a changeset?
 
-AFAIK software only refers to programs, not to arbitrary sequences of
-bytes. An MP3 file isn't "software". Although it surely isn't hardware
-either.
+Wichert.
 
 -- 
-Giuseppe "Oblomov" Bilotta
-
-"E la storia dell'umanità, babbo?"
-"Ma niente: prima si fanno delle cazzate,
- poi si studia che cazzate si sono fatte"
-(Altan)
-("And what about the history of the human race, dad?"
- "Oh, nothing special: first they make some foolish things,
-  then you study what foolish things have been made")
-
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

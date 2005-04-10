@@ -1,43 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVDJN4e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVDJN7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVDJN4e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 09:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVDJN4e
+	id S261502AbVDJN7p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 09:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVDJN7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 09:56:34 -0400
-Received: from user-10mt71s.cable.mindspring.com ([65.110.156.60]:19497 "EHLO
-	localhost") by vger.kernel.org with ESMTP id S261220AbVDJN4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 09:56:33 -0400
-Date: Sun, 10 Apr 2005 09:51:37 -0400
-From: David Roundy <droundy@abridgegame.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050410135136.GI809@abridgegame.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <1112858331.6924.17.camel@localhost.localdomain> <87d5t73pnf.fsf@osv.topcon.com> <20050407103018.GA22906@merlin.emma.line.org> <20050409161748.GM14943@abridgegame.org> <1w4vjipg6p8rz$.13acy97i9ayhl.dlg@40tude.net>
+	Sun, 10 Apr 2005 09:59:45 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:31127 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261499AbVDJN7j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 09:59:39 -0400
+Date: Sun, 10 Apr 2005 19:38:58 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
+       linux-aio@kvack.org
+Subject: Re: [RFC] Add support for semaphore-like structure with support for asynchronous I/O
+Message-ID: <20050410140858.GB4001@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20050331161350.0dc7d376.akpm@osdl.org> <1112318537.11284.10.camel@lade.trondhjem.org> <20050401141225.GA3707@in.ibm.com> <20050404155245.GA4659@in.ibm.com> <20050404162216.GA18469@kvack.org> <1112637395.10602.95.camel@lade.trondhjem.org> <20050405154641.GA27279@kvack.org> <20050407114302.GA13363@infradead.org> <20050408223927.GA22217@kvack.org> <1113003106.10596.46.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1w4vjipg6p8rz$.13acy97i9ayhl.dlg@40tude.net>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <1113003106.10596.46.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10, 2005 at 11:24:07AM +0200, Giuseppe Bilotta wrote:
-> On Sat, 9 Apr 2005 12:17:58 -0400, David Roundy wrote:
-> 
-> > I've recently made some improvements recently which will reduce the
-> > memory use
-> 
-> Does this include check for redundancy? ;)
 
-Yeah, the only catch is that if the redundancy checks fail, we now may
-leave the repository in an inconsistent, but repairable, state.  (Only a
-cache of the pristine tree is affected.)  The recent improvements mostly
-came by increasing the laziness of a few operations, which meant we don't
-need to store the entire parsed tree (or parsed patch) in memory for
-certain operations.
+
+On Fri, Apr 08, 2005 at 07:31:46PM -0400, Trond Myklebust wrote:
+> fr den 08.04.2005 Klokka 18:39 (-0400) skreiv Benjamin LaHaise:
+> 
+> > On the aio side of things, I introduced the owner field in the mutex (as 
+> > opposed to the flag in Trond's iosem) for the next patch in the series to 
+> > enable something like the following api:
+> > 
+> > 	int aio_lock_mutex(struct mutex *lock, struct iocb *iocb);
+> 
+> Any chance of a more generic interface too?
+> 
+> iocbs are fairly high level objects, and so I do not see them helping to
+> resolve low level filesystem problems such as the NFSv4 state cleanup.
+
+My preferred approach would be to make the wait queue element the
+primitive, rather than the iocb, precisely for this reason.
+
+Guess its time for me to repost my aio-wait-bit based patch set - it
+doesn't cover the async semaphores bit, but should indicate the general
+direction of thinking.
+
+I still need to look at Ben's patches though.
+
+Regards
+Suparna
+
+> 
+> Cheers,
+>   Trond
+> 
+> -- 
+> Trond Myklebust <trond.myklebust@fys.uio.no>
+> 
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+
 -- 
-David Roundy
-http://www.darcs.net
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

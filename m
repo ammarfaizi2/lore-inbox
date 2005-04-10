@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVDJWLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVDJWNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVDJWLX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 18:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVDJWLX
+	id S261620AbVDJWNI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 18:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbVDJWNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 18:11:23 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:55774 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261617AbVDJWLT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 18:11:19 -0400
-Date: Mon, 11 Apr 2005 00:11:18 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RE: more git updates..
-Message-ID: <20050410221118.GB18661@pasky.ji.cz>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F033DB629@scsmsx401.amr.corp.intel.com>
+	Sun, 10 Apr 2005 18:13:07 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:26364 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261618AbVDJWMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 18:12:48 -0400
+Date: Sun, 10 Apr 2005 15:03:31 -0400
+From: Christopher Li <lkml@chrisli.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Jackson <pj@engr.sgi.com>, junkio@cox.net, rddunlap@osdl.org,
+       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-ID: <20050410190331.GG13853@64m.dyndns.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org> <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F033DB629@scsmsx401.amr.corp.intel.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+In-Reply-To: <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Apr 11, 2005 at 12:07:37AM CEST, I got a letter
-where "Luck, Tony" <tony.luck@intel.com> told me that...
-..snip..
-> >Hey, I may end up being wrong, and yes, maybe I should have done a 
-> >two-level one. The good news is that we can trivially fix it later (even 
-> >dynamically - we can make the "sha1 object tree layout" be a per-tree 
-> >config option, and there would be no real issue, so you could make small 
-> >projects use a flat version and big projects use a very deep structure 
-> >etc). You'd just have to script some renames to move the files around.
+On Sun, Apr 10, 2005 at 01:57:33PM -0700, Linus Torvalds wrote:
 > 
-> It depends on how many eco-system shell scripts get built that need to
-> know about the layout ... if some shell/perl "libraries" encode this
-> filename layout (and people use them) ... then switching later would
-> indeed be painless.
+> > That way of thinking really doesn't work well here.
+> > 
+> > I will have to look more closely at pasky's GIT toolkit
+> > if I want to see an SCM style interface.
+> 
+> Yes. You really should think of GIT as a filesystem, and of me as a 
+> _systems_ person, not an SCM person. In fact, I tend to detest SCM's. I 
+> think the reason I worked so well with BitKeeper is that Larry used to do 
+> operating systems. He's also a systems person, not really an SCM person. 
+> Or at least he's in between the two.
+> 
 
-FWIW, my short-term plans include support for monotone-like hash ID
-shortening - it's enough to use the shortest leading unique part of the
-ID to identify the revision. I will poke to the object repository for
-that. I also already have Randy Dunlap's git lsobj, which will list all
-objects of a specified type (very useful especially when looking for
-orphaned commits and such rather lowlevel work).
+Yes, I am puzzled for a while how to use git until I realize that it is
+a version file system.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+BTW, one thing I learn from ext3 is that it is very useful to have some
+compatible flag for future development. I think if we want to reserve some
+room in the file format for further development of git, it is the right time
+to do it before it get bigs. e.g. an optional variable size header in "tree"
+including format version and capability etc. I can see the counter argument
+that it is not as important as a real file system because it is a lot easier
+bring it off line to upgrade the whole tree.
+
+One the other hand, it is almost did not cost any thing in terms of space and
+CPU time, most directory did not get to file system block boundary so extra few bytes
+is almost free. If carefully planed, it will make the future up grade of git
+a lot smoother.
+
+What do you think?
+
+Chris
+

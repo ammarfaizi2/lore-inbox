@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVDJUfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVDJUgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVDJUfl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 16:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVDJUfl
+	id S261599AbVDJUgS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 16:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVDJUgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 16:35:41 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:26643 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261598AbVDJUfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 16:35:36 -0400
-Date: Sun, 10 Apr 2005 22:35:33 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] arch/i386/kernel/cpu/mtrr/generic.c: make generic_get_mtrr static
-Message-ID: <20050410203533.GI4204@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 10 Apr 2005 16:36:18 -0400
+Received: from smtp805.mail.ukl.yahoo.com ([217.12.12.195]:8371 "HELO
+	smtp805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261599AbVDJUgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 16:36:11 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Stas Sergeev <stsp@aknet.ru>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: formatting CD-RW locks the system
+Date: Sun, 10 Apr 2005 21:36:09 +0100
+User-Agent: KMail/1.8
+References: <42597088.9050004@aknet.ru>
+In-Reply-To: <42597088.9050004@aknet.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200504102136.09229.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes a needlessly global function static.
+On Sunday 10 Apr 2005 19:29, you wrote:
+> Hello.
+>
+> I am trying to format the CD-RW disc
+> on my NEC ND-3520A DVD writer, and the
+> results are completely unexpected: I do
+> cdrwtool -d /dev/cdrom -q
+> It proceeds with the formatting, but
+> while it does so, the system is pretty
+> much dead. It can do some trivial tasks
+> like the console switching, but as soon
+> as it comes to any disc I/O, the processes
+> are hanging. After the formatting is done,
+> the system is back alive. That reminds me
+> formatting the floppies under DOS in those
+> ancient times, with the only difference
+> that formatting a floppy takes ~2 minutes,
+> while formatting a CD-RW takes ~20 minutes,
+> which is not good at all.
+> Is this something known or a bug?
+> I tried that on a 2.6.11-rc3-mm2 and
+> on a 2.6.12-rc1 kernels.
+>
+> Also, is there any way to use the
+> packet writing with the CD-R/DVD-R discs,
+> or is it supposed to work only with the
+> -RW discs?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+You probably don't have DMA enabled on the drive. Please check this.
 
----
+CDRW formatting works fine here with cdrecord blank=all
 
-This patch was already sent on:
-- 27 Mar 2005
-- 20 Mar 2005
+-- 
+Cheers,
+Alistair.
 
---- linux-2.6.11-mm4-full/arch/i386/kernel/cpu/mtrr/generic.c.old	2005-03-20 19:43:46.000000000 +0100
-+++ linux-2.6.11-mm4-full/arch/i386/kernel/cpu/mtrr/generic.c	2005-03-20 19:44:11.000000000 +0100
-@@ -114,8 +114,8 @@
- 	return -ENOSPC;
- }
- 
--void generic_get_mtrr(unsigned int reg, unsigned long *base,
--		      unsigned int *size, mtrr_type * type)
-+static void generic_get_mtrr(unsigned int reg, unsigned long *base,
-+			     unsigned int *size, mtrr_type * type)
- {
- 	unsigned int mask_lo, mask_hi, base_lo, base_hi;
- 
-
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

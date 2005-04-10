@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVDJMMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVDJMQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVDJMMm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 08:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVDJMMm
+	id S261484AbVDJMQl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 08:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVDJMQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 08:12:42 -0400
-Received: from asia.telenet-ops.be ([195.130.132.59]:46259 "EHLO
-	asia.telenet-ops.be") by vger.kernel.org with ESMTP id S261486AbVDJMMW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 08:12:22 -0400
-From: <joram.agten@pandora.be>
-To: <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: kernel 2.4 pdc202xx and kernel 2.6 pdc202xx_old Broken
-Date: Sun, 10 Apr 2005 14:12:03 +0200
-Message-ID: <000701c53dc6$8246e3b0$0505a8c0@cheopsturbo>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sun, 10 Apr 2005 08:16:41 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:48287 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261484AbVDJMQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 08:16:39 -0400
+Date: Sun, 10 Apr 2005 16:15:49 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, jmorris@redhat.com,
+       ijc@hellion.org.uk, guillaume.thouvenin@bull.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, netdev@oss.sgi.com,
+       jamal <hadi@cyberus.ca>
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+Message-ID: <20050410161549.3abe4778@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050410121005.GF26731@postel.suug.ch>
+References: <1112942924.28858.234.camel@uganda>
+	<E1DKZ7e-00070D-00@gondolin.me.apana.org.au>
+	<20050410143205.18bff80d@zanzibar.2ka.mipt.ru>
+	<1113131325.6994.66.camel@localhost.localdomain>
+	<20050410153757.104fe611@zanzibar.2ka.mipt.ru>
+	<20050410121005.GF26731@postel.suug.ch>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Sun, 10 Apr 2005 16:15:50 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Sun, 10 Apr 2005 14:10:05 +0200
+Thomas Graf <tgraf@suug.ch> wrote:
 
-please put me in CC
+> * Evgeniy Polyakov <20050410153757.104fe611@zanzibar.2ka.mipt.ru> 2005-04-10 15:37
+> > --- ./net/netlink/af_netlink.c.orig     2005-04-10 15:46:48.000000000 +0400
+> > +++ ./net/netlink/af_netlink.c  2005-04-10 15:47:04.000000000 +0400
+> > @@ -747,7 +747,7 @@
+> >         if (p->exclude_sk == sk)
+> >                 goto out;
+> >  
+> > -       if (nlk->pid == p->pid || !(nlk->groups & p->group))
+> > +       if (nlk->pid == p->pid || (nlk->groups != p->group))
+> >                 goto out;
+> >  
+> >         if (p->failure) {
+> 
+> Not valid, would break RTMGRP_*.
 
-I'm using a pdc20262 promise utra66 controller to manage 4 HD's, all 30GB
-and I put them in a software /dev/md/0 raid5 configuration
+Yes, it will break too many existing application, 
+it would be new API, like do_one_broadcast_direct().
+If I understand Kay right, it is what he needs
+for the new multicast.
 
-recently I upgraded my kernel to linux-2.6.11-gentoo-r4 and also
-linux-2.6.11-gentoo-r5
-and the raid array would go offline with dma timeouts when putting load to
-it
+	Evgeniy Polyakov
 
-Apr  9 23:30:15 vennen hde: DMA timeout error
-Apr  9 23:30:15 vennen hde: dma timeout error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-Apr  9 23:30:15 vennen 
-Apr  9 23:30:15 vennen ide: failed opcode was: unknown
-Apr  9 23:30:15 vennen hdh: dma_timer_expiry: dma status == 0x62
-Apr  9 23:30:15 vennen hdh: DMA timeout error
-Apr  9 23:30:15 vennen hdh: dma timeout error: status=0x58 { DriveReady
-SeekComplete DataRequest }
-Apr  9 23:30:15 vennen 
-Apr  9 23:30:15 vennen ide: failed opcode was: unknown
-Apr  9 23:30:15 vennen hdg: status timeout: status=0xd0 { Busy }
-Apr  9 23:30:15 vennen 
-Apr  9 23:30:15 vennen ide: failed opcode was: unknown
-Apr  9 23:30:15 vennen hdg: DMA disabled
-Apr  9 23:30:15 vennen PDC202XX: Secondary channel reset.
-Apr  9 23:30:15 vennen PDC202XX: Primary channel reset.
-
-in the beginning it was only with hde, so I suspected the disk, put it on
-another controller, run a complete diskcheck on it (maxtor dos tool), no
-problems found.
-I attach it to the onboard motherboard controller and put it back in the
-raid array
-but again the raid array would fail, this time another disk.
-
-If I boot again, and reinitialize the array, so that it starts building
-again, it would fail quite fast
-when not putting any load on the array it would just run fine
-
-since I had installed the whole system from scratch I didn't know the exact
-version of the previous kernel, so I went back to linux-2.4.20-gentoo-r33,
-an here everything works
-I also remember trying some more recent 2.4 kernel, but I do not recall the
-exact version, there the same problem would manifest.
-
-after some googling I found this thread: PDC202XX_OLD broken
-http://www.ussg.iu.edu/hypermail/linux/kernel/0412.0/1277.html
-
-this is almost the exact same behaviour
-but in the thread it does not say if his problem is solved or not
-the suggestion of  Bartlomiej Zolnierkiewicz  is present in my 2.6 kernel
-images
-
-same info is at http://users.pandora.be/gemma.joram/pdc202xx/pdc202xx.html
-I also have sysinfo
-http://users.pandora.be/gemma.joram/pdc202xx/pdc202xx_sysinfo.html
-and log http://users.pandora.be/gemma.joram/pdc202xx/pdc202xx_log.html
-
-hope this is enough.
-I'l happily try more if you need more info.
-
-greetings
-joram
-
-
-
+Only failure makes us experts. -- Theo de Raadt

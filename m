@@ -1,75 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVDJNUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVDJNXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVDJNUX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 09:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVDJNUX
+	id S261495AbVDJNXH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 09:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVDJNXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 09:20:23 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:25605 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261494AbVDJNUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 09:20:14 -0400
-Message-ID: <42592813.5020005@aknet.ru>
-Date: Sun, 10 Apr 2005 17:20:19 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
+	Sun, 10 Apr 2005 09:23:07 -0400
+Received: from host0254.naumen.ru ([195.64.216.254]:5069 "EHLO
+	naumen.office0.naumen.ru") by vger.kernel.org with ESMTP
+	id S261495AbVDJNW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 09:22:58 -0400
+From: "Viktor A. Danilov" <__die@mail.ru>
+Organization: LVDA
+To: linux-kernel@vger.kernel.org, bwheadley@earthlink.net, chris@crud.net
+Subject: PROBLEM: AIPTEK input doesn`t register `device` & `driver` section in sysfs (/sys/class/input/event#)
+Date: Sun, 10 Apr 2005 19:21:28 +0600
+User-Agent: KMail/1.7.2
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-References: <20050405065544.GA21360@elte.hu> <4252E2C9.9040809@aknet.ru> <Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org> <4252EA01.7000805@aknet.ru> <Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org> <425403F6.409@aknet.ru> <20050407080004.GA27252@elte.hu> <42555BBF.6090704@aknet.ru> <Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org> <425563D6.30108@aknet.ru> <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------090304070509030301000509"
+Message-Id: <200504101921.28777.__die@mail.ru>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_YhSWCKe1BZh94Hk"
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090304070509030301000509
-Content-Type: text/plain; charset=us-ascii; format=flowed
+--Boundary-00=_YhSWCKe1BZh94Hk
+Content-Type: text/plain;
+  charset="koi8-r"
 Content-Transfer-Encoding: 7bit
-
-Hello.
-
-Linus Torvalds wrote:
->> 2. How can one be sure there are no more
->> of the like places where the stack is left
->> empty?
-> That's a good argument, and may be the strongest reason for _not_ doing 
-> the speculation. However, I don't think it really can happen anywhere 
-> else. 
-OK, so how do you feel about the attached
-patch? I understand that from some point
-of view it may look like a hack, but at
-the same time it:
-1. Allows to preserve the valueable optimization
-2. Works for NMIs
-3. Doesn't care whether or not there are more
-of the like instances where the stack is left
-empty.
-4. Seems to work for me without the crashes:) 
+Content-Disposition: inline
 
 
---------------090304070509030301000509
-Content-Type: text/x-patch;
- name="esp0.diff"
+PROBLEM: aiptek input doesn`t register `device` & `driver` section in sysfs (/sys/class/input/event#)
+REASON: `dev` - field not filled...
+SOLUTION: in linux/drivers/usb/input/aiptek.c write
+	aiptek->inputdev.dev = &intf->dev;
+before calling 
+	input_register_device(&aiptek->inputdev);
+
+PATCH:
+
+--- linux/drivers/usb/input/aiptek.c.orig       2005-03-09 13:12:31.000000000 +0500
++++ linux/drivers/usb/input/aiptek.c    2005-04-10 18:39:59.000000000 +0600
+@@ -2139,8 +2140,9 @@
+        aiptek->inputdev.id.bustype = BUS_USB;
+        aiptek->inputdev.id.vendor = le16_to_cpu(usbdev->descriptor.idVendor);
+        aiptek->inputdev.id.product = le16_to_cpu(usbdev->descriptor.idProduct);
+        aiptek->inputdev.id.version = le16_to_cpu(usbdev->descriptor.bcdDevice);
++      aiptek->inputdev.dev = &intf->dev;
+
+        aiptek->usbdev = usbdev;
+        aiptek->ifnum = intf->altsetting[0].desc.bInterfaceNumber;
+        aiptek->inDelay = 0;
+
+
+
+LINUX_VERSION:
+
+vdanilov@viktor:/usr/src/linux/scripts$ ./ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux viktor 2.6.11.5-C2H5OH #1 Fri Mar 25 15:29:27 YEKT 2005 i686 GNU/Linux
+
+Gnu C                  3.3.4
+Gnu make               3.80
+binutils               2.15
+util-linux             2.12h
+mount                  2.12h
+module-init-tools      3.1
+e2fsprogs              1.35
+reiserfsprogs          line
+reiser4progs           line
+pcmcia-cs              3.2.5
+PPP                    2.4.2
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.2.4
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.2.1
+udev                   056
+Modules Loaded         i830 drm pcmcia smbfs pcspkr snd_intel8x0m aiptek usbhid uhci_hcd intel_agp agpgart 8139too crc32 yenta_socket rsrc_nonstatic pcmcia_core ehci_hcd snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc nls_koi8_r vfat fat eeprom evdev i2c_sensor i2c_i801 i2c_core ide_cd cdrom usbkbd usbcore psmouse speedstep_centrino freq_table
+
+
+
+
+--Boundary-00=_YhSWCKe1BZh94Hk
+Content-Type: text/x-diff;
+  charset="koi8-r";
+  name="aiptek.c.diff"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="esp0.diff"
+Content-Disposition: attachment;
+	filename="aiptek.c.diff"
 
---- linux/arch/i386/kernel/process.c.old	2005-03-20 14:12:18.000000000 +0300
-+++ linux/arch/i386/kernel/process.c	2005-04-10 16:54:39.000000000 +0400
-@@ -394,7 +394,7 @@
- 	childregs->esp = esp;
+--- linux/drivers/usb/input/aiptek.c.orig	2005-03-09 13:12:31.000000000 +0500
++++ linux/drivers/usb/input/aiptek.c	2005-04-10 18:39:59.000000000 +0600
+@@ -2139,8 +2140,9 @@
+ 	aiptek->inputdev.id.bustype = BUS_USB;
+ 	aiptek->inputdev.id.vendor = le16_to_cpu(usbdev->descriptor.idVendor);
+ 	aiptek->inputdev.id.product = le16_to_cpu(usbdev->descriptor.idProduct);
+ 	aiptek->inputdev.id.version = le16_to_cpu(usbdev->descriptor.bcdDevice);
++	aiptek->inputdev.dev = &intf->dev;
  
- 	p->thread.esp = (unsigned long) childregs;
--	p->thread.esp0 = (unsigned long) (childregs+1);
-+	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
- 
- 	p->thread.eip = (unsigned long) ret_from_fork;
- 
+ 	aiptek->usbdev = usbdev;
+ 	aiptek->ifnum = intf->altsetting[0].desc.bInterfaceNumber;
+ 	aiptek->inDelay = 0;
 
-
---------------090304070509030301000509--
+--Boundary-00=_YhSWCKe1BZh94Hk--

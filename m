@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVDJUgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVDJUhc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVDJUgS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 16:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVDJUgS
+	id S261600AbVDJUhc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 16:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVDJUhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 16:36:18 -0400
-Received: from smtp805.mail.ukl.yahoo.com ([217.12.12.195]:8371 "HELO
-	smtp805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261599AbVDJUgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 16:36:11 -0400
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Stas Sergeev <stsp@aknet.ru>, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: formatting CD-RW locks the system
-Date: Sun, 10 Apr 2005 21:36:09 +0100
-User-Agent: KMail/1.8
-References: <42597088.9050004@aknet.ru>
-In-Reply-To: <42597088.9050004@aknet.ru>
+	Sun, 10 Apr 2005 16:37:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:54946 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261600AbVDJUgU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 16:36:20 -0400
+Date: Sun, 10 Apr 2005 13:38:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Petr Baudis <pasky@ucw.cz>
+cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: Re: [ANNOUNCE] git-pasky-0.1
+In-Reply-To: <20050410184522.GA5902@pasky.ji.cz>
+Message-ID: <Pine.LNX.4.58.0504101310430.1267@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+ <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+ <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
+ <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz>
+ <20050410162723.GC26537@pasky.ji.cz> <20050410173349.GA17549@elte.hu>
+ <20050410174221.GD7858@alpha.home.local> <20050410174512.GA18768@elte.hu>
+ <20050410184522.GA5902@pasky.ji.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504102136.09229.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 Apr 2005 19:29, you wrote:
-> Hello.
->
-> I am trying to format the CD-RW disc
-> on my NEC ND-3520A DVD writer, and the
-> results are completely unexpected: I do
-> cdrwtool -d /dev/cdrom -q
-> It proceeds with the formatting, but
-> while it does so, the system is pretty
-> much dead. It can do some trivial tasks
-> like the console switching, but as soon
-> as it comes to any disc I/O, the processes
-> are hanging. After the formatting is done,
-> the system is back alive. That reminds me
-> formatting the floppies under DOS in those
-> ancient times, with the only difference
-> that formatting a floppy takes ~2 minutes,
-> while formatting a CD-RW takes ~20 minutes,
-> which is not good at all.
-> Is this something known or a bug?
-> I tried that on a 2.6.11-rc3-mm2 and
-> on a 2.6.12-rc1 kernels.
->
-> Also, is there any way to use the
-> packet writing with the CD-R/DVD-R discs,
-> or is it supposed to work only with the
-> -RW discs?
 
-You probably don't have DMA enabled on the drive. Please check this.
 
-CDRW formatting works fine here with cdrecord blank=all
+On Sun, 10 Apr 2005, Petr Baudis wrote:
+> 
+> It turns out to be the forks for doing all the cuts and such what is
+> bogging it down so awfully (doing diff-tree takes 0.48s ;-). I do about
+> 15 forks per change, I guess, and for some reason cut takes a long of
+> time on its own.
 
--- 
-Cheers,
-Alistair.
+Heh.
 
-personal:   alistair()devzero!co!uk
-university: s0348365()sms!ed!ac!uk
-student:    CS/CSim Undergraduate
-contact:    1F2 55 South Clerk Street,
-            Edinburgh. EH8 9PP.
+Can you pull my current repo, which has "diff-tree -R" that does what the 
+name suggests, and which should be faster than the 0.48 sec you see..
+
+It may not matter a lot, since actually generating the diff from the file 
+contents is what is expensive, but remember my goal: I want the expense of 
+a diff-tree to be relative to the size of the diff, so that implies that 
+small diffs haev to be basically instantaenous. So I care.
+
+So I just tried the 2.6.7->2.6.8 diff, and for me the new recursive
+"diff-tree" can generate the _list_ of files changed in zero time:
+
+	real    0m0.079s
+	user    0m0.067s
+	sys     0m0.024s
+
+but then _doing_ the diff is pretty expensive (in this case 3800+ files
+changed, so you have to unpack 7600+ objects - and even unpacking isn't
+the expensive part, the expense is literally in the diff operation
+itself).
+
+Me, the stuff I automate is the small steps. Doing a single checkin. So
+that's the case I care about going fast, when a "diff-tree" will likely
+have maybe five files or something. That's why I want the small
+incremental cases to go fast - it it takes me a minute to generate a diff
+for a _release_, that's not a big deal. I make one release every other
+month, but I work with lots of small patches all the time.
+
+Anyway, with a fast diff-tree, you should be able to generate the list of 
+objects for a fast "merge". That's next. 
+
+(And by "merge", I of course mean "suck". I'm talking about the old CVS
+three-way merge, and you have to specify the common parent explicitly and
+it won't handle any renames or any other crud. But it would get us to 
+something that might actually be useful for simple things. Which is why 
+"diff-tree" is important - it gives the information about what to tell 
+merge).
+
+				Linus

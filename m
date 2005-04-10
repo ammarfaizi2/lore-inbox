@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVDJAPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVDJAXg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVDJAPH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 20:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVDJAPH
+	id S261423AbVDJAXg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 20:23:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVDJAXg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 20:15:07 -0400
-Received: from pimout4-ext.prodigy.net ([207.115.63.98]:1761 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261419AbVDJAPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 20:15:01 -0400
-Date: Sat, 9 Apr 2005 17:14:35 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "David S. Miller" <davem@davemloft.net>, andrea@suse.de,
-       mbp@sourcefrog.net, linux-kernel@vger.kernel.org,
-       dlang@digitalinsight.com
+	Sat, 9 Apr 2005 20:23:36 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:51394 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261423AbVDJAXe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Apr 2005 20:23:34 -0400
+Date: Sat, 9 Apr 2005 17:22:34 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: torvalds@osdl.org, andrea@suse.de, mbp@sourcefrog.net,
+       linux-kernel@vger.kernel.org, dlang@digitalinsight.com
 Subject: Re: Kernel SCM saga..
-Message-ID: <20050410001435.GA23401@taniwha.stupidest.org>
-References: <1112852302.29544.75.camel@hope> <Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org> <1112939769.29544.161.camel@hope> <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random> <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org> <20050409022701.GA14085@opteron.random> <Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org> <20050409155511.7432d5c7.davem@davemloft.net> <Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org>
+Message-Id: <20050409172234.70612b28.pj@engr.sgi.com>
+In-Reply-To: <20050409155511.7432d5c7.davem@davemloft.net>
+References: <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
+	<20050407014727.GA17970@havoc.gtf.org>
+	<pan.2005.04.07.02.25.56.501269@sourcefrog.net>
+	<Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz>
+	<1112852302.29544.75.camel@hope>
+	<Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org>
+	<1112939769.29544.161.camel@hope>
+	<Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org>
+	<20050408083839.GC3957@opteron.random>
+	<Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
+	<20050409022701.GA14085@opteron.random>
+	<Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
+	<20050409155511.7432d5c7.davem@davemloft.net>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 09, 2005 at 04:13:51PM -0700, Linus Torvalds wrote:
+David wrote:
+> recovery is more difficult when you corrupt some
+> file in your repository.
 
-> > I understand the arguments for compression, but I hate it for one
-> > simple reason: recovery is more difficult when you corrupt some
-> > file in your repository.
+Agreed.  I too have recovered RCS and SCCS files by hand editing.
 
-I've had this too.  Magic binary blobs are horrible here for data loss
-which is why I'm not keen on subversion.
 
-> Trust me, the way git does things, you'll have so much redundancy
-> that you'll have to really _work_ at losing data.
+Linus wrote:
+> I don't want people editing repostitory files by hand.
 
-It's not clear to me that compression should be *required* though.
-Shouldn't we be able to turn this off in some cases?
+Tyrant !;)
 
-> The bad news is that this is obviously why it does eat a lot of
-> disk.
+>From Wikipedia:
 
-Disk is cheap, but sadly page-cache is not :-(
+    A tyrant is a usurper of rightful power.
 
-> Since it saves full-file commits, you're going to have a lot of
-> (compressed) full files around.
-
-How many is alot?  Are we talking 100k, 1m, 10m?
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

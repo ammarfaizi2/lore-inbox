@@ -1,37 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVDJHwD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVDJIY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVDJHwD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 03:52:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDJHwD
+	id S261439AbVDJIY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 04:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVDJIY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 03:52:03 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:19672 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S261438AbVDJHwB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 03:52:01 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-	<20050409200709.GC3451@pasky.ji.cz>
-	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-From: Junio C Hamano <junkio@cox.net>
-Date: Sun, 10 Apr 2005 00:51:59 -0700
-In-Reply-To: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> (Linus
- Torvalds's message of "Sat, 9 Apr 2005 14:00:09 -0700 (PDT)")
-Message-ID: <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Sun, 10 Apr 2005 04:24:56 -0400
+Received: from [83.246.78.200] ([83.246.78.200]:1961 "EHLO srvh02.vc-server.de")
+	by vger.kernel.org with ESMTP id S261439AbVDJIYy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 04:24:54 -0400
+Date: Sun, 10 Apr 2005 08:26:09 +0000
+From: Dennis Heuer <dh@triple-media.com>
+Subject: 2.6.11.x: bootprompt: ALSA: no soundcard detected
+To: linux-kernel@vger.kernel.org
+X-Mailer: Balsa 2.2.5
+Message-Id: <1113121569l.584l.0l@Foo>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - srvh02.vc-server.de
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - triple-media.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Listing the file paths and their sigs included in a tree to make
-a snapshot of a tree state sounds fine, and diffing two trees by
-looking at the sigs between two such files sounds fine as well.
+Hello,
 
-But I am wondering what your plans are to handle renames---or
-does git already represent them?
+I switched from 2.4 to 2.6.11 and found that the hard power-down now definetly needs ACPI, which stopped my soundplayer life from playing (stucking display and no sound), though. I installed 2.6.11.4, 2.6.11.5, and 2.6.11.7 but all three broke the hardware detection on my system. Now, with or without ACPI, the soundcard isn't even found.
+
+There is no further error message, linux installs as always.
+
+Regards,
+
+Dennis Heuer
 

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261656AbVDJX1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVDJXbg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261656AbVDJX1l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 19:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVDJX0i
+	id S261649AbVDJXbg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 19:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbVDJXap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 19:26:38 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33179 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261648AbVDJXZJ (ORCPT
+	Sun, 10 Apr 2005 19:30:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:38041 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261649AbVDJX1p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 19:25:09 -0400
-Date: Sun, 10 Apr 2005 16:23:11 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: torvalds@osdl.org, mingo@elte.hu, willy@w.ods.org,
-       linux-kernel@vger.kernel.org, rddunlap@osdl.org, ross@jose.lug.udel.edu
-Subject: Re: [ANNOUNCE] git-pasky-0.1
-Message-Id: <20050410162311.0c6da79c.pj@engr.sgi.com>
-In-Reply-To: <20050410222737.GC5902@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-	<Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
-	<Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-	<20050410024157.GE3451@pasky.ji.cz>
-	<20050410162723.GC26537@pasky.ji.cz>
-	<20050410173349.GA17549@elte.hu>
-	<20050410174221.GD7858@alpha.home.local>
-	<20050410174512.GA18768@elte.hu>
-	<20050410184522.GA5902@pasky.ji.cz>
-	<Pine.LNX.4.58.0504101310430.1267@ppc970.osdl.org>
-	<20050410222737.GC5902@pasky.ji.cz>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 10 Apr 2005 19:27:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=UoB6+ev8Qjjq66MDEYiiHHHlbkoJ1gzcwQW7KyDsPfoQidiOOR5JipYf3t/mvttfAvNJVeDcC7smJ8QpjfDwmgKAVHZnQop01m22G99Wwde1rcdwQe74civj1Tq++xQrOyQHqYKm5fTUOeOdT1RiGt7Umuvq/Wo79ereAjPpPUM=
+Message-ID: <2a0fbc590504101627651755ab@mail.gmail.com>
+Date: Mon, 11 Apr 2005 01:27:41 +0200
+From: Julien Wajsberg <julien.wajsberg@gmail.com>
+Reply-To: Julien Wajsberg <julien.wajsberg@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+In-Reply-To: <Pine.LNX.4.61.0504060737130.21548@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <2a0fbc59050325145935a05521@mail.gmail.com>
+	 <2a0fbc5905040506422fbf6356@mail.gmail.com>
+	 <Pine.LNX.4.61.0504050957400.15886@chaos.analogic.com>
+	 <2a0fbc59050405155815666e8d@mail.gmail.com>
+	 <Pine.LNX.4.61.0504060737130.21548@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr wrote:
-> That reminds me, is there any
-> tool which will take .rej files and throw them into the file to create
-> rcsmerge-like conflicts?
+On Apr 6, 2005 1:41 PM, Richard B. Johnson <linux-os@analogic.com> wrote:
+>
+> How would you know?  Windows will just run it as PIOW and be done
+> with it.
+Yes, but there's a way to know which mode you're using (maybe not
+precisely, but at least PIO vs DMA).
 
-  Check out 'wiggle'
-    http://www.cse.unsw.edu.au/~neilb/source/wiggle/
+> Did you ever try to copy a large file in XP? Try it.
+> Try the same thing in linux on the same hardware. You don't need
+> a stop-watch. On Win-XP, a 10 megabyte file (hardly large) takes
+> about 10 seconds. That's 1 megabyte/second. Linux tries to be
+> a bit faster.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Usually, I only have Linux on any hardware I have ;) And there is no
+point comparing these things here...
+
+--
+Julien
+
+PS: Sorry Richard, I forgot my "reply to all" button...

@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVDJRbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVDJReG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVDJRbu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 13:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVDJRbu
+	id S261531AbVDJReG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 13:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbVDJReG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 13:31:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:40130 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261528AbVDJRbn (ORCPT
+	Sun, 10 Apr 2005 13:34:06 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:44185 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261531AbVDJRd6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 13:31:43 -0400
-Date: Sun, 10 Apr 2005 13:31:29 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, Ingo Molnar <mingo@elte.hu>,
-       Dave Jones <davej@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-In-Reply-To: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0504101326210.16675@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Apr 2005 13:33:58 -0400
+Date: Sun, 10 Apr 2005 19:33:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: [ANNOUNCE] git-pasky-0.1
+Message-ID: <20050410173349.GA17549@elte.hu>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410162723.GC26537@pasky.ji.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Apr 2005, Linus Torvalds wrote:
 
-> I've rsync'ed the new git repository to kernel.org, it should all be there
-> in /pub/linux/kernel/people/torvalds/git.git/ (and it looks like the
-> mirror scripts already picked it up on the public side too).
+* Petr Baudis <pasky@ucw.cz> wrote:
 
-GCC 4 isn't very happy.  Mostly sign changes, but also something
-that looks like a real error:
+>   I will also need to do more testing on the linux kernel tree.
+> Committing patch-2.6.7 on 2.6.6 kernel and then diffing results in
+> 
+> 	$ time gitdiff.sh `parent-id` `tree-id` >p
+> 	real    5m37.434s
+> 	user    1m27.113s
+> 	sys     2m41.036s
+> 
+> which is pretty horrible, it seems to me. Any benchmarking help is of
+> course welcomed, as well as any other feedback.
 
-gcc -g -O3 -Wall   -c -o fsck-cache.o fsck-cache.c
-fsck-cache.c: In function 'main':
-fsck-cache.c:59: warning: control may reach end of non-void function 'fsck_tree' being inlined
-fsck-cache.c:62: warning: control may reach end of non-void function 'fsck_commit' being inlined
+it seems from the numbers that your system doesnt have enough RAM for 
+this and is getting IO-bound?
 
-I assume that fsck_tree and fsck_commit should complain loudly
-if they ever get to that point - but since I'm not quite sure
-there's no patch, sorry.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+	Ingo

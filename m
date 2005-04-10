@@ -1,85 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVDJOSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVDJOjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVDJOSM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 10:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVDJOSM
+	id S261504AbVDJOjf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 10:39:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVDJOjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 10:18:12 -0400
-Received: from postman2.arcor-online.net ([151.189.20.157]:9387 "EHLO
-	postman.arcor.de") by vger.kernel.org with ESMTP id S261503AbVDJOSF
+	Sun, 10 Apr 2005 10:39:35 -0400
+Received: from mx02.cybersurf.com ([209.197.145.105]:28307 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S261504AbVDJOjb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 10:18:05 -0400
-Date: Sun, 10 Apr 2005 16:18:01 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: unregister_netdevice(): negative refcnt, suggest patch against 2.6.11
-Message-ID: <20050410141801.GA4713@palmen.homeip.net>
-Mail-Followup-To: fmp, linux-kernel@vger.kernel.org
-References: <20050410091625.GA29283@palmen.homeip.net>
+	Sun, 10 Apr 2005 10:39:31 -0400
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: johnpol@2ka.mipt.ru
+Cc: Thomas Graf <tgraf@suug.ch>, Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, jmorris@redhat.com,
+       ijc@hellion.org.uk, guillaume.thouvenin@bull.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       netdev <netdev@oss.sgi.com>
+In-Reply-To: <20050410161549.3abe4778@zanzibar.2ka.mipt.ru>
+References: <1112942924.28858.234.camel@uganda>
+	 <E1DKZ7e-00070D-00@gondolin.me.apana.org.au>
+	 <20050410143205.18bff80d@zanzibar.2ka.mipt.ru>
+	 <1113131325.6994.66.camel@localhost.localdomain>
+	 <20050410153757.104fe611@zanzibar.2ka.mipt.ru>
+	 <20050410121005.GF26731@postel.suug.ch>
+	 <20050410161549.3abe4778@zanzibar.2ka.mipt.ru>
+Content-Type: text/plain
+Organization: jamalopolous
+Message-Id: <1113143959.1089.316.camel@jzny.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <20050410091625.GA29283@palmen.homeip.net>
-Organization: University of Karlsruhe, Germany
-X-Face: K~w3A&?OT;vit*S.e$nb*yhXg?1~W$[{'\ac!fDp)'/c2g@rs-=Rm|%qi`!)J4QmlC2$x-' ^gR/WY=6e$E#PY'(~.5%U"h[yh.C^AK^8%t=tuq`8s`'+a]15|Bo&Uk>PD~Cu:_cJ5B!oVU0*3A!hH dUPeD{&b5hpczhAh&O0oeH.U@[|inep"(ye[R^7_I?8of&8eF\hIAZbRV3(D>n)1\^yjoy}\
-User-Agent: Mutt/1.5.6+20040907i
-From: Felix Palmen <fmp@palmen.homeip.net>
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 10 Apr 2005 10:39:19 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Evgeniy,
 
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please crosspost on netdev - you should know that by now;->
 
-* Felix M. Palmen <fmp@palmen.homeip.net> [20050410 11:16]:
-> So I assume there is a problem in the appletalk code, but I didn't try
-> reproducing that on other systems so far.
+I actually disagreee with Herbert on this. Theres definetely good
+need to have a more usable messaging system that rides on top of
+netlink. It is not that netlink cant be extended (I actually think thats
+a separate topic) - its just that its usability curve is too high.
+Thats what the original motivation for konnector was. To make it easy
+for joe dumbass. And i think if konnector sticks to just doing that it
+will end up being valuable.
 
-I've now tested this issue on a vanilla 2.6.11.7 kernel. I only applied
-my own patch from the previous post so that I am able to shut down the
-computer cleanly. So I did the following:
+I do think (and ive said this before) that Evgeniy is pushing it
+by going beyond this simple agenda/focus. Unfortunately, I actually dont
+think he is listening _at all_ on this specific issue. 
 
-- boot 2.6.11.7
-- create a tap device with 'openvpn --mktun --dev tap0'
-- create /etc/netatalk/atalkd.conf with a single line 'tap0'
-- launch atalkd, wait.
-- stop atalkd.
-- destroy tap device with 'openvpn --rmtun --dev tap0'
+Evgeniy, just stick to the original focus and if it is accepted and
+understood then lets move on to adding new features. Otherwise the
+result of you adding yet one more feature for CBUS or whatever is
+clearly to question what the original motivation was. And i dont think
+you are able to add any other points to justify the existence of any new
+konnector feature other than describe the original goals. At least thats
+what i saw reading this thread. 
+Otherwise if you really dont know what you want yet lets just pull this
+whole thing out IMO.
 
-refcnt was -256, very strange.
+cheers,
+jamal
 
-Would you consider my patch harmful? I intend using it for now, because
-otherwise, my system won't shut down cleanly any more...
-
-Greets, Felix
-
-PS: Please CC replies to me.
-
---=20
- | /"\   ASCII Ribbon   | Felix M. Palmen (Zirias)    http://zirias.ath.cx/=
- |
- | \ / Campaign Against | fmp@palmen.homeip.net      encrypted mail welcome=
- |
- |  X    HTML In Mail   | PGP key: http://zirias.ath.cx/pub.txt            =
- |
- | / \     And News     | ED9B 62D0 BE39 32F9 2488 5D0C 8177 9D80 5ECF F683=
- |
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iQCVAwUBQlk1mQSq+3gxG9cNAQICaAQAhFR1i1VBaibfvRbYNPfFn1zR9C9OUQwm
-KJDRpiXQtrNKtXyr8XKM2G2ureWgL43uDl8IEWHogkgm9K1uiubtfxU6yVuJ1TPP
-P+NgHGZzs5tPnWyTiQYANWbDA0nJHwLnEkRXj8B7MD7MEQgoih5+BQJoJl4ZyheG
-v4LRZsYurJk=
-=b5IZ
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--

@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVDJXW1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVDJXW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVDJXW1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261652AbVDJXW1 (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 10 Apr 2005 19:22:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVDJXVr
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVDJXV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 19:21:47 -0400
-Received: from fire.osdl.org ([65.172.181.4]:54724 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261642AbVDJXTW (ORCPT
+	Sun, 10 Apr 2005 19:21:58 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:520 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261641AbVDJXTX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 19:19:22 -0400
-Date: Sun, 10 Apr 2005 16:21:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christopher Li <lkml@chrisli.org>
-cc: Paul Jackson <pj@engr.sgi.com>, junkio@cox.net, rddunlap@osdl.org,
-       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
-Subject: Re: more git updates..
-In-Reply-To: <20050410195354.GH13853@64m.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0504101611370.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
- <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org>
- <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
- <20050410190331.GG13853@64m.dyndns.org> <Pine.LNX.4.58.0504101533020.1267@ppc970.osdl.org>
- <20050410195354.GH13853@64m.dyndns.org>
+	Sun, 10 Apr 2005 19:19:23 -0400
+Message-ID: <4259B47A.6020208@domdv.de>
+Date: Mon, 11 Apr 2005 01:19:22 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: [PATCH encrypted swsusp 2/3] configuration
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------050402010501070007020907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050402010501070007020907
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+
+The following patch includes the necessary kernel configuration option.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
 
 
-On Sun, 10 Apr 2005, Christopher Li wrote:
-> 
-> How about deleting trees from the caches? I don't need to delete stuff from
-> the official tree. It is more for my local version control.
 
-I have a plan. Namely to have a "list-needed" command, which you give one
-commit, and a flag implying how much "history" you want (*), and then it
-spits out all the sha1 files it needs for that history.
+--------------050402010501070007020907
+Content-Type: text/plain;
+ name="swsusp-encrypt-config.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="swsusp-encrypt-config.diff"
 
-Then you delete all the other ones from your SHA1 archive (easy enough to
-do efficiently by just sorting the two lists: the list of "needed" files
-and the list of "available" files).
+--- linux-2.6.11.2/kernel/power/Kconfig.ast	2005-04-10 20:44:48.000000000 +0200
++++ linux-2.6.11.2/kernel/power/Kconfig	2005-04-10 21:01:36.000000000 +0200
+@@ -72,3 +72,14 @@
+ 	  suspended image to. It will simply pick the first available swap 
+ 	  device.
+ 
++config SWSUSP_ENCRYPT
++	bool "Encrypt suspend image"
++	depends on SOFTWARE_SUSPEND && CRYPTO=y && (CRYPTO_AES=y || CRYPTO_AES_586=y)
++	default ""
++	---help---
++	  To prevent data gathering from swap after resume you can encrypt
++	  the suspend image with a temporary key that is deleted on
++	  resume.
++
++	  Note that the temporary key is stored unencrypted on disk while the
++	  system is suspended.
 
-Script that, and call the command "prune-tree" or something like that, and 
-you're all done.
 
-(*) The amount of history you want might be "none", which is to say that 
-you don't want to go back in time, so you want _just_ the list of tree and 
-blob objects associated with that commit.
 
-Or you might want a "linear"  history, which would be the longest path
-through the parent changesets to the root.
-
-Or you might want "all", which would follow all parents and all trees.
-
-Or you might want to prune the history tree by date - "give me all
-history, but cut it off when you hit a parent that was done more than 6
-months ago".
-
-This "list-needed" thing is not just for pruning history either. If you
-have a local tree "x", and you want to figure out how much of it you need
-to send to somebody else who has an older tree "y", then what you'd do is
-basically "list-needed x" and remove the set of "list-needed y". That
-gives you the answer to the question "what's the minimum set of sha1 files
-I need to send to the other guy so that he can re-create my top-of-tree".
-
-My second plan is to make somebody else so fired up about the problem that 
-I can just sit back and take patches. That's really what I'm best at. 
-Sitting here, in the (rain) on the patio, drinking a foofy tropical drink, 
-and pressing the "apply" button. Then I take all the credit for my 
-incredible work. 
-
-Hint, hint.
-
-			Linus
+--------------050402010501070007020907--

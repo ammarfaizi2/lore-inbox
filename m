@@ -1,66 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVDJQx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVDJQ7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVDJQx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 12:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVDJQx2
+	id S261519AbVDJQ7J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 12:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVDJQ7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 12:53:28 -0400
-Received: from fire.osdl.org ([65.172.181.4]:13019 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261520AbVDJQxW (ORCPT
+	Sun, 10 Apr 2005 12:59:09 -0400
+Received: from mail.tmr.com ([216.238.38.203]:38660 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261519AbVDJQ7D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 12:53:22 -0400
-Date: Sun, 10 Apr 2005 09:55:17 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Petr Baudis <pasky@ucw.cz>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-Subject: Re: [ANNOUNCE] git-pasky-0.1
-In-Reply-To: <20050410162723.GC26537@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.58.0504100939060.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
- <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz>
- <20050410162723.GC26537@pasky.ji.cz>
+	Sun, 10 Apr 2005 12:59:03 -0400
+Date: Sun, 10 Apr 2005 12:46:16 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Junio C Hamano <junkio@cox.net>
+cc: David Lang <dlang@digitalinsight.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+In-Reply-To: <7vzmw7as25.fsf@assigned-by-dhcp.cox.net>
+Message-ID: <Pine.LNX.3.96.1050410124238.18440A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 10 Apr 2005, Junio C Hamano wrote:
 
-
-On Sun, 10 Apr 2005, Petr Baudis wrote:
+> >>>>> "DL" == David Lang <dlang@digitalinsight.com> writes:
 > 
-> Where did you get the sparse git database from, Linus? (BTW, it
-> would be nice to get sparse.git with the directories as separate.)
+> DL> just wanted to point out that recent news shows that sha1 isn't as
+> DL> good as it was thought to be (far easier to deliberatly create
+> DL> collisions then it should be)
+> 
+> I suspect there is no need to do so...
 
-When we were trying to figure out how to avert the BK disaster, and one of
-Tridges concerns (and, in my opinion, the only really valid one) was that
-you couldn't get the BK data in some SCM-independent way.
+It's possible to generate another object with the same hash, but:
+ - you can't just take your desired object and do magic to make it hash
+   right
+ - it may not have the same length (almost certainly)
+ - it's still non-trivial in terms of computation needed
 
-So I wrote some very preliminary scripts (on top of BK itself) to extract
-the data, to show that BK could generate a SCM-neutral file format (a very
-stupid one and horribly useless for anything but interoperability, but
-still...). I was hoping that that would convince Tridge that trying to
-muck around with the internal BK file format was not worth it, and avert
-the BK trainwreck.
+> 
+>   Message-ID: <Pine.LNX.4.58.0504090902170.1267@ppc970.osdl.org>
+>   From: Linus Torvalds <torvalds@osdl.org>
+>   Subject: Re: Kernel SCM saga..
+>   Date: Sat, 9 Apr 2005 09:16:22 -0700 (PDT)
+> 
+>   ...
+> 
+>                   Linus 
+> 
+>   (*) yeah, yeah, I know about the current theoretical case, and I don't
+>   care. Not only is it theoretical, the way my objects are packed you'd have
+>   to not just generate the same SHA1 for it, it would have to _also_ still
+>   be a valid zlib object _and_ get the header to match the "type + length"  
+>   of object part. IOW, the object validity checks are actually even stricter
+>   than just "sha1 matches".
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Larry was ok with the idea to make my export format actually be natively
-supported by BK (ie the same way you have "bk export -tpatch"), but Tridge
-wanted to instead get at the native data and be difficult about it. As a
-result, I can now not only use BK any more, but we also don't have a nice
-export format from BK.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Yeah, I'm a bit bitter about it. 
-
-Anyway, the sparse data came out of my hack. It's very inefficient, and I
-estimated that doing the same for the kernel would have taken ten solid
-days of conversion, mainly because my hack was really just that: a quick
-hack to show that BK could do it. Larry could have done it a lot better.
-
-I'll re-generate the sparse git-database at some point (and I'll probably
-do so from the old GIT database itself, rather than re-generating it from
-my old BK data).
-
-		Linus

@@ -1,85 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVDJEUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVDJEhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVDJEUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 00:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVDJEUZ
+	id S261431AbVDJEhX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 00:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVDJEhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 00:20:25 -0400
-Received: from c-65-96-98-23.hsd1.ma.comcast.net ([65.96.98.23]:25986 "EHLO
-	h0040333b7dc3.ne.mediaone.net") by vger.kernel.org with ESMTP
-	id S261429AbVDJEUP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 00:20:15 -0400
-Date: Sun, 10 Apr 2005 00:20:12 -0400
-From: Glenn Maynard <glenn@zewt.org>
-To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050410042012.GC18141@zewt.org>
-Mail-Followup-To: debian-legal@lists.debian.org,
-	linux-kernel@vger.kernel.org
-References: <874qegkxjp.fsf@kreon.lan.henning.makholm.net> <MDEHLPKNGKAHNMBLJOLKEELGDAAB.davids@webmaster.com>
+	Sun, 10 Apr 2005 00:37:23 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:28926 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S261431AbVDJEhQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 00:37:16 -0400
+Subject: Re: Kernel SCM saga..
+From: Albert Cahalan <albert@users.sf.net>
+To: torvalds@osdl.org,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sun, 10 Apr 2005 00:20:48 -0400
+Message-Id: <1113106849.2325.154.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEELGDAAB.davids@webmaster.com>
-Mail-Copies-To: nobody
-X-No-CC: Branden subscribes to this list; do not CC him on replies.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Henning Makholm, I assume; I seem to be missing the actual message and
-David's mailer forgot to put a quote header on the original reply):
+Linus Torvalds writes:
 
-> > >> I think the "derivative work" angle is a red herring. I do not think
-> > >> that either of the two parts that are being linked together (i.e. the
-> > >> driver and the firmware) are derivates of the other.  The relevant
+> NOTE! I detest the centralized SCM model, but if push comes to shove,
+> and we just _can't_ get a reasonable parallell merge thing going in
+> the short timeframe (ie month or two), I'll use something like SVN
+> on a trusted site with just a few committers, and at least try to
+> distribute the merging out over a few people rather than making _me_
+> be the throttle.
+>
+> The reason I don't really want to do that is once we start doing
+> it that way, I suspect we'll have a _really_ hard time stopping.
+> I think it's a broken model. So I'd much rather try to have some
+> pain in the short run and get a better model running, but I just
+> wanted to let people know that I'm pragmatic enough that I realize
+> that we may not have much choice.
 
-The two parts are not derivatives of each other, of course; that's
-obvious.  (If I take your firmware, David's firmware loader, and link
-them together, I havn't change either of your works.)  The resulting
-linked binary, however, is a derivative work of both.
+I think you at least instinctively know this, but...
 
-I've heard the claim, several times, that that creating a derivative
-work requires creative input, that linking stuff together with "ld" is
-completely uncreative, therefore no derivative work is created.  (I'm
-not sure if you're making (here or elsewhere) that claim, but it seems
-like it.)  What's the basis for this claim?  (If you're not making it,
-anybody that does believe this is free to respond.)
+Centralized SCM means you have to grant and revoke commit access,
+which means that Linux gets the disease of ugly BSD politics.
 
-The case David referred to[1] says "A derivative work may itself be
-copyrighted if it has the requisite originality."  This seems to imply
-that something can be a derivative work without creative input (though
-no new copyright would exist beyond that of the source objects).  It
-seems that while "creative input" is required for copyright to exist,
-it is not required for creating a derivative work.
+Under both the old pre-BitKeeper patch system and under BitKeeper,
+developer rank is fuzzy. Everyone knows that some developers are
+more central than others, but it isn't fully public and well-defined.
+You can change things day by day without having to demote anyone.
+While Linux development isn't completely without jealousy and pride,
+few have stormed off (mostly IDE developers AFAIK) and none have
+forked things as severely as OpenBSD and DragonflyBSD.
 
-[1] http://caselaw.lp.findlaw.com/data2/circs/8th/033112p.pdf
+You may rank developer X higher than developer Y, but they have
+only a guess as to how things are. Perhaps developer X would be
+a prideful jerk if he knew. Perhaps developer Y would quit in
+resentment if he knew.
 
-On Sat, Apr 09, 2005 at 08:07:03PM -0700, David Schwartz wrote:
-> 	The way you stop someone from distributing part of your work is by arguing
-> that the work they are distributing is a derivative work of your work and
-> they had no right to *make* it in the first place. See, for example, Mulcahy
-> v. Cheetah Learning.
+Whatever you do, please avoid the BSD-style politics.
 
-Er, that's one way, but not *the* way.  I could grant you permission to
-create derivatives of my work, but not to redistribute them.  To stop you
-from distributing them, I'd argue that you had no right to distribute
-them--you *did* have the right to make it in the first place.
+(the MAINTAINERS file is bad enough; it has caused problems)
 
-The GPL does this.  Note GPL #2b: "any work that you distribute or publish".
-If you don't distribute or publish the derivative work, the work does not
-need to be "licensed ... under the terms of this License."  It very carefully
-separates the permissions granted for merely creating a derivative work,
-and the permissions granted for distributing those works; if you distribute
-a linked binary in violation of the GPL, you may very well have had permission
-to make it in the first place.
 
-(Of course, if whether the work is a derivative is in question, that would
-need to be established--you would, indeed, need to argue that the work they
-are distributing is a derivative work--but you wouldn't necessarily further
-argue that they had no right to make it in the first place.)
-
--- 
-Glenn Maynard

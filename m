@@ -1,90 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVDJKCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVDJKFl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVDJKCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 06:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVDJKCZ
+	id S261461AbVDJKFl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 06:05:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVDJKFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 06:02:25 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:33263 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261459AbVDJKCR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 06:02:17 -0400
-Date: Sun, 10 Apr 2005 02:53:07 -0400
-From: Christopher Li <lkml@chrisli.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-Message-ID: <20050410065307.GC13853@64m.dyndns.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 10 Apr 2005 06:05:41 -0400
+Received: from inutil.org ([193.22.164.111]:13779 "EHLO
+	vserver151.vserver151.serverflex.de") by vger.kernel.org with ESMTP
+	id S261461AbVDJKFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 06:05:35 -0400
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org
+Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL accesses
+In-Reply-To: <1113089591.9518.440.camel@gaston>
+References: <1110519743.5810.13.camel@gaston> <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de> <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de> <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de> <21d7e9970504071422349426eb@mail.gmail.com> <1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de> <1112923186.9567.349.camel@gaston> <jezmw9ug7j.fsf@sykes.suse.de> <1113005006.9568.402.camel@gaston> <jey8brj4tx.fsf@sykes.suse.de> <1113089591.9518.440.camel@gaston>
+Date: Sun, 10 Apr 2005 12:05:26 +0200
+Message-Id: <E1DKZJn-0001dN-KQ@localhost.localdomain>
+From: Moritz Muehlenhoff <jmm@inutil.org>
+X-SA-Exim-Connect-IP: 84.137.109.41
+X-SA-Exim-Mail-From: jmm@inutil.org
+X-SA-Exim-Scanned: No (on vserver151.vserver151.serverflex.de); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 09, 2005 at 04:31:10PM -0700, Linus Torvalds wrote:
-> 
-> Done, and pushed out. The current git.git repository seems to do all of 
-> this correctly.
-> 
-> NOTE! This means that each "tree" file basically tracks just a single
-> directory. The old style of "every file in one tree file" still works, but 
-> fsck-cache will warn about it. Happily, the git archive itself doesn't 
-> have any subdirectories, so git itself is not impacted by it.
+Benjamin Herrenschmidt wrote:
+>> radeonfb_setcolreg: INPLL
+>> radeonfb_setcolreg: OUTPLL
+>> radeonfb_setcolreg: OUTPLL
+>> ... last three lines repeated 63 times
+>
+> Hrm... the last (serie of 64 setcolreg) are probably X beeing extremely
+> dumb, and calling the ioctl 64 times to set each palette entry instead
+> of doing a single call for the whole palette...
+>
+> Anyway. Except for maybe the double set-par on switch from X to console,
+> there isn't much more we can do here. We might be able to improve X but
+> there is a significant lag between a fix done to X.org HEAD appears in
+> any distro. The fact is, according to ATI, there is a HW bug on M6 taht
+> can cause lockups of the chip, and this 5ms workaround is necessary to
+> avoid it... 
 
-That is really cool stuff. My way to read it, correct me if I am wrong,
-git is a user space version file system. "tree" <--> directory and
-"blob" <--> file.  "commit" to describe the version history.
+But it's not specific to X11; I've applied the patch you posted and the
+same symptoms occur for pure tty switching as well, the delay has decreased
+a bit (it's hard to measure, but around a second), but it's still rather
+annoying to work with.
 
-Git always write out a full new version of blob when there is any
-update to it. At first I think that waste a lot of space, especially
-when there is only tiny change to it. But the more I think about it,
-it make more sense. Kernel source is usually small objects and file is
-compressed store any way. A very useful thing to gain form it is that,
-we can truncate the older history. e.g. We can have option not to sync
-the pre 2.4 change set, only grab it if we need to. Most of the time we
-only interested in the recent change set.
+Is it distinguishable which M6 models are buggy? I'm using my X31 for about
+a year now and have probably made some tens of thousands of switches without
+lockups, so presumably not all models cause lockups.
 
-There is one problem though. How about the SHA1 hash collision?
-Even the chance is very remote, you don't want to lose some data do due
-to "software" error. I think it is OK that no handle that
-case right now. On the other hand, it will be nice to detect that
-and give out a big error message if it really happens.
-
-Some thing like the following patch, may be turn off able.
-
-Chris
-
-Index: git-0.03/read-cache.c
-===================================================================
---- git-0.03.orig/read-cache.c	2005-04-09 18:42:16.000000000 -0400
-+++ git-0.03/read-cache.c	2005-04-10 02:48:36.000000000 -0400
-@@ -210,8 +210,22 @@
- 	int fd;
- 
- 	fd = open(filename, O_WRONLY | O_CREAT | O_EXCL, 0666);
--	if (fd < 0)
--		return (errno == EEXIST) ? 0 : -1;
-+	if (fd < 0) {
-+		void *map;
-+		static int error(const char * string);
-+
-+		if (errno != EEXIST)
-+			return -1;
-+		fd = open(filename, O_RDONLY);
-+		if (fd < 0)
-+			return -1;
-+		map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
-+		if (map == MAP_FAILED)
-+			return -1;
-+		if (memcmp(buf, map, size))
-+			return error("Ouch, Strike by lighting!\n");
-+		return 0;
-+	}
- 	write(fd, buf, size);
- 	close(fd);
- 	return 0;
+Cheers,
+        Moritz

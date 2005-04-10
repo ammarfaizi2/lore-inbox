@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVDJJsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVDJJ4E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVDJJsU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 05:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVDJJsU
+	id S261457AbVDJJ4E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 05:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVDJJ4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 05:48:20 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:43220 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261454AbVDJJsP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 05:48:15 -0400
-Date: Sun, 10 Apr 2005 11:48:13 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Junio C Hamano <junkio@cox.net>
-Cc: Christopher Li <lkml@chrisli.org>, Linus Torvalds <torvalds@osdl.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: more git updates..
-Message-ID: <20050410094813.GB26537@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <20050410055340.GB13853@64m.dyndns.org> <7v7jjbc755.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7v7jjbc755.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Sun, 10 Apr 2005 05:56:04 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:51217 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261457AbVDJJz4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 05:55:56 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: johnpol@2ka.mipt.ru
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+Cc: jmorris@redhat.com, kay.sievers@vrfy.org, ijc@hellion.org.uk,
+       guillaume.thouvenin@bull.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, netdev@oss.sgi.com
+Organization: Core
+In-Reply-To: <1112942924.28858.234.camel@uganda>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DKZ7e-00070D-00@gondolin.me.apana.org.au>
+Date: Sun, 10 Apr 2005 19:52:54 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Apr 10, 2005 at 11:28:54AM CEST, I got a letter
-where Junio C Hamano <junkio@cox.net> told me that...
-> >>>>> "CL" == Christopher Li <lkml@chrisli.org> writes:
+Please add netdev to the CC list since this discussion pertains to
+the networking subsystem.
+
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 > 
-> CL> On Sun, Apr 10, 2005 at 12:51:59AM -0700, Junio C Hamano wrote:
-> >> 
-> >> But I am wondering what your plans are to handle renames---or
-> >> does git already represent them?
-> >> 
-> 
-> CL> Rename should just work.  It will create a new tree object and you
-> CL> will notice that in the entry that changed, the hash for the blob
-> CL> object is the same.
-> 
-> Sorry, I was unclear.  But doesn't that imply that a SCM built
-> on top of git storage needs to read all the commit and tree
-> records up to the common ancestor to show tree diffs between two
-> forked tree?
+> User should not know about low-level transport - 
+> it is like socket layer -  write only data and do not care about
+> how it will be delivered.
 
-No. See diff-tree output and
-http://pasky.or.cz/~pasky/dev/git/gitdiff-do for how it's done.
-Basically, you just take the two trees and compare them linearily (do a
-normal diff on them, essentialy). Then the differences you spot this way
-are everything what needs to appear in the patch.
+The delineation between transport and upper layer is fuzzy.
+In one situation the protocol might be transport and in another
+it could be above the transport.
 
-> I suspect that another problem is that noticing the move of the
-> same SHA1 hash from one pathname to another and recognizing that
-> as a rename would not always work in the real world, because
-> sometimes people move files *and* make small changes at the same
-> time.  If git is meant to be an intermediate format to suck
-> existing kernel history out of BK so that the history can be
-> converted for the next SCM chosen for the kernel work, I would
-> imagine that there needs to be a way to represent such a case.
-> Maybe convert a file rename as two git trees (one tree for pure
-> move which immediately followed by another tree for edit) if it
-> is not a pure move?
+So I don't buy this argument.
+ 
+> In the previous versions netlink group was assigned as incremented
+> counter, 
+> that was not convenient, but now we have 2-way ID, which is better
+> from users point of view - idx is supposed to be major id, val - 
+> some subsystem of that set.
 
-Actually, this could be possible too I think. We will have to make
-diff-tree two-pass, but it is already so blinding fast that I guess that
-doesn't hurt too much. I might try to get my hands on that.
+Actually netlink does let you bind to a specific ID.
 
+Of course you may argue that a single u32 is not enough.  However,
+nothing is stopping you from introducing netlink v2 that extends
+this.
+
+In fact this is my main gripe with your patch: Why aren't you
+extending netlink instead of hacking something on top of the existing
+netlink? If the extensions require breaking compatibility: Fine,
+you just need to call it netlink v2.
+
+Cheers,
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

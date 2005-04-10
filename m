@@ -1,66 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVDJMEF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVDJMIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVDJMEF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 08:04:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVDJMEF
+	id S261481AbVDJMIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 08:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVDJMIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 08:04:05 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12005 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261482AbVDJMEA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 08:04:00 -0400
-Date: Sun, 10 Apr 2005 14:03:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: Chris Wedgwood <cw@f00f.org>, torvalds@osdl.org, davem@davemloft.net,
-       andrea@suse.de, mbp@sourcefrog.net, linux-kernel@vger.kernel.org,
-       dlang@digitalinsight.com
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050410120331.GA8878@elte.hu>
-References: <1112939769.29544.161.camel@hope> <Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org> <20050408083839.GC3957@opteron.random> <Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org> <20050409022701.GA14085@opteron.random> <Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org> <20050409155511.7432d5c7.davem@davemloft.net> <Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org> <20050410001435.GA23401@taniwha.stupidest.org> <20050409185636.0945abdf.pj@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050409185636.0945abdf.pj@engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 10 Apr 2005 08:08:16 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:17012 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261481AbVDJMIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 08:08:07 -0400
+Message-ID: <42591914.2000800@yahoo.it>
+Date: Sun, 10 Apr 2005 14:16:20 +0200
+From: TommyDrum <mycooc@yahoo.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: el, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: r8169 native module problems on 2.6.11
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-* Paul Jackson <pj@engr.sgi.com> wrote:
+Hello, I've got a problem with usrobotics r8169 based gigabit ethernet;
+kernel module doesn't properly startup, with modprobe r8169; module gets
+correctly loaded, but ifconfig doesn't see it, and startup scripts deny
+existence of an eth0 dev; meanwhile the r8169 module taken from the
+cdrom compiles installs and functions correctly; here's the modinfo for
+both:
 
-> These 16817 files consume:
-> 
-> 	224 MBytes uncompressed and
-> 	 95 MBytes compressed
-> 
-> (using zlib's minigzip, on a 4 KB page reiserfs.)
+kernel native module:
 
-that's a 42.4% compressed size. Using a (much) more CPU-intense 
-compression method (bzip -9), the compressed size is down to 45 MBytes.  
-(a ratio of 20.2%)
+author:         Realtek and the Linux r8169 crew <netdev@oss.sgi.com>
+description:    RealTek RTL-8169 Gigabit Ethernet driver
+parmtype:       media:array of int
+parmtype:       rx_copybreak:int
+parmtype:       use_dac:int
+parm:           use_dac:Enable PCI DAC. Unsafe on 32 bit PCI slot.
+license:        GPL
+version:        2.2LK
+vermagic:       2.6.11-gentoo-r5 preempt PENTIUMIII gcc-3.3
+depends:
+alias:          pci:v000010ECd00008169sv*sd*bc*sc*i*
+alias:          pci:v00001186d00004300sv*sd*bc*sc*i*
+srcversion:     017DC70C1E25F3AB2CA0324
 
-using default 'gzip' i get 57 MB compressed.
+USrobotics cdrom module:
 
-> Since each change will get its own copy of the file, multiplying these
-> two sizes (224 and 95) by 12.2 changes per file means the disk cost
-> would be:
-> 
-> 	2.73 GByte uncompressed, or
-> 	1.16 GBytes compressed.
+author:         Realtek
+description:    U.S. Robotics 10/100/1000 PCI NIC driver
+license:        GPL
+vermagic:       2.6.11-gentoo-r5 preempt PENTIUMIII gcc-3.3
+depends:
+alias:          pci:v000010ECd00008169sv*sd*bc*sc*i*
+alias:          pci:v000016ECd00000116sv*sd*bc*sc*i*
 
-with bzip2 -9 it would be 551 MBytes. It might as well be practical on 
-faster CPUs, a full tree (224 MBytes, 45 MBytes compressed) decompresses 
-in 24 seconds on a 3.4GHz P4 - single CPU. (and with dual core likely 
-becoming the standard, we might as well divide that by two) With default 
-gzip it's 3.3 seconds though, and that still compresses it down to 57 
-MB.
+and dmesg for both:
 
-	Ingo
+kernel native:
+
+ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 11 (level, low) -> IRQ 11
+eth0: Identified chip type is 'RTL8169s/8110s'.
+eth0: U.S. Robotics 10/100/1000 PCI NIC driver version 2.0 at
+0xe08ee000, 00:c0:49:f2:86:1e, IRQ 11
+eth0: Auto-negotiation Enabled.
+
+USR module:
+
+ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 11 (level, low) -> IRQ 11
+eth0: Identified chip type is 'RTL8169s/8110s'.
+eth0: U.S. Robotics 10/100/1000 PCI NIC driver version 2.0 at
+0xe08e6000, 00:c0:49:f2:86:1e, IRQ 11
+eth0: Auto-negotiation Enabled.
+
+I don't understand exactly the difference between the two, thought I
+could help by posting this fact. Please if you find it irrelevant don't
+flame me, since it's my first post to the kernel mailing list, I'd
+welcome any suggestions and I will try to post any other information you
+request.
+
+Keep on the good work,
+Ciao!
+
+Tommy
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCWRkRgpUvhTIUBAERApE1AJ9aju0Np0VWGD8ItP30fchnXSwSfQCeLbS4
+1EimT1GM7TfC2yWrurNFg24=
+=j5ge
+-----END PGP SIGNATURE-----
+

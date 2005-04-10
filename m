@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVDJWsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVDJW5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVDJWsn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 18:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVDJWsn
+	id S261627AbVDJW5W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 18:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVDJW5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 18:48:43 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29189 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261626AbVDJWsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 18:48:36 -0400
-Date: Mon, 11 Apr 2005 00:48:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
-Subject: Re: 2.6.12-rc2-mm2
-Message-ID: <20050410224834.GK4204@stusta.de>
-References: <20050408030835.4941cd98.akpm@osdl.org>
+	Sun, 10 Apr 2005 18:57:22 -0400
+Received: from orb.pobox.com ([207.8.226.5]:65208 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261627AbVDJW5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 18:57:18 -0400
+Date: Sun, 10 Apr 2005 15:57:08 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, mjg59@scrf.ucam.org, hare@suse.de
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net>
+References: <20050405000524.592fc125.akpm@osdl.org> <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net> <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net> <20050405175600.644e2453.akpm@osdl.org> <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net> <20050406142749.6065b836.akpm@osdl.org> <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net> <20050408103327.GD1392@elf.ucw.cz> <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050408030835.4941cd98.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050410212747.GB26316@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel-rcupdatec-make-the-exports-export_symbol_gpl.patch
-add-deprecated_for_modules.patch
-add-deprecated_for_modules-fix.patch
-deprecate-synchronize_kernel-gpl-replacement.patch
-deprecate-synchronize_kernel-gpl-replacement-fix.patch
-change-synchronize_kernel-to-_rcu-and-_sched.patch
+On Sun, Apr 10, 2005 at 11:27:47PM +0200, Pavel Machek wrote:
+> Can you try without XFS?
 
+No, XFS is my root filesystem. :( (Now that I think about it, would
+modularizing XFS and using an initrd be OK?)
 
-Please drop these patches.
+I'll see if I can reproduce this on one of my test boxes. I'll *try* to
+get to it later today, but it's possible that I won't be able to get to
+it until next Friday or Saturday.
 
+> I do not why it interferes, but I've seen that before on suse
+> kernels...
 
-Using these symbols in non-GPL modules is a legal problem at least in 
-the USA except for IBM, and all we've heard from IBM is that they are 
-not 100% sure that there is really no binary-only module by IBM that 
-might use these symbols.
+Have you seen it without the resume-from-initrd patch too, or only with
+that patch?
 
-
-The risk of anyne using them only increases (no matter that it's marked 
-as deprecated) as long as it's available - and nobody has until now 
-claimed that he's actually using one pf them in a binary-only module.
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Barry K. Nathan <barryn@pobox.com>
 

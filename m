@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVDJUPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVDJUQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVDJUPT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 16:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVDJUPS
+	id S261597AbVDJUQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 16:16:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVDJUQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 16:15:18 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:25041 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261595AbVDJUPM (ORCPT
+	Sun, 10 Apr 2005 16:16:28 -0400
+Received: from [211.203.235.52] ([211.203.235.52]:26640 "HELO wrongmail.com")
+	by vger.kernel.org with SMTP id S261597AbVDJUQW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 16:15:12 -0400
-Date: Sun, 10 Apr 2005 22:14:55 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Andreas Steinmetz <ast@domdv.de>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] zero disk pages used by swsusp on resume
-Message-ID: <20050410201455.GA21568@elf.ucw.cz>
-References: <42592697.8060909@domdv.de> <200504102040.38403.oliver@neukum.org> <42597E99.8010802@domdv.de> <200504102203.29602.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504102203.29602.oliver@neukum.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 10 Apr 2005 16:16:22 -0400
+Message-ID: <dbd201c53dd6$9dc9a220$0bfb9fe1@omega>
+Reply-To: <omega@wrongmail.com>
+From: <omega@wrongmail.com>
+To: <majordomo@vger.kernel.org>
+Subject: uitverkoop horloges
+Date: Sun, 10 Apr 2005 14:07:22 +0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Wij hebben geheel nieuw in ons aanbod edel horloges opgenomen.
+Wij hebben bijna alle fantastische modelle voor u, die u zich maar wensen
+kunt.
+Alles van Bulgari, Cartier tot Chopard en Omega en Gucci uurwerken is te
+verkrijgen.
+Gesorteerd naar mannen en vrouwen uurwerken, of als geschenkbox is er ook
+voor u de juist.
+ 
+Wat is beter als geschenk dan een uurwerk dat lang mee gaat?
+Het is niet alleen een teken van goede smaak, maar ook een geheel
+persoonlijk geschenk voor uw geliefde.
+ 
+Direct naar de uurwerken hier.
+http://d.tmcnsqp.com/?3RBB58A7ZDGby3zhorp
+ 
+Veel winkelplezier gewenst door uw uurwerk team.
+ 
+Uw Albert Schmitz
+ 
 
-> > Oliver Neukum wrote:
-> > > What is the point in doing so after they've rested on the disk for ages?
-> > 
-> > The point is not physical access to the disk but data gathering after
-> > resume or reboot.
-> 
-> After resume or reboot normal access control mechanisms will work
-> again. Those who can read a swap partition under normal circumstances
-> can also read /dev/kmem. It seems to me like you are putting an extra
-> lock on a window on the third floor while leaving the front door open.
-
-Andreas is right, his patches are needed.
-
-Currently, if your laptop is stolen after resume, they can still data
-in swsusp image.
-
-Zeroing the swsusp pages helps a lot here, because at least they are
-not getting swsusp image data without heavy tools. [Or think root
-compromise month after you used swsusp.]
-
-Encrypting swsusp image is of course even better, because you don't
-have to write large ammounts of zeros to your disks during resume ;-).
-
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.

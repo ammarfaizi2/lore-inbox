@@ -1,152 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVDJXPu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVDJXQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVDJXPu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 19:15:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVDJXPu
+	id S261635AbVDJXQS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 19:16:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVDJXQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 19:15:50 -0400
-Received: from harlech.math.ucla.edu ([128.97.4.250]:1153 "EHLO
-	harlech.math.ucla.edu") by vger.kernel.org with ESMTP
-	id S261636AbVDJXO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 19:14:57 -0400
-Date: Sun, 10 Apr 2005 16:14:52 -0700 (PDT)
-From: Jim Carter <jimc@math.ucla.edu>
-To: linux-kernel@vger.kernel.org
-Cc: pavel@suse.cz
-Subject: Re: Disc driver is module, software suspend fails
-Message-ID: <Pine.LNX.4.61.0504101612240.10130@xena.cft.ca.us>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Apr 2005 19:16:17 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11722 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261637AbVDJXPV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 19:15:21 -0400
+Date: Sun, 10 Apr 2005 16:14:57 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: junkio@cox.net, rddunlap@osdl.org, ross@jose.lug.udel.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-Id: <20050410161457.2a30099a.pj@engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	<20050409200709.GC3451@pasky.ji.cz>
+	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+	<7vhdifcbmo.fsf@assigned-by-dhcp.cox.net>
+	<Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org>
+	<20050410115055.2a6c26e8.pj@engr.sgi.com>
+	<Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005, Pavel Machek wrote: 
-> You do not want to mount journaling filesystems; they tend to write to
-> disks even during read-only mounts... But doing it from initrd should
-> be okay. ext2 and init=/bin/bash should do the trick, too.
+Useful explanation - thanks, Linus.
 
-I did give it a try -- successfully.  
+Is this picture and description accurate:
 
-For reference I recite the original issue: the driver for my primary
-disc is in the initrd, not hardwired.  (It's ata_piix and friends, but
-the same issue happens if you boot from RAID or other weird devices.  As
-modern systems tend to have a SATA disc, more and more people are
-complaining on the web that software suspend has stopped working after
-they upgraded their machines.)  software_suspend would suspend all the
-way, then immediately wake up having accomplished nothing (but broken
-nothing either).  In kernel 2.6.12-rc1 but not 2.6.8 it complains "can't
-find swap device".  If this safety check is unwisely overriden so a
-suspend image is written, and you then resume (providing the device by
-number), it fails to read the image using the driver which it hasn't
-loaded yet.
-
-This patch makes software_resume not a late_initcall but rather an
-external subroutine similar to software_suspend, and calls it at the
-beginning of mount_root (in init/do_mounts.c), just _after_ the initrd
-(if any) and its driver have been seen.  This buried placement is needed
-because there are several flow paths that call mount_root, and otherwise
-each path would need to be monkeyed with.
-
-The initrd contents at the time of resuming are lost, but the initrd
-contents at initial boot, if mounted at that time on /initrd, are still
-there.
-
-I have been running with this patch for over a week, with several
-suspends per day (and much more than the usual number of reboots, due to
-driver debugging).  I have had only two system crashes in that time.  In
-one, I was trying code in ata_piix connected with ATAPI DMA that was
-wrong for my kernel version, and it hung in driver initialization before
-software_resume was even called.  In the other, I was trying the CVS
-version of X-Windows, specifically DRI.  The rough edges showed clearly,
-and I suspect it stored corrupt data somewhere.  After reverting to the
-production X-Windows I suspended, and I got a null pointer dereference
-upon resuming.  I suspect (but can't prove) that module reinit would
-have failed exactly the same way with the original or patched calls to
-software_resume.  In other words, I think the patched version is doing
-its part of the job perfectly.
-
-So, what do you think?  Can we bring the benefit of software suspend to
-systems with SATA or RAID boot discs?
-
-James F. Carter          Voice 310 825 2897    FAX 310 206 6673
-UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA 90095-1555
-Email: jimc@math.ucla.edu  http://www.math.ucla.edu/~jimc (q.v. for PGP key)
+==============================================================
 
 
-Patch relative to 2.6.12-rc1
+             < working directory files (foo.c) >
+                           ^
+  ^                        |
+  |  upward ops            |            downward ops  |
+  |  ----------            |            ------------  |
+  | checkout-cache         |            update-cache  |
+  | show-diff              |                          v
+                           v
+        < current directory cache (".dircache/index") >
+                           ^
+  ^                        |
+  |  upward ops            |            downward ops  |
+  |  ----------            |            ------------  |
+  |   read-tree            |             write-tree   |
+  |                        |            commit-tree   |
+                           |                          v
+                           v
+< git filesystem (blobs, trees, commits: .dircache/{HEAD,objects}) >
 
---- init/do_mounts.c.orig	2005-03-17 17:34:09.000000000 -0800
-+++ init/do_mounts.c	2005-04-01 19:29:23.000000000 -0800
-@@ -362,6 +362,16 @@
+
+==============================================================
+
+
+The checkout-cache and show-diff ops read their meta-data from
+the cache, and the actual file contents from the git filesystem.
+Similary, the update-cache op writes meta-data into the cache,
+and may create new files in the git filesystem.
+
+The cache (but not the git filesystem) stores transient
+information (ctime, mtime, dev, ino, uid, gid, and size)
+about each working file update-cache has copied into the git
+filesystem so that checkout-cache and show-diff can detect
+changes in the contents of working files just from a stat,
+without actually rereading the file.
+
+In some sense, the cache holds the git filesystem inodes,
+and the git filesystem holds the data blocks.  Except that:
+  (1) the cache just holds the current "view" into the git
+      filesystem,
+  (2) objects in the filesystem have an "inode" number (their
+      <sha1> value) that is persistent whether in view or not,
+  (3) objects in the filesystem are not removed just because
+      nothing in the cache references them,
+  (4) objects in the filesystem can reference other objects,
+      that are typically also in the filesystem, but that can
+      still be reliably self-identified even if found in the
+      wild of say one's email inbox, and
+  (5) the view in the directory cache can itself be made into
+      a filesystem object - using commit-tree.
+
+
+==============================================================
+
+Minor question:
+
+  I must have an old version - I got 'git-0.03', but
+  it doesn't have 'checkout-cache', and its 'read-tree'
+  directly writes my working files.
  
- void __init mount_root(void)
- {
-+#ifdef CONFIG_SOFTWARE_SUSPEND
-+	/*
-+	 * Must resume after initrd has loaded the device for the root filesys,
-+	 * presumed same as the one with the swap partition with the resume
-+	 * image, but before mounting anything, which resuming would smear.
-+	 */
-+	software_resume();
-+#endif
- #ifdef CONFIG_ROOT_NFS
- 	if (MAJOR(ROOT_DEV) == UNNAMED_MAJOR) {
- 		if (mount_nfs_root())
---- include/linux/suspend.h.orig	2005-03-17 17:34:07.000000000 -0800
-+++ include/linux/suspend.h	2005-04-01 19:39:35.000000000 -0800
-@@ -48,6 +48,7 @@
- #ifdef CONFIG_PM
- /* kernel/power/swsusp.c */
- extern int software_suspend(void);
-+extern int software_resume(void);
+  How do I get a current version?  Well, one way I see,
+  and that's to pick up Pasky's:
+    
+    http://pasky.or.cz/~pasky/dev/git/git-pasky-base.tar.bz2
  
- extern int pm_prepare_console(void);
- extern void pm_restore_console(void);
-@@ -58,6 +59,10 @@
- 	printk("Warning: fake suspend called\n");
- 	return -EPERM;
- }
-+static inline int software_resume(void)
-+{
-+	return 0;
-+}
- #endif
- 
- #ifdef CONFIG_SMP
---- kernel/power/disk.c.orig	2005-03-26 14:16:25.000000000 -0800
-+++ kernel/power/disk.c	2005-04-01 21:14:01.029535791 -0800
-@@ -229,7 +229,7 @@
-  *
-  */
- 
--static int software_resume(void)
-+int software_resume(void)
- {
- 	int error;
- 
-@@ -243,12 +243,15 @@
- 
- 	pr_debug("PM: Checking swsusp image.\n");
- 
--	if ((error = swsusp_check()))
-+	if ((error = swsusp_check())) {
-+		pr_debug("PM: No swsusp image, skipping.\n");
- 		goto Done;
-+	}
- 
- 	pr_debug("PM: Preparing processes for restore.\n");
- 
- 	if ((error = prepare_processes())) {
-+		pr_debug("PM: Problem preparing processes, not restoring.\n");
- 		swsusp_close();
- 		goto Cleanup;
- 	}
-@@ -278,8 +281,6 @@
- 	return 0;
- }
- 
--late_initcall(software_resume);
--
- 
- static char * pm_disk_modes[] = {
- 	[PM_DISK_FIRMWARE]	= "firmware",
+  Perhaps that's the best way?
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

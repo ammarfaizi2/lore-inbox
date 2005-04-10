@@ -1,89 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVDJVha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVDJVot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVDJVha (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 17:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVDJVha
+	id S261613AbVDJVot (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 17:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVDJVot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 17:37:30 -0400
-Received: from fire.osdl.org ([65.172.181.4]:58801 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261612AbVDJVhT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 17:37:19 -0400
-Date: Sun, 10 Apr 2005 14:39:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Petr Baudis <pasky@ucw.cz>
-cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.1
-In-Reply-To: <Pine.LNX.4.58.0504101310430.1267@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0504101417150.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
- <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz>
- <20050410162723.GC26537@pasky.ji.cz> <20050410173349.GA17549@elte.hu>
- <20050410174221.GD7858@alpha.home.local> <20050410174512.GA18768@elte.hu>
- <20050410184522.GA5902@pasky.ji.cz> <Pine.LNX.4.58.0504101310430.1267@ppc970.osdl.org>
+	Sun, 10 Apr 2005 17:44:49 -0400
+Received: from [83.246.78.200] ([83.246.78.200]:8924 "EHLO srvh02.vc-server.de")
+	by vger.kernel.org with ESMTP id S261613AbVDJVor convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 17:44:47 -0400
+Date: Sun, 10 Apr 2005 21:46:45 +0000
+From: Dennis Heuer <dh@triple-media.com>
+Subject: Re: 2.6.11.x: bootprompt: ALSA: no soundcard detected
+To: linux-kernel@vger.kernel.org
+References: <1113121569l.584l.0l@Foo>
+	<2a4f155d05041002022788ae8b@mail.gmail.com> <1113128209l.588l.0l@Foo>
+	<2a4f155d05041006096b203aed@mail.gmail.com> <1113165575l.556l.1l@Foo>
+In-Reply-To: <1113165575l.556l.1l@Foo> (from dh@triple-media.com on Sun Apr
+	10 22:39:35 2005)
+X-Mailer: Balsa 2.2.5
+Message-Id: <1113169605l.556l.6l@Foo>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - srvh02.vc-server.de
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - triple-media.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Aehhm, you are completely on the wrong track! I installed 2.6.11.7 the same way I installed 2.6.11, with sound support statically included, but, though it worked fine without ACPI under 2.6.11, the same configuration under 2.6.11.7 does not work. There was no change in practise, only a change in behaviour.
+ 
+Dennis
 
 
-On Sun, 10 Apr 2005, Linus Torvalds wrote:
+> That means you didn't load the correct module for your soundcard.
 > 
-> Can you pull my current repo, which has "diff-tree -R" that does what the 
-> name suggests, and which should be faster than the 0.48 sec you see..
+> 
+> On Sun, 10 Apr 2005 10:16:49 +0000, Dennis Heuer <dh@triple-media.com> wrote:
+> > This doesn't help. Alsamixer prints:
+> > 
+> > failure in snd_ctl_open: no such device
+> > 
+> > Dennis
+> 
+> -- 
+> Time is what you make of it
+> 
+> 
+> 
+> 
+> 
 
-Actually, I changed things around. Everybody hated the "<" ">" lines, so I 
-put a changed thing on a line of its own with a "*" instead.
 
-So you'd now see lines like
-
-	*100644->100644 1874e031abf6631ea51cf6177b82a1e662f6183e->e8181df8499f165cacc6a0d8783be7143013d410 CREDITS
-
-which means that the CREDITS file has changed, and it shows you the mode
--> mode transition (that didn't change in this case) and the sha1 -> sha1
-transition.
-
-So now it's always just one line per change. Firthermore, the filename is 
-always field 3, if you use spaces as delimeters, regardless of whether 
-it's a +/-/* field.
-
-So let's say you want to merge two trees (dst1 and dst2) from a common
-parent (src), what you would do is:
-
- - get the list of files to merge:
-
-	diff-tree -R <dst1> <dst2> | tr '\0' '\n' > merge-files
-
- - Which of those were changed by <src> -> <dstX>?
-
-	diff-tree -R <src> <dst1> | tr '\0' '\n' | join -j 3 - merge-files > dst1-change
-	diff-tree -R <src> <dst2> | tr '\0' '\n' | join -j 3 - merge-files > dst2-change
-
- - Which of those are common to both? Let's see what the merge list is:
-
-	join dst1-change dst2-change > merge-list
-
-and hopefully you'd usually be working on a very small list of files by 
-then (everything else you'd just pick from one of the destination trees 
-directly - you've got the name, the sha-file, everything: no need to even 
-look at the data).
-
-Does this sound sane? Pasky? Wanna try a "git merge" thing? Starting off
-with the user having to tell what the common parent tree is - we can try
-to do the "automatically find best common parent" crud later. THAT may be 
-expensive.
-
-(Btw, this is why I think "diff-tree" is more important than actually
-generating the real diff itself - the above uses diff-tree three times
-just to cut down to the point where _hopefully_ you don't actually need to
-generate very much diffs at all. So I want "diff-tree" to be really fast, 
-even if it then can take a minute to actually generate a big diff between 
-releases etc).
-
-			Linus

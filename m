@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVDJXy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVDJX4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVDJXy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 19:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVDJXy0
+	id S261498AbVDJX4f (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 19:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVDJX4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 19:54:26 -0400
-Received: from fire.osdl.org ([65.172.181.4]:19151 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261490AbVDJXyW (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 19:54:22 -0400
-Date: Sun, 10 Apr 2005 16:54:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Derek Cheung" <derek.cheung@sympatico.ca>
-Cc: rddunlap@osdl.org, greg@kroah.com, Linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
-Message-Id: <20050410165412.707aca02.akpm@osdl.org>
-In-Reply-To: <000801c53ded$04428920$1501a8c0@Mainframe>
-References: <42535AF1.5080008@osdl.org>
-	<000801c53ded$04428920$1501a8c0@Mainframe>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Sun, 10 Apr 2005 19:56:35 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:737 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261498AbVDJX4W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 19:56:22 -0400
+Date: Mon, 11 Apr 2005 01:56:17 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1
+Message-ID: <20050410235617.GE18661@pasky.ji.cz>
+References: <20050410162723.GC26537@pasky.ji.cz> <20050410173349.GA17549@elte.hu> <20050410174221.GD7858@alpha.home.local> <20050410174512.GA18768@elte.hu> <20050410184522.GA5902@pasky.ji.cz> <Pine.LNX.4.58.0504101310430.1267@ppc970.osdl.org> <20050410222737.GC5902@pasky.ji.cz> <Pine.LNX.4.58.0504101557180.1267@ppc970.osdl.org> <20050410232637.GC18661@pasky.ji.cz> <Pine.LNX.4.58.0504101639130.1267@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504101639130.1267@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Derek Cheung" <derek.cheung@sympatico.ca> wrote:
->
-> Enclosed please find the updated patch that incorporates changes for all
->  the comments I received.
+Dear diary, on Mon, Apr 11, 2005 at 01:46:50AM CEST, I got a letter
+where Linus Torvalds <torvalds@osdl.org> told me that...
 > 
->  The volatile declaration in the m528xsim.h is needed because the
->  declaration refers to the ColdFire 5282 register mapping. The volatile
->  declaration is actually not needed in my I2C driver but someone may
->  include the m528xsim.h file in his/her applications and we need to force
->  the compiler not to do any optimization on the register mapping.
+> 
+> On Mon, 11 Apr 2005, Petr Baudis wrote:
+> > 
+> > (BTW, it would be useful to have a tool which just blindly takes what
+> > you give it on input and throws it to an object of given type; I will
+> > need to construct arbitrary commits during the rebuild if I'm to keep
+> > the correct dates.)
+> 
+> Hah. That's what "COMMITTER_NAME" "COMMITTER_EMAIL" and "COMMITTER_DATE" 
+> are there for.
+> 
+> There's two things to commits: when (and by whom) it was committed to a
+> tree, and when the changes were really done.
+> 
+> So set the COMMITTER_xxx things to the person/time you want to consider 
+> the _original_ one, and let "commit-tree" author you as the creator of the 
+> commit itself. The regular "ChangeLog" thing should only show the author 
+> and original time, but it's nice to see who created the commit itself.
 
-- Please reissue the changelog each time you reissue a patch.
+I already use those - look at my ChangeLog. (That's because for certain
+reasons I'm working on git in a half-broken chrooted environment.)
 
-- This patch adds tons of trailing whitespace.
+When rebuilding the tree from scratch, I wanted like to do it
+transparently - that is, so that noone could notice that I rebuilt it,
+since it effectively still _is_ the original tree from the data
+standpoint, just the history flow is actually correct this time.
 
-- It breaks the x86 build.  I did this:
+> Btw, the "COMMITTER_xxxx" environment variables are very confusingly
+> named. They actually go into the _author_ line in the commit object. I'm a
+> total retard, and I really don't know why I called it "COMMITTER_xxx"  
+> instead of "AUTHOR_xxx".
 
---- 25/drivers/i2c/busses/Kconfig~i2c-adaptor-for-coldfire-5282-cpu-fix	2005-04-10 16:52:08.000000000 -0700
-+++ 25-akpm/drivers/i2c/busses/Kconfig	2005-04-10 16:52:18.000000000 -0700
-@@ -31,7 +31,7 @@ config I2C_ALI1563
- 
- config I2C_MCF5282LITE
-         tristate "MCF5282Lite"
--        depends on I2C && EXPERIMENTAL
-+        depends on I2C && EXPERIMENTAL && PPC
-         help
-           If you say yes to this option, support will be included for the
-           I2C on the ColdFire MCF5282Lite Development Board
-_
+So, who will fix it in his tree first! ;-)
 
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

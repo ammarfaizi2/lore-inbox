@@ -1,35 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVDJAXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVDJAkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVDJAXg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 20:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVDJAXg
+	id S261202AbVDJAkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 20:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVDJAkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 20:23:36 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:51394 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261423AbVDJAXe (ORCPT
+	Sat, 9 Apr 2005 20:40:24 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11436 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261202AbVDJAkU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 20:23:34 -0400
-Date: Sat, 9 Apr 2005 17:22:34 -0700
+	Sat, 9 Apr 2005 20:40:20 -0400
+Date: Sat, 9 Apr 2005 17:39:44 -0700
 From: Paul Jackson <pj@engr.sgi.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: torvalds@osdl.org, andrea@suse.de, mbp@sourcefrog.net,
-       linux-kernel@vger.kernel.org, dlang@digitalinsight.com
-Subject: Re: Kernel SCM saga..
-Message-Id: <20050409172234.70612b28.pj@engr.sgi.com>
-In-Reply-To: <20050409155511.7432d5c7.davem@davemloft.net>
-References: <pan.2005.04.07.01.40.20.998237@sourcefrog.net>
-	<20050407014727.GA17970@havoc.gtf.org>
-	<pan.2005.04.07.02.25.56.501269@sourcefrog.net>
-	<Pine.LNX.4.62.0504061931560.10158@qynat.qvtvafvgr.pbz>
-	<1112852302.29544.75.camel@hope>
-	<Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org>
-	<1112939769.29544.161.camel@hope>
-	<Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org>
-	<20050408083839.GC3957@opteron.random>
-	<Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
-	<20050409022701.GA14085@opteron.random>
-	<Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
-	<20050409155511.7432d5c7.davem@davemloft.net>
+To: Ralph Corderoy <ralph@inputplus.co.uk>
+Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
+       mingo@elte.hu, davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-Id: <20050409173944.247252eb.pj@engr.sgi.com>
+In-Reply-To: <200504092321.j39NLk003976@blake.inputplus.co.uk>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	<200504092321.j39NLk003976@blake.inputplus.co.uk>
 Organization: SGI
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -38,21 +27,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David wrote:
-> recovery is more difficult when you corrupt some
-> file in your repository.
+Ralph wrote:
+> Watch out for when xargs invokes do_something more than once and the `<'
+> is parsed by a different one than the `>'.
 
-Agreed.  I too have recovered RCS and SCCS files by hand editing.
+It will take a pretty long list to do that.  It seems that
+GNU xargs on top of a Linux kernel has a 128 KByte ARG_MAX.
 
-
-Linus wrote:
-> I don't want people editing repostitory files by hand.
-
-Tyrant !;)
-
->From Wikipedia:
-
-    A tyrant is a usurper of rightful power.
+In the old days, with 4 KByte ARG_MAX limits, this would have
+bitten us pretty quickly.
 
 -- 
                   I won't rest till it's the best ...

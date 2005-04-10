@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVDJWr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVDJWsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261625AbVDJWr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 18:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDJWr4
+	id S261626AbVDJWsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 18:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVDJWsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 18:47:56 -0400
-Received: from gate.crashing.org ([63.228.1.57]:63629 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261625AbVDJWry (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 18:47:54 -0400
-Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
-	accesses
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Moritz Muehlenhoff <jmm@inutil.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1DKZJn-0001dN-KQ@localhost.localdomain>
-References: <1110519743.5810.13.camel@gaston>
-	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
-	 <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
-	 <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
-	 <21d7e9970504071422349426eb@mail.gmail.com>
-	 <1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de>
-	 <1112923186.9567.349.camel@gaston> <jezmw9ug7j.fsf@sykes.suse.de>
-	 <1113005006.9568.402.camel@gaston> <jey8brj4tx.fsf@sykes.suse.de>
-	 <1113089591.9518.440.camel@gaston>
-	 <E1DKZJn-0001dN-KQ@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 11 Apr 2005 08:45:29 +1000
-Message-Id: <1113173129.9568.501.camel@gaston>
+	Sun, 10 Apr 2005 18:48:43 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29189 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261626AbVDJWsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 18:48:36 -0400
+Date: Mon, 11 Apr 2005 00:48:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
+Subject: Re: 2.6.12-rc2-mm2
+Message-ID: <20050410224834.GK4204@stusta.de>
+References: <20050408030835.4941cd98.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050408030835.4941cd98.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+kernel-rcupdatec-make-the-exports-export_symbol_gpl.patch
+add-deprecated_for_modules.patch
+add-deprecated_for_modules-fix.patch
+deprecate-synchronize_kernel-gpl-replacement.patch
+deprecate-synchronize_kernel-gpl-replacement-fix.patch
+change-synchronize_kernel-to-_rcu-and-_sched.patch
 
-> But it's not specific to X11; I've applied the patch you posted and the
-> same symptoms occur for pure tty switching as well, the delay has decreased
-> a bit (it's hard to measure, but around a second), but it's still rather
-> annoying to work with.
-> 
-> Is it distinguishable which M6 models are buggy? I'm using my X31 for about
-> a year now and have probably made some tens of thousands of switches without
-> lockups, so presumably not all models cause lockups.
 
-ATI hasn't been very precise about that unfortunately...
+Please drop these patches.
 
-Ben.
+
+Using these symbols in non-GPL modules is a legal problem at least in 
+the USA except for IBM, and all we've heard from IBM is that they are 
+not 100% sure that there is really no binary-only module by IBM that 
+might use these symbols.
+
+
+The risk of anyne using them only increases (no matter that it's marked 
+as deprecated) as long as it's available - and nobody has until now 
+claimed that he's actually using one pf them in a binary-only module.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
 

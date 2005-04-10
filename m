@@ -1,81 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVDJB57@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVDJB7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVDJB57 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 21:57:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDJB57
+	id S261205AbVDJB7b (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 21:59:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDJB73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 21:57:59 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:57116 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261182AbVDJB54 (ORCPT
+	Sat, 9 Apr 2005 21:59:29 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:3506 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261191AbVDJB7S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 21:57:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=hbCqqtvrY+q/eR0hvd0Zzrhteg50ckfAwZXwMzHV8zTvhoHeBaZ7OzTUwNa01X+UmA3Wj137wZ2gsY2Nce3dh4i1jAJ5bpz3wH+25C65jGIs3NZD5KxUlkOcxqegz6crPAtgtkUGVb27Z/ZPRaZr/jMeZljp+KK3P9VFwF+3DLQ=
-Message-ID: <cce9e37e050409185728a8659e@mail.gmail.com>
-Date: Sun, 10 Apr 2005 02:57:53 +0100
-From: Phillip Lougher <phil.lougher@gmail.com>
-Reply-To: Phillip Lougher <phil.lougher@gmail.com>
-To: Phillip Lougher <phil.lougher@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>, ross@jose.lug.udel.edu,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, pasky@ucw.cz
-Subject: Re: Re: Re: Kernel SCM saga..
-In-Reply-To: <20050410014259.GC9052@pasky.ji.cz>
+	Sat, 9 Apr 2005 21:59:18 -0400
+Date: Sat, 9 Apr 2005 18:56:36 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: torvalds@osdl.org, davem@davemloft.net, andrea@suse.de, mbp@sourcefrog.net,
+       linux-kernel@vger.kernel.org, dlang@digitalinsight.com
+Subject: Re: Kernel SCM saga..
+Message-Id: <20050409185636.0945abdf.pj@engr.sgi.com>
+In-Reply-To: <20050410001435.GA23401@taniwha.stupidest.org>
+References: <1112852302.29544.75.camel@hope>
+	<Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org>
+	<1112939769.29544.161.camel@hope>
+	<Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org>
+	<20050408083839.GC3957@opteron.random>
+	<Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
+	<20050409022701.GA14085@opteron.random>
+	<Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
+	<20050409155511.7432d5c7.davem@davemloft.net>
+	<Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org>
+	<20050410001435.GA23401@taniwha.stupidest.org>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	 <20050408041341.GA8720@taniwha.stupidest.org>
-	 <Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
-	 <20050408071720.GA23128@jose.lug.udel.edu>
-	 <Pine.LNX.4.58.0504080758420.28951@ppc970.osdl.org>
-	 <20050409025357.GA9052@pasky.ji.cz>
-	 <cce9e37e05040918012ef0f7ab@mail.gmail.com>
-	 <20050410014259.GC9052@pasky.ji.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 10, 2005 2:42 AM, Petr Baudis <pasky@ucw.cz> wrote:
-> Dear diary, on Sun, Apr 10, 2005 at 03:01:12AM CEST, I got a letter
-> where Phillip Lougher <phil.lougher@gmail.com> told me that...
-> > On Apr 9, 2005 3:53 AM, Petr Baudis <pasky@ucw.cz> wrote:
-> >
-> > >   FWIW, I made few small fixes (to prevent some trivial usage errors to
-> > > cause cache corruption) and added scripts gitcommit.sh, gitadd.sh and
-> > > gitlog.sh - heavily inspired by what already went through the mailing
-> > > list. Everything is available at http://pasky.or.cz/~pasky/dev/git/
-> > > (including .dircache, even though it isn't shown in the index), the
-> > > cumulative patch can be found below. The scripts aim to provide some
-> > > (obviously very interim) more high-level interface for git.
-> >
-> > I did a bit of playing about with the changelog generate script,
-> > trying to produce a faster version.  The attached version uses a
-> > couple of improvements to be a lot faster (e.g. no recursion in the
-> > common case of one parent).
-> >
-> > FWIW it is 7x faster than makechlog.sh (4.342 secs vs 34.129 secs) and
-> > 28x faster than gitlog.sh (4.342 secs vs 2 mins 4 secs) on my
-> > hardware.  You mileage may of course vary.
-> 
-> Wow, really impressive! Great work, I've merged it (if you don't object,
-> of course).
+Chris wrote:
+> How many is alot?  Are we talking 100k, 1m, 10m?
 
-Of course I don't object...
+I pulled some numbers out of my bk tree for Linux.
 
-> 
-> Wondering why I wasn't in the Cc list, BTW.
+I have 16817 source files.
 
-Weird, it wasn't intentional.  I read LKML in Gmail (which I don't use
-for much else), and just clicked "reply", expecting to do the right
-thing.  Replying to this email it's also left you off the CC list. 
-Looking at the email source I believe it's probably to do with the
-following:
+They average 12.2 bitkeeper changes per file (counting the number of
+changes visible from doing 'bk sccslog' on each of the 16817 files). 
 
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	ross@jose.lug.udel.edu,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>> 
+These 16817 files consume:
 
-I've CC'd you explicitly on this.
+	224 MBytes uncompressed and
+	 95 MBytes compressed
 
-Phillip
+(using zlib's minigzip, on a 4 KB page reiserfs.)
+
+Since each change will get its own copy of the file, multiplying these
+two sizes (224 and 95) by 12.2 changes per file means the disk cost
+would be:
+
+	2.73 GByte uncompressed, or
+	1.16 GBytes compressed.
+
+I was pleasantly surprised at the degree of compression, shrinking files
+to 42% of their original size.  I expected, since the classic rule of
+thumb here to archive before compressing wasn't being followed (nor
+should it be) and we were compressing lots a little files, we would save
+fewer disk blocks than this.
+
+Of course, since as Linus reminds us, it's disk buffers in memory,
+not blocks on disk, that are precious, it's more like we will save
+224 - 95 == 129 MBytes of RAM to hold one entire tree.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

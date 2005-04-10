@@ -1,30 +1,35 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVDIXGQ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 9 Apr 2005 19:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVDIXGQ
+	id S261440AbVDJI1C (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 10 Apr 2005 04:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVDJI1C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 19:06:16 -0400
-Received: from [211.36.37.194] ([211.36.37.194]:63167 "HELO mail.qsv15.com")
-	by vger.kernel.org with SMTP id S261407AbVDIXFf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 19:05:35 -0400
-Date: 10 Apr 2005 00:51:06 +0900
-Message-ID: <20050409155106.11636.qmail@mail.qsv15.com>
-From: info@qsv15.com
+	Sun, 10 Apr 2005 04:27:02 -0400
+Received: from [83.246.78.200] ([83.246.78.200]:3497 "EHLO srvh02.vc-server.de")
+	by vger.kernel.org with ESMTP id S261440AbVDJI05 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 04:26:57 -0400
+Date: Sun, 10 Apr 2005 08:28:31 +0000
+From: Dennis Heuer <dh@triple-media.com>
+Subject: 
 To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=20=1B$B!y!!=1B(BNEW=1B$B?= =?ISO-8859-1?Q?!!=1B(BOPEN=1B$B!!!y?=
-	=?ISO-8859-1?Q?=1B(B?=
+X-Mailer: Balsa 2.2.5
+Message-Id: <1113121711l.584l.1l@Foo>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - srvh02.vc-server.de
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - triple-media.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261407AbVDIXGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261440AbVDJI1C@vger.kernel.org>
 
+unsubscribe linux-kernel
 
-
-    　★☆★　ついにＯＰＥＮ！　★☆★
-　　　　　　簡単操作で簡単登録！
-　　　　　真剣な出会いはここから
-　  初めての方は無料エントリーからどうぞ
-
-      　　http://www.getluck.net/
-
-　　※派手なインチキ臭いサイトは違います。

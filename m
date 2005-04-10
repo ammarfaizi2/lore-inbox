@@ -1,111 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVDJSVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVDJSWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVDJSVV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 14:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVDJSUR
+	id S261554AbVDJSWn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 14:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVDJSWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 14:20:17 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:25617 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261553AbVDJSO0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 14:14:26 -0400
-Date: Sun, 10 Apr 2005 20:14:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/cdrom/mcdx.c: make code static
-Message-ID: <20050410181422.GF4204@stusta.de>
+	Sun, 10 Apr 2005 14:22:00 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:6797 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261562AbVDJSTg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 14:19:36 -0400
+Date: Sun, 10 Apr 2005 11:19:05 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: tony.luck@intel.com
+Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-Id: <20050410111905.53a2f6a1.pj@engr.sgi.com>
+In-Reply-To: <200504101200.j3AC0Mu13146@unix-os.sc.intel.com>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	<20050409200709.GC3451@pasky.ji.cz>
+	<200504101200.j3AC0Mu13146@unix-os.sc.intel.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes needlessly global code static.
+Tony wrote:
+> Or maybe the files should be named objects/xx/yy/zzzzzzzzzzzzzzzz?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+I tend to size these things with the square root of the number of
+leaf nodes.  If I have 2,560,000 leaves (your 10,000 files in each
+of 16*16 directories), then I will aim for 1600 directories of
+1600 leaves each.
 
----
+My backup is sized for about this number of leaves, and it uses:
 
- drivers/cdrom/mcdx.c |   28 +++++++++++++---------------
- 1 files changed, 13 insertions(+), 15 deletions(-)
+	xxx/xxxzzzzzzzzzzzzzzzz
 
---- linux-2.6.12-rc2-mm2-full/drivers/cdrom/mcdx.c.old	2005-04-10 02:16:00.000000000 +0200
-+++ linux-2.6.12-rc2-mm2-full/drivers/cdrom/mcdx.c	2005-04-10 02:18:28.000000000 +0200
-@@ -107,20 +107,20 @@
-    The _direct_ size is the number of sectors we're allowed to skip
-    directly (performing a read instead of requesting the new sector
-    needed */
--const int REQUEST_SIZE = 800;	/* should be less then 255 * 4 */
--const int DIRECT_SIZE = 400;	/* should be less then REQUEST_SIZE */
-+static const int REQUEST_SIZE = 800;	/* should be less then 255 * 4 */
-+static const int DIRECT_SIZE = 400;	/* should be less then REQUEST_SIZE */
- 
- enum drivemodes { TOC, DATA, RAW, COOKED };
- enum datamodes { MODE0, MODE1, MODE2 };
- enum resetmodes { SOFT, HARD };
- 
--const int SINGLE = 0x01;	/* single speed drive (FX001S, LU) */
--const int DOUBLE = 0x02;	/* double speed drive (FX001D, ..? */
--const int DOOR = 0x04;		/* door locking capability */
--const int MULTI = 0x08;		/* multi session capability */
-+static const int SINGLE = 0x01;		/* single speed drive (FX001S, LU) */
-+static const int DOUBLE = 0x02;		/* double speed drive (FX001D, ..? */
-+static const int DOOR = 0x04;		/* door locking capability */
-+static const int MULTI = 0x08;		/* multi session capability */
- 
--const unsigned char READ1X = 0xc0;
--const unsigned char READ2X = 0xc1;
-+static const unsigned char READ1X = 0xc0;
-+static const unsigned char READ2X = 0xc1;
- 
- 
- /* DECLARATIONS ****************************************************/
-@@ -210,9 +210,7 @@
-  	repeated here to show what's going on.  And to sense, if they're
- 	changed elsewhere. */
- 
--/* declared in blk.h */
--int mcdx_init(void);
--void do_mcdx_request(request_queue_t * q);
-+static int mcdx_init(void);
- 
- static int mcdx_block_open(struct inode *inode, struct file *file)
- {
-@@ -569,7 +567,7 @@
- 	}
- }
- 
--void do_mcdx_request(request_queue_t * q)
-+static void do_mcdx_request(request_queue_t * q)
- {
- 	struct s_drive_stuff *stuffp;
- 	struct request *req;
-@@ -1028,7 +1026,7 @@
- 	return 0;
- }
- 
--void __exit mcdx_exit(void)
-+static void __exit mcdx_exit(void)
- {
- 	int i;
- 
-@@ -1075,7 +1073,7 @@
- 
- /* Support functions ************************************************/
- 
--int __init mcdx_init_drive(int drive)
-+static int __init mcdx_init_drive(int drive)
- {
- 	struct s_version version;
- 	struct gendisk *disk;
-@@ -1261,7 +1259,7 @@
- 	return 0;
- }
- 
--int __init mcdx_init(void)
-+static int __init mcdx_init(void)
- {
- 	int drive;
- 	xwarn("Version 2.14(hs) \n");
+(I repeat the xxx in the leaf name - easier to code.)
 
+I don't think there is any need for two levels.  There are 4096
+different values of three digit hex numbers.  That's ok in one
+directory.
+
+The only question would be 'xx' or 'xxx' - two or three digits.
+
+This one is on the cusp in my view - either works.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

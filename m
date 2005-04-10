@@ -1,83 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVDKAAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVDKAGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVDKAAx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 20:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVDKAAx
+	id S261488AbVDKAGH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 20:06:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVDKAGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 20:00:53 -0400
-Received: from iai.speak-friend.de ([62.75.222.128]:26775 "EHLO
-	iai.speak-friend.de") by vger.kernel.org with ESMTP id S261500AbVDKAAo
+	Sun, 10 Apr 2005 20:06:07 -0400
+Received: from front3.netvisao.pt ([213.228.128.91]:15320 "EHLO
+	front3.netvisao.pt") by vger.kernel.org with ESMTP id S261488AbVDKAGD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 20:00:44 -0400
-From: Christian Parpart <trapni@gentoo.org>
-Organization: Gentoo Linux Foundation
-To: Troy Benjegerdes <hozer@hozed.org>
-Subject: Re: Kernel SCM saga..
-Date: Mon, 11 Apr 2005 02:00:28 +0200
+	Sun, 10 Apr 2005 20:06:03 -0400
+From: =?iso-8859-1?q?Z=E9?= <mmodem00@netvisao.pt>
+To: linux-kernel@vger.kernel.org
+Subject: very high temperatures in Asus notebook
+Date: Sun, 10 Apr 2005 19:31:42 +0100
 User-Agent: KMail/1.8
-Cc: Daniel Phillips <phillips@istop.com>, Dmitry Yusupov <dima@neterion.com>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <200504071429.25073.phillips@istop.com> <20050410223330.GA26127@kalmia.hozed.org>
-In-Reply-To: <20050410223330.GA26127@kalmia.hozed.org>
-X-Face: $-3HTEy*5}2A{'R'VPim$,8KKX$l|:P^RhP{;yQ)g;]4isyohrOfk\)=?utf-8?q?Q=2Ep=23F3RWB=7D!m=24zn=0A=097=5CPUKBYRKDFUU=3A=5CZ+U=5Fa-/=5BhI?=
- =?utf-8?q?8DJZ?="WPC2j~}(N."(JB&VNb}kU&`>
- =?utf-8?q?9=3B=5FN=3BfnM=7BD=7B8=2EI+5=0A=09dg=60p=5EQ?=(:yE{eVgArPf190vEkbGis0vx];"
- =?utf-8?q?1O!L=7ByKN4J=5B4=27=7E=7Eh+o+=7D=2EgzkmqNs=60=7D=7C0uq8a=0A=09?=
- =?utf-8?q?=25WQg=3F=3D=25y7X74tMWEkL=5DQQ?=(_Yc"m*aC+HD%!,6/k>L7S%'<}_B2&cI}/W(p+;rJ%2`0A<)
- =?utf-8?q?F=0A=09P7P=2E=60=3Dy=7C=7DU=7E=3F!?=<z?6Bj!TDP-w|q0K<{P)%u~}q3&#|Zh)Fa]!D8t
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2087152.fRpsJi00S4";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504110200.31080.trapni@gentoo.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504101931.45772.mmodem00@netvisao.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2087152.fRpsJi00S4
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I would like to understand why using linux, my notebook gets much higher 
+temperatures than using windows, in linux i get about 67º celcius grades.
 
-On Monday 11 April 2005 12:33 am, you wrote:
-[......]
-> Well, I followed some of the instructions to mirror the kernel tree on
-> svn.clkao.org/linux/cvs, and although it took around 12 hours to import
-> 28232 versions, I seem to have a mirror of it on my own subversion
-> server now. I think the svn.clkao.org mirror was taken from bkcvs... the
-> last log message I see is "Rev 28232 - torvalds - 2005-04-04 09:08:33"
+For what i have compared to other notebooks, the drive made for my notebook, 
+an Asus A2h, you can see specifications in 
+http://www.asus.com/products/notebook/a2series/a2000h/a2000h_overview.htm
 
-I'd love to see svk as a real choice for you guys, but I don't mind as alon=
-g=20
-as I get a door open using svn/svk ;);)
+I dont see other notebooks get so high temperatures like mine, and im also 
+talking about Asus notebooks.
 
-> I have no idea what's missing. What is everyone's favorite web frontend
-> to subversion?=20
+Im pasting here the sensors output:
+]# sensors
+it87-isa-0800
+Adapter: ISA adapter
+VCore 1:   +0.00 V  (min =  +1.42 V, max =  +1.57 V)   ALARM
+VCore 2:   +0.00 V  (min =  +2.40 V, max =  +2.61 V)   ALARM
++3.3V:     +0.00 V  (min =  +3.14 V, max =  +3.46 V)   ALARM
++5V:       +0.00 V  (min =  +4.76 V, max =  +5.24 V)   ALARM
++12V:      +0.00 V  (min = +11.39 V, max = +12.61 V)   ALARM
+-12V:     -27.36 V  (min = -12.63 V, max = -11.41 V)   ALARM
+-5V:      -13.64 V  (min =  -5.26 V, max =  -4.77 V)   ALARM
+Stdby:     +0.00 V  (min =  +4.76 V, max =  +5.24 V)   ALARM
+VBat:      +3.28 V
+fan1:     135000 RPM  (min =    0 RPM, div = 2)
+fan2:        0 RPM  (min = 2657 RPM, div = 2)
+fan3:        0 RPM  (min = 2657 RPM, div = 2)
+M/B Temp:    +67°C  (low  =   +15°C, high =   +40°C)   sensor = diode
+CPU Temp:    +67°C  (low  =   +15°C, high =   +45°C)   sensor = diode
+Temp3:       +67°C  (low  =   +15°C, high =   +45°C)   sensor = diode
 
-Check out ViewCVS at: http://viewcvs.sourceforge.net/
-This seem widely used (not just by me ^o^).
+Here is also the output of lspcidrake:
+]# lspcidrake
+sis-agp         : Silicon Integrated System|SiS 650 Host-to-PCI Bridge 
+[BRIDGE_HOST]
+unknown         : Silicon Integrated Systems [SiS]|5591/5592 AGP [BRIDGE_PCI]
+unknown         : Silicon Integrated Systems [SiS]|SiS962 [MuTIOL Media IO] 
+[BRIDGE_ISA]
+i2c-sis96x      : Silicon Integrated System|SiS961/962 SMBus Controller 
+[SERIAL_SMBUS]
+ohci1394        : Silicon Integrated Systems [SiS]|OHCI Compliant FireWire 
+Controller [SERIAL_FIREWIRE]
+sis5513         : Silicon Integrated Systems [SiS]|5513 [IDE] [STORAGE_IDE]
+slamr           : Silicon Integrated System|SiS7013 56k Modem 
+[COMMUNICATION_MODEM]
+snd-intel8x0    : Silicon Integrated Systems [SiS]|SiS7012 PCI Audio 
+Accelerator [MULTIMEDIA_AUDIO]
+usb-ohci        : Silicon Integrated Systems [SiS]|7001 USB [SERIAL_USB]
+usb-ohci        : Silicon Integrated Systems [SiS]|7001 USB [SERIAL_USB]
+usb-ohci        : Silicon Integrated Systems [SiS]|7001 USB [SERIAL_USB]
+ehci-hcd        : Silicon Integrated Systems [SiS]|7002 USB 2.0 Controller 
+[SERIAL_USB]
+sis900          : Silicon Integrated Systems [SiS]|SiS900 10/100 Ethernet 
+[NETWORK_ETHERNET]
+yenta_socket    : Texas Instruments|PCI1410 PC card Cardbus Controller 
+[BRIDGE_CARDBUS]
+unknown         : Broadcom Corp.|BCM4301 802.11b [NETWORK_OTHER]
+Card:SiS 650    : Silicon Integrated System|SiS650/651/740 GUI 2D/3D 
+Accelerator [DISPLAY_VGA]
+hub             : Linux 2.6.11-6mdk ehci_hcd|EHCI Host Controller [Hub|Unused]
+hub             : Linux 2.6.11-6mdk ohci_hcd|OHCI Host Controller [Hub|Unused]
+hub             : Linux 2.6.11-6mdk ohci_hcd|OHCI Host Controller [Hub|Unused]
+usbhid          : Microsoft Corp.|Notebook Optical Mouse [Human Interface 
+Devices|Boot Interface Subclass|Mouse]
+hub             : Linux 2.6.11-6mdk ohci_hcd|OHCI Host Controller [Hub|Unused]
 
-Regards,
-Christian Parpart.
-
-=2D-=20
-Netiquette: http://www.ietf.org/rfc/rfc1855.txt
- 01:55:08 up 18 days, 15:01,  2 users,  load average: 0.27, 0.39, 0.36
-
---nextPart2087152.fRpsJi00S4
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCWb4fPpa2GmDVhK0RAidhAJ93x79YCQNp/hAmTL75zN8s2hrW7gCffEYF
-bUMXSPUhYLDFn3C+SZsLyxs=
-=gp7N
------END PGP SIGNATURE-----
-
---nextPart2087152.fRpsJi00S4--
+Any help?
+-- 
+Zé
+Linux user #378762

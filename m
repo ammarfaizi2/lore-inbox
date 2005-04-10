@@ -1,33 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVDJB7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVDJCHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbVDJB7b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Apr 2005 21:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDJB73
+	id S261191AbVDJCHk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Apr 2005 22:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDJCHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Apr 2005 21:59:29 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:3506 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261191AbVDJB7S (ORCPT
+	Sat, 9 Apr 2005 22:07:40 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:56449 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261191AbVDJCHe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Apr 2005 21:59:18 -0400
-Date: Sat, 9 Apr 2005 18:56:36 -0700
+	Sat, 9 Apr 2005 22:07:34 -0400
+Date: Sat, 9 Apr 2005 19:07:15 -0700
 From: Paul Jackson <pj@engr.sgi.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: torvalds@osdl.org, davem@davemloft.net, andrea@suse.de, mbp@sourcefrog.net,
-       linux-kernel@vger.kernel.org, dlang@digitalinsight.com
-Subject: Re: Kernel SCM saga..
-Message-Id: <20050409185636.0945abdf.pj@engr.sgi.com>
-In-Reply-To: <20050410001435.GA23401@taniwha.stupidest.org>
-References: <1112852302.29544.75.camel@hope>
-	<Pine.LNX.4.58.0504071626290.28951@ppc970.osdl.org>
-	<1112939769.29544.161.camel@hope>
-	<Pine.LNX.4.58.0504072334310.28951@ppc970.osdl.org>
-	<20050408083839.GC3957@opteron.random>
-	<Pine.LNX.4.58.0504081647510.28951@ppc970.osdl.org>
-	<20050409022701.GA14085@opteron.random>
-	<Pine.LNX.4.58.0504082240460.28951@ppc970.osdl.org>
-	<20050409155511.7432d5c7.davem@davemloft.net>
-	<Pine.LNX.4.58.0504091611570.1267@ppc970.osdl.org>
-	<20050410001435.GA23401@taniwha.stupidest.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-Id: <20050409190715.679e9023.pj@engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	<20050409200709.GC3451@pasky.ji.cz>
+	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
 Organization: SGI
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -36,39 +28,24 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris wrote:
-> How many is alot?  Are we talking 100k, 1m, 10m?
+Linus wrote:
+> Damn, that's painful. I suspect I will have to change the format somehow.
 
-I pulled some numbers out of my bk tree for Linux.
+The sha1 (ascii) digests for 16817 files take:
 
-I have 16817 source files.
+	689497 bytes before compression
+	397475 bytes after minigzip
 
-They average 12.2 bitkeeper changes per file (counting the number of
-changes visible from doing 'bk sccslog' on each of the 16817 files). 
+The pathnames, relative to top of tree, for these 16817
+files take:
 
-These 16817 files consume:
+	503983 bytes before compression
+	 85786 bytes after minigzip compression
 
-	224 MBytes uncompressed and
-	 95 MBytes compressed
+I doubt any fancifying up of the pathname storage will gain much.
 
-(using zlib's minigzip, on a 4 KB page reiserfs.)
-
-Since each change will get its own copy of the file, multiplying these
-two sizes (224 and 95) by 12.2 changes per file means the disk cost
-would be:
-
-	2.73 GByte uncompressed, or
-	1.16 GBytes compressed.
-
-I was pleasantly surprised at the degree of compression, shrinking files
-to 42% of their original size.  I expected, since the classic rule of
-thumb here to archive before compressing wasn't being followed (nor
-should it be) and we were compressing lots a little files, we would save
-fewer disk blocks than this.
-
-Of course, since as Linus reminds us, it's disk buffers in memory,
-not blocks on disk, that are precious, it's more like we will save
-224 - 95 == 129 MBytes of RAM to hold one entire tree.
+However going from binary to ascii sha1 digest might help (compresses
+better, I suspect - I'll have to write a few lines of code to see).
 
 -- 
                   I won't rest till it's the best ...

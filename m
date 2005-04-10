@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVDJWg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVDJWr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVDJWg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 18:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbVDJWg7
+	id S261625AbVDJWr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 18:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDJWr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 18:36:59 -0400
-Received: from fire.osdl.org ([65.172.181.4]:55227 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261622AbVDJWgs (ORCPT
+	Sun, 10 Apr 2005 18:47:56 -0400
+Received: from gate.crashing.org ([63.228.1.57]:63629 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261625AbVDJWry (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 18:36:48 -0400
-Date: Sun, 10 Apr 2005 15:38:39 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christopher Li <lkml@chrisli.org>
-cc: Paul Jackson <pj@engr.sgi.com>, junkio@cox.net, rddunlap@osdl.org,
-       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
-Subject: Re: more git updates..
-In-Reply-To: <20050410190331.GG13853@64m.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0504101533020.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
- <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org>
- <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
- <20050410190331.GG13853@64m.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 10 Apr 2005 18:47:54 -0400
+Subject: Re: [PATCH] radeonfb: (#2) Implement proper workarounds for PLL
+	accesses
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Moritz Muehlenhoff <jmm@inutil.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <E1DKZJn-0001dN-KQ@localhost.localdomain>
+References: <1110519743.5810.13.camel@gaston>
+	 <1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	 <1112743901.9568.67.camel@gaston> <jeoecr1qk8.fsf@sykes.suse.de>
+	 <1112827655.9518.194.camel@gaston> <jehdii8hjk.fsf@sykes.suse.de>
+	 <21d7e9970504071422349426eb@mail.gmail.com>
+	 <1112914795.9568.320.camel@gaston> <jemzsa6sxg.fsf@sykes.suse.de>
+	 <1112923186.9567.349.camel@gaston> <jezmw9ug7j.fsf@sykes.suse.de>
+	 <1113005006.9568.402.camel@gaston> <jey8brj4tx.fsf@sykes.suse.de>
+	 <1113089591.9518.440.camel@gaston>
+	 <E1DKZJn-0001dN-KQ@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 11 Apr 2005 08:45:29 +1000
+Message-Id: <1113173129.9568.501.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Sun, 10 Apr 2005, Christopher Li wrote:
+> But it's not specific to X11; I've applied the patch you posted and the
+> same symptoms occur for pure tty switching as well, the delay has decreased
+> a bit (it's hard to measure, but around a second), but it's still rather
+> annoying to work with.
 > 
-> BTW, one thing I learn from ext3 is that it is very useful to have some
-> compatible flag for future development. I think if we want to reserve some
-> room in the file format for further development of git
+> Is it distinguishable which M6 models are buggy? I'm using my X31 for about
+> a year now and have probably made some tens of thousands of switches without
+> lockups, so presumably not all models cause lockups.
 
-Way ahead of you.
+ATI hasn't been very precise about that unfortunately...
 
-This is (one reason) why all git objects have the type embedded inside of 
-them. The format of all objects is totally regular: they are all 
-compressed with zlib, they are all named by the sha1 file, and they all 
-start out with a magic header of "<typename> <typesize><nul byte>".
+Ben.
 
-So if I want to create a new kind of tree object that does the same thing 
-as the old one but has some other layout, I'd just call it something else. 
-Like "dir". That was what I initially planned to do about the change to 
-recursive tree objects, but it turned out to actually be a lot easier to 
-just encode it in the old type (that way the routines that read it don't 
-even have to care about old/new types - it's all the same to them).
 
-			Linus

@@ -1,115 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbVDKVwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVDKV7V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbVDKVwr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 17:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVDKVwr
+	id S261943AbVDKV7V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 17:59:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbVDKV7V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 17:52:47 -0400
-Received: from mail.dif.dk ([193.138.115.101]:3533 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261931AbVDKVwl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 17:52:41 -0400
-Date: Mon, 11 Apr 2005 23:55:22 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Sailer <sailer@ife.ee.ethz.ch>, Greg Kroah-Hartman <gregkh@suse.de>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH] usb: kfree() cleanups in drivers/usb/core/devio.c
-Message-ID: <Pine.LNX.4.62.0504112350160.2480@dragon.hyggekrogen.localhost>
+	Mon, 11 Apr 2005 17:59:21 -0400
+Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:50100 "EHLO
+	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S261943AbVDKV7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 17:59:14 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc2-mm3
+Date: Mon, 11 Apr 2005 23:59:39 +0200
+User-Agent: KMail/1.7.2
+Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+References: <20050411012532.58593bc1.akpm@osdl.org> <1113209793l.7664l.1l@werewolf.able.es> <20050411024322.786b83de.akpm@osdl.org>
+In-Reply-To: <20050411024322.786b83de.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504112359.40487.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Checking for NULL before calling kfree() is redundant. This patch removes 
-these redundant checks and also makes a few tiny whitespace changes.
+On Monday 11 April 2005 11:43, Andrew Morton wrote:
+> (Please do reply-to-all)
+>
+> "J.A. Magallon" <jamagallon@able.es> wrote:
+> > On 04.11, Andrew Morton wrote:
+> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-r
+> >  >c2/2.6.12-rc2-mm3/
+> >
+> >  Is this not needed anymore ?
+> >
+> >  --- 25/arch/i386/kernel/entry.S~nmi_stack_correct-fix	2005-04-05
+> > 00:02:48.000000000 -0700 +++ 25-akpm/arch/i386/kernel/entry.S	2005-04-05
+> > 00:02:48.000000000 -0700
+>
+> Hopefully not. fix-crash-in-entrys-restore_all.patch works around the
+> problem. -
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+Hello Andrew,
+I don't know whether you remember the mysterious crashes I was telling you 
+about last week and me rookiesh-ly trying to debug them with kgdb over the 
+serial console. Well, today I tried for the n-th time again and after rc2-mm3 
+blocked again while loading, here's what I did:
 
- devio.c |   32 ++++++++++++--------------------
- 1 files changed, 12 insertions(+), 20 deletions(-)
+<snip>
+[   12.335438] NET: Registered protocol family 17
+[   12.362483] Testing NMI watchdog ... OK.
+[   12.416195] Starting balanced_irq
+[   12.443099] VFS: Mounted root (ext2 filesystem) readonly.
+[   12.472490] Freeing unused kernel memory: 196k freed
+[   12.521004] logips2pp: Detected unknown logitech mouse model 1
+[   12.572581] Warning: unable to open an initial console.
+[   12.972518] input: PS/2 Logitech Mouse on isa0060/serio1
 
---- linux-2.6.12-rc2-mm3-orig/drivers/usb/core/devio.c	2005-04-11 21:20:49.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/drivers/usb/core/devio.c	2005-04-11 23:49:41.000000000 +0200
-@@ -213,12 +213,10 @@ static struct async *alloc_async(unsigne
- 
- static void free_async(struct async *as)
- {
--        if (as->urb->transfer_buffer)
--                kfree(as->urb->transfer_buffer);
--        if (as->urb->setup_packet)
--                kfree(as->urb->setup_packet);
-+	kfree(as->urb->transfer_buffer);
-+	kfree(as->urb->setup_packet);
- 	usb_free_urb(as->urb);
--        kfree(as);
-+	kfree(as);
- }
- 
- static inline void async_newpending(struct async *as)
-@@ -938,17 +936,13 @@ static int proc_do_submiturb(struct dev_
- 		return -EINVAL;
- 	}
- 	if (!(as = alloc_async(uurb->number_of_packets))) {
--		if (isopkt)
--			kfree(isopkt);
--		if (dr)
--			kfree(dr);
-+		kfree(isopkt);
-+		kfree(dr);
- 		return -ENOMEM;
- 	}
- 	if (!(as->urb->transfer_buffer = kmalloc(uurb->buffer_length, GFP_KERNEL))) {
--		if (isopkt)
--			kfree(isopkt);
--		if (dr)
--			kfree(dr);
-+		kfree(isopkt);
-+		kfree(dr);
- 		free_async(as);
- 		return -ENOMEM;
- 	}
-@@ -967,8 +961,7 @@ static int proc_do_submiturb(struct dev_
- 		as->urb->iso_frame_desc[u].length = isopkt[u].length;
- 		totlen += isopkt[u].length;
- 	}
--	if (isopkt)
--		kfree(isopkt);
-+	kfree(isopkt);
- 	as->ps = ps;
-         as->userurb = arg;
- 	if (uurb->endpoint & USB_DIR_IN)
-@@ -1237,7 +1230,7 @@ static int proc_ioctl (struct dev_state 
- 			return -ENOMEM;
- 		if ((_IOC_DIR(ctrl.ioctl_code) & _IOC_WRITE)) {
- 			if (copy_from_user (buf, ctrl.data, size)) {
--				kfree (buf);
-+				kfree(buf);
- 				return -EFAULT;
- 			}
- 		} else {
-@@ -1246,8 +1239,7 @@ static int proc_ioctl (struct dev_state 
- 	}
- 
- 	if (!connected(ps->dev)) {
--		if (buf)
--			kfree(buf);
-+		kfree(buf);
- 		return -ENODEV;
- 	}
- 
-@@ -1309,8 +1301,8 @@ static int proc_ioctl (struct dev_state 
- 			&& size > 0
- 			&& copy_to_user (ctrl.data, buf, size) != 0)
- 		retval = -EFAULT;
--	if (buf != NULL)
--		kfree (buf);
-+
-+	kfree(buf);
- 	return retval;
- }
- 
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0xc0102ee7 in resume_kernelX () at atomic.h:175 <--- this one is wrong for a 
+mysterious reason
+175     {
+(gdb) p $eip
+$1 = (void *) 0xc0102ee7
 
+(gdb) disas 0xc0102ee7
+Dump of assembler code for function resume_kernelX:
+0xc0102ee7 <resume_kernelX+0>:  mov    0x30(%esp),%eax
+0xc0102eeb <resume_kernelX+4>:  mov    0x38(%esp),%ah
+0xc0102eef <resume_kernelX+8>:  mov    0x2c(%esp),%al
+0xc0102ef3 <resume_kernelX+12>: and    $0x20403,%eax
+0xc0102ef8 <resume_kernelX+17>: cmp    $0x403,%eax
+0xc0102efd <resume_kernelX+22>: je     0xc0102f0c <ldt_ss>
+End of assembler dump.
+(gdb)  
 
+And as we see, we're at the "mov    0x30(%esp),%eax" which accesses above the 
+bottom of the stack. After applying nmi_stack_correct-fix.patch, rc2-mm3 
+booted just fine, so I IMHO think that we might still be needing this, after 
+all.
 
+Regards,
+Boris.

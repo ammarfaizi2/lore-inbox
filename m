@@ -1,73 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVDKW7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVDKW75@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbVDKW7X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:59:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDKW7X
+	id S261962AbVDKW75 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:59:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVDKW75
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:59:23 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:19059 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261981AbVDKW7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:59:15 -0400
-Message-ID: <425B013A.5020108@yahoo.com.au>
-Date: Tue, 12 Apr 2005 08:59:06 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Claudio Martins <ctpm@rnl.ist.utl.pt>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: Processes stuck on D state on Dual Opteron
-References: <200504050316.20644.ctpm@rnl.ist.utl.pt> <425A4999.9010209@yahoo.com.au> <425A7173.802@yahoo.com.au> <200504111505.44284.ctpm@rnl.ist.utl.pt>
-In-Reply-To: <200504111505.44284.ctpm@rnl.ist.utl.pt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 18:59:57 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:31373 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261986AbVDKW7g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 18:59:36 -0400
+Subject: [PATCH 2/3] mm/Kconfig: hide "Memory Model" selection menu
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, zippel@linux-m68k.org,
+       Dave Hansen <haveblue@us.ibm.com>
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Mon, 11 Apr 2005 15:59:33 -0700
+Message-Id: <E1DL7sT-000353-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Claudio Martins wrote:
 
->    Right. I'm using two Seagate ATA133 disks (ide controler is AMD-8111) each 
-> with 4 partitions, so I get 4 md Raid1 devices. The first one, md0, is for 
-> swap. The rest are
-> 
-> ~$ df -h
-> Filesystem            Size  Used Avail Use% Mounted on
-> /dev/md1              4.6G  1.9G  2.6G  42% /
-> tmpfs                1005M     0 1005M   0% /dev/shm
-> /dev/md3               32G  107M   30G   1% /home
-> /dev/md2               31G  149M   29G   1% /var
-> 
->   In these tests, /home on md3 is the working area for stress.
-> 
->   The io scheduler used is the anticipatory. 
-> 
+I got some feedback from users who think that the new "Memory
+Model" menu is a little invasive.  This patch will hide that menu,
+except when CONFIG_EXPERIMENTAL is enabled *or* when an individual
+architecture wants it.
 
-OK.
+An individual arch may want to enable it because they've removed
+their arch-specific DISCONTIG prompt in favor of the mm/Kconfig one.
 
-> 
->   OK, I'll try them in a few minutes and report back.
->  
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-I'm not overly hopeful. If they fix the problem, then it's likely
-that the real bug is hidden.
+ arch/i386/Kconfig          |    0 
+ memhotplug-dave/mm/Kconfig |   21 +++++++++++++++++----
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
->   I'm curious as whether increasing the vm.min_free_kbytes sysctl value would 
-> help or not in this case. But I guess it wouldn't since there is already some 
-> free memory and also the alloc failures are order 0, right?
-> 
-
-Yes. And the failures you were seeing with my first patch were coming
-from the mempool code anyway. We want those to fail early so they don't
-eat into the min_free_kbytes memory.
-
-You could try raising min_free_kbytes though. If that fixes it, then it
-indicates there might be some problem in a memory allocation failure
-path in software raid somewhere.
-
-Thanks
-
--- 
-SUSE Labs, Novell Inc.
-
+diff -puN mm/Kconfig~A1-mm-Kconfig-hide-selection-menu mm/Kconfig
+--- memhotplug/mm/Kconfig~A1-mm-Kconfig-hide-selection-menu	2005-04-11 15:49:10.000000000 -0700
++++ memhotplug-dave/mm/Kconfig	2005-04-11 15:49:10.000000000 -0700
+@@ -1,9 +1,14 @@
++config SELECT_MEMORY_MODEL
++	def_bool y
++	depends on EXPERIMENTAL || ARCH_SELECT_MEMORY_MODEL
++
+ choice
+ 	prompt "Memory model"
+-	default DISCONTIGMEM if ARCH_DISCONTIGMEM_DEFAULT
+-	default FLATMEM
++	depends on SELECT_MEMORY_MODEL
++	default DISCONTIGMEM_MANUAL if ARCH_DISCONTIGMEM_DEFAULT
++	default FLATMEM_MANUAL
+ 
+-config FLATMEM
++config FLATMEM_MANUAL
+ 	bool "Flat Memory"
+ 	depends on !ARCH_DISCONTIGMEM_ENABLE || ARCH_FLATMEM_ENABLE
+ 	help
+@@ -14,7 +19,7 @@ config FLATMEM
+ 
+ 	  If unsure, choose this option over any other.
+ 
+-config DISCONTIGMEM
++config DISCONTIGMEM_MANUAL
+ 	bool "Discontigious Memory"
+ 	depends on ARCH_DISCONTIGMEM_ENABLE
+ 	help
+@@ -22,6 +27,14 @@ config DISCONTIGMEM
+ 
+ endchoice
+ 
++config DISCONTIGMEM
++	def_bool y
++	depends on (!SELECT_MEMORY_MODEL && ARCH_DISCONTIGMEM_ENABLE) || DISCONTIGMEM_MANUAL
++
++config FLATMEM
++	def_bool y
++	depends on !DISCONTIGMEM || FLATMEM_MANUAL
++
+ #
+ # Both the NUMA code and DISCONTIGMEM use arrays of pg_data_t's
+ # to represent different areas of memory.  This variable allows
+diff -puN arch/i386/Kconfig~A1-mm-Kconfig-hide-selection-menu arch/i386/Kconfig
+_

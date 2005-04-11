@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVDKJpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVDKJzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVDKJpj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 05:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVDKJpj
+	id S261750AbVDKJzz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 05:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVDKJzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 05:45:39 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:232 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261749AbVDKJpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 05:45:18 -0400
-Message-ID: <425A481A.7020801@anagramm.de>
-Date: Mon, 11 Apr 2005 11:49:14 +0200
-From: Clemens Koller <clemens.koller@anagramm.de>
-Organization: Anagramm GmbH
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: de-de, en-us, en, ko
+	Mon, 11 Apr 2005 05:55:55 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:18288 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261750AbVDKJzq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 05:55:46 -0400
+Message-ID: <425A4999.9010209@yahoo.com.au>
+Date: Mon, 11 Apr 2005 19:55:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] I2C rtc8564.c remove duplicate include (whitespace fixed)
-References: <425125EC.6080201@anagramm.de> <20050409131643.4269911a.khali@linux-fr.org>
-In-Reply-To: <20050409131643.4269911a.khali@linux-fr.org>
-Content-Type: multipart/mixed;
- boundary="------------030706000608050006090402"
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:224ad0fd4f2efe95e6ec4f0a3ca8a73c
+To: Claudio Martins <ctpm@rnl.ist.utl.pt>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Processes stuck on D state on Dual Opteron
+References: <200504050316.20644.ctpm@rnl.ist.utl.pt> <200504100328.53762.ctpm@rnl.ist.utl.pt> <20050409194746.69cfa230.akpm@osdl.org> <200504110138.51872.ctpm@rnl.ist.utl.pt>
+In-Reply-To: <200504110138.51872.ctpm@rnl.ist.utl.pt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030706000608050006090402
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Claudio Martins wrote:
+> On Sunday 10 April 2005 03:47, Andrew Morton wrote:
+> 
+>>Suggest you boot with `nmi_watchdog=0' to prevent the nmi watchdog from
+>>cutting in during long sysrq traces.
+>>
+>>Also, capture the `sysrq-m' output so we can see if the thing is out of
+>>memory.
+> 
+> 
+>   Hi Andrew,
+> 
+>   Thanks for the tip. I booted with nmi_watchdog=0 and was able to get a full 
+> sysrq-t as well as a sysrq-m. Since it might be a little too big for the 
+> list, I've put it on a text file at:
+> 
+>  http://193.136.132.235/dl145/dump1-2.6.12-rc2.txt
+> 
 
-[PATCH] I2C rtc8564.c remove duplicate include
+OK, you _may_ be out of memory here (depending on what the lower zone
+protection for DMA ends up as), however you are well above all the
+"emergency watermarks" in ZONE_NORMAL. Also:
 
-Trivial fix: removes duplicate include line.
-Patch applies to: 2.6.11.x
+>  I also made a run with the mempool-can-fail patch from Nick Piggin. With this 
+> I got some nice memory allocation errors from the md threads when the trouble 
+> started. The dump (with sysrq-t and sysrq-m included) is at:
+> 
+>  http://193.136.132.235/dl145/dump2-2.6.12-rc2-nick1.txt
+> 
 
-(This is my very first patch to the linux-kernel, so let me
-start with small things first...)
+This one shows plenty of memory. The allocation failure messages are
+actually a good thing, and show that my patch is sort of working. I
+have reworked it a bit so they won't show up though.
 
-Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
----
+So probably not your common or garden memory deadlock.
 
---------------030706000608050006090402
-Content-Type: text/x-diff;
- name="rtc8564.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rtc8564.diff"
+The common theme seems to be: try_to_free_pages, swap_writepage,
+mempool_alloc, down/down_failed in .text.lock.md. Next I would suspect
+md/raid1 - maybe some deadlock in an uncommon memory allocation
+failure path?
 
-diff -Nur --exclude-from=dontdiff-osdl linux-2.6.11.6-clean/drivers/i2c/chips/rtc8564.c linux-2.6.11.6/drivers/i2c/chips/rtc8564.c
---- linux-2.6.11.6-clean/drivers/i2c/chips/rtc8564.c	2005-03-26 04:28:14.000000000 +0100
-+++ linux-2.6.11.6/drivers/i2c/chips/rtc8564.c	2005-04-04 12:37:05.000000000 +0200
-@@ -19,7 +19,6 @@
- #include <linux/string.h>
- #include <linux/rtc.h>		/* get the user-level API */
- #include <linux/init.h>
--#include <linux/init.h>
- 
- #include "rtc8564.h"
- 
+I'll see if I can reproduce it here.
 
---------------030706000608050006090402--
+-- 
+SUSE Labs, Novell Inc.
+

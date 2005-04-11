@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVDKClY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVDKCk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVDKClY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 22:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVDKClX
+	id S261667AbVDKCk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 22:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVDKCk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 22:41:23 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:34820 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261668AbVDKCkg
+	Sun, 10 Apr 2005 22:40:57 -0400
+Received: from mail1.webmaster.com ([216.152.64.168]:34052 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261667AbVDKCkg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 10 Apr 2005 22:40:36 -0400
 From: "David Schwartz" <davids@webmaster.com>
-To: <debian-legal@lists.debian.org>, <linux-kernel@vger.kernel.org>
+To: <linux-kernel@vger.kernel.org>, <debian-legal@lists.debian.org>
 Subject: RE: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Date: Sun, 10 Apr 2005 19:40:28 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEACDBAB.davids@webmaster.com>
+Date: Sun, 10 Apr 2005 19:40:27 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKOEABDBAB.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="US-ASCII"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
 X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20050411013448.GE18141@zewt.org>
+In-Reply-To: <8764yurwef.fsf@kreon.lan.henning.makholm.net>
 Importance: Normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 X-Authenticated-Sender: joelkatz@webmaster.com
@@ -31,51 +31,41 @@ X-MDRemoteIP: 206.171.168.138
 X-Return-Path: davids@webmaster.com
 X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Sun, 10 Apr 2005 19:39:40 -0700
+X-MDAV-Processed: mail1.webmaster.com, Sun, 10 Apr 2005 19:39:39 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Sun, Apr 10, 2005 at 01:18:11PM -0700, David Schwartz wrote:
+> > The GPL applies to distributing a Linux binary I just made even
+> > though nobody ever chose to apply the GPL to the binary I just made
+> > only because the binary I just made is a derivative work of the
+> > Linux kernel, and the authors of that work chose to apply the GPL to
+> > it.
 
-> > Well that's the problem. While copyright law does permit
-> > you to restrict
-> > the right to create derivative works, it doesn't permit you to
-> > restrict the
-> > distribution of lawfully created derivative works to licensees of the
-> > original work. As far as I know, no law has ever granted this right to
-> > copyright holders and no court has ever recognized this right. And I've
-> > looked. Courts have specifically recognized the absence of this right.
+> How can the binary be a derivative work when it does *not* contain
+> firmware, but suddenly cease to be a derivative work if one *does*
+> add firmware into it?
 
-> The GPL is very clear in its implementation: it grants wider permission
-> to create derivative works than to distribute them, implementing its
-> "virality" in terms of restrictions on distribution, not creation.
+	Because, the argument would go, the binary with the firmware linked in is
+not a work, it is two works that are aggregated because there's a license
+boundary between them. The argument would be that the binary with the
+firmware is *a* *derivative* *work* of the Linux kernel source. The "a" is a
+critical part of the argument that cannot be omitted. Showing that the
+linked binary was two works would be sufficient to significantly weaken the
+argument that it can't be distributed.
 
-	It doesn't even need to do this. First sale grants the right to use a work
-one lawfully possesses. One cannot "use" the Linux kernel source without
-compiling it. So one doesn't need the GPL to create at least some derivative
-works.
+	You can't argue that only the GPL gives you the right to distribute the
+result, regardless of what it is, because there are other sources of such
+rights. These include fair use, first sale, and the fact that the law does
+not create a special right to restrict the distribution of lawfully-created
+derivative works (to licensees of the original work).
 
-> So,
-> it seems that you're claiming that the GPL is broken or unenforcable in
-> some aspects.  (If you're not, I'd like to know where I'm confused.)
-
-> If that's the case, it's a claim I'm not qualified to debate, but would
-> be interested in hearing the FSF's response.
-
-	It has always been the FSF's position that you don't need to agree to the
-GPL to use the covered work. One cannot use the Linux kernel without
-compiling it and linking it. One cannot use a library without creating a
-work that uses the library, including the header files, and
-compiling/linking to form a result. So you can *create* a broad array of
-derivative works without invoking the GPL's restrictions (under first sale
-and how source code is ordinarily used).
-
-	The argument that you cannot distribute a derived work unless the GPL says
-you can *because* you must have agreed to the GPL in order to lawfully
-create the derivative work is pure bunk. I don't know that the FSF relies
-upon the argument, however, it came up in this thread, which is why I
-refuted it (at least four times now). ;)
+	My point is not simply that the question of whether or not linking creates
+a single work that is a derivative work of all the things linked is
+important to the question of whether you can distribute GPL'd works linked
+with non-GPL'd works. And the standard is copyright law, not what the GPL
+says. (Though that's also important, because then you would have even more
+rights.)
 
 	DS
 

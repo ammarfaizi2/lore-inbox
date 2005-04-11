@@ -1,180 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVDKVOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVDKVTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVDKVOY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 17:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVDKVOY
+	id S261942AbVDKVTr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 17:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVDKVTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 17:14:24 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:14410 "EHLO smtp3.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261940AbVDKVNE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 17:13:04 -0400
-X-ME-UUID: 20050411211252683.A6D961C007DC@mwinf0309.wanadoo.fr
-Date: Mon, 11 Apr 2005 23:07:54 +0200
-To: Marco Colombo <marco@esi.it>
-Cc: Sven Luther <sven.luther@wanadoo.fr>, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050411210754.GA11759@pegasos>
-References: <1113235942.11475.547.camel@frodo.esi> <20050411162514.GA11404@pegasos> <1113252891.11475.620.camel@frodo.esi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <1113252891.11475.620.camel@frodo.esi>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+	Mon, 11 Apr 2005 17:19:47 -0400
+Received: from neapel230.server4you.de ([217.172.187.230]:20889 "EHLO
+	neapel230.server4you.de") by vger.kernel.org with ESMTP
+	id S261943AbVDKVT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 17:19:29 -0400
+Message-ID: <425AE9DE.5080407@lsrfire.ath.cx>
+Date: Mon, 11 Apr 2005 23:19:26 +0200
+From: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Bodo Eggert <7eggert@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
+       akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk, pj@engr.sgi.com
+Subject: Re: [RFC][PATCH] Simple privacy enhancement for /proc/<pid>
+References: <20050410153855.GA24905@lsrfire.ath.cx> <Pine.LNX.4.58.0504101910270.4413@be1.lrz>
+In-Reply-To: <Pine.LNX.4.58.0504101910270.4413@be1.lrz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 10:54:50PM +0200, Marco Colombo wrote:
-> In this case, A is clearly the author (onwer of rights) of the firmware.
-> D is fine on respect of the other A's, since their source is actually 
-> (and clearly) there. It's the missing source case we're considering
-> and the number of A's is quite small, the copyright owners of firmware
-> images. Those A's are easily identified, and perfectly able to act.
-
-Well, i am not sure with your interpretation, but even if you where right, we
-have no guarantee that A will continue being lenient, and no guarantee that A
-will not start suing D or whoever for illegally distributing his stuff without
-sources.
-
-> > > So, even if C comes to think D is breaking GPL, all C can do is notify
-> > > A. The GPL D is supposedly breaking is an agreement between A and D
-> > > only. On which basis may C sue D? For breaking what agreement? It's up
-> > > to A to sue D for breaking GPL.
-> > 
-> > This is indeed an interpretation. I am not sure myself if a user receiving
-> > GPLed software in binary only fashion as is the case here can sue either D or
-> > A to get access to that source code.
+Bodo Eggert schrieb:
+> On Sun, 10 Apr 2005, Rene Scharfe wrote:
 > 
-> The point is, if A states (even implicitly) D is distributing the right
-> source, there's nothing C can do to D. D is not breaking GPL, as long A
-
-So, i get some random bit of GPLed software, i add a module or some code to
-it, i distribute that code in binary format only, and claim that i have used
-an hex editor to write it, or simply that it is the 'right' source.
-
-I have some serious doubts that i will not get sued by all the authors of the
-original GPLed work if i were to do that, and rightly so.
-
-> says so and it's A granting D the right to distribute. There's no way C
-> can prevent D from distributing A's software, if A is fine with it.
-> It's up to A to decide if GPL conditions are met by D.
-
-Even in that case, you still need explicit permission of A, and all the other
-copyright holders of the rest of the GPLed work, to give you an explicit
-exception to link with this non-free bit of code.
-
-> Maybe mine it's only one interpretation. But I can't see any other.
 > 
-> > Now you could argue that any number of authors of GPLed bits of the linux
-> > kernel could sue D for distributing their software as a derived work of the
-> > binary-only bit, and the fact that D doesn't distribute the source code to the
-> > binary bit voids any other right allowed him by the GPL, and thus he has no
-> > right to do the distribution at all. The GPL is very clear on this topic.
+>>First, configuring via kernel parameters is sufficient.
 > 
-> We're not talking of that case. D _is_ actually distributing the right
-> source, according to A. It's C that is unsatisfied with it.
-
-No. The source code is clearly the prefered form of modification, not some
-random intermediate state A may be claiming is source.
-
-> > > What is the risk for D, if D is distributing the source of the software
-> > > _exactly_ in the form A publicly provides it? It's not up to D to
-> > > produce the source, all D has to do is to provide verbatim copies of
-> > > it to anyone D distributes the software to, on request.
-> > 
-> > Imagine one of those companies got bought up by some predatory company who
-> > wishes us (linux, debian, redhat/suse, whoever) harm. They would then be able
-> > to sue for damage or prejudice or whatever. And given what i have heard about
-> > the uncertainities of the Alteon ownership, this seems indeed like a plausible
-> > scenario, which could result in a SCO bis case.
 > 
-> I'm not following. Are you saying what if A is bought? That is
-> different. Well GPL is quite clear:
+> I don't remember: Would a mount option be equally easy to implement?
+> (Kernel parameters are OK for me, too.)
+
+A mount option for procfs would be changable at remount, making
+implementation a bit more involved.
+
+>>I have another idea: let's keep the details of _every_ process owned by
+>>user root readable by anyone.
 > 
-> 1. You may copy and distribute verbatim copies of the Program's source
-> code as you receive it, ...
 > 
-> If D is distributing the source as received from A, D is in full
-> compliance. How could A sue D? If A distributed incomplete source
-> in the first place, it's not D's fault for sure. Do you really think
-> the following scenario is likely:
+> What about SUID processes acting on behalf of users?
+
+SUID root processes will we visible for all, too.  That's fair enough, I
+think.  If it's a concern to you use proc.privacy=2.
+
+>>-	processor.max_cstate=   [HW, ACPI]
+>>-			Limit processor to maximum C-state
+>>-			max_cstate=9 overrides any DMI blacklist limit.
+>>-
 > 
-> A to D: you must distribute the complete source, or the license will be
->         terminated!
-> D to A: gimme the complete source, and I'll distribute it.
-> A to D: no, I'm not willing to give you the full source of my firmware,
->         but you must distribute it anyway!
-
-The result is that the code in question has to be stopped from being
-distributed by D. But the case here is different, since A is not the sole
-copyright owner, so he doesn't get to set random interpretations of what is
-source code. 
-
-> That, in court? Is this really what you're afraid of?
-> The outcome is, very likely A will be forced to release the full source.
-> (and D forced to distribute it, but all D's we're talking of here are
-> very happy with the full disclosure scenario, aren't they?)
-
-Imagine A refusing to give away the source code, and D is ordered to remove
-the incriminated code it is illegally distributing from all its servers, and
-recall all those thousands of CD and DVD isos containing the code it
-distributed, and being fined for each day it doesn't do so ? 
-
-> > This is the scenario i want to avoid by explicitly stating the relationships
-> > of all copyright issues of those firmware blobs.
 > 
-> I don't see this scenario nowhere close to likely. Of course, A can 
-> always sue any B, C, or D for whatever reason. It's very unlikely
-> A will sue anyone in full compliance of GPL, but it's possible.
-> There's nothing we can do about it. But there's no reason to worry
-> either.
+> This seems to belong into another patch
 
-So, we don't take the risk and don't distribute it. If A is not ready to put a
-couple of lines of disclaimer on his work explaining the copyright and
-licencing issues, then we are better of not distributing its code, which is
-what debian will do.
+Strictly speaking, yes, but it's just a trivial cleanup near my own
+change.  And I guarantee it has zero impact on any built kernel image. :]
 
-> As for the matter of explicit copyright notices, I can only agree.
-> They won't harm for sure. From a purist standpoint, you're right. And
-> I _am_ a purist. B-) 
-
-:)
-
-> > > Does is really matter if C thinks the source being incomplete,
-> > > or missing? C can take the issue up with A (by means of the GPL that
-> > > exists between A and C), but not with D, since there's no GPL between
-> > > D and C. C is in the same position of B. If the source is incomplete,
-> > > they may ask A to comply to the GPL, but not D. D made no promises to
-> > > them.  
-> > 
-> > /me wonders if C then holds an illegal copy of the software, and can then be
-> > prosecuted for piracy :)
+> (in pid_revalidate:)
+> What about moving the things around? (just editing in the MUA)
 > 
-> No, because GPL explicitly states that:
 > 
-> 4. You may not copy, modify, sublicense, or distribute the Program
-> except as expressly provided under this License. Any attempt otherwise
-> to copy, modify, sublicense or distribute the Program is void, and will
-> automatically terminate your rights under this License. However, parties
-> who have received copies, or rights, from you under this License will
-> not have their licenses terminated so long as such parties remain in
-> full compliance.
+>>+		if (IS_PID_DIR(proc_type(inode)) || task_dumpable(task)) {
+>> 			inode->i_uid = task->euid;
+>>+			inode->i_gid = proc_gid;
+>>+			if (!proc_privacy || IS_PID_DIR(proc_type(inode)))
+>> 				inode->i_gid = task->egid;
+>> 		} else {
+>> 			inode->i_uid = 0;
+>> 			inode->i_gid = 0;
+>> 		}
+>> 		security_task_to_inode(task, inode);
+>> 		return 1;
+>> 	}
 
-Yeah, but who know what mad laws will be passed to repress piracy which will
-make this void.
+I suppose you could do that, but I don't see any gain.  I also find my
+version easier to read because it keeps the two conditionals (having
+different intents and purposes) apart.
 
-> Note also that GPL says nothing about how you get your copy. You can
-> get it while hanging from the ceiling ala Mission Impossible, but if
-> the software is GPL'ed, then your license is valid. The action may
-> still be illegal, but that's another matter: you _can_ use the software
-> (even if in jail). B-)
+> BTW: You might be able to cache IS_PID_DIR(). It looks like being a gain.
 
-I am not sure. If i where to get a copy of windows, and manage to install it
-without clicking on the "i agree" button, does that make it a legal copy of
-windows to use ? 
+I'd rather let the compiler do that job.  It's only a small macro, I
+really doubt you would measure any speedup from putting it into a local
+variable.
 
-Friendly,
+>>@@ -1454,6 +1468,11 @@ static struct dentry *proc_pident_lookup
+> 
+> 
+>>+		if (proc_privacy == 2 || task->euid != 0)
+> 
+>                                                    ^^^^^
+> redundand.
 
-Sven Luther
+You're right and it's a matter of taste, I guess.  By the way, this is
+also what the FreeBSD crowd calls a "bikeshed". :-)
 
+Thanks for reviewing my patch!
+Rene

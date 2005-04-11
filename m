@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVDKB64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVDKCQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVDKB64 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 21:58:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVDKB64
+	id S261662AbVDKCQb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 22:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVDKCQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 21:58:56 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:12771 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261658AbVDKB6y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 21:58:54 -0400
-Date: Mon, 11 Apr 2005 03:58:52 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-Subject: [ANNOUNCE] git-pasky-0.2
-Message-ID: <20050411015852.GI5902@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 10 Apr 2005 22:16:31 -0400
+Received: from ciistr2.ist.utl.pt ([193.136.128.2]:53641 "EHLO
+	ciistr2.ist.utl.pt") by vger.kernel.org with ESMTP id S261662AbVDKCQ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 22:16:26 -0400
+From: Claudio Martins <ctpm@rnl.ist.utl.pt>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: Processes stuck on D state on Dual Opteron
+Date: Mon, 11 Apr 2005 01:38:51 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+References: <200504050316.20644.ctpm@rnl.ist.utl.pt> <200504100328.53762.ctpm@rnl.ist.utl.pt> <20050409194746.69cfa230.akpm@osdl.org>
+In-Reply-To: <20050409194746.69cfa230.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050410162723.GC26537@pasky.ji.cz>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Message-Id: <200504110138.51872.ctpm@rnl.ist.utl.pt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
 
-  here goes git-pasky-0.2, my set of patches and scripts upon
-Linus' git, aimed at human usability and to an extent a SCM-like usage.
+On Sunday 10 April 2005 03:47, Andrew Morton wrote:
+>
+> Suggest you boot with `nmi_watchdog=0' to prevent the nmi watchdog from
+> cutting in during long sysrq traces.
+>
+> Also, capture the `sysrq-m' output so we can see if the thing is out of
+> memory.
 
-  If you already have a previous git-pasky version, just git pull pasky
-to get it. Otherwise, you can get it from:
+  Hi Andrew,
 
-	http://pasky.or.cz/~pasky/dev/git/
+  Thanks for the tip. I booted with nmi_watchdog=0 and was able to get a full 
+sysrq-t as well as a sysrq-m. Since it might be a little too big for the 
+list, I've put it on a text file at:
 
-  Please see the README there and/or the parent post for detailed
-instructions. You can find the changes from the last announcement
-in the ChangeLog (releases have separate commits so you can find them
-easily; they are also tagged for purpose of diffing etc).
+ http://193.136.132.235/dl145/dump1-2.6.12-rc2.txt
 
-  This is release contains mostly bugfixes, performance enhancements
-(especially w.r.t. git diff), and some merges with Linus (except for
-diff-tree, where I merged only the new output format). New features
-are trivial - support for tagging and short SHA1 ids; you can use
-only the start of the SHA1 hash long enough to be unambiguous.
+ I also made a run with the mempool-can-fail patch from Nick Piggin. With this 
+I got some nice memory allocation errors from the md threads when the trouble 
+started. The dump (with sysrq-t and sysrq-m included) is at:
 
-  My immediate plan is implementing git merge, which I will do tommorow,
-if noone will do it before that is. ;-)
+ http://193.136.132.235/dl145/dump2-2.6.12-rc2-nick1.txt
 
-  Any feedback/opinions/suggestions/patches (especially patches) are
-welcome.
+ Let me know if you find it more convenient to send the dumps by mail or 
+something. Hope this helps.
 
-  Have fun,
+ Thanks,
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+Claudio
+

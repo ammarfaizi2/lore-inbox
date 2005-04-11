@@ -1,102 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVDKUuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVDKUwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVDKUuu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 16:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVDKUuu
+	id S261928AbVDKUwL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVDKUwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 16:50:50 -0400
-Received: from smtp9.wanadoo.fr ([193.252.22.22]:28384 "EHLO smtp9.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261917AbVDKUuH (ORCPT
+	Mon, 11 Apr 2005 16:52:10 -0400
+Received: from mail.dif.dk ([193.138.115.101]:22729 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261928AbVDKUvo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 16:50:07 -0400
-X-ME-UUID: 20050411204957284.06E66240012F@mwinf0909.wanadoo.fr
-Message-ID: <425ACC89.3090207@wanadoo.fr>
-Date: Mon, 11 Apr 2005 21:14:17 +0200
-From: Yves Crespin <crespin.quartz@wanadoo.fr>
-Organization: Quartz
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Mon, 11 Apr 2005 16:51:44 -0400
+Date: Mon, 11 Apr 2005 22:54:25 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Matthew Wilcox <matthew@wil.cx>,
+       Grant Grundler <grundler@parisc-linux.org>
+Cc: parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] parisc: kfree cleanup in arch/parisc/
+Message-ID: <Pine.LNX.4.62.0504112249510.2480@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: read failed EINVAL with O_DIRECT flag
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Using O_DIRECT flag, read() failed and errno is EINVAL.
-kernel 2.4.22
-Filesystem Ext3 mount on /home
-What's wrong ?
-Thanks
+Get rid of redundant NULL pointer checks before kfree() in arch/parisc/ as 
+well as a few blank lines.
 
-Yves Crespin
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-#gcc -Wall -D_GNU_SOURCE direct.c -o direct
-#cp direct d
-#./direct d
-#open failed [d] 040402 0666 errno 22
-#
+diff -upr linux-2.6.12-rc2-mm3-orig/arch/parisc/kernel/ioctl32.c linux-2.6.12-rc2-mm3/arch/parisc/kernel/ioctl32.c
+--- linux-2.6.12-rc2-mm3-orig/arch/parisc/kernel/ioctl32.c	2005-04-05 21:21:08.000000000 +0200
++++ linux-2.6.12-rc2-mm3/arch/parisc/kernel/ioctl32.c	2005-04-11 22:48:03.000000000 +0200
+@@ -104,12 +104,9 @@ static int drm32_version(unsigned int fd
+ 	}
+ 
+ out:
+-	if (kversion.name)
+-		kfree(kversion.name);
+-	if (kversion.date)
+-		kfree(kversion.date);
+-	if (kversion.desc)
+-		kfree(kversion.desc);
++	kfree(kversion.name);
++	kfree(kversion.date);
++	kfree(kversion.desc);
+ 	return ret;
+ }
+ 
+@@ -166,9 +163,7 @@ static int drm32_getsetunique(unsigned i
+ 			ret = -EFAULT;
+ 	}
+ 
+-	if (karg.unique != NULL)
+-		kfree(karg.unique);
+-
++	kfree(karg.unique);
+ 	return ret;
+ }
+ 
+@@ -265,7 +260,6 @@ static int drm32_info_bufs(unsigned int 
+ 	}
+ 
+ 	kfree(karg.list);
+-
+ 	return ret;
+ }
+ 
+@@ -305,7 +299,6 @@ static int drm32_free_bufs(unsigned int 
+ 
+ out:
+ 	kfree(karg.list);
+-
+ 	return ret;
+ }
+ 
+@@ -494,15 +487,10 @@ static int drm32_dma(unsigned int fd, un
+ 	}
+ 
+ out:
+-	if (karg.send_indices)
+-		kfree(karg.send_indices);
+-	if (karg.send_sizes)
+-		kfree(karg.send_sizes);
+-	if (karg.request_indices)
+-		kfree(karg.request_indices);
+-	if (karg.request_sizes)
+-		kfree(karg.request_sizes);
+-
++	kfree(karg.send_indices);
++	kfree(karg.send_sizes);
++	kfree(karg.request_indices);
++	kfree(karg.request_sizes);
+ 	return ret;
+ }
+ 
+@@ -555,9 +543,7 @@ static int drm32_res_ctx(unsigned int fd
+ 			ret = -EFAULT;
+ 	}
+ 
+-	if (karg.contexts)
+-		kfree(karg.contexts);
+-
++	kfree(karg.contexts);
+ 	return ret;
+ }
+ 
 
-/* --- start code --- */
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <errno.h>
 
-#define O_BINARY    0
 
-int main(int argc,char *argv[])
-{
-    struct stat    sbuf;
-    char    buf[8192];
-    int    openFlags;
-    int    fd;
-    int    nb;
-    int    size;
 
-    if (argc!=2){
-        printf("Missing file name\n");
-        exit(2);
-    }
-    openFlags = O_RDWR|O_BINARY|O_NOCTTY;
-    openFlags |= O_DIRECT;    /* Not POSIX */
-    fd = open(argv[1],openFlags,0666);
-    if (fd==-1){
-        printf("open failed [%s] %#o %#o errno 
-%d\n",argv[1],openFlags,0666,errno);
-        exit(1);
-    }
-    if (fstat(fd,&sbuf)<0){
-        printf("fstat failed\n");
-        exit(1);
-    }
-    size = sbuf.st_blksize;
-    if (size > sizeof(buf)){
-        printf("Page size too big\n");
-        exit(3);
-    }
-    if (size > sbuf.st_size){
-        printf("File too small\n");
-        exit(3);
-    }
-    nb = read(fd,buf,size);
-    if (nb != size){
-        printf("read failed fd %d size %d nb %d errno 
-%d\n",fd,size,nb,errno);
-        exit(1);
-    }
-    if (close(fd)){
-        printf("close failed\n");
-        exit(1);
-    }
-    return 0;
-}
-/* --- end code --- */
+PS. If you reply to lists other than Linux-kernel, then please keep me on CC:
+
 
 

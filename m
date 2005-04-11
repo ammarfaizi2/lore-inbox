@@ -1,74 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVDKT6h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVDKUDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVDKT6h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 15:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVDKT6g
+	id S261908AbVDKUDG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDKUDG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 15:58:36 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57871 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261906AbVDKT5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 15:57:53 -0400
-Date: Mon, 11 Apr 2005 20:57:45 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: rafael2k <rafael@riseup.net>
-Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: pcnet_cs problems in ARM handheld
-Message-ID: <20050411205745.B5070@flint.arm.linux.org.uk>
-Mail-Followup-To: rafael2k <rafael@riseup.net>,
-	dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
-References: <200504111622.54719.rafael@riseup.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200504111622.54719.rafael@riseup.net>; from rafael@riseup.net on Mon, Apr 11, 2005 at 04:22:52PM +0000
+	Mon, 11 Apr 2005 16:03:06 -0400
+Received: from mail.dif.dk ([193.138.115.101]:41668 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261908AbVDKUCt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 16:02:49 -0400
+Date: Mon, 11 Apr 2005 22:05:28 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steven French <sfrench@us.ibm.com>
+Cc: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] cifs: md4 cleanup - function definitions
+Message-ID: <Pine.LNX.4.62.0504112202360.2480@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 04:22:52PM +0000, rafael2k wrote:
-> Hi David and others kernel developers,
-> Thanx for your pcnet_cs driver! I use it since old days :-P
-> 
-> I bought a IC-CARD+ pcnet_cs compatible pcmcia nic, and i'm using it on a 
-> StrongARM HP Jornada 710. My kernel is a 2.4.18-rmk3-hh10 and my pcmcia-cs 
-> version is 3.1.33
-> 
-> From dmesg I got this messages:
-> 
-> --
-> jornada720_pcmcia_configure_socket(): config socket 0 vcc 50 vpp 0
-> jornada720_pcmcia_configure_socket(): config socket 0 vcc 50 vpp 0
-> eth0: NE2000 Compatible: io 0xc2800300, irq 114, hw_addr 00:80:C8:88:00:56
-> eth0: interrupt(s) dropped!
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x96, t=39.
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=55.
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=49.
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=88.
-> eth0: interrupt(s) dropped!
-> NETDEV WATCHDOG: eth0: transmit timed out
-> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=77.
 
-This looks like a case of the old 2.4 interrupt handling problems
-which got resolved by rewriting the ARM interrupt handling
-infrastructure during 2.5.
+Function names on same line as return type.
 
-The problem occurs because of the need to handle edge-triggered
-interrupts (as is the case with Intel CPUs) differently from
-level-triggered interrupts, especially when the peripherals are
-designed to be used with level-triggered inputs.
+Patch is also available here: 
+	http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_md4-funct.patch
 
-In effect, you can end up with the situation where the device has
-its interrupt asserted, but because the CPU doesn't see a change
-of state, it "forgets" about the interrupt input.
 
-I'm not aware of a solution for this problem with 2.4 kernels.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+--- linux-2.6.12-rc2-mm2-orig/fs/cifs/md4.c	2005-04-05 21:21:42.000000000 +0200
++++ linux-2.6.12-rc2-mm2/fs/cifs/md4.c	2005-04-09 10:04:58.000000000 +0200
+@@ -25,26 +25,22 @@
+ 
+ /* NOTE: This code makes no attempt to be fast! */
+ 
+-static __u32
+-F(__u32 X, __u32 Y, __u32 Z)
++static __u32 F(__u32 X, __u32 Y, __u32 Z)
+ {
+ 	return (X & Y) | ((~X) & Z);
+ }
+ 
+-static __u32
+-G(__u32 X, __u32 Y, __u32 Z)
++static __u32 G(__u32 X, __u32 Y, __u32 Z)
+ {
+ 	return (X & Y) | (X & Z) | (Y & Z);
+ }
+ 
+-static __u32
+-H(__u32 X, __u32 Y, __u32 Z)
++static __u32 H(__u32 X, __u32 Y, __u32 Z)
+ {
+ 	return X ^ Y ^ Z;
+ }
+ 
+-static __u32
+-lshift(__u32 x, int s)
++static __u32 lshift(__u32 x, int s)
+ {
+ 	x &= 0xFFFFFFFF;
+ 	return ((x << s) & 0xFFFFFFFF) | (x >> (32 - s));
+@@ -55,8 +51,7 @@ lshift(__u32 x, int s)
+ #define ROUND3(a,b,c,d,k,s) (*a) = lshift((*a) + H(*b,*c,*d) + X[k] + (__u32)0x6ED9EBA1,s)
+ 
+ /* this applies md4 to 64 byte chunks */
+-static void
+-mdfour64(__u32 * M, __u32 * A, __u32 *B, __u32 * C, __u32 *D)
++static void mdfour64(__u32 *M, __u32 *A, __u32 *B, __u32 *C, __u32 *D)
+ {
+ 	int j;
+ 	__u32 AA, BB, CC, DD;
+@@ -136,8 +131,7 @@ mdfour64(__u32 * M, __u32 * A, __u32 *B,
+ 		X[j] = 0;
+ }
+ 
+-static void
+-copy64(__u32 * M, unsigned char *in)
++static void copy64(__u32 *M, unsigned char *in)
+ {
+ 	int i;
+ 
+@@ -146,8 +140,7 @@ copy64(__u32 * M, unsigned char *in)
+ 		    (in[i * 4 + 1] << 8) | (in[i * 4 + 0] << 0);
+ }
+ 
+-static void
+-copy4(unsigned char *out, __u32 x)
++static void copy4(unsigned char *out, __u32 x)
+ {
+ 	out[0] = x & 0xFF;
+ 	out[1] = (x >> 8) & 0xFF;
+@@ -156,8 +149,7 @@ copy4(unsigned char *out, __u32 x)
+ }
+ 
+ /* produce a md4 message digest from data of length n bytes */
+-void
+-mdfour(unsigned char *out, unsigned char *in, int n)
++void mdfour(unsigned char *out, unsigned char *in, int n)
+ {
+ 	unsigned char buf[128];
+ 	__u32 M[16];
+
+

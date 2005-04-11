@@ -1,93 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261844AbVDKQep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVDKQer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbVDKQep (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 12:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVDKQdg
+	id S261845AbVDKQer (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 12:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVDKQdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 12:33:36 -0400
-Received: from titan.solar.com.br ([200.199.212.42]:641 "HELO
-	titan.solar.com.br") by vger.kernel.org with SMTP id S261839AbVDKQas
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 12:30:48 -0400
-Message-ID: <425AA62F.2010406@ztec.com.br>
-Date: Mon, 11 Apr 2005 13:30:39 -0300
-From: sauro <sauro@ztec.com.br>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel panic!
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms010406070508050104010602"
+	Mon, 11 Apr 2005 12:33:20 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.27]:52974 "EHLO smtp4.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261838AbVDKQaV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 12:30:21 -0400
+X-ME-UUID: 20050411163010224.36D8B1C002E2@mwinf0403.wanadoo.fr
+Date: Mon, 11 Apr 2005 18:25:15 +0200
+To: Marco Colombo <marco@esi.it>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050411162514.GA11404@pegasos>
+References: <1113235942.11475.547.camel@frodo.esi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <1113235942.11475.547.camel@frodo.esi>
+User-Agent: Mutt/1.5.6+20040907i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On Mon, Apr 11, 2005 at 06:12:22PM +0200, Marco Colombo wrote:
+> [I'm not subscribed, so this in not a real reply - sorry if it breaks
+>  threading somehow.]
+> 
+> Sven Luther wrote:
+> > The ftp-master are the ones reviewing the licencing problems, and they
+> are the
+> > ones handling the infrastructure, and putting their responsability on the
+> > stake. If they feel that some piece of software has dubious legal issues which
+> > come at a risk of having them personally come on the receiving end of a legal
+> > case, then they will say, no, we don't distribute this software, and that is
+> > the end of it.
+> 
+> I've been following the whole discussion (including later messages),
+> but I'm still missing one point. You seem to have investigated a lot 
+> on the subject, so I'll ask you. I don't get what real legal issues
+> distributors may have.
+> 
+> Let me explain with an example. Lets say:
+> 
+> A - is the Author (or rights owner) of the software (GPL'ed);
+> B - is an user, who got the a copy of the software from A;
+> C - is another user, who got a copy indirectly, that is from a  
+>     distributor;
+> D - is the distributor C got the copy from.
+>  
+> Now, IANAL at all. But it seems to me that B has the right to _use_ the
+> software by means of GPL. As long as A thinks B doesn't break GPL, B is
+> fine. All B needs to do is to fulfill GPL conditions (as a user, there's
+> little to do).
+> 
+> C also has the right to use the software, in a very similar way. As long
+> as A thinks C doesn't break GPL, C is fine.
+> 
+> D has the right to distribute the software, under GPL terms. As long as
+> A thinks D doesn't break GPL, D is fine.
+> 
+> Now. It seems to me that the relationship between D (distributor) and C
+> (target of the distribution) is _not_ regulated by GPL at all. GPL is a
+> license, the _owner_ of the rights (A) and the recipient of some rights
+> (C, as an user) are the only subjects. D _owns_ no rights on the
+> software, so can't grant any to C. There's no GPL between D and C.
 
---------------ms010406070508050104010602
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I think you are missing the point. D get's a licence from A, the GPL, and this
+licence includes a licence, not on use, but on redistribution, and the act of
+D distributing the copy to C is covered by it. In a sense A allows D to
+distribute the software under the GPL to C. Now, D is only allowed to do this
+distribution if he also distribute the source code of it, which he can't do
+for the firmware. 
 
-Is it true that only kernel drivers and modules can cause a "kernel panic"?
-I mean, is it possible for an user level application to be the cause of 
-a "kernel panic"? If it is, which kind of operations can do that?
+Notice also the fact that there are so many contributors to the linux kernel
+in effect means that there is nobody with the full rights as A, but only a
+multitude of people in the D case.
 
-Thanks in advance
+> So, even if C comes to think D is breaking GPL, all C can do is notify
+> A. The GPL D is supposedly breaking is an agreement between A and D
+> only. On which basis may C sue D? For breaking what agreement? It's up
+> to A to sue D for breaking GPL.
 
--- 
-Sauro Salomoni
+This is indeed an interpretation. I am not sure myself if a user receiving
+GPLed software in binary only fashion as is the case here can sue either D or
+A to get access to that source code.
 
-Ztec
-www.ztec.com.br
+Now you could argue that any number of authors of GPLed bits of the linux
+kernel could sue D for distributing their software as a derived work of the
+binary-only bit, and the fact that D doesn't distribute the source code to the
+binary bit voids any other right allowed him by the GPL, and thus he has no
+right to do the distribution at all. The GPL is very clear on this topic.
 
+> What is the risk for D, if D is distributing the source of the software
+> _exactly_ in the form A publicly provides it? It's not up to D to
+> produce the source, all D has to do is to provide verbatim copies of
+> it to anyone D distributes the software to, on request.
 
---------------ms010406070508050104010602
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+Imagine one of those companies got bought up by some predatory company who
+wishes us (linux, debian, redhat/suse, whoever) harm. They would then be able
+to sue for damage or prejudice or whatever. And given what i have heard about
+the uncertainities of the Alteon ownership, this seems indeed like a plausible
+scenario, which could result in a SCO bis case.
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGozCC
-Bp8wggSHoAMCAQICAR0wDQYJKoZIhvcNAQEFBQAwZTELMAkGA1UEBhMCQlIxDTALBgNVBAoT
-BFpURUMxFDASBgNVBAsTC1p0ZWNub2xvZ2lhMRAwDgYDVQQDEwdDQSBaVEVDMR8wHQYJKoZI
-hvcNAQkBFhB6dGVjQHp0ZWMuY29tLmJyMB4XDTA1MDMwMTIxMDgxMFoXDTA2MDMwMTIxMDgx
-MFowXDELMAkGA1UEBhMCQlIxFDASBgNVBAoTC1p0ZWNub2xvZ2lhMREwDwYDVQQLEwhJbnRl
-cm5ldDEXMBUGA1UEAxMOU2F1cm8gU2Fsb21vbmkxCzAJBgNVBAUTAjI5MIIBIjANBgkqhkiG
-9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzvR2CV4DbtRX2l9DrMbzxzHPveB6F7/AyOR5IJ0Bl0+4
-WK1yMbmsnU0CQUB3q/+m3XR5P+N0ER1rPDpfcnVcItRIw7Tq/Zk7losSje+CP/6MhH7zk1Cv
-pNAqOR4dSJ5Xpf1XmdOFBhtuFoluto2v80CLaEKfsah1Tu4TrXTU0bljOL74TYazEu5DkKsh
-pAWtjFnR5KaGPjz36Aa7giGZU6q0hfueAoWd6r67aHvwl4wSsPTlvQm3SpDbqEevLVUWPiEH
-QrQbDO6p8WV727ml213KGp7PXk2I9qwY3XqkRpU0KVJX0Ave5EY/EKJyswBFLBtcWayY0ore
-pyjpEYeCWQIDAQABo4ICYTCCAl0wCQYDVR0TBAIwADBIBgNVHSAEQTA/MAYGBCoDAwQwBgYE
-KgMDBTAtBgQqAwMGMCUwIwYIKwYBBQUHAgEWF2h0dHA6Ly9zb21lLnVybC5vcmcvY3BzMBEG
-CWCGSAGG+EIBAQQEAwIFoDALBgNVHQ8EBAMCBeAwKQYDVR0lBCIwIAYIKwYBBQUHAwIGCCsG
-AQUFBwMEBgorBgEEAYI3FAICMC4GCWCGSAGG+EIBDQQhFh9Vc2VyIENlcnRpZmljYXRlIG9m
-IFp0ZWNub2xvZ2lhMB0GA1UdDgQWBBRiWToqqmIrVvcIxYi8u/LnhgiXRzCBjwYDVR0jBIGH
-MIGEgBRii8JeV59vy99nqzuPTV82s2MKMqFppGcwZTELMAkGA1UEBhMCQlIxDTALBgNVBAoT
-BFpURUMxFDASBgNVBAsTC1p0ZWNub2xvZ2lhMRAwDgYDVQQDEwdDQSBaVEVDMR8wHQYJKoZI
-hvcNAQkBFhB6dGVjQHp0ZWMuY29tLmJyggEAMBwGA1UdEQQVMBOBEXNhdXJvQHp0ZWMuY29t
-LmJyMBsGA1UdEgQUMBKBEHp0ZWNAenRlYy5jb20uYnIwMwYJYIZIAYb4QgEEBCYWJGh0dHA6
-Ly9vcGVuY2EuenRlYy9wdWIvY3JsL2NhY3JsLmNybDAzBglghkgBhvhCAQMEJhYkaHR0cDov
-L29wZW5jYS56dGVjL3B1Yi9jcmwvY2FjcmwuY3JsMDUGA1UdHwQuMCwwKqAooCaGJGh0dHA6
-Ly9vcGVuY2EuenRlYy9wdWIvY3JsL2NhY3JsLmNybDANBgkqhkiG9w0BAQUFAAOCAgEAtXww
-UrFcNHC+qAXd33dp27Lqwetf5YgI9BxF3ulz7gT3FTznwoMs9p67gjuPkMT0fER9XlejiwYD
-5bLu+nrziU6SOB7kO3O5zzyhBKOm99HjT6TpSX6XbbpP+MmXQuacuORKd5ufbIqJgsKg7cPK
-V56I+mAFm19jgH3hmtqtrKvasGzJSUEvAEPwRF7k3ClzcRCLfXrxnP3wfMhNjw8CGr1hV1sW
-R3M1IYQyv7exCBsvH6KQHru3zqXg2Bo3UVDZJCI3guz5lcBpbQjp9UjOigxxFnTpXYa4Do0x
-7wRM+5pk+ro740CSdRSS/kfPuDbR9cxw2si53NXOyAOx4cM8oc+VSwDR+GuNDMOa2R3KEsqW
-wOH+Aea6PJeIqTXUbDKgxQOU+WDuGl/hTmD6npoDjWQ66KlkoUJ6kRnmDCr0GR5DXQCrvaS3
-mYLvUR8KXbQbA4BOk0gfvnmyhBSLbYVl5c+SDAaRmTrZ4nU6SGve0cIZ1zasgyKu0AjZnfK3
-Flhiu/NA0xxW/A4Pwmw6E3DijjNacOYOCIqfWzO1TtZUichBBfij/zpbcDuLj6ciDlIcKQX1
-J2S2yrwCC9syX5wXdKAFmX16QnQBFUf8M5oZEB+7VS3WsMR6qNvHKJ7ZuW0qDJFobCd8gR7z
-IkIYMaVjYNlvk0JamuI6oMRDL0gpVGgxggJFMIICQQIBATBqMGUxCzAJBgNVBAYTAkJSMQ0w
-CwYDVQQKEwRaVEVDMRQwEgYDVQQLEwtadGVjbm9sb2dpYTEQMA4GA1UEAxMHQ0EgWlRFQzEf
-MB0GCSqGSIb3DQEJARYQenRlY0B6dGVjLmNvbS5icgIBHTAJBgUrDgMCGgUAoIGxMBgGCSqG
-SIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA1MDQxMTE2MzAzOVowIwYJ
-KoZIhvcNAQkEMRYEFBDI4QY3vm+glVxgExB36p+N2Nf7MFIGCSqGSIb3DQEJDzFFMEMwCgYI
-KoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqG
-SIb3DQMCAgEoMA0GCSqGSIb3DQEBAQUABIIBAHYnVUatItxqeNyq77aruKPMU3FI/jhZdjdw
-BXT4kWc6A9mW+vnKIN1QkbCaj3Hk/54t5K36zFGidXBln+U5pi6PrWO4vwcO5GiKo0b+z2iH
-dyhadQRxQ8POKaM6zcGFaLWL8dBhBnSP2hu5iwDYv8/uWEh3ICGGmp0OvGUOM53pxV9bFnlD
-a/LHPBSq0xzSew0wCSb8TO4No1b35UJY9tMdJCCWUDQFSYTq0WzWJseTGrJUzwkHKb6LsZga
-9ILP6qecQwCG6wO2kVDrWvvxqAlcfWuygpnTdz6d7yy7MU3HjJPFOUNXCngbulE3flmdZfsb
-MI2eZFjRXo6VkwyYcbsAAAAAAAA=
---------------ms010406070508050104010602--
+This is the scenario i want to avoid by explicitly stating the relationships
+of all copyright issues of those firmware blobs.
+
+> Does is really matter if C thinks the source being incomplete,
+> or missing? C can take the issue up with A (by means of the GPL that
+> exists between A and C), but not with D, since there's no GPL between
+> D and C. C is in the same position of B. If the source is incomplete,
+> they may ask A to comply to the GPL, but not D. D made no promises to
+> them.  
+
+/me wonders if C then holds an illegal copy of the software, and can then be
+prosecuted for piracy :)
+
+Friendly,
+
+Sven Luther
+

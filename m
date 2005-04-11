@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVDKBe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVDKBmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVDKBe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 21:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVDKBe6
+	id S261659AbVDKBmM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 21:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVDKBmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 21:34:58 -0400
-Received: from c-65-96-98-23.hsd1.ma.comcast.net ([65.96.98.23]:42896 "EHLO
-	h0040333b7dc3.ne.mediaone.net") by vger.kernel.org with ESMTP
-	id S261246AbVDKBe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 21:34:56 -0400
-Date: Sun, 10 Apr 2005 21:34:49 -0400
-From: Glenn Maynard <glenn@zewt.org>
-To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050411013448.GE18141@zewt.org>
-Mail-Followup-To: debian-legal@lists.debian.org,
-	linux-kernel@vger.kernel.org
-References: <20050410042012.GC18141@zewt.org> <MDEHLPKNGKAHNMBLJOLKIEOFDAAB.davids@webmaster.com>
+	Sun, 10 Apr 2005 21:42:12 -0400
+Received: from fire.osdl.org ([65.172.181.4]:58086 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261306AbVDKBmE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 21:42:04 -0400
+Date: Sun, 10 Apr 2005 18:41:56 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: sai narasimhamurthy <sai_narasi@yahoo.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: increasing scsi_max_sg / max_segments for scsi writes/reads
+Message-Id: <20050410184156.3014a2ea.rddunlap@osdl.org>
+In-Reply-To: <20050410023552.2545.qmail@web54101.mail.yahoo.com>
+References: <20050410023552.2545.qmail@web54101.mail.yahoo.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEOFDAAB.davids@webmaster.com>
-Mail-Copies-To: nobody
-X-No-CC: Branden subscribes to this list; do not CC him on replies.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10, 2005 at 01:18:11PM -0700, David Schwartz wrote:
-> 	Well that's the problem. While copyright law does permit you to restrict
-> the right to create derivative works, it doesn't permit you to restrict the
-> distribution of lawfully created derivative works to licensees of the
-> original work. As far as I know, no law has ever granted this right to
-> copyright holders and no court has ever recognized this right. And I've
-> looked. Courts have specifically recognized the absence of this right.
+On Sat, 9 Apr 2005 19:35:52 -0700 (PDT) sai narasimhamurthy wrote:
 
-The GPL is very clear in its implementation: it grants wider permission
-to create derivative works than to distribute them, implementing its
-"virality" in terms of restrictions on distribution, not creation.  So,
-it seems that you're claiming that the GPL is broken or unenforcable in
-some aspects.  (If you're not, I'd like to know where I'm confused.)
+| Hi, 
+| I had posted a question on increasing the scsi
+| read/write sectors  per command. I figured out some of
+| the things, but many questions still exist. 
+| 
+| I was wondering why the maximum writes I could get
+| from a single scsi write command could never exceed
+| 204 
+| 4096B  segments . I traced it to :  
+| 
+| static const int scsi_max_sg = PAGE_SIZE /
+| sizeof(struct scatterlist)
+| 
+| in scsi_merge.c .(which amounts to 204)  
+| 
+| Is this the limit of the maximum blocks we can
+| read/write through a single scsi command, atleast for
+| the given kernel (2.4.29) ? How can I increase
+| it??????
+| 
+| I am on a P3 Dell poweredgde 2400 . 
 
-If that's the case, it's a claim I'm not qualified to debate, but would
-be interested in hearing the FSF's response.
+Did you read the comment immediately above that
+calculation?
 
--- 
-Glenn Maynard
+/*
+ * scsi_malloc() can only dish out items of PAGE_SIZE or less, so we cannot
+ * build a request that requires an sg table allocation of more than that.
+ */
+
+so scsi_malloc() would need some reworking to handle more.
+
+OTOH, it appears that this is all removed in 2.6.10++, so moving to
+2.6.recent is probably your best choice.
+
+---
+~Randy

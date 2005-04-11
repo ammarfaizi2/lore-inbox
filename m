@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVDKVcD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVDKVft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVDKVcD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 17:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbVDKVcD
+	id S261953AbVDKVft (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 17:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDKVft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 17:32:03 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:15078 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261952AbVDKVcA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 17:32:00 -0400
-Subject: Re: New SCM and commit list
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504111424270.1267@ppc970.osdl.org>
-References: <1113174621.9517.509.camel@gaston>
-	 <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org>
-	 <1113189922.9899.6.camel@mulgrave> <20050411205317.GA26246@kroah.com>
-	 <Pine.LNX.4.58.0504111424270.1267@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Mon, 11 Apr 2005 16:31:48 -0500
-Message-Id: <1113255109.5827.46.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+	Mon, 11 Apr 2005 17:35:49 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:25780 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261953AbVDKVfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 17:35:43 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Date: Mon, 11 Apr 2005 23:35:38 +0200
+User-Agent: KMail/1.7.1
+Cc: Andreas Steinmetz <ast@domdv.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+References: <4259B474.4040407@domdv.de> <200504112257.39708.rjw@sisk.pl> <20050411210819.GF23530@elf.ucw.cz>
+In-Reply-To: <20050411210819.GF23530@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504112335.39155.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-11 at 14:26 -0700, Linus Torvalds wrote:
-> I don't think kernel.org mirrors the private home directories, so it you
-> do _temporary_ trees, just make them readable in your private home
-> directory rather than in /pub/linux/kernel/people. For people with 
-> kernel.org accounts, we can use that as the "bkbits.net" thing.
+Hi,
 
-It's also going to be a slight problem for those of us who don't have a
-kernel.org account...although I think the hosting I use on the parisc
-website might actually be outside the HP firewall, so I can probably beg
-for it to run any protocol you need (like rsync).
+On Monday, 11 of April 2005 23:08, Pavel Machek wrote:
+> Hi!
+> 
+]--snip--[
+> > > @@ -130,6 +150,52 @@
+> > >  static unsigned short swapfile_used[MAX_SWAPFILES];
+> > >  static unsigned short root_swap;
+> > >  
+> > > +#ifdef CONFIG_SWSUSP_ENCRYPT
+> > > +static struct crypto_tfm *crypto_init(int mode)
+> > 
+> > I think it's better if this function returns an int error code and the
+> > messages are printed where it's called from.  This way, the essential
+> > part of the code would be easier to grasp (Pavel?).
+> 
+> Agreed. Actually I do not care where messages are printed, but
+> returning different code for different errors seems right.
 
-James
+Hm.  You probably don't want suspend-related messages to be printed during
+resume (this function is called in two different places)? :-)
+
+Rafael
 
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

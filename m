@@ -1,83 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVDKQjC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVDKQnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbVDKQjC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 12:39:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVDKQgS
+	id S261853AbVDKQnF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 12:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVDKQkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 12:36:18 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:24704 "EHLO
-	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261841AbVDKQdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 12:33:51 -0400
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: formatting CD-RW locks the system
-To: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Mon, 11 Apr 2005 18:33:35 +0200
-References: <3RPvT-2g8-31@gated-at.bofh.it> <3RRo1-3O4-21@gated-at.bofh.it> <3RVUD-7td-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DL1qz-0000uR-Ta@be1.7eggert.dyndns.org>
+	Mon, 11 Apr 2005 12:40:37 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63706 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261836AbVDKQhS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 12:37:18 -0400
+Date: Mon, 11 Apr 2005 18:36:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: folkert@vanheusden.com,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050411163657.GA23423@elf.ucw.cz>
+References: <4259B474.4040407@domdv.de> <20050411102550.GD1353@elf.ucw.cz> <20050411103608.GA5610@vanheusden.com> <20050411110152.GD1373@elf.ucw.cz> <425AA5B7.4000900@domdv.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425AA5B7.4000900@domdv.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> wrote:
+Hi!
 
-> Every disk system I have ever delt with, has as a default, (and I've
-> walked around in a couple of them at the assembly language level) the
-> assumption that if track 0 is to be formatted, then the whole device
-> is assumed to be needing formatted, and every filesystem I've ever
-> screwed with will do exactly that.
+> > I'd like to retain ability to read suspend image in any order (so that
+> > code can be reused for swap encryption, etc).
+> 
+> This is not possible with cipher block chaining as used right now. One
+> would have to use a non-random iv set needs to set for every page. And
+> this leads to exactly the same problem why dm-crypt now offers the
+> 'essiv' mode. I don't know if a random access feature is worth this
+> effort as sequential disk access (sequential write, sequential read) is
+> usally the fastest method anyway.
 
-There is one "new" filesystem you should screw with:
+I thought I'd just reuse your code for automagic swap encryption. Oh
+well.
 
-$ echo foo > test
-$ mkisofs test > /dev/fd0h1440
-Total translation table size: 0
-Total rockridge attributes bytes: 0
-Total directory bytes: 0
-Path table size(bytes): 10
-Max brk space used 21000
-175 extents written (0 Mb)
-$ fdformat -n /dev/fd0h1440
-Double-sided, 80 tracks, 18 sec/track. Total capacity 1440 kB.
-Formatting ...   0
-(press ^C after writing most of the first track, hexdump will show
- blocks of 0xf6)
-$ mount /dev/fd0h1440 /z -t iso9660
-$ cat /z/test
-foo
-$
 
->  Often, but not always, that can
-> actually be offloaded to the device itself if its smart enough, and
-> the operating system itself can go on about its business, whether its
-> you composing a letter to your aunt Tilly or whatever.
+> For regular swap encryption I do hope that the initrd feature of swsup2
+> will eventually find its way into the mainline kernel. This way you can
+> have an external key for dm-crypt to access the encrypted swap
+> partition.
 
-This would require a) the device being smart enough and b) the bus
-being smart enough. 
-
-> IDE/ATAPI drives have been cheerfully ignoreing format messages from
-> the OS now for what, 12 years now unless backed up by super secret
-> code word access to such builtin functions of the drive, only
-> possessed by the factory technicians who do have the tools to control
-> the track spaceings and data densities on the surfaces etc etc?
-
-That's because in contrast to floppy media and CD/RW, the tracks on
-HDD don't need reformating. Floppy drives suffer from aging sector
-headers, and CD/RW will AFAIK suffer from a loss in writing quality.
-
-> Are the firmwares of modern cd/dvd writers actualy dumb enough they
-> need the OS's help for that?  If the answer is yes, lord help us.
-
-They need to report success. This would require delaying the end of the
-operation till the formating has finished. ATAPI is dumb enough to block
-the bus during that time. Off cause you could implement SCSI disconnect
-for IDE, but that would be too easy.
+Check -mm kernel, swsusp1 can now do resume from initrd.
+								Pavel
 -- 
-Top 100 things you don't want the sysadmin to say:
-31. I hate it when that happens.
-
-Friﬂ, Spammer: comptrollers@0riginals.net elq@amnszmarw.com
+Boycott Kodak -- for their patent abuse against Java.

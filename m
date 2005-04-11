@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVDKSGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVDKSNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVDKSGV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 14:06:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbVDKSGU
+	id S261426AbVDKSNm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 14:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVDKSNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 14:06:20 -0400
-Received: from mail.timesys.com ([65.117.135.102]:57558 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261867AbVDKSEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 14:04:15 -0400
-Message-ID: <425ABC01.2020100@timesys.com>
-Date: Mon, 11 Apr 2005 14:03:45 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dwalker@mvista.com
-CC: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: RT and Signals
-References: <1113239666.30549.37.camel@dhcp153.mvista.com>
-In-Reply-To: <1113239666.30549.37.camel@dhcp153.mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Apr 2005 17:59:53.0625 (UTC) FILETIME=[43741090:01C53EC0]
+	Mon, 11 Apr 2005 14:13:42 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:49349 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261426AbVDKSNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 14:13:40 -0400
+Date: Mon, 11 Apr 2005 11:13:19 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Jackson <pj@engr.sgi.com>, pasky@ucw.cz,
+       rddunlap@osdl.org, ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org,
+       git@vger.kernel.org
+Subject: Re: [rfc] git: combo-blobs
+Message-ID: <20050411181319.GA11302@taniwha.stupidest.org>
+References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu> <20050411074552.4e2e656b.pj@engr.sgi.com> <20050411151204.GA5562@elte.hu> <Pine.LNX.4.58.0504110826140.1267@ppc970.osdl.org> <20050411153905.GA7284@elte.hu> <Pine.LNX.4.58.0504110852260.1267@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504110852260.1267@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
-> 	I'm not sure if this has changed at all in recent RT patches, but I've
-> noticed several issues popping up that are related to the timer
-> interrupt sending signals...
+On Mon, Apr 11, 2005 at 09:01:51AM -0700, Linus Torvalds wrote:
 
-I've also seen BUG asserts kicking in on PPC (40-04-ish) in
-signal delivery [actual receipt] paths.  These have only been
-under fairly heavy load conditions and presumably is hitting
-an infrequent path in force_sig_info() IIRC.  Haven't had the
-time yet to resolve these but they are on the list.
+> I disagree. Yes, the thing is designed to be replicated, so most of
+> the time the easiest thing to do is to just rsync with another copy.
 
--john
+It's not clear how any of this is going to give me something like
 
+     bk changes -R
 
--- 
-john.cooper@timesys.com
+or
+     bk changes -L
+
+functionality.  I'm guessing I will have to sync locally and check
+between two trees in those cases?  Or at least sync enough metadata as
+to make this possible...  but not the entire tree right?

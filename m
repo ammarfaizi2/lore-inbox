@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVDKPXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVDKP23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbVDKPXs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 11:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261805AbVDKPXs
+	id S261801AbVDKP23 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 11:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVDKP22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 11:23:48 -0400
-Received: from smtp.artisan.se ([194.52.183.30]:52619 "EHLO smtp.artisan.se")
-	by vger.kernel.org with ESMTP id S261803AbVDKPXh (ORCPT
+	Mon, 11 Apr 2005 11:28:28 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21182 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261801AbVDKP2X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 11:23:37 -0400
-From: =?iso-8859-1?q?Bj=F6rn_Elwhagen?= <bjorn.elwhagen@home.se>
-To: linux-kernel@vger.kernel.org
-Subject: Crash on firewall using 2.6.11.6
-Date: Mon, 11 Apr 2005 17:23:12 +0200
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 11:28:23 -0400
+Date: Mon, 11 Apr 2005 17:28:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
+       linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: [rfc] git: combo-blobs
+Message-ID: <20050411152815.GB5562@elte.hu>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu> <20050411074552.4e2e656b.pj@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504111723.12570.bjorn.elwhagen@home.se>
+In-Reply-To: <20050411074552.4e2e656b.pj@engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've encountered the strangest problem yet in my linux career...I'll just 
-explain my setup, what happens, and what solved the problem and you can decide 
-if you are more interested after that...
+here are some stats: of the last 34160 files modified in the Linux 
+kernel tree in the past 1 year, the file sizes total to 1 GB, and the 
+average file-size per file committed is 31220 bytes. The changes 
+themselves amount to:
 
-* Company firewall 2.6.8.1 ip-address 1.2.3.4 with priv net 192.168.1
-* Home firewall 2.6.11.6 ip-address 4.3.2.1 with priv net 192.168.2
-* OpenSWAN with IPSEC connecting the two private networks, not traffic between 
-the firwall hosts themselves as far as i know
-* Other external address 1.2.3.5 DNAT'ed to 192.168.1.100
+ 22404 files changed, 1996494 insertions(+), 1396644 deletions(-)
 
-Connected from WinXP machine on home net using putty to 1.2.3.5 address on 
-company firewall, so the traffic should not be encrypted via IPSEC.
+(the # of files changed is lower because one file can be modified 
+multiple times)
 
-(Next step, just don't try to figure out why i did it, was just curious what 
-would show). Using `strings` command on on a .tgz file on the putty-terminal 
-connected to 1.2.3.5  i got my home firewall to crash.
+the Linux kernel has an average line-length of 36 bytes, so even without 
+analyzing the commits themselves, the actual size of changes is around 
+70 MB content added, 50 MB content removed. The patches (plus commit 
+comments, and email headers) add up to 250 MB.
 
-First i thought it was a random crash, but i tried a couple of times more just 
-to make sure, and it crashed then as well.
+So the combo-blob representation would have an uncompressed content 
+somewhere between 130MB and 250MB: 200 MB would be a good guess i think.  
+That's 20% of the 1+ GB the full-blob representation would give, and it 
+would be nearly as compressible.
 
-I upgraded my home firewall to 2.6.11.7 and tried to duplicate the crash, but 
-it didn't crash then so i guess the problem somehow was solved.
-
-Do you have any idea what caused the crash, i didn't see anything obvious for 
-me in the changelog for 2.6.11.7.
-
-Just tell me if you would like more info of any kind, firwall rules, traffic 
-dump etc?
-
-Best regards,
-
-Bjorn
+	Ingo

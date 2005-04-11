@@ -1,78 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVDKP4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVDKP5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbVDKP4f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 11:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVDKP4e
+	id S261822AbVDKP5R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 11:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVDKP5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 11:56:34 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:11482 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261755AbVDKP4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 11:56:25 -0400
-To: dan@debian.org
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050411153619.GA25987@nevyn.them.org> (message from Daniel
-	Jacobowitz on Mon, 11 Apr 2005 11:36:19 -0400)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <20050323083347.GA1807@infradead.org> <E1DE2D1-0005Ie-00@dorka.pomaz.szeredi.hu> <20050325095838.GA9471@infradead.org> <E1DEmYC-0008Qg-00@dorka.pomaz.szeredi.hu> <20050331112427.GA15034@infradead.org> <E1DH13O-000400-00@dorka.pomaz.szeredi.hu> <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org>
-Message-Id: <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 11 Apr 2005 17:56:09 +0200
+	Mon, 11 Apr 2005 11:57:17 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:26307 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261816AbVDKP5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 11:57:10 -0400
+Date: Mon, 11 Apr 2005 17:57:01 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paul Jackson <pj@engr.sgi.com>, pasky@ucw.cz, rddunlap@osdl.org,
+       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org,
+       git@vger.kernel.org
+Subject: Re: [rfc] git: combo-blobs
+Message-ID: <20050411155701.GA8156@elte.hu>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu> <20050411074552.4e2e656b.pj@engr.sgi.com> <20050411151204.GA5562@elte.hu> <Pine.LNX.4.58.0504110826140.1267@ppc970.osdl.org> <20050411153905.GA7284@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050411153905.GA7284@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   3) No other user should have access to files under the mount, not
-> >      even root[5]
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
 > 
-> > [5] Obviously root cannot be restricted, but accidental access to
-> > private data is still a good idea.  E.g. root squashing by NFS servers
-> > has a similar affect.
+> * Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> Could you explain a little more?  I don't see the point in denying
-> access to root, but I also can't tell from your explanation whether you
-> do or not.
-
-Fuse by default does.  This can be disabled by one of two mount
-options: "allow_other" and "allow_root".  The former implies the
-later.  These mount options are only allowed for mounting by root, but
-this can be relaxed with a configuration option.
-
-> If I mount a filesystem using ssh, I want to be able to "sudo cp
-> foo.txt /etc" and not get an inexplicable permissions error.
-
-If you can do that sudo, you can also modify the configuration and use
-one of the mount options.
-
-> I don't really see the point of this restriction, anyway.  Could you
-> explain why this shouldn't be a matter of policy, and kept out of the
-> kernel?  Have the userspace file servers default to putting restrictive
-> permissions on mounts unless requested otherwise.
-
-That's an option.  However you can't restrict root that way, and you
-need an extra directory, since permissions on the mountpoint are
-ignored after the mount.
-
-Restricting root is needed, so that a sysadmin won't accidently go
-into a user's private mount (e.g. sshfs to some machine to which the
-sysadmin otherwise has no access).  Root can still gain access by
-doing 'su me', but at least he will have a bad conscience.  This is
-not such a stupid idea as it first sounds IMO, and by default all NFS
-servers exhibit a similar behavior (root squashing).
-
-> >   4) Access should not be further restricted for the owner of the
-> >      mount, even if permission bits, uid or gid would suggest
-> >      otherwise
+> > > to construct the combo blob later on, we do have to unpack sched.c (and 
+> > > if it's already a combo-blob that is not cached then we'd have to unpack 
+> > > all parents until we arrive at some full blob).
+> > 
+> > I really don't want to have this. Having chains of dependencies is 
+> > really painful, and now if _any_ of them gets corrupted, you're 
+> > screwed.
 > 
-> Similar questions.
+> if a repository is corrupted then it pretty much needs to be dropped 
+> anyway. Also, with a 'replicate the full object on every 8th commit' 
+> rule the risk would be somewhat mitigated as well.
 
-This behavior can be disabled by the "default_permissions" mount
-option (wich is not privileged, since it adds restrictions).  A FUSE
-filesystem mounted by root (and not for private purposes) would
-normally be done with "allow_other,default_permissions".
+another thing is that if the repository is 'cached' (which would 
+normally be the case for work files), then it would be more resilient 
+against corruption as the full uncompressed file would be included at 
+the end of the combo-blob.
 
-Does this answer your questions?
-
-Thanks,
-Miklos
+	Ingo

@@ -1,117 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVDKSED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVDKSCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbVDKSED (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 14:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVDKSED
+	id S261865AbVDKSCv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 14:02:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVDKSCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 14:04:03 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:31637 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261866AbVDKSB2 (ORCPT
+	Mon, 11 Apr 2005 14:02:50 -0400
+Received: from kalmia.hozed.org ([209.234.73.41]:26790 "EHLO kalmia.hozed.org")
+	by vger.kernel.org with ESMTP id S261865AbVDKSBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 14:01:28 -0400
-Subject: Re: [PATCH 2.6.12-rc1-mm3] [1/2]  kprobes += function-return
-From: Jim Keniston <jkenisto@us.ibm.com>
-To: prasanna@in.ibm.com
-Cc: Hien Nguyen <hien@us.ibm.com>, SystemTAP <systemtap@sources.redhat.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1112721545.2293.36.camel@dyn9047018078.beaverton.ibm.com>
-References: <20050404081538.GF1715@in.ibm.com>
-	 <1112721545.2293.36.camel@dyn9047018078.beaverton.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1113242482.2298.128.camel@dyn9047018078.beaverton.ibm.com>
+	Mon, 11 Apr 2005 14:01:08 -0400
+Date: Mon, 11 Apr 2005 13:01:08 -0500
+From: Troy Benjegerdes <hozer@hozed.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050411180107.GF26127@kalmia.hozed.org>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 11 Apr 2005 11:01:23 -0700
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <5264yt1cbu.fsf@topspin.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 10:19, Jim Keniston wrote:
-> On Mon, 2005-04-04 at 01:15, Prasanna S Panchamukhi wrote:
-> ...
-> > int register_returnprobe(struct rprobe *rp) {
-> ...
+On Mon, Apr 11, 2005 at 09:56:53AM -0700, Roland Dreier wrote:
+>     Troy> Is there a check in the kernel that the memory is actually
+>     Troy> mlock()ed?
 > 
-> > independent of kprobe and jprobe.
-> ...
-> > 
-> > make unregister exitprobes independent of kprobe/jprobe.
-> > 
-> ...
-> > 
-> > Please let me know if you need more information.
-> > 
-> > Thanks
-> > Prasanna
+> No.
 > 
-> We thought about that.  It is a nicer interface.  But I'm concerned that
-> if the user has to do
-> 	register_kprobe(&foo_entry_probe);
-> 	register_retprobe(&foo_return_probe);
-> then he/she has to be prepared to handle calls to foo that happen
-> between register_kprobe and register_retprobe -- i.e., calls where the
-> entry probe fires but the return probe doesn't.  Similarly on
-> unregistration.
+>     Troy> What if a malicious (or broken) application does
+>     Troy> ibv_reg_mr() but doesn't lock the memory? Does the IB card
+>     Troy> get a physical address for a page that might get swapped
+>     Troy> out?
 > 
-> Here are a couple of things we could do to support registration and
-> unregistration of retprobes that can be either dependent on or
-> independent of the corresponding j/kprobes, as the user wants:
+> No, the kernel does get_user_pages().  So the pages that the HCA gets
+> will not be swapped or used for anything else.  The only thing a
+> malicious userspace app can do is screw itself up.
 > 
-> 1. When you call register_j/kprobe(), if kprobe->rp is non-null, it is
-> assumed to point to a retprobe that will be registered and unregistered
-> along with the kprobe.  (But this may make trouble for existing kprobes
-> applications that didn't need to initialize the (nonexistent) rp
-> pointer.  Probably not a huge deal.)
-> 
-> OR
-> 
-> 2. Create the ability to (a) register kprobes, jprobes, and/or retprobes
-> in a disabled state; and (b) enable a group of probes in an atomic
-> operation.  Then you could register the entry and return probes
-> independently, but enable them together.  We may need to do something
-> like that for SystemTap anyway.
-> 
-> Jim Keniston
-> IBM Linux Technology Center
+>  - R.
 
-I suppose if pairing of entry and return probes is important for a user,
-he/she can always do the following:
-
-static int ready;	// 1 = everybody registered
-			// 2 = everybody knows we're registered
-...
-	ready = 0;
-	... register_kprobe(&kp)...
-	... register_retprobe(&rp) ...
-	/* instant XXX -- see below*/
-	ready = 1;
-
-and in kp.pre_handler do
-	if (!ready) {
-		// return probe not registered yet
-		return 0;
-	}
-	ready = 2;
-	<body of handler>
-
-and in rp.handler do
-	if (ready != 2) {
-		// Probed function entered during instant XXX,
-		// so kp.pre_handler didn't act on it.
-		return 0;
-	}
-	<body of handler>
-
-Keeping a whole group of kprobes, jprobes, and retprobes in the starting
-gate pending a "ready" signal (e.g., for SystemTap) could probably be
-handled similarly.
-
-Unregistration shouldn't be an issue.  At any time you can have N active
-instances of the probed function, and have therefore recorded E entries
-and E-N returns.  Hien's code handles all that on retprobe
-deregistration, but the user's instrumentation should never count on #
-probed entries == # probed returns.
-
-Jim
-
+Do we even need the mlock in userspace then?

@@ -1,47 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVDKUV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVDKU0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVDKUV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 16:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVDKUSp
+	id S261922AbVDKU0c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVDKU0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 16:18:45 -0400
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:6552 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S261953AbVDKURt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 16:17:49 -0400
-Date: Mon, 11 Apr 2005 16:17:44 -0400
-From: Raul Miller <moth@debian.org>
-To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050411161744.C32136@links.magenta.com>
-References: <20050410042012.GC18141@zewt.org> <MDEHLPKNGKAHNMBLJOLKIEOFDAAB.davids@webmaster.com>
+	Mon, 11 Apr 2005 16:26:31 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63898 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261948AbVDKUXu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 16:23:50 -0400
+Date: Mon, 11 Apr 2005 22:23:25 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
+       Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Do not misuse Coverity please
+Message-ID: <20050411202325.GE10401@elf.ucw.cz>
+References: <OofSaT76.1112169183.7124470.khali@localhost> <200503301709.j2UH9WsA008556@laptop11.inf.utfsm.cl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEOFDAAB.davids@webmaster.com>; from davids@webmaster.com on Sun, Apr 10, 2005 at 01:18:11PM -0700
+In-Reply-To: <200503301709.j2UH9WsA008556@laptop11.inf.utfsm.cl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10, 2005 at 01:18:11PM -0700, David Schwartz wrote:
->	You could do that be means of a contract, but I don't think you
-> could it do by means of a copyright license. The problem is that there
-> is no right to control the distribution of derivative works for you
-> to withhold from me.
+Hi!
 
-While you are may be reporting your thoughts accurately, this problem
-doesn't seem to be a legal issue.
+> "Jean Delvare" <khali@linux-fr.org> said:
+> > > > > No, there is a third case: the pointer can be NULL, but the compiler
+> > > > > happened to move the dereference down to after the check.
+> 
+> > > > Wow. Great point. I completely missed that possibility. In fact I didn't
+> > > > know that the compiler could possibly alter the order of the
+> > > > instructions. For one thing, I thought it was simply not allowed to. For
+> > > > another, I didn't know that it had been made so aware that it could
+> > > > actually figure out how to do this kind of things. What a mess. Let's
+> > > > just hope that the gcc folks know their business :)
+> 
+> > > The compiler is most definitely /not/ allowed to change the results the
+> > > code gives.
+> 
+> > I think that Andrew's point was that the compiler could change the order
+> > of the instructions *when this doesn't change the result*, not just in
+> > the general case, of course. In our example, The instructions:
+> > 
+> >     v = p->field;
+> >     if (!p) return;
+> > 
+> > can be seen as equivalent to
+> > 
+> >     if (!p) return;
+> >     v = p->field;
+> 
+> They are not. If p == NULL, the first gives an exception (SIGSEGV), the
+> second one doesn't. Just as you can't "optimize" by switching:
+> 
+>     x = b / a;   
+>     if (a == 0) return;
 
-The GPL explicitly discusses this issue (section 5), and a number of
-people have already posted with similar commentary.
+Dereferencing NULL pointer is undefined. It *may* give SIGSEGV. That's
+what enables optimization above. You can't rely on dereferencing NULL
+to always give SIGSEGV. Sorry.
 
-Anyways, one thing to keep in mind here is that if copyright law doesn't
-allow the GPL's grant of permission to be conditional then copyright
-law would not allow other copyright grants to be conditional.
-
-Another way of looking at this is that the GPL is a copyright license --
-it represents the terms and conditions under which copyrights are granted,
-and it also represents those permissions.
-
+								Pavel
 -- 
-Raul
+Boycott Kodak -- for their patent abuse against Java.

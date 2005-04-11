@@ -1,59 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVDKVCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVDKVFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVDKVCR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 17:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVDKVCQ
+	id S261939AbVDKVFj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 17:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVDKVFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 17:02:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:4532 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261932AbVDKVAr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 17:00:47 -0400
-Date: Mon, 11 Apr 2005 13:53:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: New SCM and commit list
-Message-ID: <20050411205317.GA26246@kroah.com>
-References: <1113174621.9517.509.camel@gaston> <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org> <1113189922.9899.6.camel@mulgrave>
+	Mon, 11 Apr 2005 17:05:39 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14600 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261938AbVDKVFM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 17:05:12 -0400
+Date: Mon, 11 Apr 2005 23:05:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, dwmw2@infradead.org,
+       linux-mtd@lists.infradead.org
+Subject: 2.6.12-rc2-mm3: CONFIG_MODULES=n MTD compile error
+Message-ID: <20050411210507.GC5863@stusta.de>
+References: <20050411012532.58593bc1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1113189922.9899.6.camel@mulgrave>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10, 2005 at 10:25:22PM -0500, James Bottomley wrote:
-> On Sun, 2005-04-10 at 16:26 -0700, Linus Torvalds wrote:
-> > On Mon, 11 Apr 2005, Benjamin Herrenschmidt wrote:
-> > > If yes, then I would appreciate if you could either keep the same list,
-> > > or if you want to change the list name, keep the subscriber list so
-> > > those of us who actually archive it don't miss anything ;)
-> > 
-> > I didn't even set up the list. I think it's Bottomley. I'm cc'ing him just 
-> > so that he sees the message, but I don't actually expect him to do 
-> > anything about it. I'm not even ready to start _testing_ real merges yet. 
-> > But I hope that I can get non-conflicting merges done fairly soon, and 
-> > maybe I can con James or Jeff or somebody to try out GIT then...
+On Mon, Apr 11, 2005 at 01:25:32AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.12-rc2-mm2:
+>...
+> +remove-inter-module-mtd.patch
 > 
-> Not guilty.  If I remember correctly, the list was set up by the vger
-> list maintainers (davem and company).  It was tied to a trigger in one
-> of your trees (which I think Larry did).  It shouldn't be too difficult
-> to add to git ... it just means traversing all the added patches on a
-> merge and sending out mail.
-> 
-> I can try out your source control tools ... I have some rc fixes
-> ready ... when you're ready to try out merges...
+>  Remove intermodule_foo() usage from mtd.
+>...
 
-I have some rc fixes too, let us know when you are ready to accept them,
-and what format you want them in.
+This breaks the compilation with CONFIG_MODULES=n:
 
-I have a feeling that the kernel.org mirror system is just going to
-_love_ us using it to store temporary git trees :)
+<--  snip  -->
 
-thanks,
+...
+  CC      drivers/mtd/devices/docprobe.o
+drivers/mtd/devices/docprobe.c: In function `DoC_Probe':
+drivers/mtd/devices/docprobe.c:311: warning: implicit declaration of 
+function `__symbol_get'
+drivers/mtd/devices/docprobe.c:311: warning: assignment makes pointer 
+from integer without a cast
+drivers/mtd/devices/docprobe.c:315: warning: implicit declaration of function `__symbol_put'
+...
+  LD      .tmp_vmlinux1
+drivers/built-in.o(.init.text+0x60f20): In function `DoC_Probe':
+: undefined reference to `__symbol_get'
+drivers/built-in.o(.init.text+0x60f3b): In function `DoC_Probe':
+: undefined reference to `__symbol_put'
+drivers/built-in.o(.init.text+0x610a4): In function `DoC_Probe':
+: undefined reference to `__symbol_get'
+make: *** [.tmp_vmlinux1] Error 1
 
-greg k-h
+<--  snip  -->
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

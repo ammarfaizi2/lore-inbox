@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbVDKS3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVDKSbp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbVDKS3B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 14:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVDKS3A
+	id S261888AbVDKSbp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 14:31:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVDKSbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 14:29:00 -0400
-Received: from fire.osdl.org ([65.172.181.4]:59609 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261875AbVDKS2i (ORCPT
+	Mon, 11 Apr 2005 14:31:44 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:50821 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261885AbVDKSay (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 14:28:38 -0400
-Date: Mon, 11 Apr 2005 11:30:23 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Ingo Molnar <mingo@elte.hu>, Paul Jackson <pj@engr.sgi.com>, pasky@ucw.cz,
-       rddunlap@osdl.org, ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-Subject: Re: [rfc] git: combo-blobs
-In-Reply-To: <20050411181319.GA11302@taniwha.stupidest.org>
-Message-ID: <Pine.LNX.4.58.0504111127320.1267@ppc970.osdl.org>
-References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu>
- <20050411074552.4e2e656b.pj@engr.sgi.com> <20050411151204.GA5562@elte.hu>
- <Pine.LNX.4.58.0504110826140.1267@ppc970.osdl.org> <20050411153905.GA7284@elte.hu>
- <Pine.LNX.4.58.0504110852260.1267@ppc970.osdl.org> <20050411181319.GA11302@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Apr 2005 14:30:54 -0400
+Date: Mon, 11 Apr 2005 20:30:51 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, pj@engr.sgi.com, junkio@cox.net,
+       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
+Subject: Re: Re: more git updates..
+Message-ID: <20050411183051.GA22339@pasky.ji.cz>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org> <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org> <20050410161457.2a30099a.pj@engr.sgi.com> <Pine.LNX.4.58.0504101634250.1267@ppc970.osdl.org> <20050411084931.4aaf7ae0.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050411084931.4aaf7ae0.rddunlap@osdl.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 11 Apr 2005, Chris Wedgwood wrote:
->
-> On Mon, Apr 11, 2005 at 09:01:51AM -0700, Linus Torvalds wrote:
+Dear diary, on Mon, Apr 11, 2005 at 05:49:31PM CEST, I got a letter
+where "Randy.Dunlap" <rddunlap@osdl.org> told me that...
+> On Sun, 10 Apr 2005 16:38:00 -0700 (PDT) Linus Torvalds wrote:
+..snip..
+> | Yes. Crappy old tree, but it can still read my git.git directory, so you 
+> | can use it to update to my current source base.
 > 
-> > I disagree. Yes, the thing is designed to be replicated, so most of
-> > the time the easiest thing to do is to just rsync with another copy.
-> 
-> It's not clear how any of this is going to give me something like
-> 
->      bk changes -R
-> 
-> or
->      bk changes -L
-> 
-> functionality. 
+> Please go into a little more detail about how to do this step...
+> that seems to be the most basic concept that I am missing.
+> i.e., how to find the "latest/current" tree (version/commit)
+> and check it out (read-tree, checkout-cache, etc.).
 
-You'd dowload all the sha1 objects (they don't actually do anything to
-_your_ state - they only show the possible other states), and then it's a 
-"simple thing" to generate a full tree of your local HEAD commit and 
-compare it to a full tree of the remove HEAD commit.
+Well, its ID is by convention kept in .dircache/HEAD. But that is really
+only a convention, no "core git" tool reads it directly, and you need to
+update it manually after you do commit-tree.
 
-If you then want to merge, you already have all the data. If you don't,
-you can then prune your object tree from the stuff you don't use (fsck
-already effectively does all the connectivity work, it just never removes
-unreferenced files).
+First, you need to get the accompanying tree's id. git-pasky's shortcut
+is $(tree-id), but manually you can do it by
 
-		Linus
+	$(cat-file commit $(cat .dircache/HEAD)) | egrep '^tree'
+
+Note that if you ever forgot to update HEAD or if you have multiple
+branches in your repository, you can list all "head commits" (that is,
+commits which have no other commits referencing them as parents) by
+doing fsck-cache.
+
+Now, you need to populate the directory cache by the tree (see Paul
+Jackson's diagram):
+
+	read-tree $tree_id
+
+And now you want to update your working tree from the cache:
+
+	checkout-cache -a -f
+
+This will bring your tree in sync with the cache (it won't remove any
+stale files, though). That means it will overwrite your local changes
+too - turn that off by omitting the "-f". If you want to update only
+some files, omit the "-a" and list them.
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

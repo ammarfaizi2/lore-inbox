@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVDKHcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVDKHjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbVDKHcp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 03:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVDKHcp
+	id S261716AbVDKHjP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 03:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVDKHjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 03:32:45 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:46986 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261692AbVDKHck (ORCPT
+	Mon, 11 Apr 2005 03:39:15 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:1976 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261716AbVDKHjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 03:32:40 -0400
-Date: Mon, 11 Apr 2005 11:31:55 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: jlan@engr.sgi.com, guillaume.thouvenin@bull.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org, efocht@hpce.nec.com, linuxram@us.ibm.com,
-       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, aquynh@gmail.com,
-       dean-list-linux-kernel@arctic.org, pj@sgi.com
-Subject: Re: [patch 2.6.12-rc1-mm4] fork_connector: add a fork connector
-Message-ID: <20050411113155.A3698@2ka.mipt.ru>
-References: <1112955840.28858.236.camel@uganda> <1112957563.28858.240.camel@uganda> <4256E940.9050306@engr.sgi.com> <425700CD.5040906@engr.sgi.com> <20050409021856.39e99bef@zanzibar.2ka.mipt.ru> <42574C88.9080601@engr.sgi.com> <20050409102926.0cbf031c@zanzibar.2ka.mipt.ru> <425A0E7C.8080900@engr.sgi.com> <20050411104456.A31664@2ka.mipt.ru> <20050410235124.2addd7d9.akpm@osdl.org>
+	Mon, 11 Apr 2005 03:39:10 -0400
+Date: Mon, 11 Apr 2005 09:38:44 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       David Woodhouse <dwmw2@infradead.org>, Chris Mason <mason@suse.com>
+Subject: Re: New SCM and commit list
+Message-ID: <20050411073844.GA5485@elte.hu>
+References: <1113174621.9517.509.camel@gaston> <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org> <425A10EA.7030607@pobox.com> <Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050410235124.2addd7d9.akpm@osdl.org>; from akpm@osdl.org on Sun, Apr 10, 2005 at 11:51:24PM -0700
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 11 Apr 2005 11:31:55 +0400 (MSD)
+In-Reply-To: <Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10, 2005 at 11:51:24PM -0700, Andrew Morton (akpm@osdl.org) wrote:
-> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
-> >
-> > On Sun, Apr 10, 2005 at 10:43:24PM -0700, Jay Lan (jlan@engr.sgi.com) wrote:
-> > > I based my listen program on the fclisten.c posted by Kaigai Kohei
-> > > with my own modification. Unfortunately i lost my test machine in the
-> > > lab. I will recreate the listen program Monday. The original listener
-> > > did not validate sequence number. It also prints length of data and
-> > > sequence number of every message it receives. My listener prints
-> > > only out-of-sequence error messages.
-> > > 
-> > > The fork generator fork-test.c was yours? I called it fork-test
-> > > and let it run continuously in while-loop:
-> > > 
-> > > # while 1
-> > > # ./fork-test 10000000
-> > > # sleep 1
-> > > # end
-> > > 
-> > > I let it do 10,000,000 times of fork continuously while the system
-> > > is running AIM7 and/or ubench.
-> > > 
-> > > The original fclisten.c and fork-test.c are attached for your reference.
-> > 
-> > It is pretty normal to see duplicated numbers in a fork test - 
-> > I observed it too, since counter is incremented without locks
-> > we can catch situation when it is incremented simultaneously 
-> > on both processors, the latest version of the fork connector
-> > from Guillaume contains processor id in the message and per cpu counters, 
-> > so one can destinguish messages which sequence numbers will flow
-> > in a very similar way now.
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> Then the bad news: the merge algorithm is going to suck. It's going to 
+> be just plain 3-way merge, the same RCS/CVS thing you've seen before.  
+> With no understanding of renames etc. I'll try to find the best parent 
+> to base the merge off of, although early testers may have to tell the 
+> piece of crud what the most recent common parent was.
 > 
-> Oh come on, that's just daft.  Evgeniy, put a lock in there and fix it up.
+> So anything that got modified in just one tree obviously merges to 
+> that version. Any file that got modified in two trees will end up just 
+> being passed to the "merge" program. See "man merge" and "man diff3".  
+> The merger gets to fix up any conflicts by hand.
 
-#ifndef FAST_AND_SUSPICIOUS
-	spin_lock(&fork_lock);
-#endif
-	seq++;
-#ifndef FAST_AND_SUSPICIOUS
-	spin_unlock(&fork_lock);
-#endif
+at that point Chris Mason's "rej" tool is pretty nifty:
 
-:)
+  ftp://ftp.suse.com/pub/people/mason/rej/rej-0.13.tar.gz
 
--- 
-	Evgeniy Polyakov ( s0mbre )
+it gets the trivial rejects right, and is pretty powerful to quickly 
+cycle through the nontrivial ones too. It shows the old and new code 
+side by side too, etc.
+
+(There is no fully automatic mode in where it would not bother the user 
+with the really trivial rejects - but it has an automatic mode where you 
+basically have to do nothing - maybe a fully automatic one could be 
+added that would resolve low-risk rejects?)
+
+it's really easy to use (but then again i'm a vim user, so i'm biased), 
+just try it on a random .rej file you have ("rej -a kernel/sched.c.rej" 
+or whatever).
+
+	Ingo

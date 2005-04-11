@@ -1,111 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVDKT4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVDKT5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVDKT4s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 15:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVDKT4r
+	id S261905AbVDKT5n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 15:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVDKT5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 15:56:47 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:8667 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261904AbVDKT4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 15:56:38 -0400
-To: dan@debian.org
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050411192223.GA3707@nevyn.them.org> (message from Daniel
-	Jacobowitz on Mon, 11 Apr 2005 15:22:23 -0400)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <20050331112427.GA15034@infradead.org> <E1DH13O-000400-00@dorka.pomaz.szeredi.hu> <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org>
-Message-Id: <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 11 Apr 2005 21:56:29 +0200
+	Mon, 11 Apr 2005 15:57:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41378 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261905AbVDKT5d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 15:57:33 -0400
+Subject: Re: ext3 allocate-with-reservation latencies
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <1113244710.4413.38.camel@localhost.localdomain>
+References: <1112673094.14322.10.camel@mindpipe>
+	 <20050405041359.GA17265@elte.hu>
+	 <1112765751.3874.14.camel@localhost.localdomain>
+	 <20050407081434.GA28008@elte.hu>
+	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
+	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
+	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113244710.4413.38.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 11 Apr 2005 20:57:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Root squashing is actually a much less obnoxious restriction.  It means
-> > > that local uid 0 doesn't automatically correspond to remote uid 0.
-> > 
-> > I don't agree that it's less obnoxious.  Root squashing and a
-> > restricted directory (-rwx------) would have exactly the same affect:
-> > root is denied all access.
-> 
-> That's considerably less obnoxious, because such directories are
-> comparatively rare; most files, root can still read.  There are still
-> a couple unintuitive cases where root has less privelege than a
-> particular non-root user, of course.  But your model gives root
-> normally fewer privileges than the user that mounted th e FS.
+Hi,
 
-That is exactly the intended effect.  If I'm at my work machine (where
-I'm not an admin unfortunately) and I mount my home machine with sshfs
-(because FUSE is installed fortunately :), then I bloody well don't
-want the sysadmin or some automated script of his to go mucking under
-the mountpoint.
+On Mon, 2005-04-11 at 19:38, Mingming Cao wrote:
 
-> > > But why does the kernel need to know anything about this?  Why can't
-> > > the userspace library present the permissions appropriately to the
-> > > kernel?
-> > 
-> > That is exactly what you should do if you use the default_permissions
-> > options.  You set the file mode, and the kernel checks the permission.
-> 
-> So why not make default_permissions a feature of the userspace?
+> I agree. We should not skip the home block group of the file.  I guess
+> what I was suggesting is, if allocation from the home group failed and
+> we continuing the linear search the rest of block groups, we could
+> probably try to skip the block groups without enough usable free blocks
+> to make a reservation. 
 
-I don't understand.  The userspace can't enforce the permissions.
-That can only be done by the kernel.  The "default_permissions" option
-tells the kernel to enforce permissions based on file mode.  If the
-option is missing, then the kernel does not enforce those permissions.
+Fair enough.  Once those are the only bgs left, performance is going to
+drop pretty quickly, but that's not really avoidable on a very full
+filesystem.
 
-> > > I'm going to be pretty confused if I see a mode 666 file that I
-> > > can't even read.  So will various programs.
-> > 
-> > How would you get such I file?  I don't understand.
-> 
-> The permissions exposed by the FUSE layer apparently don't correspond
-> to what local users can do with them.  That's the problem here.  It may
-> be that I'm completely misunderstanding you - but from what you've
-> described, the userspace daemon can mark a file's permissions as 666,
-> and then with allow_other and allow_root off no one else will be able
-> to read it, despite those permissions.
+> Ah.. I see the win with the read lock now: once the a reservation window
+> is added, updating it (either winding it forward and or searching for a
+> avaliable window) probably is the majorirty of the operations on the
+> tree, and using read lock for that should help reduce the latency.
 
-Other users won't be able to read even the attributes, so I don't see
-it as a problem.  It will be a special "no go" directory for anyone
-except the mount owner.
+Right.  The down side is that for things like a kernel "tar xf", we'll
+be doing lots of small file unpacks, and hopefully most files will be
+just one or two reservations --- so there's little winding forward going
+on.  The searching will still be improved in that case.
 
-> > > Except for the allow_root bits, I think that having userspace handle
-> > > the issue entirely would cover both objections.
-> > 
-> > If I want to allow unprivileged users to be able to mount their
-> > filesystems, then handling everything in userspace is not an option.
-> > For example if you could mount a filesystem in which files have
-> > user=root instead of your own user ID, you could probably confuse some
-> > applications running as root, and cause information leak.  That's
-> > exactly why allow_root and allow_other are disabled for normal users.
-> > 
-> > The only safe option that I can imagine is that the kernel will reset
-> > the user and group fields of the file attributes.  This would again
-> > require a kernel option, but would be far less useful IMO.
-> 
-> I think we've got a boundary problem here.  You are exposing some
-> arbitrary, user-supplied values in the permissions, and then performing
-> sanity checks at access time; I'm suggesting performing the sanity
-> checking on the other side, when the permissions are supplied to the
-> kernel by the daemon.
+Note that this may improve average case latencies, but it's not likely
+to improve worst-case ones.  We still need a write lock to install a new
+window, and that's going to have to wait for us to finish finding a free
+bit even if that operation starts using a read lock.  
 
-Well the sanity check on the "server" side is always enforced.  You
-can't "trick" sftp or ftp to not check permissions.  So checking on
-the "client" side too (where the fuse daemon is running) makes no
-sense, does it?
+I'm not really sure what to do about worst-case here.  For that, we
+really do want to drop the lock entirely while we do the bitmap scan.
 
-> Why would it be less useful to show files that have been "created" by a
-> user as owned by that user?  Or files that the user has requested no
-> other users be able to write as unwritable by group/other?  Sure, it
-> makes your tarfs a little less mapped onto the tar file.  But that's
-> one of the recurring objections to implementing archivers as
-> filesystems: the ownership in the archive is _not_ relevant to the
-> mounted copy.
+That leaves two options.  Hold a reservation while we do that; or don't.
+Holding one poses the problems we discussed before: either you hold a
+large reservation (bad for disk layout in the presence of concurrent
+allocators), or you hold smaller ones (high cost as you continually
+advance the window, which requires some read lock on the tree to avoid
+bumping into the next window.)
 
-So this objection is now dealt with.  Is that a problem?
+Just how bad would it be if we didn't hold a lock _or_ a window at all
+while doing the search for new window space?  I didn't like that
+alternative at first because of the problem when you've got multiple
+tasks trying to allocate in the same space at the same time; but given
+the locking overhead of the alternatives, I'm wondering if this is
+actually the lesser evil.
 
-Thanks,
-Miklos
+--Stephen
+

@@ -1,79 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVDKKkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVDKKph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261766AbVDKKkn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 06:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVDKKkm
+	id S261768AbVDKKph (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 06:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVDKKph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 06:40:42 -0400
-Received: from general.keba.co.at ([193.154.24.243]:22972 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261766AbVDKKkI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 06:40:08 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: BUG in RT 45-01 when RT program dumps core
-Date: Mon, 11 Apr 2005 12:39:59 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F3673231E9@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: BUG in RT 45-01 when RT program dumps core
-Thread-Index: AcU+gtGH2rZKkpspRPWYat9yXGB4zA==
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>
+	Mon, 11 Apr 2005 06:45:37 -0400
+Received: from postel.suug.ch ([195.134.158.23]:48058 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S261768AbVDKKp3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 06:45:29 -0400
+Date: Mon, 11 Apr 2005 12:45:50 +0200
+From: Thomas Graf <tgraf@suug.ch>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: jamal <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>, jmorris@redhat.com,
+       ijc@hellion.org.uk, guillaume.thouvenin@bull.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org, akpm@osdl.org,
+       netdev <netdev@oss.sgi.com>
+Subject: Re: [Fwd: Re: connector is missing in 2.6.12-rc2-mm1]
+Message-ID: <20050411104550.GK26731@postel.suug.ch>
+References: <1112942924.28858.234.camel@uganda> <E1DKZ7e-00070D-00@gondolin.me.apana.org.au> <20050410143205.18bff80d@zanzibar.2ka.mipt.ru> <1113131325.6994.66.camel@localhost.localdomain> <20050410153757.104fe611@zanzibar.2ka.mipt.ru> <20050410121005.GF26731@postel.suug.ch> <20050410161549.3abe4778@zanzibar.2ka.mipt.ru> <1113143959.1089.316.camel@jzny.localdomain> <20050410192727.GI26731@postel.suug.ch> <20050411092228.A32699@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050411092228.A32699@2ka.mipt.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a process running with RT priority dumps core,
-I get the following BUG:
-
-Apr 11 13:44:23 OF455 kern.err kernel: BUG: rtc2:833 RT task
-yield()-ing!
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c026dad1>] yield+0x61/0x70
-(8)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c0151e49>]
-coredump_wait+0x79/0xc0 (20)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c0151f83>]
-do_coredump+0xf3/0x200 (92)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c0136789>]
-kmem_cache_free+0x49/0x120 (32)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c012abdb>]
-atomic_dec_and_spin_lock+0x3b/0x50 (24)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c011c9a5>]
-__dequeue_signal+0x105/0x160 (20)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c011e734>]
-get_signal_to_deliver+0x334/0x350 (48)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c01027f8>]
-do_signal+0x98/0x180 (44)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c0106b56>]
-timer_interrupt+0x46/0x70 (108)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c012c9eb>]
-handle_IRQ_event+0x5b/0xe0 (8)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c012cba1>]
-__do_IRQ+0x111/0x190 (48)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c010d590>]
-do_page_fault+0x0/0x530 (16)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c0102917>]
-do_notify_resume+0x37/0x3c (8)
-Apr 11 13:44:23 OF455 kern.warn kernel:  [<c0102ae6>]
-work_notifysig+0x13/0x15 (8)
-
-
-
-Klaus Kusche
-> Entwicklung Software - Steuerung
-> Software Development - Control
+* Evgeniy Polyakov <20050411092228.A32699@2ka.mipt.ru> 2005-04-11 09:22
+> On Sun, Apr 10, 2005 at 09:27:27PM +0200, Thomas Graf (tgraf@suug.ch) wrote:
+> > +       size = NLMSG_SPACE(sizeof(*msg) + msg->len);
+> > +
+> > +       skb = alloc_skb(size, GFP_ATOMIC);
+> > +       if (!skb) {
+> > +               printk(KERN_ERR "Failed to allocate new skb with size=%u.\n", size);
+> > +               return;
+> > +       }
+> > +
+> > +       nlh = NLMSG_PUT(skb, 0, msg->seq, NLMSG_DONE, size - sizeof(*nlh));
+> > 
+> > This is not correct, what happens is:
+> > size = NLMSG_SPACE(sizeof(*msg) + msg->len);
+> >  --> align(hdr)+align(data)
+> > size - sizeof(*nlh)
+> >  --> (align(hdr)-hdr)+align(data)
+> > NLMSG_PUT pads again to get to the end of the data block (NLMSG_LENGTH)
+> >  --> align(hdr)+(align(hdr)-hdr)+align(data)
+> > 
+> > At the moment align(hdr) == hdr since nlmsghdr is already aligned
+> > but this might change and your code will break.
 > 
-> KEBA AG
-> A-4041 Linz
-> Gewerbepark Urfahr
-> Tel +43 / 732 / 7090-3120
-> Fax +43 / 732 / 7090-6301
-> E-Mail: kus@keba.com
-> www.keba.com
-> 
-> 
+> As far as I remember, header is always supposed to be aligned properly
+> "by design", so it even could be nonaligned here.
+
+No, have a look at the macros:
+
+#define NLMSG_LENGTH(len) ((len)+NLMSG_ALIGN(sizeof(struct nlmsghdr)))
+#define NLMSG_SPACE(len) NLMSG_ALIGN(NLMSG_LENGTH(len))
+
+NLMSG_LENGTH points to the end of the payload in the message, NLMSG_SPACE
+represents the total size aligned properly for a possible next multipart
+message.
+
+It is unlikely that nlmsghdr will ever be unaligned but there can be no
+reason to introduce code that can break with perfectly legal changes just
+because of that.

@@ -1,100 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVDKPM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVDKPS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbVDKPM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 11:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVDKPM2
+	id S261754AbVDKPS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 11:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVDKPS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 11:12:28 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:22716 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261800AbVDKPMQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 11:12:16 -0400
-Date: Mon, 11 Apr 2005 17:12:04 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
-       linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: [rfc] git: combo-blobs
-Message-ID: <20050411151204.GA5562@elte.hu>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu> <20050411074552.4e2e656b.pj@engr.sgi.com>
+	Mon, 11 Apr 2005 11:18:27 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:19435 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261754AbVDKPST
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 11:18:19 -0400
+Date: Mon, 11 Apr 2005 08:18:32 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm2
+Message-ID: <20050411151832.GA1301@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050408030835.4941cd98.akpm@osdl.org> <20050410224834.GK4204@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050411074552.4e2e656b.pj@engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050410224834.GK4204@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Paul Jackson <pj@engr.sgi.com> wrote:
-
-> Hmmm ... I have this strong sense that I am about 2 hours away from
-> smacking my forehead and groaning "Duh - so that's what Ingo meant!"
+On Mon, Apr 11, 2005 at 12:48:34AM +0200, Adrian Bunk wrote:
+> kernel-rcupdatec-make-the-exports-export_symbol_gpl.patch
+> add-deprecated_for_modules.patch
+> add-deprecated_for_modules-fix.patch
+> deprecate-synchronize_kernel-gpl-replacement.patch
+> deprecate-synchronize_kernel-gpl-replacement-fix.patch
+> change-synchronize_kernel-to-_rcu-and-_sched.patch
 > 
-> However, one must play out one's destiny.
 > 
-> Could you provide an example scenario, which results in the creation 
-> of a combo-blob?
+> Please drop these patches.
+
+Please keep them!
+
+> Using these symbols in non-GPL modules is a legal problem at least in 
+> the USA except for IBM,
+
+Again, based on what line of reasoning?  Again, the obvious lines
+of reasoning do not apply.
+
+>                         and all we've heard from IBM is that they are 
+> not 100% sure that there is really no binary-only module by IBM that 
+> might use these symbols.
+
+>From my earlier message (http://lkml.org/lkml/2005/4/4/244):
+
+	Agreed, in that I know of no binary module that uses RCU.  However,
+	I cannot -prove- that there is no such module.
+
+IOW, I am also not 100% sure that there is really no binary-only module
+using these symbols by -anyone-, including someone -other- than IBM.
+In addition, I know of no way that -anyone- could possibly be 100% sure
+that there is really no binary-only module using symbols.  Hence the
+approach of providing the year "grace period" before transitioning to
+EXPORT_SYMBOL_GPL().
+
+> The risk of anyne using them only increases (no matter that it's marked 
+> as deprecated) as long as it's available - and nobody has until now 
+> claimed that he's actually using one pf them in a binary-only module.
+
+I am not convinced that the risk of usage increases significantly.
+However, even if someone does start using them in a binary module, they
+will have been warned.  Yes, someone could possibly ignore the warning.
+They -still- will have been warned, so that any "damage" would be
+self-inflicted.  Therefore, as noted earlier, the symbol transitions
+to EXPORT_SYMBOL_GPL() one year after its inclusion, regardless of any
+people who ignored warnings.
+
+							Thanx, Paul
+
+> cu
+> Adrian
 > 
-> The best I can come up with is the following.
+> -- 
 > 
-> Let's say Nick changes one line in the middle of kernel/sched.c (yeah 
-> - I know - unlikely scenario - he usually changes more than that - 
-> nevermind that detail.)
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
 > 
-> In the days Before Combo Blobs (BCB), git would have been told that 
-> kernel/sched.c was to be picked up, and would have wrapped it up in a 
-> zlib'd blob, sha1summed it, seen it was a new sum, and added that blob 
-> to its objects (or something like this -- I'm still a little fuzzy on 
-> these git details.)
 > 
-> But Nick just downloaded the latest git 1.5.11.1 which has added 
-> support for combo blobs, so now, guessing here, instead of wrapping up 
-> the new sched.c, git instead unwraps the old one, diff's with the new, 
-> notices a couple of long sequences that are unchanged, wraps up both 
-> of those sequences as a couple of relatively large blobs, and wraps up 
-> the new lines that Nick just coded in the middle as a small blob, and 
-> puts all three in the object store, along with another small 
-> combo-blob, tying them all together.
-
-actually, git would just include by reference the previous blob.
-
-lets say we had the previous version of sched.c in a blob, ID 
-cc4ee6107d19f89898a8c89d45810f01710f2ff4. We have the new edit (which is 
-small, lets say 20 bytes) in blob e010fab710092b19be6e26de1721e249dff2d141.
-We'd create the combo-blob representing the new version of sched.c, the 
-following way:
-
-	include cc4ee6107d19f89898a8c89d45810f01710f2ff4 0 54010
-	include e010fab710092b19be6e26de1721e249dff2d141 0 20
-	include cc4ee6107d19f89898a8c89d45810f01710f2ff4 54030 73061
-
-so we'd include (by reference) most of the previous version, with a 
-small blob for the extras. Since sched.c compresses down to 36K, we 
-saved ~32K of bandwidth, and somewhere on the order of 20K of storage.
-
-to construct the combo blob later on, we do have to unpack sched.c (and 
-if it's already a combo-blob that is not cached then we'd have to unpack 
-all parents until we arrive at some full blob).
-
-> So far, not too bad.  Haven't gained anything, and required the 
-> unpacking of a zlib blog we didn't require before, and the running and 
-> analyzing of a diff we didn't require before, but the end result is 
-> only moderately worse - four object blobs instead of one, but of total 
-> size not much larger (well, total size typically 3 disk blocks worse, 
-> due to a slight increase in fragmentation from using 4 blocks to store 
-> what used to be in one.)
-
-we'd have 2 new objects (the 'delta' and the 'combo' blob).
-
-(if # of objects is an issue then we could include new data in the combo 
-blob itself too, but that's getting too complex i think.)
-
-	Ingo
+> 

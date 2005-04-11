@@ -1,49 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVDKSAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVDKSED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261864AbVDKSAa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 14:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbVDKSAa
+	id S261866AbVDKSED (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 14:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVDKSED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 14:00:30 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:7019 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261864AbVDKSAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 14:00:19 -0400
-Date: Mon, 11 Apr 2005 10:59:52 -0700
-From: Greg KH <gregkh@suse.de>
-To: Ian Molton <spyro@f2s.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH add support for system on chip (SoC) devices.
-Message-ID: <20050411175952.GB24070@suse.de>
-References: <42569300.7070008@f2s.com>
+	Mon, 11 Apr 2005 14:04:03 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:31637 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261866AbVDKSB2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 14:01:28 -0400
+Subject: Re: [PATCH 2.6.12-rc1-mm3] [1/2]  kprobes += function-return
+From: Jim Keniston <jkenisto@us.ibm.com>
+To: prasanna@in.ibm.com
+Cc: Hien Nguyen <hien@us.ibm.com>, SystemTAP <systemtap@sources.redhat.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1112721545.2293.36.camel@dyn9047018078.beaverton.ibm.com>
+References: <20050404081538.GF1715@in.ibm.com>
+	 <1112721545.2293.36.camel@dyn9047018078.beaverton.ibm.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1113242482.2298.128.camel@dyn9047018078.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42569300.7070008@f2s.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Apr 2005 11:01:23 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 08, 2005 at 03:19:44PM +0100, Ian Molton wrote:
-> Hi.
+On Tue, 2005-04-05 at 10:19, Jim Keniston wrote:
+> On Mon, 2005-04-04 at 01:15, Prasanna S Panchamukhi wrote:
+> ...
+> > int register_returnprobe(struct rprobe *rp) {
+> ...
 > 
-> This patch add support for a new 'System on Chip' or SoC bus type.
+> > independent of kprobe and jprobe.
+> ...
+> > 
+> > make unregister exitprobes independent of kprobe/jprobe.
+> > 
+> ...
+> > 
+> > Please let me know if you need more information.
+> > 
+> > Thanks
+> > Prasanna
 > 
-> This allows common drivers used in different SoC devices to be shared in 
-> a clean and healthy manner, for example, the MMC function on toshiba 
-> t7l66xb, tc6393xb, and Compaq IPAQ ASIC3.
+> We thought about that.  It is a nicer interface.  But I'm concerned that
+> if the user has to do
+> 	register_kprobe(&foo_entry_probe);
+> 	register_retprobe(&foo_return_probe);
+> then he/she has to be prepared to handle calls to foo that happen
+> between register_kprobe and register_retprobe -- i.e., calls where the
+> entry probe fires but the return probe doesn't.  Similarly on
+> unregistration.
 > 
-> This is in common use in the handhelds.org CVS tree.
+> Here are a couple of things we could do to support registration and
+> unregistration of retprobes that can be either dependent on or
+> independent of the corresponding j/kprobes, as the user wants:
 > 
-> The only real issue is that drivers using this currently tend to assume 
-> that the SoC is attached to a platfrom_bus. This can be resolved as and 
-> when it becomes an issue for people.
+> 1. When you call register_j/kprobe(), if kprobe->rp is non-null, it is
+> assumed to point to a retprobe that will be registered and unregistered
+> along with the kprobe.  (But this may make trouble for existing kprobes
+> applications that didn't need to initialize the (nonexistent) rp
+> pointer.  Probably not a huge deal.)
 > 
-> Please apply.
+> OR
+> 
+> 2. Create the ability to (a) register kprobes, jprobes, and/or retprobes
+> in a disabled state; and (b) enable a group of probes in an atomic
+> operation.  Then you could register the entry and return probes
+> independently, but enable them together.  We may need to do something
+> like that for SystemTap anyway.
+> 
+> Jim Keniston
+> IBM Linux Technology Center
 
-Sorry, but I agree with everyone else.  Why do you need this?  Why is
-this different from a platform device?
+I suppose if pairing of entry and return probes is important for a user,
+he/she can always do the following:
 
-thanks,
+static int ready;	// 1 = everybody registered
+			// 2 = everybody knows we're registered
+...
+	ready = 0;
+	... register_kprobe(&kp)...
+	... register_retprobe(&rp) ...
+	/* instant XXX -- see below*/
+	ready = 1;
 
-greg k-h
+and in kp.pre_handler do
+	if (!ready) {
+		// return probe not registered yet
+		return 0;
+	}
+	ready = 2;
+	<body of handler>
+
+and in rp.handler do
+	if (ready != 2) {
+		// Probed function entered during instant XXX,
+		// so kp.pre_handler didn't act on it.
+		return 0;
+	}
+	<body of handler>
+
+Keeping a whole group of kprobes, jprobes, and retprobes in the starting
+gate pending a "ready" signal (e.g., for SystemTap) could probably be
+handled similarly.
+
+Unregistration shouldn't be an issue.  At any time you can have N active
+instances of the probed function, and have therefore recorded E entries
+and E-N returns.  Hien's code handles all that on retprobe
+deregistration, but the user's instrumentation should never count on #
+probed entries == # probed returns.
+
+Jim
+

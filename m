@@ -1,62 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVDKWTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVDKWSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbVDKWTm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:19:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVDKWSo
+	id S261968AbVDKWSV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:18:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVDKWQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:18:44 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:21778 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261964AbVDKWQ7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:16:59 -0400
-Date: Mon, 11 Apr 2005 15:17:23 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Joe Korty <joe.korty@ccur.com>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-Message-ID: <20050411221723.GB11685@nietzsche.lynx.com>
-References: <F989B1573A3A644BAB3920FBECA4D25A02F64C65@orsmsx407> <20050411085737.GA11109@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411085737.GA11109@elte.hu>
-User-Agent: Mutt/1.5.8i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Mon, 11 Apr 2005 18:16:57 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32530 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261964AbVDKWPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 18:15:32 -0400
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix comments in 8250.c
+X-Patch-Ref: 01-fixes/04-8250-comments
+Message-Id: <E1DL7Bn-0003CC-73@raistlin.arm.linux.org.uk>
+Date: Mon, 11 Apr 2005 23:15:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 10:57:37AM +0200, Ingo Molnar wrote:
-> 
-> * Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
-> 
-> > Let me re-phrase then: it is a must have only on PI, to make sure you 
-> > don't have a loop when doing it. Maybe is a consequence of the 
-> > algorithm I chose. -However- it should be possible to disable it in 
-> > cases where you are reasonably sure it won't happen (such as kernel 
-> > code). In any case, AFAIR, I still did not implement it.
-> 
-> are there cases where userspace wants to disable deadlock-detection for 
-> its own locks?
+Fix the formatting of some comments in 8250.c, and add a note
+that the register_serial / unregister_serial shouldn't be used
+in new code.
 
-I'd disable it for userspace locks. There might be folks that want to
-implement userspace drivers, but I can't imagine it being 'ok' to have
-the kernel call out to userspace and have it block correctly. I would
-expect them to do something else that's less drastic.
+We do this here in preference to adding to linux/serial.h, since
+that is used by a number of non-8250 drivers which pretend to be
+8250.  It is not known whether it would be appropriate to do so.
+
+Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -r orig/drivers/serial/8250.c linux/drivers/serial/8250.c
+--- orig/drivers/serial/8250.c	Mon Apr  4 22:54:05 2005
++++ linux/drivers/serial/8250.c	Mon Apr 11 20:41:22 2005
+@@ -1065,8 +1065,10 @@ receive_chars(struct uart_8250_port *up,
+ 				tty_flip_buffer_push(tty);
+ 				spin_lock(&up->port.lock);
+ 			}
+-			/* If this failed then we will throw away the
+-			   bytes but must do so to clear interrupts */
++			/*
++			 * If this failed then we will throw away the
++			 * bytes but must do so to clear interrupts
++			 */
+ 		}
+ 		ch = serial_inp(up, UART_RX);
+ 		flag = TTY_NORMAL;
+@@ -1106,7 +1108,7 @@ receive_chars(struct uart_8250_port *up,
+ 				up->port.icount.overrun++;
  
-> the deadlock detector in PREEMPT_RT is pretty much specialized for 
-> debugging (it does all sorts of weird locking tricks to get the first 
-> deadlock out, and to really report it on the console), but it ought to 
-> be possible to make it usable for userspace-controlled locks as well.
-
-If I understand things correctly, I'd let that be an RT app issue and
-the app folks should decided what is appropriate for their setup. If
-they need a deadlock detector they should decide on their own protocol.
-The kernel debugging issues are completely different.
-
-That's my two cents.
-
-bill
+ 			/*
+-			 * Mask off conditions which should be ingored.
++			 * Mask off conditions which should be ignored.
+ 			 */
+ 			lsr &= up->port.read_status_mask;
+ 
+@@ -2570,6 +2572,9 @@ MODULE_ALIAS_CHARDEV_MAJOR(TTY_MAJOR);
+  *	If this fails an error is returned.
+  *
+  *	On success the port is ready to use and the line number is returned.
++ *
++ *	Note: this function is deprecated - use serial8250_register_port
++ *	instead.
+  */
+ int register_serial(struct serial_struct *req)
+ {
+@@ -2624,6 +2629,9 @@ EXPORT_SYMBOL(register_serial);
+  *
+  *	Remove one serial port.  This may not be called from interrupt
+  *	context.  We hand the port back to our local PM control.
++ *
++ *	Note: this function is deprecated - use serial8250_unregister_port
++ *	instead.
+  */
+ void unregister_serial(int line)
+ {
 

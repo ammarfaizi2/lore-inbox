@@ -1,94 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVDKAGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVDKAK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVDKAGH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 20:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVDKAGH
+	id S261640AbVDKAK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 20:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVDKAK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 20:06:07 -0400
-Received: from front3.netvisao.pt ([213.228.128.91]:15320 "EHLO
-	front3.netvisao.pt") by vger.kernel.org with ESMTP id S261488AbVDKAGD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 20:06:03 -0400
-From: =?iso-8859-1?q?Z=E9?= <mmodem00@netvisao.pt>
-To: linux-kernel@vger.kernel.org
-Subject: very high temperatures in Asus notebook
-Date: Sun, 10 Apr 2005 19:31:42 +0100
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 10 Apr 2005 20:10:59 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:15585 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261640AbVDKAKr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 20:10:47 -0400
+Date: Mon, 11 Apr 2005 02:10:46 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, junkio@cox.net, rddunlap@osdl.org,
+       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
+Subject: Re: Re: more git updates..
+Message-ID: <20050411001046.GF5902@pasky.ji.cz>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org> <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org> <20050410161457.2a30099a.pj@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504101931.45772.mmodem00@netvisao.pt>
+In-Reply-To: <20050410161457.2a30099a.pj@engr.sgi.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to understand why using linux, my notebook gets much higher 
-temperatures than using windows, in linux i get about 67º celcius grades.
+Dear diary, on Mon, Apr 11, 2005 at 01:14:57AM CEST, I got a letter
+where Paul Jackson <pj@engr.sgi.com> told me that...
+> Useful explanation - thanks, Linus.
+> 
+> Is this picture and description accurate:
+> 
+> ==============================================================
+> 
+> 
+>              < working directory files (foo.c) >
+>                            ^
+>   ^                        |
+>   |  upward ops            |            downward ops  |
+>   |  ----------            |            ------------  |
+>   | checkout-cache         |            update-cache  |
+>   | show-diff              |                          v
+>                            v
+>         < current directory cache (".dircache/index") >
+>                            ^
+>   ^                        |
+>   |  upward ops            |            downward ops  |
+>   |  ----------            |            ------------  |
+>   |   read-tree            |             write-tree   |
+>   |                        |            commit-tree   |
+>                            |                          v
+>                            v
+> < git filesystem (blobs, trees, commits: .dircache/{HEAD,objects}) >
 
-For what i have compared to other notebooks, the drive made for my notebook, 
-an Asus A2h, you can see specifications in 
-http://www.asus.com/products/notebook/a2series/a2000h/a2000h_overview.htm
+Well, except that from purely technical standpoint commit-tree has
+nothing to do in this picture - it creates new object in the git
+filesystem based on its input data, but regardless to the directory
+cache or current tree. It probably still belongs where it is from the
+workflow standpoint, though.
 
-I dont see other notebooks get so high temperatures like mine, and im also 
-talking about Asus notebooks.
+..snip..
+> Minor question:
+> 
+>   I must have an old version - I got 'git-0.03', but
+>   it doesn't have 'checkout-cache', and its 'read-tree'
+>   directly writes my working files.
+>  
+>   How do I get a current version?  Well, one way I see,
+>   and that's to pick up Pasky's:
+>     
+>     http://pasky.or.cz/~pasky/dev/git/git-pasky-base.tar.bz2
+>  
+>   Perhaps that's the best way?
 
-Im pasting here the sensors output:
-]# sensors
-it87-isa-0800
-Adapter: ISA adapter
-VCore 1:   +0.00 V  (min =  +1.42 V, max =  +1.57 V)   ALARM
-VCore 2:   +0.00 V  (min =  +2.40 V, max =  +2.61 V)   ALARM
-+3.3V:     +0.00 V  (min =  +3.14 V, max =  +3.46 V)   ALARM
-+5V:       +0.00 V  (min =  +4.76 V, max =  +5.24 V)   ALARM
-+12V:      +0.00 V  (min = +11.39 V, max = +12.61 V)   ALARM
--12V:     -27.36 V  (min = -12.63 V, max = -11.41 V)   ALARM
--5V:      -13.64 V  (min =  -5.26 V, max =  -4.77 V)   ALARM
-Stdby:     +0.00 V  (min =  +4.76 V, max =  +5.24 V)   ALARM
-VBat:      +3.28 V
-fan1:     135000 RPM  (min =    0 RPM, div = 2)
-fan2:        0 RPM  (min = 2657 RPM, div = 2)
-fan3:        0 RPM  (min = 2657 RPM, div = 2)
-M/B Temp:    +67°C  (low  =   +15°C, high =   +40°C)   sensor = diode
-CPU Temp:    +67°C  (low  =   +15°C, high =   +45°C)   sensor = diode
-Temp3:       +67°C  (low  =   +15°C, high =   +45°C)   sensor = diode
+You can take mine, and do:
 
-Here is also the output of lspcidrake:
-]# lspcidrake
-sis-agp         : Silicon Integrated System|SiS 650 Host-to-PCI Bridge 
-[BRIDGE_HOST]
-unknown         : Silicon Integrated Systems [SiS]|5591/5592 AGP [BRIDGE_PCI]
-unknown         : Silicon Integrated Systems [SiS]|SiS962 [MuTIOL Media IO] 
-[BRIDGE_ISA]
-i2c-sis96x      : Silicon Integrated System|SiS961/962 SMBus Controller 
-[SERIAL_SMBUS]
-ohci1394        : Silicon Integrated Systems [SiS]|OHCI Compliant FireWire 
-Controller [SERIAL_FIREWIRE]
-sis5513         : Silicon Integrated Systems [SiS]|5513 [IDE] [STORAGE_IDE]
-slamr           : Silicon Integrated System|SiS7013 56k Modem 
-[COMMUNICATION_MODEM]
-snd-intel8x0    : Silicon Integrated Systems [SiS]|SiS7012 PCI Audio 
-Accelerator [MULTIMEDIA_AUDIO]
-usb-ohci        : Silicon Integrated Systems [SiS]|7001 USB [SERIAL_USB]
-usb-ohci        : Silicon Integrated Systems [SiS]|7001 USB [SERIAL_USB]
-usb-ohci        : Silicon Integrated Systems [SiS]|7001 USB [SERIAL_USB]
-ehci-hcd        : Silicon Integrated Systems [SiS]|7002 USB 2.0 Controller 
-[SERIAL_USB]
-sis900          : Silicon Integrated Systems [SiS]|SiS900 10/100 Ethernet 
-[NETWORK_ETHERNET]
-yenta_socket    : Texas Instruments|PCI1410 PC card Cardbus Controller 
-[BRIDGE_CARDBUS]
-unknown         : Broadcom Corp.|BCM4301 802.11b [NETWORK_OTHER]
-Card:SiS 650    : Silicon Integrated System|SiS650/651/740 GUI 2D/3D 
-Accelerator [DISPLAY_VGA]
-hub             : Linux 2.6.11-6mdk ehci_hcd|EHCI Host Controller [Hub|Unused]
-hub             : Linux 2.6.11-6mdk ohci_hcd|OHCI Host Controller [Hub|Unused]
-hub             : Linux 2.6.11-6mdk ohci_hcd|OHCI Host Controller [Hub|Unused]
-usbhid          : Microsoft Corp.|Notebook Optical Mouse [Human Interface 
-Devices|Boot Interface Subclass|Mouse]
-hub             : Linux 2.6.11-6mdk ohci_hcd|OHCI Host Controller [Hub|Unused]
+	git pull pasky
+	git pull linus
+	cp .dircache/HEAD .dircache/HEAD.local
 
-Any help?
+Now, your tree and git filesystem is up to date.
+
+	git track local
+
+Now, when you do git pull pasky, your working tree will not be updated
+automatically anymore.
+
+	git track linus
+
+Now, you start tracking Linus' tree instead. Note that the initial
+update will blow away the scripts in your current tree, so before you do
+the last two steps you will probably want to clone the tree and set PATH
+to the one still tracking me, so you get all the comfort. ;-)
+
 -- 
-Zé
-Linux user #378762
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

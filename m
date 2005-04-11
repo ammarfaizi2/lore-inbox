@@ -1,69 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbVDKTnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVDKTrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbVDKTnt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 15:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVDKTns
+	id S261902AbVDKTrU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 15:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVDKTrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 15:43:48 -0400
-Received: from mail.dif.dk ([193.138.115.101]:11203 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261900AbVDKTnh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 15:43:37 -0400
-Date: Mon, 11 Apr 2005 21:46:18 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux390@de.ibm.com, linux-390@vm.marist.edu, linux-kernel@vger.kernel.org
-Subject: [PATCH] s390: drop redundant NULL pointer checks before kfree()
-Message-ID: <Pine.LNX.4.62.0504112142070.2480@dragon.hyggekrogen.localhost>
+	Mon, 11 Apr 2005 15:47:19 -0400
+Received: from sanosuke.troilus.org ([66.92.173.88]:61114 "EHLO
+	sanosuke.troilus.org") by vger.kernel.org with ESMTP
+	id S261902AbVDKTq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 15:46:57 -0400
+To: <debian-legal@lists.debian.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear 
+	copyright notice.
+From: Michael Poole <mdpoole@troilus.org>
+Date: Mon, 11 Apr 2005 15:46:53 -0400
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEFBDBAB.davids@webmaster.com> (David
+ Schwartz's message of "Mon, 11 Apr 2005 12:31:53 -0700")
+Message-ID: <87oecldrki.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+References: <MDEHLPKNGKAHNMBLJOLKIEFBDBAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(please keep me on CC when replying)
+David Schwartz writes:
 
+>>Copyright law only _explicitly_ grants a monopoly on preparation of
+>>derivative works.  However, it is trivial, and overwhelmingly common,
+>>for a copyright owner to grant a license to create a derivative work
+>>that is conditional on how the licensee agrees to distribute (or not
+>>distribute) the derivative work.
+>
+> 	This would, of course, only make sense if you *had* to agree to the license
+> to *create* the derivative work. If you were able to create the derivative
+> work under first sale or fair use rights, then the restrictions in the
+> contract would not apply to you.
 
-Checking for NULL before calling kfree() on a pointer is redundant. This 
-patch drops such checks from arch/s390/
+This would, of course, only make sense if fair use or first sale
+rights *allow* the creation of derivative works.  I have seen nothing
+in this thread or in the statutes to suggest that they do.
 
+Do not forget that your copyright interest in a derivative work is
+limited to the creative elements which you contributed.  Simply having
+a license (or right) to create a derivative work does not permit you
+to infringe the original work's copyright, which still subsists in the
+derivative work insofar as the derivative work contains copyrightable
+elements from the original work.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
----
+Even if some court agrees with your hypothesis that the compiled
+program is a derivative work of the source (which I doubt would
+happen), and you find some permission outside of the GPL to prepare
+that derivative work, you still need permission to copy it further.
 
- extmem.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-diff -upr linux-2.6.12-rc2-mm3-orig/arch/s390/mm/extmem.c linux-2.6.12-rc2-mm3/arch/s390/mm/extmem.c
---- linux-2.6.12-rc2-mm3-orig/arch/s390/mm/extmem.c	2005-03-02 08:38:17.000000000 +0100
-+++ linux-2.6.12-rc2-mm3/arch/s390/mm/extmem.c	2005-04-11 21:40:10.000000000 +0200
-@@ -234,8 +234,8 @@ query_segment_type (struct dcss_segment 
- 	rc = 0;
- 
-  out_free:
--	if (qin) kfree(qin);
--	if (qout) kfree(qout);
-+	kfree(qin);
-+	kfree(qout);
- 	return rc;
- }
- 
-@@ -394,7 +394,7 @@ __segment_load (char *name, int do_nonsh
- 				segtype_string[seg->vm_segtype]);
- 	goto out;
-  out_free:
--	kfree (seg);
-+	kfree(seg);
-  out:
- 	return rc;
- }
-@@ -505,7 +505,7 @@ segment_modify_shared (char *name, int d
- 	list_del(&seg->list);
- 	dcss_diag(DCSS_PURGESEG, seg->dcss_name,
- 		  &dummy, &dummy);
--	kfree (seg);
-+	kfree(seg);
-  out_unlock:
- 	spin_unlock(&dcss_lock);
- 	return rc;
-
-
+Michael Poole

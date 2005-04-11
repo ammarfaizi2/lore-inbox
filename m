@@ -1,99 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVDKVJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVDKVJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbVDKVJR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 17:09:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVDKVJR
+	id S261941AbVDKVJv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 17:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVDKVJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 17:09:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9705 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261936AbVDKVIj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 17:08:39 -0400
-Date: Mon, 11 Apr 2005 23:08:19 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andreas Steinmetz <ast@domdv.de>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050411210819.GF23530@elf.ucw.cz>
-References: <4259B474.4040407@domdv.de> <20050411110822.GA10401@elf.ucw.cz> <425AA19F.6040802@domdv.de> <200504112257.39708.rjw@sisk.pl>
+	Mon, 11 Apr 2005 17:09:33 -0400
+Received: from smtp-101-monday.nerim.net ([62.4.16.101]:63240 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261938AbVDKVJZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 17:09:25 -0400
+Date: Tue, 12 Apr 2005 00:10:06 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Clemens Koller <clemens.koller@anagramm.de>, Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] I2C rtc8564.c remove duplicate include (whitespace
+ fixed)
+Message-Id: <20050412001006.48736b86.khali@linux-fr.org>
+In-Reply-To: <425A481A.7020801@anagramm.de>
+References: <425125EC.6080201@anagramm.de>
+	<20050409131643.4269911a.khali@linux-fr.org>
+	<425A481A.7020801@anagramm.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504112257.39708.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Clemens,
 
-> I had no time to review your patch earlier, sorry.  I'm inlining it so that I can
-> comment it:
-
-> > @@ -72,6 +75,16 @@
-> >  
-> >  #include "power.h"
-> >  
-> > +#ifdef CONFIG_SWSUSP_ENCRYPT
-> > +#include <linux/random.h>
-> > +#include <linux/crypto.h>
-> > +#include <asm/scatterlist.h>
-> > +#endif
-> > +
-> > +#define CIPHER "aes"
-> > +#define MAXKEY 32
-> > +#define MAXIV  32
+> [PATCH] I2C rtc8564.c remove duplicate include
 > 
-> Why not to put these definitions under #ifdef?
+> Trivial fix: removes duplicate include line.
+> Patch applies to: 2.6.11.x
 > 
-> > +
-> >  /* References to section boundaries */
-> >  extern const void __nosave_begin, __nosave_end;
-> >  
-> > @@ -104,7 +117,9 @@
-> >  #define SWSUSP_SIG	"S1SUSPEND"
-> >  
-> >  static struct swsusp_header {
-> > -	char reserved[PAGE_SIZE - 20 - sizeof(swp_entry_t)];
+> (This is my very first patch to the linux-kernel, so let me
+> start with small things first...)
 > 
-> I would add #ifdef here as well.
+> Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
 
-I think avoiding both ifdefs is actually right thing to do. Keep the
-ifdef noise down.
+Thanks for the patch, I added it to my stack. Greg, please pick it for
+your i2c tree.
 
-> > +	char reserved[PAGE_SIZE - 20 - MAXKEY - MAXIV - sizeof(swp_entry_t)];
-> > +	u8 key[MAXKEY];
-> > +	u8 iv[MAXIV];
-> >  	swp_entry_t swsusp_info;
-> >  	char	orig_sig[10];
-> >  	char	sig[10];
-> > @@ -112,6 +127,11 @@
-> >  
-> >  static struct swsusp_info swsusp_info;
-> >  
-> > +#ifdef CONFIG_SWSUSP_ENCRYPT
-> > +static u8 key[MAXKEY];
-> > +static u8 iv[MAXIV];
-> > +#endif
-> > +
-> >  /*
-> >   * XXX: We try to keep some more pages free so that I/O operations succeed
-> >   * without paging. Might this be more?
-> > @@ -130,6 +150,52 @@
-> >  static unsigned short swapfile_used[MAX_SWAPFILES];
-> >  static unsigned short root_swap;
-> >  
-> > +#ifdef CONFIG_SWSUSP_ENCRYPT
-> > +static struct crypto_tfm *crypto_init(int mode)
-> 
-> I think it's better if this function returns an int error code and the
-> messages are printed where it's called from.  This way, the essential
-> part of the code would be easier to grasp (Pavel?).
-
-Agreed. Actually I do not care where messages are printed, but
-returning different code for different errors seems right.
-
-							Pavel
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Jean Delvare

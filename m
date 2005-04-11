@@ -1,114 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVDKUwL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVDKU4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbVDKUwL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 16:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVDKUwK
+	id S261930AbVDKU4J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVDKU4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 16:52:10 -0400
-Received: from mail.dif.dk ([193.138.115.101]:22729 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261928AbVDKUvo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 16:51:44 -0400
-Date: Mon, 11 Apr 2005 22:54:25 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Matthew Wilcox <matthew@wil.cx>,
-       Grant Grundler <grundler@parisc-linux.org>
-Cc: parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] parisc: kfree cleanup in arch/parisc/
-Message-ID: <Pine.LNX.4.62.0504112249510.2480@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Apr 2005 16:56:09 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:35224 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S261930AbVDKUz7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 16:55:59 -0400
+Date: Mon, 11 Apr 2005 16:55:55 -0400
+From: Raul Miller <moth@debian.org>
+To: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050411165555.E32136@links.magenta.com>
+References: <20050404190518.GA17087@wonderland.linux.it> <20050404193204.GD4087@stusta.de> <1112709907.30856.17.camel@silicium.ccc.cea.fr> <20050407210722.GC4325@stusta.de> <1112944920.11027.13.camel@silicium.ccc.cea.fr> <20050408173400.GA15688@stusta.de> <1112982171.5017.6.camel@mirchusko.localnet> <20050408180109.GB15688@stusta.de> <1112985737.8705.9.camel@mirchusko.localnet> <1n1euyqoz7akm$.1hq68bv2s0l5e.dlg@40tude.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1n1euyqoz7akm$.1hq68bv2s0l5e.dlg@40tude.net>; from bilotta78@hotpop.com on Sun, Apr 10, 2005 at 11:24:10AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Apr 10, 2005 at 11:24:10AM +0200, Giuseppe Bilotta wrote:
+> AFAIK software only refers to programs, not to arbitrary sequences of
+> bytes. An MP3 file isn't "software". Although it surely isn't hardware
+> either.
 
-Get rid of redundant NULL pointer checks before kfree() in arch/parisc/ as 
-well as a few blank lines.
+This point is a controversial point.  Different people make different
+claims.
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+For example, http://www.answers.com/software -- the Computer Desktop
+Encyclopedia asserts that you are correct, while Wikipedia asserts that
+you are incorrect.  The American Heritage Dictionary implies you are
+correct, and WordNet implies that you're incorrect.
 
-diff -upr linux-2.6.12-rc2-mm3-orig/arch/parisc/kernel/ioctl32.c linux-2.6.12-rc2-mm3/arch/parisc/kernel/ioctl32.c
---- linux-2.6.12-rc2-mm3-orig/arch/parisc/kernel/ioctl32.c	2005-04-05 21:21:08.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/arch/parisc/kernel/ioctl32.c	2005-04-11 22:48:03.000000000 +0200
-@@ -104,12 +104,9 @@ static int drm32_version(unsigned int fd
- 	}
- 
- out:
--	if (kversion.name)
--		kfree(kversion.name);
--	if (kversion.date)
--		kfree(kversion.date);
--	if (kversion.desc)
--		kfree(kversion.desc);
-+	kfree(kversion.name);
-+	kfree(kversion.date);
-+	kfree(kversion.desc);
- 	return ret;
- }
- 
-@@ -166,9 +163,7 @@ static int drm32_getsetunique(unsigned i
- 			ret = -EFAULT;
- 	}
- 
--	if (karg.unique != NULL)
--		kfree(karg.unique);
--
-+	kfree(karg.unique);
- 	return ret;
- }
- 
-@@ -265,7 +260,6 @@ static int drm32_info_bufs(unsigned int 
- 	}
- 
- 	kfree(karg.list);
--
- 	return ret;
- }
- 
-@@ -305,7 +299,6 @@ static int drm32_free_bufs(unsigned int 
- 
- out:
- 	kfree(karg.list);
--
- 	return ret;
- }
- 
-@@ -494,15 +487,10 @@ static int drm32_dma(unsigned int fd, un
- 	}
- 
- out:
--	if (karg.send_indices)
--		kfree(karg.send_indices);
--	if (karg.send_sizes)
--		kfree(karg.send_sizes);
--	if (karg.request_indices)
--		kfree(karg.request_indices);
--	if (karg.request_sizes)
--		kfree(karg.request_sizes);
--
-+	kfree(karg.send_indices);
-+	kfree(karg.send_sizes);
-+	kfree(karg.request_indices);
-+	kfree(karg.request_sizes);
- 	return ret;
- }
- 
-@@ -555,9 +543,7 @@ static int drm32_res_ctx(unsigned int fd
- 			ret = -EFAULT;
- 	}
- 
--	if (karg.contexts)
--		kfree(karg.contexts);
--
-+	kfree(karg.contexts);
- 	return ret;
- }
- 
+Usage is still evolving, so who knows where this issue will stand in
+five years.
 
+In the context of the linux kernel (which I presume you're talking about,
+given the message headers), I don't think it's plausible to suggest that
+the occasional use of the term "software" in the license means that the
+stuff under Documentation/ isn't covered by the license.
 
-
-
-PS. If you reply to lists other than Linux-kernel, then please keep me on CC:
-
-
-
+-- 
+Raul

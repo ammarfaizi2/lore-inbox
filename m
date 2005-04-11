@@ -1,77 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVDKW2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVDKWaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVDKW2G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVDKW1A
+	id S261969AbVDKWaO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:30:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDKW2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:27:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63723 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261980AbVDKWZM (ORCPT
+	Mon, 11 Apr 2005 18:28:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:6829 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261969AbVDKWYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:25:12 -0400
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: hifumi.hisashi@lab.ntt.co.jp,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, vherva@viasys.com,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050411134651.719e3434.akpm@osdl.org>
-References: <20050326162801.GA20729@logos.cnet>
-	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
-	 <16968.40186.628410.152511@cse.unsw.edu.au>
-	 <20050329215207.GE5018@logos.cnet>
-	 <16970.9679.874919.876412@cse.unsw.edu.au>
-	 <20050330115946.GA7331@logos.cnet>
-	 <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-	 <1112818233.3377.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112889078.2859.264.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113224149.2164.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <20050411134651.719e3434.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1113258283.2164.311.camel@sisko.sctweedie.blueyonder.co.uk>
+	Mon, 11 Apr 2005 18:24:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=A0+8lnk6ZQqknb6eobafMstwIkm7zzIaYNfzWA8KEaLygn5Nn2EpSNQnctur69fYZc55HqSUOdCgjqJ8lb2MAiYIVGJq83554fH3GHpAXQrvJHvGQWGZ0XXG/d7VIxXemJwmNXkmML3GDpiOYeF6o/wkFQhC31L05B/FfTi7HNI=
+Message-ID: <40f323d005041115241f2e80f2@mail.gmail.com>
+Date: Tue, 12 Apr 2005 00:24:08 +0200
+From: Benoit Boissinot <bboissin@gmail.com>
+Reply-To: Benoit Boissinot <bboissin@gmail.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.6.12-rc2-mm3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <419860000.1113252411@flay>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 11 Apr 2005 23:24:44 +0100
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+References: <20050411012532.58593bc1.akpm@osdl.org> <419860000.1113252411@flay>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2005-04-11 at 21:46, Andrew Morton wrote:
-> "Stephen C. Tweedie" <sct@redhat.com> wrote:
+On Apr 11, 2005 10:46 PM, Martin J. Bligh <mbligh@aracnet.com> wrote:
+> 
+> 
+> --On Monday, April 11, 2005 01:25:32 -0700 Andrew Morton <akpm@osdl.org> wrote:
+> 
 > >
-> > Andrew, what was the exact illegal state of the pages you were seeing
-> >  when fixing that recent leak?  It looks like it's nothing more complex
-> >  than dirty buffers on an anon page.
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
+> >
+> >
+> > - The anticipatory I/O scheduler has always been fairly useless with SCSI
+> >   disks which perform tagged command queueing.  There's a patch here from Jens
+> >   which is designed to fix that up by constraining the number of requests
+> >   which we'll leave pending in the device.
+> >
+> >   The depth currently defaults to 1.  Tunable in
+> >   /sys/block/hdX/queue/iosched/queue_depth
+> >
+> >   This patch hasn't been performance tested at all yet.  If you think it is
+> >   misbehaving (the usual symptom is processes stuck in D state) then please
+> >   report it, then boot with `elevator=cfq' or `elevator=deadline' to work
+> >   around it.
+> >
+> > - More CPU scheduler work.  I hope someone is testing this stuff.
 > 
-> Correct.
-
-Good --- I think I've got the debugging solid against 2.4 for that case,
-patching against 2.6 now.
-
-> >  I think that simply calling
-> >  try_to_release_page() for all the remaining buffers at umount time will
+> Trying ... having some build problems that seem to be part test-harness,
+> part bugs.
 > 
-> Presumably these pages have no ->mapping, so try_to_release_page() will
-> call try_to_free_buffers().
-
-Exactly.
-
-> >  The only thing that would be required on
-> >  top of that would be a check that the page is also on the VM LRU lists.
+> Meanwhile on PPC64:
 > 
-> Why do we have dirty buffers left over at umount time?
-
-In the leak case we're worried about, the buffers are dirty but the page
-is anon so there's nothing to clean them up.  The buffers _will_ be
-destroyed by unmount, sure; invalidate_bdev() should see to that.  But
-I'm doing the bh leak check before we get to the final
-invalidate_bdev(), so they should still be available for testing at that
-point.
-
---Stephen
-
+> fs/cifs/misc.c: In function `cifs_convertUCSpath':
+> fs/cifs/misc.c:546: error: case label does not reduce to an integer constant
+> fs/cifs/misc.c:549: error: case label does not reduce to an integer constant
+> fs/cifs/misc.c:552: error: case label does not reduce to an integer constant
+> fs/cifs/misc.c:561: error: case label does not reduce to an integer constant
+> fs/cifs/misc.c:564: error: case label does not reduce to an integer constant
+> fs/cifs/misc.c:567: error: case label does not reduce to an integer constant
+> make[2]: *** [fs/cifs/misc.o] Error 1
+> make[1]: *** [fs/cifs] Error 2
+> make[1]: *** Waiting for unfinished jobs....
+> 
+>
+See this patch from Steve French:
+http://cifs.bkbits.net:8080/linux-2.5cifs/gnupatch@4259f2138nVCJQt3SmaZowdXd8KB7A
+ 
+> M.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

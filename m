@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVDKJRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVDKJ1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVDKJRR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 05:17:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVDKJRQ
+	id S261745AbVDKJ1f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 05:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVDKJ1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 05:17:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22676 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261737AbVDKJRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 05:17:14 -0400
-Subject: Re: smbfs: lseek returns EINVAL when using large files.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Mathieu Fluhr <mfluhr@nero.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1113210463.1744.11.camel@c-l-175>
-References: <1113210463.1744.11.camel@c-l-175>
+	Mon, 11 Apr 2005 05:27:34 -0400
+Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:44248 "EHLO
+	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261745AbVDKJ1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 05:27:33 -0400
+Subject: Re: more git updates..
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E1DKlU7-0007lM-00@calista.eckenfels.6bone.ka-ip.net>
+References: <E1DKlU7-0007lM-00@calista.eckenfels.6bone.ka-ip.net>
 Content-Type: text/plain
-Date: Mon, 11 Apr 2005 11:17:10 +0200
-Message-Id: <1113211031.6275.19.camel@laptopd505.fenrus.org>
+Organization: Computing Service, University of Cambridge, UK
+Date: Mon, 11 Apr 2005 10:27:23 +0100
+Message-Id: <1113211643.10415.1.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-11 at 11:07 +0200, Mathieu Fluhr wrote:
-> Hello
+On Mon, 2005-04-11 at 01:04 +0200, Bernd Eckenfels wrote:
+> In article <20050410111905.53a2f6a1.pj@engr.sgi.com> you wrote:
+> > (I repeat the xxx in the leaf name - easier to code.)
 > 
-> It seems that the smbfs driver does not handle correctly large files
-> (>2GB). The thing is that statting them is correct (for example, the
-> st_size field is correctly set), but as soon as you try to make a lseek
-> with an offset larget than INT_MAX, you get a EINVAL error.
+> It is a bit OT, but just a note: there are file systems (hash functions) out
+> there who dont like a lot of files named the same way. For example NTFS with
+> the 8.3 short names.
 
+Since you mention NTFS, there is no need to worry about that for Linux.
+Certainly the Linux kernel NTFS driver is never going to create 8.3
+short names.  (It doesn't create names at all at the moment but my grand
+plan is that it will only ever create file names in the Win32 and/or
+POSIX name spaces.  The DOS name space is a thing of the past IMO.)
 
-have you tried the cifs client, which is new in 2.6 and is the more
-actively maintained way to access windows shares and samba ?
+Best regards,
 
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

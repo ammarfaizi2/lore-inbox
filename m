@@ -1,91 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVDKUen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVDKUfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVDKUen (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 16:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVDKUen
+	id S261919AbVDKUfh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVDKUe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 16:34:43 -0400
-Received: from mail.dif.dk ([193.138.115.101]:50887 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261916AbVDKUeB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 16:34:01 -0400
-Date: Mon, 11 Apr 2005 22:36:39 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Paul Mackerras <paulus@au.ibm.com>
-Cc: Anton Blanchard <anton@au.ibm.com>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] redundant NULL checks before kfree should go away...
-Message-ID: <Pine.LNX.4.62.0504112231470.2480@dragon.hyggekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Apr 2005 16:34:58 -0400
+Received: from cavan.codon.org.uk ([213.162.118.85]:57554 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261930AbVDKUcL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 16:32:11 -0400
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Shawn Starr <shawn.starr@rogers.com>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20050411201741.73077.qmail@web88002.mail.re2.yahoo.com>
+References: <20050411201741.73077.qmail@web88002.mail.re2.yahoo.com>
+Date: Mon, 11 Apr 2005 21:32:34 +0100
+Message-Id: <1113251554.10110.60.camel@tyrosine>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [ACPI] [2.6.12-rc2][suspend] Suspending Thinkpad: drive bay
+	light in S3 mode stays on
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(keeping me on CC when replying will be appreciated, thanks)
+On Mon, 2005-04-11 at 16:17 -0400, Shawn Starr wrote:
+> Sure, I suppose you can, but most suspend tools just
+> echo stuff to /sys (or still /proc/acpi/sleep) which
+> makes it harder to script it. Besides, when a laptop
+> goes into suspend to RAM there should be no extra
+> power   on except a Moon or some other icon.
 
+Most suspend tools are depressingly stupid. That's not a good reason to
+push functionality into the kernel. The vast majority of hardware won't
+work with that approach at the moment.
 
-kfree() checks for NULL pointers. Checking prior to calling it is 
-reundant.
-This patch removes such redundant checks from arch/ppc64/
+> That said, the ACPI thinkpad extras was designed to do
+> all of this so why shouldn't the driver do S3 suspend
+> if it hooks into it already?
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+Because, well, strictly it wasn't. The LED control functionality in the
+IBM-acpi code exists because it exposes methods that are used by the
+BIOS in normal usage. It gives some degree of extra flexibility -
+there's no point in removing that for the sake of having one fewer line
+of shell in a suspend script. I might want the LEDs to be in different
+states depending on what triggered the suspend.
 
-diff -upr linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/lparcfg.c linux-2.6.12-rc2-mm3/arch/ppc64/kernel/lparcfg.c
---- linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/lparcfg.c	2005-04-05 21:21:14.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/arch/ppc64/kernel/lparcfg.c	2005-04-11 22:23:37.000000000 +0200
-@@ -597,9 +597,7 @@ int __init lparcfg_init(void)
- void __exit lparcfg_cleanup(void)
- {
- 	if (proc_ppc64_lparcfg) {
--		if (proc_ppc64_lparcfg->data) {
--			kfree(proc_ppc64_lparcfg->data);
--		}
-+		kfree(proc_ppc64_lparcfg->data);
- 		remove_proc_entry("lparcfg", proc_ppc64_lparcfg->parent);
- 	}
- }
-diff -upr linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/pSeries_reconfig.c linux-2.6.12-rc2-mm3/arch/ppc64/kernel/pSeries_reconfig.c
---- linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/pSeries_reconfig.c	2005-04-05 21:21:14.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/arch/ppc64/kernel/pSeries_reconfig.c	2005-04-11 22:25:01.000000000 +0200
-@@ -294,10 +294,8 @@ static struct property *new_property(con
- 	return new;
- 
- cleanup:
--	if (new->name)
--		kfree(new->name);
--	if (new->value)
--		kfree(new->value);
-+	kfree(new->name);
-+	kfree(new->value);
- 	kfree(new);
- 	return NULL;
- }
-diff -upr linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/rtas_flash.c linux-2.6.12-rc2-mm3/arch/ppc64/kernel/rtas_flash.c
---- linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/rtas_flash.c	2005-04-05 21:21:14.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/arch/ppc64/kernel/rtas_flash.c	2005-04-11 22:25:49.000000000 +0200
-@@ -565,8 +565,7 @@ static int validate_flash_release(struct
- static void remove_flash_pde(struct proc_dir_entry *dp)
- {
- 	if (dp) {
--		if (dp->data != NULL)
--			kfree(dp->data);
-+		kfree(dp->data);
- 		dp->owner = NULL;
- 		remove_proc_entry(dp->name, dp->parent);
- 	}
-diff -upr linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/scanlog.c linux-2.6.12-rc2-mm3/arch/ppc64/kernel/scanlog.c
---- linux-2.6.12-rc2-mm3-orig/arch/ppc64/kernel/scanlog.c	2005-04-05 21:21:14.000000000 +0200
-+++ linux-2.6.12-rc2-mm3/arch/ppc64/kernel/scanlog.c	2005-04-11 22:26:11.000000000 +0200
-@@ -234,8 +234,7 @@ int __init scanlog_init(void)
- void __exit scanlog_cleanup(void)
- {
- 	if (proc_ppc64_scan_log_dump) {
--		if (proc_ppc64_scan_log_dump->data)
--			kfree(proc_ppc64_scan_log_dump->data);
-+		kfree(proc_ppc64_scan_log_dump->data);
- 		remove_proc_entry("scan-log-dump", proc_ppc64_scan_log_dump->parent);
- 	}
- }
-
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org
 

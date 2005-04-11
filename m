@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVDKRKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVDKROh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVDKRKy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 13:10:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVDKRKu
+	id S261838AbVDKROh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 13:14:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVDKROg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 13:10:50 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:28545 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261846AbVDKRJ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 13:09:59 -0400
-Subject: Re: kernel panic!
-From: Lee Revell <rlrevell@joe-job.com>
-To: sauro <sauro@ztec.com.br>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <425AA62F.2010406@ztec.com.br>
-References: <425AA62F.2010406@ztec.com.br>
+	Mon, 11 Apr 2005 13:14:36 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26361 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261838AbVDKRO2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 13:14:28 -0400
+Subject: RT and Signals
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: linux-kernel@vger.kernel.org
+Cc: mingo@elte.hu
 Content-Type: text/plain
-Date: Mon, 11 Apr 2005 13:09:58 -0400
-Message-Id: <1113239398.31605.1.camel@mindpipe>
+Organization: MontaVista
+Message-Id: <1113239666.30549.37.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 11 Apr 2005 10:14:27 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-11 at 13:30 -0300, sauro wrote:
-> I mean, is it possible for an user level application to be the cause of 
-> a "kernel panic"? If it is, which kind of operations can do that?
 
-If this happens then by definition it's a bug in the kernel (or a
-hardware failure).  It's never the fault of the userspace application
-that triggers the panic.
+	I'm not sure if this has changed at all in recent RT patches, but I've
+noticed several issues popping up that are related to the timer
+interrupt sending signals , one in particular is the fact that
+send_sig() calls into __cache_alloc() which has it's interrupt disable
+protections removed in RT . I've observed slab corruption due to this
+while running lmbench and LTP .
 
-If you think you have found such a bug in the kernel, please post the
-details to this list.
+	Another issue was a livelock related to the timer interrupt calling
+send_sig which locks tasklist_lock and siglock , which are both mutexes
+(deadlock detect was on , but didn't trigger).. 
 
-Lee
+	LTP and lmbench seem to bring all these issues to the surface, but they
+are all different depending on the architecture. I've been treating the
+symptoms , but not the disease .. Ultimately , we need some protections,
+in signal deliver, to stop the timer interrupt .. 
 
+Daniel
 

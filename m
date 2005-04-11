@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVDKA0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVDKA1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVDKA0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 20:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVDKA0h
+	id S261646AbVDKA1N (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 20:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVDKA1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 20:26:37 -0400
-Received: from [81.168.75.8] ([81.168.75.8]:27817 "EHLO henning.makholm.net")
-	by vger.kernel.org with ESMTP id S261644AbVDKA0e convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 20:26:34 -0400
-To: <linux-kernel@vger.kernel.org>, <debian-legal@lists.debian.org>
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear
- copyright notice.
-References: <MDEHLPKNGKAHNMBLJOLKEELGDAAB.davids@webmaster.com>
-From: Henning Makholm <henning@makholm.net>
-Date: Mon, 11 Apr 2005 01:26:32 +0100
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEELGDAAB.davids@webmaster.com> (David
- Schwartz's message of "Sat, 9 Apr 2005 20:07:03 -0700")
-Message-ID: <8764yurwef.fsf@kreon.lan.henning.makholm.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sun, 10 Apr 2005 20:27:13 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:40929 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261646AbVDKA1I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 20:27:08 -0400
+Date: Mon, 11 Apr 2005 02:27:06 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Willy Tarreau <willy@w.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: GIT license (Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1)
+Message-ID: <20050411002706.GF18661@pasky.ji.cz>
+References: <20050410174221.GD7858@alpha.home.local> <20050410174512.GA18768@elte.hu> <20050410184522.GA5902@pasky.ji.cz> <Pine.LNX.4.58.0504101310430.1267@ppc970.osdl.org> <20050410222737.GC5902@pasky.ji.cz> <Pine.LNX.4.58.0504101557180.1267@ppc970.osdl.org> <20050410232637.GC18661@pasky.ji.cz> <Pine.LNX.4.58.0504101639130.1267@ppc970.osdl.org> <20050410235617.GE18661@pasky.ji.cz> <Pine.LNX.4.58.0504101716420.1267@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504101716420.1267@ppc970.osdl.org>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scripsit "David Schwartz" <davids@webmaster.com>
+Dear diary, on Mon, Apr 11, 2005 at 02:20:52AM CEST, I got a letter
+where Linus Torvalds <torvalds@osdl.org> told me that...
+> Btw, does anybody have strong opinions on the license? I didn't put in a 
+> COPYING file exactly because I was torn between GPLv2 and OSL2.1.
+> 
+> I'm inclined to go with GPLv2 just because it's the most common one, but I 
+> was wondering if anybody really had strong opinions. For example, I'd 
+> really make it "v2 by default" like the kernel, since I'm sure v3 will be 
+> fine, but regardless of how sure I am, I'm _not_ a gambling man.
 
->> However, then you cannot legally copy it at all, because it contains
->> part of the original author's copyrighted work and therefore can only
->> legally be copied with the permission of the author.
-
-> 	The way you stop someone from distributing part of your work
-> is by arguing that the work they are distributing is a derivative
-> work of your work and they had no right to *make* it in the first
-> place. See, for example, Mulcahy v. Cheetah Learning.
-
-You don't need to argue that the thing being distributed is a
-derivative work. It is enough that it _contains_ your copyrighted
-work.
-
-> 	My point is that the reason the derivative work issue is so
-> important is because it's the only way (in U.S. law anyway) that the
-> GPL can apply to anything other than the exact thing the author
-> chose to apply it to.
-
-The taske of the GPL is to _give permission_ when certain conditions
-hold. Therefore, if the GPL does not apply yet you still need
-permission from the author (beacuse what you're distributing contains
-his work), then you do not have that permission and cannot distribute
-_at all_.
-
-I'm not sure whether meant instead that the original _copyright_ only
-influences things that are derivative works, but that would have even
-more bizarre consequences.
-
-> The GPL applies to distributing a Linux binary I just made even
-> though nobody ever chose to apply the GPL to the binary I just made
-> only because the binary I just made is a derivative work of the
-> Linux kernel, and the authors of that work chose to apply the GPL to
-> it.
-
-How can the binary be a derivative work when it does *not* contain
-firmware, but suddenly cease to be a derivative work if one *does*
-add firmware into it?
+Oh, I wanted to ask about this too. I'd mostly prefer GPLv2 (I have no
+problem with the version restriction, I usually do it too), it's the one
+I'm mostly familiar with and OSL appears to be incompatible with GPL (at
+least FSF says so about OSL1.0), which might create various annoying
+issues. I hate when licenses get in my way and prevent me to possibly
+include some useful code.
 
 -- 
-Henning Makholm            "Vi skal nok ikke begynde at undervise hinanden i
-                    den store regnekunst her, men jeg vil foreslå, at vi fra
-             Kulturministeriets side sørger for at fremsende tallene og også
-          give en beskrivelse af, hvordan man læser tallene. Tak for i dag!"
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

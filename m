@@ -1,77 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVDKPm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVDKPtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVDKPm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 11:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVDKPm5
+	id S261813AbVDKPtm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 11:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVDKPtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 11:42:57 -0400
-Received: from unthought.net ([212.97.129.88]:38064 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S261820AbVDKPmP (ORCPT
+	Mon, 11 Apr 2005 11:49:42 -0400
+Received: from fire.osdl.org ([65.172.181.4]:58752 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261813AbVDKPtj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 11:42:15 -0400
-Date: Mon, 11 Apr 2005 17:42:11 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Greg Banks <gnb@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: bdflush/rpciod high CPU utilization, profile does not make sense
-Message-ID: <20050411154211.GG13369@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Greg Banks <gnb@sgi.com>, linux-kernel@vger.kernel.org
-References: <20050407153848.GN347@unthought.net> <1112890671.10366.44.camel@lade.trondhjem.org> <20050409213549.GW347@unthought.net> <1113083552.11982.17.camel@lade.trondhjem.org> <20050411074806.GX347@unthought.net> <1113222939.14281.17.camel@lade.trondhjem.org> <20050411134703.GC13369@unthought.net> <1113230125.9962.7.camel@lade.trondhjem.org> <20050411144127.GE13369@unthought.net> <1113232905.9962.15.camel@lade.trondhjem.org>
+	Mon, 11 Apr 2005 11:49:39 -0400
+Date: Mon, 11 Apr 2005 08:49:31 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: pj@engr.sgi.com, junkio@cox.net, ross@jose.lug.udel.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: more git updates..
+Message-Id: <20050411084931.4aaf7ae0.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504101634250.1267@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	<20050409200709.GC3451@pasky.ji.cz>
+	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+	<7vhdifcbmo.fsf@assigned-by-dhcp.cox.net>
+	<Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org>
+	<20050410115055.2a6c26e8.pj@engr.sgi.com>
+	<Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
+	<20050410161457.2a30099a.pj@engr.sgi.com>
+	<Pine.LNX.4.58.0504101634250.1267@ppc970.osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
+ (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
+ mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
+ E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1113232905.9962.15.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 11:21:45AM -0400, Trond Myklebust wrote:
-> må den 11.04.2005 Klokka 16:41 (+0200) skreiv Jakob Oestergaard:
-> 
-> > > That can mean either that the server is dropping fragments, or that the
-> > > client is dropping the replies. Can you generate a similar tcpdump on
-> > > the server?
-> > 
-> > Certainly;  http://unthought.net/sparrow.dmp.bz2
-> 
-> So, it looks to me as if "sparrow" is indeed dropping packets (missed
-> sequences). Is it running with NAPI enabled too?
+On Sun, 10 Apr 2005 16:38:00 -0700 (PDT) Linus Torvalds wrote:
 
-Yes, as far as I know - the Broadcom Tigeon3 driver does not have the
-option of enabling/disabling RX polling (if we agree that is what we're
-talking about), but looking in tg3.c it seems that it *always*
-unconditionally uses NAPI...
+| 
+| 
+| On Sun, 10 Apr 2005, Paul Jackson wrote:
+| >
+| > Useful explanation - thanks, Linus.
+| 
+| Hey. You're welcome. Especially when you create good documentation for 
+| this thing.
+| 
+| Because:
+| 
+| > Is this picture and description accurate:
+| 
+| [ deleted, but I'll probably try to put it in an explanation file 
+|   somewhere ]
+| 
+| Yes. Excellent.
+| 
+| > Minor question:
+| > 
+| >   I must have an old version - I got 'git-0.03', but
+| >   it doesn't have 'checkout-cache', and its 'read-tree'
+| >   directly writes my working files.
+| 
+| Yes. Crappy old tree, but it can still read my git.git directory, so you 
+| can use it to update to my current source base.
 
-sparrow:~# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:09:3D:10:BB:1E
-          inet addr:10.0.1.20  Bcast:10.0.1.255  Mask:255.255.255.0
-          inet6 addr: fe80::209:3dff:fe10:bb1e/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:2304578 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:2330829 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:2381644307 (2.2 GiB)  TX bytes:2191756317 (2.0 GiB)
-          Interrupt:169
+Please go into a little more detail about how to do this step...
+that seems to be the most basic concept that I am missing.
+i.e., how to find the "latest/current" tree (version/commit)
+and check it out (read-tree, checkout-cache, etc.).
 
-No dropped packets... I wonder if the tg3 driver is being completely
-honest about this...
+Even if I use Pasky's tools, I'd like to understand this step.
 
-Still, 2.4 manages to perform twice as fast against the same server.
-
-And, the 2.6 client still has extremely heavy CPU usage (from rpciod
-mainly, which doesn't show up in profiles)
-
-The plot thickens...
-
-Trond (or anyone else feeling they might have some insight they would
-like to share on this one), I'll do anything you say (ok, *almost*
-anything you say) - any ideas?
+| However, from a usability angle, my source-base really has been 
+| concentrating _entirely_ on just the plumbing, and if you actually want a 
+| faucet or a toilet _conntected_ to the plumbing, you're better off with 
+| Pasky's tree, methinks:
+| 
+| >   How do I get a current version?  Well, one way I see,
+| >   and that's to pick up Pasky's:
+| >     
+| >     http://pasky.or.cz/~pasky/dev/git/git-pasky-base.tar.bz2
+| >  
+| >   Perhaps that's the best way?
+| 
+| Indeed. He's got a number of shell scripts etc to automate the boring 
+| parts.
 
 
--- 
-
- / jakob
-
+---
+~Randy

@@ -1,53 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVDKQjC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVDKQjC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVDKQjC (ORCPT <rfc822;willy@w.ods.org>);
+	id S261841AbVDKQjC (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Apr 2005 12:39:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVDKQgb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVDKQgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 12:36:31 -0400
-Received: from kalmia.hozed.org ([209.234.73.41]:2726 "EHLO kalmia.hozed.org")
-	by vger.kernel.org with ESMTP id S261839AbVDKQdn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 12:33:43 -0400
-Date: Mon, 11 Apr 2005 11:33:42 -0500
-From: Troy Benjegerdes <hozer@hozed.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050411163342.GE26127@kalmia.hozed.org>
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <52mzs51g5g.fsf@topspin.com>
-User-Agent: Mutt/1.3.28i
+	Mon, 11 Apr 2005 12:36:18 -0400
+Received: from mail-in-06.arcor-online.net ([151.189.21.46]:24704 "EHLO
+	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261841AbVDKQdv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 12:33:51 -0400
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: formatting CD-RW locks the system
+To: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Mon, 11 Apr 2005 18:33:35 +0200
+References: <3RPvT-2g8-31@gated-at.bofh.it> <3RRo1-3O4-21@gated-at.bofh.it> <3RVUD-7td-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DL1qz-0000uR-Ta@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 08:34:19AM -0700, Roland Dreier wrote:
->     Troy> How is memory pinning handled? (I haven't had time to read
->     Troy> all the code, so please excuse my ignorance of something
->     Troy> obvious).
-> 
-> The userspace library calls mlock() and then the kernel does
-> get_user_pages().
+Gene Heskett <gene.heskett@verizon.net> wrote:
 
-Is there a check in the kernel that the memory is actually mlock()ed?
+> Every disk system I have ever delt with, has as a default, (and I've
+> walked around in a couple of them at the assembly language level) the
+> assumption that if track 0 is to be formatted, then the whole device
+> is assumed to be needing formatted, and every filesystem I've ever
+> screwed with will do exactly that.
 
-What if a malicious (or broken) application does ibv_reg_mr() but
-doesn't lock the memory? Does the IB card get a physical address for a
-page that might get swapped out?
+There is one "new" filesystem you should screw with:
 
->     Troy> The old mellanox drivers used to have a hack to call
->     Troy> 'sys_mlock', and promiscuously lock memory any old userspace
->     Troy> application asked for. What is the API for the new uverbs
->     Troy> memory registration, and how will things like memory hotplug
->     Troy> and NUMA page migration be able to unpin pages locked by a
->     Troy> user program?
-> 
-> The API for uverbs memory registration is ibv_reg_mr(), and right now
-> the memory is pinned and that's it.
-> 
->  - R.
+$ echo foo > test
+$ mkisofs test > /dev/fd0h1440
+Total translation table size: 0
+Total rockridge attributes bytes: 0
+Total directory bytes: 0
+Path table size(bytes): 10
+Max brk space used 21000
+175 extents written (0 Mb)
+$ fdformat -n /dev/fd0h1440
+Double-sided, 80 tracks, 18 sec/track. Total capacity 1440 kB.
+Formatting ...   0
+(press ^C after writing most of the first track, hexdump will show
+ blocks of 0xf6)
+$ mount /dev/fd0h1440 /z -t iso9660
+$ cat /z/test
+foo
+$
 
+>  Often, but not always, that can
+> actually be offloaded to the device itself if its smart enough, and
+> the operating system itself can go on about its business, whether its
+> you composing a letter to your aunt Tilly or whatever.
+
+This would require a) the device being smart enough and b) the bus
+being smart enough. 
+
+> IDE/ATAPI drives have been cheerfully ignoreing format messages from
+> the OS now for what, 12 years now unless backed up by super secret
+> code word access to such builtin functions of the drive, only
+> possessed by the factory technicians who do have the tools to control
+> the track spaceings and data densities on the surfaces etc etc?
+
+That's because in contrast to floppy media and CD/RW, the tracks on
+HDD don't need reformating. Floppy drives suffer from aging sector
+headers, and CD/RW will AFAIK suffer from a loss in writing quality.
+
+> Are the firmwares of modern cd/dvd writers actualy dumb enough they
+> need the OS's help for that?  If the answer is yes, lord help us.
+
+They need to report success. This would require delaying the end of the
+operation till the formating has finished. ATAPI is dumb enough to block
+the bus during that time. Off cause you could implement SCSI disconnect
+for IDE, but that would be too easy.
+-- 
+Top 100 things you don't want the sysadmin to say:
+31. I hate it when that happens.
+
+Friﬂ, Spammer: comptrollers@0riginals.net elq@amnszmarw.com

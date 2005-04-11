@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVDKNc2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVDKNgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVDKNc2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 09:32:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVDKNc2
+	id S261686AbVDKNgg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 09:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVDKNgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 09:32:28 -0400
-Received: from postel.suug.ch ([195.134.158.23]:2492 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S261699AbVDKNcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 09:32:18 -0400
-Date: Mon, 11 Apr 2005 15:32:39 +0200
-From: Thomas Graf <tgraf@suug.ch>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
-       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
-       Herbert Xu <herbert@gondor.apana.org.au>,
-       James Morris <jmorris@redhat.com>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Jay Lan <jlan@engr.sgi.com>
-Subject: Re: [1/1] connector/CBUS: new messaging subsystem. Revision number next.
-Message-ID: <20050411133239.GM26731@postel.suug.ch>
-References: <20050411125932.GA19538@uganda.factory.vocord.ru>
-Mime-Version: 1.0
+	Mon, 11 Apr 2005 09:36:36 -0400
+Received: from sanosuke.troilus.org ([66.92.173.88]:58547 "EHLO
+	sanosuke.troilus.org") by vger.kernel.org with ESMTP
+	id S261686AbVDKNgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 09:36:33 -0400
+To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+From: Michael Poole <mdpoole@troilus.org>
+Date: Mon, 11 Apr 2005 09:36:31 -0400
+In-Reply-To: <425A655D.1010201@almg.gov.br> (Humberto Massa's message of
+ "Mon, 11 Apr 2005 08:54:05 -0300")
+Message-ID: <87vf6te8ps.fsf@sanosuke.troilus.org>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+References: <Tx9naC.A.vTD.H5YWCB@murphy> <425A655D.1010201@almg.gov.br>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411125932.GA19538@uganda.factory.vocord.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Evgeniy Polyakov <20050411125932.GA19538@uganda.factory.vocord.ru> 2005-04-11 16:59
-> +	size = NLMSG_SPACE(sizeof(*msg) + msg->len);
-> +
-> +	skb = alloc_skb(size, gfp_mask);
-> +	if (!skb) {
-> +		printk(KERN_ERR "Failed to allocate new skb with size=%u.\n", size);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	nlh = NLMSG_PUT(skb, 0, msg->seq, NLMSG_DONE, size - sizeof(*nlh));
+Humberto Massa writes:
 
-Needs same fix.
+> David Schwartz wrote:
+>
+>> > On Sat, Apr 09, 2005 at 08:07:03PM -0700, David Schwartz wrote:
+>>
+>>
+>> >> The way you stop someone from distributing part of your work is
+>> >> by arguing that the work they are distributing is a derivative
+>> >> work of your work and they had no right to *make* it in the first
+>> >>  place. See, for example, Mulcahy v. Cheetah Learning.
+>>
+>>
+>> > Er, that's one way, but not *the* way.  I could grant you
+>> > permission to create derivatives of my work, but not to
+>> > redistribute them.  To stop you from distributing them, I'd argue
+>> > that you had no right to distribute them--you *did* have the right
+>> > to make it in the first place.
+>>
+>>
+>>  You could do that be means of a contract, but I don't think you could
+>>  it do by means of a copyright license. The problem is that there is
+>>  no right to control the distribution of derivative works for you to
+>>  withhold from me.
+> Wrong, sorry. Copyright is a *monopoly* on some activities (copy,
+> distribution of copies, making *and* distribution of derivative works).
 
-> +	size0 = sizeof(*msg) + sizeof(*ctl) + 3*sizeof(*req);
-> +	
-> +	size = NLMSG_SPACE(size0);
-> +
-> +	skb = alloc_skb(size, GFP_ATOMIC);
-> +	if (!skb) {
-> +		printk(KERN_ERR "Failed to allocate new skb with size=%u.\n", size);
-> +
-> +		return -ENOMEM;
-> +	}
-> +
-> +	nlh = NLMSG_PUT(skb, 0, 0x123, NLMSG_DONE, size - NLMSG_ALIGN(sizeof(*nlh)));
+Copyright law only _explicitly_ grants a monopoly on preparation of
+derivative works.  However, it is trivial, and overwhelmingly common,
+for a copyright owner to grant a license to create a derivative work
+that is conditional on how the licensee agrees to distribute (or not
+distribute) the derivative work.
 
-Just pass size0 instead of reverting the calculation.
+Michael Poole

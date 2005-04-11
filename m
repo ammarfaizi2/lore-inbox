@@ -1,42 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVDKSNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVDKSPc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVDKSNm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 14:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVDKSNm
+	id S261602AbVDKSPc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 14:15:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVDKSPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 14:13:42 -0400
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:49349 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261426AbVDKSNk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 14:13:40 -0400
-Date: Mon, 11 Apr 2005 11:13:19 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Jackson <pj@engr.sgi.com>, pasky@ucw.cz,
-       rddunlap@osdl.org, ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-Subject: Re: [rfc] git: combo-blobs
-Message-ID: <20050411181319.GA11302@taniwha.stupidest.org>
-References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu> <20050411074552.4e2e656b.pj@engr.sgi.com> <20050411151204.GA5562@elte.hu> <Pine.LNX.4.58.0504110826140.1267@ppc970.osdl.org> <20050411153905.GA7284@elte.hu> <Pine.LNX.4.58.0504110852260.1267@ppc970.osdl.org>
+	Mon, 11 Apr 2005 14:15:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60631 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261602AbVDKSOk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 14:14:40 -0400
+Date: Mon, 11 Apr 2005 20:14:36 +0200
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: *** Announcement: dmraid 1.0.0.rc7 ***
+Message-ID: <20050411181436.GA12239@redhat.com>
+Reply-To: mauelshagen@redhat.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504110852260.1267@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 09:01:51AM -0700, Linus Torvalds wrote:
 
-> I disagree. Yes, the thing is designed to be replicated, so most of
-> the time the easiest thing to do is to just rsync with another copy.
+               *** Announcement: dmraid 1.0.0.rc7 ***
 
-It's not clear how any of this is going to give me something like
+dmraid 1.0.0.rc7 is available at
+http://people.redhat.com:/heinzm/sw/dmraid/ in source tarball,
+source rpm and i386 rpms (shared, static and dietlibc).
 
-     bk changes -R
+This release fixes size bugs with Highpoint and Promise RAID1 sets.
 
-or
-     bk changes -L
+dmraid (Device-Mapper Raid tool) discovers, [de]activates and displays
+properties of software RAID sets (i.e. ATARAID) and contained DOS
+partitions using the device-mapper runtime of the 2.6 kernel.
 
-functionality.  I'm guessing I will have to sync locally and check
-between two trees in those cases?  Or at least sync enough metadata as
-to make this possible...  but not the entire tree right?
+The following ATARAID types are supported on Linux 2.6:
+
+Highpoint HPT37X
+Highpoint HPT45X
+Intel Software RAID
+LSI Logic MegaRAID
+NVidia NForce
+Promise FastTrack
+Silicon Image Medley
+VIA Software RAID
+
+Please provide insight to support those metadata formats completely.
+
+Thanks.
+
+
+See files README and CHANGELOG, which come with the source tarball for
+prerequisites to run this software, further instructions on installing
+and using dmraid!
+
+CHANGELOG is contained below for your convenience as well.
+
+
+Call for testers:
+-----------------
+
+I need testers with the above ATARAID types, to check that the mapping
+created by this tool is correct (see options "-t -ay") and access to the
+ATARAID data is proper.
+
+In case you have a different ATARAID solution from those listed above,
+please feel free to contact me about supporting it in dmraid.
+
+You can activate your ATARAID sets without danger of overwriting
+your metadata, because dmraid accesses it read-only unless you use
+option -E together with -r in order to erase ATARAID metadata
+(see 'man dmraid')!
+
+This is a release candidate version so you want to have backups of your valuable
+data *and* you want to test accessing your data read-only first in order to
+make sure that the mapping is correct before you go for read-write access.
+
+
+Contacts:
+---------
+
+The author is reachable at <Mauelshagen@RedHat.com>.
+
+For test results, mapping information, discussions, questions, patches,
+enhancement requests and the like, please subscribe and mail to
+<ataraid-list@redhat.com>.
+
+--
+
+Regards,
+Heinz    -- The LVM Guy --
+
+
+CHANGELOG:
+---------
+
+Changelog from dmraid 1.0.0.rc6 to 1.0.0.rc7            2005.04.07
+
+FIXES:
+------
+o pdc.c, hpt37x.c, hpt45x.c: fixed size in sectors() for RAID1
+
+
+MISCELANIOUS:
+------------
+
+o sil_valid() displays the area number where the checksum is invalid now.
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

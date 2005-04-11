@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbVDKRVH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVDKRXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261843AbVDKRVH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 13:21:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVDKRVH
+	id S261852AbVDKRXA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 13:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVDKRW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 13:21:07 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:7605 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261852AbVDKRUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 13:20:52 -0400
-To: Troy Benjegerdes <hozer@hozed.org>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-X-Message-Flag: Warning: May contain useful information
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 11 Apr 2005 09:56:53 -0700
-In-Reply-To: <20050411163342.GE26127@kalmia.hozed.org> (Troy Benjegerdes's
- message of "Mon, 11 Apr 2005 11:33:42 -0500")
-Message-ID: <5264yt1cbu.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Mon, 11 Apr 2005 13:22:59 -0400
+Received: from merke.itea.ntnu.no ([129.241.7.61]:51855 "EHLO
+	merke.itea.ntnu.no") by vger.kernel.org with ESMTP id S261852AbVDKRWr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 13:22:47 -0400
+From: Per Christian Henden <perchrh@pvv.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] Add Mac mini sound support
+Date: Mon, 11 Apr 2005 19:12:56 +0200
+User-Agent: KMail/1.8
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200504091351.27430.perchrh@pvv.org> <1113089313.9568.435.camel@gaston>
+In-Reply-To: <1113089313.9568.435.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Apr 2005 16:56:54.0078 (UTC) FILETIME=[76AAF5E0:01C53EB7]
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504111912.56648.perchrh@pvv.org>
+X-Content-Scanned: with sophos and spamassassin at mailgw.ntnu.no.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Troy> Is there a check in the kernel that the memory is actually
-    Troy> mlock()ed?
+On Sunday 10 April 2005 01:28, Benjamin Herrenschmidt wrote:
+> On Sat, 2005-04-09 at 13:51 +0200, Per Christian Henden wrote:
+> > The patch below adds sound support on the Mac Mini by making a small 
+change to the PowerMac sound card detection code.
+[Snip, details]
+> And is not correct. It might appear to work but it is not the right
+> thing to do. There is no AWACS chip in there. There is a fixed function
+> codec controlled by a couple of GPIOs afaik. I'm working on a major
+> rework of the alsa driver that will include support for the mini and the
+> G5s.
 
-No.
+Ok. It /does/ work, I've been using the AWACS driver for weeks now, and I 
+don't have any stability or audio issues (that I notice), and my Mini is on 
+24/7.
 
-    Troy> What if a malicious (or broken) application does
-    Troy> ibv_reg_mr() but doesn't lock the memory? Does the IB card
-    Troy> get a physical address for a page that might get swapped
-    Troy> out?
+People that want sound support on their Minis right away can use this patch 
+while waiting for the rework of the drivers, without fear of their computer 
+exploding or so.
 
-No, the kernel does get_user_pages().  So the pages that the HCA gets
-will not be swapped or used for anything else.  The only thing a
-malicious userspace app can do is screw itself up.
+Cheers, 
 
- - R.
+PER

@@ -1,100 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVDKAK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVDKAQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVDKAK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 20:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVDKAK7
+	id S261639AbVDKAQL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 20:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVDKAQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 20:10:59 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:15585 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261640AbVDKAKr (ORCPT
+	Sun, 10 Apr 2005 20:16:11 -0400
+Received: from fire.osdl.org ([65.172.181.4]:30934 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261639AbVDKAQK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 20:10:47 -0400
-Date: Mon, 11 Apr 2005 02:10:46 +0200
-From: Petr Baudis <pasky@ucw.cz>
+	Sun, 10 Apr 2005 20:16:10 -0400
+Date: Sun, 10 Apr 2005 17:15:53 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
 To: Paul Jackson <pj@engr.sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, junkio@cox.net, rddunlap@osdl.org,
-       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
-Subject: Re: Re: more git updates..
-Message-ID: <20050411001046.GF5902@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org> <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org> <20050410161457.2a30099a.pj@engr.sgi.com>
+Cc: pasky@ucw.cz, torvalds@osdl.org, mingo@elte.hu, willy@w.ods.org,
+       linux-kernel@vger.kernel.org, ross@jose.lug.udel.edu
+Subject: Re: [ANNOUNCE] git-pasky-0.1
+Message-Id: <20050410171553.1dc98b77.rddunlap@osdl.org>
+In-Reply-To: <20050410162311.0c6da79c.pj@engr.sgi.com>
+References: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+	<Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
+	<Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
+	<20050410024157.GE3451@pasky.ji.cz>
+	<20050410162723.GC26537@pasky.ji.cz>
+	<20050410173349.GA17549@elte.hu>
+	<20050410174221.GD7858@alpha.home.local>
+	<20050410174512.GA18768@elte.hu>
+	<20050410184522.GA5902@pasky.ji.cz>
+	<Pine.LNX.4.58.0504101310430.1267@ppc970.osdl.org>
+	<20050410222737.GC5902@pasky.ji.cz>
+	<20050410162311.0c6da79c.pj@engr.sgi.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050410161457.2a30099a.pj@engr.sgi.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Apr 11, 2005 at 01:14:57AM CEST, I got a letter
-where Paul Jackson <pj@engr.sgi.com> told me that...
-> Useful explanation - thanks, Linus.
-> 
-> Is this picture and description accurate:
-> 
-> ==============================================================
-> 
-> 
->              < working directory files (foo.c) >
->                            ^
->   ^                        |
->   |  upward ops            |            downward ops  |
->   |  ----------            |            ------------  |
->   | checkout-cache         |            update-cache  |
->   | show-diff              |                          v
->                            v
->         < current directory cache (".dircache/index") >
->                            ^
->   ^                        |
->   |  upward ops            |            downward ops  |
->   |  ----------            |            ------------  |
->   |   read-tree            |             write-tree   |
->   |                        |            commit-tree   |
->                            |                          v
->                            v
-> < git filesystem (blobs, trees, commits: .dircache/{HEAD,objects}) >
+On Sun, 10 Apr 2005 16:23:11 -0700 Paul Jackson wrote:
 
-Well, except that from purely technical standpoint commit-tree has
-nothing to do in this picture - it creates new object in the git
-filesystem based on its input data, but regardless to the directory
-cache or current tree. It probably still belongs where it is from the
-workflow standpoint, though.
+| Petr wrote:
+| > That reminds me, is there any
+| > tool which will take .rej files and throw them into the file to create
+| > rcsmerge-like conflicts?
+| 
+|   Check out 'wiggle'
+|     http://www.cse.unsw.edu.au/~neilb/source/wiggle/
 
-..snip..
-> Minor question:
-> 
->   I must have an old version - I got 'git-0.03', but
->   it doesn't have 'checkout-cache', and its 'read-tree'
->   directly writes my working files.
->  
->   How do I get a current version?  Well, one way I see,
->   and that's to pick up Pasky's:
->     
->     http://pasky.or.cz/~pasky/dev/git/git-pasky-base.tar.bz2
->  
->   Perhaps that's the best way?
+or Chris Mason's 'rej' program:
+ftp://ftp.suse.com/pub/people/mason/rej/
 
-You can take mine, and do:
 
-	git pull pasky
-	git pull linus
-	cp .dircache/HEAD .dircache/HEAD.local
-
-Now, your tree and git filesystem is up to date.
-
-	git track local
-
-Now, when you do git pull pasky, your working tree will not be updated
-automatically anymore.
-
-	git track linus
-
-Now, you start tracking Linus' tree instead. Note that the initial
-update will blow away the scripts in your current tree, so before you do
-the last two steps you will probably want to clone the tree and set PATH
-to the one still tracking me, so you get all the comfort. ;-)
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+---
+~Randy

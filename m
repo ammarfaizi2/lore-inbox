@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbVDKHNV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVDKHRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261709AbVDKHNV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 03:13:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVDKHNV
+	id S261713AbVDKHRA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 03:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVDKHRA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 03:13:21 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:52103 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S261709AbVDKHNR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 03:13:17 -0400
-Subject: Re: New SCM and commit list
-From: David Woodhouse <dwmw2@infradead.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1113174621.9517.509.camel@gaston>
-References: <1113174621.9517.509.camel@gaston>
-Content-Type: text/plain
-Date: Mon, 11 Apr 2005 08:13:08 +0100
-Message-Id: <1113203588.12012.90.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
+	Mon, 11 Apr 2005 03:17:00 -0400
+Received: from [151.12.57.13] ([151.12.57.13]:44813 "EHLO
+	mail2.it.atosorigin.com") by vger.kernel.org with ESMTP
+	id S261713AbVDKHQ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 03:16:57 -0400
+From: Rao Davide <davide.rao@atosorigin.com>
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org, ink@jurassic.park.msu.ru
+Message-ID: <425A2442.8090607@atosorigin.com>
+Date: Mon, 11 Apr 2005 09:16:18 +0200
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+Subject: Re: Linux Alpha port: kernel panik under moderate DISK IO conditions
+References: <42569BC7.5030709@atosorigin.com> <20050408190709.GB27845@twiddle.net>
+In-Reply-To: <20050408190709.GB27845@twiddle.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+X-OriginalArrivalTime: 11 Apr 2005 07:22:47.0140 (UTC) FILETIME=[42B15A40:01C53E67]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-11 at 09:10 +1000, Benjamin Herrenschmidt wrote:
-> Do you intend to continue posting "commited" patches to a mailing list
-> like bk scripts did to bk-commits-head@vger ? As I said a while ago, I
-> find this very useful, especially with the actual patch included in the
-> commit message (which isn't the case with most other projects CVS commit
-> lists, and I find that annoying).
+I'm not using the qlogic controller as boot controller. I'm mooting from 
+the internal disk connected to LSI controller.
+In any case I'll try out the suggested 1280  right now.
+
+Can I build a modular kernel with the 2.6 kernel series ?
+I would find it handy to have som parts colpiled as modules.
+
+--
+Regards
+Davide Rao
+   Client/server Unix
+   Atos Origin
+   Via C.Viola - Pont St. Martin (AO) Italy
+   Cell :  +39 3357599151
+   Tel  :  +39 125810433
+   Email:  davide.rao@atosorigin.com
+
+
+Richard Henderson wrote:
+> On Fri, Apr 08, 2005 at 04:57:11PM +0200, Rao Davide wrote:
 > 
-> If yes, then I would appreciate if you could either keep the same list,
-> or if you want to change the list name, keep the subscriber list so
-> those of us who actually archive it don't miss anything ;)
-
-The commits lists currently only accept posts from dwmw2@hera, I
-believe. That can relatively easily be changed if the mail is going to
-come from somewhere else.
-
-I did ask Linus to let me know as soon as possible when he starts to
-commit patches, so we can come up with a way to keep the list fed. Since
-he thinks I'm James, however, I suspect that part of the message didn't
-get through. Perhaps he was just distracted by the Britishness?
-
--- 
-dwmw2
-
-
+>>My name is David Rao and I have an old alpha DS10 ds10 (ev6 
+>>Tsunami-webbrick cpu) with internal HDU on a LSI controller and external 
+>>HSZ80 storage attached to a Qlogic.
+> 
+> 
+> Well, the CONFIG_SCSI_QLOGIC_ISP driver isn't supported, and you
+> may have noticed prints big warning messages when you boot with it.
+> 
+> Fortunately, the CONFIG_SCSI_QLOGIC_1280 driver has been extended
+> to handle the 1020 and 1040 devices.  I've been using that for a
+> while now on my ds10.
+> 
+> 
+> r~

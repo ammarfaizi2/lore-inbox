@@ -1,94 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVDKPtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVDKP4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVDKPtm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 11:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVDKPtm
+	id S261820AbVDKP4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 11:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVDKP4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 11:49:42 -0400
-Received: from fire.osdl.org ([65.172.181.4]:58752 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261813AbVDKPtj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 11:49:39 -0400
-Date: Mon, 11 Apr 2005 08:49:31 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: pj@engr.sgi.com, junkio@cox.net, ross@jose.lug.udel.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: more git updates..
-Message-Id: <20050411084931.4aaf7ae0.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504101634250.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-	<20050409200709.GC3451@pasky.ji.cz>
-	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-	<7vhdifcbmo.fsf@assigned-by-dhcp.cox.net>
-	<Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org>
-	<20050410115055.2a6c26e8.pj@engr.sgi.com>
-	<Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org>
-	<20050410161457.2a30099a.pj@engr.sgi.com>
-	<Pine.LNX.4.58.0504101634250.1267@ppc970.osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 11:56:34 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:11482 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261755AbVDKP4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 11:56:25 -0400
+To: dan@debian.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050411153619.GA25987@nevyn.them.org> (message from Daniel
+	Jacobowitz on Mon, 11 Apr 2005 11:36:19 -0400)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <20050323083347.GA1807@infradead.org> <E1DE2D1-0005Ie-00@dorka.pomaz.szeredi.hu> <20050325095838.GA9471@infradead.org> <E1DEmYC-0008Qg-00@dorka.pomaz.szeredi.hu> <20050331112427.GA15034@infradead.org> <E1DH13O-000400-00@dorka.pomaz.szeredi.hu> <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org>
+Message-Id: <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 11 Apr 2005 17:56:09 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Apr 2005 16:38:00 -0700 (PDT) Linus Torvalds wrote:
+> >   3) No other user should have access to files under the mount, not
+> >      even root[5]
+> 
+> > [5] Obviously root cannot be restricted, but accidental access to
+> > private data is still a good idea.  E.g. root squashing by NFS servers
+> > has a similar affect.
+> 
+> Could you explain a little more?  I don't see the point in denying
+> access to root, but I also can't tell from your explanation whether you
+> do or not.
 
-| 
-| 
-| On Sun, 10 Apr 2005, Paul Jackson wrote:
-| >
-| > Useful explanation - thanks, Linus.
-| 
-| Hey. You're welcome. Especially when you create good documentation for 
-| this thing.
-| 
-| Because:
-| 
-| > Is this picture and description accurate:
-| 
-| [ deleted, but I'll probably try to put it in an explanation file 
-|   somewhere ]
-| 
-| Yes. Excellent.
-| 
-| > Minor question:
-| > 
-| >   I must have an old version - I got 'git-0.03', but
-| >   it doesn't have 'checkout-cache', and its 'read-tree'
-| >   directly writes my working files.
-| 
-| Yes. Crappy old tree, but it can still read my git.git directory, so you 
-| can use it to update to my current source base.
+Fuse by default does.  This can be disabled by one of two mount
+options: "allow_other" and "allow_root".  The former implies the
+later.  These mount options are only allowed for mounting by root, but
+this can be relaxed with a configuration option.
 
-Please go into a little more detail about how to do this step...
-that seems to be the most basic concept that I am missing.
-i.e., how to find the "latest/current" tree (version/commit)
-and check it out (read-tree, checkout-cache, etc.).
+> If I mount a filesystem using ssh, I want to be able to "sudo cp
+> foo.txt /etc" and not get an inexplicable permissions error.
 
-Even if I use Pasky's tools, I'd like to understand this step.
+If you can do that sudo, you can also modify the configuration and use
+one of the mount options.
 
-| However, from a usability angle, my source-base really has been 
-| concentrating _entirely_ on just the plumbing, and if you actually want a 
-| faucet or a toilet _conntected_ to the plumbing, you're better off with 
-| Pasky's tree, methinks:
-| 
-| >   How do I get a current version?  Well, one way I see,
-| >   and that's to pick up Pasky's:
-| >     
-| >     http://pasky.or.cz/~pasky/dev/git/git-pasky-base.tar.bz2
-| >  
-| >   Perhaps that's the best way?
-| 
-| Indeed. He's got a number of shell scripts etc to automate the boring 
-| parts.
+> I don't really see the point of this restriction, anyway.  Could you
+> explain why this shouldn't be a matter of policy, and kept out of the
+> kernel?  Have the userspace file servers default to putting restrictive
+> permissions on mounts unless requested otherwise.
 
+That's an option.  However you can't restrict root that way, and you
+need an extra directory, since permissions on the mountpoint are
+ignored after the mount.
 
----
-~Randy
+Restricting root is needed, so that a sysadmin won't accidently go
+into a user's private mount (e.g. sshfs to some machine to which the
+sysadmin otherwise has no access).  Root can still gain access by
+doing 'su me', but at least he will have a bad conscience.  This is
+not such a stupid idea as it first sounds IMO, and by default all NFS
+servers exhibit a similar behavior (root squashing).
+
+> >   4) Access should not be further restricted for the owner of the
+> >      mount, even if permission bits, uid or gid would suggest
+> >      otherwise
+> 
+> Similar questions.
+
+This behavior can be disabled by the "default_permissions" mount
+option (wich is not privileged, since it adds restrictions).  A FUSE
+filesystem mounted by root (and not for private purposes) would
+normally be done with "allow_other,default_permissions".
+
+Does this answer your questions?
+
+Thanks,
+Miklos

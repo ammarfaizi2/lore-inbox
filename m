@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVDKK0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVDKKdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVDKK0X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 06:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVDKK0X
+	id S261746AbVDKKdy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 06:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVDKKdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 06:26:23 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18356 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261767AbVDKK0J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 06:26:09 -0400
-Date: Mon, 11 Apr 2005 12:25:50 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050411102550.GD1353@elf.ucw.cz>
-References: <4259B474.4040407@domdv.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4259B474.4040407@domdv.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 11 Apr 2005 06:33:54 -0400
+Received: from mail.portrix.net ([212.202.157.208]:9663 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S261746AbVDKKdx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 06:33:53 -0400
+Message-ID: <425A52AB.5020904@ppp0.net>
+Date: Mon, 11 Apr 2005 12:34:19 +0200
+From: Jan Dittmer <jdittmer@ppp0.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, sfrench@samba.org
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org>
+In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Morton wrote:
+> bk-cifs.patch
 
-> The following patch adds the core functionality for the encrypted
-> suspend image.
+This breaks the build on mips, ppc64, sparc, sparc64 with the
+following error (defconfig, compared to mm2):
 
-[Please inline patches, it makes it easier to comment on them.]
+   CC [M]  fs/cifs/misc.o
+fs/cifs/misc.c: In function `cifs_convertUCSpath':
+fs/cifs/misc.c:546: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:549: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:552: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:561: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:564: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:567: error: case label does not reduce to an integer constant
+make[2]: *** [fs/cifs/misc.o] Error 1
+make[1]: *** [fs/cifs] Error 2
+make: *** [fs] Error 2
 
-You seem to reuse same key/iv for all the blocks. I'm no crypto
-expert, but I think that is seriously wrong... You probably should use
-block number as a IV or something like that.
+See http://l4x.org/k for details.
 
-Does it slow down swsusp in measurable way, or is it just lost in the
-noise?
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Jan

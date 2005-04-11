@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVDKKWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVDKK0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbVDKKWp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 06:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVDKKUX
+	id S261767AbVDKK0X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 06:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVDKK0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 06:20:23 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:34794 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261761AbVDKKQM (ORCPT
+	Mon, 11 Apr 2005 06:26:23 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18356 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261767AbVDKK0J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 06:16:12 -0400
-Date: Mon, 11 Apr 2005 12:16:11 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.2
-Message-ID: <20050411101611.GA25538@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz> <20050411085051.GA8893@elte.hu>
+	Mon, 11 Apr 2005 06:26:09 -0400
+Date: Mon, 11 Apr 2005 12:25:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050411102550.GD1353@elf.ucw.cz>
+References: <4259B474.4040407@domdv.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050411085051.GA8893@elte.hu>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+In-Reply-To: <4259B474.4040407@domdv.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Apr 11, 2005 at 10:50:51AM CEST, I got a letter
-where Ingo Molnar <mingo@elte.hu> told me that...
-> 
-> * Petr Baudis <pasky@ucw.cz> wrote:
-> 
-> >   Hello,
-> > 
-> >   here goes git-pasky-0.2, my set of patches and scripts upon Linus' 
-> > git, aimed at human usability and to an extent a SCM-like usage.
-> 
-> works fine on FC4, i only minor issues: 'git' in the tarball didnt have 
-> the x permission.
+Hi!
 
-Sorry, fixed in the tarball. It is in the diffs but I have no git patch
-yet to apply the mode changes.
+> The following patch adds the core functionality for the encrypted
+> suspend image.
 
-> Also, your scripts assume they are in $PATH.  When 
-> trying out a tarball one doesnt usually do a 'make install' but tries
-> stuff locally.
+[Please inline patches, it makes it easier to comment on them.]
 
-Hmm, I think I will need to make something like
+You seem to reuse same key/iv for all the blocks. I'm no crypto
+expert, but I think that is seriously wrong... You probably should use
+block number as a IV or something like that.
 
-	exedir=$(dirname $0)
-
-on the top of each script and then do all the git calls with ${exedit}
-prepended. That should fix the issue, right?
-
-> Also, 'make install' doesnt seem to install the git script itself, is
-> that intentional?
-
-Oops, I actually didn't even notice that there _is_ any install target
-in the Makefile already. ;-) I will add the relevant stuff to it.
-
+Does it slow down swsusp in measurable way, or is it just lost in the
+noise?
+								Pavel
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+Boycott Kodak -- for their patent abuse against Java.

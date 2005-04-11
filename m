@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVDKIul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVDKIvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261731AbVDKIul (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 04:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVDKIuk
+	id S261736AbVDKIvF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 04:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVDKIvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 04:50:40 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:4756 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261731AbVDKIud convert rfc822-to-8bit (ORCPT
+	Mon, 11 Apr 2005 04:51:05 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:51689 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261736AbVDKIu7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 04:50:33 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Priority Lists for the RT mutex
-Date: Mon, 11 Apr 2005 01:49:33 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02F64C65@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Priority Lists for the RT mutex
-Thread-Index: AcU+cm/A/19DSUJbQhmvKRZ0dBFU3gAABjhg
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
-       "Daniel Walker" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
-       "Steven Rostedt" <rostedt@goodmis.org>,
-       "Esben Nielsen" <simlo@phys.au.dk>, "Joe Korty" <joe.korty@ccur.com>
-X-OriginalArrivalTime: 11 Apr 2005 08:49:37.0241 (UTC) FILETIME=[6427AC90:01C53E73]
+	Mon, 11 Apr 2005 04:50:59 -0400
+Date: Mon, 11 Apr 2005 10:50:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: [ANNOUNCE] git-pasky-0.2
+Message-ID: <20050411085051.GA8893@elte.hu>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050411015852.GI5902@pasky.ji.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Ingo Molnar [mailto:mingo@elte.hu]
->
->* Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
->
->> >OTOH, deadlock detection is another issue. It's quite expensive and
-i'm
->> >not sure we want to make it a runtime thing. But for fusyn's
-deadlock
->> >detection and safe teardown on owner-exit is a must-have i suspect?
->>
->> Not really. Deadlock check is needed on PI, so it can be done at the
->> same time (you have to walk the chain anyway). In any other case, it
->> is an option you can request (or not).
->
->well, i was talking about the mutex code in PREEMPT_RT. There deadlock
->detection is an optional debug feature. You dont _have_ to do deadlock
->detection for the kernel's locks, and there's a difference in
->performance.
 
-Big mouth'o mine :-| 
+* Petr Baudis <pasky@ucw.cz> wrote:
 
-Let me re-phrase then: it is a must have only on PI, to make sure 
-you don't have a loop when doing it. Maybe is a consequence of the
-algorithm I chose. -However- it should be possible to disable it
-in cases where you are reasonably sure it won't happen (such as
-kernel code). In any case, AFAIR, I still did not implement it.
+>   Hello,
+> 
+>   here goes git-pasky-0.2, my set of patches and scripts upon Linus' 
+> git, aimed at human usability and to an extent a SCM-like usage.
 
-Was this more useful?
+works fine on FC4, i only minor issues: 'git' in the tarball didnt have 
+the x permission. Also, your scripts assume they are in $PATH. When 
+trying out a tarball one doesnt usually do a 'make install' but tries 
+stuff locally. Also, 'make install' doesnt seem to install the git 
+script itself, is that intentional?
 
--- Inaky 
+	Ingo

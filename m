@@ -1,127 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVDKG0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVDKGg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVDKG0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 02:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVDKG0G
+	id S261704AbVDKGg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 02:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVDKGg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 02:26:06 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:26757 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261702AbVDKGZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 02:25:51 -0400
-Date: Sun, 10 Apr 2005 23:25:23 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: akpm@osdl.org, discuss@x86-64.org, davej@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] [21/31] x86_64: Always use CPUID 80000008 to figure out MTRR address space size
-Message-ID: <20050410232523.B24470@unix-os.sc.intel.com>
-References: <425554EC.mailMV61WIBOM@suse.de>
+	Mon, 11 Apr 2005 02:36:28 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:17793 "EHLO vagabond.light.src")
+	by vger.kernel.org with ESMTP id S261704AbVDKGgV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 02:36:21 -0400
+Date: Mon, 11 Apr 2005 08:36:03 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: Marcin Dalecki <martin@dalecki.de>
+Cc: Miles Bader <miles@gnu.org>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050411063603.GA21708@vagabond>
+References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050407074407.GA25194@vagabond> <f74102c2ddfe02b2d98d28e1a25a0634@dalecki.de> <buo4qee6obk.fsf@mctpc71.ucom.lsi.nec.co.jp> <de0dee2e0b49a66479c2c885c0ee50aa@dalecki.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <425554EC.mailMV61WIBOM@suse.de>; from ak@suse.de on Thu, Apr 07, 2005 at 05:42:36PM +0200
+In-Reply-To: <de0dee2e0b49a66479c2c885c0ee50aa@dalecki.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We need to use the size_and_mask in set_mtrr_var_ranges(which is called 
-while programming MTRR's for AP's
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
---- linux/arch/i386/kernel/cpu/mtrr/generic.c~	2005-04-10 14:07:11.821466664 -0700
-+++ linux/arch/i386/kernel/cpu/mtrr/generic.c	2005-04-10 14:12:21.913325536 -0700
-@@ -192,7 +192,8 @@ static int set_mtrr_var_ranges(unsigned 
- 
- 	rdmsr(MTRRphysBase_MSR(index), lo, hi);
- 	if ((vr->base_lo & 0xfffff0ffUL) != (lo & 0xfffff0ffUL)
--	    || (vr->base_hi & 0xfUL) != (hi & 0xfUL)) {
-+	    || (vr->base_hi & (size_and_mask >> (32 - PAGE_SHIFT))) != 
-+		(hi & (size_and_mask >> (32 - PAGE_SHIFT)))) {
- 		mtrr_wrmsr(MTRRphysBase_MSR(index), vr->base_lo, vr->base_hi);
- 		changed = TRUE;
- 	}
-@@ -200,7 +201,8 @@ static int set_mtrr_var_ranges(unsigned 
- 	rdmsr(MTRRphysMask_MSR(index), lo, hi);
- 
- 	if ((vr->mask_lo & 0xfffff800UL) != (lo & 0xfffff800UL)
--	    || (vr->mask_hi & 0xfUL) != (hi & 0xfUL)) {
-+	    || (vr->mask_hi & (size_and_mask >> (32 - PAGE_SHIFT))) != 
-+		(hi & (size_and_mask >> (32 - PAGE_SHIFT)))) {
- 		mtrr_wrmsr(MTRRphysMask_MSR(index), vr->mask_lo, vr->mask_hi);
- 		changed = TRUE;
- 	}
+On Mon, Apr 11, 2005 at 04:56:06 +0200, Marcin Dalecki wrote:
+>=20
+> On 2005-04-11, at 04:26, Miles Bader wrote:
+>=20
+> >Marcin Dalecki <martin@dalecki.de> writes:
+> >>Better don't waste your time with looking at Arch. Stick with patches
+> >>you maintain by hand combined with some scripts containing a list of
+> >>apply commands and you should be still more productive then when using
+> >>Arch.
+> >
+> >Arch has its problems, but please lay off the uninformed flamebait (the
+> >"issues" you complain about are so utterly minor as to be laughable).
+>=20
+> I wish you a lot of laughter after replying to an already 3 days old=20
+> message,
+> which was my final on Arch.
 
-On Thu, Apr 07, 2005 at 05:42:36PM +0200, Andi Kleen wrote:
-> Always use CPUID 80000008 to figure out MTRR address space size
-> 
-> It doesn't make sense to only do this only for AMD K8.
-> 
-> This would support future CPUs with extended address spaces properly.
-> 
-> For i386 and x86-64
-> 
-> Cc: davej@redhat.com
-> 
-> 
-> Index: linux/arch/i386/kernel/cpu/mtrr/main.c
-> ===================================================================
-> --- linux.orig/arch/i386/kernel/cpu/mtrr/main.c
-> +++ linux/arch/i386/kernel/cpu/mtrr/main.c
-> @@ -614,40 +614,21 @@ static int __init mtrr_init(void)
->  		mtrr_if = &generic_mtrr_ops;
->  		size_or_mask = 0xff000000;	/* 36 bits */
->  		size_and_mask = 0x00f00000;
-> -			
-> -		switch (boot_cpu_data.x86_vendor) {
-> -		case X86_VENDOR_AMD:
-> -			/* The original Athlon docs said that
-> -			   total addressable memory is 44 bits wide.
-> -			   It was not really clear whether its MTRRs
-> -			   follow this or not. (Read: 44 or 36 bits).
-> -			   However, "x86-64_overview.pdf" explicitly
-> -			   states that "previous implementations support
-> -			   36 bit MTRRs" and also provides a way to
-> -			   query the width (in bits) of the physical
-> -			   addressable memory on the Hammer family.
-> -			 */
-> -			if (boot_cpu_data.x86 == 15
-> -			    && (cpuid_eax(0x80000000) >= 0x80000008)) {
-> -				u32 phys_addr;
-> -				phys_addr = cpuid_eax(0x80000008) & 0xff;
-> -				size_or_mask =
-> -				    ~((1 << (phys_addr - PAGE_SHIFT)) - 1);
-> -				size_and_mask = ~size_or_mask & 0xfff00000;
-> -			}
-> -			/* Athlon MTRRs use an Intel-compatible interface for 
-> -			 * getting and setting */
-> -			break;
-> -		case X86_VENDOR_CENTAUR:
-> -			if (boot_cpu_data.x86 == 6) {
-> -				/* VIA Cyrix family have Intel style MTRRs, but don't support PAE */
-> -				size_or_mask = 0xfff00000;	/* 32 bits */
-> -				size_and_mask = 0;
-> -			}
-> -			break;
-> -		
-> -		default:
-> -			break;
-> +	
-> +		/* This is an AMD specific MSR, but we assume(hope?) that
-> +		   Intel will implement it to when they extend the address
-> +		   bus of the Xeon. */		
-> +		if (cpuid_eax(0x80000000) >= 0x80000008) {
-> +			u32 phys_addr;
-> +			phys_addr = cpuid_eax(0x80000008) & 0xff;
-> +			size_or_mask = ~((1 << (phys_addr - PAGE_SHIFT)) - 1);
-> +			size_and_mask = ~size_or_mask & 0xfff00000;
-> +		} else if (boot_cpu_data.x86_vendor == X86_VENDOR_CENTAUR &&
-> +			   boot_cpu_data.x86 == 6) {
-> +			/* VIA C* family have Intel style MTRRs, but
-> +			   don't support PAE */
-> +			size_or_mask = 0xfff00000;	/* 32 bits */
-> +			size_and_mask = 0;
->  		}
->  	} else {
->  		switch (boot_cpu_data.x86_vendor) {
+Marcin Dalecki <martin@dalecki.de> complained:
+> Arch isn't a sound example of software design. Quite contrary to the=20
+> random notes posted by it's author the following issues did strike me=20
+> the time I did evaluate it:
+> [...]
+
+I didn't comment on this first time, but I see I should have. *NONE* of
+the issues you complained about were issues of *DESIGN*. They were all
+issues of *ENGINEERING*. *ENGINEERING* issues can be fixed. One of the
+issues does not even exist any longer (the diff/patch one -- it now
+checks they are the right ones -- and in all other respects it is
+*exactly* the same as depending on a library)
+
+But what really matters here is the concept. Arch has a simple concept,
+that works well. Others have different concepts, that work well or
+almost well too (Darcs, Monotone).
+
+---------------------------------------------------------------------------=
+----
+						 Jan 'Bulb' Hudec <bulb@ucw.cz>
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCWhrTRel1vVwhjGURAuGDAKCLOx+PaXOm5QSjPdFS7YEIDC3KEQCgpGSb
+TefGUTnMb3zLmq66isj/6co=
+=UUNS
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--

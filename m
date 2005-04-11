@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261756AbVDKKNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVDKKPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbVDKKNw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 06:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVDKKNw
+	id S261757AbVDKKPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 06:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVDKKPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 06:13:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62941 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261756AbVDKKNu (ORCPT
+	Mon, 11 Apr 2005 06:15:09 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:990 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261757AbVDKKO6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 06:13:50 -0400
-Date: Mon, 11 Apr 2005 12:13:24 +0200
+	Mon, 11 Apr 2005 06:14:58 -0400
+Date: Mon, 11 Apr 2005 12:14:34 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: folkert@vanheusden.com
-Cc: Andreas Steinmetz <ast@domdv.de>,
+To: Elladan <elladan@eskimo.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Andreas Steinmetz <ast@domdv.de>,
        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH encrypted swsusp 0/3] encrypted swsusp image
-Message-ID: <20050411101324.GA1353@elf.ucw.cz>
-References: <4259B46D.9020402@domdv.de> <20050411075441.GT29797@vanheusden.com>
+Subject: Re: [PATCH] zero disk pages used by swsusp on resume
+Message-ID: <20050411101434.GB1353@elf.ucw.cz>
+References: <42592697.8060909@domdv.de> <200504102040.38403.oliver@neukum.org> <42597E99.8010802@domdv.de> <200504102203.29602.oliver@neukum.org> <20050410201455.GA21568@elf.ucw.cz> <20050411032340.GC9933@eskimo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050411075441.GT29797@vanheusden.com>
+In-Reply-To: <20050411032340.GC9933@eskimo.com>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,23 +28,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > The following patches allow for encryption of the on-disk swsusp image
-> > to prevent data gathering of e.g. in-kernel keys or mlocked data after
-> > resume.
-> > For this purpose the aes cipher must be compiled into the kernel as
-> > module load is not possible at resume time.
-> > A random key is generated at suspend time, stored in the suspend header
-> > on disk and deleted from the header at resume time. If you don't resume
-> > a mkswap on the suspend partition will also delete the temporary key.
-> > Only the data pages are encrypted as only these may contain sensitive data.
-> > This works on my x86_64 laptop (64bit mode) and probably needs testing
-> > on other platforms.
+> > Encrypting swsusp image is of course even better, because you don't
+> > have to write large ammounts of zeros to your disks during resume ;-).
 > 
-> What about an option for an user-defined key? One that can be set when
-> suspending?
+> How does zeroing help if they steal the laptop?  The data is there, they
+> can just pull the hard disk out and mirror it before they boot.
+> 
+> The only way to improve security here is to encrypt it.  Zeroing will
+> help some if they compromise root later, but I doubt that's really worth
+> it considering you're screwed after a root compromise anyway.
 
-That's logical next step, but lets try to solve one problem at a time.
-
+Yes, it helps. It also helps if they steal your laptop later. And we
+are switching to encryption, anyway, because it should be faster.
 								Pavel
 -- 
 Boycott Kodak -- for their patent abuse against Java.

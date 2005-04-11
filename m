@@ -1,84 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVDKOqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVDKOvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVDKOqm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 10:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDKOqm
+	id S261788AbVDKOvS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 10:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDKOvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 10:46:42 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:7087 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261769AbVDKOq0 (ORCPT
+	Mon, 11 Apr 2005 10:51:18 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:59564 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261788AbVDKOvM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 10:46:26 -0400
-Date: Mon, 11 Apr 2005 07:45:52 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
-       linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: [rfc] git: combo-blobs
-Message-Id: <20050411074552.4e2e656b.pj@engr.sgi.com>
-In-Reply-To: <20050411113523.GA19256@elte.hu>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-	<20050409200709.GC3451@pasky.ji.cz>
-	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-	<Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
-	<Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-	<20050411113523.GA19256@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 11 Apr 2005 10:51:12 -0400
+Date: Mon, 11 Apr 2005 18:49:52 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: netdev@oss.sgi.com, Greg KH <greg@kroah.com>,
+       Jamal Hadi Salim <hadi@cyberus.ca>, Kay Sievers <kay.sievers@vrfy.org>,
+       Herbert Xu <herbert@gondor.apana.org.au>,
+       James Morris <jmorris@redhat.com>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jay Lan <jlan@engr.sgi.com>
+Subject: [2/1] connector/CBUS: new messaging subsystem. Revision number
+ next.
+Message-ID: <20050411184952.259ec639@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050411133239.GM26731@postel.suug.ch>
+References: <20050411125932.GA19538@uganda.factory.vocord.ru>
+	<20050411133239.GM26731@postel.suug.ch>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Mon, 11 Apr 2005 18:50:06 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm ... I have this strong sense that I am about 2 hours away from
-smacking my forehead and groaning "Duh - so that's what Ingo meant!"
+Some nlmsg alignment cleanups. Documentation module cleanups.
 
-However, one must play out one's destiny.
+Thanks, Thomas.
 
-Could you provide an example scenario, which results in the creation of
-a combo-blob?
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
-The best I can come up with is the following.
+* looking for johnpol@2ka.mipt.ru-2004/connector--main--0--patch-47 to compare with
+* comparing to johnpol@2ka.mipt.ru-2004/connector--main--0--patch-47
+M  cn_test.c
+M  connector.c
 
-Let's say Nick changes one line in the middle of kernel/sched.c
-(yeah - I know - unlikely scenario - he usually changes more
-than that - nevermind that detail.)
+* modified files
 
-In the days Before Combo Blobs (BCB), git would have been told that
-kernel/sched.c was to be picked up, and would have wrapped it up in a
-zlib'd blob, sha1summed it, seen it was a new sum, and added that blob
-to its objects (or something like this -- I'm still a little fuzzy on
-these git details.)
+--- orig/Documentation/connector/cn_test.c
++++ mod/Documentation/connector/cn_test.c
+@@ -55,14 +55,14 @@
+ 	
+ 	size = NLMSG_SPACE(size0);
+ 
+-	skb = alloc_skb(size, GFP_ATOMIC);
++	skb = alloc_skb(size, GFP_KERNEL);
+ 	if (!skb) {
+ 		printk(KERN_ERR "Failed to allocate new skb with size=%u.\n", size);
+ 
+ 		return -ENOMEM;
+ 	}
+ 
+-	nlh = NLMSG_PUT(skb, 0, 0x123, NLMSG_DONE, size - sizeof(*nlh));
++	nlh = NLMSG_PUT(skb, 0, 0x123, NLMSG_DONE, size0);
+ 
+ 	msg = (struct cn_msg *)NLMSG_DATA(nlh);
+ 
+@@ -104,7 +104,6 @@
+ 	req->range = 10;
+ 	
+ 	NETLINK_CB(skb).dst_groups = ctl->group;
+-	//netlink_broadcast(nls, skb, 0, ctl->group, GFP_ATOMIC);
+ 	netlink_unicast(nls, skb, 0, 0);
+ 
+ 	printk(KERN_INFO "Request was sent. Group=0x%x.\n", ctl->group);
+@@ -124,8 +123,7 @@
+ 	char data[32];
+ 
+ 	m = kmalloc(sizeof(*m) + sizeof(data), GFP_ATOMIC);
+-	if (m)
+-	{
++	if (m) {
+ 		memset(m, 0, sizeof(*m) + sizeof(data));
+ 
+ 		memcpy(&m->id, &cn_test_id, sizeof(m->id));
+@@ -136,8 +134,8 @@
+ 
+ 		memcpy(m+1, data, m->len);
+ 		
+-		cbus_insert(m);
+-		//cn_netlink_send(m, 0);
++		cbus_insert(m, GFP_ATOMIC);
++		//cn_netlink_send(m, 0, GFP_ATOMIC);
+ 		kfree(m);
+ 	}
+ 
 
-But Nick just downloaded the latest git 1.5.11.1 which has added support
-for combo blobs, so now, guessing here, instead of wrapping up the new
-sched.c, git instead unwraps the old one, diff's with the new, notices a
-couple of long sequences that are unchanged, wraps up both of those
-sequences as a couple of relatively large blobs, and wraps up the new
-lines that Nick just coded in the middle as a small blob, and puts all
-three in the object store, along with another small combo-blob, tying
-them all together.
 
-So far, not too bad.  Haven't gained anything, and required the
-unpacking of a zlib blog we didn't require before, and the running and
-analyzing of a diff we didn't require before, but the end result is only
-moderately worse - four object blobs instead of one, but of total size
-not much larger (well, total size typically 3 disk blocks worse, due to
-a slight increase in fragmentation from using 4 blocks to store what
-used to be in one.)
+--- orig/drivers/connector/connector.c
++++ mod/drivers/connector/connector.c
+@@ -100,15 +100,15 @@
+ 	else
+ 		groups = __groups;
+ 
+-	size = NLMSG_SPACE(sizeof(*msg) + msg->len);
++	size = sizeof(*msg) + msg->len;
+ 
+-	skb = alloc_skb(size, gfp_mask);
++	skb = alloc_skb(NLMSG_SPACE(size), gfp_mask);
+ 	if (!skb) {
+-		printk(KERN_ERR "Failed to allocate new skb with size=%u.\n", size);
++		printk(KERN_ERR "Failed to allocate new skb with size=%u.\n", NLMSG_SPACE(size));
+ 		return -ENOMEM;
+ 	}
+ 
+-	nlh = NLMSG_PUT(skb, 0, msg->seq, NLMSG_DONE, size - NLMSG_ALIGN(sizeof(*nlh)));
++	nlh = NLMSG_PUT(skb, 0, msg->seq, NLMSG_DONE, size);
+ 
+ 	data = (struct cn_msg *)NLMSG_DATA(nlh);
+ 
 
-But now I get stuck.  Unless I throw in something like the interleaved
-delta compression that's at the heart of Marc Rochind's old SCCS code
-(and Larry's rewrite thereof), I don't see how we ever come to the
-practical realization that any of these four new blobs can ever be
-reused.
 
-So explain to me again how we ever gain anything with these combo blobs,
-while I take a prophylactic aspirin, so the forehead whack won't hurt as
-much.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

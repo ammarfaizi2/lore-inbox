@@ -1,106 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVDKW02@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVDKW2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVDKW02 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:26:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVDKWYh
+	id S261959AbVDKW2G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVDKW1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:24:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:55250 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261972AbVDKWWn (ORCPT
+	Mon, 11 Apr 2005 18:27:00 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63723 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261980AbVDKWZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:22:43 -0400
-Date: Mon, 11 Apr 2005 15:22:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: jamagallon@able.es, linux-kernel@vger.kernel.org,
-       Stas Sergeev <stsp@aknet.ru>
-Subject: Re: 2.6.12-rc2-mm3
-Message-Id: <20050411152243.22835d96.akpm@osdl.org>
-In-Reply-To: <200504112359.40487.petkov@uni-muenster.de>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<1113209793l.7664l.1l@werewolf.able.es>
-	<20050411024322.786b83de.akpm@osdl.org>
-	<200504112359.40487.petkov@uni-muenster.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 11 Apr 2005 18:25:12 -0400
+Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hifumi.hisashi@lab.ntt.co.jp,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>, vherva@viasys.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050411134651.719e3434.akpm@osdl.org>
+References: <20050326162801.GA20729@logos.cnet>
+	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
+	 <16968.40186.628410.152511@cse.unsw.edu.au>
+	 <20050329215207.GE5018@logos.cnet>
+	 <16970.9679.874919.876412@cse.unsw.edu.au>
+	 <20050330115946.GA7331@logos.cnet>
+	 <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
+	 <1112818233.3377.52.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1112889078.2859.264.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <1113224149.2164.78.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050411134651.719e3434.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1113258283.2164.311.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 11 Apr 2005 23:24:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Borislav Petkov <petkov@uni-muenster.de> wrote:
->
-> On Monday 11 April 2005 11:43, Andrew Morton wrote:
-> > (Please do reply-to-all)
+Hi,
+
+On Mon, 2005-04-11 at 21:46, Andrew Morton wrote:
+> "Stephen C. Tweedie" <sct@redhat.com> wrote:
 > >
-> > "J.A. Magallon" <jamagallon@able.es> wrote:
-> > > On 04.11, Andrew Morton wrote:
-> > >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-r
-> > >  >c2/2.6.12-rc2-mm3/
-> > >
-> > >  Is this not needed anymore ?
-> > >
-> > >  --- 25/arch/i386/kernel/entry.S~nmi_stack_correct-fix	2005-04-05
-> > > 00:02:48.000000000 -0700 +++ 25-akpm/arch/i386/kernel/entry.S	2005-04-05
-> > > 00:02:48.000000000 -0700
-> >
-> > Hopefully not. fix-crash-in-entrys-restore_all.patch works around the
-> > problem. -
+> > Andrew, what was the exact illegal state of the pages you were seeing
+> >  when fixing that recent leak?  It looks like it's nothing more complex
+> >  than dirty buffers on an anon page.
 > 
-> Hello Andrew,
-> I don't know whether you remember the mysterious crashes I was telling you 
-> about last week and me rookiesh-ly trying to debug them with kgdb over the 
-> serial console. Well, today I tried for the n-th time again and after rc2-mm3 
-> blocked again while loading, here's what I did:
+> Correct.
+
+Good --- I think I've got the debugging solid against 2.4 for that case,
+patching against 2.6 now.
+
+> >  I think that simply calling
+> >  try_to_release_page() for all the remaining buffers at umount time will
 > 
-> <snip>
-> [   12.335438] NET: Registered protocol family 17
-> [   12.362483] Testing NMI watchdog ... OK.
-> [   12.416195] Starting balanced_irq
-> [   12.443099] VFS: Mounted root (ext2 filesystem) readonly.
-> [   12.472490] Freeing unused kernel memory: 196k freed
-> [   12.521004] logips2pp: Detected unknown logitech mouse model 1
-> [   12.572581] Warning: unable to open an initial console.
-> [   12.972518] input: PS/2 Logitech Mouse on isa0060/serio1
+> Presumably these pages have no ->mapping, so try_to_release_page() will
+> call try_to_free_buffers().
+
+Exactly.
+
+> >  The only thing that would be required on
+> >  top of that would be a check that the page is also on the VM LRU lists.
 > 
-> Program received signal SIGTRAP, Trace/breakpoint trap.
-> 0xc0102ee7 in resume_kernelX () at atomic.h:175 <--- this one is wrong for a 
-> mysterious reason
-> 175     {
-> (gdb) p $eip
-> $1 = (void *) 0xc0102ee7
-> 
-> (gdb) disas 0xc0102ee7
-> Dump of assembler code for function resume_kernelX:
-> 0xc0102ee7 <resume_kernelX+0>:  mov    0x30(%esp),%eax
-> 0xc0102eeb <resume_kernelX+4>:  mov    0x38(%esp),%ah
-> 0xc0102eef <resume_kernelX+8>:  mov    0x2c(%esp),%al
-> 0xc0102ef3 <resume_kernelX+12>: and    $0x20403,%eax
-> 0xc0102ef8 <resume_kernelX+17>: cmp    $0x403,%eax
-> 0xc0102efd <resume_kernelX+22>: je     0xc0102f0c <ldt_ss>
-> End of assembler dump.
-> (gdb)  
-> 
-> And as we see, we're at the "mov    0x30(%esp),%eax" which accesses above the 
-> bottom of the stack. After applying nmi_stack_correct-fix.patch, rc2-mm3 
-> booted just fine, so I IMHO think that we might still be needing this, after 
-> all.
+> Why do we have dirty buffers left over at umount time?
 
-Interesting.  It could be an interaction between the kgdb patch and the new
-vm86 checking code.  (looks.  I don't think that's the case).
+In the leak case we're worried about, the buffers are dirty but the page
+is anon so there's nothing to clean them up.  The buffers _will_ be
+destroyed by unmount, sure; invalidate_bdev() should see to that.  But
+I'm doing the bh leak check before we get to the final
+invalidate_bdev(), so they should still be available for testing at that
+point.
 
-Stas, could you please take a look at 2.6.12-rc2-mm3's entry.S sometime,
-see if you think my theory is correct?
+--Stephen
 
-It seems that you have CONFIG_TRAP_BAD_SYSCALL_EXITS enabled - I can't say
-that I've ever used that, and I really should remove it.  But I doubt if
-that is the cause of this bug.
-
-
-The above code is accessing esp+56, but Stas's patch only offsets the stack
-pointer by 32 bytes, so I assume this, in copy_thread():
-
--	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
-+	p->thread.esp0 = (unsigned long) (childregs+1) - 15;
-
-fixes it?

@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVDKQBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVDKQEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVDKQBu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 12:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVDKQA6
+	id S261804AbVDKQEP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 12:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVDKQCL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 12:00:58 -0400
-Received: from fire.osdl.org ([65.172.181.4]:60804 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261828AbVDKQAH (ORCPT
+	Mon, 11 Apr 2005 12:02:11 -0400
+Received: from mail.gmx.de ([213.165.64.20]:47002 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261804AbVDKQBS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 12:00:07 -0400
-Date: Mon, 11 Apr 2005 09:01:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Paul Jackson <pj@engr.sgi.com>, pasky@ucw.cz, rddunlap@osdl.org,
-       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-Subject: Re: [rfc] git: combo-blobs
-In-Reply-To: <20050411153905.GA7284@elte.hu>
-Message-ID: <Pine.LNX.4.58.0504110852260.1267@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
- <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu>
- <20050411074552.4e2e656b.pj@engr.sgi.com> <20050411151204.GA5562@elte.hu>
- <Pine.LNX.4.58.0504110826140.1267@ppc970.osdl.org> <20050411153905.GA7284@elte.hu>
+	Mon, 11 Apr 2005 12:01:18 -0400
+X-Authenticated: #222435
+From: Jonas Diemer <diemer@gmx.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: security issue: hard disk lock
+Date: Mon, 11 Apr 2005 18:01:16 +0200
+User-Agent: KMail/1.8
+References: <200504041942.10976.diemer@gmx.de> <1113233800.9875.47.camel@localhost.localdomain>
+In-Reply-To: <1113233800.9875.47.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504111801.16647.diemer@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Alan!
 
+Thanks for the info
 
-On Mon, 11 Apr 2005, Ingo Molnar wrote:
-> 
-> if a repository is corrupted then it pretty much needs to be dropped 
-> anyway.
+Am Montag 11. April 2005 17:36 schrieb Alan Cox:
+> It makes little difference as the attacker can replace the kernel and
+> reboot.
+> Anyway they can flash erase your video card bios, your IDE firmware,
+> your BIOS
+> and far more just as easily.
 
-I disagree. Yes, the thing is designed to be replicated, so most of the 
-time the easiest thing to do is to just rsync with another copy. 
+Yes, but a new video-card or Motherboard can be easily bought (although it 
+costs), but the data on a locked disk is lost forever, unless you pay for 
+professional recovery (which is also a time-issue, if time critical data is 
+stored on the disk). Of course, this can be solved with a good backup 
+strategy...
 
-But dammit, I don't want to just depend on that. I wrote "fsck" for a 
-reason. Right now it only finds errors, which is sufficient if you do the 
-rsync thing, but I think it's _wrong_ to
+I agree with you though, that this really isn't a kernel issue, but a BIOS 
+thing. Distributors should/could provide additional security by freezing the 
+security-features early during boot, until BIOS vendors do their homework.
 
- - be slower
- - be more complex
- - be less safe
+regards,
+Jonas
 
-to save some diskspace.
-
-If you want to save disk-space, the current setup has a great way of doing
-that: just drop old history. Exactly because a GIT repo doesn't do the
-dependency chain thing, you can do that, and have a minimal GIT
-repostiroty that is still perfectly valid (and is basically the size of a
-single checked-out tree tree, except it's also compressed).
-
-I don't think many people will do that, considering how cheap disk is, but 
-the fact is, GIT allows it just fine. "fsck" will complain right now, but 
-I'm actually going to make the "commit->commit" link be a "weaker" thing, 
-and have fsck not complain about missing history unless you do the "-v" 
-thing.
-
-(Right now, for development, I _do_ want fsck to complain about missing
-history, but that's a different thing. Right now it's there to make sure I
-don't do stupid things, not for "users").
-
->	 Also, with a 'replicate the full object on every 8th commit' 
-> rule the risk would be somewhat mitigated as well.
-
-..but not the complexity.
-
-The fact is, I want to trust this thing. Dammit, one reason I like GIT is
-that I can mentally visualize the whole damn tree, and each step is so
-_simple_. That's extra important when the object database itself is so
-inscrutable - unlike CVS or SCCS or formats like that, it's damn hard to
-visualize from looking at a directory listing.
-
-So this really is a very important point for me: I want a demented 
-chimpanzee to be able to understand the GIT linkages, and I do not want 
-_any_ partial results anywhere. The recursive tree is already more 
-complexity than I wanted, but at least that seemed inescapable.
-
-		Linus
+PS: Still not on the list, so please CC me in an eventual reply.

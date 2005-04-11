@@ -1,103 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVDKXa2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbVDKXdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVDKXa2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 19:30:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVDKXa2
+	id S261670AbVDKXdj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 19:33:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVDKXdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 19:30:28 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:458 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261988AbVDKXaQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 19:30:16 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 11 Apr 2005 19:33:39 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:22015 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261670AbVDKXdg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 19:33:36 -0400
+From: Peter Missel <peter.missel@onlinehome.de>
+To: video4linux-list@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] LifeView FlyTV Platinum FM: Remote Control support
+Date: Tue, 12 Apr 2005 01:33:06 +0200
+User-Agent: KMail/1.8
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Priority Lists for the RT mutex
-Date: Mon, 11 Apr 2005 16:28:25 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02FA3BFF@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Priority Lists for the RT mutex
-Thread-Index: AcU+68Wg31QasG0JQZGwayGqVb4RRAAARUjg
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "Bill Huey \(hui\)" <bhuey@lnxw.com>
-Cc: "Ingo Molnar" <mingo@elte.hu>,
-       "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
-       "Daniel Walker" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
-       "Steven Rostedt" <rostedt@goodmis.org>,
-       "Esben Nielsen" <simlo@phys.au.dk>, "Joe Korty" <joe.korty@ccur.com>
-X-OriginalArrivalTime: 11 Apr 2005 23:28:23.0656 (UTC) FILETIME=[278C1E80:01C53EEE]
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504120133.06996.peter.missel@onlinehome.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:eea5ddcdb9e55c285e39b42944f081ba
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Bill Huey (hui) [mailto:bhuey@lnxw.com]
->On Mon, Apr 11, 2005 at 03:31:41PM -0700, Perez-Gonzalez, Inaky wrote:
->> If you are exposing the kernel locks to userspace to implement
->> mutexes (eg POSIX mutexes), deadlock checking is a feature you want
->> to have to complain with POSIX. According to some off the record
->> requirements I've been given, some applications badly need it (I have
->> a hard time believing that they are so broken, but heck...).
->
->I'd like to read about those requirements, but, IMO a lot of the value
+Greetings!
 
-More than a formal requirement is a "practical" one. Some
-company (leader in their field, of course) has this huge
-blobl of code they want to use in Linux and it has the typical
-API than once upon a time was made multithreaded by just adding
-a bunch of pthread_mutex_[un]lock() at the API entry point...
-without realizing that some of the top level API calls also 
-called other top level API calls, so they'd deadlock.
+Subject says it ... this card's IR microcontroller design and attachment
+are compatible to the company's previous designs, so the patch was as simple as it gets.
 
-Quick fix: the usual. Enable deadlock detection and if it
-returns deadlock, assume it is locked already and proceed (or
-do a recursive mutex, or a trylock).
+Note that this patch goes on top of the other one I posted yesterday, thank you very much.
 
-And so on, and so forth...
+regards,
+Peter
 
->of various priority protocols varies greatly on the context and size (N
->threads) of the application using it. If user/kernel space have to be
->coupled via some thread of execution, (IMO) then it's better to
-seperate
->them with some event notification queues like signals (wake a thread
->via an queue event) than to mix locks across the user/kernel space
-> ...
+--- linux-2.6.12-rc2/drivers/media/video/saa7134/saa7134-cards.c        2005-04-09 12:01:47.000000000 +0200
++++ video4linux/saa7134-cards.c 2005-04-12 00:58:57.000000000 +0200
+@@ -1948,6 +1948,7 @@
+                dev->has_remote = 1;
+                board_flyvideo(dev);
+                break;
++       case SAA7134_BOARD_FLYTVPLATINUM_FM:
+        case SAA7134_BOARD_CINERGY400:
+        case SAA7134_BOARD_CINERGY600:
+        case SAA7134_BOARD_CINERGY600_MK3:
 
-I wonder if we are confusing apples and oranges here--I don't think
-we were considering cases about mixing kernel locks that are accessible
-both from kernel and user space. 
-
-The focus is to have a kernel lock entity and that user space can
-use it for implementing the user space mutexes, but *not* mix
-them (like in user and kernel space sharing this lock for doing 
-whatever).
-
-It is certainly something to explore, but I'd better drive your
-way than do it. It's cleaner. Hides implementation details.
-
->It's important to outline the requirements of the applications and then
->see what you can do using minimal synchronization objects before
->exploding that divide.
-
-I agree, but it doesn't work that well when talking about legacy 
-systems...that's the problem.
-
->Also, Posix isn't always politically neutral nor complete regarding
->various things. You have to consider the context of these things.
->I'll have to think about this a bit more and review your patch more
->carefully.
-
-Sure--and because most was for legacy reasons that adhered to 
-POSIX strictly, it was very simple: we need POSIX this, that and
-that (PI, proper adherence to scheduler policy wake up/rt-behaviour,
-deadlock detection, etc). 
-
-Fortunately in those areas POSIX is not too gray; code to the book.
-Deal. 
-
-Of course, selling it to the lkml is another story.
-
--- Inaky
+--- linux-2.6.12-rc2/drivers/media/video/saa7134/saa7134-input.c 2005-04-09 12:01:47.000000000 +0200
++++ video4linux/saa7134-input.c 2005-04-12 01:15:11.000000000 +0200
+@@ -379,6 +379,7 @@
+        switch (dev->board) {
+        case SAA7134_BOARD_FLYVIDEO2000:
+        case SAA7134_BOARD_FLYVIDEO3000:
++       case SAA7134_BOARD_FLYTVPLATINUM_FM:
+                ir_codes     = flyvideo_codes;
+                mask_keycode = 0xEC00000;
+                mask_keydown = 0x0040000;

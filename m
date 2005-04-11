@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVDKOWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVDKO0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVDKOWR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 10:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVDKOWR
+	id S261562AbVDKO0O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 10:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVDKO0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 10:22:17 -0400
-Received: from kalmia.hozed.org ([209.234.73.41]:32677 "EHLO kalmia.hozed.org")
-	by vger.kernel.org with ESMTP id S261551AbVDKOWO (ORCPT
+	Mon, 11 Apr 2005 10:26:14 -0400
+Received: from hera.kernel.org ([209.128.68.125]:50628 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261562AbVDKO0J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 10:22:14 -0400
-Date: Mon, 11 Apr 2005 09:22:13 -0500
-From: Troy Benjegerdes <hozer@hozed.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-ID: <20050411142213.GC26127@kalmia.hozed.org>
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	Mon, 11 Apr 2005 10:26:09 -0400
+Date: Mon, 11 Apr 2005 05:39:32 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] MAINTAINERS: remove obsolete ACP/MWAVE MODEM entry
+Message-ID: <20050411083932.GE1356@logos.cnet>
+References: <20050409231545.GU3632@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050409231545.GU3632@stusta.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In particular, the memory pinning code in in uverbs_mem.c could stand
-> a looking over.  In addition, a sanity check of the write()-based
-> scheme for passing commands into the kernel in uverbs_main.c and
-> uverbs_cmd.c is probably worthwhile.
+Adrian,
 
-How is memory pinning handled? (I haven't had time to read all the code,
-so please excuse my ignorance of something obvious).
+./drivers/char/mwave/Makefile also references Paul's email 
+address, at least in v2.4.
 
-The old mellanox drivers used to have a hack to call 'sys_mlock', and
-promiscuously lock memory any old userspace application asked for. What
-is the API for the new uverbs memory registration, and how will things
-like memory hotplug and NUMA page migration be able to unpin pages
-locked by a user program?
+Applied, thanks.
 
-I have applications that would benefit from being able to register 15GB
-of memory on a machine with 16GB. Right now, MPI and other possible
-users of infiniband in userspace have to play cacheing games and limit
-what they can register. But locking all that memory without providing
-the kernel a way to unlock it under memory pressure or for page
-migration seems like a bad idea.
+On Sun, Apr 10, 2005 at 01:15:45AM +0200, Adrian Bunk wrote:
+> Both maintainer email addresses are bouncing and the web address is no 
+> longer valid.
+> 
+> Seems to be a good time to remove the entry.
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.12-rc2-mm2-full/MAINTAINERS.old	2005-04-10 01:12:58.000000000 +0200
+> +++ linux-2.6.12-rc2-mm2-full/MAINTAINERS	2005-04-10 01:13:14.000000000 +0200
+> @@ -172,14 +172,6 @@
+>  W:	http://www.stud.uni-karlsruhe.de/~uh1b/
+>  S:	Maintained
+>  
+> -ACP/MWAVE MODEM
+> -P:	Paul B Schroeder
+> -M:	paulsch@us.ibm.com
+> -P:	Mike Sullivan
+> -M:	sullivam@us.ibm.com
+> -W:	http://www.ibm.com/linux/ltc/
+> -S:	Supported
+> -
+>  AACRAID SCSI RAID DRIVER
+>  P:	Adaptec OEM Raid Solutions
+>  L:	linux-scsi@vger.kernel.org

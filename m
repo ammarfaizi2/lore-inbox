@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVDKU0c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVDKU1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261922AbVDKU0c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 16:26:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVDKU0b
+	id S261925AbVDKU1w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVDKU0k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 16:26:31 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63898 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261948AbVDKUXu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 16:23:50 -0400
-Date: Mon, 11 Apr 2005 22:23:25 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@osdl.org>,
-       Adrian Bunk <bunk@stusta.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Do not misuse Coverity please
-Message-ID: <20050411202325.GE10401@elf.ucw.cz>
-References: <OofSaT76.1112169183.7124470.khali@localhost> <200503301709.j2UH9WsA008556@laptop11.inf.utfsm.cl>
+	Mon, 11 Apr 2005 16:26:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:25763 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261946AbVDKUU3 (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 16:20:29 -0400
+Date: Mon, 11 Apr 2005 13:03:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Derek Cheung <derek.cheung@sympatico.ca>
+Cc: "'Randy.Dunlap'" <rddunlap@osdl.org>, "'Andrew Morton'" <akpm@osdl.org>,
+       Linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
+Message-ID: <20050411200318.GA25550@kroah.com>
+References: <42535AF1.5080008@osdl.org> <000801c53ded$04428920$1501a8c0@Mainframe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200503301709.j2UH9WsA008556@laptop11.inf.utfsm.cl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <000801c53ded$04428920$1501a8c0@Mainframe>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, Apr 10, 2005 at 12:47:42PM -0400, Derek Cheung wrote:
+> Enclosed please find the updated patch that incorporates changes for all
+> the comments I received.
 
-> "Jean Delvare" <khali@linux-fr.org> said:
-> > > > > No, there is a third case: the pointer can be NULL, but the compiler
-> > > > > happened to move the dereference down to after the check.
-> 
-> > > > Wow. Great point. I completely missed that possibility. In fact I didn't
-> > > > know that the compiler could possibly alter the order of the
-> > > > instructions. For one thing, I thought it was simply not allowed to. For
-> > > > another, I didn't know that it had been made so aware that it could
-> > > > actually figure out how to do this kind of things. What a mess. Let's
-> > > > just hope that the gcc folks know their business :)
-> 
-> > > The compiler is most definitely /not/ allowed to change the results the
-> > > code gives.
-> 
-> > I think that Andrew's point was that the compiler could change the order
-> > of the instructions *when this doesn't change the result*, not just in
-> > the general case, of course. In our example, The instructions:
-> > 
-> >     v = p->field;
-> >     if (!p) return;
-> > 
-> > can be seen as equivalent to
-> > 
-> >     if (!p) return;
-> >     v = p->field;
-> 
-> They are not. If p == NULL, the first gives an exception (SIGSEGV), the
-> second one doesn't. Just as you can't "optimize" by switching:
-> 
->     x = b / a;   
->     if (a == 0) return;
+You did not cc: the sensors mailing list, nor fix all of the coding
+style issues.
 
-Dereferencing NULL pointer is undefined. It *may* give SIGSEGV. That's
-what enables optimization above. You can't rely on dereferencing NULL
-to always give SIGSEGV. Sorry.
+> The volatile declaration in the m528xsim.h is needed because the
+> declaration refers to the ColdFire 5282 register mapping.
 
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Shouldn't you be calling ioremap, and not directly accessing a specific
+register location through a pointer?  That's how all other arches do
+this.
+
+thanks,
+
+greg k-h

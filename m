@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVDKQnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVDKQnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbVDKQnF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 12:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVDKQkh
+	id S261854AbVDKQnR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 12:43:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVDKQkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 12:40:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:63706 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261836AbVDKQhS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 12:37:18 -0400
-Date: Mon, 11 Apr 2005 18:36:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: folkert@vanheusden.com,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050411163657.GA23423@elf.ucw.cz>
-References: <4259B474.4040407@domdv.de> <20050411102550.GD1353@elf.ucw.cz> <20050411103608.GA5610@vanheusden.com> <20050411110152.GD1373@elf.ucw.cz> <425AA5B7.4000900@domdv.de>
+	Mon, 11 Apr 2005 12:40:09 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:30699 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261839AbVDKQhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 12:37:23 -0400
+Subject: Re: 'BUG: scheduling with irqs disabled' when umounting NFS volume
+From: Lee Revell <rlrevell@joe-job.com>
+To: dwalker@mvista.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+In-Reply-To: <1113236975.30548.9.camel@dhcp153.mvista.com>
+References: <1112991311.11000.37.camel@mindpipe>
+	 <1112992701.26296.16.camel@dhcp153.mvista.com>
+	 <1112997093.12195.1.camel@mindpipe>
+	 <1113236975.30548.9.camel@dhcp153.mvista.com>
+Content-Type: text/plain
+Date: Mon, 11 Apr 2005 12:37:22 -0400
+Message-Id: <1113237442.29578.2.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425AA5B7.4000900@domdv.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I'd like to retain ability to read suspend image in any order (so that
-> > code can be reused for swap encryption, etc).
+On Mon, 2005-04-11 at 09:29 -0700, Daniel Walker wrote:
+> On Fri, 2005-04-08 at 14:51, Lee Revell wrote:
+> > On Fri, 2005-04-08 at 13:38 -0700, Daniel Walker wrote:
+> > > I submitted a fix for this a while ago, I think ..
+> > > interruptible_sleep_on()'s are broken .. 
+> > 
+> > I saw the fix in -stable, but it does not seem to be in 2.6.12-rc2.
 > 
-> This is not possible with cipher block chaining as used right now. One
-> would have to use a non-random iv set needs to set for every page. And
-> this leads to exactly the same problem why dm-crypt now offers the
-> 'essiv' mode. I don't know if a random access feature is worth this
-> effort as sequential disk access (sequential write, sequential read) is
-> usally the fastest method anyway.
+> 
+> I didn't know it was in any of the kernels. Do I need to submit it to
+> Linus or something?
 
-I thought I'd just reuse your code for automagic swap encryption. Oh
-well.
+I must be thinking of a different bug then.  Anyway, Ingo said this was
+fixed in the latest RT kernels.
 
+Lee
 
-> For regular swap encryption I do hope that the initrd feature of swsup2
-> will eventually find its way into the mainline kernel. This way you can
-> have an external key for dm-crypt to access the encrypted swap
-> partition.
-
-Check -mm kernel, swsusp1 can now do resume from initrd.
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.

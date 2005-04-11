@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVDKNJt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVDKNLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVDKNJt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 09:09:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVDKNJt
+	id S261577AbVDKNLU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 09:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVDKNLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 09:09:49 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:54534 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S261582AbVDKNJf (ORCPT
+	Mon, 11 Apr 2005 09:11:20 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:2311 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S261577AbVDKNLI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 09:09:35 -0400
-Message-ID: <425A770C.7050208@domdv.de>
-Date: Mon, 11 Apr 2005 15:09:32 +0200
+	Mon, 11 Apr 2005 09:11:08 -0400
+Message-ID: <425A776B.3070107@domdv.de>
+Date: Mon, 11 Apr 2005 15:11:07 +0200
 From: Andreas Steinmetz <ast@domdv.de>
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-CC: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in swsusp
-References: <4259B425.4090105@domdv.de> <200504110859.00961.rjw@sisk.pl>
-In-Reply-To: <200504110859.00961.rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+References: <4259B474.4040407@domdv.de> <20050411110822.GA10401@elf.ucw.cz>
+In-Reply-To: <20050411110822.GA10401@elf.ucw.cz>
 X-Enigmail-Version: 0.90.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-2
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> Hi,
-> 
-> On Monday, 11 of April 2005 01:17, Andreas Steinmetz wrote:
-> 
->>Pavel,
->>during testing of the encrypted swsusp_image on x86_64 I did get an Oops
->>from time to time at memcpy+11 called from swsusp_save+1090 which turns
->>out to be the memcpy in copy_data_pages() of swsusp.c.
->>The Oops is caused by a NULL pointer (I don't remember if it was source
->>or destination).
+Pavel Machek wrote:
+> Hi!
 > 
 > 
-> It's quite important, however.  If it's the destination, it's probably a bug in
-> swsusp.  Otherwise, the problem is more serious.  Could you, please,
-> add BUG_ON(!pbe->address) right before the memcpy() and retest?
+>>The following patch adds the core functionality for the encrypted
+>>suspend image.
+> 
+> 
+> +#ifdef CONFIG_SWSUSP_ENCRYPT
+> +static struct crypto_tfm *crypto_init(int mode)
+> +{
+> +       struct crypto_tfm *tfm;
+> +       int len;
+> +
+> +       tfm = crypto_alloc_tfm(CIPHER, CRYPTO_TFM_MODE_CBC);
+> +       if(!tfm) {
+>           ~ please put space between if and (
+> 
+> +               printk(KERN_ERR "swsusp: no tfm, suspend not
+> possible\n");
+> +               return NULL;
+> +       }
+> +
+> +       if(sizeof(key) < crypto_tfm_alg_min_keysize(tfm)) {
+> 
+> same here.
+> 
+> Was it really neccessary to include "union u"? I don't like its name,
+> and perhaps few casts are better than this. If not, it probably should
+> go in separate patch, and ASAP.
 
-I'll try.
+I'll revert this and use few casts.
 
 -- 
 Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

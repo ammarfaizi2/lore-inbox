@@ -1,53 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVDKGPx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVDKG0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbVDKGPx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 02:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVDKGPx
+	id S261702AbVDKG0H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 02:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbVDKG0G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 02:15:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:13023 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261344AbVDKGPq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 02:15:46 -0400
-Date: Mon, 11 Apr 2005 08:12:34 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/block/ll_rw_blk.c: possible cleanups
-Message-ID: <20050411061233.GW22988@suse.de>
-References: <20050410181321.GE4204@stusta.de>
+	Mon, 11 Apr 2005 02:26:06 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:26757 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261702AbVDKGZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 02:25:51 -0400
+Date: Sun, 10 Apr 2005 23:25:23 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: akpm@osdl.org, discuss@x86-64.org, davej@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] [21/31] x86_64: Always use CPUID 80000008 to figure out MTRR address space size
+Message-ID: <20050410232523.B24470@unix-os.sc.intel.com>
+References: <425554EC.mailMV61WIBOM@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050410181321.GE4204@stusta.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <425554EC.mailMV61WIBOM@suse.de>; from ak@suse.de on Thu, Apr 07, 2005 at 05:42:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10 2005, Adrian Bunk wrote:
-> This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - remove the following unused global functions:
->   - blkdev_scsi_issue_flush_fn
+We need to use the size_and_mask in set_mtrr_var_ranges(which is called 
+while programming MTRR's for AP's
 
-Kill the function completely, it is not used anymore.
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
->   - __blk_attempt_remerge
+--- linux/arch/i386/kernel/cpu/mtrr/generic.c~	2005-04-10 14:07:11.821466664 -0700
++++ linux/arch/i386/kernel/cpu/mtrr/generic.c	2005-04-10 14:12:21.913325536 -0700
+@@ -192,7 +192,8 @@ static int set_mtrr_var_ranges(unsigned 
+ 
+ 	rdmsr(MTRRphysBase_MSR(index), lo, hi);
+ 	if ((vr->base_lo & 0xfffff0ffUL) != (lo & 0xfffff0ffUL)
+-	    || (vr->base_hi & 0xfUL) != (hi & 0xfUL)) {
++	    || (vr->base_hi & (size_and_mask >> (32 - PAGE_SHIFT))) != 
++		(hi & (size_and_mask >> (32 - PAGE_SHIFT)))) {
+ 		mtrr_wrmsr(MTRRphysBase_MSR(index), vr->base_lo, vr->base_hi);
+ 		changed = TRUE;
+ 	}
+@@ -200,7 +201,8 @@ static int set_mtrr_var_ranges(unsigned 
+ 	rdmsr(MTRRphysMask_MSR(index), lo, hi);
+ 
+ 	if ((vr->mask_lo & 0xfffff800UL) != (lo & 0xfffff800UL)
+-	    || (vr->mask_hi & 0xfUL) != (hi & 0xfUL)) {
++	    || (vr->mask_hi & (size_and_mask >> (32 - PAGE_SHIFT))) != 
++		(hi & (size_and_mask >> (32 - PAGE_SHIFT)))) {
+ 		mtrr_wrmsr(MTRRphysMask_MSR(index), vr->mask_lo, vr->mask_hi);
+ 		changed = TRUE;
+ 	}
 
-Normally I would say leave that since it's part of the API, but lets
-just kill it. I don't envision any further users of the remerging
-attempts.
-
-> - remove the following unused EXPORT_SYMBOL's:
->   - blk_phys_contig_segment
->   - blk_hw_contig_segment
->   - blkdev_scsi_issue_flush_fn
->   - __blk_attempt_remerge
+On Thu, Apr 07, 2005 at 05:42:36PM +0200, Andi Kleen wrote:
+> Always use CPUID 80000008 to figure out MTRR address space size
 > 
-> Please review which of these changes make sense.
-
-Looks fine to me, thanks. Can you send a new patch that kills
-blkdev_scsi_issue_flush_fn()?
-
--- 
-Jens Axboe
-
+> It doesn't make sense to only do this only for AMD K8.
+> 
+> This would support future CPUs with extended address spaces properly.
+> 
+> For i386 and x86-64
+> 
+> Cc: davej@redhat.com
+> 
+> 
+> Index: linux/arch/i386/kernel/cpu/mtrr/main.c
+> ===================================================================
+> --- linux.orig/arch/i386/kernel/cpu/mtrr/main.c
+> +++ linux/arch/i386/kernel/cpu/mtrr/main.c
+> @@ -614,40 +614,21 @@ static int __init mtrr_init(void)
+>  		mtrr_if = &generic_mtrr_ops;
+>  		size_or_mask = 0xff000000;	/* 36 bits */
+>  		size_and_mask = 0x00f00000;
+> -			
+> -		switch (boot_cpu_data.x86_vendor) {
+> -		case X86_VENDOR_AMD:
+> -			/* The original Athlon docs said that
+> -			   total addressable memory is 44 bits wide.
+> -			   It was not really clear whether its MTRRs
+> -			   follow this or not. (Read: 44 or 36 bits).
+> -			   However, "x86-64_overview.pdf" explicitly
+> -			   states that "previous implementations support
+> -			   36 bit MTRRs" and also provides a way to
+> -			   query the width (in bits) of the physical
+> -			   addressable memory on the Hammer family.
+> -			 */
+> -			if (boot_cpu_data.x86 == 15
+> -			    && (cpuid_eax(0x80000000) >= 0x80000008)) {
+> -				u32 phys_addr;
+> -				phys_addr = cpuid_eax(0x80000008) & 0xff;
+> -				size_or_mask =
+> -				    ~((1 << (phys_addr - PAGE_SHIFT)) - 1);
+> -				size_and_mask = ~size_or_mask & 0xfff00000;
+> -			}
+> -			/* Athlon MTRRs use an Intel-compatible interface for 
+> -			 * getting and setting */
+> -			break;
+> -		case X86_VENDOR_CENTAUR:
+> -			if (boot_cpu_data.x86 == 6) {
+> -				/* VIA Cyrix family have Intel style MTRRs, but don't support PAE */
+> -				size_or_mask = 0xfff00000;	/* 32 bits */
+> -				size_and_mask = 0;
+> -			}
+> -			break;
+> -		
+> -		default:
+> -			break;
+> +	
+> +		/* This is an AMD specific MSR, but we assume(hope?) that
+> +		   Intel will implement it to when they extend the address
+> +		   bus of the Xeon. */		
+> +		if (cpuid_eax(0x80000000) >= 0x80000008) {
+> +			u32 phys_addr;
+> +			phys_addr = cpuid_eax(0x80000008) & 0xff;
+> +			size_or_mask = ~((1 << (phys_addr - PAGE_SHIFT)) - 1);
+> +			size_and_mask = ~size_or_mask & 0xfff00000;
+> +		} else if (boot_cpu_data.x86_vendor == X86_VENDOR_CENTAUR &&
+> +			   boot_cpu_data.x86 == 6) {
+> +			/* VIA C* family have Intel style MTRRs, but
+> +			   don't support PAE */
+> +			size_or_mask = 0xfff00000;	/* 32 bits */
+> +			size_and_mask = 0;
+>  		}
+>  	} else {
+>  		switch (boot_cpu_data.x86_vendor) {

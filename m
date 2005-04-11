@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVDKEGz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVDKEbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVDKEGz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 00:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVDKEGz
+	id S261696AbVDKEbe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 00:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVDKEbe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 00:06:55 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:19776 "EHLO
-	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261684AbVDKEGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 00:06:53 -0400
-Date: Sun, 10 Apr 2005 22:03:30 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: formatting CD-RW locks the system
-In-reply-to: <3RXML-BZ-15@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4259F712.4070802@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <3RPvT-2g8-31@gated-at.bofh.it> <3RRo1-3O4-21@gated-at.bofh.it>
- <3RXML-BZ-15@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Mon, 11 Apr 2005 00:31:34 -0400
+Received: from orb.pobox.com ([207.8.226.5]:50382 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261696AbVDKEbc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 00:31:32 -0400
+Date: Sun, 10 Apr 2005 21:31:24 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, hare@suse.de
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050411043124.GA24626@ip68-4-98-123.oc.oc.cox.net>
+References: <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net> <20050405175600.644e2453.akpm@osdl.org> <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net> <20050406142749.6065b836.akpm@osdl.org> <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net> <20050408103327.GD1392@elf.ucw.cz> <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz> <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net> <20050410230053.GD12794@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410230053.GD12794@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stas Sergeev wrote:
-> OK, I'll try cdrecord too, thanks.
-> But there might be a bug in the kernel
-> if the system literally dies with the
-> cdrwtool.
+On Mon, Apr 11, 2005 at 01:00:53AM +0200, Pavel Machek wrote:
+> > No, XFS is my root filesystem. :( (Now that I think about it, would
+> > modularizing XFS and using an initrd be OK?)
+> 
+> Yes, loading xfs from initrd should help. [At least it did during
+> suse9.3 testing.]
 
-If the format is being done as a single blocking ATAPI command, then 
-that will definitely block any other accesses on the same IDE channel, 
-at least - that's just the way IDE works. That shouldn' have an effect 
-on other IDE channels though..
+Once I modularized xfs and switched to using an initrd, the problem
+disappeared.
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+I just noticed a difference between the kernel messages with XFS
+built-in and with it modularized. I'm having trouble putting my finger
+on it; it seems like the screen gets cleared at some point during
+resume, and with XFS built-in, it starts reading the data from swap
+*after* the screen gets cleared. In contrast, if the enable-initrd patch
+is removed or XFS is modularized, it reads in from swap *before* the
+screen gets cleared. Or something like that.
+
+I'll see if I can get anything more detailed & useful with a serial
+console... Failing that, I'll try a camcorder or digital camera and
+transcribe from that.
+
+-Barry K. Nathan <barryn@pobox.com>
 

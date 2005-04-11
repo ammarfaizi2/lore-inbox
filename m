@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVDKVft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVDKVlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbVDKVft (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 17:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDKVft
+	id S261956AbVDKVlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 17:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDKVlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 17:35:49 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:25780 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261953AbVDKVfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 17:35:43 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Date: Mon, 11 Apr 2005 23:35:38 +0200
-User-Agent: KMail/1.7.1
-Cc: Andreas Steinmetz <ast@domdv.de>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <4259B474.4040407@domdv.de> <200504112257.39708.rjw@sisk.pl> <20050411210819.GF23530@elf.ucw.cz>
-In-Reply-To: <20050411210819.GF23530@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 17:41:46 -0400
+Received: from mail.shareable.org ([81.29.64.88]:53407 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261949AbVDKVlm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 17:41:42 -0400
+Date: Mon, 11 Apr 2005 22:41:23 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: dan@debian.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+Message-ID: <20050411214123.GF32535@mail.shareable.org>
+References: <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200504112335.39155.rjw@sisk.pl>
+In-Reply-To: <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Miklos Szeredi wrote:
+> That is exactly the intended effect.  If I'm at my work machine (where
+> I'm not an admin unfortunately) and I mount my home machine with sshfs
+> (because FUSE is installed fortunately :), then I bloody well don't
+> want the sysadmin or some automated script of his to go mucking under
+> the mountpoint.
 
-On Monday, 11 of April 2005 23:08, Pavel Machek wrote:
-> Hi!
-> 
-]--snip--[
-> > > @@ -130,6 +150,52 @@
-> > >  static unsigned short swapfile_used[MAX_SWAPFILES];
-> > >  static unsigned short root_swap;
-> > >  
-> > > +#ifdef CONFIG_SWSUSP_ENCRYPT
-> > > +static struct crypto_tfm *crypto_init(int mode)
-> > 
-> > I think it's better if this function returns an int error code and the
-> > messages are printed where it's called from.  This way, the essential
-> > part of the code would be easier to grasp (Pavel?).
-> 
-> Agreed. Actually I do not care where messages are printed, but
-> returning different code for different errors seems right.
+I think that would be _much_ nicer implemented as a mount which is
+invisible to other users, rather than one which causes the admin's
+scripts to spew error messages.  Is the namespace mechanism at all
+suitable for that?
 
-Hm.  You probably don't want suspend-related messages to be printed during
-resume (this function is called in two different places)? :-)
+It would also be nice to generalise and have virtual filesystems which
+are able to present different views to different users.  Can FUSE do
+that already - is the userspace part told which user is doing each
+operation?  With that, the desire for virtual filesystems which cannot
+be read by your sysadmin (by accident) is easy to satisfy - and that
+kind of mechanism would probably be acceptable to all.
 
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+-- Jamie

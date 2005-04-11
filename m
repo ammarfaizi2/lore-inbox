@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVDKLm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVDKLpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbVDKLm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 07:42:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVDKLja
+	id S261777AbVDKLpw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 07:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVDKLpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 07:39:30 -0400
-Received: from general.keba.co.at ([193.154.24.243]:20937 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261785AbVDKLjB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 07:39:01 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 11 Apr 2005 07:45:52 -0400
+Received: from Maxwell.derobert.net ([207.188.193.82]:2535 "EHLO
+	Maxwell.derobert.net") by vger.kernel.org with ESMTP
+	id S261792AbVDKLnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 07:43:50 -0400
+Message-ID: <425A62F0.407@derobert.net>
+Date: Mon, 11 Apr 2005 07:43:44 -0400
+From: Anthony DeRobertis <anthony@derobert.net>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RT 45-01: CF Card read: High latency?
-Date: Mon, 11 Apr 2005 13:38:54 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F3673231EA@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RT 45-01: CF Card read: High latency?
-Thread-Index: AcU48Xrl1sK/Hr4PQf2OhbptXin5JgFlVePA
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>
+CC: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <874qegkxjp.fsf@kreon.lan.henning.makholm.net> <MDEHLPKNGKAHNMBLJOLKEELGDAAB.davids@webmaster.com> <20050410042012.GC18141@zewt.org>
+In-Reply-To: <20050410042012.GC18141@zewt.org>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAKlBMVEVTAABbAQBsAACAAQCV
+ AAC3DwTXPhTrZiLyjiroi133tCn53UX51n/45bb7J7XrAAACZ0lEQVQ4y2WTz07bQBDGlz5BHF6g
+ cfoAxeu+QHYd7rDjwD1eK1eq7AbUU6XGVpRroTxBKE8ABs6oKr2itiHv0pldh/zpSJai/WVm55v5
+ lgVBsLufFaoT4q8GWwWBGC4VJxBsgjaXqeJRa5MEQRNBLxMupe2KvWk4ELZ5fPxVcB6GYbyHtBm/
+ J9AkkGaSf0CWRFjx3YErFRKADJIjUBIURFx2CIQEZKL1eGQ/ApyNVSJFwwOOIAWAdKBktxiKVuhB
+ G0E6VhJD8Fjxjm+XzmN59EVy7vrCzwNOhaA3RBA58cux4LlMTy9QoD9/1c7j7rBXDkHU540VSExu
+ QGLtjQRGlQzgDMPWRgIB0EouwWq6MYozr2BtU1ImOQH+P0hHmZJ1t+sggTwDSSmbq/UAAJexBQAG
+ j9ZolfRbGwD/PHjWJv1TiG2QWioFMtoCvcEzXS5dv2tdAXaLy66FrAPtgKgVrkCqrQZSvi59J3jL
+ dD690CtAaAc995mZT+faA29eH7sH7LY0mS/l/e4ijE/YQ2XAXR6LcJkSSjhhi9+GLsdQ9dbR/kPY
+ Y4vK6IwA9GufoLe6hxGbz06xX4y8L8hwzsv7irP59VPhARxyT9BRINni/psborOKcym9CgD287sl
+ kJdjDzhZGbthTzOrNaR5mXkxnGxzLjirClyf1tbUKrmE41kmIlaVEwKX2ACNmOrkGl89q+6vsFY+
+ fTSZA2RMcjh7+DWzNh8V2IIbDN4wJiezxd2VtbZE+X4w+E4zhVLZ4i+CSWFIpAPQc/2xeXVd2MmN
+ XQLnvwRH8jK/u5m+FD9w+K4WzuCs0Ab+Ad5UBbueJrnMAAAAAElFTkSuQmCC
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From the three sources of multi-millisecond latency in my experiments
-(console messages to dead serial console, USB I/O, CF Card bulk read), 
-I've analyzed one:
+Glenn Maynard wrote:
 
-The latency of around 70 milliseconds in low-priority RT processes
-when running a "dd if=/dev/hda of=/dev/null" in parallel (where hda
-is a CF card) is due to readahead.
+> I've heard the claim, several times, that that creating a derivative
+> work requires creative input, that linking stuff together with "ld" is
+> completely uncreative, therefore no derivative work is created.  (I'm
+> not sure if you're making (here or elsewhere) that claim, but it seems
+> like it.)  What's the basis for this claim?  (If you're not making it,
+> anybody that does believe this is free to respond.)
 
-Two indications for that:
-* Per default, maximum readahead is 128 KB. 70 ms is exactly the time
-needed to transfer 128 KB 
-(our CF cards have a sustained transfer rate of 1800 KB/sec).
-* If the readahead constants in the kernel are changed,
-the observed latencies scale almost linearly.
 
-So obviously:
-* The PIO mode IDE transfers keep the CPU 100 % busy.
-* No other processes get scheduled between the data transfer of
-individual "sectors", i.e. there are no holes between the IDE 
-interrupts.
+It's based on Title 17 USC, Sec. 101, where "derivative work" is defined:
 
-However, there is no need to change the readahead mechanism,
-because even the transfer of a single sector would exceed our
-latency requirements. So we either need to switch to DMA (which we
-can't in the short term), or run the time-critical tasks above IDE 
-priority. 
+A “derivative work” is a work based upon one or more preexisting works,
+such as a translation, musical arrangement, dramatization,
+fictionalization, motion picture version, sound recording, art
+reproduction, abridgment, condensation, or any other form in which a
+work may be recast, transformed, or adapted. A work consisting of
+editorial revisions, annotations, elaborations, or other modifications
+which, as a whole, represent an ORIGINAL WORK OF AUTHORSHIP, is a
+“derivative work”. (emphasis added)
 
-So the question is, what exactly is the IDE priority?
-Is the PIO transfer done in the IRQ handler or in a bh?
-
--- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com

@@ -1,62 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVDKIep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVDKIeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVDKIep (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 04:34:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVDKIeN
+	id S261732AbVDKIeq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 04:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVDKIeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 04:34:13 -0400
-Received: from imf23aec.mail.bellsouth.net ([205.152.59.71]:9889 "EHLO
-	imf23aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261730AbVDKI2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 04:28:12 -0400
-Date: Mon, 11 Apr 2005 03:28:06 -0500
-From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: question about execve()
-Message-Id: <20050411032806.276493ce.Tommy.Reynolds@MegaCoder.com>
-In-Reply-To: <425A1F32.4020809@haha.com>
-References: <425A1F32.4020809@haha.com>
-X-Mailer: Sylpheed version 1.9.7+svn (GTK+ 2.6.4; i686-redhat-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__11_Apr_2005_03_28_06_-0500_y67nYa8BGqaDTZ/R"
+	Mon, 11 Apr 2005 04:34:25 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:51886 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261729AbVDKI2f convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 04:28:35 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Priority Lists for the RT mutex
+Date: Mon, 11 Apr 2005 01:27:40 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02F64C64@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Priority Lists for the RT mutex
+Thread-Index: AcU9veVmVLYQebmJRse/cJVAX71MMgAlmr3A
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>,
+       "Sven-Thorsten Dietrich" <sdietrich@mvista.com>
+Cc: "Daniel Walker" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
+       "Steven Rostedt" <rostedt@goodmis.org>,
+       "Esben Nielsen" <simlo@phys.au.dk>, "Joe Korty" <joe.korty@ccur.com>
+X-OriginalArrivalTime: 11 Apr 2005 08:27:47.0368 (UTC) FILETIME=[5768EA80:01C53E70]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__11_Apr_2005_03_28_06_-0500_y67nYa8BGqaDTZ/R
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>From: Ingo Molnar [mailto:mingo@elte.hu]
+>
+>
+>i'd not mind merging the extra bits to PREEMPT_RT to enable fusyn's, if
+>they come in small, clean steps. E.g. Daniel's plist.h stuff was nice
+>and clean.
 
-Uttered Tomko <tomko@haha.com>, spake thus:
+I am finishing breaking it up in small bits so you can take a look
+at it. Should be finished tomorrow noon (PST).
 
-> I would like to ask when a userprogram called in user space called=20
-> execve("/bin/abc"....   will  this system call finally copy the code of=20
-> /bin/abc into kernel space before kernel runs it or just leave the code=20
-> in the userspace and run directly ?=20
+>is priority ceiling coming in via some POSIX feature that fusyn's need
+>to address? What would be needed precisely - a way to set a priority
+for
+>a lock (independently of the owner's task priority), and let that
+>control the PI mechanism?
 
-None of these.  All "execve" really does is to discard the current VM
-setup, tell the VM system to attach this process to the new
-executable image, and then transfer control to the starting
-instruction of the program.  Since nothing is really in memory, aside
-from maybe some caching/readahead, page faults do all the work of
-loading application code, page by page, on demand.
+Yep. It is kind of easy to do (at least in fusyns)--it is just a
+matter of setting the priority of the lock, that sets the priority
+of its list node.
 
-HTH
+Because the promotion code only cares about the priority of the
+list node, it blends automatically in the whole scheme. The PI
+code will modify the list node's priority while promoting all the
+tasks affected in the ownership chain, only when the fulocks/mutexes
+are PI. The PP code will modify the priority of the fulock/mutex's
+list node with an special call. 
 
---Signature=_Mon__11_Apr_2005_03_28_06_-0500_y67nYa8BGqaDTZ/R
-Content-Type: application/pgp-signature
+[you can check for my 2004 OLS paper for a deeper explanation, or
+I can extend this one, if you want]. 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+>i.e. this doesnt seem to really affect the core design of RT mutexes.
 
-iD8DBQFCWjUa/0ydqkQDlQERAvYsAJ9p9WwtOYxz8X46PhvOll6ON4SW/ACgium6
-eo+KX7w4e4wu/EbiAZvF774=
-=Zwlp
------END PGP SIGNATURE-----
+Nope it doesn't. As I said, it is done in such a way that no 
+modifications are needed.
 
---Signature=_Mon__11_Apr_2005_03_28_06_-0500_y67nYa8BGqaDTZ/R--
+>OTOH, deadlock detection is another issue. It's quite expensive and i'm
+>not sure we want to make it a runtime thing. But for fusyn's deadlock
+>detection and safe teardown on owner-exit is a must-have i suspect?
+
+Not really. Deadlock check is needed on PI, so it can be done at the
+same time (you have to walk the chain anyway). In any other case, it
+is an option you can request (or not).
+
+-- Inaky

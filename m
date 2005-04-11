@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVDKUFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVDKUHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVDKUFN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 16:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVDKUFN
+	id S261911AbVDKUHh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVDKUHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 16:05:13 -0400
-Received: from mail.dif.dk ([193.138.115.101]:52420 "EHLO saerimmer.dif.dk")
-	by vger.kernel.org with ESMTP id S261912AbVDKUEp (ORCPT
+	Mon, 11 Apr 2005 16:07:37 -0400
+Received: from mail.dif.dk ([193.138.115.101]:59588 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261911AbVDKUGb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 16:04:45 -0400
-Date: Mon, 11 Apr 2005 22:07:23 +0200 (CEST)
+	Mon, 11 Apr 2005 16:06:31 -0400
+Date: Mon, 11 Apr 2005 22:09:12 +0200 (CEST)
 From: Jesper Juhl <juhl-lkml@dif.dk>
 To: Steven French <sfrench@us.ibm.com>
 Cc: Steve French <smfrench@austin.rr.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] cifs: md4 cleanup - long lines and spaces
-Message-ID: <Pine.LNX.4.62.0504112205340.2480@dragon.hyggekrogen.localhost>
+Subject: [PATCH 1/1] cifs: md5 header cleanup
+Message-ID: <Pine.LNX.4.62.0504112207290.2480@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Conform to style of other fs/cifs/ files
 
-Remove blank line, break long lines and line up two lines.
-
-Patch is also available here:
-	http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_md4-lines-and-spaces.patch
+Patch is also available from this URL:
+	http://www.linuxtux.org/~juhl/kernel_patches/fs_cifs_md5-header.patch
 
 
 Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
 
---- linux-2.6.12-rc2-mm2/fs/cifs/md4.c.with_patch1	2005-04-09 10:07:28.000000000 +0200
-+++ linux-2.6.12-rc2-mm2/fs/cifs/md4.c	2005-04-09 10:12:41.000000000 +0200
-@@ -47,8 +47,10 @@ static __u32 lshift(__u32 x, int s)
- }
+--- linux-2.6.12-rc2-mm2-orig/fs/cifs/md5.h	2005-03-02 08:37:47.000000000 +0100
++++ linux-2.6.12-rc2-mm2/fs/cifs/md5.h	2005-04-09 10:29:30.000000000 +0200
+@@ -10,7 +10,7 @@ struct MD5Context {
+ 	__u32 bits[2];
+ 	unsigned char in[64];
+ };
+-#endif				/* !MD5_H */
++#endif	/* MD5_H */
  
- #define ROUND1(a,b,c,d,k,s) (*a) = lshift((*a) + F(*b,*c,*d) + X[k], s)
--#define ROUND2(a,b,c,d,k,s) (*a) = lshift((*a) + G(*b,*c,*d) + X[k] + (__u32)0x5A827999,s)
--#define ROUND3(a,b,c,d,k,s) (*a) = lshift((*a) + H(*b,*c,*d) + X[k] + (__u32)0x6ED9EBA1,s)
-+#define ROUND2(a,b,c,d,k,s) (*a) = lshift((*a) + G(*b,*c,*d) + X[k] \
-+					  + (__u32)0x5A827999,s)
-+#define ROUND3(a,b,c,d,k,s) (*a) = lshift((*a) + H(*b,*c,*d) + X[k] \
-+					  + (__u32)0x6ED9EBA1,s)
+ #ifndef _HMAC_MD5_H
+ struct HMACMD5Context {
+@@ -18,21 +18,21 @@ struct HMACMD5Context {
+ 	unsigned char k_ipad[65];
+ 	unsigned char k_opad[65];
+ };
+-#endif				/* _HMAC_MD5_H */
++#endif	/* _HMAC_MD5_H */
  
- /* this applies md4 to 64 byte chunks */
- static void mdfour64(__u32 *M, __u32 *A, __u32 *B, __u32 *C, __u32 *D)
-@@ -57,7 +59,6 @@ static void mdfour64(__u32 *M, __u32 *A,
- 	__u32 AA, BB, CC, DD;
- 	__u32 X[16];
+ void MD5Init(struct MD5Context *context);
+ void MD5Update(struct MD5Context *context, unsigned char const *buf,
+-			unsigned len);
++	unsigned len);
+ void MD5Final(unsigned char digest[16], struct MD5Context *context);
  
--
- 	for (j = 0; j < 16; j++)
- 		X[j] = M[j];
+ /* The following definitions come from lib/hmacmd5.c  */
  
-@@ -137,7 +138,7 @@ static void copy64(__u32 *M, unsigned ch
- 
- 	for (i = 0; i < 16; i++)
- 		M[i] = (in[i * 4 + 3] << 24) | (in[i * 4 + 2] << 16) |
--		    (in[i * 4 + 1] << 8) | (in[i * 4 + 0] << 0);
-+		       (in[i * 4 + 1] << 8) | (in[i * 4 + 0] << 0);
- }
- 
- static void copy4(unsigned char *out, __u32 x)
+ void hmac_md5_init_rfc2104(unsigned char *key, int key_len,
+-			struct HMACMD5Context *ctx);
++	struct HMACMD5Context *ctx);
+ void hmac_md5_init_limK_to_64(const unsigned char *key, int key_len,
+-			struct HMACMD5Context *ctx);
++	struct HMACMD5Context *ctx);
+ void hmac_md5_update(const unsigned char *text, int text_len,
+-			struct HMACMD5Context *ctx);
++	struct HMACMD5Context *ctx);
+ void hmac_md5_final(unsigned char *digest, struct HMACMD5Context *ctx);
+ void hmac_md5(unsigned char key[16], unsigned char *data, int data_len,
+-			unsigned char *digest);
++	unsigned char *digest);
 
 

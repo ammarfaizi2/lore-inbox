@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVDKUre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVDKUr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbVDKUre (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 16:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbVDKUre
+	id S261910AbVDKUr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 16:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVDKUr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 16:47:34 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47792 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261924AbVDKUrZ (ORCPT
+	Mon, 11 Apr 2005 16:47:28 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:32180 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261910AbVDKUrX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 16:47:25 -0400
+	Mon, 11 Apr 2005 16:47:23 -0400
 Date: Mon, 11 Apr 2005 13:46:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: hifumi.hisashi@lab.ntt.co.jp, marcelo.tosatti@cyclades.com,
-       neilb@cse.unsw.edu.au, vherva@viasys.com, linux-kernel@vger.kernel.org,
-       sct@redhat.com
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-Message-Id: <20050411134651.719e3434.akpm@osdl.org>
-In-Reply-To: <1113224149.2164.78.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <20050326162801.GA20729@logos.cnet>
-	<20050328073405.GQ16169@viasys.com>
-	<20050328165501.GR16169@viasys.com>
-	<16968.40186.628410.152511@cse.unsw.edu.au>
-	<20050329215207.GE5018@logos.cnet>
-	<16970.9679.874919.876412@cse.unsw.edu.au>
-	<20050330115946.GA7331@logos.cnet>
-	<1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
-	<6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-	<1112818233.3377.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1112889078.2859.264.camel@sisko.sctweedie.blueyonder.co.uk>
-	<1113224149.2164.78.camel@sisko.sctweedie.blueyonder.co.uk>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm3
+Message-ID: <419860000.1113252411@flay>
+In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org>
+References: <20050411012532.58593bc1.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" <sct@redhat.com> wrote:
->
-> Andrew, what was the exact illegal state of the pages you were seeing
->  when fixing that recent leak?  It looks like it's nothing more complex
->  than dirty buffers on an anon page.
 
-Correct.
 
->  I think that simply calling
->  try_to_release_page() for all the remaining buffers at umount time will
+--On Monday, April 11, 2005 01:25:32 -0700 Andrew Morton <akpm@osdl.org> wrote:
 
-Presumably these pages have no ->mapping, so try_to_release_page() will
-call try_to_free_buffers().
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
+> 
+> 
+> - The anticipatory I/O scheduler has always been fairly useless with SCSI
+>   disks which perform tagged command queueing.  There's a patch here from Jens
+>   which is designed to fix that up by constraining the number of requests
+>   which we'll leave pending in the device.
+> 
+>   The depth currently defaults to 1.  Tunable in
+>   /sys/block/hdX/queue/iosched/queue_depth
+> 
+>   This patch hasn't been performance tested at all yet.  If you think it is
+>   misbehaving (the usual symptom is processes stuck in D state) then please
+>   report it, then boot with `elevator=cfq' or `elevator=deadline' to work
+>   around it.
+> 
+> - More CPU scheduler work.  I hope someone is testing this stuff.
 
->  be enough to catch these; if that function fails, it tells us that the
->  VM can't reclaim these pages.
+Trying ... having some build problems that seem to be part test-harness,
+part bugs.
 
-Yes, if the buffers are dirty then 2.4's try_to_free_buffers() won't free
-them.
+Meanwhile on PPC64: 
 
->  The only thing that would be required on
->  top of that would be a check that the page is also on the VM LRU lists.
+fs/cifs/misc.c: In function `cifs_convertUCSpath':
+fs/cifs/misc.c:546: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:549: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:552: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:561: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:564: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:567: error: case label does not reduce to an integer constant
+make[2]: *** [fs/cifs/misc.o] Error 1
+make[1]: *** [fs/cifs] Error 2
+make[1]: *** Waiting for unfinished jobs....
 
-Why do we have dirty buffers left over at umount time?
+
+M.
+

@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVDKXLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVDKXSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbVDKXLe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 19:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVDKXLe
+	id S261983AbVDKXSu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 19:18:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVDKXSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 19:11:34 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:26116 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261961AbVDKXLc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 19:11:32 -0400
-Date: Mon, 11 Apr 2005 16:11:55 -0700
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Joe Korty <joe.korty@ccur.com>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-Message-ID: <20050411231155.GC11685@nietzsche.lynx.com>
-References: <F989B1573A3A644BAB3920FBECA4D25A02FA3AF6@orsmsx407>
+	Mon, 11 Apr 2005 19:18:50 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:1413 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261983AbVDKXSq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 19:18:46 -0400
+Date: Tue, 12 Apr 2005 09:12:14 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, hare@suse.de, linux-xfs@oss.sgi.com
+Subject: Re: [xfs-masters] swsusp vs. xfs [was Re: 2.6.12-rc2-mm1]
+Message-ID: <20050411231213.GD702@frodo>
+References: <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net> <20050406142749.6065b836.akpm@osdl.org> <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net> <20050408103327.GD1392@elf.ucw.cz> <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz> <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net> <20050410230053.GD12794@elf.ucw.cz> <20050411043124.GA24626@ip68-4-98-123.oc.oc.cox.net> <20050411105759.GB1373@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A02FA3AF6@orsmsx407>
-User-Agent: Mutt/1.5.8i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+In-Reply-To: <20050411105759.GB1373@elf.ucw.cz>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 03:31:41PM -0700, Perez-Gonzalez, Inaky wrote:
-> If you are exposing the kernel locks to userspace to implement
-> mutexes (eg POSIX mutexes), deadlock checking is a feature you want
-> to have to complain with POSIX. According to some off the record
-> requirements I've been given, some applications badly need it (I have 
-> a hard time believing that they are so broken, but heck...).
+On Mon, Apr 11, 2005 at 12:57:59PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > > > No, XFS is my root filesystem. :( (Now that I think about it, would
+> > > > modularizing XFS and using an initrd be OK?)
+> > > 
+> > > Yes, loading xfs from initrd should help. [At least it did during
+> > > suse9.3 testing.]
+> > 
+> > Once I modularized xfs and switched to using an initrd, the problem
+> > disappeared.
+> 
+> I reproduced it locally. Problem is that xfsbufd goes refrigerated,
+> but someone still tries to wake it up *very* often. Probably something
+> else in xfs needs refrigerating, too, but I'm not a XFS wizard...
 
-I'd like to read about those requirements, but, IMO a lot of the value
-of various priority protocols varies greatly on the context and size (N
-threads) of the application using it. If user/kernel space have to be
-coupled via some thread of execution, (IMO) then it's better to seperate
-them with some event notification queues like signals (wake a thread
-via an queue event) than to mix locks across the user/kernel space
-boundary. There's tons of abuse that can be opened up with various
-priority protocols with regard to RT apps and giving it a first class
-entry way without consideration is kind of scary.
+Thanks Pavel - I've been reading the thread from the other side
+of the fence, not understanding the swsusp side of things. :)
 
-It's important to outline the requirements of the applications and then
-see what you can do using minimal synchronization objects before
-exploding that divide.
+There are two ways the xfsbufd thread will wake up - either by its
+timer going off (for it to flush delayed write metadata buffers)
+or by being explicitly woken up when we're low on memory (in which
+case it also flushes out dirty metadata, such that pages can be
+cleaned and made available to the system).
 
-Also, Posix isn't always politically neutral nor complete regarding
-various things. You have to consider the context of these things.
-I'll have to think about this a bit more and review your patch more
-carefully.
+Since the refrigerator() call is in place in the main xfsbufd loop,
+I suspect we're hitting that second case here, where a low memory
+situation is resulting in someone attempting to wakeup xfsbufd --
+I'm not sure if this is the right way to check if we're in that
+state, but does this patch help?  (it would certainly prevent the
+spurious wakeups, but only if the caller has PF_FREEZE set - will
+that be the case here?)
 
-I'm all ears if you think I'm wrong.
+cheers.
 
-bill
+-- 
+Nathan
 
+
+--- fs/xfs/linux-2.6/xfs_buf.c.orig	2005-04-12 09:00:26.375351560 +1000
++++ fs/xfs/linux-2.6/xfs_buf.c	2005-04-12 08:59:38.973557728 +1000
+@@ -1753,6 +1753,8 @@ pagebuf_daemon_wakeup(
+ 	int			priority,
+ 	unsigned int		mask)
+ {
++	if (current->flags & PF_FREEZE)
++		return 0;
+ 	force_flush = 1;
+ 	barrier();
+ 	wake_up_process(pagebuf_daemon_task);

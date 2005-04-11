@@ -1,46 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVDKVJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVDKVNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVDKVJv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 17:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVDKVJd
+	id S261946AbVDKVNk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 17:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVDKVNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 17:09:33 -0400
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:63240 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261938AbVDKVJZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 17:09:25 -0400
-Date: Tue, 12 Apr 2005 00:10:06 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Clemens Koller <clemens.koller@anagramm.de>, Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] I2C rtc8564.c remove duplicate include (whitespace
- fixed)
-Message-Id: <20050412001006.48736b86.khali@linux-fr.org>
-In-Reply-To: <425A481A.7020801@anagramm.de>
-References: <425125EC.6080201@anagramm.de>
-	<20050409131643.4269911a.khali@linux-fr.org>
-	<425A481A.7020801@anagramm.de>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 17:13:39 -0400
+Received: from mail.dif.dk ([193.138.115.101]:42442 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261938AbVDKVND (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 17:13:03 -0400
+Date: Mon, 11 Apr 2005 23:15:40 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: Laurence Culhane <loz@holmes.demon.co.uk>,
+       "Fred N. van Kempen" <waltje@uwalt.nl.mugnet.org>, netdev@oss.sgi.com
+Subject: [PATCH] net: remove redundant NULL pointer checks prior to kfree in
+ drivers/net/slip.c
+Message-ID: <Pine.LNX.4.62.0504112311130.2480@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Clemens,
+kfree() checks for NULL. Checking prior to calling it is redundant.
+This patch removes these redundant checks from drivers/net/slip.c
 
-> [PATCH] I2C rtc8564.c remove duplicate include
-> 
-> Trivial fix: removes duplicate include line.
-> Patch applies to: 2.6.11.x
-> 
-> (This is my very first patch to the linux-kernel, so let me
-> start with small things first...)
-> 
-> Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+---
 
-Thanks for the patch, I added it to my stack. Greg, please pick it for
-your i2c tree.
+ slip.c |   30 ++++++++++++------------------
+ 1 files changed, 12 insertions(+), 18 deletions(-)
 
--- 
-Jean Delvare
+--- linux-2.6.12-rc2-mm3-orig/drivers/net/slip.c	2005-03-02 08:38:33.000000000 +0100
++++ linux-2.6.12-rc2-mm3/drivers/net/slip.c	2005-04-11 23:10:06.000000000 +0200
+@@ -185,15 +185,12 @@ sl_alloc_bufs(struct slip *sl, int mtu)
+ 	/* Cleanup */
+ err_exit:
+ #ifdef SL_INCLUDE_CSLIP
+-	if (cbuff)
+-		kfree(cbuff);
++	kfree(cbuff);
+ 	if (slcomp)
+ 		slhc_free(slcomp);
+ #endif
+-	if (xbuff)
+-		kfree(xbuff);
+-	if (rbuff)
+-		kfree(rbuff);
++	kfree(xbuff);
++	kfree(rbuff);
+ 	return err;
+ }
+ 
+@@ -204,13 +201,13 @@ sl_free_bufs(struct slip *sl)
+ 	void * tmp;
+ 
+ 	/* Free all SLIP frame buffers. */
+-	if ((tmp = xchg(&sl->rbuff, NULL)) != NULL)
+-		kfree(tmp);
+-	if ((tmp = xchg(&sl->xbuff, NULL)) != NULL)
+-		kfree(tmp);
++	tmp = xchg(&sl->rbuff, NULL);
++	kfree(tmp);
++	tmp = xchg(&sl->xbuff, NULL);
++	kfree(tmp);
+ #ifdef SL_INCLUDE_CSLIP
+-	if ((tmp = xchg(&sl->cbuff, NULL)) != NULL)
+-		kfree(tmp);
++	tmp = xchg(&sl->cbuff, NULL);
++	kfree(tmp);
+ 	if ((tmp = xchg(&sl->slcomp, NULL)) != NULL)
+ 		slhc_free(tmp);
+ #endif
+@@ -297,13 +294,10 @@ done_on_bh:
+ 	spin_unlock_bh(&sl->lock);
+ 
+ done:
+-	if (xbuff)
+-		kfree(xbuff);
+-	if (rbuff)
+-		kfree(rbuff);
++	kfree(xbuff);
++	kfree(rbuff);
+ #ifdef SL_INCLUDE_CSLIP
+-	if (cbuff)
+-		kfree(cbuff);
++	kfree(cbuff);
+ #endif
+ 	return err;
+ }
+
+

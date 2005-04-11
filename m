@@ -1,83 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVDKDc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVDKDqH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVDKDc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 23:32:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVDKDc6
+	id S261694AbVDKDqH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 23:46:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVDKDqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 23:32:58 -0400
-Received: from fire.osdl.org ([65.172.181.4]:63383 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261679AbVDKDcy (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 23:32:54 -0400
-Date: Sun, 10 Apr 2005 20:32:44 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Derek Cheung" <derek.cheung@sympatico.ca>
-Cc: greg@kroah.com, akpm@osdl.org, Linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
-Message-Id: <20050410203244.511ae8c9.rddunlap@osdl.org>
-In-Reply-To: <000801c53ded$04428920$1501a8c0@Mainframe>
-References: <42535AF1.5080008@osdl.org>
-	<000801c53ded$04428920$1501a8c0@Mainframe>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Sun, 10 Apr 2005 23:46:06 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:61763 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261678AbVDKDpo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 23:45:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
+        b=UIbRzPfsXCW/Sl1MIxIYHFrwcd0X1WST2asnnfFkLVVkLswx3BkA6FMdfnqWUELV/y5AUYhNUC2nrJLqd63cIihIS2PqSzqQ97L6gTTdZg7LwA2xBra/Wh8CVU6chCx0HbgOV6LQjQrc6+CKXApVyduikj3LkEL3+2cBW430iTQ=
+From: Tejun Heo <htejun@gmail.com>
+To: James.Bottomley@steeleye.com, axboe@suse.de,
+       Christoph Hellwig <hch@infradead.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH scsi-misc-2.6 00/04] scsi: clear REQ_SPECIAL/REQ_SOFTBARRIER usages
+Message-ID: <20050411034451.B75F3870@htj.dyndns.org>
+Date: Mon, 11 Apr 2005 12:45:37 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Apr 2005 12:47:42 -0400 Derek Cheung wrote:
+ Hello, James.
 
-| Enclosed please find the updated patch that incorporates changes for all
-| the comments I received.
+ This patchset is split up of REQ_SPECIAL update patches (#01-02) of
+previous patchset posted on March 31.  Explicit setting of
+REQ_SOFTBARRIER in scsi_init_io() is added.
 
-(yes, almost all)
+ This patchset makes REQ_SPECIAL mean that the request is a special
+request and REQ_SOFTBARRIER setting explicit.
 
-| The volatile declaration in the m528xsim.h is needed because the
-| declaration refers to the ColdFire 5282 register mapping. The volatile
-| declaration is actually not needed in my I2C driver but someone may
-| include the m528xsim.h file in his/her applications and we need to force
-| the compiler not to do any optimization on the register mapping.
+ Previously, REQ_SPECIAL duplicately meant the request has been
+prepp'ed by SCSI midlayer and/or the request is a special request.
+This left special requests handling in the midlayer subtley
+inconsistent.
 
-Did you also send it to the I2C mailing list like Greg asked you to do?
+ Also, the setting of REQ_SPECIAL was done by the block layer using
+blk_insert_request() mostly but sometimes by the SCSI midlayer (when
+returning BLK_PREP_DEFER from scsi_prep_fn()).  blk_insert_request()
+was used for two different purposes.
 
-More comments:
+ * enqueue special requests
+ * turn on REQ_SPECIAL|REQ_SOFTBARRIER and call blk_requeue_request().
 
-diffstat summary, like so, would be nice:
- drivers/i2c/busses/Kconfig       |   10
- drivers/i2c/busses/Makefile      |    2
- drivers/i2c/busses/i2c-mcf5282.c |  419 +++++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-mcf5282.h |   46 ++++
- include/asm-m68knommu/m528xsim.h |   42 +++
- 5 files changed, 519 insertions(+)
+ The second somewhat unobvious feature of blk_insert_request() is used
+only by SCSI midlayer and SCSI midlayer depended on it to set
+REQ_SOFTBARRIER.  Unfortunately, when the SCSI midlayer sets
+REQ_SPECIAL explicitly (sg allocation failure path) it didn't set
+REQ_SOFTBARRIER, creating a *highly* unlikely but still existing dead
+lock condition caused by allowing reorder of a request which has its
+cmd allocated.  IMHO, this proves the subtlety of current situation.
 
+ This patch makes SCSI midlayer use blk_requeue_request() for
+reqeueuing and setting of REQ_SOFTBARRIER explicit.
 
-+	int i, len, rc = 0;
-+        u8 rxData, tempRxData[2];
-Use tabs, not spaces.  Happens other places too.
-
-+        switch (size) {
-+                case I2C_SMBUS_QUICK:
-Don't need to indent case statements... (repeating myself).
-
-+                case I2C_SMBUS_PROC_CALL:
-+			/* dev_info(&adap->dev, "size = 
-+				I2C_SMBUS_PROC_CALL \n"); */
-No break needed here ?
-+        	case I2C_SMBUS_WORD_DATA:
-
-+	if (rc < 0) 
-+		return -1;
-+	else
-+        	return 0;
-There are several of these.  Why not just return rc ?
+ To prevent more misuses, the last patch in this patchset remove
+requeue feature from blk_insert_request().  Requeueing should be done
+with blk_requeue_request() not blk_insert_request().
 
 
-Kconfig says that the module (if selected) will be called
-i2c-mcf5282lite, but Makefile builds
-+obj-$(CONFIG_I2C_MCF5282LITE)   += i2c-mcf5282.o
-(i.e., no "lite").
+[ Start of patch descriptions ]
+
+01_scsi_REQ_SPECIAL_semantic_scsi_init_io.patch
+	: replace REQ_SPECIAL with REQ_SOFTBARRIER in scsi_init_io()
+
+	scsi_init_io() used to set REQ_SPECIAL when it fails sg
+	allocation before requeueing the request by returning
+	BLKPREP_DEFER.  REQ_SPECIAL is being updated to mean special
+	requests and we need to set REQ_SOFTBARRIER for half-prepp'ed
+	requests.  So, replace REQ_SPECIAL with REQ_SOFTBARRIER.
+
+02_scsi_REQ_SPECIAL_semantic_scsi_queue_insert.patch
+	: make scsi_queue_insert() use blk_requeue_request()
+
+	scsi_queue_insert() used to use blk_insert_request() for
+	requeueing requests.  This behavior depends on the unobvious
+	behavior of blk_insert_request() setting REQ_SPECIAL and
+	REQ_SOFTBARRIER when requeueing.  This patch makes
+	scsi_queue_insert() use blk_requeue_request() and explicitly
+	set REQ_SOFTBARRIER.  As REQ_SPECIAL now means special
+	requests, the flag is not set on requeue.
+
+	Note that scsi_queue_insert() now calls scsi_run_queue()
+	itself, and the prototype of the function is added right above
+	scsi_queue_insert().  This is temporary, as later requeue path
+	consolidation patchset removes scsi_queue_insert().  By adding
+	temporary prototype, we can do away with unnecessary changes.
+
+03_scsi_REQ_SPECIAL_semantic_scsi_requeue_command.patch
+	: make scsi_requeue_request() use blk_requeue_request()
+
+	scsi_requeue_request() used to use blk_insert_request() for
+	requeueing requests.  This behavior depends on the unobvious
+	behavior of blk_insert_request() setting REQ_SPECIAL and
+	REQ_SOFTBARRIER when requeueing.  This patch makes
+	scsi_requeue_request() use blk_requeue_request() and
+	explicitly set REQ_SOFTBARRIER.  As REQ_SPECIAL now means
+	special requests, the flag is not set on requeue.
+
+04_scsi_blk_insert_request_no_requeue.patch
+	: remove requeue feature from blk_insert_request()
+
+	blk_insert_request() has a unobivous feature of requeuing a
+	request setting REQ_SPECIAL|REQ_SOFTBARRIER.  SCSI midlayer
+	was the only user and as previous patches removed the usage,
+	remove the feature from blk_insert_request().  Only special
+	requests should be queued with blk_insert_request().  All
+	requeueing should go through blk_requeue_request().
+
+[ End of patch descriptions ]
 
 
----
-~Randy
+ This patchset completes preparation for scsi_request_fn()
+reimplementation patchset.  As it seemed better to clear up requeue
+paths inside scsi_request_fn() first, requeue path consolidation
+patchset follows scsi_request_fn() reimplementation patchset.
+
+ Thanks a lot.
+

@@ -1,122 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVDKOn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVDKOqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbVDKOn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 10:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVDKOn6
+	id S261769AbVDKOqm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 10:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDKOqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 10:43:58 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:60889 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261753AbVDKOno (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 10:43:44 -0400
-To: linux-fsdevel@vger.kernel.org
-CC: linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050411114728.GA13128@infradead.org> (message from Christoph
-	Hellwig on Mon, 11 Apr 2005 12:47:28 +0100)
-Subject: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <20050320151212.4f9c8f32.akpm@osdl.org> <20050321073519.GA13879@outpost.ds9a.nl> <20050323083347.GA1807@infradead.org> <E1DE2D1-0005Ie-00@dorka.pomaz.szeredi.hu> <20050325095838.GA9471@infradead.org> <E1DEmYC-0008Qg-00@dorka.pomaz.szeredi.hu> <20050331112427.GA15034@infradead.org> <E1DH13O-000400-00@dorka.pomaz.szeredi.hu> <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org>
-Message-Id: <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 11 Apr 2005 16:43:32 +0200
+	Mon, 11 Apr 2005 10:46:42 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:7087 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261769AbVDKOq0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 10:46:26 -0400
+Date: Mon, 11 Apr 2005 07:45:52 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: torvalds@osdl.org, pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
+       linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: [rfc] git: combo-blobs
+Message-Id: <20050411074552.4e2e656b.pj@engr.sgi.com>
+In-Reply-To: <20050411113523.GA19256@elte.hu>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	<20050409200709.GC3451@pasky.ji.cz>
+	<Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+	<Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
+	<Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
+	<20050411113523.GA19256@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We're having a bit of a disagreement with Christoph Hellwig about the
-way FUSE does (or should do) permission checking.  Comments (either
-way) are appreciated.
+Hmmm ... I have this strong sense that I am about 2 hours away from
+smacking my forehead and groaning "Duh - so that's what Ingo meant!"
 
-Here's my side of the story:
+However, one must play out one's destiny.
 
-FUSE (filesystem in userspace) is designed to allow mounting an FS by
-non-privileged users (it can also be used in the traditional way, but
-that is uncontroversial and I'm not going to detail it here).  The
-philosophy behind this is that sometimes it's very convenient if a
-program can have a filesystem as it's _output_.
+Could you provide an example scenario, which results in the creation of
+a combo-blob?
 
-Examples are:
+The best I can come up with is the following.
 
-  - tar, zip, rar, etc[1] filesystem
+Let's say Nick changes one line in the middle of kernel/sched.c
+(yeah - I know - unlikely scenario - he usually changes more
+than that - nevermind that detail.)
 
-  - ftp[2], ssh[3], etc filesystem
+In the days Before Combo Blobs (BCB), git would have been told that
+kernel/sched.c was to be picked up, and would have wrapped it up in a
+zlib'd blob, sha1summed it, seen it was a new sum, and added that blob
+to its objects (or something like this -- I'm still a little fuzzy on
+these git details.)
 
-  - cvs[4], svn, etc filesystem
+But Nick just downloaded the latest git 1.5.11.1 which has added support
+for combo blobs, so now, guessing here, instead of wrapping up the new
+sched.c, git instead unwraps the old one, diff's with the new, notices a
+couple of long sequences that are unchanged, wraps up both of those
+sequences as a couple of relatively large blobs, and wraps up the new
+lines that Nick just coded in the middle as a small blob, and puts all
+three in the object store, along with another small combo-blob, tying
+them all together.
 
-The common theme is that what you usually perform with some
-specialized command can equally well (or sometimes better) be
-performed with all the generic tools there are for file searching,
-viewing, etc.
+So far, not too bad.  Haven't gained anything, and required the
+unpacking of a zlib blog we didn't require before, and the running and
+analyzing of a diff we didn't require before, but the end result is only
+moderately worse - four object blobs instead of one, but of total size
+not much larger (well, total size typically 3 disk blocks worse, due to
+a slight increase in fragmentation from using 4 blocks to store what
+used to be in one.)
 
-For example, the ftp and sftp commands actually give you a simulated
-filesystem with a very limited shell (some variants have improved the
-"simulation" by adding filename completion, etc).
+But now I get stuck.  Unless I throw in something like the interleaved
+delta compression that's at the heart of Marc Rochind's old SCCS code
+(and Larry's rewrite thereof), I don't see how we ever come to the
+practical realization that any of these four new blobs can ever be
+reused.
 
-With FUSE you can have the real thing and use your favourite tools on
-remote or archived files.  I think this fits in very well with the
-"everything is a file" UNIX philosophy.
+So explain to me again how we ever gain anything with these combo blobs,
+while I take a prophylactic aspirin, so the forehead whack won't hurt as
+much.
 
-To allow this to work in the most convenient and secure way the
-following must be satisfied:
-
-  1) User must not be able to modify files or directories in a way
-     which he otherwise could not do (e.g. mount a filesystem over
-     /bin)
-
-  2) Suid and device semantics should be disabled within the mount
-
-  3) No other user should have access to files under the mount, not
-     even root[5]
-
-  4) Access should not be further restricted for the owner of the
-     mount, even if permission bits, uid or gid would suggest
-     otherwise
-
-  5) As much of the available information should be exported via the
-     filesystem as possible
-
-These are solved by:
-
-  1) Only allow mount over a directory for which the user has write
-     access (and is not sticky)
-
-  2) Use nosuid,nodev mount options
-
-  3) In permission method of FUSE kernel module compare fsuid against
-     mounting user's ID, and return EACCES if they are not equal.
-
-  4) The filesystem daemon does not run with elevated permissions.
-     The kernel doesn't check file more in the permission method.
-
-  5) The filesystem daemon is free to fill in all file attributes to
-     any (sane) value, and the kernel won't modify these.
-
-The debated part is 3) and 4), namely that normal permission checking
-based on file mode is bypassed, and the mounting user has full
-permission to all files, while other users have none.
-
-This feature has been in FUSE from the start and thus has been very
-well tested in real world scenarios.  Also I have thought a lot about
-how this could pose any kind of security threat, and as yet found no
-such possiblity.
-
-Despite this Christoph feels this behavior is unacceptable for a
-filesystem, and wants me to remove this feature before merging FUSE
-into mainline.  I try to be open to ideas, but also feel strongly that
-this is the Right Way, so I won't give up easily.
-
-OK, open the flamethrowers!
-
-Miklos
-
-[1] http://www.inf.bme.hu/~mszeredi/avfs/ (CVS version required for
-FUSE support)
-
-[2] http://sourceforge.net/project/showfiles.php?group_id=121684&package_id=132803
-
-[3] http://fuse.sourceforge.net/sshfs.html
-
-[4] http://cvsfs.sourceforge.net/
-
-[5] Obviously root cannot be restricted, but accidental access to
-private data is still a good idea.  E.g. root squashing by NFS servers
-has a similar affect.
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

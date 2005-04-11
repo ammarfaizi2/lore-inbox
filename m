@@ -1,30 +1,41 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVDKEKv (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 11 Apr 2005 00:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVDKEKv
+	id S261884AbVDKS4E (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 11 Apr 2005 14:56:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVDKS4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 00:10:51 -0400
-Received: from [211.36.37.112] ([211.36.37.112]:22217 "HELO mail.qsv07.com")
-	by vger.kernel.org with SMTP id S261678AbVDKEKt (ORCPT
+	Mon, 11 Apr 2005 14:56:03 -0400
+Received: from [211.36.37.134] ([211.36.37.134]:39565 "HELO mail.qsv09.com")
+	by vger.kernel.org with SMTP id S261884AbVDKS4C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 00:10:49 -0400
-Date: 11 Apr 2005 09:24:39 +0900
-Message-ID: <20050411002439.29452.qmail@mail.qsv07.com>
-From: info@qsv07.com
+	Mon, 11 Apr 2005 14:56:02 -0400
+Date: 11 Apr 2005 23:02:26 +0900
+Message-ID: <20050411140226.28119.qmail@mail.qsv09.com>
+From: info@qsv09.com
 To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?=20=1B$B=22!$*;n$72<$5$?= =?ISO-8859-1?Q?$=22!=1B(B?=
+Subject: =?ISO-8859-1?Q?=20=1B$BK\5$$G2q$($k=1B?= =?ISO-8859-1?Q?(B?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261678AbVDKEKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261884AbVDKS4E@vger.kernel.org>
 
 
-    他のサイトとの違いを体験して下さい！
-      　　http://www.getluck.net/
 
-　　　　　　簡単操作で簡単登録！
-　　　　　真剣な出会いはここから
-　  初めての方は無料エントリーからどうぞ
+◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆
+◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇
+◆◇　　　　　　　　　　　　　　　　　　　　　◇◆
+◇◆  会えない意味の無いサイトとは違います！　◆◇
+◆◇　　簡単な操作なので女性会員数増大！　　　◇◆
+◇◆      　 http://www.getluck2.net/ 　　　　 ◆◇
+◆◇　　　　　　　　　　　　　　　　　　　　　◇◆
+◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇
+◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆◇◆
 
-      　　http://www.getluck.net/
 
-　　※派手なインチキ臭いサイトは違います。
+
+
+
+
+
+　リピーター率が成功するサイトを証明します
+　　初めての方は無料エントリーからどうぞ
+      　　http://www.getluck2.net/
+

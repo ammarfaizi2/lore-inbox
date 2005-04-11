@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVDKS1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVDKS2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbVDKS1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 14:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbVDKS1b
+	id S261869AbVDKS2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 14:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbVDKS2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 14:27:31 -0400
-Received: from nevyn.them.org ([66.93.172.17]:51137 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S261871AbVDKS11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 14:27:27 -0400
-Date: Mon, 11 Apr 2005 14:27:25 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050411182725.GA1788@nevyn.them.org>
-Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
-	Miklos Szeredi <miklos@szeredi.hu>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-	viro@parcelfarce.linux.theplanet.co.uk
-References: <E1DE2D1-0005Ie-00@dorka.pomaz.szeredi.hu> <20050325095838.GA9471@infradead.org> <E1DEmYC-0008Qg-00@dorka.pomaz.szeredi.hu> <20050331112427.GA15034@infradead.org> <E1DH13O-000400-00@dorka.pomaz.szeredi.hu> <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411182257.GC32535@mail.shareable.org>
-Mime-Version: 1.0
+	Mon, 11 Apr 2005 14:28:04 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:1779 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S261869AbVDKS2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 14:28:01 -0400
+To: Troy Benjegerdes <hozer@hozed.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+X-Message-Flag: Warning: May contain useful information
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
+	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
+	<20050411180107.GF26127@kalmia.hozed.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 11 Apr 2005 11:03:08 -0700
+In-Reply-To: <20050411180107.GF26127@kalmia.hozed.org> (Troy Benjegerdes's
+ message of "Mon, 11 Apr 2005 13:01:08 -0500")
+Message-ID: <52oeclyyw3.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411182257.GC32535@mail.shareable.org>
-User-Agent: Mutt/1.5.8i
+X-OriginalArrivalTime: 11 Apr 2005 18:03:08.0541 (UTC) FILETIME=[B7A1E2D0:01C53EC0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 07:22:57PM +0100, Jamie Lokier wrote:
-> >   1) Only allow mount over a directory for which the user has write
-> >      access (and is not sticky)
-> 
-> Seems good - but why not sticky?  Mounting a user filesystem in
-> /tmp/user-xxx/my-mount-point seems not unreasonable - provided the
-> administrator can delete the directory (which is possible with
-> detachable mount points).
+    Troy> Do we even need the mlock in userspace then?
 
-Because then they could mount over /tmp.  "and (is not sticky || is
-owned by the user)" may be more appropriate.
+Yes, because the kernel may go through and unmap pages from userspace
+while trying to swap.  Since we have the page locked in the kernel,
+the physical page won't go anywhere, but userspace might end up with a
+different page mapped at the same virtual address.
 
-
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+ - R.

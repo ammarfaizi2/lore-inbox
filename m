@@ -1,69 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVDKM6Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVDKNBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVDKM6Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 08:58:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVDKM6Q
+	id S261681AbVDKNBS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 09:01:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVDKNBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 08:58:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32916 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261569AbVDKM4R (ORCPT
+	Mon, 11 Apr 2005 09:01:18 -0400
+Received: from gate.corvil.net ([213.94.219.177]:43785 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S261681AbVDKNBA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 08:56:17 -0400
-Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please check)
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
-       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1112889078.2859.264.camel@sisko.sctweedie.blueyonder.co.uk>
-References: <20050326162801.GA20729@logos.cnet>
-	 <20050328073405.GQ16169@viasys.com> <20050328165501.GR16169@viasys.com>
-	 <16968.40186.628410.152511@cse.unsw.edu.au>
-	 <20050329215207.GE5018@logos.cnet>
-	 <16970.9679.874919.876412@cse.unsw.edu.au>
-	 <20050330115946.GA7331@logos.cnet>
-	 <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
-	 <1112818233.3377.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112889078.2859.264.camel@sisko.sctweedie.blueyonder.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1113224149.2164.78.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 11 Apr 2005 13:55:49 +0100
+	Mon, 11 Apr 2005 09:01:00 -0400
+Message-ID: <425A74F8.8050006@draigBrady.com>
+Date: Mon, 11 Apr 2005 14:00:40 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kus Kusche Klaus <kus@keba.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: RT 45-01: CF Card read: High latency?
+References: <AAD6DA242BC63C488511C611BD51F3673231EA@MAILIT.keba.co.at>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F3673231EA@MAILIT.keba.co.at>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I handled this issue by precaching all my files (15MB),
+from my readonly root filesystem.
 
-On Thu, 2005-04-07 at 16:51, Stephen C. Tweedie wrote:
+find / -type f |
+grep -v ^/boot | #kernel is > 1MB and never read so don't put in cache
+while read file; do
+     dd bs=32k if="$file" of=/dev/null 2>/dev/null
+done
 
-> I'm currently running with the buffer-trace debug patch, on 2.4, with a
-> custom patch to put every buffer jbd ever sees onto a per-superblock
-> list, and remove it only when the bh is destroyed in
-> put_unused_buffer_head().  At unmount time, we can walk that list to
-> find stale buffers attached to data pages (invalidate_buffers() already
-> does such a walk for metadata.)
-
-After a 50-process dbench run, unmount is showing ~300 buffers
-unclaimed; that seems to be OK, it's a large stress test doing _lots_ of
-create/unlink and we expect to see a few buffers around at the end where
-they were truncated during commit and couldn't be instantly reclaimed.
-
-The main thing now is to test these buffers to make 100% sure that they
-are in a state where the VM can reclaim them.  That looks fine: the
-buffers I see are unjournaled, have no jh, and are clean and on the
-BUF_CLEAN lru.
-
-Andrew, what was the exact illegal state of the pages you were seeing
-when fixing that recent leak?  It looks like it's nothing more complex
-than dirty buffers on an anon page.  I think that simply calling
-try_to_release_page() for all the remaining buffers at umount time will
-be enough to catch these; if that function fails, it tells us that the
-VM can't reclaim these pages.  The only thing that would be required on
-top of that would be a check that the page is also on the VM LRU lists.
-
---Stephen
-
+Pádraig.

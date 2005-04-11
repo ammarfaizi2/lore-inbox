@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVDKFyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVDKGH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVDKFyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 01:54:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVDKFyF
+	id S261698AbVDKGH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 02:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVDKGH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 01:54:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36483 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261420AbVDKFyB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 01:54:01 -0400
-Message-ID: <425A10EA.7030607@pobox.com>
-Date: Mon, 11 Apr 2005 01:53:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: New SCM and commit list
-References: <1113174621.9517.509.camel@gaston> <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Warning: 24.25.22.197 is listed at orbz.gst-group.uk.com
+	Mon, 11 Apr 2005 02:07:59 -0400
+Received: from mailout2.samsung.com ([203.254.224.25]:7583 "EHLO
+	mailout2.samsung.com") by vger.kernel.org with ESMTP
+	id S261698AbVDKGHz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 02:07:55 -0400
+Date: Mon, 11 Apr 2005 09:35:02 -0400
+From: karthik <karthik.r@samsung.com>
+Subject: Location of character device of Matrox agpcard driver
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Message-id: <200504110935.02755.karthik.r@samsung.com>
+Organization: samsung
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
+Content-disposition: inline
+User-Agent: KMail/1.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> On Mon, 11 Apr 2005, Benjamin Herrenschmidt wrote:
->>If yes, then I would appreciate if you could either keep the same list,
->>or if you want to change the list name, keep the subscriber list so
->>those of us who actually archive it don't miss anything ;)
-> 
-> 
-> I didn't even set up the list. I think it's Bottomley. I'm cc'ing him just 
-> so that he sees the message, but I don't actually expect him to do 
-> anything about it. I'm not even ready to start _testing_ real merges yet. 
+Hi,
 
-When you think kernel.org and BitKeeper, think either me or David 
-Woodhouse.  :)
+          Can anybody tell me where the device corresponding to the graphics 
+driver 
+is created ie whether its in /dev or /sys/class etc in 2.6 kernel.
 
-DaveM / Matti(?) manage the lists (postmaster@vger.kernel.org), but 
-largely just create them on request from others, and make sure they 
-continue to work.
+        Also can i uses ioctls after opening the device to see its working.
 
-
-> But I hope that I can get non-conflicting merges done fairly soon, and 
-> maybe I can con James or Jeff or somebody to try out GIT then...
-
-I don't mind being a guinea pig as long as someone else does the hard 
-work of finding a new way to merge :)
-
-	Jeff
-
-
+Thanks & Regards
+Karthik R

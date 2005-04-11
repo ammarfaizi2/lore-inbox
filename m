@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVDKN6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVDKOSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVDKN6q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 09:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVDKN6q
+	id S261278AbVDKOSa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 10:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDKOSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 09:58:46 -0400
-Received: from hera.kernel.org ([209.128.68.125]:27070 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261796AbVDKN6l (ORCPT
+	Mon, 11 Apr 2005 10:18:30 -0400
+Received: from mail.gondor.com ([212.117.64.182]:45329 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S261278AbVDKOS1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 09:58:41 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: more git updates..
-Date: Mon, 11 Apr 2005 13:58:20 +0000 (UTC)
-Organization: Mostly alphabetical, except Q, which We do not fancy
-Message-ID: <d3dvps$347$1@terminus.zytor.com>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410065307.GC13853@64m.dyndns.org>
+	Mon, 11 Apr 2005 10:18:27 -0400
+Date: Mon, 11 Apr 2005 16:18:28 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] zero disk pages used by swsusp on resume
+Message-ID: <20050411141828.GA26924@gondor.com>
+References: <42592697.8060909@domdv.de> <200504102040.38403.oliver@neukum.org> <42597E99.8010802@domdv.de> <200504102203.29602.oliver@neukum.org> <20050410201455.GA21568@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1113227900 3208 127.0.0.1 (11 Apr 2005 13:58:20 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Mon, 11 Apr 2005 13:58:20 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410201455.GA21568@elf.ucw.cz>
+X-Request-PGP: http://gondor.com/key.asc
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20050410065307.GC13853@64m.dyndns.org>
-By author:    Christopher Li <lkml@chrisli.org>
-In newsgroup: linux.dev.kernel
+> Andreas is right, his patches are needed.
 > 
-> There is one problem though. How about the SHA1 hash collision?
-> Even the chance is very remote, you don't want to lose some data do due
-> to "software" error. I think it is OK that no handle that
-> case right now. On the other hand, it will be nice to detect that
-> and give out a big error message if it really happens.
-> 
+> Currently, if your laptop is stolen after resume, they can still data
+> in swsusp image.
 
-If you're actually worried about it, it'd be better to just use a
-different hash, like one of the SHA-2's (probably a better choice
-anyway), instead of SHA-1.
+Which shows that swsusp is a security risk if you have sensitive data in
+RAM. A thief stealing a running computer can get access to memory
+contents much more easy if he can just suspend the system and then
+recover all the memory contents from disk. Encrypted swsusp wouldn't
+help here if the key is stored on the disk as well.
 
-	-hpa
+(This is probably not a real risk in most applications, but one should
+keep it in mind and disable swsusp if necessary)
+
+Jan
 

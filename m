@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVDKH0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVDKHcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbVDKH0u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 03:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVDKH0u
+	id S261692AbVDKHcp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 03:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVDKHcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 03:26:50 -0400
-Received: from everest.sosdg.org ([66.93.203.161]:58527 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S261715AbVDKH0r (ORCPT
+	Mon, 11 Apr 2005 03:32:45 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:46986 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261692AbVDKHck (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 03:26:47 -0400
-From: "Coywolf Qi Hunt" <coywolf@lovecn.org>
-Date: Mon, 11 Apr 2005 15:26:35 +0800
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Message-ID: <20050411071808.GA3890@lovecn.org>
+	Mon, 11 Apr 2005 03:32:40 -0400
+Date: Mon, 11 Apr 2005 11:31:55 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jlan@engr.sgi.com, guillaume.thouvenin@bull.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org, efocht@hpce.nec.com, linuxram@us.ibm.com,
+       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, aquynh@gmail.com,
+       dean-list-linux-kernel@arctic.org, pj@sgi.com
+Subject: Re: [patch 2.6.12-rc1-mm4] fork_connector: add a fork connector
+Message-ID: <20050411113155.A3698@2ka.mipt.ru>
+References: <1112955840.28858.236.camel@uganda> <1112957563.28858.240.camel@uganda> <4256E940.9050306@engr.sgi.com> <425700CD.5040906@engr.sgi.com> <20050409021856.39e99bef@zanzibar.2ka.mipt.ru> <42574C88.9080601@engr.sgi.com> <20050409102926.0cbf031c@zanzibar.2ka.mipt.ru> <425A0E7C.8080900@engr.sgi.com> <20050411104456.A31664@2ka.mipt.ru> <20050410235124.2addd7d9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-X-Scan-Signature: 44e89aee28cb3977aa72b7ef3649eedf
-X-SA-Exim-Connect-IP: 66.93.203.161
-X-SA-Exim-Mail-From: coywolf@lovecn.org
-Subject: [patch] reparent_to_init-cleanup
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  2.7 SUBJ_HAS_UNIQ_ID Subject contains a unique ID
-X-SA-Exim-Version: 4.2 (built Sun, 13 Feb 2005 18:23:43 -0500)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050410235124.2addd7d9.akpm@osdl.org>; from akpm@osdl.org on Sun, Apr 10, 2005 at 11:51:24PM -0700
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Mon, 11 Apr 2005 11:31:55 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, Apr 10, 2005 at 11:51:24PM -0700, Andrew Morton (akpm@osdl.org) wrote:
+> Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+> >
+> > On Sun, Apr 10, 2005 at 10:43:24PM -0700, Jay Lan (jlan@engr.sgi.com) wrote:
+> > > I based my listen program on the fclisten.c posted by Kaigai Kohei
+> > > with my own modification. Unfortunately i lost my test machine in the
+> > > lab. I will recreate the listen program Monday. The original listener
+> > > did not validate sequence number. It also prints length of data and
+> > > sequence number of every message it receives. My listener prints
+> > > only out-of-sequence error messages.
+> > > 
+> > > The fork generator fork-test.c was yours? I called it fork-test
+> > > and let it run continuously in while-loop:
+> > > 
+> > > # while 1
+> > > # ./fork-test 10000000
+> > > # sleep 1
+> > > # end
+> > > 
+> > > I let it do 10,000,000 times of fork continuously while the system
+> > > is running AIM7 and/or ubench.
+> > > 
+> > > The original fclisten.c and fork-test.c are attached for your reference.
+> > 
+> > It is pretty normal to see duplicated numbers in a fork test - 
+> > I observed it too, since counter is incremented without locks
+> > we can catch situation when it is incremented simultaneously 
+> > on both processors, the latest version of the fork connector
+> > from Guillaume contains processor id in the message and per cpu counters, 
+> > so one can destinguish messages which sequence numbers will flow
+> > in a very similar way now.
+> 
+> Oh come on, that's just daft.  Evgeniy, put a lock in there and fix it up.
 
-Split out from my oom-killer patch, this patch hides reparent_to_init(). reparent_to_init()
-should only be called by daemonize(). This applies to 2.6.12-rc2-mm2 too.
+#ifndef FAST_AND_SUSPICIOUS
+	spin_lock(&fork_lock);
+#endif
+	seq++;
+#ifndef FAST_AND_SUSPICIOUS
+	spin_unlock(&fork_lock);
+#endif
 
-Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
----
+:)
 
- arch/i386/mach-voyager/voyager_thread.c |    1 -
- include/linux/sched.h                   |    1 -
- kernel/exit.c                           |    2 +-
- 3 files changed, 1 insertion(+), 3 deletions(-)
-
-diff -pruN 2.6.12-rc2-mm1/arch/i386/mach-voyager/voyager_thread.c 2.6.12-rc2-mm1-cy/arch/i386/mach-voyager/voyager_thread.c
---- 2.6.12-rc2-mm1/arch/i386/mach-voyager/voyager_thread.c	2004-08-20 14:39:58.000000000 +0800
-+++ 2.6.12-rc2-mm1-cy/arch/i386/mach-voyager/voyager_thread.c	2005-04-08 18:53:06.000000000 +0800
-@@ -126,7 +126,6 @@ thread(void *unused)
- 
- 	kvoyagerd_running = 1;
- 
--	reparent_to_init();
- 	daemonize(THREAD_NAME);
- 
- 	set_timeout = 0;
-diff -pruN 2.6.12-rc2-mm1/include/linux/sched.h 2.6.12-rc2-mm1-cy/include/linux/sched.h
---- 2.6.12-rc2-mm1/include/linux/sched.h	2005-04-06 10:18:18.000000000 +0800
-+++ 2.6.12-rc2-mm1-cy/include/linux/sched.h	2005-04-08 18:53:06.000000000 +0800
-@@ -1068,7 +1068,6 @@ extern void exit_itimers(struct signal_s
- 
- extern NORET_TYPE void do_group_exit(int);
- 
--extern void reparent_to_init(void);
- extern void daemonize(const char *, ...);
- extern int allow_signal(int);
- extern int disallow_signal(int);
-diff -pruN 2.6.12-rc2-mm1/kernel/exit.c 2.6.12-rc2-mm1-cy/kernel/exit.c
---- 2.6.12-rc2-mm1/kernel/exit.c	2005-04-06 10:18:20.000000000 +0800
-+++ 2.6.12-rc2-mm1-cy/kernel/exit.c	2005-04-08 18:53:06.000000000 +0800
-@@ -224,7 +224,7 @@ static inline int has_stopped_jobs(int p
-  *
-  * NOTE that reparent_to_init() gives the caller full capabilities.
-  */
--void reparent_to_init(void)
-+static inline void reparent_to_init(void)
- {
- 	write_lock_irq(&tasklist_lock);
- 
+-- 
+	Evgeniy Polyakov ( s0mbre )

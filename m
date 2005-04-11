@@ -1,65 +1,188 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVDKWlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVDKWpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261977AbVDKWlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVDKWlI
+	id S261979AbVDKWpg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVDKWpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:41:08 -0400
-Received: from FW-30-241.go.retevision.es ([62.174.241.30]:499 "EHLO
-	puil.ghetto") by vger.kernel.org with ESMTP id S261984AbVDKWka
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:40:30 -0400
-Date: Tue, 12 Apr 2005 00:40:21 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Call to atention about using hash functions as content indexers (SCM saga)
-Message-ID: <20050411224021.GA25106@larroy.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Mon, 11 Apr 2005 18:45:36 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:6599 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261979AbVDKWoo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 18:44:44 -0400
+Date: Mon, 11 Apr 2005 15:45:00 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, Michael A Halcrow <mahalcro@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] Keys: Use RCU to manage session keyring pointer
+Message-ID: <20050411224500.GB1304@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <29204.1111608899@redhat.com> <29827.1111611346@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6+20040907i
-From: piotr@larroy.com (Pedro Larroy)
+In-Reply-To: <29827.1111611346@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Wed, Mar 23, 2005 at 08:55:46PM +0000, David Howells wrote:
+> 
+> The attached patch uses RCU to manage the session keyring pointer in struct
+> signal_struct. This means that searching need not disable interrupts and get a
+> the sighand spinlock to access this pointer. Furthermore, by judicious use of
+> rcu_read_(un)lock(), this patch also avoids the need to take and put refcounts
+> on the session keyring itself, thus saving on even more atomic ops.
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
 
-I had a quick look at the source of GIT tonight, I'd like to warn you
-about the use of hash functions as content indexers.
+This looks quite good!  A few questions interspersed below.
 
-As probably you are aware, hash functions such as SHA-1 are surjective not
-bijective (1-to-1 map), so they have collisions. Here one can argue
-about the low probability of such a collision, I won't get into
-subjetive valorations of what probability of collision is tolerable for
-me and what is not. 
+						Thanx, Paul
 
-I my humble opinion, choosing deliberately, as a design decision, a
-method such as this one, that in some cases could corrupt data in a
-silent and very hard to detect way, is not very good. One can also argue
-that the probability of data getting corrupted in the disk, or whatever
-could be higher than that of the collision, again this is not valid
-comparison, since the fact that indexing by hash functions without
-additional checking could make data corruption legal between the
-reasonable working parameters of the program is very dangerous.
+PS.  Sorry to be so slow in getting to this one!
 
-And by the way, I've read
-http://www.usenix.org/events/hotos03/tech/full_papers/henson/henson_html/node15.html
+> ---
+> warthog>diffstat -p1 keys-rcu-session-2612rc1mm1.diff 
+>  security/keys/process_keys.c |   42 +++++++++++++++++++++---------------------
+>  security/keys/request_key.c  |    7 +++----
+>  2 files changed, 24 insertions(+), 25 deletions(-)
+> 
+> diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c
+> --- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/process_keys.c	2005-03-23 17:22:46.000000000 +0000
+> +++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/process_keys.c	2005-03-23 18:27:12.055768099 +0000
+> @@ -1,6 +1,6 @@
+>  /* process_keys.c: management of a process's keyrings
+>   *
+> - * Copyright (C) 2004 Red Hat, Inc. All Rights Reserved.
+> + * Copyright (C) 2004-5 Red Hat, Inc. All Rights Reserved.
+>   * Written by David Howells (dhowells@redhat.com)
+>   *
+>   * This program is free software; you can redistribute it and/or
+> @@ -181,7 +181,7 @@ static int install_process_keyring(struc
+>  			goto error;
+>  		}
+>  
+> -		/* attach or swap keyrings */
+> +		/* attach keyring */
+>  		spin_lock_irqsave(&tsk->sighand->siglock, flags);
+>  		if (!tsk->signal->process_keyring) {
+>  			tsk->signal->process_keyring = keyring;
+> @@ -227,12 +227,14 @@ static int install_session_keyring(struc
+>  
+>  	/* install the keyring */
+>  	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+> -	old = tsk->signal->session_keyring;
+> -	tsk->signal->session_keyring = keyring;
+> +	old = rcu_dereference(tsk->signal->session_keyring);
 
-and I don't agree with it. Asides from the "avalanche effect" the
-properties of a good hash function is that distributes well the entropy
-between the output bits, so probably, although the inputs are not
-random, the pdf change in the outputs would be small, otherwise it would
-be easier to find collision by differential or statistical methods.
+I don't understand why rcu_dereference() is needed in this case.
+Since we are holding the lock, it should not be possible for
+this to change, right?  Or am I missing something?  (Quite possible,
+am not all that familiar with this code.)
 
-Last, hash functions should be only used to check data integrity, and
-that's the reason of the "avalanche effect", so even single bit errors
-are propagated and it's effect is very noticeable at the output.
+> +	rcu_assign_pointer(tsk->signal->session_keyring, keyring);
+>  	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
+>  
+>  	ret = 0;
+>  
+> +	/* we're using RCU on the pointer */
+> +	synchronize_kernel();
 
-Regards.
+This would want to become synchronize_rcu().
 
--- 
-Pedro Larroy Tovar | Linux & Network consultant |  pedro%larroy.com 
-Make debian mirrors with debian-multimirror: http://pedro.larroy.com/deb_mm/
-	* Las patentes de programación son nocivas para la innovación * 
-				http://proinnova.hispalinux.es/
+>  	key_put(old);
+>   error:
+>  	return ret;
+> @@ -245,8 +247,6 @@ static int install_session_keyring(struc
+>   */
+>  int copy_thread_group_keys(struct task_struct *tsk)
+>  {
+> -	unsigned long flags;
+> -
+>  	key_check(current->thread_group->session_keyring);
+>  	key_check(current->thread_group->process_keyring);
+>  
+> @@ -254,10 +254,10 @@ int copy_thread_group_keys(struct task_s
+>  	tsk->signal->process_keyring = NULL;
+>  
+>  	/* same session keyring */
+> -	spin_lock_irqsave(&current->sighand->siglock, flags);
+> +	rcu_read_lock();
+>  	tsk->signal->session_keyring =
+> -		key_get(current->signal->session_keyring);
+> -	spin_unlock_irqrestore(&current->sighand->siglock, flags);
+> +		key_get(rcu_dereference(current->signal->session_keyring));
+> +	rcu_read_unlock();
+>  
+>  	return 0;
+>  
+> @@ -381,8 +381,7 @@ struct key *search_process_keyrings_aux(
+>  					key_match_func_t match)
+>  {
+>  	struct task_struct *tsk = current;
+> -	unsigned long flags;
+> -	struct key *key, *ret, *err, *tmp;
+> +	struct key *key, *ret, *err;
+>  
+>  	/* we want to return -EAGAIN or -ENOKEY if any of the keyrings were
+>  	 * searchable, but we failed to find a key or we found a negative key;
+> @@ -436,17 +435,18 @@ struct key *search_process_keyrings_aux(
+>  	}
+>  
+>  	/* search the session keyring last */
+> -	spin_lock_irqsave(&tsk->sighand->siglock, flags);
+> -
+> -	tmp = tsk->signal->session_keyring;
+> -	if (!tmp)
+> -		tmp = tsk->user->session_keyring;
+> -	atomic_inc(&tmp->usage);
+> -
+> -	spin_unlock_irqrestore(&tsk->sighand->siglock, flags);
+> +	if (tsk->signal->session_keyring) {
+> +		rcu_read_lock();
+> +		key = keyring_search_aux(
+> +			rcu_dereference(tsk->signal->session_keyring),
+> +			type, description, match);
+> +		rcu_read_unlock();
+> +	}
+> +	else {
+> +		key = keyring_search_aux(tsk->user->session_keyring,
+> +					 type, description, match);
+
+This one is constant, right?  If not, I don't understand the locking design.
+
+> +	}
+>  
+> -	key = keyring_search_aux(tmp, type, description, match);
+> -	key_put(tmp);
+>  	if (!IS_ERR(key))
+>  		goto found;
+>  
+> diff -uNrp linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c
+> --- linux-2.6.12-rc1-mm1-keys-umhelper/security/keys/request_key.c	2005-03-23 17:35:16.000000000 +0000
+> +++ linux-2.6.12-rc1-mm1-keys-rcu-session/security/keys/request_key.c	2005-03-23 18:14:13.908029567 +0000
+> @@ -175,13 +175,12 @@ static struct key *__request_key_constru
+>  	key->expiry = now.tv_sec + key_negative_timeout;
+>  
+>  	if (current->signal->session_keyring) {
+> -		unsigned long flags;
+>  		struct key *keyring;
+>  
+> -		spin_lock_irqsave(&current->sighand->siglock, flags);
+> -		keyring = current->signal->session_keyring;
+> +		rcu_read_lock();
+> +		keyring = rcu_dereference(current->signal->session_keyring);
+>  		atomic_inc(&keyring->usage);
+> -		spin_unlock_irqrestore(&current->sighand->siglock, flags);
+> +		rcu_read_unlock();
+>  
+>  		key_link(keyring, key);
+>  		key_put(keyring);
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

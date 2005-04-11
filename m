@@ -1,71 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVDKHCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVDKHDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbVDKHCy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 03:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVDKHCy
+	id S261712AbVDKHDV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 03:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVDKHDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 03:02:54 -0400
-Received: from fire.osdl.org ([65.172.181.4]:7364 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261711AbVDKHCv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 03:02:51 -0400
-Date: Sun, 10 Apr 2005 23:51:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: jlan@engr.sgi.com, guillaume.thouvenin@bull.net, greg@kroah.com,
-       linux-kernel@vger.kernel.org, efocht@hpce.nec.com, linuxram@us.ibm.com,
-       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, aquynh@gmail.com,
-       dean-list-linux-kernel@arctic.org, pj@sgi.com
-Subject: Re: [patch 2.6.12-rc1-mm4] fork_connector: add a fork connector
-Message-Id: <20050410235124.2addd7d9.akpm@osdl.org>
-In-Reply-To: <20050411104456.A31664@2ka.mipt.ru>
-References: <4255B6D2.7050102@engr.sgi.com>
-	<4255B868.6040600@engr.sgi.com>
-	<1112955840.28858.236.camel@uganda>
-	<1112957563.28858.240.camel@uganda>
-	<4256E940.9050306@engr.sgi.com>
-	<425700CD.5040906@engr.sgi.com>
-	<20050409021856.39e99bef@zanzibar.2ka.mipt.ru>
-	<42574C88.9080601@engr.sgi.com>
-	<20050409102926.0cbf031c@zanzibar.2ka.mipt.ru>
-	<425A0E7C.8080900@engr.sgi.com>
-	<20050411104456.A31664@2ka.mipt.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 03:03:21 -0400
+Received: from unknown.xeex.net ([216.152.252.175]:11780 "EHLO
+	mail.intworks.biz") by vger.kernel.org with ESMTP id S261712AbVDKHC4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 03:02:56 -0400
+Date: Mon, 11 Apr 2005 00:02:43 -0700
+From: jayalk@intworks.biz
+Message-Id: <200504110702.j3B72hau000852@intworks.biz>
+To: hpa@zytor.com
+Subject: [PATCH 2.6.11.7 1/1] x86 reboot: Add reboot fixup for gx1/cs5530a
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
->
-> On Sun, Apr 10, 2005 at 10:43:24PM -0700, Jay Lan (jlan@engr.sgi.com) wrote:
-> > I based my listen program on the fclisten.c posted by Kaigai Kohei
-> > with my own modification. Unfortunately i lost my test machine in the
-> > lab. I will recreate the listen program Monday. The original listener
-> > did not validate sequence number. It also prints length of data and
-> > sequence number of every message it receives. My listener prints
-> > only out-of-sequence error messages.
-> > 
-> > The fork generator fork-test.c was yours? I called it fork-test
-> > and let it run continuously in while-loop:
-> > 
-> > # while 1
-> > # ./fork-test 10000000
-> > # sleep 1
-> > # end
-> > 
-> > I let it do 10,000,000 times of fork continuously while the system
-> > is running AIM7 and/or ubench.
-> > 
-> > The original fclisten.c and fork-test.c are attached for your reference.
-> 
-> It is pretty normal to see duplicated numbers in a fork test - 
-> I observed it too, since counter is incremented without locks
-> we can catch situation when it is incremented simultaneously 
-> on both processors, the latest version of the fork connector
-> from Guillaume contains processor id in the message and per cpu counters, 
-> so one can destinguish messages which sequence numbers will flow
-> in a very similar way now.
+Hi Riley, Dave, Peter, i386 boot/workaround maintainers,
 
-Oh come on, that's just daft.  Evgeniy, put a lock in there and fix it up.
+I'm resending this patch (from March 28). 
+
+This patch incorporates the suggestions from the previous thread and also
+switches to using pci_get_device since pci_find_device is deprecated, and
+made some of the variables static.
+
+Please let me know if it's okay.
+
+Thanks,
+Jaya Kumar
+
+--- 
+
+I ran into a problem getting reboot working with 2.6.11 on an embedded
+board. The board has a Geode GX1 with a CS5530A companion. What I observe on
+reboot is the "Restarting system" printk, and then a cpu stall/hang. I think
+the problem arises because the keyboard controller is disabled by the BIOS,
+so the traditional mach_reboot()'s output to port 0x64 is ignored. Then the
+386 triple fault issued after mach_reboot() results in a shutdown (because
+the hardware doesn't have to detect the triple fault and issue a reset).
+That then gives the end result of a stalled cpu/hang. 
+
+I found that the CS5530A in question has a "issue system wide reset" bit.
+The reboot works cleanly if I write that bit rather than do mach_reboot().
+So the following patch is my attempt to incorporate that change into 2.6.11
+by adding a X86_REBOOTFIXUPS option. In order to keep reboot.c free of hw
+specific fixups, I put it in another file, reboot_fixups.c. I tried to make
+it a bit generic so that if there are other reboot related fixups for other
+chipsets/boards, there'd be a clean place to put it. Please let me know what
+you think.
+
+Thanks,
+Jaya Kumar
+
+---
+
+Signed-off-by:  Jaya Kumar      <jayalk@intworks.biz>
+
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/Kconfig linux-2.6.11.7/arch/i386/Kconfig
+--- linux-2.6.11.7-vanilla/arch/i386/Kconfig	2005-04-08 02:57:18.000000000 +0800
++++ linux-2.6.11.7/arch/i386/Kconfig	2005-04-11 14:21:05.000000000 +0800
+@@ -645,6 +645,24 @@ config I8K
+ 	  Say Y if you intend to run this kernel on a Dell Inspiron 8000.
+ 	  Say N otherwise.
+ 
++config X86_REBOOTFIXUPS
++	bool "Enable X86 board specific fixups for reboot"
++	depends on X86 
++	default n
++	---help---
++	  This enables chipset and/or board specific fixups to be done
++	  in order to get reboot to work correctly. This is only needed on
++	  some combinations of hardware and BIOS. The symptom, for which 
++	  this config is intended, is when reboot ends with a stalled/hung 
++	  system. 
++
++	  Currently, the only fixup is for the Geode GX1/CS5530A/TROM2.1. 
++	  combination.
++
++	  Say Y if you want to enable the fixup. Currently, it's safe to
++	  enable this option even if you don't need it.
++	  Say N otherwise.
++
+ config MICROCODE
+ 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
+ 	---help---
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/kernel/Makefile linux-2.6.11.7/arch/i386/kernel/Makefile
+--- linux-2.6.11.7-vanilla/arch/i386/kernel/Makefile	2005-04-08 02:57:22.000000000 +0800
++++ linux-2.6.11.7/arch/i386/kernel/Makefile	2005-04-11 13:10:31.000000000 +0800
+@@ -23,6 +23,7 @@ obj-$(CONFIG_X86_TRAMPOLINE)	+= trampoli
+ obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
+ obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
+ obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
++obj-$(CONFIG_X86_REBOOTFIXUPS)	+= reboot_fixups.o
+ obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
+ obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/kernel/reboot.c linux-2.6.11.7/arch/i386/kernel/reboot.c
+--- linux-2.6.11.7-vanilla/arch/i386/kernel/reboot.c	2005-04-08 02:57:27.000000000 +0800
++++ linux-2.6.11.7/arch/i386/kernel/reboot.c	2005-04-11 13:10:31.000000000 +0800
+@@ -13,6 +13,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/apic.h>
+ #include "mach_reboot.h"
++#include <linux/reboot_fixups.h>
+ 
+ /*
+  * Power off function, if any
+@@ -348,6 +349,7 @@ void machine_restart(char * __unused)
+ 		/* rebooting needs to touch the page at absolute addr 0 */
+ 		*((unsigned short *)__va(0x472)) = reboot_mode;
+ 		for (;;) {
++			mach_reboot_fixups(); /* for board specific fixups */
+ 			mach_reboot();
+ 			/* That didn't work - force a triple fault.. */
+ 			__asm__ __volatile__("lidt %0": :"m" (no_idt));
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/kernel/reboot_fixups.c linux-2.6.11.7/arch/i386/kernel/reboot_fixups.c
+--- linux-2.6.11.7-vanilla/arch/i386/kernel/reboot_fixups.c	1970-01-01 07:30:00.000000000 +0730
++++ linux-2.6.11.7/arch/i386/kernel/reboot_fixups.c	2005-04-11 14:09:02.000000000 +0800
+@@ -0,0 +1,56 @@
++/*
++ * linux/arch/i386/kernel/reboot_fixups.c
++ * 
++ * This is a good place to put board specific reboot fixups.
++ *
++ * List of supported fixups:
++ * geode-gx1/cs5530a - Jaya Kumar <jayalk@intworks.biz>
++ *
++ */
++
++#include <asm/delay.h>
++#include <linux/pci.h>
++
++static void cs5530a_warm_reset(struct pci_dev *dev)
++{
++	/* writing 1 to the reset control register, 0x44 causes the 
++	cs5530a to perform a system warm reset */
++	pci_write_config_byte(dev, 0x44, 0x1);
++	udelay(50); /* shouldn't get here but be safe and spin-a-while */
++	return; 
++}
++
++struct device_fixup {
++	unsigned int vendor;
++	unsigned int device;
++	void (*reboot_fixup)(struct pci_dev *);
++};
++
++static struct device_fixup fixups_table[] = {
++{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_LEGACY, cs5530a_warm_reset },
++};
++
++/*
++ * we see if any fixup is available for our current hardware. if there
++ * is a fixup, we call it and we expect to never return from it. if we
++ * do return, we keep looking and then eventually fall back to the
++ * standard mach_reboot on return.
++ */
++void mach_reboot_fixups(void)
++{
++	struct device_fixup *cur;
++	struct pci_dev *dev;
++	int i;
++
++	for (i=0; i < (sizeof(fixups_table)/sizeof(fixups_table[0])); i++) {
++		cur = &(fixups_table[i]);
++		dev = pci_get_device(cur->vendor, cur->device, 0);
++		if (!dev) 
++			continue;
++
++		cur->reboot_fixup(dev);
++	}
++	
++	printk(KERN_WARNING "No reboot fixup found for your hardware\n");
++}
++
+diff -uprN -X dontdiff linux-2.6.11.7-vanilla/include/linux/reboot_fixups.h linux-2.6.11.7/include/linux/reboot_fixups.h
+--- linux-2.6.11.7-vanilla/include/linux/reboot_fixups.h	1970-01-01 07:30:00.000000000 +0730
++++ linux-2.6.11.7/include/linux/reboot_fixups.h	2005-04-11 13:10:31.000000000 +0800
+@@ -0,0 +1,10 @@
++#ifndef _LINUX_REBOOT_FIXUPS_H
++#define _LINUX_REBOOT_FIXUPS_H
++
++#ifdef CONFIG_X86_REBOOTFIXUPS
++extern void mach_reboot_fixups(void);
++#else
++#define mach_reboot_fixups(x) do {} while (0)
++#endif
++
++#endif /* _LINUX_REBOOT_FIXUPS_H */

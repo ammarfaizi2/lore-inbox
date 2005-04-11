@@ -1,83 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVDKWuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVDKWvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVDKWuO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVDKWuN
+	id S261967AbVDKWvy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVDKWvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:50:13 -0400
-Received: from iabervon.org ([66.92.72.58]:25349 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S261973AbVDKWuD (ORCPT
+	Mon, 11 Apr 2005 18:51:54 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:31370 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261967AbVDKWvo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:50:03 -0400
-Date: Mon, 11 Apr 2005 18:50:24 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Jeff Garzik <jgarzik@pobox.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       David Woodhouse <dwmw2@infradead.org>
-Subject: Re: New SCM and commit list
-In-Reply-To: <Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.21.0504111801450.30848-100000@iabervon.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 11 Apr 2005 18:51:44 -0400
+Date: Tue, 12 Apr 2005 00:51:39 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Call to atention about using hash functions as content indexers (SCM saga)
+Message-ID: <20050411225139.GA9145@pasky.ji.cz>
+References: <20050411224021.GA25106@larroy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050411224021.GA25106@larroy.com>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 10 Apr 2005, Linus Torvalds wrote:
+Dear diary, on Tue, Apr 12, 2005 at 12:40:21AM CEST, I got a letter
+where Pedro Larroy <piotr@larroy.com> told me that...
+> Hi
 
-> On Mon, 11 Apr 2005, Jeff Garzik wrote:
-> > 
-> > > But I hope that I can get non-conflicting merges done fairly soon, and 
-> > > maybe I can con James or Jeff or somebody to try out GIT then...
-> > 
-> > I don't mind being a guinea pig as long as someone else does the hard 
-> > work of finding a new way to merge :)
+Hello,
+
+> I had a quick look at the source of GIT tonight, I'd like to warn you
+> about the use of hash functions as content indexers.
 > 
-> So I can tell you what merges are going to be like, just to prepare you.
+> As probably you are aware, hash functions such as SHA-1 are surjective not
+> bijective (1-to-1 map), so they have collisions. Here one can argue
+> about the low probability of such a collision, I won't get into
+> subjetive valorations of what probability of collision is tolerable for
+> me and what is not. 
 > 
-> First, the good news: I think we can make the workflow look like bk, ie
-> pretty much like "git pull" and "git push".  And for well-behaved stuff
-> (ie minimal changes to the same files on both sides) it will even be fast.  
-> I think.
-> 
-> Then the bad news: the merge algorithm is going to suck. It's going to be
-> just plain 3-way merge, the same RCS/CVS thing you've seen before. With no
-> understanding of renames etc. I'll try to find the best parent to base the
-> merge off of, although early testers may have to tell the piece of crud
-> what the most recent common parent was.
->
-> So anything that got modified in just one tree obviously merges to that 
-> version. Any file that got modified in two trees will end up just being 
-> passed to the "merge" program. See "man merge" and "man diff3". The merger 
-> gets to fix up any conflicts by hand.
+> I my humble opinion, choosing deliberately, as a design decision, a
+> method such as this one, that in some cases could corrupt data in a
+> silent and very hard to detect way, is not very good. One can also argue
+> that the probability of data getting corrupted in the disk, or whatever
+> could be higher than that of the collision, again this is not valid
+> comparison, since the fact that indexing by hash functions without
+> additional checking could make data corruption legal between the
+> reasonable working parameters of the program is very dangerous.
 
-If merge took trees instead of single files, and had some way of detecting
-renames (or it got additional information about the differences between
-files), would that give BK-quality performance? Or does BK also support
-cases like:
+(i) 1461501637330902918203684832716283019655932542976 possible SHA1 hashes.
 
-orig ---> first ---> first-merge -
- |                /               \
- |------> second -                 -> final
- |                \               /
- |------> third ---> third-merge -
+(ii) In git-pasky, there's (turnable off) detection of collisions.
 
-where the final merge requires, for complete cleanliness, a comparison of
-more than 3 states (since some changes will have orig as the common
-ancestor and some will have second).
+(iii) Your argument against comparing with the probability of a hardware
+error does not make sense to me.
 
-Does this happen in real life? It seems like sane development processes
-wouldn't have multiple mainline-candidate patch sets including the same
-patches, if for no other reason than that, should the merge fail, nobody
-with any clue about the original patches would be anywhere nearby. It
-seems better to throw something back to someone to rebase their diffs.
+(iv) You fail to propose a better solution.
 
-Otherwise, the problem seems to boil down to finding the common ancestor
-well, getting trees instead of files to merge, and improving merge until
-it handles all of the tractible cases.
-
-	-Daniel
-*This .sig left intentionally blank*
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

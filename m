@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVDKRPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVDKRSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261830AbVDKRPI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 13:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVDKRPI
+	id S261833AbVDKRSB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 13:18:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVDKRSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 13:15:08 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:527 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S261830AbVDKROu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 13:14:50 -0400
-Message-ID: <425AB094.6060807@aknet.ru>
-Date: Mon, 11 Apr 2005 21:15:00 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       VANDROVE@vc.cvut.cz
-Subject: Re: crash in entry.S restore_all, 2.6.12-rc2, x86, PAGEALLOC
-References: <20050405065544.GA21360@elte.hu>	<4252E2C9.9040809@aknet.ru>	<Pine.LNX.4.58.0504051217180.2215@ppc970.osdl.org>	<4252EA01.7000805@aknet.ru>	<Pine.LNX.4.58.0504051249090.2215@ppc970.osdl.org>	<425403F6.409@aknet.ru>	<20050407080004.GA27252@elte.hu>	<42555BBF.6090704@aknet.ru>	<Pine.LNX.4.58.0504070930190.28951@ppc970.osdl.org>	<425563D6.30108@aknet.ru>	<Pine.LNX.4.58.0504070951570.28951@ppc970.osdl.org>	<42592813.5020005@aknet.ru> <20050410153228.1452365a.akpm@osdl.org>
-In-Reply-To: <20050410153228.1452365a.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------070508050908040803070601"
+	Mon, 11 Apr 2005 13:18:01 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:14218 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261833AbVDKRRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 13:17:24 -0400
+Subject: Re: [PATCH] Fix reloading GDT on ACPI S3 wakeup
+From: Len Brown <len.brown@intel.com>
+To: Juerg Billeter <juerg@paldo.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1112976854.8880.15.camel@juerg-p4.bitron.ch>
+References: <1112976854.8880.15.camel@juerg-p4.bitron.ch>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1113239836.2418.38.camel@d845pe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 11 Apr 2005 13:17:16 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070508050908040803070601
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+I've applied Nickolai's patch -- thanks for the ping.
 
-Hello.
+-Len
 
-Andrew Morton wrote:
-> This is utterly obscure - it needs a comment so that readers know what that
-> "- 8" is doing there.
-Yes, that was only an RFC thing.
-And now since there were not too much
-of an FC, I prepared the "polished"
-version. But apparently you already
-released -mm3:)
+On Fri, 2005-04-08 at 12:14, Juerg Billeter wrote:
+> Hi
+> 
+> This patch - based on
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=110055503031009&w=2 -
+> makes ACPI S3 wakeup work for me on a ThinkPad T40p laptop with a SMP
+> kernel. Without it only UP kernels work. I've been using the patch for
+> three months now without any issues.
+> 
+> The ACPI resume code currently uses a real-mode 16-bit lgdt
+> instruction
+> to reload the GDT.  This only restores the lower 24 bits of the GDT
+> base
+> address.  In recent SMP kernels, the GDT seems to have moved out of
+> the
+> lower 16 megs, thereby causing the ACPI resume to fail -- an invalid
+> GDT
+> was being loaded.
+> 
+> Regards,
+> 
+> Juerg
+> 
+> --
+> Signed-off-by: Juerg Billeter <juerg@paldo.org>
+> 
+> diff -uNr linux-2.6.10.orig/arch/i386/kernel/acpi/wakeup.S
+> linux-2.6.10/arch/i386/kernel/acpi/wakeup.S
+> --- linux-2.6.10.orig/arch/i386/kernel/acpi/wakeup.S    2004-12-24
+> 22:34:26.000000000 +0100
+> +++ linux-2.6.10/arch/i386/kernel/acpi/wakeup.S 2005-01-08
+> 23:34:38.551471486 +0100
+> @@ -74,8 +74,9 @@
+>         movw    %ax,%fs
+>         movw    $0x0e00 + 'i', %fs:(0x12)
+>        
+> -       # need a gdt
+> -       lgdt    real_save_gdt - wakeup_code
+> +       # need a gdt -- use lgdtl to force 32-bit operands, in case
+> +       # the GDT is located past 16 megabytes
+> +       lgdtl   real_save_gdt - wakeup_code
+> 
+>         movl    real_save_cr0 - wakeup_code, %eax
+>         movl    %eax, %cr0
+> 
+> 
+> 
+> 
 
-Well, at least you can still apply the
-comments if you feel like that. Here
-they are.
-
-Signed-off-by: Stas Sergeev <stsp@aknet.ru> 
-
-
---------------070508050908040803070601
-Content-Type: text/x-patch;
- name="esp0fix.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="esp0fix.diff"
-
---- linux-2.6.12-rc2/arch/i386/kernel/entry.S	2005-04-06 09:34:35.000000000 +0400
-+++ linux/arch/i386/kernel/entry.S	2005-04-11 10:49:28.000000000 +0400
-@@ -245,6 +245,9 @@
- 
- restore_all:
- 	movl EFLAGS(%esp), %eax		# mix EFLAGS, SS and CS
-+	# Warning: OLDSS(%esp) contains the wrong/random values if we
-+	# are returning to the kernel.
-+	# See comments in process.c:copy_thread() for details.
- 	movb OLDSS(%esp), %ah
- 	movb CS(%esp), %al
- 	andl $(VM_MASK | (4 << 8) | 3), %eax
---- linux-2.6.12-rc2/arch/i386/kernel/process.c	2005-04-06 09:34:35.000000000 +0400
-+++ linux/arch/i386/kernel/process.c	2005-04-11 10:30:39.000000000 +0400
-@@ -394,6 +394,16 @@
- 	childregs->esp = esp;
- 
- 	p->thread.esp = (unsigned long) childregs;
-+	/*
-+	 * The below -8 is to reserve 8 bytes on top of the ring0 stack.
-+	 * This is necessary to guarantee that the entire "struct pt_regs"
-+	 * is accessable even if the CPU haven't stored the SS/ESP registers
-+	 * on the stack (interrupt gate does not save these registers
-+	 * when switching to the same priv ring).
-+	 * Therefore beware: accessing the xss/esp fields of the
-+	 * "struct pt_regs" is possible, but they may contain the
-+	 * completely wrong values.
-+	 */
- 	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
- 
- 	p->thread.eip = (unsigned long) ret_from_fork;
-
---------------070508050908040803070601--

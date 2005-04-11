@@ -1,40 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261963AbVDKWSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVDKWTm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261963AbVDKWSW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:18:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVDKWQn
+	id S261970AbVDKWTm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:19:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVDKWSo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:16:43 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32274 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261963AbVDKWP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:15:26 -0400
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix floppy disk dependencies
-X-Patch-Ref: 01-fixes/03-blk_dev_fd-depends
-Message-Id: <E1DL7Bg-0003C9-Vj@raistlin.arm.linux.org.uk>
-Date: Mon, 11 Apr 2005 23:15:20 +0100
+	Mon, 11 Apr 2005 18:18:44 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:21778 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261964AbVDKWQ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 18:16:59 -0400
+Date: Mon, 11 Apr 2005 15:17:23 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
+       Joe Korty <joe.korty@ccur.com>
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+Message-ID: <20050411221723.GB11685@nietzsche.lynx.com>
+References: <F989B1573A3A644BAB3920FBECA4D25A02F64C65@orsmsx407> <20050411085737.GA11109@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050411085737.GA11109@elte.hu>
+User-Agent: Mutt/1.5.8i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Both the RiscPC and (optionally) EBSA285 have floppy disk
-support.  Allow this option to be selected on these ARM
-platforms again.
+On Mon, Apr 11, 2005 at 10:57:37AM +0200, Ingo Molnar wrote:
+> 
+> * Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
+> 
+> > Let me re-phrase then: it is a must have only on PI, to make sure you 
+> > don't have a loop when doing it. Maybe is a consequence of the 
+> > algorithm I chose. -However- it should be possible to disable it in 
+> > cases where you are reasonably sure it won't happen (such as kernel 
+> > code). In any case, AFAIR, I still did not implement it.
+> 
+> are there cases where userspace wants to disable deadlock-detection for 
+> its own locks?
 
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
-
-diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x '*.orig' -x '*.rej' -r orig/drivers/block/Kconfig linux/drivers/block/Kconfig
---- orig/drivers/block/Kconfig	Mon Apr  4 22:53:23 2005
-+++ linux/drivers/block/Kconfig	Mon Apr  4 23:42:07 2005
-@@ -6,7 +6,7 @@ menu "Block devices"
+I'd disable it for userspace locks. There might be folks that want to
+implement userspace drivers, but I can't imagine it being 'ok' to have
+the kernel call out to userspace and have it block correctly. I would
+expect them to do something else that's less drastic.
  
- config BLK_DEV_FD
- 	tristate "Normal floppy disk support"
--	depends on (!ARCH_S390 && !M68K && !IA64 && !UML) || Q40 || (SUN3X && BROKEN)
-+	depends on (!ARCH_S390 && !M68K && !IA64 && !UML) || Q40 || (SUN3X && BROKEN) || ARCH_RPC || ARCH_EBSA285
- 	---help---
- 	  If you want to use the floppy disk drive(s) of your PC under Linux,
- 	  say Y. Information about this driver, especially important for IBM
+> the deadlock detector in PREEMPT_RT is pretty much specialized for 
+> debugging (it does all sorts of weird locking tricks to get the first 
+> deadlock out, and to really report it on the console), but it ought to 
+> be possible to make it usable for userspace-controlled locks as well.
+
+If I understand things correctly, I'd let that be an RT app issue and
+the app folks should decided what is appropriate for their setup. If
+they need a deadlock detector they should decide on their own protocol.
+The kernel debugging issues are completely different.
+
+That's my two cents.
+
+bill
 

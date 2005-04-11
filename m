@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVDKWvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVDKW7X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbVDKWvy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 18:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVDKWvy
+	id S261981AbVDKW7X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 18:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVDKW7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 18:51:54 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:31370 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261967AbVDKWvo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:51:44 -0400
-Date: Tue, 12 Apr 2005 00:51:39 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Call to atention about using hash functions as content indexers (SCM saga)
-Message-ID: <20050411225139.GA9145@pasky.ji.cz>
-References: <20050411224021.GA25106@larroy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411224021.GA25106@larroy.com>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Mon, 11 Apr 2005 18:59:23 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:19059 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261981AbVDKW7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 18:59:15 -0400
+Message-ID: <425B013A.5020108@yahoo.com.au>
+Date: Tue, 12 Apr 2005 08:59:06 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Claudio Martins <ctpm@rnl.ist.utl.pt>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Processes stuck on D state on Dual Opteron
+References: <200504050316.20644.ctpm@rnl.ist.utl.pt> <425A4999.9010209@yahoo.com.au> <425A7173.802@yahoo.com.au> <200504111505.44284.ctpm@rnl.ist.utl.pt>
+In-Reply-To: <200504111505.44284.ctpm@rnl.ist.utl.pt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, Apr 12, 2005 at 12:40:21AM CEST, I got a letter
-where Pedro Larroy <piotr@larroy.com> told me that...
-> Hi
+Claudio Martins wrote:
 
-Hello,
-
-> I had a quick look at the source of GIT tonight, I'd like to warn you
-> about the use of hash functions as content indexers.
+>    Right. I'm using two Seagate ATA133 disks (ide controler is AMD-8111) each 
+> with 4 partitions, so I get 4 md Raid1 devices. The first one, md0, is for 
+> swap. The rest are
 > 
-> As probably you are aware, hash functions such as SHA-1 are surjective not
-> bijective (1-to-1 map), so they have collisions. Here one can argue
-> about the low probability of such a collision, I won't get into
-> subjetive valorations of what probability of collision is tolerable for
-> me and what is not. 
+> ~$ df -h
+> Filesystem            Size  Used Avail Use% Mounted on
+> /dev/md1              4.6G  1.9G  2.6G  42% /
+> tmpfs                1005M     0 1005M   0% /dev/shm
+> /dev/md3               32G  107M   30G   1% /home
+> /dev/md2               31G  149M   29G   1% /var
 > 
-> I my humble opinion, choosing deliberately, as a design decision, a
-> method such as this one, that in some cases could corrupt data in a
-> silent and very hard to detect way, is not very good. One can also argue
-> that the probability of data getting corrupted in the disk, or whatever
-> could be higher than that of the collision, again this is not valid
-> comparison, since the fact that indexing by hash functions without
-> additional checking could make data corruption legal between the
-> reasonable working parameters of the program is very dangerous.
+>   In these tests, /home on md3 is the working area for stress.
+> 
+>   The io scheduler used is the anticipatory. 
+> 
 
-(i) 1461501637330902918203684832716283019655932542976 possible SHA1 hashes.
+OK.
 
-(ii) In git-pasky, there's (turnable off) detection of collisions.
+> 
+>   OK, I'll try them in a few minutes and report back.
+>  
 
-(iii) Your argument against comparing with the probability of a hardware
-error does not make sense to me.
+I'm not overly hopeful. If they fix the problem, then it's likely
+that the real bug is hidden.
 
-(iv) You fail to propose a better solution.
+>   I'm curious as whether increasing the vm.min_free_kbytes sysctl value would 
+> help or not in this case. But I guess it wouldn't since there is already some 
+> free memory and also the alloc failures are order 0, right?
+> 
+
+Yes. And the failures you were seeing with my first patch were coming
+from the mempool code anyway. We want those to fail early so they don't
+eat into the min_free_kbytes memory.
+
+You could try raising min_free_kbytes though. If that fixes it, then it
+indicates there might be some problem in a memory allocation failure
+path in software raid somewhere.
+
+Thanks
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+SUSE Labs, Novell Inc.
+

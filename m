@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVDKHjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVDKHlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVDKHjP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 03:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVDKHjP
+	id S261718AbVDKHlN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 03:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVDKHlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 03:39:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:1976 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261716AbVDKHjK (ORCPT
+	Mon, 11 Apr 2005 03:41:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:52204 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261718AbVDKHkx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 03:39:10 -0400
-Date: Mon, 11 Apr 2005 09:38:44 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       David Woodhouse <dwmw2@infradead.org>, Chris Mason <mason@suse.com>
-Subject: Re: New SCM and commit list
-Message-ID: <20050411073844.GA5485@elte.hu>
-References: <1113174621.9517.509.camel@gaston> <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org> <425A10EA.7030607@pobox.com> <Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 11 Apr 2005 03:40:53 -0400
+Message-ID: <425A295A.6050703@suse.de>
+Date: Mon, 11 Apr 2005 09:38:02 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Barry K. Nathan" <barryn@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       mjg59@srcf.ucam.org, hare@suse.de, Pavel Machek <pavel@suse.cz>
+Subject: Re: 2.6.12-rc2-mm1
+References: <20050405000524.592fc125.akpm@osdl.org> <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net> <20050405141445.GA5170@ip68-4-98-123.oc.oc.cox.net> <20050405175600.644e2453.akpm@osdl.org> <20050406125958.GA8150@ip68-4-98-123.oc.oc.cox.net> <20050406142749.6065b836.akpm@osdl.org> <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net> <20050408103327.GD1392@elf.ucw.cz> <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz> <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net>
+In-Reply-To: <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
-> Then the bad news: the merge algorithm is going to suck. It's going to 
-> be just plain 3-way merge, the same RCS/CVS thing you've seen before.  
-> With no understanding of renames etc. I'll try to find the best parent 
-> to base the merge off of, although early testers may have to tell the 
-> piece of crud what the most recent common parent was.
+Barry K. Nathan wrote:
+> On Sun, Apr 10, 2005 at 11:27:47PM +0200, Pavel Machek wrote:
+>> Can you try without XFS?
 > 
-> So anything that got modified in just one tree obviously merges to 
-> that version. Any file that got modified in two trees will end up just 
-> being passed to the "merge" program. See "man merge" and "man diff3".  
-> The merger gets to fix up any conflicts by hand.
+> No, XFS is my root filesystem. :( (Now that I think about it, would
+> modularizing XFS and using an initrd be OK?)
 
-at that point Chris Mason's "rej" tool is pretty nifty:
+Yes, although it is not totally trivial.
 
-  ftp://ftp.suse.com/pub/people/mason/rej/rej-0.13.tar.gz
+> I'll see if I can reproduce this on one of my test boxes. I'll *try* to
+> get to it later today, but it's possible that I won't be able to get to
+> it until next Friday or Saturday.
+> 
+>> I do not why it interferes, but I've seen that before on suse
+>> kernels...
+> 
+> Have you seen it without the resume-from-initrd patch too, or only with
+> that patch?
 
-it gets the trivial rejects right, and is pretty powerful to quickly 
-cycle through the nontrivial ones too. It shows the old and new code 
-side by side too, etc.
+We have seen it in 9.3-beta, exact scenario was:
+- root fs is XFS, ide driver is modular
+  => xfs module and ide-controller module is in initramfs
+  => first all modules were loaded (device driver + fs)
+  => resume was triggered, resume was _really_ slow.
 
-(There is no fully automatic mode in where it would not bother the user 
-with the really trivial rejects - but it has an automatic mode where you 
-basically have to do nothing - maybe a fully automatic one could be 
-added that would resolve low-risk rejects?)
+we worked around it in the initramfs by first loading device drivers,
+triggering resume, then loading the fs modules and continuing boot.
+In the resume case, we'd never reach the "load fs modules" part and
+generally it seems a good idea (if the drivers are modular) to keep the
+setup before resume as minimalistic as possible.
 
-it's really easy to use (but then again i'm a vim user, so i'm biased), 
-just try it on a random .rej file you have ("rej -a kernel/sched.c.rej" 
-or whatever).
+We never tried with XFS compiled in. It seems we can no longer hide from
+fixing XFS ;-)
 
-	Ingo
+Best regards,
+
+     Stefan
+

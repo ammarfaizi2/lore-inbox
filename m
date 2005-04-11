@@ -1,86 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVDKGg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVDKGg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVDKGg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 02:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261705AbVDKGg2
+	id S261705AbVDKGg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 02:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVDKGg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 02:36:28 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:17793 "EHLO vagabond.light.src")
-	by vger.kernel.org with ESMTP id S261704AbVDKGgV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 02:36:21 -0400
-Date: Mon, 11 Apr 2005 08:36:03 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: Marcin Dalecki <martin@dalecki.de>
-Cc: Miles Bader <miles@gnu.org>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga..
-Message-ID: <20050411063603.GA21708@vagabond>
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org> <20050407074407.GA25194@vagabond> <f74102c2ddfe02b2d98d28e1a25a0634@dalecki.de> <buo4qee6obk.fsf@mctpc71.ucom.lsi.nec.co.jp> <de0dee2e0b49a66479c2c885c0ee50aa@dalecki.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
-Content-Disposition: inline
-In-Reply-To: <de0dee2e0b49a66479c2c885c0ee50aa@dalecki.de>
-User-Agent: Mutt/1.5.8i
+	Mon, 11 Apr 2005 02:36:56 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:20321 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261705AbVDKGgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 02:36:51 -0400
+Message-ID: <425A1AF6.2010909@yahoo.com.au>
+Date: Mon, 11 Apr 2005 16:36:38 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Claudio Martins <ctpm@rnl.ist.utl.pt>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Processes stuck on D state on Dual Opteron
+References: <200504050316.20644.ctpm@rnl.ist.utl.pt> <200504100328.53762.ctpm@rnl.ist.utl.pt> <20050409194746.69cfa230.akpm@osdl.org> <200504110138.51872.ctpm@rnl.ist.utl.pt>
+In-Reply-To: <200504110138.51872.ctpm@rnl.ist.utl.pt>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Claudio Martins wrote:
+> On Sunday 10 April 2005 03:47, Andrew Morton wrote:
+> 
+>>Suggest you boot with `nmi_watchdog=0' to prevent the nmi watchdog from
+>>cutting in during long sysrq traces.
+>>
+>>Also, capture the `sysrq-m' output so we can see if the thing is out of
+>>memory.
+> 
+> 
+>   Hi Andrew,
+> 
+>   Thanks for the tip. I booted with nmi_watchdog=0 and was able to get a full 
+> sysrq-t as well as a sysrq-m. Since it might be a little too big for the 
+> list, I've put it on a text file at:
+> 
+>  http://193.136.132.235/dl145/dump1-2.6.12-rc2.txt
+> 
+>  I also made a run with the mempool-can-fail patch from Nick Piggin. With this 
+> I got some nice memory allocation errors from the md threads when the trouble 
+> started. The dump (with sysrq-t and sysrq-m included) is at:
+> 
+>  http://193.136.132.235/dl145/dump2-2.6.12-rc2-nick1.txt
+> 
+>  Let me know if you find it more convenient to send the dumps by mail or 
+> something. Hope this helps.
+> 
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Itried to get these just now, but couldn't.
 
-On Mon, Apr 11, 2005 at 04:56:06 +0200, Marcin Dalecki wrote:
->=20
-> On 2005-04-11, at 04:26, Miles Bader wrote:
->=20
-> >Marcin Dalecki <martin@dalecki.de> writes:
-> >>Better don't waste your time with looking at Arch. Stick with patches
-> >>you maintain by hand combined with some scripts containing a list of
-> >>apply commands and you should be still more productive then when using
-> >>Arch.
-> >
-> >Arch has its problems, but please lay off the uninformed flamebait (the
-> >"issues" you complain about are so utterly minor as to be laughable).
->=20
-> I wish you a lot of laughter after replying to an already 3 days old=20
-> message,
-> which was my final on Arch.
+Would you gzip them and send them to me privately?
 
-Marcin Dalecki <martin@dalecki.de> complained:
-> Arch isn't a sound example of software design. Quite contrary to the=20
-> random notes posted by it's author the following issues did strike me=20
-> the time I did evaluate it:
-> [...]
+Thanks,
+Nick
 
-I didn't comment on this first time, but I see I should have. *NONE* of
-the issues you complained about were issues of *DESIGN*. They were all
-issues of *ENGINEERING*. *ENGINEERING* issues can be fixed. One of the
-issues does not even exist any longer (the diff/patch one -- it now
-checks they are the right ones -- and in all other respects it is
-*exactly* the same as depending on a library)
+-- 
+SUSE Labs, Novell Inc.
 
-But what really matters here is the concept. Arch has a simple concept,
-that works well. Others have different concepts, that work well or
-almost well too (Darcs, Monotone).
-
----------------------------------------------------------------------------=
-----
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
-
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCWhrTRel1vVwhjGURAuGDAKCLOx+PaXOm5QSjPdFS7YEIDC3KEQCgpGSb
-TefGUTnMb3zLmq66isj/6co=
-=UUNS
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--

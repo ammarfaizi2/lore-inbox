@@ -1,72 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVDKSbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVDKSct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVDKSbp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 14:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVDKSbo
+	id S261876AbVDKSct (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 14:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVDKSci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 14:31:44 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:50821 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261885AbVDKSay (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 14:30:54 -0400
-Date: Mon, 11 Apr 2005 20:30:51 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, pj@engr.sgi.com, junkio@cox.net,
-       ross@jose.lug.udel.edu, linux-kernel@vger.kernel.org
-Subject: Re: Re: more git updates..
-Message-ID: <20050411183051.GA22339@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <7vhdifcbmo.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.4.58.0504100824470.1267@ppc970.osdl.org> <20050410115055.2a6c26e8.pj@engr.sgi.com> <Pine.LNX.4.58.0504101338360.1267@ppc970.osdl.org> <20050410161457.2a30099a.pj@engr.sgi.com> <Pine.LNX.4.58.0504101634250.1267@ppc970.osdl.org> <20050411084931.4aaf7ae0.rddunlap@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411084931.4aaf7ae0.rddunlap@osdl.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Mon, 11 Apr 2005 14:32:38 -0400
+Received: from [221.216.56.203] ([221.216.56.203]:62946 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S261884AbVDKSav
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 14:30:51 -0400
+Date: Tue, 12 Apr 2005 02:18:16 +0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200504111818.j3BIIGT30775@freya.yggdrasil.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: New SCM and commit list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Apr 11, 2005 at 05:49:31PM CEST, I got a letter
-where "Randy.Dunlap" <rddunlap@osdl.org> told me that...
-> On Sun, 10 Apr 2005 16:38:00 -0700 (PDT) Linus Torvalds wrote:
-..snip..
-> | Yes. Crappy old tree, but it can still read my git.git directory, so you 
-> | can use it to update to my current source base.
-> 
-> Please go into a little more detail about how to do this step...
-> that seems to be the most basic concept that I am missing.
-> i.e., how to find the "latest/current" tree (version/commit)
-> and check it out (read-tree, checkout-cache, etc.).
+On 2005-04-11 Linus Torvalds wrote:
+>Then the bad news: the merge algorithm is going to suck. It's going to be
+>just plain 3-way merge, the same RCS/CVS thing you've seen before. With no
+>understanding of renames etc. I'll try to find the best parent to base the
+>merge off of, although early testers may have to tell the piece of crud
+>what the most recent common parent was.
 
-Well, its ID is by convention kept in .dircache/HEAD. But that is really
-only a convention, no "core git" tool reads it directly, and you need to
-update it manually after you do commit-tree.
+	I've been surprised at how well it works to put each character on a
+separate line, pipe the input into diff3 and then join the lines
+back together.  For example, let's consider the case of
+a adding parameters to a function.  Here one version adds a parameter
+before the existing parameter, and another version adds another parameter
+after the existing parameter:
 
-First, you need to get the accompanying tree's id. git-pasky's shortcut
-is $(tree-id), but manually you can do it by
+$ cat orig
+call(bar);
+$ cat ver1
+call(foo,bar);
+$ cat ver2
+call(bar,baz);
+$ charmerge ver1 orig ver2
+call(foo,bar,baz);
 
-	$(cat-file commit $(cat .dircache/HEAD)) | egrep '^tree'
+	A more practically scaled application that I tried was with
+another filter that I wrote that would automatically resolve certain
+types of diff3 conflicts[1].  With that filter, I took the SCSI
+FlashPoint driver, and made an edited version by piping it through GNU
+indent, which not only reindents, but also splits and joins lines.
+I made a second edited version by changing all 146 instances of
+"SYNC" to "GROP" in the original.  It merged apparently successfully,
+giving me a GNU indented version with all of the keyword changes.
+The version of this resolution program dies if it his a diff3
+conflict of a type that it is not prepared to resolve.  I'll post
+it once I've got it properly preserving the conflicts that it
+doesn't try to fix.  In the meantime, here is an illustrative
+script to do get diff3 to do character-based merges, although it
+gives garbage results if there are any conflicts.
 
-Note that if you ever forgot to update HEAD or if you have multiple
-branches in your repository, you can list all "head commits" (that is,
-commits which have no other commits referencing them as parents) by
-doing fsck-cache.
+[1] The type of conflict that was automatically resolved is as follows:
 
-Now, you need to populate the directory cache by the tree (see Paul
-Jackson's diagram):
+	variant1 = <prepended-new-text><original><appended-new-text>
 
-	read-tree $tree_id
+	result --> <prepended-new-text><variant2><appended-new-text>
 
-And now you want to update your working tree from the cache:
+	...this is actually exactly the order one would want in the
+case where <original> also occurs in variant2, but it was close
+enough for this test.
 
-	checkout-cache -a -f
+                    __     ______________ 
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l
 
-This will bring your tree in sync with the cache (it won't remove any
-stale files, though). That means it will overwrite your local changes
-too - turn that off by omitting the "-f". If you want to update only
-some files, omit the "-a" and list them.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+
+#!/bin/sh
+# Usage: charmerge ver1_file orig_file ver2_file
+
+lineify() {
+	sed 's/\([^\n]\)/\1\
+/g'
+}
+
+unlineify() {
+	awk '/^$/ {print $0} /^..*/ { printf "%s", $0}'
+}
+
+tmpdir=/tmp/charmerge.$$
+
+mkdir $tmpdir
+lineify < "$1" > $tmpdir/1
+lineify < "$2" > $tmpdir/2
+lineify < "$3" > $tmpdir/3
+diff3 -m $tmpdir/{1,2,3} | unlineify
+rm -rf $tmpdir

@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVDKXBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVDKXBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbVDKXBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 19:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVDKXAW
+	id S261971AbVDKXBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 19:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVDKXAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 19:00:22 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:33165 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261993AbVDKW7j
+	Mon, 11 Apr 2005 19:00:13 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:21492 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261987AbVDKW7h
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 18:59:39 -0400
-Subject: [PATCH 3/3] mm/Kconfig: give DISCONTIG more help text
+	Mon, 11 Apr 2005 18:59:37 -0400
+Subject: [PATCH 1/3] mm/Kconfig: kill unused ARCH_FLATMEM_DISABLE
 To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, zippel@linux-m68k.org,
        Dave Hansen <haveblue@us.ibm.com>
 From: Dave Hansen <haveblue@us.ibm.com>
-Date: Mon, 11 Apr 2005 15:59:36 -0700
-Message-Id: <E1DL7sX-00037u-00@kernel.beaverton.ibm.com>
+Date: Mon, 11 Apr 2005 15:59:29 -0700
+Message-Id: <E1DL7sQ-00030O-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This gives DISCONTIGMEM a bit more help text to explain
-what it does, not just when to choose it.
+This used to be used to disable FLATMEM selection, but I decided
+to change it to be done generically when DISCONTIG is enabled.
+The option is unused, so this kills it.
 
 Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
 ---
 
- memhotplug-dave/mm/Kconfig |   10 ++++++++++
- 1 files changed, 10 insertions(+)
+ memhotplug-dave/./arch/mips/Kconfig   |    4 ----
+ memhotplug-dave/./arch/parisc/Kconfig |    4 ----
+ memhotplug-dave/./arch/sh/Kconfig     |    4 ----
+ 3 files changed, 12 deletions(-)
 
-diff -puN mm/Kconfig~A2-mm-Kconfig-DISCONTIG-help-text mm/Kconfig
---- memhotplug/mm/Kconfig~A2-mm-Kconfig-DISCONTIG-help-text	2005-04-11 15:49:10.000000000 -0700
-+++ memhotplug-dave/mm/Kconfig	2005-04-11 15:49:10.000000000 -0700
-@@ -23,6 +23,16 @@ config DISCONTIGMEM_MANUAL
- 	bool "Discontigious Memory"
- 	depends on ARCH_DISCONTIGMEM_ENABLE
- 	help
-+	  This option provides enhanced support for discontiguous
-+	  memory systems, over FLATMEM.  These systems have holes
-+	  in their physical address spaces, and this option provides
-+	  more efficient handling of these holes.  However, the vast
-+	  majority of hardware has quite flat address spaces, and
-+	  can have degraded performance from extra overhead that
-+	  this option imposes.
-+
-+	  Many NUMA configurations will have this as the only option.
-+
- 	  If unsure, choose "Flat Memory" over this option.
+diff -puN ./arch/parisc/Kconfig~A0-mm-Kconfig-kill-ARCH_FLATMEM_DISABLE ./arch/parisc/Kconfig
+--- memhotplug/./arch/parisc/Kconfig~A0-mm-Kconfig-kill-ARCH_FLATMEM_DISABLE	2005-04-11 15:49:09.000000000 -0700
++++ memhotplug-dave/./arch/parisc/Kconfig	2005-04-11 15:49:09.000000000 -0700
+@@ -153,10 +153,6 @@ config ARCH_DISCONTIGMEM_ENABLE
+ 	  or have huge holes in the physical address space for other reasons.
+ 	  See <file:Documentation/vm/numa> for more.
  
- endchoice
+-config ARCH_FLATMEM_DISABLE
+-	def_bool y
+-	depends on ARCH_DISCONTIGMEM_ENABLE
+-
+ source "mm/Kconfig"
+ 
+ config PREEMPT
+diff -puN ./arch/sh/Kconfig~A0-mm-Kconfig-kill-ARCH_FLATMEM_DISABLE ./arch/sh/Kconfig
+--- memhotplug/./arch/sh/Kconfig~A0-mm-Kconfig-kill-ARCH_FLATMEM_DISABLE	2005-04-11 15:49:09.000000000 -0700
++++ memhotplug-dave/./arch/sh/Kconfig	2005-04-11 15:49:09.000000000 -0700
+@@ -496,10 +496,6 @@ config ARCH_DISCONTIGMEM_ENABLE
+ 	  or have huge holes in the physical address space for other reasons.
+ 	  See <file:Documentation/vm/numa> for more.
+ 
+-config ARCH_FLATMEM_DISABLE
+-	def_bool y
+-	depends on ARCH_DISCONTIGMEM_ENABLE
+-
+ source "mm/Kconfig"
+ 
+ config ZERO_PAGE_OFFSET
+diff -puN ./arch/mips/Kconfig~A0-mm-Kconfig-kill-ARCH_FLATMEM_DISABLE ./arch/mips/Kconfig
+--- memhotplug/./arch/mips/Kconfig~A0-mm-Kconfig-kill-ARCH_FLATMEM_DISABLE	2005-04-11 15:49:09.000000000 -0700
++++ memhotplug-dave/./arch/mips/Kconfig	2005-04-11 15:49:09.000000000 -0700
+@@ -501,10 +501,6 @@ config ARCH_DISCONTIGMEM_ENABLE
+ 	  or have huge holes in the physical address space for other reasons.
+ 	  See <file:Documentation/vm/numa> for more.
+ 
+-config ARCH_FLATMEM_DISABLE
+-	def_bool y
+-	depends on ARCH_DISCONTIGMEM_ENABLE
+-
+ config NUMA
+ 	bool "NUMA Support"
+ 	depends on SGI_IP27
 _

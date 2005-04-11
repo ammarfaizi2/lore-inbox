@@ -1,85 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVDKT5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVDKT6h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261905AbVDKT5n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 15:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVDKT5n
+	id S261906AbVDKT6h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 15:58:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVDKT6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 15:57:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41378 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261905AbVDKT5d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 15:57:33 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1113244710.4413.38.camel@localhost.localdomain>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
+	Mon, 11 Apr 2005 15:58:36 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:57871 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261906AbVDKT5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 15:57:53 -0400
+Date: Mon, 11 Apr 2005 20:57:45 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: rafael2k <rafael@riseup.net>
+Cc: dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: pcnet_cs problems in ARM handheld
+Message-ID: <20050411205745.B5070@flint.arm.linux.org.uk>
+Mail-Followup-To: rafael2k <rafael@riseup.net>,
+	dahinds@users.sourceforge.net, linux-kernel@vger.kernel.org
+References: <200504111622.54719.rafael@riseup.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 11 Apr 2005 20:57:15 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200504111622.54719.rafael@riseup.net>; from rafael@riseup.net on Mon, Apr 11, 2005 at 04:22:52PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Apr 11, 2005 at 04:22:52PM +0000, rafael2k wrote:
+> Hi David and others kernel developers,
+> Thanx for your pcnet_cs driver! I use it since old days :-P
+> 
+> I bought a IC-CARD+ pcnet_cs compatible pcmcia nic, and i'm using it on a 
+> StrongARM HP Jornada 710. My kernel is a 2.4.18-rmk3-hh10 and my pcmcia-cs 
+> version is 3.1.33
+> 
+> From dmesg I got this messages:
+> 
+> --
+> jornada720_pcmcia_configure_socket(): config socket 0 vcc 50 vpp 0
+> jornada720_pcmcia_configure_socket(): config socket 0 vcc 50 vpp 0
+> eth0: NE2000 Compatible: io 0xc2800300, irq 114, hw_addr 00:80:C8:88:00:56
+> eth0: interrupt(s) dropped!
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x96, t=39.
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=55.
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=49.
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=88.
+> eth0: interrupt(s) dropped!
+> NETDEV WATCHDOG: eth0: transmit timed out
+> eth0: Tx timed out, lost interrupt? TSR=0x3, ISR=0x3, t=77.
 
-On Mon, 2005-04-11 at 19:38, Mingming Cao wrote:
+This looks like a case of the old 2.4 interrupt handling problems
+which got resolved by rewriting the ARM interrupt handling
+infrastructure during 2.5.
 
-> I agree. We should not skip the home block group of the file.  I guess
-> what I was suggesting is, if allocation from the home group failed and
-> we continuing the linear search the rest of block groups, we could
-> probably try to skip the block groups without enough usable free blocks
-> to make a reservation. 
+The problem occurs because of the need to handle edge-triggered
+interrupts (as is the case with Intel CPUs) differently from
+level-triggered interrupts, especially when the peripherals are
+designed to be used with level-triggered inputs.
 
-Fair enough.  Once those are the only bgs left, performance is going to
-drop pretty quickly, but that's not really avoidable on a very full
-filesystem.
+In effect, you can end up with the situation where the device has
+its interrupt asserted, but because the CPU doesn't see a change
+of state, it "forgets" about the interrupt input.
 
-> Ah.. I see the win with the read lock now: once the a reservation window
-> is added, updating it (either winding it forward and or searching for a
-> avaliable window) probably is the majorirty of the operations on the
-> tree, and using read lock for that should help reduce the latency.
+I'm not aware of a solution for this problem with 2.4 kernels.
 
-Right.  The down side is that for things like a kernel "tar xf", we'll
-be doing lots of small file unpacks, and hopefully most files will be
-just one or two reservations --- so there's little winding forward going
-on.  The searching will still be improved in that case.
-
-Note that this may improve average case latencies, but it's not likely
-to improve worst-case ones.  We still need a write lock to install a new
-window, and that's going to have to wait for us to finish finding a free
-bit even if that operation starts using a read lock.  
-
-I'm not really sure what to do about worst-case here.  For that, we
-really do want to drop the lock entirely while we do the bitmap scan.
-
-That leaves two options.  Hold a reservation while we do that; or don't.
-Holding one poses the problems we discussed before: either you hold a
-large reservation (bad for disk layout in the presence of concurrent
-allocators), or you hold smaller ones (high cost as you continually
-advance the window, which requires some read lock on the tree to avoid
-bumping into the next window.)
-
-Just how bad would it be if we didn't hold a lock _or_ a window at all
-while doing the search for new window space?  I didn't like that
-alternative at first because of the problem when you've got multiple
-tasks trying to allocate in the same space at the same time; but given
-the locking overhead of the alternatives, I'm wondering if this is
-actually the lesser evil.
-
---Stephen
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

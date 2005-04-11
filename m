@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVDKOSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVDKOWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVDKOSa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 10:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDKOSa
+	id S261551AbVDKOWR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 10:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVDKOWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 10:18:30 -0400
-Received: from mail.gondor.com ([212.117.64.182]:45329 "EHLO moria.gondor.com")
-	by vger.kernel.org with ESMTP id S261278AbVDKOS1 (ORCPT
+	Mon, 11 Apr 2005 10:22:17 -0400
+Received: from kalmia.hozed.org ([209.234.73.41]:32677 "EHLO kalmia.hozed.org")
+	by vger.kernel.org with ESMTP id S261551AbVDKOWO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 10:18:27 -0400
-Date: Mon, 11 Apr 2005 16:18:28 +0200
-From: Jan Niehusmann <jan@gondor.com>
-To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] zero disk pages used by swsusp on resume
-Message-ID: <20050411141828.GA26924@gondor.com>
-References: <42592697.8060909@domdv.de> <200504102040.38403.oliver@neukum.org> <42597E99.8010802@domdv.de> <200504102203.29602.oliver@neukum.org> <20050410201455.GA21568@elf.ucw.cz>
+	Mon, 11 Apr 2005 10:22:14 -0400
+Date: Mon, 11 Apr 2005 09:22:13 -0500
+From: Troy Benjegerdes <hozer@hozed.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050411142213.GC26127@kalmia.hozed.org>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050410201455.GA21568@elf.ucw.cz>
-X-Request-PGP: http://gondor.com/key.asc
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andreas is right, his patches are needed.
-> 
-> Currently, if your laptop is stolen after resume, they can still data
-> in swsusp image.
+> In particular, the memory pinning code in in uverbs_mem.c could stand
+> a looking over.  In addition, a sanity check of the write()-based
+> scheme for passing commands into the kernel in uverbs_main.c and
+> uverbs_cmd.c is probably worthwhile.
 
-Which shows that swsusp is a security risk if you have sensitive data in
-RAM. A thief stealing a running computer can get access to memory
-contents much more easy if he can just suspend the system and then
-recover all the memory contents from disk. Encrypted swsusp wouldn't
-help here if the key is stored on the disk as well.
+How is memory pinning handled? (I haven't had time to read all the code,
+so please excuse my ignorance of something obvious).
 
-(This is probably not a real risk in most applications, but one should
-keep it in mind and disable swsusp if necessary)
+The old mellanox drivers used to have a hack to call 'sys_mlock', and
+promiscuously lock memory any old userspace application asked for. What
+is the API for the new uverbs memory registration, and how will things
+like memory hotplug and NUMA page migration be able to unpin pages
+locked by a user program?
 
-Jan
-
+I have applications that would benefit from being able to register 15GB
+of memory on a machine with 16GB. Right now, MPI and other possible
+users of infiniband in userspace have to play cacheing games and limit
+what they can register. But locking all that memory without providing
+the kernel a way to unlock it under memory pressure or for page
+migration seems like a bad idea.

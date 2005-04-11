@@ -1,51 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVDKRXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVDKRd4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVDKRXA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 13:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVDKRW7
+	id S261861AbVDKRd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 13:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVDKRd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 13:22:59 -0400
-Received: from merke.itea.ntnu.no ([129.241.7.61]:51855 "EHLO
-	merke.itea.ntnu.no") by vger.kernel.org with ESMTP id S261852AbVDKRWr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 13:22:47 -0400
-From: Per Christian Henden <perchrh@pvv.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] Add Mac mini sound support
-Date: Mon, 11 Apr 2005 19:12:56 +0200
-User-Agent: KMail/1.8
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200504091351.27430.perchrh@pvv.org> <1113089313.9568.435.camel@gaston>
-In-Reply-To: <1113089313.9568.435.camel@gaston>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 13:33:56 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:36585 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261861AbVDKRdw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 13:33:52 -0400
+Date: Mon, 11 Apr 2005 19:33:40 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, sfrench@samba.org,
+       Jan Dittmer <jdittmer@ppp0.net>
+Subject: Re: 2.6.12-rc2-mm3
+Message-ID: <20050411173340.GA16873@ens-lyon.fr>
+References: <20050411012532.58593bc1.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Message-Id: <200504111912.56648.perchrh@pvv.org>
-X-Content-Scanned: with sophos and spamassassin at mailgw.ntnu.no.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org>
+User-Agent: Mutt/1.5.8i
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 April 2005 01:28, Benjamin Herrenschmidt wrote:
-> On Sat, 2005-04-09 at 13:51 +0200, Per Christian Henden wrote:
-> > The patch below adds sound support on the Mac Mini by making a small 
-change to the PowerMac sound card detection code.
-[Snip, details]
-> And is not correct. It might appear to work but it is not the right
-> thing to do. There is no AWACS chip in there. There is a fixed function
-> codec controlled by a couple of GPIOs afaik. I'm working on a major
-> rework of the alsa driver that will include support for the mini and the
-> G5s.
+On Mon, Apr 11, 2005 at 01:25:32AM -0700, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
+> 
+> 
+> Changes since 2.6.12-rc2-mm2:
+> 
+> 
+>  bk-cifs.patch
 
-Ok. It /does/ work, I've been using the AWACS driver for weeks now, and I 
-don't have any stability or audio issues (that I notice), and my Mini is on 
-24/7.
 
-People that want sound support on their Minis right away can use this patch 
-while waiting for the rework of the drivers, without fear of their computer 
-exploding or so.
+The following patch correct an error in bk-cifs:
 
-Cheers, 
+fs/cifs/misc.c: In function ‘cifs_convertUCSpath’:
+fs/cifs/misc.c:546: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:549: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:552: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:561: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:564: error: case label does not reduce to an integer constant
+fs/cifs/misc.c:567: error: case label does not reduce to an integer constant
 
-PER
+The utilisations of UNI_* constants show that it is should in cpu format:
+
+for example line 542, src_char is converted in cpu_format:
+               src_char = le16_to_cpu(source[i]);
+	                       switch (src_char) {
+			        ...
+					case UNI_COLON:
+				...
+
+or line 610, it is unlikely that you want to have cpu_to_le16(cpu_to_le16(x)):
+		target[j] = cpu_to_le16(UNI_COLON);
+
+the following patch fixes it.
+
+Signed-Off-By: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+
+--- ./fs/cifs/misc.c.orig	2005-04-11 19:18:11.000000000 +0200
++++ ./fs/cifs/misc.c	2005-04-11 19:18:30.000000000 +0200
+@@ -519,13 +519,13 @@ dump_smb(struct smb_hdr *smb_buf, int sm
+ /* Windows maps these to the user defined 16 bit Unicode range since they are
+    reserved symbols (along with \ and /), otherwise illegal to store
+    in filenames in NTFS */
+-#define UNI_ASTERIK     cpu_to_le16('*' + 0xF000)
+-#define UNI_QUESTION    cpu_to_le16('?' + 0xF000)
+-#define UNI_COLON       cpu_to_le16(':' + 0xF000)
+-#define UNI_GRTRTHAN    cpu_to_le16('>' + 0xF000)
+-#define UNI_LESSTHAN    cpu_to_le16('<' + 0xF000)
+-#define UNI_PIPE        cpu_to_le16('|' + 0xF000)
+-#define UNI_SLASH       cpu_to_le16('\\' + 0xF000)
++#define UNI_ASTERIK     ('*' + 0xF000)
++#define UNI_QUESTION    ('?' + 0xF000)
++#define UNI_COLON       (':' + 0xF000)
++#define UNI_GRTRTHAN    ('>' + 0xF000)
++#define UNI_LESSTHAN    ('<' + 0xF000)
++#define UNI_PIPE        ('|' + 0xF000)
++#define UNI_SLASH       ('\\' + 0xF000)
+ 
+ /* Convert 16 bit Unicode pathname from wire format to string in current code
+    page.  Conversion may involve remapping up the seven characters that are

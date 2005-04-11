@@ -1,79 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVDKN6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVDKN6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVDKN6H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 09:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261795AbVDKN6G
+	id S261796AbVDKN6q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 09:58:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVDKN6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 09:58:06 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:36736 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261794AbVDKN6A (ORCPT
+	Mon, 11 Apr 2005 09:58:46 -0400
+Received: from hera.kernel.org ([209.128.68.125]:27070 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261796AbVDKN6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 09:58:00 -0400
-Date: Mon, 11 Apr 2005 15:57:58 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-Subject: [ANNOUNCE] git-pasky-0.3
-Message-ID: <20050411135758.GA3524@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz>
+	Mon, 11 Apr 2005 09:58:41 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: more git updates..
+Date: Mon, 11 Apr 2005 13:58:20 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <d3dvps$347$1@terminus.zytor.com>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410065307.GC13853@64m.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411015852.GI5902@pasky.ji.cz>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1113227900 3208 127.0.0.1 (11 Apr 2005 13:58:20 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Mon, 11 Apr 2005 13:58:20 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+Followup to:  <20050410065307.GC13853@64m.dyndns.org>
+By author:    Christopher Li <lkml@chrisli.org>
+In newsgroup: linux.dev.kernel
+> 
+> There is one problem though. How about the SHA1 hash collision?
+> Even the chance is very remote, you don't want to lose some data do due
+> to "software" error. I think it is OK that no handle that
+> case right now. On the other hand, it will be nice to detect that
+> and give out a big error message if it really happens.
+> 
 
-  here goes git-pasky-0.3, my set of patches and scripts upon
-Linus' git, aimed at human usability and to an extent a SCM-like usage.
+If you're actually worried about it, it'd be better to just use a
+different hash, like one of the SHA-2's (probably a better choice
+anyway), instead of SHA-1.
 
-  If you already have a previous git-pasky version, just git pull pasky
-to get it (but see below!!!). Otherwise, you can get it from:
+	-hpa
 
-	http://pasky.or.cz/~pasky/dev/git/
-
-  Please see the README there and/or the parent post for detailed
-instructions. You can find the changes from the last announcement
-in the ChangeLog (releases have separate commits so you can find them
-easily; they are also tagged for purpose of diffing etc).
-
-  This release is mainly focused on bugfixes. Especially, it fixes git
-diff, which was totally broken in the previous release and would only
-diff every other file (forgot to remove one shift from the times when
-changes were reported two-line from diff-tree). Very sorry about that.
-
-  This implies that git pull was broken too, though - if you pulled
-tracked branch, git diff wouldn't produce the complete diff for patch to
-apply. If you didn't do any local changes, it is fortunately easy to
-repair:
-
-	git diff | patch -p0 -R
-
-  (The unapplied changes appear as reverted in your local tree when
-compared with the cache.) You will need to edit the diff if you did
-some local changes.
-
-  Other change breaking some compatibility is regarding commit
-environment variables - s/COMMITTER_*/AUTHOR_*/. Otherwise it is usual
-bunch of merges with Linus and some really minor stuff. Oh, and make
-install works.
-
-  One annoying thing is rsync error when pulling from Linus - it tries
-to sync the tags/ directory and I don't know how to safely silence it
-except throwing away all stderr. I will probably make it fetch the list
-of .dircache and rsync only things which are really there.
-
-  Any feedback/opinions/suggestions/patches (especially patches) are
-welcome. You can also stop by at #git either on FreeNode or on OTFC (I
-will be around only from 20:00 CET on, though).
-
-  Have fun,
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.

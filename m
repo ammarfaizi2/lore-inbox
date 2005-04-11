@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVDKQnR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVDKQrC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVDKQnR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 12:43:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVDKQkJ
+	id S261858AbVDKQrC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 12:47:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVDKQnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 12:40:09 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:30699 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261839AbVDKQhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 12:37:23 -0400
-Subject: Re: 'BUG: scheduling with irqs disabled' when umounting NFS volume
-From: Lee Revell <rlrevell@joe-job.com>
-To: dwalker@mvista.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-In-Reply-To: <1113236975.30548.9.camel@dhcp153.mvista.com>
-References: <1112991311.11000.37.camel@mindpipe>
-	 <1112992701.26296.16.camel@dhcp153.mvista.com>
-	 <1112997093.12195.1.camel@mindpipe>
-	 <1113236975.30548.9.camel@dhcp153.mvista.com>
-Content-Type: text/plain
-Date: Mon, 11 Apr 2005 12:37:22 -0400
-Message-Id: <1113237442.29578.2.camel@mindpipe>
+	Mon, 11 Apr 2005 12:43:32 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:26857 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261843AbVDKQnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 12:43:02 -0400
+Date: Mon, 11 Apr 2005 18:42:31 +0200
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, paulus@samba.org
+Subject: [2.6 ppc patch] fix compilation error in arch/ppc/kernel/time.c
+Message-ID: <20050411164231.GB12136@ens-lyon.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.8i
+X-Spam-Report: *  1.1 NO_DNS_FOR_FROM Domain in From header has no MX or A DNS records
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-11 at 09:29 -0700, Daniel Walker wrote:
-> On Fri, 2005-04-08 at 14:51, Lee Revell wrote:
-> > On Fri, 2005-04-08 at 13:38 -0700, Daniel Walker wrote:
-> > > I submitted a fix for this a while ago, I think ..
-> > > interruptible_sleep_on()'s are broken .. 
-> > 
-> > I saw the fix in -stable, but it does not seem to be in 2.6.12-rc2.
-> 
-> 
-> I didn't know it was in any of the kernels. Do I need to submit it to
-> Linus or something?
+make defconfig give the following error on ppc (gcc-4):
 
-I must be thinking of a different bug then.  Anyway, Ingo said this was
-fixed in the latest RT kernels.
+arch/ppc/kernel/time.c:92: error: static declaration of ‘time_offset’
+follows non-static declaration
+include/linux/timex.h:236: error: previous declaration of ‘time_offset’
+was here
 
-Lee
+The following patch solves it (time_offset is declared in timer.c).
 
+Signed-Off-By: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+
+
+--- ./arch/ppc/kernel/time.c.orig	2005-04-11 14:44:19.000000000 +0200
++++ ./arch/ppc/kernel/time.c	2005-04-11 14:44:30.000000000 +0200
+@@ -89,8 +89,6 @@ unsigned long tb_to_ns_scale;
+ 
+ extern unsigned long wall_jiffies;
+ 
+-static long time_offset;
+-
+ DEFINE_SPINLOCK(rtc_lock);
+ 
+ EXPORT_SYMBOL(rtc_lock);

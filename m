@@ -1,88 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVDKPS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVDKPV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbVDKPS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 11:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVDKPS1
+	id S261799AbVDKPV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 11:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbVDKPV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 11:18:27 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:19435 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261754AbVDKPST
+	Mon, 11 Apr 2005 11:21:56 -0400
+Received: from pat.uio.no ([129.240.130.16]:39349 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261799AbVDKPVz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 11:18:19 -0400
-Date: Mon, 11 Apr 2005 08:18:32 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm2
-Message-ID: <20050411151832.GA1301@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050408030835.4941cd98.akpm@osdl.org> <20050410224834.GK4204@stusta.de>
+	Mon, 11 Apr 2005 11:21:55 -0400
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make
+	sense
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: Greg Banks <gnb@sgi.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050411144127.GE13369@unthought.net>
+References: <20050406160123.GH347@unthought.net>
+	 <20050406231906.GA4473@sgi.com> <20050407153848.GN347@unthought.net>
+	 <1112890671.10366.44.camel@lade.trondhjem.org>
+	 <20050409213549.GW347@unthought.net>
+	 <1113083552.11982.17.camel@lade.trondhjem.org>
+	 <20050411074806.GX347@unthought.net>
+	 <1113222939.14281.17.camel@lade.trondhjem.org>
+	 <20050411134703.GC13369@unthought.net>
+	 <1113230125.9962.7.camel@lade.trondhjem.org>
+	 <20050411144127.GE13369@unthought.net>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 11 Apr 2005 11:21:45 -0400
+Message-Id: <1113232905.9962.15.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050410224834.GK4204@stusta.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8BIT
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.48, required 12,
+	autolearn=disabled, AWL 1.52, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 12:48:34AM +0200, Adrian Bunk wrote:
-> kernel-rcupdatec-make-the-exports-export_symbol_gpl.patch
-> add-deprecated_for_modules.patch
-> add-deprecated_for_modules-fix.patch
-> deprecate-synchronize_kernel-gpl-replacement.patch
-> deprecate-synchronize_kernel-gpl-replacement-fix.patch
-> change-synchronize_kernel-to-_rcu-and-_sched.patch
+må den 11.04.2005 Klokka 16:41 (+0200) skreiv Jakob Oestergaard:
+
+> > That can mean either that the server is dropping fragments, or that the
+> > client is dropping the replies. Can you generate a similar tcpdump on
+> > the server?
 > 
-> 
-> Please drop these patches.
+> Certainly;  http://unthought.net/sparrow.dmp.bz2
 
-Please keep them!
+So, it looks to me as if "sparrow" is indeed dropping packets (missed
+sequences). Is it running with NAPI enabled too?
 
-> Using these symbols in non-GPL modules is a legal problem at least in 
-> the USA except for IBM,
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-Again, based on what line of reasoning?  Again, the obvious lines
-of reasoning do not apply.
-
->                         and all we've heard from IBM is that they are 
-> not 100% sure that there is really no binary-only module by IBM that 
-> might use these symbols.
-
->From my earlier message (http://lkml.org/lkml/2005/4/4/244):
-
-	Agreed, in that I know of no binary module that uses RCU.  However,
-	I cannot -prove- that there is no such module.
-
-IOW, I am also not 100% sure that there is really no binary-only module
-using these symbols by -anyone-, including someone -other- than IBM.
-In addition, I know of no way that -anyone- could possibly be 100% sure
-that there is really no binary-only module using symbols.  Hence the
-approach of providing the year "grace period" before transitioning to
-EXPORT_SYMBOL_GPL().
-
-> The risk of anyne using them only increases (no matter that it's marked 
-> as deprecated) as long as it's available - and nobody has until now 
-> claimed that he's actually using one pf them in a binary-only module.
-
-I am not convinced that the risk of usage increases significantly.
-However, even if someone does start using them in a binary module, they
-will have been warned.  Yes, someone could possibly ignore the warning.
-They -still- will have been warned, so that any "damage" would be
-self-inflicted.  Therefore, as noted earlier, the symbol transitions
-to EXPORT_SYMBOL_GPL() one year after its inclusion, regardless of any
-people who ignored warnings.
-
-							Thanx, Paul
-
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
-> 
-> 
-> 

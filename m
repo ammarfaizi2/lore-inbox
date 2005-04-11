@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVDKBmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVDKB64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVDKBmM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 21:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVDKBmM
+	id S261658AbVDKB64 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 21:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVDKB64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 21:42:12 -0400
-Received: from fire.osdl.org ([65.172.181.4]:58086 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261306AbVDKBmE (ORCPT
+	Sun, 10 Apr 2005 21:58:56 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:12771 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261658AbVDKB6y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 21:42:04 -0400
-Date: Sun, 10 Apr 2005 18:41:56 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: sai narasimhamurthy <sai_narasi@yahoo.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: increasing scsi_max_sg / max_segments for scsi writes/reads
-Message-Id: <20050410184156.3014a2ea.rddunlap@osdl.org>
-In-Reply-To: <20050410023552.2545.qmail@web54101.mail.yahoo.com>
-References: <20050410023552.2545.qmail@web54101.mail.yahoo.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 10 Apr 2005 21:58:54 -0400
+Date: Mon, 11 Apr 2005 03:58:52 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: [ANNOUNCE] git-pasky-0.2
+Message-ID: <20050411015852.GI5902@pasky.ji.cz>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410162723.GC26537@pasky.ji.cz>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Apr 2005 19:35:52 -0700 (PDT) sai narasimhamurthy wrote:
+  Hello,
 
-| Hi, 
-| I had posted a question on increasing the scsi
-| read/write sectors  per command. I figured out some of
-| the things, but many questions still exist. 
-| 
-| I was wondering why the maximum writes I could get
-| from a single scsi write command could never exceed
-| 204 
-| 4096B  segments . I traced it to :  
-| 
-| static const int scsi_max_sg = PAGE_SIZE /
-| sizeof(struct scatterlist)
-| 
-| in scsi_merge.c .(which amounts to 204)  
-| 
-| Is this the limit of the maximum blocks we can
-| read/write through a single scsi command, atleast for
-| the given kernel (2.4.29) ? How can I increase
-| it??????
-| 
-| I am on a P3 Dell poweredgde 2400 . 
+  here goes git-pasky-0.2, my set of patches and scripts upon
+Linus' git, aimed at human usability and to an extent a SCM-like usage.
 
-Did you read the comment immediately above that
-calculation?
+  If you already have a previous git-pasky version, just git pull pasky
+to get it. Otherwise, you can get it from:
 
-/*
- * scsi_malloc() can only dish out items of PAGE_SIZE or less, so we cannot
- * build a request that requires an sg table allocation of more than that.
- */
+	http://pasky.or.cz/~pasky/dev/git/
 
-so scsi_malloc() would need some reworking to handle more.
+  Please see the README there and/or the parent post for detailed
+instructions. You can find the changes from the last announcement
+in the ChangeLog (releases have separate commits so you can find them
+easily; they are also tagged for purpose of diffing etc).
 
-OTOH, it appears that this is all removed in 2.6.10++, so moving to
-2.6.recent is probably your best choice.
+  This is release contains mostly bugfixes, performance enhancements
+(especially w.r.t. git diff), and some merges with Linus (except for
+diff-tree, where I merged only the new output format). New features
+are trivial - support for tagging and short SHA1 ids; you can use
+only the start of the SHA1 hash long enough to be unambiguous.
 
----
-~Randy
+  My immediate plan is implementing git merge, which I will do tommorow,
+if noone will do it before that is. ;-)
+
+  Any feedback/opinions/suggestions/patches (especially patches) are
+welcome.
+
+  Have fun,
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

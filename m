@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVDKD0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVDKDc6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVDKD0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Apr 2005 23:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVDKD0A
+	id S261679AbVDKDc6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Apr 2005 23:32:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVDKDc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Apr 2005 23:26:00 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:54234 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261678AbVDKDZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Apr 2005 23:25:37 -0400
-Subject: Re: New SCM and commit list
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org>
-References: <1113174621.9517.509.camel@gaston>
-	 <Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Sun, 10 Apr 2005 22:25:22 -0500
-Message-Id: <1113189922.9899.6.camel@mulgrave>
+	Sun, 10 Apr 2005 23:32:58 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63383 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261679AbVDKDcy (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Sun, 10 Apr 2005 23:32:54 -0400
+Date: Sun, 10 Apr 2005 20:32:44 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Derek Cheung" <derek.cheung@sympatico.ca>
+Cc: greg@kroah.com, akpm@osdl.org, Linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
+Message-Id: <20050410203244.511ae8c9.rddunlap@osdl.org>
+In-Reply-To: <000801c53ded$04428920$1501a8c0@Mainframe>
+References: <42535AF1.5080008@osdl.org>
+	<000801c53ded$04428920$1501a8c0@Mainframe>
+Organization: OSDL
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-04-10 at 16:26 -0700, Linus Torvalds wrote:
-> On Mon, 11 Apr 2005, Benjamin Herrenschmidt wrote:
-> > If yes, then I would appreciate if you could either keep the same list,
-> > or if you want to change the list name, keep the subscriber list so
-> > those of us who actually archive it don't miss anything ;)
-> 
-> I didn't even set up the list. I think it's Bottomley. I'm cc'ing him just 
-> so that he sees the message, but I don't actually expect him to do 
-> anything about it. I'm not even ready to start _testing_ real merges yet. 
-> But I hope that I can get non-conflicting merges done fairly soon, and 
-> maybe I can con James or Jeff or somebody to try out GIT then...
+On Sun, 10 Apr 2005 12:47:42 -0400 Derek Cheung wrote:
 
-Not guilty.  If I remember correctly, the list was set up by the vger
-list maintainers (davem and company).  It was tied to a trigger in one
-of your trees (which I think Larry did).  It shouldn't be too difficult
-to add to git ... it just means traversing all the added patches on a
-merge and sending out mail.
+| Enclosed please find the updated patch that incorporates changes for all
+| the comments I received.
 
-I can try out your source control tools ... I have some rc fixes
-ready ... when you're ready to try out merges...
+(yes, almost all)
 
-James
+| The volatile declaration in the m528xsim.h is needed because the
+| declaration refers to the ColdFire 5282 register mapping. The volatile
+| declaration is actually not needed in my I2C driver but someone may
+| include the m528xsim.h file in his/her applications and we need to force
+| the compiler not to do any optimization on the register mapping.
+
+Did you also send it to the I2C mailing list like Greg asked you to do?
+
+More comments:
+
+diffstat summary, like so, would be nice:
+ drivers/i2c/busses/Kconfig       |   10
+ drivers/i2c/busses/Makefile      |    2
+ drivers/i2c/busses/i2c-mcf5282.c |  419 +++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-mcf5282.h |   46 ++++
+ include/asm-m68knommu/m528xsim.h |   42 +++
+ 5 files changed, 519 insertions(+)
 
 
++	int i, len, rc = 0;
++        u8 rxData, tempRxData[2];
+Use tabs, not spaces.  Happens other places too.
+
++        switch (size) {
++                case I2C_SMBUS_QUICK:
+Don't need to indent case statements... (repeating myself).
+
++                case I2C_SMBUS_PROC_CALL:
++			/* dev_info(&adap->dev, "size = 
++				I2C_SMBUS_PROC_CALL \n"); */
+No break needed here ?
++        	case I2C_SMBUS_WORD_DATA:
+
++	if (rc < 0) 
++		return -1;
++	else
++        	return 0;
+There are several of these.  Why not just return rc ?
+
+
+Kconfig says that the module (if selected) will be called
+i2c-mcf5282lite, but Makefile builds
++obj-$(CONFIG_I2C_MCF5282LITE)   += i2c-mcf5282.o
+(i.e., no "lite").
+
+
+---
+~Randy

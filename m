@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVDKInk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVDKIul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVDKInk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 04:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVDKInj
+	id S261731AbVDKIul (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 04:50:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVDKIuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 04:43:39 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:44264 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261729AbVDKImh (ORCPT
+	Mon, 11 Apr 2005 04:50:40 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:4756 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261731AbVDKIud convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 04:42:37 -0400
-Date: Mon, 11 Apr 2005 10:42:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Joe Korty <joe.korty@ccur.com>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-Message-ID: <20050411084217.GA9784@elte.hu>
-References: <F989B1573A3A644BAB3920FBECA4D25A02F64C64@orsmsx407>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A02F64C64@orsmsx407>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 11 Apr 2005 04:50:33 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Priority Lists for the RT mutex
+Date: Mon, 11 Apr 2005 01:49:33 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02F64C65@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Priority Lists for the RT mutex
+Thread-Index: AcU+cm/A/19DSUJbQhmvKRZ0dBFU3gAABjhg
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
+       "Daniel Walker" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
+       "Steven Rostedt" <rostedt@goodmis.org>,
+       "Esben Nielsen" <simlo@phys.au.dk>, "Joe Korty" <joe.korty@ccur.com>
+X-OriginalArrivalTime: 11 Apr 2005 08:49:37.0241 (UTC) FILETIME=[6427AC90:01C53E73]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From: Ingo Molnar [mailto:mingo@elte.hu]
+>
+>* Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
+>
+>> >OTOH, deadlock detection is another issue. It's quite expensive and
+i'm
+>> >not sure we want to make it a runtime thing. But for fusyn's
+deadlock
+>> >detection and safe teardown on owner-exit is a must-have i suspect?
+>>
+>> Not really. Deadlock check is needed on PI, so it can be done at the
+>> same time (you have to walk the chain anyway). In any other case, it
+>> is an option you can request (or not).
+>
+>well, i was talking about the mutex code in PREEMPT_RT. There deadlock
+>detection is an optional debug feature. You dont _have_ to do deadlock
+>detection for the kernel's locks, and there's a difference in
+>performance.
 
-* Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
+Big mouth'o mine :-| 
 
-> >OTOH, deadlock detection is another issue. It's quite expensive and i'm
-> >not sure we want to make it a runtime thing. But for fusyn's deadlock
-> >detection and safe teardown on owner-exit is a must-have i suspect?
-> 
-> Not really. Deadlock check is needed on PI, so it can be done at the 
-> same time (you have to walk the chain anyway). In any other case, it 
-> is an option you can request (or not).
+Let me re-phrase then: it is a must have only on PI, to make sure 
+you don't have a loop when doing it. Maybe is a consequence of the
+algorithm I chose. -However- it should be possible to disable it
+in cases where you are reasonably sure it won't happen (such as
+kernel code). In any case, AFAIR, I still did not implement it.
 
-well, i was talking about the mutex code in PREEMPT_RT. There deadlock 
-detection is an optional debug feature. You dont _have_ to do deadlock 
-detection for the kernel's locks, and there's a difference in 
-performance.
+Was this more useful?
 
-	Ingo
+-- Inaky 

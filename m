@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVDKJnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVDKJpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVDKJnt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 05:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVDKJnt
+	id S261749AbVDKJpj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 05:45:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVDKJpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 05:43:49 -0400
-Received: from fire.osdl.org ([65.172.181.4]:53991 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261748AbVDKJns (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 05:43:48 -0400
-Date: Mon, 11 Apr 2005 02:43:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm3
-Message-Id: <20050411024322.786b83de.akpm@osdl.org>
-In-Reply-To: <1113209793l.7664l.1l@werewolf.able.es>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<1113209793l.7664l.1l@werewolf.able.es>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 05:45:39 -0400
+Received: from moutng.kundenserver.de ([212.227.126.189]:232 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261749AbVDKJpS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 05:45:18 -0400
+Message-ID: <425A481A.7020801@anagramm.de>
+Date: Mon, 11 Apr 2005 11:49:14 +0200
+From: Clemens Koller <clemens.koller@anagramm.de>
+Organization: Anagramm GmbH
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: de-de, en-us, en, ko
+MIME-Version: 1.0
+To: Jean Delvare <khali@linux-fr.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] I2C rtc8564.c remove duplicate include (whitespace fixed)
+References: <425125EC.6080201@anagramm.de> <20050409131643.4269911a.khali@linux-fr.org>
+In-Reply-To: <20050409131643.4269911a.khali@linux-fr.org>
+Content-Type: multipart/mixed;
+ boundary="------------030706000608050006090402"
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:224ad0fd4f2efe95e6ec4f0a3ca8a73c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030706000608050006090402
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-(Please do reply-to-all)
+[PATCH] I2C rtc8564.c remove duplicate include
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
-> On 04.11, Andrew Morton wrote:
->  > 
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
->  > 
->  > 
-> 
->  Is this not needed anymore ?
-> 
->  --- 25/arch/i386/kernel/entry.S~nmi_stack_correct-fix	2005-04-05 00:02:48.000000000 -0700
->  +++ 25-akpm/arch/i386/kernel/entry.S	2005-04-05 00:02:48.000000000 -0700
+Trivial fix: removes duplicate include line.
+Patch applies to: 2.6.11.x
 
-Hopefully not. fix-crash-in-entrys-restore_all.patch works around the problem.
+(This is my very first patch to the linux-kernel, so let me
+start with small things first...)
+
+Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
+---
+
+--------------030706000608050006090402
+Content-Type: text/x-diff;
+ name="rtc8564.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rtc8564.diff"
+
+diff -Nur --exclude-from=dontdiff-osdl linux-2.6.11.6-clean/drivers/i2c/chips/rtc8564.c linux-2.6.11.6/drivers/i2c/chips/rtc8564.c
+--- linux-2.6.11.6-clean/drivers/i2c/chips/rtc8564.c	2005-03-26 04:28:14.000000000 +0100
++++ linux-2.6.11.6/drivers/i2c/chips/rtc8564.c	2005-04-04 12:37:05.000000000 +0200
+@@ -19,7 +19,6 @@
+ #include <linux/string.h>
+ #include <linux/rtc.h>		/* get the user-level API */
+ #include <linux/init.h>
+-#include <linux/init.h>
+ 
+ #include "rtc8564.h"
+ 
+
+--------------030706000608050006090402--

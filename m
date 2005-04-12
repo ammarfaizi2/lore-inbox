@@ -1,81 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVDLIoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVDLIoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbVDLIoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 04:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVDLIoI
+	id S262059AbVDLIoT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 04:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVDLIoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 04:44:08 -0400
-Received: from zoe.ndcservers.net ([216.23.188.144]:23272 "EHLO
-	zoe.ndcservers.net") by vger.kernel.org with ESMTP id S262067AbVDLInG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 04:43:06 -0400
-Message-ID: <023b01c53f3b$a8083e20$0201a8c0@ndciwkst01>
-From: "mailinglist@unix-scripts.com" <mailinglists@unix-scripts.com>
-To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <d2vu0u$oog$1@sea.gmane.org> <Pine.LNX.4.61.0504060209200.15520@montezuma.fsmlabs.com> <03f201c53aeb$a42d1270$0201a8c0@ndciwkst01> <Pine.LNX.4.61.0504070207430.12823@montezuma.fsmlabs.com>
-Subject: Re: kernel panic - not syncing: Fatal exception in interupt
-Date: Tue, 12 Apr 2005 01:43:09 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2741.2600
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2742.200
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - zoe.ndcservers.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - unix-scripts.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 12 Apr 2005 04:44:19 -0400
+Received: from mail.kroah.org ([69.55.234.183]:39592 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262059AbVDLInx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 04:43:53 -0400
+Date: Tue, 12 Apr 2005 01:43:25 -0700
+From: Greg KH <greg@kroah.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Prototype error in <linux/debugfs.h>
+Message-ID: <20050412084324.GA5028@kroah.com>
+References: <200504120835.j3C8Zmg06782@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504120835.j3C8Zmg06782@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The machine crashed again twice today.  I have vga=791 so i caugh a bit more
-of the crash.  i enabled serial redirection in the bios so i'm hoping to
-catch the full dump next time.
+On Tue, Apr 12, 2005 at 01:35:51AM -0700, Chen, Kenneth W wrote:
+> To lazy to write a patch, the inline debugfs function declaration
+> for the following three functions disagree between CONFIG_DEBUG_FS
+> and !CONFIG_DEBUG_FS
+> 
+> 4th argument mismatch, looks like an obvious copy-n-paste error.
+> u16, u32, and u32?
 
+Already fixed in the -mm tree, patch is queued to be sent to Linus, once
+he starts accepting patches again.
 
-The first screen shot is with the old resolution so didnt catch much more
-here...
-http://www.unix-scripts.com/shaun/host1-2005-04-12-01.png
+thanks,
 
-But this screen shot got a nice chunk and looks a bit diffrent.
-http://www.unix-scripts.com/shaun/host1-2005-04-12-02.png
-
-
-Still looks like there is alot more that i'm missing but by glancing at that
-dump, to me it definitly seams like bridging is causing this.  I'm going to
-post this to the ebtables lists tomarrow also.
-
-Best Regards,
-
-Shaun R.
-
-
------ Original Message -----
-From: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
-To: "mailinglist@unix-scripts.com" <mailinglists@unix-scripts.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Thursday, April 07, 2005 1:09 AM
-Subject: Re: kernel panic - not syncing: Fatal exception in interupt
-
-
-> On Wed, 6 Apr 2005, mailinglist@unix-scripts.com wrote:
->
-> > No, sorry, i have to run with bridging support other wise the
-guests(UML's)
-> > wont be able to communicate with the outside world.
->
-> Ok in that case, can you connect a serial console so that you can capture
-> the entire output?
->
-> Thanks,
-> Zwane
->
->
-
+greg k-h

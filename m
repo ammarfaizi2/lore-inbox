@@ -1,379 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVDMANa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263026AbVDMAQP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263036AbVDMANa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 20:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbVDLUYu
+	id S263026AbVDMAQP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:16:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262565AbVDMAOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:24:50 -0400
-Received: from fire.osdl.org ([65.172.181.4]:11976 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262128AbVDLKbQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:16 -0400
-Message-Id: <200504121031.j3CAVDS3005264@shell0.pdx.osdl.net>
-Subject: [patch 035/198] ppc32: Support 36-bit physical addressing on e500
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, galak@freescale.com,
-       kumar.gala@freescale.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:06 -0700
+	Tue, 12 Apr 2005 20:14:47 -0400
+Received: from hades.almg.gov.br ([200.198.60.36]:64688 "EHLO
+	hades.almg.gov.br") by vger.kernel.org with ESMTP id S262959AbVDLUXa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 16:23:30 -0400
+Message-ID: <425C2E4C.3070109@almg.gov.br>
+Date: Tue, 12 Apr 2005 17:23:40 -0300
+From: Humberto Massa <humberto.massa@almg.gov.br>
+User-Agent: Mozilla Thunderbird 1.0+ (Windows/20050224)
+MIME-Version: 1.0
+To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+ copyright notice.
+References: <_WpYEC.A.JPD.F9BXCB@murphy>
+In-Reply-To: <_WpYEC.A.JPD.F9BXCB@murphy>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Schwartz wrote:
 
-From: Kumar Gala <galak@freescale.com>
+ >>David Schwartz wrote:
+ >>
+ >>> This would, of course, only make sense if you *had* to
+ >>> agree to the license to *create* the derivative work. If
+ >>> you were able to create the derivative work under first
+ >>> sale or fair use rights, then the restrictions in the
+ >>> contract would not apply to you.
+ >
+ >
+ >>The only way to *create* a derivative work is with
+ >>permission of the copyright owner of the original work.
+ >>Period. This permission can come implicitly *if* you agree
+ >>with licensing terms, but not under first sale or fair use
+ >>*limitations*. (First sale / fair use are statutory
+ >>limitations on copyrights, not rights).
+ >
+ >
+ >Would you agree that compiling and linking a program that
+ >uses a library creates a derivative work of that library?
 
-To add support for 36-bit physical addressing on e500 the following changes
-have been made.  The changes are generalized to support any physical address
-size larger than 32-bits:
+No. Compiling and linking are mechanical,
+non-intellectually-novel acts. At most, you have a collective
+work where the real intellectually-novel work was to select
+what goes into the collective.
 
-* Allow FSL Book-E parts to use a 64-bit PTE, it is 44-bits of pfn, 20-bits
-  of flags.
+ >Wouldn't you agree that this is the normal form of use of a
+ >library?  And doesn't first sale give you the right to normal
+ >use of a work you have legally acquired?
 
-* Introduced new CPU feature (CPU_FTR_BIG_PHYS) to allow runtime handling of
-  updating hardware register (SPRN_MAS7) which holds the upper 32-bits of
-  physical address that will be written into the TLB.  This is useful since
-  not all e500 cores support 36-bit physical addressing.
+Yes. And yes, if you buy a copy of the library, yes (but
+notice: not if you downloaded it for free from the Net).
 
-* Currently have a pass through implementation of fixup_bigphys_addr
+ >
+ >There are many ways you can lawfully create a derivative work
+ >without explicit permission of the copyright holder. One
 
-* Moved _PAGE_DIRTY in the 64-bit PTE case to free room for three additional
-  storage attributes that may exist in future FSL Book-E cores and updated
-  fault handler to copy these bits into the hardware TLBs.
+No. The copyright law states that the copyright owner has the
+monopolistic right to create derivative works.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+ >clear case is when you lawfully possess the work, there is no
+ >EULA or shrink-wrap agreement, and you need to produce a
+ >derivative work to use the work in the ordinary fashion.
 
- 25-akpm/arch/ppc/Kconfig                 |   16 +++-
- 25-akpm/arch/ppc/kernel/head_fsl_booke.S |  113 ++++++++++++++++++++-----------
- 25-akpm/arch/ppc/syslib/ppc85xx_common.c |    8 ++
- 25-akpm/include/asm-ppc/cputable.h       |    3 
- 25-akpm/include/asm-ppc/pgtable.h        |   45 +++++++-----
- 25-akpm/include/asm-ppc/reg_booke.h      |    1 
- 6 files changed, 123 insertions(+), 63 deletions(-)
+No... Try writing a book with Harry Potter as your main
+character and JKR's lawyers will be at your door soon.
 
-diff -puN arch/ppc/Kconfig~ppc32-support-36-bit-physical-addressing-on-e500 arch/ppc/Kconfig
---- 25/arch/ppc/Kconfig~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.790344496 -0700
-+++ 25-akpm/arch/ppc/Kconfig	2005-04-12 03:21:11.800342976 -0700
-@@ -98,13 +98,19 @@ config FSL_BOOKE
- 
- config PTE_64BIT
- 	bool
--	depends on 44x
--	default y
-+	depends on 44x || E500
-+	default y if 44x
-+	default y if E500 && PHYS_64BIT
- 
- config PHYS_64BIT
--	bool
--	depends on 44x
--	default y
-+	bool 'Large physical address support' if E500
-+	depends on 44x || E500
-+	default y if 44x
-+	---help---
-+	  This option enables kernel support for larger than 32-bit physical
-+	  addresses.  This features is not be available on all e500 cores.
-+
-+	  If in doubt, say N here.
- 
- config ALTIVEC
- 	bool "AltiVec Support"
-diff -puN arch/ppc/kernel/head_fsl_booke.S~ppc32-support-36-bit-physical-addressing-on-e500 arch/ppc/kernel/head_fsl_booke.S
---- 25/arch/ppc/kernel/head_fsl_booke.S~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.791344344 -0700
-+++ 25-akpm/arch/ppc/kernel/head_fsl_booke.S	2005-04-12 03:21:11.802342672 -0700
-@@ -347,6 +347,38 @@ skpinv:	addi	r6,r6,1				/* Increment */
- 	mtspr	SPRN_SRR1,r3
- 	rfi			/* change context and jump to start_kernel */
- 
-+/* Macros to hide the PTE size differences
-+ *
-+ * FIND_PTE -- walks the page tables given EA & pgdir pointer
-+ *   r10 -- EA of fault
-+ *   r11 -- PGDIR pointer
-+ *   r12 -- free
-+ *   label 2: is the bailout case
-+ *
-+ * if we find the pte (fall through):
-+ *   r11 is low pte word
-+ *   r12 is pointer to the pte
-+ */
-+#ifdef CONFIG_PTE_64BIT
-+#define PTE_FLAGS_OFFSET	4
-+#define FIND_PTE	\
-+	rlwinm 	r12, r10, 13, 19, 29;	/* Compute pgdir/pmd offset */	\
-+	lwzx	r11, r12, r11;		/* Get pgd/pmd entry */		\
-+	rlwinm.	r12, r11, 0, 0, 20;	/* Extract pt base address */	\
-+	beq	2f;			/* Bail if no table */		\
-+	rlwimi	r12, r10, 23, 20, 28;	/* Compute pte address */	\
-+	lwz	r11, 4(r12);		/* Get pte entry */
-+#else
-+#define PTE_FLAGS_OFFSET	0
-+#define FIND_PTE	\
-+	rlwimi	r11, r10, 12, 20, 29;	/* Create L1 (pgdir/pmd) address */	\
-+	lwz	r11, 0(r11);		/* Get L1 entry */			\
-+	rlwinm.	r12, r11, 0, 0, 19;	/* Extract L2 (pte) base address */	\
-+	beq	2f;			/* Bail if no table */			\
-+	rlwimi	r12, r10, 22, 20, 29;	/* Compute PTE address */		\
-+	lwz	r11, 0(r12);		/* Get Linux PTE */
-+#endif
-+
- /*
-  * Interrupt vector entry code
-  *
-@@ -405,13 +437,7 @@ interrupt_base:
- 	mfspr	r11,SPRN_SPRG3
- 	lwz	r11,PGDIR(r11)
- 4:
--	rlwimi	r11, r10, 12, 20, 29	/* Create L1 (pgdir/pmd) address */
--	lwz	r11, 0(r11)		/* Get L1 entry */
--	rlwinm.	r12, r11, 0, 0, 19	/* Extract L2 (pte) base address */
--	beq	2f			/* Bail if no table */
--
--	rlwimi	r12, r10, 22, 20, 29	/* Compute PTE address */
--	lwz	r11, 0(r12)		/* Get Linux PTE */
-+	FIND_PTE
- 
- 	/* Are _PAGE_USER & _PAGE_RW set & _PAGE_HWWRITE not? */
- 	andi.	r13, r11, _PAGE_RW|_PAGE_USER|_PAGE_HWWRITE
-@@ -420,14 +446,12 @@ interrupt_base:
- 
- 	/* Update 'changed'. */
- 	ori	r11, r11, _PAGE_DIRTY|_PAGE_ACCESSED|_PAGE_HWWRITE
--	stw	r11, 0(r12)		/* Update Linux page table */
-+	stw	r11, PTE_FLAGS_OFFSET(r12) /* Update Linux page table */
- 
- 	/* MAS2 not updated as the entry does exist in the tlb, this
- 	   fault taken to detect state transition (eg: COW -> DIRTY)
- 	 */
--	lis	r12, MAS3_RPN@h
--	ori	r12, r12, _PAGE_HWEXEC | MAS3_RPN@l
--	and	r11, r11, r12
-+	andi.	r11, r11, _PAGE_HWEXEC
- 	rlwimi	r11, r11, 31, 27, 27	/* SX <- _PAGE_HWEXEC */
- 	ori     r11, r11, (MAS3_UW|MAS3_SW|MAS3_UR|MAS3_SR)@l /* set static perms */
- 
-@@ -439,7 +463,10 @@ interrupt_base:
- 	/* find the TLB index that caused the fault.  It has to be here. */
- 	tlbsx	0, r10
- 
--	mtspr	SPRN_MAS3,r11
-+	/* only update the perm bits, assume the RPN is fine */
-+	mfspr	r12, SPRN_MAS3
-+	rlwimi	r12, r11, 0, 20, 31
-+	mtspr	SPRN_MAS3,r12
- 	tlbwe
- 
- 	/* Done...restore registers and get out of here.  */
-@@ -530,18 +557,15 @@ interrupt_base:
- 	lwz	r11,PGDIR(r11)
- 
- 4:
--	rlwimi	r11, r10, 12, 20, 29	/* Create L1 (pgdir/pmd) address */
--	lwz	r11, 0(r11)		/* Get L1 entry */
--	rlwinm.	r12, r11, 0, 0, 19	/* Extract L2 (pte) base address */
--	beq	2f			/* Bail if no table */
--
--	rlwimi	r12, r10, 22, 20, 29	/* Compute PTE address */
--	lwz	r11, 0(r12)		/* Get Linux PTE */
--	andi.	r13, r11, _PAGE_PRESENT
--	beq	2f
-+	FIND_PTE
-+	andi.	r13, r11, _PAGE_PRESENT	/* Is the page present? */
-+	beq	2f			/* Bail if not present */
- 
-+#ifdef CONFIG_PTE_64BIT
-+	lwz	r13, 0(r12)
-+#endif
- 	ori	r11, r11, _PAGE_ACCESSED
--	stw	r11, 0(r12)
-+	stw	r11, PTE_FLAGS_OFFSET(r12)
- 
- 	 /* Jump to common tlb load */
- 	b	finish_tlb_load
-@@ -594,18 +618,15 @@ interrupt_base:
- 	lwz	r11,PGDIR(r11)
- 
- 4:
--	rlwimi	r11, r10, 12, 20, 29	/* Create L1 (pgdir/pmd) address */
--	lwz	r11, 0(r11)		/* Get L1 entry */
--	rlwinm.	r12, r11, 0, 0, 19	/* Extract L2 (pte) base address */
--	beq	2f			/* Bail if no table */
--
--	rlwimi	r12, r10, 22, 20, 29	/* Compute PTE address */
--	lwz	r11, 0(r12)		/* Get Linux PTE */
--	andi.	r13, r11, _PAGE_PRESENT
--	beq	2f
-+	FIND_PTE
-+	andi.	r13, r11, _PAGE_PRESENT	/* Is the page present? */
-+	beq	2f			/* Bail if not present */
- 
-+#ifdef CONFIG_PTE_64BIT
-+	lwz	r13, 0(r12)
-+#endif
- 	ori	r11, r11, _PAGE_ACCESSED
--	stw	r11, 0(r12)
-+	stw	r11, PTE_FLAGS_OFFSET(r12)
- 
- 	/* Jump to common TLB load point */
- 	b	finish_tlb_load
-@@ -690,27 +711,39 @@ finish_tlb_load:
- 	 */
- 
- 	mfspr	r12, SPRN_MAS2
-+#ifdef CONFIG_PTE_64BIT
-+	rlwimi	r12, r11, 26, 24, 31	/* extract ...WIMGE from pte */
-+#else
- 	rlwimi	r12, r11, 26, 27, 31	/* extract WIMGE from pte */
-+#endif
- 	mtspr	SPRN_MAS2, r12
- 
- 	bge	5, 1f
- 
--	/* addr > TASK_SIZE */
--	li	r10, (MAS3_UX | MAS3_UW | MAS3_UR)
--	andi.	r13, r11, (_PAGE_USER | _PAGE_HWWRITE | _PAGE_HWEXEC)
--	andi.	r12, r11, _PAGE_USER	/* Test for _PAGE_USER */
--	iseleq	r12, 0, r10
--	and	r10, r12, r13
--	srwi	r12, r10, 1
-+	/* is user addr */
-+	andi.	r12, r11, (_PAGE_USER | _PAGE_HWWRITE | _PAGE_HWEXEC)
-+	andi.	r10, r11, _PAGE_USER	/* Test for _PAGE_USER */
-+	srwi	r10, r12, 1
- 	or	r12, r12, r10	/* Copy user perms into supervisor */
-+	iseleq	r12, 0, r12
- 	b	2f
- 
--	/* addr <= TASK_SIZE */
-+	/* is kernel addr */
- 1:	rlwinm	r12, r11, 31, 29, 29	/* Extract _PAGE_HWWRITE into SW */
- 	ori	r12, r12, (MAS3_SX | MAS3_SR)
- 
-+#ifdef CONFIG_PTE_64BIT
-+2:	rlwimi	r12, r13, 24, 0, 7	/* grab RPN[32:39] */
-+	rlwimi	r12, r11, 24, 8, 19	/* grab RPN[40:51] */
-+	mtspr	SPRN_MAS3, r12
-+BEGIN_FTR_SECTION
-+	srwi	r10, r13, 8		/* grab RPN[8:31] */
-+	mtspr	SPRN_MAS7, r10
-+END_FTR_SECTION_IFSET(CPU_FTR_BIG_PHYS)
-+#else
- 2:	rlwimi	r11, r12, 0, 20, 31	/* Extract RPN from PTE and merge with perms */
- 	mtspr	SPRN_MAS3, r11
-+#endif
- 	tlbwe
- 
- 	/* Done...restore registers and get out of here.  */
-diff -puN arch/ppc/syslib/ppc85xx_common.c~ppc32-support-36-bit-physical-addressing-on-e500 arch/ppc/syslib/ppc85xx_common.c
---- 25/arch/ppc/syslib/ppc85xx_common.c~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.792344192 -0700
-+++ 25-akpm/arch/ppc/syslib/ppc85xx_common.c	2005-04-12 03:21:11.802342672 -0700
-@@ -31,3 +31,11 @@ get_ccsrbar(void)
- }
- 
- EXPORT_SYMBOL(get_ccsrbar);
-+
-+/* For now this is a pass through */
-+phys_addr_t fixup_bigphys_addr(phys_addr_t addr, phys_addr_t size)
-+{
-+	return addr;
-+};
-+EXPORT_SYMBOL(fixup_bigphys_addr);
-+
-diff -puN include/asm-ppc/cputable.h~ppc32-support-36-bit-physical-addressing-on-e500 include/asm-ppc/cputable.h
---- 25/include/asm-ppc/cputable.h~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.794343888 -0700
-+++ 25-akpm/include/asm-ppc/cputable.h	2005-04-12 03:21:11.803342520 -0700
-@@ -86,8 +86,9 @@ static inline unsigned int cpu_has_featu
- #define CPU_FTR_DUAL_PLL_750FX		0x00004000
- #define CPU_FTR_NO_DPM			0x00008000
- #define CPU_FTR_HAS_HIGH_BATS		0x00010000
--#define CPU_FTR_NEED_COHERENT           0x00020000
-+#define CPU_FTR_NEED_COHERENT		0x00020000
- #define CPU_FTR_NO_BTIC			0x00040000
-+#define CPU_FTR_BIG_PHYS		0x00080000
- 
- #ifdef __ASSEMBLY__
- 
-diff -puN include/asm-ppc/pgtable.h~ppc32-support-36-bit-physical-addressing-on-e500 include/asm-ppc/pgtable.h
---- 25/include/asm-ppc/pgtable.h~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.795343736 -0700
-+++ 25-akpm/include/asm-ppc/pgtable.h	2005-04-12 03:21:11.804342368 -0700
-@@ -225,8 +225,7 @@ extern unsigned long ioremap_bot, iorema
- /* ERPN in a PTE never gets cleared, ignore it */
- #define _PTE_NONE_MASK	0xffffffff00000000ULL
- 
--#elif defined(CONFIG_E500)
--
-+#elif defined(CONFIG_FSL_BOOKE)
- /*
-    MMU Assist Register 3:
- 
-@@ -240,21 +239,29 @@ extern unsigned long ioremap_bot, iorema
-      entries use the top 29 bits.
- */
- 
--/* Definitions for e500 core */
--#define _PAGE_PRESENT	0x001	/* S: PTE contains a translation */
--#define _PAGE_USER	0x002	/* S: User page (maps to UR) */
--#define _PAGE_FILE	0x002	/* S: when !present: nonlinear file mapping */
--#define _PAGE_ACCESSED	0x004	/* S: Page referenced */
--#define _PAGE_HWWRITE	0x008	/* H: Dirty & RW, set in exception */
--#define _PAGE_RW	0x010	/* S: Write permission */
--#define _PAGE_HWEXEC	0x020	/* H: UX permission */
--
--#define _PAGE_ENDIAN	0x040	/* H: E bit */
--#define _PAGE_GUARDED	0x080	/* H: G bit */
--#define _PAGE_COHERENT	0x100	/* H: M bit */
--#define _PAGE_NO_CACHE	0x200	/* H: I bit */
--#define _PAGE_WRITETHRU	0x400	/* H: W bit */
--#define _PAGE_DIRTY	0x800	/* S: Page dirty */
-+/* Definitions for FSL Book-E Cores */
-+#define _PAGE_PRESENT	0x00001	/* S: PTE contains a translation */
-+#define _PAGE_USER	0x00002	/* S: User page (maps to UR) */
-+#define _PAGE_FILE	0x00002	/* S: when !present: nonlinear file mapping */
-+#define _PAGE_ACCESSED	0x00004	/* S: Page referenced */
-+#define _PAGE_HWWRITE	0x00008	/* H: Dirty & RW, set in exception */
-+#define _PAGE_RW	0x00010	/* S: Write permission */
-+#define _PAGE_HWEXEC	0x00020	/* H: UX permission */
-+
-+#define _PAGE_ENDIAN	0x00040	/* H: E bit */
-+#define _PAGE_GUARDED	0x00080	/* H: G bit */
-+#define _PAGE_COHERENT	0x00100	/* H: M bit */
-+#define _PAGE_NO_CACHE	0x00200	/* H: I bit */
-+#define _PAGE_WRITETHRU	0x00400	/* H: W bit */
-+
-+#ifdef CONFIG_PTE_64BIT
-+#define _PAGE_DIRTY	0x08000	/* S: Page dirty */
-+
-+/* ERPN in a PTE never gets cleared, ignore it */
-+#define _PTE_NONE_MASK	0xffffffffffff0000ULL
-+#else
-+#define _PAGE_DIRTY	0x00800	/* S: Page dirty */
-+#endif
- 
- #define _PMD_PRESENT	0
- #define _PMD_PRESENT_MASK (PAGE_MASK)
-@@ -433,7 +440,11 @@ extern unsigned long bad_call_to_PMD_PAG
- 
- /* in some case we want to additionaly adjust where the pfn is in the pte to
-  * allow room for more flags */
-+#if defined(CONFIG_FSL_BOOKE) && defined(CONFIG_PTE_64BIT)
-+#define PFN_SHIFT_OFFSET	(PAGE_SHIFT + 8)
-+#else
- #define PFN_SHIFT_OFFSET	(PAGE_SHIFT)
-+#endif
- 
- #define pte_pfn(x)		(pte_val(x) >> PFN_SHIFT_OFFSET)
- #define pte_page(x)		pfn_to_page(pte_pfn(x))
-diff -puN include/asm-ppc/reg_booke.h~ppc32-support-36-bit-physical-addressing-on-e500 include/asm-ppc/reg_booke.h
---- 25/include/asm-ppc/reg_booke.h~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.796343584 -0700
-+++ 25-akpm/include/asm-ppc/reg_booke.h	2005-04-12 03:21:11.805342216 -0700
-@@ -172,6 +172,7 @@ do {						\
- #define SPRN_MAS4	0x274	/* MMU Assist Register 4 */
- #define SPRN_MAS5	0x275	/* MMU Assist Register 5 */
- #define SPRN_MAS6	0x276	/* MMU Assist Register 6 */
-+#define SPRN_MAS7	0x3b0	/* MMU Assist Register 7 */
- #define SPRN_PID1	0x279	/* Process ID Register 1 */
- #define SPRN_PID2	0x27A	/* Process ID Register 2 */
- #define SPRN_TLB0CFG	0x2B0	/* TLB 0 Config Register */
-_
+ >This is, by the way, the FSF's own position. It's not
+ >something I'm making up or guessing at.
+
+Please send us some pointers to this statements for the FSF.
+
+ >"The license does not require anyone to accept it in order to
+ >acquire, install, use, inspect, or even experimentally modify
+ >GPL'd software. All of those activities are either forbidden
+
+Wrong again. GPL, section 0, para 1: "Activities other than
+copying, distribution, and *modification* are not covered by
+this License". Emphasis mine.
+
+ >or controlled by proprietary software firms, so they require
+ >you to accept a license, including contractual provisions
+ >outside the reach of copyright, before you can use their
+ >works.  The free software movement thinks all those
+ >activities are rights, which all users ought to have; we
+ >don't even want to cover those activities by license."
+
+Except for the modification part, which *is* the scope of
+regular, Berne-convention-molded copyrights law.
+
+ >Now we draw different conclusions based on this, but we agree
+ >on this. You do not need to agree to the GPL to create
+ >derivative works.
+
+No, we disagree on this too.
+
+ >>If you will keep your copy and registration # of windows,
+ >>yes, you *must* wipe out the machine before selling it.
+ >
+ >
+ >Since there is no copy or registration number of a GPL'd work
+ >to keep, this actually argues the reverse of what I said. If
+ >I legally acquire ten copies of Windows, I can perform normal
+ >use on those ten copies and then transfer those copies to
+ >someone else.
+
+This is not the point: you still would have to wipe your ten
+computers clean if you want to sell the ten copies you have.
+
+In the GPL'd case, if you disregard the terms of the license,
+you can still keep, use, etc. You can *not* copy it,
+distribute it, or modify it tough.
+
+ >>The point is moot, anyway, because the image is *not* a
+ >>derivative work: It is a copy of the work, made by automated
+ >>and automatable processes. It's not a creation of the
+ >>spirit.
+ >
+ >
+ >I don't think this makes a difference. If it's a derivative
+ >work, it's one created in the course of ordinary use. In any
+ >event, first sale would be the same either way.
+
+The point is: it's *not* a derivative work. period. Yes, first
+sale would apply to the same extent that it applies to the
+original software.
+
+ >>So, no, when you get a WinXP CD from Microsoft, you have
+ >>absolutely *no* rights to create derivative works. If a
+ >>person creates a derivative work, even if it does not
+ >>distribute it, it would be infringing on MS's copyrights and
+ >>I would not want to be in said person's shoes, if someone in
+ >>the legal department of MS wakes up in the wrong side of the
+ >>bed.
+ >
+ >
+ >But you do have the right to create derivative works if such
+ >derivative works are necessarily created in the process of
+ >the ordinary use of the work.
+
+Ok, let's repeat ourselves:
+
+A derivative work is a novel intellectual creation (of the
+spirit) that results from some transformation of another work,
+said the "original" work.
+
+There is a similar (identical?) definition on 17 USC, but I am
+quoting (bad translation mine) our "Lei 9610/98 -- Lei de
+Direitos Autorais" (1998 Brazilian Author's Rights Act), art.
+5º, VIII, 'g'.
+
+I can't think of any example where to use a work, you must
+create another work transforming the first. If you can, please
+enlighten me. Beware: your *spirit* must transform the work,
+not your computer. Yes, as when *you* translate a book to
+another language, in an non-automatable-non-automated process.
+
+ >I think that if I write software that runs under Windows, an
+ >argument can be made that that software is a derivative work
+ >of Windows. That
+
+No, no, no, and no. A derivative work is not something that is
+"argumentable" :-). There is a clear legal definition, and
+there are even tools (the Holy Trinity of Derivation:
+Abstraction, Filtration, Comparison) to help us define and
+discover what is and what is not a derivative work. And no,
+HelloWorld.c is not a derivative work of Windows, even if it
+#include<windows.h>
+
+please, google for:
+
+abstraction filtration comparison derivative
+
+-- it will be enlightening.
+
+ >argument is as strong as the argument that a driver with
+ >linked in firmware is a single work.
+
+This would most certainly not prevail in any court at all.
+Obviously, IANAL and TINLA applies. But, that said, I have
+good credentials :-)
+
+ >
+ >DS
+
+HTH,
+Massa
+

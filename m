@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVDLCET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVDLCKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVDLCET (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 22:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVDLCET
+	id S261999AbVDLCKs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 22:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVDLCKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 22:04:19 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34059 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261903AbVDLCEO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 22:04:14 -0400
-Date: Tue, 12 Apr 2005 04:04:13 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/block/ll_rw_blk.c: possible cleanups
-Message-ID: <20050412020413.GC3828@stusta.de>
-References: <20050410181321.GE4204@stusta.de> <20050411061233.GW22988@suse.de>
+	Mon, 11 Apr 2005 22:10:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:30106 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261999AbVDLCKj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 22:10:39 -0400
+Subject: Re: 2.6.12-rc2-mm3
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Juergen Kreileder <jk@blackdown.de>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <87wtr8rdvu.fsf@blackdown.de>
+References: <20050411012532.58593bc1.akpm@osdl.org>
+	 <87wtr8rdvu.fsf@blackdown.de>
+Content-Type: text/plain
+Date: Tue, 12 Apr 2005 12:09:22 +1000
+Message-Id: <1113271762.5388.34.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411061233.GW22988@suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 08:12:34AM +0200, Jens Axboe wrote:
-> On Sun, Apr 10 2005, Adrian Bunk wrote:
-> > This patch contains the following possible cleanups:
-> > - make needlessly global code static
-> > - remove the following unused global functions:
-> >   - blkdev_scsi_issue_flush_fn
+On Tue, 2005-04-12 at 03:18 +0200, Juergen Kreileder wrote:
+> Andrew Morton <akpm@osdl.org> writes:
 > 
-> Kill the function completely, it is not used anymore.
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
 > 
-> >   - __blk_attempt_remerge
+> I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
 > 
-> Normally I would say leave that since it's part of the API, but lets
-> just kill it. I don't envision any further users of the remerging
-> attempts.
+> 2.6.11-mm4 works fine but all 2.6.12 versions I've tried (all since
+> -rc1-mm3) lock up randomly.  The easiest way to reproduce the problem
+> seems to be running Azareus.  So it might be network related, but I'm
+> not 100% sure about that, there was a least one deadlock with
+> virtually no network usage.
 > 
-> > - remove the following unused EXPORT_SYMBOL's:
-> >   - blk_phys_contig_segment
-> >   - blk_hw_contig_segment
-> >   - blkdev_scsi_issue_flush_fn
-> >   - __blk_attempt_remerge
-> > 
-> > Please review which of these changes make sense.
-> 
-> Looks fine to me, thanks. Can you send a new patch that kills
-> blkdev_scsi_issue_flush_fn()?
+> BTW, what's the SysRq key on recent Apple USB keyboards?  Alt/Cmd-F13
+> doesn't work for me.
 
-I have a problem parsing your email.
+No idea about sysrq, i don't use it. However, I haven't experienced any
+such problem with the various G5s we have here (and no other G5 user
+reported such a problem).
 
-Which parts of my patch are OK and which shouldn't be applied?
-Or why do you want a separate blkdev_scsi_issue_flush_fn patch?
+So it would be useful if you could provide a bit more informations here
+though. For example, what exact G5 model is this, do you have any 3rd
+party PCI card, what video card are you using, can you reproduce the
+crash in console mode, that sort of thing ...
 
-> Jens Axboe
+Also, did you run a memtest equivalent on the machine ?
 
-cu
-Adrian
+Finally, it would be useful if you could point out which specific patch
+or bk snapshot, or at least -mm rev. introduced the bug. As I said
+previously, you are the only one to report that and none of the G5s here
+is showing such a problem.
 
--- 
+Ben.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

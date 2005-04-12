@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVDLQwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVDLQyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262447AbVDLQwv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 12:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVDLQu5
+	id S262458AbVDLQyl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 12:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbVDLQxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 12:50:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59040 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262447AbVDLQui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 12:50:38 -0400
-Date: Tue, 12 Apr 2005 17:50:34 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix floppy disk dependencies
-Message-ID: <20050412165034.GN8859@parcelfarce.linux.theplanet.co.uk>
-References: <E1DL7Bg-0003C9-Vj@raistlin.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DL7Bg-0003C9-Vj@raistlin.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Tue, 12 Apr 2005 12:53:11 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:34271 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262411AbVDLQwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 12:52:24 -0400
+To: jamie@shareable.org
+CC: dan@debian.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050412164501.GB14149@mail.shareable.org> (message from Jamie
+	Lokier on Tue, 12 Apr 2005 17:45:01 +0100)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411221324.GA10541@nevyn.them.org> <E1DLEsQ-00015Z-00@dorka.pomaz.szeredi.hu> <20050412143237.GB10995@mail.shareable.org> <E1DLMrh-0001lm-00@dorka.pomaz.szeredi.hu> <20050412161303.GI10995@mail.shareable.org> <E1DLOO0-0001xj-00@dorka.pomaz.szeredi.hu> <20050412164501.GB14149@mail.shareable.org>
+Message-Id: <E1DLOcX-0001zw-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 12 Apr 2005 18:52:13 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 11:15:20PM +0100, Russell King wrote:
-> Both the RiscPC and (optionally) EBSA285 have floppy disk
-> support.  Allow this option to be selected on these ARM
-> platforms again.
+> > 
+> > > And for either version of NFS, if the uid and gid are non-zero, and
+> > > the permission bits indicate that an access is permitted, then the
+> > > client does not consult the server for permission.
+> > 
+> > Where's that?  I see no such check.
+> 
+> 	/*
+> 	 * Trust UNIX mode bits except:
+> 	 *
+> 	 * 1) When override capabilities may have been invoked
+> 	 * 2) When root squashing may be involved
+> 	 * 3) When ACLs may overturn a negative answer */
+> 	if (!capable(CAP_DAC_OVERRIDE) && !capable(CAP_DAC_READ_SEARCH)
+> 	    && (current->fsuid != 0) && (current->fsgid != 0)
+> 	    && error != -EACCES)
+> 		goto out;
 
-I think it's a wrong approach.  Instead of this collection of
-dependencies we should bite the bullet and put
+Still can't find it :)
 
-config HAS_GENERIC_FDC
-	bool
-	default y
+Which kernel?  Which file?
 
-in arch/*/Kconfig of platforms that do have it and
-
-config BLK_DEV_FD
-	tristate "Normal floppy disk support"
-        depends on HAS_GENERIC_FDC
-
-in drivers/block/Kconfig.  That way we can express such dependencies
-sanely without bringing all the gory details in one pile.
-
-I'll do that unless there are serious objections...
+Thanks,
+Miklos

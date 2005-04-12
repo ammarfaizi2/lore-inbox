@@ -1,26 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVDLUc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVDLXtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVDLUc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVDLUcS
+	id S262358AbVDLXtF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbVDLXqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:32:18 -0400
-Received: from fire.osdl.org ([65.172.181.4]:1694 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262235AbVDLSru (ORCPT
+	Tue, 12 Apr 2005 19:46:22 -0400
+Received: from fire.osdl.org ([65.172.181.4]:24474 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262977AbVDLXnT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 14:47:50 -0400
-Date: Tue, 12 Apr 2005 11:49:38 -0700 (PDT)
+	Tue, 12 Apr 2005 19:43:19 -0400
+Date: Tue, 12 Apr 2005 16:45:07 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH] ppc64: very basic desktop g5 sound support (#2)
-In-Reply-To: <1113330533.31159.43.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0504121147390.4501@ppc970.osdl.org>
-References: <1113282436.21548.42.camel@gaston> <1113330533.31159.43.camel@mindpipe>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: David Eger <eger@havoc.gtf.org>, Petr Baudis <pasky@ucw.cz>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Re: more git updates..
+In-Reply-To: <20050412234005.GJ1521@opteron.random>
+Message-ID: <Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+ <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+ <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
+ <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org>
+ <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org>
+ <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org> <20050412234005.GJ1521@opteron.random>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,18 +32,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Tue, 12 Apr 2005, Lee Revell wrote:
+On Wed, 13 Apr 2005, Andrea Arcangeli wrote:
 > 
-> Um... why in the heck are you posting this here instead of alsa-devel?
+> At the rate of 9M for every 198 changeset checkins, that means I'll have
+> to download 2.7G _uncompressible_ (i.e. already compressed with a bad
+> per-file ratio due the too-small files) for a whole pack including all
+> changesets without accounting the original 111MB of the original tree,
+> with rsync -z of git.  That compares with 514M _compressible_ with CVS
+> format on-disk, and with ~79M of the CVS-network download with rsync -z of
+> the CVS repository (assuming default gzip compression level).
 
-Which list do you think has more people interested? ppc64 or alsa?
+Yes. CVS is much denser.
 
-Pretty much anybody with a G5 will probably be on the ppc lists. And 
-_nobody_ will be on the alsa lists, since it historically has never had 
-any sound at all.
-
-In other words, don't believe that "sound" means that it must be an alsa 
-list. Lists make sense not because of intent, but because of who they 
-reach.
+CVS is also total crap. So your point is?
 
 		Linus

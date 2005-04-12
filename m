@@ -1,45 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262249AbVDLLK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVDLOM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbVDLLK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbVDLLKP
+	id S262330AbVDLOM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 10:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVDLOJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:10:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:24266 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262250AbVDLKdG (ORCPT
+	Tue, 12 Apr 2005 10:09:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58024 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262379AbVDLOFJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:06 -0400
-Message-Id: <200504121032.j3CAWskb005713@shell0.pdx.osdl.net>
-Subject: [patch 142/198] opl3sa2: MODULE_PARM_DESC
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, damm@opensource.se
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:48 -0700
+	Tue, 12 Apr 2005 10:05:09 -0400
+From: David Howells <dhowells@redhat.com>
+To: akpm@osdl.org, torvalds@osdl.org, steved@redhat.com
+cc: linux-kernel@vger.kernel.org, linux-cachefs@redhat.com
+Subject: [PATCH] FS-Cache: Fix bug in error handling
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
+Date: Tue, 12 Apr 2005 15:04:51 +0100
+Message-ID: <3919.1113314691@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Magnus Damm <damm@opensource.se>
+The attached patch fixes a bug in the in __fscache_acquire_cookie()'s error
+handling and tidies the code up a bit.
 
-opl3sa2: Fix "irq"-parameter name typo for parameter description.
+What was happening was the dead cookie was being released in the bit governed
+by the error: label, and then an attempt was made to release the cookie's
+semaphore when that fell through into the done: bit.
 
-Signed-off-by: Magnus Damm <damm@opensource.se>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
+warthog>diffstat -p1 fscache-nullptr-fix-2612rc2mm1.diff
+ fs/fscache/cookie.c |   49 ++++++++++++++++++++++++++-----------------------
+ 1 files changed, 26 insertions(+), 23 deletions(-)
 
- 25-akpm/sound/oss/opl3sa2.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN sound/oss/opl3sa2.c~opl3sa2-module_parm_desc sound/oss/opl3sa2.c
---- 25/sound/oss/opl3sa2.c~opl3sa2-module_parm_desc	2005-04-12 03:21:37.571425176 -0700
-+++ 25-akpm/sound/oss/opl3sa2.c	2005-04-12 03:21:37.575424568 -0700
-@@ -199,7 +199,7 @@ module_param(mpu_io, int, 0);
- MODULE_PARM_DESC(mpu_io, "Set MIDI I/O base (0x330 or other. Address must be even and must be from 0x300 to 0x334)");
+diff -uNr linux-2.6.12-rc2-mm1/fs/fscache/cookie.c linux-2.6.12-rc2-mm1-cachefs/fs/fscache/cookie.c
+--- linux-2.6.12-rc2-mm1/fs/fscache/cookie.c	2005-04-06 13:48:23.000000000 +0100
++++ linux-2.6.12-rc2-mm1-cachefs/fs/fscache/cookie.c	2005-04-06 18:28:47.000000000 +0100
+@@ -743,7 +743,7 @@
  
- module_param(irq, int, 0);
--MODULE_PARM_DESC(mss_irq, "Set MSS (audio) IRQ (5, 7, 9, 10, 11, 12)");
-+MODULE_PARM_DESC(irq, "Set MSS (audio) IRQ (5, 7, 9, 10, 11, 12)");
+ 	if (list_empty(&fscache_cache_list)) {
+ 		up_read(&fscache_addremove_sem);
+-		_leave(" [no caches]");
++		_leave(" = %p [no caches]", cookie);
+ 		return cookie;
+ 	}
  
- module_param(dma, int, 0);
- MODULE_PARM_DESC(dma, "Set MSS (audio) first DMA channel (0, 1, 3)");
-_
+@@ -765,38 +765,41 @@
+ 		}
+ 	}
+ 
+-	/* if the object is a cookie then we need do nothing more here - we
++	/* if the object is an index then we need do nothing more here - we
+ 	 * create indexes on disc when we need them as an index may exist in
+ 	 * multiple caches */
+-	if (cookie->idef)
+-		goto done;
++	if (!cookie->idef) {
++		/* the object is a file - we need to select a cache in which to
++		 * store it */
++		cache = fscache_select_cache_for_file();
++		if (!cache)
++			goto no_cache; /* couldn't decide on a cache */
++
++		/* create a file index entry on disc, along with all the
++		 * indexes required to find it again later */
++		ret = fscache_instantiate_object(cookie, cache);
++		if (ret < 0)
++			goto error;
++	}
+ 
+-	/* the object is a file - we need to select a cache in which to store
+-	 * it */
+-	ret = -ENOMEDIUM;
+-	cache = fscache_select_cache_for_file();
+-	if (!cache)
+-		goto error; /* couldn't decide on a cache */
+-
+-	/* create a file index entry on disc, along with all the indexes
+-	 * required to find it again later */
+-	ret = fscache_instantiate_object(cookie, cache);
+-	if (ret == 0)
+-		goto done;
++	up_write(&cookie->sem);
++out:
++	up_read(&fscache_addremove_sem);
++	_leave(" = %p", cookie);
++	return cookie;
+ 
+- error:
+-	printk("FS-Cache: error from cache fs: %d\n", ret);
++no_cache:
++	ret = -ENOMEDIUM;
++error:
++	printk("FS-Cache: error from cache: %d\n", ret);
+ 	if (cookie) {
++		up_write(&cookie->sem);
+ 		__fscache_cookie_put(cookie);
+ 		cookie = FSCACHE_NEGATIVE_COOKIE;
+ 		atomic_dec(&iparent->children);
+ 	}
+ 
+- done:
+-	up_write(&cookie->sem);
+-	up_read(&fscache_addremove_sem);
+-	_leave(" = %p", cookie);
+-	return cookie;
++	goto out;
+ 
+ } /* end __fscache_acquire_cookie() */
+ 

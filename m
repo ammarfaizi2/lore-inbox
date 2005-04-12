@@ -1,90 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVDLJSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262072AbVDLJ2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVDLJSD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 05:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVDLJSD
+	id S262072AbVDLJ2r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 05:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVDLJ2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 05:18:03 -0400
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:62895 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262073AbVDLJRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 05:17:54 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-To: Jamie Lokier <jamie@shareable.org>, Miklos Szeredi <miklos@szeredi.hu>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Reply-To: 7eggert@gmx.de
-Date: Tue, 12 Apr 2005 11:17:22 +0200
-References: <3S8oM-So-11@gated-at.bofh.it> <3S8oM-So-13@gated-at.bofh.it> <3S8oN-So-15@gated-at.bofh.it> <3S8oN-So-17@gated-at.bofh.it> <3S8oN-So-19@gated-at.bofh.it> <3S8oN-So-21@gated-at.bofh.it> <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org>
+	Tue, 12 Apr 2005 05:28:47 -0400
+Received: from unthought.net ([212.97.129.88]:15545 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262072AbVDLJ2p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 05:28:45 -0400
+Date: Tue, 12 Apr 2005 11:28:43 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make sense
+Message-ID: <20050412092843.GB17359@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Greg Banks <gnb@melbourne.sgi.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050409213549.GW347@unthought.net> <1113083552.11982.17.camel@lade.trondhjem.org> <20050411074806.GX347@unthought.net> <1113222939.14281.17.camel@lade.trondhjem.org> <20050411134703.GC13369@unthought.net> <1113230125.9962.7.camel@lade.trondhjem.org> <20050411144127.GE13369@unthought.net> <1113232905.9962.15.camel@lade.trondhjem.org> <20050411154211.GG13369@unthought.net> <1113267809.1956.242.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113267809.1956.242.camel@hole.melbourne.sgi.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> wrote:
-> Miklos Szeredi wrote:
+On Tue, Apr 12, 2005 at 11:03:29AM +1000, Greg Banks wrote:
+> On Tue, 2005-04-12 at 01:42, Jakob Oestergaard wrote:
+> > Yes, as far as I know - the Broadcom Tigeon3 driver does not have the
+> > option of enabling/disabling RX polling (if we agree that is what we're
+> > talking about), but looking in tg3.c it seems that it *always*
+> > unconditionally uses NAPI...
+> 
+> I've whined and moaned about this in the past, but for all its
+> faults NAPI on tg3 doesn't lose packets.  It does cause a huge
+> increase in irq cpu time on multiple fast CPUs.  What irq rate
+> are you seeing?
 
->>†††4)†Access†should†not†be†further†restricted†for†the†owner†of†the
->>††††††mount,†even†if†permission†bits,†uid†or†gid†would†suggest
->>††††††otherwise
->†
->†Why?††Surely†you†want†to†prevent†writing†to†files†which†don't†have†the
->†writable†bit†set?††A†filesystem†may†also†create†append-only†files†-
->†and†all†users†including†the†mount†owner†should†be†bound†by†that.
+Around 20.000 interrupts per second during the large write, on the IRQ
+where eth0 is (this is not shared with anything else).
 
-That†will†depend†on†the†situation.†If†the†user†is†mounting†a†tgz†owned
-by†himself,†FUSE†should†default†to†being†a†convenient†hex-editor.
+[sparrow:joe] $ cat /proc/interrupts
+           CPU0       CPU1
+...
+169:    3853488  412570512   IO-APIC-level  eth0
+...
 
->>†††5)†As†much†of†the†available†information†should†be†exported†via†the
->>††††††filesystem†as†possible
->†
->†This†is†the†root†of†the†conflict.††You†are†trying†to†overload†the
->†permission†bits†and†uid/gid†to†mean†something†different†than†they
->†normally†do.
->†
->†While†it's†convenient†to†see†some†"remote"†information†such†as†the
->†uid/gid†in†a†tar†file,†are†you†sure†it's†a†good†idea†to†break†the†unix
->†permissions†model†-†which†will†break†some†programs?††(For†example,†try
->†editing†a†file†with†the†broken†semantics†in†an†editor†which†checks†the
->†uid/gid†of†the†file†against†the†current†user).
 
-The†editor†will†try†to†keep†the†original†permissions,†and†saving†will†be
-less†effective.
+But still, guys, it is the *same* server with tg3 that runs well with a
+2.4 client but poorly with a 2.6 client.
 
->>†††1)†Only†allow†mount†over†a†directory†for†which†the†user†has†write
->>††††††access†(and†is†not†sticky)
->†
->†Seems†good†-†but†why†not†sticky?††Mounting†a†user†filesystem†in
->†/tmp/user-xxx/my-mount-point†seems†not†unreasonable†-†provided†the
->†administrator†can†delete†the†directory†(which†is†possible†with
->†detachable†mount†points).
+Maybe I'm just staring myself blind at this, but I can't see how a
+general problem on the server (such as packet loss, latency or whatever)
+would cause no problems with a 2.4 client but major problems with a 2.6
+client.
 
-I†once†mounted†a†filesystem†in†~/tmp†after†forgetting†about†it†being†a
-symlink†to†/tmp/$me/tmp,†and†I†had†to†promise†never†to†do†that†again.
-Ng†zvqavtug,†gur†pyrnahc-grzc-fpevcg†xvpxrq†va.
+-- 
 
->>†††5)†The†filesystem†daemon†is†free†to†fill†in†all†file†attributes†to
->>††††††any†(sane)†value,†and†the†kernel†won't†modify†these.
->†
->†Dangerous,†because†an†administrative†program†might†actually†trust†the
->†attributes†to†mean†what†they†normally†mean†in†the†unix†permissions†model.
+ / jakob
 
-The†same†risk†applies†to†smbmounted†file†systems.
-
-Sane†daemons†will†do†no†check†besides†matching†the†owner†of†a†file†in†the
-user's†home†against†the†expected†UID†and†checking†the†permission†mask,
-since†you†can't†trust†users†not†to†mess†with†files†in†directories†they†own.
-The†"best"†they†can†do†should†be†shoothing†their†own†feet.
-
-(If†the†user†doesn't†own†the†directory,†FUSE†shouldn't†mount.)
---†
-Top†100†things†you†don't†want†the†sysadmin†to†say:
-80.†I†cleaned†up†the†root†partition†and†now†there's†LOTS†of†free†space.
-
-Friﬂ,†Spammer:†customerservice@sister31.com†du0LCx6rst7@whitedoc.info

@@ -1,75 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVDLAcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVDLAie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261984AbVDLAcl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 20:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVDLAcl
+	id S261832AbVDLAie (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 20:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVDLAie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 20:32:41 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:35753 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261984AbVDLAcb (ORCPT
+	Mon, 11 Apr 2005 20:38:34 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:64671 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261832AbVDLAiZ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 20:32:31 -0400
-Date: Tue, 12 Apr 2005 10:26:03 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: "Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, hare@suse.de, linux-xfs@oss.sgi.com
-Subject: Re: [xfs-masters] swsusp vs. xfs [was Re: 2.6.12-rc2-mm1]
-Message-ID: <20050412002603.GA1178@frodo>
-References: <20050407030614.GA7583@ip68-4-98-123.oc.oc.cox.net> <20050408103327.GD1392@elf.ucw.cz> <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz> <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net> <20050410230053.GD12794@elf.ucw.cz> <20050411043124.GA24626@ip68-4-98-123.oc.oc.cox.net> <20050411105759.GB1373@elf.ucw.cz> <20050411231213.GD702@frodo> <20050411235110.GA2472@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411235110.GA2472@elf.ucw.cz>
-User-Agent: Mutt/1.5.3i
+	Mon, 11 Apr 2005 20:38:25 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Priority Lists for the RT mutex
+Date: Mon, 11 Apr 2005 17:36:30 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02FA3D12@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Priority Lists for the RT mutex
+Thread-Index: AcU+9kwVS9UrncqgRZqXnvbCwfJM8gAAENYg
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Bill Huey \(hui\)" <bhuey@lnxw.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>,
+       "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
+       "Daniel Walker" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
+       "Steven Rostedt" <rostedt@goodmis.org>,
+       "Esben Nielsen" <simlo@phys.au.dk>, "Joe Korty" <joe.korty@ccur.com>
+X-OriginalArrivalTime: 12 Apr 2005 00:36:32.0995 (UTC) FILETIME=[ACFBBB30:01C53EF7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 01:51:10AM +0200, Pavel Machek wrote:
-> I should take some sleep now, so I can't test the patch, but I don't
-> think it will help. If someone has PF_FREEZE set, he should be in
-> refrigerator.
+>From: Bill Huey (hui) [mailto:bhuey@lnxw.com]
+>
+>> Quick fix: the usual. Enable deadlock detection and if it
+>> returns deadlock, assume it is locked already and proceed (or
+>> do a recursive mutex, or a trylock).
+>
+>You have to be joking me ? geez.
+>...
 
-OK, so if that doesn't help, here's an alternate approach - this
-lets xfsbufd track when its entering the refrigerator(), so that
-other callers know that attempts to wake it are futile.
+This is way *more* common than you think--I've seen it around
+some big multithreaded OSS packages [can't remember which now]. 
 
-cheers.
+>> Sure--and because most was for legacy reasons that adhered to
+>> POSIX strictly, it was very simple: we need POSIX this, that and
+>> that (PI, proper adherence to scheduler policy wake up/rt-behaviour,
+>> deadlock detection, etc).
+>
+>Some of this stuff sounds like recursive locking. Would this be a
+>better expression to solve the "top level API locking" problem
+>you're referring to ?
 
--- 
-Nathan
+Bingo. That's another way to "fix" it. Luckily, recursive locking
+can be safely and quickly done in user space (I own this lock,
+ergo I just inc the lock count).
 
+The problem with deadlocks is when the scenario gets more complex
+and you are trying to lock a mutex and the owner is waiting for
+a mutex whose owner is waiting for a mutex that you own...this
+more commonly happens when you don't know what the heck is going
+on in the code, which unfortunately is very common on people that
+inherits big pieces of stacks to maintain.
 
---- fs/xfs/linux-2.6/xfs_buf.c.orig	2005-04-12 09:00:26.375351560 +1000
-+++ fs/xfs/linux-2.6/xfs_buf.c	2005-04-12 10:14:27.468202824 +1000
-@@ -1746,13 +1746,15 @@ STATIC DECLARE_COMPLETION(pagebuf_daemon
- STATIC struct task_struct *pagebuf_daemon_task;
- STATIC int pagebuf_daemon_active;
- STATIC int force_flush;
--
-+STATIC int force_sleep;
- 
- STATIC int
- pagebuf_daemon_wakeup(
- 	int			priority,
- 	unsigned int		mask)
- {
-+	if (force_sleep)
-+		return 0;
- 	force_flush = 1;
- 	barrier();
- 	wake_up_process(pagebuf_daemon_task);
-@@ -1778,7 +1780,12 @@ pagebuf_daemon(
- 
- 	INIT_LIST_HEAD(&tmp);
- 	do {
--		try_to_freeze(PF_FREEZE);
-+		if (unlikely(current->flags & PF_FREEZE)) {
-+			force_sleep = 1;
-+			refrigerator(PF_FREEZE);
-+		} else {
-+			force_sleep = 0;
-+		}
- 
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		schedule_timeout((xfs_buf_timer_centisecs * HZ) / 100);
+>> Fortunately in those areas POSIX is not too gray; code to the book.
+>> Deal.
+>
+>I would think that there will have to be a graph discontinuity
+>between user/kernel spaces at kernel entry and exit for the deadlock
+>detector. Can't say about issues at fork time, but I would expect
+>that those objects would have to be destroyed when the process exits.
+
+fork time is not an issue, as POSIX makes forks and thread incompatible
+(in a nutshell, only the thread calling fork() survives, all the mutexes
+are [IIRC] reinitialized or something like that...).
+
+>The current RT (Ingo's) lock isn't recursive nor is the deadlock
+>detector the last time I looked. Do think that this is a problem
+>for legacy apps if it gets overload for being the userspace futex
+>as well ? (assuming I'm understanding all of this correctly)
+
+Should be not on the recursive side; as I said, that is easy to do
+[currently NPTL does it with the futexes]. The deadlock stuff gets
+hairier, but it's not such a big of a deal when you have your data
+structures setup. It takes time, though.
+
+>> Of course, selling it to the lkml is another story.
+>
+>I would think that pushing as much of this into userspace would
+>make the kernel hooks for it more acceptable. Don't know.
+
+Agreed. Deadlock checking though, has to be done in the kernel. For
+the generic case it is the only way to do it sanely.
+
+-- Inaky 
+

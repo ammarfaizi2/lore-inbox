@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVDLXNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVDLXNz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbVDLXNx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263047AbVDLXLy
+	id S263020AbVDLXNz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVDLXLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 19:11:54 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:13226 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262979AbVDLUhY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 16:37:24 -0400
-Date: Tue, 12 Apr 2005 22:35:35 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>, Joe Korty <joe.korty@ccur.com>
-Subject: Re: [PATCH] Priority Lists for the RT mutex
-In-Reply-To: <20050411085737.GA11109@elte.hu>
-Message-Id: <Pine.OSF.4.05.10504122231270.6111-100000@da410.phys.au.dk>
-Mime-Version: 1.0
+	Tue, 12 Apr 2005 19:11:17 -0400
+Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:34726 "EHLO
+	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262978AbVDLUhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 16:37:15 -0400
+Date: Tue, 12 Apr 2005 21:36:58 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Miklos Szeredi <miklos@szeredi.hu>, dan@debian.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+In-Reply-To: <20050411214123.GF32535@mail.shareable.org>
+Message-ID: <Pine.LNX.4.60.0504122127160.26320@hermes-1.csi.cam.ac.uk>
+References: <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu>
+ <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu>
+ <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu>
+ <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu>
+ <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu>
+ <20050411214123.GF32535@mail.shareable.org>
+MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I looked at the PI-code to see what priority the task (old_owner below)
-would end up with when it released a lock. From rt.c:
-
-	prio = mutex_getprio(old_owner);
-	if (new_owner && !plist_empty(&new_owner->pi_waiters)) {
-		w = plist_entry(&new_owner->pi_waiters, struct
-rt_mutex_waiter, pi_list);
-		prio = w->task->prio;
-	}
-	if (prio != old_owner->prio)
-		pi_setprio(lock, old_owner, prio);
-
-What has new_owner to do with it? Shouldn't it be old_owner in these
-lines? I.e. the prio we want to set old_owner to should be the prio of the
-head of the old_owner->pi_waiters, not the new_owner!
-
-Esben
-
-
-On Mon, 11 Apr 2005, Ingo Molnar wrote:
-
+On Mon, 11 Apr 2005, Jamie Lokier wrote:
+> Miklos Szeredi wrote:
+> > That is exactly the intended effect.  If I'm at my work machine (where
+> > I'm not an admin unfortunately) and I mount my home machine with sshfs
+> > (because FUSE is installed fortunately :), then I bloody well don't
+> > want the sysadmin or some automated script of his to go mucking under
+> > the mountpoint.
 > 
-> * Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
+> I think that would be _much_ nicer implemented as a mount which is
+> invisible to other users, rather than one which causes the admin's
+> scripts to spew error messages.  Is the namespace mechanism at all
+> suitable for that?
 > 
-> > Let me re-phrase then: it is a must have only on PI, to make sure you 
-> > don't have a loop when doing it. Maybe is a consequence of the 
-> > algorithm I chose. -However- it should be possible to disable it in 
-> > cases where you are reasonably sure it won't happen (such as kernel 
-> > code). In any case, AFAIR, I still did not implement it.
-> 
-> are there cases where userspace wants to disable deadlock-detection for 
-> its own locks?
-> 
-> the deadlock detector in PREEMPT_RT is pretty much specialized for 
-> debugging (it does all sorts of weird locking tricks to get the first 
-> deadlock out, and to really report it on the console), but it ought to 
-> be possible to make it usable for userspace-controlled locks as well.
-> 
-> 	Ingo
-> 
+> It would also be nice to generalise and have virtual filesystems which
+> are able to present different views to different users.  Can FUSE do
+> that already - is the userspace part told which user is doing each
+> operation?  With that, the desire for virtual filesystems which cannot
+> be read by your sysadmin (by accident) is easy to satisfy - and that
+> kind of mechanism would probably be acceptable to all.
 
+Yes it does.  We use it to provide magic symlinks which point to different 
+places for different people.  So we have for example a symlink called "ux" 
+and it points to "/servers/USERNAME/our-server/ux" where USERNAME is the 
+name from /etc/passwd matching the user id of the user accessing the 
+symlink.  So in documentaion and in stupid programs which require 
+hardcoding of path we specify "/ux" to find the shared space but in 
+reality this is a different local directory for every user.  (To complete 
+the picture the different local directories are actually the same remote 
+directory but mounted with access permissions for each user separately 
+using ncpfs.)
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

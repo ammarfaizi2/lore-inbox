@@ -1,58 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVDLU1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVDLU1c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbVDLU1e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbVDLUZF
+	id S262125AbVDLU1c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:27:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbVDLU0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:25:05 -0400
-Received: from fire.osdl.org ([65.172.181.4]:10952 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262127AbVDLKbO (ORCPT
+	Tue, 12 Apr 2005 16:26:15 -0400
+Received: from fire.osdl.org ([65.172.181.4]:9928 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262125AbVDLKbN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:14 -0400
-Message-Id: <200504121031.j3CAVBil005257@shell0.pdx.osdl.net>
-Subject: [patch 034/198] ppc32: Allow adjust of pfn offset in pte
+	Tue, 12 Apr 2005 06:31:13 -0400
+Message-Id: <200504121031.j3CAVADx005253@shell0.pdx.osdl.net>
+Subject: [patch 033/198] ppc32: make usage of CONFIG_PTE_64BIT & CONFIG_PHYS_64BIT consistent
 To: torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, galak@freescale.com,
        kumar.gala@freescale.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:05 -0700
+Date: Tue, 12 Apr 2005 03:31:04 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Kumar Gala <galak@freescale.com>
 
-Allow the pfn to be offset by more than just PAGE_SHIFT in the pte.  Today,
-PAGE_SHIFT tends to allow us to have 12-bits of flags in the pte.  In the
-future if we have a larger pte we can allocate more bits for flags by
-offsetting the pfn even further.
+CONFIG_PTE_64BIT & CONFIG_PHYS_64BIT are not currently consistently used in
+the code base.  Fixed up the usage such that CONFIG_PTE_64BIT is used when we
+have a 64-bit PTE regardless of physical address width.  CONFIG_PHYS_64BIT is
+used if the physical address width is larger than 32-bits, regardless of PTE
+size.
+
+These changes required a few sub-arch specific ifdef's to be fixed and the
+introduction of a physical address format string.
 
 Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/include/asm-ppc/pgtable.h |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
+ 25-akpm/arch/ppc/mm/pgtable.c |   10 +++++-----
+ 25-akpm/include/asm-ppc/mmu.h |    4 +++-
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
-diff -puN include/asm-ppc/pgtable.h~ppc32-allow-adjust-of-pfn-offset-in-pte include/asm-ppc/pgtable.h
---- 25/include/asm-ppc/pgtable.h~ppc32-allow-adjust-of-pfn-offset-in-pte	2005-04-12 03:21:11.573377480 -0700
-+++ 25-akpm/include/asm-ppc/pgtable.h	2005-04-12 03:21:11.576377024 -0700
-@@ -431,10 +431,15 @@ extern unsigned long bad_call_to_PMD_PAG
-  * Conversions between PTE values and page frame numbers.
+diff -puN arch/ppc/mm/pgtable.c~ppc32-make-usage-of-config_pte_64bit-config_phys_64bit arch/ppc/mm/pgtable.c
+--- 25/arch/ppc/mm/pgtable.c~ppc32-make-usage-of-config_pte_64bit-config_phys_64bit	2005-04-12 03:21:11.356410464 -0700
++++ 25-akpm/arch/ppc/mm/pgtable.c	2005-04-12 03:21:11.361409704 -0700
+@@ -74,7 +74,7 @@ extern unsigned long p_mapped_by_tlbcam(
+ #define p_mapped_by_tlbcam(x)	(0UL)
+ #endif /* HAVE_TLBCAM */
+ 
+-#ifdef CONFIG_44x
++#ifdef CONFIG_PTE_64BIT
+ /* 44x uses an 8kB pgdir because it has 8-byte Linux PTEs. */
+ #define PGDIR_ORDER	1
+ #else
+@@ -142,13 +142,13 @@ void pte_free(struct page *ptepage)
+ 	__free_page(ptepage);
+ }
+ 
+-#ifndef CONFIG_44x
++#ifndef CONFIG_PHYS_64BIT
+ void __iomem *
+ ioremap(phys_addr_t addr, unsigned long size)
+ {
+ 	return __ioremap(addr, size, _PAGE_NO_CACHE);
+ }
+-#else /* CONFIG_44x */
++#else /* CONFIG_PHYS_64BIT */
+ void __iomem *
+ ioremap64(unsigned long long addr, unsigned long size)
+ {
+@@ -162,7 +162,7 @@ ioremap(phys_addr_t addr, unsigned long 
+ 
+ 	return ioremap64(addr64, size);
+ }
+-#endif /* CONFIG_44x */
++#endif /* CONFIG_PHYS_64BIT */
+ 
+ void __iomem *
+ __ioremap(phys_addr_t addr, unsigned long size, unsigned long flags)
+@@ -193,7 +193,7 @@ __ioremap(phys_addr_t addr, unsigned lon
+ 	 */
+ 	if ( mem_init_done && (p < virt_to_phys(high_memory)) )
+ 	{
+-		printk("__ioremap(): phys addr "PTE_FMT" is RAM lr %p\n", p,
++		printk("__ioremap(): phys addr "PHYS_FMT" is RAM lr %p\n", p,
+ 		       __builtin_return_address(0));
+ 		return NULL;
+ 	}
+diff -puN include/asm-ppc/mmu.h~ppc32-make-usage-of-config_pte_64bit-config_phys_64bit include/asm-ppc/mmu.h
+--- 25/include/asm-ppc/mmu.h~ppc32-make-usage-of-config_pte_64bit-config_phys_64bit	2005-04-12 03:21:11.358410160 -0700
++++ 25-akpm/include/asm-ppc/mmu.h	2005-04-12 03:21:11.361409704 -0700
+@@ -15,11 +15,13 @@
+  * virtual/physical addressing like 32-bit virtual / 36-bit
+  * physical need a larger than native word size type. -Matt
   */
+-#ifndef CONFIG_PTE_64BIT
++#ifndef CONFIG_PHYS_64BIT
+ typedef unsigned long phys_addr_t;
++#define PHYS_FMT	"%.8lx"
+ #else
+ typedef unsigned long long phys_addr_t;
+ extern phys_addr_t fixup_bigphys_addr(phys_addr_t, phys_addr_t);
++#define PHYS_FMT	"%16Lx"
+ #endif
  
--#define pte_pfn(x)		(pte_val(x) >> PAGE_SHIFT)
-+/* in some case we want to additionaly adjust where the pfn is in the pte to
-+ * allow room for more flags */
-+#define PFN_SHIFT_OFFSET	(PAGE_SHIFT)
-+
-+#define pte_pfn(x)		(pte_val(x) >> PFN_SHIFT_OFFSET)
- #define pte_page(x)		pfn_to_page(pte_pfn(x))
- 
--#define pfn_pte(pfn, prot)	__pte(((pte_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
-+#define pfn_pte(pfn, prot)	__pte(((pte_basic_t)(pfn) << PFN_SHIFT_OFFSET) |\
-+					pgprot_val(prot))
- #define mk_pte(page, prot)	pfn_pte(page_to_pfn(page), prot)
- 
- /*
+ /* Default "unsigned long" context */
 _

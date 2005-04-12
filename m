@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVDLSfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVDLSfQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbVDLSfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVDLSdD
+	id S262339AbVDLSfQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:35:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVDLSex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:33:03 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41419 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262119AbVDLKgQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:36:16 -0400
-Message-Id: <200504121033.j3CAX1gx005744@shell0.pdx.osdl.net>
-Subject: [patch 149/198] MAINTAINERS: remove obsolete ACP/MWAVE MODEM entry
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, bunk@stusta.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:54 -0700
+	Tue, 12 Apr 2005 14:34:53 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:35279 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262309AbVDLR6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 13:58:33 -0400
+Message-Id: <200504121758.j3CHwQg11702@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Jens Axboe'" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [patch] new fifo I/O elevator that really does nothing at all
+Date: Tue, 12 Apr 2005 10:58:23 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU571mGRcgbG9LKQt2yFEe1HLL0ZQATcqowAVKg+JA=
+In-Reply-To: <7A4826DE8867D411BAB8009027AE9EB91DB47626@scsmsx401.amr.corp.intel.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chen, Kenneth W wrote on Tuesday, April 05, 2005 5:13 PM
+> Jens Axboe wrote on Tuesday, April 05, 2005 7:54 AM
+> > On Tue, Mar 29 2005, Chen, Kenneth W wrote:
+> > > Jens Axboe wrote on Tuesday, March 29, 2005 12:04 PM
+> > > > No such promise was ever made, noop just means it does 'basically
+> > > > nothing'. It never meant FIFO in anyway, we cannot break the semantics
+> > > > of block layer commands just for the hell of it.
+> > >
+> > > Acknowledged and understood, will try your patch shortly.
+> >
+> > Did you test it?
+>
+> Experiment is in the queue, should have a result in a day or two.
 
-From: Adrian Bunk <bunk@stusta.de>
 
-Both maintainer email addresses are bouncing and the web address is no
-longer valid.
+Jens, your patch works!  We are seeing a little bit increase in indirect
+branch calls with your patch where our patch tries to remove elevator_merge_fn()
+completely.  But the difference is all within noise range.
 
-Seems to be a good time to remove the entry.
+If there is no other issues (I don't see any), we would like to see this patch
+merged upstream.  Thanks.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+- Ken
 
- 25-akpm/MAINTAINERS |    8 --------
- 1 files changed, 8 deletions(-)
 
-diff -puN MAINTAINERS~maintainers-remove-obsolete-acp-mwave-modem-entry MAINTAINERS
---- 25/MAINTAINERS~maintainers-remove-obsolete-acp-mwave-modem-entry	2005-04-12 03:21:39.070197328 -0700
-+++ 25-akpm/MAINTAINERS	2005-04-12 03:21:39.368152032 -0700
-@@ -172,14 +172,6 @@ L:	linux-sound@vger.kernel.org
- W:	http://www.stud.uni-karlsruhe.de/~uh1b/
- S:	Maintained
- 
--ACP/MWAVE MODEM
--P:	Paul B Schroeder
--M:	paulsch@us.ibm.com
--P:	Mike Sullivan
--M:	sullivam@us.ibm.com
--W:	http://www.ibm.com/linux/ltc/
--S:	Supported
--
- AACRAID SCSI RAID DRIVER
- P:	Adaptec OEM Raid Solutions
- L:	linux-scsi@vger.kernel.org
-_

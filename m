@@ -1,51 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVDLFVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVDLFVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVDLFVD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 01:21:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVDLFUf
+	id S262015AbVDLFVC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 01:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVDLFTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 01:20:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:62874 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262018AbVDLD1X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 23:27:23 -0400
-Subject: Re: 2.6.12-rc2-mm3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Juergen Kreileder <jk@blackdown.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <87wtr8rdvu.fsf@blackdown.de>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	 <87wtr8rdvu.fsf@blackdown.de>
-Content-Type: text/plain
-Date: Tue, 12 Apr 2005 13:26:05 +1000
-Message-Id: <1113276365.5387.39.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 01:19:12 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:40024 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262012AbVDLDYu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 23:24:50 -0400
+Message-ID: <425B3F71.3030703@yahoo.com>
+Date: Mon, 11 Apr 2005 20:24:33 -0700
+From: Alex Aizman <itn780@yahoo.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b) Gecko/20050217
+MIME-Version: 1.0
+To: linux-scsi@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE 4/6] Linux-iSCSI High-Performance Initiator
+Content-Type: multipart/mixed;
+ boundary="------------070708070109070405060106"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-12 at 03:18 +0200, Juergen Kreileder wrote:
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
-> 
-> I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
-> 
-> 2.6.11-mm4 works fine but all 2.6.12 versions I've tried (all since
-> -rc1-mm3) lock up randomly.  The easiest way to reproduce the problem
-> seems to be running Azareus.  So it might be network related, but I'm
-> not 100% sure about that, there was a least one deadlock with
-> virtually no network usage.
-> 
-> BTW, what's the SysRq key on recent Apple USB keyboards?  Alt/Cmd-F13
-> doesn't work for me.
-> 
+This is a multi-part message in MIME format.
+--------------070708070109070405060106
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hrm... I just noticed you have CONFIG_PREEMPT enabled... Can you test
-without it and let me know if it makes a difference ?
+              drivers/scsi/Makefile changes (added iscsi_if and iscsi_tcp).
 
-Ben.
+              Signed-off-by: Alex Aizman <itn780@yahoo.com>
+              Signed-off-by: Dmitry Yusupov <dmitry_yus@yahoo.com>
 
 
+
+
+
+
+
+
+
+
+
+
+
+--------------070708070109070405060106
+Content-Type: text/plain;
+ name="linux-iscsi-makefile.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-iscsi-makefile.patch"
+
+--- linux-2.6.12-rc2.orig/drivers/scsi/Makefile	2005-03-01 23:38:19.000000000 -0800
++++ linux-2.6.12-rc2.dima/drivers/scsi/Makefile	2005-04-11 18:13:12.000000000 -0700
+@@ -30,6 +30,8 @@
+ obj-$(CONFIG_SCSI_FC_ATTRS) 	+= scsi_transport_fc.o
+ obj-$(CONFIG_SCSI_ISCSI_ATTRS)	+= scsi_transport_iscsi.o
+ 
++obj-$(CONFIG_ISCSI_IF)		+= iscsi_if.o
++obj-$(CONFIG_ISCSI_TCP) 	+= iscsi_tcp.o
+ obj-$(CONFIG_SCSI_AMIGA7XX)	+= amiga7xx.o	53c7xx.o
+ obj-$(CONFIG_A3000_SCSI)	+= a3000.o	wd33c93.o
+ obj-$(CONFIG_A2091_SCSI)	+= a2091.o	wd33c93.o
+
+
+
+
+--------------070708070109070405060106--

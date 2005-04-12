@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262377AbVDLOci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVDLOcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262377AbVDLOci (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 10:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVDLLEk
+	id S262261AbVDLOcj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 10:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVDLLE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:04:40 -0400
-Received: from fire.osdl.org ([65.172.181.4]:31690 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262260AbVDLKdP (ORCPT
+	Tue, 12 Apr 2005 07:04:26 -0400
+Received: from fire.osdl.org ([65.172.181.4]:31946 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262261AbVDLKdP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Apr 2005 06:33:15 -0400
-Message-Id: <200504121033.j3CAX89n005785@shell0.pdx.osdl.net>
-Subject: [patch 157/198] IB: Keep MAD work completion valid
+Message-Id: <200504121033.j3CAX8NF005789@shell0.pdx.osdl.net>
+Subject: [patch 158/198] IB: remove unneeded includes
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sean.hefty@intel.com,
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, halr@voltaire.com,
        roland@topspin.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:01 -0700
+Date: Tue, 12 Apr 2005 03:33:02 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Sean Hefty <sean.hefty@intel.com>
+From: Hal Rosenstock <halr@voltaire.com>
 
-Replace the *wc field in ib_mad_recv_wc from pointing to a structure on the
-stack to one allocated with the received MAD buffer.  This allows a client to
-access the *wc field after their receive completion handler has returned.
+Eliminate no longer needed include files
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/infiniband/core/mad.c      |    3 ++-
- 25-akpm/drivers/infiniband/core/mad_priv.h |    1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ 25-akpm/drivers/infiniband/core/mad.c |    3 ---
+ 1 files changed, 3 deletions(-)
 
-diff -puN drivers/infiniband/core/mad.c~ib-keep-mad-work-completion-valid drivers/infiniband/core/mad.c
---- 25/drivers/infiniband/core/mad.c~ib-keep-mad-work-completion-valid	2005-04-12 03:21:41.108887400 -0700
-+++ 25-akpm/drivers/infiniband/core/mad.c	2005-04-12 03:21:41.116886184 -0700
-@@ -1600,7 +1600,8 @@ static void ib_mad_recv_done_handler(str
- 			 DMA_FROM_DEVICE);
+diff -puN drivers/infiniband/core/mad.c~ib-remove-unneeded-includes drivers/infiniband/core/mad.c
+--- 25/drivers/infiniband/core/mad.c~ib-remove-unneeded-includes	2005-04-12 03:21:41.335852896 -0700
++++ 25-akpm/drivers/infiniband/core/mad.c	2005-04-12 03:21:41.339852288 -0700
+@@ -33,9 +33,6 @@
+  */
  
- 	/* Setup MAD receive work completion from "normal" work completion */
--	recv->header.recv_wc.wc = wc;
-+	recv->header.wc = *wc;
-+	recv->header.recv_wc.wc = &recv->header.wc;
- 	recv->header.recv_wc.mad_len = sizeof(struct ib_mad);
- 	recv->header.recv_wc.recv_buf.mad = &recv->mad.mad;
- 	recv->header.recv_wc.recv_buf.grh = &recv->grh;
-diff -puN drivers/infiniband/core/mad_priv.h~ib-keep-mad-work-completion-valid drivers/infiniband/core/mad_priv.h
---- 25/drivers/infiniband/core/mad_priv.h~ib-keep-mad-work-completion-valid	2005-04-12 03:21:41.110887096 -0700
-+++ 25-akpm/drivers/infiniband/core/mad_priv.h	2005-04-12 03:21:41.116886184 -0700
-@@ -69,6 +69,7 @@ struct ib_mad_list_head {
- struct ib_mad_private_header {
- 	struct ib_mad_list_head mad_list;
- 	struct ib_mad_recv_wc recv_wc;
-+	struct ib_wc wc;
- 	DECLARE_PCI_UNMAP_ADDR(mapping)
- } __attribute__ ((packed));
+ #include <linux/dma-mapping.h>
+-#include <linux/interrupt.h>
+-
+-#include <ib_mad.h>
  
+ #include "mad_priv.h"
+ #include "smi.h"
 _

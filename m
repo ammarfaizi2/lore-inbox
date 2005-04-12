@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbVDLKwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVDLKwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262267AbVDLKwR (ORCPT <rfc822;willy@w.ods.org>);
+	id S262264AbVDLKwR (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 12 Apr 2005 06:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVDLKvV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVDLKva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:51:21 -0400
-Received: from fire.osdl.org ([65.172.181.4]:36554 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262269AbVDLKdT (ORCPT
+	Tue, 12 Apr 2005 06:51:30 -0400
+Received: from fire.osdl.org ([65.172.181.4]:35274 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262264AbVDLKdT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Apr 2005 06:33:19 -0400
-Message-Id: <200504121033.j3CAXCgm005809@shell0.pdx.osdl.net>
-Subject: [patch 162/198] IB: Remove incorrect comments
+Message-Id: <200504121033.j3CAXAoK005797@shell0.pdx.osdl.net>
+Subject: [patch 160/198] IB: Trivial FMR printk cleanup
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, halr@voltaire.com,
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, libor@topspin.com,
        roland@topspin.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:05 -0700
+Date: Tue, 12 Apr 2005 03:33:04 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Hal Rosenstock <halr@voltaire.com>
+From: Libor Michalek <libor@topspin.com>
 
-Eliminate unneeded and misleading comments
+Add missing newline in printk.
 
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+Signed-off-by: Libor Michalek <libor@topspin.com>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/infiniband/core/agent.c |    2 --
- 25-akpm/drivers/infiniband/core/mad.c   |    1 -
- 2 files changed, 3 deletions(-)
+ 25-akpm/drivers/infiniband/core/fmr_pool.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN drivers/infiniband/core/agent.c~ib-remove-incorrect-comments drivers/infiniband/core/agent.c
---- 25/drivers/infiniband/core/agent.c~ib-remove-incorrect-comments	2005-04-12 03:21:42.166726584 -0700
-+++ 25-akpm/drivers/infiniband/core/agent.c	2005-04-12 03:21:42.171725824 -0700
-@@ -129,7 +129,6 @@ static int agent_mad_send(struct ib_mad_
- 		goto out;
- 	agent_send_wr->mad = mad_priv;
+diff -puN drivers/infiniband/core/fmr_pool.c~ib-trivial-fmr-printk-cleanup drivers/infiniband/core/fmr_pool.c
+--- 25/drivers/infiniband/core/fmr_pool.c~ib-trivial-fmr-printk-cleanup	2005-04-12 03:21:41.753789360 -0700
++++ 25-akpm/drivers/infiniband/core/fmr_pool.c	2005-04-12 03:21:41.756788904 -0700
+@@ -442,7 +442,7 @@ struct ib_pool_fmr *ib_fmr_pool_map_phys
+ 		list_add(&fmr->list, &pool->free_list);
+ 		spin_unlock_irqrestore(&pool->pool_lock, flags);
  
--	/* PCI mapping */
- 	gather_list.addr = dma_map_single(mad_agent->device->dma_device,
- 					  &mad_priv->mad,
- 					  sizeof(mad_priv->mad),
-@@ -261,7 +260,6 @@ static void agent_send_handler(struct ib
- 	list_del(&agent_send_wr->send_list);
- 	spin_unlock_irqrestore(&port_priv->send_list_lock, flags);
+-		printk(KERN_WARNING "fmr_map returns %d",
++		printk(KERN_WARNING "fmr_map returns %d\n",
+ 		       result);
  
--	/* Unmap PCI */
- 	dma_unmap_single(mad_agent->device->dma_device,
- 			 pci_unmap_addr(agent_send_wr, mapping),
- 			 sizeof(agent_send_wr->mad->mad),
-diff -puN drivers/infiniband/core/mad.c~ib-remove-incorrect-comments drivers/infiniband/core/mad.c
---- 25/drivers/infiniband/core/mad.c~ib-remove-incorrect-comments	2005-04-12 03:21:42.168726280 -0700
-+++ 25-akpm/drivers/infiniband/core/mad.c	2005-04-12 03:21:42.173725520 -0700
-@@ -2283,7 +2283,6 @@ static void cleanup_recv_queue(struct ib
- 		/* Remove from posted receive MAD list */
- 		list_del(&mad_list->list);
- 
--		/* Undo PCI mapping */
- 		dma_unmap_single(qp_info->port_priv->device->dma_device,
- 				 pci_unmap_addr(&recv->header, mapping),
- 				 sizeof(struct ib_mad_private) -
+ 		return ERR_PTR(result);
 _

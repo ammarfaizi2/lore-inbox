@@ -1,48 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVDLM66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVDLM5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbVDLM66 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVDLM6a
+	id S262438AbVDLM5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVDLM5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:58:30 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:5729 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262425AbVDLMwg (ORCPT
+	Tue, 12 Apr 2005 08:57:46 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:61856 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262427AbVDLMwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:52:36 -0400
+	Tue, 12 Apr 2005 08:52:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:subject:message-id:date;
-        b=dUdctdA/eQTc9HPfdUXwbxZ2kJlJ5n2IvqAHP3sd0lM/kKeM/nW4iiROl/CypE33IqDnRdKsWGAAxfgP06CeW5J6MQ0VYl8r3nO69g4L7+7dJ8ny+3yGjYXi9NOY/FhrcNgMTn1OohbU4ml7vSoCW6srGU3q1f8Pds9IDUxs0Y0=
+        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
+        b=dIbgp08bdPu0slQ5gVbVkfVs88+1/807pZtCN0jidNkoP9/YB7mv5NRrA0Vpn+lEhdf1b4szsuyI9IFptZSBCE7Oea/iZGCKWWIJb/A0HjE7cc5/sqArxoN4vPb+lm7kd4TzLvr3Lm0RA2vERH4t+WRj3b5l0O90CBkDCw8xai0=
 From: Tejun Heo <htejun@gmail.com>
 To: James.Bottomley@steeleye.com, axboe@suse.de,
        Christoph Hellwig <hch@infradead.org>
 Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
-Subject: [PATCH scsi-misc-2.6 00/07] scsi: requeue path consolidation
-Message-ID: <20050412125219.88E5C1F6@htj.dyndns.org>
-Date: Tue, 12 Apr 2005 21:52:21 +0900 (KST)
+References: <20050412125219.88E5C1F6@htj.dyndns.org>
+In-Reply-To: <20050412125219.88E5C1F6@htj.dyndns.org>
+Subject: Re: [PATCH scsi-misc-2.6 01/07] scsi: update and make public scsi_requeue_command()
+Message-ID: <20050412125219.935A53FF@htj.dyndns.org>
+Date: Tue, 12 Apr 2005 21:52:26 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello again, guys.
-
- This is the last patchset and assumes that all previous patchsets are
-applied.  This patchset conolidates requeue paths such that all
-requeue after command issue goes through scsi_requeue_command().
-Requeueing due to unifinished bytes goes through
-scsi_requeue_command_reprep() and due to error through
-scsi_retry_command().
-
- This is the last patchset before the new implementation of scsi
-device state model.  New state model is complete now and ready to be
-splitted & submitted.  As soon as these patchsets are settled, I'll
-post the new device model patchset.
-
-[ Start of patch descriptions ]
-
 01_scsi_requeue_make_requeue_command_public.patch
-	: update and make public scsi_requeue_command()
 
 	This patch makes the following changes to
 	scsi_requeue_command() and make the function public.
@@ -57,56 +42,131 @@ post the new device model patchset.
 	Using a wrapper function for reprep cases is suggested by
 	Christoph Hellwig.
 
-02_scsi_requeue_use_scsi_requeue_command_in_scsi_retry_command.patch
-	: make scsi_retry_command() use scsi_requeue_command()
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-	scsi_retry_command() orignally used scsi_queue_insert() for
-	requeueing.  This patch makes it use scsi_retry_command()
-	instead.  Adding a call to scsi_device_unbusy() is sufficient
-	and the change also makes scsi_retry_command() symmetric with
-	scsi_finish_command() in how it unbusies the command.  Also as
-	there's nothing to return, make the function void.
+ scsi_lib.c  |   42 +++++++++++++++++++++++++-----------------
+ scsi_priv.h |    1 +
+ 2 files changed, 26 insertions(+), 17 deletions(-)
 
-03_scsi_requeue_use_scsi_retry_command_instead_of_scsi_queue_insert.patch
-	: replace scsi_queue_insert() usages with scsi_retry_command()
-
-	There are two users of scsi_queue_insert() left now.  One in
-	scsi_softirq() and the other in scsi_eh_flush_done_q().  The
-	only additional functionality of scsi_queue_insert() used is
-	setting device_blocked on ADD_TO_MLQUEUE case in
-	scsi_softirq().
-
-	Open code device_blocked setting and replace
-	scsi_queue_insert() with scsi_retry_command() in both cases.
-
-04_scsi_requeue_remove_scsi_queue_insert.patch
-	: remove scsi_queue_insert()
-
-	scsi_queue_insert() now has no user left.  Kill it.
-
-05_scsi_requeue_move_init_cmd_errh.patch
-	: move scsi_init_cmd_errh() from request_fn to prep_fn.
-
-	As now all non-reprepped requeue goes through
-	scsi_retry_command() which clears sense buffer, there's no
-	need to call scsi_init_cmd_errh() in scsi_request_fn().  Move
-	scsi_init_cmd_errh() to scsi_prep_fn().
-
-06_scsi_requeue_reset_result.patch
-	: add cmd->result clearing
-
-	cmd->result wasn't cleared on requeue or reprep.  Clear it.
-
-07_scsi_requeue_consolidate_setup_cmd_retry_calls_in_eh.patch
-	: consolidate scsi_cmd_retry() calls
-
-	scsi_setup_cmd_retry() is needed because scsi eh may alter
-	scsi_cmnd to issue eh commands.  Consolidate calls to
-	scsi_setup_cmd_retry() to one place in scsi_eh_flush_done_q().
-	This change makes scsi_retry_command() more symmetrical with
-	scsi_finish_command().
-
-[ End of patch descriptions ]
-
- Thanks a lot.
+Index: scsi-reqfn-export/drivers/scsi/scsi_lib.c
+===================================================================
+--- scsi-reqfn-export.orig/drivers/scsi/scsi_lib.c	2005-04-12 21:50:11.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi_lib.c	2005-04-12 21:50:11.000000000 +0900
+@@ -468,23 +468,24 @@ static void scsi_run_queue(struct reques
+  *
+  * Purpose:	Handle post-processing of completed commands.
+  *
+- * Arguments:	q	- queue to operate on
+- *		cmd	- command that may need to be requeued.
++ * Arguments:	cmd	- command that need to be requeued.
+  *
+  * Returns:	Nothing
+  *
+- * Notes:	After command completion, there may be blocks left
+- *		over which weren't finished by the previous command
+- *		this can be for a number of reasons - the main one is
+- *		I/O errors in the middle of the request, in which case
+- *		we need to request the blocks that come after the bad
+- *		sector.
++ * Notes:	After command completion, a command may need to be
++ *		requeued due to error or unfinished blocks.  All
++ *		requeueing after command issueing goes through this
++ *		function.  The caller is expected to have performed
++ *		scsi_device_unbusy() before invoking this function.
+  */
+-static void scsi_requeue_command(struct request_queue *q, struct scsi_cmnd *cmd)
++void scsi_requeue_command(struct scsi_cmnd *cmd)
+ {
++	struct request_queue *q = cmd->device->request_queue;
+ 	unsigned long flags;
+ 
+-	cmd->request->flags &= ~REQ_DONTPREP;
++	cmd->state = SCSI_STATE_MLQUEUE;
++	cmd->owner = SCSI_OWNER_MIDLEVEL;
++
+ 	cmd->request->flags |= REQ_SOFTBARRIER;
+ 
+ 	spin_lock_irqsave(q->queue_lock, flags);
+@@ -494,6 +495,12 @@ static void scsi_requeue_command(struct 
+ 	scsi_run_queue(q);
+ }
+ 
++static inline void scsi_requeue_command_reprep(struct scsi_cmnd *cmd)
++{
++	cmd->request->flags &= ~REQ_DONTPREP;
++	scsi_requeue_command(cmd);
++}
++
+ void scsi_next_command(struct scsi_cmnd *cmd)
+ {
+ 	struct request_queue *q = cmd->device->request_queue;
+@@ -558,7 +565,7 @@ static struct scsi_cmnd *scsi_end_reques
+ 				 * leftovers in the front of the
+ 				 * queue, and goose the queue again.
+ 				 */
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command_reprep(cmd);
+ 
+ 			return cmd;
+ 		}
+@@ -697,8 +704,9 @@ static void scsi_release_buffers(struct 
+  *		   function will be goosed.  If we are not done, then
+  *		   scsi_end_request will directly goose the queue.
+  *
+- *		b) We can just use scsi_requeue_command() here.  This would
+- *		   be used if we just wanted to retry, for example.
++ *		b) We can just use scsi_requeue_command_reprep() here.
++ *		   This would be used if we just wanted to retry, for
++ *		   example.
+  */
+ void scsi_io_completion(struct scsi_cmnd *cmd, unsigned int good_bytes,
+ 			unsigned int block_bytes)
+@@ -820,7 +828,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 				* media change, so we just retry the
+ 				* request and see what happens.  
+ 				*/
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command_reprep(cmd);
+ 				return;
+ 			}
+ 			break;
+@@ -841,7 +849,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 				 * This will cause a retry with a 6-byte
+ 				 * command.
+ 				 */
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command_reprep(cmd);
+ 				result = 0;
+ 			} else {
+ 				cmd = scsi_end_request(cmd, 0, this_count, 1);
+@@ -854,7 +862,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 			 * retry.
+ 			 */
+ 			if (sshdr.asc == 0x04 && sshdr.ascq == 0x01) {
+-				scsi_requeue_command(q, cmd);
++				scsi_requeue_command_reprep(cmd);
+ 				return;
+ 			}
+ 			printk(KERN_INFO "Device %s not ready.\n",
+@@ -880,7 +888,7 @@ void scsi_io_completion(struct scsi_cmnd
+ 		 * recovery reasons.  Just retry the request
+ 		 * and see what happens.  
+ 		 */
+-		scsi_requeue_command(q, cmd);
++		scsi_requeue_command_reprep(cmd);
+ 		return;
+ 	}
+ 	if (result) {
+Index: scsi-reqfn-export/drivers/scsi/scsi_priv.h
+===================================================================
+--- scsi-reqfn-export.orig/drivers/scsi/scsi_priv.h	2005-04-12 21:50:11.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi_priv.h	2005-04-12 21:50:11.000000000 +0900
+@@ -95,6 +95,7 @@ extern int scsi_maybe_unblock_host(struc
+ extern void scsi_setup_cmd_retry(struct scsi_cmnd *cmd);
+ extern void scsi_device_unbusy(struct scsi_device *sdev);
+ extern int scsi_queue_insert(struct scsi_cmnd *cmd, int reason);
++extern void scsi_requeue_command(struct scsi_cmnd *cmd);
+ extern void scsi_next_command(struct scsi_cmnd *cmd);
+ extern void scsi_run_host_queues(struct Scsi_Host *shost);
+ extern struct request_queue *scsi_alloc_queue(struct scsi_device *sdev);
 

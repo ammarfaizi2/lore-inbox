@@ -1,103 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVDLJOR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVDLJSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVDLJOR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 05:14:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbVDLJOR
+	id S262073AbVDLJSD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 05:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbVDLJSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 05:14:17 -0400
-Received: from fire.osdl.org ([65.172.181.4]:40886 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262070AbVDLJNv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 05:13:51 -0400
-Date: Tue, 12 Apr 2005 02:09:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Peter Baumann <Peter.B.Baumann@stud.informatik.uni-erlangen.de>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, daniel.ritz@gmx.ch
-Subject: Re: [Bug] invalid mac address after rebooting (2.6.12-rc2-mm2)
-Message-Id: <20050412020956.4c64cbb4.akpm@osdl.org>
-In-Reply-To: <20050412085922.GA6664@faui00u.informatik.uni-erlangen.de>
-References: <20050323122423.GA24316@faui00u.informatik.uni-erlangen.de>
-	<20050323185225.11097185.akpm@osdl.org>
-	<20050412085922.GA6664@faui00u.informatik.uni-erlangen.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 05:18:03 -0400
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:62895 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262073AbVDLJRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 05:17:54 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+To: Jamie Lokier <jamie@shareable.org>, Miklos Szeredi <miklos@szeredi.hu>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Reply-To: 7eggert@gmx.de
+Date: Tue, 12 Apr 2005 11:17:22 +0200
+References: <3S8oM-So-11@gated-at.bofh.it> <3S8oM-So-13@gated-at.bofh.it> <3S8oN-So-15@gated-at.bofh.it> <3S8oN-So-17@gated-at.bofh.it> <3S8oN-So-19@gated-at.bofh.it> <3S8oN-So-21@gated-at.bofh.it> <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Baumann <Peter.B.Baumann@stud.informatik.uni-erlangen.de> wrote:
->
-> On Wed, Mar 23, 2005 at 06:52:25PM -0800, Andrew Morton wrote:
-> > Peter Baumann <Peter.B.Baumann@stud.informatik.uni-erlangen.de> wrote:
-> > >
-> > > 
-> > > I'm hitting an annoying bug in kernel 2.6.11.5
-> > > 
-> > > Every time I _reboot_ (warmstart) my pc my two network cards won't get
-> > > recognized any longer.
-> > >
-> > > Following error message appears on my screen:
-> > >
-> > > PCI: Enabling device 0000:00:0b.0 (0000 -> 0003)
-> > > ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 19 (level, low) -> IRQ 19
-> > > 3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-> > > 0000:00:0b.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1000. Vers LK1.1.19
-> > > PCI: Setting latency timer of device 0000:00:0b.0 to 64
-> > > *** EEPROM MAC address is invalid.
-> > > 3c59x: vortex_probe1 fails.  Returns -22
-> > > 3c59x: probe of 0000:00:0b.0 failed with error -22
-> > > PCI: Enabling device 0000:00:0d.0 (0000 -> 0003)
-> > > ACPI: PCI interrupt 0000:00:0d.0[A] -> GSI 19 (level, low) -> IRQ 19
-> > > 0000:00:0d.0: 3Com PCI 3c905B Cyclone 100baseTx at 0x1080. Vers LK1.1.19
-> > > PCI: Setting latency timer of device 0000:00:0d.0 to 64
-> > > *** EEPROM MAC address is invalid.
-> > > 3c59x: vortex_probe1 fails.  Returns -22
-> > > 3c59x: probe of 0000:00:0d.0 failed with error -22
-> > >
-> > > This doesn't happen with older kernels (especially with 2.6.10) and so
-> > > I've done a binary search and narrowed it down to 2.6.11-rc5 where it
-> > > first hits me.
-> > >
-> > > My config, lspci output and the dmesg output of the working and non-working
-> > > version can be found at [1]
-> > >
-> > > Feel free to ask if any information is missing or if I am supposed to try
-> > > a patch.
-> >
-> > Thanks for doing the bsearch - it helps.
-> >
-> > There were no driver changes between 2.6.11-rc4 and 2.6.11-rc5.
-> >
-> > The only PCI change I see is
-> >
-> > --- drivers/pci/pci.c   22 Jan 2005 03:20:37 -0000      1.71
-> > +++ drivers/pci/pci.c   24 Feb 2005 18:02:37 -0000      1.72
-> > @@ -268,7 +268,7 @@
-> >                 return -EIO;
-> >
-> >         pci_read_config_word(dev,pm + PCI_PM_PMC,&pmc);
-> > -       if ((pmc & PCI_PM_CAP_VER_MASK) != 2) {
-> > +       if ((pmc & PCI_PM_CAP_VER_MASK) > 2) {
-> >                 printk(KERN_DEBUG
-> >                        "PCI: %s has unsupported PM cap regs version (%u)\n",
-> >                        dev->slot_name, pmc & PCI_PM_CAP_VER_MASK);
-> >
-> > and you're not getting that message (are you?)
-> >
-> 
-> I have still the problem described above with 2.6.12-rc2-mm2 and
-> reverting the above patch solved it. And yes, now I get many of those
-> 
-> PCI: 0000:00:0b.0 has unsupported PM cap regs version (1)
-> PCI: 0000:00:0d.0 has unsupported PM cap regs version (1)
-> PCI: 0000:00:09.0 has unsupported PM cap regs version (1)
-> 
-> messages.
-> 
+Jamie Lokier <jamie@shareable.org> wrote:
+> Miklos Szeredi wrote:
 
-Yes, we need to work out what's going on here.
+>>†††4)†Access†should†not†be†further†restricted†for†the†owner†of†the
+>>††††††mount,†even†if†permission†bits,†uid†or†gid†would†suggest
+>>††††††otherwise
+>†
+>†Why?††Surely†you†want†to†prevent†writing†to†files†which†don't†have†the
+>†writable†bit†set?††A†filesystem†may†also†create†append-only†files†-
+>†and†all†users†including†the†mount†owner†should†be†bound†by†that.
 
-Daniel?
+That†will†depend†on†the†situation.†If†the†user†is†mounting†a†tgz†owned
+by†himself,†FUSE†should†default†to†being†a†convenient†hex-editor.
 
+>>†††5)†As†much†of†the†available†information†should†be†exported†via†the
+>>††††††filesystem†as†possible
+>†
+>†This†is†the†root†of†the†conflict.††You†are†trying†to†overload†the
+>†permission†bits†and†uid/gid†to†mean†something†different†than†they
+>†normally†do.
+>†
+>†While†it's†convenient†to†see†some†"remote"†information†such†as†the
+>†uid/gid†in†a†tar†file,†are†you†sure†it's†a†good†idea†to†break†the†unix
+>†permissions†model†-†which†will†break†some†programs?††(For†example,†try
+>†editing†a†file†with†the†broken†semantics†in†an†editor†which†checks†the
+>†uid/gid†of†the†file†against†the†current†user).
 
+The†editor†will†try†to†keep†the†original†permissions,†and†saving†will†be
+less†effective.
+
+>>†††1)†Only†allow†mount†over†a†directory†for†which†the†user†has†write
+>>††††††access†(and†is†not†sticky)
+>†
+>†Seems†good†-†but†why†not†sticky?††Mounting†a†user†filesystem†in
+>†/tmp/user-xxx/my-mount-point†seems†not†unreasonable†-†provided†the
+>†administrator†can†delete†the†directory†(which†is†possible†with
+>†detachable†mount†points).
+
+I†once†mounted†a†filesystem†in†~/tmp†after†forgetting†about†it†being†a
+symlink†to†/tmp/$me/tmp,†and†I†had†to†promise†never†to†do†that†again.
+Ng†zvqavtug,†gur†pyrnahc-grzc-fpevcg†xvpxrq†va.
+
+>>†††5)†The†filesystem†daemon†is†free†to†fill†in†all†file†attributes†to
+>>††††††any†(sane)†value,†and†the†kernel†won't†modify†these.
+>†
+>†Dangerous,†because†an†administrative†program†might†actually†trust†the
+>†attributes†to†mean†what†they†normally†mean†in†the†unix†permissions†model.
+
+The†same†risk†applies†to†smbmounted†file†systems.
+
+Sane†daemons†will†do†no†check†besides†matching†the†owner†of†a†file†in†the
+user's†home†against†the†expected†UID†and†checking†the†permission†mask,
+since†you†can't†trust†users†not†to†mess†with†files†in†directories†they†own.
+The†"best"†they†can†do†should†be†shoothing†their†own†feet.
+
+(If†the†user†doesn't†own†the†directory,†FUSE†shouldn't†mount.)
+--†
+Top†100†things†you†don't†want†the†sysadmin†to†say:
+80.†I†cleaned†up†the†root†partition†and†now†there's†LOTS†of†free†space.
+
+Friﬂ,†Spammer:†customerservice@sister31.com†du0LCx6rst7@whitedoc.info

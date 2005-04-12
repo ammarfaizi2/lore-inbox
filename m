@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVDLT46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVDLT4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbVDLT46 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVDLTzL
+	id S262157AbVDLT4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVDLT4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:55:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:45512 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262159AbVDLKbs (ORCPT
+	Tue, 12 Apr 2005 15:56:10 -0400
+Received: from fire.osdl.org ([65.172.181.4]:43720 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262157AbVDLKbq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:48 -0400
-Message-Id: <200504121031.j3CAVXtA005340@shell0.pdx.osdl.net>
-Subject: [patch 054/198] ppc64: no prefetch for NULL pointers
+	Tue, 12 Apr 2005 06:31:46 -0400
+Message-Id: <200504121031.j3CAVWh1005336@shell0.pdx.osdl.net>
+Subject: [patch 053/198] ppc64: remove -fno-omit-frame-pointer
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, olof@austin.ibm.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, anton@samba.org
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:26 -0700
+Date: Tue, 12 Apr 2005 03:31:25 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Olof Johansson <olof@austin.ibm.com>
+From: Anton Blanchard <anton@samba.org>
 
-For prefetches of NULL (as when walking a short linked list), PPC64 will in
-some cases take a performance hit.  The hardware needs to do the TLB walk,
-and said walk will always miss, which means (up to) two L2 misses as
-penalty.  This seems to hurt overall performance, so for NULL pointers skip
-the prefetch alltogether.
+During some code inspection using gcc 4.0 I noticed a stack frame was being
+created for a number of functions that didnt require it.  For example:
 
-Signed-off-by: Olof Johansson <olof@austin.ibm.com>
+c0000000000df944 <._spin_unlock>:
+c0000000000df944:       fb e1 ff f0     std     r31,-16(r1)
+c0000000000df948:       f8 21 ff c1     stdu    r1,-64(r1)
+c0000000000df94c:       7c 3f 0b 78     mr      r31,r1
+c0000000000df950:       7c 20 04 ac     lwsync
+c0000000000df954:       e8 21 00 00     ld      r1,0(r1)
+c0000000000df958:       38 00 00 00     li      r0,0
+c0000000000df95c:       90 03 00 00     stw     r0,0(r3)
+c0000000000df960:       eb e1 ff f0     ld      r31,-16(r1)
+c0000000000df964:       4e 80 00 20     blr
+
+It turns out we are adding -fno-omit-frame-pointer to ppc64 which is
+causing the above behaviour.  Removing that flag results in much better
+code:
+
+c0000000000d5b30 <._spin_unlock>:
+c0000000000d5b30:       7c 20 04 ac     lwsync
+c0000000000d5b34:       38 00 00 00     li      r0,0
+c0000000000d5b38:       90 03 00 00     stw     r0,0(r3)
+c0000000000d5b3c:       4e 80 00 20     blr
+
+We dont require a frame pointer to debug on ppc64, so remove it.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/include/asm-ppc64/processor.h |    6 ++++++
- 1 files changed, 6 insertions(+)
+ 25-akpm/arch/ppc64/Kconfig |    4 ----
+ 1 files changed, 4 deletions(-)
 
-diff -puN include/asm-ppc64/processor.h~ppc64-no-prefetch-for-null-pointers include/asm-ppc64/processor.h
---- 25/include/asm-ppc64/processor.h~ppc64-no-prefetch-for-null-pointers	2005-04-12 03:21:16.364649096 -0700
-+++ 25-akpm/include/asm-ppc64/processor.h	2005-04-12 03:21:16.367648640 -0700
-@@ -642,11 +642,17 @@ static inline unsigned long __pack_fe01(
+diff -puN arch/ppc64/Kconfig~ppc64-remove-fno-omit-frame-pointer arch/ppc64/Kconfig
+--- 25/arch/ppc64/Kconfig~ppc64-remove-fno-omit-frame-pointer	2005-04-12 03:21:16.157680560 -0700
++++ 25-akpm/arch/ppc64/Kconfig	2005-04-12 03:21:16.160680104 -0700
+@@ -40,10 +40,6 @@ config COMPAT
+ 	bool
+ 	default y
  
- static inline void prefetch(const void *x)
- {
-+	if (unlikely(!x))
-+		return;
-+
- 	__asm__ __volatile__ ("dcbt 0,%0" : : "r" (x));
- }
- 
- static inline void prefetchw(const void *x)
- {
-+	if (unlikely(!x))
-+		return;
-+
- 	__asm__ __volatile__ ("dcbtst 0,%0" : : "r" (x));
- }
- 
+-config FRAME_POINTER
+-	bool
+-	default y
+-
+ # We optimistically allocate largepages from the VM, so make the limit
+ # large enough (16MB). This badly named config option is actually
+ # max order + 1
 _

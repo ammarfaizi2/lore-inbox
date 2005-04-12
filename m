@@ -1,27 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVDLIMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVDLIOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbVDLIMd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 04:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVDLIMd
+	id S262055AbVDLIOR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 04:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVDLIOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 04:12:33 -0400
-Received: from [200.215.223.1] ([200.215.223.1]:28428 "EHLO srv1.hotnet.net")
-	by vger.kernel.org with ESMTP id S261987AbVDLIM1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 04:12:27 -0400
-Date: Tue, 12 Apr 2005 06:57:03 -0300
-From: Vinicius <mercador10@bol.com.br>
-To: clientes@srv1.hotnet.net
-Subject: Gravador de telefone
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Message-Id: <fpoqdnsikqmoajmqhpdtciphmligim@Vinicius>
-X-Priority: 1
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+	Tue, 12 Apr 2005 04:14:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44460 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262046AbVDLIOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 04:14:07 -0400
+Date: Tue, 12 Apr 2005 09:14:03 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Alex Aizman <itn780@yahoo.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE 2/6] Linux-iSCSI High-Performance Initiator
+Message-ID: <20050412081403.GA551@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, Alex Aizman <itn780@yahoo.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <425B3F58.2040000@yahoo.com> <20050412053650.GF32372@kroah.com> <20050412072733.GA32354@infradead.org> <20050412074514.GA1630@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050412074514.GA1630@kroah.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 12, 2005 at 12:45:14AM -0700, Greg KH wrote:
+> Um, why?  We've been down this road before, and for types that cross the
+> boundry, we _must_ use the __ version of the kernel types, not the
+> uint32_t stuff.
 
-Não seja o último saber. Chegou o gravador de conversas telefônicas. Trata-se de um mini gravador que pode ser instalado em qualquer ponto do fio da sua linha telefônica (inclusive extenções), e basta o seu telefone sair do gancho, seja para receber ou efetuar uma chamada, que a gravação é acionada automaticamente. E quando o telefone voltar para o gancho a gravação é finalizada. A gravação só é acionada quando o telefone está sendo utilizado. Depois é só voltar a fita e ouvir tudo o que foi falado. Essa técnologia está ao seu alcance por apenas R$ 185,00. Despachamos para todo o Brasil. Contato com Sérgio nos fones: 51-471.3583(pela manhã) *  51-8424.1442 (24 hs ) ou spx200@hotmail.com.
-Obs: Instalar esse aparelho em linhas alheias é contra a lei.
+That's total bullshit.  C99 types just work in both the kernel and userland,
+while __u* types need to be typedefed to these exact C99 everywhere in
+userland bnecause they're only provided in kernelspace.
 

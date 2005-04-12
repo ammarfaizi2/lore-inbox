@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVDLP7u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVDLQIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbVDLP7u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 11:59:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVDLP5d
+	id S262344AbVDLQIk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 12:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbVDLQEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 11:57:33 -0400
-Received: from mtk-sms-mail01.digi.com ([66.77.174.18]:48162 "EHLO
-	mtk-sms-mail01.digi.com") by vger.kernel.org with ESMTP
-	id S262404AbVDLPz4 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 11:55:56 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Date: Tue, 12 Apr 2005 10:55:54 -0500
-Message-ID: <335DD0B75189FB428E5C32680089FB9F122155@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Thread-Index: AcU/dOOkTclo+XORTHyRHPpAniDc6wAAEyvw
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: "Ihalainen Nickolay" <ihanic@dev.ehouse.ru>, <admin@list.net.ru>,
-       <linux-kernel@vger.kernel.org>, "Wen Xiong" <wendyx@us.ibm.com>
+	Tue, 12 Apr 2005 12:04:52 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:14559 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262411AbVDLQES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 12:04:18 -0400
+To: jamie@shareable.org
+CC: dan@debian.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <E1DLN54-0001nO-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Tue, 12 Apr 2005 17:13:34 +0200)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411214123.GF32535@mail.shareable.org> <E1DLEby-00013d-00@dorka.pomaz.szeredi.hu> <20050412143347.GC10995@mail.shareable.org> <E1DLN54-0001nO-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1DLNrl-0001tm-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 12 Apr 2005 18:03:53 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> For 1) your porposal makes sense, however for 2) it's useless, since
+> now the user doesn't want the hiding.
 
-> You didn't not give a single good reason.  Only political bullshit.
+I realize that the idea _could_ be used to drop 'allow_root' mount
+option from the kernel.  Since 'allow_root' doesn't add any security
+over 'allow_other' it's safe to do it in userspace.
 
-How does "having more features" as a reason equal "political bullshit" ?
+Goodie :)
 
-I am done with this thread, because I know continuing the flaming is
-what you live for.
-Do what you want, because I know you will.
+Thanks,
+Miklos
 
-However, again, I want to state to everyone else on the list:
 
-"I, Scott Kilau, as the copyright holder of the JSM driver, do NOT sign
-off on this change".
 
-Scott Kilau

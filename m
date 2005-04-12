@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVDLNfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVDLNb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVDLNfG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 09:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVDLNbr
+	id S262421AbVDLNb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 09:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVDLM7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 09:31:47 -0400
-Received: from sophia.inria.fr ([138.96.64.20]:46261 "EHLO sophia.inria.fr")
-	by vger.kernel.org with ESMTP id S262391AbVDLN2Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 09:28:25 -0400
-Message-ID: <425BCCE5.7030400@yahoo.fr>
-Date: Tue, 12 Apr 2005 15:28:05 +0200
-From: Guillaume Chazarain <guichaz@yahoo.fr>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick McFarland <pmcfarland@downeast.net>
-CC: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
-Subject: Re: snd-ens1371 (alsa) & joystick woes
-References: <425BACC2.9020709@yahoo.fr> <200504120923.40853.pmcfarland@downeast.net>
-In-Reply-To: <200504120923.40853.pmcfarland@downeast.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Tue, 12 Apr 2005 08:59:50 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:45741 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262421AbVDLMwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 08:52:10 -0400
+Subject: Re: [PATCH 5/6]physical CPU hot add
+From: Li Shaohua <shaohua.li@intel.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0504120609350.14171@montezuma.fsmlabs.com>
+References: <1113283863.27646.432.camel@sli10-desk.sh.intel.com>
+	 <Pine.LNX.4.61.0504120609350.14171@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Message-Id: <1113310145.5155.12.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 12 Apr 2005 20:49:05 +0800
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (sophia.inria.fr [138.96.64.20]); Tue, 12 Apr 2005 15:28:06 +0200 (MEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland wrote:
+On Tue, 2005-04-12 at 20:17, Zwane Mwaikambo wrote:
+> On Tue, 12 Apr 2005, Li Shaohua wrote:
+> 
+> >  #ifdef CONFIG_HOTPLUG_CPU
+> > +int __attribute__ ((weak)) smp_prepare_cpu(int cpu)
+> > +{
+> > +	return 0;
+> > +}
+> > +
+> 
+> Any way for you to avoid using weak attribute?
+Just want to avoid more 'ifdef' or 'define empty routine for other
+archs' staffs. Someone prefer 'weak' attribute. Either way is ok to me,
+but if you think the former is better, I'd change it.
 
->Something broke, and it broke hard. Speaking of which... is there anyone out 
->there with a ens1371 that actually works right with joysticks?
->  
->
-I saw your thread, but I would say my case is less desperate than yours 
-because my
-joystick actually works a bit :-)
-I have a problem only with the first button.
-
-Regards.
-
--- 
-Guillaume
+Thanks,
+Shaohua
 

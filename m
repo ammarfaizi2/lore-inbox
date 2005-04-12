@@ -1,80 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbVDLTGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262564AbVDLTGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbVDLTGm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbVDLTFu
+	id S262564AbVDLTGl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVDLTGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:05:50 -0400
-Received: from fire.osdl.org ([65.172.181.4]:50121 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262214AbVDLKcg (ORCPT
+	Tue, 12 Apr 2005 15:06:08 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48585 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262213AbVDLKcg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Apr 2005 06:32:36 -0400
-Message-Id: <200504121032.j3CAWT29005605@shell0.pdx.osdl.net>
-Subject: [patch 117/198] power/video.txt: update documentation with more systems
+Message-Id: <200504121032.j3CAWNuQ005577@shell0.pdx.osdl.net>
+Subject: [patch 110/198] fix u32 vs. pm_message_t in drivers/message
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz, pavel@suse.cz
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:22 -0700
+Date: Tue, 12 Apr 2005 03:32:17 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Pavel Machek <pavel@ucw.cz>
 
-This updates video.txt documentation with information about few more
-systems.
+This fixes u32 vs. pm_message_t in drivers/message.
 
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/Documentation/power/video.txt |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+ 25-akpm/drivers/message/fusion/mptbase.c  |    2 +-
+ 25-akpm/drivers/message/fusion/mptbase.h  |    2 +-
+ 25-akpm/drivers/message/fusion/mptscsih.c |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -puN Documentation/power/video.txt~power-videotxt-update-documentation-with-more-systems Documentation/power/video.txt
---- 25/Documentation/power/video.txt~power-videotxt-update-documentation-with-more-systems	2005-04-12 03:21:31.718314984 -0700
-+++ 25-akpm/Documentation/power/video.txt	2005-04-12 03:21:31.721314528 -0700
-@@ -32,9 +32,9 @@ There are a few types of systems where v
-   acpi_sleep=s3_bios,s3_mode is needed.
+diff -puN drivers/message/fusion/mptbase.c~fix-u32-vs-pm_message_t-in-drivers-message drivers/message/fusion/mptbase.c
+--- 25/drivers/message/fusion/mptbase.c~fix-u32-vs-pm_message_t-in-drivers-message	2005-04-12 03:21:29.942584936 -0700
++++ 25-akpm/drivers/message/fusion/mptbase.c	2005-04-12 03:21:29.952583416 -0700
+@@ -1429,7 +1429,7 @@ mptbase_shutdown(struct device * dev)
+  *
+  */
+ static int
+-mptbase_suspend(struct pci_dev *pdev, u32 state)
++mptbase_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	u32 device_state;
+ 	MPT_ADAPTER *ioc = pci_get_drvdata(pdev);
+diff -puN drivers/message/fusion/mptbase.h~fix-u32-vs-pm_message_t-in-drivers-message drivers/message/fusion/mptbase.h
+--- 25/drivers/message/fusion/mptbase.h~fix-u32-vs-pm_message_t-in-drivers-message	2005-04-12 03:21:29.943584784 -0700
++++ 25-akpm/drivers/message/fusion/mptbase.h	2005-04-12 03:21:29.954583112 -0700
+@@ -215,7 +215,7 @@ struct mpt_pci_driver{
+ 	void (*shutdown) (struct device * dev);
+ #ifdef CONFIG_PM
+ 	int  (*resume) (struct pci_dev *dev);
+-	int  (*suspend) (struct pci_dev *dev, u32 state);
++	int  (*suspend) (struct pci_dev *dev, pm_message_t state);
+ #endif
+ };
  
- (5) radeon systems, where X can soft-boot your video card. You'll need
--  new enough X, and plain text console (no vesafb or radeonfb), see
--  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html. Actually you
--  should probably use vbetool (6) instead.
-+  a new enough X, and a plain text console (no vesafb or radeonfb). See
-+  http://www.doesi.gmxhome.de/linux/tm800s3/s3.html for more information.
-+  Alternatively, you should use vbetool (6) instead.
+diff -puN drivers/message/fusion/mptscsih.c~fix-u32-vs-pm_message_t-in-drivers-message drivers/message/fusion/mptscsih.c
+--- 25/drivers/message/fusion/mptscsih.c~fix-u32-vs-pm_message_t-in-drivers-message	2005-04-12 03:21:29.945584480 -0700
++++ 25-akpm/drivers/message/fusion/mptscsih.c	2005-04-12 03:21:29.958582504 -0700
+@@ -220,7 +220,7 @@ static int  mptscsih_probe (struct pci_d
+ static void mptscsih_remove(struct pci_dev *);
+ static void mptscsih_shutdown(struct device *);
+ #ifdef CONFIG_PM
+-static int mptscsih_suspend(struct pci_dev *pdev, u32 state);
++static int mptscsih_suspend(struct pci_dev *pdev, pm_message_t state);
+ static int mptscsih_resume(struct pci_dev *pdev);
+ #endif
  
- (6) other radeon systems, where vbetool is enough to bring system back
-   to life. It needs text console to be working. Do vbetool vbestate
-@@ -74,8 +74,9 @@ Acer TM 803			vga=normal, X patches, see
- Acer TM 803LCi			vga=normal, vbetool (6)
- Arima W730a			vbetool needed (6)
- Asus L2400D                     s3_mode (3)(***) (S1 also works OK)
-+Asus L3350M (SiS 740)           (6)
- Asus L3800C (Radeon M7)		s3_bios (2) (S1 also works OK)
--Asus M6NE			??? (*)
-+Asus M6887Ne			vga=normal, s3_bios (2), use radeon driver instead of fglrx in x.org
- Athlon64 desktop prototype	s3_bios (2)
- Compal CL-50			??? (*)
- Compaq Armada E500 - P3-700     none (1) (S1 also works OK)
-@@ -99,16 +100,16 @@ IBM TP A31 / Type 2652-M5G      s3_mode 
- IBM TP R32 / Type 2658-MMG      none (1)
- IBM TP R40 2722B3G		??? (*)
- IBM TP R50p / Type 1832-22U     s3_bios (2)
--IBM TP R51			??? (*)
-+IBM TP R51			none (1)
- IBM TP T30	236681A		??? (*)
- IBM TP T40 / Type 2373-MU4      none (1)
- IBM TP T40p			none (1)
- IBM TP R40p			s3_bios (2)
- IBM TP T41p			s3_bios (2), switch to X after resume
--IBM TP T42			??? (*)
-+IBM TP T42			s3_bios (2)
- IBM ThinkPad T42p (2373-GTG)	s3_bios (2)
- IBM TP X20			??? (*)
--IBM TP X30			??? (*)
-+IBM TP X30			s3_bios (2)
- IBM TP X31 / Type 2672-XXH      none (1), use radeontool (http://fdd.com/software/radeon/) to turn off backlight.
- IBM Thinkpad X40 Type 2371-7JG  s3_bios,s3_mode (4)
- Medion MD4220			??? (*)
+@@ -1389,7 +1389,7 @@ mptscsih_shutdown(struct device * dev)
+  *
+  */
+ static int
+-mptscsih_suspend(struct pci_dev *pdev, u32 state)
++mptscsih_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	mptscsih_shutdown(&pdev->dev);
+ 	return 0;
 _

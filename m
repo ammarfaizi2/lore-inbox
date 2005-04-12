@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVDLLzE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVDLLzA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbVDLLzE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:55:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbVDLLwG
+	id S262364AbVDLLzA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:55:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVDLLvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:52:06 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:17929 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S262365AbVDLLu3 (ORCPT
+	Tue, 12 Apr 2005 07:51:36 -0400
+Received: from orb.pobox.com ([207.8.226.5]:4499 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262368AbVDLLuv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 07:50:29 -0400
-Message-ID: <425BBB77.9000509@dev.ehouse.ru>
-Date: Tue, 12 Apr 2005 16:13:43 +0400
-From: Ihalainen Nickolay <ihanic@dev.ehouse.ru>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050304)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Scott_Kilau@digi.com
-CC: admin@list.net.ru, linux-kernel@vger.kernel.org
-Subject: Digi Neo 8: linux-2.6.12_r2  jsm driver
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=windows-1251; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 07:50:51 -0400
+Date: Tue, 12 Apr 2005 04:50:41 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Nathan Scott <nathans@sgi.com>, "Barry K. Nathan" <barryn@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       hare@suse.de, linux-xfs@oss.sgi.com
+Subject: Re: [xfs-masters] swsusp vs. xfs [was Re: 2.6.12-rc2-mm1]
+Message-ID: <20050412115040.GA14008@ip68-4-98-123.oc.oc.cox.net>
+References: <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz> <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net> <20050410230053.GD12794@elf.ucw.cz> <20050411043124.GA24626@ip68-4-98-123.oc.oc.cox.net> <20050411105759.GB1373@elf.ucw.cz> <20050411231213.GD702@frodo> <20050411235110.GA2472@elf.ucw.cz> <20050412002603.GA1178@frodo> <20050412110425.GA3063@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050412110425.GA3063@elf.ucw.cz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Apr 12, 2005 at 01:04:25PM +0200, Pavel Machek wrote:
+> > OK, so if that doesn't help, here's an alternate approach - this
+> > lets xfsbufd track when its entering the refrigerator(), so that
+> > other callers know that attempts to wake it are futile.
+> 
+> Thanks, this patch helped.
 
-I compile linux-2.6.12_r2 sources with jsm support, but Digi Neo 8 is
-unsupported.
-after some code-modifications it works fine.
+I can confirm, the 2nd patch worked and the 1st one didn't. (This is
+against 2.6.12-rc2-mm1 with sched-x86-patch-name-is-way-too-long.patch
+backed out. ;) )
 
-lspci -v
-0000:00:09.0 Serial controller: Digi International Digi Neo 8 (rev 02)
-(prog-if 02 [16550])
-~        Subsystem: Digi International Digi Neo 8
-~        Flags: fast devsel, IRQ 16
-~        Memory at feb7e000 (32-bit, non-prefetchable)
-
-diff -r linux-2.6.12-rc2/drivers/serial/jsm/jsm_driver.c
-linux-2.6.12-rc2-modified/drivers/serial/jsm/jsm_driver.c
-62a63
-|
-67a69
-| { PCI_DEVICE (PCI_VENDOR_ID_DIGI,
-PCI_DEVICE_NEO_8_DID),        0,      0,      4 },
-76a79
-| { PCI_DEVICE_NEO_8_DID          ,       8 },
-169a173
-| case PCI_DEVICE_NEO_8_DID:
-diff -r linux-2.6.12-rc2/include/linux/pci_ids.h
-linux-2.6.12-rc2-modified/include/linux/pci_ids.h
-1532a1533
-| #define PCI_DEVICE_NEO_8_DID            0x00B1
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCW7oFHI+uMg2HaCcRAraBAJ9ttNr3kTCIM4ztWk6DuMwwmaMVOgCeO8Rl
-N7idPCAnZOIevdD4Wguty9w=
-=ZFjm
------END PGP SIGNATURE-----
+-Barry K. Nathan <barryn@pobox.com>
 

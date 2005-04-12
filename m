@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262420AbVDLNC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVDLNbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262420AbVDLNC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 09:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVDLNBK
+	id S262056AbVDLNbX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 09:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbVDLN2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 09:01:10 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38636 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262420AbVDLMvB (ORCPT
+	Tue, 12 Apr 2005 09:28:22 -0400
+Received: from downeast.net ([204.176.212.2]:41183 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S262391AbVDLNY1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:51:01 -0400
-Subject: Re: [Ext2-devel] Re: OOM problems on 2.6.12-rc1 with many fsx tests
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mingming Cao <cmm@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       mjbligh@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
-       janetinc@us.ibm.com, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <20050405182325.5297ff87.akpm@osdl.org>
-References: <20050315204413.GF20253@csail.mit.edu>
-	 <20050316003134.GY7699@opteron.random>
-	 <20050316040435.39533675.akpm@osdl.org>
-	 <20050316183701.GB21597@opteron.random>
-	 <1111607584.5786.55.camel@localhost.localdomain>
-	 <20050403183544.7c31f85c.akpm@osdl.org>
-	 <1112633417.3703.8.camel@dyn318043bld.beaverton.ibm.com>
-	 <20050404130441.53ab480b.akpm@osdl.org>
-	 <1112720671.3522.6.camel@dyn9047017080.beaverton.ibm.com>
-	 <20050405182325.5297ff87.akpm@osdl.org>
-Content-Type: text/plain
+	Tue, 12 Apr 2005 09:24:27 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Guillaume Chazarain <guichaz@yahoo.fr>
+Subject: Re: snd-ens1371 (alsa) & joystick woes
+Date: Tue, 12 Apr 2005 09:23:21 -0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org, linux-joystick@atrey.karlin.mff.cuni.cz
+References: <425BACC2.9020709@yahoo.fr>
+In-Reply-To: <425BACC2.9020709@yahoo.fr>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2865657.BOTsAMfMfA";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <1113310228.2404.48.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 12 Apr 2005 13:50:28 +0100
+Message-Id: <200504120923.40853.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+--nextPart2865657.BOTsAMfMfA
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Wed, 2005-04-06 at 02:23, Andrew Morton wrote:
+On Tuesday 12 April 2005 07:10 am, Guillaume Chazarain wrote:
+> Hi,
+>
+>  From 2.6.11 to 2.6.12-rc2, there are some changes in the joystick
+> behaviour that I don't think are expected. It's a simple joystick using
+> analog.ko plugged
+> on a sound board using snd-ens1371. So here we go:
 
-> Nobody has noticed the now-fixed leak since 2.6.6 and this one appears to
-> be 100x slower.  Which is fortunate because this one is going to take a
-> long time to fix.  I'll poke at it some more.
+I've had a running thread about snd-ens1371 issues. And I have no clue wtf =
+is=20
+going on. On mine, it refuses to detect any joystick. Yet, my problem has=20
+been going on since _atleast_ 2.6.7. (atleast, from what I've seen.)
 
-OK, I'm now at the stage where I can kick off that fsx test on a kernel
-without your leak fix, kill it, umount and get
+Something broke, and it broke hard. Speaking of which... is there anyone ou=
+t=20
+there with a ens1371 that actually works right with joysticks?
 
-Whoops: found 43 unfreeable buffers still on the superblock debug list
-for sb 00000100296b2d48.  Tracing one...
-buffer trace for buffer at 0x000001003edaa9c8 (I am CPU 0)
-...
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-with a trace pointing to journal_unmap_buffer().  I'll try with the fix
-in place to see if there are any other cases showing up with the same
-problem.
+--nextPart2865657.BOTsAMfMfA
+Content-Type: application/pgp-signature
 
---Stephen
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
+iD8DBQBCW8vc8Gvouk7G1cURAt8HAJ0dEY7G8vqkAXVxPr8hLJOIS+wTGQCeJ4BG
+9P70xKxlHRqdIa+ikVmkINA=
+=O3hJ
+-----END PGP SIGNATURE-----
+
+--nextPart2865657.BOTsAMfMfA--

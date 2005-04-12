@@ -1,235 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263044AbVDLX5D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVDLXo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263044AbVDLX5D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:57:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbVDLXyr
+	id S262354AbVDLXo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbVDLXlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 19:54:47 -0400
-Received: from rgminet03.oracle.com ([148.87.122.32]:25766 "EHLO
-	rgminet03.oracle.com") by vger.kernel.org with ESMTP
-	id S262977AbVDLXuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 19:50:52 -0400
-Date: Tue, 12 Apr 2005 16:50:33 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] hangcheck-timer: Update to 0.9.0.
-Message-ID: <20050412235033.GI31163@ca-server1.us.oracle.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Tue, 12 Apr 2005 19:41:37 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:3429
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S263008AbVDLXjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 19:39:07 -0400
+Date: Wed, 13 Apr 2005 01:40:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Eger <eger@havoc.gtf.org>, Petr Baudis <pasky@ucw.cz>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Re: more git updates..
+Message-ID: <20050412234005.GJ1521@opteron.random>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org> <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Burt-Line: Trees are cool.
-X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
-User-Agent: Mutt/1.5.8i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+In-Reply-To: <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	I recently realized that the in-kernel copy of hangcheck-timer
-was quite stale.  Here's the latest.  It adds support for s390, ppc64,
-and ia64 too.
+On Tue, Apr 12, 2005 at 02:21:58PM -0700, Linus Torvalds wrote:
+> The full .git archive for 199 versions of the kernel (the 2.6.12-rc2 one
+> and a test-run of 198 patches from Andrew) is 111MB. In other words,
+> adding 198 "full" new kernels only grew the archive by 9MB (that's all
+> "actual disk usage" btw - the files themselves are smaller, but since they
+> all end up taking up a full disk block..)
 
-Signed-off-by: Joel Becker <joel.becker@oracle.com>
----
+reiserfs can do tail packing, plus the disk block is meaningless when
+fetching the data from the network which is the real cost to worry about
+when synchronizing and downloading (disk cost isn't a big deal).
 
- Kconfig           |    2 -
- hangcheck-timer.c |  104 +++++++++++++++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 96 insertions(+), 10 deletions(-)
+The pagecache cost sounds a very minor one too, since you don't need
+the whole data in ram, not even all dentries need to be in cache.  This
+is one of the reasons why you don't need to run readdir, and why you can
+discard the old trees anytime.
 
-Index: linux-2.6.12-rc2/drivers/char/hangcheck-timer.c
-===================================================================
---- linux-2.6.12-rc2.orig/drivers/char/hangcheck-timer.c	2005-03-01 23:38:07.000000000 -0800
-+++ linux-2.6.12-rc2/drivers/char/hangcheck-timer.c	2005-04-12 15:34:26.000000000 -0700
-@@ -3,7 +3,7 @@
-  *
-  * Driver for a little io fencing timer.
-  *
-- * Copyright (C) 2002 Oracle Corporation.  All rights reserved.
-+ * Copyright (C) 2002, 2003 Oracle.  All rights reserved.
-  *
-  * Author: Joel Becker <joel.becker@oracle.com>
-  *
-@@ -44,11 +44,14 @@
- #include <linux/fs.h>
- #include <linux/mm.h>
- #include <linux/reboot.h>
-+#include <linux/smp_lock.h>
- #include <linux/init.h>
-+#include <linux/delay.h>
- #include <asm/uaccess.h>
-+#include <linux/sysrq.h>
- 
- 
--#define VERSION_STR "0.5.0"
-+#define VERSION_STR "0.9.0"
- 
- #define DEFAULT_IOFENCE_MARGIN 60	/* Default fudge factor, in seconds */
- #define DEFAULT_IOFENCE_TICK 180	/* Default timer timeout, in seconds */
-@@ -56,18 +59,89 @@
- static int hangcheck_tick = DEFAULT_IOFENCE_TICK;
- static int hangcheck_margin = DEFAULT_IOFENCE_MARGIN;
- static int hangcheck_reboot;  /* Defaults to not reboot */
-+static int hangcheck_dump_tasks;  /* Defaults to not dumping SysRQ T */
- 
--/* Driver options */
-+/* options - modular */
- module_param(hangcheck_tick, int, 0);
- MODULE_PARM_DESC(hangcheck_tick, "Timer delay.");
- module_param(hangcheck_margin, int, 0);
- MODULE_PARM_DESC(hangcheck_margin, "If the hangcheck timer has been delayed more than hangcheck_margin seconds, the driver will fire.");
- module_param(hangcheck_reboot, int, 0);
- MODULE_PARM_DESC(hangcheck_reboot, "If nonzero, the machine will reboot when the timer margin is exceeded.");
-+module_param(hangcheck_dump_tasks, int, 0);
-+MODULE_PARM_DESC(hangcheck_dump_tasks, "If nonzero, the machine will dump the system task state when the timer margin is exceeded.");
- 
--MODULE_AUTHOR("Joel Becker");
-+MODULE_AUTHOR("Oracle");
- MODULE_DESCRIPTION("Hangcheck-timer detects when the system has gone out to lunch past a certain margin.");
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(VERSION_STR);
-+
-+/* options - nonmodular */
-+#ifndef MODULE
-+
-+static int __init hangcheck_parse_tick(char *str)
-+{
-+	int par;
-+	if (get_option(&str,&par))
-+		hangcheck_tick = par;
-+	return 1;
-+}
-+
-+static int __init hangcheck_parse_margin(char *str)
-+{
-+	int par;
-+	if (get_option(&str,&par))
-+		hangcheck_margin = par;
-+	return 1;
-+}
-+
-+static int __init hangcheck_parse_reboot(char *str)
-+{
-+	int par;
-+	if (get_option(&str,&par))
-+		hangcheck_reboot = par;
-+	return 1;
-+}
-+
-+static int __init hangcheck_parse_dump_tasks(char *str)
-+{
-+	int par;
-+	if (get_option(&str,&par))
-+		hangcheck_dump_tasks = par;
-+	return 1;
-+}
-+
-+__setup("hcheck_tick", hangcheck_parse_tick);
-+__setup("hcheck_margin", hangcheck_parse_margin);
-+__setup("hcheck_reboot", hangcheck_parse_reboot);
-+__setup("hcheck_dump_tasks", hangcheck_parse_dump_tasks);
-+#endif /* not MODULE */
-+
-+#if defined(__i386__) || defined(__x86_64__)
-+# define HAVE_MONOTONIC
-+# define TIMER_FREQ 1000000000ULL
-+#elif defined(__s390__)
-+/* FA240000 is 1 Second in the IBM time universe (Page 4-38 Principles of Op for zSeries */
-+# define TIMER_FREQ 0xFA240000ULL
-+#elif defined(__ia64__)
-+# define TIMER_FREQ ((unsigned long long)local_cpu_data->itc_freq)
-+#elif defined(__powerpc64__)
-+# define TIMER_FREQ (HZ*loops_per_jiffy)
-+#endif  /* __s390__ */
-+
-+#ifdef HAVE_MONOTONIC
-+extern unsigned long long monotonic_clock(void);
-+#else
-+static inline unsigned long long monotonic_clock(void)
-+{
-+# ifdef __s390__
-+	/* returns the TOD.  see 4-38 Principles of Op of zSeries */
-+	return get_clock();
-+# else
-+	return get_cycles();
-+# endif  /* __s390__ */
-+}
-+#endif  /* HAVE_MONOTONIC */
- 
- 
- /* Last time scheduled */
-@@ -78,7 +152,6 @@
- static struct timer_list hangcheck_ticktock =
- 		TIMER_INITIALIZER(hangcheck_fire, 0, 0);
- 
--extern unsigned long long monotonic_clock(void);
- 
- static void hangcheck_fire(unsigned long data)
- {
-@@ -92,6 +165,12 @@
- 		tsc_diff = (cur_tsc + (~0ULL - hangcheck_tsc)); /* or something */
- 
- 	if (tsc_diff > hangcheck_tsc_margin) {
-+		if (hangcheck_dump_tasks) {
-+			printk(KERN_CRIT "Hangcheck: Task state:\n");
-+#ifdef CONFIG_MAGIC_SYSRQ
-+			handle_sysrq('t', NULL, NULL);
-+#endif  /* CONFIG_MAGIC_SYSRQ */
-+		}
- 		if (hangcheck_reboot) {
- 			printk(KERN_CRIT "Hangcheck: hangcheck is restarting the machine.\n");
- 			machine_restart(NULL);
-@@ -108,10 +187,16 @@
- {
- 	printk("Hangcheck: starting hangcheck timer %s (tick is %d seconds, margin is %d seconds).\n",
- 	       VERSION_STR, hangcheck_tick, hangcheck_margin);
--
--	hangcheck_tsc_margin = hangcheck_margin + hangcheck_tick;
--	hangcheck_tsc_margin *= 1000000000;
--
-+#if defined (HAVE_MONOTONIC)
-+	printk("Hangcheck: Using monotonic_clock().\n");
-+#elif defined(__s390__)
-+	printk("Hangcheck: Using TOD.\n");
-+#else
-+	printk("Hangcheck: Using get_cycles().\n");
-+#endif  /* HAVE_MONOTONIC */
-+	hangcheck_tsc_margin =
-+		(unsigned long long)(hangcheck_margin + hangcheck_tick);
-+	hangcheck_tsc_margin *= (unsigned long long)TIMER_FREQ;
- 
- 	hangcheck_tsc = monotonic_clock();
- 	mod_timer(&hangcheck_ticktock, jiffies + (hangcheck_tick*HZ));
-@@ -123,6 +208,7 @@
- static void __exit hangcheck_exit(void)
- {
- 	del_timer_sync(&hangcheck_ticktock);
-+        printk("Hangcheck: Stopped hangcheck timer.\n");
- }
- 
- module_init(hangcheck_init);
-Index: linux-2.6.12-rc2/drivers/char/Kconfig
-===================================================================
---- linux-2.6.12-rc2.orig/drivers/char/Kconfig	2005-04-12 15:33:39.000000000 -0700
-+++ linux-2.6.12-rc2/drivers/char/Kconfig	2005-04-12 15:34:26.000000000 -0700
-@@ -968,7 +968,7 @@
- 
- config HANGCHECK_TIMER
- 	tristate "Hangcheck timer"
--	depends on X86_64 || X86
-+	depends on X86_64 || X86 || IA64 || PPC64 || ARCH_S390
- 	help
- 	  The hangcheck-timer module detects when the system has gone
- 	  out to lunch past a certain margin.  It can reboot the system
--- 
+At the rate of 9M for every 198 changeset checkins, that means I'll have
+to download 2.7G _uncompressible_ (i.e. already compressed with a bad
+per-file ratio due the too-small files) for a whole pack including all
+changesets without accounting the original 111MB of the original tree,
+with rsync -z of git.  That compares with 514M _compressible_ with CVS
+format on-disk, and with ~79M of the CVS-network download with rsync -z of
+the CVS repository (assuming default gzip compression level).
 
-Life's Little Instruction Book #94
+What BKCVS provided with 79M of rsync -z, now is provided with 2.8G of
+rsync -z, with a network-bound slowdown of -97.2%. Similar slowdowns
+should be expected for synchronizations over time while fetching new
+blobs etc...
 
-	"Make it a habit to do nice things for people who 
-	 will never find out."
+Ok, BKCVS has less than 60000 checkins due the linearization and
+coalescing of pulls that couldn't be represented losslessy in CVS, so
+the network-bound slowdown is less than -97.2%, my math is
+approximative, but the order of magnitude should remain the same.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Clearly one can write an ad-hoc network protocol instead of using
+rsync/wget, but the server will need quite a bit of cpu and ram to do a
+checkout/update/sync efficiently to unpack all data and create all
+changesets to gzip and transfer.
+
+Anyway git simplicity and immutable hashes robustness certainly makes it
+an ideal interim format (and it may even be a very pratical local
+live format on-disk, except for the backups), I'm only unsure if it's a
+wise idea to build an SCM on top of the current git format or if it's
+better to use something like SCCS or CVS to coalesce all diffs of a
+single file together and to save space and make rsync -z very efficient
+too (or an approach like arch and darcs that stores changesets per file,
+i.e. patches).

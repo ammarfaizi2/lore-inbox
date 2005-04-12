@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVDLUlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVDLUpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVDLUlF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVDLUlC
+	id S262556AbVDLUpi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbVDLUp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:41:02 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:39837 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262195AbVDLT30 (ORCPT
+	Tue, 12 Apr 2005 16:45:28 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:27352 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262556AbVDLUff convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 15:29:26 -0400
-Date: Tue, 12 Apr 2005 21:29:24 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, torvalds@osdl.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Re: Re: Re: Re: GIT license (Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1)
-Message-ID: <20050412192924.GA26542@pasky.ji.cz>
-References: <200504120120.j3C1KII14991@adam.yggdrasil.com> <20050412014204.GB9145@pasky.ji.cz> <Pine.LNX.4.62.0504121037590.10150@numbat.sonytel.be> <20050412095048.GB22614@pasky.ji.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050412095048.GB22614@pasky.ji.cz>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Tue, 12 Apr 2005 16:35:35 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: FUSYN and RT
+Date: Tue, 12 Apr 2005 13:35:00 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02FD4458@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FUSYN and RT
+Thread-Index: AcU/nmRSD4cz0l1mTT6d6EqfB0q4SAAACdRA
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Esben Nielsen" <simlo@phys.au.dk>, "Daniel Walker" <dwalker@mvista.com>
+Cc: <linux-kernel@vger.kernel.org>, <mingo@elte.hu>
+X-OriginalArrivalTime: 12 Apr 2005 20:35:03.0878 (UTC) FILETIME=[1B35AE60:01C53F9F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, Apr 12, 2005 at 11:50:48AM CEST, I got a letter
-where Petr Baudis <pasky@ucw.cz> told me that...
-> Dear diary, on Tue, Apr 12, 2005 at 10:39:40AM CEST, I got a letter
-> where Geert Uytterhoeven <geert@linux-m68k.org> told me that...
-> > On Tue, 12 Apr 2005, Petr Baudis wrote:
-> ..snip..
-> > > Basically, when you look at merge(1) :
-> > > 
-> > > SYNOPSIS
-> > >        merge [ options ] file1 file2 file3
-> > > DESCRIPTION
-> > >        merge  incorporates  all  changes that lead from file2 to file3
-> > > into file1.
-> > > 
-> > > The only big problem is how to guess the best file2 when you give it
-> > > file3 and file1.
-> > 
-> > That's either the point just before you started modifying the file, or your
-> > last merge point. Sounds simple, but if your SCM system doesn't track merges,
-> > your SOL...
-> 
-> Well, yes, but the last merge point search may not be so simple:
-> 
-> A --1---2----6---7
-> B    \   `-4-.  /
-> C     `-3-----5'
-> 
-> Now, when at 7, your last merge point is not 1, but 2.
+>From: Esben Nielsen [mailto:simlo@phys.au.dk]
+>On 12 Apr 2005, Daniel Walker wrote:
+>
+>>
+>>
+>> At least, both mutexes will need to use the same API to raise and
+lower
+>> priorities.
+>
+>You basicly need 3 priorities:
+>1) Actual: task->prio
+>2) Base prio with no RT locks taken: task->static_prio
+>3) Base prio with no Fusyn locks taken: task->??
+>
+>So no, you will not need the same API, at all :-) Fusyn manipulates
+>task->static_prio and only task->prio when no RT lock is taken. When
+the
+>first RT-lock is taken/released it manipulates task->prio only. A
+release
+>of a Fusyn will manipulate task->static_prio as well as task->prio.
 
-...and this is obviously wrong, sorry. You would lose 3 this way.
+Yes you do. You took care of the simple case. Things get funnier
+when you own more than one PI lock, or you need to promote a
+task that is blocked on other PI locks whose owners are blocked
+on PI locks (transitivity), or when you mix PI and PP (priority
+protection/ priority ceiling).
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+In that case not having a sim{pl,g}e API for doing it is nuts.
+
+>> The next question is deadlocks. Because one mutex is only in the
+kernel,
+>> and the other is only in user space, it seems that deadlocks will
+only
+>> occur when a process holds locks that are all the same type.
+>
+>Yes.
+>All these things assumes a clear lock nesting: Fusyns are on the outer
+>level, RT locks on the inner level. What happens if there is a bug in
+RT
+>locking code will be unclear. On the other hand errors in Fusyn locking
+>(user space) should not give problems in the kernel.
+
+Wrong. Fusyns are kernel locks that are exposed to user space (much as
+a file descriptor is a kernel object exposed to user space through
+a system call). Of course if the user does something mean with them
+they will cause an error, but should not have undesired consequences
+in the kernel. But BUGS in the code will be as unclear as in RT mutexes.
+
+>it is is bad maintainance to have to maintain two seperate systems. The
+>best way ought to be to try to only have one PI system. The kernel is
+big
+>and confusing enough as it is!
+
+Ayeh for the big...it is not that confusing :)
+
+-- Inaky

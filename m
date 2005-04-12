@@ -1,12 +1,12 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVDLRtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262464AbVDLRtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262321AbVDLRtA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 13:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVDLRrr
+	id S262464AbVDLRtB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVDLRrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 13:47:47 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:17937 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S262518AbVDLRpT (ORCPT
+	Tue, 12 Apr 2005 13:47:19 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:18193 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S262525AbVDLRpT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Apr 2005 13:45:19 -0400
 Subject: [patch 1/1] uml: add nfsd syscall when nfsd is modular
@@ -14,8 +14,8 @@ To: akpm@osdl.org
 Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
        blaisorblade@yahoo.it, stable@kernel.org
 From: blaisorblade@yahoo.it
-Date: Tue, 12 Apr 2005 19:47:42 +0200
-Message-Id: <20050412174745.7F28711DF46@zion>
+Date: Tue, 12 Apr 2005 19:52:08 +0200
+Message-Id: <20050412175209.10A11126095@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -24,6 +24,10 @@ CC: <stable@kernel.org>
 
 This trick is useless, because sys_ni.c will handle this problem by itself,
 like it does even on UML for other syscalls.
+Also, it does not provide the NFSD syscall when NFSD is compiled as a module,
+which is a big problem.
+
+This should be merged currently in both 2.6.11-stable and the current tree.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---

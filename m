@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVDMEpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVDLS6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVDMEpU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 00:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVDMEmD
+	id S262229AbVDLS6G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVDLSt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 00:42:03 -0400
-Received: from main.gmane.org ([80.91.229.2]:38807 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262201AbVDMEdv (ORCPT
+	Tue, 12 Apr 2005 14:49:56 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7626 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262229AbVDLKcw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 00:33:51 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: more git updates..
-Date: Wed, 13 Apr 2005 06:32:45 +0200
-Organization: {M:U} IT-Consulting
-Message-ID: <pan.2005.04.13.04.32.45.97274@smurf.noris.de>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org> <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org> <m33btvhbnr.fsf@defiant.localdomain> <Pine.LNX.4.58.0504121543360.4501@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4E   G?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Tue, 12 Apr 2005 06:32:52 -0400
+Message-Id: <200504121032.j3CAWlHD005680@shell0.pdx.osdl.net>
+Subject: [patch 135/198] undo do_readv_writev() behavior change
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, haveblue@us.ibm.com
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:32:41 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,   Linus Torvalds schrub am Tue, 12 Apr 2005 15:49:07 -0700:
 
->> Have to tried to import it?
-> 
-> It would take days.
+From: Dave Hansen <haveblue@us.ibm.com>
 
-You can always import it later and then graft it into the commit tree.
+Bugme bug 4326: http://bugme.osdl.org/show_bug.cgi?id=4326 reports:
 
-That would of course change *every* commit node, but so what? They're
-small, and you can delete the old ones when you're done.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+executing the systemcall readv with Bad argument
+->len == -1) it gives out error EFAULT instead of EINVAL 
 
 
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/fs/read_write.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN fs/read_write.c~undo-do_readv_writev-behavior-change fs/read_write.c
+--- 25/fs/read_write.c~undo-do_readv_writev-behavior-change	2005-04-12 03:21:36.081651656 -0700
++++ 25-akpm/fs/read_write.c	2005-04-12 03:21:36.084651200 -0700
+@@ -467,10 +467,10 @@ static ssize_t do_readv_writev(int type,
+ 		void __user *buf = iov[seg].iov_base;
+ 		ssize_t len = (ssize_t)iov[seg].iov_len;
+ 
+-		if (unlikely(!access_ok(vrfy_dir(type), buf, len)))
+-			goto Efault;
+ 		if (len < 0)	/* size_t not fitting an ssize_t .. */
+ 			goto out;
++		if (unlikely(!access_ok(vrfy_dir(type), buf, len)))
++			goto Efault;
+ 		tot_len += len;
+ 		if ((ssize_t)tot_len < 0) /* maths overflow on the ssize_t */
+ 			goto out;
+_

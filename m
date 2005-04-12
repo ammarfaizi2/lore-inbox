@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVDLJlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVDLJmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262083AbVDLJlm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 05:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVDLJlm
+	id S262084AbVDLJmW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 05:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVDLJmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 05:41:42 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:59269 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262083AbVDLJlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 05:41:35 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: RE: non-free firmware in kernel modules, aggregation and unclear 	copyright notice.
-To: davids@webmaster.com, debian-legal@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 12 Apr 2005 11:41:20 +0200
-References: <3S5Kr-72b-17@gated-at.bofh.it> <3ScVq-4N8-11@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Tue, 12 Apr 2005 05:42:22 -0400
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:3539 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S262084AbVDLJmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 05:42:15 -0400
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Tue, 12 Apr 2005 11:41:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DLHtY-0001CX-QV@be1.7eggert.dyndns.org>
+Subject: throttling kernel messages: KERNEL: assertion (flags & MSG_PEEK) failed at net/ipv4/tcp.c (1282)
+Message-ID: <425BB3FC.154.BAE5FC@rkdvmks1.ngate.uni-regensburg.de>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.92.0+V=3.92+U=2.07.092+R=04 April 2005+T=102704@20050412.092805Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz <davids@webmaster.com> wrote:
+Hi,
 
->>Copyright law only _explicitly_ grants a monopoly on preparation of
->>derivative works.  However, it is trivial, and overwhelmingly common,
->>for a copyright owner to grant a license to create a derivative work
->>that is conditional on how the licensee agrees to distribute (or not
->>distribute) the derivative work.
-> 
-> This would, of course, only make sense if you *had* to agree to the license
-> to *create* the derivative work. If you were able to create the derivative
-> work under first sale or fair use rights, then the restrictions in the
-> contract would not apply to you.
+I'm affected by the (in)famous bug:
+Apr 12 07:03:02 mailgate kernel: recvmsg bug: copied D640F0D1 seq D640F679
+Apr 12 07:03:02 mailgate kernel: KERNEL: assertion (flags & MSG_PEEK) failed at 
+net/ipv4/tcp.c (1282)
+Apr 12 07:03:02 mailgate kernel: recvmsg bug: copied D640F0D1 seq D640F679
+Apr 12 07:03:02 mailgate kernel: KERNEL: assertion (flags & MSG_PEEK) failed at 
+net/ipv4/tcp.c (1282)
 
-If you buy a W*nd*ws install CD, you can create a derived work, e.g. an image
-of your installation, under the fair use rights (IANAL). Can you distribute
-that image freely?
--- 
-Friendly fire isn't. 
+(Kernel of SuSE Linux 9.2, 2.6.8-24.13-default #1 Fri Mar 18 10:19:42 UTC 2005 
+i686 i686 i386 GNU/Linux)
 
-Friﬂ, Spammer: dragon@soft-dindon.biz service@killadwaredrive.com
- fooling3@supplygood.com winkervm@misentry1982rx.us
+The kernel spits out hundreds to thousand messages per second, making klogd and 
+syslogd quite busy, and my messages file stopped growing at 2GB.
+
+I'd suggest to enable throttling for this message, or trigger a panic/reboot, or 
+maybe even fix the bug or message. ;-)
+
+Regards,
+Ulrich
+

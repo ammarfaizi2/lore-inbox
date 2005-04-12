@@ -1,83 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVDLLYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVDLLYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVDLLYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVDLLXO
+	id S262240AbVDLLYP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVDLLW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:23:14 -0400
-Received: from port49.ds1-van.adsl.cybercity.dk ([212.242.141.114]:7794 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id S262323AbVDLKo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:44:28 -0400
-Message-ID: <425BA688.9010607@ubuntu.com>
-Date: Tue, 12 Apr 2005 12:44:24 +0200
-From: Fabio Massimo Di Nitto <fabbione@ubuntu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dale Farnsworth <dale@farnsworth.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ppc32: MV643XX ethernet is an option for Pegasos
-References: <1113289985.21548.66.camel@gaston> <20050412095522.GA20129@xyzzy>
-In-Reply-To: <20050412095522.GA20129@xyzzy>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 07:22:26 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:26992 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262240AbVDLKc5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:32:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
+        b=dkb1bPGhoeXFHiZT4Ljgr6Hh3X31jaHrAWm4yVmTzHalMkzyDU/z/sx2hpK0JejD2Jndd7jqqufU7hg/OiBaUfDzFt0anjEJ47DNMk4SYz4wb4XD4vAzF7xOJpKvcDI+oO0q3XldlBwVFbVXs/EJPnsG79XV4ennnjSG9yh2soQ=
+From: Tejun Heo <htejun@gmail.com>
+To: James.Bottomley@steeleye.com, axboe@suse.de,
+       Christoph Hellwig <hch@infradead.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+References: <20050412103128.69172FEB@htj.dyndns.org>
+In-Reply-To: <20050412103128.69172FEB@htj.dyndns.org>
+Subject: Re: [PATCH scsi-misc-2.6 01/04] scsi: consolidate error handling out of scsi_init_io() into scsi_prep_fn()
+Message-ID: <20050412103128.450C4351@htj.dyndns.org>
+Date: Tue, 12 Apr 2005 19:32:53 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+01_scsi_reqfn_consolidate_error_handling.patch
 
-Dale Farnsworth wrote:
-> On Tue, Apr 12, 2005 at 07:13:04AM +0000, Benjamin Herrenschmidt wrote:
-> 
->>This patch allows Kconfig to build the MV643xx ethernet driver on
->>Pegasos (CONFIG_PPC_MULTIPLATFORM) and adds what I think is a missing
->>fix from Dale's batch, that is remove SA_INTERRUPT and add SA_SHIRQ in
->>there as the interrupt is shared if I understand things correctly.
->>
->>Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->>Signed-off-by: Fabio Massimo Di Nitto <fabbione@ubuntu.com>
-> 
-> 
-> This looks identical to the patch I posted to netdev two weeks ago
-> as the first of 20 patches for the MV643xx ethernet driver.
-> 
-> See <http://oss.sgi.com/archives/netdev/2005-03/msg01644.html> and
-> <http://oss.sgi.com/archives/netdev/2005-03/msg01642.html>.
+	This patch fixes a queue stall bug which occurred when sgtable
+	allocation failed and device_busy == 0.  When scsi_init_io()
+	returns BLKPREP_DEFER or BLKPREP_KILL, it's supposed to free
+	resources itself.  This patch consolidates defer and kill
+	handling into scsi_prep_fn().
 
-It is possible. I received an old patch from Sven Luther and bounced to
-Benjamin rediffed against 2.6.12rc2, but the bits ended to be exactly
-the same.
+	Note that this patch doesn't consolidate state defer/kill
+	handlings in scsi_prep_fn().  They were omitted as all state
+	checks will be moved into scsi_reques_fn() by the following
+	reqfn_reimpl patch.
 
-Fabio
+	ret value checking was changed to switch() as in James's
+	patch.  Also, kill: comment is copied from James's patch.
 
-PS feel free to claim credits on it. I don't want for sure take over
-your work :)
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
-- --
-Self-Service law:
-The last available dish of the food you have decided to eat, will be
-inevitably taken from the person in front of you.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+ scsi_lib.c |   46 +++++++++++++++++++++++++++++++---------------
+ 1 files changed, 31 insertions(+), 15 deletions(-)
 
-iQIVAwUBQlumhlA6oBJjVJ+OAQK/NQ/9FLAIyMR+8fnpOygf7PVFSC0bEMZ9GVuk
-apCzX79QOjKAOOEaI/oSZEaH6K4/93lnUS1CjUiRYCv43mQ9RIw5cSs+if6TqSUF
-UOzRiFIg269BTIvIJVklsGUN+lC0C3Z66VQzWYkS84UJ3gQoHs55IRhccWqVMO2p
-L/VrcypZV5yD7OmqfsE7JJ4EYWtg/K3xigz+y7ZkyOfhuKWJdFbtRM+jjm67gMGq
-J+IqXgLpN4dMp/C0woVjfE2/mebqiBN2ft6qPCYlgwXKXN7wPKcSodMpK6D64x6T
-juvaSn6wgvQWmuRJh9bRBkHBM78eYiGFfBa4Mh8Il2aNrLmxjn8I52/wfq/wXd8j
-4sDCnIC6YtNf5dbhK2jY6M9YCBs3SxzJu9O6yCjGGVfp0dpnPLFpbiZnWMAXQGz4
-sVA7YCejkUJYMiJY9mlIh7960+V+g+PIBCk7myaOML24bsUp7AfAJtzdqQZqFSau
-ZpD0e77prl16F4gOb+pMt+JGVeOWeZqVuhg8GlklFaAHGVBujE9Zb+uKh4ZTeag9
-ksxWDZACe/kxNc9rFvBpabNLzK5oi4Tn4LWVRr105c6nLSXwladckUnT3MCSTwHU
-yRD5YOerF0Rerh6OyWYw8FoG+vHSfIm6w87QxNSgQMjv6wOhZRVTyukF/A2V42tw
-nq3U4qR66hM=
-=uGjK
------END PGP SIGNATURE-----
+Index: scsi-reqfn-export/drivers/scsi/scsi_lib.c
+===================================================================
+--- scsi-reqfn-export.orig/drivers/scsi/scsi_lib.c	2005-04-12 19:27:55.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi_lib.c	2005-04-12 19:27:55.000000000 +0900
+@@ -945,10 +945,8 @@ static int scsi_init_io(struct scsi_cmnd
+ 	 * if sg table allocation fails, requeue request later.
+ 	 */
+ 	sgpnt = scsi_alloc_sgtable(cmd, GFP_ATOMIC);
+-	if (unlikely(!sgpnt)) {
+-		req->flags |= REQ_SOFTBARRIER;
++	if (unlikely(!sgpnt))
+ 		return BLKPREP_DEFER;
+-	}
+ 
+ 	cmd->request_buffer = (char *) sgpnt;
+ 	cmd->request_bufflen = req->nr_sectors << 9;
+@@ -975,9 +973,6 @@ static int scsi_init_io(struct scsi_cmnd
+ 	printk(KERN_ERR "req nr_sec %lu, cur_nr_sec %u\n", req->nr_sectors,
+ 			req->current_nr_sectors);
+ 
+-	/* release the command and kill it */
+-	scsi_release_buffers(cmd);
+-	scsi_put_command(cmd);
+ 	return BLKPREP_KILL;
+ }
+ 
+@@ -1145,18 +1140,24 @@ static int scsi_prep_fn(struct request_q
+ 		 * required).
+ 		 */
+ 		ret = scsi_init_io(cmd);
+-		if (ret)	/* BLKPREP_KILL return also releases the command */
+-			return ret;
++		switch (ret) {
++		case 0:
++			/* Successful initialization. */
++			break;
++		case BLKPREP_DEFER:
++			goto defer;
++		default:
++			/* Unknown return value, fall through. */
++		case BLKPREP_KILL:
++			goto kill;
++		}
+ 		
+ 		/*
+ 		 * Initialize the actual SCSI command for this request.
+ 		 */
+ 		drv = *(struct scsi_driver **)req->rq_disk->private_data;
+-		if (unlikely(!drv->init_command(cmd))) {
+-			scsi_release_buffers(cmd);
+-			scsi_put_command(cmd);
+-			return BLKPREP_KILL;
+-		}
++		if (unlikely(!drv->init_command(cmd)))
++			goto kill;
+ 	}
+ 
+ 	/*
+@@ -1166,12 +1167,27 @@ static int scsi_prep_fn(struct request_q
+ 	return BLKPREP_OK;
+ 
+  defer:
+-	/* If we defer, the elv_next_request() returns NULL, but the
++	/*
++	 * If we defer, the elv_next_request() returns NULL, but the
+ 	 * queue must be restarted, so we plug here if no returning
+-	 * command will automatically do that. */
++	 * command will automatically do that.  Also, the request may
++	 * have its cmd allocated, so we set REQ_SOFTBARRIER.
++	 */
+ 	if (sdev->device_busy == 0)
+ 		blk_plug_device(q);
++	req->flags |= REQ_SOFTBARRIER;
+ 	return BLKPREP_DEFER;
++
++ kill:
++	/*
++	 * Here we have to release every resource associated with the
++	 * request because this will complete at the request level
++	 * (req->end_io), not the scsi command level, so no scsi
++	 * routine will get to free the associated resources.
++	 */
++	scsi_release_buffers(cmd);
++	scsi_put_command(cmd);
++	return BLKPREP_KILL;
+ }
+ 
+ /*
+

@@ -1,143 +1,588 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVDLMsQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262375AbVDLMkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVDLMsQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:48:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVDLMqN
+	id S262375AbVDLMkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVDLLVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:46:13 -0400
-Received: from ctb-mesg2.saix.net ([196.25.240.74]:8378 "EHLO
-	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S262329AbVDLMoI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:44:08 -0400
-Subject: Re: [ANNOUNCE] git-pasky-0.3
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-In-Reply-To: <20050411135758.GA3524@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-	 <20050409200709.GC3451@pasky.ji.cz>
-	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
-	 <20050411015852.GI5902@pasky.ji.cz>  <20050411135758.GA3524@pasky.ji.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-227+5hi1VghJuAPrO6PH"
-Date: Tue, 12 Apr 2005 14:47:25 +0200
-Message-Id: <1113310045.23299.15.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8bit
+	Tue, 12 Apr 2005 07:21:20 -0400
+Received: from fire.osdl.org ([65.172.181.4]:65482 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262295AbVDLKd5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:33:57 -0400
+Message-Id: <200504121033.j3CAXWd6005907@shell0.pdx.osdl.net>
+Subject: [patch 186/198] IB/mthca: encapsulate mem-free check into mthca_is_memfree()
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:33:26 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-227+5hi1VghJuAPrO6PH
-Content-Type: multipart/mixed; boundary="=-1QMEKeKIFwk3bFajyYb1"
+From: Roland Dreier <roland@topspin.com>
 
+Clean up mem-free mode support by introducing mthca_is_memfree() function,
+which encapsulates the logic of deciding if a device is mem-free.
 
---=-1QMEKeKIFwk3bFajyYb1
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Roland Dreier <roland@topspin.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-On Mon, 2005-04-11 at 15:57 +0200, Petr Baudis wrote:
->   Hello,
->=20
->   here goes git-pasky-0.3, my set of patches and scripts upon
-> Linus' git, aimed at human usability and to an extent a SCM-like usage.
->=20
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_av.c       |    6 ++--
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_cmd.c      |    8 ++---
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_cq.c       |   12 ++++----
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_dev.h      |    5 +++
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_eq.c       |   18 ++++++------
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_main.c     |    6 ++--
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_memfree.c  |    4 +-
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c       |   28 +++++++++----------
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_profile.c  |    8 ++---
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_provider.c |    6 ++--
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c       |   18 ++++++------
+ 11 files changed, 62 insertions(+), 57 deletions(-)
 
-Its pretty dependant on where VERSION is located.  This patch fixes
-that. (PS, I left the output of 'git diff' as is to ask about the
-following stuff after the proper diff ...)
-
-
-Regards,
-
---=20
-Martin Schlemmer
-
-
---=-1QMEKeKIFwk3bFajyYb1
-Content-Disposition: attachment; filename=add_version.patch
-Content-Type: text/x-patch; name=add_version.patch; charset=UTF-8
-Content-Transfer-Encoding: base64
-
-LS0tIC0JMjAwNS0wNC0xMiAxNDozNjo0NC4zODQ4MjIwMDAgKzAyMDANCisrKyBNYWtlZmlsZQky
-MDA1LTA0LTEyIDE0OjMzOjE0LjAwMDAwMDAwMCArMDIwMA0KQEAgLTE5LDEwICsxOSwxNCBAQA0K
-IAlnaXRjb21taXQuc2ggZ2l0ZGlmZi1kbyBnaXRkaWZmLnNoIGdpdGxvZy5zaCBnaXRscy5zaCBn
-aXRsc29iai5zaCBcDQogCWdpdG1lcmdlLnNoIGdpdHB1bGwuc2ggZ2l0cm0uc2ggZ2l0dGFnLnNo
-IGdpdHRyYWNrLnNoDQogDQotYWxsOiAkKFBST0cpDQorR0VOX1NDUklQVD0gZ2l0dmVyc2lvbi5z
-aA0KIA0KLWluc3RhbGw6ICQoUFJPRykNCi0JaW5zdGFsbCAkKFBST0cpICQoU0NSSVBUKSAkKEhP
-TUUpL2Jpbi8NCitWRVJTSU9OPSBWRVJTSU9ODQorDQorYWxsOiAkKFBST0cpICQoR0VOX1NDUklQ
-VCkNCisNCitpbnN0YWxsOiAkKFBST0cpICQoR0VOX1NDUklQVCkNCisJaW5zdGFsbCAkKFBST0cp
-ICQoU0NSSVBUKSAkKEdFTl9TQ1JJUFQpICQoSE9NRSkvYmluLw0KIA0KIExJQlM9IC1sc3NsIC1s
-eg0KIA0KQEAgLTY3LDggKzcxLDE0IEBADQogcmVhZC1jYWNoZS5vOiBjYWNoZS5oDQogc2hvdy1k
-aWZmLm86IGNhY2hlLmgNCiANCitnaXR2ZXJzaW9uLnNoOiAkKFZFUlNJT04pDQorCUBybSAtZiAk
-QA0KKwlAZWNobyAiIyEvYmluL3NoIiA+ICRADQorCUBlY2hvICJlY2hvIFwiJChzaGVsbCBjYXQg
-JChWRVJTSU9OKSlcIiIgPj4gJEANCisJQGNobW9kICt4ICRADQorDQogY2xlYW46DQotCXJtIC1m
-ICoubyAkKFBST0cpIHRlbXBfZ2l0X2ZpbGVfKg0KKwlybSAtZiAqLm8gJChQUk9HKSB0ZW1wX2dp
-dF9maWxlXyogJChHRU5fU0NSSVBUKQ0KIA0KIGJhY2t1cDogY2xlYW4NCiAJY2QgLi4gOyB0YXIg
-Y3p2ZiBkaXJjYWNoZS50YXIuZ3ogZGlyLWNhY2hlDQotLS0gLQkyMDA1LTA0LTEyIDE0OjM2OjQ0
-LjQxNzI4NDAwMCArMDIwMA0KKysrIGdpdAkyMDA1LTA0LTEyIDE0OjMxOjM4LjAwMDAwMDAwMCAr
-MDIwMA0KQEAgLTIwLDcgKzIwLDcgQEANCiANCiBoZWxwICgpIHsNCiAJY2F0IDw8X19FTkRfXw0K
-LVRoZSBHSVQgc2NyaXB0ZWQgdG9vbGtpdCAgJChjYXQgVkVSU0lPTikNCitUaGUgR0lUIHNjcmlw
-dGVkIHRvb2xraXQgICQoZ2l0dmVyc2lvbi5zaCkNCiANCiBVc2FnZTogZ2l0IENPTU1BTkQgW0FS
-R10uLi4NCiANCkNPUFlJTkc6ICBmZTJhNDE3N2E3NjBmZDExMGU3ODc4ODczNGYxNjdiZDYzM2Jl
-OGRlIDMzDQpNYWtlZmlsZTogIGI1MTRkYzVjYzYyYmM5ZDJiMmNmMGY4MWRjY2UxNWZmN2RlODNl
-ZWUgMzMNClJFQURNRTogIGZhOWI2NzZkNjJmOGFjNWMxZmYzNmU3NzQyZGM2ZGI4ZjZjZGY5N2Yg
-MzMNClZFUlNJT046ICBkNzFmOGVhODc1ZjlmYmQ4NmRlN2IxNDU3OTI0NDkyNDczY2QxNzE4IDMz
-DQpjYWNoZS5oOiAgZDNlOWEyMWI3ZDlhMmFjMzJhYmFjZjVjYzQwZWUxYTRkODNmOWZlOCAzMw0K
-Y2F0LWZpbGUuYzogIDQ1YmUxYmFkYWE4NTE3ZDRlM2E2OWUwYmYxY2FjMmU5MDE5MWU0NzUgMzcN
-CmNoZWNrb3V0LWNhY2hlLmM6ICBhODdiMzFlMzc4N2MzMTIzNjRkNzI5NWI3ODJkNmMyMmQxNTc3
-ZjVjIDMzDQpjb21taXQtaWQ6ICA2NWM4MTc1NmM4ZjEwZDUxM2QwNzNlY2JkNzQxYTMyNDQ2NjNj
-NGM5IDNiDQpjb21taXQtdHJlZS5jOiAgMmUyNWY3MmRkYjY2YmQ4ZWJkNDQ4NDA1ZjZkZjc2ZTE1
-Y2M5ZDAzMCAzMw0KZGlmZi10cmVlLmM6ICAzMTczMzlmYzljMTE2OWI4ODZmZGZjMjI4NjNlOTQ1
-MTEwOWI4OGM3IDMzDQpmc2NrLWNhY2hlLmM6ICA3YTJmMzZhYTBiYzg2NzdhZGZiYzg1NDIzMzhl
-MTZkNTE4OGRlZTRhIDMzDQpnaXQ6ICAyZjFjYzdmODAwNzliOWMyZmVlYzhlNzMxMGQzMGU1N2I2
-ZTRiMmFhIDMzDQpnaXRYbm9ybWlkLnNoOiAgNjE5YTg5ODc1YzRjY2Q2ZjM4MGM0YmUzMzI3NGE3
-MWJiMmExYjdmMiAzMw0KZ2l0YWRkLnNoOiAgM2VkOTNlYTBmY2I5OTU2NzNiYTllZTE5ODJlMGU3
-YWJkYmUzNTk4MiAzMw0KZ2l0YWRkcmVtb3RlLnNoOiAgYWIwNzU2MjhiMGI0YjE2YWEwNTM4Mjk1
-NWI4NjA3NzAwZjk2MTAxZiAzMw0KZ2l0Y29tbWl0LnNoOiAgNWU5OGUzYjVmZTUwMWExOTZhMTAz
-MGMxMWQxYWQ2YWM4NzUzMmU2YSAzMw0KZ2l0ZGlmZi1kbzogIGQ2MTc0YWJjZWFiMzRkMjIwMTBj
-MzZhODQ1M2E2YzNmM2YxODRmZTAgMzMNCmdpdGRpZmYuc2g6ICA5ZjU1ODQyMjAwMzE2MGYwZDAw
-NmY3OTQ4NzAyZTIyZDVjOTAyNTRjIDMzDQpnaXRsb2cuc2g6ICBkNmIzM2ZiMGM0NzM2OWJlN2I2
-YWYzYjIxZjIxODhlMjI2YmYyZmViIDMzDQpnaXRscy5zaDogIGI2ZjE1ZDgyZjE2YzFlOTk4MmM1
-MDMxZjNiZTIyZWI1NDMwMjczYWYgMzMNCmdpdGxzb2JqLnNoOiAgMTI4NDYxZDNkZTZhNDJjZmFh
-YTk4OWZjNjQwMWJlYmRmYTg4NWIzZiAzMw0KZ2l0bWVyZ2Uuc2g6ICBlMjVkNDJkZGU3YzliOTI5
-NDc2YjA5NjdiMmE2MGQ5YjM0MmIyZTc5IDNiDQpnaXRwdWxsLnNoOiAgZjI5YmIzN2M1ZWVmNDE2
-ZWQ2NWU0NmFhM2M1MjQ5M2QwNzYxOWNkOCAzMw0KZ2l0cm0uc2g6ICA1YzE4YzM4YTg5MGM5ZmQ5
-YWQyYjg2NmVlN2I1Mjk1MzlkMmYzZjhmIDMzDQpnaXR0YWcuc2g6ICAwY2QzMTg4YTQ0MmEzNjdk
-YjMyN2Y3MGFiYTE0ZmYyYTBkNjllOTI3IDNiDQpnaXR0cmFjay5zaDogIGFlMzRmNWM1ZTFlOTk2
-OTYxOWRkZThkMDYyMWZkOWMyMTIyMDg2OTQgMzMNCmluaXQtZGIuYzogIDMyOTY3NjNjZGI0YmQy
-NDJhOWVjMDE5MzNhYzhkM2Q1MzIwZDIwZTQgMzMNCmxzLXRyZWUuYzogIDNlMmE2YzdkMTgzYTQy
-ZTQxZjEwNzNkZmVjNjc5NGU4ZjhhNWU3NWMgMzcNCnBhcmVudC1pZDogIDE4MDFjNmZlNDI2NTky
-ODMyZTcyNTBmOGI3NjBmYjlkMmU2NTIyMGYgMzMNCnJlYWQtY2FjaGUuYzogIDk1ZDBlYzZlOTVh
-YjA1NGRhNGVmOTY3MzY0MWM5ZjgwOWVlYmVmMmIgMzMNCnJlYWQtdHJlZS5jOiAgZWI1NDgxNDhh
-YTZkMjEyZjA1YzJjNjIyZmZiZTYyYTA2Y2QwNzJmOSAzMw0KcmV2LXRyZWUuYzogIDc0MjliOWM0
-ZDBhYWIyZTRhNDk0ZWI0YjY1MTI5YTU5ZGExMzgxMDYgMzMNCnNob3ctZGlmZi5jOiAgMDQzNzcy
-Y2IwOGI2Nzk1MDA4NDc0MzE2ZjM4YTMyNmM0MTk2ZWRkNiAzNw0Kc2hvdy1maWxlcy5jOiAgMzQ3
-ODk0ZDYzNjBlNWVmNTYxNDBhOWE3MGQyYTBiMDAwYTI2OGEzMyAzMw0KdHJlZS1pZDogIGNiNzBl
-MmM1MDhhMTgxMDdhYmUzMDU2MzM2MTJlZDcwMmFhM2VlNGYgMzcNCnVwZGF0ZS1jYWNoZS5jOiAg
-M2Q0OWExY2JkMjBjN2ZjZjEwMTBiMGYzYWZmYWY4OTYzMTBjNjc5NyAzMw0Kd3JpdGUtdHJlZS5j
-OiAgZWVkN2MwMjEyM2M2YzY0NTg1OTc3MjZlZjRmOGIyMjA4YWVmYTViYiAzMw0K
-
-
---=-1QMEKeKIFwk3bFajyYb1--
-
---=-227+5hi1VghJuAPrO6PH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCW8NcqburzKaJYLYRAqiiAJ9boBmYGmsoVOPY0id9MTeDtP9FqQCdE5FC
-TC3D0Y3K71r797q98MYc+RE=
-=bAmb
------END PGP SIGNATURE-----
-
---=-227+5hi1VghJuAPrO6PH--
-
+diff -puN drivers/infiniband/hw/mthca/mthca_av.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_av.c
+--- 25/drivers/infiniband/hw/mthca/mthca_av.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.639894536 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_av.c	2005-04-12 03:21:47.657891800 -0700
+@@ -62,7 +62,7 @@ int mthca_create_ah(struct mthca_dev *de
+ 
+ 	ah->type = MTHCA_AH_PCI_POOL;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		ah->av   = kmalloc(sizeof *ah->av, GFP_ATOMIC);
+ 		if (!ah->av)
+ 			return -ENOMEM;
+@@ -192,7 +192,7 @@ int __devinit mthca_init_av_table(struct
+ {
+ 	int err;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		return 0;
+ 
+ 	err = mthca_alloc_init(&dev->av_table.alloc,
+@@ -231,7 +231,7 @@ int __devinit mthca_init_av_table(struct
+ 
+ void __devexit mthca_cleanup_av_table(struct mthca_dev *dev)
+ {
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		return;
+ 
+ 	if (dev->av_table.av_map)
+diff -puN drivers/infiniband/hw/mthca/mthca_cmd.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_cmd.c
+--- 25/drivers/infiniband/hw/mthca/mthca_cmd.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.641894232 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_cmd.c	2005-04-12 03:21:47.659891496 -0700
+@@ -651,7 +651,7 @@ int mthca_QUERY_FW(struct mthca_dev *dev
+ 	mthca_dbg(dev, "FW version %012llx, max commands %d\n",
+ 		  (unsigned long long) dev->fw_ver, dev->cmd.max_cmds);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		MTHCA_GET(dev->fw.arbel.fw_pages,       outbox, QUERY_FW_SIZE_OFFSET);
+ 		MTHCA_GET(dev->fw.arbel.clr_int_base,   outbox, QUERY_FW_CLR_INT_BASE_OFFSET);
+ 		MTHCA_GET(dev->fw.arbel.eq_arm_base,    outbox, QUERY_FW_EQ_ARM_BASE_OFFSET);
+@@ -984,7 +984,7 @@ int mthca_QUERY_DEV_LIM(struct mthca_dev
+ 
+ 	mthca_dbg(dev, "Flags: %08x\n", dev_lim->flags);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		MTHCA_GET(field, outbox, QUERY_DEV_LIM_RSZ_SRQ_OFFSET);
+ 		dev_lim->hca.arbel.resize_srq = field & 1;
+ 		MTHCA_GET(field, outbox, QUERY_DEV_LIM_MAX_SG_RQ_OFFSET);
+@@ -1148,7 +1148,7 @@ int mthca_INIT_HCA(struct mthca_dev *dev
+ 	/* TPT attributes */
+ 
+ 	MTHCA_PUT(inbox, param->mpt_base,   INIT_HCA_MPT_BASE_OFFSET);
+-	if (dev->hca_type != ARBEL_NATIVE)
++	if (!mthca_is_memfree(dev))
+ 		MTHCA_PUT(inbox, param->mtt_seg_sz, INIT_HCA_MTT_SEG_SZ_OFFSET);
+ 	MTHCA_PUT(inbox, param->log_mpt_sz, INIT_HCA_LOG_MPT_SZ_OFFSET);
+ 	MTHCA_PUT(inbox, param->mtt_base,   INIT_HCA_MTT_BASE_OFFSET);
+@@ -1161,7 +1161,7 @@ int mthca_INIT_HCA(struct mthca_dev *dev
+ 
+ 	MTHCA_PUT(inbox, param->uar_scratch_base, INIT_HCA_UAR_SCATCH_BASE_OFFSET);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		MTHCA_PUT(inbox, param->log_uarc_sz, INIT_HCA_UARC_SZ_OFFSET);
+ 		MTHCA_PUT(inbox, param->log_uar_sz,  INIT_HCA_LOG_UAR_SZ_OFFSET);
+ 		MTHCA_PUT(inbox, param->uarc_base,   INIT_HCA_UAR_CTX_BASE_OFFSET);
+diff -puN drivers/infiniband/hw/mthca/mthca_cq.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_cq.c
+--- 25/drivers/infiniband/hw/mthca/mthca_cq.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.642894080 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_cq.c	2005-04-12 03:21:47.660891344 -0700
+@@ -180,7 +180,7 @@ static inline void update_cons_index(str
+ {
+ 	u32 doorbell[2];
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		*cq->set_ci_db = cpu_to_be32(cq->cons_index);
+ 		wmb();
+ 	} else {
+@@ -760,7 +760,7 @@ int mthca_init_cq(struct mthca_dev *dev,
+ 	if (cq->cqn == -1)
+ 		return -ENOMEM;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		cq->arm_sn = 1;
+ 
+ 		err = mthca_table_get(dev, dev->cq_table.table, cq->cqn);
+@@ -811,7 +811,7 @@ int mthca_init_cq(struct mthca_dev *dev,
+ 	cq_context->lkey            = cpu_to_be32(cq->mr.ibmr.lkey);
+ 	cq_context->cqn             = cpu_to_be32(cq->cqn);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		cq_context->ci_db    = cpu_to_be32(cq->set_ci_db_index);
+ 		cq_context->state_db = cpu_to_be32(cq->arm_db_index);
+ 	}
+@@ -851,11 +851,11 @@ err_out_free_mr:
+ err_out_mailbox:
+ 	kfree(mailbox);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM, cq->arm_db_index);
+ 
+ err_out_ci:
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
+ 
+ err_out_icm:
+@@ -916,7 +916,7 @@ void mthca_free_cq(struct mthca_dev *dev
+ 	mthca_free_mr(dev, &cq->mr);
+ 	mthca_free_cq_buf(dev, cq);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM,    cq->arm_db_index);
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
+ 		mthca_table_put(dev, dev->cq_table.table, cq->cqn);
+diff -puN drivers/infiniband/hw/mthca/mthca_dev.h~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_dev.h
+--- 25/drivers/infiniband/hw/mthca/mthca_dev.h~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.643893928 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-12 03:21:47.661891192 -0700
+@@ -470,4 +470,9 @@ static inline struct mthca_dev *to_mdev(
+ 	return container_of(ibdev, struct mthca_dev, ib_dev);
+ }
+ 
++static inline int mthca_is_memfree(struct mthca_dev *dev)
++{
++	return dev->hca_type == ARBEL_NATIVE;
++}
++
+ #endif /* MTHCA_DEV_H */
+diff -puN drivers/infiniband/hw/mthca/mthca_eq.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_eq.c
+--- 25/drivers/infiniband/hw/mthca/mthca_eq.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.645893624 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_eq.c	2005-04-12 03:21:47.662891040 -0700
+@@ -198,7 +198,7 @@ static inline void arbel_set_eq_ci(struc
+ 
+ static inline void set_eq_ci(struct mthca_dev *dev, struct mthca_eq *eq, u32 ci)
+ {
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		arbel_set_eq_ci(dev, eq, ci);
+ 	else
+ 		tavor_set_eq_ci(dev, eq, ci);
+@@ -223,7 +223,7 @@ static inline void arbel_eq_req_not(stru
+ 
+ static inline void disarm_cq(struct mthca_dev *dev, int eqn, int cqn)
+ {
+-	if (dev->hca_type != ARBEL_NATIVE) {
++	if (!mthca_is_memfree(dev)) {
+ 		u32 doorbell[2];
+ 
+ 		doorbell[0] = cpu_to_be32(MTHCA_EQ_DB_DISARM_CQ | eqn);
+@@ -535,11 +535,11 @@ static int __devinit mthca_create_eq(str
+ 						  MTHCA_EQ_OWNER_HW    |
+ 						  MTHCA_EQ_STATE_ARMED |
+ 						  MTHCA_EQ_FLAG_TR);
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		eq_context->flags  |= cpu_to_be32(MTHCA_EQ_STATE_ARBEL);
+ 
+ 	eq_context->logsize_usrpage = cpu_to_be32((ffs(nent) - 1) << 24);
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		eq_context->arbel_pd = cpu_to_be32(dev->driver_pd.pd_num);
+ 	} else {
+ 		eq_context->logsize_usrpage |= cpu_to_be32(dev->driver_uar.index);
+@@ -686,7 +686,7 @@ static int __devinit mthca_map_eq_regs(s
+ 
+ 	mthca_base = pci_resource_start(dev->pdev, 0);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		/*
+ 		 * We assume that the EQ arm and EQ set CI registers
+ 		 * fall within the first BAR.  We can't trust the
+@@ -756,7 +756,7 @@ static int __devinit mthca_map_eq_regs(s
+ 
+ static void __devexit mthca_unmap_eq_regs(struct mthca_dev *dev)
+ {
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		mthca_unmap_reg(dev, (pci_resource_len(dev->pdev, 0) - 1) &
+ 				dev->fw.arbel.eq_set_ci_base,
+ 				MTHCA_EQ_SET_CI_SIZE,
+@@ -880,7 +880,7 @@ int __devinit mthca_init_eq_table(struct
+ 
+ 		for (i = 0; i < MTHCA_NUM_EQ; ++i) {
+ 			err = request_irq(dev->eq_table.eq[i].msi_x_vector,
+-					  dev->hca_type == ARBEL_NATIVE ?
++					  mthca_is_memfree(dev) ?
+ 					  mthca_arbel_msi_x_interrupt :
+ 					  mthca_tavor_msi_x_interrupt,
+ 					  0, eq_name[i], dev->eq_table.eq + i);
+@@ -890,7 +890,7 @@ int __devinit mthca_init_eq_table(struct
+ 		}
+ 	} else {
+ 		err = request_irq(dev->pdev->irq,
+-				  dev->hca_type == ARBEL_NATIVE ?
++				  mthca_is_memfree(dev) ?
+ 				  mthca_arbel_interrupt :
+ 				  mthca_tavor_interrupt,
+ 				  SA_SHIRQ, DRV_NAME, dev);
+@@ -918,7 +918,7 @@ int __devinit mthca_init_eq_table(struct
+ 			   dev->eq_table.eq[MTHCA_EQ_CMD].eqn, status);
+ 
+ 	for (i = 0; i < MTHCA_EQ_CMD; ++i)
+-		if (dev->hca_type == ARBEL_NATIVE)
++		if (mthca_is_memfree(dev))
+ 			arbel_eq_req_not(dev, dev->eq_table.eq[i].eqn_mask);
+ 		else
+ 			tavor_eq_req_not(dev, dev->eq_table.eq[i].eqn);
+diff -puN drivers/infiniband/hw/mthca/mthca_main.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_main.c
+--- 25/drivers/infiniband/hw/mthca/mthca_main.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.646893472 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_main.c	2005-04-12 03:21:47.663890888 -0700
+@@ -601,7 +601,7 @@ err_disable:
+ 
+ static int __devinit mthca_init_hca(struct mthca_dev *mdev)
+ {
+-	if (mdev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(mdev))
+ 		return mthca_init_arbel(mdev);
+ 	else
+ 		return mthca_init_tavor(mdev);
+@@ -835,7 +835,7 @@ static void mthca_close_hca(struct mthca
+ 
+ 	mthca_CLOSE_HCA(mdev, 0, &status);
+ 
+-	if (mdev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(mdev)) {
+ 		mthca_free_icm_table(mdev, mdev->cq_table.table);
+ 		mthca_free_icm_table(mdev, mdev->qp_table.eqp_table);
+ 		mthca_free_icm_table(mdev, mdev->qp_table.qp_table);
+@@ -939,7 +939,7 @@ static int __devinit mthca_init_one(stru
+ 	mdev->pdev     = pdev;
+ 	mdev->hca_type = id->driver_data;
+ 
+-	if (mdev->hca_type == ARBEL_NATIVE && !mthca_memfree_warned++)
++	if (mthca_is_memfree(mdev) && !mthca_memfree_warned++)
+ 		mthca_warn(mdev, "Warning: native MT25208 mode support is incomplete.  "
+ 			   "Your HCA may not work properly.\n");
+ 
+diff -puN drivers/infiniband/hw/mthca/mthca_memfree.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_memfree.c
+--- 25/drivers/infiniband/hw/mthca/mthca_memfree.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.647893320 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-12 03:21:47.664890736 -0700
+@@ -472,7 +472,7 @@ int mthca_init_db_tab(struct mthca_dev *
+ {
+ 	int i;
+ 
+-	if (dev->hca_type != ARBEL_NATIVE)
++	if (!mthca_is_memfree(dev))
+ 		return 0;
+ 
+ 	dev->db_tab = kmalloc(sizeof *dev->db_tab, GFP_KERNEL);
+@@ -504,7 +504,7 @@ void mthca_cleanup_db_tab(struct mthca_d
+ 	int i;
+ 	u8 status;
+ 
+-	if (dev->hca_type != ARBEL_NATIVE)
++	if (!mthca_is_memfree(dev))
+ 		return;
+ 
+ 	/*
+diff -puN drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_mr.c
+--- 25/drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.649893016 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c	2005-04-12 03:21:47.666890432 -0700
+@@ -181,7 +181,7 @@ static u32 mthca_alloc_mtt(struct mthca_
+ 	if (seg == -1)
+ 		return -1;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		if (mthca_table_get_range(dev, dev->mr_table.mtt_table, seg,
+ 					  seg + (1 << order) - 1)) {
+ 			mthca_buddy_free(buddy, seg, order);
+@@ -196,7 +196,7 @@ static void mthca_free_mtt(struct mthca_
+ {
+ 	mthca_buddy_free(buddy, seg, order);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_table_put_range(dev, dev->mr_table.mtt_table, seg,
+ 				      seg + (1 << order) - 1);
+ }
+@@ -223,7 +223,7 @@ static inline u32 arbel_key_to_hw_index(
+ 
+ static inline u32 hw_index_to_key(struct mthca_dev *dev, u32 ind)
+ {
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		return arbel_hw_index_to_key(ind);
+ 	else
+ 		return tavor_hw_index_to_key(ind);
+@@ -231,7 +231,7 @@ static inline u32 hw_index_to_key(struct
+ 
+ static inline u32 key_to_hw_index(struct mthca_dev *dev, u32 key)
+ {
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		return arbel_key_to_hw_index(key);
+ 	else
+ 		return tavor_key_to_hw_index(key);
+@@ -254,7 +254,7 @@ int mthca_mr_alloc_notrans(struct mthca_
+ 		return -ENOMEM;
+ 	mr->ibmr.rkey = mr->ibmr.lkey = hw_index_to_key(dev, key);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		err = mthca_table_get(dev, dev->mr_table.mpt_table, key);
+ 		if (err)
+ 			goto err_out_mpt_free;
+@@ -299,7 +299,7 @@ int mthca_mr_alloc_notrans(struct mthca_
+ 	return err;
+ 
+ err_out_table:
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_table_put(dev, dev->mr_table.mpt_table, key);
+ 
+ err_out_mpt_free:
+@@ -329,7 +329,7 @@ int mthca_mr_alloc_phys(struct mthca_dev
+ 		return -ENOMEM;
+ 	mr->ibmr.rkey = mr->ibmr.lkey = hw_index_to_key(dev, key);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		err = mthca_table_get(dev, dev->mr_table.mpt_table, key);
+ 		if (err)
+ 			goto err_out_mpt_free;
+@@ -437,7 +437,7 @@ err_out_free_mtt:
+ 	mthca_free_mtt(dev, mr->first_seg, mr->order, &dev->mr_table.mtt_buddy);
+ 
+ err_out_table:
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_table_put(dev, dev->mr_table.mpt_table, key);
+ 
+ err_out_mpt_free:
+@@ -452,7 +452,7 @@ static void mthca_free_region(struct mth
+ 	if (order >= 0)
+ 		mthca_free_mtt(dev, first_seg, order, buddy);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_table_put(dev, dev->mr_table.mpt_table,
+ 				arbel_key_to_hw_index(lkey));
+ 
+@@ -498,7 +498,7 @@ int mthca_fmr_alloc(struct mthca_dev *de
+ 		return -EINVAL;
+ 
+ 	/* For Arbel, all MTTs must fit in the same page. */
+-	if (dev->hca_type == ARBEL_NATIVE &&
++	if (mthca_is_memfree(dev) &&
+ 	    mr->attr.max_pages * sizeof *mr->mem.arbel.mtts > PAGE_SIZE)
+ 		return -EINVAL;
+ 
+@@ -511,7 +511,7 @@ int mthca_fmr_alloc(struct mthca_dev *de
+ 	idx = key & (dev->limits.num_mpts - 1);
+ 	mr->ibmr.rkey = mr->ibmr.lkey = hw_index_to_key(dev, key);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		err = mthca_table_get(dev, dev->mr_table.mpt_table, key);
+ 		if (err)
+ 			goto err_out_mpt_free;
+@@ -534,7 +534,7 @@ int mthca_fmr_alloc(struct mthca_dev *de
+ 
+ 	mtt_seg = mr->first_seg * MTHCA_MTT_SEG_SIZE;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		mr->mem.arbel.mtts = mthca_table_find(dev->mr_table.mtt_table,
+ 						      mr->first_seg);
+ 		BUG_ON(!mr->mem.arbel.mtts);
+@@ -596,7 +596,7 @@ err_out_free_mtt:
+ 		       dev->mr_table.fmr_mtt_buddy);
+ 
+ err_out_table:
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_table_put(dev, dev->mr_table.mpt_table, key);
+ 
+ err_out_mpt_free:
+@@ -765,7 +765,7 @@ int __devinit mthca_init_mr_table(struct
+ 	if (err)
+ 		return err;
+ 
+-	if (dev->hca_type != ARBEL_NATIVE &&
++	if (!mthca_is_memfree(dev) &&
+ 	    (dev->mthca_flags & MTHCA_FLAG_DDR_HIDDEN))
+ 		dev->limits.fmr_reserved_mtts = 0;
+ 	else
+diff -puN drivers/infiniband/hw/mthca/mthca_profile.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_profile.c
+--- 25/drivers/infiniband/hw/mthca/mthca_profile.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.650892864 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_profile.c	2005-04-12 03:21:47.666890432 -0700
+@@ -116,11 +116,11 @@ u64 mthca_make_profile(struct mthca_dev 
+ 		profile[i].type     = i;
+ 		profile[i].log_num  = max(ffs(profile[i].num) - 1, 0);
+ 		profile[i].size    *= profile[i].num;
+-		if (dev->hca_type == ARBEL_NATIVE)
++		if (mthca_is_memfree(dev))
+ 			profile[i].size = max(profile[i].size, (u64) PAGE_SIZE);
+ 	}
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		mem_base  = 0;
+ 		mem_avail = dev_lim->hca.arbel.max_icm_sz;
+ 	} else {
+@@ -165,7 +165,7 @@ u64 mthca_make_profile(struct mthca_dev 
+ 				  (unsigned long long) profile[i].size);
+ 	}
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		mthca_dbg(dev, "HCA context memory: reserving %d KB\n",
+ 			  (int) (total_size >> 10));
+ 	else
+@@ -267,7 +267,7 @@ u64 mthca_make_profile(struct mthca_dev 
+ 	 * out of the MR pool. They don't use additional memory, but
+ 	 * we assign them as part of the HCA profile anyway.
+ 	 */
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		dev->limits.fmr_reserved_mtts = 0;
+ 	else
+ 		dev->limits.fmr_reserved_mtts = request->fmr_reserved_mtts;
+diff -puN drivers/infiniband/hw/mthca/mthca_provider.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_provider.c
+--- 25/drivers/infiniband/hw/mthca/mthca_provider.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.652892560 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-12 03:21:47.667890280 -0700
+@@ -625,7 +625,7 @@ static int mthca_unmap_fmr(struct list_h
+ 	if (!mdev)
+ 		return 0;
+ 
+-	if (mdev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(mdev)) {
+ 		list_for_each_entry(fmr, fmr_list, list)
+ 			mthca_arbel_fmr_unmap(mdev, to_mfmr(fmr));
+ 
+@@ -710,7 +710,7 @@ int mthca_register_device(struct mthca_d
+ 		dev->ib_dev.alloc_fmr            = mthca_alloc_fmr;
+ 		dev->ib_dev.unmap_fmr            = mthca_unmap_fmr;
+ 		dev->ib_dev.dealloc_fmr          = mthca_dealloc_fmr;
+-		if (dev->hca_type == ARBEL_NATIVE)
++		if (mthca_is_memfree(dev))
+ 			dev->ib_dev.map_phys_fmr = mthca_arbel_map_phys_fmr;
+ 		else
+ 			dev->ib_dev.map_phys_fmr = mthca_tavor_map_phys_fmr;
+@@ -720,7 +720,7 @@ int mthca_register_device(struct mthca_d
+ 	dev->ib_dev.detach_mcast         = mthca_multicast_detach;
+ 	dev->ib_dev.process_mad          = mthca_process_mad;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		dev->ib_dev.req_notify_cq = mthca_arbel_arm_cq;
+ 		dev->ib_dev.post_send     = mthca_arbel_post_send;
+ 		dev->ib_dev.post_recv     = mthca_arbel_post_receive;
+diff -puN drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree drivers/infiniband/hw/mthca/mthca_qp.c
+--- 25/drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-encapsulate-mem-free-check-into-mthca_is_memfree	2005-04-12 03:21:47.653892408 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-12 03:21:47.669889976 -0700
+@@ -639,7 +639,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 	else if (attr_mask & IB_QP_PATH_MTU)
+ 		qp_context->mtu_msgmax = (attr->path_mtu << 5) | 31;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		qp_context->rq_size_stride =
+ 			((ffs(qp->rq.max) - 1) << 3) | (qp->rq.wqe_shift - 4);
+ 		qp_context->sq_size_stride =
+@@ -731,7 +731,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 		qp_context->next_send_psn = cpu_to_be32(attr->sq_psn);
+ 	qp_context->cqn_snd = cpu_to_be32(to_mcq(ibqp->send_cq)->cqn);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		qp_context->snd_wqe_base_l = cpu_to_be32(qp->send_wqe_offset);
+ 		qp_context->snd_db_index   = cpu_to_be32(qp->sq.db_index);
+ 	}
+@@ -822,7 +822,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 
+ 	qp_context->cqn_rcv = cpu_to_be32(to_mcq(ibqp->recv_cq)->cqn);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		qp_context->rcv_db_index   = cpu_to_be32(qp->rq.db_index);
+ 
+ 	if (attr_mask & IB_QP_QKEY) {
+@@ -897,7 +897,7 @@ static int mthca_alloc_wqe_buf(struct mt
+ 		size += 2 * sizeof (struct mthca_data_seg);
+ 		break;
+ 	case UD:
+-		if (dev->hca_type == ARBEL_NATIVE)
++		if (mthca_is_memfree(dev))
+ 			size += sizeof (struct mthca_arbel_ud_seg);
+ 		else
+ 			size += sizeof (struct mthca_tavor_ud_seg);
+@@ -1016,7 +1016,7 @@ static int mthca_alloc_memfree(struct mt
+ {
+ 	int ret = 0;
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		ret = mthca_table_get(dev, dev->qp_table.qp_table, qp->qpn);
+ 		if (ret)
+ 			return ret;
+@@ -1057,7 +1057,7 @@ err_qpc:
+ static void mthca_free_memfree(struct mthca_dev *dev,
+ 			       struct mthca_qp *qp)
+ {
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_SQ, qp->sq.db_index);
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_RQ, qp->rq.db_index);
+ 		mthca_table_put(dev, dev->qp_table.eqp_table, qp->qpn);
+@@ -1104,7 +1104,7 @@ static int mthca_alloc_qp_common(struct 
+ 		return ret;
+ 	}
+ 
+-	if (dev->hca_type == ARBEL_NATIVE) {
++	if (mthca_is_memfree(dev)) {
+ 		for (i = 0; i < qp->rq.max; ++i) {
+ 			wqe = get_recv_wqe(qp, i);
+ 			wqe->nda_op = cpu_to_be32(((i + 1) & (qp->rq.max - 1)) <<
+@@ -1127,7 +1127,7 @@ static void mthca_align_qp_size(struct m
+ {
+ 	int i;
+ 
+-	if (dev->hca_type != ARBEL_NATIVE)
++	if (!mthca_is_memfree(dev))
+ 		return;
+ 
+ 	for (i = 0; 1 << i < qp->rq.max; ++i)
+@@ -2011,7 +2011,7 @@ int mthca_free_err_wqe(struct mthca_dev 
+ 	else
+ 		next = get_recv_wqe(qp, index);
+ 
+-	if (dev->hca_type == ARBEL_NATIVE)
++	if (mthca_is_memfree(dev))
+ 		*dbd = 1;
+ 	else
+ 		*dbd = !!(next->ee_nds & cpu_to_be32(MTHCA_NEXT_DBD));
+_

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262498AbVDLRmt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVDLRkD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262498AbVDLRmt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 13:42:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbVDLRmX
+	id S262521AbVDLRkD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:40:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVDLKih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 13:42:23 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:54284 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S262500AbVDLRaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 13:30:24 -0400
-Date: Tue, 12 Apr 2005 19:34:26 +0200
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: tony.luck@intel.com, Petr Baudis <pasky@ucw.cz>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-Message-ID: <20050412173426.GA17053@hh.idb.hist.no>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <200504101200.j3AC0Mu13146@unix-os.sc.intel.com> <Pine.LNX.4.58.0504100854110.1267@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504100854110.1267@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Tue, 12 Apr 2005 06:38:37 -0400
+Received: from fire.osdl.org ([65.172.181.4]:43978 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262277AbVDLKda (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:33:30 -0400
+Message-Id: <200504121033.j3CAXLoD005856@shell0.pdx.osdl.net>
+Subject: [patch 173/198] IB/mthca: only free doorbell records in mem-free mode
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:33:15 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10, 2005 at 09:01:22AM -0700, Linus Torvalds wrote:
-> 
-> So I was for a while debating having a totally flat directory space, but 
-> since there are _some_ downsides (linear lookup for cold-cache, and just 
-> that "ls -l" ends up being O(n**2) and things), I decided that a single 
-> fan-out is probably a good idea.
-> 
-Isn't that fixed even in ext2/ext3 these days?
 
-man mke2fs:
-                   dir_index
-                          Use  hashed  b-trees  to  speed  up lookups in large
-                          directories.
+From: Roland Dreier <roland@topspin.com>
 
-Also, the popular reiserfs was designed with this in mind from the start.
+On error path, only free doorbell records if we're in mem-free mode.
 
+Signed-off-by: Roland Dreier <roland@topspin.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-> > Or maybe the files should be named objects/xx/yy/zzzzzzzzzzzzzzzz?
-> 
-> Hey, I may end up being wrong, and yes, maybe I should have done a 
-> two-level one. 
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_cq.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-Unless there still is performance issues, please don't.  A directory
-structure with extra levels is necessarily harder to use if one
-ever have to use it manually somehow.
-
-Helge Hafting 
-
+diff -puN drivers/infiniband/hw/mthca/mthca_cq.c~ib-mthca-only-free-doorbell-records-in-mem-free-mode drivers/infiniband/hw/mthca/mthca_cq.c
+--- 25/drivers/infiniband/hw/mthca/mthca_cq.c~ib-mthca-only-free-doorbell-records-in-mem-free-mode	2005-04-12 03:21:44.685343696 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_cq.c	2005-04-12 03:21:44.688343240 -0700
+@@ -817,10 +817,12 @@ err_out_free_mr:
+ err_out_mailbox:
+ 	kfree(mailbox);
+ 
+-	mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM, cq->arm_db_index);
++	if (dev->hca_type == ARBEL_NATIVE)
++		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_ARM, cq->arm_db_index);
+ 
+ err_out_ci:
+-	mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
++	if (dev->hca_type == ARBEL_NATIVE)
++		mthca_free_db(dev, MTHCA_DB_TYPE_CQ_SET_CI, cq->set_ci_db_index);
+ 
+ err_out_icm:
+ 	mthca_table_put(dev, dev->cq_table.table, cq->cqn);
+_

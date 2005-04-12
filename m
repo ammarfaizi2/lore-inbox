@@ -1,80 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVDLMMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVDLMKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVDLMMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVDLMLW
+	id S262378AbVDLMKu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVDLMIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:11:22 -0400
-Received: from alog0438.analogic.com ([208.224.222.214]:8622 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262375AbVDLMKi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:10:38 -0400
-Date: Tue, 12 Apr 2005 08:10:20 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Petr Baudis <pasky@ucw.cz>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Call to atention about using hash functions as content indexers
- (SCM saga)
-In-Reply-To: <20050411225139.GA9145@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.61.0504120805010.31214@chaos.analogic.com>
-References: <20050411224021.GA25106@larroy.com> <20050411225139.GA9145@pasky.ji.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 12 Apr 2005 08:08:20 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:48085 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262330AbVDLMG6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 08:06:58 -0400
+Date: Tue, 12 Apr 2005 14:06:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/block/ll_rw_blk.c: possible cleanups
+Message-ID: <20050412120654.GL4722@suse.de>
+References: <20050410181321.GE4204@stusta.de> <20050411061233.GW22988@suse.de> <20050412020413.GC3828@stusta.de> <20050412054957.GF4722@suse.de> <20050412115002.GA3631@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050412115002.GA3631@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Apr 2005, Petr Baudis wrote:
+On Tue, Apr 12 2005, Adrian Bunk wrote:
+> On Tue, Apr 12, 2005 at 07:49:57AM +0200, Jens Axboe wrote:
+> > On Tue, Apr 12 2005, Adrian Bunk wrote:
+> > > On Mon, Apr 11, 2005 at 08:12:34AM +0200, Jens Axboe wrote:
+> > > > On Sun, Apr 10 2005, Adrian Bunk wrote:
+> > > > > This patch contains the following possible cleanups:
+> > > > > - make needlessly global code static
+> > > > > - remove the following unused global functions:
+> > > > >   - blkdev_scsi_issue_flush_fn
+> > > > 
+> > > > Kill the function completely, it is not used anymore.
+> > > > 
+> > > > >   - __blk_attempt_remerge
+> > > > 
+> > > > Normally I would say leave that since it's part of the API, but lets
+> > > > just kill it. I don't envision any further users of the remerging
+> > > > attempts.
+> > > > 
+> > > > > - remove the following unused EXPORT_SYMBOL's:
+> > > > >   - blk_phys_contig_segment
+> > > > >   - blk_hw_contig_segment
+> > > > >   - blkdev_scsi_issue_flush_fn
+> > > > >   - __blk_attempt_remerge
+> > > > > 
+> > > > > Please review which of these changes make sense.
+> > > > 
+> > > > Looks fine to me, thanks. Can you send a new patch that kills
+> > > > blkdev_scsi_issue_flush_fn()?
+> > > 
+> > > I have a problem parsing your email.
+> > > 
+> > > Which parts of my patch are OK and which shouldn't be applied?
+> > > Or why do you want a separate blkdev_scsi_issue_flush_fn patch?
+> > 
+> > I have no problems with your patch, I would just like a revised patch
+> > that removes blkdev_scsi_issue_flush_fn completely instead since it is
+> > totally unused. It doesn't make sense to remove the export and make it
+> > static, since it isn't used internally (and never meant to, it's a
+> > helper function for drivers).
+> 
+> My patch does already completely remove blkdev_scsi_issue_flush_fn.
+> 
+> When I say "remove the following unused global functions:", this means 
+> the patch completely removes the function.
 
-> Dear diary, on Tue, Apr 12, 2005 at 12:40:21AM CEST, I got a letter
-> where Pedro Larroy <piotr@larroy.com> told me that...
->> Hi
->
-> Hello,
->
->> I had a quick look at the source of GIT tonight, I'd like to warn you
->> about the use of hash functions as content indexers.
->>
->> As probably you are aware, hash functions such as SHA-1 are surjective not
->> bijective (1-to-1 map), so they have collisions. Here one can argue
->> about the low probability of such a collision, I won't get into
->> subjetive valorations of what probability of collision is tolerable for
->> me and what is not.
->>
->> I my humble opinion, choosing deliberately, as a design decision, a
->> method such as this one, that in some cases could corrupt data in a
->> silent and very hard to detect way, is not very good. One can also argue
->> that the probability of data getting corrupted in the disk, or whatever
->> could be higher than that of the collision, again this is not valid
->> comparison, since the fact that indexing by hash functions without
->> additional checking could make data corruption legal between the
->> reasonable working parameters of the program is very dangerous.
->
-> (i) 1461501637330902918203684832716283019655932542976 possible SHA1 hashes.
->
-> (ii) In git-pasky, there's (turnable off) detection of collisions.
->
-> (iii) Your argument against comparing with the probability of a hardware
-> error does not make sense to me.
->
-> (iv) You fail to propose a better solution.
->
-> -- 
-> 				Petr "Pasky" Baudis
-> Stuff: http://pasky.or.cz/
-> 98% of the time I am right. Why worry about the other 3%.
+Ah, I misread that, missed it in the patch as well apparently. Then I'm
+fine with the patch.
 
-This is a standard, free (no patents) hash-function that works.
-The fact that somebody can write a program, designed to create
-collisions, and demonstrate that after many weeks of processing,
-iteratively building upon the previous result, and finally
-cause a collision, really isn't relevant for this application.
+-- 
+Jens Axboe
 
-There is a good possibility that there are no hash-functions
-that can't be broken.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

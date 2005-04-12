@@ -1,174 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262347AbVDLLPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262243AbVDLLQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbVDLLPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVDLLOZ
+	id S262243AbVDLLQU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVDLLPo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:14:25 -0400
-Received: from fire.osdl.org ([65.172.181.4]:20426 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262248AbVDLKdE (ORCPT
+	Tue, 12 Apr 2005 07:15:44 -0400
+Received: from fire.osdl.org ([65.172.181.4]:14794 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262243AbVDLKc6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:04 -0400
-Message-Id: <200504121032.j3CAWuMR005721@shell0.pdx.osdl.net>
-Subject: [patch 144/198] Add dontdiff file
+	Tue, 12 Apr 2005 06:32:58 -0400
+Message-Id: <200504121032.j3CAWoJX005693@shell0.pdx.osdl.net>
+Subject: [patch 138/198] pnpbios: eliminate bad section references
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rddunlap@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, janitor@sternwelten.at
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:50 -0700
+Date: Tue, 12 Apr 2005 03:32:44 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "Randy.Dunlap" <rddunlap@osdl.org>
+From: maximilian attems <janitor@sternwelten.at>
 
-Add a current 'dontdiff' file for use with 'diff -X dontdiff'.
+one of the last buildcheck errors on i386, thanks Randy again for double
+checking.
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+Fix pnpbios section references:
+make dmi_system_id pnpbios_dmi_table __initdata
+
+Error: ./drivers/pnp/pnpbios/core.o .data refers to 00000100 R_386_32
+.init.text
+Error: ./drivers/pnp/pnpbios/core.o .data refers to 0000012c R_386_32
+.init.text
+
+Signed-off-by: maximilian attems <janitor@sternwelten.at>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/Documentation/dontdiff |  137 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 137 insertions(+)
+ 25-akpm/drivers/pnp/pnpbios/core.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN /dev/null Documentation/dontdiff
---- /dev/null	2003-09-15 06:40:47.000000000 -0700
-+++ 25-akpm/Documentation/dontdiff	2005-04-12 03:21:38.022356624 -0700
-@@ -0,0 +1,137 @@
-+.*
-+*~
-+53c8xx_d.h*
-+*.a
-+aic7*reg.h*
-+aic7*seq.h*
-+aic7*reg_print.c*
-+53c700_d.h
-+aicasm
-+aicdb.h*
-+asm
-+asm_offsets.*
-+autoconf.h*
-+*.aux
-+bbootsect
-+*.bin
-+bin2c
-+binkernel.spec
-+BitKeeper
-+bootsect
-+bsetup
-+btfixupprep
-+build
-+bvmlinux
-+bzImage*
-+ChangeSet
-+classlist.h*
-+compile.h*
-+comp*.log
-+config
-+config-*
-+config_data.h*
-+conmakehash
-+consolemap_deftbl.c*
-+COPYING
-+CREDITS
-+.cscope
-+*cscope*
-+cscope.*
-+*.out
-+*.css
-+CVS
-+defkeymap.c*
-+devlist.h*
-+docproc
-+dummy_sym.c*
-+*.dvi
-+*.eps
-+filelist
-+fixdep
-+fore200e_mkfirm
-+fore200e_pca_fw.c*
-+gen-devlist
-+gen_init_cpio
-+gen_crc32table
-+crc32table.h*
-+*.cpio
-+gen-kdb_cmds.c*
-+gentbl
-+genksyms
-+*.gif
-+*.gz
-+*.html
-+ikconfig.h*
-+initramfs_list
-+*.jpeg
-+kconfig
-+kconfig.tk
-+Kerntypes
-+keywords.c*
-+ksym.c*
-+ksym.h*
-+kallsyms
-+mk_elfconfig
-+elfconfig.h*
-+modpost
-+pnmtologo
-+logo_*.c
-+*.log
-+lex.c*
-+logo_*_clut224.c
-+logo_*_mono.c
-+lxdialog
-+make_times_h
-+map
-+mkdep
-+*_MODULES
-+MODS.txt
-+modversions.h*
-+Module.symvers
-+*.mod.c
-+*.o
-+*.ko
-+*.orig
-+*.lst
-+*.grp
-+*.grep
-+oui.c*
-+mktables
-+raid6tables.c
-+raid6int*.c
-+raid6altivec*.c
-+wanxlfw.inc
-+maui_boot.h
-+pss_boot.h
-+trix_boot.h
-+*.pdf
-+parse.c*
-+parse.h*
-+PENDING
-+ppc_defs.h*
-+promcon_tbl.c*
-+*.png
-+*.ps
-+*.rej
-+SCCS
-+setup
-+*.s
-+*.so
-+*.sgml
-+sim710_d.h*
-+sm_tbl*
-+split-include
-+System.map*
-+tags
-+TAGS
-+*.tex
-+times.h*
-+tkparse
-+*.ver
-+version.h*
-+*_vga16.c
-+vmlinux
-+vmlinux.lds
-+vmlinux-*
-+vsyscall.lds
-+zImage
+diff -puN drivers/pnp/pnpbios/core.c~pnpbios-eliminate-bad-section-references drivers/pnp/pnpbios/core.c
+--- 25/drivers/pnp/pnpbios/core.c~pnpbios-eliminate-bad-section-references	2005-04-12 03:21:36.702557264 -0700
++++ 25-akpm/drivers/pnp/pnpbios/core.c	2005-04-12 03:21:36.705556808 -0700
+@@ -512,7 +512,7 @@ static int __init exploding_pnp_bios(str
+ 	return 0;
+ }
+ 
+-static struct dmi_system_id pnpbios_dmi_table[] = {
++static struct dmi_system_id pnpbios_dmi_table[] __initdata = {
+ 	{	/* PnPBIOS GPF on boot */
+ 		.callback = exploding_pnp_bios,
+ 		.ident = "Higraded P14H",
 _

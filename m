@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVDLOQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVDLOQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbVDLOQR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 10:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVDLLJg
+	id S262117AbVDLOQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 10:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVDLONC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:09:36 -0400
-Received: from fire.osdl.org ([65.172.181.4]:64202 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262291AbVDLKdz (ORCPT
+	Tue, 12 Apr 2005 10:13:02 -0400
+Received: from thunk.org ([69.25.196.29]:22719 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S262117AbVDLOIw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:55 -0400
-Message-Id: <200504121033.j3CAXZSK005922@shell0.pdx.osdl.net>
-Subject: [patch 190/198] drivers/infiniband/hw/mthca/mthca_main.c: remove an  unused label
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:29 -0700
+	Tue, 12 Apr 2005 10:08:52 -0400
+Date: Tue, 12 Apr 2005 10:07:57 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Dan Berger <danberger@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error When Booting: Resize Inode Not Valid
+Message-ID: <20050412140757.GB9684@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Dan Berger <danberger@gmail.com>, linux-kernel@vger.kernel.org
+References: <e3da09a705041205176403fe27@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e3da09a705041205176403fe27@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 12, 2005 at 08:17:46AM -0400, Dan Berger wrote:
+> Hello. I have recently switched to Linux to prevent any big errors...
+> but I guess I just have bad luck :)
+> 
+> Distro: Fedora Core 3
+> Kernel: 2.6.10-1.FC3_770
+> File system: ext3
+> Mobo: Gigabyte GA7VAXP+
+> 
+> This morning I went to reboot my machine normally after an 8 day
+> uptime. At boot, when it checked the root partition's integrity, I got
+> the error "Resize inode not valid" and I was dropped to the repair fs
+> console.
+> 
+> I ran fsck.ext3 numerous times, always answering yes to recreating the
+> resize inode... but to no avail. I even tried doing this from FC3's
+> rescue CD.
 
-From: Roland Dreier <roland@topspin.com>
+It looks like there is a bug in FC3's e2fsck program which is failing
+to fix the filesystem corruption.  (FC3's e2fsck had resize2fs support
+more-or-less hacked in, and it didn't support big endian systems, and
+it had a whole host of other problems.)
 
-Correct unwinding in error path of mthca_init_icm().
+I would recommend upgrading to the latest version of e2fsck (1.37)
+which should be able to fix it.  If not, please see the REPORTING BUGS
+section of the e2fsck man page to see the sort of information I would
+need to see in order to fix it.
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Unfortunately, FC3 doesn't have a prebuilt version of the latest
+e2fspros, so you would have to build it yourself.  
 
- 25-akpm/drivers/infiniband/hw/mthca/mthca_main.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN drivers/infiniband/hw/mthca/mthca_main.c~ib-mthca-add-support-for-new-mt25204-hca-fix drivers/infiniband/hw/mthca/mthca_main.c
---- 25/drivers/infiniband/hw/mthca/mthca_main.c~ib-mthca-add-support-for-new-mt25204-hca-fix	2005-04-12 03:21:48.679736456 -0700
-+++ 25-akpm/drivers/infiniband/hw/mthca/mthca_main.c	2005-04-12 03:21:48.683735848 -0700
-@@ -437,7 +437,7 @@ static int __devinit mthca_init_icm(stru
- 	if (!mdev->qp_table.rdb_table) {
- 		mthca_err(mdev, "Failed to map RDB context memory, aborting\n");
- 		err = -ENOMEM;
--		goto err_unmap_rdb;
-+		goto err_unmap_eqp;
- 	}
- 
-        mdev->cq_table.table = mthca_alloc_icm_table(mdev, init_hca->cqc_base,
-_
+						- Ted

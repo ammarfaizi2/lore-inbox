@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVDLIXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVDLIf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVDLIXF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 04:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVDLIXF
+	id S262065AbVDLIf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 04:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbVDLIfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 04:23:05 -0400
-Received: from main.gmane.org ([80.91.229.2]:64159 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262048AbVDLIXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 04:23:01 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
-Subject: Re: 2.6.12-rc2-mm3
-Date: Tue, 12 Apr 2005 10:21:42 +0200
-Message-ID: <d3g091$2ic$1@sea.gmane.org>
-References: <20050411012532.58593bc1.akpm@osdl.org>	<d3ehut$boi$1@sea.gmane.org> <20050411172226.19716a2c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 195.70.138.133.adsl.nextra.cz
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-In-Reply-To: <20050411172226.19716a2c.akpm@osdl.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Tue, 12 Apr 2005 04:35:55 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:27834 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262065AbVDLIft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 04:35:49 -0400
+Message-Id: <200504120835.j3C8Zmg06782@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Greg KH'" <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Prototype error in <linux/debugfs.h>
+Date: Tue, 12 Apr 2005 01:35:51 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcU/Oo7mWnnpEeXuRuCpxWM38OqnuQ==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz> wrote:
-> 
->>Andrew Morton wrote:
->>
->>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
->>
->>MPlayer randomly crashes in various pthread_* calls when using binary
->>codecs. 2.6.12-rc2-mm2 was ok. I tried to reverse
->>fix-crash-in-entrys-restore_all.patch, but it didn't help.
->>
-> 
-> 
-> hm, could be anything.
-> 
-> Does 2.6.12-rc2 also fail?
+To lazy to write a patch, the inline debugfs function declaration
+for the following three functions disagree between CONFIG_DEBUG_FS
+and !CONFIG_DEBUG_FS
 
-looks like it's sched-unlocked-context-switches.patch. after reversing
-it works fine.
+4th argument mismatch, looks like an obvious copy-n-paste error.
+u16, u32, and u32?
 
--- 
-Jindrich Makovicka
+
+static inline struct dentry *debugfs_create_u16(const char *name, mode_t mode,
+                                                struct dentry *parent,
+                                                u8 *value)
+{
+        return ERR_PTR(-ENODEV);
+}
+
+static inline struct dentry *debugfs_create_u32(const char *name, mode_t mode,
+                                                struct dentry *parent,
+                                                u8 *value)
+{
+        return ERR_PTR(-ENODEV);
+}
+
+static inline struct dentry *debugfs_create_bool(const char *name, mode_t mode,
+                                                 struct dentry *parent,
+                                                 u8 *value)
+{
+        return ERR_PTR(-ENODEV);
+}
+
 

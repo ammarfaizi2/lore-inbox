@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263049AbVDMAee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVDMAaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263049AbVDMAee (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 20:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVDMAd4
+	id S262138AbVDMAaH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVDLUTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 20:33:56 -0400
-Received: from ciistr1.ist.utl.pt ([193.136.128.1]:39314 "EHLO
-	ciistr1.ist.utl.pt") by vger.kernel.org with ESMTP id S262931AbVDMAbq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 20:31:46 -0400
-From: Claudio Martins <ctpm@rnl.ist.utl.pt>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Processes stuck on D state on Dual Opteron
-Date: Wed, 13 Apr 2005 01:31:31 +0100
-User-Agent: KMail/1.7.1
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       neilb@cse.unsw.edu.au
-References: <200504050316.20644.ctpm@rnl.ist.utl.pt> <200504120122.48168.ctpm@rnl.ist.utl.pt> <20050411174654.536e1d79.akpm@osdl.org>
-In-Reply-To: <20050411174654.536e1d79.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504130131.31319.ctpm@rnl.ist.utl.pt>
+	Tue, 12 Apr 2005 16:19:44 -0400
+Received: from fire.osdl.org ([65.172.181.4]:22728 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262133AbVDLKb2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:31:28 -0400
+Message-Id: <200504121031.j3CAVFOq005272@shell0.pdx.osdl.net>
+Subject: [patch 037/198] ppc32: Fix a problem with NTP on !(chrp||gemini)
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, gpulcini@swintel.it,
+       paubert@iram.es, trini@kernel.crashing.org
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:31:08 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tuesday 12 April 2005 01:46, Andrew Morton wrote:
-> Claudio Martins <ctpm@rnl.ist.utl.pt> wrote:
-> >   I think I'm going to give a try to Neil's patch, but I'll have to apply
-> > some patches from -mm.
->
-> Just this one if you're using 2.6.12-rc2:
->
-> --- 25/drivers/md/md.c~avoid-deadlock-in-sync_page_io-by-using-gfp_noio Mon
-> Apr 11 16:55:07 2005 +++ 25-akpm/drivers/md/md.c Mon Apr 11 16:55:07 2005
-> @@ -332,7 +332,7 @@ static int bi_complete(struct bio *bio,
->  static int sync_page_io(struct block_device *bdev, sector_t sector, int
-> size, struct page *page, int rw)
->  {
-> - struct bio *bio = bio_alloc(GFP_KERNEL, 1);
-> + struct bio *bio = bio_alloc(GFP_NOIO, 1);
->   struct completion event;
->   int ret;
->
-> _
+From: Giovambattista Pulcini <gpulcini@swintel.it>
 
+The following problem was found by Giovambattista Pulcini
+<gpulcini@swintel.it>, who also provided a partial patch, and this has been
+verified by our time guru Gabriel Paubert <paubert@iram.es>.
 
-  Hi Andrew, all,
+The problem is that in do_settimeofday() we always set time_state to
+TIME_ERROR and except on two platforms, never re-set it.  This meant that
+ntp_gettime() and ntp_adjtime() always returned TIME_ERROR, incorrectly. 
+Based on Gabriel's analysis, time_state is used for leap-second processing,
+and ppc shouldn't be mucking with it.
 
-  Sorry for the delay in reporting. This patch does indeed fix the problem. 
-The machine ran stress for almost 15h straight with no problems at all.
+Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
- As for Nick's patch  I, too, think it would be nice to be included (once the 
-performance problems are sorted out), since it seemed to make the block layer 
-more robust and well behaved (at least with stress),  although I didn't run 
-performance tests to measure regressions.
+ 25-akpm/arch/ppc/kernel/time.c            |    1 -
+ 25-akpm/arch/ppc/platforms/chrp_time.c    |    2 --
+ 25-akpm/arch/ppc/platforms/gemini_setup.c |    3 ---
+ 3 files changed, 6 deletions(-)
 
-  Thanks Nick, Neil, Andrew and all others for your great help with this 
-issue. I'll have to put the machine on production now with the patch applied, 
-but let me know if I can be of any further help with these issues.
-
- Thanks
-
-Claudio
-
+diff -puN arch/ppc/kernel/time.c~ppc32-fix-a-problem-with-ntp-on-chrpgemini arch/ppc/kernel/time.c
+--- 25/arch/ppc/kernel/time.c~ppc32-fix-a-problem-with-ntp-on-chrpgemini	2005-04-12 03:21:12.263272600 -0700
++++ 25-akpm/arch/ppc/kernel/time.c	2005-04-12 03:21:12.268271840 -0700
+@@ -272,7 +272,6 @@ int do_settimeofday(struct timespec *tv)
+ 
+ 	time_adjust = 0;                /* stop active adjtime() */
+ 	time_status |= STA_UNSYNC;
+-	time_state = TIME_ERROR;        /* p. 24, (a) */
+ 	time_maxerror = NTP_PHASE_LIMIT;
+ 	time_esterror = NTP_PHASE_LIMIT;
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+diff -puN arch/ppc/platforms/chrp_time.c~ppc32-fix-a-problem-with-ntp-on-chrpgemini arch/ppc/platforms/chrp_time.c
+--- 25/arch/ppc/platforms/chrp_time.c~ppc32-fix-a-problem-with-ntp-on-chrpgemini	2005-04-12 03:21:12.264272448 -0700
++++ 25-akpm/arch/ppc/platforms/chrp_time.c	2005-04-12 03:21:12.269271688 -0700
+@@ -115,8 +115,6 @@ int __chrp chrp_set_rtc_time(unsigned lo
+ 	chrp_cmos_clock_write(save_control, RTC_CONTROL);
+ 	chrp_cmos_clock_write(save_freq_select, RTC_FREQ_SELECT);
+ 
+-	if ( (time_state == TIME_ERROR) || (time_state == TIME_BAD) )
+-		time_state = TIME_OK;
+ 	spin_unlock(&rtc_lock);
+ 	return 0;
+ }
+diff -puN arch/ppc/platforms/gemini_setup.c~ppc32-fix-a-problem-with-ntp-on-chrpgemini arch/ppc/platforms/gemini_setup.c
+--- 25/arch/ppc/platforms/gemini_setup.c~ppc32-fix-a-problem-with-ntp-on-chrpgemini	2005-04-12 03:21:12.265272296 -0700
++++ 25-akpm/arch/ppc/platforms/gemini_setup.c	2005-04-12 03:21:12.269271688 -0700
+@@ -433,9 +433,6 @@ gemini_set_rtc_time( unsigned long now )
+ 	/* done writing */
+ 	gemini_rtc_write(reg, M48T35_RTC_CONTROL);
+ 
+-	if ((time_state == TIME_ERROR) || (time_state == TIME_BAD))
+-		time_state = TIME_OK;
+-
+ 	return 0;
+ }
+ 
+_

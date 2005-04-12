@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVDLQNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVDLKnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262432AbVDLQNa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 12:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVDLKoS
+	id S262272AbVDLKnO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 06:43:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVDLKmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:44:18 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57546 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262286AbVDLKdr (ORCPT
+	Tue, 12 Apr 2005 06:42:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:38602 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262272AbVDLKdW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:47 -0400
-Message-Id: <200504121033.j3CAXSiC005885@shell0.pdx.osdl.net>
-Subject: [patch 181/198] IB/mthca: add mthca_write64_raw() for writing to MTT table directly
+	Tue, 12 Apr 2005 06:33:22 -0400
+Message-Id: <200504121033.j3CAX2kL005754@shell0.pdx.osdl.net>
+Subject: [patch 151/198] arm: fix floppy disk dependencies
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mst@mellanox.co.il,
-       roland@topspin.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rmk+lkml@arm.linux.org.uk,
+       rmk@arm.linux.org.uk
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:21 -0700
+Date: Tue, 12 Apr 2005 03:32:56 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 
-Add mthca_write64_raw() function, which will be used to write FMR entries that
-are in ioremapped PCI memory.
+Both the RiscPC and (optionally) EBSA285 have floppy disk support.  Allow this
+option to be selected on these ARM platforms again.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <roland@topspin.com>
+Signed-off-by: Russell King <rmk@arm.linux.org.uk>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/infiniband/hw/mthca/mthca_doorbell.h |   11 +++++++++++
- 1 files changed, 11 insertions(+)
+ 25-akpm/drivers/block/Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN drivers/infiniband/hw/mthca/mthca_doorbell.h~ib-mthca-add-mthca_write64_raw-for-writing-to-mtt-table-directly drivers/infiniband/hw/mthca/mthca_doorbell.h
---- 25/drivers/infiniband/hw/mthca/mthca_doorbell.h~ib-mthca-add-mthca_write64_raw-for-writing-to-mtt-table-directly	2005-04-12 03:21:46.492069032 -0700
-+++ 25-akpm/drivers/infiniband/hw/mthca/mthca_doorbell.h	2005-04-12 03:21:46.495068576 -0700
-@@ -51,6 +51,11 @@
- #define MTHCA_INIT_DOORBELL_LOCK(ptr)    do { } while (0)
- #define MTHCA_GET_DOORBELL_LOCK(ptr)      (NULL)
+diff -puN drivers/block/Kconfig~arm-fix-floppy-disk-dependencies drivers/block/Kconfig
+--- 25/drivers/block/Kconfig~arm-fix-floppy-disk-dependencies	2005-04-12 03:21:39.810084848 -0700
++++ 25-akpm/drivers/block/Kconfig	2005-04-12 03:21:39.813084392 -0700
+@@ -6,7 +6,7 @@ menu "Block devices"
  
-+static inline void mthca_write64_raw(__be64 val, void __iomem *dest)
-+{
-+	__raw_writeq((__force u64) val, dest);
-+}
-+
- static inline void mthca_write64(u32 val[2], void __iomem *dest,
- 				 spinlock_t *doorbell_lock)
- {
-@@ -74,6 +79,12 @@ static inline void mthca_write_db_rec(u3
- #define MTHCA_INIT_DOORBELL_LOCK(ptr)     spin_lock_init(ptr)
- #define MTHCA_GET_DOORBELL_LOCK(ptr)      (ptr)
- 
-+static inline void mthca_write64_raw(__be64 val, void __iomem *dest)
-+{
-+	__raw_writel(((__force u32 *) &val)[0], dest);
-+	__raw_writel(((__force u32 *) &val)[1], dest + 4);
-+}
-+
- static inline void mthca_write64(u32 val[2], void __iomem *dest,
- 				 spinlock_t *doorbell_lock)
- {
+ config BLK_DEV_FD
+ 	tristate "Normal floppy disk support"
+-	depends on (!ARCH_S390 && !M68K && !IA64 && !UML) || Q40 || (SUN3X && BROKEN)
++	depends on (!ARCH_S390 && !M68K && !IA64 && !UML) || Q40 || (SUN3X && BROKEN) || ARCH_RPC || ARCH_EBSA285
+ 	---help---
+ 	  If you want to use the floppy disk drive(s) of your PC under Linux,
+ 	  say Y. Information about this driver, especially important for IBM
 _

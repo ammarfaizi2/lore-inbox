@@ -1,136 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVDLTL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVDMD56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262572AbVDLTL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:11:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVDLTJE
+	id S262571AbVDMD56 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 23:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVDLTMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:09:04 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47561 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262211AbVDLKcg (ORCPT
+	Tue, 12 Apr 2005 15:12:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:46281 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262209AbVDLKcf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:36 -0400
-Message-Id: <200504121032.j3CAWLlI005569@shell0.pdx.osdl.net>
-Subject: [patch 108/198] fix u32 vs. pm_message_t in pcmcia
+	Tue, 12 Apr 2005 06:32:35 -0400
+Message-Id: <200504121032.j3CAWSPl005601@shell0.pdx.osdl.net>
+Subject: [patch 116/198] u32 vs. pm_message_t in ppc and radeon
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz, pavel@suse.cz
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:15 -0700
+Date: Tue, 12 Apr 2005 03:32:22 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Pavel Machek <pavel@ucw.cz>
 
-This fixes u32 vs. pm_message_t in pcmcia.
+This fixes pm_message_t vs.  u32 confusion in ppc and aty (I *hope* that's
+basically radeon code...).  I was not able to test most of these, but I'm
+not really changing anything, so it should be okay.
 
-Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/pcmcia/au1000_generic.c |    2 +-
- 25-akpm/drivers/pcmcia/hd64465_ss.c     |    2 +-
- 25-akpm/drivers/pcmcia/m32r_cfc.c       |    2 +-
- 25-akpm/drivers/pcmcia/m32r_pcc.c       |    2 +-
- 25-akpm/drivers/pcmcia/pxa2xx_base.c    |    2 +-
- 25-akpm/drivers/pcmcia/sa1100_generic.c |    2 +-
- 25-akpm/drivers/pcmcia/sa1111_generic.c |    2 +-
- 25-akpm/drivers/pcmcia/vrc4171_card.c   |    2 +-
- 8 files changed, 8 insertions(+), 8 deletions(-)
+ 25-akpm/arch/ppc64/kernel/of_device.c |    2 +-
+ 25-akpm/include/asm-ppc/macio.h       |    2 +-
+ 25-akpm/include/asm-ppc/ocp.h         |    2 +-
+ 25-akpm/include/asm-ppc/of_device.h   |    2 +-
+ drivers/video/aty/aty128fb.c          |    0 
+ drivers/video/aty/atyfb_base.c        |    0 
+ drivers/video/aty/radeonfb.h          |    0 
+ 7 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -puN drivers/pcmcia/au1000_generic.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/au1000_generic.c
---- 25/drivers/pcmcia/au1000_generic.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.355674160 -0700
-+++ 25-akpm/drivers/pcmcia/au1000_generic.c	2005-04-12 03:21:29.367672336 -0700
-@@ -518,7 +518,7 @@ static int au1x00_drv_pcmcia_probe(struc
- }
- 
- 
--static int au1x00_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
-+static int au1x00_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	int ret = 0;
- 	if (level == SUSPEND_SAVE_STATE)
-diff -puN drivers/pcmcia/hd64465_ss.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/hd64465_ss.c
---- 25/drivers/pcmcia/hd64465_ss.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.356674008 -0700
-+++ 25-akpm/drivers/pcmcia/hd64465_ss.c	2005-04-12 03:21:29.368672184 -0700
-@@ -845,7 +845,7 @@ static void hs_exit_socket(hs_socket_t *
- 	local_irq_restore(flags);
- }
- 
--static int hd64465_suspend(struct device *dev, u32 state, u32 level)
-+static int hd64465_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	int ret = 0;
- 	if (level == SUSPEND_SAVE_STATE)
-diff -puN drivers/pcmcia/m32r_cfc.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/m32r_cfc.c
---- 25/drivers/pcmcia/m32r_cfc.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.358673704 -0700
-+++ 25-akpm/drivers/pcmcia/m32r_cfc.c	2005-04-12 03:21:29.369672032 -0700
-@@ -743,7 +743,7 @@ static struct pccard_operations pcc_oper
- 
- /*====================================================================*/
- 
--static int m32r_pcc_suspend(struct device *dev, u32 state, u32 level)
-+static int m32r_pcc_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	int ret = 0;
- 	if (level == SUSPEND_SAVE_STATE)
-diff -puN drivers/pcmcia/m32r_pcc.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/m32r_pcc.c
---- 25/drivers/pcmcia/m32r_pcc.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.359673552 -0700
-+++ 25-akpm/drivers/pcmcia/m32r_pcc.c	2005-04-12 03:21:29.370671880 -0700
-@@ -696,7 +696,7 @@ static struct pccard_operations pcc_oper
- 
- /*====================================================================*/
- 
--static int m32r_pcc_suspend(struct device *dev, u32 state, u32 level)
-+static int m32r_pcc_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	int ret = 0;
- 	if (level == SUSPEND_SAVE_STATE)
-diff -puN drivers/pcmcia/pxa2xx_base.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/pxa2xx_base.c
---- 25/drivers/pcmcia/pxa2xx_base.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.360673400 -0700
-+++ 25-akpm/drivers/pcmcia/pxa2xx_base.c	2005-04-12 03:21:29.370671880 -0700
-@@ -205,7 +205,7 @@ int pxa2xx_drv_pcmcia_probe(struct devic
- }
- EXPORT_SYMBOL(pxa2xx_drv_pcmcia_probe);
- 
--static int pxa2xx_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
-+static int pxa2xx_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	int ret = 0;
- 	if (level == SUSPEND_SAVE_STATE)
-diff -puN drivers/pcmcia/sa1100_generic.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/sa1100_generic.c
---- 25/drivers/pcmcia/sa1100_generic.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.362673096 -0700
-+++ 25-akpm/drivers/pcmcia/sa1100_generic.c	2005-04-12 03:21:29.370671880 -0700
-@@ -75,7 +75,7 @@ static int sa11x0_drv_pcmcia_probe(struc
- 	return ret;
- }
- 
--static int sa11x0_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
-+static int sa11x0_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	int ret = 0;
- 	if (level == SUSPEND_SAVE_STATE)
-diff -puN drivers/pcmcia/sa1111_generic.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/sa1111_generic.c
---- 25/drivers/pcmcia/sa1111_generic.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.363672944 -0700
-+++ 25-akpm/drivers/pcmcia/sa1111_generic.c	2005-04-12 03:21:29.371671728 -0700
-@@ -158,7 +158,7 @@ static int __devexit pcmcia_remove(struc
+diff -puN arch/ppc64/kernel/of_device.c~u32-vs-pm_message_t-in-ppc-and-radeon arch/ppc64/kernel/of_device.c
+--- 25/arch/ppc64/kernel/of_device.c~u32-vs-pm_message_t-in-ppc-and-radeon	2005-04-12 03:21:31.445356480 -0700
++++ 25-akpm/arch/ppc64/kernel/of_device.c	2005-04-12 03:21:31.457354656 -0700
+@@ -104,7 +104,7 @@ static int of_device_remove(struct devic
  	return 0;
  }
  
--static int pcmcia_suspend(struct sa1111_dev *dev, u32 state)
-+static int pcmcia_suspend(struct sa1111_dev *dev, pm_message_t state)
+-static int of_device_suspend(struct device *dev, u32 state)
++static int of_device_suspend(struct device *dev, pm_message_t state)
  {
- 	return pcmcia_socket_dev_suspend(&dev->dev, state);
- }
-diff -puN drivers/pcmcia/vrc4171_card.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/vrc4171_card.c
---- 25/drivers/pcmcia/vrc4171_card.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.364672792 -0700
-+++ 25-akpm/drivers/pcmcia/vrc4171_card.c	2005-04-12 03:21:29.372671576 -0700
-@@ -774,7 +774,7 @@ static int __devinit vrc4171_card_setup(
+ 	struct of_device * of_dev = to_of_device(dev);
+ 	struct of_platform_driver * drv = to_of_platform_driver(dev->driver);
+diff -puN drivers/video/aty/aty128fb.c~u32-vs-pm_message_t-in-ppc-and-radeon drivers/video/aty/aty128fb.c
+diff -puN drivers/video/aty/atyfb_base.c~u32-vs-pm_message_t-in-ppc-and-radeon drivers/video/aty/atyfb_base.c
+diff -puN drivers/video/aty/radeonfb.h~u32-vs-pm_message_t-in-ppc-and-radeon drivers/video/aty/radeonfb.h
+diff -puN include/asm-ppc/macio.h~u32-vs-pm_message_t-in-ppc-and-radeon include/asm-ppc/macio.h
+--- 25/include/asm-ppc/macio.h~u32-vs-pm_message_t-in-ppc-and-radeon	2005-04-12 03:21:31.451355568 -0700
++++ 25-akpm/include/asm-ppc/macio.h	2005-04-12 03:21:31.457354656 -0700
+@@ -126,7 +126,7 @@ struct macio_driver
+ 	int	(*probe)(struct macio_dev* dev, const struct of_match *match);
+ 	int	(*remove)(struct macio_dev* dev);
  
- __setup("vrc4171_card=", vrc4171_card_setup);
+-	int	(*suspend)(struct macio_dev* dev, u32 state);
++	int	(*suspend)(struct macio_dev* dev, pm_message_t state);
+ 	int	(*resume)(struct macio_dev* dev);
+ 	int	(*shutdown)(struct macio_dev* dev);
  
--static int vrc4171_card_suspend(struct device *dev, u32 state, u32 level)
-+static int vrc4171_card_suspend(struct device *dev, pm_message_t state, u32 level)
- {
- 	int retval = 0;
+diff -puN include/asm-ppc/ocp.h~u32-vs-pm_message_t-in-ppc-and-radeon include/asm-ppc/ocp.h
+--- 25/include/asm-ppc/ocp.h~u32-vs-pm_message_t-in-ppc-and-radeon	2005-04-12 03:21:31.453355264 -0700
++++ 25-akpm/include/asm-ppc/ocp.h	2005-04-12 03:21:31.458354504 -0700
+@@ -119,7 +119,7 @@ struct ocp_driver {
+ 	const struct ocp_device_id *id_table;	/* NULL if wants all devices */
+ 	int  (*probe)  (struct ocp_device *dev);	/* New device inserted */
+ 	void (*remove) (struct ocp_device *dev);	/* Device removed (NULL if not a hot-plug capable driver) */
+-	int  (*suspend) (struct ocp_device *dev, u32 state);	/* Device suspended */
++	int  (*suspend) (struct ocp_device *dev, pm_message_t state);	/* Device suspended */
+ 	int  (*resume) (struct ocp_device *dev);	                /* Device woken up */
+ 	struct device_driver driver;
+ };
+diff -puN include/asm-ppc/of_device.h~u32-vs-pm_message_t-in-ppc-and-radeon include/asm-ppc/of_device.h
+--- 25/include/asm-ppc/of_device.h~u32-vs-pm_message_t-in-ppc-and-radeon	2005-04-12 03:21:31.454355112 -0700
++++ 25-akpm/include/asm-ppc/of_device.h	2005-04-12 03:21:31.458354504 -0700
+@@ -55,7 +55,7 @@ struct of_platform_driver
+ 	int	(*probe)(struct of_device* dev, const struct of_match *match);
+ 	int	(*remove)(struct of_device* dev);
+ 
+-	int	(*suspend)(struct of_device* dev, u32 state);
++	int	(*suspend)(struct of_device* dev, pm_message_t state);
+ 	int	(*resume)(struct of_device* dev);
+ 	int	(*shutdown)(struct of_device* dev);
  
 _

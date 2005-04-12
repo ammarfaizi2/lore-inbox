@@ -1,69 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262638AbVDLUBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVDLUFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262638AbVDLUBP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVDLT7c
+	id S262153AbVDLUFf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbVDLT7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:59:32 -0400
-Received: from fire.osdl.org ([65.172.181.4]:40136 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262152AbVDLKbp (ORCPT
+	Tue, 12 Apr 2005 15:59:13 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40392 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262153AbVDLKbq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:45 -0400
-Message-Id: <200504121031.j3CAVc0R005360@shell0.pdx.osdl.net>
-Subject: [patch 059/198] piix: IDE PATA patch for Intel ESB2
+	Tue, 12 Apr 2005 06:31:46 -0400
+Message-Id: <200504121031.j3CAVexS005372@shell0.pdx.osdl.net>
+Subject: [patch 062/198] ahci: AHCI mode SATA patch for Intel ESB2
 To: torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, jason.d.gaston@intel.com,
-       Jason.d.gaston@intel.com
+       Jason.d.gaston@intel.com, linux-scsi@vger.kernel.org
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:31 -0700
+Date: Tue, 12 Apr 2005 03:31:34 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Jason Gaston <jason.d.gaston@intel.com>
 
-This patch adds the Intel ESB2 DID's to the piix.c file for IDE PATA support.
+This patch adds the Intel ESB2 DID's to the ahci.c file for AHCI mode SATA
+support.
 
 Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com>
+Cc: <linux-scsi@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/ide/pci/piix.c |    4 ++++
- 1 files changed, 4 insertions(+)
+ 25-akpm/drivers/scsi/ahci.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
 
-diff -puN drivers/ide/pci/piix.c~piix-ide-pata-patch-for-intel-esb2 drivers/ide/pci/piix.c
---- 25/drivers/ide/pci/piix.c~piix-ide-pata-patch-for-intel-esb2	2005-04-12 03:21:17.487478400 -0700
-+++ 25-akpm/drivers/ide/pci/piix.c	2005-04-12 03:21:17.491477792 -0700
-@@ -134,6 +134,7 @@ static u8 piix_ratemask (ide_drive_t *dr
- 		case PCI_DEVICE_ID_INTEL_ESB_2:
- 		case PCI_DEVICE_ID_INTEL_ICH6_19:
- 		case PCI_DEVICE_ID_INTEL_ICH7_21:
-+		case PCI_DEVICE_ID_INTEL_ESB2_18:
- 			mode = 3;
- 			break;
- 		/* UDMA 66 capable */
-@@ -447,6 +448,7 @@ static unsigned int __devinit init_chips
- 		case PCI_DEVICE_ID_INTEL_ESB_2:
- 		case PCI_DEVICE_ID_INTEL_ICH6_19:
- 		case PCI_DEVICE_ID_INTEL_ICH7_21:
-+		case PCI_DEVICE_ID_INTEL_ESB2_18:
- 		{
- 			unsigned int extra = 0;
- 			pci_read_config_dword(dev, 0x54, &extra);
-@@ -572,6 +574,7 @@ static ide_pci_device_t piix_pci_info[] 
- 	/* 20 */ DECLARE_PIIX_DEV("ICH6"),
- 	/* 21 */ DECLARE_PIIX_DEV("ICH7"),
- 	/* 22 */ DECLARE_PIIX_DEV("ICH4"),
-+	/* 23 */ DECLARE_PIIX_DEV("ESB2"),
+diff -puN drivers/scsi/ahci.c~ahci-ahci-mode-sata-patch-for-intel-esb2 drivers/scsi/ahci.c
+--- 25/drivers/scsi/ahci.c~ahci-ahci-mode-sata-patch-for-intel-esb2	2005-04-12 03:21:18.132380360 -0700
++++ 25-akpm/drivers/scsi/ahci.c	2005-04-12 03:21:18.135379904 -0700
+@@ -257,6 +257,12 @@ static struct pci_device_id ahci_pci_tbl
+ 	  board_ahci }, /* ICH7R */
+ 	{ PCI_VENDOR_ID_AL, 0x5288, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 	  board_ahci }, /* ULi M5288 */
++	{ PCI_VENDOR_ID_INTEL, 0x2681, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ESB2 */
++	{ PCI_VENDOR_ID_INTEL, 0x2682, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ESB2 */
++	{ PCI_VENDOR_ID_INTEL, 0x2683, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	  board_ahci }, /* ESB2 */
+ 	{ }	/* terminate list */
  };
  
- /**
-@@ -647,6 +650,7 @@ static struct pci_device_id piix_pci_tbl
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_19, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 20},
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_21, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 21},
- 	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 22},
-+	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ESB2_18, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 23},
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, piix_pci_tbl);
 _

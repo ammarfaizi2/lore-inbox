@@ -1,102 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVDLBEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVDLBE5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbVDLBEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 21:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVDLBEZ
+	id S261991AbVDLBE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 21:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVDLBE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 21:04:25 -0400
-Received: from vsmtp12.tin.it ([212.216.176.206]:37804 "EHLO vsmtp12.tin.it")
-	by vger.kernel.org with ESMTP id S261990AbVDLBEQ (ORCPT
+	Mon, 11 Apr 2005 21:04:57 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:30891 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261991AbVDLBEx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 21:04:16 -0400
-Message-ID: <425B1E3F.5080202@tin.it>
-Date: Mon, 11 Apr 2005 20:02:55 -0500
-From: "Franco \"Sensei\"" <senseiwa@tin.it>
-Reply-To: Sensei <senseiwa@tin.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [INFO] Kernel strict versioning
-References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de>
-In-Reply-To: <20050408190500.GF15688@stusta.de>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig6E7DEAF3214A0C8750DD073C"
+	Mon, 11 Apr 2005 21:04:53 -0400
+Subject: Re: bdflush/rpciod high CPU utilization, profile does not make
+	sense
+From: Greg Banks <gnb@melbourne.sgi.com>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050411154211.GG13369@unthought.net>
+References: <20050407153848.GN347@unthought.net>
+	 <1112890671.10366.44.camel@lade.trondhjem.org>
+	 <20050409213549.GW347@unthought.net>
+	 <1113083552.11982.17.camel@lade.trondhjem.org>
+	 <20050411074806.GX347@unthought.net>
+	 <1113222939.14281.17.camel@lade.trondhjem.org>
+	 <20050411134703.GC13369@unthought.net>
+	 <1113230125.9962.7.camel@lade.trondhjem.org>
+	 <20050411144127.GE13369@unthought.net>
+	 <1113232905.9962.15.camel@lade.trondhjem.org>
+	 <20050411154211.GG13369@unthought.net>
+Content-Type: text/plain
+Organization: Silicon Graphics Inc, Australian Software Group.
+Message-Id: <1113267809.1956.242.camel@hole.melbourne.sgi.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 12 Apr 2005 11:03:29 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig6E7DEAF3214A0C8750DD073C
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2005-04-12 at 01:42, Jakob Oestergaard wrote:
+> Yes, as far as I know - the Broadcom Tigeon3 driver does not have the
+> option of enabling/disabling RX polling (if we agree that is what we're
+> talking about), but looking in tg3.c it seems that it *always*
+> unconditionally uses NAPI...
 
-Adrian Bunk wrote:
-> This has nothing to do with versioning.
-> 
-> You are asking for ABI compatibility between different kernel versions.
+I've whined and moaned about this in the past, but for all its
+faults NAPI on tg3 doesn't lose packets.  It does cause a huge
+increase in irq cpu time on multiple fast CPUs.  What irq rate
+are you seeing?
 
-The problem is probably misunderstanding about what I intend by version.
+I did once post a patch to make NAPI for tg3 selectable at
+configure time.
+http://marc.theaimsgroup.com/?l=linux-netdev&m=107183822710263&w=2
 
-> There is no stable ABI between different kernel versions and there will 
-> never be one. Please read Documentation/stable_api_nonsense.txt for 
-> details.
+> No dropped packets... I wonder if the tg3 driver is being completely
+> honest about this...
 
-I've read it.
+At one point it wasn't, since this patch it is:
+http://marc.theaimsgroup.com/?l=linux-netdev&m=108433829603319&w=2
 
-Assuming the fact that a kernel can be considered stable, my point of
-view implies an assumption: kernel and modules are distributed by a
-distro, and compiled with the same gcc. Of course, I'm not talking about
-different architectures and so on, since I'm talking about something
-different, I'm talking about the api involved in the developement. 
-Distributions have to use a great care about compiler changes, and it's 
-not kernel developers' problem.
-
-A kernel stable 2.X  version should not differ much in the
-subversioning (2.X.a ~= 2.X.b). Changing APIs in the kernel can be 
-possibly avoided by using a release versioning different from the one 
-used now. Structues and exported functions should be almost the same, 
-the implementation should be, and of course, must be different: bugs, 
-improvements and so on.
-
-I see the point about continuous developement, that's why I'm using 
-linux since 97, but I find interesting also the design of a stable 
-infrastructure, that can be achieved. A data structure no longer in use 
-by anyone, functions being unused for a long time, can be made harmless. 
-Providing a binary compatibility makes recompiling all external modules 
-(external to the official kernel I mean) not necessary, making life 
-easier for any other person using linux (e.g. pwc module for my logitech 
-pro 4000 webcam, every new kernel, new module compilation. Stability 
-makes in this sense a real big improvement. An example of this care can 
-be found in trolltech qt library. I use them since 1.x and it's a really 
-good thing assuring the binary compatibility... of course they just 
-screw it some day to day :) Everybody can be wrong.
-
-I find it an interesting point anyway. I know there would never be, as 
-you said, but I don't find the document you've pointed me to, really 
-convincing. Still have doubts...
-
+Greg.
 -- 
-Sensei <mailto:senseiwa@tin.it> <pgp:8998A2DB>
-        <icqnum:241572242>
-        <yahoo!:sensei_sen>
-        <msn-id:sensei_sen@hotmail.com>
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.
 
---------------enig6E7DEAF3214A0C8750DD073C
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCWx5C4LBKhYmYotsRAgA7AJ9ejBn6x4ukHZNlj7wLzjzjyWHd8ACdHuak
-/R2rY2YoXtApJGJq3VolvQQ=
-=11DN
------END PGP SIGNATURE-----
-
---------------enig6E7DEAF3214A0C8750DD073C--

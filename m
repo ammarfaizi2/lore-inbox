@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVDLBXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVDLBaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVDLBXm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 21:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVDLBXm
+	id S261873AbVDLBaN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 21:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbVDLBaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 21:23:42 -0400
-Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:60519 "HELO
-	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262000AbVDLBWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 21:22:00 -0400
-From: Shawn Starr <shawn.starr@rogers.com>
-Organization: sh0n.net
-To: Rob Landley <rob@landley.net>
-Subject: Re: Policy question (was Re: [2.6.12-rc1][ACPI][suspend] /proc/acpi/sleep vs /sys/power/state issue - 'standby' on a laptop)
-Date: Mon, 11 Apr 2005 21:21:51 -0400
-User-Agent: KMail/1.7.2
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net
-References: <20050406212221.75716.qmail@web88010.mail.re2.yahoo.com> <200504112009.30928.rob@landley.net>
-In-Reply-To: <200504112009.30928.rob@landley.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200504112121.52203.shawn.starr@rogers.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 11 Apr 2005 21:30:13 -0400
+Received: from [221.216.56.203] ([221.216.56.203]:14826 "EHLO
+	adam.yggdrasil.com") by vger.kernel.org with ESMTP id S261873AbVDLBaG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 21:30:06 -0400
+Date: Mon, 11 Apr 2005 18:20:18 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200504120120.j3C1KII14991@adam.yggdrasil.com>
+To: pasky@ucw.cz
+Subject: Re: Re: GIT license (Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1)
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, of course. When I get around to figuring out the best way to do this.  
-Since I don't want to bloat up sysfs ACPI stuff just to check if the echoed 
-value is a number or string. We can just gradually phase it out by just 
-marking it DEPRECATED and keep it ON in the Kbuild file so nobody looses the 
-functionality until then.
+On Mon, 11 Apr 2005 20:45:38 +0200, Peter Baudis wrote:
+>  Hello,
 
-I'm thinking 2 years but some say thats too long :)
+>  please do not trim the cc list so agressively.
 
-Now that I look at it, I don't need to put it into a CONFIG option as its 
-already a module :-) even better.
+Sorry.  I read the list from a web site that does not show the
+cc lists.  I'll try to cc more people from the relevant discussions
+though.  On the other hand, I've dropped Linus from this message,
+as it just points to something he previously said.
 
-Shawn.
+>Dear diary, on Mon, Apr 11, 2005 at 05:46:38PM CEST, I got a letter
+>where "Adam J. Richter" <adam@yggdrasil.com> told me that...
+>..snip..
+>> Graydon Hoare.  (By the way, I would prefer that git just punt to
+>> user level programs for diff and merge when all of the versions
+>> involved are different or at least have a very thin interface
+>> for extending the facility, because I would like to do some character
+>> based merge stuff.)
+>..snip..
 
-On April 11, 2005 20:09, Rob Landley wrote:
-> On Wednesday 06 April 2005 05:22 pm, Shawn Starr wrote:
-> > --- Pavel Machek <pavel@ucw.cz> wrote:
-> > > Hi!
-> > >
-> > > > So nobody minds if I make this into a CONFIG
-> > >
-> > > option marked as Deprecated? :)
-> > >
-> > > Actually it should probably go through
-> > >
-> > > Documentation/feature-removal-schedule.txt
-> > >
-> > > ...and give it *long* timeout, since it is API
-> > > change.
-> > >          Pavel
->
-> Shouldn't all deprecated features be in feature-removal-schedule.txt?
->
-> There are four entries in feature-removal-schedule in 2.6.12-rc2, but
-> `find . -name "Kconfig" | xargs grep -i deprecated` finds eight entries. 
-> (And there's more if the grep -i is for "obsolete" instead...)
->
-> Just wondering...
->
-> Rob
+>But this is what git already does. I agree it could do it even better,
+>by checking environment variables for the appropriate tools (then you
+>could use that to pass diff e.g. -p etc.).
+
+This message from Linus seemed to imply that git was going to get
+its own 3-way merge code:
+
+| Then the bad news: the merge algorithm is going to suck. It's going to be
+| just plain 3-way merge, the same RCS/CVS thing you've seen before. With no
+| understanding of renames etc. I'll try to find the best parent to base the
+| merge off of, although early testers may have to tell the piece of crud
+| what the most recent common parent was.
+
+( from http://marc.theaimsgroup.com/?l=linux-kernel&m=111320013100822&w=2 )
+
+
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

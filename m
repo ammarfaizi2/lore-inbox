@@ -1,74 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVDLXNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262975AbVDLXRk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbVDLXNz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVDLXLR
+	id S262975AbVDLXRk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:17:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVDLXPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 19:11:17 -0400
-Received: from ppsw-6.csi.cam.ac.uk ([131.111.8.136]:34726 "EHLO
-	ppsw-6.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262978AbVDLUhP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 16:37:15 -0400
-Date: Tue, 12 Apr 2005 21:36:58 +0100 (BST)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Miklos Szeredi <miklos@szeredi.hu>, dan@debian.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-In-Reply-To: <20050411214123.GF32535@mail.shareable.org>
-Message-ID: <Pine.LNX.4.60.0504122127160.26320@hermes-1.csi.cam.ac.uk>
-References: <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu>
- <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu>
- <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu>
- <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu>
- <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu>
- <20050411214123.GF32535@mail.shareable.org>
-MIME-Version: 1.0
+	Tue, 12 Apr 2005 19:15:02 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:12214 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262975AbVDLXLb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 19:11:31 -0400
+Date: Wed, 13 Apr 2005 01:11:01 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+Subject: RE: FUSYN and RT
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A02FD4458@orsmsx407>
+Message-Id: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
+Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Apr 2005, Jamie Lokier wrote:
-> Miklos Szeredi wrote:
-> > That is exactly the intended effect.  If I'm at my work machine (where
-> > I'm not an admin unfortunately) and I mount my home machine with sshfs
-> > (because FUSE is installed fortunately :), then I bloody well don't
-> > want the sysadmin or some automated script of his to go mucking under
-> > the mountpoint.
+I think we (at least) got a bit confused here. What (I think) the thread
+started out with was a clear layering of the mutexes. I.e. the code obeys
+the grammar
+
+ VALID_LOCK_CODE   = LOCK_FUSYN VALID_LOCK_CODE UNLOCK_FUSYN 
+                   | VALID_LOCK_CODE VALID_LOCK_CODE
+                   | VALID_RTLOCK_CODE
+ VALID_RTLOCK      = LOCK_RTLOCK VALID_RTLOCK_CODE UNLOCK_RTLOCK
+                   | VALID_RTLOCK_CODE VALID_RTLOCK_CODE
+                   | VALID_SPINLOCK_CODE
+                   | (code with no locks at all)
+ VALID_SPINLOCK_CODE = ... :-)
+
+In that context the case is simple: Fusyn's and RT-locks can easily
+co-exist. One only need an extra level akin to static_prio to fall back to
+when the last fusyn is unlocked. The API's should be _different_, but
+fusyn_setprio() should both update static_prio and call mutex_setprio().
+There will never be deadlocks involving both types of locks, as Daniel
+said because the lock nesting is sorted out. Furtheremore, unbalanced
+(incorrect) code like
+       LOCK_FUSYN VALID_RTLOCK_CODE (no unlock)
+will never hit the RT-level. So assuming the RT-lock based code is
+debugged the error must be in Fusyn based code.
+
+Esben
+
+On Tue, 12 Apr 2005, Perez-Gonzalez, Inaky wrote:
+
+> >From: Esben Nielsen [mailto:simlo@phys.au.dk]
+> >On 12 Apr 2005, Daniel Walker wrote:
+> >
+> >>
+> >>
+> >> At least, both mutexes will need to use the same API to raise and
+> lower
+> >> priorities.
+> >
+> >You basicly need 3 priorities:
+> >1) Actual: task->prio
+> >2) Base prio with no RT locks taken: task->static_prio
+> >3) Base prio with no Fusyn locks taken: task->??
+> >
+> >So no, you will not need the same API, at all :-) Fusyn manipulates
+> >task->static_prio and only task->prio when no RT lock is taken. When
+> the
+> >first RT-lock is taken/released it manipulates task->prio only. A
+> release
+> >of a Fusyn will manipulate task->static_prio as well as task->prio.
 > 
-> I think that would be _much_ nicer implemented as a mount which is
-> invisible to other users, rather than one which causes the admin's
-> scripts to spew error messages.  Is the namespace mechanism at all
-> suitable for that?
+> Yes you do. You took care of the simple case. Things get funnier
+> when you own more than one PI lock, or you need to promote a
+> task that is blocked on other PI locks whose owners are blocked
+> on PI locks (transitivity), or when you mix PI and PP (priority
+> protection/ priority ceiling).
 > 
-> It would also be nice to generalise and have virtual filesystems which
-> are able to present different views to different users.  Can FUSE do
-> that already - is the userspace part told which user is doing each
-> operation?  With that, the desire for virtual filesystems which cannot
-> be read by your sysadmin (by accident) is easy to satisfy - and that
-> kind of mechanism would probably be acceptable to all.
+> In that case not having a sim{pl,g}e API for doing it is nuts.
+> 
+> >> The next question is deadlocks. Because one mutex is only in the
+> kernel,
+> >> and the other is only in user space, it seems that deadlocks will
+> only
+> >> occur when a process holds locks that are all the same type.
+> >
+> >Yes.
+> >All these things assumes a clear lock nesting: Fusyns are on the outer
+> >level, RT locks on the inner level. What happens if there is a bug in
+> RT
+> >locking code will be unclear. On the other hand errors in Fusyn locking
+> >(user space) should not give problems in the kernel.
+> 
+> Wrong. Fusyns are kernel locks that are exposed to user space (much as
+> a file descriptor is a kernel object exposed to user space through
+> a system call). Of course if the user does something mean with them
+> they will cause an error, but should not have undesired consequences
+> in the kernel. But BUGS in the code will be as unclear as in RT mutexes.
+> 
+> >it is is bad maintainance to have to maintain two seperate systems. The
+> >best way ought to be to try to only have one PI system. The kernel is
+> big
+> >and confusing enough as it is!
+> 
+> Ayeh for the big...it is not that confusing :)
+> 
+> -- Inaky
+> 
 
-Yes it does.  We use it to provide magic symlinks which point to different 
-places for different people.  So we have for example a symlink called "ux" 
-and it points to "/servers/USERNAME/our-server/ux" where USERNAME is the 
-name from /etc/passwd matching the user id of the user accessing the 
-symlink.  So in documentaion and in stupid programs which require 
-hardcoding of path we specify "/ux" to find the shared space but in 
-reality this is a different local directory for every user.  (To complete 
-the picture the different local directories are actually the same remote 
-directory but mounted with access permissions for each user separately 
-using ncpfs.)
 
-Best regards,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/

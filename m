@@ -1,76 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVDLSHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVDLSJO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVDLSHt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:07:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVDLKc3
+	id S262419AbVDLSJO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVDLKcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:32:29 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61639 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262112AbVDLKbC (ORCPT
+	Tue, 12 Apr 2005 06:32:15 -0400
+Received: from fire.osdl.org ([65.172.181.4]:60359 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262111AbVDLKbB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:02 -0400
-Message-Id: <200504121030.j3CAUslx005175@shell0.pdx.osdl.net>
-Subject: [patch 016/198] oom-killer disable for iscsi/lvm2/multipath userland critical sections
+	Tue, 12 Apr 2005 06:31:01 -0400
+Message-Id: <200504121030.j3CAUvS3005191@shell0.pdx.osdl.net>
+Subject: [patch 020/198] Fix linux/atalk.h header
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, andrea@suse.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, davem@davemloft.net
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:48 -0700
+Date: Tue, 12 Apr 2005 03:30:51 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Andrea Arcangeli <andrea@suse.de>
+From: "David S. Miller" <davem@davemloft.net>
 
-iscsi/lvm2/multipath needs guaranteed protection from the oom-killer, so
-make the magical value of -17 in /proc/<pid>/oom_adj defeat the oom-killer
-altogether.
+This recently got changed to include a lot of kernel internal stuff in the
+non-__KERNEL__ area of the header, which isn't so kosher and breaks libc
+builds.
 
-(akpm: we still need to document oom_adj and friends in
-Documentation/filesystems/proc.txt!)
+The fix is pretty simple.
 
-Signed-off-by: Andrea Arcangeli <andrea@suse.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/fs/proc/base.c     |    2 +-
- 25-akpm/include/linux/mm.h |    3 +++
- 25-akpm/mm/oom_kill.c      |    2 +-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ 25-akpm/include/linux/atalk.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -puN fs/proc/base.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections fs/proc/base.c
---- 25/fs/proc/base.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections	2005-04-12 03:21:07.242035944 -0700
-+++ 25-akpm/fs/proc/base.c	2005-04-12 03:21:07.249034880 -0700
-@@ -751,7 +751,7 @@ static ssize_t oom_adjust_write(struct f
- 	if (copy_from_user(buffer, buf, count))
- 		return -EFAULT;
- 	oom_adjust = simple_strtol(buffer, &end, 0);
--	if (oom_adjust < -16 || oom_adjust > 15)
-+	if ((oom_adjust < -16 || oom_adjust > 15) && oom_adjust != OOM_DISABLE)
- 		return -EINVAL;
- 	if (*end == '\n')
- 		end++;
-diff -puN include/linux/mm.h~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections include/linux/mm.h
---- 25/include/linux/mm.h~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections	2005-04-12 03:21:07.243035792 -0700
-+++ 25-akpm/include/linux/mm.h	2005-04-12 03:21:07.250034728 -0700
-@@ -857,5 +857,8 @@ int in_gate_area_no_task(unsigned long a
- #define in_gate_area(task, addr) ({(void)task; in_gate_area_no_task(addr);})
- #endif	/* __HAVE_ARCH_GATE_AREA */
+diff -puN include/linux/atalk.h~fix-linux-atalkh-header include/linux/atalk.h
+--- 25/include/linux/atalk.h~fix-linux-atalkh-header	2005-04-12 03:21:08.121902184 -0700
++++ 25-akpm/include/linux/atalk.h	2005-04-12 03:21:08.124901728 -0700
+@@ -1,8 +1,6 @@
+ #ifndef __LINUX_ATALK_H__
+ #define __LINUX_ATALK_H__
  
-+/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
-+#define OOM_DISABLE -17
+-#include <net/sock.h>
+-
+ /*
+  * AppleTalk networking structures
+  *
+@@ -39,6 +37,10 @@ struct atalk_netrange {
+ 	__u16	nr_lastnet;
+ };
+ 
++#ifdef __KERNEL__
 +
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MM_H */
-diff -puN mm/oom_kill.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections mm/oom_kill.c
---- 25/mm/oom_kill.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections	2005-04-12 03:21:07.245035488 -0700
-+++ 25-akpm/mm/oom_kill.c	2005-04-12 03:21:07.251034576 -0700
-@@ -145,7 +145,7 @@ static struct task_struct * select_bad_p
- 	do_posix_clock_monotonic_gettime(&uptime);
- 	do_each_thread(g, p)
- 		/* skip the init task with pid == 1 */
--		if (p->pid > 1) {
-+		if (p->pid > 1 && p->oomkilladj != OOM_DISABLE) {
- 			unsigned long points;
++#include <net/sock.h>
++
+ struct atalk_route {
+ 	struct net_device  *dev;
+ 	struct atalk_addr  target;
+@@ -81,8 +83,6 @@ static inline struct atalk_sock *at_sk(s
+ 	return (struct atalk_sock *)sk;
+ }
  
- 			/*
+-#ifdef __KERNEL__
+-
+ #include <asm/byteorder.h>
+ 
+ struct ddpehdr {
 _

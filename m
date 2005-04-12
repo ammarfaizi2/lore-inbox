@@ -1,76 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262378AbVDLMKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVDLMUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262378AbVDLMKu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVDLMIU
+	id S262386AbVDLMUI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVDLMTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:08:20 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:48085 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262330AbVDLMG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:06:58 -0400
-Date: Tue, 12 Apr 2005 14:06:55 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/block/ll_rw_blk.c: possible cleanups
-Message-ID: <20050412120654.GL4722@suse.de>
-References: <20050410181321.GE4204@stusta.de> <20050411061233.GW22988@suse.de> <20050412020413.GC3828@stusta.de> <20050412054957.GF4722@suse.de> <20050412115002.GA3631@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050412115002.GA3631@stusta.de>
+	Tue, 12 Apr 2005 08:19:43 -0400
+Received: from 70-56-217-9.albq.qwest.net ([70.56.217.9]:16779 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262328AbVDLMQL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 08:16:11 -0400
+Date: Tue, 12 Apr 2005 06:17:55 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Li Shaohua <shaohua.li@intel.com>
+cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 5/6]physical CPU hot add
+In-Reply-To: <1113283863.27646.432.camel@sli10-desk.sh.intel.com>
+Message-ID: <Pine.LNX.4.61.0504120609350.14171@montezuma.fsmlabs.com>
+References: <1113283863.27646.432.camel@sli10-desk.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12 2005, Adrian Bunk wrote:
-> On Tue, Apr 12, 2005 at 07:49:57AM +0200, Jens Axboe wrote:
-> > On Tue, Apr 12 2005, Adrian Bunk wrote:
-> > > On Mon, Apr 11, 2005 at 08:12:34AM +0200, Jens Axboe wrote:
-> > > > On Sun, Apr 10 2005, Adrian Bunk wrote:
-> > > > > This patch contains the following possible cleanups:
-> > > > > - make needlessly global code static
-> > > > > - remove the following unused global functions:
-> > > > >   - blkdev_scsi_issue_flush_fn
-> > > > 
-> > > > Kill the function completely, it is not used anymore.
-> > > > 
-> > > > >   - __blk_attempt_remerge
-> > > > 
-> > > > Normally I would say leave that since it's part of the API, but lets
-> > > > just kill it. I don't envision any further users of the remerging
-> > > > attempts.
-> > > > 
-> > > > > - remove the following unused EXPORT_SYMBOL's:
-> > > > >   - blk_phys_contig_segment
-> > > > >   - blk_hw_contig_segment
-> > > > >   - blkdev_scsi_issue_flush_fn
-> > > > >   - __blk_attempt_remerge
-> > > > > 
-> > > > > Please review which of these changes make sense.
-> > > > 
-> > > > Looks fine to me, thanks. Can you send a new patch that kills
-> > > > blkdev_scsi_issue_flush_fn()?
-> > > 
-> > > I have a problem parsing your email.
-> > > 
-> > > Which parts of my patch are OK and which shouldn't be applied?
-> > > Or why do you want a separate blkdev_scsi_issue_flush_fn patch?
-> > 
-> > I have no problems with your patch, I would just like a revised patch
-> > that removes blkdev_scsi_issue_flush_fn completely instead since it is
-> > totally unused. It doesn't make sense to remove the export and make it
-> > static, since it isn't used internally (and never meant to, it's a
-> > helper function for drivers).
-> 
-> My patch does already completely remove blkdev_scsi_issue_flush_fn.
-> 
-> When I say "remove the following unused global functions:", this means 
-> the patch completely removes the function.
+On Tue, 12 Apr 2005, Li Shaohua wrote:
 
-Ah, I misread that, missed it in the patch as well apparently. Then I'm
-fine with the patch.
+>  #ifdef CONFIG_HOTPLUG_CPU
+> +int __attribute__ ((weak)) smp_prepare_cpu(int cpu)
+> +{
+> +	return 0;
+> +}
+> +
 
--- 
-Jens Axboe
+Any way for you to avoid using weak attribute?
 
+Thanks,
+	Zwane

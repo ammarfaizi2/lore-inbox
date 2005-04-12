@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263004AbVDLViY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262999AbVDLViV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263004AbVDLViY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVDLVey
+	id S262999AbVDLViV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263012AbVDLVfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:34:54 -0400
-Received: from waste.org ([216.27.176.166]:35047 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263004AbVDLVdT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:33:19 -0400
-Date: Tue, 12 Apr 2005 14:32:54 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       Ihalainen Nickolay <ihanic@dev.ehouse.ru>, admin@list.net.ru,
-       linux-kernel@vger.kernel.org, Wen Xiong <wendyx@us.ibm.com>
-Subject: Re: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Message-ID: <20050412213253.GO25554@waste.org>
-References: <335DD0B75189FB428E5C32680089FB9F122163@mtk-sms-mail01.digi.com>
+	Tue, 12 Apr 2005 17:35:52 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:10663 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S262999AbVDLVbQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 17:31:16 -0400
+Date: Tue, 12 Apr 2005 17:31:07 -0400
+From: Raul Miller <moth@debian.org>
+To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050412173107.B24721@links.magenta.com>
+References: <425BB484.5090503@almg.gov.br> <MDEHLPKNGKAHNMBLJOLKMENFDBAB.davids@webmaster.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <335DD0B75189FB428E5C32680089FB9F122163@mtk-sms-mail01.digi.com>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMENFDBAB.davids@webmaster.com>; from davids@webmaster.com on Tue, Apr 12, 2005 at 12:01:15PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 03:21:15PM -0500, Kilau, Scott wrote:
-> Hi Greg, all,
-> 
-> > Ok, but wasn't it possible to get those additional things added to the
-> > main kernel serial core, which would then provide everything that
-> Digi's
-> > customers are accustomed to?
-> 
-> Yes, it is my intention in the future to add support for the needed
-> information,
-> probably at the /sys level.
-> The key is to be able to get at the tty information without
-> having to open up the tty/port.
-> 
-> Again, I understand why you required the changes in JSM,
-> IBM didn't need DPA support, so I had no problem with removing the
-> support.
-> 
-> However, neither IBM nor Digi wants this thread's patch to be applied,
-> and yet Christoph wants to do it, completely out of spite, to break our
-> out-of-tree open source driver.
+On Tue, Apr 12, 2005 at 12:01:15PM -0700, David Schwartz wrote:
+>	Would you agree that compiling and linking a program that uses
+> a library creates a derivative work of that library?
 
-The problem is that your "out-of-tree open source driver" is an
-inadequate solution. Out of tree drivers are a pain for users,
-developers, and distributors. As such, we make very little allowance
-for their concerns, especially when they stand in the way of improving
-things that _are_ in the kernel.
+No, I would not.
 
-The proposed patch makes the in-tree driver work for hardware that it
-didn't before which is a net good for our users. The ball is now in
-your court: replace it with an acceptable version of your driver in a
-timely fashion. Saying you'll get around to it some day when you're
-done supporting 2.4 is not timely. Nor does it serve your users.
+Creating a derivative work requires creativity, and a linker is not
+creative.
 
-Alternately, provide a good reason not to include said patch without
-reference to might-as-well-not-exist-as-far-as-we're-concerned out of
-tree drivers or the similarly irrelevant wishes of nebulous corporate
-entities.
+The copyright issues for the linked program are the copyright issues
+for the unlinked program.
+
+Of course, you might have evidence in the form of a linked program where
+you don't have evidence in the form of an unlinked program.  But that's
+a practical issue, not a copyright issue.
+
+> And doesn't first sale give you the right to normal use of a work you
+> have legally acquired?
+
+The first sale doctrine (basically, 17 USC 109) doesn't really say that.
+
+> 	There are many ways you can lawfully create a derivative work without
+> explicit permission of the copyright holder.   One clear case is when you
+> lawfully possess the work, there is no EULA or shrink-wrap agreement, and
+> you need to produce a derivative work to use the work in the ordinary
+> fashion.
+
+I don't think the words you're using mean what you think they mean.
+
+I'm just going to quote part of 17 USC 106 at you.
+
+"... the owner of copyright ... has the exclusive rights to ...
+prepare derivative works ...".
+
+Go look it up yourself if you think the text I've omitted makes it mean
+something different.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Raul

@@ -1,67 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVDLSC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVDLSHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbVDLSC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:02:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVDLKcl
+	id S262508AbVDLSHt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVDLKc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:32:41 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61895 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262113AbVDLKbC (ORCPT
+	Tue, 12 Apr 2005 06:32:29 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61639 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262112AbVDLKbC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Apr 2005 06:31:02 -0400
-Message-Id: <200504121030.j3CAUuSd005187@shell0.pdx.osdl.net>
-Subject: [patch 019/198] meminfo: add Cached underflow check
+Message-Id: <200504121030.j3CAUslx005175@shell0.pdx.osdl.net>
+Subject: [patch 016/198] oom-killer disable for iscsi/lvm2/multipath userland critical sections
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mort@sgi.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, andrea@suse.de
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:50 -0700
+Date: Tue, 12 Apr 2005 03:30:48 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Martin Hicks <mort@sgi.com>
+From: Andrea Arcangeli <andrea@suse.de>
 
-Working on some code lately I've been getting huge values for "Cached". 
-The cause is that get_page_cache_size() is an approximate value, and for a
-sufficiently small returned value of get_page_cache_size() the value
-underflows.
+iscsi/lvm2/multipath needs guaranteed protection from the oom-killer, so
+make the magical value of -17 in /proc/<pid>/oom_adj defeat the oom-killer
+altogether.
 
-Signed-off-by:  Martin Hicks <mort@sgi.com>
+(akpm: we still need to document oom_adj and friends in
+Documentation/filesystems/proc.txt!)
+
+Signed-off-by: Andrea Arcangeli <andrea@suse.de>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/fs/proc/proc_misc.c |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
+ 25-akpm/fs/proc/base.c     |    2 +-
+ 25-akpm/include/linux/mm.h |    3 +++
+ 25-akpm/mm/oom_kill.c      |    2 +-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff -puN fs/proc/proc_misc.c~meminfo-add-cached-underflow-check fs/proc/proc_misc.c
---- 25/fs/proc/proc_misc.c~meminfo-add-cached-underflow-check	2005-04-12 03:21:07.910934256 -0700
-+++ 25-akpm/fs/proc/proc_misc.c	2005-04-12 03:21:07.914933648 -0700
-@@ -126,6 +126,7 @@ static int meminfo_read_proc(char *page,
- 	unsigned long committed;
- 	unsigned long allowed;
- 	struct vmalloc_info vmi;
-+	long cached;
+diff -puN fs/proc/base.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections fs/proc/base.c
+--- 25/fs/proc/base.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections	2005-04-12 03:21:07.242035944 -0700
++++ 25-akpm/fs/proc/base.c	2005-04-12 03:21:07.249034880 -0700
+@@ -751,7 +751,7 @@ static ssize_t oom_adjust_write(struct f
+ 	if (copy_from_user(buffer, buf, count))
+ 		return -EFAULT;
+ 	oom_adjust = simple_strtol(buffer, &end, 0);
+-	if (oom_adjust < -16 || oom_adjust > 15)
++	if ((oom_adjust < -16 || oom_adjust > 15) && oom_adjust != OOM_DISABLE)
+ 		return -EINVAL;
+ 	if (*end == '\n')
+ 		end++;
+diff -puN include/linux/mm.h~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections include/linux/mm.h
+--- 25/include/linux/mm.h~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections	2005-04-12 03:21:07.243035792 -0700
++++ 25-akpm/include/linux/mm.h	2005-04-12 03:21:07.250034728 -0700
+@@ -857,5 +857,8 @@ int in_gate_area_no_task(unsigned long a
+ #define in_gate_area(task, addr) ({(void)task; in_gate_area_no_task(addr);})
+ #endif	/* __HAVE_ARCH_GATE_AREA */
  
- 	get_page_state(&ps);
- 	get_zone_counts(&active, &inactive, &free);
-@@ -140,6 +141,10 @@ static int meminfo_read_proc(char *page,
- 	allowed = ((totalram_pages - hugetlb_total_pages())
- 		* sysctl_overcommit_ratio / 100) + total_swap_pages;
- 
-+	cached = get_page_cache_size() - total_swapcache_pages - i.bufferram;
-+	if (cached < 0)
-+		cached = 0;
++/* /proc/<pid>/oom_adj set to -17 protects from the oom-killer */
++#define OOM_DISABLE -17
 +
- 	get_vmalloc_info(&vmi);
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_MM_H */
+diff -puN mm/oom_kill.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections mm/oom_kill.c
+--- 25/mm/oom_kill.c~oom-killer-disable-for-iscsi-lvm2-multipath-userland-critical-sections	2005-04-12 03:21:07.245035488 -0700
++++ 25-akpm/mm/oom_kill.c	2005-04-12 03:21:07.251034576 -0700
+@@ -145,7 +145,7 @@ static struct task_struct * select_bad_p
+ 	do_posix_clock_monotonic_gettime(&uptime);
+ 	do_each_thread(g, p)
+ 		/* skip the init task with pid == 1 */
+-		if (p->pid > 1) {
++		if (p->pid > 1 && p->oomkilladj != OOM_DISABLE) {
+ 			unsigned long points;
  
- 	/*
-@@ -172,7 +177,7 @@ static int meminfo_read_proc(char *page,
- 		K(i.totalram),
- 		K(i.freeram),
- 		K(i.bufferram),
--		K(get_page_cache_size()-total_swapcache_pages-i.bufferram),
-+		K(cached),
- 		K(total_swapcache_pages),
- 		K(active),
- 		K(inactive),
+ 			/*
 _

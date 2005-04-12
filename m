@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbVDLX3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263061AbVDLX0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263071AbVDLX3G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263072AbVDLX0v
+	id S263061AbVDLX0b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbVDLXVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 19:26:51 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:46984 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S263030AbVDLXKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 19:10:31 -0400
-Subject: Re: NFS2 question, help, pls!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1113344795.10420.125.camel@lade.trondhjem.org>
-References: <4ae3c1405041212223ee0609e@mail.gmail.com>
-	 <1113344795.10420.125.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Date: Tue, 12 Apr 2005 19:10:21 -0400
-Message-Id: <1113347421.13102.6.camel@mindpipe>
+	Tue, 12 Apr 2005 19:21:33 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17806 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263048AbVDLXUX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 19:20:23 -0400
+Date: Wed, 13 Apr 2005 01:20:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, junkio@cox.net, dlang@digitalinsight.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel SCM saga..
+Message-ID: <20050412232003.GB24414@elf.ucw.cz>
+References: <7vzmw7as25.fsf@assigned-by-dhcp.cox.net> <Pine.LNX.3.96.1050410124238.18440A-100000@gatekeeper.tmr.com> <20050410105003.10e49ea0.pj@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050410105003.10e49ea0.pj@engr.sgi.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-12 at 15:26 -0700, Trond Myklebust wrote:
-> ty den 12.04.2005 Klokka 15:22 (-0400) skreiv Xin Zhao:
-> > I have very very fast network and is testing NFS2 over this kind of
-> > network. I noticed that for standard work like read/write a large
-> > file,  compile kernels, the performance of NFS2 is good. But if I try
-> > to decompress kernel tar file. The standard ext2 takes 28s while NFS2
-> > takes 81s. Also, if I remove the kernel source code tree, ext2 takes
-> > 19s but NFS2 takes 44s.
-> > 
-> > Why?  (You can assume that network is very fast. )  Is there any
-> > improvements in NFS3/4 on this issue? If so, how?
+Hi!
+
+> > It's possible to generate another object with the same hash, but:
 > 
-> NFSv2 requires the server to immediately write all data to disk before
-> it can reply to the RPC write request (synchronous writes).
+> Yeah - the real check is that the modified object has to
+> compile and do something useful for someone (the cracker
+> if no one else).
+> 
+> Just getting a random bucket of bits substituted for a
+> real kernel source file isn't going to get me into the
+> cracker hall of fame, only into their odd-news of the
+> day.
 
-This behavior can be disabled with the "async" export option for NFSv2.
+I actually two different files with same md5 sum in my local CVS
+repository. It would be very wrong if CVS did not do the right thing
+with those files.
 
-Lee
-
+Yes, I was playing with md5, see "md5 to be considered harmfull
+today". And I wanted old version of my "exploits" to be archived.
+ 
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

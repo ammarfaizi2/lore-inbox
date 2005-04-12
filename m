@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVDLSMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVDLSOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbVDLSMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVDLKcD
+	id S262181AbVDLSOE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVDLKbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:32:03 -0400
-Received: from fire.osdl.org ([65.172.181.4]:59079 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262110AbVDLKbA (ORCPT
+	Tue, 12 Apr 2005 06:31:55 -0400
+Received: from fire.osdl.org ([65.172.181.4]:57031 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262109AbVDLKa7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:00 -0400
-Message-Id: <200504121030.j3CAUqH9005167@shell0.pdx.osdl.net>
-Subject: [patch 014/198] r128_state.c: break missing in switch statement
+	Tue, 12 Apr 2005 06:30:59 -0400
+Message-Id: <200504121030.j3CAUta6005179@shell0.pdx.osdl.net>
+Subject: [patch 017/198] vmscan: pageout(): remove unneeded test
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, airlied@linux.ie,
-       hjlipp@web.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:45 -0700
+Date: Tue, 12 Apr 2005 03:30:49 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Dave Airlie <airlied@linux.ie>
 
-drm: fix r128_state.c switch statements..  in drivers/char/drm/r128_state.c
-(linux-2.6.12-rc2), some breaks are missing in the switch statement.  See
-trivial fix below.
+We only call pageout() for dirty pages, so this test is redundant.
 
-Signed-off-by: Hansjoerg Lipp <hjlipp@web.de>
-Signed-off-by: Dave Airlie <airlied@linux.ie>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/char/drm/r128_state.c |    4 ++++
- 1 files changed, 4 insertions(+)
+ 25-akpm/mm/vmscan.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN drivers/char/drm/r128_state.c~r128_statec-break-missing-in-switch-statement drivers/char/drm/r128_state.c
---- 25/drivers/char/drm/r128_state.c~r128_statec-break-missing-in-switch-statement	2005-04-12 03:21:06.802102824 -0700
-+++ 25-akpm/drivers/char/drm/r128_state.c	2005-04-12 03:21:06.806102216 -0700
-@@ -1549,12 +1549,16 @@ static int r128_cce_depth( DRM_IOCTL_ARG
- 	switch ( depth.func ) {
- 	case R128_WRITE_SPAN:
- 		ret = r128_cce_dispatch_write_span( dev, &depth );
-+		break;
- 	case R128_WRITE_PIXELS:
- 		ret = r128_cce_dispatch_write_pixels( dev, &depth );
-+		break;
- 	case R128_READ_SPAN:
- 		ret = r128_cce_dispatch_read_span( dev, &depth );
-+		break;
- 	case R128_READ_PIXELS:
- 		ret = r128_cce_dispatch_read_pixels( dev, &depth );
-+		break;
- 	}
- 
- 	COMMIT_RING();
+diff -puN mm/vmscan.c~vmscan-pageout-remove-unneeded-test mm/vmscan.c
+--- 25/mm/vmscan.c~vmscan-pageout-remove-unneeded-test	2005-04-12 03:21:07.489998248 -0700
++++ 25-akpm/mm/vmscan.c	2005-04-12 03:21:07.493997640 -0700
+@@ -318,7 +318,7 @@ static pageout_t pageout(struct page *pa
+ 		 * Some data journaling orphaned pages can have
+ 		 * page->mapping == NULL while being dirty with clean buffers.
+ 		 */
+-		if (PageDirty(page) && PagePrivate(page)) {
++		if (PagePrivate(page)) {
+ 			if (try_to_free_buffers(page)) {
+ 				ClearPageDirty(page);
+ 				printk("%s: orphaned page\n", __FUNCTION__);
 _

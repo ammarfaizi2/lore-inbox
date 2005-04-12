@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVDLWaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVDLWaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbVDLWaI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 18:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVDLUih
+	id S262392AbVDLWaH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVDLW0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:38:37 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:9696 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262212AbVDLTIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 15:08:34 -0400
-To: jamie@shareable.org
-CC: 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050412171338.GA14633@mail.shareable.org> (message from Jamie
-	Lokier on Tue, 12 Apr 2005 18:13:38 +0100)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu> <20050412171338.GA14633@mail.shareable.org>
-Message-Id: <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 12 Apr 2005 21:08:25 +0200
+	Tue, 12 Apr 2005 18:26:47 -0400
+Received: from gate.crashing.org ([63.228.1.57]:12454 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262392AbVDLWSq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 18:18:46 -0400
+Subject: Re: [PATCH] ppc64: very basic desktop g5 sound support (#2)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <jell7nu6yk.fsf@sykes.suse.de>
+References: <1113282436.21548.42.camel@gaston>
+	 <jell7nu6yk.fsf@sykes.suse.de>
+Content-Type: text/plain
+Date: Wed, 13 Apr 2005 08:17:05 +1000
+Message-Id: <1113344225.21548.108.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There was a thread a few months ago where file-as-directory was
-> discussed extensively, after Namesys implemented it.  That's where the
-> conversation on detachable mount points originated AFAIR.  It will
-> probably happen at some point.
+On Tue, 2005-04-12 at 21:32 +0200, Andreas Schwab wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 > 
-> A nice implemention of it in FUSE could push it along a bit :)
+> > This patch hacks the current PowerMac Alsa driver to add some basic
+> > support of analog sound output to some desktop G5s. It has severe
+> > limitations though:
+> >
+> >  - Only 44100Khz 16 bits
+> >  - Only work on G5 models using a TAS3004 analog code, that is early
+> >    single CPU desktops and all dual CPU desktops at this date, but none
+> >    of the more recent ones like iMac G5.
+> >  - It does analog only, no digital/SPDIF support at all, no native
+> >    AC3 support
+> 
+> On my PowerMac the internal speaker is now working, but unfortunately on
+> the line-out I get nearly no output.  I have pushed both the master and
+> pcm control to the maximum and still barely hear anything.
 
-Aren't there some assumptions in VFS that currently make this
-impossible?
+Yes, I noticed that too on some models, not sure what's up at this
+point. What about the headphone jack on the front ? That one appears to
+work.
 
-I'll go and find that thread.
+Ben.
 
-Thanks,
-Miklos
+

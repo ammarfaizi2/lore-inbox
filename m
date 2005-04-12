@@ -1,60 +1,247 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVDLG3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVDLGeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVDLG3L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 02:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVDLG3I
+	id S262008AbVDLGeq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 02:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVDLGeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 02:29:08 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:989 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262021AbVDLG2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 02:28:07 -0400
-To: dan@debian.org
-CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050411221324.GA10541@nevyn.them.org> (message from Daniel
-	Jacobowitz on Mon, 11 Apr 2005 18:13:24 -0400)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411221324.GA10541@nevyn.them.org>
-Message-Id: <E1DLEsQ-00015Z-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 12 Apr 2005 08:27:58 +0200
+	Tue, 12 Apr 2005 02:34:46 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:35024 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S262008AbVDLGeN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 02:34:13 -0400
+Date: Tue, 12 Apr 2005 15:20:27 +0900
+From: Horms <horms@verge.net.au>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com, netdev@oss.sgi.com,
+       Mike Phillips <mikep@linuxtr.net>, Philip Blundell <philb@gnu.org>,
+       David Dillow <dave@thedillows.org>,
+       Paul Gortmaker <p_gortmaker@yahoo.com>,
+       Mike McLagan <mike.mclagan@linux.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Jan-Pascal van Best <jvbest@qv3pluto.leidenuniv.nl>,
+       Andreas Mohr <100.30936@germany.net>,
+       p2@ace.ulyssis.student.kuleuven.ac.be,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+       George Anzinger <george@mvista.com>,
+       Daniele Venzano <venza@brownhat.org>, Jay Schulist <jschlst@samba.org>
+Subject: [PATCH] Maintainers list update: linux-net -> netdev
+Message-ID: <20050412062027.GA1614@verge.net.au>
+Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	schwidefsky@de.ibm.com, netdev@oss.sgi.com,
+	Mike Phillips <mikep@linuxtr.net>, Philip Blundell <philb@gnu.org>,
+	David Dillow <dave@thedillows.org>,
+	Paul Gortmaker <p_gortmaker@yahoo.com>,
+	Mike McLagan <mike.mclagan@linux.org>,
+	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Jan-Pascal van Best <jvbest@qv3pluto.leidenuniv.nl>,
+	Andreas Mohr <100.30936@germany.net>,
+	p2@ace.ulyssis.student.kuleuven.ac.be,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	George Anzinger <george@mvista.com>,
+	Daniele Venzano <venza@brownhat.org>,
+	Jay Schulist <jschlst@samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050409135205.GA13305@wohnheim.fh-wedel.de>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well the sanity check on the "server" side is always enforced.  You
-> > can't "trick" sftp or ftp to not check permissions.  So checking on
-> > the "client" side too (where the fuse daemon is running) makes no
-> > sense, does it?
+On Sat, Apr 09, 2005 at 03:52:05PM +0200, Jörn Engel wrote:
+> On Fri, 8 April 2005 22:16:07 +0200, Pavel Machek wrote:
+> > 
+> > More importantly, it is still listed as "the list" for network
+> > drivers...
+> > 
+> > NETWORK DEVICE DRIVERS
+> > P:      Andrew Morton
+> > M:      akpm@osdl.org
+> > P:      Jeff Garzik
+> > M:      jgarzik@pobox.com
+> > L:      linux-net@vger.kernel.org
+> > S:      Maintained
 > 
-> That argument doesn't make much sense to me.  But we're at the end of
-> my useful contributions to this discussion; I'm going to be quiet now
-> and hope some folks who know more about filesystems have more useful
-> responses.
+> Maybe one of the two maintainers might want to change that? ;)
 
-I'm sorry if this isn't clear enough.  My explanatory powers are not
-very strong, so please bear with me.
+Use netdev as the mailing list contact instead of the mostly dead
+linux-net list.
 
-Imagine an sftp session.  You list the files on the remote server.
-You want download a file for which there are very limited permission
-(e.g. only readable to owner).  You don't _know_ if you are the owner
-since the uid on the file does not ring any bells, but you still try,
-since you want that file badly.  And you succeed.
+Signed-off-by: Horms <horms@verge.net.au>
 
-Would it make sense if the sftp client would try to interpret the
-uid/gid/permission on each file?  Obviously not.
-
-The same is true for the case when you mount an sshfs.  Since you
-entered your password (or have a passwordless login to the server) you
-are authorized to browse the files on the server, but only with the
-capabilities you have there as a user.  The server does the
-authorization.  The same is true for an NFS mount btw.  It's not the
-client that checks the permissions.
-
-So do you see why I argue in favor of having an option _not_ to check
-permissions on the client by the kernel?
-
-Thanks,
-Miklos
-
+===== MAINTAINERS 1.295 vs edited =====
+--- 1.295/MAINTAINERS	2005-04-04 06:20:11 +09:00
++++ edited/MAINTAINERS	2005-04-12 15:11:38 +09:00
+@@ -73,7 +73,7 @@
+ 3C359 NETWORK DRIVER
+ P:	Mike Phillips
+ M:	mikep@linuxtr.net
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ L:	linux-tr@linuxtr.net
+ W:	http://www.linuxtr.net
+ S:	Maintained
+@@ -81,13 +81,13 @@
+ 3C505 NETWORK DRIVER
+ P:	Philip Blundell
+ M:	philb@gnu.org
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ 3CR990 NETWORK DRIVER
+ P:	David Dillow
+ M:	dave@thedillows.org
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ 3W-XXXX ATA-RAID CONTROLLER DRIVER
+@@ -143,7 +143,7 @@
+ 8390 NETWORK DRIVERS [WD80x3/SMC-ELITE, SMC-ULTRA, NE2000, 3C503, etc.]
+ P:	Paul Gortmaker
+ M:	p_gortmaker@yahoo.com
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ A2232 SERIAL BOARD DRIVER
+@@ -334,7 +334,7 @@
+ 
+ ARPD SUPPORT
+ P:	Jonathan Layes
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ ASUS ACPI EXTRAS DRIVER
+@@ -708,7 +708,7 @@
+ 
+ DIGI RIGHTSWITCH NETWORK DRIVER
+ P:	Rick Richardson
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ W:	http://www.digi.com
+ S:	Orphaned
+ 
+@@ -814,7 +814,7 @@
+ ETHEREXPRESS-16 NETWORK DRIVER
+ P:	Philip Blundell
+ M:	philb@gnu.org
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ ETHERNET BRIDGE
+@@ -877,7 +877,7 @@
+ FRAME RELAY DLCI/FRAD (Sangoma drivers too)
+ P:	Mike McLagan
+ M:	mike.mclagan@linux.org
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ FREEVXFS FILESYSTEM
+@@ -1217,7 +1217,7 @@
+ IPX NETWORK LAYER
+ P:	Arnaldo Carvalho de Melo
+ M:	acme@conectiva.com.br
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ IRDA SUBSYSTEM
+@@ -1594,13 +1594,13 @@
+ M:	akpm@osdl.org
+ P:	Jeff Garzik
+ M:	jgarzik@pobox.com
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ NETWORKING [GENERAL]
+ P:	Networking Team
+ M:	netdev@oss.sgi.com
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ NETWORKING [IPv4/IPv6]
+@@ -1636,7 +1636,7 @@
+ P:	Jan-Pascal van Best and Andreas Mohr
+ M:	Jan-Pascal van Best <jvbest@qv3pluto.leidenuniv.nl>
+ M:	Andreas Mohr <100.30936@germany.net>
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ NINJA SCSI-3 / NINJA SCSI-32Bi (16bit/CardBus) PCMCIA SCSI HOST ADAPTER DRIVER
+@@ -1678,7 +1678,7 @@
+ M:	p2@ace.ulyssis.student.kuleuven.ac.be
+ P:	Mike Phillips
+ M:	mikep@linuxtr.net 
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ L:	linux-tr@linuxtr.net
+ W:	http://www.linuxtr.net
+ S:	Maintained
+@@ -1783,7 +1783,7 @@
+ PCNET32 NETWORK DRIVER
+ P:	Thomas Bogendörfer
+ M:	tsbogend@alpha.franken.de
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ PHRAM MTD DRIVER
+@@ -1795,7 +1795,7 @@
+ POSIX CLOCKS and TIMERS
+ P:	George Anzinger
+ M:	george@mvista.com
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Supported
+ 
+ PNP SUPPORT
+@@ -2042,7 +2042,7 @@
+ P:	Daniele Venzano
+ M:	venza@brownhat.org
+ W:	http://www.brownhat.org/sis900.html
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ SIS FRAMEBUFFER DRIVER
+@@ -2101,7 +2101,7 @@
+ SONIC NETWORK DRIVER
+ P:	Thomas Bogendoerfer
+ M:	tsbogend@alpha.franken.de
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Maintained
+ 
+ SONY VAIO CONTROL DEVICE DRIVER
+@@ -2151,7 +2151,7 @@
+ SPX NETWORK LAYER
+ P:	Jay Schulist
+ M:	jschlst@samba.org
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ S:	Supported
+ 
+ SRM (Alpha) environment access
+@@ -2230,7 +2230,7 @@
+ TOKEN-RING NETWORK DRIVER
+ P:	Mike Phillips
+ M:	mikep@linuxtr.net
+-L:	linux-net@vger.kernel.org
++L:	netdev@oss.sgi.com
+ L:	linux-tr@linuxtr.net
+ W:	http://www.linuxtr.net
+ S:	Maintained

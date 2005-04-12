@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVDLUlG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbVDLWKJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262576AbVDLUlG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:41:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVDLUke
+	id S263024AbVDLWKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:10:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbVDLWGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:40:34 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58867 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262112AbVDLTSr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 15:18:47 -0400
-Message-ID: <425C1E30.5060405@mvista.com>
-Date: Tue, 12 Apr 2005 12:14:56 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Tue, 12 Apr 2005 18:06:49 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:62938 "EHLO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S263007AbVDLWCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 18:02:44 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: "J.A. Magallon" <jamagallon@able.es>
+Date: Wed, 13 Apr 2005 07:55:57 +1000
 MIME-Version: 1.0
-To: Horms <horms@verge.net.au>
-CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com, netdev@oss.sgi.com,
-       Mike Phillips <mikep@linuxtr.net>, Philip Blundell <philb@gnu.org>,
-       David Dillow <dave@thedillows.org>,
-       Paul Gortmaker <p_gortmaker@yahoo.com>,
-       Mike McLagan <mike.mclagan@linux.org>,
-       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Jan-Pascal van Best <jvbest@qv3pluto.leidenuniv.nl>,
-       Andreas Mohr <100.30936@germany.net>,
-       p2@ace.ulyssis.student.kuleuven.ac.be,
-       Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-       Daniele Venzano <venza@brownhat.org>, Jay Schulist <jschlst@samba.org>
-Subject: Re: [PATCH] Maintainers list update: linux-net -> netdev
-References: <20050412062027.GA1614@verge.net.au>
-In-Reply-To: <20050412062027.GA1614@verge.net.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16988.17389.81020.101830@cse.unsw.edu.au>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: What does 'WrongLevel' mean in RAID0 ?
+In-Reply-To: message from J.A. Magallon on Tuesday April 12
+References: <1113338725l.7969l.0l@werewolf.able.es>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horms wrote:
-> On Sat, Apr 09, 2005 at 03:52:05PM +0200, Jörn Engel wrote:
+On Tuesday April 12, jamagallon@able.es wrote:
+> Hi all...
 > 
->>On Fri, 8 April 2005 22:16:07 +0200, Pavel Machek wrote:
->>
->>>More importantly, it is still listed as "the list" for network
->>>drivers...
->>>
->>>NETWORK DEVICE DRIVERS
->>>P:      Andrew Morton
->>>M:      akpm@osdl.org
->>>P:      Jeff Garzik
->>>M:      jgarzik@pobox.com
->>>L:      linux-net@vger.kernel.org
->>>S:      Maintained
->>
->>Maybe one of the two maintainers might want to change that? ;)
+> I have a RAID0 setup on top of three IDE drives.
+> mdadm monitor sends me mesages with:
 > 
+> DeviceDisappeared
+> /dev/md0
+> Wrong-Level
 > 
-> Use netdev as the mailing list contact instead of the mostly dead
-> linux-net list.
-> 
-~
->  PHRAM MTD DRIVER
-> @@ -1795,7 +1795,7 @@
->  POSIX CLOCKS and TIMERS
->  P:	George Anzinger
->  M:	george@mvista.com
-> -L:	linux-net@vger.kernel.org
-> +L:	netdev@oss.sgi.com
->  S:	Supported
->  
-I don't really know about the rest of them, but I think this should be:
-L: linux-kernel@vger.kernel.org
+> The RAID seems to be working well. Any pointer on what does this
+> mean ?
 
-Least wise that is where I look...
-~
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+ From  "man mdadm"  (if you know where to look)
+
+       Follow or Monitor
+              Monitor  one  or  more  md devices and act on any state changes.
+              This is only meaningful for raid1, 4, 5, 6 or  multipath  arrays
+              as  only  these  have  interesting state.  raid0 or linear never
+              have missing, spare, or failed drives, so there  is  nothing  to
+              monitor.
+
+You are presumably trying to monitor a raid0 (which isn't meaningful)
+and mdadm is telling you (in its own idiosyncratic way) that it isn't
+going to monitor it.
+
+NeilBrown

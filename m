@@ -1,461 +1,379 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262978AbVDMAFC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263036AbVDMANa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262978AbVDMAFC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 20:05:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262966AbVDLUaA
+	id S263036AbVDMANa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbVDLUYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:30:00 -0400
-Received: from fire.osdl.org ([65.172.181.4]:9416 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262123AbVDLKbN (ORCPT
+	Tue, 12 Apr 2005 16:24:50 -0400
+Received: from fire.osdl.org ([65.172.181.4]:11976 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262128AbVDLKbQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:13 -0400
-Message-Id: <200504121031.j3CAV8D9005245@shell0.pdx.osdl.net>
-Subject: [patch 031/198] ppc32: Fix AGP and sleep again
+	Tue, 12 Apr 2005 06:31:16 -0400
+Message-Id: <200504121031.j3CAVDS3005264@shell0.pdx.osdl.net>
+Subject: [patch 035/198] ppc32: Support 36-bit physical addressing on e500
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, galak@freescale.com,
+       kumar.gala@freescale.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:02 -0700
+Date: Tue, 12 Apr 2005 03:31:06 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Kumar Gala <galak@freescale.com>
 
-My previous patch that added sleep support for uninorth-agp and some AGP
-"off" stuff in radeonfb and aty128fb is breaking some configs.  More
-specifically, it has problems with rage128 setups since the DRI code for
-these in X doesn't properly re-enable AGP on wakeup or console switch
-(unlike the radeon DRM).
+To add support for 36-bit physical addressing on e500 the following changes
+have been made.  The changes are generalized to support any physical address
+size larger than 32-bits:
 
-This patch fixes the problem for pmac once for all by using a different
-approach.  The AGP driver "registers" special suspend/resume callbacks with
-some arch code that the fbdev's can later on call to suspend and resume
-AGP, making sure it's resumed back in the same state it was when suspended.
- This is platform specific for now.  It would be too complicated to try to
-do a generic implementation of this at this point due to all sort of weird
-things going on with AGP on other architectures.  We'll re-work that whole
-problem cleanly once we finally merge fbdev's and DRI.
+* Allow FSL Book-E parts to use a 64-bit PTE, it is 44-bits of pfn, 20-bits
+  of flags.
 
-In the meantime, please apply this patch which brings back some r128 based
-laptops into working condition as far as system sleep is concerned.
+* Introduced new CPU feature (CPU_FTR_BIG_PHYS) to allow runtime handling of
+  updating hardware register (SPRN_MAS7) which holds the upper 32-bits of
+  physical address that will be written into the TLB.  This is useful since
+  not all e500 cores support 36-bit physical addressing.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+* Currently have a pass through implementation of fixup_bigphys_addr
+
+* Moved _PAGE_DIRTY in the 64-bit PTE case to free room for three additional
+  storage attributes that may exist in future FSL Book-E cores and updated
+  fault handler to copy these bits into the hardware TLBs.
+
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/ppc/platforms/pmac_feature.c |   45 +++++++++++++++++++++
- 25-akpm/arch/ppc64/kernel/pmac_feature.c  |   64 ++++++++++++++++++++++++++++++
- 25-akpm/drivers/char/agp/uninorth-agp.c   |   52 ++++++++++++++++++++----
- 25-akpm/drivers/video/aty/aty128fb.c      |   34 ++++++---------
- 25-akpm/drivers/video/aty/radeon_pm.c     |   43 +++++++-------------
- 25-akpm/include/asm-ppc/pmac_feature.h    |   11 +++++
- 6 files changed, 193 insertions(+), 56 deletions(-)
+ 25-akpm/arch/ppc/Kconfig                 |   16 +++-
+ 25-akpm/arch/ppc/kernel/head_fsl_booke.S |  113 ++++++++++++++++++++-----------
+ 25-akpm/arch/ppc/syslib/ppc85xx_common.c |    8 ++
+ 25-akpm/include/asm-ppc/cputable.h       |    3 
+ 25-akpm/include/asm-ppc/pgtable.h        |   45 +++++++-----
+ 25-akpm/include/asm-ppc/reg_booke.h      |    1 
+ 6 files changed, 123 insertions(+), 63 deletions(-)
 
-diff -puN arch/ppc64/kernel/pmac_feature.c~ppc32-fix-agp-and-sleep-again arch/ppc64/kernel/pmac_feature.c
---- 25/arch/ppc64/kernel/pmac_feature.c~ppc32-fix-agp-and-sleep-again	2005-04-12 03:21:10.862485552 -0700
-+++ 25-akpm/arch/ppc64/kernel/pmac_feature.c	2005-04-12 03:21:10.874483728 -0700
-@@ -674,3 +674,67 @@ void __init pmac_check_ht_link(void)
- 	dump_HT_speeds("PCI-X HT Downlink", cfg, freq);
- #endif
- }
+diff -puN arch/ppc/Kconfig~ppc32-support-36-bit-physical-addressing-on-e500 arch/ppc/Kconfig
+--- 25/arch/ppc/Kconfig~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.790344496 -0700
++++ 25-akpm/arch/ppc/Kconfig	2005-04-12 03:21:11.800342976 -0700
+@@ -98,13 +98,19 @@ config FSL_BOOKE
+ 
+ config PTE_64BIT
+ 	bool
+-	depends on 44x
+-	default y
++	depends on 44x || E500
++	default y if 44x
++	default y if E500 && PHYS_64BIT
+ 
+ config PHYS_64BIT
+-	bool
+-	depends on 44x
+-	default y
++	bool 'Large physical address support' if E500
++	depends on 44x || E500
++	default y if 44x
++	---help---
++	  This option enables kernel support for larger than 32-bit physical
++	  addresses.  This features is not be available on all e500 cores.
 +
-+/*
-+ * Early video resume hook
++	  If in doubt, say N here.
+ 
+ config ALTIVEC
+ 	bool "AltiVec Support"
+diff -puN arch/ppc/kernel/head_fsl_booke.S~ppc32-support-36-bit-physical-addressing-on-e500 arch/ppc/kernel/head_fsl_booke.S
+--- 25/arch/ppc/kernel/head_fsl_booke.S~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.791344344 -0700
++++ 25-akpm/arch/ppc/kernel/head_fsl_booke.S	2005-04-12 03:21:11.802342672 -0700
+@@ -347,6 +347,38 @@ skpinv:	addi	r6,r6,1				/* Increment */
+ 	mtspr	SPRN_SRR1,r3
+ 	rfi			/* change context and jump to start_kernel */
+ 
++/* Macros to hide the PTE size differences
++ *
++ * FIND_PTE -- walks the page tables given EA & pgdir pointer
++ *   r10 -- EA of fault
++ *   r11 -- PGDIR pointer
++ *   r12 -- free
++ *   label 2: is the bailout case
++ *
++ * if we find the pte (fall through):
++ *   r11 is low pte word
++ *   r12 is pointer to the pte
 + */
-+
-+static void (*pmac_early_vresume_proc)(void *data) __pmacdata;
-+static void *pmac_early_vresume_data __pmacdata;
-+
-+void pmac_set_early_video_resume(void (*proc)(void *data), void *data)
-+{
-+	if (_machine != _MACH_Pmac)
-+		return;
-+	preempt_disable();
-+	pmac_early_vresume_proc = proc;
-+	pmac_early_vresume_data = data;
-+	preempt_enable();
-+}
-+EXPORT_SYMBOL(pmac_set_early_video_resume);
-+
-+
-+/*
-+ * AGP related suspend/resume code
-+ */
-+
-+static struct pci_dev *pmac_agp_bridge __pmacdata;
-+static int (*pmac_agp_suspend)(struct pci_dev *bridge) __pmacdata;
-+static int (*pmac_agp_resume)(struct pci_dev *bridge) __pmacdata;
-+
-+void __pmac pmac_register_agp_pm(struct pci_dev *bridge,
-+				 int (*suspend)(struct pci_dev *bridge),
-+				 int (*resume)(struct pci_dev *bridge))
-+{
-+	if (suspend || resume) {
-+		pmac_agp_bridge = bridge;
-+		pmac_agp_suspend = suspend;
-+		pmac_agp_resume = resume;
-+		return;
-+	}
-+	if (bridge != pmac_agp_bridge)
-+		return;
-+	pmac_agp_suspend = pmac_agp_resume = NULL;
-+	return;
-+}
-+EXPORT_SYMBOL(pmac_register_agp_pm);
-+
-+void __pmac pmac_suspend_agp_for_card(struct pci_dev *dev)
-+{
-+	if (pmac_agp_bridge == NULL || pmac_agp_suspend == NULL)
-+		return;
-+	if (pmac_agp_bridge->bus != dev->bus)
-+		return;
-+	pmac_agp_suspend(pmac_agp_bridge);
-+}
-+EXPORT_SYMBOL(pmac_suspend_agp_for_card);
-+
-+void __pmac pmac_resume_agp_for_card(struct pci_dev *dev)
-+{
-+	if (pmac_agp_bridge == NULL || pmac_agp_resume == NULL)
-+		return;
-+	if (pmac_agp_bridge->bus != dev->bus)
-+		return;
-+	pmac_agp_resume(pmac_agp_bridge);
-+}
-+EXPORT_SYMBOL(pmac_resume_agp_for_card);
-diff -puN arch/ppc/platforms/pmac_feature.c~ppc32-fix-agp-and-sleep-again arch/ppc/platforms/pmac_feature.c
---- 25/arch/ppc/platforms/pmac_feature.c~ppc32-fix-agp-and-sleep-again	2005-04-12 03:21:10.864485248 -0700
-+++ 25-akpm/arch/ppc/platforms/pmac_feature.c	2005-04-12 03:21:10.876483424 -0700
-@@ -2944,3 +2944,48 @@ void __pmac pmac_call_early_video_resume
- 	if (pmac_early_vresume_proc)
- 		pmac_early_vresume_proc(pmac_early_vresume_data);
- }
-+
-+/*
-+ * AGP related suspend/resume code
-+ */
-+
-+static struct pci_dev *pmac_agp_bridge __pmacdata;
-+static int (*pmac_agp_suspend)(struct pci_dev *bridge) __pmacdata;
-+static int (*pmac_agp_resume)(struct pci_dev *bridge) __pmacdata;
-+
-+void __pmac pmac_register_agp_pm(struct pci_dev *bridge,
-+				 int (*suspend)(struct pci_dev *bridge),
-+				 int (*resume)(struct pci_dev *bridge))
-+{
-+	if (suspend || resume) {
-+		pmac_agp_bridge = bridge;
-+		pmac_agp_suspend = suspend;
-+		pmac_agp_resume = resume;
-+		return;
-+	}
-+	if (bridge != pmac_agp_bridge)
-+		return;
-+	pmac_agp_suspend = pmac_agp_resume = NULL;
-+	return;
-+}
-+EXPORT_SYMBOL(pmac_register_agp_pm);
-+
-+void __pmac pmac_suspend_agp_for_card(struct pci_dev *dev)
-+{
-+	if (pmac_agp_bridge == NULL || pmac_agp_suspend == NULL)
-+		return;
-+	if (pmac_agp_bridge->bus != dev->bus)
-+		return;
-+	pmac_agp_suspend(pmac_agp_bridge);
-+}
-+EXPORT_SYMBOL(pmac_suspend_agp_for_card);
-+
-+void __pmac pmac_resume_agp_for_card(struct pci_dev *dev)
-+{
-+	if (pmac_agp_bridge == NULL || pmac_agp_resume == NULL)
-+		return;
-+	if (pmac_agp_bridge->bus != dev->bus)
-+		return;
-+	pmac_agp_resume(pmac_agp_bridge);
-+}
-+EXPORT_SYMBOL(pmac_resume_agp_for_card);
-diff -puN drivers/char/agp/uninorth-agp.c~ppc32-fix-agp-and-sleep-again drivers/char/agp/uninorth-agp.c
---- 25/drivers/char/agp/uninorth-agp.c~ppc32-fix-agp-and-sleep-again	2005-04-12 03:21:10.865485096 -0700
-+++ 25-akpm/drivers/char/agp/uninorth-agp.c	2005-04-12 03:21:10.878483120 -0700
-@@ -10,6 +10,7 @@
- #include <asm/uninorth.h>
- #include <asm/pci-bridge.h>
- #include <asm/prom.h>
-+#include <asm/pmac_feature.h>
- #include "agp.h"
- 
- /*
-@@ -26,6 +27,7 @@
- static int uninorth_rev;
- static int is_u3;
- 
-+
- static int uninorth_fetch_size(void)
- {
- 	int i;
-@@ -264,7 +266,8 @@ static void uninorth_agp_enable(struct a
- 				       &scratch);
- 	} while ((scratch & PCI_AGP_COMMAND_AGP) == 0 && ++timeout < 1000);
- 	if ((scratch & PCI_AGP_COMMAND_AGP) == 0)
--		printk(KERN_ERR PFX "failed to write UniNorth AGP command reg\n");
-+		printk(KERN_ERR PFX "failed to write UniNorth AGP"
-+		       " command register\n");
- 
- 	if (uninorth_rev >= 0x30) {
- 		/* This is an AGP V3 */
-@@ -278,13 +281,24 @@ static void uninorth_agp_enable(struct a
- }
- 
- #ifdef CONFIG_PM
--static int agp_uninorth_suspend(struct pci_dev *pdev, pm_message_t state)
-+/*
-+ * These Power Management routines are _not_ called by the normal PCI PM layer,
-+ * but directly by the video driver through function pointers in the device
-+ * tree.
-+ */
-+static int agp_uninorth_suspend(struct pci_dev *pdev)
- {
-+	struct agp_bridge_data *bridge;
- 	u32 cmd;
- 	u8 agp;
- 	struct pci_dev *device = NULL;
- 
--	if (state != PMSG_SUSPEND)
-+	bridge = agp_find_bridge(pdev);
-+	if (bridge == NULL)
-+		return -ENODEV;
-+
-+	/* Only one suspend supported */
-+	if (bridge->dev_private_data)
- 		return 0;
- 
- 	/* turn off AGP on the video chip, if it was enabled */
-@@ -315,6 +329,7 @@ static int agp_uninorth_suspend(struct p
- 	/* turn off AGP on the bridge */
- 	agp = pci_find_capability(pdev, PCI_CAP_ID_AGP);
- 	pci_read_config_dword(pdev, agp + PCI_AGP_COMMAND, &cmd);
-+	bridge->dev_private_data = (void *)cmd;
- 	if (cmd & PCI_AGP_COMMAND_AGP) {
- 		printk("uninorth-agp: disabling AGP on bridge %s\n",
- 				pci_name(pdev));
-@@ -329,9 +344,23 @@ static int agp_uninorth_suspend(struct p
- 
- static int agp_uninorth_resume(struct pci_dev *pdev)
- {
-+	struct agp_bridge_data *bridge;
-+	u32 command;
-+
-+	bridge = agp_find_bridge(pdev);
-+	if (bridge == NULL)
-+		return -ENODEV;
-+
-+	command = (u32)bridge->dev_private_data;
-+	bridge->dev_private_data = NULL;
-+	if (!(command & PCI_AGP_COMMAND_AGP))
-+		return 0;
-+
-+	uninorth_agp_enable(bridge, command);
-+
- 	return 0;
- }
--#endif
-+#endif /* CONFIG_PM */
- 
- static int uninorth_create_gatt_table(struct agp_bridge_data *bridge)
- {
-@@ -575,6 +604,12 @@ static int __devinit agp_uninorth_probe(
- 		of_node_put(uninorth_node);
- 	}
- 
-+#ifdef CONFIG_PM
-+	/* Inform platform of our suspend/resume caps */
-+	pmac_register_agp_pm(pdev, agp_uninorth_suspend, agp_uninorth_resume);
++#ifdef CONFIG_PTE_64BIT
++#define PTE_FLAGS_OFFSET	4
++#define FIND_PTE	\
++	rlwinm 	r12, r10, 13, 19, 29;	/* Compute pgdir/pmd offset */	\
++	lwzx	r11, r12, r11;		/* Get pgd/pmd entry */		\
++	rlwinm.	r12, r11, 0, 0, 20;	/* Extract pt base address */	\
++	beq	2f;			/* Bail if no table */		\
++	rlwimi	r12, r10, 23, 20, 28;	/* Compute pte address */	\
++	lwz	r11, 4(r12);		/* Get pte entry */
++#else
++#define PTE_FLAGS_OFFSET	0
++#define FIND_PTE	\
++	rlwimi	r11, r10, 12, 20, 29;	/* Create L1 (pgdir/pmd) address */	\
++	lwz	r11, 0(r11);		/* Get L1 entry */			\
++	rlwinm.	r12, r11, 0, 0, 19;	/* Extract L2 (pte) base address */	\
++	beq	2f;			/* Bail if no table */			\
++	rlwimi	r12, r10, 22, 20, 29;	/* Compute PTE address */		\
++	lwz	r11, 0(r12);		/* Get Linux PTE */
 +#endif
 +
-+	/* Allocate & setup our driver */
- 	bridge = agp_alloc_bridge();
- 	if (!bridge)
- 		return -ENOMEM;
-@@ -599,6 +634,11 @@ static void __devexit agp_uninorth_remov
- {
- 	struct agp_bridge_data *bridge = pci_get_drvdata(pdev);
- 
-+#ifdef CONFIG_PM
-+	/* Inform platform of our suspend/resume caps */
-+	pmac_register_agp_pm(pdev, NULL, NULL);
-+#endif
-+
- 	agp_remove_bridge(bridge);
- 	agp_put_bridge(bridge);
- }
-@@ -622,10 +662,6 @@ static struct pci_driver agp_uninorth_pc
- 	.id_table	= agp_uninorth_pci_table,
- 	.probe		= agp_uninorth_probe,
- 	.remove		= agp_uninorth_remove,
--#ifdef CONFIG_PM
--	.suspend	= agp_uninorth_suspend,
--	.resume		= agp_uninorth_resume,
--#endif
- };
- 
- static int __init agp_uninorth_init(void)
-diff -puN drivers/video/aty/aty128fb.c~ppc32-fix-agp-and-sleep-again drivers/video/aty/aty128fb.c
---- 25/drivers/video/aty/aty128fb.c~ppc32-fix-agp-and-sleep-again	2005-04-12 03:21:10.867484792 -0700
-+++ 25-akpm/drivers/video/aty/aty128fb.c	2005-04-12 03:21:10.880482816 -0700
-@@ -2331,7 +2331,6 @@ static int aty128_pci_suspend(struct pci
- {
- 	struct fb_info *info = pci_get_drvdata(pdev);
- 	struct aty128fb_par *par = info->par;
--	u8 agp;
- 
- 	/* We don't do anything but D2, for now we return 0, but
- 	 * we may want to change that. How do we know if the BIOS
-@@ -2369,26 +2368,13 @@ static int aty128_pci_suspend(struct pci
- 	par->asleep = 1;
- 	par->lock_blank = 1;
- 
--	/* Disable AGP. The AGP host should have done it, but since ordering
--	 * isn't always properly guaranteed in this specific case, let's make
--	 * sure it's disabled on card side now. Ultimately, when merging fbdev
--	 * and dri into some common infrastructure, this will be handled
--	 * more nicely. The host bridge side will (or will not) be dealt with
--	 * by the bridge AGP driver, we don't attempt to touch it here.
-+#ifdef CONFIG_PPC_PMAC
-+	/* On powermac, we have hooks to properly suspend/resume AGP now,
-+	 * use them here. We'll ultimately need some generic support here,
-+	 * but the generic code isn't quite ready for that yet
- 	 */
--	agp = pci_find_capability(pdev, PCI_CAP_ID_AGP);
--	if (agp) {
--		u32 cmd;
--
--		pci_read_config_dword(pdev, agp + PCI_AGP_COMMAND, &cmd);
--		if (cmd & PCI_AGP_COMMAND_AGP) {
--			printk(KERN_INFO "aty128fb: AGP was enabled, "
--			       "disabling ...\n");
--			cmd &= ~PCI_AGP_COMMAND_AGP;
--			pci_write_config_dword(pdev, agp + PCI_AGP_COMMAND,
--					       cmd);
--		}
--	}
-+	pmac_suspend_agp_for_card(pdev);
-+#endif /* CONFIG_PPC_PMAC */
- 
- 	/* We need a way to make sure the fbdev layer will _not_ touch the
- 	 * framebuffer before we put the chip to suspend state. On 2.4, I
-@@ -2432,6 +2418,14 @@ static int aty128_do_resume(struct pci_d
- 	par->lock_blank = 0;
- 	aty128fb_blank(0, info);
- 
-+#ifdef CONFIG_PPC_PMAC
-+	/* On powermac, we have hooks to properly suspend/resume AGP now,
-+	 * use them here. We'll ultimately need some generic support here,
-+	 * but the generic code isn't quite ready for that yet
-+	 */
-+	pmac_resume_agp_for_card(pdev);
-+#endif /* CONFIG_PPC_PMAC */
-+
- 	pdev->dev.power.power_state = PMSG_ON;
- 
- 	printk(KERN_DEBUG "aty128fb: resumed !\n");
-diff -puN drivers/video/aty/radeon_pm.c~ppc32-fix-agp-and-sleep-again drivers/video/aty/radeon_pm.c
---- 25/drivers/video/aty/radeon_pm.c~ppc32-fix-agp-and-sleep-again	2005-04-12 03:21:10.868484640 -0700
-+++ 25-akpm/drivers/video/aty/radeon_pm.c	2005-04-12 03:21:10.882482512 -0700
-@@ -2520,13 +2520,10 @@ static int radeon_restore_pci_cfg(struct
- }
- 
- 
--static/*extern*/ int susdisking = 0;
--
- int radeonfb_pci_suspend(struct pci_dev *pdev, pm_message_t state)
- {
-         struct fb_info *info = pci_get_drvdata(pdev);
-         struct radeonfb_info *rinfo = info->par;
--	u8 agp;
- 	int i;
- 
- 	if (state == pdev->dev.power.power_state)
-@@ -2542,11 +2539,6 @@ int radeonfb_pci_suspend(struct pci_dev 
- 	 */
- 	if (state != PM_SUSPEND_MEM)
- 		goto done;
--	if (susdisking) {
--		printk("radeonfb (%s): suspending to disk but state = %d\n",
--		       pci_name(pdev), state);
--		goto done;
--	}
- 
- 	acquire_console_sem();
- 
-@@ -2567,27 +2559,13 @@ int radeonfb_pci_suspend(struct pci_dev 
- 	rinfo->lock_blank = 1;
- 	del_timer_sync(&rinfo->lvds_timer);
- 
--	/* Disable AGP. The AGP host should have done it, but since ordering
--	 * isn't always properly guaranteed in this specific case, let's make
--	 * sure it's disabled on card side now. Ultimately, when merging fbdev
--	 * and dri into some common infrastructure, this will be handled
--	 * more nicely. The host bridge side will (or will not) be dealt with
--	 * by the bridge AGP driver, we don't attempt to touch it here.
-+#ifdef CONFIG_PPC_PMAC
-+	/* On powermac, we have hooks to properly suspend/resume AGP now,
-+	 * use them here. We'll ultimately need some generic support here,
-+	 * but the generic code isn't quite ready for that yet
- 	 */
--	agp = pci_find_capability(pdev, PCI_CAP_ID_AGP);
--	if (agp) {
--		u32 cmd;
--
--		pci_read_config_dword(pdev, agp + PCI_AGP_COMMAND, &cmd);
--		if (cmd & PCI_AGP_COMMAND_AGP) {
--			printk(KERN_INFO "radeonfb (%s): AGP was enabled, "
--			       "disabling ...\n",
--			       pci_name(pdev));
--			cmd &= ~PCI_AGP_COMMAND_AGP;
--			pci_write_config_dword(pdev, agp + PCI_AGP_COMMAND,
--					       cmd);
--		}
--	}
-+	pmac_suspend_agp_for_card(pdev);
-+#endif /* CONFIG_PPC_PMAC */
- 
- 	/* If we support wakeup from poweroff, we save all regs we can including cfg
- 	 * space
-@@ -2699,6 +2677,15 @@ int radeonfb_pci_resume(struct pci_dev *
- 	rinfo->lock_blank = 0;
- 	radeon_screen_blank(rinfo, FB_BLANK_UNBLANK, 1);
- 
-+#ifdef CONFIG_PPC_PMAC
-+	/* On powermac, we have hooks to properly suspend/resume AGP now,
-+	 * use them here. We'll ultimately need some generic support here,
-+	 * but the generic code isn't quite ready for that yet
-+	 */
-+	pmac_resume_agp_for_card(pdev);
-+#endif /* CONFIG_PPC_PMAC */
-+
-+
- 	/* Check status of dynclk */
- 	if (rinfo->dynclk == 1)
- 		radeon_pm_enable_dynamic_mode(rinfo);
-diff -puN include/asm-ppc/pmac_feature.h~ppc32-fix-agp-and-sleep-again include/asm-ppc/pmac_feature.h
---- 25/include/asm-ppc/pmac_feature.h~ppc32-fix-agp-and-sleep-again	2005-04-12 03:21:10.870484336 -0700
-+++ 25-akpm/include/asm-ppc/pmac_feature.h	2005-04-12 03:21:10.883482360 -0700
-@@ -305,6 +305,17 @@ extern void pmac_call_early_video_resume
- 
- #define PMAC_FTR_DEF(x) ((_MACH_Pmac << 16) | (x))
- 
-+/* The AGP driver registers itself here */
-+extern void pmac_register_agp_pm(struct pci_dev *bridge,
-+				 int (*suspend)(struct pci_dev *bridge),
-+				 int (*resume)(struct pci_dev *bridge));
-+
-+/* Those are meant to be used by video drivers to deal with AGP
-+ * suspend resume properly
-+ */
-+extern void pmac_suspend_agp_for_card(struct pci_dev *dev);
-+extern void pmac_resume_agp_for_card(struct pci_dev *dev);
-+
- 
  /*
-  * The part below is for use by macio_asic.c only, do not rely
+  * Interrupt vector entry code
+  *
+@@ -405,13 +437,7 @@ interrupt_base:
+ 	mfspr	r11,SPRN_SPRG3
+ 	lwz	r11,PGDIR(r11)
+ 4:
+-	rlwimi	r11, r10, 12, 20, 29	/* Create L1 (pgdir/pmd) address */
+-	lwz	r11, 0(r11)		/* Get L1 entry */
+-	rlwinm.	r12, r11, 0, 0, 19	/* Extract L2 (pte) base address */
+-	beq	2f			/* Bail if no table */
+-
+-	rlwimi	r12, r10, 22, 20, 29	/* Compute PTE address */
+-	lwz	r11, 0(r12)		/* Get Linux PTE */
++	FIND_PTE
+ 
+ 	/* Are _PAGE_USER & _PAGE_RW set & _PAGE_HWWRITE not? */
+ 	andi.	r13, r11, _PAGE_RW|_PAGE_USER|_PAGE_HWWRITE
+@@ -420,14 +446,12 @@ interrupt_base:
+ 
+ 	/* Update 'changed'. */
+ 	ori	r11, r11, _PAGE_DIRTY|_PAGE_ACCESSED|_PAGE_HWWRITE
+-	stw	r11, 0(r12)		/* Update Linux page table */
++	stw	r11, PTE_FLAGS_OFFSET(r12) /* Update Linux page table */
+ 
+ 	/* MAS2 not updated as the entry does exist in the tlb, this
+ 	   fault taken to detect state transition (eg: COW -> DIRTY)
+ 	 */
+-	lis	r12, MAS3_RPN@h
+-	ori	r12, r12, _PAGE_HWEXEC | MAS3_RPN@l
+-	and	r11, r11, r12
++	andi.	r11, r11, _PAGE_HWEXEC
+ 	rlwimi	r11, r11, 31, 27, 27	/* SX <- _PAGE_HWEXEC */
+ 	ori     r11, r11, (MAS3_UW|MAS3_SW|MAS3_UR|MAS3_SR)@l /* set static perms */
+ 
+@@ -439,7 +463,10 @@ interrupt_base:
+ 	/* find the TLB index that caused the fault.  It has to be here. */
+ 	tlbsx	0, r10
+ 
+-	mtspr	SPRN_MAS3,r11
++	/* only update the perm bits, assume the RPN is fine */
++	mfspr	r12, SPRN_MAS3
++	rlwimi	r12, r11, 0, 20, 31
++	mtspr	SPRN_MAS3,r12
+ 	tlbwe
+ 
+ 	/* Done...restore registers and get out of here.  */
+@@ -530,18 +557,15 @@ interrupt_base:
+ 	lwz	r11,PGDIR(r11)
+ 
+ 4:
+-	rlwimi	r11, r10, 12, 20, 29	/* Create L1 (pgdir/pmd) address */
+-	lwz	r11, 0(r11)		/* Get L1 entry */
+-	rlwinm.	r12, r11, 0, 0, 19	/* Extract L2 (pte) base address */
+-	beq	2f			/* Bail if no table */
+-
+-	rlwimi	r12, r10, 22, 20, 29	/* Compute PTE address */
+-	lwz	r11, 0(r12)		/* Get Linux PTE */
+-	andi.	r13, r11, _PAGE_PRESENT
+-	beq	2f
++	FIND_PTE
++	andi.	r13, r11, _PAGE_PRESENT	/* Is the page present? */
++	beq	2f			/* Bail if not present */
+ 
++#ifdef CONFIG_PTE_64BIT
++	lwz	r13, 0(r12)
++#endif
+ 	ori	r11, r11, _PAGE_ACCESSED
+-	stw	r11, 0(r12)
++	stw	r11, PTE_FLAGS_OFFSET(r12)
+ 
+ 	 /* Jump to common tlb load */
+ 	b	finish_tlb_load
+@@ -594,18 +618,15 @@ interrupt_base:
+ 	lwz	r11,PGDIR(r11)
+ 
+ 4:
+-	rlwimi	r11, r10, 12, 20, 29	/* Create L1 (pgdir/pmd) address */
+-	lwz	r11, 0(r11)		/* Get L1 entry */
+-	rlwinm.	r12, r11, 0, 0, 19	/* Extract L2 (pte) base address */
+-	beq	2f			/* Bail if no table */
+-
+-	rlwimi	r12, r10, 22, 20, 29	/* Compute PTE address */
+-	lwz	r11, 0(r12)		/* Get Linux PTE */
+-	andi.	r13, r11, _PAGE_PRESENT
+-	beq	2f
++	FIND_PTE
++	andi.	r13, r11, _PAGE_PRESENT	/* Is the page present? */
++	beq	2f			/* Bail if not present */
+ 
++#ifdef CONFIG_PTE_64BIT
++	lwz	r13, 0(r12)
++#endif
+ 	ori	r11, r11, _PAGE_ACCESSED
+-	stw	r11, 0(r12)
++	stw	r11, PTE_FLAGS_OFFSET(r12)
+ 
+ 	/* Jump to common TLB load point */
+ 	b	finish_tlb_load
+@@ -690,27 +711,39 @@ finish_tlb_load:
+ 	 */
+ 
+ 	mfspr	r12, SPRN_MAS2
++#ifdef CONFIG_PTE_64BIT
++	rlwimi	r12, r11, 26, 24, 31	/* extract ...WIMGE from pte */
++#else
+ 	rlwimi	r12, r11, 26, 27, 31	/* extract WIMGE from pte */
++#endif
+ 	mtspr	SPRN_MAS2, r12
+ 
+ 	bge	5, 1f
+ 
+-	/* addr > TASK_SIZE */
+-	li	r10, (MAS3_UX | MAS3_UW | MAS3_UR)
+-	andi.	r13, r11, (_PAGE_USER | _PAGE_HWWRITE | _PAGE_HWEXEC)
+-	andi.	r12, r11, _PAGE_USER	/* Test for _PAGE_USER */
+-	iseleq	r12, 0, r10
+-	and	r10, r12, r13
+-	srwi	r12, r10, 1
++	/* is user addr */
++	andi.	r12, r11, (_PAGE_USER | _PAGE_HWWRITE | _PAGE_HWEXEC)
++	andi.	r10, r11, _PAGE_USER	/* Test for _PAGE_USER */
++	srwi	r10, r12, 1
+ 	or	r12, r12, r10	/* Copy user perms into supervisor */
++	iseleq	r12, 0, r12
+ 	b	2f
+ 
+-	/* addr <= TASK_SIZE */
++	/* is kernel addr */
+ 1:	rlwinm	r12, r11, 31, 29, 29	/* Extract _PAGE_HWWRITE into SW */
+ 	ori	r12, r12, (MAS3_SX | MAS3_SR)
+ 
++#ifdef CONFIG_PTE_64BIT
++2:	rlwimi	r12, r13, 24, 0, 7	/* grab RPN[32:39] */
++	rlwimi	r12, r11, 24, 8, 19	/* grab RPN[40:51] */
++	mtspr	SPRN_MAS3, r12
++BEGIN_FTR_SECTION
++	srwi	r10, r13, 8		/* grab RPN[8:31] */
++	mtspr	SPRN_MAS7, r10
++END_FTR_SECTION_IFSET(CPU_FTR_BIG_PHYS)
++#else
+ 2:	rlwimi	r11, r12, 0, 20, 31	/* Extract RPN from PTE and merge with perms */
+ 	mtspr	SPRN_MAS3, r11
++#endif
+ 	tlbwe
+ 
+ 	/* Done...restore registers and get out of here.  */
+diff -puN arch/ppc/syslib/ppc85xx_common.c~ppc32-support-36-bit-physical-addressing-on-e500 arch/ppc/syslib/ppc85xx_common.c
+--- 25/arch/ppc/syslib/ppc85xx_common.c~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.792344192 -0700
++++ 25-akpm/arch/ppc/syslib/ppc85xx_common.c	2005-04-12 03:21:11.802342672 -0700
+@@ -31,3 +31,11 @@ get_ccsrbar(void)
+ }
+ 
+ EXPORT_SYMBOL(get_ccsrbar);
++
++/* For now this is a pass through */
++phys_addr_t fixup_bigphys_addr(phys_addr_t addr, phys_addr_t size)
++{
++	return addr;
++};
++EXPORT_SYMBOL(fixup_bigphys_addr);
++
+diff -puN include/asm-ppc/cputable.h~ppc32-support-36-bit-physical-addressing-on-e500 include/asm-ppc/cputable.h
+--- 25/include/asm-ppc/cputable.h~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.794343888 -0700
++++ 25-akpm/include/asm-ppc/cputable.h	2005-04-12 03:21:11.803342520 -0700
+@@ -86,8 +86,9 @@ static inline unsigned int cpu_has_featu
+ #define CPU_FTR_DUAL_PLL_750FX		0x00004000
+ #define CPU_FTR_NO_DPM			0x00008000
+ #define CPU_FTR_HAS_HIGH_BATS		0x00010000
+-#define CPU_FTR_NEED_COHERENT           0x00020000
++#define CPU_FTR_NEED_COHERENT		0x00020000
+ #define CPU_FTR_NO_BTIC			0x00040000
++#define CPU_FTR_BIG_PHYS		0x00080000
+ 
+ #ifdef __ASSEMBLY__
+ 
+diff -puN include/asm-ppc/pgtable.h~ppc32-support-36-bit-physical-addressing-on-e500 include/asm-ppc/pgtable.h
+--- 25/include/asm-ppc/pgtable.h~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.795343736 -0700
++++ 25-akpm/include/asm-ppc/pgtable.h	2005-04-12 03:21:11.804342368 -0700
+@@ -225,8 +225,7 @@ extern unsigned long ioremap_bot, iorema
+ /* ERPN in a PTE never gets cleared, ignore it */
+ #define _PTE_NONE_MASK	0xffffffff00000000ULL
+ 
+-#elif defined(CONFIG_E500)
+-
++#elif defined(CONFIG_FSL_BOOKE)
+ /*
+    MMU Assist Register 3:
+ 
+@@ -240,21 +239,29 @@ extern unsigned long ioremap_bot, iorema
+      entries use the top 29 bits.
+ */
+ 
+-/* Definitions for e500 core */
+-#define _PAGE_PRESENT	0x001	/* S: PTE contains a translation */
+-#define _PAGE_USER	0x002	/* S: User page (maps to UR) */
+-#define _PAGE_FILE	0x002	/* S: when !present: nonlinear file mapping */
+-#define _PAGE_ACCESSED	0x004	/* S: Page referenced */
+-#define _PAGE_HWWRITE	0x008	/* H: Dirty & RW, set in exception */
+-#define _PAGE_RW	0x010	/* S: Write permission */
+-#define _PAGE_HWEXEC	0x020	/* H: UX permission */
+-
+-#define _PAGE_ENDIAN	0x040	/* H: E bit */
+-#define _PAGE_GUARDED	0x080	/* H: G bit */
+-#define _PAGE_COHERENT	0x100	/* H: M bit */
+-#define _PAGE_NO_CACHE	0x200	/* H: I bit */
+-#define _PAGE_WRITETHRU	0x400	/* H: W bit */
+-#define _PAGE_DIRTY	0x800	/* S: Page dirty */
++/* Definitions for FSL Book-E Cores */
++#define _PAGE_PRESENT	0x00001	/* S: PTE contains a translation */
++#define _PAGE_USER	0x00002	/* S: User page (maps to UR) */
++#define _PAGE_FILE	0x00002	/* S: when !present: nonlinear file mapping */
++#define _PAGE_ACCESSED	0x00004	/* S: Page referenced */
++#define _PAGE_HWWRITE	0x00008	/* H: Dirty & RW, set in exception */
++#define _PAGE_RW	0x00010	/* S: Write permission */
++#define _PAGE_HWEXEC	0x00020	/* H: UX permission */
++
++#define _PAGE_ENDIAN	0x00040	/* H: E bit */
++#define _PAGE_GUARDED	0x00080	/* H: G bit */
++#define _PAGE_COHERENT	0x00100	/* H: M bit */
++#define _PAGE_NO_CACHE	0x00200	/* H: I bit */
++#define _PAGE_WRITETHRU	0x00400	/* H: W bit */
++
++#ifdef CONFIG_PTE_64BIT
++#define _PAGE_DIRTY	0x08000	/* S: Page dirty */
++
++/* ERPN in a PTE never gets cleared, ignore it */
++#define _PTE_NONE_MASK	0xffffffffffff0000ULL
++#else
++#define _PAGE_DIRTY	0x00800	/* S: Page dirty */
++#endif
+ 
+ #define _PMD_PRESENT	0
+ #define _PMD_PRESENT_MASK (PAGE_MASK)
+@@ -433,7 +440,11 @@ extern unsigned long bad_call_to_PMD_PAG
+ 
+ /* in some case we want to additionaly adjust where the pfn is in the pte to
+  * allow room for more flags */
++#if defined(CONFIG_FSL_BOOKE) && defined(CONFIG_PTE_64BIT)
++#define PFN_SHIFT_OFFSET	(PAGE_SHIFT + 8)
++#else
+ #define PFN_SHIFT_OFFSET	(PAGE_SHIFT)
++#endif
+ 
+ #define pte_pfn(x)		(pte_val(x) >> PFN_SHIFT_OFFSET)
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+diff -puN include/asm-ppc/reg_booke.h~ppc32-support-36-bit-physical-addressing-on-e500 include/asm-ppc/reg_booke.h
+--- 25/include/asm-ppc/reg_booke.h~ppc32-support-36-bit-physical-addressing-on-e500	2005-04-12 03:21:11.796343584 -0700
++++ 25-akpm/include/asm-ppc/reg_booke.h	2005-04-12 03:21:11.805342216 -0700
+@@ -172,6 +172,7 @@ do {						\
+ #define SPRN_MAS4	0x274	/* MMU Assist Register 4 */
+ #define SPRN_MAS5	0x275	/* MMU Assist Register 5 */
+ #define SPRN_MAS6	0x276	/* MMU Assist Register 6 */
++#define SPRN_MAS7	0x3b0	/* MMU Assist Register 7 */
+ #define SPRN_PID1	0x279	/* Process ID Register 1 */
+ #define SPRN_PID2	0x27A	/* Process ID Register 2 */
+ #define SPRN_TLB0CFG	0x2B0	/* TLB 0 Config Register */
 _

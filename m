@@ -1,88 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVDLROM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVDLRQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbVDLROM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 13:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVDLRNG
+	id S262448AbVDLRQn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbVDLRO2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 13:13:06 -0400
-Received: from smtp3.actcom.co.il ([192.114.47.65]:13484 "EHLO
-	smtp3.actcom.co.il") by vger.kernel.org with ESMTP id S262506AbVDLRLD
+	Tue, 12 Apr 2005 13:14:28 -0400
+Received: from mail.shareable.org ([81.29.64.88]:29856 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262470AbVDLRNw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 13:11:03 -0400
-Date: Tue, 12 Apr 2005 20:02:30 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: ak@muc.de, ak@suse.de
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 072/198] x86_64: Use a VMA for the 32bit vsyscall
-Message-ID: <20050412170230.GD2758@granada.merseine.nu>
-References: <200504121031.j3CAVnpl005415@shell0.pdx.osdl.net>
+	Tue, 12 Apr 2005 13:13:52 -0400
+Date: Tue, 12 Apr 2005 18:13:38 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+Message-ID: <20050412171338.GA14633@mail.shareable.org>
+References: <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lkTb+7nhmha7W+c3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200504121031.j3CAVnpl005415@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miklos Szeredi wrote:
+> > Indeed, if it can be done with namespaces _and_ mounting on a file
+> > (that file-as-directory concept), _and_ automounting, then you could
+> > cd into your tgz files and others could too :)
+> 
+> There's still that little problem of accessing the tgz file both as a
+> file and a directory.  But yes.  Maybe in 10 years time :)
 
---lkTb+7nhmha7W+c3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There was a thread a few months ago where file-as-directory was
+discussed extensively, after Namesys implemented it.  That's where the
+conversation on detachable mount points originated AFAIR.  It will
+probably happen at some point.
 
-On Tue, Apr 12, 2005 at 03:31:43AM -0700, akpm@osdl.org wrote:
+A nice implemention of it in FUSE could push it along a bit :)
 
-> From: Andi Kleen <ak@muc.de>
->=20
-> Use a real VMA to map the 32bit vsyscall page
+-- Jamie
 
-[...]
-
-> +/* Setup a VMA at program startup for the vsyscall page */
-> +int syscall32_setup_pages(struct linux_binprm *bprm, int exstack)
-> +{
-> +	int npages =3D (VSYSCALL32_END - VSYSCALL32_BASE) >> PAGE_SHIFT;
-> +	struct vm_area_struct *vma;
-> +	struct mm_struct *mm =3D current->mm;
-> +
-> +	vma =3D kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
-> +	if (!vma)
-> +		return -ENOMEM;
-> +	if (security_vm_enough_memory(npages)) {
-> +		kmem_cache_free(vm_area_cachep, vma);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	memset(vma, 0, sizeof(struct vm_area_struct));
-> +	/* Could randomize here */
-> +	vma->vm_start =3D VSYSCALL32_BASE;
-> +	vma->vm_end =3D VSYSCALL32_END;
-> +	/* MAYWRITE to allow gdb to COW and set breakpoints */
-> +	vma->vm_flags =3D VM_READ|VM_EXEC|VM_MAYREAD|VM_MAYEXEC|VM_MAYEXEC|VM_M=
-AYWRITE;
-
-Any reason for VM_MAYEXEC to be specified twice? did you mean something els=
-e?
-
-Cheers,
-Muli
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
-
---lkTb+7nhmha7W+c3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCW/8mKRs727/VN8sRAo+uAJ94O+WbTb7+lw8/0e1PdBEaXxepvgCfSlox
-hiMqRxnyCgRIo6FDqF03MqQ=
-=51pB
------END PGP SIGNATURE-----
-
---lkTb+7nhmha7W+c3--

@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262993AbVDLVSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbVDLVR7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262993AbVDLVSF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVDLVOX
+	id S263003AbVDLVR7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:17:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVDLVOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:14:23 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:10378 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262993AbVDLVM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:12:27 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: snd-ens1371 (alsa) & joystick woes
-To: Patrick McFarland <pmcfarland@downeast.net>,
-       Guillaume Chazarain <guichaz@yahoo.fr>, linux-kernel@vger.kernel.org,
-       linux-joystick@atrey.karlin.mff.cuni.cz
-Reply-To: 7eggert@gmx.de
-Date: Tue, 12 Apr 2005 23:12:00 +0200
-References: <3Ssnv-QY-7@gated-at.bofh.it> <3StMH-1XF-49@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
+	Tue, 12 Apr 2005 17:14:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32275 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262992AbVDLVMX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 17:12:23 -0400
+Date: Tue, 12 Apr 2005 22:12:18 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: incoming
+Message-ID: <20050412221218.D11984@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20050412032322.72d73771.akpm@osdl.org> <20050412215526.B11984@flint.arm.linux.org.uk> <20050412140800.43d45d01.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DLSg1-0000xk-EC@be1.7eggert.dyndns.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050412140800.43d45d01.akpm@osdl.org>; from akpm@osdl.org on Tue, Apr 12, 2005 at 02:08:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <pmcfarland@downeast.net> wrote:
+On Tue, Apr 12, 2005 at 02:08:00PM -0700, Andrew Morton wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> > I don't see a patch which adds linux/pm.h to linux/sysdev.h, which is
+> >  required to fix ARM builds in -rc2 and onwards kernels.
+> 
+> That fix is buried in [patch 105/198]
 
-> Speaking of which... is there anyone out
-> there with a ens1371 that actually works right with joysticks?
+Great, thanks.  I must have missed it, sorry.
 
-Yes, I'm using the oss driver.
 -- 
-Airstrikes always overshoot the target, artillery always falls short. 
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

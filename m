@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262997AbVDLVOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVDLVOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262997AbVDLVOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbVDLVLB
+	id S262109AbVDLVOL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVDLVLX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:11:01 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:11974 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262969AbVDLVGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:06:09 -0400
-Message-ID: <425C3738.5090407@nortel.com>
-Date: Tue, 12 Apr 2005 15:01:44 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Petr Baudis <pasky@ucw.cz>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>,
-       "Adam J. Richter" <adam@yggdrasil.com>, torvalds@osdl.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: GIT license (Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1)
-References: <200504120120.j3C1KII14991@adam.yggdrasil.com> <20050412014204.GB9145@pasky.ji.cz> <Pine.LNX.4.62.0504121037590.10150@numbat.sonytel.be> <20050412095048.GB22614@pasky.ji.cz> <20050412192924.GA26542@pasky.ji.cz>
-In-Reply-To: <20050412192924.GA26542@pasky.ji.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 17:11:23 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6300 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S262109AbVDLVGA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 17:06:00 -0400
+Date: Tue, 12 Apr 2005 23:01:52 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Steve French <smfrench@austin.rr.com>
+Cc: linux-kernel@vger.kernel.org, Alexander Nyberg <alexn@dsv.su.se>,
+       Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH 1/3] cifs: md5 cleanup - functions
+Message-ID: <20050412210152.GB25512@electric-eye.fr.zoreil.com>
+References: <OFF8FD24BE.BDEDEA22-ON87256FE0.00741B4F-86256FE0.0074FC27@us.ibm.com> <1113267099.5734.1.camel@smfhome.smfdom>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113267099.5734.1.camel@smfhome.smfdom>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Baudis wrote:
-> Dear diary, on Tue, Apr 12, 2005 at 11:50:48AM CEST, I got a letter
+Steve French <smfrench@austin.rr.com> :
+[...]
+> There was a patch suggested a year or so ago to remove the older cifs
+> md5 implementation and have cifsencrypt.c use the newer Linux crypto
+> API, but since it made the code considerably more complex it did not
+> make any sense. The current crypto API seems to be designed for much
+> more complex usage patterns than cifs needs it for. The key use for this
+> for CIFS is the following small function (to calculate the packet
+> signitures on cifs packets in fs/cifs/cifsencrypt.c)
 
->>Well, yes, but the last merge point search may not be so simple:
->>
->>A --1---2----6---7
->>B    \   `-4-.  /
->>C     `-3-----5'
->>
->>Now, when at 7, your last merge point is not 1, but 2.
-> 
-> 
-> ...and this is obviously wrong, sorry. You would lose 3 this way.
+If you have the patches from 10/2003 in mind, they suffered more from poor
+taste than from cryptoapi imho.
 
-Wouldn't the delta betweeen 2 and 5 include any contribution from 3?
+Btw nobody cared about fs/cifs/connect.c::CIFSNTLMSSPNegotiateSessSetup
+(indentation from Mars + unchecked allocations before dereferences).
 
-Chris
+--
+Ueimor

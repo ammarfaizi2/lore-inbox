@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbVDLIls@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVDLIl4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbVDLIls (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 04:41:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVDLIls
+	id S262066AbVDLIl4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 04:41:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVDLIl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 04:41:48 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:63653 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262067AbVDLIjy (ORCPT
+	Tue, 12 Apr 2005 04:41:56 -0400
+Received: from mail.dif.dk ([193.138.115.101]:63629 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S262070AbVDLIkK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 04:39:54 -0400
-Date: Tue, 12 Apr 2005 10:39:40 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Petr Baudis <pasky@ucw.cz>
-cc: "Adam J. Richter" <adam@yggdrasil.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Re: Re: GIT license (Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1)
-In-Reply-To: <20050412014204.GB9145@pasky.ji.cz>
-Message-ID: <Pine.LNX.4.62.0504121037590.10150@numbat.sonytel.be>
-References: <200504120120.j3C1KII14991@adam.yggdrasil.com>
- <20050412014204.GB9145@pasky.ji.cz>
+	Tue, 12 Apr 2005 04:40:10 -0400
+Date: Tue, 12 Apr 2005 10:40:08 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Thomas Sailer <sailer@ife.ee.ethz.ch>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] usb: kfree() cleanups in drivers/usb/core/devio.c
+In-Reply-To: <20050412074056.GD1371@kroah.com>
+Message-ID: <Pine.LNX.4.62.0504121037460.3879@jjulnx.backbone.dif.dk>
+References: <Pine.LNX.4.62.0504112350160.2480@dragon.hyggekrogen.localhost>
+ <20050412074056.GD1371@kroah.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Apr 2005, Petr Baudis wrote:
-> Dear diary, on Tue, Apr 12, 2005 at 03:20:18AM CEST, I got a letter
-> where "Adam J. Richter" <adam@yggdrasil.com> told me that...
-> > >Dear diary, on Mon, Apr 11, 2005 at 05:46:38PM CEST, I got a letter
-> > >where "Adam J. Richter" <adam@yggdrasil.com> told me that...
-> > >..snip..
-> > >> Graydon Hoare.  (By the way, I would prefer that git just punt to
-> > >> user level programs for diff and merge when all of the versions
-> > >> involved are different or at least have a very thin interface
-> > >> for extending the facility, because I would like to do some character
-> > >> based merge stuff.)
-> > >..snip..
+On Tue, 12 Apr 2005, Greg KH wrote:
+
+> Date: Tue, 12 Apr 2005 00:40:56 -0700
+> From: Greg KH <gregkh@suse.de>
+> To: Jesper Juhl <juhl-lkml@dif.dk>
+> Cc: linux-kernel@vger.kernel.org, Thomas Sailer <sailer@ife.ee.ethz.ch>,
+>     Greg Kroah-Hartman <gregkh@suse.de>, linux-usb-devel@lists.sourceforge.net
+> Subject: Re: [PATCH] usb: kfree() cleanups in drivers/usb/core/devio.c
+> 
+> On Mon, Apr 11, 2005 at 11:55:22PM +0200, Jesper Juhl wrote:
+> > Checking for NULL before calling kfree() is redundant. This patch removes 
+> > these redundant checks and also makes a few tiny whitespace changes.
 > > 
-> > >But this is what git already does. I agree it could do it even better,
-> > >by checking environment variables for the appropriate tools (then you
-> > >could use that to pass diff e.g. -p etc.).
-> > 
-> > This message from Linus seemed to imply that git was going to get
-> > its own 3-way merge code:
-> > 
-> > | Then the bad news: the merge algorithm is going to suck. It's going to be
-> > | just plain 3-way merge, the same RCS/CVS thing you've seen before. With no
-> > | understanding of renames etc. I'll try to find the best parent to base the
-> > | merge off of, although early testers may have to tell the piece of crud
-> > | what the most recent common parent was.
+> > Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 > 
-> Well, from what I can read it says "just plain 3-way merge, the same
-> RCS/CVS thing you've seen before". :-)
+> Applied, thanks.
 > 
-> Basically, when you look at merge(1) :
-> 
-> SYNOPSIS
->        merge [ options ] file1 file2 file3
-> DESCRIPTION
->        merge  incorporates  all  changes that lead from file2 to file3
-> into file1.
-> 
-> The only big problem is how to guess the best file2 when you give it
-> file3 and file1.
+You're welcome. I have a patch 90% done that makes the same change for all 
+of drivers/usb/* want me to send that along or would you prefer I stick to 
+just drivers/usb/core/* ?  One huge patch OK or would you prefer it split 
+into one patch pr modified file?   
+I can send the patch later tonight when I get home from work.
 
-That's either the point just before you started modifying the file, or your
-last merge point. Sounds simple, but if your SCM system doesn't track merges,
-your SOL...
+-- 
+Jesper Juhl
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

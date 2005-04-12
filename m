@@ -1,75 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVDLSod@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVDLSoe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbVDLSod (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:44:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVDLSme
+	id S262535AbVDLSoe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:44:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVDLSlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:42:34 -0400
-Received: from fire.osdl.org ([65.172.181.4]:13002 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262238AbVDLKc5 (ORCPT
+	Tue, 12 Apr 2005 14:41:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:1483 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262298AbVDLKd5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:57 -0400
-Message-Id: <200504121032.j3CAWlw4005676@shell0.pdx.osdl.net>
-Subject: [patch 134/198] officially deprecate register_ioctl32_conversion
+	Tue, 12 Apr 2005 06:33:57 -0400
+Message-Id: <200504121033.j3CAXXc0005911@shell0.pdx.osdl.net>
+Subject: [patch 187/198] IB/mthca: map context for RDMA responder in mem-free mode
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hch@lst.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:40 -0700
+Date: Tue, 12 Apr 2005 03:33:27 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Christoph Hellwig <hch@lst.de>
+From: Roland Dreier <roland@topspin.com>
 
-These have been deprecated since ->compat_ioctl when in, thus only a short
-deprecation period.  There's four users left: i2o_config, s390/z90crypy,
-s390/dasd and s390/zfcp and for the first two patches are about to be
-submitted to get rid of it.
+Fix RDMA in mem-free mode: we need to make sure that the RDMA context memory
+is mapped for the HCA.
 
+Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/Documentation/feature-removal-schedule.txt |    8 ++++++++
- 25-akpm/include/linux/ioctl32.h                    |    6 ++++--
- 2 files changed, 12 insertions(+), 2 deletions(-)
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_dev.h  |    1 +
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_main.c |   18 ++++++++++++++++--
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c   |   13 ++++++++++++-
+ 3 files changed, 29 insertions(+), 3 deletions(-)
 
-diff -puN Documentation/feature-removal-schedule.txt~officially-deprecate-register_ioctl32_conversion Documentation/feature-removal-schedule.txt
---- 25/Documentation/feature-removal-schedule.txt~officially-deprecate-register_ioctl32_conversion	2005-04-12 03:21:35.861685096 -0700
-+++ 25-akpm/Documentation/feature-removal-schedule.txt	2005-04-12 03:21:35.866684336 -0700
-@@ -40,3 +40,11 @@ Why:	Replaced by io_remap_pfn_range() wh
- 	addressabilty (by using a pfn) and supports sparc & sparc64
- 	iospace as part of the pfn.
- Who:	Randy Dunlap <rddunlap@osdl.org>
+diff -puN drivers/infiniband/hw/mthca/mthca_dev.h~ib-mthca-map-context-for-rdma-responder-in-mem-free-mode drivers/infiniband/hw/mthca/mthca_dev.h
+--- 25/drivers/infiniband/hw/mthca/mthca_dev.h~ib-mthca-map-context-for-rdma-responder-in-mem-free-mode	2005-04-12 03:21:47.983842248 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-12 03:21:47.989841336 -0700
+@@ -222,6 +222,7 @@ struct mthca_qp_table {
+ 	struct mthca_array     	qp;
+ 	struct mthca_icm_table *qp_table;
+ 	struct mthca_icm_table *eqp_table;
++	struct mthca_icm_table *rdb_table;
+ };
+ 
+ struct mthca_av_table {
+diff -puN drivers/infiniband/hw/mthca/mthca_main.c~ib-mthca-map-context-for-rdma-responder-in-mem-free-mode drivers/infiniband/hw/mthca/mthca_main.c
+--- 25/drivers/infiniband/hw/mthca/mthca_main.c~ib-mthca-map-context-for-rdma-responder-in-mem-free-mode	2005-04-12 03:21:47.984842096 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_main.c	2005-04-12 03:21:47.990841184 -0700
+@@ -430,14 +430,25 @@ static int __devinit mthca_init_icm(stru
+ 		goto err_unmap_qp;
+ 	}
+ 
+-	mdev->cq_table.table = mthca_alloc_icm_table(mdev, init_hca->cqc_base,
++	mdev->qp_table.rdb_table = mthca_alloc_icm_table(mdev, init_hca->rdb_base,
++							 MTHCA_RDB_ENTRY_SIZE,
++							 mdev->limits.num_qps <<
++							 mdev->qp_table.rdb_shift,
++							 0, 0);
++	if (!mdev->qp_table.rdb_table) {
++		mthca_err(mdev, "Failed to map RDB context memory, aborting\n");
++		err = -ENOMEM;
++		goto err_unmap_eqp;
++	}
 +
-+---------------------------
++       mdev->cq_table.table = mthca_alloc_icm_table(mdev, init_hca->cqc_base,
+ 						     dev_lim->cqc_entry_sz,
+ 						     mdev->limits.num_cqs,
+ 						     mdev->limits.reserved_cqs, 0);
+ 	if (!mdev->cq_table.table) {
+ 		mthca_err(mdev, "Failed to map CQ context memory, aborting.\n");
+ 		err = -ENOMEM;
+-		goto err_unmap_eqp;
++		goto err_unmap_rdb;
+ 	}
+ 
+ 	/*
+@@ -463,6 +474,9 @@ static int __devinit mthca_init_icm(stru
+ err_unmap_cq:
+ 	mthca_free_icm_table(mdev, mdev->cq_table.table);
+ 
++err_unmap_rdb:
++	mthca_free_icm_table(mdev, mdev->qp_table.rdb_table);
 +
-+What:	register_ioctl32_conversion() / unregister_ioctl32_conversion()
-+When:	April 2005
-+Why:	Replaced by ->compat_ioctl in file_operations and other method
-+	vecors.
-+Who:	Andi Kleen <ak@muc.de>, Christoph Hellwig <hch@lst.de>
-diff -puN include/linux/ioctl32.h~officially-deprecate-register_ioctl32_conversion include/linux/ioctl32.h
---- 25/include/linux/ioctl32.h~officially-deprecate-register_ioctl32_conversion	2005-04-12 03:21:35.863684792 -0700
-+++ 25-akpm/include/linux/ioctl32.h	2005-04-12 03:21:35.866684336 -0700
-@@ -1,6 +1,8 @@
- #ifndef IOCTL32_H
- #define IOCTL32_H 1
+ err_unmap_eqp:
+ 	mthca_free_icm_table(mdev, mdev->qp_table.eqp_table);
  
-+#include <linux/compiler.h>	/* for __deprecated */
+diff -puN drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-map-context-for-rdma-responder-in-mem-free-mode drivers/infiniband/hw/mthca/mthca_qp.c
+--- 25/drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-map-context-for-rdma-responder-in-mem-free-mode	2005-04-12 03:21:47.986841792 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-12 03:21:47.992840880 -0700
+@@ -1025,11 +1025,16 @@ static int mthca_alloc_memfree(struct mt
+ 		if (ret)
+ 			goto err_qpc;
+ 
++		ret = mthca_table_get(dev, dev->qp_table.rdb_table,
++				      qp->qpn << dev->qp_table.rdb_shift);
++		if (ret)
++			goto err_eqpc;
 +
- struct file;
+ 		qp->rq.db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_RQ,
+ 						 qp->qpn, &qp->rq.db);
+ 		if (qp->rq.db_index < 0) {
+ 			ret = -ENOMEM;
+-			goto err_eqpc;
++			goto err_rdb;
+ 		}
  
- typedef int (*ioctl_trans_handler_t)(unsigned int, unsigned int,
-@@ -23,9 +25,9 @@ struct ioctl_trans {
-  */ 
+ 		qp->sq.db_index = mthca_alloc_db(dev, MTHCA_DB_TYPE_SQ,
+@@ -1045,6 +1050,10 @@ static int mthca_alloc_memfree(struct mt
+ err_rq_db:
+ 	mthca_free_db(dev, MTHCA_DB_TYPE_RQ, qp->rq.db_index);
  
- #ifdef CONFIG_COMPAT
--extern int register_ioctl32_conversion(unsigned int cmd,
-+extern int __deprecated register_ioctl32_conversion(unsigned int cmd,
- 				ioctl_trans_handler_t handler);
--extern int unregister_ioctl32_conversion(unsigned int cmd);
-+extern int __deprecated unregister_ioctl32_conversion(unsigned int cmd);
++err_rdb:
++	mthca_table_put(dev, dev->qp_table.rdb_table,
++			qp->qpn << dev->qp_table.rdb_shift);
++
+ err_eqpc:
+ 	mthca_table_put(dev, dev->qp_table.eqp_table, qp->qpn);
  
- #else
- 
+@@ -1060,6 +1069,8 @@ static void mthca_free_memfree(struct mt
+ 	if (mthca_is_memfree(dev)) {
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_SQ, qp->sq.db_index);
+ 		mthca_free_db(dev, MTHCA_DB_TYPE_RQ, qp->rq.db_index);
++		mthca_table_put(dev, dev->qp_table.rdb_table,
++				qp->qpn << dev->qp_table.rdb_shift);
+ 		mthca_table_put(dev, dev->qp_table.eqp_table, qp->qpn);
+ 		mthca_table_put(dev, dev->qp_table.qp_table, qp->qpn);
+ 	}
 _

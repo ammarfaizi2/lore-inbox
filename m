@@ -1,142 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVDLT44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVDMBZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262160AbVDLT44 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVDLTzy
+	id S262106AbVDMBZq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 21:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbVDLT5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:55:54 -0400
-Received: from fire.osdl.org ([65.172.181.4]:44232 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262158AbVDLKbr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:47 -0400
-Message-Id: <200504121031.j3CAVTX0005324@shell0.pdx.osdl.net>
-Subject: [patch 050/198] ppc64: Improve mapping of vDSO
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, benh@kernel.crashing.org
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:22 -0700
+	Tue, 12 Apr 2005 15:57:04 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:43167 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262162AbVDLSRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 14:17:48 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mark Constable <markc@renta.net>, Steven Rostedt <rostedt@goodmis.org>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20050410174723.GC18768@elte.hu>
+References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu>
+	 <20050401104724.GA31971@elte.hu> <20050405071911.GA23653@elte.hu>
+	 <42596101.3010205@cybsft.com> <20050410172759.GA16654@elte.hu>
+	 <1113154793.20980.15.camel@localhost.localdomain>
+	 <20050410174723.GC18768@elte.hu>
+Content-Type: text/plain
+Date: Tue, 12 Apr 2005 14:17:46 -0400
+Message-Id: <1113329867.31159.38.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-04-10 at 19:47 +0200, Ingo Molnar wrote:
+> yeah, that's what i did in -45-01.
+> 
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Ingo,
 
-This patch reworks the way the ppc64 is mapped in user memory by the kernel
-to make it more robust against possible collisions with executable
-segments.  Instead of just whacking a VMA at 1Mb, I now use
-get_unmapped_area() with a hint, and I moved the mapping of the vDSO to
-after the mapping of the various ELF segments and of the interpreter, so
-that conflicts get caught properly (it still has to be before
-create_elf_tables since the later will fill the AT_SYSINFO_EHDR with the
-proper address).
+This build failure was reported with 45-01 by an AMD64 user.  Do you
+need the .config?
 
-While I was at it, I also changed the 32 and 64 bits vDSO's to link at
-their "natural" address of 1Mb instead of 0.  This is the address where
-they are normally mapped in absence of conflict.  By doing so, it should be
-possible to properly prelink one it's been verified to work on glibc.
+  HOSTCC  scripts/bin2c
+  CC      arch/x86_64/kernel/asm-offsets.s
+  CHK     include/asm-x86_64/offset.h
+  UPD     include/asm-x86_64/offset.h
+  CC      init/main.o
+In file included from include/linux/rwsem.h:38,
+                 from include/linux/kobject.h:24,
+                 from include/linux/module.h:19,
+                 from init/main.c:16:
+include/asm/rwsem.h:55: error: redefinition of `struct rw_semaphore'
+In file included from include/linux/rwsem.h:38,
+                 from include/linux/kobject.h:24,
+                 from include/linux/module.h:19,
+                 from init/main.c:16:
+include/asm/rwsem.h:79:1: warning: "__RWSEM_INITIALIZER" redefined
+In file included from include/linux/spinlock.h:16,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from include/linux/module.h:10,
+                 from init/main.c:16:
+include/linux/rt_lock.h:295:1: warning: this is the location of the
+previous definition
+In file included from include/linux/rwsem.h:38,
+                 from include/linux/kobject.h:24,
+                 from include/linux/module.h:19,
+                 from init/main.c:16:
+include/asm/rwsem.h:83:1: warning: "DECLARE_RWSEM" redefined
+In file included from include/linux/spinlock.h:16,
+                 from include/linux/capability.h:45,
+                 from include/linux/sched.h:7,
+                 from include/linux/module.h:10,
+                 from init/main.c:16:
+include/linux/rt_lock.h:298:1: warning: this is the location of the
+previous definition
+include/asm/rwsem.h:86: error: parse error before "do"
+In file included from include/linux/kobject.h:24,
+                 from include/linux/module.h:19,
+                 from init/main.c:16:
+include/linux/rwsem.h: In function `compat_down_read':
+include/linux/rwsem.h:56: warning: passing arg 1 of `__down_read' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_down_read_trylock':
+include/linux/rwsem.h:67: warning: passing arg 1 of
+`__down_read_trylock' from incompatible pointer type
+include/linux/rwsem.h: In function `compat_down_write':
+include/linux/rwsem.h:79: warning: passing arg 1 of `__down_write' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_down_write_trylock':
+include/linux/rwsem.h:90: warning: passing arg 1 of
+`__down_write_trylock' from incompatible pointer type
+include/linux/rwsem.h: In function `compat_up_read':
+include/linux/rwsem.h:101: warning: passing arg 1 of `__up_read' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_up_write':
+include/linux/rwsem.h:111: warning: passing arg 1 of `__up_write' from
+incompatible pointer type
+include/linux/rwsem.h: In function `compat_downgrade_write':
+include/linux/rwsem.h:121: warning: passing arg 1 of `__downgrade_write'
+from incompatible pointer type
+In file included from include/linux/proc_fs.h:6,
+                 from init/main.c:17:
+include/linux/fs.h: In function `lock_super':
+include/linux/fs.h:828: warning: implicit declaration of function
+`compat_down'
+include/linux/fs.h: In function `unlock_super':
+include/linux/fs.h:833: warning: implicit declaration of function
+`compat_up'
+make[1]: *** [init/main.o] Error 1
+make: *** [init] Error 2
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Lee
 
- 25-akpm/arch/ppc64/kernel/vdso.c |   19 ++++++++++++-------
- 25-akpm/fs/binfmt_elf.c          |   16 ++++++++--------
- 25-akpm/include/asm-ppc64/vdso.h |    8 ++++----
- 3 files changed, 24 insertions(+), 19 deletions(-)
-
-diff -puN arch/ppc64/kernel/vdso.c~ppc64-improve-mapping-of-vdso arch/ppc64/kernel/vdso.c
---- 25/arch/ppc64/kernel/vdso.c~ppc64-improve-mapping-of-vdso	2005-04-12 03:21:15.474784376 -0700
-+++ 25-akpm/arch/ppc64/kernel/vdso.c	2005-04-12 03:21:15.480783464 -0700
-@@ -213,13 +213,14 @@ int arch_setup_additional_pages(struct l
- 		vdso_base = VDSO64_MBASE;
- 	}
- 
-+	current->thread.vdso_base = 0;
-+
- 	/* vDSO has a problem and was disabled, just don't "enable" it for the
- 	 * process
- 	 */
--	if (vdso_pages == 0) {
--		current->thread.vdso_base = 0;
-+	if (vdso_pages == 0)
- 		return 0;
--	}
-+
- 	vma = kmem_cache_alloc(vm_area_cachep, SLAB_KERNEL);
- 	if (vma == NULL)
- 		return -ENOMEM;
-@@ -230,12 +231,16 @@ int arch_setup_additional_pages(struct l
- 	memset(vma, 0, sizeof(*vma));
- 
- 	/*
--	 * pick a base address for the vDSO in process space. We have a default
--	 * base of 1Mb on which we had a random offset up to 1Mb.
--	 * XXX: Add possibility for a program header to specify that location
-+	 * pick a base address for the vDSO in process space. We try to put it
-+	 * at vdso_base which is the "natural" base for it, but we might fail
-+	 * and end up putting it elsewhere.
- 	 */
-+	vdso_base = get_unmapped_area(NULL, vdso_base,
-+				      vdso_pages << PAGE_SHIFT, 0, 0);
-+	if (vdso_base & ~PAGE_MASK)
-+		return (int)vdso_base;
-+
- 	current->thread.vdso_base = vdso_base;
--	/*  + ((unsigned long)vma & 0x000ff000); */
- 
- 	vma->vm_mm = mm;
- 	vma->vm_start = current->thread.vdso_base;
-diff -puN fs/binfmt_elf.c~ppc64-improve-mapping-of-vdso fs/binfmt_elf.c
---- 25/fs/binfmt_elf.c~ppc64-improve-mapping-of-vdso	2005-04-12 03:21:15.475784224 -0700
-+++ 25-akpm/fs/binfmt_elf.c	2005-04-12 03:21:15.482783160 -0700
-@@ -782,14 +782,6 @@ static int load_elf_binary(struct linux_
- 		goto out_free_dentry;
- 	}
- 	
--#ifdef ARCH_HAS_SETUP_ADDITIONAL_PAGES
--	retval = arch_setup_additional_pages(bprm, executable_stack);
--	if (retval < 0) {
--		send_sig(SIGKILL, current, 0);
--		goto out_free_dentry;
--	}
--#endif /* ARCH_HAS_SETUP_ADDITIONAL_PAGES */
--
- 	current->mm->start_stack = bprm->p;
- 
- 	/* Now we do a little grungy work by mmaping the ELF image into
-@@ -949,6 +941,14 @@ static int load_elf_binary(struct linux_
- 
- 	set_binfmt(&elf_format);
- 
-+#ifdef ARCH_HAS_SETUP_ADDITIONAL_PAGES
-+	retval = arch_setup_additional_pages(bprm, executable_stack);
-+	if (retval < 0) {
-+		send_sig(SIGKILL, current, 0);
-+		goto out_free_dentry;
-+	}
-+#endif /* ARCH_HAS_SETUP_ADDITIONAL_PAGES */
-+
- 	compute_creds(bprm);
- 	current->flags &= ~PF_FORKNOEXEC;
- 	create_elf_tables(bprm, &loc->elf_ex, (interpreter_type == INTERPRETER_AOUT),
-diff -puN include/asm-ppc64/vdso.h~ppc64-improve-mapping-of-vdso include/asm-ppc64/vdso.h
---- 25/include/asm-ppc64/vdso.h~ppc64-improve-mapping-of-vdso	2005-04-12 03:21:15.477783920 -0700
-+++ 25-akpm/include/asm-ppc64/vdso.h	2005-04-12 03:21:15.482783160 -0700
-@@ -4,12 +4,12 @@
- #ifdef __KERNEL__
- 
- /* Default link addresses for the vDSOs */
--#define VDSO32_LBASE	0
--#define VDSO64_LBASE	0
-+#define VDSO32_LBASE	0x100000
-+#define VDSO64_LBASE	0x100000
- 
- /* Default map addresses */
--#define VDSO32_MBASE	0x100000
--#define VDSO64_MBASE	0x100000
-+#define VDSO32_MBASE	VDSO32_LBASE
-+#define VDSO64_MBASE	VDSO64_LBASE
- 
- #define VDSO_VERSION_STRING	LINUX_2.6.12
- 
-_

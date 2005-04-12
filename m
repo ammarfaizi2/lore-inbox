@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVDMAhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVDMAaH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262077AbVDMAhI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 20:37:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVDMAem
+	id S262961AbVDMAaH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:30:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVDLUT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 20:34:42 -0400
-Received: from arhont4.eclipse.co.uk ([81.168.98.124]:7578 "EHLO
-	mail.arhont.com") by vger.kernel.org with ESMTP id S263039AbVDMAbj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 20:31:39 -0400
-Message-ID: <425C6865.5030306@arhont.com>
-Date: Wed, 13 Apr 2005 01:31:33 +0100
-From: "Konstantin V. Gavrilenko" <mlists@arhont.com>
-Reply-To: kos@arhont.com
-Organization: Arhont Ltd. - Information Security
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: uml wouldn't link/compile with UDF
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 16:19:26 -0400
+Received: from fire.osdl.org ([65.172.181.4]:23752 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262134AbVDLKb3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:31:29 -0400
+Message-Id: <200504121031.j3CAVK5K005288@shell0.pdx.osdl.net>
+Subject: [patch 041/198] ppc32: fix compilation error in arch/ppc/kernel/time.c
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, benoit.boissinot@ens-lyon.org
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:31:13 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-2.6.11.6.6
 
-The uml wouldn't compile when the
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
+From: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
 
+make defconfig give the following error on ppc (gcc-4):
 
+arch/ppc/kernel/time.c:92: error: static declaration of ‘time_offset’
+follows non-static declaration
+include/linux/timex.h:236: error: previous declaration of ‘time_offset’
+was here
 
-The error output is:
+The following patch solves it (time_offset is declared in timer.c).
 
-  LD      lib/zlib_deflate/built-in.o
-  LD      lib/zlib_inflate/built-in.o
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-/usr/lib/libc.a(mktime.o)(.rodata+0x0): multiple definition of `__mon_yday'
-fs/built-in.o(.rodata+0x3380): first defined here
-collect2: ld returned 1 exit status
-  KSYM    .tmp_kallsyms1.S
-nm: '.tmp_vmlinux1': No such file
-/bin/bash: line 1: 11859 Exit 1                  nm -n .tmp_vmlinux1
-     11860 Segmentation fault      | scripts/kallsyms >.tmp_kallsyms1.S
-make: *** [.tmp_kallsyms1.S] Error 139
+Signed-Off-By: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
+ 25-akpm/arch/ppc/kernel/time.c |    2 --
+ 1 files changed, 2 deletions(-)
 
-
-usetting the UDF options solves the issue.
-
-
--- 
-Respectfully,
-Konstantin V. Gavrilenko
-
-Arhont Ltd - Information Security
-
-web:    http://www.arhont.com
-	http://www.wi-foo.com
-e-mail: k.gavrilenko@arhont.com
-
-tel: +44 (0) 870 44 31337
-fax: +44 (0) 117 969 0141
-
-PGP: Key ID - 0x4F3608F7
-PGP: Server - keyserver.pgp.com
+diff -puN arch/ppc/kernel/time.c~ppc32-fix-compilation-error-in-arch-ppc-kernel-timec arch/ppc/kernel/time.c
+--- 25/arch/ppc/kernel/time.c~ppc32-fix-compilation-error-in-arch-ppc-kernel-timec	2005-04-12 03:21:13.140139296 -0700
++++ 25-akpm/arch/ppc/kernel/time.c	2005-04-12 03:21:13.143138840 -0700
+@@ -89,8 +89,6 @@ unsigned long tb_to_ns_scale;
+ 
+ extern unsigned long wall_jiffies;
+ 
+-static long time_offset;
+-
+ DEFINE_SPINLOCK(rtc_lock);
+ 
+ EXPORT_SYMBOL(rtc_lock);
+_

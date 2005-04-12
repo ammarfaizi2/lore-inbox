@@ -1,158 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVDLNuu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVDLMsQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVDLNuu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 09:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbVDLMz3
+	id S262393AbVDLMsQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:48:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVDLMqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:55:29 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:30039 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262329AbVDLMta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:49:30 -0400
-Message-ID: <425BC3D2.3020909@yahoo.com.au>
-Date: Tue, 12 Apr 2005 22:49:22 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: [patch 3/9] no PF_MEMALLOC tinkering
-References: <425BC262.1070500@yahoo.com.au>
-In-Reply-To: <425BC262.1070500@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------090204030208050909020808"
+	Tue, 12 Apr 2005 08:46:13 -0400
+Received: from ctb-mesg2.saix.net ([196.25.240.74]:8378 "EHLO
+	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S262329AbVDLMoI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 08:44:08 -0400
+Subject: Re: [ANNOUNCE] git-pasky-0.3
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: Petr Baudis <pasky@ucw.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+In-Reply-To: <20050411135758.GA3524@pasky.ji.cz>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
+	 <20050409200709.GC3451@pasky.ji.cz>
+	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
+	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
+	 <20050411015852.GI5902@pasky.ji.cz>  <20050411135758.GA3524@pasky.ji.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-227+5hi1VghJuAPrO6PH"
+Date: Tue, 12 Apr 2005 14:47:25 +0200
+Message-Id: <1113310045.23299.15.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090204030208050909020808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-3/9
-
--- 
-SUSE Labs, Novell Inc.
-
---------------090204030208050909020808
-Content-Type: text/plain;
- name="no-PF_MEMALLOC-tinkering.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="no-PF_MEMALLOC-tinkering.patch"
-
-PF_MEMALLOC is really not a tool for tinkering. It is pretty specifically
-used to prevent recursion into page reclaim, and to prevent low memory
-deadlocks.
-
-The mm/swap_state.c code was the only legitimate tinkerer. Its concern
-was addressed by the previous patch.
-
-Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+--=-227+5hi1VghJuAPrO6PH
+Content-Type: multipart/mixed; boundary="=-1QMEKeKIFwk3bFajyYb1"
 
 
-Index: linux-2.6/mm/swap_state.c
-===================================================================
---- linux-2.6.orig/mm/swap_state.c	2005-04-12 22:05:44.000000000 +1000
-+++ linux-2.6/mm/swap_state.c	2005-04-12 22:26:12.000000000 +1000
-@@ -143,7 +143,6 @@ void __delete_from_swap_cache(struct pag
- int add_to_swap(struct page * page)
- {
- 	swp_entry_t entry;
--	int pf_flags;
- 	int err;
- 
- 	if (!PageLocked(page))
-@@ -154,30 +153,11 @@ int add_to_swap(struct page * page)
- 		if (!entry.val)
- 			return 0;
- 
--		/* Radix-tree node allocations are performing
--		 * GFP_ATOMIC allocations under PF_MEMALLOC.  
--		 * They can completely exhaust the page allocator.  
--		 *
--		 * So PF_MEMALLOC is dropped here.  This causes the slab 
--		 * allocations to fail earlier, so radix-tree nodes will 
--		 * then be allocated from the mempool reserves.
--		 *
--		 * We're still using __GFP_HIGH for radix-tree node
--		 * allocations, so some of the emergency pools are available,
--		 * just not all of them.
--		 */
--
--		pf_flags = current->flags;
--		current->flags &= ~PF_MEMALLOC;
--
- 		/*
- 		 * Add it to the swap cache and mark it dirty
- 		 */
- 		err = __add_to_swap_cache(page, entry, GFP_ATOMIC|__GFP_NOWARN);
- 
--		if (pf_flags & PF_MEMALLOC)
--			current->flags |= PF_MEMALLOC;
--
- 		switch (err) {
- 		case 0:				/* Success */
- 			SetPageUptodate(page);
-Index: linux-2.6/drivers/md/dm-crypt.c
-===================================================================
---- linux-2.6.orig/drivers/md/dm-crypt.c	2005-04-12 22:05:44.000000000 +1000
-+++ linux-2.6/drivers/md/dm-crypt.c	2005-04-12 22:26:12.000000000 +1000
-@@ -331,25 +331,14 @@ crypt_alloc_buffer(struct crypt_config *
- 	struct bio *bio;
- 	unsigned int nr_iovecs = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 	int gfp_mask = GFP_NOIO | __GFP_HIGHMEM;
--	unsigned long flags = current->flags;
- 	unsigned int i;
- 
--	/*
--	 * Tell VM to act less aggressively and fail earlier.
--	 * This is not necessary but increases throughput.
--	 * FIXME: Is this really intelligent?
--	 */
--	current->flags &= ~PF_MEMALLOC;
--
- 	if (base_bio)
- 		bio = bio_clone(base_bio, GFP_NOIO);
- 	else
- 		bio = bio_alloc(GFP_NOIO, nr_iovecs);
--	if (!bio) {
--		if (flags & PF_MEMALLOC)
--			current->flags |= PF_MEMALLOC;
-+	if (!bio)
- 		return NULL;
--	}
- 
- 	/* if the last bio was not complete, continue where that one ended */
- 	bio->bi_idx = *bio_vec_idx;
-@@ -386,9 +375,6 @@ crypt_alloc_buffer(struct crypt_config *
- 		size -= bv->bv_len;
- 	}
- 
--	if (flags & PF_MEMALLOC)
--		current->flags |= PF_MEMALLOC;
--
- 	if (!bio->bi_size) {
- 		bio_put(bio);
- 		return NULL;
-Index: linux-2.6/fs/mpage.c
-===================================================================
---- linux-2.6.orig/fs/mpage.c	2005-04-12 22:05:44.000000000 +1000
-+++ linux-2.6/fs/mpage.c	2005-04-12 22:26:12.000000000 +1000
-@@ -105,11 +105,6 @@ mpage_alloc(struct block_device *bdev,
- 
- 	bio = bio_alloc(gfp_flags, nr_vecs);
- 
--	if (bio == NULL && (current->flags & PF_MEMALLOC)) {
--		while (!bio && (nr_vecs /= 2))
--			bio = bio_alloc(gfp_flags, nr_vecs);
--	}
--
- 	if (bio) {
- 		bio->bi_bdev = bdev;
- 		bio->bi_sector = first_sector;
+--=-1QMEKeKIFwk3bFajyYb1
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---------------090204030208050909020808--
+On Mon, 2005-04-11 at 15:57 +0200, Petr Baudis wrote:
+>   Hello,
+>=20
+>   here goes git-pasky-0.3, my set of patches and scripts upon
+> Linus' git, aimed at human usability and to an extent a SCM-like usage.
+>=20
+
+Its pretty dependant on where VERSION is located.  This patch fixes
+that. (PS, I left the output of 'git diff' as is to ask about the
+following stuff after the proper diff ...)
+
+
+Regards,
+
+--=20
+Martin Schlemmer
+
+
+--=-1QMEKeKIFwk3bFajyYb1
+Content-Disposition: attachment; filename=add_version.patch
+Content-Type: text/x-patch; name=add_version.patch; charset=UTF-8
+Content-Transfer-Encoding: base64
+
+LS0tIC0JMjAwNS0wNC0xMiAxNDozNjo0NC4zODQ4MjIwMDAgKzAyMDANCisrKyBNYWtlZmlsZQky
+MDA1LTA0LTEyIDE0OjMzOjE0LjAwMDAwMDAwMCArMDIwMA0KQEAgLTE5LDEwICsxOSwxNCBAQA0K
+IAlnaXRjb21taXQuc2ggZ2l0ZGlmZi1kbyBnaXRkaWZmLnNoIGdpdGxvZy5zaCBnaXRscy5zaCBn
+aXRsc29iai5zaCBcDQogCWdpdG1lcmdlLnNoIGdpdHB1bGwuc2ggZ2l0cm0uc2ggZ2l0dGFnLnNo
+IGdpdHRyYWNrLnNoDQogDQotYWxsOiAkKFBST0cpDQorR0VOX1NDUklQVD0gZ2l0dmVyc2lvbi5z
+aA0KIA0KLWluc3RhbGw6ICQoUFJPRykNCi0JaW5zdGFsbCAkKFBST0cpICQoU0NSSVBUKSAkKEhP
+TUUpL2Jpbi8NCitWRVJTSU9OPSBWRVJTSU9ODQorDQorYWxsOiAkKFBST0cpICQoR0VOX1NDUklQ
+VCkNCisNCitpbnN0YWxsOiAkKFBST0cpICQoR0VOX1NDUklQVCkNCisJaW5zdGFsbCAkKFBST0cp
+ICQoU0NSSVBUKSAkKEdFTl9TQ1JJUFQpICQoSE9NRSkvYmluLw0KIA0KIExJQlM9IC1sc3NsIC1s
+eg0KIA0KQEAgLTY3LDggKzcxLDE0IEBADQogcmVhZC1jYWNoZS5vOiBjYWNoZS5oDQogc2hvdy1k
+aWZmLm86IGNhY2hlLmgNCiANCitnaXR2ZXJzaW9uLnNoOiAkKFZFUlNJT04pDQorCUBybSAtZiAk
+QA0KKwlAZWNobyAiIyEvYmluL3NoIiA+ICRADQorCUBlY2hvICJlY2hvIFwiJChzaGVsbCBjYXQg
+JChWRVJTSU9OKSlcIiIgPj4gJEANCisJQGNobW9kICt4ICRADQorDQogY2xlYW46DQotCXJtIC1m
+ICoubyAkKFBST0cpIHRlbXBfZ2l0X2ZpbGVfKg0KKwlybSAtZiAqLm8gJChQUk9HKSB0ZW1wX2dp
+dF9maWxlXyogJChHRU5fU0NSSVBUKQ0KIA0KIGJhY2t1cDogY2xlYW4NCiAJY2QgLi4gOyB0YXIg
+Y3p2ZiBkaXJjYWNoZS50YXIuZ3ogZGlyLWNhY2hlDQotLS0gLQkyMDA1LTA0LTEyIDE0OjM2OjQ0
+LjQxNzI4NDAwMCArMDIwMA0KKysrIGdpdAkyMDA1LTA0LTEyIDE0OjMxOjM4LjAwMDAwMDAwMCAr
+MDIwMA0KQEAgLTIwLDcgKzIwLDcgQEANCiANCiBoZWxwICgpIHsNCiAJY2F0IDw8X19FTkRfXw0K
+LVRoZSBHSVQgc2NyaXB0ZWQgdG9vbGtpdCAgJChjYXQgVkVSU0lPTikNCitUaGUgR0lUIHNjcmlw
+dGVkIHRvb2xraXQgICQoZ2l0dmVyc2lvbi5zaCkNCiANCiBVc2FnZTogZ2l0IENPTU1BTkQgW0FS
+R10uLi4NCiANCkNPUFlJTkc6ICBmZTJhNDE3N2E3NjBmZDExMGU3ODc4ODczNGYxNjdiZDYzM2Jl
+OGRlIDMzDQpNYWtlZmlsZTogIGI1MTRkYzVjYzYyYmM5ZDJiMmNmMGY4MWRjY2UxNWZmN2RlODNl
+ZWUgMzMNClJFQURNRTogIGZhOWI2NzZkNjJmOGFjNWMxZmYzNmU3NzQyZGM2ZGI4ZjZjZGY5N2Yg
+MzMNClZFUlNJT046ICBkNzFmOGVhODc1ZjlmYmQ4NmRlN2IxNDU3OTI0NDkyNDczY2QxNzE4IDMz
+DQpjYWNoZS5oOiAgZDNlOWEyMWI3ZDlhMmFjMzJhYmFjZjVjYzQwZWUxYTRkODNmOWZlOCAzMw0K
+Y2F0LWZpbGUuYzogIDQ1YmUxYmFkYWE4NTE3ZDRlM2E2OWUwYmYxY2FjMmU5MDE5MWU0NzUgMzcN
+CmNoZWNrb3V0LWNhY2hlLmM6ICBhODdiMzFlMzc4N2MzMTIzNjRkNzI5NWI3ODJkNmMyMmQxNTc3
+ZjVjIDMzDQpjb21taXQtaWQ6ICA2NWM4MTc1NmM4ZjEwZDUxM2QwNzNlY2JkNzQxYTMyNDQ2NjNj
+NGM5IDNiDQpjb21taXQtdHJlZS5jOiAgMmUyNWY3MmRkYjY2YmQ4ZWJkNDQ4NDA1ZjZkZjc2ZTE1
+Y2M5ZDAzMCAzMw0KZGlmZi10cmVlLmM6ICAzMTczMzlmYzljMTE2OWI4ODZmZGZjMjI4NjNlOTQ1
+MTEwOWI4OGM3IDMzDQpmc2NrLWNhY2hlLmM6ICA3YTJmMzZhYTBiYzg2NzdhZGZiYzg1NDIzMzhl
+MTZkNTE4OGRlZTRhIDMzDQpnaXQ6ICAyZjFjYzdmODAwNzliOWMyZmVlYzhlNzMxMGQzMGU1N2I2
+ZTRiMmFhIDMzDQpnaXRYbm9ybWlkLnNoOiAgNjE5YTg5ODc1YzRjY2Q2ZjM4MGM0YmUzMzI3NGE3
+MWJiMmExYjdmMiAzMw0KZ2l0YWRkLnNoOiAgM2VkOTNlYTBmY2I5OTU2NzNiYTllZTE5ODJlMGU3
+YWJkYmUzNTk4MiAzMw0KZ2l0YWRkcmVtb3RlLnNoOiAgYWIwNzU2MjhiMGI0YjE2YWEwNTM4Mjk1
+NWI4NjA3NzAwZjk2MTAxZiAzMw0KZ2l0Y29tbWl0LnNoOiAgNWU5OGUzYjVmZTUwMWExOTZhMTAz
+MGMxMWQxYWQ2YWM4NzUzMmU2YSAzMw0KZ2l0ZGlmZi1kbzogIGQ2MTc0YWJjZWFiMzRkMjIwMTBj
+MzZhODQ1M2E2YzNmM2YxODRmZTAgMzMNCmdpdGRpZmYuc2g6ICA5ZjU1ODQyMjAwMzE2MGYwZDAw
+NmY3OTQ4NzAyZTIyZDVjOTAyNTRjIDMzDQpnaXRsb2cuc2g6ICBkNmIzM2ZiMGM0NzM2OWJlN2I2
+YWYzYjIxZjIxODhlMjI2YmYyZmViIDMzDQpnaXRscy5zaDogIGI2ZjE1ZDgyZjE2YzFlOTk4MmM1
+MDMxZjNiZTIyZWI1NDMwMjczYWYgMzMNCmdpdGxzb2JqLnNoOiAgMTI4NDYxZDNkZTZhNDJjZmFh
+YTk4OWZjNjQwMWJlYmRmYTg4NWIzZiAzMw0KZ2l0bWVyZ2Uuc2g6ICBlMjVkNDJkZGU3YzliOTI5
+NDc2YjA5NjdiMmE2MGQ5YjM0MmIyZTc5IDNiDQpnaXRwdWxsLnNoOiAgZjI5YmIzN2M1ZWVmNDE2
+ZWQ2NWU0NmFhM2M1MjQ5M2QwNzYxOWNkOCAzMw0KZ2l0cm0uc2g6ICA1YzE4YzM4YTg5MGM5ZmQ5
+YWQyYjg2NmVlN2I1Mjk1MzlkMmYzZjhmIDMzDQpnaXR0YWcuc2g6ICAwY2QzMTg4YTQ0MmEzNjdk
+YjMyN2Y3MGFiYTE0ZmYyYTBkNjllOTI3IDNiDQpnaXR0cmFjay5zaDogIGFlMzRmNWM1ZTFlOTk2
+OTYxOWRkZThkMDYyMWZkOWMyMTIyMDg2OTQgMzMNCmluaXQtZGIuYzogIDMyOTY3NjNjZGI0YmQy
+NDJhOWVjMDE5MzNhYzhkM2Q1MzIwZDIwZTQgMzMNCmxzLXRyZWUuYzogIDNlMmE2YzdkMTgzYTQy
+ZTQxZjEwNzNkZmVjNjc5NGU4ZjhhNWU3NWMgMzcNCnBhcmVudC1pZDogIDE4MDFjNmZlNDI2NTky
+ODMyZTcyNTBmOGI3NjBmYjlkMmU2NTIyMGYgMzMNCnJlYWQtY2FjaGUuYzogIDk1ZDBlYzZlOTVh
+YjA1NGRhNGVmOTY3MzY0MWM5ZjgwOWVlYmVmMmIgMzMNCnJlYWQtdHJlZS5jOiAgZWI1NDgxNDhh
+YTZkMjEyZjA1YzJjNjIyZmZiZTYyYTA2Y2QwNzJmOSAzMw0KcmV2LXRyZWUuYzogIDc0MjliOWM0
+ZDBhYWIyZTRhNDk0ZWI0YjY1MTI5YTU5ZGExMzgxMDYgMzMNCnNob3ctZGlmZi5jOiAgMDQzNzcy
+Y2IwOGI2Nzk1MDA4NDc0MzE2ZjM4YTMyNmM0MTk2ZWRkNiAzNw0Kc2hvdy1maWxlcy5jOiAgMzQ3
+ODk0ZDYzNjBlNWVmNTYxNDBhOWE3MGQyYTBiMDAwYTI2OGEzMyAzMw0KdHJlZS1pZDogIGNiNzBl
+MmM1MDhhMTgxMDdhYmUzMDU2MzM2MTJlZDcwMmFhM2VlNGYgMzcNCnVwZGF0ZS1jYWNoZS5jOiAg
+M2Q0OWExY2JkMjBjN2ZjZjEwMTBiMGYzYWZmYWY4OTYzMTBjNjc5NyAzMw0Kd3JpdGUtdHJlZS5j
+OiAgZWVkN2MwMjEyM2M2YzY0NTg1OTc3MjZlZjRmOGIyMjA4YWVmYTViYiAzMw0K
+
+
+--=-1QMEKeKIFwk3bFajyYb1--
+
+--=-227+5hi1VghJuAPrO6PH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCW8NcqburzKaJYLYRAqiiAJ9boBmYGmsoVOPY0id9MTeDtP9FqQCdE5FC
+TC3D0Y3K71r797q98MYc+RE=
+=bAmb
+-----END PGP SIGNATURE-----
+
+--=-227+5hi1VghJuAPrO6PH--
 

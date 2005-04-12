@@ -1,46 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVDLVOL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262993AbVDLVSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbVDLVOL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:14:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbVDLVLX
+	id S262993AbVDLVSF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVDLVOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:11:23 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:6300 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262109AbVDLVGA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:06:00 -0400
-Date: Tue, 12 Apr 2005 23:01:52 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Steve French <smfrench@austin.rr.com>
-Cc: linux-kernel@vger.kernel.org, Alexander Nyberg <alexn@dsv.su.se>,
-       Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [PATCH 1/3] cifs: md5 cleanup - functions
-Message-ID: <20050412210152.GB25512@electric-eye.fr.zoreil.com>
-References: <OFF8FD24BE.BDEDEA22-ON87256FE0.00741B4F-86256FE0.0074FC27@us.ibm.com> <1113267099.5734.1.camel@smfhome.smfdom>
-Mime-Version: 1.0
+	Tue, 12 Apr 2005 17:14:23 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:10378 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262993AbVDLVM1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 17:12:27 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: Re: snd-ens1371 (alsa) & joystick woes
+To: Patrick McFarland <pmcfarland@downeast.net>,
+       Guillaume Chazarain <guichaz@yahoo.fr>, linux-kernel@vger.kernel.org,
+       linux-joystick@atrey.karlin.mff.cuni.cz
+Reply-To: 7eggert@gmx.de
+Date: Tue, 12 Apr 2005 23:12:00 +0200
+References: <3Ssnv-QY-7@gated-at.bofh.it> <3StMH-1XF-49@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1113267099.5734.1.camel@smfhome.smfdom>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DLSg1-0000xk-EC@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve French <smfrench@austin.rr.com> :
-[...]
-> There was a patch suggested a year or so ago to remove the older cifs
-> md5 implementation and have cifsencrypt.c use the newer Linux crypto
-> API, but since it made the code considerably more complex it did not
-> make any sense. The current crypto API seems to be designed for much
-> more complex usage patterns than cifs needs it for. The key use for this
-> for CIFS is the following small function (to calculate the packet
-> signitures on cifs packets in fs/cifs/cifsencrypt.c)
+Patrick McFarland <pmcfarland@downeast.net> wrote:
 
-If you have the patches from 10/2003 in mind, they suffered more from poor
-taste than from cryptoapi imho.
+> Speaking of which... is there anyone out
+> there with a ens1371 that actually works right with joysticks?
 
-Btw nobody cared about fs/cifs/connect.c::CIFSNTLMSSPNegotiateSessSetup
-(indentation from Mars + unchecked allocations before dereferences).
+Yes, I'm using the oss driver.
+-- 
+Airstrikes always overshoot the target, artillery always falls short. 
 
---
-Ueimor

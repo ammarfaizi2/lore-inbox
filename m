@@ -1,41 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVDLLzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVDLLdB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbVDLLzA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVDLLvg
+	id S262342AbVDLLdB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:33:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVDLLc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:51:36 -0400
-Received: from orb.pobox.com ([207.8.226.5]:4499 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262368AbVDLLuv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 07:50:51 -0400
-Date: Tue, 12 Apr 2005 04:50:41 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nathan Scott <nathans@sgi.com>, "Barry K. Nathan" <barryn@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       hare@suse.de, linux-xfs@oss.sgi.com
-Subject: Re: [xfs-masters] swsusp vs. xfs [was Re: 2.6.12-rc2-mm1]
-Message-ID: <20050412115040.GA14008@ip68-4-98-123.oc.oc.cox.net>
-References: <20050410211808.GA12118@ip68-4-98-123.oc.oc.cox.net> <20050410212747.GB26316@elf.ucw.cz> <20050410225708.GB12118@ip68-4-98-123.oc.oc.cox.net> <20050410230053.GD12794@elf.ucw.cz> <20050411043124.GA24626@ip68-4-98-123.oc.oc.cox.net> <20050411105759.GB1373@elf.ucw.cz> <20050411231213.GD702@frodo> <20050411235110.GA2472@elf.ucw.cz> <20050412002603.GA1178@frodo> <20050412110425.GA3063@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050412110425.GA3063@elf.ucw.cz>
-User-Agent: Mutt/1.5.6i
+	Tue, 12 Apr 2005 07:32:27 -0400
+Received: from ds01.webmacher.de ([213.239.192.226]:29362 "EHLO
+	ds01.webmacher.de") by vger.kernel.org with ESMTP id S262341AbVDLLLP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 07:11:15 -0400
+In-Reply-To: <20050412021723.26C855F7E9@work.bitmover.com>
+References: <20050412021723.26C855F7E9@work.bitmover.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <464c882425f31b7c294abc1d47c78b47@dalecki.de>
+Content-Transfer-Encoding: 7bit
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Marcin Dalecki <martin@dalecki.de>
+Subject: Re: bkbits.net is down
+Date: Tue, 12 Apr 2005 13:10:12 +0200
+To: lm@bitmover.com (Larry McVoy)
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 01:04:25PM +0200, Pavel Machek wrote:
-> > OK, so if that doesn't help, here's an alternate approach - this
-> > lets xfsbufd track when its entering the refrigerator(), so that
-> > other callers know that attempts to wake it are futile.
-> 
-> Thanks, this patch helped.
 
-I can confirm, the 2nd patch worked and the 1st one didn't. (This is
-against 2.6.12-rc2-mm1 with sched-x86-patch-name-is-way-too-long.patch
-backed out. ;) )
+On 2005-04-12, at 04:17, Larry McVoy wrote whatever...
 
--Barry K. Nathan <barryn@pobox.com>
+Excuse me, but: who gives a damn shit?
 

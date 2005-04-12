@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVDMBaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVDMBaQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbVDMBaR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 21:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262630AbVDLTy0
+	id S262162AbVDMBaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 21:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVDMB2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:54:26 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47304 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262108AbVDLKbu (ORCPT
+	Tue, 12 Apr 2005 21:28:15 -0400
+Received: from fire.osdl.org ([65.172.181.4]:947 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262162AbVDLT5U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:50 -0400
-Message-Id: <200504121031.j3CAVjBt005395@shell0.pdx.osdl.net>
-Subject: [patch 067/198] x86-64/i386: Revert cpuinfo siblings behaviour back to 2.6.10
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de,
-       Suresh.b.siddha@intel.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:38 -0700
+	Tue, 12 Apr 2005 15:57:20 -0400
+Date: Tue, 12 Apr 2005 12:57:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: [patch 3/9] no PF_MEMALLOC tinkering
+Message-Id: <20050412125701.40fe5c70.akpm@osdl.org>
+In-Reply-To: <425BC3D2.3020909@yahoo.com.au>
+References: <425BC262.1070500@yahoo.com.au>
+	<425BC3D2.3020909@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+> PF_MEMALLOC is really not a tool for tinkering. It is pretty specifically
+>  used to prevent recursion into page reclaim, and to prevent low memory
+>  deadlocks.
+> 
+>  The mm/swap_state.c code was the only legitimate tinkerer. Its concern
+>  was addressed by the previous patch.
 
-From: Andi Kleen <ak@suse.de>
+What previous patch?  radix tree allocation doesn't use mempools, so this
+patch will cause add_to_swap() to oom the machine with radix tree node
+allocations.
 
-Only display physical id/siblings when there are siblings or dual core.
+Now if we were to add __GFP_NOMEMALLOC in add_to_swap() then things would
+work as we want them to.
 
-In 2.6.11 I accidentially broke it and it was always displaying these
-fields But for compatibility to all these /proc parsers around it is better
-to do it in the old way again.  
 
-Noticed by Suresh Siddha
+The dm_crypt change looks OK.
 
-Cc: <Suresh.b.siddha@intel.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
 
- 25-akpm/arch/i386/kernel/cpu/proc.c |    7 +++++--
- 25-akpm/arch/x86_64/kernel/setup.c  |    8 ++++++--
- 2 files changed, 11 insertions(+), 4 deletions(-)
+The code in mpage.c is saying "if we failed to allocate a correctly-sized
+bvec and if we're doing pageout then try to allocate a smaller-sized bvec
+instead".
 
-diff -puN arch/i386/kernel/cpu/proc.c~x86-64-i386-revert-cpuinfo-siblings-behaviour-back-to-2610 arch/i386/kernel/cpu/proc.c
---- 25/arch/i386/kernel/cpu/proc.c~x86-64-i386-revert-cpuinfo-siblings-behaviour-back-to-2610	2005-04-12 03:21:19.576160872 -0700
-+++ 25-akpm/arch/i386/kernel/cpu/proc.c	2005-04-12 03:21:19.580160264 -0700
-@@ -94,8 +94,11 @@ static int show_cpuinfo(struct seq_file 
- 	if (c->x86_cache_size >= 0)
- 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
- #ifdef CONFIG_X86_HT
--	seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
--	seq_printf(m, "siblings\t: %d\n", c->x86_num_cores * smp_num_siblings);
-+	if (c->x86_num_cores * smp_num_siblings > 1) {
-+		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
-+		seq_printf(m, "siblings\t: %d\n",
-+				c->x86_num_cores * smp_num_siblings);
-+	}
- #endif
- 	
- 	/* We use exception 16 if we have hardware math and we've either seen it or the CPU claims it is internal */
-diff -puN arch/x86_64/kernel/setup.c~x86-64-i386-revert-cpuinfo-siblings-behaviour-back-to-2610 arch/x86_64/kernel/setup.c
---- 25/arch/x86_64/kernel/setup.c~x86-64-i386-revert-cpuinfo-siblings-behaviour-back-to-2610	2005-04-12 03:21:19.577160720 -0700
-+++ 25-akpm/arch/x86_64/kernel/setup.c	2005-04-12 03:21:19.581160112 -0700
-@@ -1113,8 +1113,12 @@ static int show_cpuinfo(struct seq_file 
- 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
- 	
- #ifdef CONFIG_SMP
--	seq_printf(m, "physical id\t: %d\n", phys_proc_id[c - cpu_data]);
--	seq_printf(m, "siblings\t: %d\n", c->x86_num_cores * smp_num_siblings);
-+	if (smp_num_siblings * c->x86_num_cores > 1) {
-+		int cpu = c - cpu_data;
-+		seq_printf(m, "physical id\t: %d\n", phys_proc_id[cpu]);
-+		seq_printf(m, "siblings\t: %d\n",
-+				c->x86_num_cores * smp_num_siblings);
-+	}
- #endif	
- 
- 	seq_printf(m,
-_
+It's probably fairly useless, but afaict there's nothing in any of the
+other patches here which makes it redundant.
+
+

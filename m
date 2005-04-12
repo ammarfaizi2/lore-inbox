@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbVDLWeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVDLWiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbVDLWeC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 18:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVDLWby
+	id S262223AbVDLWiN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVDLWeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 18:31:54 -0400
-Received: from pat.uio.no ([129.240.130.16]:60388 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262986AbVDLW0t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 18:26:49 -0400
-Subject: Re: NFS2 question, help, pls!
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4ae3c1405041212223ee0609e@mail.gmail.com>
-References: <4ae3c1405041212223ee0609e@mail.gmail.com>
+	Tue, 12 Apr 2005 18:34:22 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:6132 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262574AbVDLWdj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 18:33:39 -0400
+Subject: RE: FUSYN and RT
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A02FD4673@orsmsx407>
+References: <F989B1573A3A644BAB3920FBECA4D25A02FD4673@orsmsx407>
 Content-Type: text/plain
-Date: Tue, 12 Apr 2005 15:26:35 -0700
-Message-Id: <1113344795.10420.125.camel@lade.trondhjem.org>
+Organization: MontaVista
+Message-Id: <1113345199.6389.30.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 Apr 2005 15:33:19 -0700
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.797, required 12,
-	autolearn=disabled, AWL 0.20, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 12.04.2005 Klokka 15:22 (-0400) skreiv Xin Zhao:
-> I have very very fast network and is testing NFS2 over this kind of
-> network. I noticed that for standard work like read/write a large
-> file,  compile kernels, the performance of NFS2 is good. But if I try
-> to decompress kernel tar file. The standard ext2 takes 28s while NFS2
-> takes 81s. Also, if I remove the kernel source code tree, ext2 takes
-> 19s but NFS2 takes 44s.
-> 
-> Why?  (You can assume that network is very fast. )  Is there any
-> improvements in NFS3/4 on this issue? If so, how?
+On Tue, 2005-04-12 at 15:26, Perez-Gonzalez, Inaky wrote:
 
-NFSv2 requires the server to immediately write all data to disk before
-it can reply to the RPC write request (synchronous writes).
+> You should not need any of this if your user space mutexes are a
+> wrapper over the kernel space ones. The kernel handles everything
+> the same and there is no need to take care of any special cases or
+> variations [other than the ones imposed by the wrapping].
 
-NFSv3 and v4 both have the ability to cache writes safely. The following
-paper http://www.netapp.com/ftp/NFSv3_Rev_3.pdf has full details on how
-and why.
 
-Cheers,
-  Trond
+The problem situation that I'm thinking of is when a task gets priority
+boosted by Fusyn , then gets priority boosted by an RT Mutex. In that
+situation, when the RT mutex demotes back to task->static_prio it will
+be lower than the priority that Fusyn has given the task (potentially). 
+I don't think that's handled in the kernel anyplace, is it?
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+Daniel
 

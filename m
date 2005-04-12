@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVDLSfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVDLSfR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVDLSfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbVDLSex
+	id S262527AbVDLSfR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:35:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVDLSfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:34:53 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:35279 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262309AbVDLR6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 13:58:33 -0400
-Message-Id: <200504121758.j3CHwQg11702@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       "'Jens Axboe'" <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [patch] new fifo I/O elevator that really does nothing at all
-Date: Tue, 12 Apr 2005 10:58:23 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcU571mGRcgbG9LKQt2yFEe1HLL0ZQATcqowAVKg+JA=
-In-Reply-To: <7A4826DE8867D411BAB8009027AE9EB91DB47626@scsmsx401.amr.corp.intel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 12 Apr 2005 14:35:01 -0400
+Received: from fe08.axelero.hu ([195.228.240.96]:32528 "EHLO fe08.axelero.hu")
+	by vger.kernel.org with ESMTP id S262402AbVDLR7i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 13:59:38 -0400
+Subject: XGI Releases Source Code for Linux
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gyoFbW8DpXPybBabFSol"
+Date: Tue, 12 Apr 2005 19:59:34 +0200
+Message-Id: <1113328774.1818.20.camel@alderaan.trey.hu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote on Tuesday, April 05, 2005 5:13 PM
-> Jens Axboe wrote on Tuesday, April 05, 2005 7:54 AM
-> > On Tue, Mar 29 2005, Chen, Kenneth W wrote:
-> > > Jens Axboe wrote on Tuesday, March 29, 2005 12:04 PM
-> > > > No such promise was ever made, noop just means it does 'basically
-> > > > nothing'. It never meant FIFO in anyway, we cannot break the semantics
-> > > > of block layer commands just for the hell of it.
-> > >
-> > > Acknowledged and understood, will try your patch shortly.
-> >
-> > Did you test it?
->
-> Experiment is in the queue, should have a result in a day or two.
+
+--=-gyoFbW8DpXPybBabFSol
+Content-Type: text/plain; charset=windows-1251
+Content-Transfer-Encoding: quoted-printable
+
+XGI=99 Releases Source Code for Linux
+                          2005/04/11
+
+"XGI Technology, Inc. today releases its source code for Linux. To
+support the large and growing Linux community, XGI Technology released
+the source code to X.Org, XFree86.Org, and Kernel.Org for its desktop,
+notebook, and server products.
+
+XGI supports X.Org 6.8.2 and XFree86 4.4.0. The open source supports
+package installation for IA32, AMD64 and EM64T, and Frame buffer device
+(FBDev) support for kernel version 2.4.X."
 
 
-Jens, your patch works!  We are seeing a little bit increase in indirect
-branch calls with your patch where our patch tries to remove elevator_merge_fn()
-completely.  But the difference is all within noise range.
+http://www.xgitech.com/about/about_press1.asp?CTID=3D{C3FD7D03-6BE1-4BB9-9F=
+34-1221E723B87F}
 
-If there is no other issues (I don't see any), we would like to see this patch
-merged upstream.  Thanks.
+--
+MG
 
-- Ken
+--=-gyoFbW8DpXPybBabFSol
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ez az =?ISO-8859-1?Q?=FCzenetr=E9sz?=
+	=?ISO-8859-1?Q?_digit=E1lis?= =?ISO-8859-1?Q?_al=E1=EDr=E1ssal?= van
+	=?ISO-8859-1?Q?ell=E1tva?=
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCXAyGo75Oas+VX1ARAkQfAKCGmycekOq8d2lNg018/My86H7SLwCgrqew
+Y+0DPcxssoYUt6VHvGRR37U=
+=KNIj
+-----END PGP SIGNATURE-----
+
+--=-gyoFbW8DpXPybBabFSol--
 

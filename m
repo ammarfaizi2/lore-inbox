@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVDLUpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262982AbVDLUpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVDLUpj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:45:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVDLUo4
+	id S262982AbVDLUpi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbVDLUpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:44:56 -0400
-Received: from mtk-sms-mail01.digi.com ([66.77.174.18]:12174 "EHLO
-	mtk-sms-mail01.digi.com") by vger.kernel.org with ESMTP
-	id S262947AbVDLUVN convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 16:21:13 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 12 Apr 2005 16:45:00 -0400
+Received: from smtp100.rog.mail.re2.yahoo.com ([206.190.36.78]:7508 "HELO
+	smtp100.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S262965AbVDLUZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 16:25:03 -0400
+Message-ID: <425C2E20.30307@cogent.ca>
+Date: Tue, 12 Apr 2005 16:22:56 -0400
+From: Andrew Thomas <Andrew.Thomas@cogent.ca>
+Organization: Cogent Real-Time Systems Inc.
+User-Agent: Mozilla Thunderbird 1.0RC1 (Windows/20041201)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Date: Tue, 12 Apr 2005 15:21:15 -0500
-Message-ID: <335DD0B75189FB428E5C32680089FB9F122163@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Thread-Index: AcU/hWb0WMGkL8hIQ2Kjb5wuXljm2QAFrk2Q
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: "Christoph Hellwig" <hch@infradead.org>,
-       "Ihalainen Nickolay" <ihanic@dev.ehouse.ru>, <admin@list.net.ru>,
-       <linux-kernel@vger.kernel.org>, "Wen Xiong" <wendyx@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: oops in misc_register, kernel 2.6.9+, using udev
+References: <42555993.4020108@cogent.ca>
+In-Reply-To: <42555993.4020108@cogent.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg, all,
+Andrew Thomas wrote:
+> Hello,
+> 
+> I am trying to install the srripc module - source at:
+>     http://www.cogent.ca/Software/SRR.html
+> on a Linux 2.6.x kernel with udev support.  The kernel generates an oops
+> in misc_register, which is essentially the first call that the module
+> makes on initialization.  Oops output is attached below.
 
-> Ok, but wasn't it possible to get those additional things added to the
-> main kernel serial core, which would then provide everything that
-Digi's
-> customers are accustomed to?
-
-Yes, it is my intention in the future to add support for the needed
-information,
-probably at the /sys level.
-The key is to be able to get at the tty information without
-having to open up the tty/port.
-
-Again, I understand why you required the changes in JSM,
-IBM didn't need DPA support, so I had no problem with removing the
-support.
-
-However, neither IBM nor Digi wants this thread's patch to be applied,
-and yet Christoph wants to do it, completely out of spite, to break our
-out-of-tree open source driver.
-
-This is the problem that I have.
-
-Scott
+Sorry, false alarm.  This turned out to be a problem with the makefile 
+used to compile the module in 2.6.x.

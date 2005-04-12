@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbVDLViW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262996AbVDLVqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263012AbVDLViW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVDLVfT
+	id S262996AbVDLVqU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:46:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbVDLVm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:35:19 -0400
-Received: from [193.112.238.6] ([193.112.238.6]:43905 "EHLO caveman.xisl.com")
-	by vger.kernel.org with ESMTP id S263002AbVDLVdM (ORCPT
+	Tue, 12 Apr 2005 17:42:58 -0400
+Received: from main.gmane.org ([80.91.229.2]:44688 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S263015AbVDLVkc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:33:12 -0400
-Subject: Re: Exploit in 2.6 kernels
-From: John M Collins <jmc@xisl.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050412210857.GT11199@shell0.pdx.osdl.net>
-References: <1113298455.16274.72.camel@caveman.xisl.com>
-	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
-	 <20050412210857.GT11199@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Organization: Xi Software Ltd
-Date: Tue, 12 Apr 2005 22:32:59 +0100
-Message-Id: <1113341579.3105.63.camel@caveman.xisl.com>
+	Tue, 12 Apr 2005 17:40:32 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ed L Cashin <ecashin@coraid.com>
+Subject: Re: AOE and large filesystems?
+Date: Tue, 12 Apr 2005 17:37:01 -0400
+Message-ID: <877jj73cea.fsf@coraid.com>
+References: <pan.2005.04.05.20.44.39.37209@dcs.nac.uci.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+Cc: Dan Stromberg <strombrg@dcs.nac.uci.edu>
+X-Gmane-NNTP-Posting-Host: adsl-34-234-30.asm.bellsouth.net
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:r1BZeTg1xhSc4C1rJl/8tJFVKSE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-12 at 14:08 -0700, Chris Wright wrote:
-> * John M Collins (jmc@xisl.com) wrote:
-> > Thanks to everyone for the pointers on this one I've rebuilt the kernels
-> > and we'll see what happens.
-> 
-> BTW, I'd recommend updating to 2.6.11.7 so that you're protected from
-> another local root exploit.
+Dan Stromberg <strombrg@dcs.nac.uci.edu> writes:
 
-I'll do that - trouble is round where I am they dish out Nvidia cards
-like confetti, I've got them in the machine I use most and another 2 and
-you have to do all that gyrating with running the script to FTP down and
-build the secret module before you can run X. This is a big disincentive
-when it comes to installing new kernels.
+> Some questions for the list:
+>
+> 1) Is anyone on the list using AOE in production?
 
-I wish some kind soul would speak nicely to Nvidia and get them to see
-reason on the point but I suspect I'm not the first person to wish that.
-(Or is there a sneaky way of patching the modules so they'll work in
-another kernel without tainting it?).
+I don't know of any AoE users that read the lkml.  Except me, of
+course.
 
+> 2) Is anyone on the list using AOE in combination with md and/or LVM2?
 
-John Collins Xi Software Ltd www.xisl.com Tel: +44 (0)1707 886110
-(Direct) +44 (0)7799 113162 (Mobile)
+Yes, most AoE users use md.  Many use LVM2, but a couple have had
+trouble with striped volume groups.
+
+> 3) Is anyone on the list using AOE on a 64 bit platform?
+
+People are using AoE on 64 bit platforms and not reading the lkml.  :)
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>
 

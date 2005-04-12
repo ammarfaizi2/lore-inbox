@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262872AbVDLUOp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262963AbVDMBB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbVDLUOp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:14:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVDLUNF
+	id S262963AbVDMBB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 21:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262967AbVDMA7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:13:05 -0400
-Received: from fire.osdl.org ([65.172.181.4]:29896 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262145AbVDLKbf (ORCPT
+	Tue, 12 Apr 2005 20:59:10 -0400
+Received: from verein.lst.de ([213.95.11.210]:63410 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S262141AbVDLUOx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:35 -0400
-Message-Id: <200504121030.j3CAUh75005131@shell0.pdx.osdl.net>
-Subject: [patch 005/198] arm: add comment about dma_supported()
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rmk+lkml@arm.linux.org.uk,
-       rmk@arm.linux.org.uk
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:36 -0700
+	Tue, 12 Apr 2005 16:14:53 -0400
+Date: Tue, 12 Apr 2005 22:14:33 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: very basic desktop g5 sound support (#2)
+Message-ID: <20050412201433.GA25869@lst.de>
+References: <1113282436.21548.42.camel@gaston> <jell7nu6yk.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jell7nu6yk.fsf@sykes.suse.de>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 12, 2005 at 09:32:19PM +0200, Andreas Schwab wrote:
+> On my PowerMac the internal speaker is now working, but unfortunately on
+> the line-out I get nearly no output.  I have pushed both the master and
+> pcm control to the maximum and still barely hear anything.
 
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+Work fine for me, but I had to turn the volume to the max on the
+external amplifier, so this is probably the same problem.
 
-The ARM dma_supported() is rather basic, and I don't think it takes into
-account everything that it should do (eg, whether the mask agrees with what
-we'd return for GFP_DMA allocations).  Note this.
-
-Signed-off-by: Russell King <rmk@arm.linux.org.uk>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/include/asm-arm/dma-mapping.h |    3 +++
- 1 files changed, 3 insertions(+)
-
-diff -puN include/asm-arm/dma-mapping.h~arm-add-comment-about-dma_supported include/asm-arm/dma-mapping.h
---- 25/include/asm-arm/dma-mapping.h~arm-add-comment-about-dma_supported	2005-04-12 03:21:04.755413968 -0700
-+++ 25-akpm/include/asm-arm/dma-mapping.h	2005-04-12 03:21:04.758413512 -0700
-@@ -21,6 +21,9 @@ extern void consistent_sync(void *kaddr,
-  * properly.  For example, if your device can only drive the low 24-bits
-  * during bus mastering, then you would pass 0x00ffffff as the mask
-  * to this function.
-+ *
-+ * FIXME: This should really be a platform specific issue - we should
-+ * return false if GFP_DMA allocations may not satisfy the supplied 'mask'.
-  */
- static inline int dma_supported(struct device *dev, u64 mask)
- {
-_

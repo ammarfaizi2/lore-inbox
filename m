@@ -1,82 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262588AbVDLU5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262985AbVDLVCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262588AbVDLU5p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVDLUyj
+	id S262985AbVDLVCL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262167AbVDLUno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:54:39 -0400
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:62698 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S262152AbVDLUom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 16:44:42 -0400
-Date: Tue, 12 Apr 2005 16:44:29 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: more git updates..
-Message-ID: <20050412204429.GA24910@havoc.gtf.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz>
+	Tue, 12 Apr 2005 16:43:44 -0400
+Received: from fire.osdl.org ([65.172.181.4]:51376 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262109AbVDLTun (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 15:50:43 -0400
+Date: Tue, 12 Apr 2005 12:50:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: [patch 2/9] mempool gfp flag
+Message-Id: <20050412125025.6890b2d7.akpm@osdl.org>
+In-Reply-To: <425BC3B0.7020707@yahoo.com.au>
+References: <425BC262.1070500@yahoo.com.au>
+	<425BC3B0.7020707@yahoo.com.au>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050412081613.GA18545@pasky.ji.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-The reason I am questioning this point is the GIT README file.
-
-Linus makes explicit that a "blob" is just the "file contents," and that
-really, a "blob" is not just the SHA1 of the "blob":
-
-> In particular, the "current directory cache" certainly does not need to
-> be consistent with the current directory contents, but it has two very
-> important attributes:
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>
+>  The first is that mempool_alloc can possibly get stuck in __alloc_pages
+>  when they should opt to fail, and take an element from their reserved pool.
 > 
-> (a) it can re-generate the full state it caches (not just the directory
->     structure: through the "blob" object it can regenerate the data too)
-
-And he defines "TREE" with the same name: blob
-
-> TREE: The next hierarchical object type is the "tree" object.  A tree
-> object is a list of permission/name/blob data, sorted by name.
-
-Therefore, "TREE" must be the *full* data, and since we have the following
-definition for CHANGESET:
-
-> A "changeset" is defined by the tree-object that it results in, the
-> parent changesets (zero, one or more) that led up to that point, and a
-> comment on what happened.
-
-That each changeset remembers *everything* for *each point in the tree*.
-
-Linus, if you actually mean to differentiate between the full data
-and a SHA1 of the data, *please please please* say "blob" in one place
-and "SHA1 of the blob" elsewhere.  It's quite confusing, to me at least.
-
-Also, the details of just what data constitutes a 'changeset' would be
-lovely... i.e. a precise spec of what Pat is describing below...
-
--dte 
-
-> where David Eger <eger@havoc.gtf.org> told me that...
-> > So with git, *every* changeset is an entire (compressed) copy of the
-> > kernel.  Really?  Every patch you accept adds 37 MB to your hard disk?
-> > 
-> > Am I missing something here?
+>  The second is that it will happily eat emergency PF_MEMALLOC reserves
+>  instead of going to their reserved pools.
 > 
-> Yes. Only changes files re-appear. The unchanged files keep the same
-> SHA1 hash, therefore they don't re-appear in the repository.
+>  Fix the first by passing __GFP_NORETRY in the allocation calls in
+>  mempool_alloc. Fix the second by introducing a __GFP_MEMPOOL flag
+>  which directs the page allocator not to allocate from the reserve
+>  pool.
 > 
-> So, if Linus gets a patch which sanitizes drivers/char/selection.c,
-> only these new objects appear in the repository:
 > 
-> 	drivers/char/selection.c
-> 	drivers/char
-> 	drivers
-> 	. (project root)
-> 	commit message
-> 
+>  Index: linux-2.6/include/linux/gfp.h
+>  ===================================================================
+>  --- linux-2.6.orig/include/linux/gfp.h	2005-04-12 22:26:10.000000000 +1000
+>  +++ linux-2.6/include/linux/gfp.h	2005-04-12 22:26:11.000000000 +1000
+>  @@ -38,14 +38,16 @@ struct vm_area_struct;
+>   #define __GFP_NO_GROW	0x2000u	/* Slab internal usage */
+>   #define __GFP_COMP	0x4000u	/* Add compound page metadata */
+>   #define __GFP_ZERO	0x8000u	/* Return zeroed page on success */
+>  +#define __GFP_MEMPOOL	0x10000u/* Mempool allocation */
+
+I think I'll rename this to "__GFP_NOMEMALLOC".  Things other then mempool
+might want to use this.
+

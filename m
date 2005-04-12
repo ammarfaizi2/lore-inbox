@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVDLT4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262639AbVDLUBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVDLT4z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVDLT4K
+	id S262639AbVDLUBO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262638AbVDLT7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:56:10 -0400
-Received: from fire.osdl.org ([65.172.181.4]:43720 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262157AbVDLKbq (ORCPT
+	Tue, 12 Apr 2005 15:59:44 -0400
+Received: from fire.osdl.org ([65.172.181.4]:39368 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262151AbVDLKbp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:46 -0400
-Message-Id: <200504121031.j3CAVWh1005336@shell0.pdx.osdl.net>
-Subject: [patch 053/198] ppc64: remove -fno-omit-frame-pointer
+	Tue, 12 Apr 2005 06:31:45 -0400
+Message-Id: <200504121031.j3CAVUiI005332@shell0.pdx.osdl.net>
+Subject: [patch 052/198] ppc64: remove bogus f50 hack in prom.c
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, anton@samba.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, benh@kernel.crashing.org
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:25 -0700
+Date: Tue, 12 Apr 2005 03:31:24 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Anton Blanchard <anton@samba.org>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-During some code inspection using gcc 4.0 I noticed a stack frame was being
-created for a number of functions that didnt require it.  For example:
+The code that parses the OF device tree contains an old bogus hack which
+was killed a long time ago on ppc32, but survived in ppc64.  It was
+supposed to help with a problem on the f50 which is ...  a 32 bits machine
+:) Additionally, that hack is causing problems, so let's just get rid of
+it.
 
-c0000000000df944 <._spin_unlock>:
-c0000000000df944:       fb e1 ff f0     std     r31,-16(r1)
-c0000000000df948:       f8 21 ff c1     stdu    r1,-64(r1)
-c0000000000df94c:       7c 3f 0b 78     mr      r31,r1
-c0000000000df950:       7c 20 04 ac     lwsync
-c0000000000df954:       e8 21 00 00     ld      r1,0(r1)
-c0000000000df958:       38 00 00 00     li      r0,0
-c0000000000df95c:       90 03 00 00     stw     r0,0(r3)
-c0000000000df960:       eb e1 ff f0     ld      r31,-16(r1)
-c0000000000df964:       4e 80 00 20     blr
-
-It turns out we are adding -fno-omit-frame-pointer to ppc64 which is
-causing the above behaviour.  Removing that flag results in much better
-code:
-
-c0000000000d5b30 <._spin_unlock>:
-c0000000000d5b30:       7c 20 04 ac     lwsync
-c0000000000d5b34:       38 00 00 00     li      r0,0
-c0000000000d5b38:       90 03 00 00     stw     r0,0(r3)
-c0000000000d5b3c:       4e 80 00 20     blr
-
-We dont require a frame pointer to debug on ppc64, so remove it.
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/ppc64/Kconfig |    4 ----
- 1 files changed, 4 deletions(-)
+ 25-akpm/arch/ppc64/kernel/prom.c |    6 ------
+ 1 files changed, 6 deletions(-)
 
-diff -puN arch/ppc64/Kconfig~ppc64-remove-fno-omit-frame-pointer arch/ppc64/Kconfig
---- 25/arch/ppc64/Kconfig~ppc64-remove-fno-omit-frame-pointer	2005-04-12 03:21:16.157680560 -0700
-+++ 25-akpm/arch/ppc64/Kconfig	2005-04-12 03:21:16.160680104 -0700
-@@ -40,10 +40,6 @@ config COMPAT
- 	bool
- 	default y
+diff -puN arch/ppc64/kernel/prom.c~ppc64-remove-bogus-f50-hack-in-promc arch/ppc64/kernel/prom.c
+--- 25/arch/ppc64/kernel/prom.c~ppc64-remove-bogus-f50-hack-in-promc	2005-04-12 03:21:15.945712784 -0700
++++ 25-akpm/arch/ppc64/kernel/prom.c	2005-04-12 03:21:15.949712176 -0700
+@@ -544,12 +544,6 @@ static int __devinit finish_node(struct 
+ 	if (ip != NULL)
+ 		nsizec = *ip;
  
--config FRAME_POINTER
--	bool
--	default y
+-	/* the f50 sets the name to 'display' and 'compatible' to what we
+-	 * expect for the name -- Cort
+-	 */
+-	if (!strcmp(np->name, "display"))
+-		np->name = get_property(np, "compatible", NULL);
 -
- # We optimistically allocate largepages from the VM, so make the limit
- # large enough (16MB). This badly named config option is actually
- # max order + 1
+ 	if (!strcmp(np->name, "device-tree") || np->parent == NULL)
+ 		ifunc = interpret_root_props;
+ 	else if (np->type == 0)
 _

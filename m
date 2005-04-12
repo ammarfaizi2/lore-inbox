@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbVDLWiN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVDLWim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbVDLWiN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 18:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVDLWed
+	id S263015AbVDLWim (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVDLWih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 18:34:33 -0400
-Received: from mail.suse.de ([195.135.220.2]:31659 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S262531AbVDLWdb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 18:33:31 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: very basic desktop g5 sound support (#2)
-References: <1113282436.21548.42.camel@gaston> <jell7nu6yk.fsf@sykes.suse.de>
-	<1113344225.21548.108.camel@gaston>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: If I am elected, the concrete barriers around the WHITE HOUSE
- will be replaced by tasteful foam replicas of ANN MARGARET!
-Date: Wed, 13 Apr 2005 00:33:28 +0200
-In-Reply-To: <1113344225.21548.108.camel@gaston> (Benjamin Herrenschmidt's
- message of "Wed, 13 Apr 2005 08:17:05 +1000")
-Message-ID: <jey8bnk4lj.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 12 Apr 2005 18:38:37 -0400
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:14209 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S263026AbVDLWgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 18:36:37 -0400
+Date: Tue, 12 Apr 2005 18:36:23 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Re: more git updates..
+Message-ID: <20050412223623.GA29088@havoc.gtf.org>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org> <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+On Tue, Apr 12, 2005 at 02:21:58PM -0700, Linus Torvalds wrote:
+> 
+> Yes. A tree is defined by the blobs it references (and the subtrees) but 
+> it doesn't _contain_ them. It just contains a pointer to them.
 
-> Yes, I noticed that too on some models, not sure what's up at this
-> point. What about the headphone jack on the front ? That one appears to
-> work.
+A pointer to them?  You mean a SHA1 hash of them? or what?
+Where is the *real* data stored?  The real files, the real patches?
+Are these somewhere completely outside of git?
 
-Doesn't work either for me.  Well, I'll have keep my workaround a bit
-longer until you are ready with the rewrite.  Keep up the good work!
+> > Therefore, "TREE" must be the *full* data, and since we have the following
+> > definition for CHANGESET:
+> 
+> No. A tree is not the full data. A tree contains enough information to 
+> _recreate_ the full data, but the tree itself just tells you _how_ to do 
+> that. It doesn't contain very much of the data itself at all.
 
-Andreas.
+Perhaps I'd understand this if you tell me what "recreate" means.
+If a have a SHA1 hash of a file, and I have the file, I can verify that said
+file has the SHA1 hash it's supposed to have, but I can't generate the file
+from it's hash...
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Sorry for being stubbornly dumb, but you'll have a couple of us puzzling 
+at the README ;-)
+
+-dte

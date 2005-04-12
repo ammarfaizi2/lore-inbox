@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVDLRxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVDLRxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbVDLRxv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 13:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVDLKg0
+	id S262312AbVDLRxw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVDLKgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:36:26 -0400
-Received: from fire.osdl.org ([65.172.181.4]:6088 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262120AbVDLKbJ (ORCPT
+	Tue, 12 Apr 2005 06:36:06 -0400
+Received: from fire.osdl.org ([65.172.181.4]:5064 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262119AbVDLKbJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 12 Apr 2005 06:31:09 -0400
-Message-Id: <200504121031.j3CAV3PW005218@shell0.pdx.osdl.net>
-Subject: [patch 026/198] ppc32: ppc4xx_pic - add acknowledge when enabling level-sensitive IRQ
+Message-Id: <200504121031.j3CAV5ZI005233@shell0.pdx.osdl.net>
+Subject: [patch 028/198] ppc32: oops on kernel altivec assist exceptions
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ebs@ebshome.net,
-       listmember@orkun.us
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, paulus@samba.org
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:56 -0700
+Date: Tue, 12 Apr 2005 03:30:59 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Eugene Surovegin <ebs@ebshome.net>
+From: Paul Mackerras <paulus@samba.org>
 
-This patch adds interrupt acknowledge to the PPC4xx PIC enable_irq
-implementation for level-sensitive IRQ sources.  This helps in cases when
-enable/disable_irq is used in interrupt handlers for hardware, which
-requires IRQ acknowledge to be issued from non-interrupt context (e.g. 
-when actual ACK in device needs an I2C transaction).  For such strange
-hardware, interrupt handler disables IRQ and defers actual ACK to some
-other context.  When this happens, IRQ is enabled again.  For
-level-sensitive sources we get spurious triggering right after IRQ is
-enabled.  This patch fixes this.
+If we should happen to get an altivec assist exception while executing in
+the kernel, we will currently try to handle it and fail, and end up oopsing
+with (apparently) a segfault.  (An altivec assist exception occurs for
+floating-point altivec instructions with denormalized inputs or outputs if
+the altivec unit is in java mode.)
 
-Suggested by Tolunay Orkun <listmember@orkun.us>.
+This patch checks explicitly if we are in user mode and prints a useful
+message if not.
 
-Signed-off-by: Eugene Surovegin <ebs@ebshome.net>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/ppc/syslib/ppc4xx_pic.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+ 25-akpm/arch/ppc/kernel/traps.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
-diff -puN arch/ppc/syslib/ppc4xx_pic.c~ppc32-ppc4xx_pic-add-acknowledge-when-enabling-level-sensitive-irq arch/ppc/syslib/ppc4xx_pic.c
---- 25/arch/ppc/syslib/ppc4xx_pic.c~ppc32-ppc4xx_pic-add-acknowledge-when-enabling-level-sensitive-irq	2005-04-12 03:21:09.737656552 -0700
-+++ 25-akpm/arch/ppc/syslib/ppc4xx_pic.c	2005-04-12 03:21:09.740656096 -0700
-@@ -41,7 +41,10 @@ extern unsigned char ppc4xx_uic_ext_irq_
- #define UIC_HANDLERS(n)							\
- static void ppc4xx_uic##n##_enable(unsigned int irq)			\
- {									\
--	ppc_cached_irq_mask[n] |= IRQ_MASK_UIC##n(irq);			\
-+	u32 mask = IRQ_MASK_UIC##n(irq);				\
-+	if (irq_desc[irq].status & IRQ_LEVEL)				\
-+		mtdcr(DCRN_UIC_SR(UIC##n), mask);			\
-+	ppc_cached_irq_mask[n] |= mask;					\
- 	mtdcr(DCRN_UIC_ER(UIC##n), ppc_cached_irq_mask[n]);		\
- }									\
- 									\
+diff -puN arch/ppc/kernel/traps.c~ppc32-oops-on-kernel-altivec-assist-exceptions arch/ppc/kernel/traps.c
+--- 25/arch/ppc/kernel/traps.c~ppc32-oops-on-kernel-altivec-assist-exceptions	2005-04-12 03:21:10.167591192 -0700
++++ 25-akpm/arch/ppc/kernel/traps.c	2005-04-12 03:21:10.171590584 -0700
+@@ -805,6 +805,13 @@ void AltivecAssistException(struct pt_re
+ 	if (regs->msr & MSR_VEC)
+ 		giveup_altivec(current);
+ 	preempt_enable();
++	if (!user_mode(regs)) {
++		printk(KERN_ERR "altivec assist exception in kernel mode"
++		       " at %lx\n", regs->nip);
++		debugger(regs);
++		die("altivec assist exception", regs, SIGFPE);
++		return;
++	}
+ 
+ 	err = emulate_altivec(regs);
+ 	if (err == 0) {
 _

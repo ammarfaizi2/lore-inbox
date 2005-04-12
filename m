@@ -1,93 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVDLVCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVDLVCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbVDLVCM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVDLUnU
+	id S262171AbVDLVCN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbVDLUme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:43:20 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:60424 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S262175AbVDLTrR (ORCPT
+	Tue, 12 Apr 2005 16:42:34 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:45195 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262171AbVDLTfj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 15:47:17 -0400
-Message-ID: <425C25D3.7010703@aknet.ru>
-Date: Tue, 12 Apr 2005 23:47:31 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
+	Tue, 12 Apr 2005 15:35:39 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: petkov@uni-muenster.de, jamagallon@able.es, linux-kernel@vger.kernel.org
-Subject: [patch 2/3]: entry.S trap return fixes
-References: <20050411012532.58593bc1.akpm@osdl.org>	<1113209793l.7664l.1l@werewolf.able.es>	<20050411024322.786b83de.akpm@osdl.org>	<200504112359.40487.petkov@uni-muenster.de>	<20050411152243.22835d96.akpm@osdl.org>	<425B4C92.1070507@aknet.ru> <20050411212712.0dbd821d.akpm@osdl.org>
-In-Reply-To: <20050411212712.0dbd821d.akpm@osdl.org>
-Content-Type: multipart/mixed;
- boundary="------------040201060302050803010702"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: FUSYN and RT
+Date: Tue, 12 Apr 2005 12:35:17 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02FD4330@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FUSYN and RT
+Thread-Index: AcU/i457ydIt7K1ZRSOEYEH4uCGbuAACVf+A
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>
+Cc: <mingo@elte.hu>
+X-OriginalArrivalTime: 12 Apr 2005 19:35:19.0187 (UTC) FILETIME=[C2913E30:01C53F96]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040201060302050803010702
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+>From: Daniel Walker [mailto:dwalker@mvista.com]
+>
+>I just wanted to discuss the problem a little more. From all the
+>conversations that I've had it seem that everyone is worried about
+>having PI in Fusyn, and PI in the RT mutex.
 
-Hello.
+It sure is overlapping functionalities.
 
-do_debug() returns void, do_int3() too when
-!CONFIG_KPROBES.
-This patch fixes the CONFIG_KPROBES variant
-of do_int3() to return void too and adjusts
-the entry.S accordingly.
+> ...
+>The RT mutex will never lower a tasks priority lower than the priority
+>given to it by locking a Fusyn lock.
+>
+>At least, both mutexes will need to use the same API to raise and lower
+>priorities.
 
-Signed-off-by: Stas Sergeev <stsp@aknet.ru>
+This would be step one. This would also mean they'd need to share
+some data structures to protect transitivity (like when you own
+more than one mutex that is PI or PP).
 
+>The next question is deadlocks. Because one mutex is only in the
+kernel,
+>and the other is only in user space, it seems that deadlocks will only
+>occur when a process holds locks that are all the same type.
 
---------------040201060302050803010702
-Content-Type: text/x-patch;
- name="kgdbfix1.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="kgdbfix1.diff"
+Actually, I think it would occur in both cases. It all boils down 
+at the end to locks in the kernel. Some of them are not visible to 
+user space, some are (and with those we implement mutexes):
 
---- linux/arch/i386/kernel/entry.S.old	2005-04-12 09:47:38.000000000 +0400
-+++ linux/arch/i386/kernel/entry.S	2005-04-12 11:13:03.000000000 +0400
-@@ -550,8 +550,6 @@
- 	xorl %edx,%edx			# error code 0
- 	movl %esp,%eax			# pt_regs pointer
- 	call do_debug
--	testl %eax,%eax
--	jnz restore_all
- 	jmp ret_from_exception
- 
- /*
-@@ -632,8 +630,6 @@
- 	xorl %edx,%edx		# zero error code
- 	movl %esp,%eax		# pt_regs pointer
- 	call do_int3
--	testl %eax,%eax
--	jnz restore_all
- 	jmp ret_from_exception
- 
- ENTRY(overflow)
---- linux/arch/i386/kernel/traps.c.old	2005-04-12 09:47:38.000000000 +0400
-+++ linux/arch/i386/kernel/traps.c	2005-04-12 10:59:54.000000000 +0400
-@@ -695,16 +695,15 @@
- }
- 
- #ifdef CONFIG_KPROBES
--fastcall int do_int3(struct pt_regs *regs, long error_code)
-+fastcall void do_int3(struct pt_regs *regs, long error_code)
- {
- 	if (notify_die(DIE_INT3, "int3", regs, error_code, 3, SIGTRAP)
- 			== NOTIFY_STOP)
--		return 1;
-+		return;
- 	/* This is an interrupt gate, because kprobes wants interrupts
- 	disabled.  Normal trap handlers don't. */
- 	restore_interrupts(regs);
- 	do_trap(3, SIGTRAP, "int3", 1, regs, error_code, NULL);
--	return 0;
- }
- #endif
- 
+Task B owns FUSYN-MUTEX 2
+Task A owns RT-MUTEX 1
+Task B is waiting for RT-MUTEX 1
+TASK A wants to wait for FUSYN-MUTEX 2
+[deadlock]
 
---------------040201060302050803010702--
+[replace at will RT for FUSYN, FUSYN for RT, both, it doesn't
+matter, the problem stays the same].
+
+In any case, if let's say we have both implementations coexisting, 
+then verifying deadlock becomes a daunting tasks, because there
+are two lists of ownerships that we have to verify: the chain 
+becomes a graph.
+
+Whatever happens at the end: the kernel implementation needs to
+be only one. Whichever (I particularly don't care, although I'd
+like to see fusyns take it, I think they are able). The one that
+exposes user space mutexes has to be built on top of that. And
+exposing to user space is the toughest task (unless you don't
+care about the fast-path).
+
+-- Inaky

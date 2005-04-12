@@ -1,44 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVDLFrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVDLFzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262058AbVDLFrp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 01:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVDLFrP
+	id S262033AbVDLFzO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 01:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVDLFxP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 01:47:15 -0400
-Received: from orb.pobox.com ([207.8.226.5]:48107 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262068AbVDLFmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 01:42:14 -0400
-Date: Mon, 11 Apr 2005 22:42:03 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Jackson <pj@engr.sgi.com>,
-       pasky@ucw.cz, rddunlap@osdl.org, ross@jose.lug.udel.edu,
-       linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: [rfc] git: combo-blobs
-Message-ID: <20050412054203.GA8008@ip68-4-98-123.oc.oc.cox.net>
-References: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050411113523.GA19256@elte.hu> <20050411074552.4e2e656b.pj@engr.sgi.com> <20050411151204.GA5562@elte.hu> <Pine.LNX.4.58.0504110826140.1267@ppc970.osdl.org> <20050411153905.GA7284@elte.hu> <Pine.LNX.4.58.0504110852260.1267@ppc970.osdl.org> <20050411163358.GA9696@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411163358.GA9696@elte.hu>
-User-Agent: Mutt/1.5.6i
+	Tue, 12 Apr 2005 01:53:15 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:33388 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262033AbVDLFvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 01:51:43 -0400
+Message-ID: <425B61DD.60700@yahoo.com.au>
+Date: Tue, 12 Apr 2005 15:51:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org> <20050411220013.23416d5f.akpm@osdl.org>
+In-Reply-To: <20050411220013.23416d5f.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 06:33:58PM +0200, Ingo Molnar wrote:
-> ok. Meanwhile i found another counter-argument: the average committed 
-> file size is 36K, which with gzip -9 would compress down to roughly 8K, 
-> with the commit message being another block. That's 2+1 blocks used per 
-> commit, while with deltas one could at most cut this down to 1+1+1 
-> blocks - just as much space! So we would be almost even with the more 
-> complex delta approach, just by increasing the default compression ratio 
-> from 6 to 9. (but even with the default we are not that bad.)
+Andrew Morton wrote:
 
-I think you forgot about reiserfs/reiser4 tails. (At least, I *think*
-reiser4 has tails. I know reiserfs 3.x does.)
+>
+>So it turns out that patch was broken.  I've fixed it locally and the
+>results are good, but odd.
+>
+>The machine is a 4GB x86_64 with aic79xx controllers and MAXTOR
+>ATLAS10K4_73WLS disks.  ext2 filesystem.
+>
+>The workload is continuous pagecache writeback versus
+>read-lots-of-little-files:
+>
+>	while true
+>	do
+>		dd if=/dev/zero of=/mnt/sdb2/x bs=40M count=100 conv=notrunc
+>	done
+>
+>versus
+>
+>	find /mnt/sdb2/linux-2.4.25 -type f | xargs cat > /dev/null
+>
+>we measure how long the find+cat takes.
+>
+>2.6.12-rc2, 	as,	tcq depth=2:		7.241 seconds
+>2.6.12-rc2, 	as,	tcq depth=64:		12.172 seconds
+>2.6.12-rc2+patch,as,	tcq depth=64:		7.199 seconds
+>2.6.12-rc2, 	cfq2,	tcq depth=64:		much more than 5 minutes
+>2.6.12-rc2, 	cfq3,	tcq depth=64:		much more than 5 minutes
+>
+>So
+>
+>- The effects of tcq on AS are much less disastrous than I thought they
+>  were.  Do I have the wrong workload?  Memory fails me.  Or did we fix the
+>  anticipatory scheduler?
+>
+>
 
-BTW, I happen to agree completely with Linus on this issue, but I still
-figured I'd mention this for the sake of completeness.
+Yes, we did fix it ;)
+Quite a long time ago, so maybe you are thinking of something else
+(I haven't been able to work it out).
 
--Barry K. Nathan <barryn@pobox.com>
+AS basically does its own TCQ strangulation, which IIRC involves things
+like completing all reads before issuing new writes, and completing all
+reads from one process before reads from another. As well as the
+fundamental way that waiting for a 'dependant read' throttles TCQ.
+
+>- as-limit-queue-depth.patch fixes things right up anyway.  Seems to be
+>  doing the right thing.  
+>
+>
+
+Well it depends on what we want to do. If we hard limit the AS queue
+like this, I can remove some of that TCQ throttling logic from AS.
+
+OTOH, the throttling was intended to allow us to sanely use a large
+TCQ depth without getting really bad behaviour. Theoretically a process
+can make use of TCQ if it is doing a lot of writing, or if it is not
+determined to be doing dependant reads.
+
+
+

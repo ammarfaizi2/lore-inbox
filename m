@@ -1,44 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVDMC2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVDMCZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVDMC2t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 22:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVDMC1x
+	id S262179AbVDMCZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVDLTot
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 22:27:53 -0400
-Received: from fire.osdl.org ([65.172.181.4]:60591 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262618AbVDLTsI (ORCPT
+	Tue, 12 Apr 2005 15:44:49 -0400
+Received: from fire.osdl.org ([65.172.181.4]:64200 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262177AbVDLKcC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 15:48:08 -0400
-Date: Tue, 12 Apr 2005 12:47:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [patch 1/9] GFP_ZERO fix
-Message-Id: <20050412124741.366caee3.akpm@osdl.org>
-In-Reply-To: <425BC387.3080703@yahoo.com.au>
-References: <425BC262.1070500@yahoo.com.au>
-	<425BC387.3080703@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 06:32:02 -0400
+Message-Id: <200504121031.j3CAVrBo005435@shell0.pdx.osdl.net>
+Subject: [patch 077/198] x86_64: Use a common function to find code segment bases
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:31:47 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
->   #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
->  -			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
->  -			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP)
->  +			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT|__GFP_NOFAIL| \
->  +			__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP|__GFP_ZERO)
 
-Passing GFP_ZERO into kmem_cache_alloc() is such a bizarre thing to do,
-perhaps a BUG is the correct response.
+From: "Andi Kleen" <ak@suse.de>
 
-I guess it could be argued that the kmem_cache_alloc() callers "knows" that
-the ctor will be zeroing out all the objects, but it would seem cleaner to
-me to pass the "you should use GFP_ZERO" hint into kmem_cache_create()
-rather than kmem_cache_alloc().
+To avoid some code duplication.
 
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/arch/x86_64/mm/fault.c      |   12 +++++-------
+ 25-akpm/include/asm-x86_64/ptrace.h |    5 +++++
+ 2 files changed, 10 insertions(+), 7 deletions(-)
+
+diff -puN arch/x86_64/mm/fault.c~x86_64-use-a-common-function-to-find-code-segment-bases arch/x86_64/mm/fault.c
+--- 25/arch/x86_64/mm/fault.c~x86_64-use-a-common-function-to-find-code-segment-bases	2005-04-12 03:21:21.786824800 -0700
++++ 25-akpm/arch/x86_64/mm/fault.c	2005-04-12 03:21:21.790824192 -0700
+@@ -62,21 +62,19 @@ void bust_spinlocks(int yes)
+ static noinline int is_prefetch(struct pt_regs *regs, unsigned long addr,
+ 				unsigned long error_code)
+ { 
+-	unsigned char *instr = (unsigned char *)(regs->rip);
++	unsigned char *instr;
+ 	int scan_more = 1;
+ 	int prefetch = 0; 
+-	unsigned char *max_instr = instr + 15;
++	unsigned char *max_instr;
+ 
+ 	/* If it was a exec fault ignore */
+ 	if (error_code & (1<<4))
+ 		return 0;
+ 	
+-	/* Code segments in LDT could have a non zero base. Don't check
+-	   when that's possible */
+-	if (regs->cs & (1<<2))
+-		return 0;
++	instr = (unsigned char *)convert_rip_to_linear(current, regs);
++	max_instr = instr + 15;
+ 
+-	if ((regs->cs & 3) != 0 && regs->rip >= TASK_SIZE)
++	if ((regs->cs & 3) != 0 && instr >= (unsigned char *)TASK_SIZE)
+ 		return 0;
+ 
+ 	while (scan_more && instr < max_instr) { 
+diff -puN include/asm-x86_64/ptrace.h~x86_64-use-a-common-function-to-find-code-segment-bases include/asm-x86_64/ptrace.h
+--- 25/include/asm-x86_64/ptrace.h~x86_64-use-a-common-function-to-find-code-segment-bases	2005-04-12 03:21:21.787824648 -0700
++++ 25-akpm/include/asm-x86_64/ptrace.h	2005-04-12 03:21:21.790824192 -0700
+@@ -86,6 +86,11 @@ struct pt_regs {
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ void signal_fault(struct pt_regs *regs, void __user *frame, char *where);
+ 
++struct task_struct;
++
++extern unsigned long
++convert_rip_to_linear(struct task_struct *child, struct pt_regs *regs);
++
+ enum {
+         EF_CF   = 0x00000001,
+         EF_PF   = 0x00000004,
+_

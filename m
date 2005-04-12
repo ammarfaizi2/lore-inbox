@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbVDLS6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVDLTC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262559AbVDLS6D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVDLSuw
+	id S262113AbVDLTC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:02:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVDLTBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:50:52 -0400
-Received: from fire.osdl.org ([65.172.181.4]:2250 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262227AbVDLKcs (ORCPT
+	Tue, 12 Apr 2005 15:01:18 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:7962 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262492AbVDLSHf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:48 -0400
-Message-Id: <200504121032.j3CAWcVT005641@shell0.pdx.osdl.net>
-Subject: [patch 126/198] kernel/param.c: don't use .max when .num is NULL in param_array_set()
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       wesarg@informatik.uni-halle.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:32 -0700
+	Tue, 12 Apr 2005 14:07:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=t6lYBpsDnFzw0+orlSzxTRs1F7TCqhbCI2u/SL2I4OMPEs4Cn8V39v9utU8koWfQ0Azgb+zGgDR1EXJ2t+s05TJzIjsb1P9gFJ6H8mRJHzUvAngQApzC3p6lp6xySjTFzYPLk6GASbBIKS5sPZvtAzXTDHvdiiuk6/LCnvqczaE=
+Message-ID: <425C0E60.7000708@gmail.com>
+Date: Tue, 12 Apr 2005 14:07:28 -0400
+From: Bastian Beutner <tevid411@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: ATI Radeon 9000 M9 mobitility troubles on linux 2.6
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dmesg for linux 2.4
 
-From: Bert Wesarg <wesarg@informatik.uni-halle.de>
+agpgart: Detected an Intel(R) 845G, but could not find the secondary 
+device. Assuming a non-integrated video card
 
-there seems to be a bug, at least for me, in kernel/param.c for arrays with
-.num == NULL.  If .num == NULL, the function param_array_set() uses &.max
-for the call to param_array(), wich alters the .max value to the number of
-arguments.  The result is, you can't set more array arguments as the last
-time you set the parameter.
+dmesg for linux 2.6
 
-example:
+agpgart: Detected an Intel(R) 845G
 
-# a module 'example' with
-# static int array[10] = { 0, };
-# module_param_array(array, int, NULL, 0644);
+on 2.6 x will start with vesa but due to this being a laptop i cannot do 
+1400 x 1050
 
-$ insmod example.ko array=1,2,3
-$ cat /sys/module/example/parameters/array
-1,2,3
-$ echo "4,3,2,1" > /sys/module/example/parameters/array
-$ dmesg | tail -n 1
-kernel: array: can take only 3 arguments
+radeon and/or fglrx drivers will not start X on 2.6 but will start X on 2.4
 
-Signed-off-by: Bert Wesarg <wesarg@informatik.uni-halle.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+lspci shows the card as being there under 2.6 and 2.4 as follows
 
- 25-akpm/kernel/params.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon R250 
+Lf [FireGL 9000] (rev 01)
 
-diff -puN kernel/params.c~kernel-paramc-dont-use-max-when-num-is-null-in kernel/params.c
---- 25/kernel/params.c~kernel-paramc-dont-use-max-when-num-is-null-in	2005-04-12 03:21:33.817995784 -0700
-+++ 25-akpm/kernel/params.c	2005-04-12 03:21:33.821995176 -0700
-@@ -314,9 +314,10 @@ int param_array(const char *name,
- int param_array_set(const char *val, struct kernel_param *kp)
- {
- 	struct kparam_array *arr = kp->arg;
-+	unsigned int temp_num;
- 
- 	return param_array(kp->name, val, 1, arr->max, arr->elem,
--			   arr->elemsize, arr->set, arr->num ?: &arr->max);
-+			   arr->elemsize, arr->set, arr->num ?: &temp_num);
- }
- 
- int param_array_get(char *buffer, struct kernel_param *kp)
-_
+tried setting BUSID in X config but to no avail X will not detect the card
+
+any ideas?
+
+please CC me the answers
+
+tevid
+
+Linux scion 2.4.28-gentoo-r7 #6 Thu Mar 31 03:37:29 EST 2005 i686 
+Intel(R) Pentium(R) 4 CPU 2.66GHz GenuineIntel GNU/Linux
+
+

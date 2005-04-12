@@ -1,68 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVDLGM2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVDLFa2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbVDLGM2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 02:12:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVDLGMT
+	id S262011AbVDLFa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 01:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVDLFXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 02:12:19 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:59100 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262082AbVDLGLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 02:11:21 -0400
-To: jamie@shareable.org
-CC: dan@debian.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050411214123.GF32535@mail.shareable.org> (message from Jamie
-	Lokier on Mon, 11 Apr 2005 22:41:23 +0100)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411214123.GF32535@mail.shareable.org>
-Message-Id: <E1DLEby-00013d-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 12 Apr 2005 08:10:58 +0200
+	Tue, 12 Apr 2005 01:23:20 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:4619 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S262019AbVDLEUY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 00:20:24 -0400
+Message-ID: <425B4C92.1070507@aknet.ru>
+Date: Tue, 12 Apr 2005 08:20:34 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Borislav Petkov <petkov@uni-muenster.de>, jamagallon@able.es,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org>	<1113209793l.7664l.1l@werewolf.able.es>	<20050411024322.786b83de.akpm@osdl.org>	<200504112359.40487.petkov@uni-muenster.de> <20050411152243.22835d96.akpm@osdl.org>
+In-Reply-To: <20050411152243.22835d96.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think that would be _much_ nicer implemented as a mount which is
-> invisible to other users, rather than one which causes the admin's
-> scripts to spew error messages.
+Hello.
 
-Spew is a strong word.  It'll get a single EACCES at the mountpoint.
-The same is true for directories not accessible by 'nobody' under an
-NFS mount exported with root squash.  
+Andrew Morton wrote:
+>> Program received signal SIGTRAP, Trace/breakpoint trap.
+SIGTRAP - it looks like the "int $3"
+triggered, not "mov    0x30(%esp),%eax",
+which is just the next insn and so the
+%eip points to it, but it might be
+innocent. And besides, 0x30(%esp) is
+EFLAGS, not OLDSS. So I think maybe my
+patch is not guilty this time, it is
+just the non-zero preempt count on the
+return path caused by something else.
 
-> Is the namespace mechanism at all suitable for that?
+>> (gdb) p $eip
+>> $1 = (void *) 0xc0102ee7
+Could you please also do
+"p $esp" or "info reg", so that we can
+see the rest of the registers?
 
-It is certainly the right tool for this.  However currently private
-namespaces are quite limited.  The only sane usage I can think of is
-that before mounting the user starts a shell with CLONE_NS, and does
-the mount in this.  However all the other programs he already has
-running (editor, browser, desktop environment) won't be able to access
-the mount.
+>> And as we see, we're at the "mov    0x30(%esp),%eax" which accesses above the 
+>> bottom of the stack.
+But that's strange. Another instance of
+the 0x30(%esp) is there a few instructions
+above this one, see it with "disas restore_all".
+It is much more likely that the real offender
+is the previous instruction. $eip points on
+the instruction *after* the trap, which might
+be innocent.
 
-Shared subtrees and more support in userspace tools is needed before
-private namespaces can become really useful.
+>> After applying nmi_stack_correct-fix.patch, rc2-mm3
+I can't find this one in an -mm broken-outs.
+Where is this patch?
+Could you please also test this one:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0504.0/1287.html
+ 
+> Interesting.  It could be an interaction between the kgdb patch and the new
+> vm86 checking code.
+I think so too, will have a look if I can
+reproduce it.
 
-> It would also be nice to generalise and have virtual filesystems which
-> are able to present different views to different users.  Can FUSE do
-> that already - is the userspace part told which user is doing each
-> operation?
+> The above code is accessing esp+56,
+Yes, but this particular instruction was
+not reached. "int $3" killed the system
+for some reasons.
 
-Yes.
+> -	p->thread.esp0 = (unsigned long) (childregs+1) - 8;
+> +	p->thread.esp0 = (unsigned long) (childregs+1) - 15;
+15 is somewhat nasty - it will make the
+stack unaligned, should better be 16 I
+think. But I don't see why, the only
+scenario we've seen were the not stored
+SS/ESP, which is 8 bytes only.
+If we definitely think my patch is guilty
+again, then probably something like this
+is necessary:
 
-> With that, the desire for virtual filesystems which cannot be read
-> by your sysadmin (by accident) is easy to satisfy - and that kind of
-> mechanism would probably be acceptable to all.
+--- linux/include/asm-i386/processor.h.old      2005-03-20 14:13:02.000000000 +0300
++++ linux/include/asm-i386/processor.h  2005-04-12 07:50:11.000000000 +0400
+@@ -458,7 +458,7 @@
+  * be within the limit.
+  */
+ #define INIT_TSS  {                                                    \
+-       .esp0           = sizeof(init_stack) + (long)&init_stack,       \
++       .esp0           = sizeof(init_stack) - 8 + (long)&init_stack,   \
+        .ss0            = __KERNEL_DS,                                  \
+        .ss1            = __KERNEL_CS,                                  \
+        .ldt            = GDT_ENTRY_LDT,                                \
 
-The problem is that this way the responsibility goes to the userspace
-program, which can't be trusted.
+But I don't think the init_stack can be
+abused on the sysenter path, so this is
+just a wild guess.
 
-Either the kernel has to enforce that uid/gid on each file are set to
-the mount owner, or the kernel has to enforce that no other user has
-access to the mountpoint.  Some policy _must_ be kept in kernel.
-
-I think both these policies have valid uses, so I wouldn't want to
-limit FUSE to a single one.  Hmm?
-
-Thanks,
-Miklos

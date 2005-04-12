@@ -1,82 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262361AbVDLLyY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVDLLvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbVDLLyY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:54:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVDLLwg
+	id S262370AbVDLLvV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVDLLeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:52:36 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:15122 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262361AbVDLLuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 07:50:07 -0400
-Date: Tue, 12 Apr 2005 13:50:03 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/block/ll_rw_blk.c: possible cleanups
-Message-ID: <20050412115002.GA3631@stusta.de>
-References: <20050410181321.GE4204@stusta.de> <20050411061233.GW22988@suse.de> <20050412020413.GC3828@stusta.de> <20050412054957.GF4722@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050412054957.GF4722@suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 12 Apr 2005 07:34:46 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:49763 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262350AbVDLL0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 07:26:47 -0400
+Message-ID: <425BB073.8050308@yahoo.com.au>
+Date: Tue, 12 Apr 2005 21:26:43 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "'Jens Axboe'" <axboe@suse.de>, Claudio Martins <ctpm@rnl.ist.utl.pt>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: Processes stuck on D state on Dual Opteron
+References: <200504120803.j3C83tg06634@unix-os.sc.intel.com> <425BAC55.7020506@yahoo.com.au>
+In-Reply-To: <425BAC55.7020506@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------090405030303040409000100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 07:49:57AM +0200, Jens Axboe wrote:
-> On Tue, Apr 12 2005, Adrian Bunk wrote:
-> > On Mon, Apr 11, 2005 at 08:12:34AM +0200, Jens Axboe wrote:
-> > > On Sun, Apr 10 2005, Adrian Bunk wrote:
-> > > > This patch contains the following possible cleanups:
-> > > > - make needlessly global code static
-> > > > - remove the following unused global functions:
-> > > >   - blkdev_scsi_issue_flush_fn
-> > > 
-> > > Kill the function completely, it is not used anymore.
-> > > 
-> > > >   - __blk_attempt_remerge
-> > > 
-> > > Normally I would say leave that since it's part of the API, but lets
-> > > just kill it. I don't envision any further users of the remerging
-> > > attempts.
-> > > 
-> > > > - remove the following unused EXPORT_SYMBOL's:
-> > > >   - blk_phys_contig_segment
-> > > >   - blk_hw_contig_segment
-> > > >   - blkdev_scsi_issue_flush_fn
-> > > >   - __blk_attempt_remerge
-> > > > 
-> > > > Please review which of these changes make sense.
-> > > 
-> > > Looks fine to me, thanks. Can you send a new patch that kills
-> > > blkdev_scsi_issue_flush_fn()?
-> > 
-> > I have a problem parsing your email.
-> > 
-> > Which parts of my patch are OK and which shouldn't be applied?
-> > Or why do you want a separate blkdev_scsi_issue_flush_fn patch?
+This is a multi-part message in MIME format.
+--------------090405030303040409000100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Nick Piggin wrote:
+> Chen, Kenneth W wrote:
+
+>> I like the patch a lot and already did bench it on our db setup.  
+>> However,
+>> I'm seeing a negative regression compare to a very very crappy patch (see
+>> attached, you can laugh at me for doing things like that :-).
+>>
 > 
-> I have no problems with your patch, I would just like a revised patch
-> that removes blkdev_scsi_issue_flush_fn completely instead since it is
-> totally unused. It doesn't make sense to remove the export and make it
-> static, since it isn't used internally (and never meant to, it's a
-> helper function for drivers).
+> OK - if we go that way, perhaps the following patch may be the
+> way to do it.
+> 
 
-My patch does already completely remove blkdev_scsi_issue_flush_fn.
-
-When I say "remove the following unused global functions:", this means 
-the patch completely removes the function.
-
-> Jens Axboe
-
-cu
-Adrian
+Here.
 
 -- 
+SUSE Labs, Novell Inc.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--------------090405030303040409000100
+Content-Type: text/plain;
+ name="blk-efficient2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="blk-efficient2.patch"
+
+Index: linux-2.6/drivers/block/ll_rw_blk.c
+===================================================================
+--- linux-2.6.orig/drivers/block/ll_rw_blk.c	2005-04-12 21:03:01.000000000 +1000
++++ linux-2.6/drivers/block/ll_rw_blk.c	2005-04-12 21:03:45.000000000 +1000
+@@ -1956,10 +1956,11 @@ out:
+  */
+ static struct request *get_request_wait(request_queue_t *q, int rw)
+ {
+-	DEFINE_WAIT(wait);
+ 	struct request *rq;
+ 
+-	do {
++	rq = get_request(q, rw, GFP_NOIO);
++	while (!rq) {
++		DEFINE_WAIT(wait);
+ 		struct request_list *rl = &q->rq;
+ 
+ 		prepare_to_wait_exclusive(&rl->wait[rw], &wait,
+@@ -1987,7 +1988,7 @@ static struct request *get_request_wait(
+ 			spin_lock_irq(q->queue_lock);
+ 		}
+ 		finish_wait(&rl->wait[rw], &wait);
+-	} while (!rq);
++	}
+ 
+ 	return rq;
+ }
+
+--------------090405030303040409000100--
 

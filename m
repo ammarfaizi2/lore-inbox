@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262976AbVDLXdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263051AbVDLXZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262976AbVDLXdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbVDLXZX
+	id S263051AbVDLXZE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbVDLXXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 19:25:23 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:17333 "EHLO
-	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262539AbVDLXWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 19:22:03 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: RE: Digi Neo 8: linux-2.6.12_r2  jsm driver
-To: Kilau@arcor-online.net, Scott <Scott_Kilau@digi.com>,
-       Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       Ihalainen Nickolay <ihanic@dev.ehouse.ru>, admin@list.net.ru,
-       linux-kernel@vger.kernel.org, Wen Xiong <wendyx@us.ibm.com>
-Reply-To: 7eggert@gmx.de
-Date: Wed, 13 Apr 2005 01:21:39 +0200
-References: <3SAEx-7Yo-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DLUhQ-0001ad-Kd@be1.7eggert.dyndns.org>
+	Tue, 12 Apr 2005 19:23:07 -0400
+Received: from gate.crashing.org ([63.228.1.57]:1191 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263049AbVDLXSC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 19:18:02 -0400
+Subject: Re: [PATCH] ppc32: MV643XX ethernet is an option for Pegasos
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Dale Farnsworth <dale@farnsworth.org>
+Cc: Fabio Massimo Di Nitto <fabbione@ubuntu.com>,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       netdev@oss.sgi.com, Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050412120813.GA22502@xyzzy>
+References: <1113289985.21548.66.camel@gaston>
+	 <20050412095522.GA20129@xyzzy> <425BA688.9010607@ubuntu.com>
+	 <20050412120813.GA22502@xyzzy>
+Content-Type: text/plain
+Date: Wed, 13 Apr 2005 09:16:12 +1000
+Message-Id: <1113347772.21548.127.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kilau, Scott <Scott_Kilau@digi.com> wrote:
 
-> However, neither IBM nor Digi wants this thread's patch to be applied,
-> and yet Christoph wants to do it, completely out of spite, to break our
-> out-of-tree open source driver.
+> > It is possible. I received an old patch from Sven Luther and bounced to
+> > Benjamin rediffed against 2.6.12rc2, but the bits ended to be exactly
+> > the same.
+> > 
+> > PS feel free to claim credits on it. I don't want for sure take over
+> > your work :)
 > 
-> This is the problem that I have.
+> No problem.  It was Nicolas' and Sven's patch and Like Sven said
+> this one is trivial.  Mainly, I wanted to mention the other 19 patches
+> I've sent that I hope get accepted soon.
 
-I think you should supply a patch that makes the in-kernel driver print a
-short notice about your other driver. E.g.
-----
-The foo driver is a stripped-down version of the bar driver. To get the
-additional configuration and diagnosis infrastructure, see the
-instructions on url.
-----
--- 
-Top 100 things you don't want the sysadmin to say:
-49. What's this switch for anyways...?
+We hope that too :)
+
+Ben.
+
+

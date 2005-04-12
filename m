@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVDMDbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVDMDfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262177AbVDMDbg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 23:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVDMD1a
+	id S262602AbVDMDfr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 23:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVDMDdm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 23:27:30 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:14239 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262595AbVDMD0r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 23:26:47 -0400
-Message-ID: <425C914A.3070604@yahoo.com.au>
-Date: Wed, 13 Apr 2005 13:26:02 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Tue, 12 Apr 2005 23:33:42 -0400
+Received: from ns2.suse.de ([195.135.220.15]:54956 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262608AbVDLTcU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 15:32:20 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ppc64: very basic desktop g5 sound support (#2)
+References: <1113282436.21548.42.camel@gaston>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: ..  someone in DAYTON, Ohio is selling USED CARPETS to a
+ SERBO-CROATIAN
+Date: Tue, 12 Apr 2005 21:32:19 +0200
+In-Reply-To: <1113282436.21548.42.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Tue, 12 Apr 2005 15:07:16 +1000")
+Message-ID: <jell7nu6yk.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: davidm@hpl.hp.com
-CC: Ingo Molnar <mingo@elte.hu>, "David S. Miller" <davem@davemloft.net>,
-       tony.luck@intel.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] sched: unlocked context-switches
-References: <3R6Ir-89Y-23@gated-at.bofh.it>	<ugoecowjci.fsf@panda.mostang.com>	<20050409070738.GA5444@elte.hu>	<16983.33049.962002.335198@napali.hpl.hp.com>	<20050409155810.593d8f7b.davem@davemloft.net>	<20050410064324.GA24596@elte.hu>	<16987.7956.806699.617633@napali.hpl.hp.com>	<1113271965.5090.24.camel@npiggin-nld.site> <16988.477.530205.502023@napali.hpl.hp.com>
-In-Reply-To: <16988.477.530205.502023@napali.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Mosberger wrote:
->>>>>>On Tue, 12 Apr 2005 12:12:45 +1000, Nick Piggin <nickpiggin@yahoo.com.au> said:
-> 
-> 
->   >> Now, Ingo says that the order is reversed with his patch, i.e.,
->   >> switch_mm() happens after switch_to().  That means flush_tlb_mm()
->   >> may now see a current->active_mm which hasn't really been
->   >> activated yet.
-> 
->   Nick> If that did bother you, could you keep track of the actually
->   Nick> activated mm in your arch code? Or would that involve more
->   Nick> arch hooks and general ugliness in the scheduler?
-> 
-> I'm sorry, but I don't see the point of this.  We are already tracking
-> care of ownership, just not atomically.  What's the point of putting
-> another level of (atomic) tracking on top of it.  That seems
-> exceedingly ugly.
-> 
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Well, you were worried about it not being atomic. So that would be
-the point, but I agree it would probably be exceedingly ugly if
-implemented.
+> This patch hacks the current PowerMac Alsa driver to add some basic
+> support of analog sound output to some desktop G5s. It has severe
+> limitations though:
+>
+>  - Only 44100Khz 16 bits
+>  - Only work on G5 models using a TAS3004 analog code, that is early
+>    single CPU desktops and all dual CPU desktops at this date, but none
+>    of the more recent ones like iMac G5.
+>  - It does analog only, no digital/SPDIF support at all, no native
+>    AC3 support
 
-Nick
+On my PowerMac the internal speaker is now working, but unfortunately on
+the line-out I get nearly no output.  I have pushed both the master and
+pcm control to the maximum and still barely hear anything.
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

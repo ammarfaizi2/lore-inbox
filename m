@@ -1,32 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVDLOtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVDLOqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262346AbVDLOtj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 10:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVDLOtV
+	id S262254AbVDLOqb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 10:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbVDLOli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 10:49:21 -0400
-Received: from verein.lst.de ([213.95.11.210]:26277 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262346AbVDLOr2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 10:47:28 -0400
-Date: Tue, 12 Apr 2005 16:47:20 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] genalloc for 2.6.12-rc-mm3
-Message-ID: <20050412144720.GA19894@lst.de>
-References: <16987.39669.285075.730484@jaguar.mkp.net> <20050412031502.3b5d39fc.akpm@osdl.org> <yq0br8k12nd.fsf@jaguar.mkp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq0br8k12nd.fsf@jaguar.mkp.net>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Tue, 12 Apr 2005 10:41:38 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:4526 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262256AbVDLOiy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 10:38:54 -0400
+Message-ID: <425BDD70.80304@nortel.com>
+Date: Tue, 12 Apr 2005 08:38:40 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: incoming
+References: <20050412032322.72d73771.akpm@osdl.org>
+In-Reply-To: <20050412032322.72d73771.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#include <asm/pal.h>
+Andrew Morton wrote:
+> As the commits list probably isn't working at present I'll cc linux-kernel
+> on this lot.  Fairly cruel, sorry, but I don't like the idea of people not
+> knowing what's hitting the main tree.
 
-this will break on all plattforms except alpha and ia64.
+I'd like to second the idea of having all the patches be replies to this 
+original posting (ie one level of indenting for all patches).  That way 
+a threaded view will only have one subject line for all 198 patches.
 
+Chris

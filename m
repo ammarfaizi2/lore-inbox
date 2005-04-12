@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVDLFVC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVDLG3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbVDLFVC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 01:21:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbVDLFTU
+	id S262057AbVDLG3L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 02:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVDLG3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 01:19:20 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:33129 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262015AbVDLDZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 23:25:03 -0400
-Message-ID: <425B3F7A.7020501@yahoo.com>
-Date: Mon, 11 Apr 2005 20:24:42 -0700
-From: Alex Aizman <itn780@yahoo.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b) Gecko/20050217
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE 5/6] Linux-iSCSI High-Performance Initiator
-Content-Type: multipart/mixed;
- boundary="------------040906020700010701040909"
+	Tue, 12 Apr 2005 02:29:08 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:989 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262021AbVDLG2H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 02:28:07 -0400
+To: dan@debian.org
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050411221324.GA10541@nevyn.them.org> (message from Daniel
+	Jacobowitz on Mon, 11 Apr 2005 18:13:24 -0400)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <20050331200502.GA24589@infradead.org> <E1DJsH6-0004nv-00@dorka.pomaz.szeredi.hu> <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411221324.GA10541@nevyn.them.org>
+Message-Id: <E1DLEsQ-00015Z-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 12 Apr 2005 08:27:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040906020700010701040909
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+> > Well the sanity check on the "server" side is always enforced.  You
+> > can't "trick" sftp or ftp to not check permissions.  So checking on
+> > the "client" side too (where the fuse daemon is running) makes no
+> > sense, does it?
+> 
+> That argument doesn't make much sense to me.  But we're at the end of
+> my useful contributions to this discussion; I'm going to be quiet now
+> and hope some folks who know more about filesystems have more useful
+> responses.
 
-             include/linux/netlink.h changes (added NETLINK_ISCSI)
+I'm sorry if this isn't clear enough.  My explanatory powers are not
+very strong, so please bear with me.
 
-             Signed-off-by: Alex Aizman <itn780@yahoo.com>
-             Signed-off-by: Dmitry Yusupov <dmitry_yus@yahoo.com>
+Imagine an sftp session.  You list the files on the remote server.
+You want download a file for which there are very limited permission
+(e.g. only readable to owner).  You don't _know_ if you are the owner
+since the uid on the file does not ring any bells, but you still try,
+since you want that file badly.  And you succeed.
 
+Would it make sense if the sftp client would try to interpret the
+uid/gid/permission on each file?  Obviously not.
 
+The same is true for the case when you mount an sshfs.  Since you
+entered your password (or have a passwordless login to the server) you
+are authorized to browse the files on the server, but only with the
+capabilities you have there as a user.  The server does the
+authorization.  The same is true for an NFS mount btw.  It's not the
+client that checks the permissions.
 
+So do you see why I argue in favor of having an option _not_ to check
+permissions on the client by the kernel?
 
+Thanks,
+Miklos
 
-
-
-
-
-
-
-
---------------040906020700010701040909
-Content-Type: text/plain;
- name="linux-iscsi-netlink.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-iscsi-netlink.patch"
-
---- linux-2.6.12-rc2.orig/include/linux/netlink.h	2005-03-01 23:38:25.000000000 -0800
-+++ linux-2.6.12-rc2.dima/include/linux/netlink.h	2005-04-11 18:13:12.000000000 -0700
-@@ -14,6 +14,7 @@
- #define NETLINK_SELINUX		7	/* SELinux event notifications */
- #define NETLINK_ARPD		8
- #define NETLINK_AUDIT		9	/* auditing */
-+#define NETLINK_ISCSI		10	/* iSCSI Open Interface */
- #define NETLINK_ROUTE6		11	/* af_inet6 route comm channel */
- #define NETLINK_IP6_FW		13
- #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
-
-
-
---------------040906020700010701040909--

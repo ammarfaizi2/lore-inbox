@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVDLRSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262515AbVDLRWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbVDLRSd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 13:18:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262518AbVDLRRW
+	id S262515AbVDLRWN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVDLRRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 13:17:22 -0400
-Received: from mail.shareable.org ([81.29.64.88]:31648 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262511AbVDLROk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 13:14:40 -0400
-Date: Tue, 12 Apr 2005 18:14:26 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: dan@debian.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050412171426.GB14633@mail.shareable.org>
-References: <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411221324.GA10541@nevyn.them.org> <E1DLEsQ-00015Z-00@dorka.pomaz.szeredi.hu> <20050412143237.GB10995@mail.shareable.org> <E1DLMrh-0001lm-00@dorka.pomaz.szeredi.hu> <20050412161303.GI10995@mail.shareable.org> <E1DLOO0-0001xj-00@dorka.pomaz.szeredi.hu> <20050412164501.GB14149@mail.shareable.org> <E1DLOcX-0001zw-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
+	Tue, 12 Apr 2005 13:17:09 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:30390 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262464AbVDLRP7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 13:15:59 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DLOcX-0001zw-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16988.586.986381.393504@napali.hpl.hp.com>
+Date: Tue, 12 Apr 2005 10:15:54 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: davidm@hpl.hp.com, "David S. Miller" <davem@davemloft.net>,
+       tony.luck@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: unlocked context-switches
+In-Reply-To: <20050412064253.GA1289@elte.hu>
+References: <3R6Ir-89Y-23@gated-at.bofh.it>
+	<ugoecowjci.fsf@panda.mostang.com>
+	<20050409070738.GA5444@elte.hu>
+	<16983.33049.962002.335198@napali.hpl.hp.com>
+	<20050409155810.593d8f7b.davem@davemloft.net>
+	<20050410064324.GA24596@elte.hu>
+	<16987.7956.806699.617633@napali.hpl.hp.com>
+	<20050412064253.GA1289@elte.hu>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> Still can't find it :)
-> 
-> Which kernel?  Which file?
+>>>>> On Tue, 12 Apr 2005 08:42:53 +0200, Ingo Molnar <mingo@elte.hu> said:
 
-I'm looking at linux-2.4.30/fs/nfs/dir.c.
+  Ingo> * David Mosberger <davidm@napali.hpl.hp.com> wrote:
 
--- Jamie
+  >> Now, Ingo says that the order is reversed with his patch, i.e.,
+  >> switch_mm() happens after switch_to().  That means flush_tlb_mm()
+  >> may now see a current->active_mm which hasn't really been
+  >> activated yet.  That should be OK since it would just mean that
+  >> we'd do an early (and duplicate) activate_context().  While it
+  >> does not give me a warm and fuzzy feeling to have this
+  >> inconsistent state be observable by interrupt-handlers (and, in
+  >> particular, IPI-handlers), I don't see any problem with it off
+  >> hand.
+
+  Ingo> thanks for the analysis. I fundamentally dont have any fuzzy
+  Ingo> feeling from having _any_ portion of the context-switch path
+  Ingo> nonatomic, but with more complex hardware it's just not
+  Ingo> possible it seems.
+
+No kidding! ;-)
+
+I _think_ the change is OK.  I'll need testing, of course.
+Sure would be nice to have 2.7.xx...
+
+Thanks,
+
+	--david

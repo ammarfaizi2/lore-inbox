@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbVDLLna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVDLLeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262350AbVDLLna (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbVDLLmd
+	id S262296AbVDLLeU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVDLLeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:42:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:60126 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262340AbVDLLkQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 07:40:16 -0400
-Date: Tue, 12 Apr 2005 04:39:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm3
-Message-Id: <20050412043952.0644d4ac.akpm@osdl.org>
-In-Reply-To: <200504120732.24440.tomlins@cam.org>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<200504120732.24440.tomlins@cam.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 12 Apr 2005 07:34:05 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:31699 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S262296AbVDLLUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 07:20:07 -0400
+Date: Tue, 12 Apr 2005 13:18:59 +0200
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
+Subject: firewire and/or sbp2 problem with rc2-mm3, but not rc2-mm2
+Message-ID: <20050412111859.GA29765@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <tomlins@cam.org> wrote:
->
-> On Monday 11 April 2005 04:25, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
-> > 
-> > 
-> > - The anticipatory I/O scheduler has always been fairly useless with SCSI
-> >   disks which perform tagged command queueing.  There's a patch here from Jens
-> >   which is designed to fix that up by constraining the number of requests
-> >   which we'll leave pending in the device.
-> > 
-> >   The depth currently defaults to 1.  Tunable in
-> >   /sys/block/hdX/queue/iosched/queue_depth
-> > 
-> >   This patch hasn't been performance tested at all yet.  If you think it is
-> >   misbehaving (the usual symptom is processes stuck in D state) then please
-> >   report it, then boot with `elevator=cfq' or `elevator=deadline' to work
-> >   around it.
-> > 
-> > - More CPU scheduler work.  I hope someone is testing this stuff.
-> 
-> Something is not quite right here.  I built rc2-mm3 and booted (uni processor, amd64, preempt on).  
-> mm3 lasted about 30 mins before locking up with a dead keyboard.  I had mm2 reboot a few times
-> over the last couple of days too.  
-> 
-> 11-mm3 uptime of 2 weeks+
-> 12-rc2-mm2 reboots once every couple of days
-> 12-rc2-mm3 locked up within 30 mins using X using kmail/bogofilter
+Hi Andrew! Hi 1394 developers!
 
-Unpleasant.  Serial console would be nice ;)
+I have a bit of a problem with firewire. WIth 2.6.12-rc2-mm3 it does not
+recognize my external hard disk any more:
 
-> My serial console does not seem to want to work.  Has anything changed with this support?
-> 
+I use an external hard disk via firewire, and when I plug it in I get:
+vmunix: sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
+vmunix: Device not ready. Make sure there is a disc in the drive.
 
-Don't think so - it works OK here.  Checked the .config?  Does the serial
-port work if you do `echo foo > /dev/ttyS0'?  ACPI?
+With -mm2 it was working, also with older kernels.
 
+Now, there is also a problem with removing modules:
+
+I remove sbp2, works.
+
+Then I try to remove ohci1394 and it stucks:
+vmunix: rmmod         D C036EBC0     0  5310 5175                     (NOTLB)
+vmunix: cec79de8 00200246 cec79dd0 c036ebc0 cec79e18 d9c40500 dec808ec df7923bc 
+vmunix:        00000941 f7ae5f13 0000004d cf8dea90 cf8debb8 defc4058 cec78000 cec78000 
+vmunix:        cec79e3c c0305e08 00000000 cf8dea90 c0117bb0 00000000 00000000 defc4150 
+vmunix: Call Trace:
+vmunix:  [<c0305e08>] wait_for_completion+0x78/0xf0
+vmunix:  [<c0117bb0>] default_wake_function+0x0/0x10
+vmunix:  [<c0227c64>] class_dev_release+0x64/0x70
+vmunix:  [<c0117bb0>] default_wake_function+0x0/0x10
+vmunix:  [<c01c64db>] kobject_cleanup+0x8b/0xa0
+vmunix:  [<e096b400>] __nodemgr_remove_host_dev+0x0/0x10 [ieee1394]
+vmunix:  [<c02260cb>] device_del+0x1b/0x80
+vmunix:  [<c0226138>] device_unregister+0x8/0x10
+vmunix:  [<e096b3e0>] nodemgr_remove_ne+0x70/0x90 [ieee1394]
+vmunix:  [<e096b408>] __nodemgr_remove_host_dev+0x8/0x10 [ieee1394]
+vmunix:  [<c0226193>] device_for_each_child+0x33/0x50
+vmunix:  [<e096b422>] nodemgr_remove_host_dev+0x12/0x40 [ieee1394]
+kernel:  [exit_notify+766/2080] exit_notify+0x2fe/0x820
+vmunix:  [<e0968187>] __unregister_host+0xc7/0xd0 [ieee1394]
+vmunix:  [<c012f080>] autoremove_wake_function+0x0/0x50
+vmunix:  [<e0968bfb>] highlevel_remove_host+0x3b/0x70 [ieee1394]
+vmunix:  [<e0967b68>] hpsb_remove_host+0x38/0x60 [ieee1394]
+vmunix:  [<e095c3a0>] ohci1394_pci_remove+0x60/0x230 [ohci1394]
+vmunix:  [<c018c2a5>] sysfs_hash_and_remove+0xd5/0x105
+vmunix:  [<c01cf288>] pci_device_remove+0x28/0x30
+vmunix:  [<c022752f>] device_release_driver+0x7f/0x90
+vmunix:  [<c0227545>] __remove_driver+0x5/0x10
+vmunix:  [<c0227635>] driver_for_each_device+0x45/0x60
+vmunix:  [<c0227563>] driver_detach+0x13/0x15
+vmunix:  [<c0227540>] __remove_driver+0x0/0x10
+vmunix:  [<c0226fd6>] bus_remove_driver+0x26/0x40
+vmunix:  [<c022774b>] driver_unregister+0xb/0x20
+vmunix:  [<c01cf48b>] pci_unregister_driver+0xb/0x20
+vmunix:  [<e095c830>] ohci1394_cleanup+0x0/0xa [ohci1394]
+vmunix:  [<c0133a3d>] sys_delete_module+0x12d/0x160
+vmunix:  [<c014c29a>] unmap_vma_list+0x1a/0x30
+vmunix:  [<c014c60a>] do_munmap+0xfa/0x130
+vmunix:  [<c014c680>] sys_munmap+0x40/0x70
+vmunix:  [<c0103095>] syscall_call+0x7/0xb
+kernel:  [do_futex+53/144] do_futex+0x35/0x90
+
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
+sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+TINGRITH (n.)
+The feeling of silver paper against your fillings.
+			--- Douglas Adams, The Meaning of Liff

@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVDLNTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbVDLN1j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbVDLNTi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 09:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbVDLNEy
+	id S262459AbVDLN1j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 09:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbVDLNXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 09:04:54 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:19897 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262413AbVDLMtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:49:53 -0400
-Message-ID: <425BC3ED.9050202@yahoo.com.au>
-Date: Tue, 12 Apr 2005 22:49:49 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: [patch 4/9] blk: no memory barrier
-References: <425BC262.1070500@yahoo.com.au>
-In-Reply-To: <425BC262.1070500@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------050604070906030108020808"
+	Tue, 12 Apr 2005 09:23:54 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:22935 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S262459AbVDLNXM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 09:23:12 -0400
+Date: Tue, 12 Apr 2005 15:23:07 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: Re: Re: [ANNOUNCE] git-pasky-0.3
+Message-ID: <20050412132307.GH22614@pasky.ji.cz>
+References: <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz> <1113310045.23299.15.camel@nosferatu.lan> <20050412130250.GG22614@pasky.ji.cz> <1113311595.23299.17.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113311595.23299.17.camel@nosferatu.lan>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050604070906030108020808
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Dear diary, on Tue, Apr 12, 2005 at 03:13:15PM CEST, I got a letter
+where Martin Schlemmer <azarah@nosferatu.za.org> told me that...
+> On Tue, 2005-04-12 at 15:02 +0200, Petr Baudis wrote:
+> > Dear diary, on Tue, Apr 12, 2005 at 02:47:25PM CEST, I got a letter
+> > where Martin Schlemmer <azarah@nosferatu.za.org> told me that...
+> > > On Mon, 2005-04-11 at 15:57 +0200, Petr Baudis wrote:
+> > > >   Hello,
+> > > > 
+> > > >   here goes git-pasky-0.3, my set of patches and scripts upon
+> > > > Linus' git, aimed at human usability and to an extent a SCM-like usage.
+> > > > 
+> > > 
+> > > Its pretty dependant on where VERSION is located.  This patch fixes
+> > > that. (PS, I left the output of 'git diff' as is to ask about the
+> > > following stuff after the proper diff ...)
+> > 
+> > Thanks, applied. I don't understand your PS, though. :-)
+> > 
+> 
+> Heh, yeah I do that sometimes.  Basically should 'git diff' output
+> anything (besides maybe not added files like cvs ... sorry, do not know
+> after what you fashion it) like it does now?
 
-4/9
+Huh. Well, git diff without any arguments should just call show-diff.
+That is show your local uncommitted changes. It doesn't show the locally
+added/removed files yet for several reasons, but it's being worked on.
+:-)
 
 -- 
-SUSE Labs, Novell Inc.
-
---------------050604070906030108020808
-Content-Type: text/plain;
- name="blk-no-mb.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="blk-no-mb.patch"
-
-This memory barrier is not needed because the waitqueue will only get
-waiters on it in the following situations:
-
-rq->count has exceeded the threshold - however all manipulations of ->count
-are performed under the runqueue lock, and so we will correctly pick up any
-waiter.
-
-Memory allocation for the request fails. In this case, there is no additional
-help provided by the memory barrier. We are guaranteed to eventually wake
-up waiters because the request allocation mempool guarantees that if the mem
-allocation for a request fails, there must be some requests in flight. They
-will wake up waiters when they are retired.
-
-Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-
-
-Index: linux-2.6/drivers/block/ll_rw_blk.c
-===================================================================
---- linux-2.6.orig/drivers/block/ll_rw_blk.c	2005-04-12 22:05:44.000000000 +1000
-+++ linux-2.6/drivers/block/ll_rw_blk.c	2005-04-12 22:26:13.000000000 +1000
-@@ -1828,7 +1828,6 @@ static void __freed_request(request_queu
- 		clear_queue_congested(q, rw);
- 
- 	if (rl->count[rw] + 1 <= q->nr_requests) {
--		smp_mb();
- 		if (waitqueue_active(&rl->wait[rw]))
- 			wake_up(&rl->wait[rw]);
- 
-
---------------050604070906030108020808--
-
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

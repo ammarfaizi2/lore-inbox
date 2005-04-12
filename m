@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVDLMos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVDLMw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVDLMos (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:44:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVDLMoh
+	id S262440AbVDLMw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVDLMsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:44:37 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:55467 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262353AbVDLMnN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:43:13 -0400
-Subject: Re: [PATCH 6/6]suspend/resume SMP support
-From: Li Shaohua <shaohua.li@intel.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050412105115.GD17903@elf.ucw.cz>
-References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
-	 <20050412105115.GD17903@elf.ucw.cz>
-Content-Type: text/plain
-Message-Id: <1113309627.5155.3.camel@sli10-desk.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 12 Apr 2005 20:40:27 +0800
+	Tue, 12 Apr 2005 08:48:38 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:16587 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262387AbVDLMr3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 08:47:29 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [xfs-masters] swsusp vs. xfs [was Re: 2.6.12-rc2-mm1]
+Date: Tue, 12 Apr 2005 14:47:20 +0200
+User-Agent: KMail/1.7.1
+Cc: Nathan Scott <nathans@sgi.com>, "Barry K. Nathan" <barryn@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       hare@suse.de, linux-xfs@oss.sgi.com
+References: <20050406142749.6065b836.akpm@osdl.org> <20050411231213.GD702@frodo> <20050411235110.GA2472@elf.ucw.cz>
+In-Reply-To: <20050411235110.GA2472@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504121447.21774.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-12 at 18:51, Pavel Machek wrote:
-> > Using CPU hotplug to support suspend/resume SMP. Both S3 and S4 use
-> > disable/enable_nonboot_cpus API. The S4 part is based on Pavel's
-> > original S4 SMP patch.
-> 
-> I tested it on 2x PII(?) 550MHz system. Suspend went ok, resume loaded
-> image from disk, but then I got
-> 
-> Thawing cpus ....
-> Booting processor 1/0 eip 3000
-> 
-> ...and very funny effect on keyboard leds. They started to blink
-> (panic-like), but with very wrong frequency. It looked like 2 cpus
-> doing panic blinks at once...
-Check if /sys/device/system/cpu/cpu1/online attribute works. If it
-works, then it's other issue. I only tested the patches in two HT based
-systems.
+Hi,
 
-Thanks,
-Shaohua
+On Tuesday, 12 of April 2005 01:51, Pavel Machek wrote:
+]--snip--[ 
+> > Since the refrigerator() call is in place in the main xfsbufd loop,
+> > I suspect we're hitting that second case here, where a low memory
+> > situation is resulting in someone attempting to wakeup xfsbufd --
+> > I'm not sure if this is the right way to check if we're in that
+> > state, but does this patch help?  (it would certainly prevent the
+> > spurious wakeups, but only if the caller has PF_FREEZE set - will
+> > that be the case here?)
+> 
+> I should take some sleep now, so I can't test the patch, but I don't
+> think it will help. If someone has PF_FREEZE set, he should be in
+> refrigerator.
 
+Or he was in TASK_UNINTERRUPTIBLE while processes were being frozen. :-)
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

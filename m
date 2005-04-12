@@ -1,51 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262987AbVDLVWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262998AbVDLVSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbVDLVWF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:22:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbVDLVUg
+	id S262998AbVDLVSH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVDLVKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:20:36 -0400
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:62728 "EHLO
-	wwwood.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S262987AbVDLVKv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:10:51 -0400
-Date: Tue, 12 Apr 2005 23:10:40 +0200
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Marcin Dalecki <martin@dalecki.de>, lm@bitmover.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-Message-ID: <20050412211038.GB8530@hout.vanvergehaald.nl>
-References: <20050412021723.26C855F7E9@work.bitmover.com> <464c882425f31b7c294abc1d47c78b47@dalecki.de> <Pine.LNX.4.62.0504121714360.2572@dragon.hyggekrogen.localhost>
+	Tue, 12 Apr 2005 17:10:38 -0400
+Received: from fire.osdl.org ([65.172.181.4]:43727 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262987AbVDLVIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 17:08:18 -0400
+Date: Tue, 12 Apr 2005 14:08:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: incoming
+Message-Id: <20050412140800.43d45d01.akpm@osdl.org>
+In-Reply-To: <20050412215526.B11984@flint.arm.linux.org.uk>
+References: <20050412032322.72d73771.akpm@osdl.org>
+	<20050412215526.B11984@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504121714360.2572@dragon.hyggekrogen.localhost>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 05:19:34PM +0200, Jesper Juhl wrote:
-> On Tue, 12 Apr 2005, Marcin Dalecki wrote:
-> > On 2005-04-12, at 04:17, Larry McVoy wrote whatever...
-> > 
-> > Excuse me, but: who gives a damn shit?
-> 
-> Lots of people do; those who use bitkeeper, and even people (like me) who 
-> don't use it to manage source but still use the info at bkbits.net to 
-> track what patches got merged etc.
-> 
-> Ohh and by the way, Larry doesn't deserve comments like that. He's done a 
-> lot of hard work for everyone here (not to mention spent a lot of money) 
-> and he's provided an excellent tool. He deserves gratitude and respect, 
-> not childish BS like the above.
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>
+> I don't see a patch which adds linux/pm.h to linux/sysdev.h, which is
+>  required to fix ARM builds in -rc2 and onwards kernels.
 
-I agree wholeheartedly.
-
-But... I think someone is trolling here.
-I mean: who makes a spelling error in his own first name?  ;-)
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+That fix is buried in [patch 105/198]

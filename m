@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVDLLT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbVDLLYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbVDLLT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbVDLLQz
+	id S262349AbVDLLYM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVDLLXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:16:55 -0400
-Received: from fire.osdl.org ([65.172.181.4]:203 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262296AbVDLKd4 (ORCPT
+	Tue, 12 Apr 2005 07:23:22 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53227 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262268AbVDLKvu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:56 -0400
-Message-Id: <200504121033.j3CAXgHl005953@shell0.pdx.osdl.net>
-Subject: [patch 197/198] md: close a small race in md thread deregistration
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, neilb@cse.unsw.edu.au
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:36 -0700
+	Tue, 12 Apr 2005 06:51:50 -0400
+Date: Tue, 12 Apr 2005 12:51:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 6/6]suspend/resume SMP support
+Message-ID: <20050412105115.GD17903@elf.ucw.cz>
+References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-From: NeilBrown <neilb@cse.unsw.edu.au>
+> Using CPU hotplug to support suspend/resume SMP. Both S3 and S4 use
+> disable/enable_nonboot_cpus API. The S4 part is based on Pavel's
+> original S4 SMP patch.
 
-There is a tiny race when de-registering an MD thread, in that the thread
-could disappear before it is set a SIGKILL, causing send_sig to have
-problems.  
+I tested it on 2x PII(?) 550MHz system. Suspend went ok, resume loaded
+image from disk, but then I got
 
-This is most easily closed by holding tasklist_lock between enabling the
-thread to exit (setting ->run to NULL) and telling it to exit.
+Thawing cpus ....
+Booting processor 1/0 eip 3000
 
-(akpm: ick.  Needs to use kthread API and stop using signals)
+...and very funny effect on keyboard leds. They started to blink
+(panic-like), but with very wrong frequency. It looked like 2 cpus
+doing panic blinks at once...
 
-Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+								Pavel
 
- 25-akpm/drivers/md/md.c |   20 ++++++++------------
- 1 files changed, 8 insertions(+), 12 deletions(-)
-
-diff -puN drivers/md/md.c~md-close-a-small-race-in-md-thread-deregistration drivers/md/md.c
---- 25/drivers/md/md.c~md-close-a-small-race-in-md-thread-deregistration	2005-04-12 03:21:50.230500704 -0700
-+++ 25-akpm/drivers/md/md.c	2005-04-12 03:21:50.236499792 -0700
-@@ -2840,16 +2840,6 @@ mdk_thread_t *md_register_thread(void (*
- 	return thread;
- }
- 
--static void md_interrupt_thread(mdk_thread_t *thread)
--{
--	if (!thread->tsk) {
--		MD_BUG();
--		return;
--	}
--	dprintk("interrupting MD-thread pid %d\n", thread->tsk->pid);
--	send_sig(SIGKILL, thread->tsk, 1);
--}
--
- void md_unregister_thread(mdk_thread_t *thread)
- {
- 	struct completion event;
-@@ -2857,9 +2847,15 @@ void md_unregister_thread(mdk_thread_t *
- 	init_completion(&event);
- 
- 	thread->event = &event;
-+
-+	/* As soon as ->run is set to NULL, the task could disappear,
-+	 * so we need to hold tasklist_lock until we have sent the signal
-+	 */
-+	dprintk("interrupting MD-thread pid %d\n", thread->tsk->pid);
-+	read_lock(&tasklist_lock);
- 	thread->run = NULL;
--	thread->name = NULL;
--	md_interrupt_thread(thread);
-+	send_sig(SIGKILL, thread->tsk, 1);
-+	read_unlock(&tasklist_lock);
- 	wait_for_completion(&event);
- 	kfree(thread);
- }
-_
+-- 
+Boycott Kodak -- for their patent abuse against Java.

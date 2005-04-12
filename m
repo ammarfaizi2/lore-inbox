@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262996AbVDLVqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263010AbVDLVaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262996AbVDLVqU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:46:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263016AbVDLVm6
+	id S263010AbVDLVaC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:30:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVDLV0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:42:58 -0400
-Received: from main.gmane.org ([80.91.229.2]:44688 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S263015AbVDLVkc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:40:32 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: AOE and large filesystems?
-Date: Tue, 12 Apr 2005 17:37:01 -0400
-Message-ID: <877jj73cea.fsf@coraid.com>
-References: <pan.2005.04.05.20.44.39.37209@dcs.nac.uci.edu>
+	Tue, 12 Apr 2005 17:26:22 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:55803 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263007AbVDLVZV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 17:25:21 -0400
+Subject: Re: FUSYN and RT
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: joe.korty@ccur.com
+Cc: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
+       mingo@elte.hu
+In-Reply-To: <20050412203329.GA15304@tsunami.ccur.com>
+References: <1113329702.23407.148.camel@dhcp153.mvista.com>
+	 <20050412203329.GA15304@tsunami.ccur.com>
+Content-Type: text/plain
+Organization: MontaVista
+Message-Id: <1113341119.6389.3.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Dan Stromberg <strombrg@dcs.nac.uci.edu>
-X-Gmane-NNTP-Posting-Host: adsl-34-234-30.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:r1BZeTg1xhSc4C1rJl/8tJFVKSE=
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 Apr 2005 14:25:19 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Stromberg <strombrg@dcs.nac.uci.edu> writes:
+On Tue, 2005-04-12 at 13:33, Joe Korty wrote:
+> On Tue, Apr 12, 2005 at 11:15:02AM -0700, Daniel Walker wrote:
+> 
+> > It seems like these two locks are going to interact on a very limited
+> > basis. Fusyn will be the user space mutex, and the RT mutex is only in
+> > the kernel. You can't lock an RT mutex and hold it, then lock a Fusyn
+> > mutex (anyone disagree?). That is assuming Fusyn stays in user space.
+> 
+> Well yeah, but you could lock a fusyn, then invoke a system call which
+> locks a kernel semaphore.
 
-> Some questions for the list:
->
-> 1) Is anyone on the list using AOE in production?
 
-I don't know of any AoE users that read the lkml.  Except me, of
-course.
+Right .. For deadlock detection, I want to assume that the fusyn lock is
+on the outer level. That way both deadlock detection system will work
+properly (in theory).
 
-> 2) Is anyone on the list using AOE in combination with md and/or LVM2?
-
-Yes, most AoE users use md.  Many use LVM2, but a couple have had
-trouble with striped volume groups.
-
-> 3) Is anyone on the list using AOE on a 64 bit platform?
-
-People are using AoE on 64 bit platforms and not reading the lkml.  :)
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
+Daniel 
 

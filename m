@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVDLJmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVDLJos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262084AbVDLJmW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 05:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVDLJmW
+	id S262089AbVDLJos (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 05:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVDLJos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 05:42:22 -0400
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:3539 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S262084AbVDLJmP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 05:42:15 -0400
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Tue, 12 Apr 2005 11:41:48 +0200
-MIME-Version: 1.0
-Subject: throttling kernel messages: KERNEL: assertion (flags & MSG_PEEK) failed at net/ipv4/tcp.c (1282)
-Message-ID: <425BB3FC.154.BAE5FC@rkdvmks1.ngate.uni-regensburg.de>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-P=3.92.0+V=3.92+U=2.07.092+R=04 April 2005+T=102704@20050412.092805Z
+	Tue, 12 Apr 2005 05:44:48 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5785 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262085AbVDLJob (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 05:44:31 -0400
+Date: Tue, 12 Apr 2005 11:43:54 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 6/6]suspend/resume SMP support
+Message-ID: <20050412094354.GD1352@elf.ucw.cz>
+References: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113283867.27646.434.camel@sli10-desk.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I'm affected by the (in)famous bug:
-Apr 12 07:03:02 mailgate kernel: recvmsg bug: copied D640F0D1 seq D640F679
-Apr 12 07:03:02 mailgate kernel: KERNEL: assertion (flags & MSG_PEEK) failed at 
-net/ipv4/tcp.c (1282)
-Apr 12 07:03:02 mailgate kernel: recvmsg bug: copied D640F0D1 seq D640F679
-Apr 12 07:03:02 mailgate kernel: KERNEL: assertion (flags & MSG_PEEK) failed at 
-net/ipv4/tcp.c (1282)
+> Using CPU hotplug to support suspend/resume SMP. Both S3 and S4 use
+> disable/enable_nonboot_cpus API. The S4 part is based on Pavel's
+> original S4 SMP patch.
 
-(Kernel of SuSE Linux 9.2, 2.6.8-24.13-default #1 Fri Mar 18 10:19:42 UTC 2005 
-i686 i686 i386 GNU/Linux)
+The series looks good to me, but I was not yet able to actually try
+it. Will try to do that in few hours.
+								Pavel
 
-The kernel spits out hundreds to thousand messages per second, making klogd and 
-syslogd quite busy, and my messages file stopped growing at 2GB.
-
-I'd suggest to enable throttling for this message, or trigger a panic/reboot, or 
-maybe even fix the bug or message. ;-)
-
-Regards,
-Ulrich
-
+-- 
+Boycott Kodak -- for their patent abuse against Java.

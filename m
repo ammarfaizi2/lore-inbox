@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVDLLeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVDLLh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbVDLLeU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVDLLdO
+	id S262341AbVDLLh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVDLLfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:33:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:39362 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262239AbVDLLTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 07:19:09 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1113288087.4319.49.camel@localhost.localdomain>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113288087.4319.49.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 12 Apr 2005 12:18:35 +0100
+	Tue, 12 Apr 2005 07:35:22 -0400
+Received: from mail.aei.ca ([206.123.6.14]:55494 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S262341AbVDLLcc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 07:32:32 -0400
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc2-mm3
+Date: Tue, 12 Apr 2005 07:32:24 -0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050411012532.58593bc1.akpm@osdl.org>
+In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200504120732.24440.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 2005-04-12 at 07:41, Mingming Cao wrote:
-
-> > Note that this may improve average case latencies, but it's not likely
-> > to improve worst-case ones.  We still need a write lock to install a new
-> > window, and that's going to have to wait for us to finish finding a free
-> > bit even if that operation starts using a read lock.  
-> > 
-> Yes indeed. However nothing is free and there are always trade-offs.:) 
+On Monday 11 April 2005 04:25, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
 > 
-> By worse case you mean multiple writes trying to allocate blocks around
-> same area?
+> 
+> - The anticipatory I/O scheduler has always been fairly useless with SCSI
+>   disks which perform tagged command queueing.  There's a patch here from Jens
+>   which is designed to fix that up by constraining the number of requests
+>   which we'll leave pending in the device.
+> 
+>   The depth currently defaults to 1.  Tunable in
+>   /sys/block/hdX/queue/iosched/queue_depth
+> 
+>   This patch hasn't been performance tested at all yet.  If you think it is
+>   misbehaving (the usual symptom is processes stuck in D state) then please
+>   report it, then boot with `elevator=cfq' or `elevator=deadline' to work
+>   around it.
+> 
+> - More CPU scheduler work.  I hope someone is testing this stuff.
 
-It doesn't matter where they are; multiple new file opens will all be
-looking for a write lock.  You only need one long-held read lock and all
-the writers still block.  The worst-case latencies can't be properly
-solved with r/w locks --- those let the readers go more quickly
-(assuming they are in the majority), which helps the average case, but
-writers still have to wait for exclusive access.  We only really help
-them by dropping the lock entirely.
+Something is not quite right here.  I built rc2-mm3 and booted (uni processor, amd64, preempt on).  
+mm3 lasted about 30 mins before locking up with a dead keyboard.  I had mm2 reboot a few times
+over the last couple of days too.  
 
-> Even if we take out the whole
-> reservation, we still possibility run into this kind of latency: the
-> bitmap on disk and on journal are extremely inconsistent so we need to
-> keep searching them both until we find a free bit on both map.
+11-mm3 uptime of 2 weeks+
+12-rc2-mm2 reboots once every couple of days
+12-rc2-mm3 locked up within 30 mins using X using kmail/bogofilter
 
-Quite possibly.  But as long as that code is running without locks, it's
-much easier to deal with those latencies: they won't impact other CPUs,
-cond_resched() is easier, and there's even CONFIG_PREEMPT.
+My serial console does not seem to want to work.  Has anything changed with this support?
 
-> > I'm not really sure what to do about worst-case here.  For that, we
-> > really do want to drop the lock entirely while we do the bitmap scan.
-
-> Hmm...if we drop the lock entirely while scan the bitmap, assuming you
-> mean drop the read lock, then I am afraid we have to re-check the tree
-> (require a read or write lock ) to see if the new window space is still
-> there after the scan succeed.
-
-Sure.  You basically start off with a provisional window, and then if
-necessary roll it forward just the same way you roll normal windows
-forward when they get to their end.  That means you can still drop the
-lock while you search for new space.  When you get there, reacquire the
-lock and check that the intervening space is still available.
-
-That's really cheap for the common case.  The difficulty is when you
-have many parallel allocations hitting the same bg: they allocate
-provisional windows, find the same free area later on in the bg, and
-then stomp on each other as they try to move their windows there.
-
-I wonder if there's not a simple solution for this --- mark the window
-as "provisional", and if any other task tries to allocate in the space
-immediately following such a window, it needs to block until that window
-is released.
-
---Stephen
+TIA,
+Ed Tomlinson
 

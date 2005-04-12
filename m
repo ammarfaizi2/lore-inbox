@@ -1,93 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVDLSka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVDLSkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262300AbVDLSka (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVDLSiS
+	id S262543AbVDLSkV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVDLShe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:38:18 -0400
-Received: from fire.osdl.org ([65.172.181.4]:4043 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262301AbVDLKeB (ORCPT
+	Tue, 12 Apr 2005 14:37:34 -0400
+Received: from fire.osdl.org ([65.172.181.4]:6859 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262304AbVDLKeF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:34:01 -0400
-Message-Id: <200504121033.j3CAXbpP005926@shell0.pdx.osdl.net>
-Subject: [patch 191/198] jbd dirty buffer leak fix
+	Tue, 12 Apr 2005 06:34:05 -0400
+Message-Id: <200504121033.j3CAXPWV005874@shell0.pdx.osdl.net>
+Subject: [patch 178/198] IB/mthca: allow address handle creation in interrupt context
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, sct@redhat.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:30 -0700
+Date: Tue, 12 Apr 2005 03:33:19 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+From: Roland Dreier <roland@topspin.com>
 
-This fixes the lots-of-fsx-linux-instances-cause-a-slow-leak bug.
+Make address handle verbs usable from interrupt context.
 
-It's been there since 2.6.6, caused by:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5/2.6.5-mm4/broken-out/jbd-move-locked-buffers.patch
-
-That patch moves under-writeout ordered-data buffers onto a separate journal
-list during commit.  It took out the old code which was based on a single
-list.
-
-The old code (necessarily) had logic which would restart I/O against buffers
-which had been redirtied while they were on the committing transaction's
-t_sync_datalist list.  The new code only writes buffers once, ignoring
-redirtyings by a later transaction, which is good.
-
-But over on the truncate side of things, in journal_unmap_buffer(), we're
-treating buffers on the t_locked_list as inviolable things which belong to the
-committing transaction, and we just leave them alone during concurrent
-truncate-vs-commit.
-
-The net effect is that when truncate tries to invalidate a page whose buffers
-are on t_locked_list and have been redirtied, journal_unmap_buffer() just
-leaves those buffers alone.  truncate will remove the page from its mapping
-and we end up with an anonymous clean page with dirty buffers, which is an
-illegal state for a page.  The JBD commit will not clean those buffers as they
-are removed from t_locked_list.  The VM (try_to_free_buffers) cannot reclaim
-these pages.
-
-The patch teaches journal_unmap_buffer() about buffers which are on the
-committing transaction's t_locked_list.  These buffers have been written and
-I/O has completed.  We can take them off the transaction and undirty them
-within the context of journal_invalidatepage()->journal_unmap_buffer().
-
-Acked-by: "Stephen C. Tweedie" <sct@redhat.com>
+Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/fs/jbd/transaction.c |   13 +++++++++++--
- 1 files changed, 11 insertions(+), 2 deletions(-)
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_av.c       |    6 +++---
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_provider.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff -puN fs/jbd/transaction.c~jbd-dirty-buffer-leak-fix fs/jbd/transaction.c
---- 25/fs/jbd/transaction.c~jbd-dirty-buffer-leak-fix	2005-04-12 03:21:48.891704232 -0700
-+++ 25-akpm/fs/jbd/transaction.c	2005-04-12 03:21:48.895703624 -0700
-@@ -1812,7 +1812,17 @@ static int journal_unmap_buffer(journal_
- 			}
- 		}
- 	} else if (transaction == journal->j_committing_transaction) {
--		/* If it is committing, we simply cannot touch it.  We
-+		if (jh->b_jlist == BJ_Locked) {
-+			/*
-+			 * The buffer is on the committing transaction's locked
-+			 * list.  We have the buffer locked, so I/O has
-+			 * completed.  So we can nail the buffer now.
-+			 */
-+			may_free = __dispose_buffer(jh, transaction);
-+			goto zap_buffer;
-+		}
-+		/*
-+		 * If it is committing, we simply cannot touch it.  We
- 		 * can remove it's next_transaction pointer from the
- 		 * running transaction if that is set, but nothing
- 		 * else. */
-@@ -1887,7 +1897,6 @@ int journal_invalidatepage(journal_t *jo
- 		unsigned int next_off = curr_off + bh->b_size;
- 		next = bh->b_this_page;
+diff -puN drivers/infiniband/hw/mthca/mthca_av.c~ib-mthca-allow-address-handle-creation-in-interrupt-context drivers/infiniband/hw/mthca/mthca_av.c
+--- 25/drivers/infiniband/hw/mthca/mthca_av.c~ib-mthca-allow-address-handle-creation-in-interrupt-context	2005-04-12 03:21:45.821171024 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_av.c	2005-04-12 03:21:45.826170264 -0700
+@@ -63,7 +63,7 @@ int mthca_create_ah(struct mthca_dev *de
+ 	ah->type = MTHCA_AH_PCI_POOL;
  
--		/* AKPM: doing lock_buffer here may be overly paranoid */
- 		if (offset <= curr_off) {
- 		 	/* This block is wholly outside the truncation point */
- 			lock_buffer(bh);
+ 	if (dev->hca_type == ARBEL_NATIVE) {
+-		ah->av   = kmalloc(sizeof *ah->av, GFP_KERNEL);
++		ah->av   = kmalloc(sizeof *ah->av, GFP_ATOMIC);
+ 		if (!ah->av)
+ 			return -ENOMEM;
+ 
+@@ -77,7 +77,7 @@ int mthca_create_ah(struct mthca_dev *de
+ 		if (index == -1)
+ 			goto on_hca_fail;
+ 
+-		av = kmalloc(sizeof *av, GFP_KERNEL);
++		av = kmalloc(sizeof *av, GFP_ATOMIC);
+ 		if (!av)
+ 			goto on_hca_fail;
+ 
+@@ -89,7 +89,7 @@ int mthca_create_ah(struct mthca_dev *de
+ on_hca_fail:
+ 	if (ah->type == MTHCA_AH_PCI_POOL) {
+ 		ah->av = pci_pool_alloc(dev->av_table.pool,
+-					SLAB_KERNEL, &ah->avdma);
++					SLAB_ATOMIC, &ah->avdma);
+ 		if (!ah->av)
+ 			return -ENOMEM;
+ 
+diff -puN drivers/infiniband/hw/mthca/mthca_provider.c~ib-mthca-allow-address-handle-creation-in-interrupt-context drivers/infiniband/hw/mthca/mthca_provider.c
+--- 25/drivers/infiniband/hw/mthca/mthca_provider.c~ib-mthca-allow-address-handle-creation-in-interrupt-context	2005-04-12 03:21:45.823170720 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-12 03:21:45.827170112 -0700
+@@ -315,7 +315,7 @@ static struct ib_ah *mthca_ah_create(str
+ 	int err;
+ 	struct mthca_ah *ah;
+ 
+-	ah = kmalloc(sizeof *ah, GFP_KERNEL);
++	ah = kmalloc(sizeof *ah, GFP_ATOMIC);
+ 	if (!ah)
+ 		return ERR_PTR(-ENOMEM);
+ 
 _

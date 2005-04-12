@@ -1,119 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVDLTUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVDLTZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262587AbVDLTUw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVDLTUv
+	id S262200AbVDLTZW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbVDLTSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:20:51 -0400
-Received: from fire.osdl.org ([65.172.181.4]:27849 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262201AbVDLKcZ (ORCPT
+	Tue, 12 Apr 2005 15:18:08 -0400
+Received: from fire.osdl.org ([65.172.181.4]:38345 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262112AbVDLKca (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:25 -0400
-Message-Id: <200504121032.j3CAW8dV005514@shell0.pdx.osdl.net>
-Subject: [patch 095/198] x86_64: Keep only a single debug notifier chain
+	Tue, 12 Apr 2005 06:32:30 -0400
+Message-Id: <200504121032.j3CAWHoj005549@shell0.pdx.osdl.net>
+Subject: [patch 103/198] x86, x86_64: dual core proc-cpuinfo and sibling-map fix
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de,
-       jbeulich@novell.com, jfv@bluesong.net, jim.houston@ccur.com,
-       kaos@sgi.com, prasanna@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, suresh.b.siddha@intel.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:02 -0700
+Date: Tue, 12 Apr 2005 03:32:11 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "Andi Kleen" <ak@suse.de>
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
 
-Calling a notifier three times in the debug handler does not make much sense,
-because a debugger can figure out the various conditions by itself.  Remove
-the additional calls to DIE_DEBUG and DIE_DEBUGSTEP completely.
+- broken sibling_map setup in x86_64
 
-This matches what i386 does now.
+- grouping all the core and HT related cpuinfo fields.
+  We are reasonably sure that adding new cpuinfo fields after "siblings" field,
+  will not cause any app failure. Thats because today's /proc/cpuinfo
+  format is completely different on x86, x86_64 and we haven't heard of any
+  x86 app breakage because of this issue. Grouping these fields will 
+  result in more or less common format on all architectures (ia64, x86 and 
+  x86_64) and will cause less confusion.
 
-This also makes sure interrupts are always still disabled when calling a
-debugger, which prevents:
-
-BUG: using smp_processor_id() in preemptible [00000001] code: tpopf/1470
-caller is post_kprobe_handler+0x9/0x70
-
-Call Trace:<ffffffff8024f10f>{smp_processor_id+191} <ffffffff80120e69>{post_kpro
-be_handler+9} 
-<ffffffff80120f7a>{kprobe_exceptions_notify+58} 
-<ffffffff80144fc0>{notifier_call_chain+32} <ffffffff80110daf>{do_debug+335} 
-<ffffffff8010f513>{debug+127}  <EOE> 
-
-on preemptible debug kernels with kprobes when single stepping in user space.
-
-This was probably a bug even on non preempt kernels, this function was
-supposed to be running with interrupts off according to a comment there.
-
-Note to third part debugger maintainers: please double check your debugger can
-still single step.
-
-Cc: <prasanna@in.ibm.com>
-Cc: <jbeulich@novell.com>
-Cc: <kaos@sgi.com>
-Cc: <jim.houston@ccur.com>
-Cc: <jfv@bluesong.net>
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/x86_64/kernel/traps.c  |   14 +++-----------
- 25-akpm/include/asm-x86_64/kdebug.h |    1 -
- 2 files changed, 3 insertions(+), 12 deletions(-)
+ 25-akpm/arch/i386/kernel/cpu/proc.c  |    9 ++-------
+ 25-akpm/arch/x86_64/kernel/setup.c   |   11 +++--------
+ 25-akpm/arch/x86_64/kernel/smpboot.c |    2 +-
+ 3 files changed, 6 insertions(+), 16 deletions(-)
 
-diff -puN arch/x86_64/kernel/traps.c~x86_64-keep-only-a-single-debug-notifier-chain arch/x86_64/kernel/traps.c
---- 25/arch/x86_64/kernel/traps.c~x86_64-keep-only-a-single-debug-notifier-chain	2005-04-12 03:21:25.729225464 -0700
-+++ 25-akpm/arch/x86_64/kernel/traps.c	2005-04-12 03:21:25.734224704 -0700
-@@ -659,9 +659,9 @@ asmlinkage void do_debug(struct pt_regs 
- 	asm("movq %%db6,%0" : "=r" (condition));
+diff -puN arch/i386/kernel/cpu/proc.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix arch/i386/kernel/cpu/proc.c
+--- 25/arch/i386/kernel/cpu/proc.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix	2005-04-12 03:21:27.681928608 -0700
++++ 25-akpm/arch/i386/kernel/cpu/proc.c	2005-04-12 03:21:27.687927696 -0700
+@@ -98,6 +98,8 @@ static int show_cpuinfo(struct seq_file 
+ 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
+ 		seq_printf(m, "siblings\t: %d\n",
+ 				c->x86_num_cores * smp_num_siblings);
++		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[n]);
++		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+ 	}
+ #endif
+ 	
+@@ -130,13 +132,6 @@ static int show_cpuinfo(struct seq_file 
+ 		     c->loops_per_jiffy/(500000/HZ),
+ 		     (c->loops_per_jiffy/(5000/HZ)) % 100);
  
- 	if (notify_die(DIE_DEBUG, "debug", regs, condition, error_code,
--						SIGTRAP) == NOTIFY_STOP) {
-+						SIGTRAP) == NOTIFY_STOP)
- 		return;
--	}
-+
- 	conditional_sti(regs);
- 
- 	/* Mask out spurious debug traps due to lazy DR7 setting */
-@@ -674,9 +674,7 @@ asmlinkage void do_debug(struct pt_regs 
- 	tsk->thread.debugreg6 = condition;
- 
- 	/* Mask out spurious TF errors due to lazy TF clearing */
--	if ((condition & DR_STEP) &&
--	    (notify_die(DIE_DEBUGSTEP, "debugstep", regs, condition,
--			1, SIGTRAP) != NOTIFY_STOP)) {
-+	if (condition & DR_STEP) {
- 		/*
- 		 * The TF error should be masked out only if the current
- 		 * process is not traced and if the TRAP flag has been set
-@@ -711,16 +709,10 @@ asmlinkage void do_debug(struct pt_regs 
- 	force_sig_info(SIGTRAP, &info, tsk);	
- clear_dr7:
- 	asm volatile("movq %0,%%db7"::"r"(0UL));
--	notify_die(DIE_DEBUG, "debug", regs, condition, 1, SIGTRAP);
- 	return;
- 
- clear_TF_reenable:
- 	set_tsk_thread_flag(tsk, TIF_SINGLESTEP);
+-#ifdef CONFIG_SMP
+-	/* Put new fields at the end to lower the probability of
+-	   breaking user space parsers. */
+-	seq_printf(m, "core id\t\t: %d\n", cpu_core_id[n]);
+-	seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+-#endif
 -
--clear_TF:
--	/* RED-PEN could cause spurious errors */
--	if (notify_die(DIE_DEBUG, "debug2", regs, condition, 1, SIGTRAP) 
--								!= NOTIFY_STOP)
- 	regs->eflags &= ~TF_MASK;
+ 	return 0;
  }
  
-diff -puN include/asm-x86_64/kdebug.h~x86_64-keep-only-a-single-debug-notifier-chain include/asm-x86_64/kdebug.h
---- 25/include/asm-x86_64/kdebug.h~x86_64-keep-only-a-single-debug-notifier-chain	2005-04-12 03:21:25.730225312 -0700
-+++ 25-akpm/include/asm-x86_64/kdebug.h	2005-04-12 03:21:25.734224704 -0700
-@@ -23,7 +23,6 @@ enum die_val { 
- 	DIE_OOPS = 1,
- 	DIE_INT3,
- 	DIE_DEBUG,
--	DIE_DEBUGSTEP,
- 	DIE_PANIC,
- 	DIE_NMI,
- 	DIE_DIE,
+diff -puN arch/x86_64/kernel/setup.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix arch/x86_64/kernel/setup.c
+--- 25/arch/x86_64/kernel/setup.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix	2005-04-12 03:21:27.683928304 -0700
++++ 25-akpm/arch/x86_64/kernel/setup.c	2005-04-12 03:21:27.688927544 -0700
+@@ -1152,6 +1152,8 @@ static int show_cpuinfo(struct seq_file 
+ 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[cpu]);
+ 		seq_printf(m, "siblings\t: %d\n",
+ 				c->x86_num_cores * smp_num_siblings);
++		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[cpu]);
++		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+ 	}
+ #endif	
+ 
+@@ -1195,15 +1197,8 @@ static int show_cpuinfo(struct seq_file 
+ 			}
+ 	}
+ 
+-	seq_printf(m, "\n");
++	seq_printf(m, "\n\n");
+ 
+-#ifdef CONFIG_SMP
+-	/* Put new fields at the end to lower the probability of
+-	   breaking user space parsers. */
+-	seq_printf(m, "core id\t\t: %d\n", cpu_core_id[c - cpu_data]);
+-	seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+-#endif
+-	seq_printf(m, "\n");
+ 	return 0;
+ }
+ 
+diff -puN arch/x86_64/kernel/smpboot.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix arch/x86_64/kernel/smpboot.c
+--- 25/arch/x86_64/kernel/smpboot.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix	2005-04-12 03:21:27.684928152 -0700
++++ 25-akpm/arch/x86_64/kernel/smpboot.c	2005-04-12 03:21:27.689927392 -0700
+@@ -652,7 +652,7 @@ static __cpuinit void detect_siblings(vo
+ 		int i;
+ 		if (smp_num_siblings > 1) {
+ 			for_each_online_cpu (i) {
+-				if (cpu_core_id[cpu] == phys_proc_id[i]) {
++				if (cpu_core_id[cpu] == cpu_core_id[i]) {
+ 					siblings++;
+ 					cpu_set(i, cpu_sibling_map[cpu]);
+ 				}
 _

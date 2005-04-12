@@ -1,88 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbVDLFzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVDLF4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbVDLFzO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 01:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVDLFxP
+	id S262071AbVDLF4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 01:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVDLF4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 01:53:15 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:33388 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262033AbVDLFvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 01:51:43 -0400
-Message-ID: <425B61DD.60700@yahoo.com.au>
-Date: Tue, 12 Apr 2005 15:51:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org> <20050411220013.23416d5f.akpm@osdl.org>
-In-Reply-To: <20050411220013.23416d5f.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 01:56:07 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:36257 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262064AbVDLFyH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 01:54:07 -0400
+Date: Mon, 11 Apr 2005 22:42:29 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: ak@muc.de, akpm@osdl.org
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: [patch] x86, x86_64: dual core proc-cpuinfo and sibling-map fix
+Message-ID: <20050411224228.A5445@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Appended patch fixes
 
->
->So it turns out that patch was broken.  I've fixed it locally and the
->results are good, but odd.
->
->The machine is a 4GB x86_64 with aic79xx controllers and MAXTOR
->ATLAS10K4_73WLS disks.  ext2 filesystem.
->
->The workload is continuous pagecache writeback versus
->read-lots-of-little-files:
->
->	while true
->	do
->		dd if=/dev/zero of=/mnt/sdb2/x bs=40M count=100 conv=notrunc
->	done
->
->versus
->
->	find /mnt/sdb2/linux-2.4.25 -type f | xargs cat > /dev/null
->
->we measure how long the find+cat takes.
->
->2.6.12-rc2, 	as,	tcq depth=2:		7.241 seconds
->2.6.12-rc2, 	as,	tcq depth=64:		12.172 seconds
->2.6.12-rc2+patch,as,	tcq depth=64:		7.199 seconds
->2.6.12-rc2, 	cfq2,	tcq depth=64:		much more than 5 minutes
->2.6.12-rc2, 	cfq3,	tcq depth=64:		much more than 5 minutes
->
->So
->
->- The effects of tcq on AS are much less disastrous than I thought they
->  were.  Do I have the wrong workload?  Memory fails me.  Or did we fix the
->  anticipatory scheduler?
->
->
+- broken sibling_map setup in x86_64
 
-Yes, we did fix it ;)
-Quite a long time ago, so maybe you are thinking of something else
-(I haven't been able to work it out).
+- grouping all the core and HT related cpuinfo fields.
+  We are reasonably sure that adding new cpuinfo fields after "siblings" field,
+  will not cause any app failure. Thats because today's /proc/cpuinfo
+  format is completely different on x86, x86_64 and we haven't heard of any
+  x86 app breakage because of this issue. Grouping these fields will 
+  result in more or less common format on all architectures (ia64, x86 and 
+  x86_64) and will cause less confusion.
 
-AS basically does its own TCQ strangulation, which IIRC involves things
-like completing all reads before issuing new writes, and completing all
-reads from one process before reads from another. As well as the
-fundamental way that waiting for a 'dependant read' throttles TCQ.
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
->- as-limit-queue-depth.patch fixes things right up anyway.  Seems to be
->  doing the right thing.  
->
->
-
-Well it depends on what we want to do. If we hard limit the AS queue
-like this, I can remove some of that TCQ throttling logic from AS.
-
-OTOH, the throttling was intended to allow us to sanely use a large
-TCQ depth without getting really bad behaviour. Theoretically a process
-can make use of TCQ if it is doing a lot of writing, or if it is not
-determined to be doing dependant reads.
-
-
-
+diff -Nru linux-2.6.12-rc2-mm3/arch/i386/kernel/cpu/proc.c linux-mc/arch/i386/kernel/cpu/proc.c
+--- linux-2.6.12-rc2-mm3/arch/i386/kernel/cpu/proc.c	2005-04-11 17:12:16.939435632 -0700
++++ linux-mc/arch/i386/kernel/cpu/proc.c	2005-04-11 17:13:31.757061624 -0700
+@@ -98,6 +98,8 @@
+ 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
+ 		seq_printf(m, "siblings\t: %d\n",
+ 				c->x86_num_cores * smp_num_siblings);
++		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[n]);
++		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+ 	}
+ #endif
+ 	
+@@ -130,13 +132,6 @@
+ 		     c->loops_per_jiffy/(500000/HZ),
+ 		     (c->loops_per_jiffy/(5000/HZ)) % 100);
+ 
+-#ifdef CONFIG_SMP
+-	/* Put new fields at the end to lower the probability of
+-	   breaking user space parsers. */
+-	seq_printf(m, "core id\t\t: %d\n", cpu_core_id[n]);
+-	seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+-#endif
+-
+ 	return 0;
+ }
+ 
+diff -Nru linux-2.6.12-rc2-mm3/arch/x86_64/kernel/setup.c linux-mc/arch/x86_64/kernel/setup.c
+--- linux-2.6.12-rc2-mm3/arch/x86_64/kernel/setup.c	2005-04-11 17:12:17.074415112 -0700
++++ linux-mc/arch/x86_64/kernel/setup.c	2005-04-11 17:14:34.250561168 -0700
+@@ -1179,6 +1179,8 @@
+ 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[cpu]);
+ 		seq_printf(m, "siblings\t: %d\n",
+ 				c->x86_num_cores * smp_num_siblings);
++		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[cpu]);
++		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+ 	}
+ #endif	
+ 
+@@ -1222,15 +1224,8 @@
+ 			}
+ 	}
+ 
+-	seq_printf(m, "\n");
++	seq_printf(m, "\n\n");
+ 
+-#ifdef CONFIG_SMP
+-	/* Put new fields at the end to lower the probability of
+-	   breaking user space parsers. */
+-	seq_printf(m, "core id\t\t: %d\n", cpu_core_id[c - cpu_data]);
+-	seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
+-#endif
+-	seq_printf(m, "\n");
+ 	return 0;
+ }
+ 
+diff -Nru linux-2.6.12-rc2-mm3/arch/x86_64/kernel/smpboot.c linux-mc/arch/x86_64/kernel/smpboot.c
+--- linux-2.6.12-rc2-mm3/arch/x86_64/kernel/smpboot.c	2005-04-11 17:12:17.076414808 -0700
++++ linux-mc/arch/x86_64/kernel/smpboot.c	2005-04-11 17:41:52.704478312 -0700
+@@ -652,7 +652,7 @@
+ 		int i;
+ 		if (smp_num_siblings > 1) {
+ 			for_each_online_cpu (i) {
+-				if (cpu_core_id[cpu] == phys_proc_id[i]) {
++				if (cpu_core_id[cpu] == cpu_core_id[i]) {
+ 					siblings++;
+ 					cpu_set(i, cpu_sibling_map[cpu]);
+ 				}

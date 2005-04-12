@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVDLTwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262172AbVDLTw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbVDLTwW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVDLTvm
+	id S262172AbVDLTw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVDLTum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:51:42 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:7928 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262333AbVDLSPE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 14:15:04 -0400
-Subject: FUSYN and RT
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: linux-kernel@vger.kernel.org
-Cc: inaky.perez-gonzalez@intel.com, mingo@elte.hu
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1113329702.23407.148.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 Apr 2005 11:15:02 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 15:50:42 -0400
+Received: from fire.osdl.org ([65.172.181.4]:53704 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262109AbVDLKb5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:31:57 -0400
+Message-Id: <200504121031.j3CAViF8005391@shell0.pdx.osdl.net>
+Subject: [patch 066/198] x86-64: i386 vDSO: add PT_NOTE segment
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@redhat.com
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:31:37 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I just wanted to discuss the problem a little more. From all the
-conversations that I've had it seem that everyone is worried about
-having PI in Fusyn, and PI in the RT mutex. 
+From: Roland McGrath <roland@redhat.com>
 
-It seems like these two locks are going to interact on a very limited
-basis. Fusyn will be the user space mutex, and the RT mutex is only in
-the kernel. You can't lock an RT mutex and hold it, then lock a Fusyn
-mutex (anyone disagree?). That is assuming Fusyn stays in user space.
+Use the i386 PT_NOTE segment in x86_64 as well.
 
-The RT mutex will never lower a tasks priority lower than the priority
-given to it by locking a Fusyn lock.
+Signed-off-by: Roland McGrath <roland@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-At least, both mutexes will need to use the same API to raise and lower
-priorities.
+ 25-akpm/arch/x86_64/ia32/vsyscall-sigreturn.S |    3 +++
+ 1 files changed, 3 insertions(+)
 
-The next question is deadlocks. Because one mutex is only in the kernel,
-and the other is only in user space, it seems that deadlocks will only
-occur when a process holds locks that are all the same type.
-
-
-Daniel
-
-
+diff -puN arch/x86_64/ia32/vsyscall-sigreturn.S~x86-64-i386-vdso-add-pt_note-segment arch/x86_64/ia32/vsyscall-sigreturn.S
+--- 25/arch/x86_64/ia32/vsyscall-sigreturn.S~x86-64-i386-vdso-add-pt_note-segment	2005-04-12 03:21:19.362193400 -0700
++++ 25-akpm/arch/x86_64/ia32/vsyscall-sigreturn.S	2005-04-12 03:21:19.365192944 -0700
+@@ -118,3 +118,6 @@ __kernel_rt_sigreturn:
+ 
+ 	.align 4
+ .LENDFDE3:
++
++#include "../../i386/kernel/vsyscall-note.S"
++
+_

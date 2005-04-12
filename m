@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVDLQwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbVDLQwv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbVDLQwu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 12:52:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVDLQvQ
+	id S262447AbVDLQwv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 12:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVDLQu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 12:51:16 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:52099 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S262496AbVDLQta (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 12:49:30 -0400
-Date: Tue, 12 Apr 2005 16:52:35 +0000
-From: Ileimk52juwd <ileimk52juwd@hypersurf.com>
-Subject: Linux-kernel, Homeowners.....good news....!!
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <IELHDC83222948KK@vger.kernel.org>
-In-Reply-To: <IELHDC83222948KK@vger.kernel.org>
-Message-ID: <J1GC5L4A9036I5KC@hypersurf.com>
-Reply-To: Fskwm <fskwm@seznam.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 12 Apr 2005 12:50:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59040 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262447AbVDLQui (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 12:50:38 -0400
+Date: Tue, 12 Apr 2005 17:50:34 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix floppy disk dependencies
+Message-ID: <20050412165034.GN8859@parcelfarce.linux.theplanet.co.uk>
+References: <E1DL7Bg-0003C9-Vj@raistlin.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DL7Bg-0003C9-Vj@raistlin.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Re-finance now, even with bad-credit!
+On Mon, Apr 11, 2005 at 11:15:20PM +0100, Russell King wrote:
+> Both the RiscPC and (optionally) EBSA285 have floppy disk
+> support.  Allow this option to be selected on these ARM
+> platforms again.
 
-*Best Re-finance Rate for credit challenged.
-*Best Customer Service
-*Lowest Interest-Rates in Years
-*SAVE $100-$400 per month
+I think it's a wrong approach.  Instead of this collection of
+dependencies we should bite the bullet and put
 
-Our easy application only takes 1 minutes.
+config HAS_GENERIC_FDC
+	bool
+	default y
 
-http://low.excellentlowrates.com/?name=bpssoou
+in arch/*/Kconfig of platforms that do have it and
 
+config BLK_DEV_FD
+	tristate "Normal floppy disk support"
+        depends on HAS_GENERIC_FDC
 
+in drivers/block/Kconfig.  That way we can express such dependencies
+sanely without bringing all the gory details in one pile.
 
-
-
-Future reference options:
-http://excellentlowrates.com/st.html
-
+I'll do that unless there are serious objections...

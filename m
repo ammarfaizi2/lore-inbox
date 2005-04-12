@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVDMDTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262612AbVDMDLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262187AbVDMDTL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 23:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVDLTc5
+	id S262612AbVDMDLz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 23:11:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVDLTel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:32:57 -0400
-Received: from fire.osdl.org ([65.172.181.4]:10185 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262189AbVDLKcO (ORCPT
+	Tue, 12 Apr 2005 15:34:41 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7625 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262187AbVDLKcN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:14 -0400
-Message-Id: <200504121032.j3CAW38F005489@shell0.pdx.osdl.net>
-Subject: [patch 090/198] x86_64: Remove excessive stack allocation in MCE code with large NR_CPUS
+	Tue, 12 Apr 2005 06:32:13 -0400
+Message-Id: <200504121032.j3CAW5YW005502@shell0.pdx.osdl.net>
+Subject: [patch 092/198] x86_64-always-use-cpuid-80000008-to-figure-out-mtrr fix
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, suresh.b.siddha@intel.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:57 -0700
+Date: Tue, 12 Apr 2005 03:31:59 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "Andi Kleen" <ak@suse.de>
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
 
-Remove excessive stack allocation in MCE code with large NR_CPUS
+We need to use the size_and_mask in set_mtrr_var_ranges(which is called 
+while programming MTRR's for AP's
 
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/x86_64/kernel/mce.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletion(-)
+ 25-akpm/arch/i386/kernel/cpu/mtrr/generic.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-diff -puN arch/x86_64/kernel/mce.c~x86_64-remove-excessive-stack-allocation-in-mce-code arch/x86_64/kernel/mce.c
---- 25/arch/x86_64/kernel/mce.c~x86_64-remove-excessive-stack-allocation-in-mce-code	2005-04-12 03:21:24.658388256 -0700
-+++ 25-akpm/arch/x86_64/kernel/mce.c	2005-04-12 03:21:24.661387800 -0700
-@@ -379,18 +379,23 @@ static void collect_tscs(void *data) 
+diff -puN arch/i386/kernel/cpu/mtrr/generic.c~x86_64-always-use-cpuid-80000008-to-figure-out-mtrr-fix arch/i386/kernel/cpu/mtrr/generic.c
+--- 25/arch/i386/kernel/cpu/mtrr/generic.c~x86_64-always-use-cpuid-80000008-to-figure-out-mtrr-fix	2005-04-12 03:21:25.075324872 -0700
++++ 25-akpm/arch/i386/kernel/cpu/mtrr/generic.c	2005-04-12 03:21:25.078324416 -0700
+@@ -193,7 +193,8 @@ static int set_mtrr_var_ranges(unsigned 
  
- static ssize_t mce_read(struct file *filp, char __user *ubuf, size_t usize, loff_t *off)
- {
--	unsigned long cpu_tsc[NR_CPUS];
-+	unsigned long *cpu_tsc;
- 	static DECLARE_MUTEX(mce_read_sem);
- 	unsigned next;
- 	char __user *buf = ubuf;
- 	int i, err;
- 
-+	cpu_tsc = kmalloc(NR_CPUS * sizeof(long), GFP_KERNEL);
-+	if (!cpu_tsc)
-+		return -ENOMEM;
-+
- 	down(&mce_read_sem); 
- 	next = rcu_dereference(mcelog.next);
- 
- 	/* Only supports full reads right now */
- 	if (*off != 0 || usize < MCE_LOG_LEN*sizeof(struct mce)) { 
- 		up(&mce_read_sem);
-+		kfree(cpu_tsc);
- 		return -EINVAL;
+ 	rdmsr(MTRRphysBase_MSR(index), lo, hi);
+ 	if ((vr->base_lo & 0xfffff0ffUL) != (lo & 0xfffff0ffUL)
+-	    || (vr->base_hi & 0xfUL) != (hi & 0xfUL)) {
++	    || (vr->base_hi & (size_and_mask >> (32 - PAGE_SHIFT))) !=
++		(hi & (size_and_mask >> (32 - PAGE_SHIFT)))) {
+ 		mtrr_wrmsr(MTRRphysBase_MSR(index), vr->base_lo, vr->base_hi);
+ 		changed = TRUE;
  	}
+@@ -201,7 +202,8 @@ static int set_mtrr_var_ranges(unsigned 
+ 	rdmsr(MTRRphysMask_MSR(index), lo, hi);
  
-@@ -421,6 +426,7 @@ static ssize_t mce_read(struct file *fil
- 		}
- 	} 	
- 	up(&mce_read_sem);
-+	kfree(cpu_tsc);
- 	return err ? -EFAULT : buf - ubuf; 
- }
- 
+ 	if ((vr->mask_lo & 0xfffff800UL) != (lo & 0xfffff800UL)
+-	    || (vr->mask_hi & 0xfUL) != (hi & 0xfUL)) {
++	    || (vr->mask_hi & (size_and_mask >> (32 - PAGE_SHIFT))) !=
++		(hi & (size_and_mask >> (32 - PAGE_SHIFT)))) {
+ 		mtrr_wrmsr(MTRRphysMask_MSR(index), vr->mask_lo, vr->mask_hi);
+ 		changed = TRUE;
+ 	}
 _

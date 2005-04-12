@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbVDLMgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVDLLYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262351AbVDLMgU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbVDLMfb
+	id S262268AbVDLLYO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVDLLW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:35:31 -0400
-Received: from mailfe06.swip.net ([212.247.154.161]:13447 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262377AbVDLMdQ (ORCPT
+	Tue, 12 Apr 2005 07:22:56 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48587 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262313AbVDLKhW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:33:16 -0400
-X-T2-Posting-ID: dB8bZLHXm6KAmbp1mi7F+A==
-Subject: Re: bkbits.net is down
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Marcin Dalecki <martin@dalecki.de>
-Cc: Larry McVoy <lm@bitmover.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <464c882425f31b7c294abc1d47c78b47@dalecki.de>
-References: <20050412021723.26C855F7E9@work.bitmover.com>
-	 <464c882425f31b7c294abc1d47c78b47@dalecki.de>
-Content-Type: text/plain
-Date: Tue, 12 Apr 2005 14:33:02 +0200
-Message-Id: <1113309182.901.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 06:37:22 -0400
+Message-Id: <200504121031.j3CAV0P7005203@shell0.pdx.osdl.net>
+Subject: [patch 023/198] irda_device() oops fix
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, jt@hpl.hp.com,
+       davem@davemloft.net
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:30:53 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tis 2005-04-12 klockan 13:10 +0200 skrev Marcin Dalecki:
-> On 2005-04-12, at 04:17, Larry McVoy wrote whatever...
-> 
-> Excuse me, but: who gives a damn shit?
-> 
 
-Anyone who wants to have access to the history or any other functioning
-of the repository.
+From: Jean Tourrilhes <jt@hpl.hp.com>
 
-Please don't pollute this list nor Larry with such comments.
+Acked-by: "David S. Miller" <davem@davemloft.net>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
+ 25-akpm/net/irda/irda_device.c |   11 +++++++++--
+ 1 files changed, 9 insertions(+), 2 deletions(-)
+
+diff -puN net/irda/irda_device.c~irda_device-oops-fix net/irda/irda_device.c
+--- 25/net/irda/irda_device.c~irda_device-oops-fix	2005-04-12 03:21:08.744807488 -0700
++++ 25-akpm/net/irda/irda_device.c	2005-04-12 03:21:08.747807032 -0700
+@@ -125,8 +125,15 @@ void irda_device_set_media_busy(struct n
+ 
+ 	self = (struct irlap_cb *) dev->atalk_ptr;
+ 
+-	IRDA_ASSERT(self != NULL, return;);
+-	IRDA_ASSERT(self->magic == LAP_MAGIC, return;);
++	/* Some drivers may enable the receive interrupt before calling
++	 * irlap_open(), or they may disable the receive interrupt
++	 * after calling irlap_close().
++	 * The IrDA stack is protected from this in irlap_driver_rcv().
++	 * However, the driver calls directly the wrapper, that calls
++	 * us directly. Make sure we protect ourselves.
++	 * Jean II */
++	if (!self || self->magic != LAP_MAGIC)
++		return;
+ 
+ 	if (status) {
+ 		self->media_busy = TRUE;
+_

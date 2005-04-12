@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVDLKDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVDLKH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbVDLKDx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 06:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVDLKDw
+	id S262094AbVDLKH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 06:07:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVDLKH1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:03:52 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:59595 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S262092AbVDLKCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:02:25 -0400
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Petr Baudis <pasky@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Call to atention about using hash functions as content indexers
- (SCM saga)
-References: <20050411224021.GA25106@larroy.com>
-	<20050411225139.GA9145@pasky.ji.cz>
-	<aec7e5c30504111623309582d5@mail.gmail.com>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Tue, 12 Apr 2005 11:02:10 +0100
-In-Reply-To: <aec7e5c30504111623309582d5@mail.gmail.com> (Magnus Damm's
- message of "Tue, 12 Apr 2005 01:23:02 +0200")
-Message-ID: <tnx1x9g8g9p.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Tue, 12 Apr 2005 06:07:27 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:2065 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S262094AbVDLKHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:07:02 -0400
+Message-ID: <425B9DC4.8040002@domdv.de>
+Date: Tue, 12 Apr 2005 12:07:00 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+CC: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+References: <4259B474.4040407@domdv.de> <200504112257.39708.rjw@sisk.pl> <20050411210819.GF23530@elf.ucw.cz> <200504112335.39155.rjw@sisk.pl>
+In-Reply-To: <200504112335.39155.rjw@sisk.pl>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Magnus Damm <magnus.damm@gmail.com> wrote:
-> On 4/12/05, Petr Baudis <pasky@ucw.cz> wrote:
->
->> (iv) You fail to propose a better solution.
->
-> I would feel safer with back end storage filenames based on email and
-> mtime together with an optional hash lookup that turns collisions into
-> worse performance. But that's just me.
+Rafael J. Wysocki wrote:
+> Hi,
+> 
+> On Monday, 11 of April 2005 23:08, Pavel Machek wrote:
+> 
+>>Hi!
+>>
+> 
+> ]--snip--[
+> 
+>>>>@@ -130,6 +150,52 @@
+>>>> static unsigned short swapfile_used[MAX_SWAPFILES];
+>>>> static unsigned short root_swap;
+>>>> 
+>>>>+#ifdef CONFIG_SWSUSP_ENCRYPT
+>>>>+static struct crypto_tfm *crypto_init(int mode)
+>>>
+>>>I think it's better if this function returns an int error code and the
+>>>messages are printed where it's called from.  This way, the essential
+>>>part of the code would be easier to grasp (Pavel?).
+>>
+>>Agreed. Actually I do not care where messages are printed, but
+>>returning different code for different errors seems right.
+> 
+> 
+> Hm.  You probably don't want suspend-related messages to be printed during
+> resume (this function is called in two different places)? :-)
+> 
+> Rafael
+> 
+> 
 
-Have a look at bazaar-ng (http://www.bazaar-ng.org/), they seem to do
-this. I had a quick look at it and they also seem to store the full
-files when they change (similar to git). It is also a bit ahead of git
-(started earlier) and looks quite promising.
+Will be changed.
 
 -- 
-Catalin
-
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

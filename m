@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVDLSfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVDLSfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbVDLSfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVDLSdL
+	id S262537AbVDLSfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVDLSdD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:33:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41163 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262311AbVDLKgP (ORCPT
+	Tue, 12 Apr 2005 14:33:03 -0400
+Received: from fire.osdl.org ([65.172.181.4]:41419 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262119AbVDLKgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:36:15 -0400
-Message-Id: <200504121033.j3CAX0El005740@shell0.pdx.osdl.net>
-Subject: [patch 148/198] let SOUND_AD1889 depend on PCI
+	Tue, 12 Apr 2005 06:36:16 -0400
+Message-Id: <200504121033.j3CAX1gx005744@shell0.pdx.osdl.net>
+Subject: [patch 149/198] MAINTAINERS: remove obsolete ACP/MWAVE MODEM entry
 To: torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, bunk@stusta.de
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:53 -0700
+Date: Tue, 12 Apr 2005 03:32:54 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 From: Adrian Bunk <bunk@stusta.de>
 
-Compiling SOUND_AD1889 with PCI=n results in the following compile 
-error:
+Both maintainer email addresses are bouncing and the web address is no
+longer valid.
 
-sound/built-in.o(.text+0x24f0c): In function `ad1889_remove':
-: undefined reference to `pci_release_region'
-
-This patch adds the missing dependency on PCI.
+Seems to be a good time to remove the entry.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/sound/oss/Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ 25-akpm/MAINTAINERS |    8 --------
+ 1 files changed, 8 deletions(-)
 
-diff -puN sound/oss/Kconfig~let-sound_ad1889-depend-on-pci sound/oss/Kconfig
---- 25/sound/oss/Kconfig~let-sound_ad1889-depend-on-pci	2005-04-12 03:21:38.857229704 -0700
-+++ 25-akpm/sound/oss/Kconfig	2005-04-12 03:21:38.860229248 -0700
-@@ -556,7 +556,7 @@ config SOUND_AD1816
+diff -puN MAINTAINERS~maintainers-remove-obsolete-acp-mwave-modem-entry MAINTAINERS
+--- 25/MAINTAINERS~maintainers-remove-obsolete-acp-mwave-modem-entry	2005-04-12 03:21:39.070197328 -0700
++++ 25-akpm/MAINTAINERS	2005-04-12 03:21:39.368152032 -0700
+@@ -172,14 +172,6 @@ L:	linux-sound@vger.kernel.org
+ W:	http://www.stud.uni-karlsruhe.de/~uh1b/
+ S:	Maintained
  
- config SOUND_AD1889
- 	tristate "AD1889 based cards (AD1819 codec) (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && SOUND_OSS
-+	depends on EXPERIMENTAL && SOUND_OSS && PCI
- 	help
- 	  Say M here if you have a sound card based on the Analog Devices
- 	  AD1889 chip.
+-ACP/MWAVE MODEM
+-P:	Paul B Schroeder
+-M:	paulsch@us.ibm.com
+-P:	Mike Sullivan
+-M:	sullivam@us.ibm.com
+-W:	http://www.ibm.com/linux/ltc/
+-S:	Supported
+-
+ AACRAID SCSI RAID DRIVER
+ P:	Adaptec OEM Raid Solutions
+ L:	linux-scsi@vger.kernel.org
 _

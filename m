@@ -1,104 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262971AbVDLXxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263044AbVDLX5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262971AbVDLXxO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbVDLXqA
+	id S263044AbVDLX5D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbVDLXyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 19:46:00 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:25793 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S263036AbVDLXJm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 19:09:42 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: FUSYN and RT
-Date: Tue, 12 Apr 2005 16:09:04 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02FD4731@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FUSYN and RT
-Thread-Index: AcU/r7T+C9DGC4GJQVipfBCDdoPlPQAAF8ew
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <dwalker@mvista.com>
-Cc: "Esben Nielsen" <simlo@phys.au.dk>, <linux-kernel@vger.kernel.org>,
-       <mingo@elte.hu>
-X-OriginalArrivalTime: 12 Apr 2005 23:09:06.0507 (UTC) FILETIME=[A03EF1B0:01C53FB4]
+	Tue, 12 Apr 2005 19:54:47 -0400
+Received: from rgminet03.oracle.com ([148.87.122.32]:25766 "EHLO
+	rgminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S262977AbVDLXuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 19:50:52 -0400
+Date: Tue, 12 Apr 2005 16:50:33 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] hangcheck-timer: Update to 0.9.0.
+Message-ID: <20050412235033.GI31163@ca-server1.us.oracle.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.8i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Daniel Walker [mailto:dwalker@mvista.com]
->On Tue, 2005-04-12 at 15:26, Perez-Gonzalez, Inaky wrote:
->
->> You should not need any of this if your user space mutexes are a
->> wrapper over the kernel space ones. The kernel handles everything
->> the same and there is no need to take care of any special cases or
->> variations [other than the ones imposed by the wrapping].
->
->The problem situation that I'm thinking of is when a task gets priority
->boosted by Fusyn , then gets priority boosted by an RT Mutex. In that
->situation, when the RT mutex demotes back to task->static_prio it will
->be lower than the priority that Fusyn has given the task (potentially).
->I don't think that's handled in the kernel anyplace, is it?
+	I recently realized that the in-kernel copy of hangcheck-timer
+was quite stale.  Here's the latest.  It adds support for s390, ppc64,
+and ia64 too.
 
-There would be conflicts, for sure [I haven't been able
-to grok all the details of rt-mutex, so if I say something
-really gross, please speak up]:
+Signed-off-by: Joel Becker <joel.becker@oracle.com>
+---
 
-- rt saves the new owner's original prio in the mutex
-- fusyn uses the mutex owned list and recalculates
-  everytime the dyn prio changes based on that (so
-  if we change the prio of the owner while owning
-  there are no side effects).
+ Kconfig           |    2 -
+ hangcheck-timer.c |  104 +++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 96 insertions(+), 10 deletions(-)
 
-- rt saves the pi-waiters in a per-task list, the rest
-  in another list
-- fusyn associates all the waiters in a per-mutex list, 
-  and the PI or not is not a per-waiter attribute, is 
-  is a per-mutex attribute--this simplifies the bubbling
-  up of the boosting priority
+Index: linux-2.6.12-rc2/drivers/char/hangcheck-timer.c
+===================================================================
+--- linux-2.6.12-rc2.orig/drivers/char/hangcheck-timer.c	2005-03-01 23:38:07.000000000 -0800
++++ linux-2.6.12-rc2/drivers/char/hangcheck-timer.c	2005-04-12 15:34:26.000000000 -0700
+@@ -3,7 +3,7 @@
+  *
+  * Driver for a little io fencing timer.
+  *
+- * Copyright (C) 2002 Oracle Corporation.  All rights reserved.
++ * Copyright (C) 2002, 2003 Oracle.  All rights reserved.
+  *
+  * Author: Joel Becker <joel.becker@oracle.com>
+  *
+@@ -44,11 +44,14 @@
+ #include <linux/fs.h>
+ #include <linux/mm.h>
+ #include <linux/reboot.h>
++#include <linux/smp_lock.h>
+ #include <linux/init.h>
++#include <linux/delay.h>
+ #include <asm/uaccess.h>
++#include <linux/sysrq.h>
+ 
+ 
+-#define VERSION_STR "0.5.0"
++#define VERSION_STR "0.9.0"
+ 
+ #define DEFAULT_IOFENCE_MARGIN 60	/* Default fudge factor, in seconds */
+ #define DEFAULT_IOFENCE_TICK 180	/* Default timer timeout, in seconds */
+@@ -56,18 +59,89 @@
+ static int hangcheck_tick = DEFAULT_IOFENCE_TICK;
+ static int hangcheck_margin = DEFAULT_IOFENCE_MARGIN;
+ static int hangcheck_reboot;  /* Defaults to not reboot */
++static int hangcheck_dump_tasks;  /* Defaults to not dumping SysRQ T */
+ 
+-/* Driver options */
++/* options - modular */
+ module_param(hangcheck_tick, int, 0);
+ MODULE_PARM_DESC(hangcheck_tick, "Timer delay.");
+ module_param(hangcheck_margin, int, 0);
+ MODULE_PARM_DESC(hangcheck_margin, "If the hangcheck timer has been delayed more than hangcheck_margin seconds, the driver will fire.");
+ module_param(hangcheck_reboot, int, 0);
+ MODULE_PARM_DESC(hangcheck_reboot, "If nonzero, the machine will reboot when the timer margin is exceeded.");
++module_param(hangcheck_dump_tasks, int, 0);
++MODULE_PARM_DESC(hangcheck_dump_tasks, "If nonzero, the machine will dump the system task state when the timer margin is exceeded.");
+ 
+-MODULE_AUTHOR("Joel Becker");
++MODULE_AUTHOR("Oracle");
+ MODULE_DESCRIPTION("Hangcheck-timer detects when the system has gone out to lunch past a certain margin.");
+ MODULE_LICENSE("GPL");
++MODULE_VERSION(VERSION_STR);
++
++/* options - nonmodular */
++#ifndef MODULE
++
++static int __init hangcheck_parse_tick(char *str)
++{
++	int par;
++	if (get_option(&str,&par))
++		hangcheck_tick = par;
++	return 1;
++}
++
++static int __init hangcheck_parse_margin(char *str)
++{
++	int par;
++	if (get_option(&str,&par))
++		hangcheck_margin = par;
++	return 1;
++}
++
++static int __init hangcheck_parse_reboot(char *str)
++{
++	int par;
++	if (get_option(&str,&par))
++		hangcheck_reboot = par;
++	return 1;
++}
++
++static int __init hangcheck_parse_dump_tasks(char *str)
++{
++	int par;
++	if (get_option(&str,&par))
++		hangcheck_dump_tasks = par;
++	return 1;
++}
++
++__setup("hcheck_tick", hangcheck_parse_tick);
++__setup("hcheck_margin", hangcheck_parse_margin);
++__setup("hcheck_reboot", hangcheck_parse_reboot);
++__setup("hcheck_dump_tasks", hangcheck_parse_dump_tasks);
++#endif /* not MODULE */
++
++#if defined(__i386__) || defined(__x86_64__)
++# define HAVE_MONOTONIC
++# define TIMER_FREQ 1000000000ULL
++#elif defined(__s390__)
++/* FA240000 is 1 Second in the IBM time universe (Page 4-38 Principles of Op for zSeries */
++# define TIMER_FREQ 0xFA240000ULL
++#elif defined(__ia64__)
++# define TIMER_FREQ ((unsigned long long)local_cpu_data->itc_freq)
++#elif defined(__powerpc64__)
++# define TIMER_FREQ (HZ*loops_per_jiffy)
++#endif  /* __s390__ */
++
++#ifdef HAVE_MONOTONIC
++extern unsigned long long monotonic_clock(void);
++#else
++static inline unsigned long long monotonic_clock(void)
++{
++# ifdef __s390__
++	/* returns the TOD.  see 4-38 Principles of Op of zSeries */
++	return get_clock();
++# else
++	return get_cycles();
++# endif  /* __s390__ */
++}
++#endif  /* HAVE_MONOTONIC */
+ 
+ 
+ /* Last time scheduled */
+@@ -78,7 +152,6 @@
+ static struct timer_list hangcheck_ticktock =
+ 		TIMER_INITIALIZER(hangcheck_fire, 0, 0);
+ 
+-extern unsigned long long monotonic_clock(void);
+ 
+ static void hangcheck_fire(unsigned long data)
+ {
+@@ -92,6 +165,12 @@
+ 		tsc_diff = (cur_tsc + (~0ULL - hangcheck_tsc)); /* or something */
+ 
+ 	if (tsc_diff > hangcheck_tsc_margin) {
++		if (hangcheck_dump_tasks) {
++			printk(KERN_CRIT "Hangcheck: Task state:\n");
++#ifdef CONFIG_MAGIC_SYSRQ
++			handle_sysrq('t', NULL, NULL);
++#endif  /* CONFIG_MAGIC_SYSRQ */
++		}
+ 		if (hangcheck_reboot) {
+ 			printk(KERN_CRIT "Hangcheck: hangcheck is restarting the machine.\n");
+ 			machine_restart(NULL);
+@@ -108,10 +187,16 @@
+ {
+ 	printk("Hangcheck: starting hangcheck timer %s (tick is %d seconds, margin is %d seconds).\n",
+ 	       VERSION_STR, hangcheck_tick, hangcheck_margin);
+-
+-	hangcheck_tsc_margin = hangcheck_margin + hangcheck_tick;
+-	hangcheck_tsc_margin *= 1000000000;
+-
++#if defined (HAVE_MONOTONIC)
++	printk("Hangcheck: Using monotonic_clock().\n");
++#elif defined(__s390__)
++	printk("Hangcheck: Using TOD.\n");
++#else
++	printk("Hangcheck: Using get_cycles().\n");
++#endif  /* HAVE_MONOTONIC */
++	hangcheck_tsc_margin =
++		(unsigned long long)(hangcheck_margin + hangcheck_tick);
++	hangcheck_tsc_margin *= (unsigned long long)TIMER_FREQ;
+ 
+ 	hangcheck_tsc = monotonic_clock();
+ 	mod_timer(&hangcheck_ticktock, jiffies + (hangcheck_tick*HZ));
+@@ -123,6 +208,7 @@
+ static void __exit hangcheck_exit(void)
+ {
+ 	del_timer_sync(&hangcheck_ticktock);
++        printk("Hangcheck: Stopped hangcheck timer.\n");
+ }
+ 
+ module_init(hangcheck_init);
+Index: linux-2.6.12-rc2/drivers/char/Kconfig
+===================================================================
+--- linux-2.6.12-rc2.orig/drivers/char/Kconfig	2005-04-12 15:33:39.000000000 -0700
++++ linux-2.6.12-rc2/drivers/char/Kconfig	2005-04-12 15:34:26.000000000 -0700
+@@ -968,7 +968,7 @@
+ 
+ config HANGCHECK_TIMER
+ 	tristate "Hangcheck timer"
+-	depends on X86_64 || X86
++	depends on X86_64 || X86 || IA64 || PPC64 || ARCH_S390
+ 	help
+ 	  The hangcheck-timer module detects when the system has gone
+ 	  out to lunch past a certain margin.  It can reboot the system
+-- 
 
-In general the methods are similar, but the implementations
-are too different. Yielding to the fact that I haven't looked
-too deep at rt-mutex [to be far, I get lost :)], I think we'd
-have a hard time getting them to interoperate with regards
-to PI and PP.
+Life's Little Instruction Book #94
 
-Are you *really* considering to have them coexisting? I lack
-the braveness :) It'd be easier to zap one in favour of the
-other and crosspolinate.
+	"Make it a habit to do nice things for people who 
+	 will never find out."
 
-<biased opinion>
-if we take out all the user space crap from fusyn (vlocator.c,
-ufu* and merge in or remove the hooks it requires), it seems 
-to me to be simpler than rt-mutex in the PI handling section.
-However, that is possibly because I wrote it.
-</biased opinion>
-
-<long explanation copied from somewhere else> 
-
-fusyn uses (for transitivity and stacking purposes) the
-priority of the 'fulock_olist' ownership list in the task 
-struct as the priority the task needs to be boosted to
-and calls __prio_boost() [which sets task->boost_prio] with
-that prio.
-
-Thus, whenever you acquire a mutex, it is added to that list
-in the right position:
-
- - non PI or PP mutexes have priority BOTTOM_PRIO, so they 
-   are always lower than any possible priority you can get
-   and won't affect your dynamic prio.
-
-- PI mutexes inherit their prio from the highest prio 
-  (task->prio) of the tasks waiting in its waiters list.
-
-- PP mutexes get a prio assigned by a sort of ioctl
-
-</long explanation copied from somewhere else>
-
--- Inaky
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

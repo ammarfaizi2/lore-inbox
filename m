@@ -1,95 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262296AbVDLLeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVDLLrs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262296AbVDLLeU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262354AbVDLLeF
+	id S262359AbVDLLrs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVDLLro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:34:05 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:31699 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262296AbVDLLUH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 07:20:07 -0400
-Date: Tue, 12 Apr 2005 13:18:59 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: firewire and/or sbp2 problem with rc2-mm3, but not rc2-mm2
-Message-ID: <20050412111859.GA29765@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Tue, 12 Apr 2005 07:47:44 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:27876 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262359AbVDLLnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 07:43:39 -0400
+Message-ID: <425BB466.4030209@grupopie.com>
+Date: Tue, 12 Apr 2005 12:43:34 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] kallsyms C_SYMBOL_PREFIX support
+References: <m24qecmq3p.wl%ysato@users.sourceforge.jp>
+In-Reply-To: <m24qecmq3p.wl%ysato@users.sourceforge.jp>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew! Hi 1394 developers!
+Yoshinori Sato wrote:
+> kallsyms does not consider SYMBOL_PREFIX of C.
+> Consequently do not work in architecture using prefix character (h8300, v850) really.
+> 
+> Because I can want to use this, I made a patch.
+> Please comment.
+> 
+> [...]
 
-I have a bit of a problem with firewire. WIth 2.6.12-rc2-mm3 it does not
-recognize my external hard disk any more:
+> @@ -177,6 +184,11 @@
+>  		"_SDA2_BASE_",		/* ppc */
+>  		NULL };
+>  	int i;
+> +	int offset = 1;
+> +
+> +	/* skip prefix char */
+> +	if (symbol_prefix_char && *(s->sym + 1) == symbol_prefix_char)
+> +		offset++;
 
-I use an external hard disk via firewire, and when I plug it in I get:
-vmunix: sbp2: $Rev: 1219 $ Ben Collins <bcollins@debian.org>
-vmunix: Device not ready. Make sure there is a disc in the drive.
+maybe something like:
 
-With -mm2 it was working, also with older kernels.
+char *sname;
+sname = s->sym + 1;
+if (symbol_prefix_char && *(s->sym + 1) == symbol_prefix_char)
+	sname++;
 
-Now, there is also a problem with removing modules:
+would avoid all the "(s->sym + offset)" below, turning them to just "sname".
 
-I remove sbp2, works.
+I know that it was "(s->sym + 1)" before, so its really not your fault, 
+but you could take this opportunity to clean that up, too.
 
-Then I try to remove ohci1394 and it stucks:
-vmunix: rmmod         D C036EBC0     0  5310 5175                     (NOTLB)
-vmunix: cec79de8 00200246 cec79dd0 c036ebc0 cec79e18 d9c40500 dec808ec df7923bc 
-vmunix:        00000941 f7ae5f13 0000004d cf8dea90 cf8debb8 defc4058 cec78000 cec78000 
-vmunix:        cec79e3c c0305e08 00000000 cf8dea90 c0117bb0 00000000 00000000 defc4150 
-vmunix: Call Trace:
-vmunix:  [<c0305e08>] wait_for_completion+0x78/0xf0
-vmunix:  [<c0117bb0>] default_wake_function+0x0/0x10
-vmunix:  [<c0227c64>] class_dev_release+0x64/0x70
-vmunix:  [<c0117bb0>] default_wake_function+0x0/0x10
-vmunix:  [<c01c64db>] kobject_cleanup+0x8b/0xa0
-vmunix:  [<e096b400>] __nodemgr_remove_host_dev+0x0/0x10 [ieee1394]
-vmunix:  [<c02260cb>] device_del+0x1b/0x80
-vmunix:  [<c0226138>] device_unregister+0x8/0x10
-vmunix:  [<e096b3e0>] nodemgr_remove_ne+0x70/0x90 [ieee1394]
-vmunix:  [<e096b408>] __nodemgr_remove_host_dev+0x8/0x10 [ieee1394]
-vmunix:  [<c0226193>] device_for_each_child+0x33/0x50
-vmunix:  [<e096b422>] nodemgr_remove_host_dev+0x12/0x40 [ieee1394]
-kernel:  [exit_notify+766/2080] exit_notify+0x2fe/0x820
-vmunix:  [<e0968187>] __unregister_host+0xc7/0xd0 [ieee1394]
-vmunix:  [<c012f080>] autoremove_wake_function+0x0/0x50
-vmunix:  [<e0968bfb>] highlevel_remove_host+0x3b/0x70 [ieee1394]
-vmunix:  [<e0967b68>] hpsb_remove_host+0x38/0x60 [ieee1394]
-vmunix:  [<e095c3a0>] ohci1394_pci_remove+0x60/0x230 [ohci1394]
-vmunix:  [<c018c2a5>] sysfs_hash_and_remove+0xd5/0x105
-vmunix:  [<c01cf288>] pci_device_remove+0x28/0x30
-vmunix:  [<c022752f>] device_release_driver+0x7f/0x90
-vmunix:  [<c0227545>] __remove_driver+0x5/0x10
-vmunix:  [<c0227635>] driver_for_each_device+0x45/0x60
-vmunix:  [<c0227563>] driver_detach+0x13/0x15
-vmunix:  [<c0227540>] __remove_driver+0x0/0x10
-vmunix:  [<c0226fd6>] bus_remove_driver+0x26/0x40
-vmunix:  [<c022774b>] driver_unregister+0xb/0x20
-vmunix:  [<c01cf48b>] pci_unregister_driver+0xb/0x20
-vmunix:  [<e095c830>] ohci1394_cleanup+0x0/0xa [ohci1394]
-vmunix:  [<c0133a3d>] sys_delete_module+0x12d/0x160
-vmunix:  [<c014c29a>] unmap_vma_list+0x1a/0x30
-vmunix:  [<c014c60a>] do_munmap+0xfa/0x130
-vmunix:  [<c014c680>] sys_munmap+0x40/0x70
-vmunix:  [<c0103095>] syscall_call+0x7/0xb
-kernel:  [do_futex+53/144] do_futex+0x35/0x90
+>  
+>  	/* if --all-symbols is not specified, then symbols outside the text
+>  	 * and inittext sections are discarded */
+> @@ -190,17 +202,17 @@
+>  		 * they may get dropped in pass 2, which breaks the kallsyms
+>  		 * rules.
+>  		 */
+> -		if ((s->addr == _etext && strcmp(s->sym + 1, "_etext")) ||
+> -		    (s->addr == _einittext && strcmp(s->sym + 1, "_einittext")))
+> +		if ((s->addr == _etext && strcmp(s->sym + offset, "_etext")) ||
+> +		    (s->addr == _einittext && strcmp(s->sym + offset, "_einittext")))
+>  			return 0;
+>  	}
+>  
+>  	/* Exclude symbols which vary between passes. */
+> -	if (strstr(s->sym + 1, "_compiled."))
+> +	if (strstr(s->sym + offset, "_compiled."))
+>  		return 0;
+>  
+>  	for (i = 0; special_symbols[i]; i++)
+> -		if( strcmp(s->sym + 1, special_symbols[i]) == 0 )
+> +		if( strcmp(s->sym + offset, special_symbols[i]) == 0 )
+>  			return 0;
+>  
+>  	return 1;
+> @@ -225,9 +237,15 @@
 
+>  [...]
+>  
+>  /* uncompress a compressed symbol. When this function is called, the best table
+> @@ -665,6 +683,13 @@
+>  
+>  	insert_real_symbols_in_table();
+>  
+> +	/* When valid symbol is not registered, exit to error */
+> +	if (good_head.left == good_head.right &&
+> +	    bad_head.left == bad_head.right) {
+> +		fprintf(stderr, "No valid symbol.\n");
+> +		exit(1);
+> +	}
+> +
+>  	optimize_result();
+>  }
 
-Best wishes
+This should only trigger if there are no symbols at all, or if there are 
+some symbols that are considered invalid, and do not go into the final 
+result.
 
-Norbert
+Maybe we should just do a return here instead of exit, so that even if 
+this happens, kallsyms will still produce an empty result, that will at 
+least allow the kernel to compile.
 
--------------------------------------------------------------------------------
-Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-TINGRITH (n.)
-The feeling of silver paper against your fillings.
-			--- Douglas Adams, The Meaning of Liff
+It should give the error output to warn the user that there is something 
+fishy, nevertheless. Maybe even a bigger message, since this should not 
+happen at all, and if this triggers it means that something is seriously 
+wrong.
+
+> @@ -672,9 +697,21 @@
+>  int
+>  main(int argc, char **argv)
+>  {
+> -	if (argc == 2 && strcmp(argv[1], "--all-symbols") == 0)
+> -		all_symbols = 1;
+> -	else if (argc != 1)
+> +	if (argc >= 2) {
+
+This test is unnecessary.
+
+> +		int i;
+> +		for (i = 1; i < argc; i++) { 
+> +			if(strcmp(argv[i], "--all-symbols") == 0)
+> +				all_symbols = 1;
+> +			else if (strncmp(argv[i], "--symbol-prefix=", 16) == 0) {
+> +				char *p = &argv[i][16];
+> +				/* skip quote */
+> +				if ((*p == '"' && *(p+2) == '"') || (*p == '\'' && *(p+2) == '\''))
+> +					p++;
+> +				symbol_prefix_char = *p;
+> +			} else
+> +				usage();
+> +		}
+> +	} else if (argc != 1)
+>  		usage();
+
+and so is this.
+
+>  
+>  	read_map(stdin);
+> @@ -683,4 +720,3 @@
+>  
+>  	return 0;
+>  }
+
+At least the patch seems to not affect architectures that don't use the 
+"--symbol-prefix" option, so it should be harmless for most.
+
+Anyway, appart from the few comments, it has my acknowledge.
+
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVDLWim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263002AbVDLWmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbVDLWim (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 18:38:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVDLWih
+	id S263002AbVDLWmG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVDLWjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 18:38:37 -0400
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:14209 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S263026AbVDLWgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 18:36:37 -0400
-Date: Tue, 12 Apr 2005 18:36:23 -0400
-From: David Eger <eger@havoc.gtf.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: more git updates..
-Message-ID: <20050412223623.GA29088@havoc.gtf.org>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org> <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
+	Tue, 12 Apr 2005 18:39:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:30139 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263002AbVDLWge (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 18:36:34 -0400
+Date: Tue, 12 Apr 2005 14:42:57 -0700
+From: Greg KH <greg@kroah.com>
+To: "Kilau, Scott" <Scott_Kilau@digi.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Ihalainen Nickolay <ihanic@dev.ehouse.ru>, admin@list.net.ru,
+       linux-kernel@vger.kernel.org, Wen Xiong <wendyx@us.ibm.com>
+Subject: Re: Digi Neo 8: linux-2.6.12_r2  jsm driver
+Message-ID: <20050412214256.GA18710@kroah.com>
+References: <335DD0B75189FB428E5C32680089FB9F122163@mtk-sms-mail01.digi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <335DD0B75189FB428E5C32680089FB9F122163@mtk-sms-mail01.digi.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 02:21:58PM -0700, Linus Torvalds wrote:
+On Tue, Apr 12, 2005 at 03:21:15PM -0500, Kilau, Scott wrote:
 > 
-> Yes. A tree is defined by the blobs it references (and the subtrees) but 
-> it doesn't _contain_ them. It just contains a pointer to them.
-
-A pointer to them?  You mean a SHA1 hash of them? or what?
-Where is the *real* data stored?  The real files, the real patches?
-Are these somewhere completely outside of git?
-
-> > Therefore, "TREE" must be the *full* data, and since we have the following
-> > definition for CHANGESET:
+> However, neither IBM nor Digi wants this thread's patch to be applied,
+> and yet Christoph wants to do it, completely out of spite, to break our
+> out-of-tree open source driver.
 > 
-> No. A tree is not the full data. A tree contains enough information to 
-> _recreate_ the full data, but the tree itself just tells you _how_ to do 
-> that. It doesn't contain very much of the data itself at all.
+> This is the problem that I have.
 
-Perhaps I'd understand this if you tell me what "recreate" means.
-If a have a SHA1 hash of a file, and I have the file, I can verify that said
-file has the SHA1 hash it's supposed to have, but I can't generate the file
-from it's hash...
+But that patch will enable the stock kernel.org kernel to work just fine
+for that new device, right?  What is wrong with that for all of the
+thousands of users of such kernels.  And if you want to provide a driver
+that works with different features, there's no problem with that either.
+We have numerous drivers in the stock kernel tree that work for the same
+device, it's up to the distros to proper configure it in the manner they
+so wish.
 
-Sorry for being stubbornly dumb, but you'll have a couple of us puzzling 
-at the README ;-)
+The patch does not "break" any other driver, they can both co-exist just
+fine.
 
--dte
+If you do object, please realize that this topic will come up again and
+again and again as users try to patch the driver to work with the
+device.  Also realize that people can do this dynamically through sysfs
+today...
+
+thanks,
+
+greg k-h

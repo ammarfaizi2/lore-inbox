@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262275AbVDLQfE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262481AbVDLQmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262275AbVDLQfE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 12:35:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVDLKkU
+	id S262481AbVDLQmi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 12:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbVDLQl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:40:20 -0400
-Received: from fire.osdl.org ([65.172.181.4]:42442 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262274AbVDLKd2 (ORCPT
+	Tue, 12 Apr 2005 12:41:28 -0400
+Received: from ns1.s2io.com ([142.46.200.198]:7402 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S262266AbVDLQfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:28 -0400
-Message-Id: <200504121033.j3CAXGVT005834@shell0.pdx.osdl.net>
-Subject: [patch 167/198] IB/mthca: allow unaligned memory regions
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mst@mellanox.co.il,
-       roland@topspin.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:09 -0700
+	Tue, 12 Apr 2005 12:35:11 -0400
+Subject: Re: [ANNOUNCE 2/6] Linux-iSCSI High-Performance Initiator
+From: Dmitry Yusupov <dima@neterion.com>
+To: Greg KH <greg@kroah.com>
+Cc: Alex Aizman <itn780@yahoo.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050412053532.GE32372@kroah.com>
+References: <425B3F58.2040000@yahoo.com>  <20050412053532.GE32372@kroah.com>
+Content-Type: text/plain
+Organization: Neterion, Inc
+Date: Tue, 12 Apr 2005 09:34:33 -0700
+Message-Id: <1113323674.10545.5.camel@beastie>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -102.5
+X-Spam-Outlook-Score: ()
+X-Spam-Features: EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,REFERENCES,REPLY_WITH_QUOTES,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-04-11 at 22:35 -0700, Greg KH wrote:
+> On Mon, Apr 11, 2005 at 08:24:08PM -0700, Alex Aizman wrote:
+> > +typedef uint64_t iscsi_snx_t;		/* iSCSI Data-Path session handle */
+> > +typedef uint64_t iscsi_cnx_t;		/* iSCSI Data-Path connection handle */
+> 
+> Do you really have to create a new typedef?  Please reconsider.  Just
+> use u64 everywhere, unless you need to do type checking...
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+it is a handle and it is used as a parameter in exported API. yes. type
+checking exactly the reason.
 
-The first buffer of a memory region is not required to be page-aligned, so
-don't return an error if it's not.
+Dima
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <roland@topspin.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
 
- 25-akpm/drivers/infiniband/hw/mthca/mthca_provider.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN drivers/infiniband/hw/mthca/mthca_provider.c~ib-mthca-allow-unaligned-memory-regions drivers/infiniband/hw/mthca/mthca_provider.c
---- 25/drivers/infiniband/hw/mthca/mthca_provider.c~ib-mthca-allow-unaligned-memory-regions	2005-04-12 03:21:43.262559992 -0700
-+++ 25-akpm/drivers/infiniband/hw/mthca/mthca_provider.c	2005-04-12 03:21:43.265559536 -0700
-@@ -494,7 +494,7 @@ static struct ib_mr *mthca_reg_phys_mr(s
- 	mask = 0;
- 	total_size = 0;
- 	for (i = 0; i < num_phys_buf; ++i) {
--		if (buffer_list[i].addr & ~PAGE_MASK)
-+		if (i != 0 && buffer_list[i].addr & ~PAGE_MASK)
- 			return ERR_PTR(-EINVAL);
- 		if (i != 0 && i != num_phys_buf - 1 &&
- 		    (buffer_list[i].size & ~PAGE_MASK))
-_

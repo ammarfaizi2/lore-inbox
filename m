@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVDLWOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262994AbVDLWKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbVDLWOn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 18:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVDLWKs
+	id S262994AbVDLWKN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVDLWGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 18:10:48 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:7094 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S263017AbVDLWIf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 18:08:35 -0400
-Date: Tue, 12 Apr 2005 22:08:23 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: What does 'WrongLevel' mean in RAID0 ?
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <1113338725l.7969l.0l@werewolf.able.es>
-	<16988.17389.81020.101830@cse.unsw.edu.au>
-In-Reply-To: <16988.17389.81020.101830@cse.unsw.edu.au> (from
-	neilb@cse.unsw.edu.au on Tue Apr 12 23:55:57 2005)
-X-Mailer: Balsa 2.3.0
-Message-Id: <1113343703l.9659l.0l@werewolf.able.es>
+	Tue, 12 Apr 2005 18:06:16 -0400
+Received: from khc.piap.pl ([195.187.100.11]:3076 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S262994AbVDLWEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 18:04:09 -0400
+To: Sensei <senseiwa@tin.it>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [INFO] Kernel strict versioning
+References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de>
+	<425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de>
+	<425B3864.8050401@tin.it> <m3mzs4kzdp.fsf@defiant.localdomain>
+	<425C03D6.2070107@tin.it>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 13 Apr 2005 00:04:06 +0200
+In-Reply-To: <425C03D6.2070107@tin.it> (Franco's message of "Tue, 12 Apr
+ 2005 12:22:30 -0500")
+Message-ID: <m37jj7hctl.fsf@defiant.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Franco \"Sensei\"" <senseiwa@tin.it> writes:
 
-On 04.12, Neil Brown wrote:
-> On Tuesday April 12, jamagallon@able.es wrote:
-> > Hi all...
-> > 
-> > I have a RAID0 setup on top of three IDE drives.
-> > mdadm monitor sends me mesages with:
-> > 
-> > DeviceDisappeared
-> > /dev/md0
-> > Wrong-Level
-> > 
-> > The RAID seems to be working well. Any pointer on what does this
-> > mean ?
-> 
->  From  "man mdadm"  (if you know where to look)
-> 
->        Follow or Monitor
->               Monitor  one  or  more  md devices and act on any state changes.
->               This is only meaningful for raid1, 4, 5, 6 or  multipath  arrays
->               as  only  these  have  interesting state.  raid0 or linear never
->               have missing, spare, or failed drives, so there  is  nothing  to
->               monitor.
-> 
-> You are presumably trying to monitor a raid0 (which isn't meaningful)
-> and mdadm is telling you (in its own idiosyncratic way) that it isn't
-> going to monitor it.
-> 
+> What about making extensive use of modules? If everything (acceptable)
+> is built on modules, can you still have abi, can you still change
+> modules and api implementation without breaking anything?
 
-Thank you very much !! One less mistery in my life ;)
+Yes, but you still can't change .config. You enable SMP, your binary
+compatibility is history. You _have_to_ be able to enable SMP and
+_you_have_ to be able to disable it.
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Limited Edition 2005) for i586
-Linux 2.6.11-jam14 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-7mdk)) #3
+The following kernel packages are parts of Fedora Core 3:
+kernel-2.6.9-1.667.i586.rpm
+kernel-2.6.9-1.667.i686.rpm
+kernel-smp-2.6.9-1.667.i586.rpm
+kernel-smp-2.6.9-1.667.i686.rpm
 
+4 of them, each with a different ABI. And this is all the same kernel
+major-minor-version-subversion and the same compiler - only the settings
+differ.
 
+> I'm really curious about it. How abi can be made actual, and how would
+> it be if we had a completely modular kernel (not micro, but something
+> alike, modular in kernel-space, not in user-space).
+
+Being modular has nothing to do with the "problem" (except it's probably
+required, but Linux _is_ modular for some time now).
+
+> Quite the same, yes. You can still have different kernels of course!
+
+Not "can". You have to. You don't want the kernel running on your dual
+Athlon MP to power your old Pentium MMX test machine. The modules are
+irrelevant.
+
+> By the way, another stupid curiosity is why /lib/modules instead of
+> /boot?
+
+You can have it in /boot. In fact, it's not a kernel issue.
+
+> Because boot can be a partition and not be mounted?
+
+Actually, because boot can be a small partition, and may lack support
+for, say, long filenames.
+Actually, I put the kernels in /lib/modules/* as well. I have no /boot
+file systems and I like the idea of rm -rf /lib/modules/something
+deleting all files related to a particular kernel.
+-- 
+Krzysztof Halasa

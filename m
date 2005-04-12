@@ -1,61 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262512AbVDLUbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVDLU1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262512AbVDLUbt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVDLUbJ
+	id S262126AbVDLU1e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVDLUZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:31:09 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:29403 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262512AbVDLSdi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 14:33:38 -0400
-Message-Id: <200504121833.j3CIXLg12005@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "'Jens Axboe'" <axboe@suse.de>, "Claudio Martins" <ctpm@rnl.ist.utl.pt>,
-       "Andrew Morton" <akpm@osdl.org>, "lkml" <linux-kernel@vger.kernel.org>,
-       "Neil Brown" <neilb@cse.unsw.edu.au>
-Subject: RE: Processes stuck on D state on Dual Opteron
-Date: Tue, 12 Apr 2005 11:33:21 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcU/UBLGkuUUUSfrRFeB2cKPlQlF0QANTJtQ
-In-Reply-To: <425BAC55.7020506@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 12 Apr 2005 16:25:43 -0400
+Received: from fire.osdl.org ([65.172.181.4]:10184 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262126AbVDLKbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:31:13 -0400
+Message-Id: <200504121031.j3CAV9KJ005249@shell0.pdx.osdl.net>
+Subject: [patch 032/198] ppc32: Fix pte_update for 64-bit PTEs
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, galak@freescale.com,
+       kumar.gala@freescale.com
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:31:03 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote on Tuesday, April 12, 2005 4:09 AM
-> Chen, Kenneth W wrote:
-> > I like the patch a lot and already did bench it on our db setup.  However,
-> > I'm seeing a negative regression compare to a very very crappy patch (see
-> > attached, you can laugh at me for doing things like that :-).
->
-> OK - if we go that way, perhaps the following patch may be the
-> way to do it.
 
-OK, if you are going to do it that way, then the ioc_batching code in get_request
-has to be reworked.  We never push the queue so hard that it kicks itself into the
-batching mode.  However, calls to get_io_context and put_io_context are unconditional
-in that function.  Execution profile shows that these two little functions actually
-consumed lots of cpu cycles.
+From: Kumar Gala <galak@freescale.com>
 
-AFAICS, ioc_*batching() is trying to push more requests onto the queue that is full
-(or near full) and give high priority to the process that hits the last req slot.
-Why do we need to go all the way to tsk->io_context to keep track of that state?
-For a clean up bonus, I think the tracking can be moved into the queue structure.
+While the existing pte_update code handled atomically modifying a 64-bit PTE,
+it did not return all 64-bits of the PTE before it was modified.  This causes
+problems in some places that expect the full PTE to be returned, like
+ptep_get_and_clear().
 
+Created a new pte_update function that is conditional on CONFIG_PTE_64BIT.  It
+atomically reads the low PTE word which all PTE flags are required to be in
+and returns a premodified full 64-bit PTE.
 
-> > My first reaction is that the overhead is in wait queue setup and tear down
-> > in get_request_wait function. Throwing the following patch on top does improve
-> > things a bit, but we are still in the negative territory.  I can't explain why.
-> > Everything suppose to be faster.  So I'm staring at the execution profile at
-> > the moment.
-> >
->
-> Hmm, that's a bit disappointing. Like you said though, I'm sure we
-> should be able to get better performance out of this.
+Since we now have an explicit 64-bit PTE version of pte_update we can also
+remove the hack that existed to get the low PTE word regardless of size.
 
-Absolutely. I'm disappointed too and this is totally out of expectation.  There
-must be some other factors.
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
+ 25-akpm/include/asm-ppc/pgtable.h |   29 +++++++++++++++++++++++++----
+ 1 files changed, 25 insertions(+), 4 deletions(-)
 
+diff -puN include/asm-ppc/pgtable.h~ppc32-fix-pte_update-for-64-bit-ptes include/asm-ppc/pgtable.h
+--- 25/include/asm-ppc/pgtable.h~ppc32-fix-pte_update-for-64-bit-ptes	2005-04-12 03:21:11.143442840 -0700
++++ 25-akpm/include/asm-ppc/pgtable.h	2005-04-12 03:21:11.147442232 -0700
+@@ -526,10 +526,10 @@ extern void add_hash_page(unsigned conte
+  * Atomic PTE updates.
+  *
+  * pte_update clears and sets bit atomically, and returns
+- * the old pte value.
+- * The ((unsigned long)(p+1) - 4) hack is to get to the least-significant
+- * 32 bits of the PTE regardless of whether PTEs are 32 or 64 bits.
++ * the old pte value.  In the 64-bit PTE case we lock around the
++ * low PTE word since we expect ALL flag bits to be there
+  */
++#ifndef CONFIG_PTE_64BIT
+ static inline unsigned long pte_update(pte_t *p, unsigned long clr,
+ 				       unsigned long set)
+ {
+@@ -543,10 +543,31 @@ static inline unsigned long pte_update(p
+ "	stwcx.	%1,0,%3\n\
+ 	bne-	1b"
+ 	: "=&r" (old), "=&r" (tmp), "=m" (*p)
+-	: "r" ((unsigned long)(p+1) - 4), "r" (clr), "r" (set), "m" (*p)
++	: "r" (p), "r" (clr), "r" (set), "m" (*p)
+ 	: "cc" );
+ 	return old;
+ }
++#else
++static inline unsigned long long pte_update(pte_t *p, unsigned long clr,
++				       unsigned long set)
++{
++	unsigned long long old;
++	unsigned long tmp;
++
++	__asm__ __volatile__("\
++1:	lwarx	%L0,0,%4\n\
++	lwzx	%0,0,%3\n\
++	andc	%1,%L0,%5\n\
++	or	%1,%1,%6\n"
++	PPC405_ERR77(0,%3)
++"	stwcx.	%1,0,%4\n\
++	bne-	1b"
++	: "=&r" (old), "=&r" (tmp), "=m" (*p)
++	: "r" (p), "r" ((unsigned long)(p) + 4), "r" (clr), "r" (set), "m" (*p)
++	: "cc" );
++	return old;
++}
++#endif
+ 
+ /*
+  * set_pte stores a linux PTE into the linux page table.
+_

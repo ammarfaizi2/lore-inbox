@@ -1,112 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262975AbVDLXRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263047AbVDLXOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262975AbVDLXRk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263054AbVDLXPC
+	id S263047AbVDLXOV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262124AbVDLXOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 19:15:02 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:12214 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262975AbVDLXLb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 19:11:31 -0400
-Date: Wed, 13 Apr 2005 01:11:01 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-Subject: RE: FUSYN and RT
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A02FD4458@orsmsx407>
-Message-Id: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
+	Tue, 12 Apr 2005 19:14:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16330 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262968AbVDLXMw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 19:12:52 -0400
+Date: Tue, 12 Apr 2005 16:08:40 -0700
+From: Greg KH <gregkh@suse.de>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] usb: kfree cleanup for drivers/usb/* - no need to check for NULL
+Message-ID: <20050412230840.GC21500@kroah.com>
+References: <Pine.LNX.4.62.0504122211070.2572@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-DAIMI-Spam-Score: 0 () 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0504122211070.2572@dragon.hyggekrogen.localhost>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think we (at least) got a bit confused here. What (I think) the thread
-started out with was a clear layering of the mutexes. I.e. the code obeys
-the grammar
+On Tue, Apr 12, 2005 at 10:58:13PM +0200, Jesper Juhl wrote:
+> Get rid of a bunch of redundant NULL pointer checks in drivers/usb/*, 
+> there's no need to check a pointer for NULL before calling kfree() on it.
+> 
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
- VALID_LOCK_CODE   = LOCK_FUSYN VALID_LOCK_CODE UNLOCK_FUSYN 
-                   | VALID_LOCK_CODE VALID_LOCK_CODE
-                   | VALID_RTLOCK_CODE
- VALID_RTLOCK      = LOCK_RTLOCK VALID_RTLOCK_CODE UNLOCK_RTLOCK
-                   | VALID_RTLOCK_CODE VALID_RTLOCK_CODE
-                   | VALID_SPINLOCK_CODE
-                   | (code with no locks at all)
- VALID_SPINLOCK_CODE = ... :-)
+Applied, thanks.
 
-In that context the case is simple: Fusyn's and RT-locks can easily
-co-exist. One only need an extra level akin to static_prio to fall back to
-when the last fusyn is unlocked. The API's should be _different_, but
-fusyn_setprio() should both update static_prio and call mutex_setprio().
-There will never be deadlocks involving both types of locks, as Daniel
-said because the lock nesting is sorted out. Furtheremore, unbalanced
-(incorrect) code like
-       LOCK_FUSYN VALID_RTLOCK_CODE (no unlock)
-will never hit the RT-level. So assuming the RT-lock based code is
-debugged the error must be in Fusyn based code.
-
-Esben
-
-On Tue, 12 Apr 2005, Perez-Gonzalez, Inaky wrote:
-
-> >From: Esben Nielsen [mailto:simlo@phys.au.dk]
-> >On 12 Apr 2005, Daniel Walker wrote:
-> >
-> >>
-> >>
-> >> At least, both mutexes will need to use the same API to raise and
-> lower
-> >> priorities.
-> >
-> >You basicly need 3 priorities:
-> >1) Actual: task->prio
-> >2) Base prio with no RT locks taken: task->static_prio
-> >3) Base prio with no Fusyn locks taken: task->??
-> >
-> >So no, you will not need the same API, at all :-) Fusyn manipulates
-> >task->static_prio and only task->prio when no RT lock is taken. When
-> the
-> >first RT-lock is taken/released it manipulates task->prio only. A
-> release
-> >of a Fusyn will manipulate task->static_prio as well as task->prio.
-> 
-> Yes you do. You took care of the simple case. Things get funnier
-> when you own more than one PI lock, or you need to promote a
-> task that is blocked on other PI locks whose owners are blocked
-> on PI locks (transitivity), or when you mix PI and PP (priority
-> protection/ priority ceiling).
-> 
-> In that case not having a sim{pl,g}e API for doing it is nuts.
-> 
-> >> The next question is deadlocks. Because one mutex is only in the
-> kernel,
-> >> and the other is only in user space, it seems that deadlocks will
-> only
-> >> occur when a process holds locks that are all the same type.
-> >
-> >Yes.
-> >All these things assumes a clear lock nesting: Fusyns are on the outer
-> >level, RT locks on the inner level. What happens if there is a bug in
-> RT
-> >locking code will be unclear. On the other hand errors in Fusyn locking
-> >(user space) should not give problems in the kernel.
-> 
-> Wrong. Fusyns are kernel locks that are exposed to user space (much as
-> a file descriptor is a kernel object exposed to user space through
-> a system call). Of course if the user does something mean with them
-> they will cause an error, but should not have undesired consequences
-> in the kernel. But BUGS in the code will be as unclear as in RT mutexes.
-> 
-> >it is is bad maintainance to have to maintain two seperate systems. The
-> >best way ought to be to try to only have one PI system. The kernel is
-> big
-> >and confusing enough as it is!
-> 
-> Ayeh for the big...it is not that confusing :)
-> 
-> -- Inaky
-> 
-
-
+greg k-h

@@ -1,111 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbVDLOM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVDLOIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbVDLOM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 10:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVDLOJ3
+	id S262362AbVDLOIA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 10:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbVDLOEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 10:09:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58024 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262379AbVDLOFJ (ORCPT
+	Tue, 12 Apr 2005 10:04:20 -0400
+Received: from mtk-sms-mail01.digi.com ([66.77.174.18]:5851 "EHLO
+	mtk-sms-mail01.digi.com") by vger.kernel.org with ESMTP
+	id S262362AbVDLOCk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 10:05:09 -0400
-From: David Howells <dhowells@redhat.com>
-To: akpm@osdl.org, torvalds@osdl.org, steved@redhat.com
-cc: linux-kernel@vger.kernel.org, linux-cachefs@redhat.com
-Subject: [PATCH] FS-Cache: Fix bug in error handling
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Tue, 12 Apr 2005 15:04:51 +0100
-Message-ID: <3919.1113314691@redhat.com>
+	Tue, 12 Apr 2005 10:02:40 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Digi Neo 8: linux-2.6.12_r2  jsm driver
+Date: Tue, 12 Apr 2005 09:02:42 -0500
+Message-ID: <335DD0B75189FB428E5C32680089FB9F038FB8@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Digi Neo 8: linux-2.6.12_r2  jsm driver
+Thread-Index: AcU/VdJH29a/18JfRACM024wPtje4gAEYwYQ
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Ihalainen Nickolay" <ihanic@dev.ehouse.ru>
+Cc: <admin@list.net.ru>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-The attached patch fixes a bug in the in __fscache_acquire_cookie()'s error
-handling and tidies the code up a bit.
+Not having the 8 port board listed in the JSM driver was actually
+intentional.
 
-What was happening was the dead cookie was being released in the bit governed
-by the error: label, and then an attempt was made to release the cookie's
-semaphore when that fell through into the done: bit.
+IBM and Digi only want the 2 port Neo board supported in the JSM driver,
+as IBM are only using the 2 port Neo products.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 fscache-nullptr-fix-2612rc2mm1.diff
- fs/fscache/cookie.c |   49 ++++++++++++++++++++++++++-----------------------
- 1 files changed, 26 insertions(+), 23 deletions(-)
+Digi has a different and more fully featured driver for the other port
+count boards. (1, 4, 8).
 
-diff -uNr linux-2.6.12-rc2-mm1/fs/fscache/cookie.c linux-2.6.12-rc2-mm1-cachefs/fs/fscache/cookie.c
---- linux-2.6.12-rc2-mm1/fs/fscache/cookie.c	2005-04-06 13:48:23.000000000 +0100
-+++ linux-2.6.12-rc2-mm1-cachefs/fs/fscache/cookie.c	2005-04-06 18:28:47.000000000 +0100
-@@ -743,7 +743,7 @@
- 
- 	if (list_empty(&fscache_cache_list)) {
- 		up_read(&fscache_addremove_sem);
--		_leave(" [no caches]");
-+		_leave(" = %p [no caches]", cookie);
- 		return cookie;
- 	}
- 
-@@ -765,38 +765,41 @@
- 		}
- 	}
- 
--	/* if the object is a cookie then we need do nothing more here - we
-+	/* if the object is an index then we need do nothing more here - we
- 	 * create indexes on disc when we need them as an index may exist in
- 	 * multiple caches */
--	if (cookie->idef)
--		goto done;
-+	if (!cookie->idef) {
-+		/* the object is a file - we need to select a cache in which to
-+		 * store it */
-+		cache = fscache_select_cache_for_file();
-+		if (!cache)
-+			goto no_cache; /* couldn't decide on a cache */
-+
-+		/* create a file index entry on disc, along with all the
-+		 * indexes required to find it again later */
-+		ret = fscache_instantiate_object(cookie, cache);
-+		if (ret < 0)
-+			goto error;
-+	}
- 
--	/* the object is a file - we need to select a cache in which to store
--	 * it */
--	ret = -ENOMEDIUM;
--	cache = fscache_select_cache_for_file();
--	if (!cache)
--		goto error; /* couldn't decide on a cache */
--
--	/* create a file index entry on disc, along with all the indexes
--	 * required to find it again later */
--	ret = fscache_instantiate_object(cookie, cache);
--	if (ret == 0)
--		goto done;
-+	up_write(&cookie->sem);
-+out:
-+	up_read(&fscache_addremove_sem);
-+	_leave(" = %p", cookie);
-+	return cookie;
- 
-- error:
--	printk("FS-Cache: error from cache fs: %d\n", ret);
-+no_cache:
-+	ret = -ENOMEDIUM;
-+error:
-+	printk("FS-Cache: error from cache: %d\n", ret);
- 	if (cookie) {
-+		up_write(&cookie->sem);
- 		__fscache_cookie_put(cookie);
- 		cookie = FSCACHE_NEGATIVE_COOKIE;
- 		atomic_dec(&iparent->children);
- 	}
- 
-- done:
--	up_write(&cookie->sem);
--	up_read(&fscache_addremove_sem);
--	_leave(" = %p", cookie);
--	return cookie;
-+	goto out;
- 
- } /* end __fscache_acquire_cookie() */
- 
+If you would like, I can send you the source tarball of this version of
+the driver instead,
+its called DGNC, and contains more diagnostics and utilities.
+
+LKML, please, do *NOT* apply this patch to the kernel!
+It will cause conflicts if our customers have both the Digi DGNC and
+IBM/Digi JSM drivers installed!
+
+Thanks!
+Scott Kilau
+
+
+
+
+-----Original Message-----
+From: Ihalainen Nickolay [mailto:ihanic@dev.ehouse.ru] 
+Sent: Tuesday, April 12, 2005 7:14 AM
+To: Kilau, Scott
+Cc: admin@list.net.ru; linux-kernel@vger.kernel.org
+Subject: Digi Neo 8: linux-2.6.12_r2 jsm driver
+
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+I compile linux-2.6.12_r2 sources with jsm support, but Digi Neo 8 is
+unsupported.
+after some code-modifications it works fine.
+
+lspci -v
+0000:00:09.0 Serial controller: Digi International Digi Neo 8 (rev 02)
+(prog-if 02 [16550])
+~        Subsystem: Digi International Digi Neo 8
+~        Flags: fast devsel, IRQ 16
+~        Memory at feb7e000 (32-bit, non-prefetchable)
+
+diff -r linux-2.6.12-rc2/drivers/serial/jsm/jsm_driver.c
+linux-2.6.12-rc2-modified/drivers/serial/jsm/jsm_driver.c
+62a63
+|
+67a69
+| { PCI_DEVICE (PCI_VENDOR_ID_DIGI,
+PCI_DEVICE_NEO_8_DID),        0,      0,      4 },
+76a79
+| { PCI_DEVICE_NEO_8_DID          ,       8 },
+169a173
+| case PCI_DEVICE_NEO_8_DID:
+diff -r linux-2.6.12-rc2/include/linux/pci_ids.h
+linux-2.6.12-rc2-modified/include/linux/pci_ids.h
+1532a1533
+| #define PCI_DEVICE_NEO_8_DID            0x00B1
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCW7oFHI+uMg2HaCcRAraBAJ9ttNr3kTCIM4ztWk6DuMwwmaMVOgCeO8Rl
+N7idPCAnZOIevdD4Wguty9w=
+=ZFjm
+-----END PGP SIGNATURE-----
+

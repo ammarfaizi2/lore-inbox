@@ -1,50 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263005AbVDLV5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVDLUlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263005AbVDLV5x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbVDLVy2
+	id S262198AbVDLUlH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:41:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVDLUj6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:54:28 -0400
-Received: from mail.shareable.org ([81.29.64.88]:40096 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262551AbVDLVwb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:52:31 -0400
-Date: Tue, 12 Apr 2005 22:52:20 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>,
-       Miklos Szeredi <miklos@szeredi.hu>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050412215220.GA23321@mail.shareable.org>
-References: <3S8oN-So-19@gated-at.bofh.it> <3S8oN-So-21@gated-at.bofh.it> <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk>
+	Tue, 12 Apr 2005 16:39:58 -0400
+Received: from colo.lackof.org ([198.49.126.79]:27014 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262198AbVDLTUW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 15:20:22 -0400
+Date: Tue, 12 Apr 2005 13:22:29 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Matthew Wilcox <matthew@wil.cx>,
+       Grant Grundler <grundler@parisc-linux.org>,
+       parisc-linux@parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] parisc: kfree cleanup in arch/parisc/
+Message-ID: <20050412192229.GA2743@colo.lackof.org>
+References: <Pine.LNX.4.62.0504112249510.2480@dragon.hyggekrogen.localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.62.0504112249510.2480@dragon.hyggekrogen.localhost>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> > That said, I would _usually_ prefer that when I enter a tgz, that I
-> > see all component files having the same uid/gid/permissions as the tgz
-> > file itself - the same as I'd see if I entered a zip file.
+On Mon, Apr 11, 2005 at 10:54:25PM +0200, Jesper Juhl wrote:
+> Get rid of redundant NULL pointer checks before kfree() in arch/parisc/ as 
+> well as a few blank lines.
 > 
-> As you say _usually_, even you admit that sometimes you would want the 
-> real owner/permissions to be shown.  And that is the point Miklos is 
-> trying to make I believe: it should be configurable not hard set to only 
-> one which is what I understand HCH wants.
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+
+thanks!
+Commited to cvs.parisc-linux.org:
+	http://lists.parisc-linux.org/pipermail/parisc-linux-cvs/2005-April/035542.html
+
+I expect Matthew Wilcox will submit to linus with other parisc code changes
+in the next RC release.
+
+thanks,
+grant
+
 > 
-> There are uses for both.  For example today I was updating the tar ball 
-> which is used to create the var file system for a new chroot.  I certainly 
-> want to see corretly setup owner/permissions when I look into that tar 
-> ball using a FUSE fs...
-
-If I'm updating a var filesystem for a new chroot, I'd need the
-ability to chmod and chown things in that filesystem.  Does that work
-as an ordinary user?
-
--- Jamie
+> diff -upr linux-2.6.12-rc2-mm3-orig/arch/parisc/kernel/ioctl32.c linux-2.6.12-rc2-mm3/arch/parisc/kernel/ioctl32.c
+> --- linux-2.6.12-rc2-mm3-orig/arch/parisc/kernel/ioctl32.c	2005-04-05 21:21:08.000000000 +0200
+> +++ linux-2.6.12-rc2-mm3/arch/parisc/kernel/ioctl32.c	2005-04-11 22:48:03.000000000 +0200
+> @@ -104,12 +104,9 @@ static int drm32_version(unsigned int fd
+>  	}
+>  
+>  out:
+> -	if (kversion.name)
+> -		kfree(kversion.name);
+> -	if (kversion.date)
+> -		kfree(kversion.date);
+> -	if (kversion.desc)
+> -		kfree(kversion.desc);
+> +	kfree(kversion.name);
+> +	kfree(kversion.date);
+> +	kfree(kversion.desc);
+>  	return ret;
+>  }
+>  
+> @@ -166,9 +163,7 @@ static int drm32_getsetunique(unsigned i
+>  			ret = -EFAULT;
+>  	}
+>  
+> -	if (karg.unique != NULL)
+> -		kfree(karg.unique);
+> -
+> +	kfree(karg.unique);
+>  	return ret;
+>  }
+>  
+> @@ -265,7 +260,6 @@ static int drm32_info_bufs(unsigned int 
+>  	}
+>  
+>  	kfree(karg.list);
+> -
+>  	return ret;
+>  }
+>  
+> @@ -305,7 +299,6 @@ static int drm32_free_bufs(unsigned int 
+>  
+>  out:
+>  	kfree(karg.list);
+> -
+>  	return ret;
+>  }
+>  
+> @@ -494,15 +487,10 @@ static int drm32_dma(unsigned int fd, un
+>  	}
+>  
+>  out:
+> -	if (karg.send_indices)
+> -		kfree(karg.send_indices);
+> -	if (karg.send_sizes)
+> -		kfree(karg.send_sizes);
+> -	if (karg.request_indices)
+> -		kfree(karg.request_indices);
+> -	if (karg.request_sizes)
+> -		kfree(karg.request_sizes);
+> -
+> +	kfree(karg.send_indices);
+> +	kfree(karg.send_sizes);
+> +	kfree(karg.request_indices);
+> +	kfree(karg.request_sizes);
+>  	return ret;
+>  }
+>  
+> @@ -555,9 +543,7 @@ static int drm32_res_ctx(unsigned int fd
+>  			ret = -EFAULT;
+>  	}
+>  
+> -	if (karg.contexts)
+> -		kfree(karg.contexts);
+> -
+> +	kfree(karg.contexts);
+>  	return ret;
+>  }
+>  
+> 
+> 
+> 
+> 
+> PS. If you reply to lists other than Linux-kernel, then please keep me on CC:
+> 
+> 

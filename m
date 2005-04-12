@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262316AbVDLScy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVDLSct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262316AbVDLScy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:32:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVDLScy
+	id S262484AbVDLSct (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVDLSct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:32:54 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:58385 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S262316AbVDLRwv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 13:52:51 -0400
-Message-ID: <425C0AFE.9080106@aknet.ru>
-Date: Tue, 12 Apr 2005 21:53:02 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: 2.6.12-rc2-mm3 (ACPI build problem)
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 12 Apr 2005 14:32:49 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:43684 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S262528AbVDLRu3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 13:50:29 -0400
+Date: Tue, 12 Apr 2005 13:50:13 -0400
+From: Raul Miller <moth@debian.org>
+To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear 	copyright notice.
+Message-ID: <20050412135013.M32136@links.magenta.com>
+References: <E1DLHtY-0001CX-QV@be1.7eggert.dyndns.org> <MDEHLPKNGKAHNMBLJOLKAEMGDBAB.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEMGDBAB.davids@webmaster.com>; from davids@webmaster.com on Tue, Apr 12, 2005 at 09:44:29AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Tue, Apr 12, 2005 at 09:44:29AM -0700, David Schwartz wrote:
+>	I would say that if not for the EULA, you could transfer ownership
+> of the image to someone else. And if you legally acquired two copies of
+> Windows, you could install both of them and transfer them. Otherwise,
+> you could not sell a machine with the Windows OS installed unless you
+> were a Microsoft OEM. Does Microsoft take the position that if you want
+> to sell your PC, you must wipe the OS? Not that I know of.
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
-Fails to compile with
-!CONFIG_ACPI && CONFIG_SMP.
-CONFIG_SMP sets CONFIG_X86_HT,
-which sets CONFIG_ACPI_BOOT,
-but that fails without CONFIG_ACPI:
+[1] I think you've confused Microsoft's Original Equipment Manufacturer
+License with Microsoft's End User License Agreement.
 
-  CC      arch/i386/kernel/setup.o
-arch/i386/kernel/setup.c:96: error: syntax error before ‘acpi_sci_flags’
-arch/i386/kernel/setup.c:96: warning: type defaults to ‘int’ in declaration of ‘acpi_sci_flags’
-arch/i386/kernel/setup.c:96: warning: data definition has no type or storage class
-arch/i386/kernel/setup.c: In function ‘parse_cmdline_early’:
-arch/i386/kernel/setup.c:811: error: request for member ‘trigger’ in something not a structure or union
-arch/i386/kernel/setup.c:814: error: request for member ‘trigger’ in something not a structure or union
-arch/i386/kernel/setup.c:817: error: request for member ‘polarity’ in something not a structure or union
-arch/i386/kernel/setup.c:820: error: request for member ‘polarity’ in something not a structure or union
+[2] The grounds for Microsoft's EULA are much weaker than the grounds
+for the GPL restrctions on the production of derivative works.
 
+At least with the GPL, you're getting something you didn't already have
+(rights restricted to the copyright holder -- for example, in the states,
+under 17 USC 106).
+
+With Microsoft's EULA, it's not clear that you're getting anything
+in exchange for complying with the copyright -- at least not in the
+U.S. which is where Microsoft is based.  You already have a number of
+rights (17 USC 107, 17 USC 117), and while the DMCA has put into law
+that you can't bypass copyright protection (17 USC 1201), it seems to
+allow bypassing technological defects which would prevent actions allowed
+under copyright.
+
+It's probably worth noting that legal actions based on Microsoft's
+EULA are settled out of court -- Microsoft has a history putting a
+lot of direct and indirect pressure on people charged with violating
+the agreement and, in the rare case where someone has stood up to the
+pressure, of cutting their losses and settling out of court.
+
+-- 
+Raul

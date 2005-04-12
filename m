@@ -1,95 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbVDLTjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbVDLTfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262186AbVDLTjH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVDLTfn
+	id S262614AbVDLTfH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:35:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVDLTe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:35:43 -0400
-Received: from fire.osdl.org ([65.172.181.4]:2505 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262186AbVDLKcG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:06 -0400
-Message-Id: <200504121031.j3CAVxJK005467@shell0.pdx.osdl.net>
-Subject: [patch 085/198] x86_64: Support constantly ticking TSCs
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de,
-       venkatesh.pallipadi@intel.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:53 -0700
+	Tue, 12 Apr 2005 15:34:28 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:230 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S262445AbVDLSJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 14:09:52 -0400
+Date: Tue, 12 Apr 2005 11:03:01 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: "Franco \"Sensei\"" <senseiwa@tin.it>
+cc: Krzysztof Halasa <khc@pm.waw.pl>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [INFO] Kernel strict versioning
+In-Reply-To: <425C03D6.2070107@tin.it>
+Message-ID: <Pine.LNX.4.62.0504121053583.17233@qynat.qvtvafvgr.pbz>
+References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de>
+ <425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de> <425B3864.8050401@tin.it>
+ <m3mzs4kzdp.fsf@defiant.localdomain> <425C03D6.2070107@tin.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 12 Apr 2005, Franco "Sensei" wrote:
 
-From: "Andi Kleen" <ak@suse.de>
+> Date: Tue, 12 Apr 2005 12:22:30 -0500
+> From: Franco "Sensei" <senseiwa@tin.it>
+> To: Krzysztof Halasa <khc@pm.waw.pl>
+> Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+> Subject: Re: [INFO] Kernel strict versioning
+> 
+> Krzysztof Halasa wrote:
+>> It isn't enough. The same compiler and the same .config - yes. But that
+>> means you'd have no progress within, say, 2.6. Only bug fixes.
+>> There _is_ a tree like that - 2.6.11.Xs are only bugfixes.
+>
+> Ok, this adds a new information. Let me explain what I understand now.
+>
+> When a new component is added to the kernel, let's say support for a new file 
+> system, a .config entry is created (CONFIG_MYFS=y|m). Why is this entry 
+> breaking compatibility? I mean, symbols still remains the same. The addition 
+> of symbols is not a breaking point.
 
-On Intel Noconas the TSC ticks with a constant frequency.  Don't scale the
-factor used by udelay when cpufreq changes the frequency.
+some config changes are additions, some redefine things.
 
-This generalizes an earlier patch by Intel for this. 
+you are mistakeing the .config file for a symbol table.
 
-Cc: <venkatesh.pallipadi@intel.com>
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+for example if you compile a kernel with SMP=y you get different code then 
+if you compile with SMP=n
 
- 25-akpm/arch/x86_64/kernel/setup.c      |    5 ++++-
- 25-akpm/arch/x86_64/kernel/time.c       |    5 +++--
- 25-akpm/include/asm-x86_64/cpufeature.h |    1 +
- 3 files changed, 8 insertions(+), 3 deletions(-)
+if you have the same kernel version on identical machines, but with the 
+SMP option different on the two different machines you cannot use the same 
+module binary on both of them.
 
-diff -puN arch/x86_64/kernel/setup.c~x86_64-support-constantly-ticking-tscs arch/x86_64/kernel/setup.c
---- 25/arch/x86_64/kernel/setup.c~x86_64-support-constantly-ticking-tscs	2005-04-12 03:21:23.473568376 -0700
-+++ 25-akpm/arch/x86_64/kernel/setup.c	2005-04-12 03:21:23.479567464 -0700
-@@ -855,6 +855,8 @@ static void __init init_intel(struct cpu
- 
- 	if (c->x86 == 15)
- 		c->x86_cache_alignment = c->x86_clflush_size * 2;
-+	if (c->x86 >= 15)
-+		set_bit(X86_FEATURE_CONSTANT_TSC, &c->x86_capability);
- }
- 
- void __init get_cpu_vendor(struct cpuinfo_x86 *c)
-@@ -1055,7 +1057,8 @@ static int show_cpuinfo(struct seq_file 
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
- 		/* Other (Linux-defined) */
--		"cxmmx", "k6_mtrr", "cyrix_arr", "centaur_mcr", NULL, NULL, NULL, NULL,
-+		"cxmmx", NULL, "cyrix_arr", "centaur_mcr", "k8c+",
-+		"constant_tsc", NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-diff -puN arch/x86_64/kernel/time.c~x86_64-support-constantly-ticking-tscs arch/x86_64/kernel/time.c
---- 25/arch/x86_64/kernel/time.c~x86_64-support-constantly-ticking-tscs	2005-04-12 03:21:23.474568224 -0700
-+++ 25-akpm/arch/x86_64/kernel/time.c	2005-04-12 03:21:23.480567312 -0700
-@@ -614,6 +614,9 @@ static int time_cpufreq_notifier(struct 
-         struct cpufreq_freqs *freq = data;
- 	unsigned long *lpj, dummy;
- 
-+	if (cpu_has(&cpu_data[freq->cpu], X86_FEATURE_CONSTANT_TSC))
-+		return 0;
-+
- 	lpj = &dummy;
- 	if (!(freq->flags & CPUFREQ_CONST_LOOPS))
- #ifdef CONFIG_SMP
-@@ -622,8 +625,6 @@ static int time_cpufreq_notifier(struct 
- 	lpj = &boot_cpu_data.loops_per_jiffy;
- #endif
- 
--
--
- 	if (!ref_freq) {
- 		ref_freq = freq->old;
- 		loops_per_jiffy_ref = *lpj;
-diff -puN include/asm-x86_64/cpufeature.h~x86_64-support-constantly-ticking-tscs include/asm-x86_64/cpufeature.h
---- 25/include/asm-x86_64/cpufeature.h~x86_64-support-constantly-ticking-tscs	2005-04-12 03:21:23.475568072 -0700
-+++ 25-akpm/include/asm-x86_64/cpufeature.h	2005-04-12 03:21:23.481567160 -0700
-@@ -62,6 +62,7 @@
- #define X86_FEATURE_CYRIX_ARR	(3*32+ 2) /* Cyrix ARRs (= MTRRs) */
- #define X86_FEATURE_CENTAUR_MCR	(3*32+ 3) /* Centaur MCRs (= MTRRs) */
- #define X86_FEATURE_K8_C	(3*32+ 4) /* C stepping K8 */
-+#define X86_FEATURE_CONSTANT_TSC (3*32+5) /* TSC runs at constant rate */
- 
- /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
- #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
-_
+>> But remember that changing a single config option may make your kernel
+>> incompatible. You can't avoid that without making the kernel suboptimal
+>> for most situations - basically you'd have to disable non-SMP builds,
+>> disable (or permanently enable) 4KB pages etc.
+>
+> What about making extensive use of modules? If everything (acceptable) is 
+> built on modules, can you still have abi, can you still change modules and 
+> api implementation without breaking anything? What are the requisites to abi?
+
+you would have an ABI for that kernel image, compiled with those options, 
+and with that compiler. if you change any of those things then your 
+modules won't work (you have a different ABI
+
+> I'm really curious about it. How abi can be made actual, and how would it be 
+> if we had a completely modular kernel (not micro, but something alike, 
+> modular in kernel-space, not in user-space).
+
+what you are missing is that nobody has any interest in supporting a 
+kernel ABI, even within a single kernel version. there are just too many 
+advantages to changeing fundamantal things in the kernel depending on the 
+config options.
+
+>> If you make a proprietary closed-sourse system (with kernel modules), you
+>> probably have to make the system suboptimal. But with open source there
+>> is a better alternative.
+>
+> No, I wouldn't. Closed source is out of discussion. Optimal kernel, even in 
+> open source can be achieved.
+>
+>> Asking for one modules dir only is similar to asking for only one
+>> /boot/vmlinuz-2.6 kernel file.
+>
+> Quite the same, yes. You can still have different kernels of course! By the 
+> way, another stupid curiosity is why /lib/modules instead of /boot? Because 
+> boot can be a partition and not be mounted? The same thing for /lib (crazy, 
+> but you can do it). I would expect a kernel and all its parts all in one 
+> place, not different locations...
+
+I don't know why the default location for the modules, but again you are 
+assuming that you CAN have a single vmlinuz-2.6 kernel file for all 
+machines of a given arch.
+
+you can't.
+
+there are just too many config options that change the internals of the 
+kernel (locking, function call formats, CPU type optmizations, etc) for 
+you to just have one.
+
+>> First, each 2.6.X would have to be binary-compatible with itself.
+>
+> That's the only point for me. I wouldn't make 2.6 and 2.8 kernels binary 
+> compatibles.
+
+but 2.6.11.7 is not nessasarily binary compatable with 2.6.11.7, let alone 
+something drasticly different (say 2.6.11.6)
+
+David Lang
+
+> -- 
+> Sensei <mailto:senseiwa@tin.it> <pgp:8998A2DB>
+>       <icqnum:241572242>
+>       <yahoo!:sensei_sen>
+>       <msn-id:sensei_sen@hotmail.com>
+>
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

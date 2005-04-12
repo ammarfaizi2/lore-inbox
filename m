@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVDLPsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262290AbVDLPsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVDLPsO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 11:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVDLKut
+	id S262290AbVDLPsN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 11:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVDLKsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:50:49 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47050 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262280AbVDLKdf (ORCPT
+	Tue, 12 Apr 2005 06:48:55 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61386 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262290AbVDLKdu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:35 -0400
-Message-Id: <200504121033.j3CAXHbq005838@shell0.pdx.osdl.net>
-Subject: [patch 168/198] IB/mthca: allocate correct number of doorbell pages
+	Tue, 12 Apr 2005 06:33:50 -0400
+Message-Id: <200504121033.j3CAXcvN005930@shell0.pdx.osdl.net>
+Subject: [patch 192/198] nfsd: clear signals before exiting the nfsd() thread
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, neilb@cse.unsw.edu.au,
+       bfields@citi.umich.edu, Trond.Myklebust@netapp.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:11 -0700
+Date: Tue, 12 Apr 2005 03:33:31 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Roland Dreier <roland@topspin.com>
+From: NeilBrown <neilb@cse.unsw.edu.au>
 
-Doorbell record pages are allocated in HCA page size chunks (always 4096
-bytes), so we need to divide by 4096 and not PAGE_SIZE when figuring out how
-many pages we'll need space for.
+Fixes the error "RPC: failed to contact portmap (errno -512)." when the server
+later tries to unregister from the portmapper.
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/infiniband/hw/mthca/mthca_memfree.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ 25-akpm/fs/nfsd/nfssvc.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
-diff -puN drivers/infiniband/hw/mthca/mthca_memfree.c~ib-mthca-allocate-correct-number-of-doorbell-pages drivers/infiniband/hw/mthca/mthca_memfree.c
---- 25/drivers/infiniband/hw/mthca/mthca_memfree.c~ib-mthca-allocate-correct-number-of-doorbell-pages	2005-04-12 03:21:43.467528832 -0700
-+++ 25-akpm/drivers/infiniband/hw/mthca/mthca_memfree.c	2005-04-12 03:21:43.470528376 -0700
-@@ -446,7 +446,7 @@ int mthca_init_db_tab(struct mthca_dev *
+diff -puN fs/nfsd/nfssvc.c~nfsd-clear-signals-before-exiting-the-nfsd-thread fs/nfsd/nfssvc.c
+--- 25/fs/nfsd/nfssvc.c~nfsd-clear-signals-before-exiting-the-nfsd-thread	2005-04-12 03:21:49.101672312 -0700
++++ 25-akpm/fs/nfsd/nfssvc.c	2005-04-12 03:21:49.104671856 -0700
+@@ -258,6 +258,8 @@ nfsd(struct svc_rqst *rqstp)
+ 				break;
+ 		err = signo;
+ 	}
++	/* Clear signals before calling lockd_down() and svc_exit_thread() */
++	flush_signals(current);
  
- 	init_MUTEX(&dev->db_tab->mutex);
- 
--	dev->db_tab->npages     = dev->uar_table.uarc_size / PAGE_SIZE;
-+	dev->db_tab->npages     = dev->uar_table.uarc_size / 4096;
- 	dev->db_tab->max_group1 = 0;
- 	dev->db_tab->min_group2 = dev->db_tab->npages - 1;
+ 	lock_kernel();
  
 _

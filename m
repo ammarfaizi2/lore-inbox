@@ -1,66 +1,251 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVDLFer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVDLFi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbVDLFer (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 01:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVDLFeg
+	id S262038AbVDLFi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 01:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbVDLFi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 01:34:36 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:59847 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262022AbVDLFYY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 01:24:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=gff0AEpvyuaDfbeKSguAQzfygYIcMtaw0ZtyUCou1qqs+XxPZ1CQwY5s2H0vSYHHpE+60uTKsG9MVvwHiEFDFqIKxmxyH4xTZUBBb4S2ncbeWPFCtk8vCH2R2CElEtWc/Mh0Xhv+qDISZpA0dUBe1XJFWlUeBd1y6JyrrkLoRx0=
-Message-ID: <9b7ca6570504112224dc532eb@mail.gmail.com>
-Date: Tue, 12 Apr 2005 14:24:24 +0900
-From: Daniel Ann <ktdann@gmail.com>
-Reply-To: Daniel Ann <ktdann@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: alloc_skb called nonatomically from interrupt
+	Tue, 12 Apr 2005 01:38:56 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:14000 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262038AbVDLFdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 01:33:46 -0400
+Subject: [PATCH 5/6]physical CPU hot add
+From: Li Shaohua <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>
+Cc: Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1113283863.27646.432.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 12 Apr 2005 13:31:12 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya folks
+Boot a CPU at runtime.
 
-I'm trying to get a feel of notifier_call_chain(), but with no luck.
-This is basically what I've done.
+Signed-off-by: Li Shaohua<shaohua.li@intel.com>
+---
 
-On 2.4.21, I've added dev_sample() function which I've declared and
-implemented in include/linux/netdevice.h and net/core/dev.c
-respectively.
+ linux-2.6.11-root/arch/i386/kernel/smpboot.c |  112 ++++++++++++++++++++-------
+ linux-2.6.11-root/drivers/base/cpu.c         |    8 +
+ linux-2.6.11-root/include/asm-i386/smp.h     |    2 
+ 3 files changed, 93 insertions(+), 29 deletions(-)
 
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-int dev_sample(struct net_device *dev)
-{
-    notifier_call_chain(&netdev_chain, NETDEV_SAMPLE, dev);
-    return 0;
-}
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+diff -puN arch/i386/kernel/smpboot.c~warm_boot_cpu arch/i386/kernel/smpboot.c
+--- linux-2.6.11/arch/i386/kernel/smpboot.c~warm_boot_cpu	2005-04-12 10:38:16.720411760 +0800
++++ linux-2.6.11-root/arch/i386/kernel/smpboot.c	2005-04-12 11:11:09.155556040 +0800
+@@ -80,6 +80,12 @@ cpumask_t cpu_callin_map;
+ cpumask_t cpu_callout_map;
+ static cpumask_t smp_commenced_mask;
+ 
++/* TSC's upper 32 bits can't be written in eariler CPU (before prescott), there
++ * is no way to resync one AP against BP. TBD: for prescott and above, we
++ * should use IA64's algorithm
++ */
++static int __devinitdata tsc_sync_disabled;
++
+ /* Per CPU bogomips and other parameters */
+ struct cpuinfo_x86 cpu_data[NR_CPUS] __cacheline_aligned;
+ 
+@@ -416,7 +422,7 @@ static void __devinit smp_callin(void)
+ 	/*
+ 	 *      Synchronize the TSC with the BP
+ 	 */
+-	if (cpu_has_tsc && cpu_khz)
++	if (cpu_has_tsc && cpu_khz && !tsc_sync_disabled)
+ 		synchronize_tsc_ap();
+ }
+ 
+@@ -809,6 +815,31 @@ static inline int alloc_cpu_id(void)
+ 	return cpu;
+ }
+ 
++#ifdef CONFIG_HOTPLUG_CPU
++static struct task_struct * __devinitdata cpu_idle_tasks[NR_CPUS];
++static inline struct task_struct * alloc_idle_task(int cpu)
++{
++	struct task_struct *idle;
++
++	if ((idle = cpu_idle_tasks[cpu]) != NULL) {
++		/* initialize thread_struct.  we really want to avoid destroy
++		 * idle tread
++		 */
++		idle->thread.esp = (unsigned long)(((struct pt_regs *)
++			(THREAD_SIZE + (unsigned long) idle->thread_info)) - 1);
++		init_idle(idle, cpu);
++		return idle;
++	}
++	idle = fork_idle(cpu);
++
++	if (!IS_ERR(idle))
++		cpu_idle_tasks[cpu] = idle;
++	return idle;
++}
++#else
++#define alloc_idle_task(cpu) fork_idle(cpu)
++#endif
++
+ static int __devinit do_boot_cpu(int apicid, int cpu)
+ /*
+  * NOTE - on most systems this is a PHYSICAL apic ID, but on multiquad
+@@ -828,7 +859,7 @@ static int __devinit do_boot_cpu(int api
+ 	 * We can't use kernel_thread since we must avoid to
+ 	 * reschedule the child.
+ 	 */
+-	idle = fork_idle(cpu);
++	idle = alloc_idle_task(cpu);
+ 	if (IS_ERR(idle))
+ 		panic("failed fork for CPU %d", cpu);
+ 	idle->thread.eip = (unsigned long) start_secondary;
+@@ -931,6 +962,55 @@ void cpu_exit_clear(void)
+ 	cpu_clear(cpu, smp_commenced_mask);
+ 	unmap_cpu_to_logical_apicid(cpu);
+ }
++
++struct warm_boot_cpu_info {
++	struct completion *complete;
++	int apicid;
++	int cpu;
++};
++
++static void __devinit do_warm_boot_cpu(void *p)
++{
++	struct warm_boot_cpu_info *info = p;
++	do_boot_cpu(info->apicid, info->cpu);
++	complete(info->complete);
++}
++
++int __devinit smp_prepare_cpu(int cpu)
++{
++	DECLARE_COMPLETION(done);
++	struct warm_boot_cpu_info info;
++	struct work_struct task;
++	int	apicid, ret;
++
++	lock_cpu_hotplug();
++	apicid = x86_cpu_to_apicid[cpu];
++	if (apicid == BAD_APICID) {
++		ret = -ENODEV;
++		goto exit;
++	}
++
++	info.complete = &done;
++	info.apicid = apicid;
++	info.cpu = cpu;
++	INIT_WORK(&task, do_warm_boot_cpu, &info);
++
++	tsc_sync_disabled = 1;
++
++	/* init low mem mapping */
++	memcpy(swapper_pg_dir, swapper_pg_dir + USER_PGD_PTRS,
++			sizeof(swapper_pg_dir[0]) * KERNEL_PGD_PTRS);
++	flush_tlb_all();
++	schedule_work(&task);
++	wait_for_completion(&done);
++
++	tsc_sync_disabled = 0;
++	zap_low_mappings();
++	ret = 0;
++exit:
++	unlock_cpu_hotplug();
++	return ret;
++}
+ #endif
+ 
+ static void smp_tune_scheduling (void)
+@@ -1169,24 +1249,6 @@ void __devinit smp_prepare_boot_cpu(void
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+-
+-/* must be called with the cpucontrol mutex held */
+-static int __devinit cpu_enable(unsigned int cpu)
+-{
+-	/* get the target out of its holding state */
+-	per_cpu(cpu_state, cpu) = CPU_UP_PREPARE;
+-	wmb();
+-
+-	/* wait for the processor to ack it. timeout? */
+-	while (!cpu_online(cpu))
+-		cpu_relax();
+-
+-	fixup_irqs(cpu_online_map);
+-	/* counter the disable in fixup_irqs() */
+-	local_irq_enable();
+-	return 0;
+-}
+-
+ static void
+ remove_siblinginfo(int cpu)
+ {
+@@ -1270,14 +1332,6 @@ int __devinit __cpu_up(unsigned int cpu)
+ 		return -EIO;
+ 	}
+ 
+-#ifdef CONFIG_HOTPLUG_CPU
+-	/* Already up, and in cpu_quiescent now? */
+-	if (cpu_isset(cpu, smp_commenced_mask)) {
+-		cpu_enable(cpu);
+-		return 0;
+-	}
+-#endif
+-
+ 	local_irq_enable();
+ 	/* Unleash the CPU! */
+ 	cpu_set(cpu, smp_commenced_mask);
+@@ -1292,10 +1346,12 @@ void __init smp_cpus_done(unsigned int m
+ 	setup_ioapic_dest();
+ #endif
+ 	zap_low_mappings();
++#ifndef CONFIG_HOTPLUG_CPU
+ 	/*
+ 	 * Disable executability of the SMP trampoline:
+ 	 */
+ 	set_kernel_exec((unsigned long)trampoline_base, trampoline_exec);
++#endif
+ }
+ 
+ void __init smp_intr_init(void)
+diff -puN drivers/base/cpu.c~warm_boot_cpu drivers/base/cpu.c
+--- linux-2.6.11/drivers/base/cpu.c~warm_boot_cpu	2005-04-12 10:38:16.721411608 +0800
++++ linux-2.6.11-root/drivers/base/cpu.c	2005-04-12 10:38:16.727410696 +0800
+@@ -16,6 +16,11 @@ struct sysdev_class cpu_sysdev_class = {
+ EXPORT_SYMBOL(cpu_sysdev_class);
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
++int __attribute__ ((weak)) smp_prepare_cpu(int cpu)
++{
++	return 0;
++}
++
+ static ssize_t show_online(struct sys_device *dev, char *buf)
+ {
+ 	struct cpu *cpu = container_of(dev, struct cpu, sysdev);
+@@ -36,7 +41,8 @@ static ssize_t store_online(struct sys_d
+ 			kobject_hotplug(&dev->kobj, KOBJ_OFFLINE);
+ 		break;
+ 	case '1':
+-		ret = cpu_up(cpu->sysdev.id);
++		if ((ret = smp_prepare_cpu(cpu->sysdev.id)) == 0)
++			ret = cpu_up(cpu->sysdev.id);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+diff -puN include/asm-i386/smp.h~warm_boot_cpu include/asm-i386/smp.h
+--- linux-2.6.11/include/asm-i386/smp.h~warm_boot_cpu	2005-04-12 10:38:16.722411456 +0800
++++ linux-2.6.11-root/include/asm-i386/smp.h	2005-04-12 10:38:16.727410696 +0800
+@@ -52,6 +52,8 @@ extern u8 x86_cpu_to_apicid[];
+ #ifdef CONFIG_HOTPLUG_CPU
+ extern void cpu_exit_clear(void);
+ extern void cpu_uninit(void);
++
++extern int smp_prepare_cpu(int cpu);
+ #endif
+ 
+ /*
+_
 
-Of course, I've defined NETDEV_SAMPLE in include/linux/notifier.h
 
-Now up to this stage, its fine. Problem is when I try to call
-dev_sample() from driver/net/natsemi.c (my network device driver).
-
-natsemi.c has check_link function which runs periodically and checks
-to see if cable is out. So I've placed my dev_sample() in this
-function and have it called whenever status of cable changes. But as
-soon as the status change, machine dies with "alloc_skb called
-nonatomically from interrupt c00ba700", with some printk's I was able
-to find out notifier_call_chain() was getting called. But it happens
-when it traverses the &netdev_chain. (at the very first one in fact)
-
-I've tried wrapping the dev_sample() with rtnl_lock and unlock but
-with no luck. It looks to me its to do with accessing resource at a
-wrong time, but I have no idea where to go from here.
-
-Any suggestion would be appreciated.
-Cheers,
-
--- 
-Daniel

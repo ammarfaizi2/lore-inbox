@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVDLQ7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVDLQ44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbVDLQ7O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 12:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVDLQ5V
+	id S262502AbVDLQ44 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 12:56:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVDLQzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 12:57:21 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:51901 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262494AbVDLQzp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 12:55:45 -0400
-Message-ID: <425BFEE5.8080702@austin.ibm.com>
-Date: Tue, 12 Apr 2005 12:01:25 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Tue, 12 Apr 2005 12:55:02 -0400
+Received: from mtk-sms-mail01.digi.com ([66.77.174.18]:54071 "EHLO
+	mtk-sms-mail01.digi.com") by vger.kernel.org with ESMTP
+	id S262411AbVDLQyC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 12:54:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org>	<20050411220013.23416d5f.akpm@osdl.org>	<425B61DD.60700@yahoo.com.au> <20050411231941.1b8548bb.akpm@osdl.org>
-In-Reply-To: <20050411231941.1b8548bb.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Digi Neo 8: linux-2.6.12_r2  jsm driver
+Date: Tue, 12 Apr 2005 11:54:04 -0500
+Message-ID: <335DD0B75189FB428E5C32680089FB9F12215B@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Digi Neo 8: linux-2.6.12_r2  jsm driver
+Thread-Index: AcU/evjIhKVpGsOhT1qgs66fXTG7cQAA7C2A
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Greg KH" <greg@kroah.com>
+Cc: "Christoph Hellwig" <hch@infradead.org>,
+       "Ihalainen Nickolay" <ihanic@dev.ehouse.ru>, <admin@list.net.ru>,
+       <linux-kernel@vger.kernel.org>, "Wen Xiong" <wendyx@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi Greg,
 
->Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->  
->
->>>- The effects of tcq on AS are much less disastrous than I thought they
->>>      
->>>
->> >  were.  Do I have the wrong workload?  Memory fails me.  Or did we fix the
->> >  anticipatory scheduler?
->> >
->> >
->>
->> Yes, we did fix it ;)
->> Quite a long time ago, so maybe you are thinking of something else
->> (I haven't been able to work it out).
->>    
->>
->
->Steve Pratt's ols2004 presentation made AS look pretty bad.  However the
->numbers in the proceedings
->(http://www.finux.org/proceedings/LinuxSymposium2004_V2.pdf) are much less
->stark.
->
->Steve, what's up with that?  The slides which you talked to had some awful
->numbers.  Was it the same set of tests?
->  
->
-I highlighted a few cases where AS went really wrong during the 
-presentation, like on really large RAID 0 arrays, but in general 
-(referring back to slides) AS trailed other schedulers by 5-10% on ext3, 
-but had real trouble with XFS, losing by as much as %145 on 5disk raid5 
-system for a mix of workloads.  Perhaps this is the piece you remember.
+> What features?  Didn't we end up with a valid resolution to all of the
+> additional stuff in the jsm driver that you originally asked for?  Why
+> not work on adding those new features to the serial core, and then
+there
+> would be no issue with accepting your other driver?
 
+I appreciate your "calm" response. =)
 
-Steve
+DPA (Digi Port Authority) support (the special ioctls)
+and /proc (and /sys) files were left unresolved.
+Wendy had no choice but to remove them to get the driver
+into the kernel sources.
+
+IBM was okay with removing them, so I was okay with doing it as well,
+as the whole point of the JSM driver is to support IBM's card directly.
+
+However, removing those things are just unacceptable for Digi for our
+cards.
+
+I understand your position, and I respect it.
+This is why for now, I cannot submit the original DGNC driver.
+
+However, I have taken your suggestion of moving to the serial-core to
+heart,
+and in the future, when I am able to drop 2.4 kernel support in the
+DGNC driver, I will completely go to serial-core, like the JSM driver
+has already done.
+
+Thanks!
+Scott Kilau
+

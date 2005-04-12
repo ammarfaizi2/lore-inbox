@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVDLIQV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVDLIXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbVDLIQV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 04:16:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVDLIQU
+	id S262048AbVDLIXF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 04:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVDLIXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 04:16:20 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:40082 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262053AbVDLIQO (ORCPT
+	Tue, 12 Apr 2005 04:23:05 -0400
+Received: from main.gmane.org ([80.91.229.2]:64159 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262048AbVDLIXB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 04:16:14 -0400
-Date: Tue, 12 Apr 2005 10:16:13 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: David Eger <eger@havoc.gtf.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: more git updates..
-Message-ID: <20050412081613.GA18545@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org>
+	Tue, 12 Apr 2005 04:23:01 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz>
+Subject: Re: 2.6.12-rc2-mm3
+Date: Tue, 12 Apr 2005 10:21:42 +0200
+Message-ID: <d3g091$2ic$1@sea.gmane.org>
+References: <20050411012532.58593bc1.akpm@osdl.org>	<d3ehut$boi$1@sea.gmane.org> <20050411172226.19716a2c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050412040519.GA17917@havoc.gtf.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 195.70.138.133.adsl.nextra.cz
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+In-Reply-To: <20050411172226.19716a2c.akpm@osdl.org>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, Apr 12, 2005 at 06:05:19AM CEST, I got a letter
-where David Eger <eger@havoc.gtf.org> told me that...
-> So with git, *every* changeset is an entire (compressed) copy of the
-> kernel.  Really?  Every patch you accept adds 37 MB to your hard disk?
+Andrew Morton wrote:
+> Jindrich Makovicka <makovick@kmlinux.fjfi.cvut.cz> wrote:
 > 
-> Am I missing something here?
+>>Andrew Morton wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
+>>
+>>MPlayer randomly crashes in various pthread_* calls when using binary
+>>codecs. 2.6.12-rc2-mm2 was ok. I tried to reverse
+>>fix-crash-in-entrys-restore_all.patch, but it didn't help.
+>>
+> 
+> 
+> hm, could be anything.
+> 
+> Does 2.6.12-rc2 also fail?
 
-Yes. Only changes files re-appear. The unchanged files keep the same
-SHA1 hash, therefore they don't re-appear in the repository.
-
-So, if Linus gets a patch which sanitizes drivers/char/selection.c,
-only these new objects appear in the repository:
-
-	drivers/char/selection.c
-	drivers/char
-	drivers
-	. (project root)
-	commit message
-
-Kind regards,
+looks like it's sched-unlocked-context-switches.patch. after reversing
+it works fine.
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+Jindrich Makovicka
+

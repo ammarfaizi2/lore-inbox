@@ -1,100 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVDLUlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVDLUlF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbVDLUlH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbVDLUjU
+	id S262112AbVDLUlF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:41:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVDLUlC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:39:20 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:29714 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262205AbVDLTPk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 15:15:40 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <7eggert@gmx.de>
-Cc: <debian-legal@lists.debian.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: non-free firmware in kernel modules, aggregation and unclear  copyright notice.
-Date: Tue, 12 Apr 2005 12:15:35 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAENKDBAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.58.0504122042360.2838@be1.lrz>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 12 Apr 2005 12:14:42 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 12 Apr 2005 12:14:45 -0700
+	Tue, 12 Apr 2005 16:41:02 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:39837 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S262195AbVDLT30 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 15:29:26 -0400
+Date: Tue, 12 Apr 2005 21:29:24 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, torvalds@osdl.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Re: Re: Re: Re: GIT license (Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1)
+Message-ID: <20050412192924.GA26542@pasky.ji.cz>
+References: <200504120120.j3C1KII14991@adam.yggdrasil.com> <20050412014204.GB9145@pasky.ji.cz> <Pine.LNX.4.62.0504121037590.10150@numbat.sonytel.be> <20050412095048.GB22614@pasky.ji.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050412095048.GB22614@pasky.ji.cz>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear diary, on Tue, Apr 12, 2005 at 11:50:48AM CEST, I got a letter
+where Petr Baudis <pasky@ucw.cz> told me that...
+> Dear diary, on Tue, Apr 12, 2005 at 10:39:40AM CEST, I got a letter
+> where Geert Uytterhoeven <geert@linux-m68k.org> told me that...
+> > On Tue, 12 Apr 2005, Petr Baudis wrote:
+> ..snip..
+> > > Basically, when you look at merge(1) :
+> > > 
+> > > SYNOPSIS
+> > >        merge [ options ] file1 file2 file3
+> > > DESCRIPTION
+> > >        merge  incorporates  all  changes that lead from file2 to file3
+> > > into file1.
+> > > 
+> > > The only big problem is how to guess the best file2 when you give it
+> > > file3 and file1.
+> > 
+> > That's either the point just before you started modifying the file, or your
+> > last merge point. Sounds simple, but if your SCM system doesn't track merges,
+> > your SOL...
+> 
+> Well, yes, but the last merge point search may not be so simple:
+> 
+> A --1---2----6---7
+> B    \   `-4-.  /
+> C     `-3-----5'
+> 
+> Now, when at 7, your last merge point is not 1, but 2.
 
-> On Tue, 12 Apr 2005, David Schwartz wrote:
+...and this is obviously wrong, sorry. You would lose 3 this way.
 
-> > > If you buy a W*nd*ws install CD, you can create a derived work,
-> > > e.g. an image
-> > > of your installation, under the fair use rights (IANAL). Can you
-> > > distribute
-> > > that image freely?
-
-> > 	I would say that if not for the EULA, you could transfer
-> > ownership of the
-> > image to someone else.
-
-> The EULA is irrelevant in germany and in many parts of the USA.
-
-	Really? I was under the impression EULA's were routinely upheld in the USA.
-If you have any references for that, I'd love to hear them.
-
-> > And if you legally acquired two copies of Windows,
-> > you could install both of them and transfer them. Otherwise,
-> > you could not
-> > sell a machine with the Windows OS installed unless you were a Microsoft
-> > OEM.
-
-> Then it would be stupid to become a OEM. Just buy one CD and
-> install it on
-> each computer you sell, combined with a pre-installed ghost.
-
-	You can only transfer each legally acquired copy once. The nice thing about
-GPL'd works is you can easily legally acquire as many copies as you want.
-But for works that are sold for a price, you have to legally acquire one
-copy for each one you transfer. *You* cannot increase the number of copies
-of the work, only a lawful distributor of the work can.
-
-	If you don't want to be bound by the GPL and you want to give ten friends
-copies of a Linux install disk, you could download ten copies of that disk
-from an FTP site, transfer them each to a floppy and destroy all other
-copies. You could then give those copies away under first sale rights.
-However, technically, if you gave out eleven copies and only legally
-acquired nine, you are exceeding your rights under first sale.
-
-> > Does Microsoft take the position that if you want to sell your PC, you
-> > must wipe the OS? Not that I know of.
-
-> They say it's forbidden do pass even the boot loader you put on disks,
-> they just won't sue you for just the boot loader.
-
-	Right, but in these cases the number of copies of the work is increased by
-the person. In the case of most GPL'd work, you can find any number of web
-sites that will do this for you. They have to comply with the GPL but you
-don't. (You don't have to agree to the GPL to lawfully acquire as many
-copies of the work as you want. Each copy can be lawfully transferred to
-another under first sale rights.)
-
-	If you acquire a copy of a GPL'd work that is sold for a price, and you
-only buy one copy, you cannot make and distribute additional copies without
-complying with the GPL. Each lawfully-acquired copy can be transferred,
-however.
-
-	DS
-
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

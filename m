@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262409AbVDLOpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262467AbVDLPOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262409AbVDLOpP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 10:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVDLOoR
+	id S262467AbVDLPOH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 11:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbVDLPK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 10:44:17 -0400
-Received: from mail.shareable.org ([81.29.64.88]:13984 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262260AbVDLOhW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 10:37:22 -0400
-Date: Tue, 12 Apr 2005 15:37:07 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, dan@debian.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org,
+	Tue, 12 Apr 2005 11:10:59 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:57822 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262400AbVDLPAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 11:00:07 -0400
+To: jamie@shareable.org
+CC: dan@debian.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
        viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050412143237.GB10995@mail.shareable.org> (message from Jamie
+	Lokier on Tue, 12 Apr 2005 15:32:37 +0100)
 Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050412143707.GD10995@mail.shareable.org>
-References: <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3S9b7-1yl-1@gated-at.bofh.it> <3S9uB-1Lj-3@gated-at.bofh.it> <3SbG5-3Mb-41@gated-at.bofh.it> <3ScC1-4zl-1@gated-at.bofh.it> <3ScLO-4GA-9@gated-at.bofh.it> <3SdeV-54h-21@gated-at.bofh.it> <3SeXf-6BK-21@gated-at.bofh.it> <E1DLKOd-0001Nd-MG@be1.7eggert.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DLKOd-0001Nd-MG@be1.7eggert.dyndns.org>
-User-Agent: Mutt/1.4.1i
+References: <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411221324.GA10541@nevyn.them.org> <E1DLEsQ-00015Z-00@dorka.pomaz.szeredi.hu> <20050412143237.GB10995@mail.shareable.org>
+Message-Id: <E1DLMrh-0001lm-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 12 Apr 2005 16:59:45 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
-> >> That is exactly the intended effect.  If I'm at my work machine (where
-> >> I'm not an admin unfortunately) and I mount my home machine with sshfs
-> >> (because FUSE is installed fortunately :), then I bloody well don't
-> >> want the sysadmin or some automated script of his to go mucking under
-> >> the mountpoint.
-> > 
-> > I think that would be _much_ nicer implemented as a mount which is
-> > invisible to other users, rather than one which causes the admin's
-> > scripts to spew error messages.  Is the namespace mechanism at all
-> > suitable for that?
-> 
-> This will require shared subtrees plus a way for new logins from the same
-> user to join an existing (previous login) namespace.
+> Note that NFS checks the permissions on _both_ the client and server,
+> for a reason.
 
-Or "per-user namespaces".
+Does it?  If I read the code correctly the client checks credentials
+supplied by the server (or cached).  But the server does the actual
+checking of permissions.
 
-It's part of a more general problem of how you limit access to private
-data such as crypto keys, either per user, or more finely than that.
+Am I missing something?
 
-Isn't that what all the keyring stuff is for?
-
--- Jamie
+Thanks,
+Miklos

@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262478AbVDLQsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVDLRIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262478AbVDLQsY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 12:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVDLQrR
+	id S262266AbVDLRIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262506AbVDLRIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 12:47:17 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:64523 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262494AbVDLQoe
+	Tue, 12 Apr 2005 13:08:06 -0400
+Received: from mail.shareable.org ([81.29.64.88]:25760 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262266AbVDLQoO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 12:44:34 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <7eggert@gmx.de>, <debian-legal@lists.debian.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: non-free firmware in kernel modules, aggregation and unclear 	copyright notice.
-Date: Tue, 12 Apr 2005 09:44:29 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEMGDBAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <E1DLHtY-0001CX-QV@be1.7eggert.dyndns.org>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 12 Apr 2005 09:43:35 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 12 Apr 2005 09:43:38 -0700
+	Tue, 12 Apr 2005 12:44:14 -0400
+Date: Tue, 12 Apr 2005 17:44:01 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+Message-ID: <20050412164401.GA14149@mail.shareable.org>
+References: <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Miklos Szeredi wrote:
+> The same can be true for tarfs.  I mount it for my purpose, others can
+> mount it for theirs.  Since the daemon providing the filesystem asways
+> runs with the same capabilities as the user who did the mount, I and
+> others will always get the permissions that we have on the actual tar
+> file.
 
-> David Schwartz <davids@webmaster.com> wrote:
->
-> >>Copyright law only _explicitly_ grants a monopoly on preparation of
-> >>derivative works.  However, it is trivial, and overwhelmingly common,
-> >>for a copyright owner to grant a license to create a derivative work
-> >>that is conditional on how the licensee agrees to distribute (or not
-> >>distribute) the derivative work.
+Fair enough.
 
-> > This would, of course, only make sense if you *had* to agree to
-> > the license
-> > to *create* the derivative work. If you were able to create the
-> > derivative
-> > work under first sale or fair use rights, then the restrictions in the
-> > contract would not apply to you.
+> Think of the "no permission for others" as "hiding", not as some
+> special permission rule.  And if this hiding can be nicely done with
+> namespaces, all the better, I'll happily drop this feature at that
+> instant.
 
-> If you buy a W*nd*ws install CD, you can create a derived work,
-> e.g. an image
-> of your installation, under the fair use rights (IANAL). Can you
-> distribute
-> that image freely?
+Indeed, if it can be done with namespaces _and_ mounting on a file
+(that file-as-directory concept), _and_ automounting, then you could
+cd into your tgz files and others could too :)
 
-	I would say that if not for the EULA, you could transfer ownership of the
-image to someone else. And if you legally acquired two copies of Windows,
-you could install both of them and transfer them. Otherwise, you could not
-sell a machine with the Windows OS installed unless you were a Microsoft
-OEM. Does Microsoft take the position that if you want to sell your PC, you
-must wipe the OS? Not that I know of.
-
-	DS
-
-
+-- Jamie

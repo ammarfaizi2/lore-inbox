@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVDLMMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVDLMHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVDLMMY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 08:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVDLMLj
+	id S262326AbVDLMHq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 08:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVDLMGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 08:11:39 -0400
-Received: from h142-az.mvista.com ([65.200.49.142]:38530 "HELO
-	xyzzy.farnsworth.org") by vger.kernel.org with SMTP id S262323AbVDLMIR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 08:08:17 -0400
-From: "Dale Farnsworth" <dale@farnsworth.org>
-Date: Tue, 12 Apr 2005 05:08:13 -0700
-To: Fabio Massimo Di Nitto <fabbione@ubuntu.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ppc32: MV643XX ethernet is an option for Pegasos
-Message-ID: <20050412120813.GA22502@xyzzy>
-References: <1113289985.21548.66.camel@gaston> <20050412095522.GA20129@xyzzy> <425BA688.9010607@ubuntu.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425BA688.9010607@ubuntu.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 12 Apr 2005 08:06:24 -0400
+Received: from 70-56-217-9.albq.qwest.net ([70.56.217.9]:5259 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262366AbVDLMGG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 08:06:06 -0400
+Date: Tue, 12 Apr 2005 06:07:46 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Li Shaohua <shaohua.li@intel.com>
+cc: lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       Ryan Harper <ryanh@us.ibm.com>
+Subject: Re: [PATCH 1/6]sep initializing rework
+In-Reply-To: <1113283845.27646.424.camel@sli10-desk.sh.intel.com>
+Message-ID: <Pine.LNX.4.61.0504120558500.14171@montezuma.fsmlabs.com>
+References: <1113283845.27646.424.camel@sli10-desk.sh.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 10:44:24AM +0000, Fabio Massimo Di Nitto wrote:
-> Dale Farnsworth wrote:
-> > This looks identical to the patch I posted to netdev two weeks ago
-> > as the first of 20 patches for the MV643xx ethernet driver.
-> > 
-> > See <http://oss.sgi.com/archives/netdev/2005-03/msg01644.html> and
-> > <http://oss.sgi.com/archives/netdev/2005-03/msg01642.html>.
-> 
-> It is possible. I received an old patch from Sven Luther and bounced to
-> Benjamin rediffed against 2.6.12rc2, but the bits ended to be exactly
-> the same.
-> 
-> PS feel free to claim credits on it. I don't want for sure take over
-> your work :)
+Hello Shaohua,
 
-No problem.  It was Nicolas' and Sven's patch and Like Sven said
-this one is trivial.  Mainly, I wanted to mention the other 19 patches
-I've sent that I hope get accepted soon.
+On Tue, 12 Apr 2005, Li Shaohua wrote:
 
--Dale
+> These patches (together with 5 patches followed this one) are updated
+> suspend/resume SMP patches. The patches fixed some bugs and do clean up
+> as suggested. Now they work for both suspend-to-ram and suspend-to-disk.
+> Patches are against 2.6.12-rc2-mm3.
+
+These patches look good and i think we should go ahead with them. I've 
+also cross checked with physical hotplug cpu patches for ES7xxx from 
+Natalie (added to Cc) and it does indeed look like a lot of the code will 
+work for her too, but i'd appreciate it if she also does a double check. 
+Obviously this won't work for other upcoming users of hotplug cpu like Xen 
+(Ryan added to Cc) but i think we can abstract things later on to cover 
+other special users.
+
+Thanks Shaohua,
+	Zwane
+

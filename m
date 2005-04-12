@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVDLRxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVDLR6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVDLRxw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 13:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVDLKgG
+	id S262319AbVDLR6H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:58:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVDLKfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:36:06 -0400
-Received: from fire.osdl.org ([65.172.181.4]:5064 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262119AbVDLKbJ (ORCPT
+	Tue, 12 Apr 2005 06:35:43 -0400
+Received: from fire.osdl.org ([65.172.181.4]:3528 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262116AbVDLKbI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:09 -0400
-Message-Id: <200504121031.j3CAV5ZI005233@shell0.pdx.osdl.net>
-Subject: [patch 028/198] ppc32: oops on kernel altivec assist exceptions
+	Tue, 12 Apr 2005 06:31:08 -0400
+Message-Id: <200504121030.j3CAUw0e005195@shell0.pdx.osdl.net>
+Subject: [patch 021/198] net: don't call kmem_cache_create with a spinlock held
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, paulus@samba.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, acme@conectiva.com.br,
+       davem@davemloft.net
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:59 -0700
+Date: Tue, 12 Apr 2005 03:30:52 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paul Mackerras <paulus@samba.org>
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
 
-If we should happen to get an altivec assist exception while executing in
-the kernel, we will currently try to handle it and fail, and end up oopsing
-with (apparently) a segfault.  (An altivec assist exception occurs for
-floating-point altivec instructions with denormalized inputs or outputs if
-the altivec unit is in java mode.)
-
-This patch checks explicitly if we are in user mode and prints a useful
-message if not.
-
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+This fixes the warning reported by Marcel Holtmann (Thanks!).
+  
+Signed-off-by: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/ppc/kernel/traps.c |    7 +++++++
- 1 files changed, 7 insertions(+)
+ 25-akpm/net/core/sock.c |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
 
-diff -puN arch/ppc/kernel/traps.c~ppc32-oops-on-kernel-altivec-assist-exceptions arch/ppc/kernel/traps.c
---- 25/arch/ppc/kernel/traps.c~ppc32-oops-on-kernel-altivec-assist-exceptions	2005-04-12 03:21:10.167591192 -0700
-+++ 25-akpm/arch/ppc/kernel/traps.c	2005-04-12 03:21:10.171590584 -0700
-@@ -805,6 +805,13 @@ void AltivecAssistException(struct pt_re
- 	if (regs->msr & MSR_VEC)
- 		giveup_altivec(current);
- 	preempt_enable();
-+	if (!user_mode(regs)) {
-+		printk(KERN_ERR "altivec assist exception in kernel mode"
-+		       " at %lx\n", regs->nip);
-+		debugger(regs);
-+		die("altivec assist exception", regs, SIGFPE);
-+		return;
-+	}
+diff -puN net/core/sock.c~dont-call-kmem_cache_create-with-a-spinlock-held net/core/sock.c
+--- 25/net/core/sock.c~dont-call-kmem_cache_create-with-a-spinlock-held	2005-04-12 03:21:08.325871176 -0700
++++ 25-akpm/net/core/sock.c	2005-04-12 03:21:08.329870568 -0700
+@@ -1359,8 +1359,6 @@ int proto_register(struct proto *prot, i
+ {
+ 	int rc = -ENOBUFS;
  
- 	err = emulate_altivec(regs);
- 	if (err == 0) {
+-	write_lock(&proto_list_lock);
+-
+ 	if (alloc_slab) {
+ 		prot->slab = kmem_cache_create(prot->name, prot->obj_size, 0,
+ 					       SLAB_HWCACHE_ALIGN, NULL, NULL);
+@@ -1368,14 +1366,15 @@ int proto_register(struct proto *prot, i
+ 		if (prot->slab == NULL) {
+ 			printk(KERN_CRIT "%s: Can't create sock SLAB cache!\n",
+ 			       prot->name);
+-			goto out_unlock;
++			goto out;
+ 		}
+ 	}
+ 
++	write_lock(&proto_list_lock);
+ 	list_add(&prot->node, &proto_list);
+-	rc = 0;
+-out_unlock:
+ 	write_unlock(&proto_list_lock);
++	rc = 0;
++out:
+ 	return rc;
+ }
+ 
 _

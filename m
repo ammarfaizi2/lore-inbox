@@ -1,73 +1,214 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVDLTZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVDLTZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbVDLTZV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVDLTXZ
+	id S262598AbVDLTZU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:25:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVDLTXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:23:25 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:19363 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S262202AbVDLSIL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 14:08:11 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<87wtr8rdvu.fsf@blackdown.de> <1113276365.5387.39.camel@gaston>
-	<87u0mc8v2p.fsf@blackdown.de> <1113287657.5387.46.camel@gaston>
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Andrew
-	Morton <akpm@osdl.org>, Linux Kernel list
-	<linux-kernel@vger.kernel.org>
-Date: Tue, 12 Apr 2005 20:08:06 +0200
-In-Reply-To: <1113287657.5387.46.camel@gaston> (Benjamin Herrenschmidt's
-	message of "Tue, 12 Apr 2005 16:34:16 +1000")
-Message-ID: <871x9fg96h.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 12 Apr 2005 15:23:09 -0400
+Received: from fire.osdl.org ([65.172.181.4]:23241 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262200AbVDLKcX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:32:23 -0400
+Message-Id: <200504121032.j3CAWBbI005526@shell0.pdx.osdl.net>
+Subject: [patch 098/198] x86_64: Final support for AMD dual core 
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, rjw@sisk.pl
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:32:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-> On Tue, 2005-04-12 at 06:42 +0200, Juergen Kreileder wrote:
->> Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
->>
->>> On Tue, 2005-04-12 at 03:18 +0200, Juergen Kreileder wrote:
->>>> Andrew Morton <akpm@osdl.org> writes:
->>>>
->>>>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
->>>>
->>>> I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
->>>>
->>>> 2.6.11-mm4 works fine but all 2.6.12 versions I've tried (all
->>>> since -rc1-mm3) lock up randomly.  The easiest way to reproduce
->>>> the problem seems to be running Azareus.  So it might be network
->>>> related, but I'm not 100% sure about that, there was a least one
->>>> deadlock with virtually no network usage.
->>>
->>> Hrm... I just noticed you have CONFIG_PREEMPT enabled... Can you
->>> test without it and let me know if it makes a difference ?
->>
->> IIRC I had disabled that for rc2-mm2 and it didn't make a
->> difference.  I'll disable it again when I try older versions.
->>
->> I just got another crash with rc2-mm3.  The crash was a bit
->> different this time, I still could move the mouse pointer and the
->> logs contained some info:
->
-> Ok, what about non-mm  ? (just plain rc2)
+From: "Andi Kleen" <ak@suse.de>
 
-I've tried older kernels now.  rc1-mm1 locks up (no logs); plain rc1
-seems to be OK (running fine for several hours now).
+Clean up the code greatly.  Now uses the infrastructure from the Intel dual
+core patch Should fix a final bug noticed by Tyan of not detecting the nodes
+correctly in some corner cases.
 
-        Juergen
+Patch for x86-64 and i386
 
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/arch/i386/kernel/cpu/amd.c    |   24 ++++++-----
+ 25-akpm/arch/i386/kernel/cpu/common.c |    2 
+ 25-akpm/arch/x86_64/kernel/setup.c    |   71 ++++++++++++++++++----------------
+ 3 files changed, 53 insertions(+), 44 deletions(-)
+
+diff -puN arch/i386/kernel/cpu/amd.c~x86_64-final-support-for-amd-dual-core arch/i386/kernel/cpu/amd.c
+--- 25/arch/i386/kernel/cpu/amd.c~x86_64-final-support-for-amd-dual-core	2005-04-12 03:21:26.496108880 -0700
++++ 25-akpm/arch/i386/kernel/cpu/amd.c	2005-04-12 03:21:26.502107968 -0700
+@@ -24,6 +24,9 @@ __asm__(".align 4\nvide: ret");
+ 
+ static void __init init_amd(struct cpuinfo_x86 *c)
+ {
++#ifdef CONFIG_SMP
++	int cpu = c == &boot_cpu_data ? 0 : c - cpu_data;
++#endif
+ 	u32 l, h;
+ 	int mbytes = num_physpages >> (20-PAGE_SHIFT);
+ 	int r;
+@@ -195,16 +198,17 @@ static void __init init_amd(struct cpuin
+ 			c->x86_num_cores = 1;
+ 	}
+ 
+-	detect_ht(c);
+-
+-#ifdef CONFIG_X86_HT
+-	/* AMD dual core looks like HT but isn't really. Hide it from the
+-	   scheduler. This works around problems with the domain scheduler.
+-	   Also probably gives slightly better scheduling and disables
+-	   SMT nice which is harmful on dual core.
+-	   TBD tune the domain scheduler for dual core. */
+-	if (cpu_has(c, X86_FEATURE_CMP_LEGACY))
+-		smp_num_siblings = 1;
++#ifdef CONFIG_SMP
++	/*
++	 * On a AMD dual core setup the lower bits of the APIC id
++	 * distingush the cores.  Assumes number of cores is a power
++	 * of two.
++	 */
++	if (c->x86_num_cores > 1) {
++		cpu_core_id[cpu] = cpu >> hweight32(c->x86_num_cores - 1);
++		printk(KERN_INFO "CPU %d(%d) -> Core %d\n",
++		       cpu, c->x86_num_cores, cpu_core_id[cpu]);
++	}
+ #endif
+ }
+ 
+diff -puN arch/i386/kernel/cpu/common.c~x86_64-final-support-for-amd-dual-core arch/i386/kernel/cpu/common.c
+--- 25/arch/i386/kernel/cpu/common.c~x86_64-final-support-for-amd-dual-core	2005-04-12 03:21:26.497108728 -0700
++++ 25-akpm/arch/i386/kernel/cpu/common.c	2005-04-12 03:21:26.503107816 -0700
+@@ -437,7 +437,7 @@ void __init detect_ht(struct cpuinfo_x86
+ 	int 	index_msb, tmp;
+ 	int 	cpu = smp_processor_id();
+ 
+-	if (!cpu_has(c, X86_FEATURE_HT))
++	if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c, X86_FEATURE_CMP_LEGACY))
+ 		return;
+ 
+ 	cpuid(1, &eax, &ebx, &ecx, &edx);
+diff -puN arch/x86_64/kernel/setup.c~x86_64-final-support-for-amd-dual-core arch/x86_64/kernel/setup.c
+--- 25/arch/x86_64/kernel/setup.c~x86_64-final-support-for-amd-dual-core	2005-04-12 03:21:26.499108424 -0700
++++ 25-akpm/arch/x86_64/kernel/setup.c	2005-04-12 03:21:26.504107664 -0700
+@@ -715,14 +715,46 @@ static void __init display_cacheinfo(str
+ 	}
+ }
+ 
++#ifdef CONFIG_SMP
++/*
++ * On a AMD dual core setup the lower bits of the APIC id distingush the cores.
++ * Assumes number of cores is a power of two.
++ */
++static void __init amd_detect_cmp(struct cpuinfo_x86 *c)
++{
++#ifdef CONFIG_SMP
++	int cpu = c->x86_apicid;
++	int node = 0;
++	if (c->x86_num_cores == 1)
++		return;
++	cpu_core_id[cpu] = cpu >> hweight32(c->x86_num_cores - 1);
++
++#ifdef CONFIG_NUMA
++	/* When an ACPI SRAT table is available use the mappings from SRAT
++ 	   instead. */
++	if (acpi_numa <= 0) {
++		node = cpu_core_id[cpu];
++		if (!node_online(node))
++			node = first_node(node_online_map);
++		cpu_to_node[cpu] = node;
++	} else {
++		node = cpu_to_node[cpu];
++	}
++#endif
++	printk(KERN_INFO "CPU %d(%d) -> Node %d -> Core %d\n",
++			cpu, c->x86_num_cores, node, cpu_core_id[cpu]);
++#endif
++}
++#else
++static void __init amd_detect_cmp(struct cpuinfo_x86 *c)
++{
++}
++#endif
+ 
+ static int __init init_amd(struct cpuinfo_x86 *c)
+ {
+ 	int r;
+ 	int level;
+-#ifdef CONFIG_NUMA
+-	int cpu;
+-#endif
+ 
+ 	/* Bit 31 in normal CPUID used for nonstandard 3DNow ID;
+ 	   3DNow is IDd by bit 31 in extended CPUID (1*32+31) anyway */
+@@ -750,21 +782,7 @@ static int __init init_amd(struct cpuinf
+ 		if (c->x86_num_cores & (c->x86_num_cores - 1))
+ 			c->x86_num_cores = 1;
+ 
+-#ifdef CONFIG_NUMA
+-		/* On a dual core setup the lower bits of apic id
+-		   distingush the cores. Fix up the CPU<->node mappings
+-		   here based on that.
+-		   Assumes number of cores is a power of two.
+-		   When using SRAT use mapping from SRAT. */
+-		cpu = c->x86_apicid;
+-		if (acpi_numa <= 0 && c->x86_num_cores > 1) {
+-			cpu_to_node[cpu] = cpu >> hweight32(c->x86_num_cores - 1);
+-			if (!node_online(cpu_to_node[cpu]))
+-				cpu_to_node[cpu] = first_node(node_online_map);
+-		}
+-		printk(KERN_INFO "CPU %d(%d) -> Node %d\n",
+-				cpu, c->x86_num_cores, cpu_to_node[cpu]);
+-#endif
++		amd_detect_cmp(c);
+ 	}
+ 
+ 	return r;
+@@ -777,7 +795,7 @@ static void __init detect_ht(struct cpui
+ 	int 	index_msb, tmp;
+ 	int 	cpu = smp_processor_id();
+ 	
+-	if (!cpu_has(c, X86_FEATURE_HT))
++	if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c, X86_FEATURE_CMP_LEGACY))
+ 		return;
+ 
+ 	cpuid(1, &eax, &ebx, &ecx, &edx);
+@@ -819,6 +837,7 @@ static void __init detect_ht(struct cpui
+ 		if (smp_num_siblings & (smp_num_siblings - 1))
+ 			index_msb++;
+ 
++		/* RED-PEN surely this must run in the non HT case too! -AK */
+ 		cpu_core_id[cpu] = phys_pkg_id(index_msb);
+ 
+ 		if (c->x86_num_cores > 1)
+@@ -828,19 +847,6 @@ static void __init detect_ht(struct cpui
+ #endif
+ }
+ 
+-static void __init sched_cmp_hack(struct cpuinfo_x86 *c)
+-{
+-#ifdef CONFIG_SMP
+-	/* AMD dual core looks like HT but isn't really. Hide it from the
+-	   scheduler. This works around problems with the domain scheduler.
+-	   Also probably gives slightly better scheduling and disables
+-	   SMT nice which is harmful on dual core.
+-	   TBD tune the domain scheduler for dual core. */
+-	if (c->x86_vendor == X86_VENDOR_AMD && cpu_has(c, X86_FEATURE_CMP_LEGACY))
+-		smp_num_siblings = 1;
+-#endif
+-}
+-
+ /*
+  * find out the number of processor cores on the die
+  */
+@@ -1009,7 +1015,6 @@ void __init identify_cpu(struct cpuinfo_
+ 
+ 	select_idle_routine(c);
+ 	detect_ht(c); 
+-	sched_cmp_hack(c);
+ 
+ 	/*
+ 	 * On SMP, boot_cpu_data holds the common feature set between
+_

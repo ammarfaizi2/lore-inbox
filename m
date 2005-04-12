@@ -1,74 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVDMDAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVDMDAD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262178AbVDMDAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 23:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbVDMC5Q
+	id S262133AbVDMDAD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 23:00:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVDMC56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 22:57:16 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:22400 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262637AbVDMCYp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 22:24:45 -0400
-Message-ID: <425C82E9.1000208@yahoo.com.au>
-Date: Wed, 13 Apr 2005 12:24:41 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Tue, 12 Apr 2005 22:57:58 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:26630 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S262184AbVDLTmX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 15:42:23 -0400
+Message-ID: <425C24AD.7070309@aknet.ru>
+Date: Tue, 12 Apr 2005 23:42:37 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-To: Claudio Martins <ctpm@rnl.ist.utl.pt>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       neilb@cse.unsw.edu.au
-Subject: Re: Processes stuck on D state on Dual Opteron
-References: <200504050316.20644.ctpm@rnl.ist.utl.pt> <200504120122.48168.ctpm@rnl.ist.utl.pt> <20050411174654.536e1d79.akpm@osdl.org> <200504130131.31319.ctpm@rnl.ist.utl.pt>
-In-Reply-To: <200504130131.31319.ctpm@rnl.ist.utl.pt>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@osdl.org>
+Cc: petkov@uni-muenster.de, jamagallon@able.es, linux-kernel@vger.kernel.org
+Subject: [patch 1/3]: move config option for BAD_SYSCALL_EXIT
+References: <20050411012532.58593bc1.akpm@osdl.org>	<1113209793l.7664l.1l@werewolf.able.es>	<20050411024322.786b83de.akpm@osdl.org>	<200504112359.40487.petkov@uni-muenster.de>	<20050411152243.22835d96.akpm@osdl.org>	<425B4C92.1070507@aknet.ru> <20050411212712.0dbd821d.akpm@osdl.org>
+In-Reply-To: <20050411212712.0dbd821d.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------040600040001090903090407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Claudio Martins wrote:
-> On Tuesday 12 April 2005 01:46, Andrew Morton wrote:
-> 
->>Claudio Martins <ctpm@rnl.ist.utl.pt> wrote:
->>
->>>  I think I'm going to give a try to Neil's patch, but I'll have to apply
->>>some patches from -mm.
->>
->>Just this one if you're using 2.6.12-rc2:
->>
->>--- 25/drivers/md/md.c~avoid-deadlock-in-sync_page_io-by-using-gfp_noio Mon
->>Apr 11 16:55:07 2005 +++ 25-akpm/drivers/md/md.c Mon Apr 11 16:55:07 2005
->>@@ -332,7 +332,7 @@ static int bi_complete(struct bio *bio,
->> static int sync_page_io(struct block_device *bdev, sector_t sector, int
->>size, struct page *page, int rw)
->> {
->>- struct bio *bio = bio_alloc(GFP_KERNEL, 1);
->>+ struct bio *bio = bio_alloc(GFP_NOIO, 1);
->>  struct completion event;
->>  int ret;
->>
->>_
-> 
-> 
-> 
->   Hi Andrew, all,
-> 
->   Sorry for the delay in reporting. This patch does indeed fix the problem. 
-> The machine ran stress for almost 15h straight with no problems at all.
-> 
->  As for Nick's patch  I, too, think it would be nice to be included (once the 
-> performance problems are sorted out), since it seemed to make the block layer 
-> more robust and well behaved (at least with stress),  although I didn't run 
-> performance tests to measure regressions.
-> 
->   Thanks Nick, Neil, Andrew and all others for your great help with this 
-> issue. I'll have to put the machine on production now with the patch applied, 
-> but let me know if I can be of any further help with these issues.
-> 
+This is a multi-part message in MIME format.
+--------------040600040001090903090407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Thanks for reporting and testing - what we need is more people
-like you contributing to Linux ;)
+Hello.
 
--- 
-SUSE Labs, Novell Inc.
+This patch moves the CONFIG_TRAP_BAD_SYSCALL_EXIT
+from "Executable file formats" section to the
+KGDB section. I had real problems finding that
+option where it was.
 
+Signed-off-by: Stas Sergeev <stsp@aknet.ru>
+
+--------------040600040001090903090407
+Content-Type: text/x-patch;
+ name="kgdbconf.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="kgdbconf.diff"
+
+--- linux/arch/i386/Kconfig.old	2005-04-12 09:47:38.000000000 +0400
++++ linux/arch/i386/Kconfig	2005-04-12 09:56:48.000000000 +0400
+@@ -1267,14 +1267,6 @@
+ 
+ source "fs/Kconfig.binfmt"
+ 
+-config TRAP_BAD_SYSCALL_EXITS
+-	bool "Debug bad system call exits"
+-	depends on KGDB
+-	help
+-	  If you say Y here the kernel will check for system calls which
+-	  return without clearing preempt.
+-        default n
+-
+ endmenu
+ 
+ source "drivers/Kconfig"
+--- linux/arch/i386/Kconfig.kgdb.old	2005-04-12 09:47:38.000000000 +0400
++++ linux/arch/i386/Kconfig.kgdb	2005-04-12 09:57:11.000000000 +0400
+@@ -140,6 +140,14 @@
+ 	  to check for kernel stack overflow on interrupts and system
+ 	  calls.  This is part of the kgdb code on x86 systems.
+ 
++config TRAP_BAD_SYSCALL_EXITS
++	bool "Debug bad system call exits"
++	depends on KGDB
++	help
++	  If you say Y here the kernel will check for system calls which
++	  return without clearing preempt.
++        default n
++
+ config KGDB_CONSOLE
+ 	bool "Enable serial console thru kgdb port"
+ 	depends on KGDB
+
+--------------040600040001090903090407--

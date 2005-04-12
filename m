@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVDLStH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVDLSxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbVDLStH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVDLSrY
+	id S262547AbVDLSxc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVDLSvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:47:24 -0400
-Received: from fire.osdl.org ([65.172.181.4]:12490 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262237AbVDLKc4 (ORCPT
+	Tue, 12 Apr 2005 14:51:39 -0400
+Received: from fire.osdl.org ([65.172.181.4]:1226 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262225AbVDLKcr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:56 -0400
-Message-Id: <200504121032.j3CAWj6x005668@shell0.pdx.osdl.net>
-Subject: [patch 132/198] quota: possible bug in quota format v2 support
+	Tue, 12 Apr 2005 06:32:47 -0400
+Message-Id: <200504121032.j3CAWe8M005649@shell0.pdx.osdl.net>
+Subject: [patch 128/198] use cheaper elv_queue_empty when unplug a device
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, niu@clusterfs.com,
-       jack@suse.cz
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, kenneth.w.chen@intel.com,
+       axboe@suse.de
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:39 -0700
+Date: Tue, 12 Apr 2005 03:32:34 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Niu YaWei <niu@clusterfs.com>
+From: Ken Chen <kenneth.w.chen@intel.com>
 
-Don't put root block of quota tree to the free list (when quota file is
-completely empty).  That should not actually happen anyway (somebody should
-get accounted for the filesystem root and so quota file should never be
-empty) but better prevent it here than solve magical quota file
-corruption.
+In function __generic_unplug_device(), kernel can use a cheaper function
+elv_queue_empty() instead of more expensive elv_next_request to find
+whether the queue is empty or not.  blk_run_queue can also made conditional
+on whether queue's emptiness before calling request_fn().
 
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@suse.de>
+Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/fs/quota_v2.c |    3 ++-
+ 25-akpm/drivers/block/ll_rw_blk.c |    3 ++-
  1 files changed, 2 insertions(+), 1 deletion(-)
 
-diff -puN fs/quota_v2.c~quota-possible-bug-in-quota-format-v2-support fs/quota_v2.c
---- 25/fs/quota_v2.c~quota-possible-bug-in-quota-format-v2-support	2005-04-12 03:21:35.447748024 -0700
-+++ 25-akpm/fs/quota_v2.c	2005-04-12 03:21:35.450747568 -0700
-@@ -503,7 +503,8 @@ static int remove_tree(struct dquot *dqu
- 		int i;
- 		ref[GETIDINDEX(dquot->dq_id, depth)] = cpu_to_le32(0);
- 		for (i = 0; i < V2_DQBLKSIZE && !buf[i]; i++);	/* Block got empty? */
--		if (i == V2_DQBLKSIZE) {
-+		/* Don't put the root block into the free block list */
-+		if (i == V2_DQBLKSIZE && *blk != V2_DQTREEOFF) {
- 			put_free_dqblk(sb, type, buf, *blk);
- 			*blk = 0;
- 		}
+diff -puN drivers/block/ll_rw_blk.c~use-cheaper-elv_queue_empty-when-unplug-a-device drivers/block/ll_rw_blk.c
+--- 25/drivers/block/ll_rw_blk.c~use-cheaper-elv_queue_empty-when-unplug-a-device	2005-04-12 03:21:34.394908080 -0700
++++ 25-akpm/drivers/block/ll_rw_blk.c	2005-04-12 03:21:34.399907320 -0700
+@@ -1589,7 +1589,8 @@ void blk_run_queue(struct request_queue 
+ 
+ 	spin_lock_irqsave(q->queue_lock, flags);
+ 	blk_remove_plug(q);
+-	q->request_fn(q);
++	if (!elv_queue_empty(q))
++		q->request_fn(q);
+ 	spin_unlock_irqrestore(q->queue_lock, flags);
+ }
+ EXPORT_SYMBOL(blk_run_queue);
 _

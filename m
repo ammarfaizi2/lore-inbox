@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVDMCcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVDMCZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbVDMCcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 22:32:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVDMC32
+	id S262183AbVDMCZK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262179AbVDLToc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 22:29:28 -0400
-Received: from koto.vergenet.net ([210.128.90.7]:60371 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S262176AbVDMC1V (ORCPT
+	Tue, 12 Apr 2005 15:44:32 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63944 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262176AbVDLKcD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 22:27:21 -0400
-Date: Wed, 13 Apr 2005 11:14:02 +0900
-From: Horms <horms@verge.net.au>
-To: George Anzinger <george@mvista.com>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       schwidefsky@de.ibm.com, netdev@oss.sgi.com
-Subject: Re: [PATCH] Maintainers list update: linux-net -> netdev
-Message-ID: <20050413021400.GA1835@verge.net.au>
-Mail-Followup-To: George Anzinger <george@mvista.com>,
-	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-	Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	schwidefsky@de.ibm.com, netdev@oss.sgi.com
-References: <20050412062027.GA1614@verge.net.au> <425C1E30.5060405@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425C1E30.5060405@mvista.com>
-X-Cluestick: seven
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 12 Apr 2005 06:32:03 -0400
+Message-Id: <200504121031.j3CAVsQc005439@shell0.pdx.osdl.net>
+Subject: [patch 078/198] x86_64: Dump stack and prevent recursion on early fault
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:31:47 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 12:14:56PM -0700, George Anzinger wrote:
-> Horms wrote:
-> >
-> >Use netdev as the mailing list contact instead of the mostly dead
-> >linux-net list.
-> >
-> ~
-> > PHRAM MTD DRIVER
-> >@@ -1795,7 +1795,7 @@
-> > POSIX CLOCKS and TIMERS
-> > P:	George Anzinger
-> > M:	george@mvista.com
-> >-L:	linux-net@vger.kernel.org
-> >+L:	netdev@oss.sgi.com
-> > S:	Supported
-> > 
-> I don't really know about the rest of them, but I think this should be:
-> L: linux-kernel@vger.kernel.org
-> 
-> Least wise that is where I look...
 
-Yes, I was wondering about that one. Here is a patch that
-adds to my previous patch. Trivial to say the least. 
-I can re-diff the whole thing if that is more convenient.
+From: "Andi Kleen" <ak@suse.de>
 
--- 
-Horms
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-POSIX CLOCKS and TIMERS disscussion is more appropriate
-on linux-kernel than linux-net. As suggested by the maintainer,
-George Anzinger.
+ 25-akpm/arch/x86_64/kernel/head.S |    8 ++++++++
+ 1 files changed, 8 insertions(+)
 
-Signed-off-by: Horms <horms@verge.net.au>
-
---- a/MAINTAINERS	2005-04-13 11:06:39.000000000 +0900
-+++ b/MAINTAINERS	2005-04-13 11:07:04.000000000 +0900
-@@ -1795,7 +1795,7 @@
- POSIX CLOCKS and TIMERS
- P:	George Anzinger
- M:	george@mvista.com
--L:	linux-net@vger.kernel.org
-+L:	linux-kernel@vger.kernel.org
- S:	Supported
+diff -puN arch/x86_64/kernel/head.S~x86_64-dump-stack-and-prevent-recursion-on-early-fault arch/x86_64/kernel/head.S
+--- 25/arch/x86_64/kernel/head.S~x86_64-dump-stack-and-prevent-recursion-on-early-fault	2005-04-12 03:21:22.009790904 -0700
++++ 25-akpm/arch/x86_64/kernel/head.S	2005-04-12 03:21:22.012790448 -0700
+@@ -200,14 +200,22 @@ init_rsp:
+ 	.quad  init_thread_union+THREAD_SIZE-8
  
- PNP SUPPORT
+ ENTRY(early_idt_handler)
++	cmpl $2,early_recursion_flag(%rip)
++	jz  1f
++	incl early_recursion_flag(%rip)
+ 	xorl %eax,%eax
+ 	movq 8(%rsp),%rsi	# get rip
+ 	movq (%rsp),%rdx
+ 	movq %cr2,%rcx
+ 	leaq early_idt_msg(%rip),%rdi
+ 	call early_printk
++	cmpl $2,early_recursion_flag(%rip)
++	jz  1f
++	call dump_stack
+ 1:	hlt
+ 	jmp 1b
++early_recursion_flag:
++	.long 0
+ 
+ early_idt_msg:
+ 	.asciz "PANIC: early exception rip %lx error %lx cr2 %lx\n"
+_

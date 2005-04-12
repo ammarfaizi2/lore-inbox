@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVDLUXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVDLU1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbVDLUXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbVDLUVm
+	id S262127AbVDLU1e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262964AbVDLUZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:21:42 -0400
-Received: from fire.osdl.org ([65.172.181.4]:15560 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262129AbVDLKbV (ORCPT
+	Tue, 12 Apr 2005 16:25:05 -0400
+Received: from fire.osdl.org ([65.172.181.4]:10952 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262127AbVDLKbO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:21 -0400
-Message-Id: <200504121031.j3CAVHVJ005276@shell0.pdx.osdl.net>
-Subject: [patch 038/198] ppc32: Fix building 32bit kernel for 64bit machines
+	Tue, 12 Apr 2005 06:31:14 -0400
+Message-Id: <200504121031.j3CAVBil005257@shell0.pdx.osdl.net>
+Subject: [patch 034/198] ppc32: Allow adjust of pfn offset in pte
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, trini@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, galak@freescale.com,
+       kumar.gala@freescale.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:10 -0700
+Date: Tue, 12 Apr 2005 03:31:05 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Tom Rini <trini@kernel.crashing.org>
+From: Kumar Gala <galak@freescale.com>
 
-When building a ppc32 MULTIPLATFORM kernel for a 64bit pmac, we try and
-build certain files or use certain functions that make no sense in that
-context.  This catches the last of these.
+Allow the pfn to be offset by more than just PAGE_SHIFT in the pte.  Today,
+PAGE_SHIFT tends to allow us to have 12-bits of flags in the pte.  In the
+future if we have a larger pte we can allocate more bits for flags by
+offsetting the pfn even further.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/ppc/boot/simple/Makefile   |    3 +++
- 25-akpm/arch/ppc/platforms/pmac_cache.S |    4 ++++
- 2 files changed, 7 insertions(+)
+ 25-akpm/include/asm-ppc/pgtable.h |    9 +++++++--
+ 1 files changed, 7 insertions(+), 2 deletions(-)
 
-diff -puN arch/ppc/boot/simple/Makefile~ppc32-fix-building-32bit-kernel-for-64bit-machines arch/ppc/boot/simple/Makefile
---- 25/arch/ppc/boot/simple/Makefile~ppc32-fix-building-32bit-kernel-for-64bit-machines	2005-04-12 03:21:12.495237336 -0700
-+++ 25-akpm/arch/ppc/boot/simple/Makefile	2005-04-12 03:21:12.500236576 -0700
-@@ -123,10 +123,13 @@ zimageinitrd-$(pcore)			:= zImage.initrd
-          end-$(pcore)			:= pcore
-    cacheflag-$(pcore)			:= -include $(clear_L2_L3)
- 
-+# Really only valid if CONFIG_6xx=y
-       zimage-$(CONFIG_PPC_PREP)		:= zImage-PPLUS
- zimageinitrd-$(CONFIG_PPC_PREP)		:= zImage.initrd-PPLUS
-+ifeq ($(CONFIG_6xx),y)
-      extra.o-$(CONFIG_PPC_PREP)		:= prepmap.o
-         misc-$(CONFIG_PPC_PREP)		+= misc-prep.o mpc10x_memory.o
-+endif
-          end-$(CONFIG_PPC_PREP)		:= prep
- 
-          end-$(CONFIG_SANDPOINT)	:= sandpoint
-diff -puN arch/ppc/platforms/pmac_cache.S~ppc32-fix-building-32bit-kernel-for-64bit-machines arch/ppc/platforms/pmac_cache.S
---- 25/arch/ppc/platforms/pmac_cache.S~ppc32-fix-building-32bit-kernel-for-64bit-machines	2005-04-12 03:21:12.497237032 -0700
-+++ 25-akpm/arch/ppc/platforms/pmac_cache.S	2005-04-12 03:21:12.501236424 -0700
-@@ -28,6 +28,9 @@
+diff -puN include/asm-ppc/pgtable.h~ppc32-allow-adjust-of-pfn-offset-in-pte include/asm-ppc/pgtable.h
+--- 25/include/asm-ppc/pgtable.h~ppc32-allow-adjust-of-pfn-offset-in-pte	2005-04-12 03:21:11.573377480 -0700
++++ 25-akpm/include/asm-ppc/pgtable.h	2005-04-12 03:21:11.576377024 -0700
+@@ -431,10 +431,15 @@ extern unsigned long bad_call_to_PMD_PAG
+  * Conversions between PTE values and page frame numbers.
   */
  
- _GLOBAL(flush_disable_caches)
-+#ifndef CONFIG_6xx
-+	blr
-+#else
- BEGIN_FTR_SECTION
- 	b	flush_disable_745x
- END_FTR_SECTION_IFSET(CPU_FTR_SPEC7450)
-@@ -323,3 +326,4 @@ END_FTR_SECTION_IFSET(CPU_FTR_L3CR)
- 	mtmsr	r11		/* restore DR and EE */
- 	isync
- 	blr
-+#endif	/* CONFIG_6xx */
+-#define pte_pfn(x)		(pte_val(x) >> PAGE_SHIFT)
++/* in some case we want to additionaly adjust where the pfn is in the pte to
++ * allow room for more flags */
++#define PFN_SHIFT_OFFSET	(PAGE_SHIFT)
++
++#define pte_pfn(x)		(pte_val(x) >> PFN_SHIFT_OFFSET)
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ 
+-#define pfn_pte(pfn, prot)	__pte(((pte_t)(pfn) << PAGE_SHIFT) | pgprot_val(prot))
++#define pfn_pte(pfn, prot)	__pte(((pte_basic_t)(pfn) << PFN_SHIFT_OFFSET) |\
++					pgprot_val(prot))
+ #define mk_pte(page, prot)	pfn_pte(page_to_pfn(page), prot)
+ 
+ /*
 _

@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263019AbVDLVmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263012AbVDLViW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbVDLVmc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 17:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbVDLVir
+	id S263012AbVDLViW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 17:38:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263004AbVDLVfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 17:38:47 -0400
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:18087 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S263015AbVDLVh6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 17:37:58 -0400
-Date: Tue, 12 Apr 2005 17:37:50 -0400
-From: Raul Miller <moth@debian.org>
-To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050412173750.C24721@links.magenta.com>
-References: <20050412135013.M32136@links.magenta.com> <MDEHLPKNGKAHNMBLJOLKKENIDBAB.davids@webmaster.com>
+	Tue, 12 Apr 2005 17:35:19 -0400
+Received: from [193.112.238.6] ([193.112.238.6]:43905 "EHLO caveman.xisl.com")
+	by vger.kernel.org with ESMTP id S263002AbVDLVdM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 17:33:12 -0400
+Subject: Re: Exploit in 2.6 kernels
+From: John M Collins <jmc@xisl.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050412210857.GT11199@shell0.pdx.osdl.net>
+References: <1113298455.16274.72.camel@caveman.xisl.com>
+	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
+	 <20050412210857.GT11199@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Organization: Xi Software Ltd
+Date: Tue, 12 Apr 2005 22:32:59 +0100
+Message-Id: <1113341579.3105.63.camel@caveman.xisl.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKKENIDBAB.davids@webmaster.com>; from davids@webmaster.com on Tue, Apr 12, 2005 at 12:05:59PM -0700
+X-Mailer: Evolution 2.0.1-1mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 12:05:59PM -0700, David Schwartz wrote:
->	Yes, the GPL can give you rights you wouldn't otherwise have. A
-> EULA can take away rights you would otherwise have.
+On Tue, 2005-04-12 at 14:08 -0700, Chris Wright wrote:
+> * John M Collins (jmc@xisl.com) wrote:
+> > Thanks to everyone for the pointers on this one I've rebuilt the kernels
+> > and we'll see what happens.
+> 
+> BTW, I'd recommend updating to 2.6.11.7 so that you're protected from
+> another local root exploit.
 
-What compels you to agree with an EULA?
+I'll do that - trouble is round where I am they dish out Nvidia cards
+like confetti, I've got them in the machine I use most and another 2 and
+you have to do all that gyrating with running the script to FTP down and
+build the secret module before you can run X. This is a big disincentive
+when it comes to installing new kernels.
 
-> 	In the few court cases that have directly addresses shrink-wrap and
-> click-wrap type agreements, I've seen them consistently upheld. However,
-> this is not relevent to the GPL issue at all because the GPL can only give
-> you rights you wouldn't otherwise have, it cannot take away any rights.
+I wish some kind soul would speak nicely to Nvidia and get them to see
+reason on the point but I suspect I'm not the first person to wish that.
+(Or is there a sneaky way of patching the modules so they'll work in
+another kernel without tainting it?).
 
-The GPL offers you certain rights if you agree to be bound by certain
-conditions.
 
-You are not compelled to agree to those conditions, but those who do
-not gain no rights from the GPL.
+John Collins Xi Software Ltd www.xisl.com Tel: +44 (0)1707 886110
+(Direct) +44 (0)7799 113162 (Mobile)
 
--- 
-Raul

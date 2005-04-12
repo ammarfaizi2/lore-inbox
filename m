@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbVDLJu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVDLJxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbVDLJu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 05:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVDLJu5
+	id S262087AbVDLJxE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 05:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262088AbVDLJxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 05:50:57 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:7060 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S262085AbVDLJut (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 05:50:49 -0400
-Date: Tue, 12 Apr 2005 11:50:48 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, torvalds@osdl.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Re: Re: Re: GIT license (Re: Re: Re: Re: Re: [ANNOUNCE] git-pasky-0.1)
-Message-ID: <20050412095048.GB22614@pasky.ji.cz>
-References: <200504120120.j3C1KII14991@adam.yggdrasil.com> <20050412014204.GB9145@pasky.ji.cz> <Pine.LNX.4.62.0504121037590.10150@numbat.sonytel.be>
-Mime-Version: 1.0
+	Tue, 12 Apr 2005 05:53:04 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:34247 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S262087AbVDLJxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 05:53:02 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: New SCM and commit list
+References: <1113174621.9517.509.camel@gaston>
+	<Pine.LNX.4.58.0504101621200.1267@ppc970.osdl.org>
+	<425A10EA.7030607@pobox.com>
+	<Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Tue, 12 Apr 2005 10:52:22 +0100
+In-Reply-To: <Pine.LNX.4.58.0504102304050.1267@ppc970.osdl.org> (Linus
+ Torvalds's message of "Sun, 10 Apr 2005 23:15:20 -0700 (PDT)")
+Message-ID: <tnx64ys8gq1.fsf@arm.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0504121037590.10150@numbat.sonytel.be>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, Apr 12, 2005 at 10:39:40AM CEST, I got a letter
-where Geert Uytterhoeven <geert@linux-m68k.org> told me that...
-> On Tue, 12 Apr 2005, Petr Baudis wrote:
-..snip..
-> > Basically, when you look at merge(1) :
-> > 
-> > SYNOPSIS
-> >        merge [ options ] file1 file2 file3
-> > DESCRIPTION
-> >        merge  incorporates  all  changes that lead from file2 to file3
-> > into file1.
-> > 
-> > The only big problem is how to guess the best file2 when you give it
-> > file3 and file1.
-> 
-> That's either the point just before you started modifying the file, or your
-> last merge point. Sounds simple, but if your SCM system doesn't track merges,
-> your SOL...
+Linus Torvalds <torvalds@osdl.org> wrote:
+> So anything that got modified in just one tree obviously merges to that 
+> version. Any file that got modified in two trees will end up just being 
+> passed to the "merge" program. See "man merge" and "man diff3". The merger 
+> gets to fix up any conflicts by hand.
 
-Well, yes, but the last merge point search may not be so simple:
-
-A --1---2----6---7
-B    \   `-4-.  /
-C     `-3-----5'
-
-Now, when at 7, your last merge point is not 1, but 2.
-
-What I have proposed at the git mailing list was to have simple merging
-tracking - merges/branch1/branch2 directory structure which would store
-merges from branch2 to branch1. Then, when merging say to branch3, you
-traverse all of them and if any of the branch1/* commits is newer than
-branch3/*, you update it.
-
-The disadvantage is that you now need to strictly use gitmerge.sh to do
-the merges - Linus' revtree solution is nicer in the regard that it
-works without any explicit bookkeeping, and tracks any merges properly
-recorded with commit-file; it is more complex and more expensive,
-though.
+"merge" does a better job than "diff3" since it can resolve the
+conflicts caused by similar changes to a "parent" file (this is
+available in both BK and GNU Arch). This is useful when you try to
+merge 2 branches that both include a patch which is not under the
+revision control. It also solves the conflicts caused by
+cherry-picking changes (just need to find the last consecutive common
+changeset as the common ancestor).
 
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+Catalin
+

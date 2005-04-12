@@ -1,82 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVDLNMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVDLNOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbVDLNMW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 09:12:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVDLNMF
+	id S262463AbVDLNOy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 09:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVDLNND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 09:12:05 -0400
-Received: from ctb-mesg7.saix.net ([196.25.240.79]:40589 "EHLO
-	ctb-mesg7.saix.net") by vger.kernel.org with ESMTP id S262456AbVDLNJg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 09:09:36 -0400
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
+	Tue, 12 Apr 2005 09:13:03 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:10163 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262391AbVDLNHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 09:07:48 -0400
+Subject: Re: [ANNOUNCE] git-pasky-0.3
+From: David Woodhouse <dwmw2@infradead.org>
 To: Petr Baudis <pasky@ucw.cz>
 Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
        Ross Vandegrift <ross@jose.lug.udel.edu>
-In-Reply-To: <20050412130250.GG22614@pasky.ji.cz>
+In-Reply-To: <20050411135758.GA3524@pasky.ji.cz>
 References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
 	 <20050409200709.GC3451@pasky.ji.cz>
 	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
 	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
 	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
 	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
-	 <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz>
-	 <1113310045.23299.15.camel@nosferatu.lan>
-	 <20050412130250.GG22614@pasky.ji.cz>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-waE2iEYBBJz5i8lYBiwz"
-Date: Tue, 12 Apr 2005 15:13:15 +0200
-Message-Id: <1113311595.23299.17.camel@nosferatu.lan>
+	 <20050411015852.GI5902@pasky.ji.cz>  <20050411135758.GA3524@pasky.ji.cz>
+Content-Type: text/plain
+Date: Tue, 12 Apr 2005 14:07:36 +0100
+Message-Id: <1113311256.20848.47.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-04-11 at 15:57 +0200, Petr Baudis wrote:
+>   Hello,
+> 
+>   here goes git-pasky-0.3, my set of patches and scripts upon
+> Linus' git, aimed at human usability and to an extent a SCM-like
+> usage.
 
---=-waE2iEYBBJz5i8lYBiwz
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Untar, make, add to path, pull, 'git diff' fails on PPC:
 
-On Tue, 2005-04-12 at 15:02 +0200, Petr Baudis wrote:
-> Dear diary, on Tue, Apr 12, 2005 at 02:47:25PM CEST, I got a letter
-> where Martin Schlemmer <azarah@nosferatu.za.org> told me that...
-> > On Mon, 2005-04-11 at 15:57 +0200, Petr Baudis wrote:
-> > >   Hello,
-> > >=20
-> > >   here goes git-pasky-0.3, my set of patches and scripts upon
-> > > Linus' git, aimed at human usability and to an extent a SCM-like usag=
-e.
-> > >=20
-> >=20
-> > Its pretty dependant on where VERSION is located.  This patch fixes
-> > that. (PS, I left the output of 'git diff' as is to ask about the
-> > following stuff after the proper diff ...)
->=20
-> Thanks, applied. I don't understand your PS, though. :-)
->=20
+peach /home/dwmw2/git-pasky-base $ git diff
+error: bad signature
+error: verify header failed
+read_cache: Invalid argument
 
-Heh, yeah I do that sometimes.  Basically should 'git diff' output
-anything (besides maybe not added files like cvs ... sorry, do not know
-after what you fashion it) like it does now?
+A little extra debugging shows the problem:
 
---=20
-Martin Schlemmer
+error: bad signature 0x43524944 should be 0x44495243
 
+The cache.h header file suggests that the cache is host-endian on
+purpose, because it's local-only. So why am I seeing a cache from
+another host? Is that comment no longer true?
 
---=-waE2iEYBBJz5i8lYBiwz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Either way, the original decision is probably bogus -- with trees as
+large as the kernel tree it makes a lot of sense to keep them somewhere
+NFS-accessible and use them from different hosts, and byteswapping
+really isn't going to slow it down that much. We should just pick an
+endianness and stick to it.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+I'd suggest making it big-endian to make sure the LE weenies don't
+forget to byteswap properly.
 
-iD8DBQBCW8lrqburzKaJYLYRAr65AJ9wDZZZDrIYFNnJkgCKoLlEUpiVbQCdHY4n
-fNWJCXCMZEO2XcnDBxBj5BU=
-=IvJ5
------END PGP SIGNATURE-----
-
---=-waE2iEYBBJz5i8lYBiwz--
+-- 
+dwmw2
 

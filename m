@@ -1,106 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbVDLTeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbVDLTjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbVDLTeM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:34:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262511AbVDLTdi
+	id S262186AbVDLTjH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVDLTfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:33:38 -0400
-Received: from s14.s14avahost.net ([66.98.146.55]:58834 "EHLO
-	s14.s14avahost.net") by vger.kernel.org with ESMTP id S262496AbVDLSLS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 14:11:18 -0400
-Message-ID: <425C0F2F.2000807@katalix.com>
-Date: Tue, 12 Apr 2005 19:10:55 +0100
-From: James Chapman <jchapman@katalix.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jean Delvare <khali@linux-fr.org>, Ladislav Michl <ladis@linux-mips.org>
-CC: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] ds1337 4/4
-References: <20050407231904.GE27226@orphique>	<FxPJVIPZ.1112958526.4787880.khali@localhost>	<20050408123545.GA4961@orphique>	<4256C315.3000902@katalix.com>	<20050410195120.GA5422@linux-mips.org> <20050410231006.0469a472.khali@linux-fr.org>
-In-Reply-To: <20050410231006.0469a472.khali@linux-fr.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-PopBeforeSMTPSenders: ahruschka@katalix.com,careers@katalix.com,info@katalix.com,jcarlson@katalix.com,jchapman@katalix.com,katalixc,lists@katalix.com,support@katalix.com,webmaster@katalix.com
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - s14.s14avahost.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - katalix.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 12 Apr 2005 15:35:43 -0400
+Received: from fire.osdl.org ([65.172.181.4]:2505 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262186AbVDLKcG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:32:06 -0400
+Message-Id: <200504121031.j3CAVxJK005467@shell0.pdx.osdl.net>
+Subject: [patch 085/198] x86_64: Support constantly ticking TSCs
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de,
+       venkatesh.pallipadi@intel.com
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:31:53 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
 
->>Based on your and Jean's input, following so far sounds reasonable:
->>Create "charge" sysfs entry for ds1339 when it is detected. Do not
->>write any value to Trickle Charge register, until its value is written
->>to this entry.
-> 
-> While I admit I had this in mind in the first place, the more I think of
-> it and the less I like it. It's slightly better than changing the
-> charging rate right when loading the driver, but that's still dangerous.
-> Users could write a value which doesn't match the hardware design, and
-> bad things could happen.
+From: "Andi Kleen" <ak@suse.de>
 
-I had assumed Ladislav wanted to be able to change this charge rate at
-any time, which was the motivation behind adding ds1339 support.
+On Intel Noconas the TSC ticks with a constant frequency.  Don't scale the
+factor used by udelay when cpufreq changes the frequency.
 
->>How are you using this driver? There is non-static function
->>ds1337_do_command which expects id. How do you know which id belongs
->>to which chip?
-> 
-> I second this question, as it stroke me too. This function doesn't sound
-> exactly usable to me. Identifying the device by bus and address would
-> make more sense than an arbitrary id you have no way to learn about.
+This generalizes an earlier patch by Intel for this. 
 
-It is used by the Radstone ppc7d platform, arch/ppc/radstone_ppc7d.c
-but wasn't added until very recently (2.6.12-rc2 I think).
+Cc: <venkatesh.pallipadi@intel.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-To be honest, I meant to remove the 'id' thing before submitting the
-driver. There's no need to support more than one of these devices.
+ 25-akpm/arch/x86_64/kernel/setup.c      |    5 ++++-
+ 25-akpm/arch/x86_64/kernel/time.c       |    5 +++--
+ 25-akpm/include/asm-x86_64/cpufeature.h |    1 +
+ 3 files changed, 8 insertions(+), 3 deletions(-)
 
->>Do you actually have machine with more than one ds1337?
->>Chip has fixed address, so only one can hang on one bus (am I right?)
-> 
-> You are.
-
-Yep. I think the id should be removed asap.
-
-> Back to the issue, some random thoughts summarizing my opinion:
-> 
-> 1* Initializing the battery charge register is a firmware/bios issue, as
-> you underlined earlier. It would make sense (and would be easier) to
-> just ignore it at the driver level.
-
-Initializing the charge register should be done by the bios if possible.
-However, I assume Ladislav still wants to be able to change the register
-at runtime so some kernel support is needed?
-
-> 2* If it makes sense to stop the charge, then we should provide a simple
-> *switch* to the user, from the default charging register value (as
-> previously set by the firmware/bios) to 0 and back. The switch would
-> probably be a sysfs file unless a different API already exists.
->
-> 3* Having the driver write an arbitrary non-0 value to the register
-> should not be done unless the system has been identified. I have no idea
-> how your system can be identified (DMI?), but if it can't, then I'd
-> better see the register ignored altogether.
-> 
-> 4* Remember that you can always write a simple C tool relying on the
-> i2c-dev interface to do the job. The advantage of this approach is that
-> you can put big fat warnings and request user confirmation before any
-> action.
-
-This makes sense. Ladislav, would this work for you? I guess we'd still
-add code to the ds1337 driver to detect ds1339 in order to ensure that
-this tool could not modify register 0 of a ds1337 by accident?
-
-/james
-
-
+diff -puN arch/x86_64/kernel/setup.c~x86_64-support-constantly-ticking-tscs arch/x86_64/kernel/setup.c
+--- 25/arch/x86_64/kernel/setup.c~x86_64-support-constantly-ticking-tscs	2005-04-12 03:21:23.473568376 -0700
++++ 25-akpm/arch/x86_64/kernel/setup.c	2005-04-12 03:21:23.479567464 -0700
+@@ -855,6 +855,8 @@ static void __init init_intel(struct cpu
+ 
+ 	if (c->x86 == 15)
+ 		c->x86_cache_alignment = c->x86_clflush_size * 2;
++	if (c->x86 >= 15)
++		set_bit(X86_FEATURE_CONSTANT_TSC, &c->x86_capability);
+ }
+ 
+ void __init get_cpu_vendor(struct cpuinfo_x86 *c)
+@@ -1055,7 +1057,8 @@ static int show_cpuinfo(struct seq_file 
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+ 		/* Other (Linux-defined) */
+-		"cxmmx", "k6_mtrr", "cyrix_arr", "centaur_mcr", NULL, NULL, NULL, NULL,
++		"cxmmx", NULL, "cyrix_arr", "centaur_mcr", "k8c+",
++		"constant_tsc", NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+diff -puN arch/x86_64/kernel/time.c~x86_64-support-constantly-ticking-tscs arch/x86_64/kernel/time.c
+--- 25/arch/x86_64/kernel/time.c~x86_64-support-constantly-ticking-tscs	2005-04-12 03:21:23.474568224 -0700
++++ 25-akpm/arch/x86_64/kernel/time.c	2005-04-12 03:21:23.480567312 -0700
+@@ -614,6 +614,9 @@ static int time_cpufreq_notifier(struct 
+         struct cpufreq_freqs *freq = data;
+ 	unsigned long *lpj, dummy;
+ 
++	if (cpu_has(&cpu_data[freq->cpu], X86_FEATURE_CONSTANT_TSC))
++		return 0;
++
+ 	lpj = &dummy;
+ 	if (!(freq->flags & CPUFREQ_CONST_LOOPS))
+ #ifdef CONFIG_SMP
+@@ -622,8 +625,6 @@ static int time_cpufreq_notifier(struct 
+ 	lpj = &boot_cpu_data.loops_per_jiffy;
+ #endif
+ 
+-
+-
+ 	if (!ref_freq) {
+ 		ref_freq = freq->old;
+ 		loops_per_jiffy_ref = *lpj;
+diff -puN include/asm-x86_64/cpufeature.h~x86_64-support-constantly-ticking-tscs include/asm-x86_64/cpufeature.h
+--- 25/include/asm-x86_64/cpufeature.h~x86_64-support-constantly-ticking-tscs	2005-04-12 03:21:23.475568072 -0700
++++ 25-akpm/include/asm-x86_64/cpufeature.h	2005-04-12 03:21:23.481567160 -0700
+@@ -62,6 +62,7 @@
+ #define X86_FEATURE_CYRIX_ARR	(3*32+ 2) /* Cyrix ARRs (= MTRRs) */
+ #define X86_FEATURE_CENTAUR_MCR	(3*32+ 3) /* Centaur MCRs (= MTRRs) */
+ #define X86_FEATURE_K8_C	(3*32+ 4) /* C stepping K8 */
++#define X86_FEATURE_CONSTANT_TSC (3*32+5) /* TSC runs at constant rate */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
+ #define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
+_

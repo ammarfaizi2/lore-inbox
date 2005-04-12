@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263035AbVDLXB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVDLWeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263035AbVDLXB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbVDLW6b
+	id S262233AbVDLWeD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262155AbVDLWbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 18:58:31 -0400
-Received: from ns2.suse.de ([195.135.220.15]:60139 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262354AbVDLW5x (ORCPT
+	Tue, 12 Apr 2005 18:31:43 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:57783 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S263022AbVDLW1F convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 18:57:53 -0400
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>, linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ppc64: very basic desktop g5 sound support (#2)
-References: <1113282436.21548.42.camel@gaston> <jell7nu6yk.fsf@sykes.suse.de>
-	<1113344225.21548.108.camel@gaston> <jey8bnk4lj.fsf@sykes.suse.de>
-	<1113345561.5387.114.camel@gaston>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Were these parsnips CORRECTLY MARINATED in TACO SAUCE?
-Date: Wed, 13 Apr 2005 00:57:46 +0200
-In-Reply-To: <1113345561.5387.114.camel@gaston> (Benjamin Herrenschmidt's
- message of "Wed, 13 Apr 2005 08:39:21 +1000")
-Message-ID: <jeekdfk3h1.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+	Tue, 12 Apr 2005 18:27:05 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: FUSYN and RT
+Date: Tue, 12 Apr 2005 15:26:14 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A02FD4673@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FUSYN and RT
+Thread-Index: AcU/rT2DaZ3/+eVPR8C13ABUzfhBDwAAQrvQ
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <dwalker@mvista.com>, "Esben Nielsen" <simlo@phys.au.dk>
+Cc: <linux-kernel@vger.kernel.org>, <mingo@elte.hu>
+X-OriginalArrivalTime: 12 Apr 2005 22:26:17.0050 (UTC) FILETIME=[A4BAEBA0:01C53FAE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
+>From: Daniel Walker [mailto:dwalker@mvista.com]
+>
+>On Tue, 2005-04-12 at 13:29, Esben Nielsen wrote:
+>
+>> So no, you will not need the same API, at all :-) Fusyn manipulates
+>> task->static_prio and only task->prio when no RT lock is taken. When
+the
+>> first RT-lock is taken/released it manipulates task->prio only. A
+release
+>> of a Fusyn will manipulate task->static_prio as well as task->prio.
+>
+>mutex_setprio() , I don't know if you could call that an API but that's
+>what I was talking about.. They should both use that. I think it would
+>be better if the RT mutex (and fusyn) didn't depend on a field in the
+>task_struct to retain the old priority. That would make it easier ..
+>
+>This goes back to the assumption that the locking isn't intermingled
+>once you get into the kernel . The RT mutex can safely save the owner
+>priority with out a Fusyn jumping in and changing it and the other way
+>around..
 
-> Doesn't work with version 2 of the patch ? neither the headphone nor the
-> line out jack ?
+You should not need any of this if your user space mutexes are a
+wrapper over the kernel space ones. The kernel handles everything
+the same and there is no need to take care of any special cases or
+variations [other than the ones imposed by the wrapping].
 
-Yes.
-
-> hrm... does it properly detect insertion of the jack and mute the
-> speaker in both cases ?
-
-Yes, it does.
-
-> Can you send me a tarball of your device-tree ?
-
-Will do.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+-- Inaky

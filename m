@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVDLOlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262336AbVDLOl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbVDLOlD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 10:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVDLOgs
+	id S262336AbVDLOl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 10:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVDLOlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 10:36:48 -0400
-Received: from mail.shareable.org ([81.29.64.88]:11936 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262254AbVDLOeA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 10:34:00 -0400
-Date: Tue, 12 Apr 2005 15:33:47 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: dan@debian.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050412143347.GC10995@mail.shareable.org>
-References: <20050411114728.GA13128@infradead.org> <E1DL08S-0008UH-00@dorka.pomaz.szeredi.hu> <20050411153619.GA25987@nevyn.them.org> <E1DL1Gj-000091-00@dorka.pomaz.szeredi.hu> <20050411181717.GA1129@nevyn.them.org> <E1DL4J4-0000Py-00@dorka.pomaz.szeredi.hu> <20050411192223.GA3707@nevyn.them.org> <E1DL51J-0000To-00@dorka.pomaz.szeredi.hu> <20050411214123.GF32535@mail.shareable.org> <E1DLEby-00013d-00@dorka.pomaz.szeredi.hu>
+	Tue, 12 Apr 2005 10:41:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58560 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262339AbVDLOkj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 10:40:39 -0400
+Subject: Re: Problem in log_do_checkpoint()?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Jan Kara <jack@suse.cz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, jeffm@suse.com,
+       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050411113614.GF1195@atrey.karlin.mff.cuni.cz>
+References: <20050404090414.GB20219@atrey.karlin.mff.cuni.cz>
+	 <1112969175.1975.96.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050411113614.GF1195@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1113316809.2404.84.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DLEby-00013d-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 12 Apr 2005 15:40:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> > It would also be nice to generalise and have virtual filesystems which
-> > are able to present different views to different users.  Can FUSE do
-> > that already - is the userspace part told which user is doing each
-> > operation?
-> 
-> Yes.
-> 
-> > With that, the desire for virtual filesystems which cannot be read
-> > by your sysadmin (by accident) is easy to satisfy - and that kind of
-> > mechanism would probably be acceptable to all.
-> 
-> The problem is that this way the responsibility goes to the userspace
-> program, which can't be trusted.
+Hi,
 
-That does not make sense.
+On Mon, 2005-04-11 at 12:36, Jan Kara wrote:
 
-Are you saying you cannot trust your own sshfs userspace daemon?
+> > The prevention of multiple writes in this case should also improve
+> > performance a little.
+> > 
+> > That ought to be pretty straightforward, I think.  The existing cases
+> > where we remove buffers from a checkpoint shouldn't have to care about
+> > which list_head we're removing from; those cases already handle buffers
+> > in both states.  It's only when doing the flush/wait that we have to
+> > distinguish the two.
+>   Yes, AFAICS the changes should remain local to the checkpointing code
+> (plus __unlink_buffer()). Should I write the patch or will you?
 
--- Jamie
+Feel free, but please let me know if you start.  I'm doing a bit of
+chasing of leaks and dealing with that O_SYNC thing for 2.4 right now,
+but I'll get back to the checkpoint code after that if you haven't
+started by then.
+
+Cheers,
+ Stephen
+

@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVDLSOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262518AbVDLSQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbVDLSOE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:14:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVDLKbz
+	id S262518AbVDLSQn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVDLKbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:31:55 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57031 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262109AbVDLKa7 (ORCPT
+	Tue, 12 Apr 2005 06:31:50 -0400
+Received: from fire.osdl.org ([65.172.181.4]:55495 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262108AbVDLKa5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:30:59 -0400
-Message-Id: <200504121030.j3CAUta6005179@shell0.pdx.osdl.net>
-Subject: [patch 017/198] vmscan: pageout(): remove unneeded test
+	Tue, 12 Apr 2005 06:30:57 -0400
+Message-Id: <200504121030.j3CAUkUl005147@shell0.pdx.osdl.net>
+Subject: [patch 009/198] Fix acl Oops
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, agruen@suse.de
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:49 -0700
+Date: Tue, 12 Apr 2005 03:30:40 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+From: Andreas Gruenbacher <agruen@suse.de>
 
-We only call pageout() for dirty pages, so this test is redundant.
+ext[23]_get_acl will return an error when reading the attribute fails or
+out-of-memory occurs.  Catch this case.
 
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/mm/vmscan.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+ 25-akpm/fs/ext2/acl.c |    2 ++
+ 25-akpm/fs/ext3/acl.c |    2 ++
+ 2 files changed, 4 insertions(+)
 
-diff -puN mm/vmscan.c~vmscan-pageout-remove-unneeded-test mm/vmscan.c
---- 25/mm/vmscan.c~vmscan-pageout-remove-unneeded-test	2005-04-12 03:21:07.489998248 -0700
-+++ 25-akpm/mm/vmscan.c	2005-04-12 03:21:07.493997640 -0700
-@@ -318,7 +318,7 @@ static pageout_t pageout(struct page *pa
- 		 * Some data journaling orphaned pages can have
- 		 * page->mapping == NULL while being dirty with clean buffers.
- 		 */
--		if (PageDirty(page) && PagePrivate(page)) {
-+		if (PagePrivate(page)) {
- 			if (try_to_free_buffers(page)) {
- 				ClearPageDirty(page);
- 				printk("%s: orphaned page\n", __FUNCTION__);
+diff -puN fs/ext2/acl.c~fix-acl-oops fs/ext2/acl.c
+--- 25/fs/ext2/acl.c~fix-acl-oops	2005-04-12 03:21:05.616283096 -0700
++++ 25-akpm/fs/ext2/acl.c	2005-04-12 03:21:05.621282336 -0700
+@@ -283,6 +283,8 @@ ext2_check_acl(struct inode *inode, int 
+ {
+ 	struct posix_acl *acl = ext2_get_acl(inode, ACL_TYPE_ACCESS);
+ 
++	if (IS_ERR(acl))
++		return PTR_ERR(acl);
+ 	if (acl) {
+ 		int error = posix_acl_permission(inode, acl, mask);
+ 		posix_acl_release(acl);
+diff -puN fs/ext3/acl.c~fix-acl-oops fs/ext3/acl.c
+--- 25/fs/ext3/acl.c~fix-acl-oops	2005-04-12 03:21:05.618282792 -0700
++++ 25-akpm/fs/ext3/acl.c	2005-04-12 03:21:05.622282184 -0700
+@@ -286,6 +286,8 @@ ext3_check_acl(struct inode *inode, int 
+ {
+ 	struct posix_acl *acl = ext3_get_acl(inode, ACL_TYPE_ACCESS);
+ 
++	if (IS_ERR(acl))
++		return PTR_ERR(acl);
+ 	if (acl) {
+ 		int error = posix_acl_permission(inode, acl, mask);
+ 		posix_acl_release(acl);
 _

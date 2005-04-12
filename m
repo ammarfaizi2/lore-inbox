@@ -1,143 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbVDLE77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVDLFAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbVDLE77 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 00:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVDLE77
+	id S262028AbVDLFAv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 01:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVDLFAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 00:59:59 -0400
-Received: from [61.51.204.158] ([61.51.204.158]:49633 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP id S261960AbVDLDR3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 23:17:29 -0400
-Date: Tue, 12 Apr 2005 11:02:19 +0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200504120302.j3C32JJ00772@freya.yggdrasil.com>
-To: barkalow@iabervon.org
-Subject: Re: New SCM and commit list
-Cc: benh@kernel.crashing.org, dwmw2@infradead.org, greg@kroah.com,
-       james.bottomley@steeleye.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, mason@suse.com, mingo@elte.hu,
-       torvalds@osdl.org
+	Tue, 12 Apr 2005 01:00:31 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:31986 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261976AbVDLDRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 23:17:51 -0400
+Message-ID: <425B3DDD.7020100@comcast.net>
+Date: Mon, 11 Apr 2005 23:17:49 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: USB on zx5405us
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-11, Daniel Barkalow wrote:
->If merge took trees instead of single files, and had some way of detecting
->renames (or it got additional information about the differences between
->files), would that give BK-quality performance? Or does BK also support
->cases like:
->
->orig ---> first ---> first-merge -
-> |                /               \
-> |------> second -                 -> final
-> |                \               /
-> |------> third ---> third-merge -
->
->where the final merge requires, for complete cleanliness, a comparison of
->more than 3 states (since some changes will have orig as the common
->ancestor and some will have second).
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	With 3-way merge and the ability to regenerate the relevant
-files from each step, this should be easy to handle as long
-as you have a list of which patches are considered to have been
-duplicated.  Let's detail your example:
+USB isn't working on my zv5405us on a 2.6.10 ubuntu kernel.  Or on
+gentoo.  Or anything.  It works in WindowsXP though.
 
-orig ---> first 1a 1b 1c ---> first-merge - 1d 1e
- |                          /                    \
- |------> second 2a 2b 2c -                       -> final
- |                          \                    /
- |------> third 3a 3b 3c ---> third-merge - 3d 3e
+I can extract the error from dmesg.
 
-Here, 1a, 1b, etc. refer to specific states of the source tree.
-I will refer to differences by a notation like "1a->1b", which
-is the difference to go from snapshot 1a to 1b.  All that the
-merge algorithm for the final merge needs to know is that the
-ends of the branches (that is, 1e and 3e) both contain the
-following diffs:
+Here's ACPI first (ACPI works btw)
 
-		orig->2a
-		2a->2b
-		2b->2c
+Nvidia board detected. Ignoring ACPI timer override.
+ACPI: RSDP (v000 PTLTD                                 ) @
+0x00000000000f7260
+ACPI: RSDT (v001 PTLTD    RSDT   0x06040000  LTP 0x00000000) @
+0x000000001ff7a87e
+ACPI: FADT (v001 NVIDIA CK8      0x06040000 PTL_ 0x000f4240) @
+0x000000001ff7ee13
+ACPI: MADT (v001 NVIDIA NV_APIC_ 0x06040000  LTP 0x00000000) @
+0x000000001ff7ee87
+ACPI: BOOT (v001 PTLTD  $SBFTBL$ 0x06040000  LTP 0x00000001) @
+0x000000001ff7eee1
+ACPI: SSDT (v001 PTLTD  POWERNOW 0x06040000  LTP 0x00000001) @
+0x000000001ff7ef09
+ACPI: DSDT (v001 NVIDIA      CK8 0x06040000 MSFT 0x0100000e) @
+0x0000000000000000
+ACPI: Local APIC address 0xfee00000
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 15:4 APIC version 16
+ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 17, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: BIOS IRQ0 pin2 override ignored.
+ACPI: IRQ9 used by override.
+Setting APIC routing to flat
+Using ACPI (MADT) for SMP configuration information
 
-	The function merge(orig, ver1, ver2) can try to reverse
-the duplicate merges in one of the branches:
+ACPI wakeup devices:
+USB0 USB1 USB2 PS2K PS2M MAC0
+ACPI: (supports S0 S3 S4 S5)
 
-		1e' = merge( 1e, 2c->2b);
-		1e'' = merge(1e', 2b->2a);
-		1e''' = merge(1e'', 2a->orig);
-		return merge(1e''', 2c->3e)
-
-	Of course, conflicts can happen, but that can happen
-in any merge.  There are also other ways to calculate the
-merge and because there are different ways one can write a
-merge function, it is possible that merging in a different
-order might produce slightly different results.  For example,
-it would be possible to reverse the dpulicates in your "third merge"
-branch instead of your "first merge" branch, or one could
-reconstruct a branch without the duplicated merges by executing
-the other changes forward from a common ancestor, like so:
-
-		1e''' = merge(orig, 3d->3e);
-
-	...regardless, the point is that all the information
-that is absolutely needed is a list of instance of diffs
-to be skipped.  It is not even necessary that the changes
-have such a clearly explainable ancestory as that you have
-described.  All the merge program needs to know are the changes
-to be skipped, although information like changes the skipped
-patches are duplicating may be useful for things like trying
-to reverse a patch in your "third-merge" branch in your
-example if reverseing the patch in "first-merge" fails.
-
-	I believe that at least bitkeeper, darcs, a free python-based
-system that I can't remember at the moment, and possibly arch do this
-sort of machination already.
+NFORCE3-150: IDE controller at PCI slot 0000:00:08.0
+NFORCE3-150: chipset revision 165
+NFORCE3-150: not 100% native mode: will probe irqs later
+NFORCE3-150: BIOS didn't set cable bits correctly. Enabling workaround.
+NFORCE3-150: 0000:00:08.0 (rev a5) UDMA133 controller
+    ide0: BM-DMA at 0x2080-0x2087, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0x2088-0x208f, BIOS settings: hdc:DMA, hdd:pio
 
 
->Does this happen in real life? [...]
 
-	Yes.  Both individual users and Linux distributions incorporate
-patches that they think are useful to them and then futher patches
-that they develop.  The time costs of rejecting such patches would
-likely be paid for by other integration or development work not being
-done.
+Finally, the USB messages themselves:
 
->It seems like sane development processes
-               ^^^^
->wouldn't have multiple mainline-candidate patch sets including the same
->patches, if for no other reason than that, should the merge fail, nobody
->with any clue about the original patches would be anywhere nearby.
+ohci_hcd 0000:00:02.0: nVidia Corporation nForce3 USB 1.1
+ohci_hcd 0000:00:02.0: USB HC TakeOver failed!
+ohci_hcd 0000:00:02.0: can't reset
+ohci_hcd 0000:00:02.0: init 0000:00:02.0 fail, -16
+ohci_hcd: probe of 0000:00:02.0 failed with error -16
 
-	If you could avoid prejudicial subjective adjectives, it
-it would make it easier for the saneness or insaneness of an
-approach to be apparent just by discussing your more objective criteria,
-like the remainder of your sentence, which is where the focus should
-be.
 
-	(1) Does allowing duplicate patches really mean that
-	   "nobody with any clue about the original patches would be
-	   anywhere near by?"  What attracts these clueful people
-	   just by third parties having to rebase their patches?
+lspci gives:
 
-	(2) Does this supposed benefit outweigh the cost of rejecting
-	    many patches unnecessarily?  I know from my own experience
-	    that I have either given up on or had to put into a very low
-	    priority mode at least 66% of the patches that I haven't
-	    gotten integrated, but which I am confident the kernel
-	    would be better having (e.g.: devfs shrink, lookup()
-	    trapping, ipv4 as a loadable (not not yet removable) module,
-	    sysfs memory shrink, factoring much of the DMA mapping to
-	    the common bus code from individual drivers, fewer kmap's
-	    in crypto, I could go on).
+0000:00:02.0 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
+0000:00:02.1 USB Controller: nVidia Corporation nForce3 USB 1.1 (rev a5)
+0000:00:02.2 USB Controller: nVidia Corporation nForce3 USB 2.0 (rev a2)
 
->It
->seems better to throw something back to someone to rebase their diffs.
-       ^^^^^^
 
-	I try to avoid a general subjective adjectives like "better"
-unless I am claiming that I've covered the trade-offs fully, and, even
-then, avoiding it keeps the focus on analyzing the trade-offs.
+lsusb gives:
 
-                    __     ______________ 
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+Bus 001 Device 001: ID 0000:0000
+
+Happens to be the USB2 stuff.
+
+
+/proc/bus/usb/devices:
+
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=480 MxCh= 6
+B:  Alloc=  0/800 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 2.00 Cls=09(hub  ) Sub=00 Prot=01 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 2.06
+S:  Manufacturer=Linux 2.6.10-5-amd64-generic ehci_hcd
+S:  Product=nVidia Corporation nForce3 USB 2.0
+S:  SerialNumber=0000:00:02.2
+C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=256ms
+
+
+A mass storage device that works on my desktop doesn't work here.  It
+works in Windows though.
+
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCWz3chDd4aOud5P8RArB9AJ9AECG8+VrPUt8Zu7djzvl+Oi3lwgCfdD17
+QbgPw+B1tbY66BjcFSpz9L4=
+=0WK/
+-----END PGP SIGNATURE-----

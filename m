@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbVDLWWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263025AbVDLW0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262212AbVDLWWa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 18:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVDLWTJ
+	id S263025AbVDLW0M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 18:26:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263021AbVDLWWu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 18:19:09 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:2293 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262212AbVDLWQL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 18:16:11 -0400
-Subject: Re: FUSYN and RT
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
-       mingo@elte.hu
-In-Reply-To: <Pine.OSF.4.05.10504122206230.6111-100000@da410.phys.au.dk>
-References: <Pine.OSF.4.05.10504122206230.6111-100000@da410.phys.au.dk>
-Content-Type: text/plain
-Organization: MontaVista
-Message-Id: <1113344159.6394.25.camel@dhcp153.mvista.com>
+	Tue, 12 Apr 2005 18:22:50 -0400
+Received: from fire.osdl.org ([65.172.181.4]:31468 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262155AbVDLWVm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 18:21:42 -0400
+Date: Tue, 12 Apr 2005 15:21:31 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Amelia Nilsson <dhakela@linuxchick.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bugreport
+Message-ID: <20050412222131.GV28536@shell0.pdx.osdl.net>
+References: <20050412201152.6b11ec9a.dhakela@linuxchick.se>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 12 Apr 2005 15:15:59 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050412201152.6b11ec9a.dhakela@linuxchick.se>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-12 at 13:29, Esben Nielsen wrote:
+* Amelia Nilsson (dhakela@linuxchick.se) wrote:
+> I've found a bug in 2.6.11.6. I have a Toshiba laptop and when i did
+> run 2.6.11.6 my touchpad flipped out, it clicked everywhere when it
+> wasn't supposed to click. I couldn't even move my mouse without it was
+> clicking all over. It works fine i 2.6.10 though. Is there any changes
+> made that can affect this? (I haven't tried 2.6.11.7 yet...)
 
-> You basicly need 3 priorities:
-> 1) Actual: task->prio
-> 2) Base prio with no RT locks taken: task->static_prio
-> 3) Base prio with no Fusyn locks taken: task->??
-> 
-> So no, you will not need the same API, at all :-) Fusyn manipulates
-> task->static_prio and only task->prio when no RT lock is taken. When the
-> first RT-lock is taken/released it manipulates task->prio only. A release
-> of a Fusyn will manipulate task->static_prio as well as task->prio.
+2.6.11.7 has no significant changes that should effect your touchpad.
+We'll need much more information to make any headway here (see
+REPORTING-BUGS).  I've got a Toshiba laptop, and have no issues with the
+touchpad.  I assume this is an issue in just in X.  Do you see any obvious
+difference in the Xorg.0.log when starting X on the two different kernels?
+Any interesting dmesg output on the failing kernel?  Does booting with
+psmouse.proto=exps help (assuming you have CONFIG_MOUSE_PS2=y)?
 
-mutex_setprio() , I don't know if you could call that an API but that's
-what I was talking about.. They should both use that. I think it would
-be better if the RT mutex (and fusyn) didn't depend on a field in the
-task_struct to retain the old priority. That would make it easier ..
-
-This goes back to the assumption that the locking isn't intermingled
-once you get into the kernel . The RT mutex can safely save the owner
-priority with out a Fusyn jumping in and changing it and the other way
-around..
-
-Daniel
-
+thanks,
+-chris

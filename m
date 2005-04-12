@@ -1,324 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVDLKsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVDLKrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbVDLKsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 06:48:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVDLKsW
+	id S262283AbVDLKrw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 06:47:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVDLKpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:48:22 -0400
-Received: from fire.osdl.org ([65.172.181.4]:50378 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262281AbVDLKdk (ORCPT
+	Tue, 12 Apr 2005 06:45:50 -0400
+Received: from fire.osdl.org ([65.172.181.4]:54986 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262283AbVDLKdq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:40 -0400
-Message-Id: <200504121033.j3CAXQHc005877@shell0.pdx.osdl.net>
-Subject: [patch 179/198] IB/mthca: encapsulate MTT buddy allocator
+	Tue, 12 Apr 2005 06:33:46 -0400
+Message-Id: <200504121033.j3CAXYSD005914@shell0.pdx.osdl.net>
+Subject: [patch 188/198] IB/mthca: update receive queue initialization for new HCAs
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mst@mellanox.co.il,
-       roland@topspin.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:20 -0700
+Date: Tue, 12 Apr 2005 03:33:27 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+From: Roland Dreier <roland@topspin.com>
 
-Encapsulate the buddy allocator used for MTT segments.  This cleans up the
-code and also gets us ready to add FMR support.
+Update initialization of receive queue to match new documentation.  This
+change is required to support new MT25204 HCA.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/infiniband/hw/mthca/mthca_dev.h |    9 +
- 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c  |  158 +++++++++++++-----------
- 2 files changed, 94 insertions(+), 73 deletions(-)
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c |   33 +++++++++++++++++--------
+ 1 files changed, 23 insertions(+), 10 deletions(-)
 
-diff -puN drivers/infiniband/hw/mthca/mthca_dev.h~ib-mthca-encapsulate-mtt-buddy-allocator drivers/infiniband/hw/mthca/mthca_dev.h
---- 25/drivers/infiniband/hw/mthca/mthca_dev.h~ib-mthca-encapsulate-mtt-buddy-allocator	2005-04-12 03:21:46.045136976 -0700
-+++ 25-akpm/drivers/infiniband/hw/mthca/mthca_dev.h	2005-04-12 03:21:46.050136216 -0700
-@@ -170,10 +170,15 @@ struct mthca_pd_table {
- 	struct mthca_alloc alloc;
+diff -puN drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-update-receive-queue-initialization-for-new-hcas drivers/infiniband/hw/mthca/mthca_qp.c
+--- 25/drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-update-receive-queue-initialization-for-new-hcas	2005-04-12 03:21:48.220806224 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-12 03:21:48.225805464 -0700
+@@ -181,6 +181,10 @@ enum {
+ 	MTHCA_MLX_SLR        = 1 << 16
  };
  
-+struct mthca_buddy {
-+	unsigned long **bits;
-+	int             max_order;
-+	spinlock_t      lock;
++enum {
++	MTHCA_INVAL_LKEY = 0x100
 +};
 +
- struct mthca_mr_table {
- 	struct mthca_alloc      mpt_alloc;
--	int                     max_mtt_order;
--	unsigned long         **mtt_buddy;
-+	struct mthca_buddy	mtt_buddy;
- 	u64                     mtt_base;
- 	struct mthca_icm_table *mtt_table;
- 	struct mthca_icm_table *mpt_table;
-diff -puN drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-encapsulate-mtt-buddy-allocator drivers/infiniband/hw/mthca/mthca_mr.c
---- 25/drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-encapsulate-mtt-buddy-allocator	2005-04-12 03:21:46.047136672 -0700
-+++ 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c	2005-04-12 03:21:46.052135912 -0700
-@@ -72,60 +72,108 @@ struct mthca_mpt_entry {
-  * through the bitmaps)
-  */
- 
--static u32 __mthca_alloc_mtt(struct mthca_dev *dev, int order)
-+static u32 mthca_buddy_alloc(struct mthca_buddy *buddy, int order)
+ struct mthca_next_seg {
+ 	u32 nda_op;		/* [31:6] next WQE [4:0] next opcode */
+ 	u32 ee_nds;		/* [31:8] next EE  [7] DBD [6] F [5:0] next WQE size */
+@@ -1093,7 +1097,6 @@ static int mthca_alloc_qp_common(struct 
+ 				 enum ib_sig_type send_policy,
+ 				 struct mthca_qp *qp)
  {
- 	int o;
- 	int m;
- 	u32 seg;
+-	struct mthca_next_seg *wqe;
+ 	int ret;
+ 	int i;
  
--	spin_lock(&dev->mr_table.mpt_alloc.lock);
-+	spin_lock(&buddy->lock);
- 
--	for (o = order; o <= dev->mr_table.max_mtt_order; ++o) {
--		m = 1 << (dev->mr_table.max_mtt_order - o);
--		seg = find_first_bit(dev->mr_table.mtt_buddy[o], m);
-+	for (o = order; o <= buddy->max_order; ++o) {
-+		m = 1 << (buddy->max_order - o);
-+		seg = find_first_bit(buddy->bits[o], m);
- 		if (seg < m)
- 			goto found;
+@@ -1116,18 +1119,28 @@ static int mthca_alloc_qp_common(struct 
  	}
  
--	spin_unlock(&dev->mr_table.mpt_alloc.lock);
-+	spin_unlock(&buddy->lock);
- 	return -1;
- 
-  found:
--	clear_bit(seg, dev->mr_table.mtt_buddy[o]);
-+	clear_bit(seg, buddy->bits[o]);
- 
- 	while (o > order) {
- 		--o;
- 		seg <<= 1;
--		set_bit(seg ^ 1, dev->mr_table.mtt_buddy[o]);
-+		set_bit(seg ^ 1, buddy->bits[o]);
- 	}
- 
--	spin_unlock(&dev->mr_table.mpt_alloc.lock);
-+	spin_unlock(&buddy->lock);
- 
- 	seg <<= order;
- 
- 	return seg;
- }
- 
--static void __mthca_free_mtt(struct mthca_dev *dev, u32 seg, int order)
-+static void mthca_buddy_free(struct mthca_buddy *buddy, u32 seg, int order)
- {
- 	seg >>= order;
- 
--	spin_lock(&dev->mr_table.mpt_alloc.lock);
-+	spin_lock(&buddy->lock);
- 
--	while (test_bit(seg ^ 1, dev->mr_table.mtt_buddy[order])) {
--		clear_bit(seg ^ 1, dev->mr_table.mtt_buddy[order]);
-+	while (test_bit(seg ^ 1, buddy->bits[order])) {
-+		clear_bit(seg ^ 1, buddy->bits[order]);
- 		seg >>= 1;
- 		++order;
- 	}
- 
--	set_bit(seg, dev->mr_table.mtt_buddy[order]);
-+	set_bit(seg, buddy->bits[order]);
- 
--	spin_unlock(&dev->mr_table.mpt_alloc.lock);
-+	spin_unlock(&buddy->lock);
- }
- 
--static u32 mthca_alloc_mtt(struct mthca_dev *dev, int order)
-+static int __devinit mthca_buddy_init(struct mthca_buddy *buddy, int max_order)
- {
--	u32 seg = __mthca_alloc_mtt(dev, order);
-+	int i, s;
+ 	if (mthca_is_memfree(dev)) {
++		struct mthca_next_seg *next;
++		struct mthca_data_seg *scatter;
++		int size = (sizeof (struct mthca_next_seg) +
++			    qp->rq.max_gs * sizeof (struct mthca_data_seg)) / 16;
 +
-+	buddy->max_order = max_order;
-+	spin_lock_init(&buddy->lock);
+ 		for (i = 0; i < qp->rq.max; ++i) {
+-			wqe = get_recv_wqe(qp, i);
+-			wqe->nda_op = cpu_to_be32(((i + 1) & (qp->rq.max - 1)) <<
+-						  qp->rq.wqe_shift);
+-			wqe->ee_nds = cpu_to_be32(1 << (qp->rq.wqe_shift - 4));
++			next = get_recv_wqe(qp, i);
++			next->nda_op = cpu_to_be32(((i + 1) & (qp->rq.max - 1)) <<
++						   qp->rq.wqe_shift);
++			next->ee_nds = cpu_to_be32(size);
 +
-+	buddy->bits = kmalloc((buddy->max_order + 1) * sizeof (long *),
-+			      GFP_KERNEL);
-+	if (!buddy->bits)
-+		goto err_out;
-+
-+	memset(buddy->bits, 0, (buddy->max_order + 1) * sizeof (long *));
-+
-+	for (i = 0; i <= buddy->max_order; ++i) {
-+		s = BITS_TO_LONGS(1 << (buddy->max_order - i));
-+		buddy->bits[i] = kmalloc(s * sizeof (long), GFP_KERNEL);
-+		if (!buddy->bits[i])
-+			goto err_out_free;
-+		bitmap_zero(buddy->bits[i],
-+			    1 << (buddy->max_order - i));
-+	}
-+
-+	set_bit(0, buddy->bits[buddy->max_order]);
-+
-+	return 0;
-+
-+err_out_free:
-+	for (i = 0; i <= buddy->max_order; ++i)
-+		kfree(buddy->bits[i]);
-+
-+	kfree(buddy->bits);
-+
-+err_out:
-+	return -ENOMEM;
-+}
-+
-+static void __devexit mthca_buddy_cleanup(struct mthca_buddy *buddy)
-+{
-+	int i;
-+
-+	for (i = 0; i <= buddy->max_order; ++i)
-+		kfree(buddy->bits[i]);
-+
-+	kfree(buddy->bits);
-+}
-+
-+static u32 mthca_alloc_mtt(struct mthca_dev *dev, int order,
-+			   struct mthca_buddy *buddy)
-+{
-+	u32 seg = mthca_buddy_alloc(buddy, order);
- 
- 	if (seg == -1)
- 		return -1;
-@@ -133,16 +181,17 @@ static u32 mthca_alloc_mtt(struct mthca_
- 	if (dev->hca_type == ARBEL_NATIVE)
- 		if (mthca_table_get_range(dev, dev->mr_table.mtt_table, seg,
- 					  seg + (1 << order) - 1)) {
--			__mthca_free_mtt(dev, seg, order);
-+			mthca_buddy_free(buddy, seg, order);
- 			seg = -1;
++			for (scatter = (void *) (next + 1);
++			     (void *) scatter < (void *) next + (1 << qp->rq.wqe_shift);
++			     ++scatter)
++				scatter->lkey = cpu_to_be32(MTHCA_INVAL_LKEY);
  		}
  
- 	return seg;
- }
- 
--static void mthca_free_mtt(struct mthca_dev *dev, u32 seg, int order)
-+static void mthca_free_mtt(struct mthca_dev *dev, u32 seg, int order,
-+			   struct mthca_buddy* buddy)
- {
--	__mthca_free_mtt(dev, seg, order);
-+	mthca_buddy_free(buddy, seg, order);
- 
- 	if (dev->hca_type == ARBEL_NATIVE)
- 		mthca_table_put_range(dev, dev->mr_table.mtt_table, seg,
-@@ -268,7 +317,8 @@ int mthca_mr_alloc_phys(struct mthca_dev
- 	     i <<= 1, ++mr->order)
- 		; /* nothing */
- 
--	mr->first_seg = mthca_alloc_mtt(dev, mr->order);
-+	mr->first_seg = mthca_alloc_mtt(dev, mr->order,
-+				       	&dev->mr_table.mtt_buddy);
- 	if (mr->first_seg == -1)
- 		goto err_out_table;
- 
-@@ -361,7 +411,7 @@ err_out_mailbox_free:
- 	kfree(mailbox);
- 
- err_out_free_mtt:
--	mthca_free_mtt(dev, mr->first_seg, mr->order);
-+	mthca_free_mtt(dev, mr->first_seg, mr->order, &dev->mr_table.mtt_buddy);
- 
- err_out_table:
- 	if (dev->hca_type == ARBEL_NATIVE)
-@@ -390,7 +440,7 @@ void mthca_free_mr(struct mthca_dev *dev
- 			   status);
- 
- 	if (mr->order >= 0)
--		mthca_free_mtt(dev, mr->first_seg, mr->order);
-+		mthca_free_mtt(dev, mr->first_seg, mr->order, &dev->mr_table.mtt_buddy);
- 
- 	if (dev->hca_type == ARBEL_NATIVE)
- 		mthca_table_put(dev, dev->mr_table.mpt_table,
-@@ -401,7 +451,6 @@ void mthca_free_mr(struct mthca_dev *dev
- int __devinit mthca_init_mr_table(struct mthca_dev *dev)
- {
- 	int err;
--	int i, s;
- 
- 	err = mthca_alloc_init(&dev->mr_table.mpt_alloc,
- 			       dev->limits.num_mpts,
-@@ -409,53 +458,24 @@ int __devinit mthca_init_mr_table(struct
- 	if (err)
- 		return err;
- 
--	err = -ENOMEM;
--
--	for (i = 1, dev->mr_table.max_mtt_order = 0;
--	     i < dev->limits.num_mtt_segs;
--	     i <<= 1, ++dev->mr_table.max_mtt_order)
--		; /* nothing */
--
--	dev->mr_table.mtt_buddy = kmalloc((dev->mr_table.max_mtt_order + 1) *
--					  sizeof (long *),
--					  GFP_KERNEL);
--	if (!dev->mr_table.mtt_buddy)
--		goto err_out;
--
--	for (i = 0; i <= dev->mr_table.max_mtt_order; ++i)
--		dev->mr_table.mtt_buddy[i] = NULL;
--
--	for (i = 0; i <= dev->mr_table.max_mtt_order; ++i) {
--		s = BITS_TO_LONGS(1 << (dev->mr_table.max_mtt_order - i));
--		dev->mr_table.mtt_buddy[i] = kmalloc(s * sizeof (long),
--						     GFP_KERNEL);
--		if (!dev->mr_table.mtt_buddy[i])
--			goto err_out_free;
--		bitmap_zero(dev->mr_table.mtt_buddy[i],
--			    1 << (dev->mr_table.max_mtt_order - i));
--	}
--
--	set_bit(0, dev->mr_table.mtt_buddy[dev->mr_table.max_mtt_order]);
--
--	for (i = 0; i < dev->mr_table.max_mtt_order; ++i)
--		if (1 << i >= dev->limits.reserved_mtts)
--			break;
-+	err = mthca_buddy_init(&dev->mr_table.mtt_buddy,
-+			       fls(dev->limits.num_mtt_segs - 1));
-+	if (err)
-+		goto err_mtt_buddy;
- 
--	if (i == dev->mr_table.max_mtt_order) {
--		mthca_err(dev, "MTT table of order %d is "
--			  "too small.\n", i);
--		goto err_out_free;
-+	if (dev->limits.reserved_mtts) {
-+		if (mthca_alloc_mtt(dev, fls(dev->limits.reserved_mtts - 1),
-+				    &dev->mr_table.mtt_buddy) == -1) {
-+			mthca_warn(dev, "MTT table of order %d is too small.\n",
-+				  dev->mr_table.mtt_buddy.max_order);
-+			err = -ENOMEM;
-+			goto err_mtt_buddy;
-+		}
+ 		for (i = 0; i < qp->sq.max; ++i) {
+-			wqe = get_send_wqe(qp, i);
+-			wqe->nda_op = cpu_to_be32((((i + 1) & (qp->sq.max - 1)) <<
+-						   qp->sq.wqe_shift) +
+-						  qp->send_wqe_offset);
++			next = get_send_wqe(qp, i);
++			next->nda_op = cpu_to_be32((((i + 1) & (qp->sq.max - 1)) <<
++						    qp->sq.wqe_shift) +
++						   qp->send_wqe_offset);
+ 		}
  	}
  
--	(void) mthca_alloc_mtt(dev, i);
--
- 	return 0;
+@@ -1986,7 +1999,7 @@ int mthca_arbel_post_receive(struct ib_q
  
-- err_out_free:
--	for (i = 0; i <= dev->mr_table.max_mtt_order; ++i)
--		kfree(dev->mr_table.mtt_buddy[i]);
--
-- err_out:
-+err_mtt_buddy:
- 	mthca_alloc_cleanup(&dev->mr_table.mpt_alloc);
+ 		if (i < qp->rq.max_gs) {
+ 			((struct mthca_data_seg *) wqe)->byte_count = 0;
+-			((struct mthca_data_seg *) wqe)->lkey = cpu_to_be32(0x100);
++			((struct mthca_data_seg *) wqe)->lkey = cpu_to_be32(MTHCA_INVAL_LKEY);
+ 			((struct mthca_data_seg *) wqe)->addr = 0;
+ 		}
  
- 	return err;
-@@ -463,11 +483,7 @@ int __devinit mthca_init_mr_table(struct
- 
- void __devexit mthca_cleanup_mr_table(struct mthca_dev *dev)
- {
--	int i;
--
- 	/* XXX check if any MRs are still allocated? */
--	for (i = 0; i <= dev->mr_table.max_mtt_order; ++i)
--		kfree(dev->mr_table.mtt_buddy[i]);
--	kfree(dev->mr_table.mtt_buddy);
-+	mthca_buddy_cleanup(&dev->mr_table.mtt_buddy);
- 	mthca_alloc_cleanup(&dev->mr_table.mpt_alloc);
- }
 _

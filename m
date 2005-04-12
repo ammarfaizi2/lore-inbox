@@ -1,33 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVDLQ7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVDLQ7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVDLQ7N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 12:59:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVDLQ5b
+	id S262509AbVDLQ7O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 12:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVDLQ5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 12:57:31 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:36319 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262411AbVDLQzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 12:55:35 -0400
-To: jamie@shareable.org
-CC: 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050412164401.GA14149@mail.shareable.org> (message from Jamie
-	Lokier on Tue, 12 Apr 2005 17:44:01 +0100)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org>
-Message-Id: <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 12 Apr 2005 18:55:18 +0200
+	Tue, 12 Apr 2005 12:57:21 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51901 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262494AbVDLQzp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 12:55:45 -0400
+Message-ID: <425BFEE5.8080702@austin.ibm.com>
+Date: Tue, 12 Apr 2005 12:01:25 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+Subject: Re: 2.6.12-rc2-mm3
+References: <20050411012532.58593bc1.akpm@osdl.org>	<20050411220013.23416d5f.akpm@osdl.org>	<425B61DD.60700@yahoo.com.au> <20050411231941.1b8548bb.akpm@osdl.org>
+In-Reply-To: <20050411231941.1b8548bb.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Indeed, if it can be done with namespaces _and_ mounting on a file
-> (that file-as-directory concept), _and_ automounting, then you could
-> cd into your tgz files and others could too :)
+Andrew Morton wrote:
 
-There's still that little problem of accessing the tgz file both as a
-file and a directory.  But yes.  Maybe in 10 years time :)
+>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>  
+>
+>>>- The effects of tcq on AS are much less disastrous than I thought they
+>>>      
+>>>
+>> >  were.  Do I have the wrong workload?  Memory fails me.  Or did we fix the
+>> >  anticipatory scheduler?
+>> >
+>> >
+>>
+>> Yes, we did fix it ;)
+>> Quite a long time ago, so maybe you are thinking of something else
+>> (I haven't been able to work it out).
+>>    
+>>
+>
+>Steve Pratt's ols2004 presentation made AS look pretty bad.  However the
+>numbers in the proceedings
+>(http://www.finux.org/proceedings/LinuxSymposium2004_V2.pdf) are much less
+>stark.
+>
+>Steve, what's up with that?  The slides which you talked to had some awful
+>numbers.  Was it the same set of tests?
+>  
+>
+I highlighted a few cases where AS went really wrong during the 
+presentation, like on really large RAID 0 arrays, but in general 
+(referring back to slides) AS trailed other schedulers by 5-10% on ext3, 
+but had real trouble with XFS, losing by as much as %145 on 5disk raid5 
+system for a mix of workloads.  Perhaps this is the piece you remember.
 
-Miklos
+
+Steve

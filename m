@@ -1,135 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVDMD5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVDLTL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbVDMD5z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 23:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVDLTPB
+	id S262572AbVDLTL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:11:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVDLTJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:15:01 -0400
-Received: from fire.osdl.org ([65.172.181.4]:43465 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262206AbVDLKcd (ORCPT
+	Tue, 12 Apr 2005 15:09:04 -0400
+Received: from fire.osdl.org ([65.172.181.4]:47561 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262211AbVDLKcg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:33 -0400
-Message-Id: <200504121032.j3CAWECJ005541@shell0.pdx.osdl.net>
-Subject: [patch 101/198] x86_64: Rename the extended cpuid level field
+	Tue, 12 Apr 2005 06:32:36 -0400
+Message-Id: <200504121032.j3CAWLlI005569@shell0.pdx.osdl.net>
+Subject: [patch 108/198] fix u32 vs. pm_message_t in pcmcia
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de, mingo@elte.hu,
-       rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz, pavel@suse.cz
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:08 -0700
+Date: Tue, 12 Apr 2005 03:32:15 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "Andi Kleen" <ak@suse.de>
+From: Pavel Machek <pavel@ucw.cz>
 
-It was confusingly named.
+This fixes u32 vs. pm_message_t in pcmcia.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-DESC
-x86_64: Switch SMP bootup over to new CPU hotplug state machine
-EDESC
-From: "Andi Kleen" <ak@suse.de>
-
-This will allow hotplug CPU in the future and in general cleans up a lot of
-crufty code.  It also should plug some races that the old hackish way
-introduces.  Remove one old race workaround in NMI watchdog setup that is not
-needed anymore.
-
-I removed the old total sum of bogomips reporting code.  The brag value of
-BogoMips has been greatly devalued in the last years on the open market.
-
-Real CPU hotplug will need some more work, but the infrastructure for it is
-there now.
-
-One drawback: the new TSC sync algorithm is less accurate than before.  The
-old way of zeroing TSCs is too intrusive to do later.  Instead the TSC of the
-BP is duplicated now, which is less accurate.
-
-Cc: <rusty@rustcorp.com.au>
-Cc: <mingo@elte.hu>
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/x86_64/kernel/setup.c     |   13 ++++++-------
- 25-akpm/include/asm-x86_64/processor.h |    2 +-
- 2 files changed, 7 insertions(+), 8 deletions(-)
+ 25-akpm/drivers/pcmcia/au1000_generic.c |    2 +-
+ 25-akpm/drivers/pcmcia/hd64465_ss.c     |    2 +-
+ 25-akpm/drivers/pcmcia/m32r_cfc.c       |    2 +-
+ 25-akpm/drivers/pcmcia/m32r_pcc.c       |    2 +-
+ 25-akpm/drivers/pcmcia/pxa2xx_base.c    |    2 +-
+ 25-akpm/drivers/pcmcia/sa1100_generic.c |    2 +-
+ 25-akpm/drivers/pcmcia/sa1111_generic.c |    2 +-
+ 25-akpm/drivers/pcmcia/vrc4171_card.c   |    2 +-
+ 8 files changed, 8 insertions(+), 8 deletions(-)
 
-diff -puN arch/x86_64/kernel/setup.c~x86_64-rename-the-extended-cpuid-level-field arch/x86_64/kernel/setup.c
---- 25/arch/x86_64/kernel/setup.c~x86_64-rename-the-extended-cpuid-level-field	2005-04-12 03:21:27.159008104 -0700
-+++ 25-akpm/arch/x86_64/kernel/setup.c	2005-04-12 03:21:27.165007192 -0700
-@@ -673,7 +673,7 @@ static int __init get_model_name(struct 
+diff -puN drivers/pcmcia/au1000_generic.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/au1000_generic.c
+--- 25/drivers/pcmcia/au1000_generic.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.355674160 -0700
++++ 25-akpm/drivers/pcmcia/au1000_generic.c	2005-04-12 03:21:29.367672336 -0700
+@@ -518,7 +518,7 @@ static int au1x00_drv_pcmcia_probe(struc
+ }
+ 
+ 
+-static int au1x00_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
++static int au1x00_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
  {
- 	unsigned int *v;
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -puN drivers/pcmcia/hd64465_ss.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/hd64465_ss.c
+--- 25/drivers/pcmcia/hd64465_ss.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.356674008 -0700
++++ 25-akpm/drivers/pcmcia/hd64465_ss.c	2005-04-12 03:21:29.368672184 -0700
+@@ -845,7 +845,7 @@ static void hs_exit_socket(hs_socket_t *
+ 	local_irq_restore(flags);
+ }
  
--	if (c->x86_cpuid_level < 0x80000004)
-+	if (c->extended_cpuid_level < 0x80000004)
- 		return 0;
- 
- 	v = (unsigned int *) c->x86_model_id;
-@@ -689,7 +689,7 @@ static void __init display_cacheinfo(str
+-static int hd64465_suspend(struct device *dev, u32 state, u32 level)
++static int hd64465_suspend(struct device *dev, pm_message_t state, u32 level)
  {
- 	unsigned int n, dummy, eax, ebx, ecx, edx;
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -puN drivers/pcmcia/m32r_cfc.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/m32r_cfc.c
+--- 25/drivers/pcmcia/m32r_cfc.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.358673704 -0700
++++ 25-akpm/drivers/pcmcia/m32r_cfc.c	2005-04-12 03:21:29.369672032 -0700
+@@ -743,7 +743,7 @@ static struct pccard_operations pcc_oper
  
--	n = c->x86_cpuid_level;
-+	n = c->extended_cpuid_level;
+ /*====================================================================*/
  
- 	if (n >= 0x80000005) {
- 		cpuid(0x80000005, &dummy, &ebx, &ecx, &edx);
-@@ -781,7 +781,7 @@ static int __init init_amd(struct cpuinf
- 	} 
- 	display_cacheinfo(c);
+-static int m32r_pcc_suspend(struct device *dev, u32 state, u32 level)
++static int m32r_pcc_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -puN drivers/pcmcia/m32r_pcc.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/m32r_pcc.c
+--- 25/drivers/pcmcia/m32r_pcc.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.359673552 -0700
++++ 25-akpm/drivers/pcmcia/m32r_pcc.c	2005-04-12 03:21:29.370671880 -0700
+@@ -696,7 +696,7 @@ static struct pccard_operations pcc_oper
  
--	if (c->x86_cpuid_level >= 0x80000008) {
-+	if (c->extended_cpuid_level >= 0x80000008) {
- 		c->x86_num_cores = (cpuid_ecx(0x80000008) & 0xff) + 1;
- 		if (c->x86_num_cores & (c->x86_num_cores - 1))
- 			c->x86_num_cores = 1;
-@@ -841,7 +841,6 @@ static void __init detect_ht(struct cpui
- 		if (smp_num_siblings & (smp_num_siblings - 1))
- 			index_msb++;
+ /*====================================================================*/
  
--		/* RED-PEN surely this must run in the non HT case too! -AK */
- 		cpu_core_id[cpu] = phys_pkg_id(index_msb);
+-static int m32r_pcc_suspend(struct device *dev, u32 state, u32 level)
++static int m32r_pcc_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -puN drivers/pcmcia/pxa2xx_base.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/pxa2xx_base.c
+--- 25/drivers/pcmcia/pxa2xx_base.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.360673400 -0700
++++ 25-akpm/drivers/pcmcia/pxa2xx_base.c	2005-04-12 03:21:29.370671880 -0700
+@@ -205,7 +205,7 @@ int pxa2xx_drv_pcmcia_probe(struct devic
+ }
+ EXPORT_SYMBOL(pxa2xx_drv_pcmcia_probe);
  
- 		if (c->x86_num_cores > 1)
-@@ -878,7 +877,7 @@ static void __init init_intel(struct cpu
- 	unsigned n;
+-static int pxa2xx_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
++static int pxa2xx_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -puN drivers/pcmcia/sa1100_generic.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/sa1100_generic.c
+--- 25/drivers/pcmcia/sa1100_generic.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.362673096 -0700
++++ 25-akpm/drivers/pcmcia/sa1100_generic.c	2005-04-12 03:21:29.370671880 -0700
+@@ -75,7 +75,7 @@ static int sa11x0_drv_pcmcia_probe(struc
+ 	return ret;
+ }
  
- 	init_intel_cacheinfo(c);
--	n = c->x86_cpuid_level;
-+	n = c->extended_cpuid_level;
- 	if (n >= 0x80000008) {
- 		unsigned eax = cpuid_eax(0x80000008);
- 		c->x86_virt_bits = (eax >> 8) & 0xff;
-@@ -927,7 +926,7 @@ void __init early_identify_cpu(struct cp
- 	c->x86_cache_alignment = c->x86_clflush_size;
- 	c->x86_num_cores = 1;
- 	c->x86_apicid = c == &boot_cpu_data ? 0 : c - cpu_data;
--	c->x86_cpuid_level = 0;
-+	c->extended_cpuid_level = 0;
- 	memset(&c->x86_capability, 0, sizeof c->x86_capability);
+-static int sa11x0_drv_pcmcia_suspend(struct device *dev, u32 state, u32 level)
++static int sa11x0_drv_pcmcia_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int ret = 0;
+ 	if (level == SUSPEND_SAVE_STATE)
+diff -puN drivers/pcmcia/sa1111_generic.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/sa1111_generic.c
+--- 25/drivers/pcmcia/sa1111_generic.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.363672944 -0700
++++ 25-akpm/drivers/pcmcia/sa1111_generic.c	2005-04-12 03:21:29.371671728 -0700
+@@ -158,7 +158,7 @@ static int __devexit pcmcia_remove(struc
+ 	return 0;
+ }
  
- 	/* Get vendor name */
-@@ -974,7 +973,7 @@ void __init identify_cpu(struct cpuinfo_
+-static int pcmcia_suspend(struct sa1111_dev *dev, u32 state)
++static int pcmcia_suspend(struct sa1111_dev *dev, pm_message_t state)
+ {
+ 	return pcmcia_socket_dev_suspend(&dev->dev, state);
+ }
+diff -puN drivers/pcmcia/vrc4171_card.c~fix-u32-vs-pm_message_t-in-pcmcia drivers/pcmcia/vrc4171_card.c
+--- 25/drivers/pcmcia/vrc4171_card.c~fix-u32-vs-pm_message_t-in-pcmcia	2005-04-12 03:21:29.364672792 -0700
++++ 25-akpm/drivers/pcmcia/vrc4171_card.c	2005-04-12 03:21:29.372671576 -0700
+@@ -774,7 +774,7 @@ static int __devinit vrc4171_card_setup(
  
- 	/* AMD-defined flags: level 0x80000001 */
- 	xlvl = cpuid_eax(0x80000000);
--	c->x86_cpuid_level = xlvl;
-+	c->extended_cpuid_level = xlvl;
- 	if ((xlvl & 0xffff0000) == 0x80000000) {
- 		if (xlvl >= 0x80000001) {
- 			c->x86_capability[1] = cpuid_edx(0x80000001);
-diff -puN include/asm-x86_64/processor.h~x86_64-rename-the-extended-cpuid-level-field include/asm-x86_64/processor.h
---- 25/include/asm-x86_64/processor.h~x86_64-rename-the-extended-cpuid-level-field	2005-04-12 03:21:27.161007800 -0700
-+++ 25-akpm/include/asm-x86_64/processor.h	2005-04-12 03:21:27.165007192 -0700
-@@ -64,7 +64,7 @@ struct cpuinfo_x86 {
- 	__u8	x86_num_cores;
- 	__u8	x86_apicid;
-         __u32   x86_power; 	
--	__u32   x86_cpuid_level;	/* Max CPUID function supported */
-+	__u32   extended_cpuid_level;	/* Max extended CPUID function supported */
- 	unsigned long loops_per_jiffy;
- } ____cacheline_aligned;
+ __setup("vrc4171_card=", vrc4171_card_setup);
+ 
+-static int vrc4171_card_suspend(struct device *dev, u32 state, u32 level)
++static int vrc4171_card_suspend(struct device *dev, pm_message_t state, u32 level)
+ {
+ 	int retval = 0;
  
 _

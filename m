@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262528AbVDLSkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVDLSkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262528AbVDLSkc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVDLSgv
+	id S262301AbVDLSkb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVDLSfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:36:51 -0400
-Received: from fire.osdl.org ([65.172.181.4]:7371 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262305AbVDLKeF (ORCPT
+	Tue, 12 Apr 2005 14:35:40 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8651 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262306AbVDLKeL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:34:05 -0400
-Message-Id: <200504121033.j3CAXffJ005948@shell0.pdx.osdl.net>
-Subject: [patch 196/198] fbdev MAINTAINERS update
+	Tue, 12 Apr 2005 06:34:11 -0400
+Message-Id: <200504121033.j3CAXJ3a005845@shell0.pdx.osdl.net>
+Subject: [patch 170/198] IB/mthca: fix MR allocation error path
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mst@mellanox.co.il,
+       roland@topspin.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:35 -0700
+Date: Tue, 12 Apr 2005 03:33:12 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Michael S. Tsirkin <mst@mellanox.co.il>
 
-This patch does the long overdue updates to MAINTAINERS file for aty128fb
-and radeonfb.
+Fix error handling in MR allocation for mem-free mode: mthca_free must get an
+MR index, not a key.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/MAINTAINERS |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -puN MAINTAINERS~fbdev-maintainers-update MAINTAINERS
---- 25/MAINTAINERS~fbdev-maintainers-update	2005-04-12 03:21:50.014533536 -0700
-+++ 25-akpm/MAINTAINERS	2005-04-12 03:21:50.019532776 -0700
-@@ -1852,14 +1852,14 @@ W:	http://www.alarsen.net/linux/qnx4fs/
- S:	Maintained
+diff -puN drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-fix-mr-allocation-error-path drivers/infiniband/hw/mthca/mthca_mr.c
+--- 25/drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-fix-mr-allocation-error-path	2005-04-12 03:21:43.875466816 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c	2005-04-12 03:21:43.878466360 -0700
+@@ -231,7 +231,7 @@ err_out_table:
+ 		mthca_table_put(dev, dev->mr_table.mpt_table, key);
  
- RADEON FRAMEBUFFER DISPLAY DRIVER
--P:	Ani Joshi
--M:	ajoshi@shell.unixbox.com
-+P:	Benjamin Herrenschmidt
-+M:	benh@kernel.crashing.org
- L:	linux-fbdev-devel@lists.sourceforge.net
- S:	Maintained
+ err_out_mpt_free:
+-	mthca_free(&dev->mr_table.mpt_alloc, mr->ibmr.lkey);
++	mthca_free(&dev->mr_table.mpt_alloc, key);
+ 	kfree(mailbox);
+ 	return err;
+ }
+@@ -368,7 +368,7 @@ err_out_table:
+ 		mthca_table_put(dev, dev->mr_table.mpt_table, key);
  
- RAGE128 FRAMEBUFFER DISPLAY DRIVER
--P:	Ani Joshi
--M:	ajoshi@shell.unixbox.com
-+P:	Paul Mackerras
-+M:	paulus@samba.org
- L:	linux-fbdev-devel@lists.sourceforge.net
- S:	Maintained
+ err_out_mpt_free:
+-	mthca_free(&dev->mr_table.mpt_alloc, mr->ibmr.lkey);
++	mthca_free(&dev->mr_table.mpt_alloc, key);
+ 	return err;
+ }
  
 _

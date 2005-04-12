@@ -1,52 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVDLAWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVDLA07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVDLAWw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 20:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVDLAWv
+	id S261806AbVDLA07 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 20:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVDLA07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 20:22:51 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:44483 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261725AbVDLAWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 20:22:48 -0400
-To: Andrew Morton <akpm@osdl.org>, libor@topspin.com
-Cc: hozer@hozed.org, linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-X-Message-Flag: Warning: May contain useful information
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 11 Apr 2005 17:21:04 -0700
-In-Reply-To: <20050411171347.7e05859f.akpm@osdl.org> (Andrew Morton's
- message of "Mon, 11 Apr 2005 17:13:47 -0700")
-Message-ID: <521x9gyhe7.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Mon, 11 Apr 2005 20:26:59 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:33798 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261806AbVDLA0z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 20:26:55 -0400
+Date: Mon, 11 Apr 2005 17:27:41 -0700
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
+       Joe Korty <joe.korty@ccur.com>
+Subject: Re: [PATCH] Priority Lists for the RT mutex
+Message-ID: <20050412002741.GA12094@nietzsche.lynx.com>
+References: <F989B1573A3A644BAB3920FBECA4D25A02FA3BFF@orsmsx407>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 12 Apr 2005 00:21:04.0866 (UTC) FILETIME=[83C67C20:01C53EF5]
+Content-Disposition: inline
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A02FA3BFF@orsmsx407>
+User-Agent: Mutt/1.5.8i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Roland> Yes, because the kernel may go through and unmap pages
-    Roland> from userspace while trying to swap.  Since we have the
-    Roland> page locked in the kernel, the physical page won't go
-    Roland> anywhere, but userspace might end up with a different page
-    Roland> mapped at the same virtual address.
+On Mon, Apr 11, 2005 at 04:28:25PM -0700, Perez-Gonzalez, Inaky wrote:
+> >From: Bill Huey (hui) [mailto:bhuey@lnxw.com]
+...
+> API than once upon a time was made multithreaded by just adding
+> a bunch of pthread_mutex_[un]lock() at the API entry point...
+> without realizing that some of the top level API calls also 
+> called other top level API calls, so they'd deadlock.
 
-    Andrew> That shouldn't happen.  If get_user_pages() has elevated
-    Andrew> the refcount on a page then the following can happen:
+Oh crap.
 
-    ...
+> Quick fix: the usual. Enable deadlock detection and if it
+> returns deadlock, assume it is locked already and proceed (or
+> do a recursive mutex, or a trylock).
 
-    Andrew> IOW: while the page has an elevated refcount from
-    Andrew> get_user_pages(), that physical page is 100% pinned.
-    Andrew> Once you've done the set_page_dirty+put_page(), the page
-    Andrew> is again under control of the VM.
+You have to be joking me ? geez.
+... 
+> It is certainly something to explore, but I'd better drive your
+> way than do it. It's cleaner. Hides implementation details.
+>
+> I agree, but it doesn't work that well when talking about legacy 
+> systems...that's the problem.
 
-Hmm... I've never tested it first hand but Libor assures me there is a
-something like what I said.  Libor, did I get the explanation right?
+Yeah, ok, I understand what's going on now. There isn't a notion
+of projecting priority across into the Unix/Linux kernel traditionally
+which is why it seemed so bizarre.
 
- - R.
+> Sure--and because most was for legacy reasons that adhered to 
+> POSIX strictly, it was very simple: we need POSIX this, that and
+> that (PI, proper adherence to scheduler policy wake up/rt-behaviour,
+> deadlock detection, etc). 
+
+Some of this stuff sounds like recursive locking. Would this be a
+better expression to solve the "top level API locking" problem
+you're referring to ?
+
+> Fortunately in those areas POSIX is not too gray; code to the book.
+> Deal. 
+
+I would think that there will have to be a graph discontinuity
+between user/kernel spaces at kernel entry and exit for the deadlock
+detector. Can't say about issues at fork time, but I would expect
+that those objects would have to be destroyed when the process exits.
+
+The current RT (Ingo's) lock isn't recursive nor is the deadlock
+detector the last time I looked. Do think that this is a problem
+for legacy apps if it gets overload for being the userspace futex
+as well ? (assuming I'm understanding all of this correctly)
+
+> Of course, selling it to the lkml is another story.
+
+I would think that pushing as much of this into userspace would
+make the kernel hooks for it more acceptable. Don't know.
+
+/me thinks more
+
+bill
+

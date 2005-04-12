@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVDLJg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVDLJlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVDLJg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 05:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVDLJg0
+	id S262083AbVDLJlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 05:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbVDLJlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 05:36:26 -0400
-Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:9921 "EHLO
-	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S262082AbVDLJfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 05:35:20 -0400
-To: Kedar Sovani <kedars@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel SCM saga.. (bk license?)
-References: <Pine.LNX.4.58.0504060800280.2215@ppc970.osdl.org>
-	<20050408041341.GA8720@taniwha.stupidest.org>
-	<Pine.LNX.4.58.0504072127250.28951@ppc970.osdl.org>
-	<5edf7fc9050412001464682e4a@mail.gmail.com>
-From: Catalin Marinas <catalin.marinas@arm.com>
-Date: Tue, 12 Apr 2005 10:34:53 +0100
-In-Reply-To: <5edf7fc9050412001464682e4a@mail.gmail.com> (Kedar Sovani's
- message of "Tue, 12 Apr 2005 12:44:35 +0530")
-Message-ID: <tnxaco48hj6.fsf@arm.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Tue, 12 Apr 2005 05:41:42 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:59269 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262083AbVDLJlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 05:41:35 -0400
+From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Subject: RE: non-free firmware in kernel modules, aggregation and unclear 	copyright notice.
+To: davids@webmaster.com, debian-legal@lists.debian.org,
+       linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 12 Apr 2005 11:41:20 +0200
+References: <3S5Kr-72b-17@gated-at.bofh.it> <3ScVq-4N8-11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DLHtY-0001CX-QV@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kedar Sovani <kedars@gmail.com> wrote:
-> I was wondering if working on git, is in anyway, in violation of the
-> Bitkeeper license, which states that you cannot work on any other SCM
-> (SCM-like?) tool for "x" amount of time after using Bitkeeper ?
+David Schwartz <davids@webmaster.com> wrote:
 
-That's valid for the new BK license only which probably wasn't
-accepted by Linus.
+>>Copyright law only _explicitly_ grants a monopoly on preparation of
+>>derivative works.  However, it is trivial, and overwhelmingly common,
+>>for a copyright owner to grant a license to create a derivative work
+>>that is conditional on how the licensee agrees to distribute (or not
+>>distribute) the derivative work.
+> 
+> This would, of course, only make sense if you *had* to agree to the license
+> to *create* the derivative work. If you were able to create the derivative
+> work under first sale or fair use rights, then the restrictions in the
+> contract would not apply to you.
 
+If you buy a W*nd*ws install CD, you can create a derived work, e.g. an image
+of your installation, under the fair use rights (IANAL). Can you distribute
+that image freely?
 -- 
-Catalin
+Friendly fire isn't. 
 
+Friﬂ, Spammer: dragon@soft-dindon.biz service@killadwaredrive.com
+ fooling3@supplygood.com winkervm@misentry1982rx.us

@@ -1,123 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbVDLKN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVDLKQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbVDLKN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 06:13:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262096AbVDLKN1
+	id S262099AbVDLKQB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 06:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVDLKQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:13:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:7855 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262078AbVDLKNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:13:13 -0400
-Date: Tue, 12 Apr 2005 11:13:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jes Sorensen <jes@trained-monkey.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+	Tue, 12 Apr 2005 06:16:01 -0400
+Received: from fire.osdl.org ([65.172.181.4]:19140 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262099AbVDLKPM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:15:12 -0400
+Date: Tue, 12 Apr 2005 03:15:02 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: jes@trained-monkey.org (Jes Sorensen)
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] genalloc for 2.6.12-rc-mm3
-Message-ID: <20050412101311.GA2358@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jes Sorensen <jes@trained-monkey.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <16987.39669.285075.730484@jaguar.mkp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Message-Id: <20050412031502.3b5d39fc.akpm@osdl.org>
 In-Reply-To: <16987.39669.285075.730484@jaguar.mkp.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <16987.39669.285075.730484@jaguar.mkp.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 05:55:01AM -0400, Jes Sorensen wrote:
+jes@trained-monkey.org (Jes Sorensen) wrote:
+>
 > Hi Andrew,
 > 
 > This patch provides the generic allocator needed for the ia64 mspec
 > driver. Any chance you could add it to the mm tree?
-> 
-> Thanks,
-> Jes
-> 
-> Generic allocator that can  be used by device driver to manage special
-> memory etc. in particular it's used to manage uncached memory on ia64
-> for the mspec driver. The allocator is based on the allocator from the
-> sym53c8xx_2 driver.
 
-So maybe as an example that your driver is usefull and not just additional
-bloat you could convert sym53c8xx_2 (and ncr53c8xxx) to use it?
-
-> +/*
-> + *  Memory pool of a given kind.
-> + *  Ideally, we want to use:
-> + *  1) 1 pool for memory we donnot need to involve in DMA.
-> + *  2) The same pool for controllers that require same DMA 
-> + *     constraints and features.
-> + *     The OS specific m_pool_id_t thing and the gen_pool_match() 
-> + *     method are expected to tell the driver about.
-> + */
-
-these comments don't make any sense.
-
-> +unsigned long gen_pool_alloc(struct gen_pool *poolp, int size);
-> +void gen_pool_free(struct gen_pool *mp, unsigned long ptr, int size);
-> +struct gen_pool *alloc_gen_pool(int nr_chunks, int max_chunk_shift,
-> +				unsigned long (*fp)(struct gen_pool *),
-> +				unsigned long data);
-
-shouldn't there be a way to release the pool again?  Also we usuælly
-call these _create/_destroy
+spose so.  Glad it's Kconfigurable.
 
 > +#ifdef CONFIG_GENERIC_ALLOCATOR
 > +	gen_pool_init();
 > +#endif
 
-please avoid hardcoded initcalls.
+Suggest you put a !CONFIG_GENERIC_ALLOCATOR stub in genpool.h, remove these
+ifdefs.
 
+> +# Generic allocator support is selected if needed
+> +#
 > +config GENERIC_ALLOCATOR
 > +	boolean
 
-	bool
+This will be turned on by some later patch, yes?
 
-> +#include <linux/config.h>
+So will this code even be compiled in -mm?  I guess allyesconfig will
+enable it.
 
-not needed.
 
-> +#include <linux/module.h>
-> +#include <linux/stddef.h>
-> +#include <linux/kernel.h>
-> +#include <linux/string.h>
-> +#include <linux/slab.h>
-> +#include <linux/init.h>
-> +#include <linux/mm.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/genalloc.h>
 > +
-> +#include <asm/page.h>
-> +#include <asm/pal.h>
-> +
-> +
+> +struct gen_pool *alloc_gen_pool(int nr_chunks, int max_chunk_shift,
+> +				unsigned long (*fp)(struct gen_pool *),
+> +				unsigned long data)
+
+Some API kerneldocs would be useful.
 
 > +	/*
 > +	 * This is really an arbitrary limit, +10 is enough for
 > +	 * IA64_GRANULE_SHIFT.
 > +	 */
+> +	if ((max_chunk_shift > (PAGE_SHIFT + 10)) || 
+> +	    ((max_chunk_shift < ALLOC_MIN_SHIFT) && max_chunk_shift))
+> +		return NULL;
 
-What's IA64_GRANULE_SHIFT and why do we care?
+Does this ia64ism restrict the usefulness of genalloc in any way, or is the
+comment stale?
+
+> + *  Simple power of two buddy-like generic allocator.
+> + *  Provides naturally aligned memory chunks.
+> + */
+> +unsigned long gen_pool_alloc(struct gen_pool *poolp, int size)
+> +{
+> +	int j, i, s, max_chunk_size;
+> +	unsigned long a, flags;
+> +	struct gen_pool_link *h = poolp->h;
+> +
+> +	max_chunk_size = 1 << poolp->max_chunk_shift;
+> +
+> +	if (size > max_chunk_size)
+> +		return 0;
+> +
+> +	i = 0;
+> +	s = (1 << ALLOC_MIN_SHIFT);
+> +	while (size > s) {
+> +		s <<= 1;
+> +		i++;
+> +	}
+
+roundup_pow_of_two()?
 
 > +#if DEBUG
 > +	printk(KERN_DEBUG "gen_pool_alloc: s %02x, i %i, h %p\n", s, i, h);
 > +#endif
 
-please avoid ifdefs in the middle of the code.  if you think keeping this
-trivial debug code in is so valueable add a helper that gets defined away
-for the non-debug case.
+dprintk?
+
+> +	j = i;
+> +
+> +	spin_lock_irqsave(&poolp->lock, flags);
+> +	while (!h[j].next) {
+> +		if (s == max_chunk_size) {
+> +			struct gen_pool_link *ptr;
+> +			spin_unlock_irqrestore(&poolp->lock, flags);
+> +			ptr = (struct gen_pool_link *)poolp->get_new_chunk(poolp);
+
+mabe get_new_chunk() should return void*, avoid the casting?
+
+> +#if DEBUG
+> +			printk(KERN_DEBUG "gen_pool_alloc() splitting i %i j %i %x a %02lx\n", i, j, s, a);
+> +#endif
+
+You once sent me a rude email for putting a line >80 cols into acenic.c
+
+> +		return;
+> +
+> +	i = 0;
+> +	while (size > s) {
+> +		s <<= 1;
+> +		i++;
+> +	}
+
+roundup_pow_of_two()?
+
+> +		while (q->next && q->next != (struct gen_pool_link *)b) {
+> +			q = q->next;
+> +		}
+
+braces?
 
 > +int __init gen_pool_init(void)
 > +{
 > +	printk(KERN_INFO "Generic memory pool allocator v1.0\n");
 > +	return 0;
-> +}
 
-no need to print a init message for a set of trivial library function
+Do we need the printk?
+
+> +
+> +EXPORT_SYMBOL(alloc_gen_pool);
+> +EXPORT_SYMBOL(gen_pool_alloc);
+> +EXPORT_SYMBOL(gen_pool_free);
+
+Current style is usually to put the exports at the line after the
+function's closing brace.  I prefer that personally - it's easier to
+locate.
 

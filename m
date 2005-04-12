@@ -1,71 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVDLNOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262461AbVDLNMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbVDLNOy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 09:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVDLNND
+	id S262461AbVDLNMX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 09:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVDLNFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 09:13:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:10163 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262391AbVDLNHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 09:07:48 -0400
-Subject: Re: [ANNOUNCE] git-pasky-0.3
-From: David Woodhouse <dwmw2@infradead.org>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>
-In-Reply-To: <20050411135758.GA3524@pasky.ji.cz>
-References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org>
-	 <20050409200709.GC3451@pasky.ji.cz>
-	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
-	 <20050411015852.GI5902@pasky.ji.cz>  <20050411135758.GA3524@pasky.ji.cz>
-Content-Type: text/plain
-Date: Tue, 12 Apr 2005 14:07:36 +0100
-Message-Id: <1113311256.20848.47.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 12 Apr 2005 09:05:48 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:9907 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262387AbVDLMtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 08:49:00 -0400
+Message-ID: <425BC3B0.7020707@yahoo.com.au>
+Date: Tue, 12 Apr 2005 22:48:48 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Subject: [patch 2/9] mempool gfp flag
+References: <425BC262.1070500@yahoo.com.au>
+In-Reply-To: <425BC262.1070500@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------070009040001000301000907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-11 at 15:57 +0200, Petr Baudis wrote:
->   Hello,
-> 
->   here goes git-pasky-0.3, my set of patches and scripts upon
-> Linus' git, aimed at human usability and to an extent a SCM-like
-> usage.
+This is a multi-part message in MIME format.
+--------------070009040001000301000907
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Untar, make, add to path, pull, 'git diff' fails on PPC:
-
-peach /home/dwmw2/git-pasky-base $ git diff
-error: bad signature
-error: verify header failed
-read_cache: Invalid argument
-
-A little extra debugging shows the problem:
-
-error: bad signature 0x43524944 should be 0x44495243
-
-The cache.h header file suggests that the cache is host-endian on
-purpose, because it's local-only. So why am I seeing a cache from
-another host? Is that comment no longer true?
-
-Either way, the original decision is probably bogus -- with trees as
-large as the kernel tree it makes a lot of sense to keep them somewhere
-NFS-accessible and use them from different hosts, and byteswapping
-really isn't going to slow it down that much. We should just pick an
-endianness and stick to it.
-
-I'd suggest making it big-endian to make sure the LE weenies don't
-forget to byteswap properly.
+2/9
 
 -- 
-dwmw2
+SUSE Labs, Novell Inc.
+
+--------------070009040001000301000907
+Content-Type: text/plain;
+ name="mempool-gfp-flag.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mempool-gfp-flag.patch"
+
+Mempools have 2 problems.
+
+The first is that mempool_alloc can possibly get stuck in __alloc_pages
+when they should opt to fail, and take an element from their reserved pool.
+
+The second is that it will happily eat emergency PF_MEMALLOC reserves
+instead of going to their reserved pools.
+
+Fix the first by passing __GFP_NORETRY in the allocation calls in
+mempool_alloc. Fix the second by introducing a __GFP_MEMPOOL flag
+which directs the page allocator not to allocate from the reserve
+pool.
+
+
+Index: linux-2.6/include/linux/gfp.h
+===================================================================
+--- linux-2.6.orig/include/linux/gfp.h	2005-04-12 22:26:10.000000000 +1000
++++ linux-2.6/include/linux/gfp.h	2005-04-12 22:26:11.000000000 +1000
+@@ -38,14 +38,16 @@ struct vm_area_struct;
+ #define __GFP_NO_GROW	0x2000u	/* Slab internal usage */
+ #define __GFP_COMP	0x4000u	/* Add compound page metadata */
+ #define __GFP_ZERO	0x8000u	/* Return zeroed page on success */
++#define __GFP_MEMPOOL	0x10000u/* Mempool allocation */
+ 
+-#define __GFP_BITS_SHIFT 16	/* Room for 16 __GFP_FOO bits */
++#define __GFP_BITS_SHIFT 17	/* Room for 17 __GFP_FOO bits */
+ #define __GFP_BITS_MASK ((1 << __GFP_BITS_SHIFT) - 1)
+ 
+ /* if you forget to add the bitmask here kernel will crash, period */
+ #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+ 			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT|__GFP_NOFAIL| \
+-			__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP|__GFP_ZERO)
++			__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP|__GFP_ZERO| \
++			__GFP_MEMPOOL)
+ 
+ #define GFP_ATOMIC	(__GFP_HIGH)
+ #define GFP_NOIO	(__GFP_WAIT)
+Index: linux-2.6/mm/page_alloc.c
+===================================================================
+--- linux-2.6.orig/mm/page_alloc.c	2005-04-12 22:05:44.000000000 +1000
++++ linux-2.6/mm/page_alloc.c	2005-04-12 22:26:11.000000000 +1000
+@@ -799,14 +799,18 @@ __alloc_pages(unsigned int __nocast gfp_
+ 	}
+ 
+ 	/* This allocation should allow future memory freeing. */
+-	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE))) && !in_interrupt()) {
+-		/* go through the zonelist yet again, ignoring mins */
+-		for (i = 0; (z = zones[i]) != NULL; i++) {
+-			if (!cpuset_zone_allowed(z))
+-				continue;
+-			page = buffered_rmqueue(z, order, gfp_mask);
+-			if (page)
+-				goto got_pg;
++
++	if (((p->flags & PF_MEMALLOC) || unlikely(test_thread_flag(TIF_MEMDIE)))
++			&& !in_interrupt()) {
++		if (!(gfp_mask & __GFP_MEMPOOL)) {
++			/* go through the zonelist yet again, ignoring mins */
++			for (i = 0; (z = zones[i]) != NULL; i++) {
++				if (!cpuset_zone_allowed(z))
++					continue;
++				page = buffered_rmqueue(z, order, gfp_mask);
++				if (page)
++					goto got_pg;
++			}
+ 		}
+ 		goto nopage;
+ 	}
+Index: linux-2.6/mm/mempool.c
+===================================================================
+--- linux-2.6.orig/mm/mempool.c	2005-04-12 22:05:44.000000000 +1000
++++ linux-2.6/mm/mempool.c	2005-04-12 22:26:11.000000000 +1000
+@@ -198,11 +198,16 @@ void * mempool_alloc(mempool_t *pool, un
+ 	void *element;
+ 	unsigned long flags;
+ 	DEFINE_WAIT(wait);
+-	int gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO);
++	int gfp_nowait;
++	
++	gfp_mask |= __GFP_MEMPOOL;
++	gfp_mask |= __GFP_NORETRY;	/* don't loop in __alloc_pages */
++	gfp_mask |= __GFP_NOWARN;	/* failures are OK */
++	gfp_nowait = gfp_mask & ~(__GFP_WAIT | __GFP_IO);
+ 
+ 	might_sleep_if(gfp_mask & __GFP_WAIT);
+ repeat_alloc:
+-	element = pool->alloc(gfp_nowait|__GFP_NOWARN, pool->pool_data);
++	element = pool->alloc(gfp_nowait, pool->pool_data);
+ 	if (likely(element != NULL))
+ 		return element;
+ 
+
+--------------070009040001000301000907--
 

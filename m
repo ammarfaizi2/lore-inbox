@@ -1,69 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVDLTC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262218AbVDMESI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbVDLTC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVDLTBd
+	id S262218AbVDMESI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 00:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVDLTE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:01:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:60617 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262222AbVDLKcl (ORCPT
+	Tue, 12 Apr 2005 15:04:28 -0400
+Received: from fire.osdl.org ([65.172.181.4]:57801 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262218AbVDLKck (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:41 -0400
-Message-Id: <200504121032.j3CAWZ3N005633@shell0.pdx.osdl.net>
-Subject: [patch 124/198] possible use-after-free of bio
+	Tue, 12 Apr 2005 06:32:40 -0400
+Message-Id: <200504121032.j3CAWX1w005625@shell0.pdx.osdl.net>
+Subject: [patch 122/198] swsusp: SMP fix
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, alexn@dsv.su.se
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:29 -0700
+Date: Tue, 12 Apr 2005 03:32:26 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Jens Axboe <axboe@suse.de>
+From: Alexander Nyberg <alexn@dsv.su.se>
 
-There is a possibility that a bio will be accessed after it has been freed
-on SCSI.  It happens if you submit a bio with BIO_SYNC marked and the
-auto-unplugging kicks the request_fn, SCSI re-enables interrupts in-between
-so if the request completes between the add_request() in __make_request()
-and the bio_sync() call, we could be looking at a dead bio.  It's a slim
-race, but it has been triggered in the Real World.
+Fix some smp_processor_id-in-preemptible warnings
 
-So assign bio_sync() to a local variable instead.
-
-Signed-off-by: Jens Axboe <axboe@suse.de>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/block/ll_rw_blk.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ 25-akpm/kernel/power/smp.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff -puN drivers/block/ll_rw_blk.c~possible-use-after-free-of-bio drivers/block/ll_rw_blk.c
---- 25/drivers/block/ll_rw_blk.c~possible-use-after-free-of-bio	2005-04-12 03:21:33.400059320 -0700
-+++ 25-akpm/drivers/block/ll_rw_blk.c	2005-04-12 03:21:33.405058560 -0700
-@@ -2559,7 +2559,7 @@ EXPORT_SYMBOL(__blk_attempt_remerge);
- static int __make_request(request_queue_t *q, struct bio *bio)
+diff -puN kernel/power/smp.c~swsusp-smp-fix kernel/power/smp.c
+--- 25/kernel/power/smp.c~swsusp-smp-fix	2005-04-12 03:21:32.984122552 -0700
++++ 25-akpm/kernel/power/smp.c	2005-04-12 03:21:32.987122096 -0700
+@@ -46,13 +46,13 @@ static cpumask_t oldmask;
+ 
+ void disable_nonboot_cpus(void)
  {
- 	struct request *req, *freereq = NULL;
--	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, err;
-+	int el_ret, rw, nr_sectors, cur_nr_sectors, barrier, err, sync;
- 	sector_t sector;
+-	printk("Freezing CPUs (at %d)", smp_processor_id());
+ 	oldmask = current->cpus_allowed;
+ 	set_cpus_allowed(current, cpumask_of_cpu(0));
++	printk("Freezing CPUs (at %d)", _smp_processor_id());
+ 	current->state = TASK_INTERRUPTIBLE;
+ 	schedule_timeout(HZ);
+ 	printk("...");
+-	BUG_ON(smp_processor_id() != 0);
++	BUG_ON(_smp_processor_id() != 0);
  
- 	sector = bio->bi_sector;
-@@ -2567,6 +2567,7 @@ static int __make_request(request_queue_
- 	cur_nr_sectors = bio_cur_sectors(bio);
- 
- 	rw = bio_data_dir(bio);
-+	sync = bio_sync(bio);
- 
- 	/*
- 	 * low level driver can indicate that it wants pages above a
-@@ -2698,7 +2699,7 @@ get_rq:
- out:
- 	if (freereq)
- 		__blk_put_request(q, freereq);
--	if (bio_sync(bio))
-+	if (sync)
- 		__generic_unplug_device(q);
- 
- 	spin_unlock_irq(q->queue_lock);
+ 	/* FIXME: for this to work, all the CPUs must be running
+ 	 * "idle" thread (or we deadlock). Is that guaranteed? */
 _

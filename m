@@ -1,139 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVDLRpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVDLRtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262536AbVDLRpB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 13:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbVDLRle
+	id S262321AbVDLRtA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 13:49:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbVDLRrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 13:41:34 -0400
-Received: from ext-nj2gw-7.online-age.net ([64.14.56.43]:7854 "EHLO
-	ext-nj2gw-7.online-age.net") by vger.kernel.org with ESMTP
-	id S262464AbVDLRjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 13:39:23 -0400
-Date: Tue, 12 Apr 2005 19:39:11 +0200
-From: Kiniger <karl.kiniger@med.ge.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.30 Oops when connecting external USB hard drive
-Message-ID: <20050412173911.GA21311@wszip-kinigka.euro.med.ge.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 12 Apr 2005 13:47:47 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:17937 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S262518AbVDLRpT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 13:45:19 -0400
+Subject: [patch 1/1] uml: add nfsd syscall when nfsd is modular
+To: akpm@osdl.org
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       blaisorblade@yahoo.it, stable@kernel.org
+From: blaisorblade@yahoo.it
+Date: Tue, 12 Apr 2005 19:47:42 +0200
+Message-Id: <20050412174745.7F28711DF46@zion>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pls see the hand-copied decoded backtrace.
 
-It happens when I connect a Seagate 160 GB external USB
-hard disk. (I dont have access to this particular drive
-just now  but under Windows I have seen it  as an ST3316002 3A
-USB Device) - Oops happens reliably just after I plug the
-drive in.
+CC: <stable@kernel.org>
 
-When connecting a Maxtor USB disk there is no Oops however.
+This trick is useless, because sys_ni.c will handle this problem by itself,
+like it does even on UML for other syscalls.
 
-Kernel is 2.4.30-pre4 (same as 2.4.30) with the
-TNG NTFS patches from Anton Altaparmakov but it is not
-in use when it happens. There are no hotplug, automount etc.
-scripts on this system.
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-suggestions from the USB experts are welcome.
+ clean-linux-2.6.11-paolo/arch/um/kernel/sys_call_table.c |    8 +-------
+ 1 files changed, 1 insertion(+), 7 deletions(-)
 
-Greetings,
-Karl
-
-ksymoops 2.4.11 on i686 2.6.10-1.770_FC3.  Options used
-     -v vmlinux (specified)
-     -k ksyms.out (specified)
-     -l modules.out (specified)
-     -o /lib/modules/2.4.30-rc4 (specified)
-     -m System.map (specified)
-
-Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
-Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
-Error (pclose_local): find_objects pclose failed 0x100
-Warning (compare_ksyms_lsmod): module Module is in lsmod but not in ksyms, probably no symbols exported
-Warning (map_ksym_to_module): cannot match loaded module ext3 to a unique module object.  Trace may not be reliable.
-Oops: 0000
-CPU:    0
-EIP:    0010:[<f0089d42>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010207
-eax: 00000000   ebx: eed8c200  ecx: ee9f9100  edx: 00000000
-esi: 00010011   edi: ee9ae2e0  ebp: ee9f9100  esp: c029fe98
-ds: 0018   es: 0018  ss: 0018
-Process swapper (pid: 0, stackpage=c029f000)
-Stack: ee9f7180 eed8c200 f00890e3 eed8c200 ee9f9100 2e9f7180 00018148 ee9f914c
-       01d8c200 00000000 00000001 00000001 ee9f914c ee9f7120 00000000 00000000
-       dd9f9100 000017f8 f008b3fb eed8c200 ee9f9100 c029ff8c 00000000 ee9f6bfc
-Call Trace:    [<f00890e3>] [<f008b3fb>] [<f008bcdc>] [<f0049d4a>] [<c010a5d5>]
-  [<c010a754>] [<c010cc78>] [<c0110018>] [<c0106fb3>] [<c0114c9c>] [<c0114b60>]
-  [<c0107042>] [<c0105000>]
-Code: 8b 40 48 39 c8 75 f7 8b 01 89 02 8b 41 48 89 42 48 8b 83 00
-
-
->>EIP; f0089d42 <[ehci-hcd]start_unlink_async+32/e0>   <=====
-
->>ebx; eed8c200 <_end+2ea8f728/2fd10588>
->>ecx; ee9f9100 <_end+2e6fc628/2fd10588>
->>edi; ee9ae2e0 <_end+2e6b1808/2fd10588>
->>ebp; ee9f9100 <_end+2e6fc628/2fd10588>
->>esp; c029fe98 <init_task_union+1e98/2000>
-
-Trace; f00890e3 <[ehci-hcd]qh_completions+1f3/2d0>
-Trace; f008b3fb <[ehci-hcd]scan_periodic+1cb/230>
-Trace; f008bcdc <[ehci-hcd]ehci_work+4c/d0>
-Trace; f0049d4a <[usbcore]hcd_irq+2a/60>
-Trace; c010a5d5 <handle_IRQ_event+45/70>
-Trace; c010a754 <do_IRQ+64/a0>
-Trace; c010cc78 <call_do_IRQ+5/d>
-Trace; c0110018 <pci_conf2_write_config_byte+8/60>
-Trace; c0106fb3 <default_idle+23/40>
-Trace; c0114c9c <apm_cpu_idle+13c/160>
-Trace; c0114b60 <apm_cpu_idle+0/160>
-Trace; c0107042 <cpu_idle+52/70>
-Trace; c0105000 <_stext+0/0>
-
-Code;  f0089d42 <[ehci-hcd]start_unlink_async+32/e0>
-00000000 <_EIP>:
-Code;  f0089d42 <[ehci-hcd]start_unlink_async+32/e0>   <=====
-   0:   8b 40 48                  mov    0x48(%eax),%eax   <=====
-Code;  f0089d45 <[ehci-hcd]start_unlink_async+35/e0>
-   3:   39 c8                     cmp    %ecx,%eax
-Code;  f0089d47 <[ehci-hcd]start_unlink_async+37/e0>
-   5:   75 f7                     jne    fffffffe <_EIP+0xfffffffe>
-Code;  f0089d49 <[ehci-hcd]start_unlink_async+39/e0>
-   7:   8b 01                     mov    (%ecx),%eax
-Code;  f0089d4b <[ehci-hcd]start_unlink_async+3b/e0>
-   9:   89 02                     mov    %eax,(%edx)
-Code;  f0089d4d <[ehci-hcd]start_unlink_async+3d/e0>
-   b:   8b 41 48                  mov    0x48(%ecx),%eax
-Code;  f0089d50 <[ehci-hcd]start_unlink_async+40/e0>
-   e:   89 42 48                  mov    %eax,0x48(%edx)
-Code;  f0089d53 <[ehci-hcd]start_unlink_async+43/e0>
-  11:   8b 83 00 00 00 00         mov    0x0(%ebx),%eax
-
- <0>Kernel panic: Aiee, killing interrupt handler!
-
-2 warnings and 3 errors issued.  Results may not be reliable.
-
-lspci output:
-00:00.0 Host bridge: Intel Corporation 82845G/GL[Brookdale-G]/GE/PE DRAM Controller/Host-Hub Interface (rev 03)
-00:02.0 VGA compatible controller: Intel Corporation 82845G/GL[Brookdale-G]/GE Chipset Integrated Graphics Device (rev 03)
-00:1d.0 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller  (rev 01)
-00:1d.1 USB Controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) USB UHCI Controller  (rev 01)
-00:1d.7 USB Controller: Intel Corporation 82801DB/DBM (ICH4/ICH4-M) USB2 EHCI Controller (rev 01)
-00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev 81)
-00:1f.0 ISA bridge: Intel Corporation 82801DB/DBL (ICH4/ICH4-L) LPC Interface Bridge (rev 01)
-00:1f.1 IDE interface: Intel Corporation 82801DB (ICH4) IDE Controller (rev 01)
-00:1f.3 SMBus: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) SMBus Controller (rev 01)
-00:1f.5 Multimedia audio controller: Intel Corporation 82801DB/DBL/DBM (ICH4/ICH4-L/ICH4-M) AC'97 Audio Controller (rev 01)
-01:08.0 Ethernet controller: Intel Corporation 82801DB PRO/100 VE (CNR) Ethernet Controller (rev 81)
-01:0c.0 Bridge: PLX Technology, Inc. PCI <-> IOBus Bridge (rev 0a)
-01:0f.0 VGA compatible controller: Chips and Technologies F65550 (rev c6)
-
-
--- 
-Karl Kiniger   mailto:karl.kiniger@med.ge.com
-GE Medical Systems Kretztechnik GmbH & Co OHG
-Tiefenbach 15       Tel: (++43) 7682-3800-710
-A-4871 Zipf Austria Fax: (++43) 7682-3800-47
+diff -puN arch/um/kernel/sys_call_table.c~uml-nfsd-syscall arch/um/kernel/sys_call_table.c
+--- clean-linux-2.6.11/arch/um/kernel/sys_call_table.c~uml-nfsd-syscall	2005-04-10 13:50:29.000000000 +0200
++++ clean-linux-2.6.11-paolo/arch/um/kernel/sys_call_table.c	2005-04-10 13:51:19.000000000 +0200
+@@ -14,12 +14,6 @@
+ #include "sysdep/syscalls.h"
+ #include "kern_util.h"
+ 
+-#ifdef CONFIG_NFSD
+-#define NFSSERVCTL sys_nfsservctl
+-#else
+-#define NFSSERVCTL sys_ni_syscall
+-#endif
+-
+ #define LAST_GENERIC_SYSCALL __NR_keyctl
+ 
+ #if LAST_GENERIC_SYSCALL > LAST_ARCH_SYSCALL
+@@ -190,7 +184,7 @@ syscall_handler_t *sys_call_table[] = {
+ 	[ __NR_getresuid ] = (syscall_handler_t *) sys_getresuid16,
+ 	[ __NR_query_module ] = (syscall_handler_t *) sys_ni_syscall,
+ 	[ __NR_poll ] = (syscall_handler_t *) sys_poll,
+-	[ __NR_nfsservctl ] = (syscall_handler_t *) NFSSERVCTL,
++	[ __NR_nfsservctl ] = (syscall_handler_t *) sys_nfsservctl,
+ 	[ __NR_setresgid ] = (syscall_handler_t *) sys_setresgid16,
+ 	[ __NR_getresgid ] = (syscall_handler_t *) sys_getresgid16,
+ 	[ __NR_prctl ] = (syscall_handler_t *) sys_prctl,
+_

@@ -1,189 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbVDLBSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVDLBUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbVDLBSf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 21:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVDLBSf
+	id S262001AbVDLBUA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 21:20:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVDLBT5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 21:18:35 -0400
-Received: from unknown.xeex.net ([216.152.252.175]:13316 "EHLO
-	mail.intworks.biz") by vger.kernel.org with ESMTP id S261870AbVDLBSR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 21:18:17 -0400
-Date: Mon, 11 Apr 2005 18:18:02 -0700
-From: jayalk@intworks.biz
-Message-Id: <200504120118.j3C1I24j001592@intworks.biz>
-To: hpa@zytor.com
-Subject: [PATCH 2.6.11.7 1/1] x86 reboot: Add reboot fixup for gx1/cs5530a
-Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+	Mon, 11 Apr 2005 21:19:57 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:25975 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262000AbVDLBT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 21:19:26 -0400
+Subject: Re: Processes stuck on D state on Dual Opteron
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Claudio Martins <ctpm@rnl.ist.utl.pt>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>
+In-Reply-To: <200504120122.48168.ctpm@rnl.ist.utl.pt>
+References: <200504050316.20644.ctpm@rnl.ist.utl.pt>
+	 <200504111505.44284.ctpm@rnl.ist.utl.pt> <425B013A.5020108@yahoo.com.au>
+	 <200504120122.48168.ctpm@rnl.ist.utl.pt>
+Content-Type: text/plain
+Date: Tue, 12 Apr 2005 11:19:19 +1000
+Message-Id: <1113268760.5090.13.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Peter, 
+On Tue, 2005-04-12 at 01:22 +0100, Claudio Martins wrote:
+> On Monday 11 April 2005 23:59, Nick Piggin wrote:
+> >
+> > >   OK, I'll try them in a few minutes and report back.
+> >
+> > I'm not overly hopeful. If they fix the problem, then it's likely
+> > that the real bug is hidden.
+> >
+> 
+>   Well, the thing is, they do fix the problem. Or at least they hide it very 
+> well ;-)
+> 
+>   It has been running for more than 5 hours now with stress with no problems 
+> and no stuck processes.
+> 
 
-As per your suggestion, I switched do {} while(0) to ((void)(0))
-for the dummy define, since it's an argumentless function.
+Well, that is good... I guess ;)
 
-Please let me know if it's okay now.
+Actually the patches I have sent you do fix real bugs, but they also
+make the block layer less likely to recurse into page reclaim, so it
+may be eg. hiding the problem that Neil's patch fixes.
 
-Thanks,
-Jaya Kumar
+It may be that your fundamental problem is solved by my patches, but
+we need to be sure.
 
---- 
+>   I think I'm going to give a try to Neil's patch, but I'll have to apply some 
+> patches from -mm.
+> 
 
-I ran into a problem getting reboot working with 2.6.11 on an embedded
-board. The board has a Geode GX1 with a CS5530A companion. What I observe on
-reboot is the "Restarting system" printk, and then a cpu stall/hang. I think
-the problem arises because the keyboard controller is disabled by the BIOS,
-so the traditional mach_reboot()'s output to port 0x64 is ignored. Then the
-386 triple fault issued after mach_reboot() results in a shutdown (because
-the hardware doesn't have to detect the triple fault and issue a reset).
-That then gives the end result of a stalled cpu/hang. 
+Yep that would be good. Please test -rc2 with Andrew's patch, and
+obviously my patches backed out. Thanks for sticking with it.
 
-I found that the CS5530A in question has a "issue system wide reset" bit.
-The reboot works cleanly if I write that bit rather than do mach_reboot().
-So the following patch is my attempt to incorporate that change into 2.6.11
-by adding a X86_REBOOTFIXUPS option. In order to keep reboot.c free of hw
-specific fixups, I put it in another file, reboot_fixups.c. I tried to make
-it a bit generic so that if there are other reboot related fixups for other
-chipsets/boards, there'd be a clean place to put it. Please let me know what
-you think.
+Nick
 
-Thanks,
-Jaya Kumar
 
----
 
-Signed-off-by:  Jaya Kumar      <jayalk@intworks.biz>
-
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/Kconfig linux-2.6.11.7/arch/i386/Kconfig
---- linux-2.6.11.7-vanilla/arch/i386/Kconfig	2005-04-08 02:57:18.000000000 +0800
-+++ linux-2.6.11.7/arch/i386/Kconfig	2005-04-11 14:21:05.000000000 +0800
-@@ -645,6 +645,24 @@ config I8K
- 	  Say Y if you intend to run this kernel on a Dell Inspiron 8000.
- 	  Say N otherwise.
- 
-+config X86_REBOOTFIXUPS
-+	bool "Enable X86 board specific fixups for reboot"
-+	depends on X86 
-+	default n
-+	---help---
-+	  This enables chipset and/or board specific fixups to be done
-+	  in order to get reboot to work correctly. This is only needed on
-+	  some combinations of hardware and BIOS. The symptom, for which 
-+	  this config is intended, is when reboot ends with a stalled/hung 
-+	  system. 
-+
-+	  Currently, the only fixup is for the Geode GX1/CS5530A/TROM2.1. 
-+	  combination.
-+
-+	  Say Y if you want to enable the fixup. Currently, it's safe to
-+	  enable this option even if you don't need it.
-+	  Say N otherwise.
-+
- config MICROCODE
- 	tristate "/dev/cpu/microcode - Intel IA32 CPU microcode support"
- 	---help---
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/kernel/Makefile linux-2.6.11.7/arch/i386/kernel/Makefile
---- linux-2.6.11.7-vanilla/arch/i386/kernel/Makefile	2005-04-08 02:57:22.000000000 +0800
-+++ linux-2.6.11.7/arch/i386/kernel/Makefile	2005-04-11 13:10:31.000000000 +0800
-@@ -23,6 +23,7 @@ obj-$(CONFIG_X86_TRAMPOLINE)	+= trampoli
- obj-$(CONFIG_X86_MPPARSE)	+= mpparse.o
- obj-$(CONFIG_X86_LOCAL_APIC)	+= apic.o nmi.o
- obj-$(CONFIG_X86_IO_APIC)	+= io_apic.o
-+obj-$(CONFIG_X86_REBOOTFIXUPS)	+= reboot_fixups.o
- obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
- obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit.o
- obj-$(CONFIG_KPROBES)		+= kprobes.o
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/kernel/reboot.c linux-2.6.11.7/arch/i386/kernel/reboot.c
---- linux-2.6.11.7-vanilla/arch/i386/kernel/reboot.c	2005-04-08 02:57:27.000000000 +0800
-+++ linux-2.6.11.7/arch/i386/kernel/reboot.c	2005-04-11 13:10:31.000000000 +0800
-@@ -13,6 +13,7 @@
- #include <asm/uaccess.h>
- #include <asm/apic.h>
- #include "mach_reboot.h"
-+#include <linux/reboot_fixups.h>
- 
- /*
-  * Power off function, if any
-@@ -348,6 +349,7 @@ void machine_restart(char * __unused)
- 		/* rebooting needs to touch the page at absolute addr 0 */
- 		*((unsigned short *)__va(0x472)) = reboot_mode;
- 		for (;;) {
-+			mach_reboot_fixups(); /* for board specific fixups */
- 			mach_reboot();
- 			/* That didn't work - force a triple fault.. */
- 			__asm__ __volatile__("lidt %0": :"m" (no_idt));
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/arch/i386/kernel/reboot_fixups.c linux-2.6.11.7/arch/i386/kernel/reboot_fixups.c
---- linux-2.6.11.7-vanilla/arch/i386/kernel/reboot_fixups.c	1970-01-01 07:30:00.000000000 +0730
-+++ linux-2.6.11.7/arch/i386/kernel/reboot_fixups.c	2005-04-11 14:09:02.000000000 +0800
-@@ -0,0 +1,56 @@
-+/*
-+ * linux/arch/i386/kernel/reboot_fixups.c
-+ * 
-+ * This is a good place to put board specific reboot fixups.
-+ *
-+ * List of supported fixups:
-+ * geode-gx1/cs5530a - Jaya Kumar <jayalk@intworks.biz>
-+ *
-+ */
-+
-+#include <asm/delay.h>
-+#include <linux/pci.h>
-+
-+static void cs5530a_warm_reset(struct pci_dev *dev)
-+{
-+	/* writing 1 to the reset control register, 0x44 causes the 
-+	cs5530a to perform a system warm reset */
-+	pci_write_config_byte(dev, 0x44, 0x1);
-+	udelay(50); /* shouldn't get here but be safe and spin-a-while */
-+	return; 
-+}
-+
-+struct device_fixup {
-+	unsigned int vendor;
-+	unsigned int device;
-+	void (*reboot_fixup)(struct pci_dev *);
-+};
-+
-+static struct device_fixup fixups_table[] = {
-+{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_LEGACY, cs5530a_warm_reset },
-+};
-+
-+/*
-+ * we see if any fixup is available for our current hardware. if there
-+ * is a fixup, we call it and we expect to never return from it. if we
-+ * do return, we keep looking and then eventually fall back to the
-+ * standard mach_reboot on return.
-+ */
-+void mach_reboot_fixups(void)
-+{
-+	struct device_fixup *cur;
-+	struct pci_dev *dev;
-+	int i;
-+
-+	for (i=0; i < (sizeof(fixups_table)/sizeof(fixups_table[0])); i++) {
-+		cur = &(fixups_table[i]);
-+		dev = pci_get_device(cur->vendor, cur->device, 0);
-+		if (!dev) 
-+			continue;
-+
-+		cur->reboot_fixup(dev);
-+	}
-+	
-+	printk(KERN_WARNING "No reboot fixup found for your hardware\n");
-+}
-+
-diff -uprN -X dontdiff linux-2.6.11.7-vanilla/include/linux/reboot_fixups.h linux-2.6.11.7/include/linux/reboot_fixups.h
---- linux-2.6.11.7-vanilla/include/linux/reboot_fixups.h	1970-01-01 07:30:00.000000000 +0730
-+++ linux-2.6.11.7/include/linux/reboot_fixups.h	2005-04-12 08:27:43.000000000 +0800
-@@ -0,0 +1,10 @@
-+#ifndef _LINUX_REBOOT_FIXUPS_H
-+#define _LINUX_REBOOT_FIXUPS_H
-+
-+#ifdef CONFIG_X86_REBOOTFIXUPS
-+extern void mach_reboot_fixups(void);
-+#else
-+#define mach_reboot_fixups() ((void)(0))
-+#endif
-+
-+#endif /* _LINUX_REBOOT_FIXUPS_H */

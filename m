@@ -1,94 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVDLU1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263032AbVDMAIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbVDLU1e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVDLUZn
+	id S263032AbVDMAIf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbVDMAF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:25:43 -0400
-Received: from fire.osdl.org ([65.172.181.4]:10184 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262126AbVDLKbN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:13 -0400
-Message-Id: <200504121031.j3CAV9KJ005249@shell0.pdx.osdl.net>
-Subject: [patch 032/198] ppc32: Fix pte_update for 64-bit PTEs
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, galak@freescale.com,
-       kumar.gala@freescale.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:03 -0700
+	Tue, 12 Apr 2005 20:05:57 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:31657 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262123AbVDLUaP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 16:30:15 -0400
+Date: Tue, 12 Apr 2005 22:29:36 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
+       mingo@elte.hu
+Subject: Re: FUSYN and RT
+In-Reply-To: <1113329702.23407.148.camel@dhcp153.mvista.com>
+Message-Id: <Pine.OSF.4.05.10504122206230.6111-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-DAIMI-Spam-Score: 0 () 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12 Apr 2005, Daniel Walker wrote:
 
-From: Kumar Gala <galak@freescale.com>
+> 
+> I just wanted to discuss the problem a little more. From all the
+> conversations that I've had it seem that everyone is worried about
+> having PI in Fusyn, and PI in the RT mutex. 
+> 
+> It seems like these two locks are going to interact on a very limited
+> basis. Fusyn will be the user space mutex, and the RT mutex is only in
+> the kernel. You can't lock an RT mutex and hold it, then lock a Fusyn
+> mutex (anyone disagree?). That is assuming Fusyn stays in user space.
+> 
+> The RT mutex will never lower a tasks priority lower than the priority
+> given to it by locking a Fusyn lock.
 
-While the existing pte_update code handled atomically modifying a 64-bit PTE,
-it did not return all 64-bits of the PTE before it was modified.  This causes
-problems in some places that expect the full PTE to be returned, like
-ptep_get_and_clear().
+I have not seen the Fusyn code. Where is the before-any-lock priority
+stored? Ingo's code sets the prio back to what is given by static_prio.
+So, if Fusyn sets static_prio it will work as you say. It it will then be
+up to Fusyn to restore static_prio to what it was before the first Fusyn
+lock.
 
-Created a new pte_update function that is conditional on CONFIG_PTE_64BIT.  It
-atomically reads the low PTE word which all PTE flags are required to be in
-and returns a premodified full 64-bit PTE.
+> 
+> At least, both mutexes will need to use the same API to raise and lower
+> priorities.
 
-Since we now have an explicit 64-bit PTE version of pte_update we can also
-remove the hack that existed to get the low PTE word regardless of size.
+You basicly need 3 priorities:
+1) Actual: task->prio
+2) Base prio with no RT locks taken: task->static_prio
+3) Base prio with no Fusyn locks taken: task->??
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+So no, you will not need the same API, at all :-) Fusyn manipulates
+task->static_prio and only task->prio when no RT lock is taken. When the
+first RT-lock is taken/released it manipulates task->prio only. A release
+of a Fusyn will manipulate task->static_prio as well as task->prio.
 
- 25-akpm/include/asm-ppc/pgtable.h |   29 +++++++++++++++++++++++++----
- 1 files changed, 25 insertions(+), 4 deletions(-)
+> 
+> The next question is deadlocks. Because one mutex is only in the kernel,
+> and the other is only in user space, it seems that deadlocks will only
+> occur when a process holds locks that are all the same type.
 
-diff -puN include/asm-ppc/pgtable.h~ppc32-fix-pte_update-for-64-bit-ptes include/asm-ppc/pgtable.h
---- 25/include/asm-ppc/pgtable.h~ppc32-fix-pte_update-for-64-bit-ptes	2005-04-12 03:21:11.143442840 -0700
-+++ 25-akpm/include/asm-ppc/pgtable.h	2005-04-12 03:21:11.147442232 -0700
-@@ -526,10 +526,10 @@ extern void add_hash_page(unsigned conte
-  * Atomic PTE updates.
-  *
-  * pte_update clears and sets bit atomically, and returns
-- * the old pte value.
-- * The ((unsigned long)(p+1) - 4) hack is to get to the least-significant
-- * 32 bits of the PTE regardless of whether PTEs are 32 or 64 bits.
-+ * the old pte value.  In the 64-bit PTE case we lock around the
-+ * low PTE word since we expect ALL flag bits to be there
-  */
-+#ifndef CONFIG_PTE_64BIT
- static inline unsigned long pte_update(pte_t *p, unsigned long clr,
- 				       unsigned long set)
- {
-@@ -543,10 +543,31 @@ static inline unsigned long pte_update(p
- "	stwcx.	%1,0,%3\n\
- 	bne-	1b"
- 	: "=&r" (old), "=&r" (tmp), "=m" (*p)
--	: "r" ((unsigned long)(p+1) - 4), "r" (clr), "r" (set), "m" (*p)
-+	: "r" (p), "r" (clr), "r" (set), "m" (*p)
- 	: "cc" );
- 	return old;
- }
-+#else
-+static inline unsigned long long pte_update(pte_t *p, unsigned long clr,
-+				       unsigned long set)
-+{
-+	unsigned long long old;
-+	unsigned long tmp;
-+
-+	__asm__ __volatile__("\
-+1:	lwarx	%L0,0,%4\n\
-+	lwzx	%0,0,%3\n\
-+	andc	%1,%L0,%5\n\
-+	or	%1,%1,%6\n"
-+	PPC405_ERR77(0,%3)
-+"	stwcx.	%1,0,%4\n\
-+	bne-	1b"
-+	: "=&r" (old), "=&r" (tmp), "=m" (*p)
-+	: "r" (p), "r" ((unsigned long)(p) + 4), "r" (clr), "r" (set), "m" (*p)
-+	: "cc" );
-+	return old;
-+}
-+#endif
- 
- /*
-  * set_pte stores a linux PTE into the linux page table.
-_
+Yes.
+All these things assumes a clear lock nesting: Fusyns are on the outer
+level, RT locks on the inner level. What happens if there is a bug in RT
+locking code will be unclear. On the other hand errors in Fusyn locking
+(user space) should not give problems in the kernel.
+
+> 
+> 
+> Daniel
+> 
+
+I think that it might be a fast track to get things done to have a double
+PI-locking system, one for the kernel and one for userspace. But I think
+it is is bad maintainance to have to maintain two seperate systems. The
+best way ought to be to try to only have one PI system. The kernel is big
+and confusing enough as it is!
+
+Esben
+

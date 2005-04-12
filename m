@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVDLSxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262226AbVDLSxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262547AbVDLSxc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVDLSvj
+	id S262226AbVDLSxd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 14:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVDLSvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:51:39 -0400
-Received: from fire.osdl.org ([65.172.181.4]:1226 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262225AbVDLKcr (ORCPT
+	Tue, 12 Apr 2005 14:51:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:1994 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262226AbVDLKcs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:47 -0400
-Message-Id: <200504121032.j3CAWe8M005649@shell0.pdx.osdl.net>
-Subject: [patch 128/198] use cheaper elv_queue_empty when unplug a device
+	Tue, 12 Apr 2005 06:32:48 -0400
+Message-Id: <200504121032.j3CAWdfE005645@shell0.pdx.osdl.net>
+Subject: [patch 127/198] fix module_param_string() calls
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, kenneth.w.chen@intel.com,
-       axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       wesarg@informatik.uni-halle.de
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:34 -0700
+Date: Tue, 12 Apr 2005 03:32:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Ken Chen <kenneth.w.chen@intel.com>
+From: Bert Wesarg <wesarg@informatik.uni-halle.de>
 
-In function __generic_unplug_device(), kernel can use a cheaper function
-elv_queue_empty() instead of more expensive elv_next_request to find
-whether the queue is empty or not.  blk_run_queue can also made conditional
-on whether queue's emptiness before calling request_fn().
+This patch fix 3 calls to module_param_string() in
+driver/media/video/tuner-core.c and drivers/media/video/tda9887.c.  In all
+three places, the len and the perm parameter was switched.
 
-Signed-off-by: Jens Axboe <axboe@suse.de>
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+Signed-off-by: Bert Wesarg <wesarg@informatik.uni-halle.de>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/drivers/block/ll_rw_blk.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+ 25-akpm/drivers/media/video/tda9887.c    |    4 ++--
+ 25-akpm/drivers/media/video/tuner-core.c |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff -puN drivers/block/ll_rw_blk.c~use-cheaper-elv_queue_empty-when-unplug-a-device drivers/block/ll_rw_blk.c
---- 25/drivers/block/ll_rw_blk.c~use-cheaper-elv_queue_empty-when-unplug-a-device	2005-04-12 03:21:34.394908080 -0700
-+++ 25-akpm/drivers/block/ll_rw_blk.c	2005-04-12 03:21:34.399907320 -0700
-@@ -1589,7 +1589,8 @@ void blk_run_queue(struct request_queue 
+diff -puN drivers/media/video/tda9887.c~fix-module_param_string-calls drivers/media/video/tda9887.c
+--- 25/drivers/media/video/tda9887.c~fix-module_param_string-calls	2005-04-12 03:21:34.030963408 -0700
++++ 25-akpm/drivers/media/video/tda9887.c	2005-04-12 03:21:34.035962648 -0700
+@@ -478,9 +478,9 @@ static int tda9887_set_pinnacle(struct t
+ /* ---------------------------------------------------------------------- */
  
- 	spin_lock_irqsave(q->queue_lock, flags);
- 	blk_remove_plug(q);
--	q->request_fn(q);
-+	if (!elv_queue_empty(q))
-+		q->request_fn(q);
- 	spin_unlock_irqrestore(q->queue_lock, flags);
+ static char pal[] = "-";
+-module_param_string(pal, pal, 0644, sizeof(pal));
++module_param_string(pal, pal, sizeof(pal), 0644);
+ static char secam[] = "-";
+-module_param_string(secam, secam, 0644, sizeof(secam));
++module_param_string(secam, secam, sizeof(secam), 0644);
+ 
+ static int tda9887_fixup_std(struct tda9887 *t)
+ {
+diff -puN drivers/media/video/tuner-core.c~fix-module_param_string-calls drivers/media/video/tuner-core.c
+--- 25/drivers/media/video/tuner-core.c~fix-module_param_string-calls	2005-04-12 03:21:34.031963256 -0700
++++ 25-akpm/drivers/media/video/tuner-core.c	2005-04-12 03:21:34.036962496 -0700
+@@ -162,7 +162,7 @@ static void set_type(struct i2c_client *
  }
- EXPORT_SYMBOL(blk_run_queue);
+ 
+ static char pal[] = "-";
+-module_param_string(pal, pal, 0644, sizeof(pal));
++module_param_string(pal, pal, sizeof(pal), 0644);
+ 
+ static int tuner_fixup_std(struct tuner *t)
+ {
 _

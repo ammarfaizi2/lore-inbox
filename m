@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVDLLh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbVDLLh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVDLLh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 07:37:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262270AbVDLLfW
+	id S262270AbVDLLh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 07:37:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262359AbVDLLe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 07:35:22 -0400
-Received: from mail.aei.ca ([206.123.6.14]:55494 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262341AbVDLLcc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 07:32:32 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc2-mm3
-Date: Tue, 12 Apr 2005 07:32:24 -0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050411012532.58593bc1.akpm@osdl.org>
-In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org>
+	Tue, 12 Apr 2005 07:34:58 -0400
+Received: from khc.piap.pl ([195.187.100.11]:1540 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S262270AbVDLL2l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 07:28:41 -0400
+To: Sensei <senseiwa@tin.it>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [INFO] Kernel strict versioning
+References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de>
+	<425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de>
+	<425B3864.8050401@tin.it>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 12 Apr 2005 13:28:34 +0200
+In-Reply-To: <425B3864.8050401@tin.it> (Franco's message of "Mon, 11 Apr
+ 2005 21:54:28 -0500")
+Message-ID: <m3mzs4kzdp.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200504120732.24440.tomlins@cam.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 11 April 2005 04:25, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
-> 
-> 
-> - The anticipatory I/O scheduler has always been fairly useless with SCSI
->   disks which perform tagged command queueing.  There's a patch here from Jens
->   which is designed to fix that up by constraining the number of requests
->   which we'll leave pending in the device.
-> 
->   The depth currently defaults to 1.  Tunable in
->   /sys/block/hdX/queue/iosched/queue_depth
-> 
->   This patch hasn't been performance tested at all yet.  If you think it is
->   misbehaving (the usual symptom is processes stuck in D state) then please
->   report it, then boot with `elevator=cfq' or `elevator=deadline' to work
->   around it.
-> 
-> - More CPU scheduler work.  I hope someone is testing this stuff.
+"Franco \"Sensei\"" <senseiwa@tin.it> writes:
 
-Something is not quite right here.  I built rc2-mm3 and booted (uni processor, amd64, preempt on).  
-mm3 lasted about 30 mins before locking up with a dead keyboard.  I had mm2 reboot a few times
-over the last couple of days too.  
+> Major kernel changes should probably result in major version
+> change... I'm supposing it. Of course, note that ABI can be achieved
+> stating that all the binaries must be compiled with the same gcc.
 
-11-mm3 uptime of 2 weeks+
-12-rc2-mm2 reboots once every couple of days
-12-rc2-mm3 locked up within 30 mins using X using kmail/bogofilter
+It isn't enough. The same compiler and the same .config - yes. But that
+means you'd have no progress within, say, 2.6. Only bug fixes.
+There _is_ a tree like that - 2.6.11.Xs are only bugfixes.
 
-My serial console does not seem to want to work.  Has anything changed with this support?
+But remember that changing a single config option may make your kernel
+incompatible. You can't avoid that without making the kernel suboptimal
+for most situations - basically you'd have to disable non-SMP builds,
+disable (or permanently enable) 4KB pages etc.
 
-TIA,
-Ed Tomlinson
+If you make a proprietary closed-sourse system (with kernel modules), you
+probably have to make the system suboptimal. But with open source there
+is a better alternative.
 
+> So,
+> the kernel module library could possibly be simply /lib/modules/2.6/.
+
+Asking for one modules dir only is similar to asking for only one
+/boot/vmlinuz-2.6 kernel file.
+
+> I'm probably (surely) not getting the point about this issue. It's not
+> that bad... I don't see awkward issues in guaranteeing 2.6, 2.8 and so
+> on compatibility with the ``major second number''.
+
+First, each 2.6.X would have to be binary-compatible with itself.
+-- 
+Krzysztof Halasa

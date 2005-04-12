@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262994AbVDLWKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVDLUlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262994AbVDLWKN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 18:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262986AbVDLWGQ
+	id S262576AbVDLUlG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:41:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVDLUke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 18:06:16 -0400
-Received: from khc.piap.pl ([195.187.100.11]:3076 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S262994AbVDLWEJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 18:04:09 -0400
-To: Sensei <senseiwa@tin.it>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [INFO] Kernel strict versioning
-References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de>
-	<425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de>
-	<425B3864.8050401@tin.it> <m3mzs4kzdp.fsf@defiant.localdomain>
-	<425C03D6.2070107@tin.it>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 13 Apr 2005 00:04:06 +0200
-In-Reply-To: <425C03D6.2070107@tin.it> (Franco's message of "Tue, 12 Apr
- 2005 12:22:30 -0500")
-Message-ID: <m37jj7hctl.fsf@defiant.localdomain>
+	Tue, 12 Apr 2005 16:40:34 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:58867 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262112AbVDLTSr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 15:18:47 -0400
+Message-ID: <425C1E30.5060405@mvista.com>
+Date: Tue, 12 Apr 2005 12:14:56 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Horms <horms@verge.net.au>
+CC: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com, netdev@oss.sgi.com,
+       Mike Phillips <mikep@linuxtr.net>, Philip Blundell <philb@gnu.org>,
+       David Dillow <dave@thedillows.org>,
+       Paul Gortmaker <p_gortmaker@yahoo.com>,
+       Mike McLagan <mike.mclagan@linux.org>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Jan-Pascal van Best <jvbest@qv3pluto.leidenuniv.nl>,
+       Andreas Mohr <100.30936@germany.net>,
+       p2@ace.ulyssis.student.kuleuven.ac.be,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+       Daniele Venzano <venza@brownhat.org>, Jay Schulist <jschlst@samba.org>
+Subject: Re: [PATCH] Maintainers list update: linux-net -> netdev
+References: <20050412062027.GA1614@verge.net.au>
+In-Reply-To: <20050412062027.GA1614@verge.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Franco \"Sensei\"" <senseiwa@tin.it> writes:
+Horms wrote:
+> On Sat, Apr 09, 2005 at 03:52:05PM +0200, Jörn Engel wrote:
+> 
+>>On Fri, 8 April 2005 22:16:07 +0200, Pavel Machek wrote:
+>>
+>>>More importantly, it is still listed as "the list" for network
+>>>drivers...
+>>>
+>>>NETWORK DEVICE DRIVERS
+>>>P:      Andrew Morton
+>>>M:      akpm@osdl.org
+>>>P:      Jeff Garzik
+>>>M:      jgarzik@pobox.com
+>>>L:      linux-net@vger.kernel.org
+>>>S:      Maintained
+>>
+>>Maybe one of the two maintainers might want to change that? ;)
+> 
+> 
+> Use netdev as the mailing list contact instead of the mostly dead
+> linux-net list.
+> 
+~
+>  PHRAM MTD DRIVER
+> @@ -1795,7 +1795,7 @@
+>  POSIX CLOCKS and TIMERS
+>  P:	George Anzinger
+>  M:	george@mvista.com
+> -L:	linux-net@vger.kernel.org
+> +L:	netdev@oss.sgi.com
+>  S:	Supported
+>  
+I don't really know about the rest of them, but I think this should be:
+L: linux-kernel@vger.kernel.org
 
-> What about making extensive use of modules? If everything (acceptable)
-> is built on modules, can you still have abi, can you still change
-> modules and api implementation without breaking anything?
-
-Yes, but you still can't change .config. You enable SMP, your binary
-compatibility is history. You _have_to_ be able to enable SMP and
-_you_have_ to be able to disable it.
-
-The following kernel packages are parts of Fedora Core 3:
-kernel-2.6.9-1.667.i586.rpm
-kernel-2.6.9-1.667.i686.rpm
-kernel-smp-2.6.9-1.667.i586.rpm
-kernel-smp-2.6.9-1.667.i686.rpm
-
-4 of them, each with a different ABI. And this is all the same kernel
-major-minor-version-subversion and the same compiler - only the settings
-differ.
-
-> I'm really curious about it. How abi can be made actual, and how would
-> it be if we had a completely modular kernel (not micro, but something
-> alike, modular in kernel-space, not in user-space).
-
-Being modular has nothing to do with the "problem" (except it's probably
-required, but Linux _is_ modular for some time now).
-
-> Quite the same, yes. You can still have different kernels of course!
-
-Not "can". You have to. You don't want the kernel running on your dual
-Athlon MP to power your old Pentium MMX test machine. The modules are
-irrelevant.
-
-> By the way, another stupid curiosity is why /lib/modules instead of
-> /boot?
-
-You can have it in /boot. In fact, it's not a kernel issue.
-
-> Because boot can be a partition and not be mounted?
-
-Actually, because boot can be a small partition, and may lack support
-for, say, long filenames.
-Actually, I put the kernels in /lib/modules/* as well. I have no /boot
-file systems and I like the idea of rm -rf /lib/modules/something
-deleting all files related to a particular kernel.
+Least wise that is where I look...
+~
 -- 
-Krzysztof Halasa
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/

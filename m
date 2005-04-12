@@ -1,157 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVDLKih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVDLKig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVDLKih (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 06:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVDLKhZ
+	id S262279AbVDLKig (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 06:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVDLKiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:37:25 -0400
-Received: from fire.osdl.org ([65.172.181.4]:6856 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262121AbVDLKbK (ORCPT
+	Tue, 12 Apr 2005 06:38:10 -0400
+Received: from fire.osdl.org ([65.172.181.4]:44746 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262279AbVDLKdb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:10 -0400
-Message-Id: <200504121031.j3CAV4PA005229@shell0.pdx.osdl.net>
-Subject: [patch 027/198] ppc32: improve timebase sync for SMP
+	Tue, 12 Apr 2005 06:33:31 -0400
+Message-Id: <200504121033.j3CAXMiH005863@shell0.pdx.osdl.net>
+Subject: [patch 175/198] IB/mthca: implement RDMA/atomic operations for mem-free mode
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, paulus@samba.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:58 -0700
+Date: Tue, 12 Apr 2005 03:33:16 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paul Mackerras <paulus@samba.org>
+From: Roland Dreier <roland@topspin.com>
 
-Currently the procedure in the ppc32 kernel that synchronizes the timebase
-registers across an SMP powermac system does so by setting both timebases
-to zero.  That is OK at boot but causes problems if done later.  So that we
-can do hotplug CPU on these machines, this patch changes the code so it
-reads the timebase from one CPU and transfers the value to the other CPU. 
-(Hotplug CPU is needed for sleep (aka suspend to RAM) to work.)
+Add code to support RDMA and atomic send work requests in mem-free mode.
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/ppc/platforms/pmac_smp.c |   78 +++++++++++++++++++++++-----------
- 1 files changed, 54 insertions(+), 24 deletions(-)
+ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c |   47 +++++++++++++++++++++++++
+ 1 files changed, 47 insertions(+)
 
-diff -puN arch/ppc/platforms/pmac_smp.c~ppc32-improve-timebase-sync-for-smp arch/ppc/platforms/pmac_smp.c
---- 25/arch/ppc/platforms/pmac_smp.c~ppc32-improve-timebase-sync-for-smp	2005-04-12 03:21:09.950624176 -0700
-+++ 25-akpm/arch/ppc/platforms/pmac_smp.c	2005-04-12 03:21:09.954623568 -0700
-@@ -116,6 +116,8 @@ static unsigned int core99_tb_gpio;
+diff -puN drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-implement-rdma-atomic-operations-for-mem-free-mode drivers/infiniband/hw/mthca/mthca_qp.c
+--- 25/drivers/infiniband/hw/mthca/mthca_qp.c~ib-mthca-implement-rdma-atomic-operations-for-mem-free-mode	2005-04-12 03:21:45.105279856 -0700
++++ 25-akpm/drivers/infiniband/hw/mthca/mthca_qp.c	2005-04-12 03:21:45.109279248 -0700
+@@ -1775,6 +1775,53 @@ int mthca_arbel_post_send(struct ib_qp *
+ 		size = sizeof (struct mthca_next_seg) / 16;
  
- /* Sync flag for HW tb sync */
- static volatile int sec_tb_reset = 0;
-+static unsigned int pri_tb_hi, pri_tb_lo;
-+static unsigned int pri_tb_stamp;
- 
- static void __init core99_init_caches(int cpu)
- {
-@@ -453,7 +455,7 @@ static int __init smp_core99_probe(void)
- #endif
- 	struct device_node *cpus, *firstcpu;
- 	int i, ncpus = 0, boot_cpu = -1;
--	u32 *tbprop;
-+	u32 *tbprop = NULL;
- 
- 	if (ppc_md.progress) ppc_md.progress("smp_core99_probe", 0x345);
- 	cpus = firstcpu = find_type_devices("cpu");
-@@ -576,46 +578,74 @@ static void __init smp_core99_setup_cpu(
- 	}
- }
- 
--void __init smp_core99_take_timebase(void)
-+/* not __init, called in sleep/wakeup code */
-+void smp_core99_take_timebase(void)
- {
--	/* Secondary processor "takes" the timebase by freezing
--	 * it, resetting its local TB and telling CPU 0 to go on
--	 */
--	pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, core99_tb_gpio, 4);
--	pmac_call_feature(PMAC_FTR_READ_GPIO, NULL, core99_tb_gpio, 0);
-+	unsigned long flags;
+ 		switch (qp->transport) {
++		case RC:
++			switch (wr->opcode) {
++			case IB_WR_ATOMIC_CMP_AND_SWP:
++			case IB_WR_ATOMIC_FETCH_AND_ADD:
++				((struct mthca_raddr_seg *) wqe)->raddr =
++					cpu_to_be64(wr->wr.atomic.remote_addr);
++				((struct mthca_raddr_seg *) wqe)->rkey =
++					cpu_to_be32(wr->wr.atomic.rkey);
++				((struct mthca_raddr_seg *) wqe)->reserved = 0;
 +
-+	/* tell the primary we're here */
-+	sec_tb_reset = 1;
- 	mb();
- 
--	set_dec(tb_ticks_per_jiffy);
--	set_tb(0, 0);
--	last_jiffy_stamp(smp_processor_id()) = 0;
-+	/* wait for the primary to set pri_tb_hi/lo */
-+	while (sec_tb_reset < 2)
-+		mb();
- 
-+	/* set our stuff the same as the primary */
-+	local_irq_save(flags);
-+	set_dec(1);
-+	set_tb(pri_tb_hi, pri_tb_lo);
-+	last_jiffy_stamp(smp_processor_id()) = pri_tb_stamp;
-+	mb();
++				wqe += sizeof (struct mthca_raddr_seg);
 +
-+	/* tell the primary we're done */
-+       	sec_tb_reset = 0;
- 	mb();
--       	sec_tb_reset = 1;
-+	local_irq_restore(flags);
- }
- 
--void __init smp_core99_give_timebase(void)
-+/* not __init, called in sleep/wakeup code */
-+void smp_core99_give_timebase(void)
- {
-+	unsigned long flags;
- 	unsigned int t;
- 
--	/* Primary processor waits for secondary to have frozen
--	 * the timebase, resets local TB, and kick timebase again
--	 */
--	/* wait for the secondary to have reset its TB before proceeding */
--	for (t = 1000; t > 0 && !sec_tb_reset; --t)
--		udelay(1000);
--	if (t == 0)
-+	/* wait for the secondary to be in take_timebase */
-+	for (t = 100000; t > 0 && !sec_tb_reset; --t)
-+		udelay(10);
-+	if (!sec_tb_reset) {
- 		printk(KERN_WARNING "Timeout waiting sync on second CPU\n");
-+		return;
-+	}
- 
--       	set_dec(tb_ticks_per_jiffy);
--	set_tb(0, 0);
--	last_jiffy_stamp(smp_processor_id()) = 0;
-+	/* freeze the timebase and read it */
-+	/* disable interrupts so the timebase is disabled for the
-+	   shortest possible time */
-+	local_irq_save(flags);
-+	pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, core99_tb_gpio, 4);
-+	pmac_call_feature(PMAC_FTR_READ_GPIO, NULL, core99_tb_gpio, 0);
-+	mb();
-+	pri_tb_hi = get_tbu();
-+	pri_tb_lo = get_tbl();
-+	pri_tb_stamp = last_jiffy_stamp(smp_processor_id());
- 	mb();
- 
-+	/* tell the secondary we're ready */
-+	sec_tb_reset = 2;
-+	mb();
++				if (wr->opcode == IB_WR_ATOMIC_CMP_AND_SWP) {
++					((struct mthca_atomic_seg *) wqe)->swap_add =
++						cpu_to_be64(wr->wr.atomic.swap);
++					((struct mthca_atomic_seg *) wqe)->compare =
++						cpu_to_be64(wr->wr.atomic.compare_add);
++				} else {
++					((struct mthca_atomic_seg *) wqe)->swap_add =
++						cpu_to_be64(wr->wr.atomic.compare_add);
++					((struct mthca_atomic_seg *) wqe)->compare = 0;
++				}
 +
-+	/* wait for the secondary to have taken it */
-+	for (t = 100000; t > 0 && sec_tb_reset; --t)
-+		udelay(10);
-+	if (sec_tb_reset)
-+		printk(KERN_WARNING "Timeout waiting sync(2) on second CPU\n");
-+	else
-+		smp_tb_synchronized = 1;
++				wqe += sizeof (struct mthca_atomic_seg);
++				size += sizeof (struct mthca_raddr_seg) / 16 +
++					sizeof (struct mthca_atomic_seg);
++				break;
 +
- 	/* Now, restart the timebase by leaving the GPIO to an open collector */
-        	pmac_call_feature(PMAC_FTR_WRITE_GPIO, NULL, core99_tb_gpio, 0);
-         pmac_call_feature(PMAC_FTR_READ_GPIO, NULL, core99_tb_gpio, 0);
--
--	smp_tb_synchronized = 1;
-+	local_irq_restore(flags);
- }
- 
- 
++			case IB_WR_RDMA_WRITE:
++			case IB_WR_RDMA_WRITE_WITH_IMM:
++			case IB_WR_RDMA_READ:
++				((struct mthca_raddr_seg *) wqe)->raddr =
++					cpu_to_be64(wr->wr.rdma.remote_addr);
++				((struct mthca_raddr_seg *) wqe)->rkey =
++					cpu_to_be32(wr->wr.rdma.rkey);
++				((struct mthca_raddr_seg *) wqe)->reserved = 0;
++				wqe += sizeof (struct mthca_raddr_seg);
++				size += sizeof (struct mthca_raddr_seg) / 16;
++				break;
++
++			default:
++				/* No extra segments required for sends */
++				break;
++			}
++
++			break;
++
+ 		case UD:
+ 			memcpy(((struct mthca_arbel_ud_seg *) wqe)->av,
+ 			       to_mah(wr->wr.ud.ah)->av, MTHCA_AV_SIZE);
 _

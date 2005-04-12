@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVDMBF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVDLUOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbVDMBF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 21:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbVDMBDF
+	id S262144AbVDLUOo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 16:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVDLUNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 21:03:05 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:62393 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262141AbVDMBCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 21:02:33 -0400
-Message-ID: <425C6F98.7060705@yahoo.com.au>
-Date: Wed, 13 Apr 2005 11:02:16 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: axboe@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [patch 1/9] GFP_ZERO fix
-References: <425BC262.1070500@yahoo.com.au>	<425BC387.3080703@yahoo.com.au> <20050412124741.366caee3.akpm@osdl.org>
-In-Reply-To: <20050412124741.366caee3.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Apr 2005 16:13:18 -0400
+Received: from fire.osdl.org ([65.172.181.4]:29640 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262144AbVDLKbe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 06:31:34 -0400
+Message-Id: <200504121030.j3CAUnoP005159@shell0.pdx.osdl.net>
+Subject: [patch 012/198] fix Bug 4395: modprobe bttv freezes the computer
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, js@linuxtv.org
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:30:43 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->>  #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
->> -			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
->> -			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP)
->> +			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT|__GFP_NOFAIL| \
->> +			__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP|__GFP_ZERO)
-> 
-> 
-> Passing GFP_ZERO into kmem_cache_alloc() is such a bizarre thing to do,
-> perhaps a BUG is the correct response.
-> 
 
-I just thought it was a bit cheeky given the comment right above it ;)
+From: Johannes Stezenbach <js@linuxtv.org>
 
+Fix http://bugme.osdl.org/show_bug.cgi?id=4395.
 
--- 
-SUSE Labs, Novell Inc.
+Patch by Manu Abraham and Gerd Knorr:
 
+Remove redundant bttv_reset_audio() which caused the computer to freeze
+with some bt8xx based DVB cards when loading the bttv driver.
+
+Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/drivers/media/video/bttv-cards.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+diff -puN drivers/media/video/bttv-cards.c~fix-bug-4395-modprobe-bttv-freezes-the-computer drivers/media/video/bttv-cards.c
+--- 25/drivers/media/video/bttv-cards.c~fix-bug-4395-modprobe-bttv-freezes-the-computer	2005-04-12 03:21:06.348171832 -0700
++++ 25-akpm/drivers/media/video/bttv-cards.c	2005-04-12 03:21:06.354170920 -0700
+@@ -2785,8 +2785,6 @@ void __devinit bttv_init_card2(struct bt
+         }
+ 	btv->pll.pll_current = -1;
+ 
+-	bttv_reset_audio(btv);
+-
+ 	/* tuner configuration (from card list / autodetect / insmod option) */
+  	if (UNSET != bttv_tvcards[btv->c.type].tuner_type)
+ 		if(UNSET == btv->tuner_type)
+_

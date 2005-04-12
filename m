@@ -1,110 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVDLTZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVDLTRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbVDLTZW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbVDLTSI
+	id S262575AbVDLTRO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 15:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbVDLTPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:18:08 -0400
-Received: from fire.osdl.org ([65.172.181.4]:38345 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262112AbVDLKca (ORCPT
+	Tue, 12 Apr 2005 15:15:32 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42953 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262205AbVDLKcd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:30 -0400
-Message-Id: <200504121032.j3CAWHoj005549@shell0.pdx.osdl.net>
-Subject: [patch 103/198] x86, x86_64: dual core proc-cpuinfo and sibling-map fix
+	Tue, 12 Apr 2005 06:32:33 -0400
+Message-Id: <200504121032.j3CAWMdf005573@shell0.pdx.osdl.net>
+Subject: [patch 109/198] fix u32 vs. pm_message_t in drivers/media
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, suresh.b.siddha@intel.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, pavel@ucw.cz, pavel@suse.cz
 From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:11 -0700
+Date: Tue, 12 Apr 2005 03:32:16 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+From: Pavel Machek <pavel@ucw.cz>
 
-- broken sibling_map setup in x86_64
+Here are fixes for drivers/media.
 
-- grouping all the core and HT related cpuinfo fields.
-  We are reasonably sure that adding new cpuinfo fields after "siblings" field,
-  will not cause any app failure. Thats because today's /proc/cpuinfo
-  format is completely different on x86, x86_64 and we haven't heard of any
-  x86 app breakage because of this issue. Grouping these fields will 
-  result in more or less common format on all architectures (ia64, x86 and 
-  x86_64) and will cause less confusion.
-
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/i386/kernel/cpu/proc.c  |    9 ++-------
- 25-akpm/arch/x86_64/kernel/setup.c   |   11 +++--------
- 25-akpm/arch/x86_64/kernel/smpboot.c |    2 +-
- 3 files changed, 6 insertions(+), 16 deletions(-)
+ 25-akpm/drivers/media/dvb/cinergyT2/cinergyT2.c |    2 +-
+ 25-akpm/drivers/media/video/meye.c              |    2 +-
+ 25-akpm/drivers/media/video/msp3400.c           |    4 ++--
+ 25-akpm/drivers/media/video/tda9887.c           |    2 +-
+ 25-akpm/drivers/media/video/tuner-core.c        |    2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
-diff -puN arch/i386/kernel/cpu/proc.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix arch/i386/kernel/cpu/proc.c
---- 25/arch/i386/kernel/cpu/proc.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix	2005-04-12 03:21:27.681928608 -0700
-+++ 25-akpm/arch/i386/kernel/cpu/proc.c	2005-04-12 03:21:27.687927696 -0700
-@@ -98,6 +98,8 @@ static int show_cpuinfo(struct seq_file 
- 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
- 		seq_printf(m, "siblings\t: %d\n",
- 				c->x86_num_cores * smp_num_siblings);
-+		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[n]);
-+		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
- 	}
- #endif
- 	
-@@ -130,13 +132,6 @@ static int show_cpuinfo(struct seq_file 
- 		     c->loops_per_jiffy/(500000/HZ),
- 		     (c->loops_per_jiffy/(5000/HZ)) % 100);
+diff -puN drivers/media/dvb/cinergyT2/cinergyT2.c~fix-u32-vs-pm_message_t-in-drivers-media drivers/media/dvb/cinergyT2/cinergyT2.c
+--- 25/drivers/media/dvb/cinergyT2/cinergyT2.c~fix-u32-vs-pm_message_t-in-drivers-media	2005-04-12 03:21:29.655628560 -0700
++++ 25-akpm/drivers/media/dvb/cinergyT2/cinergyT2.c	2005-04-12 03:21:29.664627192 -0700
+@@ -879,7 +879,7 @@ static void cinergyt2_disconnect (struct
+ 	kfree(cinergyt2);
+ }
  
--#ifdef CONFIG_SMP
--	/* Put new fields at the end to lower the probability of
--	   breaking user space parsers. */
--	seq_printf(m, "core id\t\t: %d\n", cpu_core_id[n]);
--	seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
--#endif
--
+-static int cinergyt2_suspend (struct usb_interface *intf, u32 state)
++static int cinergyt2_suspend (struct usb_interface *intf, pm_message_t state)
+ {
+ 	struct cinergyt2 *cinergyt2 = usb_get_intfdata (intf);
+ 
+diff -puN drivers/media/video/meye.c~fix-u32-vs-pm_message_t-in-drivers-media drivers/media/video/meye.c
+--- 25/drivers/media/video/meye.c~fix-u32-vs-pm_message_t-in-drivers-media	2005-04-12 03:21:29.656628408 -0700
++++ 25-akpm/drivers/media/video/meye.c	2005-04-12 03:21:29.665627040 -0700
+@@ -1768,7 +1768,7 @@ static struct video_device meye_template
+ };
+ 
+ #ifdef CONFIG_PM
+-static int meye_suspend(struct pci_dev *pdev, u32 state)
++static int meye_suspend(struct pci_dev *pdev, pm_message_t state)
+ {
+ 	pci_save_state(pdev);
+ 	meye.pm_mchip_mode = meye.mchip_mode;
+diff -puN drivers/media/video/msp3400.c~fix-u32-vs-pm_message_t-in-drivers-media drivers/media/video/msp3400.c
+--- 25/drivers/media/video/msp3400.c~fix-u32-vs-pm_message_t-in-drivers-media	2005-04-12 03:21:29.658628104 -0700
++++ 25-akpm/drivers/media/video/msp3400.c	2005-04-12 03:21:29.678625064 -0700
+@@ -1426,7 +1426,7 @@ static int msp_detach(struct i2c_client 
+ static int msp_probe(struct i2c_adapter *adap);
+ static int msp_command(struct i2c_client *client, unsigned int cmd, void *arg);
+ 
+-static int msp_suspend(struct device * dev, u32 state, u32 level);
++static int msp_suspend(struct device * dev, pm_message_t state, u32 level);
+ static int msp_resume(struct device * dev, u32 level);
+ 
+ static void msp_wake_thread(struct i2c_client *client);
+@@ -1834,7 +1834,7 @@ static int msp_command(struct i2c_client
  	return 0;
  }
  
-diff -puN arch/x86_64/kernel/setup.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix arch/x86_64/kernel/setup.c
---- 25/arch/x86_64/kernel/setup.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix	2005-04-12 03:21:27.683928304 -0700
-+++ 25-akpm/arch/x86_64/kernel/setup.c	2005-04-12 03:21:27.688927544 -0700
-@@ -1152,6 +1152,8 @@ static int show_cpuinfo(struct seq_file 
- 		seq_printf(m, "physical id\t: %d\n", phys_proc_id[cpu]);
- 		seq_printf(m, "siblings\t: %d\n",
- 				c->x86_num_cores * smp_num_siblings);
-+		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[cpu]);
-+		seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
- 	}
- #endif	
+-static int msp_suspend(struct device * dev, u32 state, u32 level)
++static int msp_suspend(struct device * dev, pm_message_t state, u32 level)
+ {
+ 	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
  
-@@ -1195,15 +1197,8 @@ static int show_cpuinfo(struct seq_file 
- 			}
- 	}
- 
--	seq_printf(m, "\n");
-+	seq_printf(m, "\n\n");
- 
--#ifdef CONFIG_SMP
--	/* Put new fields at the end to lower the probability of
--	   breaking user space parsers. */
--	seq_printf(m, "core id\t\t: %d\n", cpu_core_id[c - cpu_data]);
--	seq_printf(m, "cpu cores\t: %d\n", c->x86_num_cores);
--#endif
--	seq_printf(m, "\n");
+diff -puN drivers/media/video/tda9887.c~fix-u32-vs-pm_message_t-in-drivers-media drivers/media/video/tda9887.c
+--- 25/drivers/media/video/tda9887.c~fix-u32-vs-pm_message_t-in-drivers-media	2005-04-12 03:21:29.659627952 -0700
++++ 25-akpm/drivers/media/video/tda9887.c	2005-04-12 03:21:29.679624912 -0700
+@@ -741,7 +741,7 @@ tda9887_command(struct i2c_client *clien
  	return 0;
  }
  
-diff -puN arch/x86_64/kernel/smpboot.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix arch/x86_64/kernel/smpboot.c
---- 25/arch/x86_64/kernel/smpboot.c~x86-x86_64-dual-core-proc-cpuinfo-and-sibling-map-fix	2005-04-12 03:21:27.684928152 -0700
-+++ 25-akpm/arch/x86_64/kernel/smpboot.c	2005-04-12 03:21:27.689927392 -0700
-@@ -652,7 +652,7 @@ static __cpuinit void detect_siblings(vo
- 		int i;
- 		if (smp_num_siblings > 1) {
- 			for_each_online_cpu (i) {
--				if (cpu_core_id[cpu] == phys_proc_id[i]) {
-+				if (cpu_core_id[cpu] == cpu_core_id[i]) {
- 					siblings++;
- 					cpu_set(i, cpu_sibling_map[cpu]);
- 				}
+-static int tda9887_suspend(struct device * dev, u32 state, u32 level)
++static int tda9887_suspend(struct device * dev, pm_message_t state, u32 level)
+ {
+ 	dprintk("tda9887: suspend\n");
+ 	return 0;
+diff -puN drivers/media/video/tuner-core.c~fix-u32-vs-pm_message_t-in-drivers-media drivers/media/video/tuner-core.c
+--- 25/drivers/media/video/tuner-core.c~fix-u32-vs-pm_message_t-in-drivers-media	2005-04-12 03:21:29.661627648 -0700
++++ 25-akpm/drivers/media/video/tuner-core.c	2005-04-12 03:21:29.680624760 -0700
+@@ -378,7 +378,7 @@ tuner_command(struct i2c_client *client,
+ 	return 0;
+ }
+ 
+-static int tuner_suspend(struct device * dev, u32 state, u32 level)
++static int tuner_suspend(struct device * dev, pm_message_t state, u32 level)
+ {
+ 	struct i2c_client *c = container_of(dev, struct i2c_client, dev);
+ 	struct tuner *t = i2c_get_clientdata(c);
 _

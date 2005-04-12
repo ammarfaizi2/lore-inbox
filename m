@@ -1,101 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVDMEhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVDMEh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262194AbVDMEhY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 00:37:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVDMEfI
+	id S262217AbVDMEh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 00:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbVDMEen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 00:35:08 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:39629 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262505AbVDLS6L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 14:58:11 -0400
-Message-ID: <425C1B94.1080308@austin.ibm.com>
-Date: Tue, 12 Apr 2005 14:03:48 -0500
-From: Steven Pratt <slpratt@austin.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       axboe@suse.de
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org>	<20050411220013.23416d5f.akpm@osdl.org>	<425B61DD.60700@yahoo.com.au>	<20050411231941.1b8548bb.akpm@osdl.org>	<1113288543.5090.34.camel@npiggin-nld.site> <20050412005045.5dc05310.akpm@osdl.org>
-In-Reply-To: <20050412005045.5dc05310.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 13 Apr 2005 00:34:43 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:65207 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262532AbVDLS6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 14:58:22 -0400
+Date: Tue, 12 Apr 2005 21:58:09 +0300 (EEST)
+From: Jani Jaakkola <jjaakkol@cs.Helsinki.FI>
+To: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix reproducible SMP crash in security/keys/key.c
+Message-ID: <Pine.LNX.4.58.0504122129510.3075@x40-4.cs.helsinki.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
 
->Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->  
->
->>>> AS basically does its own TCQ strangulation, which IIRC involves things
->>>>        
->>>>
->> > >  like completing all reads before issuing new writes, and completing all
->> > >  reads from one process before reads from another. As well as the
->> > >  fundamental way that waiting for a 'dependant read' throttles TCQ.
->> > 
->> > My (mpt-fusion-based) workstation is still really slow when there's a lot
->> > of writeout happening.  Just from a quick test:
->> > 
->> > > 2.6.12-rc2, 	as,	tcq depth=2:		7.241 seconds
->> > > 2.6.12-rc2, 	as,	tcq depth=64:		12.172 seconds
->> > > 2.6.12-rc2+patch,as,	tcq depth=64:		7.199 seconds
->> > > 2.6.12-rc2, 	cfq2,	tcq depth=64:		much more than 5 minutes
->> > > 2.6.12-rc2, 	cfq3,	tcq depth=64:		much more than 5 minutes
->> > 
->> > 2.6.11-rc4-mm1, as, mpt-f			39.349 seconds
->> > 
->> > That was really really slow but had a sudden burst of read I/O at the end
->> > which made the thing look better than it really is.  I wouldn't have a clue
->> > what tag depth it's using, and it's the only mpt-fusion based machine I
->> > have handy...
->> > 
->>
->> Heh. 
->>    
->>
->
->Well with my current lineup on the mpt-fusion driver and no
->as-limit-queue-depth.patch that test takes 17 seconds.  With
->as-limit-queue-depth.patch it's down to 10 seconds.  Which is pretty darn
->good btw.  I assume from this:
->
->scsi0 : ioc0: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=222, IRQ=25
->scsi1 : ioc1: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=222, IRQ=26
->
->that it's using a tag depth of 222.
->
->	int			 req_depth;	/* Number of request frames */
->
->I wonder if that's true...
->
->
->One thing which changed is that this kernel now has the fixed-up mpt-fusion
->chipset tuning.  That doubles the IO bandwidth, which would pretty well
->account for that difference.  I'll wait and see how irritating things get
->under writeout load.
->
->Yes, we'll need to decide if we want to retain as-limit-queue-depth.patch
->and toss out some of the older AS logic which was designed to address the
->TCQ problem.
->
->Steve, could you help to identify a not-too-hard-to-set-up workload at
->which AS was particularly poor?  Thanks.
->  
->
+SMP race handling is broken in key_user_lookup() in security/keys/key.c
+(if CONFIG_KEYS is set to 'y'). This came up on our Samba servers, but is
+not restricted to samba, though samba is probably the only software which
+is likely to trigger this repeatedly (and it did happen allready four 
+times here in University of Helsinki, CS department).
 
-AS with XFS was pretty bad on a couple of workloads.  random 4k reads 
-and "metadata" which was 40%create, 40%append, 20%delete multithreaded 
-workloads.  I'll try to run a few tests with and without this patch on 
-my hardware setup over the next day or so and see how it does.  I have 
-not really looked at AS performance since about 2.6.6/7.  Our database 
-team recently re-checked IO Scheduler performance, and on the Ad Hoc 
-Decision Support Workload we still saw a 15-20% lower throughput on 
-RHEL4 with AS compared to other schedulers which were all within a 
-couple of %.
+However, it only takes two setreuid() calls at the same instant, so this
+may be responsible for some other mysterious random crashes.
 
-Steve
+This is the same bug which was previously raported to LKML here (found by 
+google):
+http://www.ussg.iu.edu/hypermail/linux/kernel/0502.2/0521.html
+
+Here is a small test program, which can be used to trigger the bug and 
+crash the machine where it is run. It might take a few seconds:
+
+#include<unistd.h>
+#include<stdio.h>
+int main() {
+        int i;
+        fork();
+        while(1) {
+                for(i=0;i<60000;i++) { setreuid(i,0); } 
+                putchar('.'); fflush(stdout);
+        };
+}
+
+The (rather obvious) problem is that key_user_lookup() does not properly 
+re-initialize the user lookup if there was a race.
+
+This patch applies to vanilla 2.6.11.7 and latest fedora kernel
+2.6.11-1.14_FC3. When applied, the test program runs just fine (and does
+nothing useful).
+
+Please Cc: any replies to me, since I am not a regular kernel hacker and 
+do not subscribe LKML.
+
+Signed-Off-By: Jani Jaakkola <jjaakkol@cs.helsinki.fi>
+
+--- linux-2.6.11/security/keys/key.c.orig       Wed Mar  2 09:38:25 2005
++++ linux-2.6.11/security/keys/key.c    Tue Apr 12 18:19:50 2005
+@@ -56,10 +56,12 @@
+ struct key_user *key_user_lookup(uid_t uid)
+ {
+        struct key_user *candidate = NULL, *user;
+-       struct rb_node *parent = NULL;
+-       struct rb_node **p = &key_user_tree.rb_node;
++       struct rb_node *parent;
++       struct rb_node **p;
+ 
+  try_again:
++       parent = NULL;
++       p = &key_user_tree.rb_node;
+        spin_lock(&key_user_lock);
+ 
+        /* search the tree for a user record with a matching UID */
+

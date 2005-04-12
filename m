@@ -1,104 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263027AbVDLXK1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbVDLX3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263027AbVDLXK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 19:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262970AbVDLUdU
+	id S263071AbVDLX3G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 19:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263072AbVDLX0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:33:20 -0400
-Received: from lug-owl.de ([195.71.106.12]:44725 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S262237AbVDLStI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 14:49:08 -0400
-Date: Tue, 12 Apr 2005 20:48:59 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: "Kilau, Scott" <Scott_Kilau@digi.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Ihalainen Nickolay <ihanic@dev.ehouse.ru>, admin@list.net.ru,
-       linux-kernel@vger.kernel.org, Wen Xiong <wendyx@us.ibm.com>
-Subject: Re: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Message-ID: <20050412184859.GM4965@lug-owl.de>
-Mail-Followup-To: "Kilau, Scott" <Scott_Kilau@digi.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Ihalainen Nickolay <ihanic@dev.ehouse.ru>, admin@list.net.ru,
-	linux-kernel@vger.kernel.org, Wen Xiong <wendyx@us.ibm.com>
-References: <335DD0B75189FB428E5C32680089FB9F12215A@mtk-sms-mail01.digi.com>
+	Tue, 12 Apr 2005 19:26:51 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:46984 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263030AbVDLXKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 19:10:31 -0400
+Subject: Re: NFS2 question, help, pls!
+From: Lee Revell <rlrevell@joe-job.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Xin Zhao <uszhaoxin@gmail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1113344795.10420.125.camel@lade.trondhjem.org>
+References: <4ae3c1405041212223ee0609e@mail.gmail.com>
+	 <1113344795.10420.125.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Tue, 12 Apr 2005 19:10:21 -0400
+Message-Id: <1113347421.13102.6.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CgTrtGVSVGoxAIFj"
-Content-Disposition: inline
-In-Reply-To: <335DD0B75189FB428E5C32680089FB9F12215A@mtk-sms-mail01.digi.com>
-X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-04-12 at 15:26 -0700, Trond Myklebust wrote:
+> ty den 12.04.2005 Klokka 15:22 (-0400) skreiv Xin Zhao:
+> > I have very very fast network and is testing NFS2 over this kind of
+> > network. I noticed that for standard work like read/write a large
+> > file,  compile kernels, the performance of NFS2 is good. But if I try
+> > to decompress kernel tar file. The standard ext2 takes 28s while NFS2
+> > takes 81s. Also, if I remove the kernel source code tree, ext2 takes
+> > 19s but NFS2 takes 44s.
+> > 
+> > Why?  (You can assume that network is very fast. )  Is there any
+> > improvements in NFS3/4 on this issue? If so, how?
+> 
+> NFSv2 requires the server to immediately write all data to disk before
+> it can reply to the RPC write request (synchronous writes).
 
---CgTrtGVSVGoxAIFj
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This behavior can be disabled with the "async" export option for NFSv2.
 
-On Tue, 2005-04-12 11:42:31 -0500, Kilau, Scott <Scott_Kilau@digi.com>
-wrote in message <335DD0B75189FB428E5C32680089FB9F12215A@mtk-sms-mail01.dig=
-i.com>:
-> The JSM driver was forced to be stripped down when being submitted
-> to the kernel sources, and many extended features removed as so to be
-> included into the kernel, as the extended features added special ioctls
-> and special /proc (/sys for 2.6) files.
+Lee
 
-There's a consensus that if there's *any* choice, new /proc files as
-well as new ioctls shall not be introduced. So if there's management
-needed (disclaimer: I don't own such a card), then this interface needs
-to be introduced as a generic interface, which might be used by any
-further drivers. We've just had this situation for some RAID cards,
-where the vendor wanted to introduce a (specific for his devices)
-interface. Either do it correct (as of best current practice), or don't
-do it at all.
-
-> > I didn't think that you would remove them. I read the posts and
-> > wondered *why* they wanted the management pieces removed.
-> > One reason to use the Digi products is for the sole fact that
-> > they *can* be diagnosed.
-> > I'm glad that Digi is still focused properly.
-> > I agree that committing the drivers to the main kernel
-> > is not the way to go if you are forced to remove dpa and ditty.
-
-Well, again, if this features can only used by your hardware (and
-there's proof that no other vendor will add these features *ever*), then
-an own interface is okay. But if there's a possibility that a different
-vendor *might* introduce these as well, then a generic interface needs
-to be build (with first of all only one user: your driver).
-
-> I will let the chips fall where they will, and clean up the mess that
-> will soon be introduced into my driver world. =3D)
-
-That's a plan. Good to head :-)
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---CgTrtGVSVGoxAIFj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCXBgbHb1edYOZ4bsRAhhPAJ9AjaK/cILY0ewr7hoMBXT9Y/JITwCfbpw9
-3WDq6YCrTh4ddRFlzE+UB98=
-=QxPP
------END PGP SIGNATURE-----
-
---CgTrtGVSVGoxAIFj--

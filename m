@@ -1,85 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262284AbVDLKry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVDLKwQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbVDLKry (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 06:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262324AbVDLKol
+	id S262324AbVDLKwQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 06:52:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVDLKv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 06:44:41 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57290 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262285AbVDLKdr (ORCPT
+	Tue, 12 Apr 2005 06:51:59 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:48860 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262267AbVDLKdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:33:47 -0400
-Message-Id: <200504121033.j3CAXTvp005895@shell0.pdx.osdl.net>
-Subject: [patch 183/198] IB/mthca: split MR key munging routines
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, mst@mellanox.co.il,
-       roland@topspin.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:33:23 -0700
+	Tue, 12 Apr 2005 06:33:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
+        b=EMdVgcJOUdcivr8sYHgNX67UYbI9WuGvAupZeRBWK201V8B/k0/rD1fEbfdkHZhDQcUwuzODmLxd2LWnaOF8dmMBwVm7EtfYNWhVntmy2zJ403jebiLlZ0T6JORuZkHMp4Ul5rH9+UUEwU5v+a7BtQz+QiETdKXKXdL2aY04JQ4=
+From: Tejun Heo <htejun@gmail.com>
+To: James.Bottomley@steeleye.com, axboe@suse.de,
+       Christoph Hellwig <hch@infradead.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+User-Agent: lksp 0.3
+Content-Type: text/plain; charset=US-ASCII
+References: <20050412103128.69172FEB@htj.dyndns.org>
+In-Reply-To: <20050412103128.69172FEB@htj.dyndns.org>
+Subject: Re: [PATCH scsi-misc-2.6 04/04] scsi: remove unnecessary scsi_wait_req_end_io()
+Message-ID: <20050412103128.66BBB7B1@htj.dyndns.org>
+Date: Tue, 12 Apr 2005 19:33:08 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+04_scsi_reqfn_remove_wait_req_end_io.patch
 
-From: Michael S. Tsirkin <mst@mellanox.co.il>
+	As all requests are now terminated via scsi midlayer, we don't
+	need to set end_io for special reqs, remove it.
 
-Split Tavor and Arbel/mem-free index<->hw key munging routines, so that FMR
-implementation can call correct implementation without testing HCA type (which
-it already knows).
+	Note that scsi_kill_requests() still terminates requests using
+	blk layer.  The path is circular-ref workaround and soon to be
+	replaced, so ignore it for now.
 
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <roland@topspin.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c |   28 +++++++++++++++++++++----
- 1 files changed, 24 insertions(+), 4 deletions(-)
+ scsi_lib.c |   11 -----------
+ 1 files changed, 11 deletions(-)
 
-diff -puN drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-split-mr-key-munging-routines drivers/infiniband/hw/mthca/mthca_mr.c
---- 25/drivers/infiniband/hw/mthca/mthca_mr.c~ib-mthca-split-mr-key-munging-routines	2005-04-12 03:21:46.923003520 -0700
-+++ 25-akpm/drivers/infiniband/hw/mthca/mthca_mr.c	2005-04-12 03:21:46.927002912 -0700
-@@ -198,20 +198,40 @@ static void mthca_free_mtt(struct mthca_
- 				      seg + (1 << order) - 1);
+Index: scsi-reqfn-export/drivers/scsi/scsi_lib.c
+===================================================================
+--- scsi-reqfn-export.orig/drivers/scsi/scsi_lib.c	2005-04-12 19:27:55.000000000 +0900
++++ scsi-reqfn-export/drivers/scsi/scsi_lib.c	2005-04-12 19:27:56.000000000 +0900
+@@ -260,16 +260,6 @@ static void scsi_wait_done(struct scsi_c
+ 		complete(req->waiting);
  }
  
-+static inline u32 tavor_hw_index_to_key(u32 ind)
-+{
-+	return ind;
-+}
-+
-+static inline u32 tavor_key_to_hw_index(u32 key)
-+{
-+	return key;
-+}
-+
-+static inline u32 arbel_hw_index_to_key(u32 ind)
-+{
-+	return (ind >> 24) | (ind << 8);
-+}
-+
-+static inline u32 arbel_key_to_hw_index(u32 key)
-+{
-+	return (key << 24) | (key >> 8);
-+}
-+
- static inline u32 hw_index_to_key(struct mthca_dev *dev, u32 ind)
+-/* This is the end routine we get to if a command was never attached
+- * to the request.  Simply complete the request without changing
+- * rq_status; this will cause a DRIVER_ERROR. */
+-static void scsi_wait_req_end_io(struct request *req)
+-{
+-	BUG_ON(!req->waiting);
+-
+-	complete(req->waiting);
+-}
+-
+ void scsi_wait_req(struct scsi_request *sreq, const void *cmnd, void *buffer,
+ 		   unsigned bufflen, int timeout, int retries)
  {
- 	if (dev->hca_type == ARBEL_NATIVE)
--		return (ind >> 24) | (ind << 8);
-+		return arbel_hw_index_to_key(ind);
- 	else
--		return ind;
-+		return tavor_hw_index_to_key(ind);
- }
- 
- static inline u32 key_to_hw_index(struct mthca_dev *dev, u32 key)
- {
- 	if (dev->hca_type == ARBEL_NATIVE)
--		return (key << 24) | (key >> 8);
-+		return arbel_key_to_hw_index(key);
- 	else
--		return key;
-+		return tavor_key_to_hw_index(key);
- }
- 
- int mthca_mr_alloc_notrans(struct mthca_dev *dev, u32 pd,
-_
+@@ -277,7 +267,6 @@ void scsi_wait_req(struct scsi_request *
+ 	
+ 	sreq->sr_request->waiting = &wait;
+ 	sreq->sr_request->rq_status = RQ_SCSI_BUSY;
+-	sreq->sr_request->end_io = scsi_wait_req_end_io;
+ 	scsi_do_req(sreq, cmnd, buffer, bufflen, scsi_wait_done,
+ 			timeout, retries);
+ 	wait_for_completion(&wait);
+

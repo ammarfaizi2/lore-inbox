@@ -1,41 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVDLH6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVDLICf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262043AbVDLH6P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 03:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVDLH6P
+	id S262041AbVDLICf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 04:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbVDLICc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 03:58:15 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50072 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262043AbVDLH6G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 03:58:06 -0400
-Date: Tue, 12 Apr 2005 00:41:22 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Viktor A. Danilov" <__die@mail.ru>
-Cc: linux-kernel@vger.kernel.org, bwheadley@earthlink.net,
-       chris@crud.net.kroah.org
-Subject: Re: PROBLEM: AIPTEK input doesn`t register `device` & `driver` section in sysfs (/sys/class/input/event#)
-Message-ID: <20050412074121.GE1371@kroah.com>
-References: <200504101921.28777.__die@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504101921.28777.__die@mail.ru>
-User-Agent: Mutt/1.5.8i
+	Tue, 12 Apr 2005 04:02:32 -0400
+Received: from mail.hometree.net ([194.77.152.181]:30104 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP id S262041AbVDLICY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 04:02:24 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: [2.6.11.7] switch fallthrough in scsi_ioctl.c ?
+Date: Tue, 12 Apr 2005 08:02:22 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <d3fvae$b33$1@tangens.hometree.net>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1113292942 11363 194.77.152.164 (12 Apr 2005 08:02:22 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 12 Apr 2005 08:02:22 +0000 (UTC)
+X-Copyright: (C) 1996-2005 Henning Schmiedehausen
+X-No-Archive: yes
+User-Agent: nn/6.6.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 10, 2005 at 07:21:28PM +0600, Viktor A. Danilov wrote:
-> 
-> PROBLEM: aiptek input doesn`t register `device` & `driver` section in sysfs (/sys/class/input/event#)
-> REASON: `dev` - field not filled...
-> SOLUTION: in linux/drivers/usb/input/aiptek.c write
-> 	aiptek->inputdev.dev = &intf->dev;
-> before calling 
-> 	input_register_device(&aiptek->inputdev);
+Hi,
 
-Good catch, I've applied this to my kernel trees.
+I just noticed that in scsi_ioctl.c (Kernel 2.6.11.7), there are fallthroughs
+in the sshdr.sense_key switch (Line 124 and beyond):
 
-thanks,
+[...]
+		case NOT_READY:	/* This happens if there is no disc in drive */
+			if (sdev->removable && (cmd[0] != TEST_UNIT_READY)) {
+				printk(KERN_INFO "Device not ready. Make sure"
+				       " there is a disc in the drive.\n");
+				break;
+			}
 
-greg k-h
+***** ---> Fallthrough there is device is not removeable or command is not TEST_UNIT_READY
+
+		case UNIT_ATTENTION:
+			if (sdev->removable) {
+				sdev->changed = 1;
+				sreq->sr_result = 0;	/* This is no longer considered an error */
+				break;
+			}
+
+***** ---> Fallthrough there is device is not removeable
+
+		default:	/* Fall through for non-removable media */
+[...]
+
+I was wondering if this is intentional and if yes, this should be
+clearly marked as such (The usual /* FALLTHROUGH */). If this is
+intentional, then the logic in this statement is seriously in need of
+documentation... :-)
+
+	Regards
+		Henning
+
+
+
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
+hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+
+RedHat Certified Engineer -- Jakarta Turbine Development  -- hero for hire
+   Linux, Java, perl, Solaris -- Consulting, Training, Development
+
+"Now you can start with implementation and integration and do the
+requirements later".  -- Prof. Dr. Dr. h.c. Manfred Broy about the new
+german federal software development standard "V-Model XT" 
+(found at http://de.biz.yahoo.com/050207/299/4en0t.html)

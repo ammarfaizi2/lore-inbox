@@ -1,345 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVDLBTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVDLBXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbVDLBTo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Apr 2005 21:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbVDLBTd
+	id S261877AbVDLBXm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Apr 2005 21:23:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVDLBXm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Apr 2005 21:19:33 -0400
-Received: from smtp.blackdown.de ([213.239.206.42]:45196 "EHLO
-	smtp.blackdown.de") by vger.kernel.org with ESMTP id S261999AbVDLBSs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Apr 2005 21:18:48 -0400
-From: Juergen Kreileder <jk@blackdown.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm3
-References: <20050411012532.58593bc1.akpm@osdl.org>
-X-PGP-Key: http://blackhole.pca.dfn.de:11371/pks/lookup?op=get&search=0x730A28A5
-X-PGP-Fingerprint: 7C19 D069 9ED5 DC2E 1B10  9859 C027 8D5B 730A 28A5
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Date: Tue, 12 Apr 2005 03:18:45 +0200
-In-Reply-To: <20050411012532.58593bc1.akpm@osdl.org> (Andrew Morton's message
-	of "Mon, 11 Apr 2005 01:25:32 -0700")
-Message-ID: <87wtr8rdvu.fsf@blackdown.de>
-Organization: Blackdown Java-Linux Team
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.4 (gnu/linux)
+	Mon, 11 Apr 2005 21:23:42 -0400
+Received: from smtp101.rog.mail.re2.yahoo.com ([206.190.36.79]:60519 "HELO
+	smtp101.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S262000AbVDLBWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Apr 2005 21:22:00 -0400
+From: Shawn Starr <shawn.starr@rogers.com>
+Organization: sh0n.net
+To: Rob Landley <rob@landley.net>
+Subject: Re: Policy question (was Re: [2.6.12-rc1][ACPI][suspend] /proc/acpi/sleep vs /sys/power/state issue - 'standby' on a laptop)
+Date: Mon, 11 Apr 2005 21:21:51 -0400
+User-Agent: KMail/1.7.2
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net
+References: <20050406212221.75716.qmail@web88010.mail.re2.yahoo.com> <200504112009.30928.rob@landley.net>
+In-Reply-To: <200504112009.30928.rob@landley.net>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Content-Disposition: inline
+Message-Id: <200504112121.52203.shawn.starr@rogers.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+Well, of course. When I get around to figuring out the best way to do this.  
+Since I don't want to bloat up sysfs ACPI stuff just to check if the echoed 
+value is a number or string. We can just gradually phase it out by just 
+marking it DEPRECATED and keep it ON in the Kbuild file so nobody looses the 
+functionality until then.
 
-Andrew Morton <akpm@osdl.org> writes:
+I'm thinking 2 years but some say thats too long :)
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
+Now that I look at it, I don't need to put it into a CONFIG option as its 
+already a module :-) even better.
 
-I'm getting frequent lockups on my PowerMac G5 with rc2-mm3.
+Shawn.
 
-2.6.11-mm4 works fine but all 2.6.12 versions I've tried (all since
--rc1-mm3) lock up randomly.  The easiest way to reproduce the problem
-seems to be running Azareus.  So it might be network related, but I'm
-not 100% sure about that, there was a least one deadlock with
-virtually no network usage.
-
-BTW, what's the SysRq key on recent Apple USB keyboards?  Alt/Cmd-F13
-doesn't work for me.
-
-
-        Juergen
-
-
---=-=-=
-Content-Disposition: inline; filename=config-2.6.12-rc2-mm3
-
-CONFIG_64BIT=y
-CONFIG_MMU=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_COMPAT=y
-CONFIG_FORCE_MAX_ZONEORDER=13
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_KALLSYMS=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_STOP_MACHINE=y
-CONFIG_SYSVIPC_COMPAT=y
-CONFIG_PPC_MULTIPLATFORM=y
-CONFIG_PPC_PMAC=y
-CONFIG_PPC=y
-CONFIG_PPC64=y
-CONFIG_PPC_OF=y
-CONFIG_ALTIVEC=y
-CONFIG_U3_DART=y
-CONFIG_PPC_PMAC64=y
-CONFIG_BOOTX_TEXT=y
-CONFIG_POWER4_ONLY=y
-CONFIG_IOMMU_VMERGE=y
-CONFIG_SMP=y
-CONFIG_NR_CPUS=2
-CONFIG_ARCH_FLATMEM_ENABLE=y
-CONFIG_FLATMEM=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_SECCOMP=y
-CONFIG_PCI=y
-CONFIG_PCI_DOMAINS=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PCI_NAMES=y
-CONFIG_PROC_DEVICETREE=y
-CONFIG_NET=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_TCPDIAG=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_BT=m
-CONFIG_BT_L2CAP=m
-CONFIG_BT_RFCOMM=m
-CONFIG_BT_RFCOMM_TTY=y
-CONFIG_BT_HCIUSB=m
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_CDROM_PKTCDVD=y
-CONFIG_CDROM_PKTCDVD_BUFFERS=8
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_TASK_IOCTL=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDE_PMAC=y
-CONFIG_BLK_DEV_IDE_PMAC_ATA100FIRST=y
-CONFIG_BLK_DEV_IDEDMA_PMAC=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=y
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_LOGGING=y
-CONFIG_SCSI_SATA=y
-CONFIG_SCSI_SATA_SVW=y
-CONFIG_SCSI_QLA2XXX=y
-CONFIG_MD=y
-CONFIG_BLK_DEV_DM=y
-CONFIG_DM_CRYPT=y
-CONFIG_DM_SNAPSHOT=y
-CONFIG_DM_MIRROR=y
-CONFIG_DM_ZERO=y
-CONFIG_ADB_PMU=y
-CONFIG_THERM_PM72=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_SUNGEM=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1600
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=1200
-CONFIG_INPUT_EVDEV=m
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_UINPUT=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_UNINORTH=y
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-CONFIG_I2C_ALGOBIT=y
-CONFIG_I2C_KEYWEST=y
-CONFIG_FB=y
-CONFIG_FB_CFB_FILLRECT=y
-CONFIG_FB_CFB_COPYAREA=y
-CONFIG_FB_CFB_IMAGEBLIT=y
-CONFIG_FB_SOFT_CURSOR=y
-CONFIG_FB_MACMODES=y
-CONFIG_FB_MODE_HELPERS=y
-CONFIG_FB_OF=y
-CONFIG_FB_RADEON=y
-CONFIG_FB_RADEON_I2C=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_FRAMEBUFFER_CONSOLE=y
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-CONFIG_LOGO=y
-CONFIG_LOGO_LINUX_MONO=y
-CONFIG_LOGO_LINUX_VGA16=y
-CONFIG_LOGO_LINUX_CLUT224=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_TIMER=m
-CONFIG_SND_PCM=m
-CONFIG_SND_RAWMIDI=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_POWERMAC=m
-CONFIG_SND_USB_AUDIO=m
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_EHCI_SPLIT_ISO=y
-CONFIG_USB_EHCI_ROOT_HUB_TT=y
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-CONFIG_USB_STORAGE=m
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_INOTIFY=y
-CONFIG_DNOTIFY=y
-CONFIG_FUSE_FS=m
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=850
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_DEVPTS_FS_XATTR=y
-CONFIG_TMPFS=y
-CONFIG_HUGETLBFS=y
-CONFIG_HUGETLB_PAGE=y
-CONFIG_RAMFS=y
-CONFIG_RELAYFS_FS=m
-CONFIG_HFS_FS=y
-CONFIG_HFSPLUS_FS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFS_V4=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_NFSD_V4=y
-CONFIG_NFSD_TCP=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_NFS_COMMON=y
-CONFIG_SUNRPC=m
-CONFIG_SUNRPC_GSS=m
-CONFIG_RPCSEC_GSS_KRB5=m
-CONFIG_RPCSEC_GSS_SPKM3=m
-CONFIG_PARTITION_ADVANCED=y
-CONFIG_MAC_PARTITION=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="utf8"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_852=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ASCII=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_2=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=17
-CONFIG_IRQSTACKS=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_MD4=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=y
-CONFIG_CRYPTO_SHA512=y
-CONFIG_CRYPTO_WP512=y
-CONFIG_CRYPTO_TGR192=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_BLOWFISH=y
-CONFIG_CRYPTO_TWOFISH=y
-CONFIG_CRYPTO_SERPENT=y
-CONFIG_CRYPTO_AES=y
-CONFIG_CRYPTO_CAST5=y
-CONFIG_CRYPTO_CAST6=y
-CONFIG_CRYPTO_TEA=y
-CONFIG_CRYPTO_ARC4=y
-CONFIG_CRYPTO_KHAZAD=y
-CONFIG_CRYPTO_ANUBIS=y
-CONFIG_CRYPTO_DEFLATE=y
-CONFIG_CRYPTO_MICHAEL_MIC=y
-CONFIG_CRYPTO_CRC32C=y
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
-
---=-=-=
-
-
--- 
-Juergen Kreileder, Blackdown Java-Linux Team
-http://blog.blackdown.de/
-
---=-=-=--
+On April 11, 2005 20:09, Rob Landley wrote:
+> On Wednesday 06 April 2005 05:22 pm, Shawn Starr wrote:
+> > --- Pavel Machek <pavel@ucw.cz> wrote:
+> > > Hi!
+> > >
+> > > > So nobody minds if I make this into a CONFIG
+> > >
+> > > option marked as Deprecated? :)
+> > >
+> > > Actually it should probably go through
+> > >
+> > > Documentation/feature-removal-schedule.txt
+> > >
+> > > ...and give it *long* timeout, since it is API
+> > > change.
+> > >          Pavel
+>
+> Shouldn't all deprecated features be in feature-removal-schedule.txt?
+>
+> There are four entries in feature-removal-schedule in 2.6.12-rc2, but
+> `find . -name "Kconfig" | xargs grep -i deprecated` finds eight entries. 
+> (And there's more if the grep -i is for "obsolete" instead...)
+>
+> Just wondering...
+>
+> Rob

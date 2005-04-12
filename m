@@ -1,60 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262117AbVDLOQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVDLOQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262117AbVDLOQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 10:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVDLONC
+	id S262343AbVDLOQX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 10:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbVDLLHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 10:13:02 -0400
-Received: from thunk.org ([69.25.196.29]:22719 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262117AbVDLOIw (ORCPT
+	Tue, 12 Apr 2005 07:07:53 -0400
+Received: from fire.osdl.org ([65.172.181.4]:29130 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262255AbVDLKdP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 10:08:52 -0400
-Date: Tue, 12 Apr 2005 10:07:57 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Dan Berger <danberger@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error When Booting: Resize Inode Not Valid
-Message-ID: <20050412140757.GB9684@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Dan Berger <danberger@gmail.com>, linux-kernel@vger.kernel.org
-References: <e3da09a705041205176403fe27@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e3da09a705041205176403fe27@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 12 Apr 2005 06:33:15 -0400
+Message-Id: <200504121033.j3CAX6g1005777@shell0.pdx.osdl.net>
+Subject: [patch 155/198] IPoIB: convert to debugfs
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, roland@topspin.com
+From: akpm@osdl.org
+Date: Tue, 12 Apr 2005 03:33:00 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 08:17:46AM -0400, Dan Berger wrote:
-> Hello. I have recently switched to Linux to prevent any big errors...
-> but I guess I just have bad luck :)
-> 
-> Distro: Fedora Core 3
-> Kernel: 2.6.10-1.FC3_770
-> File system: ext3
-> Mobo: Gigabyte GA7VAXP+
-> 
-> This morning I went to reboot my machine normally after an 8 day
-> uptime. At boot, when it checked the root partition's integrity, I got
-> the error "Resize inode not valid" and I was dropped to the repair fs
-> console.
-> 
-> I ran fsck.ext3 numerous times, always answering yes to recreating the
-> resize inode... but to no avail. I even tried doing this from FC3's
-> rescue CD.
 
-It looks like there is a bug in FC3's e2fsck program which is failing
-to fix the filesystem corruption.  (FC3's e2fsck had resize2fs support
-more-or-less hacked in, and it didn't support big endian systems, and
-it had a whole host of other problems.)
+From: Roland Dreier <roland@topspin.com>
 
-I would recommend upgrading to the latest version of e2fsck (1.37)
-which should be able to fix it.  If not, please see the REPORTING BUGS
-section of the e2fsck man page to see the sort of information I would
-need to see in order to fix it.
+Convert IPoIB to use debugfs instead of its own custom debugging filesystem.
 
-Unfortunately, FC3 doesn't have a prebuilt version of the latest
-e2fspros, so you would have to build it yourself.  
+Signed-off-by: Roland Dreier <roland@topspin.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-						- Ted
+ 25-akpm/drivers/infiniband/ulp/ipoib/ipoib_fs.c   |  140 ++--------------------
+ 25-akpm/drivers/infiniband/ulp/ipoib/ipoib_main.c |    8 -
+ 2 files changed, 18 insertions(+), 130 deletions(-)
+
+diff -puN drivers/infiniband/ulp/ipoib/ipoib_fs.c~ipoib-convert-to-debugfs drivers/infiniband/ulp/ipoib/ipoib_fs.c
+--- 25/drivers/infiniband/ulp/ipoib/ipoib_fs.c~ipoib-convert-to-debugfs	2005-04-12 03:21:40.674953368 -0700
++++ 25-akpm/drivers/infiniband/ulp/ipoib/ipoib_fs.c	2005-04-12 03:21:40.679952608 -0700
+@@ -32,19 +32,16 @@
+  * $Id: ipoib_fs.c 1389 2004-12-27 22:56:47Z roland $
+  */
+ 
+-#include <linux/pagemap.h>
++#include <linux/err.h>
+ #include <linux/seq_file.h>
+ 
+-#include "ipoib.h"
++struct file_operations;
+ 
+-enum {
+-	IPOIB_MAGIC = 0x49504942 /* "IPIB" */
+-};
++#include <linux/debugfs.h>
++
++#include "ipoib.h"
+ 
+-static DECLARE_MUTEX(ipoib_fs_mutex);
+ static struct dentry *ipoib_root;
+-static struct super_block *ipoib_sb;
+-static LIST_HEAD(ipoib_device_list);
+ 
+ static void *ipoib_mcg_seq_start(struct seq_file *file, loff_t *pos)
+ {
+@@ -145,143 +142,34 @@ static struct file_operations ipoib_fops
+ 	.release = seq_release
+ };
+ 
+-static struct inode *ipoib_get_inode(void)
+-{
+-	struct inode *inode = new_inode(ipoib_sb);
+-
+-	if (inode) {
+-		inode->i_mode 	 = S_IFREG | S_IRUGO;
+-		inode->i_uid 	 = 0;
+-		inode->i_gid 	 = 0;
+-		inode->i_blksize = PAGE_CACHE_SIZE;
+-		inode->i_blocks  = 0;
+-		inode->i_atime 	 = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
+-		inode->i_fop     = &ipoib_fops;
+-	}
+-
+-	return inode;
+-}
+-
+-static int __ipoib_create_debug_file(struct net_device *dev)
++int ipoib_create_debug_file(struct net_device *dev)
+ {
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+-	struct dentry *dentry;
+-	struct inode *inode;
+ 	char name[IFNAMSIZ + sizeof "_mcg"];
+ 
+ 	snprintf(name, sizeof name, "%s_mcg", dev->name);
+ 
+-	dentry = d_alloc_name(ipoib_root, name);
+-	if (!dentry)
+-		return -ENOMEM;
+-
+-	inode = ipoib_get_inode();
+-	if (!inode) {
+-		dput(dentry);
+-		return -ENOMEM;
+-	}
+-
+-	inode->u.generic_ip = dev;
+-	priv->mcg_dentry = dentry;
+-
+-	d_add(dentry, inode);
+-
+-	return 0;
+-}
+-
+-int ipoib_create_debug_file(struct net_device *dev)
+-{
+-	struct ipoib_dev_priv *priv = netdev_priv(dev);
+-
+-	down(&ipoib_fs_mutex);
+-
+-	list_add_tail(&priv->fs_list, &ipoib_device_list);
+-
+-	if (!ipoib_sb) {
+-		up(&ipoib_fs_mutex);
+-		return 0;
+-	}
+-
+-	up(&ipoib_fs_mutex);
++	priv->mcg_dentry = debugfs_create_file(name, S_IFREG | S_IRUGO,
++					       ipoib_root, dev, &ipoib_fops);
+ 
+-	return __ipoib_create_debug_file(dev);
++	return priv->mcg_dentry ? 0 : -ENOMEM;
+ }
+ 
+ void ipoib_delete_debug_file(struct net_device *dev)
+ {
+ 	struct ipoib_dev_priv *priv = netdev_priv(dev);
+ 
+-	down(&ipoib_fs_mutex);
+-	list_del(&priv->fs_list);
+-	if (!ipoib_sb) {
+-		up(&ipoib_fs_mutex);
+-		return;
+-	}
+-	up(&ipoib_fs_mutex);
+-
+-	if (priv->mcg_dentry) {
+-		d_drop(priv->mcg_dentry);
+-		simple_unlink(ipoib_root->d_inode, priv->mcg_dentry);
+-	}
+-}
+-
+-static int ipoib_fill_super(struct super_block *sb, void *data, int silent)
+-{
+-	static struct tree_descr ipoib_files[] = {
+-		{ "" }
+-	};
+-	struct ipoib_dev_priv *priv;
+-	int ret;
+-
+-	ret = simple_fill_super(sb, IPOIB_MAGIC, ipoib_files);
+-	if (ret)
+-		return ret;
+-
+-	ipoib_root = sb->s_root;
+-
+-	down(&ipoib_fs_mutex);
+-
+-	ipoib_sb = sb;
+-
+-	list_for_each_entry(priv, &ipoib_device_list, fs_list) {
+-		ret = __ipoib_create_debug_file(priv->dev);
+-		if (ret)
+-			break;
+-	}
+-
+-	up(&ipoib_fs_mutex);
+-
+-	return ret;
+-}
+-
+-static struct super_block *ipoib_get_sb(struct file_system_type *fs_type,
+-	int flags, const char *dev_name, void *data)
+-{
+-	return get_sb_single(fs_type, flags, data, ipoib_fill_super);
++	if (priv->mcg_dentry)
++		debugfs_remove(priv->mcg_dentry);
+ }
+ 
+-static void ipoib_kill_sb(struct super_block *sb)
+-{
+-	down(&ipoib_fs_mutex);
+-	ipoib_sb = NULL;
+-	up(&ipoib_fs_mutex);
+-
+-	kill_litter_super(sb);
+-}
+-
+-static struct file_system_type ipoib_fs_type = {
+-	.owner		= THIS_MODULE,
+-	.name		= "ipoib_debugfs",
+-	.get_sb		= ipoib_get_sb,
+-	.kill_sb	= ipoib_kill_sb,
+-};
+-
+ int ipoib_register_debugfs(void)
+ {
+-	return register_filesystem(&ipoib_fs_type);
++	ipoib_root = debugfs_create_dir("ipoib", NULL);
++	return ipoib_root ? 0 : -ENOMEM;
+ }
+ 
+ void ipoib_unregister_debugfs(void)
+ {
+-	unregister_filesystem(&ipoib_fs_type);
++	debugfs_remove(ipoib_root);
+ }
+diff -puN drivers/infiniband/ulp/ipoib/ipoib_main.c~ipoib-convert-to-debugfs drivers/infiniband/ulp/ipoib/ipoib_main.c
+--- 25/drivers/infiniband/ulp/ipoib/ipoib_main.c~ipoib-convert-to-debugfs	2005-04-12 03:21:40.676953064 -0700
++++ 25-akpm/drivers/infiniband/ulp/ipoib/ipoib_main.c	2005-04-12 03:21:40.680952456 -0700
+@@ -1082,19 +1082,19 @@ static int __init ipoib_init_module(void
+ 
+ 	return 0;
+ 
+-err_fs:
+-	ipoib_unregister_debugfs();
+-
+ err_wq:
+ 	destroy_workqueue(ipoib_workqueue);
+ 
++err_fs:
++	ipoib_unregister_debugfs();
++
+ 	return ret;
+ }
+ 
+ static void __exit ipoib_cleanup_module(void)
+ {
+-	ipoib_unregister_debugfs();
+ 	ib_unregister_client(&ipoib_client);
++	ipoib_unregister_debugfs();
+ 	destroy_workqueue(ipoib_workqueue);
+ }
+ 
+_

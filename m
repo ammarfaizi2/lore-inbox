@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262683AbVDMIBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbVDMIF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262683AbVDMIBx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 04:01:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVDMIBw
+	id S262670AbVDMIF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 04:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262504AbVDMIFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 04:01:52 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50383 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262683AbVDMIBo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 04:01:44 -0400
-Date: Wed, 13 Apr 2005 00:12:34 -0700
-From: Greg KH <greg@kroah.com>
-To: Toralf Lund <toralf@procaptura.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: insmod segfault in pci_find_subsys()
-Message-ID: <20050413071233.GB25581@kroah.com>
-References: <423A9B65.1020103@procaptura.com> <20050318170709.GD14952@kroah.com> <42496309.3080007@procaptura.com>
+	Wed, 13 Apr 2005 04:05:42 -0400
+Received: from baythorne.infradead.org ([81.187.226.107]:26765 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S262680AbVDMICS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 04:02:18 -0400
+Subject: TESTING: new git commits mail
+From: David Woodhouse <dwmw2@infradead.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Wed, 13 Apr 2005 09:02:17 +0100
+Message-Id: <1113379337.12012.142.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42496309.3080007@procaptura.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 04:15:37PM +0200, Toralf Lund wrote:
-> Greg KH wrote:
-> 
-> >On Fri, Mar 18, 2005 at 10:12:05AM +0100, Toralf Lund wrote:
-> > 
-> >
-> >>Am I seeing an issue with the PCI functions here, or is it just that I 
-> >>fail to spot an obvious mistake in the module itself?
-> >>   
-> >>
-> >
-> >I think it's a problem in your code.  I built and ran the following
-> >example module just fine (based on your example, which wasn't the
-> >smallest or cleanest...), with no oops.  Does this code work for you?
-> > 
-> >
-> OK, I've finally been able to test this, and no, it does not work. 
-> insmod segfaults and the system log says
-> 
-> kernel: Unable to handle kernel paging request at virtual address 533e3762
+I've set up a script to replace the old one which mailed commits to the
+bk-commits-head mailing list. It's fed from Linus' "kernel-test.git"
+repository, which isn't necessarily going to end up going into the real
+2.6.12 release -- but in the absence of other information or indeed any
+tree which definitely _is_ leading to the next release, we might as well
+see these commits.
 
-Then I think you have a broken build system or makefile or gcc.  It
-works fine here.
+I've stopped setting the Date: header of the mail to match the timestamp
+of the commit. That's partly because the current version of git doesn't
+actually _include_ the full timestamp information properly, but mostly
+because some people were requesting that I do that for the old bkexport
+script anyway.
 
-thanks,
+-- 
+dwmw2
 
-greg k-h
+

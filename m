@@ -1,47 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVDMTR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVDMTVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbVDMTR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVDMTRN
+	id S261251AbVDMTVV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVDMTVV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:17:13 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:63716 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261224AbVDMTQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:16:58 -0400
-To: jamie@shareable.org
-CC: aia21@cam.ac.uk, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050413183651.GA15334@mail.shareable.org> (message from Jamie
-	Lokier on Wed, 13 Apr 2005 19:36:51 +0100)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk> <20050412215220.GA23321@mail.shareable.org> <E1DLdwo-0004SE-00@dorka.pomaz.szeredi.hu> <20050413170222.GJ12825@mail.shareable.org> <E1DLlgD-0004xe-00@dorka.pomaz.szeredi.hu> <20050413183651.GA15334@mail.shareable.org>
-Message-Id: <E1DLnLp-00054j-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 13 Apr 2005 21:16:37 +0200
+	Wed, 13 Apr 2005 15:21:21 -0400
+Received: from alog0229.analogic.com ([208.224.220.244]:49639 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261252AbVDMTVE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 15:21:04 -0400
+Date: Wed, 13 Apr 2005 15:20:38 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Hacksaw <hacksaw@hacksaw.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Tomko <tomko@haha.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Why system call need to copy the date from the userspace before
+ using it
+In-Reply-To: <20050413183742.GA5252@thunk.org>
+Message-ID: <Pine.LNX.4.61.0504131507280.21367@chaos.analogic.com>
+References: <200504131159.j3DBxsoa010918@hacksaw.org>
+ <Pine.LNX.4.61.0504130818300.12518@chaos.analogic.com> <20050413183742.GA5252@thunk.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Yet, the results from stat() don't distinguish the number spaces,
-> > > and "ls" doesn't map the numbers to names properly in the wrong
-> > > space.
-> > 
-> > Well you can use "ls -n".  It's up to the tools to present the
-> > information you want in the way you want it.  If a tool can't do that,
-> > tough, but you are not worse off than if the information is not
-> > available _at_all_.
-> 
-> Well, how do you currently provide access to the information that's
-> not presentable through stat()?
+On Wed, 13 Apr 2005, Theodore Ts'o wrote:
 
-Obviously I don't.  However that's hardly an argument for providing
-even less information.
+> On Wed, Apr 13, 2005 at 08:40:05AM -0400, Richard B. Johnson wrote:
+>> The kernel does NOT have to copy data from user-space before
+>> using it.
+>
+> Incorrect.  It must, or the kernel code in question is by definition
+> buggy.
+>
 
-And stat() btw pretty much covers what information there is to present
-for network filesystems and archives, since there _is_ a real
-filesystem where the information originated from (though sometimes
-it's not a UNIX type of filesystem, in which case there has to be some
-mapping of the info).
+What? Explain why a memory-mapped buffer can't be DMAed directly?
 
-Miklos
+>> In fact, user-mode pointers are valid in kernel-space
+>> when the kernel is performing a function on behalf of the user-
+>> mode code.
+>
+> On some architectures, this is true.  But not all architectures, and
+> not in all circumstances.  For example, even on the x86 architecture,
+> in the 4G/4G mode, a user-mode pointer is *not* valid when kernel code
+> is running.  You must use copy_to_user()/copy_from_user().  Simply
+> dereferencing a user-mode pointer is a BUG.  It might work sometimes,
+> on some architectures, but not everywhere.  Therefore, for correctly
+> written kernel code, you must not do it.
+
+You apparently didn't even bother to read my explanation why the
+copy/to/from user was necessary unless the buffer(s) were memory-
+mapped, marked reserved, and set to no-cache. In that case
+you can DMA directly to/from user-space. Perhaps you just wanted
+to argue?
+
+> 						- Ted
+
+Again, as long as you can guarantee that the RAM you are using
+is reserved so the kernel won't use it for paged RAM, and as
+long as it's accessible in both user-mode and kernel-mode,
+which means memory-mapped, either the kernel or the user can
+use it as it sees fit. If it can't, the kernel is buggy. In
+fact, there is no way the kernel could prevent it from being
+used in this manner. Since, by definition, the kernel
+will leave reserved memory alone, and memory-mapped space
+will not fault, there is no way for the kernel to even know
+how it is being accessed.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

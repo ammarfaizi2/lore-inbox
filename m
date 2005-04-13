@@ -1,105 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVDMLXi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVDMLYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVDMLXi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 07:23:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVDMLXi
+	id S261316AbVDMLYI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 07:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVDMLYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 07:23:38 -0400
-Received: from gate.crashing.org ([63.228.1.57]:49070 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261314AbVDMLXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 07:23:30 -0400
-Subject: [PATCH] ppc64: improve g5 sound headphone mute
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <jefyxvruip.fsf@sykes.suse.de>
-References: <1113282436.21548.42.camel@gaston>
-	 <jell7nu6yk.fsf@sykes.suse.de> <1113344225.21548.108.camel@gaston>
-	 <jey8bnk4lj.fsf@sykes.suse.de> <1113345561.5387.114.camel@gaston>
-	 <jed5szk3gh.fsf@sykes.suse.de> <1113347296.5388.121.camel@gaston>
-	 <je8y3nk117.fsf@sykes.suse.de> <1113350355.5387.129.camel@gaston>
-	 <jefyxvruip.fsf@sykes.suse.de>
-Content-Type: text/plain
-Date: Wed, 13 Apr 2005 21:23:02 +1000
-Message-Id: <1113391382.5463.20.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Wed, 13 Apr 2005 07:24:07 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:14550 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261316AbVDMLYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 07:24:02 -0400
+Message-ID: <425D0144.9070207@grupopie.com>
+Date: Wed, 13 Apr 2005 12:23:48 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] create a kstrdup library function
+References: <42519911.508@grupopie.com>
+In-Reply-To: <42519911.508@grupopie.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Paulo Marques wrote:
+> Hi,
+> 
+> This patch creates a new kstrdup library function and changes the 
+> "local" implementations in several places to use this function.
 
-This patch fixes a couple more issues with the management of the GPIOs
-dealing with headphone and line out mute on the G5. It should fix the
-remaining problems of people not getting any sound out of the headphone
-jack.
+Arkadiusz Miskiewicz reported that this breaks compilation under PPC.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Apparently, PPC builds a bootloader that links against lib.a but doesn't 
+expect any dependencies on slab. Since kstrdup calls kmalloc, this 
+breaks compilation.
 
-Index: linux-work/sound/ppc/tumbler.c
-===================================================================
---- linux-work.orig/sound/ppc/tumbler.c	2005-04-12 18:07:50.000000000 +1000
-+++ linux-work/sound/ppc/tumbler.c	2005-04-13 18:02:26.000000000 +1000
-@@ -177,11 +177,22 @@
- 	if (! gp->addr)
- 		return;
- 	active = active ? gp->active_val : gp->inactive_val;
--
- 	do_gpio_write(gp, active);
- 	DBG("(I) gpio %x write %d\n", gp->addr, active);
- }
- 
-+static int check_audio_gpio(pmac_gpio_t *gp)
-+{
-+	int ret;
-+
-+	if (! gp->addr)
-+		return 0;
-+
-+	ret = do_gpio_read(gp);
-+
-+	return (ret & 0xd) == (gp->active_val & 0xd);
-+}
-+
- static int read_audio_gpio(pmac_gpio_t *gp)
- {
- 	int ret;
-@@ -683,7 +694,7 @@
- 	}
- 	if (gp == NULL)
- 		return -EINVAL;
--	ucontrol->value.integer.value[0] = ! read_audio_gpio(gp);
-+	ucontrol->value.integer.value[0] = !check_audio_gpio(gp);
- 	return 0;
- }
- 
-@@ -711,7 +722,7 @@
- 	}
- 	if (gp == NULL)
- 		return -EINVAL;
--	val = ! read_audio_gpio(gp);
-+	val = ! check_audio_gpio(gp);
- 	if (val != ucontrol->value.integer.value[0]) {
- 		write_audio_gpio(gp, ! ucontrol->value.integer.value[0]);
- 		return 1;
-@@ -897,11 +908,11 @@
- 
- static void check_mute(pmac_t *chip, pmac_gpio_t *gp, int val, int do_notify, snd_kcontrol_t *sw)
- {
--	//pmac_tumbler_t *mix = chip->mixer_data;
--	if (val != read_audio_gpio(gp)) {
-+	if (check_audio_gpio(gp) != val) {
- 		write_audio_gpio(gp, val);
- 		if (do_notify)
--			snd_ctl_notify(chip->card, SNDRV_CTL_EVENT_MASK_VALUE, &sw->id);
-+			snd_ctl_notify(chip->card, SNDRV_CTL_EVENT_MASK_VALUE,
-+				       &sw->id);
- 	}
- }
- 
+I can fix this by moving kstrdup into slab.c. This way this is treated 
+as an "allocation" function instead of a string function, so it makes 
+some sense to do this.
 
+Andrew, do you prefer an incremental patch against the current tree, or 
+a single clean patch against the current tree with all the current 
+kstrdup patches taken out?
 
+-- 
+Paulo Marques - www.grupopie.com
+
+All that is necessary for the triumph of evil is that good men do nothing.
+Edmund Burke (1729 - 1797)

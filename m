@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVDMMAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVDMMD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVDMMAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 08:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVDMMAJ
+	id S261315AbVDMMD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 08:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDMMD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 08:00:09 -0400
-Received: from hacksaw.org ([66.92.70.107]:19670 "EHLO hacksaw.org")
-	by vger.kernel.org with ESMTP id S261312AbVDMMAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 08:00:04 -0400
-Message-Id: <200504131159.j3DBxsoa010918@hacksaw.org>
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Tomko <tomko@haha.com>, Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Why system call need to copy the date from the userspace before 
- using it
-In-reply-to: Your message of "Wed, 13 Apr 2005 21:33:27 +1000."
-             <1113392007.5516.26.camel@gaston> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Apr 2005 07:59:54 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
+	Wed, 13 Apr 2005 08:03:26 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:60424 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261315AbVDMMDY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 08:03:24 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: ast@domdv.de (Andreas Steinmetz)
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Cc: rjw@sisk.pl, pavel@ucw.cz, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <425BCA6E.8030408@domdv.de>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au>
+Date: Wed, 13 Apr 2005 21:59:24 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Why not use it directly
->Some of these reasons are:
+Andreas Steinmetz <ast@domdv.de> wrote:
+> 
+> Here comes the next incarnation, this time against 2.6.12rc2.
+> Unfortunately only compile tested as 2.6.12rc2 happily oopses away
+> (vanilla from kernel.org, oops already sent to lkml).
+> 
+> Please let me know if you want any further changes.
 
-It seems like you gave reason why userland pointers shouldn't be trusted, not 
-why userland data should be copied into kernel land. All the problems you 
-mentioned would have to be solved by the kernel regardless of copying the data 
-around.
-
-Ummm... Except for the who's mapped now problem. That's pretty weird. I guess 
-that's something that comes with trying to use tons of RAM in a 32 bit system.
-
-I thought the big issue was the need to lock the page(s) during the call, and 
-maybe some tricky races which made the idea difficult.
+What's wrong with using swap over dmcrypt + initramfs? People have
+already used that to do encrypted swsusp.
 -- 
-The key is realizing the whole world is stupid and being happy anyway
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
-
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,71 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVDLS6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVDMEZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262530AbVDLS6I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 14:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVDLStU
+	id S262568AbVDMEZi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 00:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262573AbVDMEW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 14:49:20 -0400
-Received: from fire.osdl.org ([65.172.181.4]:9418 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262231AbVDLKcx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:53 -0400
-Message-Id: <200504121032.j3CAWbRa005637@shell0.pdx.osdl.net>
-Subject: [patch 125/198] AYSNC IO using singals other than SIGIO
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, bramesh@vt.edu,
-       roland@redhat.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:32:30 -0700
+	Wed, 13 Apr 2005 00:22:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:47755 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262568AbVDMES6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 00:18:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N0jxKZCRFhPerZU369Hh6qDvnk2mlKdaoDK5KE4dH3jNPeaaukegWBhiflUya4Vt1WS00MHX6tb/IQOuO5D6uNoHiv2Rn3UxnkCXWuWD4hrUsdi4kwGMJAyMtUSNrKfjjbt6YeZLwwIOlq0HAaEabnDDY5tPZrdXCPjyjDtgiNY=
+Message-ID: <2cd57c9005041221186002c876@mail.gmail.com>
+Date: Wed, 13 Apr 2005 12:18:54 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: "akpm@osdl.org" <akpm@osdl.org>
+Subject: Re: [patch 006/198] arm: add comment about max_low_pfn/max_pfn
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk,
+       rmk@arm.linux.org.uk
+In-Reply-To: <2cd57c900504122010430af248@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200504121030.j3CAUie5005135@shell0.pdx.osdl.net>
+	 <2cd57c900504122010430af248@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+FYI
+http://lkml.org/lkml/2004/6/29/57
 
-From: Bharath Ramesh <bramesh@vt.edu>
+On 4/13/05, Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> I told rmk about this long time ago.
+> 
+> On 4/12/05, akpm@osdl.org <akpm@osdl.org> wrote:
+> >
+> > From: Russell King <rmk+lkml@arm.linux.org.uk>
+> >
+> > Oddly, max_low_pfn/max_pfn end up being the number of pages in the system,
+> > rather than the maximum PFN on ARM.  This doesn't seem to cause any problems,
+> > so just add a note about it.
+> >
+> > Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+> > Signed-off-by: Andrew Morton <akpm@osdl.org>
+> > ---
+> >
+> >  25-akpm/arch/arm/mm/init.c |    3 +++
+> >  1 files changed, 3 insertions(+)
+> >
+> > diff -puN arch/arm/mm/init.c~arm-add-comment-about-max_low_pfn-max_pfn arch/arm/mm/init.c
+> > --- 25/arch/arm/mm/init.c~arm-add-comment-about-max_low_pfn-max_pfn     2005-04-12 03:21:04.967381744 -0700
+> > +++ 25-akpm/arch/arm/mm/init.c  2005-04-12 03:21:04.971381136 -0700
+> > @@ -223,6 +223,9 @@ find_memend_and_nodes(struct meminfo *mi
+> >          * This doesn't seem to be used by the Linux memory
+> >          * manager any more.  If we can get rid of it, we
+> >          * also get rid of some of the stuff above as well.
+> > +        *
+> > +        * Note: max_low_pfn and max_pfn reflect the number
+> > +        * of _pages_ in the system, not the maximum PFN.
+> >          */
+> >         max_low_pfn = memend_pfn - O_PFN_DOWN(PHYS_OFFSET);
+> >         max_pfn = memend_pfn - O_PFN_DOWN(PHYS_OFFSET);
+> > _
+> 
+> --
+> Coywolf Qi Hunt
+> http://sosdg.org/~coywolf/
+> 
 
-A question on sigwaitinfo based IO mechanism in multithreaded applications.
 
-I am trying to use RT signals to notify me of IO events using RT signals
-instead of SIGIO in a multithreaded applications.  I noticed that there was
-some discussion on lkml during november 1999 with the subject of the
-discussion as "Signal driven IO".  In the thread I noticed that RT signals
-were being delivered to the worker thread.  I am running 2.6.10 kernel and
-I am trying to use the very same mechanism and I find that only SIGIO being
-propogated to the worker threads and RT signals only being propogated to
-the main thread and not the worker threads where I actually want them to be
-propogated too.  On further inspection I found that the following patch
-which I have attached solves the problem.
-
-I am not sure if this is a bug or feature in the kernel.
-
-
-Roland McGrath <roland@redhat.com> said:
-
-This relates only to fcntl F_SETSIG, which is a Linux extension.  So there is
-no POSIX issue.  When changing various things like the normal SIGIO signalling
-to do group signals, I was concerned strictly with the POSIX semantics and
-generally avoided touching things in the domain of Linux inventions.  That's
-why I didn't change this when I changed the call right next to it.  There is
-no reason I can see that F_SETSIG-requested signals shouldn't use a group
-signal like normal SIGIO does.  I'm happy to ACK this patch, there is nothing
-wrong with its change to the semantics in my book.  But neither POSIX nor I
-care a whit what F_SETSIG does.
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/fs/fcntl.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN fs/fcntl.c~async-io-using-rt-signals fs/fcntl.c
---- 25/fs/fcntl.c~async-io-using-rt-signals	2005-04-12 03:21:33.611027248 -0700
-+++ 25-akpm/fs/fcntl.c	2005-04-12 03:21:33.614026792 -0700
-@@ -437,7 +437,7 @@ static void send_sigio_to_task(struct ta
- 			else
- 				si.si_band = band_table[reason - POLL_IN];
- 			si.si_fd    = fd;
--			if (!send_sig_info(fown->signum, &si, p))
-+			if (!send_group_sig_info(fown->signum, &si, p))
- 				break;
- 		/* fall-through: fall back on the old plain SIGIO signal */
- 		case 0:
-_
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

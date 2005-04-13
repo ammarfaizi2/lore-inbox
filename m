@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVDLUOo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262873AbVDMBGQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262144AbVDLUOo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 16:14:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVDLUNS
+	id S262873AbVDMBGQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 21:06:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262866AbVDMBFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:13:18 -0400
-Received: from fire.osdl.org ([65.172.181.4]:29640 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262144AbVDLKbe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:34 -0400
-Message-Id: <200504121030.j3CAUnoP005159@shell0.pdx.osdl.net>
-Subject: [patch 012/198] fix Bug 4395: modprobe bttv freezes the computer
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, js@linuxtv.org
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:30:43 -0700
+	Tue, 12 Apr 2005 21:05:41 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:4462 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262852AbVDMBDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 21:03:52 -0400
+Message-ID: <425C6FF0.6010808@yahoo.com.au>
+Date: Wed, 13 Apr 2005 11:03:44 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: axboe@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: [patch 2/9] mempool gfp flag
+References: <425BC262.1070500@yahoo.com.au>	<425BC3B0.7020707@yahoo.com.au> <20050412125025.6890b2d7.akpm@osdl.org>
+In-Reply-To: <20050412125025.6890b2d7.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
 
-From: Johannes Stezenbach <js@linuxtv.org>
+>> Index: linux-2.6/include/linux/gfp.h
+>> ===================================================================
+>> --- linux-2.6.orig/include/linux/gfp.h	2005-04-12 22:26:10.000000000 +1000
+>> +++ linux-2.6/include/linux/gfp.h	2005-04-12 22:26:11.000000000 +1000
+>> @@ -38,14 +38,16 @@ struct vm_area_struct;
+>>  #define __GFP_NO_GROW	0x2000u	/* Slab internal usage */
+>>  #define __GFP_COMP	0x4000u	/* Add compound page metadata */
+>>  #define __GFP_ZERO	0x8000u	/* Return zeroed page on success */
+>> +#define __GFP_MEMPOOL	0x10000u/* Mempool allocation */
+> 
+> 
+> I think I'll rename this to "__GFP_NOMEMALLOC".  Things other then mempool
+> might want to use this.
+> 
 
-Fix http://bugme.osdl.org/show_bug.cgi?id=4395.
+Sure, I wasn't set on GFP_MEMPOOL.
 
-Patch by Manu Abraham and Gerd Knorr:
 
-Remove redundant bttv_reset_audio() which caused the computer to freeze
-with some bt8xx based DVB cards when loading the bttv driver.
+-- 
+SUSE Labs, Novell Inc.
 
-Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/drivers/media/video/bttv-cards.c |    2 --
- 1 files changed, 2 deletions(-)
-
-diff -puN drivers/media/video/bttv-cards.c~fix-bug-4395-modprobe-bttv-freezes-the-computer drivers/media/video/bttv-cards.c
---- 25/drivers/media/video/bttv-cards.c~fix-bug-4395-modprobe-bttv-freezes-the-computer	2005-04-12 03:21:06.348171832 -0700
-+++ 25-akpm/drivers/media/video/bttv-cards.c	2005-04-12 03:21:06.354170920 -0700
-@@ -2785,8 +2785,6 @@ void __devinit bttv_init_card2(struct bt
-         }
- 	btv->pll.pll_current = -1;
- 
--	bttv_reset_audio(btv);
--
- 	/* tuner configuration (from card list / autodetect / insmod option) */
-  	if (UNSET != bttv_tvcards[btv->c.type].tuner_type)
- 		if(UNSET == btv->tuner_type)
-_

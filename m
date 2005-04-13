@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262838AbVDMBhh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVDMBmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262838AbVDMBhh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 21:37:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbVDMBfg
+	id S262720AbVDMBmE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 21:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVDMBiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 21:35:36 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:38097 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262931AbVDMBcA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 21:32:00 -0400
-Date: Tue, 12 Apr 2005 18:32:14 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm2
-Message-ID: <20050413013214.GJ1367@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050408030835.4941cd98.akpm@osdl.org> <20050410224834.GK4204@stusta.de> <20050411151832.GA1301@us.ibm.com> <20050413003604.GH3631@stusta.de>
+	Tue, 12 Apr 2005 21:38:13 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:45273 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S262720AbVDMBed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 21:34:33 -0400
+Date: Tue, 12 Apr 2005 18:04:47 -0700
+From: Libor Michalek <libor@topspin.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [openib-general] Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-ID: <20050412180447.E6958@topspin.com>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com> <20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com> <20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com> <20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com> <20050411171347.7e05859f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050413003604.GH3631@stusta.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050411171347.7e05859f.akpm@osdl.org>; from akpm@osdl.org on Mon, Apr 11, 2005 at 05:13:47PM -0700
+X-OriginalArrivalTime: 13 Apr 2005 01:04:48.0357 (UTC) FILETIME=[C9E93150:01C53FC4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 02:36:04AM +0200, Adrian Bunk wrote:
-> On Mon, Apr 11, 2005 at 08:18:32AM -0700, Paul E. McKenney wrote:
-> > On Mon, Apr 11, 2005 at 12:48:34AM +0200, Adrian Bunk wrote:
-> > > kernel-rcupdatec-make-the-exports-export_symbol_gpl.patch
-> > > add-deprecated_for_modules.patch
-> > > add-deprecated_for_modules-fix.patch
-> > > deprecate-synchronize_kernel-gpl-replacement.patch
-> > > deprecate-synchronize_kernel-gpl-replacement-fix.patch
-> > > change-synchronize_kernel-to-_rcu-and-_sched.patch
-> > > 
-> > > 
-> > > Please drop these patches.
+On Mon, Apr 11, 2005 at 05:13:47PM -0700, Andrew Morton wrote:
+> Roland Dreier <roland@topspin.com> wrote:
+> >
+> >     Troy> Do we even need the mlock in userspace then?
 > > 
-> > Please keep them!
-> > 
-> > > Using these symbols in non-GPL modules is a legal problem at least in 
-> > > the USA except for IBM,
-> > 
-> > Again, based on what line of reasoning?  Again, the obvious lines
-> > of reasoning do not apply.
-> 
-> Shouldn't the IBM patents be enough reason to prevent everyone except 
-> IBM from using RCU in non-GPL modules?
+> > Yes, because the kernel may go through and unmap pages from userspace
+> > while trying to swap.  Since we have the page locked in the kernel,
+> > the physical page won't go anywhere, but userspace might end up with a
+> > different page mapped at the same virtual address.
 
-Not necessarily, at least according to the lawyers that I talk to.
+With the last few kernels I haven't had a chance to retest the problem
+that pushed us in the direction of using mlock. I will go back and do
+so with the latest kernel. Below I've given a quick description of the
+issue.
 
-> > >                         and all we've heard from IBM is that they are 
-> > > not 100% sure that there is really no binary-only module by IBM that 
-> > > might use these symbols.
-> > 
-> > >From my earlier message (http://lkml.org/lkml/2005/4/4/244):
-> > 
-> > 	Agreed, in that I know of no binary module that uses RCU.  However,
-> > 	I cannot -prove- that there is no such module.
-> > 
-> > IOW, I am also not 100% sure that there is really no binary-only module
-> > using these symbols by -anyone-, including someone -other- than IBM.
-> > In addition, I know of no way that -anyone- could possibly be 100% sure
-> > that there is really no binary-only module using symbols.  Hence the
-> > approach of providing the year "grace period" before transitioning to
-> > EXPORT_SYMBOL_GPL().
-> >...
+> That shouldn't happen.  If get_user_pages() has elevated the refcount on a
+> page then the following can happen:
 > 
-> If kernel development was based on the assumption that every change that 
-> might break binary-only modules would need a one year "grace period", it 
-> was much different from how it's today...
+> - The VM may decide to add the page to swapcache (if it's not mmapped
+>   from a file).
+> 
+> - Once the page is backed by either swapcache of a (mmapped) file, the VM
+>   may decide the unmap the application's pte's.  A later minor fault by the
+>   app will cause the same physical page to be remapped.
 
-This is not "every change", but a specific change, and a rather unusual
-one at that.
+The driver did use get_user_pages() to elevated the refcount on all the
+pages it was going to use for IO, as well as call set_page_dirty() since
+the pages were going to have data written to them from the device.
 
-							Thanx, Paul
+The problem we were seeing is that the minor fault by the app resulted
+in a new physical page getting mapped for the application. The page that
+had the elevated refcount was still waiting for the data to be written
+to by the driver at the time that the app accessed the page causing the
+minor fault. Obviously since the app had a new mapping the data written
+by the driver was lost.
 
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
-> 
-> 
+It looks like code was added to try_to_unmap_one() to address this, so
+hopefully it's no longer an issue...
+
+
+-Libor

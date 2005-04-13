@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVDMTdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVDMTjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVDMTdL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVDMTdH
+	id S261216AbVDMTjm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVDMTjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:33:07 -0400
-Received: from fire.osdl.org ([65.172.181.4]:42181 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261255AbVDMTcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:32:48 -0400
-Date: Wed, 13 Apr 2005 12:32:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roland Dreier <roland@topspin.com>
-Cc: mst@mellanox.co.il, libor@topspin.com, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-Message-Id: <20050413123230.7a18dff5.akpm@osdl.org>
-In-Reply-To: <52sm1upm4s.fsf@topspin.com>
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org>
-	<52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org>
-	<5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org>
-	<52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org>
-	<521x9gyhe7.fsf@topspin.com>
-	<20050412182357.GA24047@mellanox.co.il>
-	<52sm1upm4s.fsf@topspin.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 13 Apr 2005 15:39:42 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:14300 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261216AbVDMTjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 15:39:25 -0400
+Date: Wed, 13 Apr 2005 15:39:24 -0400
+To: aeriksson@fastmail.fm
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DVD writer and IDE support...
+Message-ID: <20050413193924.GN521@csclub.uwaterloo.ca>
+References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org> <20050413183722.GQ17865@csclub.uwaterloo.ca> <20050413190756.54474240480@latitude.mynet.no-ip.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050413190756.54474240480@latitude.mynet.no-ip.org>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier <roland@topspin.com> wrote:
->
-> OK, I'm by no means an expert on this, but Libor and I looked at
-> rmap.c a little more, and there is code:
-> 
-> 	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
-> 			ptep_clear_flush_young(vma, address, pte)) {
-> 		ret = SWAP_FAIL;
-> 		goto out_unmap;
-> 	}
-> 
-> before the check
-> 
-> 	if (PageSwapCache(page) &&
-> 	    page_count(page) != page_mapcount(page) + 2) {
-> 		ret = SWAP_FAIL;
-> 		goto out_unmap;
-> 	}
-> 
-> If userspace allocates some memory but doesn't touch it aside from
-> passing the address in to the kernel, which does get_user_pages(), the
-> PTE will be young in that first test, right?
+On Wed, Apr 13, 2005 at 09:07:56PM +0200, aeriksson@fastmail.fm wrote:
+> It's with 2.6.11.7
 
-If get_user_pages() was called with write=1, get_user_pages() will fault in
-a real page and yes, I guess it'll be pte_young.
+Probably close to the 2.6.11 kernel I run on Debian-pure64/sarge.
 
-If get_user_pages() was called with write=0, get_user_pages() will fault
-in a mapping of the zero page and we'd never get this far.
+> Dunno yet. What's the fastest way to dump a file to a (fs on) a blank 
+> 4.7 GB DVD RW? As I said this is not my home turf so I have to read 
+> up on the commands to use (I guess I'm not dd'ing an iso image to 
+> /dev/hdc...)
 
-> Does that mean that
-> the userspace mapping will be cleared and userspace will get a
-> different physical page if it faults that address back in? 
->
+growisofs -Z /dev/hdc -J -R /path/to/dir/with/less/than/4.5GB/of/files
 
-We won't try to unmap a page's ptes until that page has file-or-swapcache
-backing.
+That should do it.  To do scsi I suspect it would be /dev/sg0 or
+/dev/scd0.  I haven't actually tried burning in scsi emulation mode with
+these drives.
 
-If the pte is then cleared, a subsequent minor fault will reestablish the
-mapping to the same physical page.  A major fault cannot happen because the
-page was pinned by get_user_pages().
+growisofs is part of dvd+rw-tools.  It will autoformat the disc if
+needed.
 
+Len Sorensen

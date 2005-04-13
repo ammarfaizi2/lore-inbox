@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVDMM5Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVDMM7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVDMM5Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 08:57:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVDMM5Y
+	id S261331AbVDMM7j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 08:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVDMM7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 08:57:24 -0400
-Received: from cimice4.lam.cz ([212.71.168.94]:17810 "EHLO vagabond.light.src")
-	by vger.kernel.org with ESMTP id S261329AbVDMM5C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 08:57:02 -0400
-Date: Wed, 13 Apr 2005 14:56:09 +0200
-From: Jan Hudec <bulb@ucw.cz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jamie@shareable.org, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050413125609.GA9571@vagabond>
-References: <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu> <20050412171338.GA14633@mail.shareable.org> <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu>
+	Wed, 13 Apr 2005 08:59:30 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:65249 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261331AbVDMM7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 08:59:22 -0400
+Date: Wed, 13 Apr 2005 08:59:21 -0400
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: John M Collins <jmc@xisl.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Exploit in 2.6 kernels
+Message-ID: <20050413125921.GN17865@csclub.uwaterloo.ca>
+References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <425CEAC2.1050306@aitel.hist.no>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 13, 2005 at 11:47:46AM +0200, Helge Hafting wrote:
+> You're not.  Complain to nvidia - using both email and snailmail.
+> If everybody with such problems did that, chances are they see
+> the light someday. Oh, and complain to the guy handing out
+> nvidia cards like confetti, state your preference for some other
+> card.  Perhaps that is easier to achieve.
 
---UlVJffcvxoiEqYs2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+What card would you recomend to people?
 
-On Tue, Apr 12, 2005 at 21:08:25 +0200, Miklos Szeredi wrote:
-> > There was a thread a few months ago where file-as-directory was
-> > discussed extensively, after Namesys implemented it.  That's where the
-> > conversation on detachable mount points originated AFAIR.  It will
-> > probably happen at some point.
-> >=20
-> > A nice implemention of it in FUSE could push it along a bit :)
->=20
-> Aren't there some assumptions in VFS that currently make this
-> impossible?
+> Whats wrong with tainting?  It is just a message, telling you that
+> the kernel is unsupported.  In this case because you're running a
+> closed-source module.  The tainting message itself does not do
+> anything bad.  There is a way - which is to write an open nvidia
+> driver.  To do that, you'll need to get the specs out of nvidia or
+> figure it out by reverse-engineering some other nvidia driver. Either
+> approach is hard, so people generally find it cheaper to just buy
+> a supported card.
 
-I believe it's OK with VFS, but applications would be confused to death.
-Well, there really is one issue -- dentries have exactly one parent, so
-what do you do when opening a file with hardlinks as a directory? (In
-fact IIRC that is what lead to all the funny talk about mountpoints,
-since they don't have this limitation)
+It is becoming harder and harder to find supported cards it seems.
+Finding a card with decent 2D drivers for X can still be done, but 3D is
+just not really an option it seems.  Even 2D seems to be a problem on
+many cards if you don't use a binary only driver.
 
----------------------------------------------------------------------------=
-----
-						 Jan 'Bulb' Hudec <bulb@ucw.cz>
-
---UlVJffcvxoiEqYs2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCXRbpRel1vVwhjGURAsi3AJ9USd++As69//zvLLBsM9IZNwkbBACg6YsH
-rGRGEW5jvCgW3/ukGjsnLRM=
-=jGU7
------END PGP SIGNATURE-----
-
---UlVJffcvxoiEqYs2--
+Len Sorensen

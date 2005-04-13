@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVDMJOm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVDMJRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVDMJOm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 05:14:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDMJOm
+	id S261263AbVDMJRM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 05:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDMJRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 05:14:42 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:28899 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261152AbVDMJOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 05:14:39 -0400
-To: jamie@shareable.org
-CC: aia21@cam.ac.uk, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050412215220.GA23321@mail.shareable.org> (message from Jamie
-	Lokier on Tue, 12 Apr 2005 22:52:20 +0100)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <3S8oN-So-19@gated-at.bofh.it> <3S8oN-So-21@gated-at.bofh.it> <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk> <20050412215220.GA23321@mail.shareable.org>
-Message-Id: <E1DLdwo-0004SE-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 13 Apr 2005 11:14:10 +0200
+	Wed, 13 Apr 2005 05:17:12 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:10881 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261263AbVDMJRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 05:17:03 -0400
+Date: Wed, 13 Apr 2005 11:16:58 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Toon van der Pas <toon@hout.vanvergehaald.nl>
+cc: Marcin Dalecki <martin@dalecki.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bkbits.net is down
+In-Reply-To: <20050412211038.GB8530@hout.vanvergehaald.nl>
+Message-ID: <Pine.LNX.4.62.0504131115180.17432@numbat.sonytel.be>
+References: <20050412021723.26C855F7E9@work.bitmover.com>
+ <464c882425f31b7c294abc1d47c78b47@dalecki.de>
+ <Pine.LNX.4.62.0504121714360.2572@dragon.hyggekrogen.localhost>
+ <20050412211038.GB8530@hout.vanvergehaald.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > There are uses for both.  For example today I was updating the tar ball 
-> > which is used to create the var file system for a new chroot.  I certainly 
-> > want to see corretly setup owner/permissions when I look into that tar 
-> > ball using a FUSE fs...
+On Tue, 12 Apr 2005, Toon van der Pas wrote:
+> On Tue, Apr 12, 2005 at 05:19:34PM +0200, Jesper Juhl wrote:
+> > On Tue, 12 Apr 2005, Marcin Dalecki wrote:
+> > > On 2005-04-12, at 04:17, Larry McVoy wrote whatever...
+> > > Excuse me, but: who gives a damn shit?
+> > 
+> > Lots of people do; those who use bitkeeper, and even people (like me) who 
+> > don't use it to manage source but still use the info at bkbits.net to 
+> > track what patches got merged etc.
+> > 
+> > Ohh and by the way, Larry doesn't deserve comments like that. He's done a 
+> > lot of hard work for everyone here (not to mention spent a lot of money) 
+> > and he's provided an excellent tool. He deserves gratitude and respect, 
+> > not childish BS like the above.
 > 
-> If I'm updating a var filesystem for a new chroot, I'd need the
-> ability to chmod and chown things in that filesystem.  Does that work
-> as an ordinary user?
+> I agree wholeheartedly.
+> 
+> But... I think someone is trolling here.
+> I mean: who makes a spelling error in his own first name?  ;-)
 
-Yes, within UML for example. 
+I don't think so: both `c' and `t' are (different) ASCII-transcripts of the
+actual non-ASCII character that should have been there. Yes, UTF-8 to US-ASCII
+is lossy and imprecise ;-)
 
-I have a little project to imlement a "userloop" filesystem, which
-works just like "mount -o loop", but you don't need root privs.  This
-is really simple to do with FUSE and UML.
+Gr{oetje,eeting}s,
 
-I don't think that it's far feched, that in certain situations the
-user _does_ have the right (and usefulness) to do otherwise privileged
-filesystem operations.
+						Geert
 
-Miklos
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

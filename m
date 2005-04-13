@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVDMQOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVDMQP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVDMQOO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 12:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVDMQOO
+	id S261398AbVDMQP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 12:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVDMQP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 12:14:14 -0400
-Received: from mail.shareable.org ([81.29.64.88]:16545 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261339AbVDMQOE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 12:14:04 -0400
-Date: Wed, 13 Apr 2005 17:13:44 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: bulb@ucw.cz, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050413161344.GC12825@mail.shareable.org>
-References: <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu> <20050412171338.GA14633@mail.shareable.org> <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu> <20050413125609.GA9571@vagabond> <E1DLjTV-0004oO-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DLjTV-0004oO-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Apr 2005 12:15:56 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:62666 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261394AbVDMQPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 12:15:33 -0400
+Date: Wed, 13 Apr 2005 10:45:18 -0700
+From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
+Message-Id: <200504131745.j3DHjIVE017612@snoqualmie.dp.intel.com>
+To: ak@muc.de
+Subject: [patch] minor syctl fix in vsyscall_init
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> > > Aren't there some assumptions in VFS that currently make this
-> > > impossible?
-> > 
-> > I believe it's OK with VFS, but applications would be confused to death.
-> > Well, there really is one issue -- dentries have exactly one parent, so
-> > what do you do when opening a file with hardlinks as a directory? (In
-> > fact IIRC that is what lead to all the funny talk about mountpoints,
-> > since they don't have this limitation)
-> 
-> OK, that makes sense.
-> 
-> It would be quite interesting to see how applications react.  Maybe
-> I'll hack something up :)
 
-Look up the rather large linux-kernel & linux-fsdevel thread "silent
-semantic changes with reiser4" and it's followup threads, from last
-year.
+Andi,
 
-It's already been tried.  You will also find sensible ideas on what
-semantics it should have to do it properly.
+If CONFIG_SYCTL is not enabled then the x86-64 tree
+fails to build due to use of a symbol that is not 
+compiled in.  Don't bother compiling in the sysctl
+register call if not building with sysctl.  
 
--- Jamie
+matt
+
+Signed-off-by: Matt Tolentino <matthew.e.tolentino@intel.com>
+
+
+diff -urNp linux-2.6.12-rc2/arch/x86_64/kernel/vsyscall.c linux-2.6.12-rc2-m/arch/x86_64/kernel/vsyscall.c
+--- linux-2.6.12-rc2/arch/x86_64/kernel/vsyscall.c	2005-04-04 12:39:06.000000000 -0400
++++ linux-2.6.12-rc2-m/arch/x86_64/kernel/vsyscall.c	2005-04-13 09:28:47.000000000 -0400
+@@ -218,7 +218,9 @@ static int __init vsyscall_init(void)
+ 	BUG_ON((VSYSCALL_ADDR(0) != __fix_to_virt(VSYSCALL_FIRST_PAGE)));
+ 	map_vsyscall();
+ 	sysctl_vsyscall = 1;
++#ifdef CONFIG_SYSCTL
+ 	register_sysctl_table(kernel_root_table2, 0);
++#endif
+ 	return 0;
+ }
+ 

@@ -1,56 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVDMI77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVDMJDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVDMI77 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 04:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDMI76
+	id S261259AbVDMJDv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 05:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDMJDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 04:59:58 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:24234 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261262AbVDMI7z (ORCPT
+	Wed, 13 Apr 2005 05:03:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:12471 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261259AbVDMJDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 04:59:55 -0400
-Date: Wed, 13 Apr 2005 10:59:54 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: David Woodhouse <dwmw2@infradead.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
-Message-ID: <20050413085954.GA13251@pasky.ji.cz>
-References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz> <1113311256.20848.47.camel@hades.cambridge.redhat.com> <20050413094705.B1798@flint.arm.linux.org.uk>
+	Wed, 13 Apr 2005 05:03:48 -0400
+Date: Wed, 13 Apr 2005 02:02:46 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jani Jaakkola <jjaakkol@cs.Helsinki.FI>
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [PATCH] Fix reproducible SMP crash in security/keys/key.c
+Message-Id: <20050413020246.37e77feb.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0504122129510.3075@x40-4.cs.helsinki.fi>
+References: <Pine.LNX.4.58.0504122129510.3075@x40-4.cs.helsinki.fi>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050413094705.B1798@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Wed, Apr 13, 2005 at 10:47:05AM CEST, I got a letter
-where Russell King <rmk+lkml@arm.linux.org.uk> told me that...
-> On Tue, Apr 12, 2005 at 02:07:36PM +0100, David Woodhouse wrote:
-> > I'd suggest making it [index] big-endian to make sure the LE weenies don't
-> > forget to byteswap properly.
-> 
-> That's not a bad argument actually - especially as networking uses BE.
-> (and git is about networking, right?) 8)
+Jani Jaakkola <jjaakkol@cs.Helsinki.FI> wrote:
+>
+> SMP race handling is broken in key_user_lookup() in security/keys/key.c
 
-Theoretically, you are never supposed to share your index if you work in
-fully git environment. However, I offer some "base tarballs" which have
-the unpacked source as well as the .git directory, and I think you want
-the index there. Of course you can always regenerate it by
+This was fixed post-2.6.11.  Can you confirm that 2.6.12-rc2 works OK?
 
-	read-tree $(tree-id)
+This is the patch we used.  It should go into -stable if it's not already
+there.
 
-but I really don't want to (hey, dwmw got away with that too! ;-). It
-forces an additional out-of-order step you need to do before making use
-of your git for the first time.
 
-The NFS argument obviously seems perfectly valid to me too.  So, FWIW,
-I'm personally all for it, if someone gives me a patch.
+From: Alexander Nyberg <alexn@dsv.su.se>
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+I looked at some of the oops reports against keyrings, I think the problem
+is that the search isn't restarted after dropping the key_user_lock, *p
+will still be NULL when we get back to try_again and look through the tree.
+
+It looks like the intention was that the search start over from scratch.
+
+Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
+Cc: David Howells <dhowells@redhat.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ 25-akpm/security/keys/key.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN security/keys/key.c~race-against-parent-deletion-in-key_user_lookup security/keys/key.c
+--- 25/security/keys/key.c~race-against-parent-deletion-in-key_user_lookup	2005-03-10 00:38:38.000000000 -0800
++++ 25-akpm/security/keys/key.c	2005-03-10 00:38:38.000000000 -0800
+@@ -57,9 +57,10 @@ struct key_user *key_user_lookup(uid_t u
+ {
+ 	struct key_user *candidate = NULL, *user;
+ 	struct rb_node *parent = NULL;
+-	struct rb_node **p = &key_user_tree.rb_node;
++	struct rb_node **p;
+ 
+  try_again:
++	p = &key_user_tree.rb_node;
+ 	spin_lock(&key_user_lock);
+ 
+ 	/* search the tree for a user record with a matching UID */
+_
+

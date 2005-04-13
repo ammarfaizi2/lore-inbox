@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVDMXzD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVDMXzC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVDMXzD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 19:55:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVDMXxE
+	id S261250AbVDMXzC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 19:55:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVDMXxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 19:53:04 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:38408 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261243AbVDMXpl (ORCPT
+	Wed, 13 Apr 2005 19:53:20 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46988 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261245AbVDMXrY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 19:45:41 -0400
-Date: Wed, 13 Apr 2005 19:38:46 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Cc: jgarzik@pobox.com, davem@davemloft.net
-Subject: [patch 2.6.12-rc2 10/10] tg3: add support for bcm5752 rev a1
-Message-ID: <04132005193846.8893@laptop>
-In-Reply-To: <04132005193846.8835@laptop>
-User-Agent: PatchPost/0.1
+	Wed, 13 Apr 2005 19:47:24 -0400
+Date: Thu, 14 Apr 2005 01:46:02 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Andreas Steinmetz <ast@domdv.de>, rjw@sisk.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050413234602.GA10210@elf.ucw.cz>
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050413233904.GA31174@gondor.apana.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace existing ASIC_REV_5752 definition with ASIC_REV_5752_A0,
-and add definition for ASIC_REV_5752_A1. Then, add ASIC_REV_5752_A1
-to check for setting TG3_FLG2_5750_PLUS in tg3_get_invariants.
+On Čt 14-04-05 09:39:04, Herbert Xu wrote:
+> On Thu, Apr 14, 2005 at 01:24:31AM +0200, Pavel Machek wrote:
+> >
+> > > The ssh keys are *encrypted* in the swap when dmcrypt is used.
+> > > When the swap runs over dmcrypt all writes including those from
+> > > swsusp are encrypted.
+> > 
+> > Andreas is right. They are encrypted in swap, but they should not be
+> > there at all. And they are encrypted by key that is still available
+> > after resume. Bad.
+> 
+> The dmcrypt swap can only be unlocked by the user with a passphrase,
+> which is analogous to how you unlock your ssh private key stored
+> on the disk using a passphrase.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+Once more:
 
- drivers/net/tg3.c |    3 ++-
- drivers/net/tg3.h |    5 ++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+Andreas' implementation destroys the key during resume.
 
---- bcm5752-support/drivers/net/tg3.c.orig	2005-04-12 14:19:06.302429500 -0400
-+++ bcm5752-support/drivers/net/tg3.c	2005-04-12 14:17:50.963846711 -0400
-@@ -7929,7 +7929,8 @@ static int __devinit tg3_get_invariants(
- 	tp->pci_bist         = (cacheline_sz_reg >> 24) & 0xff;
- 
- 	if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5750 ||
--	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752)
-+	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752_A0 ||
-+	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752_A1)
- 		tp->tg3_flags2 |= TG3_FLG2_5750_PLUS;
- 
- 	if ((GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5705) ||
---- bcm5752-support/drivers/net/tg3.h.orig	2005-04-12 14:19:06.288431435 -0400
-+++ bcm5752-support/drivers/net/tg3.h	2005-04-12 14:17:50.981844223 -0400
-@@ -125,6 +125,8 @@
- #define  CHIPREV_ID_5750_A0		 0x4000
- #define  CHIPREV_ID_5750_A1		 0x4001
- #define  CHIPREV_ID_5750_A3		 0x4003
-+#define  CHIPREV_ID_5752_A0		 0x5000
-+#define  CHIPREV_ID_5752_A1		 0x6001
- #define  GET_ASIC_REV(CHIP_REV_ID)	((CHIP_REV_ID) >> 12)
- #define   ASIC_REV_5700			 0x07
- #define   ASIC_REV_5701			 0x00
-@@ -132,7 +134,8 @@
- #define   ASIC_REV_5704			 0x02
- #define   ASIC_REV_5705			 0x03
- #define   ASIC_REV_5750			 0x04
--#define   ASIC_REV_5752			 0x05
-+#define   ASIC_REV_5752_A0		 0x05
-+#define   ASIC_REV_5752_A1		 0x06
- #define  GET_CHIP_REV(CHIP_REV_ID)	((CHIP_REV_ID) >> 8)
- #define   CHIPREV_5700_AX		 0x70
- #define   CHIPREV_5700_BX		 0x71
+dm-crypt does not even know resume happened, so it can't destroy
+key. (And it would also render system useless).
+
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.

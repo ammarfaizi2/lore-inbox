@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVDMNWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVDMNYC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVDMNWa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 09:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVDMNWa
+	id S261344AbVDMNYC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 09:24:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVDMNYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 09:22:30 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35755 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261341AbVDMNW3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 09:22:29 -0400
-Date: Wed, 13 Apr 2005 15:22:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050413132206.GA16839@elf.ucw.cz>
-References: <4259B474.4040407@domdv.de> <20050411110822.GA10401@elf.ucw.cz> <425AA19F.6040802@domdv.de> <200504112257.39708.rjw@sisk.pl> <425BCA6E.8030408@domdv.de>
+	Wed, 13 Apr 2005 09:24:01 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:2023 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261344AbVDMNXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 09:23:09 -0400
+Date: Wed, 13 Apr 2005 09:23:08 -0400
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, John M Collins <jmc@xisl.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Exploit in 2.6 kernels
+Message-ID: <20050413132308.GP17865@csclub.uwaterloo.ca>
+References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no> <20050413125921.GN17865@csclub.uwaterloo.ca> <20050413130646.GF32354@marowsky-bree.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <425BCA6E.8030408@domdv.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050413130646.GF32354@marowsky-bree.de>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Here comes the next incarnation, this time against 2.6.12rc2.
-> Unfortunately only compile tested as 2.6.12rc2 happily oopses away
-> (vanilla from kernel.org, oops already sent to lkml).
+On Wed, Apr 13, 2005 at 03:06:46PM +0200, Lars Marowsky-Bree wrote:
+> On 2005-04-13T08:59:21, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
 > 
-> Please let me know if you want any further changes.
+> > It is becoming harder and harder to find supported cards it seems.
+> > Finding a card with decent 2D drivers for X can still be done, but 3D is
+> > just not really an option it seems.  Even 2D seems to be a problem on
+> > many cards if you don't use a binary only driver.
+> 
+> You are confusing the cause with the symptom.
 
-Applied (it is *not* going to make it into 2.6.12, and not sure about
-2.6.13, but it is in my local tree now. You had Kconfig and docs
-changes, too, can you retransmit them?
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+Graphics card companies don't realize they are hardware companies not
+software companies and that it is hardware they make their money from?
+Oh and they have too many lawyers?
+
+It seems to me that 2D graphics are a done deal, with no new inovation
+taking place.  Releasing programing specs for that part should be a no
+brainer.  If the nifty 3D routines are so important to keep secret from
+the other guys then well keep those.  Release the 2D programing specs!
+
+Len Sorensen

@@ -1,79 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVDMCZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVDMCcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbVDMCZL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 22:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVDLTot
+	id S262610AbVDMCcz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVDMC32
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:44:49 -0400
-Received: from fire.osdl.org ([65.172.181.4]:64200 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262177AbVDLKcC (ORCPT
+	Tue, 12 Apr 2005 22:29:28 -0400
+Received: from koto.vergenet.net ([210.128.90.7]:60371 "EHLO koto.vergenet.net")
+	by vger.kernel.org with ESMTP id S262176AbVDMC1V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:02 -0400
-Message-Id: <200504121031.j3CAVrBo005435@shell0.pdx.osdl.net>
-Subject: [patch 077/198] x86_64: Use a common function to find code segment bases
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:47 -0700
+	Tue, 12 Apr 2005 22:27:21 -0400
+Date: Wed, 13 Apr 2005 11:14:02 +0900
+From: Horms <horms@verge.net.au>
+To: George Anzinger <george@mvista.com>
+Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com, netdev@oss.sgi.com
+Subject: Re: [PATCH] Maintainers list update: linux-net -> netdev
+Message-ID: <20050413021400.GA1835@verge.net.au>
+Mail-Followup-To: George Anzinger <george@mvista.com>,
+	=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	schwidefsky@de.ibm.com, netdev@oss.sgi.com
+References: <20050412062027.GA1614@verge.net.au> <425C1E30.5060405@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425C1E30.5060405@mvista.com>
+X-Cluestick: seven
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 12, 2005 at 12:14:56PM -0700, George Anzinger wrote:
+> Horms wrote:
+> >
+> >Use netdev as the mailing list contact instead of the mostly dead
+> >linux-net list.
+> >
+> ~
+> > PHRAM MTD DRIVER
+> >@@ -1795,7 +1795,7 @@
+> > POSIX CLOCKS and TIMERS
+> > P:	George Anzinger
+> > M:	george@mvista.com
+> >-L:	linux-net@vger.kernel.org
+> >+L:	netdev@oss.sgi.com
+> > S:	Supported
+> > 
+> I don't really know about the rest of them, but I think this should be:
+> L: linux-kernel@vger.kernel.org
+> 
+> Least wise that is where I look...
 
-From: "Andi Kleen" <ak@suse.de>
+Yes, I was wondering about that one. Here is a patch that
+adds to my previous patch. Trivial to say the least. 
+I can re-diff the whole thing if that is more convenient.
 
-To avoid some code duplication.
+-- 
+Horms
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+POSIX CLOCKS and TIMERS disscussion is more appropriate
+on linux-kernel than linux-net. As suggested by the maintainer,
+George Anzinger.
 
- 25-akpm/arch/x86_64/mm/fault.c      |   12 +++++-------
- 25-akpm/include/asm-x86_64/ptrace.h |    5 +++++
- 2 files changed, 10 insertions(+), 7 deletions(-)
+Signed-off-by: Horms <horms@verge.net.au>
 
-diff -puN arch/x86_64/mm/fault.c~x86_64-use-a-common-function-to-find-code-segment-bases arch/x86_64/mm/fault.c
---- 25/arch/x86_64/mm/fault.c~x86_64-use-a-common-function-to-find-code-segment-bases	2005-04-12 03:21:21.786824800 -0700
-+++ 25-akpm/arch/x86_64/mm/fault.c	2005-04-12 03:21:21.790824192 -0700
-@@ -62,21 +62,19 @@ void bust_spinlocks(int yes)
- static noinline int is_prefetch(struct pt_regs *regs, unsigned long addr,
- 				unsigned long error_code)
- { 
--	unsigned char *instr = (unsigned char *)(regs->rip);
-+	unsigned char *instr;
- 	int scan_more = 1;
- 	int prefetch = 0; 
--	unsigned char *max_instr = instr + 15;
-+	unsigned char *max_instr;
+--- a/MAINTAINERS	2005-04-13 11:06:39.000000000 +0900
++++ b/MAINTAINERS	2005-04-13 11:07:04.000000000 +0900
+@@ -1795,7 +1795,7 @@
+ POSIX CLOCKS and TIMERS
+ P:	George Anzinger
+ M:	george@mvista.com
+-L:	linux-net@vger.kernel.org
++L:	linux-kernel@vger.kernel.org
+ S:	Supported
  
- 	/* If it was a exec fault ignore */
- 	if (error_code & (1<<4))
- 		return 0;
- 	
--	/* Code segments in LDT could have a non zero base. Don't check
--	   when that's possible */
--	if (regs->cs & (1<<2))
--		return 0;
-+	instr = (unsigned char *)convert_rip_to_linear(current, regs);
-+	max_instr = instr + 15;
- 
--	if ((regs->cs & 3) != 0 && regs->rip >= TASK_SIZE)
-+	if ((regs->cs & 3) != 0 && instr >= (unsigned char *)TASK_SIZE)
- 		return 0;
- 
- 	while (scan_more && instr < max_instr) { 
-diff -puN include/asm-x86_64/ptrace.h~x86_64-use-a-common-function-to-find-code-segment-bases include/asm-x86_64/ptrace.h
---- 25/include/asm-x86_64/ptrace.h~x86_64-use-a-common-function-to-find-code-segment-bases	2005-04-12 03:21:21.787824648 -0700
-+++ 25-akpm/include/asm-x86_64/ptrace.h	2005-04-12 03:21:21.790824192 -0700
-@@ -86,6 +86,11 @@ struct pt_regs {
- extern unsigned long profile_pc(struct pt_regs *regs);
- void signal_fault(struct pt_regs *regs, void __user *frame, char *where);
- 
-+struct task_struct;
-+
-+extern unsigned long
-+convert_rip_to_linear(struct task_struct *child, struct pt_regs *regs);
-+
- enum {
-         EF_CF   = 0x00000001,
-         EF_PF   = 0x00000004,
-_
+ PNP SUPPORT

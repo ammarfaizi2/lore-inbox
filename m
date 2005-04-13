@@ -1,86 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVDMR34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVDMRel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVDMR34 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 13:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVDMR3z
+	id S261168AbVDMRel (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 13:34:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVDMRel
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 13:29:55 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:46308 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261160AbVDMR3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 13:29:48 -0400
-To: jamie@shareable.org
-CC: aia21@cam.ac.uk, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050413170222.GJ12825@mail.shareable.org> (message from Jamie
-	Lokier on Wed, 13 Apr 2005 18:02:22 +0100)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk> <20050412215220.GA23321@mail.shareable.org> <E1DLdwo-0004SE-00@dorka.pomaz.szeredi.hu> <20050413170222.GJ12825@mail.shareable.org>
-Message-Id: <E1DLlgD-0004xe-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 13 Apr 2005 19:29:33 +0200
+	Wed, 13 Apr 2005 13:34:41 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62702 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261168AbVDMReh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 13:34:37 -0400
+Subject: RE: FUSYN and RT
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+In-Reply-To: <1113407200.4294.25.camel@localhost.localdomain>
+References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
+	 <1113352069.6388.39.camel@dhcp153.mvista.com>
+	 <1113407200.4294.25.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: MontaVista
+Message-Id: <1113413613.8183.15.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 13 Apr 2005 10:33:33 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have a little project to imlement a "userloop" filesystem, which
-> > works just like "mount -o loop", but you don't need root privs.  This
-> > is really simple to do with FUSE and UML.
+On Wed, 2005-04-13 at 08:46, Steven Rostedt wrote:
+> How hard would it be to use the RT mutex PI for the priority inheritance
+> for fusyn?  I only work with the RT mutex now and haven't looked at the
+> fusyn.  Maybe Ingo can make a separate PI system with its own API that
+> both the fusyn and RT mutex can use. This way the fusyn locks can still
+> be separate from the RT mutex locks but still work together. 
 > 
-> That would be a nice way to implement those rarely used old
-> filesystems that aren't really needed in the kernel source tree any
-> more, but which it would be nice to have access to as legacy
-> filesystem formats.
+> Basically can the fusyn work with the rt_mutex_waiter?  That's what I
+> would pull into its own subsystem.  Have another structure that would
+> reside in both the fusyn and RT mutex that would take over for the
+> current rt_mutex that is used in pi_setprio and task_blocks_on_lock in
+> rt.c.  So if both locks used the same PI system, then this should all be
+> cleared up. 
 > 
-> In other words, migrating old legacy filesystems out of the kernel
-> tree, into FUSE.
+> If this doesn't makes sense, or just confusing, I'll explain more :-)  
 
-Not much migration would be needed other than deleting from the
-current kernel.  As long as the lagacy filesystem exists in a kernel
-that has UML support it should just work.
+I've thought about this as an option, but when I first started this
+thread It seemed like the two could work independently, and safely which
+doesn't appear to be the case any more.
 
-> > I don't think that it's far feched, that in certain situations the
-> > user _does_ have the right (and usefulness) to do otherwise privileged
-> > filesystem operations.
-> 
-> It's really a matter of philosophy, as to whether the results of
-> stat() are just handy information for the user, or are always defined
-> to mean what you can/can't do with a file.
+The problems with pulling out the PI in the RT mutex are that
+pi_setprio() does a walk over lock->owner and we're got two different
+lock structures now . I was thinking we could add something like
+lock_ops (get_owner(), wait_list_add(), wait_list_del(), ?? ) to
+rt_mutex_waiter, or abstract rt_lock. Then pi_setprio would just use the
+lock_ops instead of accessing a structure .. 
 
-Yes, this is the very heart of the conflict between my and your
-(Christoph's, etc) view.
+I've only gone over the Fusyn code briefly , so I'm assuming all this
+could be added.  I think it's a safe assumption though .
 
-I argue for more flexibilty, i.e. less policy in kernel, which is a
-good thing generally.  
+Daniel
 
-As long as it's secure, what is the problem with it?  If users are
-confused, then they will chose the strict mode.  If somebody would
-like to see more information in the filesystem, they use the relaxed
-mode.
-
-The key here is security IMO.  So if you find a security problem with
-the relaxed mode (together with "hiding") then I bow my head.
-
-Otherwise who cares if it confuses applications (haven't met any) or
-users.  It doensn't matter.  If it confuses anything or anyone, the
-filesystem writer can fix it.
-
-> Local-ssh-into-UML makes more sense for this in some ways, because the
-> uids/gids inside your tgz files or foreign loop filesystems are not
-> related to the space of uids/gids of the host system.
-
-Ssh into UML is awkward, because you don't necessary have all the
-tools installed, have networking, etc.  And in UML the uid/gid won't
-make any more sense either.
-
-> Yet, the results from stat() don't distinguish the number spaces,
-> and "ls" doesn't map the numbers to names properly in the wrong
-> space.
-
-Well you can use "ls -n".  It's up to the tools to present the
-information you want in the way you want it.  If a tool can't do that,
-tough, but you are not worse off than if the information is not
-available _at_all_.
-
-Thanks,
-Miklos

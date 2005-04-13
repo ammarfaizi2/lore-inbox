@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVDMTPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVDMTR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVDMTPP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVDMTPP
+	id S261224AbVDMTR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:17:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVDMTRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:15:15 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:53172 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261225AbVDMTNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:13:41 -0400
-Date: Wed, 13 Apr 2005 21:13:39 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
-Message-ID: <20050413191339.GD25711@pasky.ji.cz>
-References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz> <20050413103521.D1798@flint.arm.linux.org.uk> <20050413200307.B19329@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050413200307.B19329@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	Wed, 13 Apr 2005 15:17:13 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:63716 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261224AbVDMTQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 15:16:58 -0400
+To: jamie@shareable.org
+CC: aia21@cam.ac.uk, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050413183651.GA15334@mail.shareable.org> (message from Jamie
+	Lokier on Wed, 13 Apr 2005 19:36:51 +0100)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk> <20050412215220.GA23321@mail.shareable.org> <E1DLdwo-0004SE-00@dorka.pomaz.szeredi.hu> <20050413170222.GJ12825@mail.shareable.org> <E1DLlgD-0004xe-00@dorka.pomaz.szeredi.hu> <20050413183651.GA15334@mail.shareable.org>
+Message-Id: <E1DLnLp-00054j-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 13 Apr 2005 21:16:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Wed, Apr 13, 2005 at 09:03:07PM CEST, I got a letter
-where Russell King <rmk+lkml@arm.linux.org.uk> told me that...
-> On Wed, Apr 13, 2005 at 10:35:21AM +0100, Russell King wrote:
-> > I tried this today, applied my patch for BE<->LE conversions and
-> > glibc-2.2 compatibility (attached, still requires cleaning though),
-> > and then tried git pull.  Umm, whoops.
+> > > Yet, the results from stat() don't distinguish the number spaces,
+> > > and "ls" doesn't map the numbers to names properly in the wrong
+> > > space.
+> > 
+> > Well you can use "ls -n".  It's up to the tools to present the
+> > information you want in the way you want it.  If a tool can't do that,
+> > tough, but you are not worse off than if the information is not
+> > available _at_all_.
 > 
-> Here's an updated patch which allows me to work with a BE-based
-> cache.  I've just used this to grab and checkout sparse.git.
-> 
-> Note: it also fixes my glibc-2.2 build problem with the nsec
-> stat64 structures (see read-cache.c).
-> 
-> --- cache.h
-> +++ cache.h	Wed Apr 13 11:23:39 2005
-> @@ -14,6 +14,12 @@
->  #include <openssl/sha.h>
->  #include <zlib.h>
->  
-> +#include <netinet/in.h>
-> +#define cpu_to_beuint(x)	(htonl(x))
-> +#define beuint_to_cpu(x)	(ntohl(x))
-> +#define cpu_to_beushort(x)	(htons(x))
-> +#define beushort_to_cpu(x)	(ntohs(x))
-> +
->  /*
->   * Basic data structures for the directory cache
->   *
+> Well, how do you currently provide access to the information that's
+> not presentable through stat()?
 
-What do the wrapper macros gain us?
+Obviously I don't.  However that's hardly an argument for providing
+even less information.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-98% of the time I am right. Why worry about the other 3%.
+And stat() btw pretty much covers what information there is to present
+for network filesystems and archives, since there _is_ a real
+filesystem where the information originated from (though sometimes
+it's not a UNIX type of filesystem, in which case there has to be some
+mapping of the info).
+
+Miklos

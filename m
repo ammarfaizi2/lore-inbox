@@ -1,65 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262632AbVDMBty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVDMBtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262632AbVDMBty (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 21:49:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbVDMBqo
+	id S262163AbVDMBtz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 21:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVDMBsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 21:46:44 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:9316 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262931AbVDMBqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 21:46:04 -0400
-Message-ID: <425C79D0.4010007@yahoo.com.au>
-Date: Wed, 13 Apr 2005 11:45:52 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: "'Jens Axboe'" <axboe@suse.de>, Claudio Martins <ctpm@rnl.ist.utl.pt>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: Processes stuck on D state on Dual Opteron
-References: <200504121833.j3CIXLg12005@unix-os.sc.intel.com>
-In-Reply-To: <200504121833.j3CIXLg12005@unix-os.sc.intel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Apr 2005 21:48:10 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:28325 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262625AbVDMBms (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 21:42:48 -0400
+Subject: RE: [PATCH 1/6]sep initializing rework
+From: Li Shaohua <shaohua.li@intel.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       Len Brown <len.brown@intel.com>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Ryan Harper <ryanh@us.ibm.com>,
+       hotplug_sig@lists.osdl.org, Joel Schopp <jschopp@austin.ibm.com>,
+       Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@suse.de>
+In-Reply-To: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04AB0@USRV-EXCH4.na.uis.unisys.com>
+References: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04AB0@USRV-EXCH4.na.uis.unisys.com>
+Content-Type: text/plain
+Message-Id: <1113356358.7148.27.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 13 Apr 2005 09:39:19 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> Nick Piggin wrote on Tuesday, April 12, 2005 4:09 AM
-> 
->>Chen, Kenneth W wrote:
->>
->>>I like the patch a lot and already did bench it on our db setup.  However,
->>>I'm seeing a negative regression compare to a very very crappy patch (see
->>>attached, you can laugh at me for doing things like that :-).
->>
->>OK - if we go that way, perhaps the following patch may be the
->>way to do it.
-> 
-> 
-> OK, if you are going to do it that way, then the ioc_batching code in get_request
-> has to be reworked.  We never push the queue so hard that it kicks itself into the
-> batching mode.  However, calls to get_io_context and put_io_context are unconditional
-> in that function.  Execution profile shows that these two little functions actually
-> consumed lots of cpu cycles.
-> 
-> AFAICS, ioc_*batching() is trying to push more requests onto the queue that is full
-> (or near full) and give high priority to the process that hits the last req slot.
-> Why do we need to go all the way to tsk->io_context to keep track of that state?
-> For a clean up bonus, I think the tracking can be moved into the queue structure.
-> 
+On Wed, 2005-04-13 at 01:57, Protasevich, Natalie wrote:
+> Hello,
+> This is a hotplug CPU patch for i386, done against 2.6.12-rc2-mm3.
+> Somewhat alternative to the one posted by Li Shaohua, but not really
+> (and I didn't mean that :). If you look closer, our patches are
+> different and can complement each other I think. Li did great job on
+> sep, after-offline cleanup, __devinit etc., and I have some radical
+> changes in the AP bringup mechanism. I left alone __init to __devinit
+> part (I was going through it lately, but I think even though I had few
+> more than Li did, he covered it sufficiently perhaps). I started
+> having
+> doubts in free_initmem() vs __devinit because look how many of
+> __init's
+> left! just a few :). 
+Looks quite smart, but people will argue it will keep all __init
+sections in this way. I'd like we keep the default behavior of __init. 
 
-OK - well it is no different to what you had before these patches, so
-probably future work would be seperate patches.
+> I got rid of do_boot_cpu loop in smpboot.c because
+> the loop
+> static void __init smp_init(void)
+> {
+>         unsigned int i;
+> 
+>         /* FIXME: This should be done in userspace --RR */
+>         for_each_present_cpu(i) {
+>                 if (num_online_cpus() >= max_cpus)
+>                         break;
+>                 if (!cpu_online(i))
+>                         cpu_up(i);
+>         }
+> ...
+> does it again so why leave it in smpboot.c to boot AP's twice. 
+This is what IA64 does. In this way, you must clean up the bogomips
+message, TSC synchronization. And CPU_UP could be called in user
+context, so fork_idle possibly should be in workqueue. And please make
+sure it doesn't break other things like check_nmi_watchdog. I just
+select an easy way (add smp_prepare_cpu) and it doesn't break anything. 
 
-get_io_context can probably be reworked. For example, it is only called
-with the current thread, so it probably doesn't need to increment the
-refcount, as most users are only using it process context... all users
-in ll_rw_blk.c, anyway.
+> I also
+> found that my system fails sooner or later when I try not to synch
+> runtime booted processor with others, so I changed tsc synchronization
+> to only sync between booting CPU and the one that boots it. 
+IA64 also does like this. It synchronizes one AP's ITC against BP's one
+time. But in IA32, TSC's upper 32 bits can be written only on prescott
+and above. In earlier CPU, upper 32 bits will become 0 after any write.
 
--- 
-SUSE Labs, Novell Inc.
+> The patch
+> works for me on Intel 8x generic box, and on ES7000. I was asked to
+> separate my patch into smaller ones by the theme, but I'm posting the
+> entire patch for now, because I think it is probably not the final
+> one.
+> I think (I hope) I will sync up with Li later on.
+> My idea was that if we find a CPU core in ACPI (enabled or disabled),
+> we
+> encounter for it in sibling map and create a sysfs node accordingly,
+> and
+> cpu_possible_map will reflect that. We take processors up/down
+> depending
+> on physical presence using the existing node. That's the scenario
+> implemented on ES7000 that reports all possible cores in ACPI marking
+> absent processors as disabled. Runtime enablement/disablement depends
+> on
+> sysfs only and the driving agent can be anything (ACPI or user) that
+> triggers sysfs node for this processor.
+You possibly can refer to IA64's implementation. The goal of my patches
+are to support suspend/resume, which actually doesn't really hotremove a
+CPU, so I just ignored the sysfs/ACPI issues.
+
+Thanks,
+Shaohua
+
+> 
+> -----Original Message-----
+> From: Zwane Mwaikambo [mailto:zwane@arm.linux.org.uk] 
+> Sent: Tuesday, April 12, 2005 6:08 AM
+> To: Li Shaohua
+> Cc: lkml; ACPI-DEV; Len Brown; Pavel Machek; Andrew Morton;
+> Protasevich,
+> Natalie; Ryan Harper
+> Subject: Re: [PATCH 1/6]sep initializing rework
+> 
+> Hello Shaohua,
+> 
+> On Tue, 12 Apr 2005, Li Shaohua wrote:
+> 
+> > These patches (together with 5 patches followed this one) are
+> updated 
+> > suspend/resume SMP patches. The patches fixed some bugs and do clean
+> > up as suggested. Now they work for both suspend-to-ram and
+> suspend-to-disk.
+> > Patches are against 2.6.12-rc2-mm3.
+> 
+> These patches look good and i think we should go ahead with them. I've
+> also cross checked with physical hotplug cpu patches for ES7xxx from
+> Natalie (added to Cc) and it does indeed look like a lot of the code
+> will work for her too, but i'd appreciate it if she also does a double
+> check. 
+> Obviously this won't work for other upcoming users of hotplug cpu like
+> Xen (Ryan added to Cc) but i think we can abstract things later on to
+> cover other special users.
+> 
+> Thanks Shaohua,
+>         Zwane
+> 
 

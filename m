@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVDMO6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVDMO67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVDMO6U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 10:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVDMO6T
+	id S261360AbVDMO67 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 10:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVDMO67
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 10:58:19 -0400
-Received: from fire.osdl.org ([65.172.181.4]:55725 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261339AbVDMO6E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 10:58:04 -0400
-Date: Wed, 13 Apr 2005 07:59:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Petr Baudis <pasky@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
-In-Reply-To: <1113403661.20848.144.camel@hades.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.58.0504130757530.4501@ppc970.osdl.org>
-References: <20050409200709.GC3451@pasky.ji.cz>  <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-  <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> 
- <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>  <20050410024157.GE3451@pasky.ji.cz>
- <20050410162723.GC26537@pasky.ji.cz>  <20050411015852.GI5902@pasky.ji.cz>
- <20050411135758.GA3524@pasky.ji.cz>  <1113311256.20848.47.camel@hades.cambridge.redhat.com>
-  <20050413094705.B1798@flint.arm.linux.org.uk>  <20050413085954.GA13251@pasky.ji.cz>
-  <1113384304.12012.166.camel@baythorne.infradead.org> 
- <Pine.LNX.4.58.0504130732230.4501@ppc970.osdl.org>
- <1113403661.20848.144.camel@hades.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Apr 2005 10:58:59 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:30166 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261360AbVDMO6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 10:58:51 -0400
+Date: Wed, 13 Apr 2005 15:58:46 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
+	<7eggert@gmx.de>
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] sound/oss/rme96xx.c: fix two check after use
+Message-ID: <20050413145846.GA10017@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" <7eggert@gmx.de>,
+	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Adrian Bunk <bunk@stusta.de>
+References: <3SGgN-41r-1@gated-at.bofh.it> <3SGA8-4n3-9@gated-at.bofh.it> <E1DLfIV-0000pl-Fa@be1.7eggert.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DLfIV-0000pl-Fa@be1.7eggert.dyndns.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 13, 2005 at 12:40:38PM +0200, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
+> If there are checks, they should be there for a purpose,
 
+emphasis here is on _should_
 
-On Wed, 13 Apr 2005, David Woodhouse wrote:
-> 
-> > In other words, that index file simply _cannot_ be shared. Don't even
-> > think about it. Only madness will ensue.
-> 
-> If I use git in my home directory I cannot _help_ but share it.
-> Sometimes I'm using it from a BE box, sometimes from a LE box. Should I
-> really be forced to use separate checkouts for each type of machine?
+> and any sane reader will asume these checks to be nescensary.
 
-Now, that kind of "private sharing" should certainly be ok. In fact, the 
-only locking there is (doing the ".git/index.lock" thing around any 
-updates and erroring out if it already exists) was somewhat designed for 
-that. So making it use BE data (preferred just because then you can use 
-the existing htonl() etc helpers in user space) would work. 
+That's a bad assumptions when you're deadling with drivers or software of
+similar quality.
 
-As long as people don't think this means anything else... It really is a 
-private file.
+> If they are dead code, you
+> can say that, but please don't flame Adrian for fixing obviously buggy code
+> in a way that is sane and at least more correct than the original without
+> using several days of his lifetime to analyze the whole driver. Instead, you
+> could provide the correct fix.
 
-		Linus
+The correct fix is to remove the check.  And no, we don't have a rule that
+someone must provide something better when trying to critize it.

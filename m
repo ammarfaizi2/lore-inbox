@@ -1,56 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVDMCZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVDMCgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbVDMCZK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 22:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVDLToL
+	id S262176AbVDMCgp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVDMCgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:44:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:64968 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262179AbVDLKcD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:03 -0400
-Message-Id: <200504121031.j3CAVwPc005459@shell0.pdx.osdl.net>
-Subject: [patch 083/198] x86_64: Fix a small missing schedule race 
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:51 -0700
+	Tue, 12 Apr 2005 22:36:38 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12520 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262310AbVDMCfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 22:35:07 -0400
+Date: Wed, 13 Apr 2005 03:35:06 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] sound/oss/cs46xx.c: fix a check after use
+Message-ID: <20050413023506.GQ8859@parcelfarce.linux.theplanet.co.uk>
+References: <20050413021739.GS3631@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050413021739.GS3631@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Apr 13, 2005 at 04:17:39AM +0200, Adrian Bunk wrote:
+> This patch fixes a check after use found by the Coverity checker.
 
-From: "Andi Kleen" <ak@suse.de>
-
-Could lead to a lost reschedule event when the process already rescheduled on
-exception exit, and needs it again while still being in the kernel.  Unlikely
-case though.
-
-Also remove one redundant cli in another entry.S path.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/x86_64/kernel/entry.S |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/x86_64/kernel/entry.S~x86_64-fix-a-small-missing-schedule-race arch/x86_64/kernel/entry.S
---- 25/arch/x86_64/kernel/entry.S~x86_64-fix-a-small-missing-schedule-race	2005-04-12 03:21:23.062630848 -0700
-+++ 25-akpm/arch/x86_64/kernel/entry.S	2005-04-12 03:21:23.066630240 -0700
-@@ -284,6 +284,7 @@ int_careful:
- 	pushq %rdi
- 	call schedule
- 	popq %rdi
-+	cli
- 	jmp int_with_check
- 
- 	/* handle signals and tracing -- both require a full stack frame */
-@@ -453,7 +454,6 @@ retint_check:			
- 	andl %edi,%edx
- 	jnz  retint_careful
- retint_swapgs:	 	
--	cli
- 	swapgs 
- retint_restore_args:				
- 	cli
-_
+NAK.  Please, read the surrounding code.  All places that can call
+that function have form
+	<expression>->amplifier_ctrl(<same expression>,...);
+so we _can't_ get NULL first argument.  The check should be removed -
+it's not paranoia, it's simple stupidity.

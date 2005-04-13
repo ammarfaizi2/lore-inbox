@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVDMA0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVDMAWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVDMA0r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 20:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVDLUUn
+	id S262959AbVDMAWg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVDMAVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 16:20:43 -0400
-Received: from fire.osdl.org ([65.172.181.4]:22472 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262132AbVDLKb2 (ORCPT
+	Tue, 12 Apr 2005 20:21:23 -0400
+Received: from fire.osdl.org ([65.172.181.4]:19362 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262123AbVDMASG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:28 -0400
-Message-Id: <200504121031.j3CAVHpM005280@shell0.pdx.osdl.net>
-Subject: [patch 039/198] ppc32: Make the Powerstack II Pro4000 boot again
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, leigh@solinno.co.uk
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:11 -0700
+	Tue, 12 Apr 2005 20:18:06 -0400
+Date: Tue, 12 Apr 2005 17:18:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Joel Becker <Joel.Becker@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hangcheck-timer: Update to 0.9.0.
+Message-Id: <20050412171801.444df4bc.akpm@osdl.org>
+In-Reply-To: <20050412235033.GI31163@ca-server1.us.oracle.com>
+References: <20050412235033.GI31163@ca-server1.us.oracle.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joel Becker <Joel.Becker@oracle.com> wrote:
+>
+> +#if defined(__i386__) || defined(__x86_64__)
+> +# define HAVE_MONOTONIC
+> +# define TIMER_FREQ 1000000000ULL
+> +#elif defined(__s390__)
+> +/* FA240000 is 1 Second in the IBM time universe (Page 4-38 Principles of Op for zSeries */
+> +# define TIMER_FREQ 0xFA240000ULL
+> +#elif defined(__ia64__)
+> +# define TIMER_FREQ ((unsigned long long)local_cpu_data->itc_freq)
+> +#elif defined(__powerpc64__)
+> +# define TIMER_FREQ (HZ*loops_per_jiffy)
+> +#endif  /* __s390__ */
 
-From: "Leigh Brown" <leigh@solinno.co.uk>
+It's not very important, but it would be a bit more conventional to use
+CONFIG_X86, CONFIG_ARCH_S390, CONFIG_IA64 and CONFIG_PPC64 for those cases
+where such an ifdef is to be used.
 
-This patch restores the original behaviour of prep_pcibios_fixup() to only
-call prep_pib_init() on machines with an openpic.  This allows the
-Powerstack II Pro4000 to boot again.
+In the above case specifically, no ifdefs should be needed - you can simply
+define CONFIG_HANGCHECK_TIMER_FREQ in arch/*/Kconfig.
 
-Signed-off-by: Leigh Brown <leigh@solinno.co.uk>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/ppc/platforms/prep_pci.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
-diff -puN arch/ppc/platforms/prep_pci.c~ppc32-make-the-powerstack-ii-pro4000-boot-again arch/ppc/platforms/prep_pci.c
---- 25/arch/ppc/platforms/prep_pci.c~ppc32-make-the-powerstack-ii-pro4000-boot-again	2005-04-12 03:21:12.719203288 -0700
-+++ 25-akpm/arch/ppc/platforms/prep_pci.c	2005-04-12 03:21:12.722202832 -0700
-@@ -1245,8 +1245,13 @@ prep_pcibios_fixup(void)
- 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
- 	}
- 
--	/* Setup the Winbond or Via PIB */
--	prep_pib_init();
-+	/* Setup the Winbond or Via PIB - prep_pib_init() is coded for
-+	 * the non-openpic case, but it breaks (at least) the Utah
-+	 * (Powerstack II Pro4000), so only call it if we have an
-+	 * openpic.
-+	 */
-+	if (have_openpic)
-+		prep_pib_init();
- }
- 
- static void __init
-_

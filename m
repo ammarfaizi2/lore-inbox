@@ -1,60 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVDMV7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVDMWC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVDMV7j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 17:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVDMV7j
+	id S261206AbVDMWC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 18:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVDMWC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 17:59:39 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:40188 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S261201AbVDMV71 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 17:59:27 -0400
-Message-ID: <425D963C.5030202@latinsud.com>
-Date: Wed, 13 Apr 2005 23:59:24 +0200
-From: "SuD (Alex)" <sud@latinsud.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OSS] Add CXT48 to modem black list in ac97
-References: <E1DInEA-0006md-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1DInEA-0006md-00@gondolin.me.apana.org.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Apr 2005 18:02:58 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:9173 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261206AbVDMWCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 18:02:51 -0400
+Date: Wed, 13 Apr 2005 15:02:43 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: pc300@cyclades.com, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PC300 pci_enable_device fix
+Message-ID: <20050413150243.A26360@unix-os.sc.intel.com>
+References: <1113427903.21308.3.camel@eeyore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1113427903.21308.3.camel@eeyore>; from bjorn.helgaas@hp.com on Wed, Apr 13, 2005 at 02:31:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
+On Wed, Apr 13, 2005 at 02:31:43PM -0700, Bjorn Helgaas wrote:
+> 
+>    Call pci_enable_device() before looking at IRQ and resources.
+>    The driver requires this fix or the "pci=routeirq" workaround
+>    on 2.6.10 and later kernels.
 
->BTW Alex, if you have the time please determine whether ALSA
->works properly on your machine.
->  
->
-Yes, alsa works, it's what i'm using now.
 
-About how alsa detects the hardware, i have been reading some sources
-and didn't get the whole point, but some facts:
-- In intel8x0.c:
-    In snd_intel8x0_probe() there is a call to snd_intel8x0_mixer().
-    In that function it does: ac97.scaps = AC97_SCAP_SKIP_MODEM;
+the failure cases dont seem to worry about pci_disable_device()?
 
-- In intel8x0.c:
-    In snd_intel8x0m_probe() there is a call to snd_intel8x0_mixer().
-    In that function it does: ac97.scaps = AC97_SCAP_SKIP_AUDIO;
+in err_release_ram: etc?
 
-- After that is done, in ac97_codec.c:
-    http://lxr.linux.no/source/sound/pci/ac97/ac97_codec.c#L1921
-    It checks for _SKIP_ variables and probes for soundcard (checking a 
-mixer register) and modem (checking modem_id).
+> 
+>    Reported and tested by Artur Lipowski.
+> 
+>    Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> 
+>    ===== drivers/net/wan/pc300_drv.c 1.24 vs edited =====
+>    --- 1.24/drivers/net/wan/pc300_drv.c    2004-12-29 12:25:16 -07:00
+>    +++ edited/drivers/net/wan/pc300_drv.c  2005-04-13 13:35:21 -06:00
+>    @@ -3439,6 +3439,9 @@
+>     #endif
+>            }
+> 
+>    +       if ((err = pci_enable_device(pdev)) != 0)
+>    +               return err;
+>    +
+>            card = (pc300_t *) kmalloc(sizeof(pc300_t), GFP_KERNEL);
+>            if (card == NULL) {
+>                    printk("PC300 found at RAM 0x%08lx, "
+>    @@ -3526,9 +3529,6 @@
+>                    err = -ENODEV;
+>                    goto err_release_ram;
+>            }
+>    -
+>    -       if ((err = pci_enable_device(pdev)) != 0)
+>    -               goto err_release_sca;
+> 
+>                  card->hw.plxbase       =       ioremap(card->hw.plxphys,
+>    card->hw.plxsize);
+>                  card->hw.rambase       =       ioremap(card->hw.ramphys,
+>    card->hw.alloc_ramsize);
+> 
+>    -
+>    To   unsubscribe   from   this   list:   send  the  line  "unsubscribe
+>    linux-kernel" in
+>    the body of a message to majordomo@vger.kernel.org
+>    More majordomo info at  [1]http://vger.kernel.org/majordomo-info.html
+>    Please read the FAQ at  [2]http://www.tux.org/lkml/
+> 
+> References
+> 
+>    1. http://vger.kernel.org/majordomo-info.html
+>    2. http://www.tux.org/lkml/
 
-As a result, if i insert "snd-intel8x0" it will detect a soundcard (pci 
-0:0:1f.5), but if insert instead
-"snd-intel8x0M" it will detect a modem (pci 0:0:1f.6).
-If a modem is detected i get errors like: "MC'97 0 converters and GPIO 
-not ready (0x1)", and not sure how to test it.
-If i load both modules only the first will work. The second will give an 
-probe error -13 (EACCES?), because it has been marked as audio device, 
-but also marked as _SKIP_AUDIO (ac97_codec.c:1862), or viceversa.
-
-PS: And i finally subscribed to the list, thanks for your patience.
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

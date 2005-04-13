@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVDMLZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVDMLds@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVDMLZc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 07:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVDMLZc
+	id S261318AbVDMLds (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 07:33:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVDMLds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 07:25:32 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45454 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261317AbVDMLZO (ORCPT
+	Wed, 13 Apr 2005 07:33:48 -0400
+Received: from gate.crashing.org ([63.228.1.57]:56494 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261318AbVDMLdp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 07:25:14 -0400
-Date: Wed, 13 Apr 2005 13:24:52 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
-       dtor_core@ameritech.net, acpi-devel@lists.sourceforge.net
-Subject: Re: 2.6.11 acpi battery state readout as source of keyboard/touchpad troubles
-Message-ID: <20050413112452.GA21023@elf.ucw.cz>
-References: <424AF9C3.4000905@domdv.de>
+	Wed, 13 Apr 2005 07:33:45 -0400
+Subject: Re: Why system call need to copy the date from the userspace
+	before using it
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Tomko <tomko@haha.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <425C9E55.6010607@haha.com>
+References: <425C9E55.6010607@haha.com>
+Content-Type: text/plain
+Date: Wed, 13 Apr 2005 21:33:27 +1000
+Message-Id: <1113392007.5516.26.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <424AF9C3.4000905@domdv.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2005-04-13 at 12:21 +0800, Tomko wrote:
+> Hi all,
+> 
+> I am new to linux , hope someone can help me.
+> While i am reading the source code of the linux system call , i find 
+> that the system call need to call copy_from_user() to copy the data from 
+> user space to kernel space before using it . Why not use it directly as 
+> the system call has got the address ?  Furthermore , how to distinguish 
+> between user space and kernel space ?
 
-> In traceing the source of my sporadic synaptics touchpad troubles
-> 
-> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-> psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
-> 
-> and keyboard troubles (sporadically lost key up/down events) on an Acer
-> Aspire 1520 (x86_64, latest bios v1.09) I did enable the
-> report_lost_ticks option which did spit out stuff like the following at
-> regular intervals:
-> 
-> time.c: Lost 17 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-> time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-> time.c: Lost 18 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
-> 
-> This looked suspiciously like it happended when the the kde laptop
-> applet polled the battery status. So I did terminate the applet.
-> 
-> The result was no more lost ticks, no lost keyboard events and no more
-> lost touchpad sync.
-> 
-> To verify ACPI battery data as the source of trouble i did a simple
-> 
-> cat /proc/acpi/battery/BAT0/state
-...
+Well, there are more than one reason. But, in general, you always need
+to access user memory using specific accessors, like copy_to/from_user,
+get/put_user, etc... Some of these reasons are:
 
-CONFIG_ACPI_DEBUG enabled by chance?
-								Pavel
--- 
-Boycott Kodak -- for their patent abuse against Java.
+ - Userland can give you a bogus pointer. Doing a normal access from the
+kernel via a bogus pointer can lead to all sort of funny things, which
+you really do not want to happen. What if userland is giving a
+destination pointer to the kernel that points to ... the kernel itself
+or some of it's data structures ? that would be way to easy for userland
+to cause the kernel to crash if the kernel "trusted" pointers from
+userland. So one thing those functions do is to check the pointer to see
+if it's within valid userland memory bounds
+
+ - Even if within valid memory bounds, it may still be bogus, that is
+point to a page that is not mapped, or a destination pointer pointing to
+a read-only page, or all sort of other fault caused by accessing it.
+Those special access functions are designed to "recover" from there
+errors. Instead of the kernel crashing/Oops'ing because of the bad
+access, the kernel page fault handler will "notice" that the access
+comes from one of these special function and will do some black magic so
+that instead of crashing, the access function will just return with an
+error that can then be passed back to userspace (usually EFAULT).
+
+ - Some architectures don't have user and kernel memory mapped at the
+same time (think about x86 in 4G/4G mode for example). In that case,
+accessing user memory requires some specific memory management tricks
+that are architecture specific. Those functions take care of that.
+
+There may even be more I don't have in mind at the moment, but the above
+is already enough to justify having specific accessor functions for
+kernel code to access userland originated pointers.
+
+Ben.
+
+

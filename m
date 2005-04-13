@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVDMLvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVDMMAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVDMLvP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 07:51:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVDMLvP
+	id S261312AbVDMMAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 08:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVDMMAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 07:51:15 -0400
-Received: from mail.sysgo.com ([62.8.134.5]:62866 "EHLO mail.sysgo.com")
-	by vger.kernel.org with ESMTP id S261310AbVDMLu7 (ORCPT
+	Wed, 13 Apr 2005 08:00:09 -0400
+Received: from hacksaw.org ([66.92.70.107]:19670 "EHLO hacksaw.org")
+	by vger.kernel.org with ESMTP id S261312AbVDMMAE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 07:50:59 -0400
-From: Rolf Offermanns <roffermanns@sysgo.com>
-Organization: SYSGO AG
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: mmap + dma_alloc_coherent
-Date: Wed, 13 Apr 2005 13:51:52 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <200504131243.48694.roffermanns@sysgo.com> <20050413121937.A14087@flint.arm.linux.org.uk>
-In-Reply-To: <20050413121937.A14087@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200504131351.53105.roffermanns@sysgo.com>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 6.30.0.7; VDF: 6.30.0.92; host: mailgate2.sysgo.com)
+	Wed, 13 Apr 2005 08:00:04 -0400
+Message-Id: <200504131159.j3DBxsoa010918@hacksaw.org>
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.0.4
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Tomko <tomko@haha.com>, Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Why system call need to copy the date from the userspace before 
+ using it
+In-reply-to: Your message of "Wed, 13 Apr 2005 21:33:27 +1000."
+             <1113392007.5516.26.camel@gaston> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 13 Apr 2005 07:59:54 -0400
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 April 2005 13:19, Russell King wrote:
-> This has come up before.  ARM implements dma_mmap_*() to allow this
-> to happen, but it never got propagated to the other architectures.
-I know, this is why I referenced the other LKML threads. What keeps these 
-functions from being propagated to the other archs? Are there still 
-unresolved issues? (x86 not marking RAM pages reserved would be one I 
-assume)?
->
-> Here's the (untested) x86 version.  There may be a problem with
-> x86 not marking the pages reserved, which is required for
-> remap_pfn_range() to work.
+>>Why not use it directly
+>Some of these reasons are:
 
-So the fact that remap_pfn_range() does not work on pages allocated with 
-__get_free_pages() is an x86-only issue? Or is it by design?
+It seems like you gave reason why userland pointers shouldn't be trusted, not 
+why userland data should be copied into kernel land. All the problems you 
+mentioned would have to be solved by the kernel regardless of copying the data 
+around.
 
--Rolf
+Ummm... Except for the who's mapped now problem. That's pretty weird. I guess 
+that's something that comes with trying to use tons of RAM in a 32 bit system.
+
+I thought the big issue was the need to lock the page(s) during the call, and 
+maybe some tricky races which made the idea difficult.
 -- 
-Rolf Offermanns <roffermanns@sysgo.com>
-SYSGO AG     Tel.: +49-6136-9948-0
-Am Pfaffenstein 14   Fax: +49-6136-9948-10
-55270 Klein-Winternheim  http://www.sysgo.com
+The key is realizing the whole world is stupid and being happy anyway
+http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+
 

@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVDMK6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVDMLAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVDMK6k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 06:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVDMK6k
+	id S261304AbVDMLAy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 07:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVDMLAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 06:58:40 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:50475
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261291AbVDMK6i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 06:58:38 -0400
-Date: Wed, 13 Apr 2005 12:59:44 +0200
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Eger <eger@havoc.gtf.org>, Petr Baudis <pasky@ucw.cz>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: more git updates..
-Message-ID: <20050413105944.GN1521@opteron.random>
-References: <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org> <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org> <20050412234005.GJ1521@opteron.random> <Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org> <20050413001408.GL1521@opteron.random> <Pine.LNX.4.58.0504121809380.4501@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504121809380.4501@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Wed, 13 Apr 2005 07:00:54 -0400
+Received: from indonesia.procaptura.com ([193.214.130.21]:56734 "EHLO
+	indonesia.procaptura.com") by vger.kernel.org with ESMTP
+	id S261304AbVDMLAn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 07:00:43 -0400
+Message-ID: <425CFBDA.9040301@procaptura.com>
+Date: Wed, 13 Apr 2005 13:00:42 +0200
+From: Toralf Lund <toralf@procaptura.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: insmod segfault in pci_find_subsys()
+References: <423A9B65.1020103@procaptura.com> <20050318170709.GD14952@kroah.com> <42496309.3080007@procaptura.com> <20050413071233.GB25581@kroah.com>
+In-Reply-To: <20050413071233.GB25581@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 06:10:27PM -0700, Linus Torvalds wrote:
-> Go wild. I did mine in six days, and you've been whining about other 
-> peoples SCM's for three years.
+Greg KH wrote:
 
-Even if I spend 6 days doing git, you'd never have thrown away BK in
-exchange for git.
+>On Tue, Mar 29, 2005 at 04:15:37PM +0200, Toralf Lund wrote:
+>  
+>
+>>Greg KH wrote:
+>>
+>>    
+>>
+>>>On Fri, Mar 18, 2005 at 10:12:05AM +0100, Toralf Lund wrote:
+>>>
+>>>
+>>>      
+>>>
+>>>>Am I seeing an issue with the PCI functions here, or is it just that I 
+>>>>fail to spot an obvious mistake in the module itself?
+>>>>  
+>>>>
+>>>>        
+>>>>
+>>>I think it's a problem in your code.  I built and ran the following
+>>>example module just fine (based on your example, which wasn't the
+>>>smallest or cleanest...), with no oops.  Does this code work for you?
+>>>
+>>>
+>>>      
+>>>
+>>OK, I've finally been able to test this, and no, it does not work. 
+>>insmod segfaults and the system log says
+>>
+>>kernel: Unable to handle kernel paging request at virtual address 533e3762
+>>    
+>>
+>
+>Then I think you have a broken build system or makefile or gcc.  It
+>works fine here.
+>  
+>
+Yes. You are right. I actually mentioned this on a different thread: I 
+eventually found out that the kernel was compiled with -mregparam=3, and 
+the module was not. This option seems to have been added to the default 
+config and/or Red Hat's build setup sometime before the current kernel 
+release, but after the start of the 2.6 series...
 
-> In other words - go and _do_ something instead of whining. I'm not 
-> interested.
+- Toralf
 
-CVS and SVN are already an order of magnitude more efficient than git at
-storing and exporting the data and they shouldn't annoy you during the
-checkins either, they have a backend much more efficient than git too,
-and yet you seem not to care about them.
-
-My suggestion was simply to at least change git to coalesce the diffs
-like CVS/SCCS, I'm only making a suggestion to give git a chance to have
-a backend at least as efficient as the one that CVS uses and to avoid
-running rsync on a 2.8G uncompressible blob. I don't have enough spare
-time to do something myself, my spare time would be too short anyway to
-make a difference in SCM space, so I'd rather spend it all in more
-innovative space where it might have a slight change to make a
-difference.

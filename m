@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262124AbVDMAiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262077AbVDMAhI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262124AbVDMAiH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 20:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVDMAhl
+	id S262077AbVDMAhI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:37:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVDMAem
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 20:37:41 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30992 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262124AbVDMAgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 20:36:07 -0400
-Date: Wed, 13 Apr 2005 02:36:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm2
-Message-ID: <20050413003604.GH3631@stusta.de>
-References: <20050408030835.4941cd98.akpm@osdl.org> <20050410224834.GK4204@stusta.de> <20050411151832.GA1301@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050411151832.GA1301@us.ibm.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Tue, 12 Apr 2005 20:34:42 -0400
+Received: from arhont4.eclipse.co.uk ([81.168.98.124]:7578 "EHLO
+	mail.arhont.com") by vger.kernel.org with ESMTP id S263039AbVDMAbj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 20:31:39 -0400
+Message-ID: <425C6865.5030306@arhont.com>
+Date: Wed, 13 Apr 2005 01:31:33 +0100
+From: "Konstantin V. Gavrilenko" <mlists@arhont.com>
+Reply-To: kos@arhont.com
+Organization: Arhont Ltd. - Information Security
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: uml wouldn't link/compile with UDF
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=KOI8-R
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 11, 2005 at 08:18:32AM -0700, Paul E. McKenney wrote:
-> On Mon, Apr 11, 2005 at 12:48:34AM +0200, Adrian Bunk wrote:
-> > kernel-rcupdatec-make-the-exports-export_symbol_gpl.patch
-> > add-deprecated_for_modules.patch
-> > add-deprecated_for_modules-fix.patch
-> > deprecate-synchronize_kernel-gpl-replacement.patch
-> > deprecate-synchronize_kernel-gpl-replacement-fix.patch
-> > change-synchronize_kernel-to-_rcu-and-_sched.patch
-> > 
-> > 
-> > Please drop these patches.
-> 
-> Please keep them!
-> 
-> > Using these symbols in non-GPL modules is a legal problem at least in 
-> > the USA except for IBM,
-> 
-> Again, based on what line of reasoning?  Again, the obvious lines
-> of reasoning do not apply.
+linux-2.6.11.6.6
 
-Shouldn't the IBM patents be enough reason to prevent everyone except 
-IBM from using RCU in non-GPL modules?
+The uml wouldn't compile when the
+CONFIG_UDF_FS=y
+CONFIG_UDF_NLS=y
 
-> >                         and all we've heard from IBM is that they are 
-> > not 100% sure that there is really no binary-only module by IBM that 
-> > might use these symbols.
-> 
-> >From my earlier message (http://lkml.org/lkml/2005/4/4/244):
-> 
-> 	Agreed, in that I know of no binary module that uses RCU.  However,
-> 	I cannot -prove- that there is no such module.
-> 
-> IOW, I am also not 100% sure that there is really no binary-only module
-> using these symbols by -anyone-, including someone -other- than IBM.
-> In addition, I know of no way that -anyone- could possibly be 100% sure
-> that there is really no binary-only module using symbols.  Hence the
-> approach of providing the year "grace period" before transitioning to
-> EXPORT_SYMBOL_GPL().
->...
 
-If kernel development was based on the assumption that every change that 
-might break binary-only modules would need a one year "grace period", it 
-was much different from how it's today...
 
-> 							Thanx, Paul
+The error output is:
 
-cu
-Adrian
+  LD      lib/zlib_deflate/built-in.o
+  LD      lib/zlib_inflate/built-in.o
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+/usr/lib/libc.a(mktime.o)(.rodata+0x0): multiple definition of `__mon_yday'
+fs/built-in.o(.rodata+0x3380): first defined here
+collect2: ld returned 1 exit status
+  KSYM    .tmp_kallsyms1.S
+nm: '.tmp_vmlinux1': No such file
+/bin/bash: line 1: 11859 Exit 1                  nm -n .tmp_vmlinux1
+     11860 Segmentation fault      | scripts/kallsyms >.tmp_kallsyms1.S
+make: *** [.tmp_kallsyms1.S] Error 139
+
+
+
+usetting the UDF options solves the issue.
+
 
 -- 
+Respectfully,
+Konstantin V. Gavrilenko
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Arhont Ltd - Information Security
 
+web:    http://www.arhont.com
+	http://www.wi-foo.com
+e-mail: k.gavrilenko@arhont.com
+
+tel: +44 (0) 870 44 31337
+fax: +44 (0) 117 969 0141
+
+PGP: Key ID - 0x4F3608F7
+PGP: Server - keyserver.pgp.com

@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVDMOlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVDMOld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVDMOlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 10:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVDMOlt
+	id S261340AbVDMOld (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 10:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVDMOlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 10:41:49 -0400
-Received: from fire.osdl.org ([65.172.181.4]:3495 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261267AbVDMOll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 10:41:41 -0400
-Date: Wed, 13 Apr 2005 07:43:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Andrea Arcangeli <andrea@suse.de>, David Eger <eger@havoc.gtf.org>,
-       Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: more git updates..
-In-Reply-To: <20050413103052.C1798@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0504130739400.4501@ppc970.osdl.org>
-References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
- <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org>
- <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org>
- <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org> <20050412234005.GJ1521@opteron.random>
- <Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org> <20050413103052.C1798@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Apr 2005 10:41:32 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:26765 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261340AbVDMOl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 10:41:26 -0400
+Date: Wed, 13 Apr 2005 10:41:26 -0400
+To: Eric Rannaud <eric.rannaud@ens.fr>
+Cc: John M Collins <jmc@xisl.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Exploit in 2.6 kernels
+Message-ID: <20050413144126.GK521@csclub.uwaterloo.ca>
+References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <20050413130230.GO17865@csclub.uwaterloo.ca> <1113402388.5914.12.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1113402388.5914.12.camel@localhost>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 13 Apr 2005, Russell King wrote:
+On Wed, Apr 13, 2005 at 09:26:28AM -0500, Eric Rannaud wrote:
+> On Wed, 2005-04-13 at 09:02 -0400, Lennart Sorensen wrote:
+> > modprobe nvidia || m-a -t prepare nvidia && m-a -t build nvidia && m-a -t install nvidia && modprobe nvidia
 > 
-> And my entire 2.6.12-rc2 BK tree, unchecked out, is about 220MB, which
-> is more dense than CVS.
+> Something along the lines of:
+> modprobe nvidia || sh NVIDIA-Linux-x86-1.0-6629-pkg1.run -s -f --no-network && modprobe nvidia
 > 
-> BK is also a lot better than CVS.  So _your_ point is?
+> should work on any distribution (it runs NVIDIA installer silently).
+> (see sh NVIDIA-Linux-x86-1.0-6629-pkg1.run --advanced-options)
 
-Hey, anybody who wants to argue that BK is getter than GIT won't be 
-getting any counter-arguments from me.
+It will work on most.  Some don't like where the nvidia installer dumps
+it files in some cases.  Certainly doesn't work on every amd64 system
+since they can't agree where 64bit libs should go yet.
 
-The fact is, I have constraints. Like needing something to work within a
-few days. If somebody comes up with a ultra-fast, replicatable, space
-efficient SCM in three days, I'm all over it. 
+It also violates my principles more than using binary only drivers does.
+All files in /usr (except /usr/local) _must_ be installed by one package
+management tool.  No excaptions allowed.  I haven't had to reinstall for
+6 years, so I am sticking with my principles.
 
-In the meantime, I'd suggest people who worry about network bandwidth try 
-to work out a synchronization protocol that allows you to send "diff 
-updates" between git repositories. The git model doesn't preclude looking 
-at the objects and sending diffs instead (and re-creating the objects on 
-the other side). But my time-constraints _do_.
-
-		Linus
+Len Sorensen

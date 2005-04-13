@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262500AbVDMDLz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVDMDPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262500AbVDMDLz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 23:11:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVDLTdG
+	id S262184AbVDMDPS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 23:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVDMDMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:33:06 -0400
-Received: from fire.osdl.org ([65.172.181.4]:7881 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262188AbVDLKcN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:13 -0400
-Message-Id: <200504121032.j3CAW17m005475@shell0.pdx.osdl.net>
-Subject: [patch 087/198] x86_64: Don't assume future AMD CPUs have K8 compatible performance counters
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:55 -0700
+	Tue, 12 Apr 2005 23:12:20 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:23452 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262184AbVDMDKg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 23:10:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PJBj1CzRSaa3FJ1Hral2FYbre7dooVT5lDvnvvsSdxrAZBSuk7KOpYy6zwQIwXMxUtrTRDvrpZRXlz3PZJwYB28OdGwN1QX5n5WrbRnA4GqoVk8KcGCHk/MLOkg5Q4IVpg/L7Pwr+7OfpfuE5GQUUoyOPak3XLtiGJwGD3eEP14=
+Message-ID: <2cd57c900504122010430af248@mail.gmail.com>
+Date: Wed, 13 Apr 2005 11:10:35 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
+To: "akpm@osdl.org" <akpm@osdl.org>
+Subject: Re: [patch 006/198] arm: add comment about max_low_pfn/max_pfn
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk,
+       rmk@arm.linux.org.uk
+In-Reply-To: <200504121030.j3CAUie5005135@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200504121030.j3CAUie5005135@shell0.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I told rmk about this long time ago.
 
-From: "Andi Kleen" <ak@suse.de>
+On 4/12/05, akpm@osdl.org <akpm@osdl.org> wrote:
+> 
+> From: Russell King <rmk+lkml@arm.linux.org.uk>
+> 
+> Oddly, max_low_pfn/max_pfn end up being the number of pages in the system,
+> rather than the maximum PFN on ARM.  This doesn't seem to cause any problems,
+> so just add a note about it.
+> 
+> Signed-off-by: Russell King <rmk@arm.linux.org.uk>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  25-akpm/arch/arm/mm/init.c |    3 +++
+>  1 files changed, 3 insertions(+)
+> 
+> diff -puN arch/arm/mm/init.c~arm-add-comment-about-max_low_pfn-max_pfn arch/arm/mm/init.c
+> --- 25/arch/arm/mm/init.c~arm-add-comment-about-max_low_pfn-max_pfn     2005-04-12 03:21:04.967381744 -0700
+> +++ 25-akpm/arch/arm/mm/init.c  2005-04-12 03:21:04.971381136 -0700
+> @@ -223,6 +223,9 @@ find_memend_and_nodes(struct meminfo *mi
+>          * This doesn't seem to be used by the Linux memory
+>          * manager any more.  If we can get rid of it, we
+>          * also get rid of some of the stuff above as well.
+> +        *
+> +        * Note: max_low_pfn and max_pfn reflect the number
+> +        * of _pages_ in the system, not the maximum PFN.
+>          */
+>         max_low_pfn = memend_pfn - O_PFN_DOWN(PHYS_OFFSET);
+>         max_pfn = memend_pfn - O_PFN_DOWN(PHYS_OFFSET);
+> _
 
-The NMI watchdog code did this incorrectly
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/x86_64/kernel/nmi.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -puN arch/x86_64/kernel/nmi.c~x86_64-dont-assume-future-amd-cpus-have-k8-compatible arch/x86_64/kernel/nmi.c
---- 25/arch/x86_64/kernel/nmi.c~x86_64-dont-assume-future-amd-cpus-have-k8-compatible	2005-04-12 03:21:23.910501952 -0700
-+++ 25-akpm/arch/x86_64/kernel/nmi.c	2005-04-12 03:21:23.913501496 -0700
-@@ -336,7 +336,7 @@ void setup_apic_nmi_watchdog(void)
- {
- 	switch (boot_cpu_data.x86_vendor) {
- 	case X86_VENDOR_AMD:
--		if (boot_cpu_data.x86 < 6)
-+		if (boot_cpu_data.x86 != 15)
- 			return;
- 		if (strstr(boot_cpu_data.x86_model_id, "Screwdriver"))
- 			return;
-_
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

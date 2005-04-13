@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbVDLTwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVDMCFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbVDLTwY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVDLTvV
+	id S262164AbVDMCFj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbVDMCCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:51:21 -0400
-Received: from fire.osdl.org ([65.172.181.4]:49096 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262167AbVDLKbw (ORCPT
+	Tue, 12 Apr 2005 22:02:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:27063 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263058AbVDMCBy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:31:52 -0400
-Message-Id: <200504121031.j3CAVmaW005411@shell0.pdx.osdl.net>
-Subject: [patch 071/198] x86_64 show_stack(): call touch_nmi_watchdog
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:42 -0700
+	Tue, 12 Apr 2005 22:01:54 -0400
+Date: Tue, 12 Apr 2005 19:01:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: joe.korty@ccur.com
+Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org
+Subject: Re: [PATCH] add EOWNERDEAD and ENOTRECOVERABLE
+Message-Id: <20050412190138.06a2021f.akpm@osdl.org>
+In-Reply-To: <20050412152318.GA2714@tsunami.ccur.com>
+References: <20050412152318.GA2714@tsunami.ccur.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joe Korty <joe.korty@ccur.com> wrote:
+>
+>   This patch adds EOWNERDEAD and ENOTRECOVERABLE to all
+>  architectures.  Though there is nothing in the kernel
+>  that uses them yet, I know of two patches in development,
+>  one by Intel and the other by Bull, that adds robust mutex
+>  support to pthread_mutex*.
 
+We normally have objections to reserving parts of the name/number space for
+external patches, but I think robust mutexes are sufficiently popular and
+important to justify us making your lives easier.
 
-I had strange NMI watchdog timeouts running sysrq-T across 9600-baud serial.
+Could you please reissue the patch, only add
 
+/* For robust mutexes */
 
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/x86_64/kernel/traps.c |    2 ++
- 1 files changed, 2 insertions(+)
-
-diff -puN arch/x86_64/kernel/traps.c~x86_64-show_stack-touch_nmi_watchdog arch/x86_64/kernel/traps.c
---- 25/arch/x86_64/kernel/traps.c~x86_64-show_stack-touch_nmi_watchdog	2005-04-12 03:21:20.429031216 -0700
-+++ 25-akpm/arch/x86_64/kernel/traps.c	2005-04-12 03:21:20.433030608 -0700
-@@ -28,6 +28,7 @@
- #include <linux/interrupt.h>
- #include <linux/module.h>
- #include <linux/moduleparam.h>
-+#include <linux/nmi.h>
- 
- #include <asm/system.h>
- #include <asm/uaccess.h>
-@@ -243,6 +244,7 @@ void show_stack(struct task_struct *tsk,
- 		if (i && ((i % 4) == 0))
- 			printk("\n       ");
- 		printk("%016lx ", *stack++);
-+		touch_nmi_watchdog();
- 	}
- 	show_trace((unsigned long *)rsp);
- }
-_
+in the appropriate places?  Otherwise someone will come in and try to clean
+it up again.

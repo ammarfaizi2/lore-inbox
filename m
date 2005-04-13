@@ -1,59 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVDMHpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVDMIBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262544AbVDMHpa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 03:45:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVDMHpZ
+	id S262538AbVDMIBh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 04:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbVDMIBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 03:45:25 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:58051 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262541AbVDMHpN (ORCPT
+	Wed, 13 Apr 2005 04:01:37 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38095 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262538AbVDMIBW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 03:45:13 -0400
-Date: Wed, 13 Apr 2005 09:45:10 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] new fifo I/O elevator that really does nothing at all
-Message-ID: <20050413074509.GF20044@suse.de>
-References: <7A4826DE8867D411BAB8009027AE9EB91DB47626@scsmsx401.amr.corp.intel.com> <200504121758.j3CHwQg11702@unix-os.sc.intel.com>
+	Wed, 13 Apr 2005 04:01:22 -0400
+Date: Wed, 13 Apr 2005 01:00:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Valdis.Kletnieks@vt.edu, Frank Sorenson <frank@tuxrocks.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/5] I8K driver facelift
+Message-ID: <20050413080035.GC25581@kroah.com>
+References: <200502240110.16521.dtor_core@ameritech.net> <200503170816.j2H8GOEV004208@turing-police.cc.vt.edu> <20050324072413.GK10604@kroah.com> <200504130133.32630.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200504121758.j3CHwQg11702@unix-os.sc.intel.com>
+In-Reply-To: <200504130133.32630.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12 2005, Chen, Kenneth W wrote:
-> Chen, Kenneth W wrote on Tuesday, April 05, 2005 5:13 PM
-> > Jens Axboe wrote on Tuesday, April 05, 2005 7:54 AM
-> > > On Tue, Mar 29 2005, Chen, Kenneth W wrote:
-> > > > Jens Axboe wrote on Tuesday, March 29, 2005 12:04 PM
-> > > > > No such promise was ever made, noop just means it does 'basically
-> > > > > nothing'. It never meant FIFO in anyway, we cannot break the semantics
-> > > > > of block layer commands just for the hell of it.
-> > > >
-> > > > Acknowledged and understood, will try your patch shortly.
-> > >
-> > > Did you test it?
+On Wed, Apr 13, 2005 at 01:33:31AM -0500, Dmitry Torokhov wrote:
+> On Thursday 24 March 2005 02:24, Greg KH wrote:
+> > On Thu, Mar 17, 2005 at 03:16:24AM -0500, Valdis.Kletnieks@vt.edu wrote:
+> > > On Wed, 16 Mar 2005 14:38:50 MST, Frank Sorenson said:
+> > > > Okay, I replaced the sysfs_ops with ops of my own, and now all the show
+> > > > and store functions also accept the name of the attribute as a parameter.
+> > > > This lets the functions know what attribute is being accessed, and allows
+> > > > us to create attributes that share show and store functions, so things
+> > > > don't need to be defined at compile time (I feel slightly evil!).
+> > > > 
+> > > > This patch puts the correct number of temp sensors and fans into sysfs,
+> > > > and only exposes power_status if enabled by the power_status module
+> > > > parameter.
+> > > 
+> > > Works for me:
+> > > 
+> > > [/sys/bus/platform/drivers/i8k/i8k]2 ls -l
+> > > total 0
+> > > lrwxrwxrwx  1 root root    0 Mar 17 03:02 bus -> ../../../bus/platform
+> > > -r--r--r--  1 root root 4096 Mar 17 03:02 cpu_temp
+> > > -rw-r--r--  1 root root 4096 Mar 17 03:01 detach_state
+> > > lrwxrwxrwx  1 root root    0 Mar 17 03:02 driver -> ../../../bus/platform/drivers/i8k
+> > > -r--r--r--  1 root root 4096 Mar 17 03:02 fan1_speed
+> > > -rw-r--r--  1 root root 4096 Mar 17 03:02 fan1_state
+> > > -r--r--r--  1 root root 4096 Mar 17 03:02 fan2_speed
+> > > -rw-r--r--  1 root root 4096 Mar 17 03:02 fan2_state
+> > > drwxr-xr-x  2 root root    0 Mar 17 03:02 power
+> > > -r--r--r--  1 root root 4096 Mar 17 03:02 power_status
+> > > -r--r--r--  1 root root 4096 Mar 17 03:02 temp1
+> > > -r--r--r--  1 root root 4096 Mar 17 03:02 temp2
+> > > 
+> > > The valyes of the fan* settings, and cpu_temp match what's reported in /proc/i8k.
+> > 
+> > Please match the same units and filename as the other i2c sensors.  See
+> > the documentation in the Documentation/i2c/ directory for what that
+> > standard is, so userspace programs will "just work" with your devices.
 > >
-> > Experiment is in the queue, should have a result in a day or two.
 > 
+> Greg,
 > 
-> Jens, your patch works!  We are seeing a little bit increase in
+> I almost started doing what you just said but then I realized that none of
+> the programs will "just work" because all of them will look into /sys/bus/i2c
+> instead of /sys/bus/platform/i8k.
+> 
+> For userspace tools to work transparently we would need something like
+> /sys/class/sensor/{fan|temp|current}, but it is something I am not ready to do
+> now - I need to finish input layer first.
 
-Super.
+The sensors developers are creating just such a class, see their hwmon
+patch in their email archive if you are curious.
 
-> indirect branch calls with your patch where our patch tries to remove
-> elevator_merge_fn() completely.  But the difference is all within
-> noise range.
+> So given above I think having private scheme for now is ok. Sooo... Can I get
+> my attributes goups patch in so I can use it in i8k, please?
 
-Yeah that is expected. Thanks for testing!
+Ick, no, use the upcoming hwmon stuff instead :)
 
-> If there is no other issues (I don't see any), we would like to see
-> this patch merged upstream.  Thanks.
+thanks,
 
-I will pass it along.
-
--- 
-Jens Axboe
-
+greg k-h

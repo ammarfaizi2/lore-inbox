@@ -1,34 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVDMCgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVDMCZJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVDMCgp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 22:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVDMCgi
+	id S262165AbVDMCZJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:25:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVDMCWw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 22:36:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12520 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262310AbVDMCfH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 22:35:07 -0400
-Date: Wed, 13 Apr 2005 03:35:06 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] sound/oss/cs46xx.c: fix a check after use
-Message-ID: <20050413023506.GQ8859@parcelfarce.linux.theplanet.co.uk>
-References: <20050413021739.GS3631@stusta.de>
+	Tue, 12 Apr 2005 22:22:52 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31761 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263056AbVDMCRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 22:17:37 -0400
+Date: Wed, 13 Apr 2005 04:17:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/pcmcia/nmclan_cs.c: fix a check after use
+Message-ID: <20050413021734.GQ3631@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050413021739.GS3631@stusta.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 04:17:39AM +0200, Adrian Bunk wrote:
-> This patch fixes a check after use found by the Coverity checker.
+This patch fixes a check after use found by the Coverity checker.
 
-NAK.  Please, read the surrounding code.  All places that can call
-that function have form
-	<expression>->amplifier_ctrl(<same expression>,...);
-so we _can't_ get NULL first argument.  The check should be removed -
-it's not paranoia, it's simple stupidity.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 27 Mar 2005
+
+--- linux-2.6.12-rc1-mm1-full/drivers/net/pcmcia/nmclan_cs.c.old	2005-03-23 05:04:00.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/drivers/net/pcmcia/nmclan_cs.c	2005-03-23 05:04:30.000000000 +0100
+@@ -1090,20 +1090,22 @@
+ ---------------------------------------------------------------------------- */
+ static irqreturn_t mace_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+   struct net_device *dev = (struct net_device *) dev_id;
+   mace_private *lp = netdev_priv(dev);
+-  kio_addr_t ioaddr = dev->base_addr;
++  kio_addr_t ioaddr;
+   int status;
+   int IntrCnt = MACE_MAX_IR_ITERATIONS;
+ 
+   if (dev == NULL) {
+     DEBUG(2, "mace_interrupt(): irq 0x%X for unknown device.\n",
+ 	  irq);
+     return IRQ_NONE;
+   }
+ 
++  ioaddr = dev->base_addr;
++
+   if (lp->tx_irq_disabled) {
+     printk(
+       (lp->tx_irq_disabled?
+        KERN_NOTICE "%s: Interrupt with tx_irq_disabled "
+        "[isr=%02X, imr=%02X]\n": 
+

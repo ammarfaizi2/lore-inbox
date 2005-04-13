@@ -1,92 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVDMTsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVDMTwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVDMTsy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDMTsx
+	id S261161AbVDMTwn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:52:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVDMTwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:48:53 -0400
-Received: from smtp.seznam.cz ([212.80.76.43]:45446 "HELO smtp.seznam.cz")
-	by vger.kernel.org with SMTP id S261174AbVDMTse (ORCPT
+	Wed, 13 Apr 2005 15:52:43 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:34041 "EHLO smtp6.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261161AbVDMTwl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:48:34 -0400
-Date: Wed, 13 Apr 2005 21:48:42 +0200
-To: James Chapman <jchapman@katalix.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] ds1337 4/4
-Message-ID: <20050413194842.GA13177@orphique>
-References: <20050407231904.GE27226@orphique> <FxPJVIPZ.1112958526.4787880.khali@localhost> <20050408123545.GA4961@orphique> <4256C315.3000902@katalix.com> <20050410195120.GA5422@linux-mips.org> <20050410231006.0469a472.khali@linux-fr.org> <425C0F2F.2000807@katalix.com> <20050413110413.GA30618@orphique> <425D6CDD.3000004@katalix.com>
+	Wed, 13 Apr 2005 15:52:41 -0400
+X-ME-UUID: 20050413195240881.D733B2400120@mwinf0609.wanadoo.fr
+Date: Wed, 13 Apr 2005 21:47:13 +0200
+To: Marco Colombo <marco@esi.it>
+Cc: Sven Luther <sven.luther@wanadoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050413194713.GB29327@pegasos>
+References: <1113235942.11475.547.camel@frodo.esi> <20050411162514.GA11404@pegasos> <1113252891.11475.620.camel@frodo.esi> <20050411210754.GA11759@pegasos> <Pine.LNX.4.61.0504120034490.27766@Megathlon.ESI> <20050412054002.GB22393@pegasos> <Pine.LNX.4.61.0504121458010.31686@Megathlon.ESI> <20050412184545.GB18557@pegasos> <1113404036.12421.83.camel@frodo.esi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <425D6CDD.3000004@katalix.com>
+In-Reply-To: <1113404036.12421.83.camel@frodo.esi>
 User-Agent: Mutt/1.5.6+20040907i
-From: Ladislav Michl <ladis@linux-mips.org>
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 08:02:53PM +0100, James Chapman wrote:
-> Ladislav Michl wrote:
-[snip]
-> >Patch bellow remove ds1337_do_command function and things needed by it.
-> >I think device should be identified by bus and address as Jean said.
-> >Please let me know if that fits your needs.
+On Wed, Apr 13, 2005 at 04:53:56PM +0200, Marco Colombo wrote:
+> > > This is different. They are not giving the source at all. The licence
+> > > for those object files _has_ to be different. _They_ want it to be
+> > > different.
+> > 
+> > Sure, but in this case, the binary firmware blob is also a binary without
+> > sources. If they really did write said firmware directly as it is, then they
+> > should say so, but this is contrary to everyone's expectation, and a dangerous
+> > precedent to set.
 > 
-> I think you misunderstood what I meant by "remove the 'id' thing" 
-> (probably my fault). ds1337_do_command() is needed by ppc7d so don't 
-> remove it. I meant remove the id parameter from the call and change the 
-> ds1337 driver to support only one instance of the device.
+> You should realize that any author can publish his work in the form he
+> likes. He's not bound to "everyone's expectation". I see no danger in
+> that.
 
-No it is not your fault. I understood it perfectly but removed this
-function because you should find your RTC on i2c bus then then do
-something like:
+I think there may be some limitation of using the GPL as licence in this case
+though, as such behavior may limit its value, and the GPL itself is by no
+means free software.
 
-if (rtc_client)
-	rtc_client->driver->command(rtc_client, cmd, data);
-else
-	return -ENODEV;
+Friendly,
 
-and that should be done outside driver.
+Sven Luther
 
-I do not think it is good idea to limit your driver to support only one
-instance, because it is unecessary and there could exist some NUMA system
-which could have one such RTC per node.
-
-> >I'm assuming that you want to use drivers/char/genrtc.c to access ds1337
-> >from userspace, but in arch/ppc/platforms/radstone_ppc7d.c 
-> >ppc_md.get_rtc_time used by genrtc via get_rtc_time in asm-ppc/rtc.h
-> >is set to NULL (same for set_rtc_time) and I didn't find where (if)
-> >ds1337 registers to ppc_md.get_rtc_time.
-> 
-> For ppc at least, it's the platform code that hooks up get_rtc_time().
-> Last time I looked in -mm, get_rtc_time() and set_rtc_time() were being 
-> set up in ppc7d to use this driver. I won't be able to check until the 
-> end of the week so please bear with me.
-
-No problem, no patches will probably go in until SCM saga gets resolved :)
-
-> >Functions in asm-ppc/rtc.h also do magic with tm_mon and tm_year
-> >so this driver doesn't need to handle epoch separately and doesn't need
-> >to be aware that tm_mon starts from zero...
-> 
-> I don't understand. What code in ds1337 is unneeded?
-
-It's not about unneeded code. Other RTC drivers returns tm_year in range
-0..199 and tm_mon in range 0..11. Your driver does it different way,
-because it hooks directly to [gs]et_rtc_time functions.
-
-I'm not sure what is right solution here. Personaly I'd make time format
-compatible with other RTC drivers and do such tweaks in arch code when
-calling command function.
-
-[snip]
-> >Remove nowhere referenced ds1337_do_command function. Apply after ds1337
-> >patches 1-3.
-> 
-> Please don't apply this patch. I will modify the ds1337_do_command() API 
-> to remove the "id" parameter and fixup ppc7d platform accordingly.
-
-See above...
-
-Best regards,
-	ladis

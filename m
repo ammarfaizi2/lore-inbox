@@ -1,96 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVDMSmq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVDMSsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVDMSmq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 14:42:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDMSkE
+	id S261195AbVDMSsE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 14:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVDMSsD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 14:40:04 -0400
-Received: from colin2.muc.de ([193.149.48.15]:48656 "EHLO colin2.muc.de")
-	by vger.kernel.org with ESMTP id S261190AbVDMSh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 14:37:26 -0400
-Date: 13 Apr 2005 20:37:25 +0200
-Date: Wed, 13 Apr 2005 20:37:25 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ross Biro <ross.biro@gmail.com>
-Cc: Ross Biro <rossb@google.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC/Patch 2.6.11] Take control of PCI Master Abort Mode
-Message-ID: <20050413183725.GG50241@muc.de>
-References: <4252E827.4080807@google.com> <m14qee221l.fsf@muc.de> <8783be66050412075218b2b0b0@mail.gmail.com>
+	Wed, 13 Apr 2005 14:48:03 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:64420 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261201AbVDMSjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 14:39:14 -0400
+Subject: RE: FUSYN and RT
+From: Steven Rostedt <rostedt@goodmis.org>
+To: dwalker@mvista.com
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Esben Nielsen <simlo@phys.au.dk>
+In-Reply-To: <1113413613.8183.15.camel@dhcp153.mvista.com>
+References: <Pine.OSF.4.05.10504130056271.6111-100000@da410.phys.au.dk>
+	 <1113352069.6388.39.camel@dhcp153.mvista.com>
+	 <1113407200.4294.25.camel@localhost.localdomain>
+	 <1113413613.8183.15.camel@dhcp153.mvista.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 13 Apr 2005 14:38:24 -0400
+Message-Id: <1113417504.4294.30.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8783be66050412075218b2b0b0@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 10:52:55AM -0400, Ross Biro wrote:
-> On Apr 10, 2005 9:29 AM, Andi Kleen <ak@muc.de> wrote:
+On Wed, 2005-04-13 at 10:33 -0700, Daniel Walker wrote:
+> On Wed, 2005-04-13 at 08:46, Steven Rostedt wrote:
+> > How hard would it be to use the RT mutex PI for the priority inheritance
+> > for fusyn?  I only work with the RT mutex now and haven't looked at the
+> > fusyn.  Maybe Ingo can make a separate PI system with its own API that
+> > both the fusyn and RT mutex can use. This way the fusyn locks can still
+> > be separate from the RT mutex locks but still work together. 
 > > 
+> > Basically can the fusyn work with the rt_mutex_waiter?  That's what I
+> > would pull into its own subsystem.  Have another structure that would
+> > reside in both the fusyn and RT mutex that would take over for the
+> > current rt_mutex that is used in pi_setprio and task_blocks_on_lock in
+> > rt.c.  So if both locks used the same PI system, then this should all be
+> > cleared up. 
 > > 
-> > The right way to do this would be to have sysfs knobs that allow
-> > to change these bits, and then let a user space tool change
-> > it depending on PCI-ID. If the issue is critical enough
-> > that it happens very often then it should be added to kernel
-> > pci quirks - but again be unconditional.
+> > If this doesn't makes sense, or just confusing, I'll explain more :-)  
 > 
+> I've thought about this as an option, but when I first started this
+> thread It seemed like the two could work independently, and safely which
+> doesn't appear to be the case any more.
 > 
-> Using user space knobs has advantages, but nothing can depend on just the 
-> hardware configuration. The application the machine is being used for also 
-> matters. Image you have one of the bad NICs and an IDE controller behind the 
-> same bridge. Then you have to chose between silent data corruption and the 
-> NIC locking up for up to a few minutes once in a while. The correct choice 
-> depends on the application. 
-> 
-> For the way we use machines, we are better off with a compile time option 
-> and no boot line override. That's clearly wrong for general use.
+> The problems with pulling out the PI in the RT mutex are that
+> pi_setprio() does a walk over lock->owner and we're got two different
+> lock structures now . I was thinking we could add something like
+> lock_ops (get_owner(), wait_list_add(), wait_list_del(), ?? ) to
+> rt_mutex_waiter, or abstract rt_lock. Then pi_setprio would just use the
+> lock_ops instead of accessing a structure .. 
 
-That is definitely wrong for general use. In fact the Linux kernel
-has been moving away from the old "put weird workarounds into CONFIG"
-for quite some time now. One big reason is that actually most 
-users use binary kernels these days, but even for us who recompile
-kernels regularly it is inconvenient to recompile kernels just for
-such things.
+Yeah, I was thinking of another structure within rt_mutex and what fusyn
+uses. Like a pi_struct of some sort. And this would be the common
+structure that holds the owner and prio or what ever that the pi_setprio
+and friends need.   This would probably be the easier approach, but for
+the long run, I think I like your idea of the ops better.
 
-If you want it compiled in for your use case I would recommend
-that you add a local patch or add a patch for a compiled in kernel
-command line in config (some non i386 archs have this already)
+-- Steve
 
-> 
-> You're argument that no one can make sense of such options is totally off 
-> base. Once you are having a problem, it's pretty easy to see if it's related 
 
-I dont think it is in any way help to put suche highly obscure
-things into Config. Near nobody can make any sense of it.
-
-If you take a look at quirks.c and DMI options you will see we have quite a lot 
-of workarounds for various hardware bug. Just imagine there were 
-CONFIG options for all of this. It would be a big mess!
-
-> to a wrong master abort mode setting. If you see data that is all 0xff's 
-> somewhere it shouldn't be, for example on a hard drive sector (it usually 
-> occurs in the file system meta data and not in the data itself) you need to 
-> force master abort mode on. If you have a mis-behaving PCI device and 
-> everytime it misbehaves, the saw target abort bit is set, then you need to 
-> force master abort mode off. First line tech support people should be able 
-> to tell users to use these settings.
-
-Yeah, but that is impossible if it is a CONFIG - they would need
-to expnain the users first how to recompile a kernel, which would
-be totally wasted time because it can be set fine without any recompilation
-if done properly.
-
-> 
-> I actually don't see any reason you would ever want master abort mode off, 
-> other than you have buggy hardware. Unfortunately when you are working with 
-> PC's you have to assume you always have buggy hardware. I don't have much 
-> experience with other platforms, so I'll assume they are better (those of 
-> you with experience, please do not disillusion me.)
-
-Probably yes. 
-
-What you could do is to put a experimental patch that forces this always
-into -mm* for a few weeks and see if there are any bad reports.
-
--Andi

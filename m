@@ -1,76 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVDMOD6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVDMOOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVDMOD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 10:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVDMOD6
+	id S261349AbVDMOOz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 10:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVDMOOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 10:03:58 -0400
-Received: from [193.112.238.6] ([193.112.238.6]:40322 "EHLO caveman.xisl.com")
-	by vger.kernel.org with ESMTP id S261342AbVDMODz (ORCPT
+	Wed, 13 Apr 2005 10:14:55 -0400
+Received: from users.ccur.com ([208.248.32.211]:16775 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S261349AbVDMOOt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 10:03:55 -0400
-Subject: Re: Exploit in 2.6 kernels
-From: John M Collins <jmc@xisl.com>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Lars Marowsky-Bree <lmb@suse.de>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050413132308.GP17865@csclub.uwaterloo.ca>
-References: <1113298455.16274.72.camel@caveman.xisl.com>
-	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
-	 <20050412210857.GT11199@shell0.pdx.osdl.net>
-	 <1113341579.3105.63.camel@caveman.xisl.com>
-	 <425CEAC2.1050306@aitel.hist.no>
-	 <20050413125921.GN17865@csclub.uwaterloo.ca>
-	 <20050413130646.GF32354@marowsky-bree.de>
-	 <20050413132308.GP17865@csclub.uwaterloo.ca>
-Content-Type: text/plain
-Organization: Xi Software Ltd
-Date: Wed, 13 Apr 2005 15:01:46 +0100
-Message-Id: <1113400906.10763.20.camel@caveman.xisl.com>
+	Wed, 13 Apr 2005 10:14:49 -0400
+Date: Wed, 13 Apr 2005 10:14:35 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org
+Subject: [PATCH] add EOWNERDEAD and ENOTRECOVERABLE version 2
+Message-ID: <20050413141435.GA4311@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <20050412152318.GA2714@tsunami.ccur.com> <20050412190138.06a2021f.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050412190138.06a2021f.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-13 at 09:23 -0400, Lennart Sorensen wrote:
 
-> Graphics card companies don't realize they are hardware companies not
-> software companies and that it is hardware they make their money from?
-> Oh and they have too many lawyers?
-> 
-> It seems to me that 2D graphics are a done deal, with no new inovation
-> taking place.  Releasing programing specs for that part should be a no
-> brainer.  If the nifty 3D routines are so important to keep secret from
-> the other guys then well keep those.  Release the 2D programing specs!
+Add EOWNERDEAD and ENOTRECOVERABLE to all architectures.
+This is to support the upcoming patches for robust mutexes.
 
-Where I am (in the UK) you more or less have to buy computers in bits
-and put them together if you want (like I do) to shuffle bits of
-hardware between different machines to suit varying needs or bolt on
-extra bits and pieces of new hardware and above all not pay M$ tax.
+We normally don't reserve parts of the name/number space
+for external patches, but robust mutexes are sufficiently
+popular and important to justify it in this case.
 
-The nvidia card seems the only one with reasonable performance at a
-reasonable price that fits on most motherboards that I can find.in these
-parts.
-
-> m-a is module-assistant which is used on debian to build a module
-
-If I ask nicely can I download it from anywhere? I've just finished
-building 2.6.11.7 and it might be nice to try it.
-
-Could I possibly make a suggestion for "make xconfig" in the kernel tree
-(and make other-kinds-of-config I suppose)?
-
-I currently routinely copy the ".config" out of the previous kernel tree
-before I start to save working through questions about sound cards I
-never heard of and so forth.
-
-Could it perhaps optionally initialise most of the settings to fit the
-current machine and/or grab the last lot of settings
-from /proc/config.gz?
+Signed-off-by: Joe Korty <joe.korty@ccur.com>
 
 
-John Collins Xi Software Ltd www.xisl.com Tel: +44 (0)1707 886110
-(Direct) +44 (0)7799 113162 (Mobile)
+ 2.6.12-rc2-jak/include/asm-alpha/errno.h   |    4 ++++
+ 2.6.12-rc2-jak/include/asm-generic/errno.h |    4 ++++
+ 2.6.12-rc2-jak/include/asm-mips/errno.h    |    4 ++++
+ 2.6.12-rc2-jak/include/asm-parisc/errno.h  |    4 ++++
+ 2.6.12-rc2-jak/include/asm-sparc/errno.h   |    4 ++++
+ 2.6.12-rc2-jak/include/asm-sparc64/errno.h |    4 ++++
+ 6 files changed, 24 insertions(+)
+
+diff -puNa include/asm-generic/errno.h~owner.notrecoverable.errnos include/asm-generic/errno.h
+--- 2.6.12-rc2/include/asm-generic/errno.h~owner.notrecoverable.errnos	2005-04-12 09:54:38.000000000 -0400
++++ 2.6.12-rc2-jak/include/asm-generic/errno.h	2005-04-13 09:58:26.000000000 -0400
+@@ -102,4 +102,8 @@
+ #define	EKEYREVOKED	128	/* Key has been revoked */
+ #define	EKEYREJECTED	129	/* Key was rejected by service */
+ 
++/* for robust mutexes */
++#define	EOWNERDEAD	130	/* Owner died */
++#define	ENOTRECOVERABLE	131	/* State not recoverable */
++
+ #endif
+diff -puNa include/asm-alpha/errno.h~owner.notrecoverable.errnos include/asm-alpha/errno.h
+--- 2.6.12-rc2/include/asm-alpha/errno.h~owner.notrecoverable.errnos	2005-04-12 10:04:36.000000000 -0400
++++ 2.6.12-rc2-jak/include/asm-alpha/errno.h	2005-04-13 09:58:41.000000000 -0400
+@@ -116,4 +116,8 @@
+ #define	EKEYREVOKED	134	/* Key has been revoked */
+ #define	EKEYREJECTED	135	/* Key was rejected by service */
+ 
++/* for robust mutexes */
++#define	EOWNERDEAD	136	/* Owner died */
++#define	ENOTRECOVERABLE	137	/* State not recoverable */
++
+ #endif
+diff -puNa include/asm-mips/errno.h~owner.notrecoverable.errnos include/asm-mips/errno.h
+--- 2.6.12-rc2/include/asm-mips/errno.h~owner.notrecoverable.errnos	2005-04-12 10:04:36.000000000 -0400
++++ 2.6.12-rc2-jak/include/asm-mips/errno.h	2005-04-13 09:59:17.000000000 -0400
+@@ -115,6 +115,10 @@
+ #define	EKEYREVOKED	163	/* Key has been revoked */
+ #define	EKEYREJECTED	164	/* Key was rejected by service */
+ 
++/* for robust mutexes */
++#define	EOWNERDEAD	165	/* Owner died */
++#define	ENOTRECOVERABLE	166	/* State not recoverable */
++
+ #define EDQUOT		1133	/* Quota exceeded */
+ 
+ #ifdef __KERNEL__
+diff -puNa include/asm-parisc/errno.h~owner.notrecoverable.errnos include/asm-parisc/errno.h
+--- 2.6.12-rc2/include/asm-parisc/errno.h~owner.notrecoverable.errnos	2005-04-12 10:04:36.000000000 -0400
++++ 2.6.12-rc2-jak/include/asm-parisc/errno.h	2005-04-13 09:59:24.000000000 -0400
+@@ -115,5 +115,9 @@
+ #define ENOTSUP		252	/* Function not implemented (POSIX.4 / HPUX) */
+ #define ECANCELLED	253	/* aio request was canceled before complete (POSIX.4 / HPUX) */
+ 
++/* for robust mutexes */
++#define EOWNERDEAD	254	/* Owner died */
++#define ENOTRECOVERABLE	255	/* State not recoverable */
++
+ 
+ #endif
+diff -puNa include/asm-sparc/errno.h~owner.notrecoverable.errnos include/asm-sparc/errno.h
+--- 2.6.12-rc2/include/asm-sparc/errno.h~owner.notrecoverable.errnos	2005-04-12 10:04:36.000000000 -0400
++++ 2.6.12-rc2-jak/include/asm-sparc/errno.h	2005-04-13 09:59:28.000000000 -0400
+@@ -107,4 +107,8 @@
+ #define	EKEYREVOKED	130	/* Key has been revoked */
+ #define	EKEYREJECTED	131	/* Key was rejected by service */
+ 
++/* for robust mutexes */
++#define	EOWNERDEAD	132	/* Owner died */
++#define	ENOTRECOVERABLE	133	/* State not recoverable */
++
+ #endif
+diff -puNa include/asm-sparc64/errno.h~owner.notrecoverable.errnos include/asm-sparc64/errno.h
+--- 2.6.12-rc2/include/asm-sparc64/errno.h~owner.notrecoverable.errnos	2005-04-12 10:04:36.000000000 -0400
++++ 2.6.12-rc2-jak/include/asm-sparc64/errno.h	2005-04-13 09:59:33.000000000 -0400
+@@ -107,4 +107,8 @@
+ #define	EKEYREVOKED	130	/* Key has been revoked */
+ #define	EKEYREJECTED	131	/* Key was rejected by service */
+ 
++/* for robust mutexes */
++#define	EOWNERDEAD	132	/* Owner died */
++#define	ENOTRECOVERABLE	133	/* State not recoverable */
++
+ #endif /* !(_SPARC64_ERRNO_H) */
+
+_
 

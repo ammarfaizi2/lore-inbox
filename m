@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVDMTKc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVDMTPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVDMTKc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVDMTKc
+	id S261225AbVDMTPP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbVDMTPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:10:32 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:49171 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261214AbVDMTJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:09:38 -0400
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: Andrew Morton <akpm@osdl.org>, libor@topspin.com,
-       linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
-X-Message-Flag: Warning: May contain useful information
-References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
-	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
-	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
-	<20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>
-	<20050411171347.7e05859f.akpm@osdl.org> <521x9gyhe7.fsf@topspin.com>
-	<20050412182357.GA24047@mellanox.co.il>
-From: Roland Dreier <roland@topspin.com>
-Date: Wed, 13 Apr 2005 11:28:03 -0700
-In-Reply-To: <20050412182357.GA24047@mellanox.co.il> (Michael S. Tsirkin's
- message of "Tue, 12 Apr 2005 21:23:57 +0300")
-Message-ID: <52sm1upm4s.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Wed, 13 Apr 2005 15:15:15 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:53172 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261225AbVDMTNl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 15:13:41 -0400
+Date: Wed, 13 Apr 2005 21:13:39 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
+Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
+Message-ID: <20050413191339.GD25711@pasky.ji.cz>
+References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz> <20050413103521.D1798@flint.arm.linux.org.uk> <20050413200307.B19329@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 13 Apr 2005 18:28:03.0688 (UTC) FILETIME=[87A2B680:01C54056]
+Content-Disposition: inline
+In-Reply-To: <20050413200307.B19329@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, I'm by no means an expert on this, but Libor and I looked at
-rmap.c a little more, and there is code:
+Dear diary, on Wed, Apr 13, 2005 at 09:03:07PM CEST, I got a letter
+where Russell King <rmk+lkml@arm.linux.org.uk> told me that...
+> On Wed, Apr 13, 2005 at 10:35:21AM +0100, Russell King wrote:
+> > I tried this today, applied my patch for BE<->LE conversions and
+> > glibc-2.2 compatibility (attached, still requires cleaning though),
+> > and then tried git pull.  Umm, whoops.
+> 
+> Here's an updated patch which allows me to work with a BE-based
+> cache.  I've just used this to grab and checkout sparse.git.
+> 
+> Note: it also fixes my glibc-2.2 build problem with the nsec
+> stat64 structures (see read-cache.c).
+> 
+> --- cache.h
+> +++ cache.h	Wed Apr 13 11:23:39 2005
+> @@ -14,6 +14,12 @@
+>  #include <openssl/sha.h>
+>  #include <zlib.h>
+>  
+> +#include <netinet/in.h>
+> +#define cpu_to_beuint(x)	(htonl(x))
+> +#define beuint_to_cpu(x)	(ntohl(x))
+> +#define cpu_to_beushort(x)	(htons(x))
+> +#define beushort_to_cpu(x)	(ntohs(x))
+> +
+>  /*
+>   * Basic data structures for the directory cache
+>   *
 
-	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
-			ptep_clear_flush_young(vma, address, pte)) {
-		ret = SWAP_FAIL;
-		goto out_unmap;
-	}
+What do the wrapper macros gain us?
 
-before the check
-
-	if (PageSwapCache(page) &&
-	    page_count(page) != page_mapcount(page) + 2) {
-		ret = SWAP_FAIL;
-		goto out_unmap;
-	}
-
-If userspace allocates some memory but doesn't touch it aside from
-passing the address in to the kernel, which does get_user_pages(), the
-PTE will be young in that first test, right?  Does that mean that
-the userspace mapping will be cleared and userspace will get a
-different physical page if it faults that address back in?
-
- - R.
-
-
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

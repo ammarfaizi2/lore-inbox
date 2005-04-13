@@ -1,81 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVDMT2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVDMTdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVDMT2v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVDMT1p
+	id S261423AbVDMTdL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVDMTdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:27:45 -0400
-Received: from fire.osdl.org ([65.172.181.4]:54723 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261258AbVDMT0p (ORCPT
+	Wed, 13 Apr 2005 15:33:07 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42181 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261255AbVDMTcs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:26:45 -0400
-Date: Wed, 13 Apr 2005 12:26:14 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Yves Crespin <crespin.quartz@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: read failed EINVAL with O_DIRECT flag
-Message-Id: <20050413122614.32d1a382.rddunlap@osdl.org>
-In-Reply-To: <425D1B83.50809@wanadoo.fr>
-References: <425ACC89.3090207@wanadoo.fr>
-	<20050411204948.26ab87f0.rddunlap@osdl.org>
-	<425BF468.1040403@wanadoo.fr>
-	<20050412094752.0f4d88a5.rddunlap@osdl.org>
-	<425D1B83.50809@wanadoo.fr>
-Organization: OSDL
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: SvC&!/v_Hr`MvpQ*|}uez16KH[#EmO2Tn~(r-y+&Jb}?Zhn}c:Eee&zq`cMb_[5`tT(22ms
- (.P84,bq_GBdk@Kgplnrbj;Y`9IF`Q4;Iys|#3\?*[:ixU(UR.7qJT665DxUP%K}kC0j5,UI+"y-Sw
- mn?l6JGvyI^f~2sSJ8vd7s[/CDY]apD`a;s1Wf)K[,.|-yOLmBl0<axLBACB5o^ZAs#&m?e""k/2vP
- E#eG?=1oJ6}suhI%5o#svQ(LvGa=r
+	Wed, 13 Apr 2005 15:32:48 -0400
+Date: Wed, 13 Apr 2005 12:32:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: mst@mellanox.co.il, libor@topspin.com, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+Message-Id: <20050413123230.7a18dff5.akpm@osdl.org>
+In-Reply-To: <52sm1upm4s.fsf@topspin.com>
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411142213.GC26127@kalmia.hozed.org>
+	<52mzs51g5g.fsf@topspin.com>
+	<20050411163342.GE26127@kalmia.hozed.org>
+	<5264yt1cbu.fsf@topspin.com>
+	<20050411180107.GF26127@kalmia.hozed.org>
+	<52oeclyyw3.fsf@topspin.com>
+	<20050411171347.7e05859f.akpm@osdl.org>
+	<521x9gyhe7.fsf@topspin.com>
+	<20050412182357.GA24047@mellanox.co.il>
+	<52sm1upm4s.fsf@topspin.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Apr 2005 15:15:47 +0200 Yves Crespin wrote:
+Roland Dreier <roland@topspin.com> wrote:
+>
+> OK, I'm by no means an expert on this, but Libor and I looked at
+> rmap.c a little more, and there is code:
+> 
+> 	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
+> 			ptep_clear_flush_young(vma, address, pte)) {
+> 		ret = SWAP_FAIL;
+> 		goto out_unmap;
+> 	}
+> 
+> before the check
+> 
+> 	if (PageSwapCache(page) &&
+> 	    page_count(page) != page_mapcount(page) + 2) {
+> 		ret = SWAP_FAIL;
+> 		goto out_unmap;
+> 	}
+> 
+> If userspace allocates some memory but doesn't touch it aside from
+> passing the address in to the kernel, which does get_user_pages(), the
+> PTE will be young in that first test, right?
 
-| 
-|  >| How can I obtains an buffer alignement from a "user program" ?
-|  >
-|  >I actually left that as an exercise (after I did it at home
-|  >last night).  Did you read the hint (below)?
-| 
-| Well ... either with malloc() and alignement or posix_memalign(),
-| read() still failed!
-| My read buffer is in user space, so it's copy to kernel space.
-| Inside the read() call, it's the kernel buffer which must be aligned?
+If get_user_pages() was called with write=1, get_user_pages() will fault in
+a real page and yes, I guess it'll be pte_young.
 
-No, it's the userspace buffer.  However...
-the check below isn't even reached for ext3 filesystems in
-Linux 2.4.  I.e., 2.4 does not support O_DIRECT for ext3fs.
-mount a partition as -t ext2 and your (modified) program
-works fine.  Or use 2.6.current...
+If get_user_pages() was called with write=0, get_user_pages() will fault
+in a mapping of the zero page and we'd never get this far.
 
-Sorry to mislead you somewhat, although you do still need
-the buffer alignment fixes.
+> Does that mean that
+> the userspace mapping will be cleared and userspace will get a
+> different physical page if it faults that address back in? 
+>
 
+We won't try to unmap a page's ptes until that page has file-or-swapcache
+backing.
 
-|  >| >In fs/buffer.c, it wants the buffer & the length (size) to be aligned:
-|  >| >
-|  >| >function: brw_kiovec()
-|  >| >
-|  >| >    /*
-|  >| >     * First, do some alignment and validity checks
-|  >| >     */
-|  >| >    for (i = 0; i < nr; i++) {
-|  >| >        iobuf = iovec[i];
-|  >| >        if ((iobuf->offset & (size-1)) ||
-|  >| >            (iobuf->length & (size-1)))
-|  >| >            return -EINVAL;
-|  >| >        if (!iobuf->nr_pages)
-|  >| >            panic("brw_kiovec: iobuf not initialised");
-|  >| >    }
-|  >| >
-|  >| >so in your program, malloc() the buf [pointer] (larger than needed)
-|  >| >and then align it to a page boundary and pass that aligned pointer
-|  >| >to read().
+If the pte is then cleared, a subsequent minor fault will reestablish the
+mapping to the same physical page.  A major fault cannot happen because the
+page was pinned by get_user_pages().
 
-
----
-~Randy

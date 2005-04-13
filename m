@@ -1,68 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVDMQ6T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVDMRBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVDMQ6T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 12:58:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVDMQ6T
+	id S261406AbVDMRBh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 13:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVDMRBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 12:58:19 -0400
-Received: from mail.shareable.org ([81.29.64.88]:22689 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261396AbVDMQ6L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 12:58:11 -0400
-Date: Wed, 13 Apr 2005 17:57:46 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: bulb@ucw.cz, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-Message-ID: <20050413165746.GI12825@mail.shareable.org>
-References: <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu> <20050412171338.GA14633@mail.shareable.org> <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu> <20050413125609.GA9571@vagabond> <E1DLjTV-0004oO-00@dorka.pomaz.szeredi.hu> <20050413161344.GC12825@mail.shareable.org> <E1DLl1x-0004uT-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DLl1x-0004uT-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Apr 2005 13:01:34 -0400
+Received: from iabervon.org ([66.92.72.58]:56325 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S261369AbVDMRBY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 13:01:24 -0400
+Date: Wed, 13 Apr 2005 13:01:34 -0400 (EDT)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Petr Baudis <pasky@ucw.cz>
+cc: David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
+Subject: Re: Re: Re: [ANNOUNCE] git-pasky-0.3
+In-Reply-To: <20050413094226.GP16489@pasky.ji.cz>
+Message-ID: <Pine.LNX.4.21.0504131244410.30848-100000@iabervon.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> > Look up the rather large linux-kernel & linux-fsdevel thread "silent
-> > semantic changes with reiser4" and it's followup threads, from last
-> > year.
+On Wed, 13 Apr 2005, Petr Baudis wrote:
+
+> Dear diary, on Wed, Apr 13, 2005 at 11:25:04AM CEST, I got a letter
+> where David Woodhouse <dwmw2@infradead.org> told me that...
+> > On Wed, 2005-04-13 at 10:59 +0200, Petr Baudis wrote:
+> > > Theoretically, you are never supposed to share your index if you work
+> > > in fully git environment. 
+> > 
+> > Maybe -- if we are prepared to propagate the BK myth that network
+> > bandwidth and disk space are free. 
+> > 
+> > Meanwhile, in the real world, it'd be really useful to support sharing.
 > 
-> Wow, it's 700+ messages.  I got through the first 40, and already feel
-> dizzy :)
-
-It's easier if you skip the ones by Hans and their immediate followups :)
-
-(Nothing personal, it's that Hans is mostly justifying reiser4's
-behaviour, and the posts you really need to read aren't about reiser4).
-
-> > It's already been tried.  You will also find sensible ideas on what
-> > semantics it should have to do it properly.
+> It's fine to share the objects database. If you want to share the
+> directory cache, you are doing something wrong, though. What do you need
+> it for?
 > 
-> OK, I understand the "slash -> directory, no-slash -> regular file"
-> semantics.
+> > I'd even like to see support for using multiple branches checked out of
+> > the same .git/ repository. We already cope with having multiple branches
+> > _in_ the repository -- all we need to do is cope with multiple indices
+> > too, so we can have different versions checked out.
 > 
-> How do you envision implementing this for "mount directory over file"?
+> I'm working on that right now. (Well, I wish I would, if other things
+> didn't keep distracting me.)
+> 
+> The idea is to have a command which will do something like:
+> 
+> 	mkdir .git
+> 	ln -s $origtree/heads $origtree/objects $origtree/tags .git
+> 	cp $origtree/HEAD .git
+> 	cd ..
+> 	read-tree $(tree-id)
+> 
+> Voila. Now you have a new tree with almost no current neither future
+> overhead.
 
-Somewhere deep in that thread is a discussion between Al Viro and
-Linus on it.
+For future reference, git is unhappy if you actually do this, because your
+HEAD won't match the (empty) contents of the new directory. The easiest
+thing is to cp -r your original, replace the shared stuff with links, and
+go from there.
 
-> A new mount flag indicating that it's only to be followed down if
-> there's a slash after the mountpoint?
+	-Daniel
+*This .sig left intentionally blank*
 
-The new flag would indicate more than that: These mounts should be
-detachable in the sense that deleting the file is possible, and
-perhaps renamable/linkable too.  That's the stuff Al Viro discusses in
-some detail in the big thread.
-
-Ideally we'd like automounting, a bit like the Hurd's translators.
-Attached to files (using an xattr or something, and executed with the
-uid/gid of the file owner), and also per-user "pattern->action"
-options for matching files with a certain type (e.g. tgz/zip/deb/rpm/xml).
-
-But that can be added much later, as it's an orthogonal feature.
-
--- Jamie

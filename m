@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVDMSx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVDMSxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVDMSx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 14:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVDMSx2
+	id S261169AbVDMSxx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 14:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVDMSxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 14:53:28 -0400
-Received: from ns2.protei.ru ([195.239.28.26]:52960 "EHLO mail.protei.ru")
-	by vger.kernel.org with ESMTP id S261153AbVDMSxZ (ORCPT
+	Wed, 13 Apr 2005 14:53:53 -0400
+Received: from ns1.suse.de ([195.135.220.2]:36008 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261169AbVDMSxu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 14:53:25 -0400
-Message-ID: <425D6A97.9020300@protei.ru>
-Date: Wed, 13 Apr 2005 22:53:11 +0400
-From: Nickolay <nickolay@protei.ru>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: initrd support in 2.6 kernels
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bogosity: No, tests=bogofilter, spamicity=0.500003, version=0.92.0
+	Wed, 13 Apr 2005 14:53:50 -0400
+Date: Wed, 13 Apr 2005 20:53:48 +0200
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, shai@scalex86.org
+Subject: Re: Add pcibus_to_node
+Message-ID: <20050413185348.GC22573@wotan.suse.de>
+References: <Pine.LNX.4.58.0504121413510.10332@graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0504121413510.10332@graphe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo Guys!
+On Tue, Apr 12, 2005 at 02:16:17PM -0700, Christoph Lameter wrote:
+> Define pcibus_to_node to be able to figure out which NUMA node contains a
+> given PCI device. This defines pcibus_to_node(bus) in
+> include/linux/topology.h and adjusts the macros for i386 and x86_64 that
+> already provided a way to determine the cpumask of a pci device.
+> 
+> x86_64 was changed to not build an array of cpumasks anymore. Instead an
+> array of nodes is build which can be used to generate the cpumask via
+> node_to_cpumask.
 
-I has initrd, that nice loaded by all 2.4 kernels.
-But 2.6.9 kernel has some difference in loading initrd(as i discovered).
-This warning produced by kernel on boot:
+Ok from my side.
 
-...SKIP...
-Kernel command line: console=ttyS0,115200 root=/dev/ram0 
-initrd=0x00800000,32M
-...SKIP...
-checking if image is initramfs...it isn't (ungzip failed); looks like an 
-initrd
-Freeing initrd memory: 32768K
-... SKIP...
-RAMDISK driver initialized: 16 RAM disks of 32768K size 1024 blocksize
-...SKIP...
-RAMDISK: Couldn't find valid RAM disk image starting at 0.
-Kernel panic - not syncing: VFS: Unable to mount root fs on 
-unknown-block(1,0)
-
-
-Maybe troubles in kernel command line? But this command line work fine 
-on 2.4 kernels.
-
+-Andi

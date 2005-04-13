@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVDMU2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVDMUgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVDMU2q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 16:28:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVDMU2q
+	id S261189AbVDMUgn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 16:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVDMUgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 16:28:46 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:44995 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261183AbVDMU2n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 16:28:43 -0400
-Date: Wed, 13 Apr 2005 13:28:33 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, nickpiggin@yahoo.com.au,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix active load balance
-Message-ID: <20050413132833.B25137@unix-os.sc.intel.com>
-References: <20050413120713.A25137@unix-os.sc.intel.com> <20050413200828.GB27088@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050413200828.GB27088@elte.hu>; from mingo@elte.hu on Wed, Apr 13, 2005 at 10:08:28PM +0200
+	Wed, 13 Apr 2005 16:36:43 -0400
+Received: from hagen.doit.wisc.edu ([144.92.197.163]:34512 "EHLO
+	smtp7.wiscmail.wisc.edu") by vger.kernel.org with ESMTP
+	id S261173AbVDMUgk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 16:36:40 -0400
+Date: Wed, 13 Apr 2005 20:36:14 +0000
+From: John Lenz <lenz@cs.wisc.edu>
+Subject: Re: [Crosspost] GNU/Linux userland?
+In-reply-to: <425D75AF.7080802@gmx.de>
+To: Oliver Korpilla <Oliver.Korpilla@gmx.de>
+Cc: debian-kernel@lists.debian.org, debian-toolchain@lists.debian.org,
+       linux-gcc@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <1113424574l.5708l.0l@hydra>
+MIME-version: 1.0
+X-Mailer: Balsa 2.3.0
+Content-type: text/plain; Format=Flowed; DelSp=Yes; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+X-Spam-Report: AuthenticatedSender=yes, SenderIP=146.151.44.157
+X-Spam-PmxInfo: Server=avs-8, Version=4.7.1.128075, Antispam-Engine: 2.0.3.1,
+ Antispam-Data: 2005.4.13.11, SenderIP=146.151.44.157
+References: <425D75AF.7080802@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 10:08:28PM +0200, Ingo Molnar wrote:
+On 04/13/05 14:40:31, Oliver Korpilla wrote:
+> Hello!
 > 
-> * Siddha, Suresh B <suresh.b.siddha@intel.com> wrote:
+> I wondered if there is a project or setup that does allow me to build a  
+> GNU/Linux userland including kernel, build environment, basic tools with  
+> a single script just as you can in NetBSD (build.sh) or FreeBSD (make  
+> world).
 > 
-> > -	for_each_domain(target_cpu, sd) {
-> > +	for_each_domain(target_cpu, sd)
-> >  		if ((sd->flags & SD_LOAD_BALANCE) &&
-> > -			cpu_isset(busiest_cpu, sd->span)) {
-> > -				sd = tmp;
-> > +			cpu_isset(busiest_cpu, sd->span))
-> >  				break;
-> > -		}
-> > -	}
-> 
-> hm, the right fix i think is to do:
-> 
->  	for_each_domain(target_cpu, tmp) {
->   		if ((tmp->flags & SD_LOAD_BALANCE) &&
->  			cpu_isset(busiest_cpu, tmp->span)) {
->  				sd = tmp;
->   				break;
->  		}
->  	}
 
-Your suggestion also looks similar to my patch. You are also breaking on the 
-first one.
+You might also look at www.openembedded.org  It has support for cross  
+compiling, and with one command can build an entire userland.  Not sure if  
+it is exactly a fit for what you want to do, but it seems very close.
 
-> because when balancing we want to match the widest-scope domain, not the 
-> first one.
+John
 
-We want the first domain spanning both the cpu's. That is the domain where
-normal load balance failed and we restore to active load balance.
-
-thanks,
-suresh

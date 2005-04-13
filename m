@@ -1,57 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVDMXmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVDMXsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVDMXmT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 19:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVDMXmS
+	id S261217AbVDMXsx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 19:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVDMXsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 19:42:18 -0400
-Received: from khc.piap.pl ([195.187.100.11]:7172 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S261229AbVDMXmO (ORCPT
+	Wed, 13 Apr 2005 19:48:53 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:34824 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261217AbVDMXoy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 19:42:14 -0400
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       David Eger <eger@havoc.gtf.org>, Petr Baudis <pasky@ucw.cz>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: more git updates..
-References: <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
-	<Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-	<20050412040519.GA17917@havoc.gtf.org>
-	<20050412081613.GA18545@pasky.ji.cz>
-	<20050412204429.GA24910@havoc.gtf.org>
-	<Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
-	<20050412234005.GJ1521@opteron.random>
-	<Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org>
-	<20050413001408.GL1521@opteron.random>
-	<Pine.LNX.4.58.0504121809380.4501@ppc970.osdl.org>
-	<20050413204451.GP25554@waste.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 14 Apr 2005 01:42:11 +0200
-In-Reply-To: <20050413204451.GP25554@waste.org> (Matt Mackall's message of
- "Wed, 13 Apr 2005 13:44:51 -0700")
-Message-ID: <m3vf6q1bxo.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Wed, 13 Apr 2005 19:44:54 -0400
+Date: Wed, 13 Apr 2005 19:38:44 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Cc: jgarzik@pobox.com, davem@davemloft.net
+Subject: [patch 2.6.12-rc2 4/10] tg3: use TG3_FLG2_5705_PLUS instead of multi-way if's
+Message-ID: <04132005193844.8539@laptop>
+In-Reply-To: <04132005193844.8474@laptop>
+User-Agent: PatchPost/0.1
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> writes:
+Replace a number of three-way if statements checking for 5705, 5750,
+and 5752 to reference the equivalent TG3_FLG2_5705_PLUS flag instead.
 
-> Now if you can assume that blobs never change and are never deleted,
-> you can simply append them all onto a log, and then index them with a
-> separate file containing an htree of (sha1, offset, length) or the
-> like.
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-That mean a problem with rsync, though.
+ drivers/net/tg3.c |   16 ++++------------
+ 1 files changed, 4 insertions(+), 12 deletions(-)
 
-BTW: I think the bandwidth increase compared to bkcvs isn't that obvious.
-After a file is modified with git, it has to be transmitted (plus
-small additional things.
-If a file is modified with bkcvs, it has to be transmitted (the whole
-RCS file) as well.
-
-Only the initial rsync would be much smaller with bkcvs.
--- 
-Krzysztof Halasa
+--- bcm5752-support/drivers/net/tg3.c.orig	2005-04-08 17:42:28.059553796 -0400
++++ bcm5752-support/drivers/net/tg3.c	2005-04-08 17:42:16.584131525 -0400
+@@ -85,9 +85,7 @@
+ /* hardware minimum and maximum for a single frame's data payload */
+ #define TG3_MIN_MTU			60
+ #define TG3_MAX_MTU(tp)	\
+-	((GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5705 && \
+-	  GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5750 && \
+-	  GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5752) ? 9000 : 1500)
++	(!(tp->tg3_flags2 & TG3_FLG2_5705_PLUS) ? 9000 : 1500)
+ 
+ /* These numbers seem to be hard coded in the NIC firmware somehow.
+  * You can't change the ring sizes, but you can change where you place
+@@ -863,9 +861,7 @@ out:
+ 	if ((tp->phy_id & PHY_ID_MASK) == PHY_ID_BCM5401) {
+ 		/* Cannot do read-modify-write on 5401 */
+ 		tg3_writephy(tp, MII_TG3_AUX_CTRL, 0x4c20);
+-	} else if (GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5705 &&
+-		   GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5750 &&
+-		   GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5752) {
++	} else if (!(tp->tg3_flags2 & TG3_FLG2_5705_PLUS)) {
+ 		u32 phy_reg;
+ 
+ 		/* Set bit 14 with read-modify-write to preserve other bits */
+@@ -877,9 +873,7 @@ out:
+ 	/* Set phy register 0x10 bit 0 to high fifo elasticity to support
+ 	 * jumbo frames transmission.
+ 	 */
+-	if (GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5705 &&
+-	    GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5750 &&
+-	    GET_ASIC_REV(tp->pci_chip_rev_id) != ASIC_REV_5752) {
++	if (!(tp->tg3_flags2 & TG3_FLG2_5705_PLUS)) {
+ 		u32 phy_reg;
+ 
+ 		if (!tg3_readphy(tp, MII_TG3_EXT_CTRL, &phy_reg))
+@@ -8483,9 +8477,7 @@ static int __devinit tg3_test_dma(struct
+ 		/* DMA read watermark not used on PCIE */
+ 		tp->dma_rwctrl |= 0x00180000;
+ 	} else if (!(tp->tg3_flags & TG3_FLAG_PCIX_MODE)) {
+-		if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5705 ||
+-		    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5750 ||
+-		    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752)
++		if (tp->tg3_flags2 & TG3_FLG2_5705_PLUS)
+ 			tp->dma_rwctrl |= 0x003f0000;
+ 		else
+ 			tp->dma_rwctrl |= 0x003f000f;

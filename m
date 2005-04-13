@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVDMNDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVDMNIt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVDMNDs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 09:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVDMNC4
+	id S261338AbVDMNIt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 09:08:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDMNIt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 09:02:56 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:25827 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261333AbVDMNCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 09:02:33 -0400
-Date: Wed, 13 Apr 2005 09:02:30 -0400
-To: John M Collins <jmc@xisl.com>
-Cc: Chris Wright <chrisw@osdl.org>,
+	Wed, 13 Apr 2005 09:08:49 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:9659 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261338AbVDMNIm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 09:08:42 -0400
+Date: Wed, 13 Apr 2005 15:06:46 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: John M Collins <jmc@xisl.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Exploit in 2.6 kernels
-Message-ID: <20050413130230.GO17865@csclub.uwaterloo.ca>
-References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com>
+Message-ID: <20050413130646.GF32354@marowsky-bree.de>
+References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no> <20050413125921.GN17865@csclub.uwaterloo.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1113341579.3105.63.camel@caveman.xisl.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <20050413125921.GN17865@csclub.uwaterloo.ca>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 10:32:59PM +0100, John M Collins wrote:
-> I'll do that - trouble is round where I am they dish out Nvidia cards
-> like confetti, I've got them in the machine I use most and another 2 and
-> you have to do all that gyrating with running the script to FTP down and
-> build the secret module before you can run X. This is a big disincentive
-> when it comes to installing new kernels.
-> 
-> I wish some kind soul would speak nicely to Nvidia and get them to see
-> reason on the point but I suspect I'm not the first person to wish that.
-> (Or is there a sneaky way of patching the modules so they'll work in
-> another kernel without tainting it?).
+On 2005-04-13T08:59:21, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
 
-Well on my ssytem I can do something as simple as this in a script at
-boot (before starting X) and it should nicely take care of it:
+> It is becoming harder and harder to find supported cards it seems.
+> Finding a card with decent 2D drivers for X can still be done, but 3D is
+> just not really an option it seems.  Even 2D seems to be a problem on
+> many cards if you don't use a binary only driver.
 
-modprobe nvidia || m-a -t prepare nvidia && m-a -t build nvidia && m-a -t install nvidia && modprobe nvidia
+You are confusing the cause with the symptom.
 
-Most likely I will have a working loaded nvidia driver at that point and
-X will start successfully.
-
-m-a is module-assistant which is used on debian to build a module
-mathcing the running kernel (assuming it has access to either the source
-of the running kernel or the headers of the running kernel) using the
-sources from in this case nvidia-kernel-source package.  I don't know if
-anything other than debian has anything like this, but it makes dealing
-with nvidia's binary drivers fairly tolerable.
-
-Len Sorensen

@@ -1,72 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVDMSmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVDMSmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVDMSmr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 14:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVDMSjg
+	id S261204AbVDMSmq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 14:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVDMSkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 14:39:36 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:57805 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261189AbVDMShX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 14:37:23 -0400
-Date: Wed, 13 Apr 2005 14:37:22 -0400
-To: aeriksson@fastmail.fm
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DVD writer and IDE support...
-Message-ID: <20050413183722.GQ17865@csclub.uwaterloo.ca>
-References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org>
+	Wed, 13 Apr 2005 14:40:04 -0400
+Received: from colin2.muc.de ([193.149.48.15]:48656 "EHLO colin2.muc.de")
+	by vger.kernel.org with ESMTP id S261190AbVDMSh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 14:37:26 -0400
+Date: 13 Apr 2005 20:37:25 +0200
+Date: Wed, 13 Apr 2005 20:37:25 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ross Biro <ross.biro@gmail.com>
+Cc: Ross Biro <rossb@google.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC/Patch 2.6.11] Take control of PCI Master Abort Mode
+Message-ID: <20050413183725.GG50241@muc.de>
+References: <4252E827.4080807@google.com> <m14qee221l.fsf@muc.de> <8783be66050412075218b2b0b0@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050413181421.5C20E240480@latitude.mynet.no-ip.org>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <8783be66050412075218b2b0b0@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 08:14:21PM +0200, aeriksson@fastmail.fm wrote:
-> I've just gotten myself a new DVD burner which triggers some 
-> interesting events in the kernel. From the log:
+On Tue, Apr 12, 2005 at 10:52:55AM -0400, Ross Biro wrote:
+> On Apr 10, 2005 9:29 AM, Andi Kleen <ak@muc.de> wrote:
+> > 
+> > 
+> > The right way to do this would be to have sysfs knobs that allow
+> > to change these bits, and then let a user space tool change
+> > it depending on PCI-ID. If the issue is critical enough
+> > that it happens very often then it should be added to kernel
+> > pci quirks - but again be unconditional.
 > 
-> hdc: ATAPI 48X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-> Uniform CD-ROM driver Revision: 3.20
-> hdc: packet command error: status=0x51 { DriveReady SeekComplete Error }
-> hdc: packet command error: error=0x40 { LastFailedSense=0x04 }
-> ide: failed opcode was: unknown
-> ATAPI device hdc:
->   Error: Hardware error -- (Sense key=0x04)
->   Focus servo failure -- (asc=0x09, ascq=0x02)
->   The failed "Read Cd/Dvd Capacity" packet command was: 
->   "25 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 "
-
-Well certainly something appears to go wrong.  So far I have used a dvd
-writer (PX708A and PX716A) on kernels up to 2.6.10 (i386) and 2.6.11
-(amd64) and had no problems using ide-cd to do the burning (writing
-DVDs using growisofs of course, and CDs using cdrecord).
-
-> rmmod'ing the icd-cd module and modprob'ing the ide-scsi (seeing as 
-> that used to be the common approach for folks (I'm new to burners...))
-> I got this in the log:
 > 
-> ide-scsi is deprecated for cd burning! Use ide-cd and give dev=/dev/hdX as device
-> scsi0 : SCSI host adapter emulation for IDE ATAPI devices
->   Vendor: AOPEN     Model: DUW1608/ARR       Rev: A060
->   Type:   CD-ROM                             ANSI SCSI revision: 02
-> sr0: scsi3-mmc drive: 48x/48x writer cd/rw xa/form2 cdda tray
-> Attached scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+> Using user space knobs has advantages, but nothing can depend on just the 
+> hardware configuration. The application the machine is being used for also 
+> matters. Image you have one of the bad NICs and an IDE controller behind the 
+> same bridge. Then you have to chose between silent data corruption and the 
+> NIC locking up for up to a few minutes once in a while. The correct choice 
+> depends on the application. 
 > 
-> How should I interprete this? That the device is not supported under
-> the icd-cd module but the scsi support detects and supports it ok?
-> I've not tried to burn anything with it yet so I have no hard facts on
-> if there is enough support (yet).
+> For the way we use machines, we are better off with a compile time option 
+> and no boot line override. That's clearly wrong for general use.
+
+That is definitely wrong for general use. In fact the Linux kernel
+has been moving away from the old "put weird workarounds into CONFIG"
+for quite some time now. One big reason is that actually most 
+users use binary kernels these days, but even for us who recompile
+kernels regularly it is inconvenient to recompile kernels just for
+such things.
+
+If you want it compiled in for your use case I would recommend
+that you add a local patch or add a patch for a compiled in kernel
+command line in config (some non i386 archs have this already)
+
 > 
-> If there is any sort of data which need to be shipped somewhere to 
-> make this device supported by ide-cd, I'd be glad to help...
+> You're argument that no one can make sense of such options is totally off 
+> base. Once you are having a problem, it's pretty easy to see if it's related 
 
-Well it does look odd that it loads with one and not the other.  Which
-kernel is this with?
+I dont think it is in any way help to put suche highly obscure
+things into Config. Near nobody can make any sense of it.
 
-Does writing CDs and DVDs actually work using ide-scsi?  Does it work
-using ide-cd?
+If you take a look at quirks.c and DMI options you will see we have quite a lot 
+of workarounds for various hardware bug. Just imagine there were 
+CONFIG options for all of this. It would be a big mess!
 
-Len Sorensen
+> to a wrong master abort mode setting. If you see data that is all 0xff's 
+> somewhere it shouldn't be, for example on a hard drive sector (it usually 
+> occurs in the file system meta data and not in the data itself) you need to 
+> force master abort mode on. If you have a mis-behaving PCI device and 
+> everytime it misbehaves, the saw target abort bit is set, then you need to 
+> force master abort mode off. First line tech support people should be able 
+> to tell users to use these settings.
+
+Yeah, but that is impossible if it is a CONFIG - they would need
+to expnain the users first how to recompile a kernel, which would
+be totally wasted time because it can be set fine without any recompilation
+if done properly.
+
+> 
+> I actually don't see any reason you would ever want master abort mode off, 
+> other than you have buggy hardware. Unfortunately when you are working with 
+> PC's you have to assume you always have buggy hardware. I don't have much 
+> experience with other platforms, so I'll assume they are better (those of 
+> you with experience, please do not disillusion me.)
+
+Probably yes. 
+
+What you could do is to put a experimental patch that forces this always
+into -mm* for a few weeks and see if there are any bad reports.
+
+-Andi

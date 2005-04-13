@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVDMLYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVDMLZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVDMLYI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 07:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVDMLYH
+	id S261317AbVDMLZc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 07:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVDMLZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 07:24:07 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:14550 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261316AbVDMLYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 07:24:02 -0400
-Message-ID: <425D0144.9070207@grupopie.com>
-Date: Wed, 13 Apr 2005 12:23:48 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] create a kstrdup library function
-References: <42519911.508@grupopie.com>
-In-Reply-To: <42519911.508@grupopie.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Apr 2005 07:25:32 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45454 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261317AbVDMLZO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 07:25:14 -0400
+Date: Wed, 13 Apr 2005 13:24:52 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Andreas Steinmetz <ast@domdv.de>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       dtor_core@ameritech.net, acpi-devel@lists.sourceforge.net
+Subject: Re: 2.6.11 acpi battery state readout as source of keyboard/touchpad troubles
+Message-ID: <20050413112452.GA21023@elf.ucw.cz>
+References: <424AF9C3.4000905@domdv.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <424AF9C3.4000905@domdv.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques wrote:
-> Hi,
+Hi!
+
+> In traceing the source of my sporadic synaptics touchpad troubles
 > 
-> This patch creates a new kstrdup library function and changes the 
-> "local" implementations in several places to use this function.
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+> psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
+> 
+> and keyboard troubles (sporadically lost key up/down events) on an Acer
+> Aspire 1520 (x86_64, latest bios v1.09) I did enable the
+> report_lost_ticks option which did spit out stuff like the following at
+> regular intervals:
+> 
+> time.c: Lost 17 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 19 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 18 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> time.c: Lost 8 timer tick(s)! rip handle_IRQ_event+0x20/0x60)
+> 
+> This looked suspiciously like it happended when the the kde laptop
+> applet polled the battery status. So I did terminate the applet.
+> 
+> The result was no more lost ticks, no lost keyboard events and no more
+> lost touchpad sync.
+> 
+> To verify ACPI battery data as the source of trouble i did a simple
+> 
+> cat /proc/acpi/battery/BAT0/state
+...
 
-Arkadiusz Miskiewicz reported that this breaks compilation under PPC.
-
-Apparently, PPC builds a bootloader that links against lib.a but doesn't 
-expect any dependencies on slab. Since kstrdup calls kmalloc, this 
-breaks compilation.
-
-I can fix this by moving kstrdup into slab.c. This way this is treated 
-as an "allocation" function instead of a string function, so it makes 
-some sense to do this.
-
-Andrew, do you prefer an incremental patch against the current tree, or 
-a single clean patch against the current tree with all the current 
-kstrdup patches taken out?
-
+CONFIG_ACPI_DEBUG enabled by chance?
+								Pavel
 -- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+Boycott Kodak -- for their patent abuse against Java.

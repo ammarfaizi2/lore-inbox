@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVDMHor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVDMHpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbVDMHor (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 03:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVDMHor
+	id S262544AbVDMHpa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 03:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVDMHpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 03:44:47 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26383 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262520AbVDMHoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 03:44:32 -0400
-Date: Wed, 13 Apr 2005 08:44:27 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: "akpm@osdl.org" <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 006/198] arm: add comment about max_low_pfn/max_pfn
-Message-ID: <20050413084427.A1798@flint.arm.linux.org.uk>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@gmail.com>,
-	"akpm@osdl.org" <akpm@osdl.org>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <200504121030.j3CAUie5005135@shell0.pdx.osdl.net> <2cd57c900504122010430af248@mail.gmail.com>
+	Wed, 13 Apr 2005 03:45:25 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:58051 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262541AbVDMHpN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 03:45:13 -0400
+Date: Wed, 13 Apr 2005 09:45:10 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] new fifo I/O elevator that really does nothing at all
+Message-ID: <20050413074509.GF20044@suse.de>
+References: <7A4826DE8867D411BAB8009027AE9EB91DB47626@scsmsx401.amr.corp.intel.com> <200504121758.j3CHwQg11702@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <2cd57c900504122010430af248@mail.gmail.com>; from coywolf@gmail.com on Wed, Apr 13, 2005 at 11:10:35AM +0800
+In-Reply-To: <200504121758.j3CHwQg11702@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 11:10:35AM +0800, Coywolf Qi Hunt wrote:
-> I told rmk about this long time ago.
+On Tue, Apr 12 2005, Chen, Kenneth W wrote:
+> Chen, Kenneth W wrote on Tuesday, April 05, 2005 5:13 PM
+> > Jens Axboe wrote on Tuesday, April 05, 2005 7:54 AM
+> > > On Tue, Mar 29 2005, Chen, Kenneth W wrote:
+> > > > Jens Axboe wrote on Tuesday, March 29, 2005 12:04 PM
+> > > > > No such promise was ever made, noop just means it does 'basically
+> > > > > nothing'. It never meant FIFO in anyway, we cannot break the semantics
+> > > > > of block layer commands just for the hell of it.
+> > > >
+> > > > Acknowledged and understood, will try your patch shortly.
+> > >
+> > > Did you test it?
+> >
+> > Experiment is in the queue, should have a result in a day or two.
+> 
+> 
+> Jens, your patch works!  We are seeing a little bit increase in
 
-The kernel is a mess of DMA masks and maximum PFNs which all assume
-that memory always starts at zero, which I've mentioned before as
-well.
+Super.
 
-I might see about fixing this up properly when it causes real
-problems, but until then its better to document the behaviour.
+> indirect branch calls with your patch where our patch tries to remove
+> elevator_merge_fn() completely.  But the difference is all within
+> noise range.
+
+Yeah that is expected. Thanks for testing!
+
+> If there is no other issues (I don't see any), we would like to see
+> this patch merged upstream.  Thanks.
+
+I will pass it along.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Jens Axboe
+

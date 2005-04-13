@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVDMOZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVDMO0s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVDMOZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 10:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVDMOZ0
+	id S261352AbVDMO0s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 10:26:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVDMO0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 10:25:26 -0400
-Received: from mtk-sms-mail01.digi.com ([66.77.174.18]:41338 "EHLO
-	mtk-sms-mail01.digi.com") by vger.kernel.org with ESMTP
-	id S261347AbVDMOZX convert rfc822-to-8bit (ORCPT
+	Wed, 13 Apr 2005 10:26:47 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:2822 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S261352AbVDMO0i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 10:25:23 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Date: Wed, 13 Apr 2005 09:25:24 -0500
-Message-ID: <335DD0B75189FB428E5C32680089FB9F122171@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Digi Neo 8: linux-2.6.12_r2  jsm driver
-Thread-Index: AcU/+i2wZdu9Y9LFR8Sz+Q7jhGWgiwAOWZMA
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Christoph Hellwig" <hch@infradead.org>,
-       "Ricky Beam" <jfbeam@bluetronic.net>
-Cc: "Linux Kernel Mail List" <linux-kernel@vger.kernel.org>,
-       "Wen Xiong" <wendyx@us.ibm.com>
+	Wed, 13 Apr 2005 10:26:38 -0400
+Subject: Re: Exploit in 2.6 kernels
+From: Eric Rannaud <eric.rannaud@ens.fr>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: John M Collins <jmc@xisl.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050413130230.GO17865@csclub.uwaterloo.ca>
+References: <1113298455.16274.72.camel@caveman.xisl.com>
+	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
+	 <20050412210857.GT11199@shell0.pdx.osdl.net>
+	 <1113341579.3105.63.camel@caveman.xisl.com>
+	 <20050413130230.GO17865@csclub.uwaterloo.ca>
+Content-Type: text/plain
+Date: Wed, 13 Apr 2005 09:26:28 -0500
+Message-Id: <1113402388.5914.12.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Wed, 13 Apr 2005 16:26:31 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph, everyone,
+On Wed, 2005-04-13 at 09:02 -0400, Lennart Sorensen wrote:
+> modprobe nvidia || m-a -t prepare nvidia && m-a -t build nvidia && m-a -t install nvidia && modprobe nvidia
 
-> While Scott wrote most of the original code that ended up in the jsm
-driver
-> he's certainly not the maintainer in any sense.
+Something along the lines of:
+modprobe nvidia || sh NVIDIA-Linux-x86-1.0-6629-pkg1.run -s -f --no-network && modprobe nvidia
 
-Christoph, au contraire.
-You might want to check with Wendy again, on who the maintainer
-of the JSM driver code will be. =)
+should work on any distribution (it runs NVIDIA installer silently).
+(see sh NVIDIA-Linux-x86-1.0-6629-pkg1.run --advanced-options)
 
-At any rate, I have had enough insults from you now.
+    /er.
+-- 
+http://www.eleves.ens.fr/home/rannaud/
 
-I have a workaround in place for the JSM driver conflict,
-so I consider this matter closed.
-
-Scott

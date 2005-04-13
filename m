@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVDMFal@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVDMFrG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262079AbVDMFal (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 01:30:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVDMFah
+	id S262199AbVDMFrG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 01:47:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVDMFrG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 01:30:37 -0400
-Received: from mail27.sea5.speakeasy.net ([69.17.117.29]:30090 "EHLO
-	mail27.sea5.speakeasy.net") by vger.kernel.org with ESMTP
-	id S262079AbVDMFaY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 01:30:24 -0400
-Date: Tue, 12 Apr 2005 22:30:22 -0700 (PDT)
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Tomko <tomko@haha.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Why system call need to copy the date from the userspace before
- using it
-In-Reply-To: <425C9E55.6010607@haha.com>
-Message-ID: <Pine.LNX.4.58.0504122207280.30548@shell2.speakeasy.net>
-References: <425C9E55.6010607@haha.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Apr 2005 01:47:06 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:51883 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S262199AbVDMFrD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 01:47:03 -0400
+Date: Wed, 13 Apr 2005 01:46:58 -0400
+From: Raul Miller <moth@debian.org>
+To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear  copyright notice.
+Message-ID: <20050413014658.G24721@links.magenta.com>
+References: <Pine.LNX.4.58.0504122153210.3024@be1.lrz> <MDEHLPKNGKAHNMBLJOLKGEPBDBAB.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEPBDBAB.davids@webmaster.com>; from davids@webmaster.com on Tue, Apr 12, 2005 at 03:45:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Apr 2005, Tomko wrote:
+On Tue, Apr 12, 2005 at 03:45:43PM -0700, David Schwartz wrote:
+> 	This wasn't a copyright case. The court only refused to uphold the
+> agreement because there was no oppurtunity to review the agreement before
+> purchase. So it certainly wouldn't apply to a click-through type agreement.
 
-> Hi all,
->
-> I am new to linux , hope someone can help me.
-> While i am reading the source code of the linux system call , i find
-> that the system call need to call copy_from_user() to copy the data from
-> user space to kernel space before using it . Why not use it directly as
-> the system call has got the address ?  Furthermore , how to distinguish
-> between user space and kernel space ?
->
-> Thx a lot,
->
-> TOM
-> -
+http://www.answers.com/topic/first-sale-doctrine cites several cases,
+and has a very nice writeup on the current status of this issue.
 
-The quick and simple answer to this question is: data integrity.
+In essence, you're claiming that the difference between Davidson
+& Associates v. Internet Gateway Inc (2004) and other cases such as
+Softman v. Adobe (2001) and Novell, Inc. v. CPU Distrib., Inc. (2000)
+is that the presence of a click-through is the determining factor.
+Of course, it could just as easily be something else (for example,
+admitting in court agreement with the license).
 
-The main thing to understand is that, from the perspective of the
-kernel, any user input provided in the form of system calls must have
-immutable data. Only if the data is immutable can the kernel code parse
-it and decide what to do, without getting into really hairy race
-conditions. And, for that matter, it's much simpler and less error-prone
-to program code where you don't have to worry about the inputs changing
-around you all the time.
+Does this thread have anything to do with the linux kernel at this point?
 
-So, you might say, what's wrong with the user code giving the kernel a
-pointer to a userland buffer? After all, the calling task will be
-blocked while the system call is being executed on its behalf. The
-biggest problem is that the buffer can still be modified, while the
-system call is executing, by another userland thread running in the same
-virtual memory context. Or, for that matter, by another process that has
-this chunk of memory shared with the original task. There are
-innumerable ways for the data to potentially change in the middle of the
-system call, and the simplest solution ends up being to copy the data to
-kernelspace before working with it. That way, no userland tasks can
-change it on you.
-
-I'm sure there are other reasons for doing the copy, that someone will
-be able to chime in with. Other input is always welcome. :-)
-
--Vadim Lobanov
+-- 
+Raul

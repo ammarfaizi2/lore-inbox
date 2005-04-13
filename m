@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVDMJZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVDMJbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVDMJZM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 05:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVDMJZM
+	id S261271AbVDMJbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 05:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVDMJbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 05:25:12 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:45453 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S261273AbVDMJZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 05:25:05 -0400
-Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
-From: David Woodhouse <dwmw2@infradead.org>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
-In-Reply-To: <20050413085954.GA13251@pasky.ji.cz>
-References: <20050409200709.GC3451@pasky.ji.cz>
-	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
-	 <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz>
-	 <1113311256.20848.47.camel@hades.cambridge.redhat.com>
-	 <20050413094705.B1798@flint.arm.linux.org.uk>
-	 <20050413085954.GA13251@pasky.ji.cz>
-Content-Type: text/plain
-Date: Wed, 13 Apr 2005 10:25:04 +0100
-Message-Id: <1113384304.12012.166.camel@baythorne.infradead.org>
+	Wed, 13 Apr 2005 05:31:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:12296 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261271AbVDMJbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 05:31:03 -0400
+Date: Wed, 13 Apr 2005 10:30:52 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, David Eger <eger@havoc.gtf.org>,
+       Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Re: more git updates..
+Message-ID: <20050413103052.C1798@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Andrea Arcangeli <andrea@suse.de>, David Eger <eger@havoc.gtf.org>,
+	Petr Baudis <pasky@ucw.cz>, "Randy.Dunlap" <rddunlap@osdl.org>,
+	Ross Vandegrift <ross@jose.lug.udel.edu>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org> <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org> <20050412234005.GJ1521@opteron.random> <Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org>; from torvalds@osdl.org on Tue, Apr 12, 2005 at 04:45:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-13 at 10:59 +0200, Petr Baudis wrote:
-> Theoretically, you are never supposed to share your index if you work
-> in fully git environment. 
+On Tue, Apr 12, 2005 at 04:45:07PM -0700, Linus Torvalds wrote:
+> On Wed, 13 Apr 2005, Andrea Arcangeli wrote:
+> > At the rate of 9M for every 198 changeset checkins, that means I'll have
+> > to download 2.7G _uncompressible_ (i.e. already compressed with a bad
+> > per-file ratio due the too-small files) for a whole pack including all
+> > changesets without accounting the original 111MB of the original tree,
+> > with rsync -z of git.  That compares with 514M _compressible_ with CVS
+> > format on-disk, and with ~79M of the CVS-network download with rsync -z of
+> > the CVS repository (assuming default gzip compression level).
+> 
+> Yes. CVS is much denser.
+> 
+> CVS is also total crap. So your point is?
 
-Maybe -- if we are prepared to propagate the BK myth that network
-bandwidth and disk space are free. 
+And my entire 2.6.12-rc2 BK tree, unchecked out, is about 220MB, which
+is more dense than CVS.
 
-Meanwhile, in the real world, it'd be really useful to support sharing.
+BK is also a lot better than CVS.  So _your_ point is?
 
-I'd even like to see support for using multiple branches checked out of
-the same .git/ repository. We already cope with having multiple branches
-_in_ the repository -- all we need to do is cope with multiple indices
-too, so we can have different versions checked out.
- 
+8)
+
+Note: I'm _not_ arguing with your sentiments towards CVS.  However, I
+think the space usage point still stands.
+
+What is the space usage behaviour when you have multiple git trees?
+Do we need a git relink command in git-pasky? 8)
+
 -- 
-dwmw2
-
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVDMQP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVDMQTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVDMQP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 12:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVDMQP4
+	id S261393AbVDMQTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 12:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVDMQTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 12:15:56 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:62666 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261394AbVDMQPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 12:15:33 -0400
-Date: Wed, 13 Apr 2005 10:45:18 -0700
-From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Message-Id: <200504131745.j3DHjIVE017612@snoqualmie.dp.intel.com>
-To: ak@muc.de
-Subject: [patch] minor syctl fix in vsyscall_init
-Cc: linux-kernel@vger.kernel.org
+	Wed, 13 Apr 2005 12:19:15 -0400
+Received: from fire.osdl.org ([65.172.181.4]:54993 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261393AbVDMQTB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 12:19:01 -0400
+Date: Wed, 13 Apr 2005 09:18:12 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jani Jaakkola <jjaakkol@cs.Helsinki.FI>, dhowells@redhat.com,
+       linux-kernel@vger.kernel.org, stable@kernel.org
+Subject: Re: [stable] Re: [PATCH] Fix reproducible SMP crash in security/keys/key.c
+Message-ID: <20050413161812.GZ11199@shell0.pdx.osdl.net>
+References: <Pine.LNX.4.58.0504122129510.3075@x40-4.cs.helsinki.fi> <20050413020246.37e77feb.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050413020246.37e77feb.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Andrew Morton (akpm@osdl.org) wrote:
+> Jani Jaakkola <jjaakkol@cs.Helsinki.FI> wrote:
+> >
+> > SMP race handling is broken in key_user_lookup() in security/keys/key.c
+> 
+> This was fixed post-2.6.11.  Can you confirm that 2.6.12-rc2 works OK?
+> 
+> This is the patch we used.  It should go into -stable if it's not already
+> there.
 
-Andi,
-
-If CONFIG_SYCTL is not enabled then the x86-64 tree
-fails to build due to use of a symbol that is not 
-compiled in.  Don't bother compiling in the sysctl
-register call if not building with sysctl.  
-
-matt
-
-Signed-off-by: Matt Tolentino <matthew.e.tolentino@intel.com>
-
-
-diff -urNp linux-2.6.12-rc2/arch/x86_64/kernel/vsyscall.c linux-2.6.12-rc2-m/arch/x86_64/kernel/vsyscall.c
---- linux-2.6.12-rc2/arch/x86_64/kernel/vsyscall.c	2005-04-04 12:39:06.000000000 -0400
-+++ linux-2.6.12-rc2-m/arch/x86_64/kernel/vsyscall.c	2005-04-13 09:28:47.000000000 -0400
-@@ -218,7 +218,9 @@ static int __init vsyscall_init(void)
- 	BUG_ON((VSYSCALL_ADDR(0) != __fix_to_virt(VSYSCALL_FIRST_PAGE)));
- 	map_vsyscall();
- 	sysctl_vsyscall = 1;
-+#ifdef CONFIG_SYSCTL
- 	register_sysctl_table(kernel_root_table2, 0);
-+#endif
- 	return 0;
- }
- 
+No, it's not in -stable, queued up, thanks.
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

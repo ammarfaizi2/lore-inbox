@@ -1,117 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVDMCLj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262405AbVDMCQV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbVDMCLj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 22:11:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262624AbVDLTub
+	id S262405AbVDMCQV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:16:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263067AbVDMCOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:50:31 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61384 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262170AbVDLKcB (ORCPT
+	Tue, 12 Apr 2005 22:14:07 -0400
+Received: from gate.crashing.org ([63.228.1.57]:58024 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262158AbVDMCJ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:01 -0400
-Message-Id: <200504121031.j3CAVoC3005419@shell0.pdx.osdl.net>
-Subject: [patch 073/198] x86_64: Make IRDA devices are not really ISA devices not depend on CONFIG_ISA
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:43 -0700
+	Tue, 12 Apr 2005 22:09:27 -0400
+Subject: [PATCH] ppc64: add PT_NOTE section to vDSO
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Roland McGrath <roland@frob.com>
+Content-Type: text/plain
+Date: Wed, 13 Apr 2005 12:07:44 +1000
+Message-Id: <1113358065.5388.164.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi !
 
-From: "Andi Kleen" <ak@suse.de>
+This patch from Roland adds a PT_NOTE section to both 32 and 64 bits
+vDSOs to expose the kernel version to glibc, thus avoiding a uname
+syscall on every launch. This is equivalent to the patches Roland posted
+already for x86 and x86-64.
 
-This allows to use them on x86-64
+Note: the 64 bits .note is actually using the 32 bits format. This is
+normal. The ELF spec specifies a different format for 64 bits .note, but
+for some reason, this was never properly implemented, the core dumps for
+example are all using 32 bits format .note, and binutils cannot even
+read a 64 bits format .note. Talking to our toolchain folks, they think
+we'd rather stick to 32 bits format .note everywhere and get the spec
+fixed some day ...
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
+Signed-off-by: Roland McGrath <roland@redhat.com>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
- 25-akpm/drivers/net/irda/Kconfig       |   10 +++++-----
- 25-akpm/include/net/irda/irda_device.h |    2 --
- 25-akpm/net/irda/irda_device.c         |    4 +---
- 3 files changed, 6 insertions(+), 10 deletions(-)
 
-diff -puN drivers/net/irda/Kconfig~x86_64-make-irda-devices-are-not-really-isa-devices-not drivers/net/irda/Kconfig
---- 25/drivers/net/irda/Kconfig~x86_64-make-irda-devices-are-not-really-isa-devices-not	2005-04-12 03:21:20.901959320 -0700
-+++ 25-akpm/drivers/net/irda/Kconfig	2005-04-12 03:21:20.907958408 -0700
-@@ -310,7 +310,7 @@ config SIGMATEL_FIR
+Index: linux-work/arch/ppc64/kernel/vdso32/Makefile
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/vdso32/Makefile	2005-04-13 11:15:21.000000000 +1000
++++ linux-work/arch/ppc64/kernel/vdso32/Makefile	2005-04-13 11:19:53.000000000 +1000
+@@ -1,7 +1,7 @@
  
- config NSC_FIR
- 	tristate "NSC PC87108/PC87338"
--	depends on IRDA && ISA
-+	depends on IRDA
- 	help
- 	  Say Y here if you want to build support for the NSC PC87108 and
- 	  PC87338 IrDA chipsets.  This driver supports SIR,
-@@ -321,7 +321,7 @@ config NSC_FIR
+ # List of files in the vdso, has to be asm only for now
  
- config WINBOND_FIR
- 	tristate "Winbond W83977AF (IR)"
--	depends on IRDA && ISA
-+	depends on IRDA
- 	help
- 	  Say Y here if you want to build IrDA support for the Winbond
- 	  W83977AF super-io chipset.  This driver should be used for the IrDA
-@@ -347,7 +347,7 @@ config AU1000_FIR
+-obj-vdso32 = sigtramp.o gettimeofday.o datapage.o cacheflush.o
++obj-vdso32 = sigtramp.o gettimeofday.o datapage.o cacheflush.o note.o
  
- config SMC_IRCC_FIR
- 	tristate "SMSC IrCC (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && IRDA && ISA
-+	depends on EXPERIMENTAL && IRDA
- 	help
- 	  Say Y here if you want to build support for the SMC Infrared
- 	  Communications Controller.  It is used in a wide variety of
-@@ -357,7 +357,7 @@ config SMC_IRCC_FIR
+ # Build rules
  
- config ALI_FIR
- 	tristate "ALi M5123 FIR (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && IRDA && ISA
-+	depends on EXPERIMENTAL && IRDA
- 	help
- 	  Say Y here if you want to build support for the ALi M5123 FIR
- 	  Controller.  The ALi M5123 FIR Controller is embedded in ALi M1543C,
-@@ -385,7 +385,7 @@ config SA1100_FIR
+Index: linux-work/arch/ppc64/kernel/vdso32/vdso32.lds.S
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/vdso32/vdso32.lds.S	2005-04-13 11:15:21.000000000 +1000
++++ linux-work/arch/ppc64/kernel/vdso32/vdso32.lds.S	2005-04-13 11:19:53.000000000 +1000
+@@ -20,6 +20,8 @@
+   .gnu.version_d  : { *(.gnu.version_d) }
+   .gnu.version_r  : { *(.gnu.version_r) }
  
- config VIA_FIR
- 	tristate "VIA VT8231/VT1211 SIR/MIR/FIR"
--	depends on IRDA && ISA && PCI
-+	depends on IRDA
- 	help
- 	  Say Y here if you want to build support for the VIA VT8231
- 	  and VIA VT1211 IrDA controllers, found on the motherboards using
-diff -puN include/net/irda/irda_device.h~x86_64-make-irda-devices-are-not-really-isa-devices-not include/net/irda/irda_device.h
---- 25/include/net/irda/irda_device.h~x86_64-make-irda-devices-are-not-really-isa-devices-not	2005-04-12 03:21:20.902959168 -0700
-+++ 25-akpm/include/net/irda/irda_device.h	2005-04-12 03:21:20.907958408 -0700
-@@ -235,9 +235,7 @@ int  irda_device_register_dongle(struct 
- dongle_t *irda_device_dongle_init(struct net_device *dev, int type);
- int irda_device_dongle_cleanup(dongle_t *dongle);
- 
--#ifdef CONFIG_ISA
- void irda_setup_dma(int channel, dma_addr_t buffer, int count, int mode);
--#endif
- 
- void irda_task_delete(struct irda_task *task);
- struct irda_task *irda_task_execute(void *instance, 
-diff -puN net/irda/irda_device.c~x86_64-make-irda-devices-are-not-really-isa-devices-not net/irda/irda_device.c
---- 25/net/irda/irda_device.c~x86_64-make-irda-devices-are-not-really-isa-devices-not	2005-04-12 03:21:20.903959016 -0700
-+++ 25-akpm/net/irda/irda_device.c	2005-04-12 03:21:20.908958256 -0700
-@@ -470,11 +470,10 @@ void irda_device_unregister_dongle(struc
++  .note		  : { *(.note.*) } 			:text	:note
++
+   . = ALIGN (16);
+   .text :
+   {
+@@ -87,6 +89,7 @@
+ PHDRS
+ {
+   text PT_LOAD FILEHDR PHDRS FLAGS(5); /* PF_R|PF_X */
++  note PT_NOTE FLAGS(4); /* PF_R */
+   dynamic PT_DYNAMIC FLAGS(4); /* PF_R */
+   eh_frame_hdr 0x6474e550; /* PT_GNU_EH_FRAME, but ld doesn't match the name */
  }
- EXPORT_SYMBOL(irda_device_unregister_dongle);
+Index: linux-work/arch/ppc64/kernel/vdso64/Makefile
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/vdso64/Makefile	2005-04-13 11:15:21.000000000 +1000
++++ linux-work/arch/ppc64/kernel/vdso64/Makefile	2005-04-13 11:20:35.000000000 +1000
+@@ -1,6 +1,6 @@
+ # List of files in the vdso, has to be asm only for now
  
--#ifdef CONFIG_ISA
- /*
-  * Function setup_dma (idev, buffer, count, mode)
-  *
-- *    Setup the DMA channel. Commonly used by ISA FIR drivers
-+ *    Setup the DMA channel. Commonly used by LPC FIR drivers
-  *
-  */
- void irda_setup_dma(int channel, dma_addr_t buffer, int count, int mode)
-@@ -493,4 +492,3 @@ void irda_setup_dma(int channel, dma_add
- 	release_dma_lock(flags);
+-obj-vdso64 = sigtramp.o gettimeofday.o datapage.o cacheflush.o
++obj-vdso64 = sigtramp.o gettimeofday.o datapage.o cacheflush.o note.o
+ 
+ # Build rules
+ 
+Index: linux-work/arch/ppc64/kernel/vdso64/vdso64.lds.S
+===================================================================
+--- linux-work.orig/arch/ppc64/kernel/vdso64/vdso64.lds.S	2005-04-13 11:15:21.000000000 +1000
++++ linux-work/arch/ppc64/kernel/vdso64/vdso64.lds.S	2005-04-13 11:19:53.000000000 +1000
+@@ -18,12 +18,14 @@
+   .gnu.version_d  : { *(.gnu.version_d) }
+   .gnu.version_r  : { *(.gnu.version_r) }
+ 
++  .note		  : { *(.note.*) }		:text	:note
++
+   . = ALIGN (16);
+   .text           :
+   {
+     *(.text .stub .text.* .gnu.linkonce.t.*)
+     *(.sfpr .glink)
+-  }
++  }						:text
+   PROVIDE (__etext = .);
+   PROVIDE (_etext = .);
+   PROVIDE (etext = .);
+@@ -88,6 +90,7 @@
+ PHDRS
+ {
+   text PT_LOAD FILEHDR PHDRS FLAGS(5); /* PF_R|PF_X */
++  note PT_NOTE FLAGS(4); /* PF_R */
+   dynamic PT_DYNAMIC FLAGS(4); /* PF_R */
+   eh_frame_hdr 0x6474e550; /* PT_GNU_EH_FRAME, but ld doesn't match the name */
  }
- EXPORT_SYMBOL(irda_setup_dma);
--#endif
-_
+Index: linux-work/arch/ppc64/kernel/vdso32/note.S
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-work/arch/ppc64/kernel/vdso32/note.S	2005-04-13 11:19:53.000000000 +1000
+@@ -0,0 +1,25 @@
++/*
++ * This supplies .note.* sections to go into the PT_NOTE inside the vDSO text.
++ * Here we can supply some information useful to userland.
++ */
++
++#include <linux/uts.h>
++#include <linux/version.h>
++
++#define ASM_ELF_NOTE_BEGIN(name, flags, vendor, type)			      \
++	.section name, flags;						      \
++	.balign 4;							      \
++	.long 1f - 0f;		/* name length */			      \
++	.long 3f - 2f;		/* data length */			      \
++	.long type;		/* note type */				      \
++0:	.asciz vendor;		/* vendor name */			      \
++1:	.balign 4;							      \
++2:
++
++#define ASM_ELF_NOTE_END						      \
++3:	.balign 4;		/* pad out section */			      \
++	.previous
++
++	ASM_ELF_NOTE_BEGIN(".note.kernel-version", "a", UTS_SYSNAME, 0)
++	.long LINUX_VERSION_CODE
++	ASM_ELF_NOTE_END
+Index: linux-work/arch/ppc64/kernel/vdso64/note.S
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-work/arch/ppc64/kernel/vdso64/note.S	2005-04-13 11:23:10.000000000 +1000
+@@ -0,0 +1 @@
++#include "../vdso32/note.S"
+
+

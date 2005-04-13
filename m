@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVDMTIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVDMTKc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVDMTIf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:08:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVDMTIf
+	id S261228AbVDMTKc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:10:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVDMTKc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:08:35 -0400
-Received: from av9-1-sn4.m-sp.skanova.net ([81.228.10.108]:34179 "EHLO
-	av9-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S261212AbVDMTI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:08:28 -0400
-X-Mailer: exmh version 2.7.2 04/02/2003 (gentoo 2.7.2) with nmh-1.1
-To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: DVD writer and IDE support... 
-In-reply-to: <20050413183722.GQ17865@csclub.uwaterloo.ca> 
-References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org> <20050413183722.GQ17865@csclub.uwaterloo.ca>
-Comments: In-reply-to lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-   message dated "Wed, 13 Apr 2005 14:37:22 -0400."
-Mime-Version: 1.0
+	Wed, 13 Apr 2005 15:10:32 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:49171 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S261214AbVDMTJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 15:09:38 -0400
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: Andrew Morton <akpm@osdl.org>, libor@topspin.com,
+       linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH][RFC][0/4] InfiniBand userspace verbs implementation
+X-Message-Flag: Warning: May contain useful information
+References: <200544159.Ahk9l0puXy39U6u6@topspin.com>
+	<20050411142213.GC26127@kalmia.hozed.org> <52mzs51g5g.fsf@topspin.com>
+	<20050411163342.GE26127@kalmia.hozed.org> <5264yt1cbu.fsf@topspin.com>
+	<20050411180107.GF26127@kalmia.hozed.org> <52oeclyyw3.fsf@topspin.com>
+	<20050411171347.7e05859f.akpm@osdl.org> <521x9gyhe7.fsf@topspin.com>
+	<20050412182357.GA24047@mellanox.co.il>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 13 Apr 2005 11:28:03 -0700
+In-Reply-To: <20050412182357.GA24047@mellanox.co.il> (Michael S. Tsirkin's
+ message of "Tue, 12 Apr 2005 21:23:57 +0300")
+Message-ID: <52sm1upm4s.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Apr 2005 21:07:56 +0200
-From: aeriksson@fastmail.fm
-Message-Id: <20050413190756.54474240480@latitude.mynet.no-ip.org>
+X-OriginalArrivalTime: 13 Apr 2005 18:28:03.0688 (UTC) FILETIME=[87A2B680:01C54056]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Apr 13, 2005 at 08:14:21PM +0200, aeriksson@fastmail.fm wrote:
-<snip>
-> 
-> Well it does look odd that it loads with one and not the other.  Which
-> kernel is this with?
-> 
-It's with 2.6.11.7
+OK, I'm by no means an expert on this, but Libor and I looked at
+rmap.c a little more, and there is code:
 
-> Does writing CDs and DVDs actually work using ide-scsi?  Does it work
-> using ide-cd?
+	if ((vma->vm_flags & (VM_LOCKED|VM_RESERVED)) ||
+			ptep_clear_flush_young(vma, address, pte)) {
+		ret = SWAP_FAIL;
+		goto out_unmap;
+	}
 
-Dunno yet. What's the fastest way to dump a file to a (fs on) a blank 
-4.7 GB DVD RW? As I said this is not my home turf so I have to read 
-up on the commands to use (I guess I'm not dd'ing an iso image to 
-/dev/hdc...)
+before the check
 
-> 
-> Len Sorensen
-> 
-Thanks for helping out.
+	if (PageSwapCache(page) &&
+	    page_count(page) != page_mapcount(page) + 2) {
+		ret = SWAP_FAIL;
+		goto out_unmap;
+	}
 
-/Anders
+If userspace allocates some memory but doesn't touch it aside from
+passing the address in to the kernel, which does get_user_pages(), the
+PTE will be young in that first test, right?  Does that mean that
+the userspace mapping will be cleared and userspace will get a
+different physical page if it faults that address back in?
+
+ - R.
+
 

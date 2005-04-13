@@ -1,75 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVDMKIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVDMKRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVDMKIV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 06:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVDMKIV
+	id S261288AbVDMKRc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 06:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVDMKRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 06:08:21 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41692 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261284AbVDMKIP (ORCPT
+	Wed, 13 Apr 2005 06:17:32 -0400
+Received: from hs-grafik.net ([80.237.205.72]:52997 "EHLO hs-grafik.net")
+	by vger.kernel.org with ESMTP id S261288AbVDMKRY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 06:08:15 -0400
-Date: Wed, 13 Apr 2005 12:07:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jim Carter <jimc@math.ucla.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disc driver is module, software suspend fails
-Message-ID: <20050413100756.GK1361@elf.ucw.cz>
-References: <Pine.LNX.4.61.0504101612240.10130@xena.cft.ca.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0504101612240.10130@xena.cft.ca.us>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 13 Apr 2005 06:17:24 -0400
+From: Alexander Gran <alex@zodiac.dnsalias.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: NULL pointe rin reiserfs
+Date: Wed, 13 Apr 2005 12:17:15 +0200
+User-Agent: KMail/1.7.2
+X-Need-Girlfriend: always
+X-Ignorant-User: yes
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1627162.6abTV5Z7vx";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200504131217.17308@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--nextPart1627162.6abTV5Z7vx
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Ne 10-04-05 16:14:52, Jim Carter wrote:
-> On Wed, 30 Mar 2005, Pavel Machek wrote: 
-> > You do not want to mount journaling filesystems; they tend to write to
-> > disks even during read-only mounts... But doing it from initrd should
-> > be okay. ext2 and init=/bin/bash should do the trick, too.
-> 
-> I did give it a try -- successfully.  
-> 
-> For reference I recite the original issue: the driver for my primary
-> disc is in the initrd, not hardwired.  (It's ata_piix and friends, but
-> the same issue happens if you boot from RAID or other weird devices.  As
-> modern systems tend to have a SATA disc, more and more people are
-> complaining on the web that software suspend has stopped working after
-> they upgraded their machines.)  software_suspend would suspend all the
-> way, then immediately wake up having accomplished nothing (but broken
-> nothing either).  In kernel 2.6.12-rc1 but not 2.6.8 it complains "can't
-> find swap device".  If this safety check is unwisely overriden so a
-> suspend image is written, and you then resume (providing the device by
-> number), it fails to read the image using the driver which it hasn't
-> loaded yet.
+Hi,
 
-Yep.
+after resizing a reiserfs partition, the next cvs process produced:
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+c0192701
+*pde =3D 00000000
+Oops: 0000 [#1]
+PREEMPT
+Modules linked in: usbserial md5 ipv6 sk98lin
+CPU:    0
+EIP:    0060:[<c0192701>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.10-rc1-k7-vrs1)
+EIP is at scan_bitmap_block+0x41/0x2c0
+eax: f2d0d000   ebx: c6630eac   ecx: 00027305   edx: 00000000
+esi: f2d0d060   edi: c6630c48   ebp: eeeb3200   esp: c6630bdc
+ds: 007b   es: 007b   ss: 0068
+Process cvs (pid: 11807, threadinfo=3Dc6630000 task=3Dd7545ae0)
+Stack: 04040404 04040404 00005109 00184859 430034ec 00000800 542e1a94 3e846=
+bff
+       b75bcfc3 0000000c c6630c48 eeeb3200 00000000 c0192c57 c6630eac 00000=
+00c
+       c6630c48 00008000 00000002 00000002 00000001 eef8ce20 00007fff c6630=
+d68
+Call Trace:
+ [<c0192c57>] scan_bitmap+0x1d7/0x260
+ [<c0193ea6>] reiserfs_allocate_blocknrs+0x196/0x4f0
+ [<c01a15b2>] reiserfs_allocate_blocks_for_region+0x302/0x16d0
+ [<c0139b18>] add_to_page_cache+0x68/0xc0
+ [<c019b085>] make_cpu_key+0x55/0x60
+ [<c01a39a3>] reiserfs_prepare_file_region_for_write+0x6b3/0xa10
+ [<c01a42d5>] reiserfs_file_write+0x5d5/0x840
+ [<c0149b73>] do_no_page+0x63/0x350
+ [<c0117b80>] do_page_fault+0x3d0/0x5ee
+ [<c015913e>] vfs_write+0xbe/0x130
+ [<c0159281>] sys_write+0x51/0x80
+ [<c010623b>] syscall_call+0x7/0xb
+Code: 3c 8b 28 8b 0f 8b 85 50 01 00 00 8b 40 08 89 4c 24 14 8b 4b 10 85 c9 =
+8d=20
+34 d0 0f 84 7c 02 00 00 85 f6 0f 84 5a 02 00 00 8b 56 04 <8b> 02 83 e0 04 0=
+f=20
+85 3f 02 00 00 8d 74 26 00 0f b7 46 02 3b 44
 
-> This patch makes software_resume not a late_initcall but rather an
-> external subroutine similar to software_suspend, and calls it at the
-> beginning of mount_root (in init/do_mounts.c), just _after_ the initrd
-> (if any) and its driver have been seen.  This buried placement is needed
-> because there are several flow paths that call mount_root, and otherwise
-> each path would need to be monkeyed with.
+regards
+Alex
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://zodiac.dnsalias.org/misc/pgpkey.asc | Key-ID: 0x6D7DD291
 
-But the patch is very dangerous. Unsuspecting users will see their
-systems resumed after unsafe initrd is ran. It is okay for you,
-through..
+--nextPart1627162.6abTV5Z7vx
+Content-Type: application/pgp-signature
 
-What you want to do si to audit your initrd, then add echo to
-/sys/power/resume at the end...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-> So, what do you think?  Can we bring the benefit of software suspend to
-> systems with SATA or RAID boot discs?
+iD8DBQBCXPGt/aHb+2190pERAnRYAJ0RNf+794DNourR3RBs9tPIuCJgnwCgo3VV
+eLKcRmIK78h3NRYa2j2nDDA=
+=c3ms
+-----END PGP SIGNATURE-----
 
-Yes, but not this way. -rc2 already contains
-/sys/power/resume... (Better documentation would be needed, through).
-									Pavel
-
--- 
-Boycott Kodak -- for their patent abuse against Java.
+--nextPart1627162.6abTV5Z7vx--

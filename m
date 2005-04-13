@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVDMQsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVDMQvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVDMQsd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 12:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVDMQsd
+	id S261401AbVDMQvo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 12:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVDMQvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 12:48:33 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:38116 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261394AbVDMQs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 12:48:27 -0400
-To: jamie@shareable.org
-CC: bulb@ucw.cz, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050413161344.GC12825@mail.shareable.org> (message from Jamie
-	Lokier on Wed, 13 Apr 2005 17:13:44 +0100)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu> <20050412171338.GA14633@mail.shareable.org> <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu> <20050413125609.GA9571@vagabond> <E1DLjTV-0004oO-00@dorka.pomaz.szeredi.hu> <20050413161344.GC12825@mail.shareable.org>
-Message-Id: <E1DLl1x-0004uT-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 13 Apr 2005 18:47:57 +0200
+	Wed, 13 Apr 2005 12:51:44 -0400
+Received: from downeast.net ([204.176.212.2]:40157 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261402AbVDMQvX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 12:51:23 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: akpm@osdl.org
+Subject: Re: [patch 198/198] md: remove a number of misleading calls to MD_BUG
+Date: Wed, 13 Apr 2005 12:50:40 -0400
+User-Agent: KMail/1.8
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au
+References: <200504121033.j3CAXhUl005961@shell0.pdx.osdl.net>
+In-Reply-To: <200504121033.j3CAXhUl005961@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3046383.jsI1L8UyBZ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200504131250.46158.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Look up the rather large linux-kernel & linux-fsdevel thread "silent
-> semantic changes with reiser4" and it's followup threads, from last
-> year.
+--nextPart3046383.jsI1L8UyBZ
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Wow, it's 700+ messages.  I got through the first 40, and already feel
-dizzy :)
+On Tuesday 12 April 2005 06:33 am, akpm@osdl.org wrote:
+> Ginormous patch of sudden death and complete destruction.
 
-> It's already been tried.  You will also find sensible ideas on what
-> semantics it should have to do it properly.
+I would like to give you the Longest Patch on LKML Ever Award, for this 198=
+=20
+part monstrosity.
 
-OK, I understand the "slash -> directory, no-slash -> regular file"
-semantics.
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-How do you envision implementing this for "mount directory over file"?
+--nextPart3046383.jsI1L8UyBZ
+Content-Type: application/pgp-signature
 
-A new mount flag indicating that it's only to be followed down if
-there's a slash after the mountpoint?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Thanks,
-Miklos
+iD8DBQBCXU3l8Gvouk7G1cURApY/AKCia/c2N+kn0arZyJtnQO0MACPHMwCfaL7v
+Q6lSXV12SW9X0IjEYdDfKd0=
+=5uU7
+-----END PGP SIGNATURE-----
+
+--nextPart3046383.jsI1L8UyBZ--

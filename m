@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVDMNIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVDMNIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVDMNIt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 09:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDMNIt
+	id S261337AbVDMNIe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 09:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVDMNIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 09:08:49 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:9659 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S261338AbVDMNIm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 09:08:42 -0400
-Date: Wed, 13 Apr 2005 15:06:46 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: John M Collins <jmc@xisl.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Exploit in 2.6 kernels
-Message-ID: <20050413130646.GF32354@marowsky-bree.de>
-References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no> <20050413125921.GN17865@csclub.uwaterloo.ca>
+	Wed, 13 Apr 2005 09:08:34 -0400
+Received: from extgw-uk.mips.com ([62.254.210.129]:58119 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S261337AbVDMNIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 09:08:20 -0400
+Date: Wed, 13 Apr 2005 14:07:00 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Miles Bader <miles@gnu.org>
+Cc: Asfand Yar Qazi <ay0305@qazi.f2s.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why not GNU Arch instead of BitKeeper?
+Message-ID: <20050413130700.GA12244@linux-mips.org>
+References: <425CB996.5090905@qazi.f2s.com> <buo1x9f41zg.fsf@mctpc71.ucom.lsi.nec.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050413125921.GN17865@csclub.uwaterloo.ca>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <buo1x9f41zg.fsf@mctpc71.ucom.lsi.nec.co.jp>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-04-13T08:59:21, Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+On Wed, Apr 13, 2005 at 03:36:35PM +0900, Miles Bader wrote:
 
-> It is becoming harder and harder to find supported cards it seems.
-> Finding a card with decent 2D drivers for X can still be done, but 3D is
-> just not really an option it seems.  Even 2D seems to be a problem on
-> many cards if you don't use a binary only driver.
+> Asfand Yar Qazi <ay0305@qazi.f2s.com> writes:
+> > I'm surprised nobody considered GNU Arch 
+> > (http://www.gnu.org/software/gnu-arch/) to replace BitKeeper - it was 
+> > probably started in direct response to the Linux Kernel using a 
+> > non-free tool.
+> >
+> > I must say I haven't used it, but from reviews and comparisons I've 
+> > read, it seems to be a good tool.
+> 
+> I agree (I use it) -- but of course it has its own issues.  For instance
+> it has a _lot_ less attention payed to optimization than one might wish
+> (judging from "git", this is very important to Linus :-).  The concept
+> of "archives" and their associated namespace offer some nice advantages,
+> but is a very different model than BK uses, and I presume sticking with
+> the familiar and simple BK model was attractive.
 
-You are confusing the cause with the symptom.
+You can get somebody to be doing some work with bitkeeper within a few
+minutes.  Arch has a much longer getting started phase.
 
+  Ralf

@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVDMXll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVDMXmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVDMXll (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 19:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVDMXll
+	id S261229AbVDMXmT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 19:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVDMXmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 19:41:41 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:25864 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261227AbVDMXlh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 19:41:37 -0400
-Date: Thu, 14 Apr 2005 09:39:04 +1000
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andreas Steinmetz <ast@domdv.de>, rjw@sisk.pl,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050413233904.GA31174@gondor.apana.org.au>
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz>
-Mime-Version: 1.0
+	Wed, 13 Apr 2005 19:42:18 -0400
+Received: from khc.piap.pl ([195.187.100.11]:7172 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S261229AbVDMXmO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 19:42:14 -0400
+To: Matt Mackall <mpm@selenic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       David Eger <eger@havoc.gtf.org>, Petr Baudis <pasky@ucw.cz>,
+       "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: more git updates..
+References: <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
+	<Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
+	<20050412040519.GA17917@havoc.gtf.org>
+	<20050412081613.GA18545@pasky.ji.cz>
+	<20050412204429.GA24910@havoc.gtf.org>
+	<Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org>
+	<20050412234005.GJ1521@opteron.random>
+	<Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org>
+	<20050413001408.GL1521@opteron.random>
+	<Pine.LNX.4.58.0504121809380.4501@ppc970.osdl.org>
+	<20050413204451.GP25554@waste.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Thu, 14 Apr 2005 01:42:11 +0200
+In-Reply-To: <20050413204451.GP25554@waste.org> (Matt Mackall's message of
+ "Wed, 13 Apr 2005 13:44:51 -0700")
+Message-ID: <m3vf6q1bxo.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050413232431.GF27197@elf.ucw.cz>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 01:24:31AM +0200, Pavel Machek wrote:
->
-> > The ssh keys are *encrypted* in the swap when dmcrypt is used.
-> > When the swap runs over dmcrypt all writes including those from
-> > swsusp are encrypted.
-> 
-> Andreas is right. They are encrypted in swap, but they should not be
-> there at all. And they are encrypted by key that is still available
-> after resume. Bad.
+Matt Mackall <mpm@selenic.com> writes:
 
-The dmcrypt swap can only be unlocked by the user with a passphrase,
-which is analogous to how you unlock your ssh private key stored
-on the disk using a passphrase.
+> Now if you can assume that blobs never change and are never deleted,
+> you can simply append them all onto a log, and then index them with a
+> separate file containing an htree of (sha1, offset, length) or the
+> like.
 
-So I don't see the problem.
+That mean a problem with rsync, though.
 
-> First version simply overwrote suspend image in swap with zeros. This
-> is more clever way to do same thing.
+BTW: I think the bandwidth increase compared to bkcvs isn't that obvious.
+After a file is modified with git, it has to be transmitted (plus
+small additional things.
+If a file is modified with bkcvs, it has to be transmitted (the whole
+RCS file) as well.
 
-This version looks to me like a custom implementation of dmcrypt that
-lives inside swsusp which ends up being either less secure than simply
-using dmcrypt due to the lack of a passphrase, or it's going to involve
-more hacks to get a passphrase from the user at resume time.
-
-Cheers,
+Only the initial rsync would be much smaller with bkcvs.
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Krzysztof Halasa

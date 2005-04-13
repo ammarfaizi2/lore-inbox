@@ -1,221 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVDMR0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVDMR34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVDMR0H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 13:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVDMR0H
+	id S261160AbVDMR34 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 13:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVDMR3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 13:26:07 -0400
-Received: from passcal.passcal.nmt.edu ([129.138.26.245]:25222 "EHLO
-	passcal.passcal.nmt.edu") by vger.kernel.org with ESMTP
-	id S261157AbVDMRZf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 13:25:35 -0400
-Subject: compact flash bug introduce 2.4.21
-From: Lloyd Carothers <lloyd@passcal.nmt.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Wed, 13 Apr 2005 11:25:34 -0600
-Message-Id: <1113413134.7148.234.camel@firestorm.passcal.nmt.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Apr 2005 13:29:55 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:46308 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261160AbVDMR3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 13:29:48 -0400
+To: jamie@shareable.org
+CC: aia21@cam.ac.uk, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050413170222.GJ12825@mail.shareable.org> (message from Jamie
+	Lokier on Wed, 13 Apr 2005 18:02:22 +0100)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk> <20050412215220.GA23321@mail.shareable.org> <E1DLdwo-0004SE-00@dorka.pomaz.szeredi.hu> <20050413170222.GJ12825@mail.shareable.org>
+Message-Id: <E1DLlgD-0004xe-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 13 Apr 2005 19:29:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
- A bug was introduced in 2.4.20. I determined this with a Barthomje,
-pardon my misspelling, is he still on this team, a few months back, I
-now have the logs of the card being inserted into the same laptop with
-the 2.4.20 and the 2.4.21.
- The problem cf cards are SimpleTech 1GB.
- Used with a pcmcia adapter on IBM thinkpads, I get the same results
-with other laptops.
- All other brands of CF I tried work fine through 2.6.10
+> > I have a little project to imlement a "userloop" filesystem, which
+> > works just like "mount -o loop", but you don't need root privs.  This
+> > is really simple to do with FUSE and UML.
+> 
+> That would be a nice way to implement those rarely used old
+> filesystems that aren't really needed in the kernel source tree any
+> more, but which it would be nice to have access to as legacy
+> filesystem formats.
+> 
+> In other words, migrating old legacy filesystems out of the kernel
+> tree, into FUSE.
 
- The errors repeat for a while I put them all in
+Not much migration would be needed other than deleting from the
+current kernel.  As long as the lagacy filesystem exists in a kernel
+that has UML support it should just work.
 
+> > I don't think that it's far feched, that in certain situations the
+> > user _does_ have the right (and usefulness) to do otherwise privileged
+> > filesystem operations.
+> 
+> It's really a matter of philosophy, as to whether the results of
+> stat() are just handy information for the user, or are always defined
+> to mean what you can/can't do with a file.
 
-2.4.20
-...
-Mar  7 00:35:26 localhost cardmgr[995]: socket 0: ATA/IDE Fixed Disk
-Mar  7 00:35:26 localhost kernel: cs: memory probe
-0xa0000000-0xa0ffffff: clean.
-Mar  7 00:35:27 localhost kernel: hde: STI Flash S.1.0, ATA DISK drive
-Mar  7 00:35:28 localhost kernel: ide2 at 0x100-0x107,0x10e on irq 3
-Mar  7 00:35:28 localhost kernel: hde: 2002896 sectors (1025 MB) w/1KiB
-Cache, CHS=1987/16/63
-Mar  7 00:35:28 localhost kernel:  hde: [PTBL] [993/32/63] hde1
-Mar  7 00:35:28 localhost kernel: ide_cs: hde: Vcc = 3.3, Vpp = 0.0
-Mar  7 00:37:17 localhost kernel:  hde: hde1
-...
+Yes, this is the very heart of the conflict between my and your
+(Christoph's, etc) view.
 
-2.4.21
-...
-Mar  7 00:35:27 localhost kernel: hde: STI Flash S.1.0, ATA DISK drive
-Mar  7 00:35:28 localhost kernel: ide2 at 0x100-0x107,0x10e on irq 3
-Mar  7 00:35:28 localhost kernel: hde: 2002896 sectors (1025 MB) w/1KiB
-Cache, CHS=1987/16/63
-Mar  7 00:35:28 localhost kernel:  hde: [PTBL] [993/32/63] hde1
-Mar  7 00:35:28 localhost kernel: ide_cs: hde: Vcc = 3.3, Vpp = 0.0
-Mar  7 00:37:17 localhost kernel:  hde: hde1
-...
+I argue for more flexibilty, i.e. less policy in kernel, which is a
+good thing generally.  
 
-Mar  7 00:41:54 localhost cardmgr[993]: socket 0: ATA/IDE Fixed Disk
-Mar  7 00:41:54 localhost kernel: cs: memory probe
-0xa0000000-0xa0ffffff: clean.
-Mar  7 00:41:54 localhost kernel: hde: STI Flash S.1.0, CFA DISK drive
-Mar  7 00:41:57 localhost kernel: ide2 at 0x100-0x107,0x10e on irq 3
-Mar  7 00:41:57 localhost kernel: hde: attached ide-disk driver.
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: 2002896 sectors (1025 MB) w/1KiB
-Cache, CHS=1987/16/63
-Mar  7 00:41:57 localhost kernel:  hde:hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 0
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 2
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 4
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 6
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 0
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 2
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 4
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel: ide2: reset: success
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
-Mar  7 00:41:57 localhost kernel: 
-Mar  7 00:41:57 localhost kernel: end_request: I/O error, dev 21:00
-(hde), sector 6
-Mar  7 00:41:57 localhost kernel: hde: drive not ready for command
-Mar  7 00:41:57 localhost kernel:  unable to read partition table
-Mar  7 00:41:57 localhost kernel: ide_cs: hde: Vcc = 3.3, Vpp = 0.0
-Mar  7 00:41:57 localhost kernel: hde: status error: status=0x20
-{ DeviceFault }
+As long as it's secure, what is the problem with it?  If users are
+confused, then they will chose the strict mode.  If somebody would
+like to see more information in the filesystem, they use the relaxed
+mode.
 
+The key here is security IMO.  So if you find a security problem with
+the relaxed mode (together with "hiding") then I bow my head.
 
-thanks in advance
--- 
-Lloyd Carothers
-IRIS PASSCAL Instrument Center
-100 East Road
-Tech Industrial Park
-New Mexico Institute of Mining and Technology
-Socorro,  New Mexico  87801
+Otherwise who cares if it confuses applications (haven't met any) or
+users.  It doensn't matter.  If it confuses anything or anyone, the
+filesystem writer can fix it.
 
-lloyd@passcal.nmt.edu
-www.passcal.nmt.edu
-ph 505-835-5083
-fax 505-835-5079
+> Local-ssh-into-UML makes more sense for this in some ways, because the
+> uids/gids inside your tgz files or foreign loop filesystems are not
+> related to the space of uids/gids of the host system.
 
+Ssh into UML is awkward, because you don't necessary have all the
+tools installed, have networking, etc.  And in UML the uid/gid won't
+make any more sense either.
+
+> Yet, the results from stat() don't distinguish the number spaces,
+> and "ls" doesn't map the numbers to names properly in the wrong
+> space.
+
+Well you can use "ls -n".  It's up to the tools to present the
+information you want in the way you want it.  If a tool can't do that,
+tough, but you are not worse off than if the information is not
+available _at_all_.
+
+Thanks,
+Miklos

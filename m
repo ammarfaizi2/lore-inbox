@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVDMTHs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVDMTIf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVDMTHs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 15:07:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVDMTHs
+	id S261212AbVDMTIf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 15:08:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVDMTIf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 15:07:48 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:7627 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261211AbVDMTHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 15:07:33 -0400
-Date: Wed, 13 Apr 2005 12:07:14 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: nickpiggin@yahoo.com.au, akpm@osdl.org
+	Wed, 13 Apr 2005 15:08:35 -0400
+Received: from av9-1-sn4.m-sp.skanova.net ([81.228.10.108]:34179 "EHLO
+	av9-1-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S261212AbVDMTI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 15:08:28 -0400
+X-Mailer: exmh version 2.7.2 04/02/2003 (gentoo 2.7.2) with nmh-1.1
+To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sched: fix active load balance
-Message-ID: <20050413120713.A25137@unix-os.sc.intel.com>
+Subject: Re: DVD writer and IDE support... 
+In-reply-to: <20050413183722.GQ17865@csclub.uwaterloo.ca> 
+References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org> <20050413183722.GQ17865@csclub.uwaterloo.ca>
+Comments: In-reply-to lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+   message dated "Wed, 13 Apr 2005 14:37:22 -0400."
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Date: Wed, 13 Apr 2005 21:07:56 +0200
+From: aeriksson@fastmail.fm
+Message-Id: <20050413190756.54474240480@latitude.mynet.no-ip.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recent changes to active load balance (sched2-fix-smt-scheduling-problems.patch
-in -mm) is not resulting in any task movement from busiest to target_cpu.
-Attached patch(ontop of -mm) fixes this issue.
+> On Wed, Apr 13, 2005 at 08:14:21PM +0200, aeriksson@fastmail.fm wrote:
+<snip>
+> 
+> Well it does look odd that it loads with one and not the other.  Which
+> kernel is this with?
+> 
+It's with 2.6.11.7
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+> Does writing CDs and DVDs actually work using ide-scsi?  Does it work
+> using ide-cd?
 
---- linux-2.6.12-rc2-mm3/kernel/sched.c	2005-04-11 23:08:30.875103512 -0700
-+++ linux/kernel/sched.c	2005-04-13 10:44:37.400829992 -0700
-@@ -2131,7 +2131,7 @@
-  */
- static void active_load_balance(runqueue_t *busiest_rq, int busiest_cpu)
- {
--	struct sched_domain *tmp = NULL, *sd;
-+	struct sched_domain *sd;
- 	runqueue_t *target_rq;
- 	int target_cpu = busiest_rq->push_cpu;
- 
-@@ -2152,13 +2152,10 @@
- 	double_lock_balance(busiest_rq, target_rq);
- 
- 	/* Search for an sd spanning us and the target CPU. */
--	for_each_domain(target_cpu, sd) {
-+	for_each_domain(target_cpu, sd)
- 		if ((sd->flags & SD_LOAD_BALANCE) &&
--			cpu_isset(busiest_cpu, sd->span)) {
--				sd = tmp;
-+			cpu_isset(busiest_cpu, sd->span))
- 				break;
--		}
--	}
- 
- 	if (unlikely(sd == NULL))
- 		goto out;
+Dunno yet. What's the fastest way to dump a file to a (fs on) a blank 
+4.7 GB DVD RW? As I said this is not my home turf so I have to read 
+up on the commands to use (I guess I'm not dd'ing an iso image to 
+/dev/hdc...)
+
+> 
+> Len Sorensen
+> 
+Thanks for helping out.
+
+/Anders
+

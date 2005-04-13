@@ -1,41 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVDMPJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVDMPWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVDMPJA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 11:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVDMPI7
+	id S261361AbVDMPWi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 11:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVDMPWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 11:08:59 -0400
-Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:21476 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261367AbVDMPI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 11:08:56 -0400
-To: bulb@ucw.cz
-CC: jamie@shareable.org, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-reply-to: <20050413125609.GA9571@vagabond> (message from Jan Hudec on Wed,
-	13 Apr 2005 14:56:09 +0200)
-Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
-References: <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu> <20050412171338.GA14633@mail.shareable.org> <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu> <20050413125609.GA9571@vagabond>
-Message-Id: <E1DLjTV-0004oO-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 13 Apr 2005 17:08:17 +0200
+	Wed, 13 Apr 2005 11:22:38 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:46483 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261361AbVDMPWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 11:22:37 -0400
+Message-ID: <425D3924.1070809@nortel.com>
+Date: Wed, 13 Apr 2005 09:22:12 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+CC: Lars Marowsky-Bree <lmb@suse.de>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       John M Collins <jmc@xisl.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Exploit in 2.6 kernels
+References: <1113298455.16274.72.camel@caveman.xisl.com> <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com> <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com> <425CEAC2.1050306@aitel.hist.no> <20050413125921.GN17865@csclub.uwaterloo.ca> <20050413130646.GF32354@marowsky-bree.de> <20050413132308.GP17865@csclub.uwaterloo.ca>
+In-Reply-To: <20050413132308.GP17865@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Aren't there some assumptions in VFS that currently make this
-> > impossible?
-> 
-> I believe it's OK with VFS, but applications would be confused to death.
-> Well, there really is one issue -- dentries have exactly one parent, so
-> what do you do when opening a file with hardlinks as a directory? (In
-> fact IIRC that is what lead to all the funny talk about mountpoints,
-> since they don't have this limitation)
+Lennart Sorensen wrote:
 
-OK, that makes sense.
+> Graphics card companies don't realize they are hardware companies not
+> software companies and that it is hardware they make their money from?
+> Oh and they have too many lawyers?
 
-It would be quite interesting to see how applications react.  Maybe
-I'll hack something up :)
+This has been mentioned before, but I'll say it again.
 
-Thanks,
-Miklos
+Nvidia has intellectual property from *other companies* in their 
+drivers/hardware.
+
+They are *not allowed* to make the specs public due to their agreements 
+with those other companies.
+
+It's that simple.
+
+Chris

@@ -1,92 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262808AbVDMCZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVDMCZC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262808AbVDMCZC (ORCPT <rfc822;willy@w.ods.org>);
+	id S262173AbVDMCZC (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 12 Apr 2005 22:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262178AbVDLTsW
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262542AbVDMCXL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:48:22 -0400
-Received: from fire.osdl.org ([65.172.181.4]:62664 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262173AbVDLKcC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:02 -0400
-Message-Id: <200504121031.j3CAVln9005407@shell0.pdx.osdl.net>
-Subject: [patch 070/198] x86_64 genapic update
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, jason@rightthere.net,
-       ak@suse.de, jason.davis@unisys.com
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:41 -0700
+	Tue, 12 Apr 2005 22:23:11 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:29457 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262539AbVDMCRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 22:17:31 -0400
+Date: Wed, 13 Apr 2005 04:17:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bfennema@falcon.csc.calpoly.edu, linux_udf@hpesjro.fc.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/udf/udftime.c: fix off by one error
+Message-ID: <20050413021726.GO3631@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes an off by one error found by the Coverity checker.
 
-From: Jason Davis <jason@rightthere.net>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-x86_64 genapic mechanism should be aware of machines that use physical APIC
-mode regardless of how many clusters/processors are detected.
-
-ACPI 3.0 FADT makes this determination very simple by providing a feature
-flag "force_apic_physical_destination_mode" to state whether the machine
-unconditionally uses physical APIC mode.
-
-Unisys' next generation x86_64 ES7000 will need to utilize this FADT
-feature flag in order to boot the x86_64 kernel in the correct APIC mode. 
-This patch has been tested on both x86_64 commodity and ES7000 boxes.
-
-Signed-off-by: Jason Davis <jason.davis@unisys.com>
-Acked-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/i386/kernel/acpi/boot.c |    4 ++++
- 25-akpm/arch/x86_64/kernel/genapic.c |   16 ++++++++++++++++
- 2 files changed, 20 insertions(+)
+This patch was already sent on:
+- 27 Mar 2005
 
-diff -puN arch/i386/kernel/acpi/boot.c~x86_64-genapic-update arch/i386/kernel/acpi/boot.c
---- 25/arch/i386/kernel/acpi/boot.c~x86_64-genapic-update	2005-04-12 03:21:20.212064200 -0700
-+++ 25-akpm/arch/i386/kernel/acpi/boot.c	2005-04-12 03:21:20.217063440 -0700
-@@ -608,6 +608,10 @@ static int __init acpi_parse_fadt(unsign
- 	acpi_fadt.sci_int = fadt->sci_int;
- #endif
+--- linux-2.6.12-rc1-mm1-full/fs/udf/udftime.c.old	2005-03-23 01:22:02.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/fs/udf/udftime.c	2005-03-23 01:22:13.000000000 +0100
+@@ -103,7 +103,7 @@ udf_stamp_to_time(time_t *dest, long *de
+ 		offset = 0;
  
-+	/* initialize rev and apic_phys_dest_mode for x86_64 genapic */
-+	acpi_fadt.revision = fadt->revision;
-+	acpi_fadt.force_apic_physical_destination_mode = fadt->force_apic_physical_destination_mode;
-+
- #ifdef CONFIG_X86_PM_TIMER
- 	/* detect the location of the ACPI PM Timer */
- 	if (fadt->revision >= FADT2_REVISION_ID) {
-diff -puN arch/x86_64/kernel/genapic.c~x86_64-genapic-update arch/x86_64/kernel/genapic.c
---- 25/arch/x86_64/kernel/genapic.c~x86_64-genapic-update	2005-04-12 03:21:20.214063896 -0700
-+++ 25-akpm/arch/x86_64/kernel/genapic.c	2005-04-12 03:21:20.218063288 -0700
-@@ -20,6 +20,10 @@
- #include <asm/smp.h>
- #include <asm/ipi.h>
- 
-+#if defined(CONFIG_ACPI_BUS)
-+#include <acpi/acpi_bus.h>
-+#endif
-+
- /* which logical CPU number maps to which CPU (physical APIC ID) */
- u8 x86_cpu_to_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
- EXPORT_SYMBOL(x86_cpu_to_apicid);
-@@ -47,6 +51,18 @@ void __init clustered_apic_check(void)
- 		goto print;
- 	}
- 
-+#if defined(CONFIG_ACPI_BUS)
-+	/*
-+	 * Some x86_64 machines use physical APIC mode regardless of how many
-+	 * procs/clusters are present (x86_64 ES7000 is an example).
-+	 */
-+	if (acpi_fadt.revision > FADT2_REVISION_ID)
-+		if (acpi_fadt.force_apic_physical_destination_mode) {
-+			genapic = &apic_cluster;
-+			goto print;
-+		}
-+#endif
-+
- 	memset(cluster_cnt, 0, sizeof(cluster_cnt));
- 
- 	for (i = 0; i < NR_CPUS; i++) {
-_
+ 	if ((src.year < EPOCH_YEAR) ||
+-		(src.year > EPOCH_YEAR+MAX_YEAR_SECONDS))
++		(src.year >= EPOCH_YEAR+MAX_YEAR_SECONDS))
+ 	{
+ 		*dest = -1;
+ 		*dest_usec = -1;
+

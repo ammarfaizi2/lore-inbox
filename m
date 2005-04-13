@@ -1,48 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVDMKlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVDMKnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVDMKlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 06:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVDMKlD
+	id S261299AbVDMKnK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 06:43:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVDMKnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 06:41:03 -0400
-Received: from mail-in-06.arcor-online.net ([151.189.21.46]:53454 "EHLO
-	mail-in-06.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261296AbVDMKk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 06:40:58 -0400
-From: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Subject: Re: [2.6 patch] sound/oss/rme96xx.c: fix two check after use
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>
-Reply-To: 7eggert@gmx.de
-Date: Wed, 13 Apr 2005 12:40:38 +0200
-References: <3SGgN-41r-1@gated-at.bofh.it> <3SGA8-4n3-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 13 Apr 2005 06:43:09 -0400
+Received: from mail.sysgo.com ([62.8.134.5]:44176 "EHLO mail.sysgo.com")
+	by vger.kernel.org with ESMTP id S261299AbVDMKmx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 06:42:53 -0400
+From: Rolf Offermanns <roffermanns@sysgo.com>
+Organization: SYSGO AG
+To: linux-kernel@vger.kernel.org
+Subject: mmap + dma_alloc_coherent
+Date: Wed, 13 Apr 2005 12:43:47 +0200
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1DLfIV-0000pl-Fa@be1.7eggert.dyndns.org>
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504131243.48694.roffermanns@sysgo.com>
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.2-8; AVE: 6.30.0.7; VDF: 6.30.0.92; host: mailgate2.sysgo.com)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@parcelfarce.linux.theplanet.co.uk> wrote:
-> On Wed, Apr 13, 2005 at 04:17:42AM +0200, Adrian Bunk wrote:
+Hi,
 
->> This patch fixes two check after use found by the Coverity checker.
-> 
-> Bullshit.  ->private_data is set by rme96xx_open() to guaranteed non-NULL
-> and never changed elsewhere.  Same comment about reading the fscking
-> source, BUG_ON(), etc.
+I would like to mmap a kernel buffer, allocated with pci_alloc_consistent()
+for DMA, to userspace and came up with the following. Since there seem to be
+some (unresolved) issues (see below) with this and I would like to do the
+RightThing(TM), I would appreciate your comments about my stuff.
 
-If there are checks, they should be there for a purpose, and any sane
-reader will asume these checks to be nescensary. If they are dead code, you
-can say that, but please don't flame Adrian for fixing obviously buggy code
-in a way that is sane and at least more correct than the original without
-using several days of his lifetime to analyze the whole driver. Instead, you
-could provide the correct fix.
+As for the unresolved issues, I found the following LKML threads to be very
+helpful in understanding the problem:
+1. (DMA API issues) 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108757847518687&w=2
+2. (can device drivers return non-ram via vm_ops->nopage?) 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107978968703503&w=2
+
+What I did (with comments on problematic / not fully clear to me parts):
+
+
+pci_probe():
+my_buffer = pci_alloc_consistent() (size: PAGE_SIZE << 4)
+
+------------------------------------------------------------------------
+my_mmap():
+vma->vm_ops = &my_vm_ops;
+vma->vm_flags |= (VM_RESERVED | VM_IO);
+my_vma_open(vma);
+
+my_vm_ops = {
+        .open = my_vm_open,
+        .close = my_vm_close,
+        .nopage = my_vm_nopage,
+}
+
+Q: Is VM_IO needed here? I took it from the sg.c driver.
+Q: I choosed nopage because remap_page_range does not work on RAM pages.
+   Correct?
+------------------------------------------------------------------------
+
+my_vm_open():
+increment vma usage count
+
+my_vm_close():
+decrement vma usage count
+
+my_vm_nopage():
+offset = (address - vma->vm_start) + (vma->vm_pgoff << PAGE_SHIFT);
+pageptr = my_buffer + offset;
+page = virt_to_page(pageptr);
+
+/* got it, now increment the count */
+get_page(page);
+
+if (type)
+{
+        *type = VM_FAULT_MINOR;
+}
+return page;
+
+Q: As seen in the threads mentioned above I should not use virt_to_page() on
+addresses I got from pci_alloc_consistent/dma_alloc_coherent. What is the
+right way to handle this?
+Q: get_page() increments the page refcount. Where is the correspondig
+put_page() operation? 
+--------------------------------------------------------------------------
+
+pci_remove():
+pci_free_consistent(my_buffer, ...)
+
+--------------------------------------------------------------------------
+
+
+I first tried the above and failed. Somehow my driver seemed to screw up the
+page tables. I noticed a function sg_correct4mmap() in the sg.c driver which
+"fixes" refcount handling on pages allocated using __get_free_pages() with
+order > 0. After implementing this things improved. Here are the changes:
+
+my_mmap():
+if (!mmap_called)
+{
+        correct4mmap(my_buffer, 1);
+        mmap_called = 1;
+}
+
+release():
+if (mmap_called)
+{
+        if (vma_usage_count == 0)
+        {
+                correct4mmap(my_buffer, 0)
+                mmap_called = 0;
+        }
+}
+
+Q: Can someone please briefly explain, why (if at all) this is needed?
+-----------------------------------------------------------------------------
+
+Somehow the whole thing does not "feel" right so I would really like some
+comments on this. I think this could be helpful to other, too.
+
+Quoting Jeff Garzik from one of the older threads:
+"My suggestion/request to the VM wizards would be to directly provide mmap
+helpers for dma/mmio/pio, that Does The Right Thing.  And require their
+use in every driver.  Don't give driver writers the opportunity to think
+about this stuff and/or screw it up."
+
+There are such helper functions on ARM and Russel tried to push them into
+the generic DMA API (the last time in June 2004, I think). Can any progress
+be expected regarding these helper functions?
+
+
+Thanks for your time.
+
+-Rolf
+
 -- 
-Funny quotes:
-33. If lawyers are disbarred and clergymen defrocked, doesn't it follow that
-    electricians can be delighted, musicians denoted, cowboys deranged, models
-    deposed, tree surgeons debarked, and dry cleaners depressed?
+Rolf Offermanns <roffermanns@sysgo.com>
+SYSGO AG     Tel.: +49-6136-9948-0
+Am Pfaffenstein 14   Fax: +49-6136-9948-10
+55270 Klein-Winternheim  http://www.sysgo.com
+

@@ -1,74 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVDMJoA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVDMJqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVDMJoA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 05:44:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVDMJn7
+	id S261282AbVDMJqm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 05:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVDMJql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 05:43:59 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:30481 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261273AbVDMJni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 05:43:38 -0400
-Message-ID: <425CEAC2.1050306@aitel.hist.no>
-Date: Wed, 13 Apr 2005 11:47:46 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: John M Collins <jmc@xisl.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Exploit in 2.6 kernels
-References: <1113298455.16274.72.camel@caveman.xisl.com>	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>	 <20050412210857.GT11199@shell0.pdx.osdl.net> <1113341579.3105.63.camel@caveman.xisl.com>
-In-Reply-To: <1113341579.3105.63.camel@caveman.xisl.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Apr 2005 05:46:41 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:9899 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261282AbVDMJqV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 05:46:21 -0400
+Date: Wed, 13 Apr 2005 11:46:19 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>
+Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
+Message-ID: <20050413094619.GQ16489@pasky.ji.cz>
+References: <Pine.LNX.4.58.0504091208470.6947@ppc970.osdl.org> <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz> <20050413103521.D1798@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050413103521.D1798@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John M Collins wrote:
+Dear diary, on Wed, Apr 13, 2005 at 11:35:21AM CEST, I got a letter
+where Russell King <rmk+lkml@arm.linux.org.uk> told me that...
+> On Mon, Apr 11, 2005 at 03:57:58PM +0200, Petr Baudis wrote:
+> >   here goes git-pasky-0.3, my set of patches and scripts upon
+> > Linus' git, aimed at human usability and to an extent a SCM-like usage.
+> 
+> I tried this today, applied my patch for BE<->LE conversions and
+> glibc-2.2 compatibility (attached, still requires cleaning though),
+> and then tried git pull.  Umm, whoops.
+> 
+> Here's just a small sample of what happened:
+> 
+> diff: /9a30ec42a6c4860d3f11ad90c1052823a020de32/show-files.c: No such file or directory
+> diff: /85bf824bd24f034896f5820a2628148a246f8fd1/show-files.c: No such file or directory
+> mkdir: cannot create directory `/9a30ec42a6c4860d3f11ad90c1052823a020de32': Permission denied
+> mkdir: cannot create directory `/85bf824bd24f034896f5820a2628148a246f8fd1': Permission denied
+> ./gitdiff-do: /9a30ec42a6c4860d3f11ad90c1052823a020de32/update-cache.c: No such
+> file or directory
+> ./gitdiff-do: /85bf824bd24f034896f5820a2628148a246f8fd1/update-cache.c: No such
+> file or directory
+> diff: /9a30ec42a6c4860d3f11ad90c1052823a020de32/update-cache.c: No such file or
+> directory
+> diff: /85bf824bd24f034896f5820a2628148a246f8fd1/update-cache.c: No such file or
+> directory
+> patch: **** Only garbage was found in the patch input.
 
->On Tue, 2005-04-12 at 14:08 -0700, Chris Wright wrote:
->  
->
->>* John M Collins (jmc@xisl.com) wrote:
->>    
->>
->>>Thanks to everyone for the pointers on this one I've rebuilt the kernels
->>>and we'll see what happens.
->>>      
->>>
->>BTW, I'd recommend updating to 2.6.11.7 so that you're protected from
->>another local root exploit.
->>    
->>
->
->I'll do that - trouble is round where I am they dish out Nvidia cards
->like confetti, I've got them in the machine I use most and another 2 and
->you have to do all that gyrating with running the script to FTP down and
->build the secret module before you can run X. This is a big disincentive
->when it comes to installing new kernels.
->
->I wish some kind soul would speak nicely to Nvidia and get them to see
->reason on the point but I suspect I'm not the first person to wish that.
->  
->
-You're not.  Complain to nvidia - using both email and snailmail.
-If everybody with such problems did that, chances are they see
-the light someday. Oh, and complain to the guy handing out
-nvidia cards like confetti, state your preference for some other
-card.  Perhaps that is easier to achieve.
+I'll bet at the top of this you have a mktemp error.
 
->(Or is there a sneaky way of patching the modules so they'll work in
->another kernel without tainting it?).
->  
->
-Whats wrong with tainting?  It is just a message, telling you that
-the kernel is unsupported.  In this case because you're running a
-closed-source module.  The tainting message itself does not do
-anything bad.  There is a way - which is to write an open nvidia
-driver.  To do that, you'll need to get the specs out of nvidia or
-figure it out by reverse-engineering some other nvidia driver. Either
-approach is hard, so people generally find it cheaper to just buy
-a supported card.
+mktemp turns out to be a PITA to use - on some older systems (e.g.
+Mandrake 10 stock install) it has incompatible usage to the rest of the
+world. When I will get a convenient infrastructure for making a shell
+library, I will probably add a test for this to it.
 
-Helge Hafting
+Try to upgrade your mktemp. That Mandrake 10 user said that urpmi should
+have a newer (correct) version.
+
+I will make a patch which will refer to ?time instead instead of
+?tim.sec for seconds. That should fix your problem.
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

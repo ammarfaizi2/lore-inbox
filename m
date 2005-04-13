@@ -1,44 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVDMFrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVDMGRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262199AbVDMFrG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 01:47:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVDMFrG
+	id S262245AbVDMGRI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 02:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVDMGRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 01:47:06 -0400
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:51883 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S262199AbVDMFrD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 01:47:03 -0400
-Date: Wed, 13 Apr 2005 01:46:58 -0400
-From: Raul Miller <moth@debian.org>
-To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear  copyright notice.
-Message-ID: <20050413014658.G24721@links.magenta.com>
-References: <Pine.LNX.4.58.0504122153210.3024@be1.lrz> <MDEHLPKNGKAHNMBLJOLKGEPBDBAB.davids@webmaster.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEPBDBAB.davids@webmaster.com>; from davids@webmaster.com on Tue, Apr 12, 2005 at 03:45:43PM -0700
+	Wed, 13 Apr 2005 02:17:08 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:17634 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S262245AbVDMGRG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 02:17:06 -0400
+Message-ID: <425CB996.5090905@qazi.f2s.com>
+Date: Wed, 13 Apr 2005 07:17:58 +0100
+From: Asfand Yar Qazi <ay0305@qazi.f2s.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041010
+X-Accept-Language: en-gb, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Why not GNU Arch instead of BitKeeper?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 03:45:43PM -0700, David Schwartz wrote:
-> 	This wasn't a copyright case. The court only refused to uphold the
-> agreement because there was no oppurtunity to review the agreement before
-> purchase. So it certainly wouldn't apply to a click-through type agreement.
+Hi,
 
-http://www.answers.com/topic/first-sale-doctrine cites several cases,
-and has a very nice writeup on the current status of this issue.
+I'm surprised nobody considered GNU Arch 
+(http://www.gnu.org/software/gnu-arch/) to replace BitKeeper - it was 
+probably started in direct response to the Linux Kernel using a 
+non-free tool.
 
-In essence, you're claiming that the difference between Davidson
-& Associates v. Internet Gateway Inc (2004) and other cases such as
-Softman v. Adobe (2001) and Novell, Inc. v. CPU Distrib., Inc. (2000)
-is that the presence of a click-through is the determining factor.
-Of course, it could just as easily be something else (for example,
-admitting in court agreement with the license).
-
-Does this thread have anything to do with the linux kernel at this point?
-
--- 
-Raul
+I must say I haven't used it, but from reviews and comparisons I've 
+read, it seems to be a good tool.

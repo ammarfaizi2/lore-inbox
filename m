@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVDMIzZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVDMI77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVDMIzZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 04:55:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDMIzZ
+	id S261262AbVDMI77 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 04:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDMI76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 04:55:25 -0400
-Received: from mailfe05.swip.net ([212.247.154.129]:17841 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261261AbVDMIzR (ORCPT
+	Wed, 13 Apr 2005 04:59:58 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:24234 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id S261262AbVDMI7z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 04:55:17 -0400
-X-T2-Posting-ID: dB8bZLHXm6KAmbp1mi7F+A==
-Subject: Re: [PATCH] Fix reproducible SMP crash in security/keys/key.c
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Jani Jaakkola <jjaakkol@cs.Helsinki.FI>
-Cc: David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0504122129510.3075@x40-4.cs.helsinki.fi>
-References: <Pine.LNX.4.58.0504122129510.3075@x40-4.cs.helsinki.fi>
-Content-Type: text/plain
-Date: Wed, 13 Apr 2005 10:55:15 +0200
-Message-Id: <1113382515.917.5.camel@localhost.localdomain>
+	Wed, 13 Apr 2005 04:59:55 -0400
+Date: Wed, 13 Apr 2005 10:59:54 +0200
+From: Petr Baudis <pasky@ucw.cz>
+To: David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
+Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
+Message-ID: <20050413085954.GA13251@pasky.ji.cz>
+References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz> <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz> <1113311256.20848.47.camel@hades.cambridge.redhat.com> <20050413094705.B1798@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050413094705.B1798@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tis 2005-04-12 klockan 21:58 +0300 skrev Jani Jaakkola:
-> SMP race handling is broken in key_user_lookup() in security/keys/key.c
-> (if CONFIG_KEYS is set to 'y'). This came up on our Samba servers, but is
-> not restricted to samba, though samba is probably the only software which
-> is likely to trigger this repeatedly (and it did happen allready four 
-> times here in University of Helsinki, CS department).
+Dear diary, on Wed, Apr 13, 2005 at 10:47:05AM CEST, I got a letter
+where Russell King <rmk+lkml@arm.linux.org.uk> told me that...
+> On Tue, Apr 12, 2005 at 02:07:36PM +0100, David Woodhouse wrote:
+> > I'd suggest making it [index] big-endian to make sure the LE weenies don't
+> > forget to byteswap properly.
 > 
-> However, it only takes two setreuid() calls at the same instant, so this
-> may be responsible for some other mysterious random crashes.
-> 
-> This is the same bug which was previously raported to LKML here (found by 
-> google):
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0502.2/0521.html
-> 
-> Here is a small test program, which can be used to trigger the bug and 
-> crash the machine where it is run. It might take a few seconds:
-> 
-> #include<unistd.h>
-> #include<stdio.h>
-> int main() {
->         int i;
->         fork();
->         while(1) {
->                 for(i=0;i<60000;i++) { setreuid(i,0); } 
->                 putchar('.'); fflush(stdout);
->         };
-> }
-> 
-> The (rather obvious) problem is that key_user_lookup() does not properly 
-> re-initialize the user lookup if there was a race.
-> 
-> This patch applies to vanilla 2.6.11.7 and latest fedora kernel
-> 2.6.11-1.14_FC3. When applied, the test program runs just fine (and does
-> nothing useful).
+> That's not a bad argument actually - especially as networking uses BE.
+> (and git is about networking, right?) 8)
 
-A fix went into mainline for this two months ago (post 2.6.11), but I
-probably should have sent it into -stable aswell.
+Theoretically, you are never supposed to share your index if you work in
+fully git environment. However, I offer some "base tarballs" which have
+the unpacked source as well as the .git directory, and I think you want
+the index there. Of course you can always regenerate it by
 
-For your own sake always use the latest kernel when looking at
-problems/fixes, things move fast around here :)
+	read-tree $(tree-id)
 
+but I really don't want to (hey, dwmw got away with that too! ;-). It
+forces an additional out-of-order step you need to do before making use
+of your git for the first time.
+
+The NFS argument obviously seems perfectly valid to me too.  So, FWIW,
+I'm personally all for it, if someone gives me a patch.
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+98% of the time I am right. Why worry about the other 3%.

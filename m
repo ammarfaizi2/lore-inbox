@@ -1,87 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVDMMkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVDMMo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVDMMkq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 08:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVDMMkp
+	id S261324AbVDMMo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 08:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVDMMo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 08:40:45 -0400
-Received: from alog0579.analogic.com ([208.224.223.116]:6125 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261322AbVDMMkf
+	Wed, 13 Apr 2005 08:44:26 -0400
+Received: from smtp2.wanadoo.fr ([193.252.22.29]:16114 "EHLO smtp2.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261324AbVDMMoV convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 08:40:35 -0400
-Date: Wed, 13 Apr 2005 08:40:05 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Hacksaw <hacksaw@hacksaw.org>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, Tomko <tomko@haha.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Why system call need to copy the date from the userspace before
-  using it
-In-Reply-To: <200504131159.j3DBxsoa010918@hacksaw.org>
-Message-ID: <Pine.LNX.4.61.0504130818300.12518@chaos.analogic.com>
-References: <200504131159.j3DBxsoa010918@hacksaw.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 13 Apr 2005 08:44:21 -0400
+X-ME-UUID: 20050413124420278.4412D1C001CF@mwinf0209.wanadoo.fr
+Subject: Re: Re: [ANNOUNCE] git-pasky-0.3
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Petr Baudis <pasky@ucw.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
+In-Reply-To: <1113384304.12012.166.camel@baythorne.infradead.org>
+References: <20050409200709.GC3451@pasky.ji.cz>
+	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
+	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
+	 <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz>
+	 <1113311256.20848.47.camel@hades.cambridge.redhat.com>
+	 <20050413094705.B1798@flint.arm.linux.org.uk>
+	 <20050413085954.GA13251@pasky.ji.cz>
+	 <1113384304.12012.166.camel@baythorne.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Date: Wed, 13 Apr 2005 14:43:48 +0200
+Message-Id: <1113396229.17538.134.camel@gonzales>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Apr 2005, Hacksaw wrote:
+Le mercredi 13 avril 2005 à 10:25 +0100, David Woodhouse a écrit :
+> On Wed, 2005-04-13 at 10:59 +0200, Petr Baudis wrote:
+> > Theoretically, you are never supposed to share your index if you work
+> > in fully git environment. 
+> 
+> Maybe -- if we are prepared to propagate the BK myth that network
+> bandwidth and disk space are free. 
 
->>> Why not use it directly
->> Some of these reasons are:
->
-> It seems like you gave reason why userland pointers shouldn't be trusted, not
-> why userland data should be copied into kernel land. All the problems you
-> mentioned would have to be solved by the kernel regardless of copying the data
-> around.
->
+On a related note, maybe kernel.org should host .torrent files (and
+serve them) for the kernel git repository. That would ease the pain.
 
-You do not seem to understand. Assume that I did a read(fd, buf, len) and
-the length would overflow a user-mode buffer. One needs to make sure
-that the kernel is protected and the user gets a seg-fault. Since the
-kernel, in kernel mode, can do anything it pleases, including destroying
-itself, one needs to make sure that it won't. Therefore a special
-kind of memcpy() was designed, called copy_to/from_user to protect the
-kernel.
+	Xav
 
-> Ummm... Except for the who's mapped now problem. That's pretty weird. I guess
-> that's something that comes with trying to use tons of RAM in a 32 bit system.
->
-> I thought the big issue was the need to lock the page(s) during the call, and
-> maybe some tricky races which made the idea difficult.
-> --
 
-The kernel does NOT have to copy data from user-space before
-using it. In fact, user-mode pointers are valid in kernel-space
-when the kernel is performing a function on behalf of the user-
-mode code. The problem is that data-space is usually allocated
-in user-mode code (like using malloc()). When the kernel needs
-to access that buffer, it has no clue how much the user-code
-allocated. It can't trust that the user-code put in the right
-buffer length. Therefore, it needs to set up a user-mode trap
-if the access attempts to go beyond the buffer length.
-
-Examples of not copying to/from user mode is memory-mapped
-data. The kernel knows how much data was actually mapped. It
-also knows if it will page-fault when being accessed. If
-DMA is being performed to such memory, it needs to be reserved
-so it won't be paged. It also has to be non-cached so that
-writes that the CPU didn't do can be read properly by the CPU.
-
-Under these conditions, the kernel-mode code writes or DMAs
-directly to some user buffer. User-mode code needs to find
-out when new data are available, perhaps using select() or
-poll().
-
-If you are writing a driver, never attempt to copy/to/from/user
-with a spin-lock held. You need to allow page-faults to
-occur because the user's RAM may have been "borrowed" by
-somebody else (paged out). A page-fault needs to occur to
-replace the user's RAM-data and reconnect to the user's
-working-set.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

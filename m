@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVDMQru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVDMQsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVDMQru (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 12:47:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVDMQru
+	id S261394AbVDMQsd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 12:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVDMQsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 12:47:50 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:61641 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261391AbVDMQrq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 12:47:46 -0400
-Message-ID: <425D4D40.3040106@zytor.com>
-Date: Wed, 13 Apr 2005 09:48:00 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Xavier Bestel <xavier.bestel@free.fr>
-CC: David Woodhouse <dwmw2@infradead.org>, Petr Baudis <pasky@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
-Subject: Re: [ANNOUNCE] git-pasky-0.3
-References: <20050409200709.GC3451@pasky.ji.cz>	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>	 <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz>	 <1113311256.20848.47.camel@hades.cambridge.redhat.com>	 <20050413094705.B1798@flint.arm.linux.org.uk>	 <20050413085954.GA13251@pasky.ji.cz>	 <1113384304.12012.166.camel@baythorne.infradead.org> <1113396229.17538.134.camel@gonzales>
-In-Reply-To: <1113396229.17538.134.camel@gonzales>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 13 Apr 2005 12:48:33 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:38116 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261394AbVDMQs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 12:48:27 -0400
+To: jamie@shareable.org
+CC: bulb@ucw.cz, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050413161344.GC12825@mail.shareable.org> (message from Jamie
+	Lokier on Wed, 13 Apr 2005 17:13:44 +0100)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <20050412144529.GE10995@mail.shareable.org> <E1DLNAz-0001oI-00@dorka.pomaz.szeredi.hu> <20050412160409.GH10995@mail.shareable.org> <E1DLOI6-0001ws-00@dorka.pomaz.szeredi.hu> <20050412164401.GA14149@mail.shareable.org> <E1DLOfW-00020V-00@dorka.pomaz.szeredi.hu> <20050412171338.GA14633@mail.shareable.org> <E1DLQkL-0002DS-00@dorka.pomaz.szeredi.hu> <20050413125609.GA9571@vagabond> <E1DLjTV-0004oO-00@dorka.pomaz.szeredi.hu> <20050413161344.GC12825@mail.shareable.org>
+Message-Id: <E1DLl1x-0004uT-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 13 Apr 2005 18:47:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel wrote:
-> Le mercredi 13 avril 2005 à 10:25 +0100, David Woodhouse a écrit :
-> 
->>On Wed, 2005-04-13 at 10:59 +0200, Petr Baudis wrote:
->>
->>>Theoretically, you are never supposed to share your index if you work
->>>in fully git environment. 
->>
->>Maybe -- if we are prepared to propagate the BK myth that network
->>bandwidth and disk space are free. 
-> 
-> 
-> On a related note, maybe kernel.org should host .torrent files (and
-> serve them) for the kernel git repository. That would ease the pain.
-> 
+> Look up the rather large linux-kernel & linux-fsdevel thread "silent
+> semantic changes with reiser4" and it's followup threads, from last
+> year.
 
-/me inflicts major bodily harm on Xav.
+Wow, it's 700+ messages.  I got through the first 40, and already feel
+dizzy :)
 
-There is a reason we (kernel.org) doesn't touch Bittorrent: for a 
-variety of reasons, Bittorrent doesn't lend itself very well to 
-automation.  Jeff Garzik and I have been sketching on a sane replacement 
-for Bittorrent with the working name "Software Distribution Protocol", 
-but it's not even vaporware so far.
+> It's already been tried.  You will also find sensible ideas on what
+> semantics it should have to do it properly.
 
-	-hpa
+OK, I understand the "slash -> directory, no-slash -> regular file"
+semantics.
+
+How do you envision implementing this for "mount directory over file"?
+
+A new mount flag indicating that it's only to be followed down if
+there's a slash after the mountpoint?
+
+Thanks,
+Miklos

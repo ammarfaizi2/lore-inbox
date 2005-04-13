@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVDMVar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVDMVbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVDMVar (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 17:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVDMVar
+	id S261198AbVDMVbw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 17:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVDMVbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 17:30:47 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:52485 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261193AbVDMVal
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 17:30:41 -0400
-Date: Thu, 14 Apr 2005 07:27:31 +1000
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: rjw@sisk.pl, pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050413212731.GA27091@gondor.apana.org.au>
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de>
+	Wed, 13 Apr 2005 17:31:51 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:18633 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S261198AbVDMVbp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 17:31:45 -0400
+Subject: [PATCH] PC300 pci_enable_device fix
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: pc300@cyclades.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 13 Apr 2005 15:31:43 -0600
+Message-Id: <1113427903.21308.3.camel@eeyore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425D17B0.8070109@domdv.de>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 02:59:28PM +0200, Andreas Steinmetz wrote:
-> Herbert Xu wrote:
-> > What's wrong with using swap over dmcrypt + initramfs? People have
-> > already used that to do encrypted swsusp.
-> 
-> Nothing. The problem is the fact that after resume there is then
-> unencrypted(*) data on disk that should never have been there, e.g.
-> dm-crypt keys, ssh keys, ...
+Call pci_enable_device() before looking at IRQ and resources.
+The driver requires this fix or the "pci=routeirq" workaround
+on 2.6.10 and later kernels.
 
-Why is that? In the case of swap over dmcrypt, swsusp never reads/writes
-the disk directly.  All operations are done through dmcrypt.
+Reported and tested by Artur Lipowski.
 
-The user has to enter a password before the system can be resumed.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+===== drivers/net/wan/pc300_drv.c 1.24 vs edited =====
+--- 1.24/drivers/net/wan/pc300_drv.c	2004-12-29 12:25:16 -07:00
++++ edited/drivers/net/wan/pc300_drv.c	2005-04-13 13:35:21 -06:00
+@@ -3439,6 +3439,9 @@
+ #endif
+ 	}
+ 
++	if ((err = pci_enable_device(pdev)) != 0)
++		return err;
++
+ 	card = (pc300_t *) kmalloc(sizeof(pc300_t), GFP_KERNEL);
+ 	if (card == NULL) {
+ 		printk("PC300 found at RAM 0x%08lx, "
+@@ -3526,9 +3529,6 @@
+ 		err = -ENODEV;
+ 		goto err_release_ram;
+ 	}
+-
+-	if ((err = pci_enable_device(pdev)) != 0)
+-		goto err_release_sca;
+ 
+ 	card->hw.plxbase = ioremap(card->hw.plxphys, card->hw.plxsize);
+ 	card->hw.rambase = ioremap(card->hw.ramphys, card->hw.alloc_ramsize);
+
+

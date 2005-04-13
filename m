@@ -1,74 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVDMRq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVDMRvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbVDMRq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 13:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVDMRq0
+	id S261171AbVDMRvX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 13:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVDMRvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 13:46:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61059 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261172AbVDMRqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 13:46:13 -0400
-Date: Wed, 13 Apr 2005 18:46:11 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: "Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" 
-	<7eggert@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>
-Subject: Re: [2.6 patch] sound/oss/rme96xx.c: fix two check after use
-Message-ID: <20050413174611.GU8859@parcelfarce.linux.theplanet.co.uk>
-References: <3SGgN-41r-1@gated-at.bofh.it> <3SGA8-4n3-9@gated-at.bofh.it> <E1DLfIV-0000pl-Fa@be1.7eggert.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DLfIV-0000pl-Fa@be1.7eggert.dyndns.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 13 Apr 2005 13:51:22 -0400
+Received: from s0003.shadowconnect.net ([213.239.201.226]:22244 "EHLO
+	mail.shadowconnect.com") by vger.kernel.org with ESMTP
+	id S261171AbVDMRvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 13:51:17 -0400
+Message-ID: <425D5CCE.1050703@shadowconnect.com>
+Date: Wed, 13 Apr 2005 19:54:22 +0200
+From: Markus Lidel <Markus.Lidel@shadowconnect.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec 2010S i2o + x86_64 doesn't work
+References: <20050413160352.GA12841@xs4all.net>
+In-Reply-To: <20050413160352.GA12841@xs4all.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 12:40:38PM +0200, Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
-> Al Viro <viro@parcelfarce.linux.theplanet.co.uk> wrote:
-> > On Wed, Apr 13, 2005 at 04:17:42AM +0200, Adrian Bunk wrote:
-> 
-> >> This patch fixes two check after use found by the Coverity checker.
-> > 
-> > Bullshit.  ->private_data is set by rme96xx_open() to guaranteed non-NULL
-> > and never changed elsewhere.  Same comment about reading the fscking
-> > source, BUG_ON(), etc.
-> 
-> If there are checks, they should be there for a purpose, and any sane
-> reader will asume these checks to be nescensary.
+Hello,
 
-Really?  Even in "obviously buggy code"?
+Miquel van Smoorenburg wrote:
+> I have a supermicro dual xeon em64t system, X6DH8-XG2 motherboard,
+> 4 GB RAM, with an Adaptec zero raid 2010S i2o controller. In 32
+> bits mode it runs fine, both with the dpt_i2o driver and the
+> generic i2o_block driver using kernel 2.6.11.6.
+> In 64 bits mode however the dpt_i2o driver isn't supported, so
+> you have to use the generic i2o layer. But that doesn't work
+> either - sometimes when booting the partition table is detected,
+> sometimes it isn't. If it isn't, then fdisk /dev/i2o/hda works
+> but shows an empty disk (while there definitely are partitions
+> present)
+> In both cases doing a dd if=/dev/i2o/hda of=/dev/null crashes
+> the system.
+> According to http://i2o.shadowconnect.com/ , it should work.
+> I've upgraded the BIOS and firmware of the mobo and controller to
+> the latest versions - doesn't help. Can someone suggest what to
+> try next ?
 
-> If they are dead code, you
-> can say that, but please don't flame Adrian for fixing obviously buggy code
+Could you try out the 2.6.9 kernel, because i know that this one is working?
 
-...
+Also could you send me a complete output of dmesg?
 
-> in a way that is sane and at least more correct than the original without
-> using several days of his lifetime to analyze the whole driver.
 
-Funny, that.  "several days" in this case boils down to grep for accesses
-to that field in driver (and stuff #included from it).  Which yields exactly
-one assignment (in ->open()).  Combined with understanding that
-	a) ->open() is definitely going to be executed before any calls of
-->read() and
-	b) nothing in generic code ever touches ->private_data
-	c) if rme96xx_open() returns 0, it will leave us with non-NULL
-->private_data.
+Thank you very much.
 
-Five minutes total.  And no, "fix" did not give more correct code -
-in all cases it yields exactly the same behaviour.  All it does is
-	* shifting what in effect is if (0) {do something odd} from
-one place to another
-	* making the warning go away
 
-Note that warning had (correctly) pointed to fishy logics in the driver.
-Shutting it up and leaving the real problem intact (and hidden) is
-not particulary useful.
 
-> Instead, you
-> could provide the correct fix.
+Best regards,
 
-"Remove bogus checks".
+
+Markus Lidel
+------------------------------------------
+Markus Lidel (Senior IT Consultant)
+
+Shadow Connect GmbH
+Carl-Reisch-Weg 12
+D-86381 Krumbach
+Germany
+
+Phone:  +49 82 82/99 51-0
+Fax:    +49 82 82/99 51-11
+
+E-Mail: Markus.Lidel@shadowconnect.com
+URL:    http://www.shadowconnect.com

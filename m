@@ -1,116 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVDMK3h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVDMKax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbVDMK3h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 06:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVDMK3b
+	id S261297AbVDMKax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 06:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVDMK3t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 06:29:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:47562 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261294AbVDMK3O (ORCPT
+	Wed, 13 Apr 2005 06:29:49 -0400
+Received: from lug-owl.de ([195.71.106.12]:15052 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S261296AbVDMK3R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 06:29:14 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-	 <20050407081434.GA28008@elte.hu>
-	 <1112879303.2859.78.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112917023.3787.75.camel@dyn318043bld.beaverton.ibm.com>
-	 <1112971236.1975.104.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1112983801.10605.32.camel@dyn318043bld.beaverton.ibm.com>
-	 <1113220089.2164.52.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113244710.4413.38.camel@localhost.localdomain>
-	 <1113249435.2164.198.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113288087.4319.49.camel@localhost.localdomain>
-	 <1113304715.2404.39.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <1113348434.4125.54.camel@dyn318043bld.beaverton.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1113388142.3019.12.camel@sisko.sctweedie.blueyonder.co.uk>
+	Wed, 13 Apr 2005 06:29:17 -0400
+Date: Wed, 13 Apr 2005 12:29:16 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Tomko <tomko@haha.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why system call need to copy the date from the userspace before using it
+Message-ID: <20050413102916.GS4965@lug-owl.de>
+Mail-Followup-To: Tomko <tomko@haha.com>,
+	linux-kernel@vger.kernel.org
+References: <425C9E55.6010607@haha.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 13 Apr 2005 11:29:02 +0100
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JB7KW7Ey7eB5HOHs"
+Content-Disposition: inline
+In-Reply-To: <425C9E55.6010607@haha.com>
+X-Operating-System: Linux mail 2.6.10-rc2-bk5lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 2005-04-13 at 00:27, Mingming Cao wrote:
+--JB7KW7Ey7eB5HOHs
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > I wonder if there's not a simple solution for this --- mark the window
-> > as "provisional", and if any other task tries to allocate in the space
-> > immediately following such a window, it needs to block until that window
-> > is released.
+On Wed, 2005-04-13 12:21:41 +0800, Tomko <tomko@haha.com>
+wrote in message <425C9E55.6010607@haha.com>:
+> While i am reading the source code of the linux system call , i find=20
+> that the system call need to call copy_from_user() to copy the data from=
+=20
+> user space to kernel space before using it . Why not use it directly as=
+=20
+> the system call has got the address ?  Furthermore , how to distinguish=
+=20
+> between user space and kernel space ?
 
-> Sounds interesting. However that implies we need a write lock to mark
-> the window as provisional and block other files looking for windows near
-> it: we need to insert the provisional window into the tree and then mark
-> it as a temporary window, to really let other file notice this kind of
-> "hold".
+Think about the memory access. The page that contains the data could be
+swapped out, so the kernel isn't allowed to just access it, because it's
+not there.
 
-We need a lock for the tree modification, yes.
+MfG, JBG
 
-> I wonder if the benefit of read/write lock is worth all the hassles now.
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
+k!   O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
 
-The point of the provisional window is that you don't need read/write
-locks at all.  The provisional window lets you unlock the tree
-completely while you do the bitmap scan, so there's really no reason to
-have rwlocks for the tree any more.
+--JB7KW7Ey7eB5HOHs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-> If the new window's neighbor stays the same, we only need to roll
-> forward once.  If not, after a successful scan, we need to grab the
-> write lock, and make sure the window is still there.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-When we take the provisional window, we can make a note of how much
-space we have before the next window.  And because all future allocators
-will stall if they try to allocate at this point due to the provisional
-window, we know that that space will remain outside any other window
-until we come to fix the provisional window and potentially roll it
-forward to the space we found.
+iD8DBQFCXPR8Hb1edYOZ4bsRAglSAJ9j/glGSCAW8a+4a2RiYlwF8DBC0gCfen5r
+hMWD4bfymselxiM0vVV4oNM=
+=x6nX
+-----END PGP SIGNATURE-----
 
->  If we dropped the
-> lock without holding the new space, we have to search the whole tree
-> again to find out if the space is still there
-
-As long as the space is within the area between the provisional window
-and its successor, we don't need to do that.  (It gets more complex if
-the bitmap search returns a bit _beyond_ the next window, though.)
-
-> Also I am concerned about the possible
-> starvation on writers.
-
-In what way?
-
-> I am thinking, maybe back to the spin_lock is not that bad with the
-> "mark provisional" suggest you made?
-
-Right, that was the intent --- sorry if I didn't make it clear. 
-
->  It allows us to mark the new space
-> as provisional if we find a new space(prevent other window searching run
-> into the same neighborhood). We could release the lock and scan the
-> bitmap without worry about the new space will be taking by others.
-
-Exactly.
-
-Note that there _is_ some additional complexity here.  It's not entirely
-free.  Specifically, if we have other tasks waiting on our provisional
-window, then we need to be very careful about the life expectancy of the
-wait queues involved, so that if the first task fixes its window and
-then deletes it before the waiters have woken up, they don't get
-confused by the provisional window vanishing while being waited for.
-
-The easy solution is a global wait queue for that, but that doesn't
-scale well.  The complex solution is a per-window wait queue and
-reference count, which is obviously a bit of bloat, though probably
-worth it for the high-load case.
-
-Cheers,
- Stephen
-
+--JB7KW7Ey7eB5HOHs--

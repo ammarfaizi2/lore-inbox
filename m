@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVDLTjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbVDMCY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVDLTjG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 15:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVDLTgI
+	id S262647AbVDMCY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 22:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVDMCXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:36:08 -0400
-Received: from fire.osdl.org ([65.172.181.4]:1993 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262185AbVDLKcF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:05 -0400
-Message-Id: <200504121031.j3CAVwge005463@shell0.pdx.osdl.net>
-Subject: [patch 084/198] x86_64: Remove unused macro in preempt support
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:52 -0700
+	Tue, 12 Apr 2005 22:23:03 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30993 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262726AbVDMCRf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 22:17:35 -0400
+Date: Wed, 13 Apr 2005 04:17:32 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: adaplas@pol.net, linux-fbdev-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/video/console/fbcon.c: fix a check after use
+Message-ID: <20050413021732.GP3631@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch fixes a check after use found by the Coverity checker.
 
-From: "Andi Kleen" <ak@suse.de>
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-Remove unused macro in preempt support
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
 ---
 
- 25-akpm/arch/x86_64/kernel/entry.S |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
+This patch was already sent on:
+- 27 Mar 2005
 
-diff -puN arch/x86_64/kernel/entry.S~x86_64-remove-unused-macro-in-preempt-support arch/x86_64/kernel/entry.S
---- 25/arch/x86_64/kernel/entry.S~x86_64-remove-unused-macro-in-preempt-support	2005-04-12 03:21:23.267599688 -0700
-+++ 25-akpm/arch/x86_64/kernel/entry.S	2005-04-12 03:21:23.270599232 -0700
-@@ -44,10 +44,7 @@
+--- linux-2.6.12-rc1-mm1-full/drivers/video/console/fbcon.c.old	2005-03-23 04:53:20.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/drivers/video/console/fbcon.c	2005-03-23 04:53:44.000000000 +0100
+@@ -906,10 +906,13 @@ static void fbcon_init(struct vc_data *v
+ 	struct vc_data *svc = *default_mode;
+ 	struct display *t, *p = &fb_display[vc->vc_num];
+ 	int logo = 1, new_rows, new_cols, rows, cols, charcnt = 256;
+-	int cap = info->flags;
++	int cap;
  
- 	.code64
- 
--#ifdef CONFIG_PREEMPT
--#define preempt_stop cli
--#else
--#define preempt_stop
-+#ifndef CONFIG_PREEMPT
- #define retint_kernel retint_restore_args
- #endif	
- 	
-_
+ 	if (info_idx == -1 || info == NULL)
+ 	    return;
++
++	cap = info->flags;
++
+ 	if (vc != svc || logo_shown == FBCON_LOGO_DONTSHOW ||
+ 	    (info->fix.type == FB_TYPE_TEXT))
+ 		logo = 0;
+

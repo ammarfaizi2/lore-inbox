@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVDMJJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVDMJOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVDMJJj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 05:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVDMJJj
+	id S261265AbVDMJOm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 05:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVDMJOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 05:09:39 -0400
-Received: from baythorne.infradead.org ([81.187.226.107]:44173 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S261273AbVDMJJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 05:09:34 -0400
-Subject: Re: [ANNOUNCE] git-pasky-0.3
-From: David Woodhouse <dwmw2@infradead.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Petr Baudis <pasky@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>, git@vger.kernel.org
-In-Reply-To: <425CE11C.8040306@zytor.com>
-References: <20050409200709.GC3451@pasky.ji.cz>
-	 <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org>
-	 <20050410024157.GE3451@pasky.ji.cz> <20050410162723.GC26537@pasky.ji.cz>
-	 <20050411015852.GI5902@pasky.ji.cz> <20050411135758.GA3524@pasky.ji.cz>
-	 <1113311256.20848.47.camel@hades.cambridge.redhat.com>
-	 <20050413094705.B1798@flint.arm.linux.org.uk>
-	 <20050413085954.GA13251@pasky.ji.cz>  <425CE11C.8040306@zytor.com>
-Content-Type: text/plain
-Date: Wed, 13 Apr 2005 10:09:26 +0100
-Message-Id: <1113383366.12012.156.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 13 Apr 2005 05:14:42 -0400
+Received: from rev.193.226.232.28.euroweb.hu ([193.226.232.28]:28899 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261152AbVDMJOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 05:14:39 -0400
+To: jamie@shareable.org
+CC: aia21@cam.ac.uk, 7eggert@gmx.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, hch@infradead.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+In-reply-to: <20050412215220.GA23321@mail.shareable.org> (message from Jamie
+	Lokier on Tue, 12 Apr 2005 22:52:20 +0100)
+Subject: Re: [RFC] FUSE permission modell (Was: fuse review bits)
+References: <3S8oN-So-19@gated-at.bofh.it> <3S8oN-So-21@gated-at.bofh.it> <3S8oN-So-23@gated-at.bofh.it> <3S8oN-So-25@gated-at.bofh.it> <3S8oN-So-27@gated-at.bofh.it> <3S8oM-So-7@gated-at.bofh.it> <3SbPN-3T4-19@gated-at.bofh.it> <E1DLHWZ-0001Bg-SU@be1.7eggert.dyndns.org> <20050412144529.GE10995@mail.shareable.org> <Pine.LNX.4.60.0504122117010.26320@hermes-1.csi.cam.ac.uk> <20050412215220.GA23321@mail.shareable.org>
+Message-Id: <E1DLdwo-0004SE-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 13 Apr 2005 11:14:10 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-04-13 at 02:06 -0700, H. Peter Anvin wrote:
-> However, then I would also like to suggest replacing "unsigned int"
-> and "unsigned short" with uint32_t and uint16_t, even though they're 
-> consistent on all *current* Linux platforms.
+> > There are uses for both.  For example today I was updating the tar ball 
+> > which is used to create the var file system for a new chroot.  I certainly 
+> > want to see corretly setup owner/permissions when I look into that tar 
+> > ball using a FUSE fs...
+> 
+> If I'm updating a var filesystem for a new chroot, I'd need the
+> ability to chmod and chown things in that filesystem.  Does that work
+> as an ordinary user?
 
-Agreed.
+Yes, within UML for example. 
 
--- 
-dwmw2
+I have a little project to imlement a "userloop" filesystem, which
+works just like "mount -o loop", but you don't need root privs.  This
+is really simple to do with FUSE and UML.
 
+I don't think that it's far feched, that in certain situations the
+user _does_ have the right (and usefulness) to do otherwise privileged
+filesystem operations.
 
+Miklos

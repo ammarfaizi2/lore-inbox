@@ -1,53 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVDMVA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVDMV2S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbVDMVA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 17:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVDMVA2
+	id S261187AbVDMV2S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 17:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVDMV2S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 17:00:28 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:1240 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S261200AbVDMVAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 17:00:22 -0400
-X-Mailer: exmh version 2.7.2 04/02/2003 (gentoo 2.7.2) with nmh-1.1
-To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Wed, 13 Apr 2005 17:28:18 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:44698 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261187AbVDMV2J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 17:28:09 -0400
+Subject: Re: [2.4] "Fix" introduced in 2.4.27pre2 for bluetooth hci_usb
+	race causes kernel hang
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Tomas =?ISO-8859-1?Q?=D6gren?= <stric@acc.umu.se>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: DVD writer and IDE support... 
-In-reply-to: <20050413193924.GN521@csclub.uwaterloo.ca> 
-References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org> <20050413183722.GQ17865@csclub.uwaterloo.ca> <20050413190756.54474240480@latitude.mynet.no-ip.org> <20050413193924.GN521@csclub.uwaterloo.ca>
-Comments: In-reply-to lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-   message dated "Wed, 13 Apr 2005 15:39:24 -0400."
+In-Reply-To: <20050413103758.GA12780@shaka.acc.umu.se>
+References: <20050408195632.GA17621@shaka.acc.umu.se>
+	 <1113053955.9783.57.camel@pegasus>
+	 <20050413103758.GA12780@shaka.acc.umu.se>
+Content-Type: multipart/mixed; boundary="=-LBJEnVSApInmZXSGMW4F"
+Date: Wed, 13 Apr 2005 23:28:09 +0200
+Message-Id: <1113427689.16014.2.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 13 Apr 2005 22:59:49 +0200
-From: aeriksson@fastmail.fm
-Message-Id: <20050413205949.E987A240480@latitude.mynet.no-ip.org>
+X-Mailer: Evolution 2.2.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, Apr 13, 2005 at 09:07:56PM +0200, aeriksson@fastmail.fm wrote:
-> growisofs -Z /dev/hdc -J -R /path/to/dir/with/less/than/4.5GB/of/files
+
+--=-LBJEnVSApInmZXSGMW4F
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+Hi Tomas,
+
+> > > I have noticed a problem with a race condition fix introduced in
+> > > 2.4.27-pre2 that causes the kernel to hang when disconnecting a
+> > > Bluetooth USB dongle or doing 'hciconfig hci0 down'. No message is
+> > > printed, the kernel just doesn't respond anymore.
+> > > 
+> > > Seen in Changelog:
+> > > Marcel Holtmann:
+> > >   o [Bluetooth] Fix race in RX complete routine of the USB drivers
+> > > 
+> > > Reversing the following patch to hci_usb_rx_complete() makes 2.4.27-pre2
+> > > up until 2.4.30 happy and does not hang when removing the dongle
+> > > anymore. (bfusb.c has the same patch applied)
+> > > 
+> > > 2.6.11.7 does not show the same problem, but has similar code to the
+> > > "fixed" (that hangs) code in 2.4, so the real problem is probably
+> > > somewhere else.
+> > 
+> > does the attached patch makes any difference?
 > 
-> That should do it.  To do scsi I suspect it would be /dev/sg0 or
-> /dev/scd0.  I haven't actually tried burning in scsi emulation mode with
-> these drives.
-> 
-Nope. No go. The kernel log getsb these 4 lines:
-Apr 13 22:08:30 tippex SCSI error : <0 0 0 0> return code = 0x8000002
-Apr 13 22:08:30 tippex sr0: Current: sense key: Medium Error
-Apr 13 22:08:36 tippex SCSI error : <0 0 0 0> return code = 0x8000002
-Apr 13 22:08:36 tippex sr0: Current: sense key: Medium Error
+> It works just fine with pristine 2.4.30 and this patch. No deadlocks
+> anymore.
 
-and the application bails out with:
-:-[ WRITE@LBA=0h failed with SK=5h/ASC=30h/ACQ=05h]: Wrong medium type
-:-( media is not formatted or unsupported.
-:-( write failed: Wrong medium type
+if this works then we should do the same change in the bfusb driver. A
+patch that fixes both drivers is attached.
 
-This is with a fresh from the box DVD-RW. Do I need to 'format' the
-thing before writing to it? This is getting tricky... Are these kind
-of errors normally indicative of lack of support or a faulty unit?
-I have no windows around to test it with the shipped nero-cd :-(
+Regards
 
-/Anders
+Marcel
 
+
+--=-LBJEnVSApInmZXSGMW4F
+Content-Disposition: attachment; filename=patch
+Content-Type: text/plain; name=patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+===== drivers/bluetooth/bfusb.c 1.3 vs edited =====
+--- 1.3/drivers/bluetooth/bfusb.c	2004-04-16 14:01:40 +02:00
++++ edited/drivers/bluetooth/bfusb.c	2005-04-13 12:49:55 +02:00
+@@ -470,11 +470,10 @@
+ 		return 0;
+ 
+ 	write_lock_irqsave(&bfusb->lock, flags);
++	write_unlock_irqrestore(&bfusb->lock, flags);
+ 
+ 	bfusb_unlink_urbs(bfusb);
+ 	bfusb_flush(hdev);
+-
+-	write_unlock_irqrestore(&bfusb->lock, flags);
+ 
+ 	MOD_DEC_USE_COUNT;
+ 
+===== drivers/bluetooth/hci_usb.c 1.23 vs edited =====
+--- 1.23/drivers/bluetooth/hci_usb.c	2004-07-31 13:02:43 +02:00
++++ edited/drivers/bluetooth/hci_usb.c	2005-04-09 15:37:12 +02:00
+@@ -398,12 +398,12 @@
+ 
+ 	BT_DBG("%s", hdev->name);
+ 
++	/* Synchronize with completion handlers */
+ 	write_lock_irqsave(&husb->completion_lock, flags);
+-	
++	write_unlock_irqrestore(&husb->completion_lock, flags);
++
+ 	hci_usb_unlink_urbs(husb);
+ 	hci_usb_flush(hdev);
+-
+-	write_unlock_irqrestore(&husb->completion_lock, flags);
+ 
+ 	MOD_DEC_USE_COUNT;
+ 	return 0;
+
+--=-LBJEnVSApInmZXSGMW4F--
 

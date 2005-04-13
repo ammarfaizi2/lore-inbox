@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVDMDTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVDMDXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVDMDTM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 23:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVDLTch
+	id S262611AbVDMDXP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 23:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbVDMDTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 15:32:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:10953 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262190AbVDLKcP (ORCPT
+	Tue, 12 Apr 2005 23:19:23 -0400
+Received: from mail.aknet.ru ([217.67.122.194]:42504 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S262177AbVDMDSS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 06:32:15 -0400
-Message-Id: <200504121032.j3CAW2Bk005479@shell0.pdx.osdl.net>
-Subject: [patch 088/198] x86_64: Correct wrong comment in local.h
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, ak@suse.de
-From: akpm@osdl.org
-Date: Tue, 12 Apr 2005 03:31:55 -0700
+	Tue, 12 Apr 2005 23:18:18 -0400
+Message-ID: <425C8F88.6090908@aknet.ru>
+Date: Wed, 13 Apr 2005 07:18:32 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: petkov@uni-muenster.de, jamagallon@able.es, linux-kernel@vger.kernel.org
+Subject: Re: [patch 2/3]: entry.S trap return fixes
+References: <20050411012532.58593bc1.akpm@osdl.org>	<1113209793l.7664l.1l@werewolf.able.es>	<20050411024322.786b83de.akpm@osdl.org>	<200504112359.40487.petkov@uni-muenster.de>	<20050411152243.22835d96.akpm@osdl.org>	<425B4C92.1070507@aknet.ru>	<20050411212712.0dbd821d.akpm@osdl.org>	<425C25D3.7010703@aknet.ru> <20050412190940.066be192.akpm@osdl.org>
+In-Reply-To: <20050412190940.066be192.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-From: "Andi Kleen" <ak@suse.de>
+Andrew Morton wrote:
+>> do_debug() returns void, do_int3() too when
+> This patch is applicable to the mainline kernel, is it not?
+I think so - with some offsets it applies
+and looks valid.
 
-local_t is actually a win over atomic_t because it does not need lock
-prefixes.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/include/asm-x86_64/local.h |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-diff -puN include/asm-x86_64/local.h~x86_64-correct-wrong-comment-in-localh include/asm-x86_64/local.h
---- 25/include/asm-x86_64/local.h~x86_64-correct-wrong-comment-in-localh	2005-04-12 03:21:24.242451488 -0700
-+++ 25-akpm/include/asm-x86_64/local.h	2005-04-12 03:21:24.245451032 -0700
-@@ -45,7 +45,8 @@ static __inline__ void local_sub(unsigne
- 		:"ir" (i), "m" (v->counter));
- }
- 
--/* On x86, these are no better than the atomic variants. */
-+/* On x86-64 these are better than the atomic variants on SMP kernels
-+   because they dont use a lock prefix. */
- #define __local_inc(l)		local_inc(l)
- #define __local_dec(l)		local_dec(l)
- #define __local_add(i,l)	local_add((i),(l))
-_

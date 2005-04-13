@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVDNAGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVDNAHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVDNAGs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 20:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVDNAEI
+	id S261233AbVDNAHw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 20:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVDMXtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 20:04:08 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:29347 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id S261236AbVDNADP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 20:03:15 -0400
-From: "Bernd Schubert" <Bernd.Schubert@tc.pci.uni-heidelberg.de>
-Date: Thu, 14 Apr 2005 02:03:07 +0200
-To: Bradley Reed <bradreed1@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CDR read problems with 2.6.11?
-Message-ID: <20050414000307.GA15733@tc.pci.uni-heidelberg.de>
-References: <20050414013619.342cea4e@galactus.localdomain>
+	Wed, 13 Apr 2005 19:49:03 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:35592 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S261233AbVDMXoy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 19:44:54 -0400
+Date: Wed, 13 Apr 2005 19:38:45 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Cc: jgarzik@pobox.com, davem@davemloft.net
+Subject: [patch 2.6.12-rc2 7/10] tg3: more use of TG3_FLG2_5705_PLUS flag
+Message-ID: <04132005193845.8720@laptop>
+In-Reply-To: <04132005193845.8656@laptop>
+User-Agent: PatchPost/0.1
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050414013619.342cea4e@galactus.localdomain>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
-> 
-> root@galactus:~[1009]# mount /mnt/cdrom
-> mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
->        missing codepage or other error
->        In some cases useful info is found in syslog - try
->        dmesg | tail  or so
->        
+Rewrite of a couple of troublesome multi-way if statements to use
+TG3_FLG2_5705_PLUS flag.
 
-[...]
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-> The drive is a NEC DVD+RW ND-5100A
-> 
-> Any suggestions on why I can't read (or burn correctly) the disks with 2.6.11?
->
+ drivers/net/tg3.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
-I have seen exactly the same on my fathers computer and could solve this
-by not starting the udftools. Didn't have the time to digg further into
-this... 
-Can you confirm thats really a udf problem? Just run
-"/etc/init.d/udftools stop" or the similar for your distribution and try
-mounting again.
-
-Cheers,
-	Bernd
+--- bcm5752-support/drivers/net/tg3.c.orig	2005-04-08 18:00:31.886220435 -0400
++++ bcm5752-support/drivers/net/tg3.c	2005-04-08 18:08:55.969298725 -0400
+@@ -5237,10 +5237,8 @@ static int tg3_reset_hw(struct tg3 *tp)
+ 		      RDMAC_MODE_LNGREAD_ENAB);
+ 	if (tp->tg3_flags & TG3_FLAG_SPLIT_MODE)
+ 		rdmac_mode |= RDMAC_MODE_SPLIT_ENABLE;
+-	if ((GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5705 &&
+-	     tp->pci_chip_rev_id != CHIPREV_ID_5705_A0) ||
+-	    (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5750 ||
+-	     GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752)) {
++	if ((tp->tg3_flags2 & TG3_FLG2_5705_PLUS) &&
++	     tp->pci_chip_rev_id != CHIPREV_ID_5705_A0) {
+ 		if (tp->tg3_flags2 & TG3_FLG2_TSO_CAPABLE &&
+ 		    (tp->pci_chip_rev_id == CHIPREV_ID_5705_A1 ||
+ 		     tp->pci_chip_rev_id == CHIPREV_ID_5705_A2)) {
+@@ -5353,10 +5351,8 @@ static int tg3_reset_hw(struct tg3 *tp)
+ 	       WDMAC_MODE_FIFOURUN_ENAB | WDMAC_MODE_FIFOOREAD_ENAB |
+ 	       WDMAC_MODE_LNGREAD_ENAB);
+ 
+-	if ((GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5705 &&
+-	     tp->pci_chip_rev_id != CHIPREV_ID_5705_A0) ||
+-	    (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5750 ||
+-	     GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752)) {
++	if ((tp->tg3_flags2 & TG3_FLG2_5705_PLUS) &&
++	     tp->pci_chip_rev_id != CHIPREV_ID_5705_A0) {
+ 		if ((tp->tg3_flags & TG3_FLG2_TSO_CAPABLE) &&
+ 		    (tp->pci_chip_rev_id == CHIPREV_ID_5705_A1 ||
+ 		     tp->pci_chip_rev_id == CHIPREV_ID_5705_A2)) {

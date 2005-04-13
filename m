@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262966AbVDMANu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262957AbVDMARm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262966AbVDMANu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Apr 2005 20:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263026AbVDMANf
+	id S262957AbVDMARm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Apr 2005 20:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVDMANz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Apr 2005 20:13:35 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41327
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S262966AbVDMANN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Apr 2005 20:13:13 -0400
-Date: Wed, 13 Apr 2005 02:14:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Eger <eger@havoc.gtf.org>, Petr Baudis <pasky@ucw.cz>,
-       "Randy.Dunlap" <rddunlap@osdl.org>,
-       Ross Vandegrift <ross@jose.lug.udel.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Re: more git updates..
-Message-ID: <20050413001408.GL1521@opteron.random>
-References: <20050409200709.GC3451@pasky.ji.cz> <Pine.LNX.4.58.0504091320490.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091404350.1267@ppc970.osdl.org> <Pine.LNX.4.58.0504091617000.1267@ppc970.osdl.org> <20050412040519.GA17917@havoc.gtf.org> <20050412081613.GA18545@pasky.ji.cz> <20050412204429.GA24910@havoc.gtf.org> <Pine.LNX.4.58.0504121411030.4501@ppc970.osdl.org> <20050412234005.GJ1521@opteron.random> <Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0504121644430.4501@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Tue, 12 Apr 2005 20:13:55 -0400
+Received: from usbb-lacimss3.unisys.com ([192.63.108.53]:64522 "EHLO
+	usbb-lacimss3.unisys.com") by vger.kernel.org with ESMTP
+	id S263033AbVDMAE3 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Apr 2005 20:04:29 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Hotplug_sig] RE: [PATCH 1/6]sep initializing rework
+Date: Tue, 12 Apr 2005 19:04:20 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04AB8@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Hotplug_sig] RE: [PATCH 1/6]sep initializing rework
+Thread-Index: AcU/V/zEAgIOCEcxScKewF5TSmpUBwAMG8iAAAbEMOAABfzbYA==
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>,
+       "Li Shaohua" <shaohua.li@intel.com>
+Cc: "Andrew Morton" <akpm@osdl.org>,
+       "ACPI-DEV" <acpi-devel@lists.sourceforge.net>,
+       "lkml" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 13 Apr 2005 00:04:21.0268 (UTC) FILETIME=[57FF5540:01C53FBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 12, 2005 at 04:45:07PM -0700, Linus Torvalds wrote:
-> Yes. CVS is much denser.
->
-> CVS is also total crap. So your point is?
+ 
+> I forgot to mention that while working on the patch,
+> I found a problem with ACPI driver while counting number of records 
+> in acpi_table_parse_madt_family() (drivers/acpi/tables.c). 
+> It always returns 0 for the number of records, so this should be 
+> fixed for my patch to work properly, since I rely on number of 
+> lapic entries found by ACPI. I am going to post a bugzilla on this, 
+> for now it worked for me as follows:
+>    while (((unsigned long) entry) + sizeof(acpi_table_entry_header) <
+madt_end) {
+>                if (entry->type == entry_id &&
+>	 -            (!max_entries || count++ < max_entries) 
+>       +            ((count++ < max_entries) || !max_entries))
+> (it wasn't incrementing count if max_entries are >0 ).
 
-I wasn't suggesting to use CVS. I meant that for a newly developed SCM,
-the CVS/SCCS format as storage may be more appealing than the current
-git format. I guess I should have said RCS instead of CVS, sorry if that
-created any confusion. The arch/darcs approach of pratically storing
-patches would also be much denser but it has no efficient way of doing
-"rcs up -p 1.x" on a file, that doesn't involve potentially unpacking
-tons of unrelated changesets.
+Please disregard this: I couldn't reproduce it anymore, looks like it
+only happened on one system (I cannot remember on which one) and seems
+to work OK without the fix on any machine I'm trying it now...
+
+Thanks,
+--Natalie 

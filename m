@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVDMGgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVDMGsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVDMGgr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 02:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbVDMGgr
+	id S262320AbVDMGsO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 02:48:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVDMGsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 02:36:47 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:39319 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S262306AbVDMGgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 02:36:41 -0400
-To: Asfand Yar Qazi <ay0305@qazi.f2s.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why not GNU Arch instead of BitKeeper?
-References: <425CB996.5090905@qazi.f2s.com>
-From: Miles Bader <miles@lsi.nec.co.jp>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Wed, 13 Apr 2005 15:36:35 +0900
-In-Reply-To: <425CB996.5090905@qazi.f2s.com> (Asfand Yar Qazi's message of "Wed, 13 Apr 2005 07:17:58 +0100")
-Message-ID: <buo1x9f41zg.fsf@mctpc71.ucom.lsi.nec.co.jp>
+	Wed, 13 Apr 2005 02:48:14 -0400
+Received: from mail26.sea5.speakeasy.net ([69.17.117.28]:59332 "EHLO
+	mail26.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S262320AbVDMGsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 02:48:10 -0400
+Date: Tue, 12 Apr 2005 23:48:09 -0700 (PDT)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Eshwar <eshwar@moschip.com>
+cc: "'Tomko'" <tomko@haha.com>, linux-kernel@vger.kernel.org
+Subject: RE: Why system call need to copy the date from the userspace before
+ using it
+Message-ID: <Pine.LNX.4.58.0504122341310.20829@shell2.speakeasy.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Asfand Yar Qazi <ay0305@qazi.f2s.com> writes:
-> I'm surprised nobody considered GNU Arch 
-> (http://www.gnu.org/software/gnu-arch/) to replace BitKeeper - it was 
-> probably started in direct response to the Linux Kernel using a 
-> non-free tool.
+On Wed, 13 Apr 2005, Eshwar wrote:
+
 >
-> I must say I haven't used it, but from reviews and comparisons I've 
-> read, it seems to be a good tool.
+> >The quick and simple answer to this question is: data integrity.
+>
+> >The main thing to understand is that, from the perspective of the
+> >kernel, any user input provided in the form of system calls must have
+> >immutable data. Only if the data is immutable can the kernel code parse
+> >it and decide what to do, without getting into really hairy race
+> >conditions. And, for that matter, it's much simpler and less error-prone
+> >to program code where you don't have to worry about the inputs changing
+> >around you all the time.
+>
+> Does this approach lead to major performance bottleneck??
+>
 
-I agree (I use it) -- but of course it has its own issues.  For instance
-it has a _lot_ less attention payed to optimization than one might wish
-(judging from "git", this is very important to Linus :-).  The concept
-of "archives" and their associated namespace offer some nice advantages,
-but is a very different model than BK uses, and I presume sticking with
-the familiar and simple BK model was attractive.
+It should not be so much of a performance bottleneck -- this kind of
+operation lends itself naturally to parallelization, since it has few
+(if any) dependencies. The only race I can think of off-hand is the
+exit() syscall, but I'm sure that's already handled elsewhere (just not
+sure of the details) In the end, however, if you believe my previous
+email, then you should believe that the copy has to happen in any case.
 
--Miles
--- 
-Suburbia: where they tear out the trees and then name streets after them.
+I don't have any actual data points on-hand. Perhaps someone else does?
+
+-Vadim Lobanov

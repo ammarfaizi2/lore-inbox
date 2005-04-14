@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVDMXuy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVDNAGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVDMXuy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 19:50:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVDMXue
+	id S261403AbVDNAGs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 20:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVDNAEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 19:50:34 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:36360 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261237AbVDMXoz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 19:44:55 -0400
-Date: Wed, 13 Apr 2005 19:38:45 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Cc: jgarzik@pobox.com, davem@davemloft.net
-Subject: [patch 2.6.12-rc2 8/10] tg3: use TG3_FLG2_57{05,50}_PLUS flags in tg3_get_invariants
-Message-ID: <04132005193845.8775@laptop>
-In-Reply-To: <04132005193845.8720@laptop>
-User-Agent: PatchPost/0.1
+	Wed, 13 Apr 2005 20:04:08 -0400
+Received: from relay.uni-heidelberg.de ([129.206.100.212]:29347 "EHLO
+	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id S261236AbVDNADP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 20:03:15 -0400
+From: "Bernd Schubert" <Bernd.Schubert@tc.pci.uni-heidelberg.de>
+Date: Thu, 14 Apr 2005 02:03:07 +0200
+To: Bradley Reed <bradreed1@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CDR read problems with 2.6.11?
+Message-ID: <20050414000307.GA15733@tc.pci.uni-heidelberg.de>
+References: <20050414013619.342cea4e@galactus.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050414013619.342cea4e@galactus.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rewrite checks in tg3_get_invariants to use TG3_FLG2_5705_PLUS and
-TG3_FLG2_5750_PLUS flags.
+[...]
+> 
+> root@galactus:~[1009]# mount /mnt/cdrom
+> mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
+>        missing codepage or other error
+>        In some cases useful info is found in syslog - try
+>        dmesg | tail  or so
+>        
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+[...]
 
- drivers/net/tg3.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
+> The drive is a NEC DVD+RW ND-5100A
+> 
+> Any suggestions on why I can't read (or burn correctly) the disks with 2.6.11?
+>
 
---- bcm5752-support/drivers/net/tg3.c.orig	2005-04-08 18:11:46.207874683 -0400
-+++ bcm5752-support/drivers/net/tg3.c	2005-04-08 18:11:36.696183379 -0400
-@@ -7937,8 +7937,7 @@ static int __devinit tg3_get_invariants(
- 	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752)
- 		tp->tg3_flags2 |= TG3_FLG2_5750_PLUS;
- 
--	if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5750 ||
--	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752)
-+	if (tp->tg3_flags2 & TG3_FLG2_5750_PLUS)
- 		tp->tg3_flags2 |= TG3_FLG2_HW_TSO;
- 
- 	if (pci_find_capability(tp->pdev, PCI_CAP_ID_EXP) != 0)
-@@ -8068,9 +8067,7 @@ static int __devinit tg3_get_invariants(
- 	if (tp->pci_chip_rev_id == CHIPREV_ID_5704_A0)
- 		tp->tg3_flags2 |= TG3_FLG2_PHY_5704_A0_BUG;
- 
--	if (GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5705 ||
--	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5750 ||
--	    GET_ASIC_REV(tp->pci_chip_rev_id) == ASIC_REV_5752)
-+	if (tp->tg3_flags2 & TG3_FLG2_5705_PLUS)
- 		tp->tg3_flags2 |= TG3_FLG2_PHY_BER_BUG;
- 
- 	/* Only 5701 and later support tagged irq status mode.
+I have seen exactly the same on my fathers computer and could solve this
+by not starting the udftools. Didn't have the time to digg further into
+this... 
+Can you confirm thats really a udf problem? Just run
+"/etc/init.d/udftools stop" or the similar for your distribution and try
+mounting again.
+
+Cheers,
+	Bernd

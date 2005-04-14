@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVDNW4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVDNW4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVDNW4t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 18:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVDNW4t
+	id S261625AbVDNW4k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 18:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVDNW4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 18:56:49 -0400
-Received: from coderock.org ([193.77.147.115]:19337 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261626AbVDNW4l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 18:56:41 -0400
-Date: Fri, 15 Apr 2005 00:56:35 +0200
-From: Domen Puncer <domen@coderock.org>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch 1/1] nbd: Don't create all MAX_NBD devices by default all the time
-Message-ID: <20050414225635.GA3983@nd47.coderock.org>
-References: <20050414112318.GL32354@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050414112318.GL32354@marowsky-bree.de>
-User-Agent: Mutt/1.4.2.1i
+	Thu, 14 Apr 2005 18:56:39 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:64991 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261625AbVDNW4a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 18:56:30 -0400
+Message-ID: <425EF518.5030108@ca.ibm.com>
+Date: Thu, 14 Apr 2005 18:56:24 -0400
+From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: steve@perfectpc.co.nz
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11.7 ip_conntrack: table full, dropping packet.
+References: <Pine.LNX.4.62.0504150946020.752@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.62.0504150946020.752@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14/04/05 13:23 +0200, Lars Marowsky-Bree wrote:
-> From: Lars Marowsky-Bree <lmb@suse.de>
-> 
-> This patches adds the "nbds_max" parameter to the nbd kernel module,
-> which limits the number of nbds allocated. Previously, always all 128
-> entries were allocated unconditionally, which used to waste resources
-> and needlessly flood the hotplug system with events. (Defaults to 16
-> now.)
-> 
-...
->  
-> +module_param(nbds_max, int, 16);
+steve@perfectpc.co.nz wrote:
 
-This is permissions in sysfs (or 0 if no file is to be created).
+>
+> Hi,
+>
+> I thought this problem has been fixed but apparently not in 2.6.11.7.
+> Is there any patch for it ? Thanks
+>
+>
+Are you sure the ip_conntrack itself isn't ACTUALLY full? Have you tried
+increase this increasing this via
+/proc/sys/net/ipv4/netfilter/ip_conntrack_max?
 
-> +MODULE_PARM_DESC(nbds_max, "How many network block devices to initialize.");
->  #ifndef NDEBUG
->  module_param(debugflags, int, 0644);
->  MODULE_PARM_DESC(debugflags, "flags for controlling debug output");
+O
+
+
+
+

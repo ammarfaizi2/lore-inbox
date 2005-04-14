@@ -1,69 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVDNIXL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVDNI1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261460AbVDNIXL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 04:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVDNIXL
+	id S261463AbVDNI1t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 04:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVDNI1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 04:23:11 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:47343 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261460AbVDNIXG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 04:23:06 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LxzlNqXlNIa7ZH5G6DzrvHSpJ9hdsmhCz5ezW7Bv0H1rUkkoo/mTi8/z7OWuTFPVs+ciCiWNFTjrrDuwkWLD388CZnwEnbeA3emJPW8ZQ0MxOmzT/T94xWhRwC1d6i5OF1e3u2QH72l9oDhmHSv+IFItw0sNBpNKKBksRGYrAUg=
-Message-ID: <2cd57c900504140123181cd94c@mail.gmail.com>
-Date: Thu, 14 Apr 2005 16:23:02 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Iwan Sanders <iwan.sanders@tuxproject.info>
-Subject: Re: Kernel messages
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <425E23CC.2010509@tuxproject.info>
+	Thu, 14 Apr 2005 04:27:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:748 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261463AbVDNI1s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 04:27:48 -0400
+Date: Thu, 14 Apr 2005 10:27:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050414082731.GB1360@elf.ucw.cz>
+References: <20050413233904.GA31174@gondor.apana.org.au> <E1DLsvN-0008VO-00@calista.eckenfels.6bone.ka-ip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <425E23CC.2010509@tuxproject.info>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E1DLsvN-0008VO-00@calista.eckenfels.6bone.ka-ip.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4/14/05, Iwan Sanders <iwan.sanders@tuxproject.info> wrote:
-> Can someone explain to me what just happend? I would really like to know
->   :-)
-> I think that the machine ran out of memory and the OOM killer shot some
-> processes, this is what I found
-> in my logfiles:
+On Čt 14-04-05 03:13:41, Bernd Eckenfels wrote:
+> In article <20050413233904.GA31174@gondor.apana.org.au> you wrote:
+> > The dmcrypt swap can only be unlocked by the user with a passphrase,
+> > which is analogous to how you unlock your ssh private key stored
+> > on the disk using a passphrase.
 > 
-> 1 Time(s): Active:48588 inactive:152 dirty:0 writeback:7 unstable:0 free:502 slab:13664 mapped:48620 pagetables:325
-> 1 Time(s): DMA free:1008kB min:28kB low:56kB high:84kB active:7364kB inactive:0kB present:16384kB
-> 1 Time(s): DMA per-cpu:
-> 1 Time(s): DMA: 0*4kB 0*8kB 1*16kB 7*32kB 4*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 1008kB
-> 1 Time(s): Free pages:        2008kB (0kB HighMem)
-> 1 Time(s): HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
-> 1 Time(s): HighMem per-cpu: empty
-> 1 Time(s): HighMem: empty
-> 1 Time(s): Normal free:1000kB min:476kB low:952kB high:1428kB active:186988kB inactive:608kB present:245120kB
-> 1 Time(s): Normal per-cpu:
-> 1 Time(s): Normal: 14*4kB 2*8kB 0*16kB 1*32kB 2*64kB 0*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 1000kB
-> 1 Time(s): Swap cache: add 0, delete 0, find 0/0, race 0+0
-> 1 Time(s): cpu 0 cold: low 0, high 2, batch 1
-> 1 Time(s): cpu 0 cold: low 0, high 28, batch 14
-> 1 Time(s): cpu 0 hot: low 2, high 6, batch 1
-> 1 Time(s): cpu 0 hot: low 28, high 84, batch 14
-> 1 Time(s): oom-killer: gfp_mask=0x1d2
-> 1 Time(s): protections[]: 0 0 0
-> 1 Time(s): protections[]: 0 238 238
-> 1 Time(s): protections[]: 14 252 252
-> 
-> Cheers,
-> 
-> Iwan Sanders
-> 
+> We talk about the unlocked system getting hacked. However I am not why the
+> hacker would head for the swap if he can as well read the ram.
 
-Yes, oom, and your kernel is a bit old.
-
+Various openssl-s, ssh-s and others are pretty carefull to wipe their
+RAM when it is no longer neccessary.
+								Pavel
 -- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Boycott Kodak -- for their patent abuse against Java.

@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVDNJti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVDNKAy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVDNJti (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 05:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVDNJti
+	id S261468AbVDNKAy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 06:00:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDNKAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 05:49:38 -0400
-Received: from mail01.baslerweb.com ([145.253.187.134]:19422 "EHLO
-	mail01.baslerweb.com") by vger.kernel.org with ESMTP
-	id S261215AbVDNJtW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 05:49:22 -0400
-From: Thomas Koeller <thomas.koeller@baslerweb.com>
-Organization: Basler AG
-To: linux-kernel@vger.kernel.org
-Subject: need advice about wait queue usage
-Date: Thu, 14 Apr 2005 11:49:19 +0200
-User-Agent: KMail/1.6.2
+	Thu, 14 Apr 2005 06:00:54 -0400
+Received: from vanessarodrigues.com ([192.139.46.150]:55714 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261468AbVDNKAu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 06:00:50 -0400
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] genalloc for 2.6.12-rc-mm3
+References: <16987.39669.285075.730484@jaguar.mkp.net>
+	<20050412031502.3b5d39fc.akpm@osdl.org>
+	<yq0br8k12nd.fsf@jaguar.mkp.net> <20050412144720.GA19894@lst.de>
+	<yq03btw121j.fsf@jaguar.mkp.net> <20050412150015.GA20219@lst.de>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 14 Apr 2005 06:00:47 -0400
+In-Reply-To: <20050412150015.GA20219@lst.de>
+Message-ID: <yq0vf6pznhs.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200504141149.20001.thomas.koeller@baslerweb.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anybody on this list answer the following question:
+>>>>> "Christoph" == Christoph Hellwig <hch@lst.de> writes:
 
-My code contains a call to wait_event_interruptible_exclusive().
-This results in the current task going to sleep on a wait queue.
-It builds a wait_queue_t struct in its current stack frame,
-setting the .func member to autoremove_wake_function(), adds it
-to the wait queue, and finally reschedules.
+Christoph> On Tue, Apr 12, 2005 at 10:51:20AM -0400, Jes Sorensen
+Christoph> wrote:
+>> >>>>> "Christoph" == Christoph Hellwig <hch@lst.de> writes:
+>> 
+>> >> +#include <asm/pal.h>
+Christoph> this will break on all plattforms except alpha and ia64.
+>>  The driver is located in arch/ia64/kernel/ ;-)
 
-At a later point in time, another thread calls wake_up_interruptible()
-on the wait queue. This results in a call to autoremove_wake_function(),
-which in turn calls default_wake_function(), which then calls
-try_to_wake_up(). At this point, the previously sleeping task becomes
-runnable again. Then, after default_wake_function() returns,
-list_del_init() is called to remove the wait_queue_t from the
-wait queue.
+Christoph> Above hunk is from lib/genalloc.c
 
-Now, since the wait_queue_t is allocated in the stack frame of the
-just woken-up task, which could already be running at this point,
-how can I be sure that the wait_queue_t is still valid at the point
-list_del_init() is called to remove it from the wait queue? It
-seems to me that I cannot and hence autoremove_wake_function() is
-broken, or am I missing something?
+DOH! I'll send Andrew an updated patch with just this change to keep
+l-k size down.
 
-Any responders pls. cc me; I am not subscribed to this list.
-
-thanks,
-Thomas
--- 
---------------------------------------------------
-
-Thomas Koeller, Software Development
-Basler Vision Technologies
-
-thomas dot koeller at baslerweb dot com
-http://www.baslerweb.com
-
-==============================
+Thanks,
+Jes

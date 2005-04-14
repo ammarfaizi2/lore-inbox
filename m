@@ -1,75 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVDNTzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVDNT4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVDNTzh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 15:55:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbVDNTzh
+	id S261369AbVDNT4x (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 15:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVDNT4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 15:55:37 -0400
-Received: from waste.org ([216.27.176.166]:2699 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261274AbVDNTzX (ORCPT
+	Thu, 14 Apr 2005 15:56:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58301 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261369AbVDNT4a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 15:55:23 -0400
-Date: Thu, 14 Apr 2005 12:53:52 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Stefan Seyfried <seife@suse.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Pavel Machek <pavel@ucw.cz>,
-       Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050414195352.GM3174@waste.org>
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au> <200504141104.40389.rjw@sisk.pl> <20050414171127.GL3174@waste.org> <425EC41A.4020307@suse.de>
+	Thu, 14 Apr 2005 15:56:30 -0400
+Subject: Re: [INFO] Kernel strict versioning
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Sensei <senseiwa@tin.it>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Krzysztof Halasa <khc@pm.waw.pl>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <425EC778.4070009@tin.it>
+References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de>
+	 <425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de>
+	 <425B3864.8050401@tin.it> <m3mzs4kzdp.fsf@defiant.localdomain>
+	 <425C03D6.2070107@tin.it>
+	 <Pine.LNX.4.62.0504121053583.17233@qynat.qvtvafvgr.pbz>
+	 <425E9FE2.6090102@tin.it>
+	 <Pine.LNX.4.62.0504141050460.19663@qynat.qvtvafvgr.pbz>
+	 <425EC778.4070009@tin.it>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LrOBg594+Ori9c/IY08C"
+Organization: Red Hat, Inc.
+Date: Thu, 14 Apr 2005 21:55:13 +0200
+Message-Id: <1113508514.6293.82.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425EC41A.4020307@suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 09:27:22PM +0200, Stefan Seyfried wrote:
-> Matt Mackall wrote:
-> 
-> > Any sensible solution here is going to require remembering passwords.
-> > And arguably anywhere the user needs encrypted suspend, they'll want
-> > encrypted swap as well.
-> 
-> But after entering the password and resuming, the encrypted swap is
-> accessible again and my ssh-key may be lying around in it, right?
 
-No. Because it's been zeroed in the resume process.
- 
-> So we would need to zero out the suspend image in swap to prevent the
-> retrieval of this data from the running machine (imagine a
-> remote-root-hole).
->
-> Zeroing out the suspend image means "write lots of megabytes to the
-> disk" which takes a lot of time.
+--=-LrOBg594+Ori9c/IY08C
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Zero only the mlocked regions. This should take essentially no time at
-all. Swsusp knows which these are because they have to be mlocked
-after resume as well. If it's not mlocked, it's liable to be swapped
-out anyway.
+> I'd like API stability, if API stability is=20
+> achieved, ABI is there.
 
-Again:
+this is a joke right? If you really think this you have no idea what ABI
+stability means and how extremely hard it is to even sort of remotely
+approach it.
 
-Use dm-crypt swap with password prompt to handle "stolen while
-suspended"
+Trust me. It's *extremely* hard to impossible. Several security fixes
+can only be fixed this way. And it's REALLY fragile even if for other
+fixes. And I am very glad that the linux kernel people in general decide
+to not go for abi stability, the hacks that would be needed would be so
+obscene and the gains very very minimal. (it's open source, you have the
+source after all!)
 
-Zero out mlocked regions on resume for "stolen while running".
 
-Reinitialize swap or use a different swap session keys for "booting
-without resume".
+--=-LrOBg594+Ori9c/IY08C
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-There are more refinements here, like generating session keys per boot
-for swap. We want to do this anyway. We can encrypt the session key
-with the user password for suspend purposes. Booting without resume
-loses the old (encrypted) session key.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-But this is all solvable without resorting to yet another encrypted
-block device scheme. Such a scheme shouldn't even be considered until
-all the other options are thoroughly explored. Any scheme that's
-encrypting the suspend image and then storing the key in the clear is
-either obviously broken or obviously doesn't actually need encryption.
+iD8DBQBCXsqhpv2rCoFn+CIRAu42AJ9hDLzHjCyEwD9YJmZg+/u2zm1oDgCfZ6Ge
+Ttgl4PgwwGYiaFAIXSOc8M0=
+=bjWb
+-----END PGP SIGNATURE-----
 
--- 
-Mathematics is the supreme nostalgia of our time.
+--=-LrOBg594+Ori9c/IY08C--
+

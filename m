@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVDNTZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVDNT1m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVDNTZh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 15:25:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVDNTZh
+	id S261602AbVDNT1m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 15:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVDNT1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 15:25:37 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:27576 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261600AbVDNTZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 15:25:32 -0400
-Date: Thu, 14 Apr 2005 21:21:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ali Akcaagac <aliakc@web.de>
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-Subject: Re: [BUG] 2.6.12-rc1/rc2 mouse0 became mouse1
-Message-ID: <20050414192142.GA2728@openzaurus.ucw.cz>
-References: <1112961492.1618.3.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1112961492.1618.3.camel@localhost>
-User-Agent: Mutt/1.3.27i
+	Thu, 14 Apr 2005 15:27:42 -0400
+Received: from mx1.suse.de ([195.135.220.2]:59050 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261602AbVDNT12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 15:27:28 -0400
+Message-ID: <425EC41A.4020307@suse.de>
+Date: Thu, 14 Apr 2005 21:27:22 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matt Mackall <mpm@selenic.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Pavel Machek <pavel@ucw.cz>,
+       Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au> <200504141104.40389.rjw@sisk.pl> <20050414171127.GL3174@waste.org>
+In-Reply-To: <20050414171127.GL3174@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Matt Mackall wrote:
 
-> This doesn't sound right to me. After upgrading from 2.6.11.5/6 to
-> 2.6.12-rc1/rc2 I detected that my mouse didn't operate anymore when
-> loading up XOrg, I realized that /dev/input/mouse0 (which worked for
-> years) had to be changed to /dev/input/mouse1. Anyone care to explain
-> why this had to be changed or what the intention behind this was ?
-> 
+> Any sensible solution here is going to require remembering passwords.
+> And arguably anywhere the user needs encrypted suspend, they'll want
+> encrypted swap as well.
 
-This is a bug where we assume keyboard has scrollwheel, and therefore
-we pretend its keyboard and a bit of mouse?
+But after entering the password and resuming, the encrypted swap is
+accessible again and my ssh-key may be lying around in it, right?
 
-Did we stop generating zero mouse movements during typing?
-				Pavel
+So we would need to zero out the suspend image in swap to prevent the
+retrieval of this data from the running machine (imagine a
+remote-root-hole).
+
+Zeroing out the suspend image means "write lots of megabytes to the
+disk" which takes a lot of time.
+
+The "encrypted suspend" case avoids this. It is absolutely useless for
+the "machine is stolen while suspended" case, since the key for
+decrypting the suspend image is stored in the suspend header (but
+destroyed during resume).
+
+We need both:
+  - encrypted swap for the "stolen while suspended" case
+  - encrypted suspend for "broken into after resume while still running"
+    case.
+
+i hope this helps...
+
+Stefan
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+seife
+                                 Never trust a computer you can't lift.

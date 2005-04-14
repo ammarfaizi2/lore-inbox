@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261645AbVDNXPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVDNXUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261645AbVDNXPg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 19:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVDNXPf
+	id S261644AbVDNXUg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 19:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVDNXUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 19:15:35 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:17846 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S261645AbVDNXPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 19:15:17 -0400
-Date: Fri, 15 Apr 2005 02:15:13 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: abonilla <abonilla@linuxwireless.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org
-Subject: Re: IBM Thinkpad T42 - Looking for a Developer.
-Message-ID: <20050414231513.GN3858@mea-ext.zmailer.org>
-References: <003901c54136$6ba545c0$9f0cc60a@amer.sykes.com> <Pine.LNX.4.62.0504142317480.3466@dragon.hyggekrogen.localhost> <20050414223641.M49815@linuxwireless.org>
+	Thu, 14 Apr 2005 19:20:36 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:9991 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261644AbVDNXUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 19:20:30 -0400
+Date: Fri, 15 Apr 2005 01:20:28 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] drivers/net/wan/: possible cleanups
+Message-ID: <20050414232028.GD20400@stusta.de>
+References: <20050327143418.GE4285@stusta.de> <1111941516.14877.325.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050414223641.M49815@linuxwireless.org>
+In-Reply-To: <1111941516.14877.325.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 06:40:16PM -0400, abonilla wrote:
-> On Thu, 14 Apr 2005 23:20:19 +0200 (CEST), Jesper Juhl wrote
-> > On Thu, 14 Apr 2005, Alejandro Bonilla wrote:
-...
-> > >  This is located in my home PC, Won't be the fastest downloads...
-> > >  
-> > >  http://wifitux.com/finger/
-> >  
-> > Under what terms did you obtain these documents and from where? Are 
-> > they completely freely distributable or are there strings attached?
+On Sun, Mar 27, 2005 at 05:38:38PM +0100, Alan Cox wrote:
+> On Sul, 2005-03-27 at 15:34, Adrian Bunk wrote:
+> >   - syncppp.c: sppp_input
+> >   - syncppp.c: sppp_change_mtu
+> >   - z85230.c: z8530_dma_sync
+> >   - z85230.c: z8530_txdma_sync
 > 
-> I emailed the guys and they told me, "Hey, here you go, let me know if you
-> want more information"
-> 
-> I guess it can't be more distributable. But as far as I got to read. The
-> documents don't have too much information like for us to do a great Job. I
-> think it also requires the making of a firmware.
-> 
-> I don't want to dissapoint you, but I hope I'm lost and that a driver can be
-> done out of this.
+> Please leave the z85230 ones at least. They are an intentional part of
+> the external API for writing other 85230 card drivers.
 
-There were two PDF documents.
-The more useful one tells that there are two possible interfaces:
- - Async serial
- - USB
+If they are part of an API, why aren't the prototypes for them in any 
+header file?
 
-Could you show what    /sbin/lsusb -vv    tells in your T42 ?
-Do that without external devices attached.
- 
-> > -- 
-> > Jesper
+> Alan
 
-/Matti Aarnio
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

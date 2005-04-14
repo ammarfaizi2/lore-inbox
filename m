@@ -1,75 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVDNATQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVDNAUI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVDNATQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 20:19:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVDNAQ7
+	id S261236AbVDNAUI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 20:20:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVDNAUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 20:16:59 -0400
-Received: from mail.aei.ca ([206.123.6.14]:24818 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261248AbVDNAQE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 20:16:04 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc2-mm3
-Date: Wed, 13 Apr 2005 20:15:49 -0400
-User-Agent: KMail/1.7.2
+	Wed, 13 Apr 2005 20:20:07 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:26504 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261236AbVDNAQv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 20:16:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=qXI+qMyQR/qbgWFMAUmohSR2m33scFfmZo4AkOEp9vvkiyUHkhjnK53cYGo6CtIqPXCGHhOUxOoqFGWiA3xX9wYJNkpKfluNYRBcDnbrdctza9hd8UXHahyF0+OEY9Ym6panyyp9ScpSD8dHv9SdlhakiR3UdyqGUAVqWbAtzJM=
+Date: Thu, 14 Apr 2005 02:16:43 +0200
+From: Bradley Reed <bradreed1@gmail.com>
+To: "Bernd Schubert" <Bernd.Schubert@tc.pci.uni-heidelberg.de>
 Cc: linux-kernel@vger.kernel.org
-References: <20050411012532.58593bc1.akpm@osdl.org> <200504120732.24440.tomlins@cam.org> <20050412043952.0644d4ac.akpm@osdl.org>
-In-Reply-To: <20050412043952.0644d4ac.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200504132015.49877.tomlins@cam.org>
+Subject: Re: CDR read problems with 2.6.11?
+Message-ID: <20050414021643.4d72618f@galactus.localdomain>
+In-Reply-To: <20050414000307.GA15733@tc.pci.uni-heidelberg.de>
+References: <20050414013619.342cea4e@galactus.localdomain>
+	<20050414000307.GA15733@tc.pci.uni-heidelberg.de>
+X-Mailer: Sylpheed-Claws 1.9.6 (GTK+ 2.6.4; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 April 2005 07:39, Andrew Morton wrote:
-> Ed Tomlinson <tomlins@cam.org> wrote:
-> >
-> > On Monday 11 April 2005 04:25, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc2/2.6.12-rc2-mm3/
-> > > 
-> > > 
-> > > - The anticipatory I/O scheduler has always been fairly useless with SCSI
-> > >   disks which perform tagged command queueing.  There's a patch here from Jens
-> > >   which is designed to fix that up by constraining the number of requests
-> > >   which we'll leave pending in the device.
-> > > 
-> > >   The depth currently defaults to 1.  Tunable in
-> > >   /sys/block/hdX/queue/iosched/queue_depth
-> > > 
-> > >   This patch hasn't been performance tested at all yet.  If you think it is
-> > >   misbehaving (the usual symptom is processes stuck in D state) then please
-> > >   report it, then boot with `elevator=cfq' or `elevator=deadline' to work
-> > >   around it.
-> > > 
-> > > - More CPU scheduler work.  I hope someone is testing this stuff.
-> > 
-> > Something is not quite right here.  I built rc2-mm3 and booted (uni processor, amd64, preempt on).  
-> > mm3 lasted about 30 mins before locking up with a dead keyboard.  I had mm2 reboot a few times
-> > over the last couple of days too.  
-> > 
-> > 11-mm3 uptime of 2 weeks+
-> > 12-rc2-mm2 reboots once every couple of days
-> > 12-rc2-mm3 locked up within 30 mins using X using kmail/bogofilter
-> 
-> Unpleasant.  Serial console would be nice ;)
-> 
-> > My serial console does not seem to want to work.  Has anything changed with this support?
-> > 
-> 
-> Don't think so - it works OK here.  Checked the .config?  Does the serial
-> port work if you do `echo foo > /dev/ttyS0'?  ACPI?
+On Thu, 14 Apr 2005 02:03:07 +0200
+"Bernd Schubert" <Bernd.Schubert@tc.pci.uni-heidelberg.de> wrote:
 
-Turned out it was some old ups software that got reactivated on the box displaying the
-console - was a pain to disable it....
+> I have seen exactly the same on my fathers computer and could solve this
+> by not starting the udftools. Didn't have the time to digg further into
+> this... 
+> Can you confirm thats really a udf problem? Just run
+> "/etc/init.d/udftools stop" or the similar for your distribution and try
+> mounting again.
+> 
 
-In any case, when the box reboots there are not any messages.  Any ideas on what debug
-options to enable or suggestions on how we can figure out the cause of the reboots.
+I am not running udftools. In fact it isn't even installed (not part of
+Slackware 10.1).  I'm trying to burn an iso9660 on a CDR using cdrecord.
 
-TIA,
-Ed Tomlinson
+There seems to be issues with CD burning under 2.6.11. I make an iso, and I
+burn it to CDR with 2.6.11 and again with 2.4.28 on the same laptop/same DVD
++RW drive. The disk burnt under 2.4 is fine, md5sums all ok, can be read
+under both kernels. The disk burnt under 2.6.11 burns without error from
+cdrecord/k3b/etc, but afterwards is not readable under 2.6.11. It is readable
+under 2.4.28, but the md5sums are not 100% correct, basically making 2.6.11
+useless for making backups to CDR.
+
+Brad
+

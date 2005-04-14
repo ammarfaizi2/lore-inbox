@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVDNPqo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVDNPzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVDNPqo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 11:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVDNPqo
+	id S261524AbVDNPzG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 11:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVDNPzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 11:46:44 -0400
-Received: from kiwi.iasi.rdsnet.ro ([213.157.176.3]:29131 "EHLO
-	mail.iasi.rdsnet.ro") by vger.kernel.org with ESMTP id S261454AbVDNPql
+	Thu, 14 Apr 2005 11:55:06 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:63689 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261524AbVDNPzD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 11:46:41 -0400
-Date: Thu, 14 Apr 2005 18:46:38 +0300 (EEST)
-From: Tarhon-Onu Victor <mituc@iasi.rdsnet.ro>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACPI/HT or Packet Scheduler BUG?
-In-Reply-To: <Pine.LNX.4.61.0504121526550.4822@blackblue.iasi.rdsnet.ro>
-Message-ID: <Pine.LNX.4.61.0504141840420.13546@blackblue.iasi.rdsnet.ro>
-References: <Pine.LNX.4.61.0504081225510.27991@blackblue.iasi.rdsnet.ro>
- <Pine.LNX.4.61.0504121526550.4822@blackblue.iasi.rdsnet.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 14 Apr 2005 11:55:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=X8rS6peUJozMYfmXkYU6xsg+2UzaaGOiVkfrXu9DSMcI6ouewxvMyl2SRyo5E8P5ONcfqZeT2QH/jgxKwNEicGJl+JyEvgMSVOAY084prhhL00ScL1XpaXBjGMvYBR27MnV1ME+yXIMXqYU53D32fVlSM7CDInkjyqnO7Jy09sY=
+Message-ID: <311601c905041408546a72132b@mail.gmail.com>
+Date: Thu, 14 Apr 2005 09:54:57 -0600
+From: "Eric D. Mudama" <edmudama@gmail.com>
+Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Call to atention about using hash functions as content indexers (SCM saga)
+In-Reply-To: <20050412152955.GD9684@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050411224021.GA25106@larroy.com>
+	 <20050412152955.GD9684@thunk.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Apr 2005, Tarhon-Onu Victor wrote:
+I hold my breath for weeks at a time, just incase something like this
+happens!  I thought I was the only one!
 
-> 	So the problem should be looked in that changes to the pkt sched API, 
-> the patch containing only those changes is at
-
- 	The bug is in this portion of code from net/sched/sch_generic.c, 
-in the qdisc_destroy() function:
-
-==
-      list_for_each_entry(cq, &cql, list)
-           list_for_each_entry_safe(q, n, &qdisc->dev->qdisc_list, list)
-                if (TC_H_MAJ(q->parent) == TC_H_MAJ(cq->handle)) {
-                     if (q->ops->cl_ops == NULL)
-                          list_del_init(&q->list);
-                     else
-                          list_move_tail(&q->list, &cql);
-                }
-      list_for_each_entry_safe(cq, n, &cql, list)
-           list_del_init(&cq->list);
-==
-
- 	...and it happens when q->ops->cl_ops is NULL and 
-list_del_init(&q->list) is executed.
-
- 	The stuff from include/linux/list.h looks ok, it seems like one 
-of those two iterations (list_for_each_entry() and 
-list_for_each_entry_safe()) enters an endless loop when an element is 
-removed from the list under some circumstances.
-
--- 
-Tarhon-Onu Victor
-Area Technical Coordinator
-RDS Iasi - Network Operations Center
-www.rdsnet.ro, www.rdstel.ro, www.rdslink.ro
-Phone: +40-232-218385; Fax: +40-232-260099
-..........................................................................
-Privileged/Confidential Information may be contained in this message. If
-you are not the addressee indicated in this message (or responsible for
-delivery of the message to such person), you may not copy or deliver this
-message to anyone. In such a case, you should destroy this message and
-kindly notify the sender by reply e-mail.
+On 4/12/05, Theodore Ts'o <tytso@mit.edu> wrote:
+> So past a certain point, there is a probability that all of molecules
+> of oxygen in the room will suddenly migrate outdoors, and you could
+> suffocate.  Is it rational to spend time worrying about that
+> possibility?  I'll leave that for you to decide.
+> 
+>                                                 - Ted

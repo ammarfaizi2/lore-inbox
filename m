@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVDNP3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVDNPiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVDNP3M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 11:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVDNP3M
+	id S261420AbVDNPiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 11:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVDNPiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 11:29:12 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:45548 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S261525AbVDNP3K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 11:29:10 -0400
-Message-ID: <425E8C3D.3090006@nortel.com>
-Date: Thu, 14 Apr 2005 09:29:01 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-CC: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: iproute/iptables best?
-References: <200504132335.12324.gene.heskett@verizon.net> <20050414065404.GA10880@outpost.ds9a.nl>
-In-Reply-To: <20050414065404.GA10880@outpost.ds9a.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 14 Apr 2005 11:38:16 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:8124 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261420AbVDNPiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 11:38:13 -0400
+Subject: Re: incoming
+From: Lee Revell <rlrevell@joe-job.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0504141347500.19995@numbat.sonytel.be>
+References: <20050412032322.72d73771.akpm@osdl.org>
+	 <Pine.LNX.4.62.0504141347500.19995@numbat.sonytel.be>
+Content-Type: text/plain
+Date: Thu, 14 Apr 2005 11:38:11 -0400
+Message-Id: <1113493092.18479.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bert hubert wrote:
-> On Wed, Apr 13, 2005 at 11:35:12PM -0400, Gene Heskett wrote:
+On Thu, 2005-04-14 at 13:48 +0200, Geert Uytterhoeven wrote:
+> On Tue, 12 Apr 2005, Andrew Morton wrote:
+> > As the commits list probably isn't working at present I'll cc linux-kernel
+> > on this lot.  Fairly cruel, sorry, but I don't like the idea of people not
+> > knowing what's hitting the main tree.
 > 
->>How can we make the reply to an action go back out through the route 
->>it came in on?
-> 
-> Sometimes Linux can't (and shouldn't) figure out the "right" interface. In
-> this case, you need policy routing:
+> Is it me, or were really only 117 mails of the 198 sent to lkml?
 
-Yep.  iproute2 with policy routing should handle it.  I've been using it 
-for about 4 years now.
+The patch bombing seems to have really wedged vger.  It took up to 24
+hours to get all the messages.
 
-Chris
+Looks like Andrew's patch bomb script needs some rate limiting ;-)
+
+Lee
+

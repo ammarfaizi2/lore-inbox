@@ -1,67 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVDNJGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVDNJg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261476AbVDNJGU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 05:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVDNJGT
+	id S261462AbVDNJg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 05:36:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVDNJg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 05:06:19 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:20904 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261458AbVDNJFp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 05:05:45 -0400
-Date: Thu, 14 Apr 2005 11:05:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Matt Mackall <mpm@selenic.com>, Andreas Steinmetz <ast@domdv.de>,
-       rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050414090524.GA1706@elf.ucw.cz>
-References: <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050414080837.GA1264@gondor.apana.org.au>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 14 Apr 2005 05:36:57 -0400
+Received: from cam-admin0.cambridge.arm.com ([193.131.176.58]:47069 "EHLO
+	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
+	id S261462AbVDNJgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 05:36:55 -0400
+To: Vadim Lobanov <vlobanov@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Further copy_from_user() discussion.
+References: <Pine.LNX.4.58.0504131342530.14888@shell4.speakeasy.net>
+From: Catalin Marinas <catalin.marinas@arm.com>
+Date: Thu, 14 Apr 2005 10:36:47 +0100
+Message-ID: <tnxzmw1d7io.fsf@arm.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 14-04-05 18:08:37, Herbert Xu wrote:
-> On Thu, Apr 14, 2005 at 08:51:25AM +0200, Pavel Machek wrote:
-> >
-> > > This solution is all wrong.
-> > > 
-> > > If you want security of the suspend image while "suspended", encrypt
-> > > with dm-crypt. If you want security of the swap image after resume,
-> > > zero out the portion of swap used. If you want both, do both.
-> 
-> Pavel, you're not answering our questions.
-> 
-> How is the proposed patch any more secure compared to swsusp over
-> dmcrypt?
+Vadim Lobanov <vlobanov@speakeasy.net> wrote:
+> 2. Would it be possible to eliminate the might_sleep() call in
+> copy_from_user()? It seems that, very soon after, the __copy_from_user()
+> macro does another might_sleep(), with very few instructions in between.
+> But there might be some trick here that I'm missing.
 
-It is not "more secure". It solves completely different problem.
+might_sleep() is used for debugging the possible sleep while in an
+atomic operation. I think it is safe to check this for all the calls
+to copy_from_user(), no matter if the access is OK or not (memset
+being used in the latter case). The same is for
+__copy_from_user(). Anyway, if you don't enable
+CONFIG_DEBUG_SPINLOCK_SLEEP, the might_sleep() macro is empty.
 
-> In fact if anything it is less secure.  If I understand correctly the
-> proposal is to store the key used to encrypt the swsusp image in the
-> swap device.  This means that anybody who gains access to the swap
-> device can trivially decrypt it.
-
-Yes. It also means that key is gone after resume.
-
-> Compare this to the properly setup dmcrypt case where the swap
-> device can only be decrypted with a passphrase obtained from the
-> user at resume time.
-
-Solution above does not require passphrase (so users will actually use
-it) and dmcrypt with passphrase does not destroy the key after resume,
-so data can still be recovered.
-
-They are orthogonal. You want both.
-
-If something is still unclear, we can talk on irc somewhere, if you
-agree to write FAQ entry afterwards ;-).
-								Pavel
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+Catalin
+

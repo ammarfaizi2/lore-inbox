@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVDNLsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbVDNLyQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261481AbVDNLsg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 07:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVDNLsg
+	id S261479AbVDNLyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 07:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVDNLyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 07:48:36 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:57307 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261481AbVDNLse (ORCPT
+	Thu, 14 Apr 2005 07:54:16 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:62920 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261479AbVDNLyM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 07:48:34 -0400
-Date: Thu, 14 Apr 2005 13:48:26 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: incoming
-In-Reply-To: <20050412032322.72d73771.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0504141347500.19995@numbat.sonytel.be>
-References: <20050412032322.72d73771.akpm@osdl.org>
+	Thu, 14 Apr 2005 07:54:12 -0400
+Message-ID: <425E4D23.4060008@colorfullife.com>
+Date: Thu, 14 Apr 2005 12:59:47 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, axboe@suse.de,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: [patch 1/9] GFP_ZERO fix
+References: <425BC262.1070500@yahoo.com.au>	<425BC387.3080703@yahoo.com.au> <20050412124741.366caee3.akpm@osdl.org>
+In-Reply-To: <20050412124741.366caee3.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Apr 2005, Andrew Morton wrote:
-> As the commits list probably isn't working at present I'll cc linux-kernel
-> on this lot.  Fairly cruel, sorry, but I don't like the idea of people not
-> knowing what's hitting the main tree.
+Andrew Morton wrote:
 
-Is it me, or were really only 117 mails of the 198 sent to lkml?
+>Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+>  
+>
+>>  #define GFP_LEVEL_MASK (__GFP_WAIT|__GFP_HIGH|__GFP_IO|__GFP_FS| \
+>> -			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT| \
+>> -			__GFP_NOFAIL|__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP)
+>> +			__GFP_COLD|__GFP_NOWARN|__GFP_REPEAT|__GFP_NOFAIL| \
+>> +			__GFP_NORETRY|__GFP_NO_GROW|__GFP_COMP|__GFP_ZERO)
+>>    
+>>
+>
+>Passing GFP_ZERO into kmem_cache_alloc() is such a bizarre thing to do,
+>perhaps a BUG is the correct response.
+>
+>I guess it could be argued that the kmem_cache_alloc() callers "knows" that
+>the ctor will be zeroing out all the objects, but it would seem cleaner to
+>me to pass the "you should use GFP_ZERO" hint into kmem_cache_create()
+>rather than kmem_cache_alloc().
+>  
+>
+Right now, slab is not really suitable for GFP_ZERO:
+- if debug is enabled, then objects are definitively not 0-initialized.
+- if a ctor is used for zero initialization, then objects would have to 
+be zeroed before kmem_cache_free: The ctor is only called at object 
+creation, not before object reuse. But memset(,0,) just before free 
+would be a bit silly.
 
-Gr{oetje,eeting}s,
+Probably a BUG_ON or WARN_ON should be added into kmem_flagcheck() and 
+into kmem_cache_create().
 
-						Geert
-
+Should I write a patch?
 --
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+    Manfred
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,128 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVDNTG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVDNTJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVDNTG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 15:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVDNTG4
+	id S261586AbVDNTJp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 15:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVDNTJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 15:06:56 -0400
-Received: from mail.murom.net ([213.177.124.17]:63964 "EHLO ns1.murom.ru")
-	by vger.kernel.org with ESMTP id S261544AbVDNTGu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 15:06:50 -0400
-Date: Thu, 14 Apr 2005 23:06:21 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-Cc: JustMan <justman@e1.bmstu.ru>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] on usb removal, and minicom closing 2.6.11.7
-Message-Id: <20050414230621.49663f75.vsu@altlinux.ru>
-In-Reply-To: <425E64C4.5020704@pointblue.com.pl>
-References: <425E5682.6060606@pointblue.com.pl>
-	<200504141614.03459.justman@e1.bmstu.ru>
-	<425E64C4.5020704@pointblue.com.pl>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
+	Thu, 14 Apr 2005 15:09:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:50893 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261586AbVDNTJZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 15:09:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pDxzyCf4B25+/AzUjL3VruY3harOizuXCqetN8a1Jg2vWFbPNCJznjJVSeQHLZov5dN+W4JHApgFiSkmbSQ62zJMMkER8UtkhBkxw4jaD4AkhJEpQK7gPHs0xalZysPAW/KKyD5d6rBrxhqd8rt3Ch+lNUl1qB57o7xJ6GTI0Vo=
+Message-ID: <8d64c8f00504141209a7b67c5@mail.gmail.com>
+Date: Thu, 14 Apr 2005 16:09:21 -0300
+From: Jeremy Muise <jeremy.muise@gmail.com>
+Reply-To: Jeremy Muise <jeremy.muise@gmail.com>
+To: "aeriksson@fastmail.fm" <aeriksson@fastmail.fm>
+Subject: Re: DVD writer and IDE support...
+Cc: linux-kernel@vger.kernel.org, lsorense@csclub.uwaterloo.ca
+In-Reply-To: <20050414162958.7015B240480@latitude.mynet.no-ip.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__14_Apr_2005_23_06_21_+0400_BB+niam9DJ/Jl2=R"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org>
+	 <20050413183722.GQ17865@csclub.uwaterloo.ca>
+	 <20050413190756.54474240480@latitude.mynet.no-ip.org>
+	 <20050413193924.GN521@csclub.uwaterloo.ca>
+	 <20050413205949.E987A240480@latitude.mynet.no-ip.org>
+	 <20050414124226.GQ521@csclub.uwaterloo.ca>
+	 <20050414133523.6D747240480@latitude.mynet.no-ip.org>
+	 <20050414143420.GR521@csclub.uwaterloo.ca>
+	 <8d64c8f005041408024d1c6843@mail.gmail.com>
+	 <20050414162958.7015B240480@latitude.mynet.no-ip.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__14_Apr_2005_23_06_21_+0400_BB+niam9DJ/Jl2=R
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+> Thanks for that info! I'm starting to suspect media too. I'll try to
+> wreste that firmware upgrade into it. Which firmware version are you
+> using?
 
-On Thu, 14 Apr 2005 14:40:36 +0200 Grzegorz Piotr Jaskiewicz wrote:
+I've got version R1.07 of the firmware.
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Works great, I would like to ask everyone here on lkml to consider
-> adding this patch to mainline.
-> This ain't naughty solution, checking for object/pointer/whatever if
-> exists before doing anything with it, is good.
-
-No, this patch is broken.  It just avoids the problem in 99% of cases,
-but it is not reliable.  The real problem is that refcounting in cdc-acm
-is broken, and the kernel is accessing freed memory.
-
-The patches which really seem to fix the underlying problem can be found
-in this thread:
-
-http://thread.gmane.org/gmane.linux.usb.devel/32977
-
-(see "[PATCH] N/3 cdc acm errors").
-
-You also need this driver core fix:
-
-http://thread.gmane.org/gmane.linux.usb.devel/33132
-
-
-> Anyone?
-> 
-> Buy the way, I am also looking for usblan for 2.6, can I use usbnet
-> instead ? Anyone ported usblan to 2.6 (it's on GPL).
-> 
-> JustMan wrote:
-> >>So,
-> >>
-> >>I plugged in e680 motorola phone, played a bit with minicom on
-> >>/dev/ttyACM0, and when I closed minicom, got this oops. USB is useless,
-> >>got to reboot computer to use it again!
-> >>it's vanilla 2.6.11.7
-> >>
-> >>oops attached.
-> >>
-> > 
-> > 
-> > Try attached patch... (nasty solution, but it work for my C350  motorola phone)
-> > 
-> > 
-> >>
-> > 
-> > 
-> > ------------------------------------------------------------------------
-> > 
-> > diff -uNrp linux/drivers/base/class.orig.c  linux/drivers/base/class.c
-> > --- linux/drivers/base/class.orig.c	2005-03-10 12:19:00.000000000 +0300
-> > +++ linux/drivers/base/class.c	2005-03-10 13:59:27.000000000 +0300
-> > @@ -307,12 +307,14 @@ static int class_hotplug(struct kset *ks
-> >  	if (class_dev->dev) {
-> >  		/* add physical device, backing this device  */
-> >  		struct device *dev = class_dev->dev;
-> > -		char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
-> >  
-> > -		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-> > -				    &length, "PHYSDEVPATH=%s", path);
-> > -		kfree(path);
-> > +		if(kobject_name(&dev->kobj)) {
-> > +			char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
-> >  
-> > +			add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-> > +				    &length, "PHYSDEVPATH=%s", path);
-> > +			kfree(path);
-> > +		}
-> >  		/* add bus name of physical device */
-> >  		if (dev->bus)
-> >  			add_hotplug_env_var(envp, num_envp, &i,
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.0 (GNU/Linux)
-> 
-> iD8DBQFCXmTEi0HtPCVkDAURAvIMAJ4+8tKj6jt/ErTtCrsmNYtM2aDfNACgigLA
-> 4GbLbHStQJBq+Ez1lFe+lPo=
-> =UWvD
-> -----END PGP SIGNATURE-----
-
---Signature=_Thu__14_Apr_2005_23_06_21_+0400_BB+niam9DJ/Jl2=R
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCXr8wW82GfkQfsqIRAsrFAJ9WdiNtKCEm29CjGkWIwYvKxKj8ggCcCavT
-yjK5x/5MyHPGEJh3Mv3nAcc=
-=1lNz
------END PGP SIGNATURE-----
-
---Signature=_Thu__14_Apr_2005_23_06_21_+0400_BB+niam9DJ/Jl2=R--
+-- 
+Jeremy Muise - jeremy.muise@gmail.com
+Registered Linux User Number: 374195

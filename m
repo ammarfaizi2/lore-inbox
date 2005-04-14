@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVDNW1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVDNW30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261563AbVDNW1y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 18:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVDNW1y
+	id S261594AbVDNW30 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 18:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVDNW30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 18:27:54 -0400
-Received: from [193.112.238.6] ([193.112.238.6]:7563 "EHLO caveman.xisl.com")
-	by vger.kernel.org with ESMTP id S261563AbVDNW1t (ORCPT
+	Thu, 14 Apr 2005 18:29:26 -0400
+Received: from waste.org ([216.27.176.166]:63659 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261584AbVDNW26 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 18:27:49 -0400
-Subject: Re: Exploit in 2.6 kernels
-From: John M Collins <jmc@xisl.com>
-To: Greg Folkert <greg@gregfolkert.net>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Eric Rannaud <eric.rannaud@ens.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1113508967.6036.4.camel@king.gregfolkert.net>
-References: <1113298455.16274.72.camel@caveman.xisl.com>
-	 <425BBDF9.9020903@ev-en.org> <1113318034.3105.46.camel@caveman.xisl.com>
-	 <20050412210857.GT11199@shell0.pdx.osdl.net>
-	 <1113341579.3105.63.camel@caveman.xisl.com>
-	 <20050413130230.GO17865@csclub.uwaterloo.ca>
-	 <1113402388.5914.12.camel@localhost>
-	 <20050413144126.GK521@csclub.uwaterloo.ca>
-	 <1113508967.6036.4.camel@king.gregfolkert.net>
-Content-Type: text/plain
-Organization: Xi Software Ltd
-Date: Thu, 14 Apr 2005 23:27:41 +0100
-Message-Id: <1113517661.25653.93.camel@caveman.xisl.com>
+	Thu, 14 Apr 2005 18:28:58 -0400
+Date: Thu, 14 Apr 2005 15:27:40 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Stefan Seyfried <seife@suse.de>, Herbert Xu <herbert@gondor.apana.org.au>,
+       Andreas Steinmetz <ast@domdv.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050414222740.GP3174@waste.org>
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <20050414065124.GA1357@elf.ucw.cz> <20050414080837.GA1264@gondor.apana.org.au> <200504141104.40389.rjw@sisk.pl> <20050414171127.GL3174@waste.org> <425EC41A.4020307@suse.de> <20050414195352.GM3174@waste.org> <20050414201812.GB2801@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050414201812.GB2801@elf.ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-14 at 16:02 -0400, Greg Folkert wrote:
-> A-Freakin'-MEN me droogy.
+On Thu, Apr 14, 2005 at 10:18:12PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Hehehe, either a slow system, or you know how to transfer a working
-> setup to another machine.
+> > > So we would need to zero out the suspend image in swap to prevent the
+> > > retrieval of this data from the running machine (imagine a
+> > > remote-root-hole).
+> > >
+> > > Zeroing out the suspend image means "write lots of megabytes to the
+> > > disk" which takes a lot of time.
+> > 
+> > Zero only the mlocked regions. This should take essentially no time at
+> > all. Swsusp knows which these are because they have to be mlocked
 > 
-> My current image I use(d) for all of my machines was Built a long time
-> ago, I think slink was what I used to build it. On a Pentium-90.
-> 
-> Currently on an Athlon XP3200+ with bells and whistles not even thought
-> of then. Moved through about 12 machines since the beginning.
+> I believe this is tricky to implement. You are free to produce patch,
+> and if that patch is nicer/simpler than Anreas's code, I may consider
+> it.
 
-Just to say thanks again for your help - got 2.6.11.7 going everywhere
-without hitches. Of course I just called the kernels 2.6.11.7 everywhere
-so one version of the nvidia module fitted all.
+If I understand swsusp correctly, we can simply set a bit in the pbe
+struct to indicate that it's a locked page. 
 
-I also stuck it on a Dell laptop I've got - a Latitude 100L - and at
-last I've got ACPI working so I can see the battery level before it
-dies.
+This can be done by walking the vma list attached to the page's
+address space with vma_prio_tree_foreach() and checking the
+vma->vm_flags with VM_LOCKED. Analogous to what the swapout code does.
 
-Maybe our "visitor" did us a favour. (Sort of).
+We can either do this in data_write() or preferably higher
+(copy_data?) when we have the pfn handy. The lock bit can be stashed
+in bit 0 of pbe->address, among other places. Then in data_read, we
+check the bit and zero the source.
+
+As I'm not about to actually use swsusp any time soon, someone else is
+invited to implement the above. Should take about 10-20 lines.
 
 -- 
-John Collins Xi Software Ltd www.xisl.com Tel: +44 (0)1707 886110
-(Direct) +44 (0)7799 113162 (Mobile)
-
+Mathematics is the supreme nostalgia of our time.

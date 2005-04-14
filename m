@@ -1,46 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVDNQ4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVDNQ7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVDNQ4h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 12:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVDNQzh
+	id S261554AbVDNQ7P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 12:59:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVDNQ7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 12:55:37 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:12303 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261544AbVDNQzV
+	Thu, 14 Apr 2005 12:59:15 -0400
+Received: from rozz.csail.mit.edu ([128.30.2.16]:61824 "EHLO
+	rozz.csail.mit.edu") by vger.kernel.org with ESMTP id S261550AbVDNQ5A
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 12:55:21 -0400
-Date: Thu, 14 Apr 2005 18:55:35 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: poor SATA performance under 2.6.11 (with < 2.6.11 is OK)?
-Message-ID: <20050414165535.GA15440@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <425E9902.8000804@interia.pl>
+	Thu, 14 Apr 2005 12:57:00 -0400
+Date: Thu, 14 Apr 2005 12:56:52 -0400
+From: Noah Meyerhans <noahm@csail.mit.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OOM problems with 2.6.11-rc4
+Message-ID: <20050414165652.GC28356@csail.mit.edu>
+References: <20050315204413.GF20253@csail.mit.edu> <20050315154608.29cee352.akpm@osdl.org> <20050318161217.GH642@csail.mit.edu> <20050413134740.GS1521@opteron.random>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <425E9902.8000804@interia.pl>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20050413134740.GS1521@opteron.random>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 06:23:30PM +0200, Tomasz Chmielewski wrote:
-> I have a Silicon Image SIL3112A SATA PCI controller + 2x 200GB, 8MB
-> Barracuda drives.
 
- Bad combination.
- 
-> The performance under 2.6 kernels is *very* poor (Timing buffered disk
-> reads never more than 20 MB/sec); under 2.4 it runs quite fine (Timing
-> buffered disk reads around 60 MB/sec).
+--NDin8bjvE/0mNLFQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- 2.4 risk data corruption. 2.6 sata_sil.c contains blacklist for some
-driver-controller combination.
+On Wed, Apr 13, 2005 at 03:47:40PM +0200, Andrea Arcangeli wrote:
+> On Fri, Mar 18, 2005 at 11:12:18AM -0500, Noah Meyerhans wrote:
+> > Well, that's certainly an interesting question.  The filesystem is IBM's
+> > JFS.  If you tell me that's part of the problem, I'm not likely to
+> > disagree.  8^)
+>=20
+> It would be nice if you could reproduce with ext3 or reiserfs (if with
+> ext3, after applying the memleak fix from Andrew that was found in this
+> same thread ;). The below make it look like a jfs problem.
+>=20
+> 830696 830639  99%    0.80K 207674        4    830696K jfs_ip
 
- See: http://home-tj.org/m15w/
+I'll see what I can do.  It may be difficult to move all the data to a
+different filesystem.  There are multiple terabytes in use.
 
--- 
-Tomasz Torcz                        To co nierealne - tutaj jest normalne.
-zdzichu@irc.-nie.spam-.pl          Ziomale na ¿ycie maj± tu patenty specjalne.
+I'll refer the JFS developers to this thread, too, they may be able to
+shed some light on it.
 
+Thanks.
+noah
+
+--=20
+Noah Meyerhans                         System Administrator
+MIT Computer Science and Artificial Intelligence Laboratory
+
+
+--NDin8bjvE/0mNLFQ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCXqDUYrVLjBFATsMRAgLzAJ9KTVLm6RNLXsKHUEouwzl3245+qQCffvCb
+c25MDUTvwU5Nl6DuLkUsv6g=
+=G11k
+-----END PGP SIGNATURE-----
+
+--NDin8bjvE/0mNLFQ--

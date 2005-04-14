@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVDNApR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVDNAuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVDNApR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 20:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVDNApQ
+	id S261415AbVDNAuO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 20:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVDNAuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 20:45:16 -0400
-Received: from waste.org ([216.27.176.166]:2726 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261412AbVDNAo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 20:44:56 -0400
-Date: Wed, 13 Apr 2005 17:44:35 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: Fortuna
-Message-ID: <20050414004435.GJ3174@waste.org>
-References: <20050413234337.GE12263@certainkey.com> <20050414000939.GH3174@waste.org> <20050414002647.GG12263@certainkey.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050414002647.GG12263@certainkey.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 13 Apr 2005 20:50:14 -0400
+Received: from lx09-hrz.uni-duisburg.de ([134.91.4.50]:18326 "EHLO
+	lx09-hrz.uni-duisburg.de") by vger.kernel.org with ESMTP
+	id S261415AbVDNAuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 20:50:07 -0400
+Message-ID: <425DBDDF.4070006@folkwang-hochschule.de>
+Date: Thu, 14 Apr 2005 02:48:31 +0200
+From: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: icecast <icecast@xiph.org>, ALSA development <alsa-devel@alsa-project.org>,
+       alsa-user@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Linux Audio Conference 2005 Live Audio/Video streams
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 08:26:47PM -0400, Jean-Luc Cooke wrote:
-> On Wed, Apr 13, 2005 at 05:09:39PM -0700, Matt Mackall wrote:
-> > On Wed, Apr 13, 2005 at 07:43:37PM -0400, Jean-Luc Cooke wrote:
-> > > Ahh.  Thanks Herbert.
-> > > 
-> > > Matt,
-> > > 
-> > > Any insight on how to test syn cookies and the other network stuff in
-> > > random.c?  My patch is attached, but I havn't tested that part yet.
-> > 
-> > For starters, this is not against anything like a current random.c. A
-> > great number of cleanups have been done.
-> 
-> You caught me.  :)
-> 
-> Last I proposed Fortuna for /dev/random it nearly got me drawn and quarterd.
+hi everyone!
 
-It still might. Ted and I are as yet unconvince that the Fortuna
-approach is superior. While it may have some good properties, it lacks
-some that random.c has, particularly robustness in the face of failure
-of crypto primitives.
 
-> So I've left it as a kenrel config option, leaving the current random.c
-> alone.  I thought this was a way to make everyone happy.
 
-Duplicated code rarely does that.
+for those interested in linux audio development, the linux audio 
+conference 2005 (http://lac.zkm.de) at the center for arts and media in 
+karlsruhe/germany will be streamed live in both vorbis and theora formats.
 
-At any rate, you ought to review the changes (there've been 40+
-patches recently). There are a number of bug fixes in there and quite
-a bit of cleanup. Syncookies in particular no longer live in random.c.
+the conference takes place from april 21 - 24, with lectures and 
+workshops from 11:00 to 18:00 UTC+2 every day and concerts in the evenings.
 
--- 
-Mathematics is the supreme nostalgia of our time.
+i would like to invite you to join us, either in person (attendance to 
+the conference is free) or remotely over the internet.
+
+for remote participants of the conference, there is a chat room #lac2005 
+on irc.freenode.net. a chat operator will be present in the auditorium 
+in karlsruhe and will relay your questions to the lecturer and the local 
+audience. papers and slides will be made available for download in 
+advance if possible.
+
+information about the streams and how to watch them is at 
+http://lac2005.zkm.de.
+
+huge kudos to the icecast, ogg, vorbis and theora developers and 
+communites for their code and expertise!
+
+
+
+kind regards,
+
+
+jörn nettingsmeier
+on behalf of the linux audio community
+
+
+
+feel free to forward this message to interested parties.
+

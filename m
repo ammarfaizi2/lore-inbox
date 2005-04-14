@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVDNKAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVDNKFJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVDNKAy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 06:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVDNKAy
+	id S261466AbVDNKFJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 06:05:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVDNKFJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 06:00:54 -0400
-Received: from vanessarodrigues.com ([192.139.46.150]:55714 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261468AbVDNKAu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 06:00:50 -0400
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] genalloc for 2.6.12-rc-mm3
-References: <16987.39669.285075.730484@jaguar.mkp.net>
-	<20050412031502.3b5d39fc.akpm@osdl.org>
-	<yq0br8k12nd.fsf@jaguar.mkp.net> <20050412144720.GA19894@lst.de>
-	<yq03btw121j.fsf@jaguar.mkp.net> <20050412150015.GA20219@lst.de>
-From: Jes Sorensen <jes@wildopensource.com>
-Date: 14 Apr 2005 06:00:47 -0400
-In-Reply-To: <20050412150015.GA20219@lst.de>
-Message-ID: <yq0vf6pznhs.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Thu, 14 Apr 2005 06:05:09 -0400
+Received: from coderock.org ([193.77.147.115]:54919 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261466AbVDNKFC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 06:05:02 -0400
+Date: Thu, 14 Apr 2005 12:04:54 +0200
+From: Domen Puncer <domen@coderock.org>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc2: Compose key doesn't work
+Message-ID: <20050414100454.GC3958@nd47.coderock.org>
+References: <4258F74D.2010905@keyaccess.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4258F74D.2010905@keyaccess.nl>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Christoph" == Christoph Hellwig <hch@lst.de> writes:
+On 10/04/05 11:52 +0200, Rene Herman wrote:
+> Hi Vojtech.
+> 
+> I have mapped my right windows key to "Compose" in X:
+...
+> 
+> This worked fine upto  2.6.11.7, but doesn't under 2.6.12-rc2. The key 
+> doesn't seem to be doing anything anymore: "Compose-'-e" just gets me 
+> "'e" and so on.
 
-Christoph> On Tue, Apr 12, 2005 at 10:51:20AM -0400, Jes Sorensen
-Christoph> wrote:
->> >>>>> "Christoph" == Christoph Hellwig <hch@lst.de> writes:
->> 
->> >> +#include <asm/pal.h>
-Christoph> this will break on all plattforms except alpha and ia64.
->>  The driver is located in arch/ia64/kernel/ ;-)
+I can confirm this, right windows key works as scroll up, so it might
+be related to recent scroll patches.
 
-Christoph> Above hunk is from lib/genalloc.c
+A quick workaround is to:
+echo -n "0" > /sys/bus/serio/devices/serio1/scroll
 
-DOH! I'll send Andrew an updated patch with just this change to keep
-l-k size down.
+serio1 being the keyboard here.
 
-Thanks,
-Jes
+Btw. is that "-n" really necessary? Had too look at the code to figure
+out why it's not working :-)
+
+> 
+> X is X.org 6.8.1, keyboard is regular PS/2 keyboard, directly connected.
+
+Same here.
+
+
+	Domen

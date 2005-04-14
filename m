@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVDNGyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVDNHKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVDNGyK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 02:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDNGyK
+	id S261439AbVDNHKi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 03:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVDNHKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 02:54:10 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:26280 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261441AbVDNGyG (ORCPT
+	Thu, 14 Apr 2005 03:10:38 -0400
+Received: from pop.gmx.net ([213.165.64.20]:46987 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261439AbVDNHKd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 02:54:06 -0400
-Date: Thu, 14 Apr 2005 08:54:05 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: iproute/iptables best?
-Message-ID: <20050414065404.GA10880@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-References: <200504132335.12324.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200504132335.12324.gene.heskett@verizon.net>
-User-Agent: Mutt/1.3.28i
+	Thu, 14 Apr 2005 03:10:33 -0400
+X-Authenticated: #26515711
+Message-ID: <425E1768.5070302@gmx.de>
+Date: Thu, 14 Apr 2005 09:10:32 +0200
+From: "Oliver.Korpilla@gmx.de" <Oliver.Korpilla@gmx.de>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Lenz <lenz@cs.wisc.edu>
+CC: debian-kernel@lists.debian.org, debian-toolchain@lists.debian.org,
+       linux-gcc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Crosspost] GNU/Linux userland?
+References: <425D75AF.7080802@gmx.de> <1113424574l.5708l.0l@hydra>
+In-Reply-To: <1113424574l.5708l.0l@hydra>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 11:35:12PM -0400, Gene Heskett wrote:
-> How can we make the reply to an action go back out through the route 
-> it came in on?  As it exists, queries, ssh sessions etc coming in 
-> thru a vpn from one router are being replied to on the default 
-> gateways card that hits the other network.
+John Lenz wrote:
+> On 04/13/05 14:40:31, Oliver Korpilla wrote:
+> You might also look at www.openembedded.org  It has support for cross  
+> compiling, and with one command can build an entire userland.  Not sure 
+> if  it is exactly a fit for what you want to do, but it seems very close.
 
-Sometimes Linux can't (and shouldn't) figure out the "right" interface. In
-this case, you need policy routing:
+Thanks, this sounds great, and together with the directions I got about 
+Gentoo and Heretix/Rubyx seems to precisely match my request.
 
-http://lartc.org/howto/lartc.rpdb.multiple-links.html
-http://lartc.org/howto/lartc.rpdb.html
+Thanks to you, and thanks to all helpful replies! :)
 
-Good luck!
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://netherlabs.nl              Open and Closed source services
+With kind regards,
+Oliver Korpilla

@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVDNXUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVDNXWn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVDNXUg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 19:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261646AbVDNXUg
+	id S261646AbVDNXWn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 19:22:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVDNXWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 19:20:36 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:9991 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261644AbVDNXUa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 19:20:30 -0400
-Date: Fri, 15 Apr 2005 01:20:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] drivers/net/wan/: possible cleanups
-Message-ID: <20050414232028.GD20400@stusta.de>
-References: <20050327143418.GE4285@stusta.de> <1111941516.14877.325.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1111941516.14877.325.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 14 Apr 2005 19:22:43 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:54922 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261646AbVDNXWc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 19:22:32 -0400
+Message-ID: <425EFB32.2010000@g-house.de>
+Date: Fri, 15 Apr 2005 01:22:26 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: alsa-devel@lists.sourceforge.net
+Subject: ALSA Oops (triggered by xmms) 
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 27, 2005 at 05:38:38PM +0100, Alan Cox wrote:
-> On Sul, 2005-03-27 at 15:34, Adrian Bunk wrote:
-> >   - syncppp.c: sppp_input
-> >   - syncppp.c: sppp_change_mtu
-> >   - z85230.c: z8530_dma_sync
-> >   - z85230.c: z8530_txdma_sync
-> 
-> Please leave the z85230 ones at least. They are an intentional part of
-> the external API for writing other 85230 card drivers.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-If they are part of an API, why aren't the prototypes for them in any 
-header file?
+howdy,
 
-> Alan
+yesterday i hit an Oops when i tried to play an mp3 with xmms. nothing
+unusual. the thing is - i've not changed the kernel (2.6.11-gentoo-r5) for
+a while, but changed some (multimedia related) libs on my system. xmms
+just segfaults and it all seems to be a proper userspace bug (even xmms
+told me so). i really suspect xmms or the changed libs.
+but i still believe in the old proverb my grandma used to say: "no
+userspace app should make the kernel oops." but yesterday it did:
 
-cu
-Adrian
+http://nerdbynature.de/bits/prinz/2.6.11-gentoo-r5/
 
--- 
+this is 100% reproducable whenever i use the ALSA sounddriver in xmms.
+when i use "mpg321 -o alsa ..." everything is ok.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+maybe some guru can shed some light on what's going on in xmms-oops.txt
+and tell me who's to bug here :->
 
+thank you,
+Christian.
+- --
+BOFH excuse #289:
+
+Interference between the keyboard and the chair.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCXvsy+A7rjkF8z0wRAi5qAKCHXt/BSXHJdiMvYbf6SWnEIuFwkwCgmpmA
+jRpOB7REfh99kMVaMdyIniw=
+=rSNT
+-----END PGP SIGNATURE-----

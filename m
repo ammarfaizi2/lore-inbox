@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVDNGvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVDNGyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVDNGvt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 02:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDNGvt
+	id S261441AbVDNGyK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 02:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVDNGyK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 02:51:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40121 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261438AbVDNGvr (ORCPT
+	Thu, 14 Apr 2005 02:54:10 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:26280 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S261441AbVDNGyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 02:51:47 -0400
-Date: Thu, 14 Apr 2005 08:51:25 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andreas Steinmetz <ast@domdv.de>,
-       rjw@sisk.pl, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
-Message-ID: <20050414065124.GA1357@elf.ucw.cz>
-References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org>
+	Thu, 14 Apr 2005 02:54:06 -0400
+Date: Thu, 14 Apr 2005 08:54:05 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: iproute/iptables best?
+Message-ID: <20050414065404.GA10880@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+References: <200504132335.12324.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050414003506.GQ25554@waste.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <200504132335.12324.gene.heskett@verizon.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, Apr 13, 2005 at 11:35:12PM -0400, Gene Heskett wrote:
+> How can we make the reply to an action go back out through the route 
+> it came in on?  As it exists, queries, ssh sessions etc coming in 
+> thru a vpn from one router are being replied to on the default 
+> gateways card that hits the other network.
 
-> > > > > The ssh keys are *encrypted* in the swap when dmcrypt is used.
-> > > > > When the swap runs over dmcrypt all writes including those from
-> > > > > swsusp are encrypted.
-> > > > 
-> > > > Andreas is right. They are encrypted in swap, but they should not be
-> > > > there at all. And they are encrypted by key that is still available
-> > > > after resume. Bad.
-> > > 
-> > > The dmcrypt swap can only be unlocked by the user with a passphrase,
-> > > which is analogous to how you unlock your ssh private key stored
-> > > on the disk using a passphrase.
-> > 
-> > Once more:
-> > 
-> > Andreas' implementation destroys the key during resume.
-> 
-> This solution is all wrong.
-> 
-> If you want security of the suspend image while "suspended", encrypt
-> with dm-crypt. If you want security of the swap image after resume,
-> zero out the portion of swap used. If you want both, do both.
+Sometimes Linux can't (and shouldn't) figure out the "right" interface. In
+this case, you need policy routing:
 
-I want security of the swap image, and "just zeroing" is hard to do in
-failed suspend case, see previous discussion.
+http://lartc.org/howto/lartc.rpdb.multiple-links.html
+http://lartc.org/howto/lartc.rpdb.html
 
-Andreas, do you think you could write nice, long, FAQ entries so that
-we don't have to go through this discussion over and over?
+Good luck!
 
-								Pavel
 -- 
-Boycott Kodak -- for their patent abuse against Java.
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

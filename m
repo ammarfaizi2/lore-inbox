@@ -1,42 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVDNSeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVDNSnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVDNSeI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 14:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDNSeI
+	id S261336AbVDNSnY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 14:43:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVDNSnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 14:34:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:32647 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261429AbVDNSeD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 14:34:03 -0400
-Date: Thu, 14 Apr 2005 14:33:56 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Tim Hockin <thockin@hockin.org>, Ross Biro <ross.biro@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC/Patch 2.6.11] Take control of PCI Master Abort Mode
-Message-ID: <20050414183355.GE23231@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@muc.de>,
-	Tim Hockin <thockin@hockin.org>, Ross Biro <ross.biro@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <4252E827.4080807@google.com> <m14qee221l.fsf@muc.de> <8783be66050412075218b2b0b0@mail.gmail.com> <20050413183725.GG50241@muc.de> <8783be66050413160033e6283d@mail.gmail.com> <20050413232826.GA22698@redhat.com> <8783be66050414102551698d86@mail.gmail.com> <20050414173438.GA9488@hockin.org> <20050414180202.GJ50241@muc.de>
+	Thu, 14 Apr 2005 14:43:24 -0400
+Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:43718 "EHLO
+	links.magenta.com") by vger.kernel.org with ESMTP id S261336AbVDNSnS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 14:43:18 -0400
+Date: Thu, 14 Apr 2005 14:43:12 -0400
+From: Raul Miller <moth@debian.org>
+To: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
+Message-ID: <20050414144312.K24721@links.magenta.com>
+References: <425E5FA6.1030702@almg.gov.br> <MDEHLPKNGKAHNMBLJOLKCELDDCAB.davids@webmaster.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050414180202.GJ50241@muc.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCELDDCAB.davids@webmaster.com>; from davids@webmaster.com on Thu, Apr 14, 2005 at 10:44:10AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 14, 2005 at 08:02:02PM +0200, Andi Kleen wrote:
- > > What if it was always on, except when the commandlien was passed
- > > (eliminate the CONFIG option)?  Really 'leet hacks could tweak a #define
- > > if they don't like the command line option..
- > 
- > That is basically what I suggested. But test it for a month
- > in -mm* first and figure out if it needs more black/whitelisting
+> > That is the point: the result is not a single work. It is a
+> > collection or compilation of works, just like an anthology. If
+> > there is any creativity involved, is in choosing and ordering
+> > the parts. The creation of works that "can be linked together"
+> > is not protected by copyright: the literary analogy was to
+> > "create a robot short story". Such a story could go into an
+> > anthology called (duh) "Robot Short Stories", but its
+> > licensing is independent of every other robot short story in
+> > the world -- except those it is a derivative work of.
 
-Indeed. I'm in full agreement with Andi's suggestion.
+On Thu, Apr 14, 2005 at 10:44:10AM -0700, David Schwartz wrote:
+>	That's fine then, if you want to define derivative work in this
+> way, then I can configure, compile, and link the Linux kernel without
+> permission of the copyright holder under first sale (since no derivative
+> work is created). I can write a program that uses a library, compile
+> my program, and link it to the library, again without creating a
+> derivative work.
 
-		Dave
+It's quite true that linking does not create a derivative work.
 
+However, it might be the case that a derivative work had already been
+created.
+
+Only when you have legally obtained copies of a work are you entitled
+to retain those copies.
+
+Technical details (such as downloading the work in pieces, from different
+sites, perhaps using bittorrent, or perhaps using ftp, or perhaps using
+other protocols) don't make any more difference [either positively or
+negatively] than linking does.
+
+>	Okay. This gets to the same result that I get to, which is that
+> you can do all the things you want to do without permission from
+> the copyright holder under first sale. Since this is not creating a
+> derivative work, no special permission is needed.
+
+Sure.
+
+Of course this doesn't apply when you got the copy from someone who
+wasn't entitled to give it to you.
+
+For example, if I'm distributing some program derived from a GPLed program
+and I have no intention of providing source for the derived form, I'm
+at fault, and depending on details you might or might not have a license
+to the derivative I authored.
+
+On the other hand, the GPL itself has an explicit exception for this case,
+the GPLed content is legal for other people to use even if the person
+distributing it had lost their copyright grant.  But if we're talking
+about linking and derived works, you could easily be using derived code
+which is not GPLed.  The GPL can't offer you any rights to that code,
+because someone else owns the copyright.
+
+-- 
+Raul

@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVDNTPC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVDNTY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbVDNTPC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 15:15:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVDNTPB
+	id S261599AbVDNTY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 15:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVDNTY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 15:15:01 -0400
-Received: from 213-239-212-8.clients.your-server.de ([213.239.212.8]:49546
-	"EHLO live1.axiros.com") by vger.kernel.org with ESMTP
-	id S261585AbVDNTO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 15:14:57 -0400
-In-Reply-To: <8783be66050414102551698d86@mail.gmail.com>
-References: <4252E827.4080807@google.com> <m14qee221l.fsf@muc.de> <8783be66050412075218b2b0b0@mail.gmail.com> <20050413183725.GG50241@muc.de> <8783be66050413160033e6283d@mail.gmail.com> <20050413232826.GA22698@redhat.com> <8783be66050414102551698d86@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-9--92602720"
-Message-Id: <d2274e05b0524222d01c2d584297b4e1@axiros.com>
+	Thu, 14 Apr 2005 15:24:56 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:15332 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261599AbVDNTYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 15:24:54 -0400
+Message-ID: <425EC364.1030107@austin.rr.com>
+Date: Thu, 14 Apr 2005 14:24:20 -0500
+From: Steve French <smfrench@austin.rr.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: linux-kernel@vger.kernel.org, Alexander Nyberg <alexn@dsv.su.se>,
+       Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH 1/3] cifs: md5 cleanup - functions
+References: <OFF8FD24BE.BDEDEA22-ON87256FE0.00741B4F-86256FE0.0074FC27@us.ibm.com> <1113267099.5734.1.camel@smfhome.smfdom> <20050412210152.GB25512@electric-eye.fr.zoreil.com>
+In-Reply-To: <20050412210152.GB25512@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: linux-kernel Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Daniel Egger <de@axiros.com>
-Subject: Re: [RFC/Patch 2.6.11] Take control of PCI Master Abort Mode
-Date: Thu, 14 Apr 2005 21:14:26 +0200
-To: Ross Biro <ross.biro@gmail.com>
-X-Pgp-Agent: GPGMail 1.0.2
-X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Francois Romieu wrote:
 
---Apple-Mail-9--92602720
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+>Btw nobody cared about fs/cifs/connect.c::CIFSNTLMSSPNegotiateSessSetup
+>(indentation from Mars + unchecked allocations before dereferences).
+>
+>--
+>Ueimor
+>  
+>
+That routine is disabled by default (as with the SPNEGO one) so it has 
+not gotten much attention, it will probably go away or be significantly 
+changed when someone goes through and collapses the four SessionSetup 
+cases (currently each a distinct large function with only the default 
+NTLM SessionSetup enabled by default) down to smaller functions with 
+invoke some common functions.   A good time to do this would be when a 
+SessionSetupOldStyle routine is added to handle pre-Windows NT4 
+SessionSetup (OS/2, LAN Server, LAN Manager etc.).   Another possibility 
+for a good time to update these routines is when SPNEGO support is 
+finished - the SPNEGO SessionSetup (which is also too big a function) 
+will change a lot (and get simpler) if Andrew Bartlett's idea of an 
+upcall to the ntlm_auth utility (the man page is somewhat out of date 
+from the better Samba 4 version of this see  
+http://www.samba.org/samba/docs/man/ntlm_auth.1.html but it gives the 
+general idea)  is done for that case - so that might be a good time to 
+redo the session setup routines.
 
-On 14.04.2005, at 19:25, Ross Biro wrote:
-
-> Just to be clear, we can have two users A and B with the exact same
-> hardware.  A setting of  =y will screw user A and a setting of =n will
-> screw user B.  Ideally, they would both get better hardware, but that
-> is not always an option.
-
-You tell me a better[1] 32bit GigE PCI adapter than Intel E1000
-and I sure do this. It's pretty interesting to see that those
-who buy some not-so-cheeep hardware are being screwed in this
-case; it should be in Intels best interest to help fix this
-issue ASAP and permantently for all users.
-
-[1] better performance at less CPU utilization + good diagnostics
-     and negotiation capabilities
-
-Servus,
-       Daniel
-
---Apple-Mail-9--92602720
-content-type: application/pgp-signature; x-mac-type=70674453;
-	name=PGP.sig
-content-description: This is a digitally signed message part
-content-disposition: inline; filename=PGP.sig
-content-transfer-encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (Darwin)
-
-iD8DBQFCXsETchlzsq9KoIYRAnUxAJ9KSYMkSWqf3upmHBeo+aWD+2r/+ACguxA7
-O3KonzJTll1UAYOy9zS+ZZI=
-=DqQZ
------END PGP SIGNATURE-----
-
---Apple-Mail-9--92602720--
-
+NTLMSSP authentication protocol is interesting (and the Davenport guys 
+did a great job updating the documentation for it - see  
+http://davenport.sourceforge.net/ntlm.html) and I would like to 
+implement some of the cool optional features as I get time.

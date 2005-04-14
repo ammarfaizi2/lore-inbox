@@ -1,221 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVDNRow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVDNRpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVDNRow (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 13:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVDNRow
+	id S261576AbVDNRpg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 13:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVDNRpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 13:44:52 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:8712 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261572AbVDNRol
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 13:44:41 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: <debian-legal@lists.debian.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Date: Thu, 14 Apr 2005 10:44:10 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCELDDCAB.davids@webmaster.com>
+	Thu, 14 Apr 2005 13:45:36 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:57340 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S261576AbVDNRpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 13:45:07 -0400
+Message-ID: <425EAAF9.8060506@tin.it>
+Date: Thu, 14 Apr 2005 12:40:09 -0500
+From: "Franco \"Sensei\"" <senseiwa@tin.it>
+Reply-To: Sensei <senseiwa@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <425E5FA6.1030702@almg.gov.br>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 14 Apr 2005 10:43:14 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 14 Apr 2005 10:43:16 -0700
+To: Adrian Bunk <bunk@stusta.de>
+CC: Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [INFO] Kernel strict versioning
+References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de> <425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de> <425B3864.8050401@tin.it> <m3mzs4kzdp.fsf@defiant.localdomain> <425C03D6.2070107@tin.it> <20050412224357.GE3631@stusta.de>
+In-Reply-To: <20050412224357.GE3631@stusta.de>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig760342C8E89769EA4DE67E40"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig760342C8E89769EA4DE67E40
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> That is the point: the result is not a single work. It is a
-> collection or compilation of works, just like an anthology. If
-> there is any creativity involved, is in choosing and ordering
-> the parts. The creation of works that "can be linked together"
-> is not protected by copyright: the literary analogy was to
-> "create a robot short story". Such a story could go into an
-> anthology called (duh) "Robot Short Stories", but its
-> licensing is independent of every other robot short story in
-> the world -- except those it is a derivative work of.
+Adrian Bunk wrote:
+>>When a new component is added to the kernel, let's say support for a new 
+>>file system, a .config entry is created (CONFIG_MYFS=y|m). Why is this 
+>>entry breaking compatibility? I mean, symbols still remains the same. 
+>>The addition of symbols is not a breaking point.
+> 
+> That's clear.
+> 
+> You said you've read Documentation/stable_api_nonsense.txt .
+> Please read the USB example in this document as an example when even API 
+> compatibility was a problem.
 
-	That's fine then, if you want to define derivative work in this way, then I
-can configure, compile, and link the Linux kernel without permission of the
-copyright holder under first sale (since no derivative work is created). I
-can write a program that uses a library, compile my program, and link it to
-the library, again without creating a derivative work.
+The example says that the usb layer changed from synchronous to 
+asynchronous and changed the data model. I'd say changing drastically is 
+a big issue. I'd say it would be a change from 2.4 to 2.6 series. It 
+does not mean that in a year we have to stick with the same version, in 
+a year things can change drastically and so should be the version.
 
-> You are making deaf ears: using a library (even by static
-> linkage) does NOT create a derivative work unless:
->
->         (a) you make another version, subset or superset of
->         the same library, modifying, enhancing, the
->         functionality of the original library; or
->
->         (b) you make a program that is *so* dependent on the
->         *internal* implementation structure of the library
->         that it can be considered a derivative work.
+I see one big thing: developement should be careful about who uses the 
+kernel and not caring about it alone, since it's not something useful by 
+itself :)
 
-	Okay. This gets to the same result that I get to, which is that you can do
-all the things you want to do without permission from the copyright holder
-under first sale. Since this is not creating a derivative work, no special
-permission is needed.
+> If you upgrade your kernel, you'll also upgrade the modules shipped with 
+> the kernel.
 
+Yes! You said it yourself: shipped with the kernel. The world does not 
+rely only on the kernel. I have to administer a department, and I use 
+other modules that won't be in the kernel, such as afs.
 
->  >> >This is, by the way, the FSF's own position. It's not
->  >> >something I'm making up or guessing at.
->  >>
->  >>Please send us some pointers to this statements for the FSF.
->  >
->  >
->  >    Read any of Eben Moglen's posts.
->  >
->  >> >"The license does not require anyone to accept it in order
->  >> >to acquire, install, use, inspect, or even experimentally
->  >> >modify GPL'd software. All of those activities are either
->  >> >forbidden
->  >>
->  >>Wrong again. GPL, section 0, para 1: "Activities other than
->  >>copying, distribution, and *modification* are not covered by
->  >>this License". Emphasis mine.
+> -> it doesn't matter whether the code shipped with the kernel is 
+>    compiled static or modular
 
->  >You are free to disagree with the FSF's interpretation of the
->  >GPL, but you are not free to misrepresent the FSF's
->  >interpreration.
+Static fills the memory, modular is better :) If I don't use a module, 
+that should be unloaded from the memory automatically. Modular things 
+makes them less complex to mantain if properly designed.
 
-> No. First of all: you are begin uncivil here. I did not accuse
-> you of anything, other than not reading correctly what I
-> wrote previously; which I can attribute to my poor knowledge
-> of the English language. So, please, I am not being impolite
-> to you, do the same.
+> What's an "optimal kernel"?
 
-	Read the quote above.
+I don't know... in the thread someone said sub-optimal. Probably he 
+referred to a kernel with lots of useless things, while I can compile 
+only the things I need (optimal).
 
-> Second: you did not provide a concrete pointer to one of Eben
-> Moglen's posts, for instance, saying that modification is not
-> covered by the GPL. Me, OTOH, showed you that the TEXT of the
-> GPL says it covers modifications.
+> In a closed-sourse system, there's usually the OS plus API+ABI for 
+> driver writers and the drivers are often shipped with the hardware.
+> Therefore API+ABI compatibility is required.
 
-	Read the quote. For about the fourth time in this thread, here's the cite:
-http://emoglen.law.columbia.edu/publications/lu-12.html "The license does
-not require anyone to accept it in order to acquire, install, use, inspect,
-or even experimentally modify GPL'd software."
+Not only in closed-source.
 
->  >Feel free to disagree with the FSF about the meaning of the
->  >GPL, but it is the FSF's position that you can modify a GPL'd
->  >work without agreeing to the GPL.
+> In an open source system, it's usually more common that all drivers are 
+> shipped with the kernel. Therefore, there isn't such a big need for 
+> API+ABI compatibility since you can change all modules using an API when 
+> changing an API. And ABI compatibility isn't required because you can 
+> recompile the modules every time you recompile the kernel.
 
-> I don't disagree with the FSF -- you are alleging that this is
-> their position, and I am disagreeing with YOU. And you have
-> not produced evidence in contrary.
+That's not entirely true. Kernel does not have all the modules someone 
+can use, and I made an example with my own department. The kernel should 
+make the machine work, providing means to operate the hardware. So, in 
+no case one can imagine having every single driver on this earth built 
+in the kernel...
 
-	I don't know what to say. The FSF has had a clear, consistent position on
-the GPL for a very long time and it has always been that ordinary use is
-permitted without agreeing to the GPL. For source code, modification is
-often part of ordinary use. Anyone who has grabbed a package intended for a
-different version of their OS and had to tweak things to get the code to
-work knows this.
+> ABI compatibility between kernel versions costs the following:
+> - space for all users of the kernel
 
-> We = You and Me disagreeing. And you still have to show where
-> the FSF says the GPL does not cover modifications.
+I don't understand. Space of what?
 
-	I never said that the FSF says the GPL does not cover modifications, I said
-it doesn't cover ordinary use. That means it doesn't cover modifications
-when those modifications are made in the course of ordinary use.
+> - speed of the kernel
 
->  >    2) The result is not a derivative work, hence you
->  >don't need permission from the copyright holder to do it.
+Mmh... why should it be? Optimizing the kernel is possible, speeding it 
+up, without affecting ABI. Adding new components can't affect speed as 
+long as it won't affect it wihout ABI (adding parts does of course 
+affect the speed, but it's not different from ABI to non-ABI).
 
->         ** THIS ** : yes, the result is NOT a derivative work.
->         So, to link with a library you don't need permission.
->         That's what I said since the beginning.
+> - much extra work and checking when doing any changes
 
->  >    Either way you get the same result, permission is not
->  >needed beyond permission to use.
->
-> Conceded.
+Of course! You're developing a kernel to be used by other people! It's 
+quite... straightforward to be really careful about changes.
 
-	Okay. So you get to the same place I get by a different route. One of the
-strange things I've noticed is nearly all cases, you get the same result
-whether you think the final work is a derivative work or not.
+> Nobody claims API+ABI compatibility was technically impossible in the 
+> Linux kernel. It's simply a consensus among the kernel developers that 
+> the small advantages of ABI compatibility are not worth the costs.
 
->  >    Then all the people who think that creating a binary
->  >kernel module requires creating a derivative work and hence
->  >can be restricted by the GPL are wrong.  Take that argument
->  >up with them.
+I don't know. As linux spreads, things should be simply changing. 
+Carefulness, API stability and of course ABI helps in that sense. Kernel 
+by itself is just useless. A kernel with other layers is an os. The core 
+of an OS should have special care.
 
-> I took. Google my name on lkml and you'll see. They ARE wrong.
-> Linus himself studied carefully the situation and came to the
-> conclusion they are wrong,
+If IDE driver is completely rewritten breaking my ability to use all the 
+other modules, it's a shame... nothing I had made (modules) will work, 
+and I know. If cdrecord is completely rewritten, I don't care, as long 
+as it works.
 
-> I'll rewrite something, from this e-mail, for emphasis:
->
-> "You are making deaf ears: using a library (even by static
-> linkage) does NOT create a derivative work unless:
->
->         (a) you make another version, subset or superset of
->         the same library, modifying, enhancing, the
->         functionality of the original library; or
->
->         (b) you make a program that is *so* dependent on the
->         *internal* implementation structure of the library
->         that it can be considered a derivative work."
+-- 
+Sensei <mailto:senseiwa@tin.it> <pgp:8998A2DB>
+        <icqnum:241572242>
+        <yahoo!:sensei_sen>
+        <msn-id:sensei_sen@hotmail.com>
 
-> If you make a kernel module that only uses something
-> EXPORT_SYMBOL()'d from the kernel, you are NOT in principle
-> writing a derivative work. If you use EXPORT_SYMBOL_GPL()'d
-> symbols, then you are incurring in (b) above and your kernel
-> module is most certainly a derivative work.
->
-> I think Linus' opinion pacified this point, at least on LKML.
+--------------enig760342C8E89769EA4DE67E40
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-	I don't think courts seem to agree with this, but I can only find cases
-where the result really would have been the same whether or not the work was
-derivative. For example, one case inolved a company that stole test
-questions from another company. The courts ruled that the test with some of
-the "borrowed" questions was a derivative work, even though there's no
-special "integration" of the questions. But they could perfectly well have
-reached the same conclusion without the "derivative work" argument.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-	There are court cases on point that definitely disagree with you, for
-example Mirage Editions, Inv. v. Albuquerque ART (cutting a picture out of a
-book creates a derivative work). Also National Football League v. TVRadio
-Now (embedding someone else's broadcast with your advertisements through an
-automated process creates a derivative work).
+iD8DBQFCXqr84LBKhYmYotsRAlqiAJsG8lJ4vHUc2Vpwf+Y+SwmnsDXUlwCbBnVd
+r+OECtNPRmWIMQE2UzWt2vg=
+=GTGG
+-----END PGP SIGNATURE-----
 
-	I think it would make a lot of sense if courts held that compiling and
-linking are analogous to format changes (like converting an audio-visual
-work from DVD to VHS). This process involves making copies of the work so
-that it can be used in different environments that have different technical
-requirements. (Except in cases where one work is heavily adapted to the
-internals of another.) It's clear that anyone who tried to get an
-independent copyright on their compiled Linux kernel binary should be
-laughed off the planet.
-
->  >    I think even if the result is not a derivative work,
->  >the rules for distributing it would be the same. However, it
->  >would change the rules for creating it. Either way, however,
->  >you get that you can do it without agreeing to the GPL, and
->  >this is the FSF's position.
-
-> You repeated this a lot of times, but you have not
-> substatitiated it, at least WRT something I asked you: please,
-> give me some *link* where EM, RMS, or any other FSF/GNU guy
-> contradicts the GPL section 0 paragraph 1 ("modification")
-> saying that you can modify a GPLd work without agreeing to the
-> GPL.
-
-	This has always been their position, when modification is needed for
-ordinary use. See the quote from Eben Moglen above. Now, as I said, they
-reach different conclusions based on this, but we agree on this.
-
-	DS
-
-
+--------------enig760342C8E89769EA4DE67E40--

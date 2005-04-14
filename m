@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVDNXEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVDNXDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVDNXEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 19:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVDNXEU
+	id S261634AbVDNXDu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 19:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVDNXDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 19:04:20 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:4737 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261635AbVDNXD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 19:03:57 -0400
-Subject: Re: Linux support for IBM ThinkPad Disk shock prevention update...
-From: Lee Revell <rlrevell@joe-job.com>
-To: abonilla <abonilla@linuxwireless.org>
-Cc: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050414224215.M94640@linuxwireless.org>
-References: <200504141658.50135.shawn.starr@rogers.com>
-	 <1113513316.19373.22.camel@mindpipe>
-	 <20050414224215.M94640@linuxwireless.org>
-Content-Type: text/plain
-Date: Thu, 14 Apr 2005 19:03:51 -0400
-Message-Id: <1113519832.19830.20.camel@mindpipe>
+	Thu, 14 Apr 2005 19:03:44 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:31245 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261634AbVDNXCF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 19:02:05 -0400
+Date: Fri, 15 Apr 2005 01:03:17 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: poor SATA performance under 2.6.11 (with < 2.6.11 is OK)?
+Message-ID: <20050414230317.GA12156@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <425E9902.8000804@interia.pl> <20050414165535.GA15440@irc.pl> <425EE9CF.4030202@interia.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <425EE9CF.4030202@interia.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-14 at 18:46 -0400, abonilla wrote:
-> On Thu, 14 Apr 2005 17:15:16 -0400, Lee Revell wrote
-> > On Thu, 2005-04-14 at 16:58 -0400, Shawn Starr wrote:
-> > > We just need to figure
-> > > out to get the specs from IBM
-> > 
-> > Best bet is probably reverse engineering it...
->  
-> Lee, 
+On Fri, Apr 15, 2005 at 12:08:15AM +0200, Tomasz Chmielewski wrote:
+> >>The performance under 2.6 kernels is *very* poor (Timing buffered disk
+> >>reads never more than 20 MB/sec); under 2.4 it runs quite fine (Timing
+> >>buffered disk reads around 60 MB/sec).
+> >
+> >
+> > 2.4 risk data corruption. 2.6 sata_sil.c contains blacklist for some
+> >driver-controller combination.
+> >
+> > See: http://home-tj.org/m15w/
 > 
-> I know this is far from easy... but, What do we need to do this? I haven't
-> seen such a cooler feature in a Thinkpad like the HDAPS. (Well, maybe the
-> fingerprint reader) But, how can we / I help, if this is ever done?
+> ...but this link just doesn't explain why performance is sooo bad with 
+> 2.6.11.x kernels (Timing buffered disk reads at 10-20 MB/sec), and is 
+> just OK with older 2.6 kernels (Timing buffered disk reads even at about 
+> 100 MB/sec with 2.6.8.1).
 > 
+> any clue?
 
-Please see:
+ The sata_sil blacklist grown over time. Older version didn't mark your
+drive as bad. Check sata_sil history at
+http://www.linuxhq.com/kernel/file/drivers/scsi/sata_sil.c ,
+you may find exact time when your drive got blacklisted.
 
-http://dxr3.sourceforge.net/re.html
-
-I have discovered several previously unknown emu10k1 hardware features
-using this procedure to reverse engineer the Windows drivers, including
-a per channel half loop interrupt, and added support to the Linux driver
-for some of them.
-
-It may be much easier to find the read and write register subroutines
-than in the above guide.  The Windows driver I was working with had
-exactly one subroutine that used the inb, inl, inw, outb, outw, outl
-instructions, so it was trivial to set breakpoints to log all the port
-I/O.  I later found it was even easier, the version of SoftIce I was
-using allows you to set I/O breakpoints, so all you need to start
-logging the register activity is the port.
-
-I had a little trouble loading the IDA symbols into SoftICE at first,
-just because the first few scripts I found on the net didn't work.
-
-Some devices use memory mapped IO, I have no idea how you would RE
-these.  Maybe someone else has some pointers?
-
-Lee
+-- 
+Tomasz Torcz                        To co nierealne - tutaj jest normalne.
+zdzichu@irc.-nie.spam-.pl          Ziomale na ¿ycie maj± tu patenty specjalne.
 

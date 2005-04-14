@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVDNUpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVDNUtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbVDNUpF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 16:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVDNUoR
+	id S261548AbVDNUtG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 16:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVDNUtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 16:44:17 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:65209 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S261555AbVDNUnz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 16:43:55 -0400
-Subject: Re: spurious 8259A interrupt: IRQ7
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1113498693.18871.11.camel@mindpipe>
-References: <1113498693.18871.11.camel@mindpipe>
-Content-Type: text/plain
-Date: Thu, 14 Apr 2005 14:43:46 -0600
-Message-Id: <1113511426.22496.43.camel@eeyore>
+	Thu, 14 Apr 2005 16:49:05 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:10204 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261548AbVDNUsu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 16:48:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ZEY1/jKxaPzVlPI1CkqmR5MxgRpgxmXVODthSe3977AxBjLjSHtReVakGEHGq3UPmB4fQyvTbJV45QIY+qnR3RA3D+Dkz3OwmKn1N208NKAYKF2BFScnT7MxMoS3qO1WoXABDwNcHCwGnO0FsFc/hXCUDdMKijxDJdLQq75TTNc=
+Message-ID: <17d798805041413482f5a48c@mail.gmail.com>
+Date: Thu, 14 Apr 2005 20:48:42 +0000
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-14 at 13:11 -0400, Lee Revell wrote:
-> I get this message occasionally on both my machines.  I googled and saw
-> some references to this message on 2.4 but nothing for 2.6.  Some of the
-> references were to APIC, which I don't have enabled.
+I am trying to simply print out the module names and code sizes.
+I am just learning how to rtraverse these data structures.
+
+Also, on what basis is the decision made whether to export a symbol or not ?
+
+thanks,
+Allison
+
+Arjan van de Ven wrote:
+> On Thu, 2005-04-14 at 19:53 +0000, Allison wrote:
+> > 
+> > I am trying to access the module list kernel data structure from a
+> > kernel module. If I gather correctly, module_list is the symbol that
+> > is the head pointer of this list.
 > 
-> Both machines are using VIA chipsets and display the "VIA IRQ fixup"
-> message on boot.  I think this behavior started about the same time that
-> message started to appear.
-
-The VIA IRQ fixup in 2.6.11 is broken.  It works for some, but
-not all boxes with VIA hardware.
-
-There's a fix in 2.6.12-rc2-mm3.  Actually, I doubt that it will
-help you, though -- the 2.6.11 breakage is such that some machines
-that need the fixup don't get it (and don't print the "VIA IRQ
-fixup message").
-
+> can you explain what you want to do with this symbol ?
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

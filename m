@@ -1,74 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVDNAni@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVDNApR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVDNAni (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 20:43:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbVDNAni
+	id S261412AbVDNApR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 20:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVDNApQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 20:43:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28344 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261410AbVDNAn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 20:43:29 -0400
-Date: Wed, 13 Apr 2005 16:45:31 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, pc300@cyclades.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PC300 pci_enable_device fix
-Message-ID: <20050413194531.GE11131@logos.cnet>
-References: <1113427903.21308.3.camel@eeyore> <20050413150243.A26360@unix-os.sc.intel.com>
+	Wed, 13 Apr 2005 20:45:16 -0400
+Received: from waste.org ([216.27.176.166]:2726 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261412AbVDNAo4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 20:44:56 -0400
+Date: Wed, 13 Apr 2005 17:44:35 -0700
+From: Matt Mackall <mpm@selenic.com>
+To: Jean-Luc Cooke <jlcooke@certainkey.com>
+Cc: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: Fortuna
+Message-ID: <20050414004435.GJ3174@waste.org>
+References: <20050413234337.GE12263@certainkey.com> <20050414000939.GH3174@waste.org> <20050414002647.GG12263@certainkey.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050413150243.A26360@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050414002647.GG12263@certainkey.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 03:02:43PM -0700, Ashok Raj wrote:
-> On Wed, Apr 13, 2005 at 02:31:43PM -0700, Bjorn Helgaas wrote:
+On Wed, Apr 13, 2005 at 08:26:47PM -0400, Jean-Luc Cooke wrote:
+> On Wed, Apr 13, 2005 at 05:09:39PM -0700, Matt Mackall wrote:
+> > On Wed, Apr 13, 2005 at 07:43:37PM -0400, Jean-Luc Cooke wrote:
+> > > Ahh.  Thanks Herbert.
+> > > 
+> > > Matt,
+> > > 
+> > > Any insight on how to test syn cookies and the other network stuff in
+> > > random.c?  My patch is attached, but I havn't tested that part yet.
 > > 
-> >    Call pci_enable_device() before looking at IRQ and resources.
-> >    The driver requires this fix or the "pci=routeirq" workaround
-> >    on 2.6.10 and later kernels.
+> > For starters, this is not against anything like a current random.c. A
+> > great number of cleanups have been done.
 > 
+> You caught me.  :)
 > 
-> the failure cases dont seem to worry about pci_disable_device()?
-> 
-> in err_release_ram: etc?
+> Last I proposed Fortuna for /dev/random it nearly got me drawn and quarterd.
 
-Yep the failure paths were wrong before, but Bjorn's patch moves 
-pci_enable_device() way up to the beginning of the function. 
+It still might. Ted and I are as yet unconvince that the Fortuna
+approach is superior. While it may have some good properties, it lacks
+some that random.c has, particularly robustness in the face of failure
+of crypto primitives.
 
-The failure path's err_release_ram etc. wont touch the resources
-without pci_enable_pci(), with the fix.
+> So I've left it as a kenrel config option, leaving the current random.c
+> alone.  I thought this was a way to make everyone happy.
 
-> >    Reported and tested by Artur Lipowski.
-> > 
-> >    Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> > 
-> >    ===== drivers/net/wan/pc300_drv.c 1.24 vs edited =====
-> >    --- 1.24/drivers/net/wan/pc300_drv.c    2004-12-29 12:25:16 -07:00
-> >    +++ edited/drivers/net/wan/pc300_drv.c  2005-04-13 13:35:21 -06:00
-> >    @@ -3439,6 +3439,9 @@
-> >     #endif
-> >            }
-> > 
-> >    +       if ((err = pci_enable_device(pdev)) != 0)
-> >    +               return err;
-> >    +
-> >            card = (pc300_t *) kmalloc(sizeof(pc300_t), GFP_KERNEL);
-> >            if (card == NULL) {
-> >                    printk("PC300 found at RAM 0x%08lx, "
-> >    @@ -3526,9 +3529,6 @@
-> >                    err = -ENODEV;
-> >                    goto err_release_ram;
-> >            }
-> >    -
-> >    -       if ((err = pci_enable_device(pdev)) != 0)
-> >    -               goto err_release_sca;
-> > 
-> >                  card->hw.plxbase       =       ioremap(card->hw.plxphys,
-> >    card->hw.plxsize);
-> >                  card->hw.rambase       =       ioremap(card->hw.ramphys,
-> >    card->hw.alloc_ramsize);
+Duplicated code rarely does that.
+
+At any rate, you ought to review the changes (there've been 40+
+patches recently). There are a number of bug fixes in there and quite
+a bit of cleanup. Syncookies in particular no longer live in random.c.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

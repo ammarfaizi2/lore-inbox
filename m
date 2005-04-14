@@ -1,134 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVDNOQC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVDNOeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVDNOQC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 10:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVDNOQC
+	id S261512AbVDNOeY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 10:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVDNOeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 10:16:02 -0400
-Received: from science.horizon.com ([192.35.100.1]:47682 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S261509AbVDNOPk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 10:15:40 -0400
-Date: 14 Apr 2005 14:15:38 -0000
-Message-ID: <20050414141538.3651.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fortuna
-Cc: jlcooke@certainkey.com, mpm@selenic.com
+	Thu, 14 Apr 2005 10:34:24 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:58539 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261512AbVDNOeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 10:34:21 -0400
+Date: Thu, 14 Apr 2005 10:34:20 -0400
+To: aeriksson@fastmail.fm
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: DVD writer and IDE support...
+Message-ID: <20050414143420.GR521@csclub.uwaterloo.ca>
+References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org> <20050413183722.GQ17865@csclub.uwaterloo.ca> <20050413190756.54474240480@latitude.mynet.no-ip.org> <20050413193924.GN521@csclub.uwaterloo.ca> <20050413205949.E987A240480@latitude.mynet.no-ip.org> <20050414124226.GQ521@csclub.uwaterloo.ca> <20050414133523.6D747240480@latitude.mynet.no-ip.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050414133523.6D747240480@latitude.mynet.no-ip.org>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to refersh everyone's memory as to the strengths and weaknesses
-of Fortuna...
+On Thu, Apr 14, 2005 at 03:35:22PM +0200, aeriksson@fastmail.fm wrote:
+> It's an AOPEN  DUW1608/ARR 
+> http://usa.aopen.com/products/dvd+rw/DUW1608ARR.htm
+> 
+> Should I consider changing it? (I got an 'if this doesn't run on Linux 
+> I can trade it in' warranty at the shop)
 
-First, a reminder that the design goal of /dev/random proper is
-information-theoretic security.  That is, it should be secure against
-an attacker with infinite computational power.  If you want a weaker
-guarantee, use /dev/urandom.
+Well there is a cdwrite mailing list hosted on lists.debian.org which is
+a great place to figure out what weird errors are and such, and the
+authors of the programs used for writing discs are on thoses lists too,
+so you may want to ask for advice there.
 
-I've heard a suggestion that something like /dev/urandom, but which blocks
-until it has received a minimum amount of seed material at least once,
-would be a nice thing.  So boot-time crypto initialization can stall
-until it has achieved a minimum level of security.
+Did you try writing using ide-scsi mode with growisofs ?  Any
+difference?  Does dvd+rw-media return anything with a disc in the drive?
 
-The minimum could be measured two ways:
-- Some reasonable default, like 256 bits, or
-- (clever) the size of the read() request, which is presumably the
-  key size that the user needs.  This might be too subtle to explain
-  to programmers, though.
+> I noticed a firmware upgrade on the web page (.exe) will try to get a 
+> dos disk running... Sigh...
 
+It might require windows.  Certainly their firmware updates mostly seem
+to cover 'improved media coverage'.
 
-Anyway, there are two main parts to Fortuna.  The central "random pool",
-and the round-robin sub-pool system for reseeding the main pool.
+I have only been buying the plextor drives personally, since I have
+never had a problem with a plextor drive yet, and I like not needing
+windows to update the firmware and I find I save time by spending a bit
+more on getting the best hardware I can reasonably afford.
 
-Fortuna uses a "small pool, trust the crypto" central pool.
-/dev/random uses a large pool that is deliberately designed to be
-robust against failure of the crypto primitives.  Indeed, the basic
-design just uses it as a uniform hash.  Cryptographic strength is
-irrelevant to the information-theoretic guarantees.
-
-This portion of Fortuna is at odds with /dev/random's design goals,
-but it could be replaced easily enough.  It's not the clever part.
-
-
-The "neat idea" in Fortuna is the round-robin sub-pool seeding technique,
-which attempts to avoid the entire issue of entropy estimation.
-
-Now, for information-theoretic guarantees, entropy measurement is
-*required*.  You cannot be information-theoretic secure unless you
-have received more seed entropy than you have produced output.
-
-However, Fortuna has a different philosophy.  This difference is why
-Fortuna will NEVER be an "exact drop-in replacement" for /dev/random,
-although it can do the job for /dev/urandom.  There are important
-user-visible differences in the guarantees it makes.  Someone may
-argue that the difference is immaterial in practice, but existence of
-a difference is indisputable.
-
-
-It tries to divide up the seed entropy into sub-pools and hold off
-re-seeding the main pool until the sub-pool has accumulated enough entropy
-to cause "catastrophic reseeding" of the main pool, adding enough entropy
-at once that someone who had captured the prior state of the main pool
-would not be able (due to computational limits and the one-way nature
-of the pool output function) to reverse-engineer the post-state.
-
-The way it schedules the additions, it doesn't know *which* re-seed of
-the main pool will be catastrophic, but it knows that it will be within
-a factor of 64 of the shortest time that's possible.
-
-
-However, it possible to come up with some pathological entropy sources
-for which the standard Fortuna design completely fails to achieve that
-goal.
-
-So Fortuna would be helped by some better understanding of what exactly
-makes it fail, so the discussion could move to whether real-world
-seed sources have those properties.
-
-But until that understanding is gained, Fortuna is questionable.
-
-
-Appendix: how to "break" Fortuna.
-
-First, the standard assumptions: the "attacker" can collect arbitrary
-amounts of RNG output at any time, and can see all operations on the
-pool except for the value of the seed material.
-
-In particular, if the attacker's uncertainty about the pool's state
-is small, she can collect enough output to distinguish all the
-possibilities and attempt a brute-force computation to recover the
-unknown state information.
-
-Finally, assume the attacker knows the full initial state of the
-generator.
-
-For a classic 32-subpool Fortuna, let the seed be a 32-bit integer.
-Every time a new seed is produced, shift the previous value and insert
-a fresh random bit.  Thus, the seed does deliver 1 bit of entropy
-per sample, which should make for a secure source.
-
-If you want to be cruel, encrypt that seed with a strong cipher known
-only to the attacker before producing output.  That keeps the nature
-of the seed from the Fortuna implementation.
-
-Anyway, every 32 cycles, a seed word is added to subpool 0, which is then
-immediately added to the main pool.  An attacker who knows the prior
-state of the main pool can attempt a brute-force search for the 32 bits
-of the seed word in a reasonable period of time.
-
-Because of the shifting property, an attacker who knows the seeds added
-to pool 0 at times t and t+32 can also deduce, with perfect accuracy,
-the seeds added to the other 31 pools at times t+1 through t+31.
-
-The result being that the other subpools, which are supposed to be hoarding
-secret information unknown to the attacker, are actually being seeded with
-bits known to the attacker.
-
-The ultimate result is that catastrohpic reseeding never takes place.
-If we could somehow separate the "fresh" entropy in the input samples
-from the "holdover" material, the problem would go away, but that's
-an entropy measurement problem!
-
-Until this cloud is dissipated by further analysis, it's not possible to
-say "this is shiny and new and better; they's use it!" in good conscience.
+Len Sorensen

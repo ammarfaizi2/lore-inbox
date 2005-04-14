@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVDNRyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVDNR4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbVDNRyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 13:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVDNRyJ
+	id S261577AbVDNR4g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 13:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVDNR4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 13:54:09 -0400
-Received: from simba.math.ucla.edu ([128.97.4.125]:13441 "EHLO
-	simba.math.ucla.edu") by vger.kernel.org with ESMTP id S261574AbVDNRyD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 13:54:03 -0400
-Date: Thu, 14 Apr 2005 10:53:59 -0700 (PDT)
-From: Jim Carter <jimc@math.ucla.edu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Disc driver is module, software suspend fails
-In-Reply-To: <20050413100756.GK1361@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.61.0504141023240.6214@simba.math.ucla.edu>
-References: <Pine.LNX.4.61.0504101612240.10130@xena.cft.ca.us>
- <20050413100756.GK1361@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Apr 2005 13:56:35 -0400
+Received: from orb.pobox.com ([207.8.226.5]:49109 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261577AbVDNR41 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 13:56:27 -0400
+Date: Thu, 14 Apr 2005 12:56:23 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] generate hotplug events for cpu online
+Message-ID: <20050414175623.GB12960@otto>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Apr 2005, Pavel Machek wrote:
-
-> > This patch makes software_resume not a late_initcall but rather an
-> > external subroutine similar to software_suspend, and calls it at the
-> > beginning of mount_root (in init/do_mounts.c), just _after_ the initrd
-> > (if any) and its driver have been seen....
-> 
-> But the patch is very dangerous. Unsuspecting users will see their
-> systems resumed after unsafe initrd is ran. It is okay for you,
-> through..
-> 
-> What you want to do si to audit your initrd, then add echo to
-> /sys/power/resume at the end...
-
-I think you expressed similar reservations earlier but I'm not sure if I 
-understand what your issue is.  Are you saying (please let me know which if 
-any of these threats are the ones that concern you):
-
-1.  If the initrd mounted any filesystem read-write, or any journalled 
-filesystem, and left it mounted, that would be bad.
-
-2.  If the initrd started an ordinary process (or a kernel thread?) and 
-left it running, that would be bad.  The ata_piix driver really does 
-create a kernel thread, though I believe it exists only during actual data 
-transfer.
-
-3.  The initrd is copied into a ramdisc which is then mounted.  It's still 
-mounted when software_resume is called (as the patch is arranged presently, 
-or if the initrd does "echo resume > /sys/power/state"), and jimc isn't too 
-sure where the ramdisc's memory goes at that point.
+We already do kobject_hotplug for cpu offline; this adds a
+kobject_hotplug call for the online case.  This is being requested by
+developers of an application which wants to be notified about both
+kinds of events.
 
 
-I was hoping to have a single point in the boot-up code where 
-software_resume happened, rather than multiple places or, heaven forbid,
-calling it repeatedly at various steps in the boot process.  I think we can 
-justify some effort to avoid the situation where software_resume is called 
-before initrd loading, and it sometimes refuses to load the image, and then 
-is called again by the initrd.  
+Signed-off-by: Nathan Lynch <ntl@pobox.com>
 
-Suppose software_resume (after the initrd) does an audit, and refuses to 
-load the image if there's a problem?  Or even better, if all it needs is to 
-unmount filesystems, it should just do that and load the image.  Is this 
-the right way to proceed?
 
-James F. Carter          Voice 310 825 2897    FAX 310 206 6673
-UCLA-Mathnet;  6115 MSA; 405 Hilgard Ave.; Los Angeles, CA, USA  90095-1555
-Email: jimc@math.ucla.edu    http://www.math.ucla.edu/~jimc (q.v. for PGP key)
+Index: linux-2.6.12-rc2-mm3/drivers/base/cpu.c
+===================================================================
+--- linux-2.6.12-rc2-mm3.orig/drivers/base/cpu.c	2005-03-02 01:37:53.000000000 -0600
++++ linux-2.6.12-rc2-mm3/drivers/base/cpu.c	2005-04-14 10:56:29.000000000 -0500
+@@ -37,6 +37,8 @@ static ssize_t store_online(struct sys_d
+ 		break;
+ 	case '1':
+ 		ret = cpu_up(cpu->sysdev.id);
++		if (!ret)
++			kobject_hotplug(&dev->kobj, KOBJ_ONLINE);
+ 		break;
+ 	default:
+ 		ret = -EINVAL;

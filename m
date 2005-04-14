@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVDNNJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVDNNfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVDNNJq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 09:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbVDNNJq
+	id S261500AbVDNNfa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 09:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVDNNfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 09:09:46 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:31493 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261497AbVDNNJ3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 09:09:29 -0400
-Date: Thu, 14 Apr 2005 23:07:43 +1000
-To: "SuD (Alex)" <sud@latinsud.com>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       alsa-devel@alsa-project.org
-Subject: Re: [OSS] Add CXT48 to modem black list in ac97
-Message-ID: <20050414130743.GA18784@gondor.apana.org.au>
-References: <E1DInEA-0006md-00@gondolin.me.apana.org.au> <425D963C.5030202@latinsud.com>
+	Thu, 14 Apr 2005 09:35:30 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:58375 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S261500AbVDNNfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 09:35:23 -0400
+Subject: Re: Call to atention about using hash functions as content
+	indexers (SCM saga)
+From: Eric Rannaud <eric.rannaud@ens.fr>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Pedro Larroy <piotr@larroy.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050414083018.GA24892@hexapodia.org>
+References: <20050414083018.GA24892@hexapodia.org>
+Content-Type: text/plain
+Date: Thu, 14 Apr 2005 08:35:07 -0500
+Message-Id: <1113485708.5744.22.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425D963C.5030202@latinsud.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Thu, 14 Apr 2005 15:35:11 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 13, 2005 at 11:59:24PM +0200, SuD (Alex) wrote:
-> 
-> As a result, if i insert "snd-intel8x0" it will detect a soundcard (pci 
-> 0:0:1f.5), but if insert instead
-> "snd-intel8x0M" it will detect a modem (pci 0:0:1f.6).
-> If a modem is detected i get errors like: "MC'97 0 converters and GPIO 
-> not ready (0x1)", and not sure how to test it.
-> If i load both modules only the first will work. The second will give an 
-> probe error -13 (EACCES?), because it has been marked as audio device, 
-> but also marked as _SKIP_AUDIO (ac97_codec.c:1862), or viceversa.
+On Thu, 2005-04-14 at 01:30 -0700, Andy Isaacson wrote:
+> In particular, your defense here is specious.  I agree that second
+> preimage is an unmanagably large problem for SHA1 for the forseeable
+> future (say, 8 years out), but collision results almost always result in
+> partially-controlled attack text.  So I can choose my nefarious content,
+> and encode the collision entropy in non-operative text (a C comment, for
+> example).
 
-Thanks for testing.
+Everything you said is fair enough, and I do agree with this argument in
+the context of authentication: that is if you expect an attack (even if
+a chunk of non-operative bytes won't go unnoticed for long in a the
+kernel tree, but that's not the point).
 
-It would appear then that ALSA doesn't have a magic solution :)
-It'll always treat the codec as a sound card when the sound module
-is loaded.
+But the original post of Pedro was, I think, about collisions occurring
+'randomly' between two genuine modifications of a source file. In
+particular, the paper that was linked to by Pedro is concerned with this
+kind of unexpected collisions, i.e. about integrity in normal operation
+and not about security (btw, this paper seems kind of bogus to me
+because it never specifies the hash function in use).
 
-Alan, you seem to be the one who added the original code to
-i810_audio to skip the modem codecs.  Does this actually
-do anything for OSS? That is, are there any modem drivers out
-there that will work with OSS drivers?
+I took the example of this attack against SHA-1 only to illustrate that
+*even* if you try to find a collision, you just can't find one (at least
+these days).
+>From which I think it is fair to say that such a collision won't happen
+between two different versions of the same file, during the normal
+process of revision.
 
-If not, then I'd suggest that we simply remove the modem checks
-from the OSS Code.
+I mean, if in the normal revision process of the kernel, a SHA-1
+collision was to be found, by chance, who gets to publish the paper at
+the next Crypto conference?
 
-Cheers,
+However, if we consider the case of an attack, well, that's different.
+And you're right.
+
+    /er.
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+http://www.eleves.ens.fr/home/rannaud/
+

@@ -1,55 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVDNKFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVDNKt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVDNKFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 06:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVDNKFJ
+	id S261151AbVDNKt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 06:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVDNKt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 06:05:09 -0400
-Received: from coderock.org ([193.77.147.115]:54919 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261466AbVDNKFC (ORCPT
+	Thu, 14 Apr 2005 06:49:26 -0400
+Received: from verein.lst.de ([213.95.11.210]:29323 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261151AbVDNKtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 06:05:02 -0400
-Date: Thu, 14 Apr 2005 12:04:54 +0200
-From: Domen Puncer <domen@coderock.org>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc2: Compose key doesn't work
-Message-ID: <20050414100454.GC3958@nd47.coderock.org>
-References: <4258F74D.2010905@keyaccess.nl>
+	Thu, 14 Apr 2005 06:49:24 -0400
+Date: Thu, 14 Apr 2005 12:49:11 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Alexey Dobriyan <adobriyan@mail.ru>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org, hch@lst.de
+Subject: Re: [patch 134/198] officially deprecate register_ioctl32_conversion
+Message-ID: <20050414104911.GA24090@lst.de>
+References: <200504121032.j3CAWlw4005676@shell0.pdx.osdl.net> <200504130202.42155.adobriyan@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4258F74D.2010905@keyaccess.nl>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200504130202.42155.adobriyan@mail.ru>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/04/05 11:52 +0200, Rene Herman wrote:
-> Hi Vojtech.
+On Wed, Apr 13, 2005 at 02:02:42AM +0000, Alexey Dobriyan wrote:
 > 
-> I have mapped my right windows key to "Compose" in X:
-...
+> > +Why:	Replaced by ->compat_ioctl in file_operations and other method
+> > +	vecors.
 > 
-> This worked fine upto  2.6.11.7, but doesn't under 2.6.12-rc2. The key 
-> doesn't seem to be doing anything anymore: "Compose-'-e" just gets me 
-> "'e" and so on.
+> vectors ?
 
-I can confirm this, right windows key works as scroll up, so it might
-be related to recent scroll patches.
+Yes.
 
-A quick workaround is to:
-echo -n "0" > /sys/bus/serio/devices/serio1/scroll
-
-serio1 being the keyboard here.
-
-Btw. is that "-n" really necessary? Had too look at the code to figure
-out why it's not working :-)
-
-> 
-> X is X.org 6.8.1, keyboard is regular PS/2 keyboard, directly connected.
-
-Same here.
-
-
-	Domen

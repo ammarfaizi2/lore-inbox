@@ -1,101 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVDNAYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVDNA1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVDNAYD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Apr 2005 20:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVDNAYB
+	id S261245AbVDNA1L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Apr 2005 20:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVDNA1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Apr 2005 20:24:01 -0400
-Received: from fire.osdl.org ([65.172.181.4]:50377 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261256AbVDNAVA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Apr 2005 20:21:00 -0400
-Date: Wed, 13 Apr 2005 17:20:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc2-mm3
-Message-Id: <20050413172039.4502b2a9.akpm@osdl.org>
-In-Reply-To: <200504132015.49877.tomlins@cam.org>
-References: <20050411012532.58593bc1.akpm@osdl.org>
-	<200504120732.24440.tomlins@cam.org>
-	<20050412043952.0644d4ac.akpm@osdl.org>
-	<200504132015.49877.tomlins@cam.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 13 Apr 2005 20:27:11 -0400
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:22200 "EHLO
+	certainkey.com") by vger.kernel.org with ESMTP id S261245AbVDNA07
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Apr 2005 20:26:59 -0400
+Date: Wed, 13 Apr 2005 20:26:47 -0400
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: Re: Fortuna
+Message-ID: <20050414002647.GG12263@certainkey.com>
+References: <20050413234337.GE12263@certainkey.com> <20050414000939.GH3174@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050414000939.GH3174@waste.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ed Tomlinson <tomlins@cam.org> wrote:
->
-> > Don't think so - it works OK here.  Checked the .config?  Does the serial
->  > port work if you do `echo foo > /dev/ttyS0'?  ACPI?
+On Wed, Apr 13, 2005 at 05:09:39PM -0700, Matt Mackall wrote:
+> On Wed, Apr 13, 2005 at 07:43:37PM -0400, Jean-Luc Cooke wrote:
+> > Ahh.  Thanks Herbert.
+> > 
+> > Matt,
+> > 
+> > Any insight on how to test syn cookies and the other network stuff in
+> > random.c?  My patch is attached, but I havn't tested that part yet.
 > 
->  Turned out it was some old ups software that got reactivated on the box displaying the
->  console - was a pain to disable it....
+> For starters, this is not against anything like a current random.c. A
+> great number of cleanups have been done.
 
-OK.
+You caught me.  :)
 
->  In any case, when the box reboots there are not any messages.  Any ideas on what debug
->  options to enable or suggestions on how we can figure out the cause of the reboots.
+Last I proposed Fortuna for /dev/random it nearly got me drawn and quarterd.
+So I've left it as a kenrel config option, leaving the current random.c
+alone.  I thought this was a way to make everyone happy.
 
-There were a few problems in the task switching area - maybe that.
-
-
-
-
-From: Ingo Molnar <mingo@elte.hu>
-
-delay the reloading of segment registers into switch_mm(), so that if
-the LDT size changes we dont get a (silent) fault and a zeroed selector
-register upon reloading.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/i386/kernel/process.c     |   10 +++++-----
- 25-akpm/include/asm-i386/mmu_context.h |    7 +++++++
- 2 files changed, 12 insertions(+), 5 deletions(-)
-
-diff -puN arch/i386/kernel/process.c~sched-unlocked-context-switches-fix arch/i386/kernel/process.c
---- 25/arch/i386/kernel/process.c~sched-unlocked-context-switches-fix	2005-04-12 03:43:07.254363568 -0700
-+++ 25-akpm/arch/i386/kernel/process.c	2005-04-12 03:43:07.259362808 -0700
-@@ -653,12 +653,12 @@ struct task_struct fastcall * __switch_t
- 	asm volatile("mov %%gs,%0":"=m" (prev->gs));
- 
- 	/*
--	 * Restore %fs and %gs if needed.
-+	 * Clear selectors if needed:
- 	 */
--	if (unlikely(prev->fs | prev->gs | next->fs | next->gs)) {
--		loadsegment(fs, next->fs);
--		loadsegment(gs, next->gs);
--	}
-+        if (unlikely((prev->fs | prev->gs) && !(next->fs | next->gs))) {
-+                loadsegment(fs, next->fs);
-+                loadsegment(gs, next->gs);
-+        }
- 
- 	/*
- 	 * Now maybe reload the debug registers
-diff -puN include/asm-i386/mmu_context.h~sched-unlocked-context-switches-fix include/asm-i386/mmu_context.h
---- 25/include/asm-i386/mmu_context.h~sched-unlocked-context-switches-fix	2005-04-12 03:43:07.256363264 -0700
-+++ 25-akpm/include/asm-i386/mmu_context.h	2005-04-12 03:43:07.260362656 -0700
-@@ -61,6 +61,13 @@ static inline void switch_mm(struct mm_s
- 		}
- 	}
- #endif
-+	/*
-+	 * Now that we've switched the LDT, load segments:
-+	 */
-+	if (unlikely(current->thread.fs | current->thread.gs)) {
-+		loadsegment(fs, current->thread.fs);
-+		loadsegment(gs, current->thread.gs);
-+	}
- }
- 
- #define deactivate_mm(tsk, mm) \
-_
-
+JLC

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVDNQYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVDNQXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVDNQYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 12:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVDNQYQ
+	id S261532AbVDNQXy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 12:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVDNQXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 12:24:16 -0400
-Received: from smtp2.netcologne.de ([194.8.194.218]:38629 "EHLO
-	smtp2.netcologne.de") by vger.kernel.org with ESMTP id S261530AbVDNQXs
+	Thu, 14 Apr 2005 12:23:54 -0400
+Received: from smtp2.netcologne.de ([194.8.194.218]:33253 "EHLO
+	smtp2.netcologne.de") by vger.kernel.org with ESMTP id S261537AbVDNQXh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 12:23:48 -0400
-Message-ID: <425E990F.8040607@interia.pl>
-Date: Thu, 14 Apr 2005 18:23:43 +0200
+	Thu, 14 Apr 2005 12:23:37 -0400
+Message-ID: <425E9902.8000804@interia.pl>
+Date: Thu, 14 Apr 2005 18:23:30 +0200
 From: Tomasz Chmielewski <mangoo@interia.pl>
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
 X-Accept-Language: en-us, en
@@ -104,7 +104,7 @@ I tested it also with Mandrake 10.2 (it is shipped with 2.6.11 kernel):
 reads was about 10 MB/sec.
 
 Another test on Mandrake with 2.6.8.1 kernel - it's the fastest of all 
-tests:
+test:
 
 # hdparm -Tt /dev/sda
 

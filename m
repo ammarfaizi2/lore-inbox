@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVDNIDf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVDNIMY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbVDNIDf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 04:03:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVDNIDe
+	id S261457AbVDNIMY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 04:12:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVDNIMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 04:03:34 -0400
-Received: from smtp2.ilimburg.nl ([195.35.190.136]:38610 "EHLO
-	mailrelay.ilimburg.nl") by vger.kernel.org with ESMTP
-	id S261456AbVDNID3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 04:03:29 -0400
-Message-ID: <425E23CC.2010509@tuxproject.info>
-Date: Thu, 14 Apr 2005 10:03:24 +0200
-From: Iwan Sanders <iwan.sanders@tuxproject.info>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel messages
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Apr 2005 04:12:23 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:36111 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261457AbVDNIMT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 04:12:19 -0400
+Date: Thu, 14 Apr 2005 18:08:37 +1000
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Matt Mackall <mpm@selenic.com>, Andreas Steinmetz <ast@domdv.de>,
+       rjw@sisk.pl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050414080837.GA1264@gondor.apana.org.au>
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org> <20050414065124.GA1357@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050414065124.GA1357@elf.ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone explain to me what just happend? I would really like to know 
-  :-)
-I think that the machine ran out of memory and the OOM killer shot some 
-processes, this is what I found
-in my logfiles:
+On Thu, Apr 14, 2005 at 08:51:25AM +0200, Pavel Machek wrote:
+>
+> > This solution is all wrong.
+> > 
+> > If you want security of the suspend image while "suspended", encrypt
+> > with dm-crypt. If you want security of the swap image after resume,
+> > zero out the portion of swap used. If you want both, do both.
 
-1 Time(s): Active:48588 inactive:152 dirty:0 writeback:7 unstable:0 free:502 slab:13664 mapped:48620 pagetables:325
-1 Time(s): DMA free:1008kB min:28kB low:56kB high:84kB active:7364kB inactive:0kB present:16384kB
-1 Time(s): DMA per-cpu:
-1 Time(s): DMA: 0*4kB 0*8kB 1*16kB 7*32kB 4*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 1008kB
-1 Time(s): Free pages:        2008kB (0kB HighMem)
-1 Time(s): HighMem free:0kB min:128kB low:256kB high:384kB active:0kB inactive:0kB present:0kB
-1 Time(s): HighMem per-cpu: empty
-1 Time(s): HighMem: empty
-1 Time(s): Normal free:1000kB min:476kB low:952kB high:1428kB active:186988kB inactive:608kB present:245120kB
-1 Time(s): Normal per-cpu:
-1 Time(s): Normal: 14*4kB 2*8kB 0*16kB 1*32kB 2*64kB 0*128kB 1*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB = 1000kB
-1 Time(s): Swap cache: add 0, delete 0, find 0/0, race 0+0
-1 Time(s): cpu 0 cold: low 0, high 2, batch 1
-1 Time(s): cpu 0 cold: low 0, high 28, batch 14
-1 Time(s): cpu 0 hot: low 2, high 6, batch 1
-1 Time(s): cpu 0 hot: low 28, high 84, batch 14
-1 Time(s): oom-killer: gfp_mask=0x1d2
-1 Time(s): protections[]: 0 0 0
-1 Time(s): protections[]: 0 238 238
-1 Time(s): protections[]: 14 252 252
+Pavel, you're not answering our questions.
+
+How is the proposed patch any more secure compared to swsusp over dmcrypt?
+
+In fact if anything it is less secure.  If I understand correctly the
+proposal is to store the key used to encrypt the swsusp image in the
+swap device.  This means that anybody who gains access to the swap
+device can trivially decrypt it.
+
+Compare this to the properly setup dmcrypt case where the swap
+device can only be decrypted with a passphrase obtained from the
+user at resume time.
+
+> I want security of the swap image, and "just zeroing" is hard to do in
+> failed suspend case, see previous discussion.
+
+As to the failed suspend case, the two approaches yield identical
+results.  In both cases we will be storing potentially sensitive
+data encrypted on a physical storage device.
 
 Cheers,
-
-Iwan Sanders
-
-
-
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,82 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVDNSLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVDNSMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVDNSLq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 14:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVDNSLp
+	id S261375AbVDNSMq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 14:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVDNSLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 14:11:45 -0400
-Received: from alog0122.analogic.com ([208.224.220.137]:17332 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261581AbVDNSLc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 14:11:32 -0400
-Date: Thu, 14 Apr 2005 14:11:26 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: sauro <sauro@ztec.com.br>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: screensaver
-In-Reply-To: <425EA253.7050907@ztec.com.br>
-Message-ID: <Pine.LNX.4.61.0504141406080.26193@chaos.analogic.com>
-References: <425EA253.7050907@ztec.com.br>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 14 Apr 2005 14:11:50 -0400
+Received: from ns.suse.de ([195.135.220.2]:7908 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261583AbVDNSLe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 14:11:34 -0400
+Date: Thu, 14 Apr 2005 20:11:33 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@redhat.com>,
+       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
+       Clem Taylor <clem.taylor@gmail.com>, Chris Wright <chrisw@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: x86-64 bad pmds in 2.6.11.6 II
+Message-ID: <20050414181133.GA18221@wotan.suse.de>
+References: <20050330214455.GF10159@redhat.com> <20050331104117.GD1623@wotan.suse.de> <20050407024902.GA9017@redhat.com> <20050407062928.GH24469@wotan.suse.de> <Pine.LNX.4.61.0504141419250.25074@goblin.wat.veritas.com> <20050414170117.GD22573@wotan.suse.de> <Pine.LNX.4.61.0504141804480.26008@goblin.wat.veritas.com> <20050414181015.GH22573@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050414181015.GH22573@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Apr 2005, sauro wrote:
+> I will take a closer look at the rc1/rc2 patches later this evening
+> and see if I can spot something. Can only report back tomorrow though.
 
-> Greetings.
->
-> I am using a 2.4 Linux workstation in text mode (no graphic interface).
-> After some time, Linux activates the "screensaver" and the monitor goes blank 
-> on "stand by" mode until activity is detected from the mouse or keyboard.
->
-> Is it possible to disable this screensaver, so that the monitor keeps on all 
-> the time?
->
-> Thanks in advance.
->
+Actually itt started in .11 already - sigh - on rereading the thread.
+That will make the code audit harder :/
 
-Yes, but you need to send the screen some escape sequences, the
-last time I checked. Subroutines included do the following:
-
-noblank() Stops screen blanker (what you want).
-scr()     Resets ANSI mode to return from shifted to normal.
-           Sometimes the screen gets shifted after accidentally
-           reading binary files.
-cls()     Clear the screen.
-
-
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//
-//  This program may be distributed under the GNU Public License
-//  version 2, as published by the Free Software Foundation, Inc.,
-//  59 Temple Place, Suite 330 Boston, MA, 02111.
-//
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-static const char fix[]={27, '[', '3', 'g',
-                          27, '[', 'H', 27, '[', 'H', 27, '[', 'H',
-                          27, '[', 'H', 27, '[', 'H', 27, '[', 'H',
-                          27, '[', 'H', 27, '[', 'H', 27, '[', 'H',
-                          27, 'c', 27, ']', 'R' };
-static const char blk[]={27, '[', '9', ';', '0', ']'};
-static const char clr[]={27, '[', 'H', 27, '[', 'J' };
-void noblank(int fd){ write(fd, blk, sizeof(blk)); }
-void cls(int fd)    { write(fd, clr, sizeof(clr)); }
-void scr(int fd)    { write(fd, fix, sizeof(fix)); }
-
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-//-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-Andi

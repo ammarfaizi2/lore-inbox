@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVDNT4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVDNUBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVDNT4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 15:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVDNT4x
+	id S261498AbVDNUBX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 16:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVDNUBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 15:56:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58301 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261369AbVDNT4a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 15:56:30 -0400
-Subject: Re: [INFO] Kernel strict versioning
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Sensei <senseiwa@tin.it>
-Cc: David Lang <david.lang@digitalinsight.com>,
-       Krzysztof Halasa <khc@pm.waw.pl>, Adrian Bunk <bunk@stusta.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <425EC778.4070009@tin.it>
-References: <4256C89C.4090207@tin.it> <20050408190500.GF15688@stusta.de>
-	 <425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de>
-	 <425B3864.8050401@tin.it> <m3mzs4kzdp.fsf@defiant.localdomain>
-	 <425C03D6.2070107@tin.it>
-	 <Pine.LNX.4.62.0504121053583.17233@qynat.qvtvafvgr.pbz>
-	 <425E9FE2.6090102@tin.it>
-	 <Pine.LNX.4.62.0504141050460.19663@qynat.qvtvafvgr.pbz>
-	 <425EC778.4070009@tin.it>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LrOBg594+Ori9c/IY08C"
-Organization: Red Hat, Inc.
-Date: Thu, 14 Apr 2005 21:55:13 +0200
-Message-Id: <1113508514.6293.82.camel@laptopd505.fenrus.org>
+	Thu, 14 Apr 2005 16:01:22 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:30089 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261485AbVDNUBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 16:01:16 -0400
+Subject: Re: Kernel module_list
+From: Arjan van de Ven <arjan@infradead.org>
+To: Allison <fireflyblue@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <17d798805041412536dcd9325@mail.gmail.com>
+References: <17d798805041412536dcd9325@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 14 Apr 2005 22:01:13 +0200
+Message-Id: <1113508873.6293.84.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-04-14 at 19:53 +0000, Allison wrote:
+> 
+> I am trying to access the module list kernel data structure from a
+> kernel module. If I gather correctly, module_list is the symbol that
+> is the head pointer of this list.
 
---=-LrOBg594+Ori9c/IY08C
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-> I'd like API stability, if API stability is=20
-> achieved, ABI is there.
-
-this is a joke right? If you really think this you have no idea what ABI
-stability means and how extremely hard it is to even sort of remotely
-approach it.
-
-Trust me. It's *extremely* hard to impossible. Several security fixes
-can only be fixed this way. And it's REALLY fragile even if for other
-fixes. And I am very glad that the linux kernel people in general decide
-to not go for abi stability, the hacks that would be needed would be so
-obscene and the gains very very minimal. (it's open source, you have the
-source after all!)
+can you explain what you want to do with this symbol ?
 
 
---=-LrOBg594+Ori9c/IY08C
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCXsqhpv2rCoFn+CIRAu42AJ9hDLzHjCyEwD9YJmZg+/u2zm1oDgCfZ6Ge
-Ttgl4PgwwGYiaFAIXSOc8M0=
-=bjWb
------END PGP SIGNATURE-----
-
---=-LrOBg594+Ori9c/IY08C--
 

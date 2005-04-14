@@ -1,62 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVDNXWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261649AbVDNXaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbVDNXWn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 19:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVDNXWn
+	id S261649AbVDNXaE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 19:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbVDNXaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 19:22:43 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:54922 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261646AbVDNXWc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 19:22:32 -0400
-Message-ID: <425EFB32.2010000@g-house.de>
-Date: Fri, 15 Apr 2005 01:22:26 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050326)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: alsa-devel@lists.sourceforge.net
-Subject: ALSA Oops (triggered by xmms) 
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Apr 2005 19:30:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25317 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261649AbVDNXaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 19:30:00 -0400
+Date: Fri, 15 Apr 2005 00:29:58 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Franco Sensei <senseiwa@tin.it>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Krzysztof Halasa <khc@pm.waw.pl>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [INFO] Kernel strict versioning
+Message-ID: <20050414232958.GY8859@parcelfarce.linux.theplanet.co.uk>
+References: <20050408190500.GF15688@stusta.de> <425B1E3F.5080202@tin.it> <20050412015018.GA3828@stusta.de> <425B3864.8050401@tin.it> <m3mzs4kzdp.fsf@defiant.localdomain> <425C03D6.2070107@tin.it> <Pine.LNX.4.62.0504121053583.17233@qynat.qvtvafvgr.pbz> <425E9FE2.6090102@tin.it> <Pine.LNX.4.62.0504141050460.19663@qynat.qvtvafvgr.pbz> <425EC778.4070009@tin.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <425EC778.4070009@tin.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Apr 14, 2005 at 02:41:44PM -0500, Franco Sensei wrote:
+> The global feeling about kernel is that it seems that you don't care 
+> about the purpose of your task, which of course is not the kernel by 
+> itself. It can't be. It's about what it does (and already does it well), 
+> and what it provides to third-parties: the kernel and the API given to 
+> the outside world, since the kernel is not alone... and will never be of 
+> course! ;)
 
-howdy,
+Elegant.  Very elegant.  Admirable exercise in misdirection - the word
+"third-party" used to conflate all things non-kernel with 3rd party
+kernel modifications.  Followed by appeals to civic obligations, no less.
 
-yesterday i hit an Oops when i tried to play an mp3 with xmms. nothing
-unusual. the thing is - i've not changed the kernel (2.6.11-gentoo-r5) for
-a while, but changed some (multimedia related) libs on my system. xmms
-just segfaults and it all seems to be a proper userspace bug (even xmms
-told me so). i really suspect xmms or the changed libs.
-but i still believe in the old proverb my grandma used to say: "no
-userspace app should make the kernel oops." but yesterday it did:
+Of course, that doesn't change the simple fact: "outside world" is not
+a single entity.  There are API warranties for userland.  There's no
+API warranties for 3rd-party kernel modifications.
 
-http://nerdbynature.de/bits/prinz/2.6.11-gentoo-r5/
+Moreover, unless you manage to get the list of functions and data
+types exported to modules somewhere within an order of magnitude
+from the corresponding userland list (i.e. syscalls and types involved),
+you are asking everybody to increase the size of API being preserved
+at least tenfold.  As it is, that would be "by factor of 200-300".
 
-this is 100% reproducable whenever i use the ALSA sounddriver in xmms.
-when i use "mpg321 -o alsa ..." everything is ok.
-
-maybe some guru can shed some light on what's going on in xmms-oops.txt
-and tell me who's to bug here :->
-
-thank you,
-Christian.
-- --
-BOFH excuse #289:
-
-Interference between the keyboard and the chair.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCXvsy+A7rjkF8z0wRAi5qAKCHXt/BSXHJdiMvYbf6SWnEIuFwkwCgmpmA
-jRpOB7REfh99kMVaMdyIniw=
-=rSNT
------END PGP SIGNATURE-----
+If you manage to convince module authors to live with the export list
+cut down by that much - come back and we'll have something to talk
+about.

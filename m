@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVDNMlH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVDNMmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbVDNMlH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 08:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVDNMlH
+	id S261492AbVDNMmr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 08:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVDNMmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 08:41:07 -0400
-Received: from v6.netlin.pl ([62.121.136.6]:60176 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261486AbVDNMk4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 08:40:56 -0400
-Message-ID: <425E64C4.5020704@pointblue.com.pl>
-Date: Thu, 14 Apr 2005 14:40:36 +0200
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: JustMan <justman@e1.bmstu.ru>
+	Thu, 14 Apr 2005 08:42:47 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:36496 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261492AbVDNMm1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 08:42:27 -0400
+Date: Thu, 14 Apr 2005 08:42:26 -0400
+To: aeriksson@fastmail.fm
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] on usb removal, and minicom closing 2.6.11.7
-References: <425E5682.6060606@pointblue.com.pl> <200504141614.03459.justman@e1.bmstu.ru>
-In-Reply-To: <200504141614.03459.justman@e1.bmstu.ru>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Subject: Re: DVD writer and IDE support...
+Message-ID: <20050414124226.GQ521@csclub.uwaterloo.ca>
+References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org> <20050413183722.GQ17865@csclub.uwaterloo.ca> <20050413190756.54474240480@latitude.mynet.no-ip.org> <20050413193924.GN521@csclub.uwaterloo.ca> <20050413205949.E987A240480@latitude.mynet.no-ip.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050413205949.E987A240480@latitude.mynet.no-ip.org>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Wed, Apr 13, 2005 at 10:59:49PM +0200, aeriksson@fastmail.fm wrote:
+> Nope. No go. The kernel log getsb these 4 lines:
+> Apr 13 22:08:30 tippex SCSI error : <0 0 0 0> return code = 0x8000002
+> Apr 13 22:08:30 tippex sr0: Current: sense key: Medium Error
+> Apr 13 22:08:36 tippex SCSI error : <0 0 0 0> return code = 0x8000002
+> Apr 13 22:08:36 tippex sr0: Current: sense key: Medium Error
+> 
+> and the application bails out with:
+> :-[ WRITE@LBA=0h failed with SK=5h/ASC=30h/ACQ=05h]: Wrong medium type
+> :-( media is not formatted or unsupported.
+> :-( write failed: Wrong medium type
+> 
+> This is with a fresh from the box DVD-RW. Do I need to 'format' the
+> thing before writing to it? This is getting tricky... Are these kind
+> of errors normally indicative of lack of support or a faulty unit?
+> I have no windows around to test it with the shipped nero-cd :-(
 
-Works great, I would like to ask everyone here on lkml to consider
-adding this patch to mainline.
-This ain't naughty solution, checking for object/pointer/whatever if
-exists before doing anything with it, is good.
+What brand/model drive is this?
 
-Anyone?
+It is possible to get very weird errors if you have unsupported media in
+the drive and some drives don't like certain media types.  Sometimes a
+firmware update on the drive fixes it although it usually requires
+windows (or sometimes dos) to install the update (or linux will do if
+the drive is a plextor).
 
-Buy the way, I am also looking for usblan for 2.6, can I use usbnet
-instead ? Anyone ported usblan to 2.6 (it's on GPL).
-
-JustMan wrote:
->>So,
->>
->>I plugged in e680 motorola phone, played a bit with minicom on
->>/dev/ttyACM0, and when I closed minicom, got this oops. USB is useless,
->>got to reboot computer to use it again!
->>it's vanilla 2.6.11.7
->>
->>oops attached.
->>
-> 
-> 
-> Try attached patch... (nasty solution, but it work for my C350  motorola phone)
-> 
-> 
->>
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> diff -uNrp linux/drivers/base/class.orig.c  linux/drivers/base/class.c
-> --- linux/drivers/base/class.orig.c	2005-03-10 12:19:00.000000000 +0300
-> +++ linux/drivers/base/class.c	2005-03-10 13:59:27.000000000 +0300
-> @@ -307,12 +307,14 @@ static int class_hotplug(struct kset *ks
->  	if (class_dev->dev) {
->  		/* add physical device, backing this device  */
->  		struct device *dev = class_dev->dev;
-> -		char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
->  
-> -		add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-> -				    &length, "PHYSDEVPATH=%s", path);
-> -		kfree(path);
-> +		if(kobject_name(&dev->kobj)) {
-> +			char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
->  
-> +			add_hotplug_env_var(envp, num_envp, &i, buffer, buffer_size,
-> +				    &length, "PHYSDEVPATH=%s", path);
-> +			kfree(path);
-> +		}
->  		/* add bus name of physical device */
->  		if (dev->bus)
->  			add_hotplug_env_var(envp, num_envp, &i,
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCXmTEi0HtPCVkDAURAvIMAJ4+8tKj6jt/ErTtCrsmNYtM2aDfNACgigLA
-4GbLbHStQJBq+Ez1lFe+lPo=
-=UWvD
------END PGP SIGNATURE-----
+Len Sorensen

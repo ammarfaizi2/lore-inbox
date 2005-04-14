@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVDNTJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVDNTPC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVDNTJp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 15:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVDNTJp
+	id S261585AbVDNTPC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 15:15:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVDNTPB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 15:09:45 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:50893 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261586AbVDNTJZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 15:09:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pDxzyCf4B25+/AzUjL3VruY3harOizuXCqetN8a1Jg2vWFbPNCJznjJVSeQHLZov5dN+W4JHApgFiSkmbSQ62zJMMkER8UtkhBkxw4jaD4AkhJEpQK7gPHs0xalZysPAW/KKyD5d6rBrxhqd8rt3Ch+lNUl1qB57o7xJ6GTI0Vo=
-Message-ID: <8d64c8f00504141209a7b67c5@mail.gmail.com>
-Date: Thu, 14 Apr 2005 16:09:21 -0300
-From: Jeremy Muise <jeremy.muise@gmail.com>
-Reply-To: Jeremy Muise <jeremy.muise@gmail.com>
-To: "aeriksson@fastmail.fm" <aeriksson@fastmail.fm>
-Subject: Re: DVD writer and IDE support...
-Cc: linux-kernel@vger.kernel.org, lsorense@csclub.uwaterloo.ca
-In-Reply-To: <20050414162958.7015B240480@latitude.mynet.no-ip.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050413181421.5C20E240480@latitude.mynet.no-ip.org>
-	 <20050413183722.GQ17865@csclub.uwaterloo.ca>
-	 <20050413190756.54474240480@latitude.mynet.no-ip.org>
-	 <20050413193924.GN521@csclub.uwaterloo.ca>
-	 <20050413205949.E987A240480@latitude.mynet.no-ip.org>
-	 <20050414124226.GQ521@csclub.uwaterloo.ca>
-	 <20050414133523.6D747240480@latitude.mynet.no-ip.org>
-	 <20050414143420.GR521@csclub.uwaterloo.ca>
-	 <8d64c8f005041408024d1c6843@mail.gmail.com>
-	 <20050414162958.7015B240480@latitude.mynet.no-ip.org>
+	Thu, 14 Apr 2005 15:15:01 -0400
+Received: from 213-239-212-8.clients.your-server.de ([213.239.212.8]:49546
+	"EHLO live1.axiros.com") by vger.kernel.org with ESMTP
+	id S261585AbVDNTO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Apr 2005 15:14:57 -0400
+In-Reply-To: <8783be66050414102551698d86@mail.gmail.com>
+References: <4252E827.4080807@google.com> <m14qee221l.fsf@muc.de> <8783be66050412075218b2b0b0@mail.gmail.com> <20050413183725.GG50241@muc.de> <8783be66050413160033e6283d@mail.gmail.com> <20050413232826.GA22698@redhat.com> <8783be66050414102551698d86@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-9--92602720"
+Message-Id: <d2274e05b0524222d01c2d584297b4e1@axiros.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: Daniel Egger <de@axiros.com>
+Subject: Re: [RFC/Patch 2.6.11] Take control of PCI Master Abort Mode
+Date: Thu, 14 Apr 2005 21:14:26 +0200
+To: Ross Biro <ross.biro@gmail.com>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks for that info! I'm starting to suspect media too. I'll try to
-> wreste that firmware upgrade into it. Which firmware version are you
-> using?
 
-I've got version R1.07 of the firmware.
+--Apple-Mail-9--92602720
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
--- 
-Jeremy Muise - jeremy.muise@gmail.com
-Registered Linux User Number: 374195
+On 14.04.2005, at 19:25, Ross Biro wrote:
+
+> Just to be clear, we can have two users A and B with the exact same
+> hardware.  A setting of  =y will screw user A and a setting of =n will
+> screw user B.  Ideally, they would both get better hardware, but that
+> is not always an option.
+
+You tell me a better[1] 32bit GigE PCI adapter than Intel E1000
+and I sure do this. It's pretty interesting to see that those
+who buy some not-so-cheeep hardware are being screwed in this
+case; it should be in Intels best interest to help fix this
+issue ASAP and permantently for all users.
+
+[1] better performance at less CPU utilization + good diagnostics
+     and negotiation capabilities
+
+Servus,
+       Daniel
+
+--Apple-Mail-9--92602720
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (Darwin)
+
+iD8DBQFCXsETchlzsq9KoIYRAnUxAJ9KSYMkSWqf3upmHBeo+aWD+2r/+ACguxA7
+O3KonzJTll1UAYOy9zS+ZZI=
+=DqQZ
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-9--92602720--
+

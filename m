@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVDNVEC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVDNVEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVDNVEC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 17:04:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVDNVEC
+	id S261595AbVDNVEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 17:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVDNVEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 17:04:02 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:919 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S261590AbVDNVD7 (ORCPT
+	Thu, 14 Apr 2005 17:04:14 -0400
+Received: from mail.dif.dk ([193.138.115.101]:2795 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261595AbVDNVEJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 17:03:59 -0400
-Subject: Re: spurious 8259A interrupt: IRQ7
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1113512210.19373.3.camel@mindpipe>
-References: <1113498693.18871.11.camel@mindpipe>
-	 <1113511426.22496.43.camel@eeyore>  <1113512210.19373.3.camel@mindpipe>
-Content-Type: text/plain
-Date: Thu, 14 Apr 2005 15:03:58 -0600
-Message-Id: <1113512638.22496.47.camel@eeyore>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Apr 2005 17:04:09 -0400
+Date: Thu, 14 Apr 2005 23:06:57 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Alejandro Bonilla <abonilla@linuxwireless.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IBM Thinkpad T42 - Looking for a Developer.
+In-Reply-To: <003601c54133$d462a7e0$9f0cc60a@amer.sykes.com>
+Message-ID: <Pine.LNX.4.62.0504142304290.3466@dragon.hyggekrogen.localhost>
+References: <003601c54133$d462a7e0$9f0cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-04-14 at 16:56 -0400, Lee Revell wrote:
-> Is the VIA IRQ fixup related to the "spurious interrupts" messages in
-> any way?  Googling the 2.4 threads on the issue gave me the impression
-> that it's related to broken hardware.  I think excessive disk activity
-> might trigger it.
+On Thu, 14 Apr 2005, Alejandro Bonilla wrote:
 
-If you need the VIA IRQ fixup and don't have it, I would expect
-some interrupt to be routed to the wrong IRQ.  That might give
-you a "spurious interrupt" on the wrong IRQ, but your device would
-probably just not work at all.
+> Hi All,
+> 
+> 	Sorry if this thread has been already discussed or if this is not the right
+> place. I'm looking for a driver developer to make the driver for the IBM
+> Thinkpads Fingerprint reader.
+> 
+> 	I have all the documentation required from the Makers of the hardware, the
+> so called Programming API and Datasheet. Unfortunately I cannot provide you
+> with my hardware ;-) but only with a dedicated ssh connection to my PC and
+> me standing in front of the PC for when you ask me to reboot it cause it
+> locked up.
+> 
+I have a ThinkPad T42 and would be interrested in those docs. If you are 
+allowed to distribute those documents then please make them available 
+somewhere and reply back with the URL.
+
+-- 
+Jesper Juhl
 
 

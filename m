@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVDNGqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVDNGvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVDNGqi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Apr 2005 02:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVDNGqi
+	id S261438AbVDNGvt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Apr 2005 02:51:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVDNGvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Apr 2005 02:46:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59347 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261292AbVDNGqf (ORCPT
+	Thu, 14 Apr 2005 02:51:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40121 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261438AbVDNGvr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Apr 2005 02:46:35 -0400
-Subject: Re: SLEEP_ON_BKLCHECK
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: tsuchiya yoshihiro <yt@labs.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <425DBC76.60804@labs.fujitsu.com>
-References: <425DBC76.60804@labs.fujitsu.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rIT90CNVkA7WDtiOJycy"
-Organization: Red Hat, Inc.
-Date: Thu, 14 Apr 2005 08:46:30 +0200
-Message-Id: <1113461190.6293.1.camel@laptopd505.fenrus.org>
+	Thu, 14 Apr 2005 02:51:47 -0400
+Date: Thu, 14 Apr 2005 08:51:25 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andreas Steinmetz <ast@domdv.de>,
+       rjw@sisk.pl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH encrypted swsusp 1/3] core functionality
+Message-ID: <20050414065124.GA1357@elf.ucw.cz>
+References: <E1DLgWi-0003Ag-00@gondolin.me.apana.org.au> <425D17B0.8070109@domdv.de> <20050413212731.GA27091@gondor.apana.org.au> <425D9D50.9050507@domdv.de> <20050413231044.GA31005@gondor.apana.org.au> <20050413232431.GF27197@elf.ucw.cz> <20050413233904.GA31174@gondor.apana.org.au> <20050413234602.GA10210@elf.ucw.cz> <20050414003506.GQ25554@waste.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050414003506.GQ25554@waste.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-rIT90CNVkA7WDtiOJycy
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > > > > The ssh keys are *encrypted* in the swap when dmcrypt is used.
+> > > > > When the swap runs over dmcrypt all writes including those from
+> > > > > swsusp are encrypted.
+> > > > 
+> > > > Andreas is right. They are encrypted in swap, but they should not be
+> > > > there at all. And they are encrypted by key that is still available
+> > > > after resume. Bad.
+> > > 
+> > > The dmcrypt swap can only be unlocked by the user with a passphrase,
+> > > which is analogous to how you unlock your ssh private key stored
+> > > on the disk using a passphrase.
+> > 
+> > Once more:
+> > 
+> > Andreas' implementation destroys the key during resume.
+> 
+> This solution is all wrong.
+> 
+> If you want security of the suspend image while "suspended", encrypt
+> with dm-crypt. If you want security of the swap image after resume,
+> zero out the portion of swap used. If you want both, do both.
 
-On Thu, 2005-04-14 at 09:42 +0900, tsuchiya yoshihiro wrote:
-> Hi,
-> In Fedora Core3, interruptible_sleep_on() checks if the system is
-> lock_kernel()'ed
-> by SLEEP_ON_BKLCHECK. Same thing is done in RedHatEL4.
-> Also I found a patch including SLEEP_ON_BKLCHECK was posted before,
-> but is not included in 2.6.11.
-> Why SLEEP_ON_BKLCHECK checks lock_kernel ?
+I want security of the swap image, and "just zeroing" is hard to do in
+failed suspend case, see previous discussion.
 
-Because you really need to hold the BKL when you call sleep_on() family
-of APIs, otherwise you have a very big race.
+Andreas, do you think you could write nice, long, FAQ entries so that
+we don't have to go through this discussion over and over?
 
-Also note that you in your code really should not call any of the
-sleep_on() family of functions at all! It is a very very deprecated and
-defective API!!!!
-
-Can you give the URL to the code where you use this in?
-(it is GPL code, right?)
-
-Greetings,
-    Arjan van de Ven
-
---=-rIT90CNVkA7WDtiOJycy
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCXhHGpv2rCoFn+CIRAiEqAJ0Ytc1GdjVgPnr/y89UO/Y758+0OACgjOTn
-/w6lkWTHJDpR5KdA/A2IG8Y=
-=F01x
------END PGP SIGNATURE-----
-
---=-rIT90CNVkA7WDtiOJycy--
-
+								Pavel
+-- 
+Boycott Kodak -- for their patent abuse against Java.
